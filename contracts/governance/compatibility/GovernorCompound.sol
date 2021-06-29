@@ -35,6 +35,24 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
 
     mapping(uint256 => ProposalDetails) internal _proposalDetails;
 
+
+
+    // public for hooking + default: 0
+    function proposalThreshold() public view virtual override returns (uint256) {
+        return 0;
+    }
+
+    // public for hooking
+    function proposalEta(uint256 proposalId) public view virtual override returns (uint256);
+
+    // public for hooking
+    function queue(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt
+    ) public virtual override returns (uint256);
+
     // ============================================== Proposal lifecycle ==============================================
     /**
      * @dev See {IGovernor-propose}.
@@ -71,7 +89,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     /**
      * @dev See {IGovernorCompound-queue}.
      */
-    function queue(uint256 proposalId) external virtual override {
+    function queue(uint256 proposalId) public virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
         queue(details.targets, details.values, _encodeCalldata(details.signatures, details.calldatas), details.salt);
     }
@@ -79,7 +97,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     /**
      * @dev See {IGovernorCompound-execute}.
      */
-    function execute(uint256 proposalId) external payable virtual override {
+    function execute(uint256 proposalId) public payable virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
         execute(details.targets, details.values, _encodeCalldata(details.signatures, details.calldatas), details.salt);
     }
@@ -129,7 +147,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     /**
      * @dev See {IGovernorCompound-proposals}.
      */
-    function proposals(uint256 proposalId) external view virtual override returns (Proposal memory) {
+        function proposals(uint256 proposalId) public view virtual override returns (Proposal memory) {
         Proposal memory result;
         result.id = proposalId;
         result.eta = proposalEta(proposalId);
@@ -158,7 +176,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
      * @dev See {IGovernorCompound-getActions}.
      */
     function getActions(uint256 proposalId)
-        external
+        public
         view
         virtual
         override
@@ -176,16 +194,17 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     /**
      * @dev See {IGovernorCompound-getReceipt}.
      */
-    function getReceipt(uint256 proposalId, address voter) external view virtual override returns (Receipt memory) {
+    function getReceipt(uint256 proposalId, address voter) public view virtual override returns (Receipt memory) {
         return _proposalDetails[proposalId].receipts[voter];
     }
 
     /**
      * @dev See {IGovernorCompound-quorumVotes}.
      */
-    function quorumVotes() external view virtual override returns (uint256) {
+    function quorumVotes() public view virtual override returns (uint256) {
         return quorum(block.number);
     }
+
 
     // ==================================================== Voting ====================================================
     /**

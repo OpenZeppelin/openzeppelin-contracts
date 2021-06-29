@@ -9,7 +9,7 @@ import "../IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract IGovernorCompound is IGovernor {
+interface IGovernorCompound is IGovernor {
     /**
      * @dev Proposal structure from Compound Governor Bravo
      */
@@ -57,12 +57,12 @@ abstract contract IGovernorCompound is IGovernor {
     /**
      * @dev Part of the Governor Bravo's interface.
      */
-    function quorumVotes() external view virtual returns (uint256);
+    function quorumVotes() external view returns (uint256);
 
     /**
      * @dev Part of the Governor Bravo's interface: _"The official record of all proposals ever proposed"_.
      */
-    function proposals(uint256) external view virtual returns (Proposal memory);
+    function proposals(uint256) external view returns (Proposal memory);
 
     /**
      * @dev Part of the Governor Bravo's interface: _"Function used to propose a new proposal"_.
@@ -73,17 +73,17 @@ abstract contract IGovernorCompound is IGovernor {
         string[] memory signatures,
         bytes[] memory calldatas,
         string memory description
-    ) external virtual returns (uint256);
+    ) external returns (uint256);
 
     /**
      * @dev Part of the Governor Bravo's interface: _"Queues a proposal of state succeeded"_.
      */
-    function queue(uint256 proposalId) external virtual;
+    function queue(uint256 proposalId) external;
 
     /**
      * @dev Part of the Governor Bravo's interface: _"Executes a queued proposal if eta has passed"_.
      */
-    function execute(uint256 proposalId) external payable virtual;
+    function execute(uint256 proposalId) external payable;
 
     /**
      * @dev Part of the Governor Bravo's interface: _"Gets actions of a proposal"_.
@@ -91,7 +91,6 @@ abstract contract IGovernorCompound is IGovernor {
     function getActions(uint256 proposalId)
         external
         view
-        virtual
         returns (
             address[] memory targets,
             uint256[] memory values,
@@ -102,12 +101,10 @@ abstract contract IGovernorCompound is IGovernor {
     /**
      * @dev Part of the Governor Bravo's interface: _"Gets the receipt for a voter on a given proposal"_.
      */
-    function getReceipt(uint256 proposalId, address voter) external view virtual returns (Receipt memory);
+    function getReceipt(uint256 proposalId, address voter) external view returns (Receipt memory);
 
     /**
      * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
      */
-    function proposalThreshold() public view virtual returns (uint256) {
-        return 0;
-    }
+    function proposalThreshold() external view returns (uint256);
 }

@@ -59,7 +59,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     /**
      * @dev Public accessor to check the address of the timelock
      */
-    function timelock() public view virtual override returns (address) {
+    function timelock() external view virtual override returns (address) {
         return address(_timelock);
     }
 
@@ -133,7 +133,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
      * @dev Public endpoint to update the underlying timelock instance. Restricted to the timelock itself, so updates
      * must be proposed, scheduled and executed using the {Governor} workflow.
      */
-    function updateTimelock(address newTimelock) public virtual {
+    function updateTimelock(address newTimelock) external virtual {
         require(msg.sender == address(_timelock), "GovernorTimelockExternal: caller must be timelock");
         _updateTimelock(newTimelock);
     }

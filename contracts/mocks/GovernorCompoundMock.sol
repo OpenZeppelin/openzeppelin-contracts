@@ -23,6 +23,10 @@ contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, Gov
         return 1;
     }
 
+    function proposalEta(uint256 proposalId) public view virtual override(GovernorCompound, GovernorTimelockCompound) returns (uint256) {
+        return super.proposalEta(proposalId);
+    }
+
     function propose(
         address[] memory targets,
         uint256[] memory values,
@@ -30,6 +34,15 @@ contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, Gov
         string memory description
     ) public virtual override(IGovernor, GovernorCompound) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
+    }
+
+    function queue(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt
+    ) public virtual override(GovernorCompound, GovernorTimelockCompound) returns (uint256) {
+        return super.queue(targets, values, calldatas, salt);
     }
 
     function cancel(

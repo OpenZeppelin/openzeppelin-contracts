@@ -128,7 +128,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Public accessor to check the address of the timelock
      */
-    function timelock() public view virtual override returns (address) {
+    function timelock() external view virtual override returns (address) {
         return address(_timelock);
     }
 
