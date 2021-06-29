@@ -9,7 +9,7 @@ const {
   runGovernorWorkflow,
 } = require('./GovernorWorkflow.behavior');
 const {
-  shouldSupportInterfaces
+  shouldSupportInterfaces,
 } = require('../utils/introspection/SupportsInterface.behavior');
 
 const Token = artifacts.require('ERC20VotesMock');
