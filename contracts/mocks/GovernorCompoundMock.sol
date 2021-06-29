@@ -23,7 +23,13 @@ contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, Gov
         return 1;
     }
 
-    function proposalEta(uint256 proposalId) public view virtual override(GovernorCompound, GovernorTimelockCompound) returns (uint256) {
+    function proposalEta(uint256 proposalId)
+        public
+        view
+        virtual
+        override(GovernorCompound, GovernorTimelockCompound)
+        returns (uint256)
+    {
         return super.proposalEta(proposalId);
     }
 

@@ -13,7 +13,13 @@ contract GovernorTimelockExternalMock is GovernorTimelockExternal, GovernorWithE
         address timelock_
     ) Governor(name_) GovernorTimelockExternal(timelock_) GovernorWithERC20Votes(token_) {}
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, Governor, GovernorTimelockExternal) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(IERC165, Governor, GovernorTimelockExternal)
+        returns (bool)
+    {
         return super.supportsInterface(interfaceId);
     }
 

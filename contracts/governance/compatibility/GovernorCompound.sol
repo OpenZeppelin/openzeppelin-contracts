@@ -35,8 +35,6 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
 
     mapping(uint256 => ProposalDetails) internal _proposalDetails;
 
-
-
     // public for hooking + default: 0
     function proposalThreshold() public view virtual override returns (uint256) {
         return 0;
@@ -147,7 +145,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     /**
      * @dev See {IGovernorCompound-proposals}.
      */
-        function proposals(uint256 proposalId) public view virtual override returns (Proposal memory) {
+    function proposals(uint256 proposalId) public view virtual override returns (Proposal memory) {
         Proposal memory result;
         result.id = proposalId;
         result.eta = proposalEta(proposalId);
@@ -204,7 +202,6 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     function quorumVotes() public view virtual override returns (uint256) {
         return quorum(block.number);
     }
-
 
     // ==================================================== Voting ====================================================
     /**

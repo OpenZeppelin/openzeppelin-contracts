@@ -57,7 +57,7 @@ interface IGovernor is IERC165 {
      * @notice module:core
      * @dev Name of the governor instance (used in building the ERC712 domain separator).
      */
-    function name() external view  returns (string memory);
+    function name() external view returns (string memory);
 
     /**
      * @notice module:core
