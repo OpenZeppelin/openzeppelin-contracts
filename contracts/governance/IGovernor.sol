@@ -74,7 +74,7 @@ interface IGovernor is IERC165 {
         uint256[] calldata values,
         bytes[] calldata calldatas,
         bytes32 descriptionHash
-    ) external view returns (uint256);
+    ) external pure returns (uint256);
 
     /**
      * @notice module:core

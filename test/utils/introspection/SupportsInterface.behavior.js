@@ -68,6 +68,11 @@ const INTERFACES = {
     'castVoteWithReason(uint256,uint8,string)',
     'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
   ],
+  GovernorTimelock: [
+    'timelock()',
+    'proposalEta(uint256)',
+    'queue(address[],uint256[],bytes[],bytes32)',
+  ],
 };
 
 const INTERFACE_IDS = {};

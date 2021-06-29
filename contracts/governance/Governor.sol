@@ -46,33 +46,33 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @dev Name of the governor instance (used in building the ERC712 domain separator).
+     * @dev See {IGovernor-name}.
      */
     function name() public view virtual override returns (string memory) {
         return _name;
     }
 
     /**
-     * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
+     * @dev See {IGovernor-vestion}.
      */
     function version() public view virtual override returns (string memory) {
         return "1";
     }
 
     /**
-     * @dev Hashing function used to (re)build the proposal id from the proposal details..
+     * @dev See {IGovernor-hashProposal}.
      */
     function hashProposal(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public view virtual override returns (uint256) {
+    ) public pure virtual override returns (uint256) {
         return uint256(keccak256(abi.encode(targets, values, calldatas, descriptionHash)));
     }
 
     /**
-     * @dev See {IGovernor-version}.
+     * @dev See {IGovernor-state}.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalCore memory proposal = _proposals[proposalId];

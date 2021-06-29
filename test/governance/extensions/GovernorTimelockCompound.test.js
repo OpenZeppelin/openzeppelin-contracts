@@ -7,6 +7,10 @@ const {
   runGovernorWorkflow,
 } = require('../GovernorWorkflow.behavior');
 
+const {
+  shouldSupportInterfaces,
+} = require('../../utils/introspection/SupportsInterface.behavior');
+
 const Token = artifacts.require('ERC20VotesMock');
 const Timelock = artifacts.require('CompTimelock');
 const Governance = artifacts.require('GovernorTimelockCompoundMock');
@@ -40,6 +44,12 @@ contract('GovernorTimelockCompound', function (accounts) {
     await this.token.mint(voter, tokenSupply);
     await this.token.delegate(voter, { from: voter });
   });
+
+  shouldSupportInterfaces([
+    'ERC165',
+    'Governor',
+    'GovernorTimelock',
+  ]);
 
   it('post deployment check', async function () {
     expect(await this.mock.name()).to.be.equal(name);

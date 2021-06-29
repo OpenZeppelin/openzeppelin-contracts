@@ -8,6 +8,7 @@ const { fromRpcSig } = require('ethereumjs-util');
 const {
   runGovernorWorkflow,
 } = require('./GovernorWorkflow.behavior');
+
 const {
   shouldSupportInterfaces,
 } = require('../utils/introspection/SupportsInterface.behavior');

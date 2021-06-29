@@ -34,6 +34,13 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     }
 
     /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, Governor) returns (bool) {
+        return interfaceId == type(IGovernorTimelock).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
      * @dev Overriden version of the {Governor-state} function with added support for the `Queued` status.
      */
     function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
