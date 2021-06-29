@@ -52,7 +52,7 @@ contract('GovernorCompound', function (accounts) {
     const predictGovernance = makeContractAddress(deployer, nonce + 1);
 
     this.timelock = await Timelock.new(predictGovernance, 2 * 86400);
-    this.governor = await Governance.new(name, this.token.address, this.timelock.address);
+    this.mock = await Governance.new(name, this.token.address, this.timelock.address);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
@@ -62,12 +62,12 @@ contract('GovernorCompound', function (accounts) {
   });
 
   it('deployment check', async function () {
-    expect(await this.governor.name()).to.be.equal(name);
-    expect(await this.governor.token()).to.be.equal(this.token.address);
-    expect(await this.governor.votingDelay()).to.be.bignumber.equal('0');
-    expect(await this.governor.votingPeriod()).to.be.bignumber.equal('16');
-    expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
-    expect(await this.governor.quorumVotes()).to.be.bignumber.equal('1');
+    expect(await this.mock.name()).to.be.equal(name);
+    expect(await this.mock.token()).to.be.equal(this.token.address);
+    expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
+    expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
+    expect(await this.mock.quorum(0)).to.be.bignumber.equal('1');
+    expect(await this.mock.quorumVotes()).to.be.bignumber.equal('1');
   });
 
   describe('nominal', function () {
@@ -113,12 +113,12 @@ contract('GovernorCompound', function (accounts) {
           queue: { delay: 7 * 86400 },
         },
       };
-      this.votingDelay = await this.governor.votingDelay();
-      this.votingPeriod = await this.governor.votingPeriod();
+      this.votingDelay = await this.mock.votingDelay();
+      this.votingPeriod = await this.mock.votingPeriod();
       this.receipts = {};
     });
     afterEach(async function () {
-      const proposal = await this.governor.proposals(this.id);
+      const proposal = await this.mock.proposals(this.id);
       expect(proposal.id).to.be.bignumber.equal(this.id);
       expect(proposal.proposer).to.be.equal(proposer);
       expect(proposal.eta).to.be.bignumber.equal(this.eta);
@@ -140,16 +140,16 @@ contract('GovernorCompound', function (accounts) {
         );
       }
 
-      const action = await this.governor.getActions(this.id);
+      const action = await this.mock.getActions(this.id);
       expect(action.targets).to.be.deep.equal(this.settings.proposal[0]);
       // expect(action.values).to.be.deep.equal(this.settings.proposal[1]);
       expect(action.signatures).to.be.deep.equal(Array(this.settings.proposal[2].length).fill(''));
       expect(action.calldatas).to.be.deep.equal(this.settings.proposal[2]);
 
       for (const voter of this.settings.voters.filter(({ skip }) => !skip)) {
-        expect(await this.governor.hasVoted(this.id, voter.voter)).to.be.equal(voter.error === undefined);
+        expect(await this.mock.hasVoted(this.id, voter.voter)).to.be.equal(voter.error === undefined);
 
-        const receipt = await this.governor.getReceipt(this.id, voter.voter);
+        const receipt = await this.mock.getReceipt(this.id, voter.voter);
         expect(receipt.hasVoted).to.be.equal(voter.error === undefined);
         expect(receipt.support).to.be.bignumber.equal(voter.error === undefined ? voter.support : '0');
         expect(receipt.votes).to.be.bignumber.equal(voter.error === undefined ? voter.weight : '0');
@@ -237,13 +237,13 @@ contract('GovernorCompound', function (accounts) {
           queue: { delay: 7 * 86400 },
         },
       };
-      this.votingDelay = await this.governor.votingDelay();
-      this.votingPeriod = await this.governor.votingPeriod();
+      this.votingDelay = await this.mock.votingDelay();
+      this.votingPeriod = await this.mock.votingPeriod();
       this.receipts = {};
     });
 
     afterEach(async function () {
-      const proposal = await this.governor.proposals(this.id);
+      const proposal = await this.mock.proposals(this.id);
       expect(proposal.id).to.be.bignumber.equal(this.id);
       expect(proposal.proposer).to.be.equal(proposer);
       expect(proposal.eta).to.be.bignumber.equal(this.eta);
@@ -265,16 +265,16 @@ contract('GovernorCompound', function (accounts) {
         );
       }
 
-      const action = await this.governor.getActions(this.id);
+      const action = await this.mock.getActions(this.id);
       expect(action.targets).to.be.deep.equal(this.settings.proposal[0]);
       // expect(action.values).to.be.deep.equal(this.settings.proposal[1]);
       expect(action.signatures).to.be.deep.equal(this.settings.proposal[2]);
       expect(action.calldatas).to.be.deep.equal(this.settings.proposal[3]);
 
       for (const voter of this.settings.voters.filter(({ skip }) => !skip)) {
-        expect(await this.governor.hasVoted(this.id, voter.voter)).to.be.equal(voter.error === undefined);
+        expect(await this.mock.hasVoted(this.id, voter.voter)).to.be.equal(voter.error === undefined);
 
-        const receipt = await this.governor.getReceipt(this.id, voter.voter);
+        const receipt = await this.mock.getReceipt(this.id, voter.voter);
         expect(receipt.hasVoted).to.be.equal(voter.error === undefined);
         expect(receipt.support).to.be.bignumber.equal(voter.error === undefined ? voter.support : '0');
         expect(receipt.votes).to.be.bignumber.equal(voter.error === undefined ? voter.weight : '0');
@@ -327,9 +327,9 @@ contract('GovernorCompound', function (accounts) {
       }
 
       // propose
-      if (this.governor.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
+      if (this.mock.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
         this.receipts.propose = await getReceiptOrRevert(
-          this.governor.methods['propose(address[],uint256[],string[],bytes[],string)'](
+          this.mock.methods['propose(address[],uint256[],string[],bytes[],string)'](
             ...this.settings.proposal,
             { from: this.settings.proposer },
           ),
@@ -338,8 +338,8 @@ contract('GovernorCompound', function (accounts) {
 
         if (tryGet(this.settings, 'steps.propose.error') === undefined) {
           this.id = this.receipts.propose.logs.find(({ event }) => event === 'ProposalCreated').args.proposalId;
-          this.snapshot = await this.governor.proposalSnapshot(this.id);
-          this.deadline = await this.governor.proposalDeadline(this.id);
+          this.snapshot = await this.mock.proposalSnapshot(this.id);
+          this.deadline = await this.mock.proposalDeadline(this.id);
         }
 
         if (tryGet(this.settings, 'steps.propose.delay')) {
@@ -354,7 +354,7 @@ contract('GovernorCompound', function (accounts) {
           if (!voter.signature) {
             this.receipts.castVote.push(
               await getReceiptOrRevert(
-                this.governor.castVote(this.id, voter.support, { from: voter.voter }),
+                this.mock.castVote(this.id, voter.support, { from: voter.voter }),
                 voter.error,
               ),
             );
@@ -362,7 +362,7 @@ contract('GovernorCompound', function (accounts) {
             const { v, r, s } = await voter.signature({ proposalId: this.id, support: voter.support });
             this.receipts.castVote.push(
               await getReceiptOrRevert(
-                this.governor.castVoteBySig(this.id, voter.support, v, r, s),
+                this.mock.castVoteBySig(this.id, voter.support, v, r, s),
                 voter.error,
               ),
             );
@@ -379,21 +379,21 @@ contract('GovernorCompound', function (accounts) {
       }
 
       // queue
-      if (this.governor.queue && tryGet(this.settings, 'steps.queue.enable') !== false) {
+      if (this.mock.queue && tryGet(this.settings, 'steps.queue.enable') !== false) {
         this.receipts.queue = await getReceiptOrRevert(
-          this.governor.methods['queue(uint256)'](this.id, { from: this.settings.queuer }),
+          this.mock.methods['queue(uint256)'](this.id, { from: this.settings.queuer }),
           tryGet(this.settings, 'steps.queue.error'),
         );
-        this.eta = await this.governor.proposalEta(this.id);
+        this.eta = await this.mock.proposalEta(this.id);
         if (tryGet(this.settings, 'steps.queue.delay')) {
           await time.increase(tryGet(this.settings, 'steps.queue.delay'));
         }
       }
 
       // execute
-      if (this.governor.execute && tryGet(this.settings, 'steps.execute.enable') !== false) {
+      if (this.mock.execute && tryGet(this.settings, 'steps.execute.enable') !== false) {
         this.receipts.execute = await getReceiptOrRevert(
-          this.governor.methods['execute(uint256)'](this.id, { from: this.settings.executer }),
+          this.mock.methods['execute(uint256)'](this.id, { from: this.settings.executer }),
           tryGet(this.settings, 'steps.execute.error'),
         );
         if (tryGet(this.settings, 'steps.execute.delay')) {

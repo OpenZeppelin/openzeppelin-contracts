@@ -48,14 +48,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     /**
      * @dev Name of the governor instance (used in building the ERC712 domain separator).
      */
-    function name() public view virtual returns (string memory) {
+    function name() public view virtual override returns (string memory) {
         return _name;
     }
 
     /**
      * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
      */
-    function version() public view virtual returns (string memory) {
+    function version() public view virtual override returns (string memory) {
         return "1";
     }
 
@@ -67,7 +67,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public view virtual returns (uint256) {
+    ) public view virtual override returns (uint256) {
         return uint256(keccak256(abi.encode(targets, values, calldatas, descriptionHash)));
     }
 

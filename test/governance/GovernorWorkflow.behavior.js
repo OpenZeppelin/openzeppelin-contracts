@@ -22,7 +22,7 @@ function runGovernorWorkflow () {
   beforeEach(async function () {
     this.receipts = {};
     this.salt = web3.utils.keccak256(this.settings.proposal.slice(-1).find(Boolean));
-    this.id = await this.governor.hashProposal(...this.settings.proposal.slice(0, -1), this.salt);
+    this.id = await this.mock.hashProposal(...this.settings.proposal.slice(0, -1), this.salt);
   });
 
   it('run', async function () {
@@ -36,9 +36,9 @@ function runGovernorWorkflow () {
     }
 
     // propose
-    if (this.governor.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
+    if (this.mock.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
       this.receipts.propose = await getReceiptOrRevert(
-        this.governor.methods['propose(address[],uint256[],bytes[],string)'](
+        this.mock.methods['propose(address[],uint256[],bytes[],string)'](
           ...this.settings.proposal,
           { from: this.settings.proposer },
         ),
@@ -46,8 +46,8 @@ function runGovernorWorkflow () {
       );
 
       if (tryGet(this.settings, 'steps.propose.error') === undefined) {
-        this.deadline = await this.governor.proposalDeadline(this.id);
-        this.snapshot = await this.governor.proposalSnapshot(this.id);
+        this.deadline = await this.mock.proposalDeadline(this.id);
+        this.snapshot = await this.mock.proposalSnapshot(this.id);
       }
 
       if (tryGet(this.settings, 'steps.propose.delay')) {
@@ -63,8 +63,8 @@ function runGovernorWorkflow () {
           this.receipts.castVote.push(
             await getReceiptOrRevert(
               voter.reason
-                ? this.governor.castVoteWithReason(this.id, voter.support, voter.reason, { from: voter.voter })
-                : this.governor.castVote(this.id, voter.support, { from: voter.voter }),
+                ? this.mock.castVoteWithReason(this.id, voter.support, voter.reason, { from: voter.voter })
+                : this.mock.castVote(this.id, voter.support, { from: voter.voter }),
               voter.error,
             ),
           );
@@ -72,7 +72,7 @@ function runGovernorWorkflow () {
           const { v, r, s } = await voter.signature({ proposalId: this.id, support: voter.support });
           this.receipts.castVote.push(
             await getReceiptOrRevert(
-              this.governor.castVoteBySig(this.id, voter.support, v, r, s),
+              this.mock.castVoteBySig(this.id, voter.support, v, r, s),
               voter.error,
             ),
           );
@@ -89,25 +89,25 @@ function runGovernorWorkflow () {
     }
 
     // queue
-    if (this.governor.queue && tryGet(this.settings, 'steps.queue.enable') !== false) {
+    if (this.mock.queue && tryGet(this.settings, 'steps.queue.enable') !== false) {
       this.receipts.queue = await getReceiptOrRevert(
-        this.governor.methods['queue(address[],uint256[],bytes[],bytes32)'](
+        this.mock.methods['queue(address[],uint256[],bytes[],bytes32)'](
           ...this.settings.proposal.slice(0, -1),
           this.salt,
           { from: this.settings.queuer },
         ),
         tryGet(this.settings, 'steps.queue.error'),
       );
-      this.eta = await this.governor.proposalEta(this.id);
+      this.eta = await this.mock.proposalEta(this.id);
       if (tryGet(this.settings, 'steps.queue.delay')) {
         await time.increase(tryGet(this.settings, 'steps.queue.delay'));
       }
     }
 
     // execute
-    if (this.governor.execute && tryGet(this.settings, 'steps.execute.enable') !== false) {
+    if (this.mock.execute && tryGet(this.settings, 'steps.execute.enable') !== false) {
       this.receipts.execute = await getReceiptOrRevert(
-        this.governor.methods['execute(address[],uint256[],bytes[],bytes32)'](
+        this.mock.methods['execute(address[],uint256[],bytes[],bytes32)'](
           ...this.settings.proposal.slice(0, -1),
           this.salt,
           { from: this.settings.executer },

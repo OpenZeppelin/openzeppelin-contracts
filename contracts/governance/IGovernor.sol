@@ -55,6 +55,29 @@ interface IGovernor is IERC165 {
 
     /**
      * @notice module:core
+     * @dev Name of the governor instance (used in building the ERC712 domain separator).
+     */
+    function name() external view  returns (string memory);
+
+    /**
+     * @notice module:core
+     * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
+     */
+    function version() external view returns (string memory);
+
+    /**
+     * @notice module:core
+     * @dev Hashing function used to (re)build the proposal id from the proposal details..
+     */
+    function hashProposal(
+        address[] calldata targets,
+        uint256[] calldata values,
+        bytes[] calldata calldatas,
+        bytes32 descriptionHash
+    ) external view returns (uint256);
+
+    /**
+     * @notice module:core
      * @dev Current state of a proposal, following Compound's convention
      */
     function state(uint256 proposalId) external view returns (ProposalState);

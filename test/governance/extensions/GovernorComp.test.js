@@ -21,7 +21,7 @@ contract('Governance', function (accounts) {
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.governor = await Governance.new(name, this.token.address);
+    this.mock = await Governance.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
@@ -31,11 +31,11 @@ contract('Governance', function (accounts) {
   });
 
   it('deployment check', async function () {
-    expect(await this.governor.name()).to.be.equal(name);
-    expect(await this.governor.token()).to.be.equal(this.token.address);
-    expect(await this.governor.votingDelay()).to.be.bignumber.equal('0');
-    expect(await this.governor.votingPeriod()).to.be.bignumber.equal('16');
-    expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
+    expect(await this.mock.name()).to.be.equal(name);
+    expect(await this.mock.token()).to.be.equal(this.token.address);
+    expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
+    expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
+    expect(await this.mock.quorum(0)).to.be.bignumber.equal('1');
   });
 
   describe('voting with comp token', function () {
@@ -57,11 +57,11 @@ contract('Governance', function (accounts) {
       };
     });
     afterEach(async function () {
-      expect(await this.governor.hasVoted(this.id, owner)).to.be.equal(false);
-      expect(await this.governor.hasVoted(this.id, voter1)).to.be.equal(true);
-      expect(await this.governor.hasVoted(this.id, voter2)).to.be.equal(true);
-      expect(await this.governor.hasVoted(this.id, voter3)).to.be.equal(true);
-      expect(await this.governor.hasVoted(this.id, voter4)).to.be.equal(true);
+      expect(await this.mock.hasVoted(this.id, owner)).to.be.equal(false);
+      expect(await this.mock.hasVoted(this.id, voter1)).to.be.equal(true);
+      expect(await this.mock.hasVoted(this.id, voter2)).to.be.equal(true);
+      expect(await this.mock.hasVoted(this.id, voter3)).to.be.equal(true);
+      expect(await this.mock.hasVoted(this.id, voter4)).to.be.equal(true);
 
       this.receipts.castVote.filter(Boolean).forEach(vote => {
         const { voter } = vote.logs.find(Boolean).args;
@@ -71,7 +71,7 @@ contract('Governance', function (accounts) {
           this.settings.voters.find(({ address }) => address === voter),
         );
       });
-      await this.governor.proposalVotes(this.id).then(result => {
+      await this.mock.proposalVotes(this.id).then(result => {
         for (const [key, value] of Object.entries(Enums.VoteType)) {
           expect(result[`${key.toLowerCase()}Votes`]).to.be.bignumber.equal(
             Object.values(this.settings.voters).filter(({ support }) => support === value).reduce(

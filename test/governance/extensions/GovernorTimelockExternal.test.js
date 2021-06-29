@@ -25,10 +25,10 @@ contract('GovernorTimelockExternal', function (accounts) {
 
     this.token = await Token.new(tokenName, tokenSymbol);
     this.timelock = await Timelock.new(3600, [], []);
-    this.governor = await Governance.new(name, this.token.address, this.timelock.address);
+    this.mock = await Governance.new(name, this.token.address, this.timelock.address);
     this.receiver = await CallReceiver.new();
     // normal setup: governor is proposer, everyone is executor, timelock is its own admin
-    await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), this.governor.address);
+    await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), this.mock.address);
     await this.timelock.grantRole(await this.timelock.EXECUTOR_ROLE(), constants.ZERO_ADDRESS);
     await this.timelock.revokeRole(await this.timelock.TIMELOCK_ADMIN_ROLE(), deployer);
     await this.token.mint(voter, tokenSupply);
@@ -36,13 +36,13 @@ contract('GovernorTimelockExternal', function (accounts) {
   });
 
   it('post deployment check', async function () {
-    expect(await this.governor.name()).to.be.equal(name);
-    expect(await this.governor.token()).to.be.equal(this.token.address);
-    expect(await this.governor.votingDelay()).to.be.bignumber.equal('0');
-    expect(await this.governor.votingPeriod()).to.be.bignumber.equal('16');
-    expect(await this.governor.quorum(0)).to.be.bignumber.equal('1');
+    expect(await this.mock.name()).to.be.equal(name);
+    expect(await this.mock.token()).to.be.equal(this.token.address);
+    expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
+    expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
+    expect(await this.mock.quorum(0)).to.be.bignumber.equal('1');
 
-    expect(await this.governor.timelock()).to.be.equal(this.timelock.address);
+    expect(await this.mock.timelock()).to.be.equal(this.timelock.address);
   });
 
   describe('nominal', function () {
@@ -124,7 +124,7 @@ contract('GovernorTimelockExternal', function (accounts) {
       };
     });
     afterEach(async function () {
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
     });
     runGovernorWorkflow();
   });
@@ -147,7 +147,7 @@ contract('GovernorTimelockExternal', function (accounts) {
       };
     });
     afterEach(async function () {
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
     });
     runGovernorWorkflow();
   });
@@ -170,14 +170,14 @@ contract('GovernorTimelockExternal', function (accounts) {
       };
     });
     afterEach(async function () {
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
 
       await expectRevert(
-        this.governor.queue(...this.settings.proposal.slice(0, -1), this.salt),
+        this.mock.queue(...this.settings.proposal.slice(0, -1), this.salt),
         'Governance: proposal not successfull',
       );
       await expectRevert(
-        this.governor.execute(...this.settings.proposal.slice(0, -1), this.salt),
+        this.mock.execute(...this.settings.proposal.slice(0, -1), this.salt),
         'TimelockController: operation is not ready',
       );
     });
@@ -203,18 +203,18 @@ contract('GovernorTimelockExternal', function (accounts) {
       };
     });
     afterEach(async function () {
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
       expectEvent(
-        await this.governor.cancel(...this.settings.proposal.slice(0, -1), this.salt),
+        await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.salt),
         'ProposalCanceled',
         { proposalId: this.id },
       );
 
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await expectRevert(
-        this.governor.queue(...this.settings.proposal.slice(0, -1), this.salt),
+        this.mock.queue(...this.settings.proposal.slice(0, -1), this.salt),
         'Governance: proposal not successfull',
       );
     });
@@ -246,9 +246,9 @@ contract('GovernorTimelockExternal', function (accounts) {
         this.salt,
       );
 
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
 
-      const receipt = await this.governor.cancel(...this.settings.proposal.slice(0, -1), this.salt);
+      const receipt = await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.salt);
       expectEvent(
         receipt,
         'ProposalCanceled',
@@ -261,10 +261,10 @@ contract('GovernorTimelockExternal', function (accounts) {
         { id: timelockid },
       );
 
-      expect(await this.governor.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await expectRevert(
-        this.governor.execute(...this.settings.proposal.slice(0, -1), this.salt),
+        this.mock.execute(...this.settings.proposal.slice(0, -1), this.salt),
         'TimelockController: operation is not ready',
       );
     });
@@ -278,7 +278,7 @@ contract('GovernorTimelockExternal', function (accounts) {
 
     it('protected', async function () {
       await expectRevert(
-        this.governor.updateTimelock(this.newTimelock.address),
+        this.mock.updateTimelock(this.newTimelock.address),
         'GovernorTimelockExternal: caller must be timelock',
       );
     });
@@ -287,9 +287,9 @@ contract('GovernorTimelockExternal', function (accounts) {
       beforeEach(async function () {
         this.settings = {
           proposal: [
-            [ this.governor.address ],
+            [ this.mock.address ],
             [ web3.utils.toWei('0') ],
-            [ this.governor.contract.methods.updateTimelock(this.newTimelock.address).encodeABI() ],
+            [ this.mock.contract.methods.updateTimelock(this.newTimelock.address).encodeABI() ],
             '<proposal description>',
           ],
           voters: [
@@ -316,7 +316,7 @@ contract('GovernorTimelockExternal', function (accounts) {
           'TimelockChange',
           { oldTimelock: this.timelock.address, newTimelock: this.newTimelock.address },
         );
-        expect(await this.governor.timelock()).to.be.bignumber.equal(this.newTimelock.address);
+        expect(await this.mock.timelock()).to.be.bignumber.equal(this.newTimelock.address);
       });
       runGovernorWorkflow();
     });
