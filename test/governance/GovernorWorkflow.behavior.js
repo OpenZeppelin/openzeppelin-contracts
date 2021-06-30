@@ -21,8 +21,8 @@ function tryGet (obj, path = '') {
 function runGovernorWorkflow () {
   beforeEach(async function () {
     this.receipts = {};
-    this.salt = web3.utils.keccak256(this.settings.proposal.slice(-1).find(Boolean));
-    this.id = await this.mock.hashProposal(...this.settings.proposal.slice(0, -1), this.salt);
+    this.descriptionHash = web3.utils.keccak256(this.settings.proposal.slice(-1).find(Boolean));
+    this.id = await this.mock.hashProposal(...this.settings.proposal.slice(0, -1), this.descriptionHash);
   });
 
   it('run', async function () {
@@ -93,7 +93,7 @@ function runGovernorWorkflow () {
       this.receipts.queue = await getReceiptOrRevert(
         this.mock.methods['queue(address[],uint256[],bytes[],bytes32)'](
           ...this.settings.proposal.slice(0, -1),
-          this.salt,
+          this.descriptionHash,
           { from: this.settings.queuer },
         ),
         tryGet(this.settings, 'steps.queue.error'),
@@ -109,7 +109,7 @@ function runGovernorWorkflow () {
       this.receipts.execute = await getReceiptOrRevert(
         this.mock.methods['execute(address[],uint256[],bytes[],bytes32)'](
           ...this.settings.proposal.slice(0, -1),
-          this.salt,
+          this.descriptionHash,
           { from: this.settings.executer },
         ),
         tryGet(this.settings, 'steps.execute.error'),

@@ -591,7 +591,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async function () {
         await expectRevert(
-          this.mock.cancel(...this.settings.proposal.slice(0, -1), this.salt),
+          this.mock.cancel(...this.settings.proposal.slice(0, -1), this.descriptionHash),
           'Governor::state: invalid proposal id',
         );
       });
@@ -614,7 +614,7 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async function () {
-        await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.salt);
+        await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.descriptionHash);
         expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
         await expectRevert(
@@ -645,11 +645,11 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async function () {
-        await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.salt);
+        await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.descriptionHash);
         expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
         await expectRevert(
-          this.mock.execute(...this.settings.proposal.slice(0, -1), this.salt),
+          this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
           'Governance: proposal not successfull',
         );
       });
@@ -675,11 +675,11 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async function () {
-        await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.salt);
+        await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.descriptionHash);
         expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
         await expectRevert(
-          this.mock.execute(...this.settings.proposal.slice(0, -1), this.salt),
+          this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
           'Governance: proposal not successfull',
         );
       });
@@ -703,7 +703,7 @@ contract('Governance', function (accounts) {
       });
       afterEach(async function () {
         await expectRevert(
-          this.mock.cancel(...this.settings.proposal.slice(0, -1), this.salt),
+          this.mock.cancel(...this.settings.proposal.slice(0, -1), this.descriptionHash),
           'Governance: proposal not active',
         );
       });

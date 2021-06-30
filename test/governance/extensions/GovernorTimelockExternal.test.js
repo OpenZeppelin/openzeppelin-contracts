@@ -76,7 +76,7 @@ contract('GovernorTimelockExternal', function (accounts) {
       const timelockid = await this.timelock.hashOperationBatch(
         ...this.settings.proposal.slice(0, 3),
         '0x0',
-        this.salt,
+        this.descriptionHash,
       );
 
       expectEvent(
@@ -183,11 +183,11 @@ contract('GovernorTimelockExternal', function (accounts) {
       expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
 
       await expectRevert(
-        this.mock.queue(...this.settings.proposal.slice(0, -1), this.salt),
+        this.mock.queue(...this.settings.proposal.slice(0, -1), this.descriptionHash),
         'Governance: proposal not successfull',
       );
       await expectRevert(
-        this.mock.execute(...this.settings.proposal.slice(0, -1), this.salt),
+        this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
         'TimelockController: operation is not ready',
       );
     });
@@ -216,7 +216,7 @@ contract('GovernorTimelockExternal', function (accounts) {
       expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
       expectEvent(
-        await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.salt),
+        await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.descriptionHash),
         'ProposalCanceled',
         { proposalId: this.id },
       );
@@ -224,7 +224,7 @@ contract('GovernorTimelockExternal', function (accounts) {
       expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await expectRevert(
-        this.mock.queue(...this.settings.proposal.slice(0, -1), this.salt),
+        this.mock.queue(...this.settings.proposal.slice(0, -1), this.descriptionHash),
         'Governance: proposal not successfull',
       );
     });
@@ -253,12 +253,12 @@ contract('GovernorTimelockExternal', function (accounts) {
       const timelockid = await this.timelock.hashOperationBatch(
         ...this.settings.proposal.slice(0, 3),
         '0x0',
-        this.salt,
+        this.descriptionHash,
       );
 
       expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
 
-      const receipt = await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.salt);
+      const receipt = await this.mock.cancel(...this.settings.proposal.slice(0, -1), this.descriptionHash);
       expectEvent(
         receipt,
         'ProposalCanceled',
@@ -274,7 +274,7 @@ contract('GovernorTimelockExternal', function (accounts) {
       expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await expectRevert(
-        this.mock.execute(...this.settings.proposal.slice(0, -1), this.salt),
+        this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
         'TimelockController: operation is not ready',
       );
     });
