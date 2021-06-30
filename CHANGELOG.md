@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.2.0 (2021-06-30)
 
  * `ERC20Votes`: add a new extension of the `ERC20` token with support for voting snapshots and delegation. ([#2632](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2632))
  * `ERC20VotesComp`: Variant of `ERC20Votes` that is compatible with Compound's `Comp` token interface but restricts supply to `uint96`. ([#2706](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2706))
