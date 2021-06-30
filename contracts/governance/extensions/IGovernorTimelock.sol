@@ -20,6 +20,6 @@ interface IGovernorTimelock is IGovernor {
         address[] calldata targets,
         uint256[] calldata values,
         bytes[] calldata calldatas,
-        bytes32 salt
+        bytes32 descriptionHash
     ) external returns (uint256 proposalId);
 }

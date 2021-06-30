@@ -30,7 +30,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         uint256 againstVotes;
         uint256 abstainVotes;
         mapping(address => Receipt) receipts;
-        bytes32 salt;
+        bytes32 descriptionHash;
     }
 
     mapping(uint256 => ProposalDetails) internal _proposalDetails;
@@ -48,7 +48,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
+        bytes32 descriptionHash
     ) public virtual override returns (uint256);
 
     // ============================================== Proposal lifecycle ==============================================
@@ -89,7 +89,12 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
      */
     function queue(uint256 proposalId) public virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
-        queue(details.targets, details.values, _encodeCalldata(details.signatures, details.calldatas), details.salt);
+        queue(
+            details.targets,
+            details.values,
+            _encodeCalldata(details.signatures, details.calldatas),
+            details.descriptionHash
+        );
     }
 
     /**
@@ -97,7 +102,12 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
      */
     function execute(uint256 proposalId) public payable virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
-        execute(details.targets, details.values, _encodeCalldata(details.signatures, details.calldatas), details.salt);
+        execute(
+            details.targets,
+            details.values,
+            _encodeCalldata(details.signatures, details.calldatas),
+            details.descriptionHash
+        );
     }
 
     /**
@@ -138,7 +148,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         details.values = values;
         details.signatures = signatures;
         details.calldatas = calldatas;
-        details.salt = keccak256(bytes(description));
+        details.descriptionHash = keccak256(bytes(description));
     }
 
     // ==================================================== Views =====================================================

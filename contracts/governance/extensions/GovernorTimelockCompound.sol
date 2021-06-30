@@ -146,9 +146,9 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
+        bytes32 descriptionHash
     ) public virtual override returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         require(state(proposalId) == ProposalState.Succeeded, "Governance: proposal not successfull");
 
@@ -174,9 +174,9 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
+        bytes32 descriptionHash
     ) public payable virtual override(IGovernor, Governor) returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, salt);
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         Address.sendValue(payable(_timelock), msg.value);
 
         uint256 eta = proposalEta(proposalId);
@@ -199,9 +199,9 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
+        bytes32 descriptionHash
     ) internal virtual override returns (uint256) {
-        uint256 proposalId = super._cancel(targets, values, calldatas, salt);
+        uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
 
         uint256 eta = proposalEta(proposalId);
         if (eta > 0) {
