@@ -4,8 +4,7 @@ const { expect } = require('chai');
 const ERC20VotesMock = artifacts.require('ERC20VotesMock');
 const VestingWallet = artifacts.require('VestingWallet');
 
-const min = (...args) => args.slice(1).reduce((x,y) => x.lt(y) ? x : y, args[0]);
-const max = (...args) => args.slice(1).reduce((x,y) => x.gt(y) ? x : y, args[0]);
+const min = (...args) => args.slice(1).reduce((x, y) => x.lt(y) ? x : y, args[0]);
 
 contract('VestingWallet', function (accounts) {
   const [ beneficiary, other ] = accounts;

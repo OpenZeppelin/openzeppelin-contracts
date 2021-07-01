@@ -21,7 +21,7 @@ import "../utils/Context.sol";
 contract VestingWallet is Context {
     event TokensReleased(address token, uint256 amount);
 
-    mapping (address => uint256) private _released;
+    mapping(address => uint256) private _released;
     address private immutable _beneficiary;
     uint256 private immutable _start;
     uint256 private immutable _duration;
@@ -34,7 +34,11 @@ contract VestingWallet is Context {
     /**
      * @dev Set the beneficiary, start timestamp and vesting duration of the vesting wallet.
      */
-     constructor(address beneficiary_, uint256 start_, uint256 duration_) {
+    constructor(
+        address beneficiary_,
+        uint256 start_,
+        uint256 duration_
+    ) {
         require(beneficiary_ != address(0), "VestingWallet: beneficiary is zero address");
         _beneficiary = beneficiary_;
         _start = start_;
@@ -77,8 +81,8 @@ contract VestingWallet is Context {
     }
 
     /**
-    * @dev Release the tokens that have already vested.
-    */
+     * @dev Release the tokens that have already vested.
+     */
     function release(address token) public virtual {
         uint256 releasable = vestedAmount(token, block.timestamp) - released(token);
         _released[token] += releasable;
@@ -89,13 +93,13 @@ contract VestingWallet is Context {
     /**
      * @dev Calculates the amount that has already vested. Default implementation is a linear vesting curve.
      */
-    function vestedAmount(address token, uint256 timestamp) public virtual view returns (uint256) {
+    function vestedAmount(address token, uint256 timestamp) public view virtual returns (uint256) {
         if (timestamp < start()) {
             return 0;
         } else if (timestamp >= start() + duration()) {
             return _historicalBalance(token);
         } else {
-            return _historicalBalance(token) * (timestamp - start()) / duration();
+            return (_historicalBalance(token) * (timestamp - start())) / duration();
         }
     }
 
