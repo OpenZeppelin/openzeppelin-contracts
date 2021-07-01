@@ -35,14 +35,14 @@ contract VestingWallet is Context {
      * @dev Set the beneficiary, start timestamp and vesting duration of the vesting wallet.
      */
     constructor(
-        address beneficiary_,
-        uint256 start_,
-        uint256 duration_
+        address initialBeneficiary,
+        uint256 initialStart,
+        uint256 initialDuration
     ) {
-        require(beneficiary_ != address(0), "VestingWallet: beneficiary is zero address");
-        _beneficiary = beneficiary_;
-        _start = start_;
-        _duration = duration_;
+        require(initialBeneficiary != address(0), "VestingWallet: beneficiary is zero address");
+        _beneficiary = initialBeneficiary;
+        _start = initialStart;
+        _duration = initialDuration;
     }
 
     /**
