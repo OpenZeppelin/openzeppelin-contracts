@@ -22,7 +22,7 @@ contract('VestingWallet', function (accounts) {
       .map((_, i) => web3.utils.toBN(i).mul(duration).divn(224).add(this.start))
       .map(timestamp => ({
         timestamp,
-        vested: min(amount.mul(timestamp.sub(this.start)).div(duration), amount),
+        vested: min(amount, amount.mul(timestamp.sub(this.start)).div(duration)),
       }));
   });
 

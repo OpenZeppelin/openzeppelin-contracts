@@ -9,7 +9,7 @@ import "../utils/Context.sol";
  * @title VestingWallet
  * @dev This contract handles the vesting of ERC20 tokens for a given beneficiary. Custody of multiple tokens can be
  * given to this contract, which will release the token to the beneficiary following a given vesting schedule. The
- * vesting scheduled is customizable through the `vestedAmount(address,uint256)` function.
+ * vesting schedule is customizable through the {vestedAmount} function.
  *
  * Any token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
@@ -74,14 +74,16 @@ contract VestingWallet is Context {
     }
 
     /**
-     * @dev Amont of token already released
+     * @dev Amount of token already released
      */
-    function released(address token) public view returns (uint256) {
+    function released(address token) public view virtual returns (uint256) {
         return _released[token];
     }
 
     /**
      * @dev Release the tokens that have already vested.
+     *
+     * Emits a {TokensReleased} event.
      */
     function release(address token) public virtual {
         uint256 releasable = vestedAmount(token, block.timestamp) - released(token);
