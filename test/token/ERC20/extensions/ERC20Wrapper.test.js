@@ -44,12 +44,12 @@ contract('ERC20', function (accounts) {
     it('valid', async function () {
       await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });
       const { tx } = await this.token.depositFor(initialHolder, initialSupply, { from: initialHolder });
-      expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: initialHolder,
         to: this.token.address,
         value: initialSupply,
       });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: ZERO_ADDRESS,
         to: initialHolder,
         value: initialSupply,
@@ -74,12 +74,12 @@ contract('ERC20', function (accounts) {
     it('to other account', async function () {
       await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });
       const { tx } = await this.token.depositFor(anotherAccount, initialSupply, { from: initialHolder });
-      expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: initialHolder,
         to: this.token.address,
         value: initialSupply,
       });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: ZERO_ADDRESS,
         to: anotherAccount,
         value: initialSupply,
@@ -104,12 +104,12 @@ contract('ERC20', function (accounts) {
       const value = new BN(42);
 
       const { tx } = await this.token.withdrawTo(initialHolder, value, { from: initialHolder });
-      expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: this.token.address,
         to: initialHolder,
         value: value,
       });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: initialHolder,
         to: ZERO_ADDRESS,
         value: value,
@@ -118,12 +118,12 @@ contract('ERC20', function (accounts) {
 
     it('entire balance', async function () {
       const { tx } = await this.token.withdrawTo(initialHolder, initialSupply, { from: initialHolder });
-      expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: this.token.address,
         to: initialHolder,
         value: initialSupply,
       });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: initialHolder,
         to: ZERO_ADDRESS,
         value: initialSupply,
@@ -132,12 +132,12 @@ contract('ERC20', function (accounts) {
 
     it('to other account', async function () {
       const { tx } = await this.token.withdrawTo(anotherAccount, initialSupply, { from: initialHolder });
-      expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: this.token.address,
         to: anotherAccount,
         value: initialSupply,
       });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: initialHolder,
         to: ZERO_ADDRESS,
         value: initialSupply,
@@ -151,7 +151,7 @@ contract('ERC20', function (accounts) {
       await this.token.depositFor(initialHolder, initialSupply, { from: initialHolder });
 
       const { tx } = await this.token.recover(anotherAccount);
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: ZERO_ADDRESS,
         to: anotherAccount,
         value: '0',
@@ -162,7 +162,7 @@ contract('ERC20', function (accounts) {
       await this.underlying.transfer(this.token.address, initialSupply, { from: initialHolder });
 
       const { tx } = await this.token.recover(anotherAccount);
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: ZERO_ADDRESS,
         to: anotherAccount,
         value: initialSupply,

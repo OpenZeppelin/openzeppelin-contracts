@@ -45,10 +45,10 @@ contract('ERC20FlashMint', function (accounts) {
       const receiver = await ERC3156FlashBorrowerMock.new(true, true);
       const { tx } = await this.token.flashLoan(receiver.address, this.token.address, loanAmount, '0x');
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: ZERO_ADDRESS, to: receiver.address, value: loanAmount });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: receiver.address, to: ZERO_ADDRESS, value: loanAmount });
-      expectEvent.inTransaction(tx, receiver, 'BalanceOf', { token: this.token.address, account: receiver.address, value: loanAmount });
-      expectEvent.inTransaction(tx, receiver, 'TotalSupply', { token: this.token.address, value: initialSupply.add(loanAmount) });
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', { from: ZERO_ADDRESS, to: receiver.address, value: loanAmount });
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', { from: receiver.address, to: ZERO_ADDRESS, value: loanAmount });
+      await expectEvent.inTransaction(tx, receiver, 'BalanceOf', { token: this.token.address, account: receiver.address, value: loanAmount });
+      await expectEvent.inTransaction(tx, receiver, 'TotalSupply', { token: this.token.address, value: initialSupply.add(loanAmount) });
 
       expect(await this.token.totalSupply()).to.be.bignumber.equal(initialSupply);
       expect(await this.token.balanceOf(receiver.address)).to.be.bignumber.equal('0');
