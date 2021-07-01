@@ -14,13 +14,13 @@ const {
 } = require('../utils/introspection/SupportsInterface.behavior');
 
 const Token = artifacts.require('ERC20VotesMock');
-const Governance = artifacts.require('GovernanceMock');
+const Governor = artifacts.require('GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-contract('Governance', function (accounts) {
+contract('Governor', function (accounts) {
   const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
 
-  const name = 'OZ-Governance';
+  const name = 'OZ-Governor';
   const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
@@ -29,7 +29,7 @@ contract('Governance', function (accounts) {
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.mock = await Governance.new(name, this.token.address);
+    this.mock = await Governor.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
@@ -118,7 +118,7 @@ contract('Governance', function (accounts) {
           'ProposalExecuted',
           { proposalId: this.id },
         );
-        expectEvent.inTransaction(
+        await expectEvent.inTransaction(
           this.receipts.execute.transactionHash,
           this.receiver,
           'MockFunctionCalled',
@@ -214,7 +214,7 @@ contract('Governance', function (accounts) {
           'ProposalExecuted',
           { proposalId: this.id },
         );
-        expectEvent.inTransaction(
+        await expectEvent.inTransaction(
           this.receipts.execute.transactionHash,
           this.receiver,
           'MockFunctionCalled',
@@ -312,7 +312,7 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async function () {
-        await expectRevert(this.mock.propose(...this.settings.proposal), 'Governance: proposal already exists');
+        await expectRevert(this.mock.propose(...this.settings.proposal), 'Governor: proposal already exists');
       });
       runGovernorWorkflow();
     });
@@ -334,7 +334,7 @@ contract('Governance', function (accounts) {
         };
       });
       afterEach(async function () {
-        await expectRevert(this.mock.propose(...this.settings.proposal), 'Governance: proposal already exists');
+        await expectRevert(this.mock.propose(...this.settings.proposal), 'Governor: proposal already exists');
       });
       runGovernorWorkflow();
     });
@@ -408,7 +408,7 @@ contract('Governance', function (accounts) {
             { voter: voter1, weight: web3.utils.toWei('0'), support: Enums.VoteType.For },
           ],
           steps: {
-            execute: { error: 'Governance: proposal not successfull' },
+            execute: { error: 'Governor: proposal not successfull' },
           },
         };
       });
@@ -429,7 +429,7 @@ contract('Governance', function (accounts) {
             { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.Against },
           ],
           steps: {
-            execute: { error: 'Governance: proposal not successfull' },
+            execute: { error: 'Governor: proposal not successfull' },
           },
         };
       });
@@ -451,7 +451,7 @@ contract('Governance', function (accounts) {
           ],
           steps: {
             wait: { enable: false },
-            execute: { error: 'Governance: proposal not successfull' },
+            execute: { error: 'Governor: proposal not successfull' },
           },
         };
       });
@@ -619,7 +619,7 @@ contract('Governance', function (accounts) {
 
         await expectRevert(
           this.mock.castVote(this.id, new BN('100'), { from: voter1 }),
-          'Governance: vote not currently active',
+          'Governor: vote not currently active',
         );
       });
       runGovernorWorkflow();
@@ -650,7 +650,7 @@ contract('Governance', function (accounts) {
 
         await expectRevert(
           this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-          'Governance: proposal not successfull',
+          'Governor: proposal not successfull',
         );
       });
       runGovernorWorkflow();
@@ -680,7 +680,7 @@ contract('Governance', function (accounts) {
 
         await expectRevert(
           this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-          'Governance: proposal not successfull',
+          'Governor: proposal not successfull',
         );
       });
       runGovernorWorkflow();
@@ -704,7 +704,7 @@ contract('Governance', function (accounts) {
       afterEach(async function () {
         await expectRevert(
           this.mock.cancel(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-          'Governance: proposal not active',
+          'Governor: proposal not active',
         );
       });
       runGovernorWorkflow();
@@ -720,7 +720,7 @@ contract('Governance', function (accounts) {
           [],
           '<proposal description>',
         ),
-        'Governance: empty proposal',
+        'Governor: empty proposal',
       );
     });
 
@@ -732,7 +732,7 @@ contract('Governance', function (accounts) {
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
           '<proposal description>',
         ),
-        'Governance: invalid proposal length',
+        'Governor: invalid proposal length',
       );
     });
 
@@ -744,7 +744,7 @@ contract('Governance', function (accounts) {
           [ this.receiver.contract.methods.mockFunction().encodeABI() ],
           '<proposal description>',
         ),
-        'Governance: invalid proposal length',
+        'Governor: invalid proposal length',
       );
     });
 
@@ -756,7 +756,7 @@ contract('Governance', function (accounts) {
           [ ],
           '<proposal description>',
         ),
-        'Governance: invalid proposal length',
+        'Governor: invalid proposal length',
       );
     });
   });

@@ -6,7 +6,7 @@ import "../governance/Governor.sol";
 import "../governance/extensions/GovernorVotingSimple.sol";
 import "../governance/extensions/GovernorWithERC20Votes.sol";
 
-contract GovernanceMock is Governor, GovernorWithERC20Votes, GovernorVotingSimple {
+contract GovernorMock is Governor, GovernorWithERC20Votes, GovernorVotingSimple {
     constructor(string memory name_, address token_) Governor(name_) GovernorWithERC20Votes(token_) {}
 
     receive() external payable {}

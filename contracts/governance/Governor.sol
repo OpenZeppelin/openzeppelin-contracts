@@ -164,12 +164,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
-        require(targets.length == values.length, "Governance: invalid proposal length");
-        require(targets.length == calldatas.length, "Governance: invalid proposal length");
-        require(targets.length > 0, "Governance: empty proposal");
+        require(targets.length == values.length, "Governor: invalid proposal length");
+        require(targets.length == calldatas.length, "Governor: invalid proposal length");
+        require(targets.length > 0, "Governor: empty proposal");
 
         ProposalCore storage proposal = _proposals[proposalId];
-        require(proposal.voteStart.isUnset(), "Governance: proposal already exists");
+        require(proposal.voteStart.isUnset(), "Governor: proposal already exists");
 
         uint64 snapshot = uint64(block.number) + votingDelay();
         uint64 deadline = snapshot + votingPeriod();
@@ -204,7 +204,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     ) public payable virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        require(state(proposalId) == ProposalState.Succeeded, "Governance: proposal not successfull");
+        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successfull");
         _proposals[proposalId].executed = true;
 
         for (uint256 i = 0; i < targets.length; ++i) {
@@ -238,7 +238,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
         require(
             status != ProposalState.Canceled && status != ProposalState.Expired && status != ProposalState.Executed,
-            "Governance: proposal not active"
+            "Governor: proposal not active"
         );
         _proposals[proposalId].canceled = true;
 
@@ -303,7 +303,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         string memory reason
     ) internal virtual returns (uint256) {
         ProposalCore memory proposal = _proposals[proposalId];
-        require(state(proposalId) == ProposalState.Active, "Governance: vote not currently active");
+        require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
 
         uint256 weight = getVotes(account, proposal.voteStart.getDeadline());
         _pushVote(proposalId, account, support, weight);

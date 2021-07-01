@@ -6,13 +6,13 @@ const {
 } = require('./../GovernorWorkflow.behavior');
 
 const Token = artifacts.require('ERC20VotesCompMock');
-const Governance = artifacts.require('GovernanceCompMock');
+const Governor = artifacts.require('GovernorCompMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-contract('Governance', function (accounts) {
+contract('GovernorComp', function (accounts) {
   const [ owner, voter1, voter2, voter3, voter4 ] = accounts;
 
-  const name = 'OZ-Governance';
+  const name = 'OZ-Governor';
   // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
@@ -21,7 +21,7 @@ contract('Governance', function (accounts) {
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.mock = await Governance.new(name, this.token.address);
+    this.mock = await Governor.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });

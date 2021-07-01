@@ -150,7 +150,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        require(state(proposalId) == ProposalState.Succeeded, "Governance: proposal not successfull");
+        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successfull");
 
         uint256 eta = block.timestamp + _timelock.delay();
         _proposalTimelocks[proposalId].timer.setDeadline(SafeCast.toUint64(eta));

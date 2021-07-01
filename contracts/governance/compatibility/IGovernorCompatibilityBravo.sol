@@ -9,7 +9,7 @@ import "../IGovernor.sol";
  *
  * _Available since v4.3._
  */
-interface IGovernorCompound is IGovernor {
+interface IGovernorCompatibilityBravo is IGovernor {
     /**
      * @dev Proposal structure from Compound Governor Bravo
      */

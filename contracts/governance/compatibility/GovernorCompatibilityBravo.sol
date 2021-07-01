@@ -6,7 +6,7 @@ import "../../utils/Counters.sol";
 import "../../utils/math/SafeCast.sol";
 import "../extensions/IGovernorTimelock.sol";
 import "../Governor.sol";
-import "./IGovernorCompound.sol";
+import "./IGovernorCompatibilityBravo.sol";
 
 /**
  * @dev Compatibility layer that implements GovernorBravo compatibility on to of {Governor}.
@@ -16,7 +16,7 @@ import "./IGovernorCompound.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Governor {
+abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorCompatibilityBravo, Governor {
     using Counters for Counters.Counter;
     using Timers for Timers.BlockNumber;
 
@@ -65,7 +65,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     }
 
     /**
-     * @dev See {IGovernorCompound-propose}.
+     * @dev See {IGovernorCompatibilityBravo-propose}.
      */
     function propose(
         address[] memory targets,
@@ -76,7 +76,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     ) public virtual override returns (uint256) {
         require(
             getVotes(msg.sender, block.number - 1) >= proposalThreshold(),
-            "GovernorCompound: proposer votes below proposal threshold"
+            "GovernorCompatibilityBravo: proposer votes below proposal threshold"
         );
 
         uint256 proposalId = super.propose(targets, values, _encodeCalldata(signatures, calldatas), description);
@@ -85,7 +85,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     }
 
     /**
-     * @dev See {IGovernorCompound-queue}.
+     * @dev See {IGovernorCompatibilityBravo-queue}.
      */
     function queue(uint256 proposalId) public virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
@@ -98,7 +98,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     }
 
     /**
-     * @dev See {IGovernorCompound-execute}.
+     * @dev See {IGovernorCompatibilityBravo-execute}.
      */
     function execute(uint256 proposalId) public payable virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
@@ -153,7 +153,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
 
     // ==================================================== Views =====================================================
     /**
-     * @dev See {IGovernorCompound-proposals}.
+     * @dev See {IGovernorCompatibilityBravo-proposals}.
      */
     function proposals(uint256 proposalId) public view virtual override returns (Proposal memory) {
         Proposal memory result;
@@ -181,7 +181,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     }
 
     /**
-     * @dev See {IGovernorCompound-getActions}.
+     * @dev See {IGovernorCompatibilityBravo-getActions}.
      */
     function getActions(uint256 proposalId)
         public
@@ -200,14 +200,14 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
     }
 
     /**
-     * @dev See {IGovernorCompound-getReceipt}.
+     * @dev See {IGovernorCompatibilityBravo-getReceipt}.
      */
     function getReceipt(uint256 proposalId, address voter) public view virtual override returns (Receipt memory) {
         return _proposalDetails[proposalId].receipts[voter];
     }
 
     /**
-     * @dev See {IGovernorCompound-quorumVotes}.
+     * @dev See {IGovernorCompatibilityBravo-quorumVotes}.
      */
     function quorumVotes() public view virtual override returns (uint256) {
         return quorum(block.number);
@@ -249,7 +249,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         ProposalDetails storage details = _proposalDetails[proposalId];
         Receipt storage receipt = details.receipts[account];
 
-        require(!receipt.hasVoted, "GovernorCompound: vote already casted");
+        require(!receipt.hasVoted, "GovernorCompatibilityBravo: vote already casted");
         receipt.hasVoted = true;
         receipt.support = support;
         receipt.votes = SafeCast.toUint96(weight);
@@ -261,7 +261,7 @@ abstract contract GovernorCompound is IGovernorTimelock, IGovernorCompound, Gove
         } else if (support == 2) {
             details.abstainVotes += weight;
         } else {
-            revert("GovernorCompound: invalid vote type");
+            revert("GovernorCompatibilityBravo: invalid vote type");
         }
     }
 }

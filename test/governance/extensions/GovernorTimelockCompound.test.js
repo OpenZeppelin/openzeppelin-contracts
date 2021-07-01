@@ -13,7 +13,7 @@ const {
 
 const Token = artifacts.require('ERC20VotesMock');
 const Timelock = artifacts.require('CompTimelock');
-const Governance = artifacts.require('GovernorTimelockCompoundMock');
+const Governor = artifacts.require('GovernorTimelockCompoundMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 function makeContractAddress (creator, nonce) {
@@ -23,7 +23,7 @@ function makeContractAddress (creator, nonce) {
 contract('GovernorTimelockCompound', function (accounts) {
   const [ admin, voter ] = accounts;
 
-  const name = 'OZ-Governance';
+  const name = 'OZ-Governor';
   // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
@@ -36,10 +36,10 @@ contract('GovernorTimelockCompound', function (accounts) {
 
     // Need to predict governance address to set it as timelock admin with a delayed transfer
     const nonce = await web3.eth.getTransactionCount(deployer);
-    const predictGovernance = makeContractAddress(deployer, nonce + 1);
+    const predictGovernor = makeContractAddress(deployer, nonce + 1);
 
-    this.timelock = await Timelock.new(predictGovernance, 2 * 86400);
-    this.mock = await Governance.new(name, this.token.address, this.timelock.address);
+    this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
+    this.mock = await Governor.new(name, this.token.address, this.timelock.address);
     this.receiver = await CallReceiver.new();
     await this.token.mint(voter, tokenSupply);
     await this.token.delegate(voter, { from: voter });
@@ -90,7 +90,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         'ProposalQueued',
         { proposalId: this.id },
       );
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         this.receipts.queue.transactionHash,
         this.timelock,
         'QueueTransaction',
@@ -101,13 +101,13 @@ contract('GovernorTimelockCompound', function (accounts) {
         'ProposalExecuted',
         { proposalId: this.id },
       );
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         this.receipts.execute.transactionHash,
         this.timelock,
         'ExecuteTransaction',
         { eta: this.eta },
       );
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         this.receipts.execute.transactionHash,
         this.receiver,
         'MockFunctionCalled',
@@ -234,7 +234,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
       await expectRevert(
         this.mock.queue(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-        'Governance: proposal not successfull',
+        'Governor: proposal not successfull',
       );
       await expectRevert(
         this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
@@ -275,7 +275,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
       await expectRevert(
         this.mock.queue(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-        'Governance: proposal not successfull',
+        'Governor: proposal not successfull',
       );
     });
     runGovernorWorkflow();
@@ -308,7 +308,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         'ProposalCanceled',
         { proposalId: this.id },
       );
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         receipt.receipt.transactionHash,
         this.timelock,
         'CancelTransaction',
@@ -410,7 +410,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
   describe('transfer timelock to new governor', function () {
     beforeEach(async function () {
-      this.newGovernor = await Governance.new(name, this.token.address, this.timelock.address);
+      this.newGovernor = await Governor.new(name, this.token.address, this.timelock.address);
     });
 
     describe('using workflow', function () {
@@ -441,7 +441,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           'ProposalExecuted',
           { proposalId: this.id },
         );
-        expectEvent.inTransaction(
+        await expectEvent.inTransaction(
           this.receipts.execute.transactionHash,
           this.timelock,
           'NewPendingAdmin',

@@ -8,7 +8,7 @@ const {
 
 const Token = artifacts.require('ERC20VotesCompMock');
 const Timelock = artifacts.require('CompTimelock');
-const Governance = artifacts.require('GovernorCompoundMock');
+const Governor = artifacts.require('GovernorCompatibilityBravoMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 async function getReceiptOrRevert (promise, error = undefined) {
@@ -33,10 +33,10 @@ function makeContractAddress (creator, nonce) {
   return web3.utils.toChecksumAddress(web3.utils.sha3(RLP.encode([creator, nonce])).slice(12).substring(14));
 }
 
-contract('GovernorCompound', function (accounts) {
+contract('GovernorCompatibilityBravo', function (accounts) {
   const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
 
-  const name = 'OZ-Governance';
+  const name = 'OZ-Governor';
   // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
@@ -49,10 +49,10 @@ contract('GovernorCompound', function (accounts) {
 
     // Need to predict governance address to set it as timelock admin with a delayed transfer
     const nonce = await web3.eth.getTransactionCount(deployer);
-    const predictGovernance = makeContractAddress(deployer, nonce + 1);
+    const predictGovernor = makeContractAddress(deployer, nonce + 1);
 
-    this.timelock = await Timelock.new(predictGovernance, 2 * 86400);
-    this.mock = await Governance.new(name, this.token.address, this.timelock.address);
+    this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
+    this.mock = await Governor.new(name, this.token.address, this.timelock.address);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
@@ -100,12 +100,12 @@ contract('GovernorCompound', function (accounts) {
           {
             voter: voter4,
             support: '100',
-            error: 'GovernorCompound: invalid vote type',
+            error: 'GovernorCompatibilityBravo: invalid vote type',
           },
           {
             voter: voter1,
             support: Enums.VoteType.For,
-            error: 'GovernorCompound: vote already casted',
+            error: 'GovernorCompatibilityBravo: vote already casted',
             skip: true,
           },
         ],
@@ -184,7 +184,7 @@ contract('GovernorCompound', function (accounts) {
         'ProposalExecuted',
         { proposalId: this.id },
       );
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         this.receipts.execute.transactionHash,
         this.receiver,
         'MockFunctionCalled',
@@ -224,12 +224,12 @@ contract('GovernorCompound', function (accounts) {
           {
             voter: voter4,
             support: '100',
-            error: 'GovernorCompound: invalid vote type',
+            error: 'GovernorCompatibilityBravo: invalid vote type',
           },
           {
             voter: voter1,
             support: Enums.VoteType.For,
-            error: 'GovernorCompound: vote already casted',
+            error: 'GovernorCompatibilityBravo: vote already casted',
             skip: true,
           },
         ],
@@ -309,7 +309,7 @@ contract('GovernorCompound', function (accounts) {
         'ProposalExecuted',
         { proposalId: this.id },
       );
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         this.receipts.execute.transactionHash,
         this.receiver,
         'MockFunctionCalled',

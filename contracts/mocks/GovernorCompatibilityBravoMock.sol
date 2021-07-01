@@ -2,11 +2,15 @@
 
 pragma solidity ^0.8.0;
 
-import "../governance/compatibility/GovernorCompound.sol";
+import "../governance/compatibility/GovernorCompatibilityBravo.sol";
 import "../governance/extensions/GovernorWithERC20VotesComp.sol";
 import "../governance/extensions/GovernorTimelockCompound.sol";
 
-contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, GovernorWithERC20VotesComp {
+contract GovernorCompatibilityBravoMock is
+    GovernorCompatibilityBravo,
+    GovernorTimelockCompound,
+    GovernorWithERC20VotesComp
+{
     constructor(
         string memory name_,
         address token_,
@@ -27,7 +31,7 @@ contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, Gov
         public
         view
         virtual
-        override(GovernorCompound, GovernorTimelockCompound)
+        override(GovernorCompatibilityBravo, GovernorTimelockCompound)
         returns (uint256)
     {
         return super.proposalEta(proposalId);
@@ -38,7 +42,7 @@ contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, Gov
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override(IGovernor, GovernorCompound) returns (uint256) {
+    ) public virtual override(IGovernor, GovernorCompatibilityBravo) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
 
@@ -47,7 +51,7 @@ contract GovernorCompoundMock is GovernorCompound, GovernorTimelockCompound, Gov
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public virtual override(GovernorCompound, GovernorTimelockCompound) returns (uint256) {
+    ) public virtual override(GovernorCompatibilityBravo, GovernorTimelockCompound) returns (uint256) {
         return super.queue(targets, values, calldatas, salt);
     }
 

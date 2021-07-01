@@ -17,7 +17,7 @@ import "../TimelockController.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
+abstract contract GovernorTimelockController is IGovernorTimelock, Governor {
     TimelockController private _timelock;
     mapping(uint256 => bytes32) private _ids;
 
@@ -81,7 +81,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, salt);
 
-        require(state(proposalId) == ProposalState.Succeeded, "Governance: proposal not successfull");
+        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successfull");
 
         uint256 delay = _timelock.getMinDelay();
         _ids[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, salt);
@@ -134,7 +134,7 @@ abstract contract GovernorTimelockExternal is IGovernorTimelock, Governor {
      * must be proposed, scheduled and executed using the {Governor} workflow.
      */
     function updateTimelock(address newTimelock) external virtual {
-        require(msg.sender == address(_timelock), "GovernorTimelockExternal: caller must be timelock");
+        require(msg.sender == address(_timelock), "GovernorTimelockController: caller must be timelock");
         _updateTimelock(newTimelock);
     }
 

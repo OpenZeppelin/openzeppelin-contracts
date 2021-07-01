@@ -12,13 +12,13 @@ const {
 
 const Token = artifacts.require('ERC20VotesMock');
 const Timelock = artifacts.require('TimelockController');
-const Governance = artifacts.require('GovernorTimelockExternalMock');
+const Governor = artifacts.require('GovernorTimelockControllerMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-contract('GovernorTimelockExternal', function (accounts) {
+contract('GovernorTimelockController', function (accounts) {
   const [ voter ] = accounts;
 
-  const name = 'OZ-Governance';
+  const name = 'OZ-Governor';
   // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
@@ -29,7 +29,7 @@ contract('GovernorTimelockExternal', function (accounts) {
 
     this.token = await Token.new(tokenName, tokenSymbol);
     this.timelock = await Timelock.new(3600, [], []);
-    this.mock = await Governance.new(name, this.token.address, this.timelock.address);
+    this.mock = await Governor.new(name, this.token.address, this.timelock.address);
     this.receiver = await CallReceiver.new();
     // normal setup: governor is proposer, everyone is executor, timelock is its own admin
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), this.mock.address);
@@ -89,7 +89,7 @@ contract('GovernorTimelockExternal', function (accounts) {
         'ProposalQueued',
         { proposalId: this.id },
       );
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         this.receipts.queue.transactionHash,
         this.timelock,
         'CallScheduled',
@@ -100,13 +100,13 @@ contract('GovernorTimelockExternal', function (accounts) {
         'ProposalExecuted',
         { proposalId: this.id },
       );
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         this.receipts.execute.transactionHash,
         this.timelock,
         'CallExecuted',
         { id: timelockid },
       );
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         this.receipts.execute.transactionHash,
         this.receiver,
         'MockFunctionCalled',
@@ -184,7 +184,7 @@ contract('GovernorTimelockExternal', function (accounts) {
 
       await expectRevert(
         this.mock.queue(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-        'Governance: proposal not successfull',
+        'Governor: proposal not successfull',
       );
       await expectRevert(
         this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
@@ -225,7 +225,7 @@ contract('GovernorTimelockExternal', function (accounts) {
 
       await expectRevert(
         this.mock.queue(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-        'Governance: proposal not successfull',
+        'Governor: proposal not successfull',
       );
     });
     runGovernorWorkflow();
@@ -264,7 +264,7 @@ contract('GovernorTimelockExternal', function (accounts) {
         'ProposalCanceled',
         { proposalId: this.id },
       );
-      expectEvent.inTransaction(
+      await expectEvent.inTransaction(
         receipt.receipt.transactionHash,
         this.timelock,
         'Cancelled',
@@ -289,7 +289,7 @@ contract('GovernorTimelockExternal', function (accounts) {
     it('protected', async function () {
       await expectRevert(
         this.mock.updateTimelock(this.newTimelock.address),
-        'GovernorTimelockExternal: caller must be timelock',
+        'GovernorTimelockController: caller must be timelock',
       );
     });
 
