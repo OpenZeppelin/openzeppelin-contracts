@@ -2,11 +2,11 @@ const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/te
 const { expect } = require('chai');
 
 const ERC20VotesMock = artifacts.require('ERC20VotesMock');
-const VestingWallet = artifacts.require('VestingWallet');
+const ERC20VestingWallet = artifacts.require('ERC20VestingWallet');
 
 const min = (...args) => args.slice(1).reduce((x, y) => x.lt(y) ? x : y, args[0]);
 
-contract('VestingWallet', function (accounts) {
+contract('ERC20VestingWallet', function (accounts) {
   const [ beneficiary, other ] = accounts;
 
   const amount = web3.utils.toBN(web3.utils.toWei('100'));
@@ -15,7 +15,7 @@ contract('VestingWallet', function (accounts) {
   beforeEach(async function () {
     this.start = (await time.latest()).addn(3600); // in 1 hour
     this.token = await ERC20VotesMock.new('Name', 'Symbol');
-    this.vesting = await VestingWallet.new(beneficiary, this.start, duration);
+    this.vesting = await ERC20VestingWallet.new(beneficiary, this.start, duration);
     await this.token.mint(this.vesting.address, amount);
 
     this.schedule = Array(256).fill()
@@ -28,8 +28,8 @@ contract('VestingWallet', function (accounts) {
 
   it('rejects zero address for beneficiary', async function () {
     await expectRevert(
-      VestingWallet.new(constants.ZERO_ADDRESS, this.start, duration),
-      'VestingWallet: beneficiary is zero address',
+      ERC20VestingWallet.new(constants.ZERO_ADDRESS, this.start, duration),
+      'ERC20VestingWallet: beneficiary is zero address',
     );
   });
 
@@ -91,7 +91,7 @@ contract('VestingWallet', function (accounts) {
 
       await expectRevert(
         this.vesting.delegate(this.token.address, other, { from: other }),
-        'VestingWallet: access restricted to beneficiary',
+        'ERC20VestingWallet: access restricted to beneficiary',
       );
 
       expect(await this.token.delegates(this.vesting.address)).to.be.equal(constants.ZERO_ADDRESS);
