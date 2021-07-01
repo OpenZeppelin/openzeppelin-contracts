@@ -67,17 +67,17 @@ contract ERC20VestingWallet is Context {
     }
 
     /**
-     * @dev Delegate the voting right of tokens currently vesting
-     */
-    function delegate(address token, address delegatee) public virtual onlyBeneficiary() {
-        ERC20Votes(token).delegate(delegatee);
-    }
-
-    /**
      * @dev Amont of token already released
      */
     function released(address token) public view returns (uint256) {
         return _released[token];
+    }
+
+    /**
+     * @dev Delegate the voting right of tokens currently vesting
+     */
+    function delegate(address token, address delegatee) public virtual onlyBeneficiary() {
+        ERC20Votes(token).delegate(delegatee);
     }
 
     /**
