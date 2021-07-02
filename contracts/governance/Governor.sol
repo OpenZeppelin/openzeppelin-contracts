@@ -32,6 +32,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     mapping(uint256 => ProposalCore) private _proposals;
 
     /**
+     * @dev Virtual modifier: restrict access to governor executing address.
+     * This must be overloaded if operation are executed through a timelock.
+     */
+    modifier onlyGovernance() virtual {
+        require(_msgSender() == address(this), "Governor: onlyGovernance");
+        _;
+    }
+
+    /**
      * @dev Sets the value for {name} and {version}
      */
     constructor(string memory name_) EIP712(name_, version()) {

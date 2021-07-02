@@ -39,7 +39,7 @@ contract('GovernorTimelockCompound', function (accounts) {
     const predictGovernor = makeContractAddress(deployer, nonce + 1);
 
     this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
-    this.mock = await Governor.new(name, this.token.address, this.timelock.address);
+    this.mock = await Governor.new(name, this.token.address, this.timelock.address, 0);
     this.receiver = await CallReceiver.new();
     await this.token.mint(voter, tokenSupply);
     await this.token.delegate(voter, { from: voter });
@@ -332,7 +332,7 @@ contract('GovernorTimelockCompound', function (accounts) {
     it('protected', async function () {
       await expectRevert(
         this.mock.updateTimelock(this.newTimelock.address),
-        'GovernorTimelockCompound: caller must be timelock',
+        'Governor: onlyGovernance',
       );
     });
 
@@ -410,7 +410,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
   describe('transfer timelock to new governor', function () {
     beforeEach(async function () {
-      this.newGovernor = await Governor.new(name, this.token.address, this.timelock.address);
+      this.newGovernor = await Governor.new(name, this.token.address, this.timelock.address, 0);
     });
 
     describe('using workflow', function () {

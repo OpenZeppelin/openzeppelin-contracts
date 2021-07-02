@@ -7,16 +7,16 @@ import "../governance/extensions/GovernorVotingSimple.sol";
 import "../governance/extensions/GovernorWithERC20Votes.sol";
 
 contract GovernorMock is Governor, GovernorWithERC20Votes, GovernorVotingSimple {
-    constructor(string memory name_, address token_) Governor(name_) GovernorWithERC20Votes(token_) {}
+    constructor(
+        string memory name_,
+        address token_,
+        uint256 quorumRatio_
+    ) Governor(name_) GovernorWithERC20Votes(token_, quorumRatio_) {}
 
     receive() external payable {}
 
-    function votingPeriod() public pure override(IGovernor, Governor) returns (uint64) {
+    function votingPeriod() public pure override returns (uint64) {
         return 16; // blocks
-    }
-
-    function quorum(uint256) public pure override(IGovernor, Governor) returns (uint256) {
-        return 1;
     }
 
     function cancel(

@@ -89,11 +89,16 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      */
     event TimelockChange(address oldTimelock, address newTimelock);
 
+    modifier onlyGovernance() virtual override {
+        require(_msgSender() == timelock(), "Governor: onlyGovernance");
+        _;
+    }
+
     /**
      * @dev Set the timelock.
      */
-    constructor(address timelock_) {
-        _updateTimelock(timelock_);
+    constructor(address timelockAddress) {
+        _updateTimelock(timelockAddress);
     }
 
     /**
@@ -128,7 +133,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Public accessor to check the address of the timelock
      */
-    function timelock() external view virtual override returns (address) {
+    function timelock() public view virtual override returns (address) {
         return address(_timelock);
     }
 
@@ -229,8 +234,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      * For security reason, the timelock must be handed over to another admin before setting up a new one. The two
      * operations (hand over the timelock) and do the update can be batched in a single proposal.
      */
-    function updateTimelock(address newTimelock) external virtual {
-        require(msg.sender == address(_timelock), "GovernorTimelockCompound: caller must be timelock");
+    function updateTimelock(address newTimelock) external virtual onlyGovernance {
         require(
             _timelock.pendingAdmin() != address(0),
             "GovernorTimelockCompound: old timelock must be transfered before update"

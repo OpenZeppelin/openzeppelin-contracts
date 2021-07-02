@@ -26,11 +26,16 @@ abstract contract GovernorTimelockController is IGovernorTimelock, Governor {
      */
     event TimelockChange(address oldTimelock, address newTimelock);
 
+    modifier onlyGovernance() virtual override {
+        require(_msgSender() == timelock(), "Governor: onlyGovernance");
+        _;
+    }
+
     /**
      * @dev Set the timelock.
      */
-    constructor(address timelock_) {
-        _updateTimelock(timelock_);
+    constructor(address timelockAddress) {
+        _updateTimelock(timelockAddress);
     }
 
     /**
@@ -59,7 +64,7 @@ abstract contract GovernorTimelockController is IGovernorTimelock, Governor {
     /**
      * @dev Public accessor to check the address of the timelock
      */
-    function timelock() external view virtual override returns (address) {
+    function timelock() public view virtual override returns (address) {
         return address(_timelock);
     }
 
@@ -133,8 +138,7 @@ abstract contract GovernorTimelockController is IGovernorTimelock, Governor {
      * @dev Public endpoint to update the underlying timelock instance. Restricted to the timelock itself, so updates
      * must be proposed, scheduled and executed using the {Governor} workflow.
      */
-    function updateTimelock(address newTimelock) external virtual {
-        require(msg.sender == address(_timelock), "GovernorTimelockController: caller must be timelock");
+    function updateTimelock(address newTimelock) external virtual onlyGovernance() {
         _updateTimelock(newTimelock);
     }
 

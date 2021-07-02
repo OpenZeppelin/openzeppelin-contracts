@@ -7,17 +7,23 @@ import "../governance/extensions/GovernorVotingSimple.sol";
 import "../governance/extensions/GovernorWithERC20Votes.sol";
 
 contract GovernorTimelockControllerMock is GovernorTimelockController, GovernorWithERC20Votes, GovernorVotingSimple {
+    modifier onlyGovernance() virtual override(Governor, GovernorTimelockController) {
+        require(_msgSender() == timelock(), "Governor: onlyGovernance");
+        _;
+    }
+
     constructor(
         string memory name_,
         address token_,
-        address timelock_
-    ) Governor(name_) GovernorTimelockController(timelock_) GovernorWithERC20Votes(token_) {}
+        address timelock_,
+        uint256 quorumRatio_
+    ) Governor(name_) GovernorTimelockController(timelock_) GovernorWithERC20Votes(token_, quorumRatio_) {}
 
     function supportsInterface(bytes4 interfaceId)
         public
         view
         virtual
-        override(IERC165, Governor, GovernorTimelockController)
+        override(Governor, GovernorTimelockController)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
@@ -27,8 +33,13 @@ contract GovernorTimelockControllerMock is GovernorTimelockController, GovernorW
         return 16; // blocks
     }
 
-    function quorum(uint256) public pure override(IGovernor, Governor) returns (uint256) {
-        return 1;
+    function quorum(uint256 blockNumber)
+        public
+        view
+        override(IGovernor, Governor, GovernorWithERC20Votes)
+        returns (uint256)
+    {
+        return super.quorum(blockNumber);
     }
 
     function cancel(
@@ -47,7 +58,7 @@ contract GovernorTimelockControllerMock is GovernorTimelockController, GovernorW
         public
         view
         virtual
-        override(IGovernor, Governor, GovernorTimelockController)
+        override(Governor, GovernorTimelockController)
         returns (ProposalState)
     {
         return super.state(proposalId);
@@ -58,7 +69,7 @@ contract GovernorTimelockControllerMock is GovernorTimelockController, GovernorW
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public payable virtual override(IGovernor, Governor, GovernorTimelockController) returns (uint256 proposalId) {
+    ) public payable virtual override(Governor, GovernorTimelockController) returns (uint256 proposalId) {
         return super.execute(targets, values, calldatas, salt);
     }
 

@@ -11,20 +11,43 @@ contract GovernorCompatibilityBravoMock is
     GovernorTimelockCompound,
     GovernorWithERC20VotesComp
 {
+    modifier onlyGovernance() virtual override(Governor, GovernorTimelockCompound) {
+        require(_msgSender() == timelock(), "Governor: onlyGovernance");
+        _;
+    }
+
     constructor(
         string memory name_,
         address token_,
         address timelock_
     ) Governor(name_) GovernorWithERC20VotesComp(token_) GovernorTimelockCompound(timelock_) {}
 
-    receive() external payable {}
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(IERC165, Governor, GovernorTimelockCompound)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 
-    function votingPeriod() public pure override returns (uint64) {
+    function votingPeriod() public pure override(IGovernor, Governor) returns (uint64) {
         return 16; // blocks
     }
 
-    function quorum(uint256) public pure override returns (uint256) {
+    function quorum(uint256) public pure override(IGovernor, Governor) returns (uint256) {
         return 1;
+    }
+
+    function state(uint256 proposalId)
+        public
+        view
+        virtual
+        override(IGovernor, Governor, GovernorTimelockCompound)
+        returns (ProposalState)
+    {
+        return super.state(proposalId);
     }
 
     function proposalEta(uint256 proposalId)
@@ -42,7 +65,7 @@ contract GovernorCompatibilityBravoMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override(IGovernor, GovernorCompatibilityBravo) returns (uint256) {
+    ) public virtual override(IGovernor, Governor, GovernorCompatibilityBravo) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
 
@@ -53,6 +76,15 @@ contract GovernorCompatibilityBravoMock is
         bytes32 salt
     ) public virtual override(GovernorCompatibilityBravo, GovernorTimelockCompound) returns (uint256) {
         return super.queue(targets, values, calldatas, salt);
+    }
+
+    function execute(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 salt
+    ) public payable virtual override(IGovernor, Governor, GovernorTimelockCompound) returns (uint256) {
+        return super.execute(targets, values, calldatas, salt);
     }
 
     function cancel(
