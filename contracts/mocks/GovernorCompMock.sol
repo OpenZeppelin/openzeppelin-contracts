@@ -16,7 +16,7 @@ contract GovernorCompMock is Governor, GovernorWithERC20VotesComp, GovernorVotin
     }
 
     function quorum(uint256) public pure override returns (uint256) {
-        return 1;
+        return 0;
     }
 
     function cancel(

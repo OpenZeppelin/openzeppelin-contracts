@@ -56,7 +56,7 @@ contract('GovernorTimelockCompound', function (accounts) {
     expect(await this.mock.token()).to.be.equal(this.token.address);
     expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
     expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
-    expect(await this.mock.quorum(0)).to.be.bignumber.equal('1');
+    expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
 
     expect(await this.mock.timelock()).to.be.equal(this.timelock.address);
     expect(await this.timelock.admin()).to.be.equal(this.mock.address);

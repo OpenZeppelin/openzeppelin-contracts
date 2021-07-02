@@ -37,7 +37,7 @@ contract GovernorCompatibilityBravoMock is
     }
 
     function quorum(uint256) public pure override(IGovernor, Governor) returns (uint256) {
-        return 1;
+        return 0;
     }
 
     function state(uint256 proposalId)
