@@ -7,11 +7,6 @@ import "../governance/extensions/GovernorVotingSimple.sol";
 import "../governance/extensions/GovernorWithERC20Votes.sol";
 
 contract GovernorTimelockControllerMock is GovernorTimelockController, GovernorWithERC20Votes, GovernorVotingSimple {
-    modifier onlyGovernance() virtual override(Governor, GovernorTimelockController) {
-        require(_msgSender() == timelock(), "Governor: onlyGovernance");
-        _;
-    }
-
     constructor(
         string memory name_,
         address token_,
@@ -90,5 +85,9 @@ contract GovernorTimelockControllerMock is GovernorTimelockController, GovernorW
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);
+    }
+
+    function _executor() internal view virtual override(Governor, GovernorTimelockController) returns (address) {
+        return super._executor();
     }
 }

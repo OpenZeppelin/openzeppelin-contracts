@@ -32,11 +32,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     mapping(uint256 => ProposalCore) private _proposals;
 
     /**
-     * @dev Virtual modifier: restrict access to governor executing address.
+     * @dev Restrict access to governor executing address.
      * This must be overloaded if operation are executed through a timelock.
      */
-    modifier onlyGovernance() virtual {
-        require(_msgSender() == address(this), "Governor: onlyGovernance");
+    modifier onlyGovernance() {
+        require(_msgSender() == _executor(), "Governor: onlyGovernance");
         _;
     }
 
@@ -335,4 +335,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint8 support,
         uint256 weight
     ) internal virtual;
+
+    /**
+     * @dev Address through which the governor executes action. Will be overloaded by module that execute actions
+     * through another contract such as a timelock.
+     */
+    function _executor() internal view virtual returns (address) {
+        return address(this);
+    }
 }

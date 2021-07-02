@@ -11,11 +11,6 @@ contract GovernorCompatibilityBravoMock is
     GovernorTimelockCompound,
     GovernorWithERC20VotesComp
 {
-    modifier onlyGovernance() virtual override(Governor, GovernorTimelockCompound) {
-        require(_msgSender() == timelock(), "Governor: onlyGovernance");
-        _;
-    }
-
     constructor(
         string memory name_,
         address token_,
@@ -113,5 +108,9 @@ contract GovernorCompatibilityBravoMock is
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);
+    }
+
+    function _executor() internal view virtual override(Governor, GovernorTimelockCompound) returns (address) {
+        return super._executor();
     }
 }
