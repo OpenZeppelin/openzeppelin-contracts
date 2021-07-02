@@ -36,7 +36,7 @@ abstract contract GovernorWeightQuorumFractional is GovernorWeight {
     }
 
     function _updateQuorumRatio(uint256 newQuorumRatio) internal virtual {
-        require(newQuorumRatio <= quorumRatioMax(), "GovernorWithERC20Votes: quorumRatio over quorumRatioMax");
+        require(newQuorumRatio <= quorumRatioMax(), "GovernorWeightQuorumFractional: quorumRatio over quorumRatioMax");
 
         uint256 oldQuorumRatio = _quorumRatio;
         _quorumRatio = newQuorumRatio;

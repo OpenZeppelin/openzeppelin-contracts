@@ -17,9 +17,9 @@ Similarly to our other contracts, it is customizable through inheritance and com
 
 * {GovernorVotingSimple}: A simple voting mechanism for {Governor} with support 3 vote options: Against, For and Abstain.
 
-* {GovernorWithERC20Votes}: Binding to extract voting weight from an {ERC20Votes} token.
+* {GovernorWeight}: Binding to extract voting weight from an {ERC20Votes} token.
 
-* {GovernorWithERC20VotesComp}: Binding to extract voting weight from a Comp or {ERC20VotesComp} token.
+* {GovernorWeightComp}: Binding to extract voting weight from a Comp or {ERC20VotesComp} token.
 
 In addition to modules, the {Governor} requires a few virtual functions to be implemented to your particular specifications:
 
