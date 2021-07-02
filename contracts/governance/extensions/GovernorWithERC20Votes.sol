@@ -38,7 +38,7 @@ abstract contract GovernorWithERC20Votes is Governor {
     }
 
     function quorum(uint256 blockNumber) public view virtual override returns (uint256) {
-        return token.getPastTotalSupply(blockNumber) * quorumRatio() / quorumRatioMax();
+        return (token.getPastTotalSupply(blockNumber) * quorumRatio()) / quorumRatioMax();
     }
 
     function updateQuorumRatio(uint256 newQuorumRatio) external virtual onlyGovernance() {
