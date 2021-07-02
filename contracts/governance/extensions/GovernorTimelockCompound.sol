@@ -215,8 +215,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-    * @dev Address through which the governor executes action. In this case, the timelock.
-    */
+     * @dev Address through which the governor executes action. In this case, the timelock.
+     */
     function _executor() internal view virtual override returns (address) {
         return timelock();
     }
