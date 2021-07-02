@@ -19,7 +19,7 @@ abstract contract GovernorWithERC20Votes is Governor {
 
     constructor(address tokenAddress, uint256 quorumRatioValue) {
         token = ERC20Votes(tokenAddress);
-        _quorumRatio = quorumRatioValue;
+        _updateQuorumRatio(quorumRatioValue);
     }
 
     function quorumRatio() public view virtual returns (uint256) {
@@ -42,6 +42,12 @@ abstract contract GovernorWithERC20Votes is Governor {
     }
 
     function updateQuorumRatio(uint256 newQuorumRatio) external virtual onlyGovernance() {
+        _updateQuorumRatio(newQuorumRatio);
+    }
+
+    function _updateQuorumRatio(uint256 newQuorumRatio) internal virtual {
+        require(newQuorumRatio <= quorumRatioMax(), "GovernorWithERC20Votes: quorumRatio over quorumRatioMax");
+
         uint256 oldQuorumRatio = _quorumRatio;
         _quorumRatio = newQuorumRatio;
 

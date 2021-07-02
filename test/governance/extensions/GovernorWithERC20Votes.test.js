@@ -98,4 +98,25 @@ contract('GovernorComp', function (accounts) {
     });
     runGovernorWorkflow();
   });
+
+  describe('update quorum over the maximum', function () {
+    beforeEach(async function () {
+      this.settings = {
+        proposal: [
+          [ this.mock.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.mock.contract.methods.updateQuorumRatio(new BN(101)).encodeABI() ],
+          '<proposal description>',
+        ],
+        tokenHolder: owner,
+        voters: [
+          { voter: voter1, weight: tokenSupply, support: Enums.VoteType.For },
+        ],
+        steps: {
+          execute: { error: 'GovernorWithERC20Votes: quorumRatio over quorumRatioMax' },
+        },
+      };
+    });
+    runGovernorWorkflow();
+  });
 });
