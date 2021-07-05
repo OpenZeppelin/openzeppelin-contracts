@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../utils/Timers.sol";
 
-contract TimersImpl {
+contract TimersTimestampImpl {
     using Timers for Timers.Timestamp;
 
     Timers.Timestamp private _timer;
