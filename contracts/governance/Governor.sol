@@ -14,6 +14,12 @@ import "./IGovernor.sol";
 /**
  * @dev Core of the governance system, designed to be extended though various modules.
  *
+ * This contract is abstract and requiers several function to be implemented in various modules:
+ *
+ * - A counting module must implement {{quorum}}, {{_quorumReached }}, {{_voteSucceeded }} and {{_countVote }}
+ * - A voting module must implement {{getVotes}}
+ * - Additionanly, the {{votingPeriod}} must also be implemented
+ *
  * _Available since v4.3._
  */
 abstract contract Governor is Context, ERC165, EIP712, IGovernor {
@@ -162,19 +168,28 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @notice module:voting
      * @dev Amount of votes already casted passes the threshold limit.
      */
     function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
 
     /**
-     * @notice module:voting
      * @dev Is the proposal successfull or not.
      */
     function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
 
     /**
-     * @notice module:core
+     * @dev Register a vote with a given support and voting weight.
+     *
+     * Note: Support is generic and can represent various things depending on the voting system used.
+     */
+    function _countVote(
+        uint256 proposalId,
+        address account,
+        uint8 support,
+        uint256 weight
+    ) internal virtual;
+
+    /**
      * @dev See {IGovernor-propose}.
      */
     function propose(
@@ -214,7 +229,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @notice module:core
      * @dev See {IGovernor-execute}.
      */
     function execute(
@@ -239,7 +253,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @notice module:core
      * @dev Internal cancel mechanism: locks up the proposal timer, preventing it from being re-submitted. Marks it as
      * canceled to allow distinguishing it from executed proposals.
      *
@@ -266,7 +279,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @notice module:core
      * @dev See {IGovernor-castVote}.
      */
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
@@ -275,7 +287,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @notice module:core
      * @dev See {IGovernor-castVoteWithReason}.
      */
     function castVoteWithReason(
@@ -288,7 +299,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @notice module:core
      * @dev See {IGovernor-castVoteBySig}.
      */
     function castVoteBySig(
@@ -308,7 +318,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @notice module:core
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been casted yet, retrieve
      * voting weight using {IGovernor-getVotes} and call the {IGovernor-_countVote} internal function.
      *
@@ -330,20 +339,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
         return weight;
     }
-
-    /**
-     * @notice module:voting
-     * @dev Internal abstract interface to the voting module: register a vote with a given support and voting weight.
-     *
-     * Note: Support is generic and can represent various things depending
-     * on the voting system used.
-     */
-    function _countVote(
-        uint256 proposalId,
-        address account,
-        uint8 support,
-        uint256 weight
-    ) internal virtual;
 
     /**
      * @dev Address through which the governor executes action. Will be overloaded by module that execute actions
