@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../token/ERC20/extensions/ERC20Votes.sol";
-import "../token/ERC20/utils/SafeERC20.sol";
-import "../utils/Context.sol";
+import "../../token/ERC20/utils/SafeERC20.sol";
+import "../../utils/Context.sol";
 
 /**
- * @title VestingWallet
+ * @title ERC20VestingWallet
  * @dev This contract handles the vesting of ERC20 tokens for a given beneficiary. Custody of multiple tokens can be
  * given to this contract, which will release the token to the beneficiary following a given vesting schedule. The
  * vesting schedule is customizable through the {vestedAmount} function.
@@ -14,9 +13,6 @@ import "../utils/Context.sol";
  * Any token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
  * be immediately releasable.
- *
- * While tokens are locked, the beneficiary still has the ability to delegate the voting power potentially associated
- * with these tokens.
  */
 contract ERC20VestingWallet is Context {
     event TokensReleased(address token, uint256 amount);
@@ -71,13 +67,6 @@ contract ERC20VestingWallet is Context {
      */
     function released(address token) public view returns (uint256) {
         return _released[token];
-    }
-
-    /**
-     * @dev Delegate the voting right of tokens currently vesting
-     */
-    function delegate(address token, address delegatee) public virtual onlyBeneficiary() {
-        ERC20Votes(token).delegate(delegatee);
     }
 
     /**
