@@ -230,9 +230,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {IGovernor-_voteSuccess}. In this module, the forVotes must be scritly over the againstVotes.
+     * @dev See {IGovernor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
      */
-    function _voteSuccess(uint256 proposalId) internal view virtual override returns (bool) {
+    function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalDetails storage details = _proposalDetails[proposalId];
         return details.forVotes > details.againstVotes;
     }

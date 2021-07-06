@@ -11,7 +11,7 @@ contract GovernorCompMock is Governor, GovernorWeightComp, GovernorVotingSimple 
 
     receive() external payable {}
 
-    function votingPeriod() public pure override returns (uint64) {
+    function votingPeriod() public pure override returns (uint256) {
         return 16; // blocks
     }
 

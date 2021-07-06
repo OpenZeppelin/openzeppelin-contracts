@@ -184,7 +184,7 @@ contract('GovernorTimelockController', function (accounts) {
 
       await expectRevert(
         this.mock.queue(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-        'Governor: proposal not successfull',
+        'Governor: proposal not successful',
       );
       await expectRevert(
         this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
@@ -225,7 +225,7 @@ contract('GovernorTimelockController', function (accounts) {
 
       await expectRevert(
         this.mock.queue(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-        'Governor: proposal not successfull',
+        'Governor: proposal not successful',
       );
     });
     runGovernorWorkflow();

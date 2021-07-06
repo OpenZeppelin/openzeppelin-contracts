@@ -277,19 +277,19 @@ contract('Governor', function (accounts) {
               voter: voter1,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.For,
-              error: 'Governor::state: invalid proposal id',
+              error: 'Governor: unknown proposal id',
             },
             {
               voter: voter2,
               weight: web3.utils.toWei('1'),
               support: Enums.VoteType.Abstain,
-              error: 'Governor::state: invalid proposal id',
+              error: 'Governor: unknown proposal id',
             },
           ],
           steps: {
             propose: { enable: false },
             wait: { enable: false },
-            execute: { error: 'Governor::state: invalid proposal id' },
+            execute: { error: 'Governor: unknown proposal id' },
           },
         };
       });
@@ -408,7 +408,7 @@ contract('Governor', function (accounts) {
             { voter: voter1, weight: web3.utils.toWei('0'), support: Enums.VoteType.For },
           ],
           steps: {
-            execute: { error: 'Governor: proposal not successfull' },
+            execute: { error: 'Governor: proposal not successful' },
           },
         };
       });
@@ -429,7 +429,7 @@ contract('Governor', function (accounts) {
             { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.Against },
           ],
           steps: {
-            execute: { error: 'Governor: proposal not successfull' },
+            execute: { error: 'Governor: proposal not successful' },
           },
         };
       });
@@ -451,7 +451,7 @@ contract('Governor', function (accounts) {
           ],
           steps: {
             wait: { enable: false },
-            execute: { error: 'Governor: proposal not successfull' },
+            execute: { error: 'Governor: proposal not successful' },
           },
         };
       });
@@ -477,7 +477,7 @@ contract('Governor', function (accounts) {
         };
       });
       afterEach(async function () {
-        await expectRevert(this.mock.state(this.id), 'Governor::state: invalid proposal id');
+        await expectRevert(this.mock.state(this.id), 'Governor: unknown proposal id');
       });
       runGovernorWorkflow();
     });
@@ -592,7 +592,7 @@ contract('Governor', function (accounts) {
       afterEach(async function () {
         await expectRevert(
           this.mock.cancel(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-          'Governor::state: invalid proposal id',
+          'Governor: unknown proposal id',
         );
       });
       runGovernorWorkflow();
@@ -650,7 +650,7 @@ contract('Governor', function (accounts) {
 
         await expectRevert(
           this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-          'Governor: proposal not successfull',
+          'Governor: proposal not successful',
         );
       });
       runGovernorWorkflow();
@@ -680,7 +680,7 @@ contract('Governor', function (accounts) {
 
         await expectRevert(
           this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-          'Governor: proposal not successfull',
+          'Governor: proposal not successful',
         );
       });
       runGovernorWorkflow();

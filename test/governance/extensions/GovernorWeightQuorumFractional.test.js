@@ -58,7 +58,7 @@ contract('GovernorWeightQuorumFractional', function (accounts) {
           { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
         ],
         steps: {
-          execute: { error: 'Governor: proposal not successfull' },
+          execute: { error: 'Governor: proposal not successful' },
         },
       };
     });

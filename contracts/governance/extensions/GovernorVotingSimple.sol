@@ -19,20 +19,20 @@ abstract contract GovernorVotingSimple is Governor {
         Abstain
     }
 
-    struct Receipt {
+    struct ProposalVote {
         uint256 againstVotes;
         uint256 forVotes;
         uint256 abstainVotes;
         mapping(address => bool) hasVoted;
     }
 
-    mapping(uint256 => Receipt) private _receipts;
+    mapping(uint256 => ProposalVote) private _proposalVotes;
 
     /**
      * @dev See {IGovernor-hasVoted}.
      */
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
-        return _receipts[proposalId].hasVoted[account];
+        return _proposalVotes[proposalId].hasVoted[account];
     }
 
     /**
@@ -48,24 +48,26 @@ abstract contract GovernorVotingSimple is Governor {
             uint256 abstainVotes
         )
     {
-        Receipt storage receipt = _receipts[proposalId];
-        return (receipt.againstVotes, receipt.forVotes, receipt.abstainVotes);
+        ProposalVote storage proposalvote = _proposalVotes[proposalId];
+        return (proposalvote.againstVotes, proposalvote.forVotes, proposalvote.abstainVotes);
     }
 
     /**
      * @dev See {IGovernor-proposalWeight}.
      */
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
-        Receipt storage receipt = _receipts[proposalId];
+        ProposalVote storage proposalvote = _proposalVotes[proposalId];
 
-        return quorum(proposalSnapshot(proposalId)) < receipt.againstVotes + receipt.forVotes + receipt.abstainVotes;
+        return quorum(proposalSnapshot(proposalId)) < proposalvote.againstVotes + proposalvote.forVotes + proposalvote.abstainVotes;
     }
 
     /**
-     * @dev See {IGovernor-_voteSuccess}. In this module, the forVotes must be scritly over the againstVotes.
+     * @dev See {IGovernor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
      */
-    function _voteSuccess(uint256 proposalId) internal view virtual override returns (bool) {
-        return _receipts[proposalId].forVotes > _receipts[proposalId].againstVotes;
+    function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
+        ProposalVote storage proposalvote = _proposalVotes[proposalId];
+
+        return proposalvote.forVotes > proposalvote.againstVotes;
     }
 
     /**
@@ -77,17 +79,17 @@ abstract contract GovernorVotingSimple is Governor {
         uint8 support,
         uint256 weight
     ) internal virtual override {
-        Receipt storage receipt = _receipts[proposalId];
+        ProposalVote storage proposalvote = _proposalVotes[proposalId];
 
-        require(!receipt.hasVoted[account], "GovernorVotingSimple: vote already casted");
-        receipt.hasVoted[account] = true;
+        require(!proposalvote.hasVoted[account], "GovernorVotingSimple: vote already casted");
+        proposalvote.hasVoted[account] = true;
 
         if (support == uint8(VoteType.Against)) {
-            receipt.againstVotes += weight;
+            proposalvote.againstVotes += weight;
         } else if (support == uint8(VoteType.For)) {
-            receipt.forVotes += weight;
+            proposalvote.forVotes += weight;
         } else if (support == uint8(VoteType.Abstain)) {
-            receipt.abstainVotes += weight;
+            proposalvote.abstainVotes += weight;
         } else {
             revert("GovernorVotingSimple: invalid value for enum VoteType");
         }

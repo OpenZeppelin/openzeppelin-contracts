@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "../utils/cryptography/ECDSA.sol";
 import "../utils/cryptography/draft-EIP712.sol";
 import "../utils/introspection/ERC165.sol";
+import "../utils/math/SafeCast.sol";
 import "../utils/Address.sol";
 import "../utils/Context.sol";
 import "../utils/Timers.sol";
@@ -16,6 +17,7 @@ import "./IGovernor.sol";
  * _Available since v4.3._
  */
 abstract contract Governor is Context, ERC165, EIP712, IGovernor {
+    using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
@@ -32,8 +34,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     mapping(uint256 => ProposalCore) private _proposals;
 
     /**
-     * @dev Restrict access to governor executing address.
-     * This must be overloaded if operation are executed through a timelock.
+     * @dev Restrict access to governor executing address. Some module might override the _executor function to make
+     * sure this modifier is consistant with the execution model.
      */
     modifier onlyGovernance() {
         require(_msgSender() == _executor(), "Governor: onlyGovernance");
@@ -62,7 +64,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @dev See {IGovernor-vestion}.
+     * @dev See {IGovernor-version}.
      */
     function version() public view virtual override returns (string memory) {
         return "1";
@@ -70,6 +72,16 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
     /**
      * @dev See {IGovernor-hashProposal}.
+     *
+     * The proposal id is produced by hashing the RLC encoded `targets` array, the `values` array, the `calldatas` array
+     * and the descriptionHash (bytes32 which itself is the keccak256 hash of the description string). This proposal id
+     * can be produced from the proposal data which is part of the {{ProposalCreated}} event. It can even be computed in
+     * advance, before the proposal is submitted.
+     *
+     * Note that the chainId and the governor address are not part of the proposal id computation. Consequently, the
+     * same proposal (with same operation and same description) will have the same id if submitted on multiple governors
+     * accross multiple networks. This also means that in order to execute the same operation twice (on the same
+     * governor) the proposer will have to change the description in order to avoid proposal id conflicts.
      */
     function hashProposal(
         address[] memory targets,
@@ -96,11 +108,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
             return ProposalState.Active;
         } else if (proposal.voteEnd.isExpired()) {
             return
-                _quorumReached(proposalId) && _voteSuccess(proposalId)
+                _quorumReached(proposalId) && _voteSucceeded(proposalId)
                     ? ProposalState.Succeeded
                     : ProposalState.Defeated;
         } else {
-            revert("Governor::state: invalid proposal id");
+            revert("Governor: unknown proposal id");
         }
     }
 
@@ -123,14 +135,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      *
      * Default: 0
      */
-    function votingDelay() public view virtual override returns (uint64) {
+    function votingDelay() public view virtual override returns (uint256) {
         return 0;
     }
 
     /**
      * @dev See {IGovernor-votingPeriod}
      */
-    function votingPeriod() public view virtual override returns (uint64);
+    function votingPeriod() public view virtual override returns (uint256);
 
     /**
      * @dev See {IGovernor-quorum}
@@ -151,7 +163,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
     /**
      * @notice module:voting
-     * @dev Amont of votes already casted passes the threshold limit.
+     * @dev Amount of votes already casted passes the threshold limit.
      */
     function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
 
@@ -159,7 +171,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * @notice module:voting
      * @dev Is the proposal successfull or not.
      */
-    function _voteSuccess(uint256 proposalId) internal view virtual returns (bool);
+    function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
 
     /**
      * @notice module:core
@@ -180,8 +192,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         ProposalCore storage proposal = _proposals[proposalId];
         require(proposal.voteStart.isUnset(), "Governor: proposal already exists");
 
-        uint64 snapshot = uint64(block.number) + votingDelay();
-        uint64 deadline = snapshot + votingPeriod();
+        uint64 snapshot = block.number.toUint64() + votingDelay().toUint64();
+        uint64 deadline = snapshot + votingPeriod().toUint64();
 
         proposal.voteStart.setDeadline(snapshot);
         proposal.voteEnd.setDeadline(deadline);
@@ -213,15 +225,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     ) public payable virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successfull");
+        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful");
         _proposals[proposalId].executed = true;
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (calldatas[i].length == 0) {
-                Address.sendValue(payable(targets[i]), values[i]);
-            } else {
-                Address.functionCallWithValue(targets[i], calldatas[i], values[i]);
-            }
+            (bool success, bytes memory returndata) = targets[i].call{ value: values[i] }(calldatas[i]);
+            Address._verifyCallResult(success, returndata, "Governor: call reverted without message");
         }
 
         emit ProposalExecuted(proposalId);
@@ -311,7 +320,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint8 support,
         string memory reason
     ) internal virtual returns (uint256) {
-        ProposalCore memory proposal = _proposals[proposalId];
+        ProposalCore storage proposal = _proposals[proposalId];
         require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
 
         uint256 weight = getVotes(account, proposal.voteStart.getDeadline());

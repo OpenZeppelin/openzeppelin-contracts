@@ -33,7 +33,7 @@ contract GovernorTimelockCompoundMock is
         return super.supportsInterface(interfaceId);
     }
 
-    function votingPeriod() public pure override(IGovernor, Governor) returns (uint64) {
+    function votingPeriod() public pure override(IGovernor, Governor) returns (uint256) {
         return 16; // blocks
     }
 

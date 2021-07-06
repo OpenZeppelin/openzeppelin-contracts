@@ -99,7 +99,7 @@ interface IGovernor is IERC165 {
      * @dev delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
      * leave time for users to buy voting power, of delegate it, before the voting of a proposal starts.
      */
-    function votingDelay() external view returns (uint64);
+    function votingDelay() external view returns (uint256);
 
     /**
      * @notice module:user-config
@@ -108,7 +108,7 @@ interface IGovernor is IERC165 {
      * Note: the {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
      */
-    function votingPeriod() external view returns (uint64);
+    function votingPeriod() external view returns (uint256);
 
     /**
      * @notice module:user-config
