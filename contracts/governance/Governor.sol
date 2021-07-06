@@ -229,7 +229,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         _proposals[proposalId].executed = true;
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            (bool success, bytes memory returndata) = targets[i].call{ value: values[i] }(calldatas[i]);
+            (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
             Address.verifyCallResult(success, returndata, "Governor: call reverted without message");
         }
 
