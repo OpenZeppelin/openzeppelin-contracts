@@ -5,7 +5,7 @@ import "../../token/ERC20/extensions/ERC20Votes.sol";
 import "./ERC20VestingWallet.sol";
 
 /**
- * @title ERC20VestingWalletVotes
+ * @title ERC20VestingWalletVoting
  * @dev This is an extension to {ERC20VestingWallet} that allow the voting with tokens that are locked. The beneficiary can
  * delegate the voting power associated with vesting tokens to another wallet.
  */
