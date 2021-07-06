@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./GovernorWeight.sol";
+import "./GovernorVotes.sol";
 
 /**
  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token and a quorum expressed as a
@@ -10,7 +10,7 @@ import "./GovernorWeight.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorWeightQuorumFractional is GovernorWeight {
+abstract contract GovernorVotesQuorumFractional is GovernorVotes {
     uint256 private _quorumRatio;
 
     event QuorumRatioUpdated(uint256 oldQuorumRatio, uint256 newQuorumRatio);
@@ -36,7 +36,7 @@ abstract contract GovernorWeightQuorumFractional is GovernorWeight {
     }
 
     function _updateQuorumRatio(uint256 newQuorumRatio) internal virtual {
-        require(newQuorumRatio <= quorumRatioMax(), "GovernorWeightQuorumFractional: quorumRatio over quorumRatioMax");
+        require(newQuorumRatio <= quorumRatioMax(), "GovernorVotesQuorumFractional: quorumRatio over quorumRatioMax");
 
         uint256 oldQuorumRatio = _quorumRatio;
         _quorumRatio = newQuorumRatio;

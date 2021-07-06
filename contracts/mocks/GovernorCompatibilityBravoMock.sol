@@ -3,15 +3,15 @@
 pragma solidity ^0.8.0;
 
 import "../governance/compatibility/GovernorCompatibilityBravo.sol";
-import "../governance/extensions/GovernorWeightComp.sol";
+import "../governance/extensions/GovernorVotesComp.sol";
 import "../governance/extensions/GovernorTimelockCompound.sol";
 
-contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorTimelockCompound, GovernorWeightComp {
+contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorTimelockCompound, GovernorVotesComp {
     constructor(
         string memory name_,
         address token_,
         address timelock_
-    ) Governor(name_) GovernorWeightComp(token_) GovernorTimelockCompound(timelock_) {}
+    ) Governor(name_) GovernorVotesComp(token_) GovernorTimelockCompound(timelock_) {}
 
     function supportsInterface(bytes4 interfaceId)
         public
@@ -100,7 +100,7 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         public
         view
         virtual
-        override(IGovernor, GovernorWeightComp)
+        override(IGovernor, GovernorVotesComp)
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);

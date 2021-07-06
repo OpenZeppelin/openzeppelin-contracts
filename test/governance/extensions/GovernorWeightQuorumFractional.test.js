@@ -9,7 +9,7 @@ const Token = artifacts.require('ERC20VotesMock');
 const Governor = artifacts.require('GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-contract('GovernorWeightQuorumFractional', function (accounts) {
+contract('GovernorVotesQuorumFractional', function (accounts) {
   const [ owner, voter1, voter2, voter3, voter4 ] = accounts;
 
   const name = 'OZ-Governor';
@@ -113,7 +113,7 @@ contract('GovernorWeightQuorumFractional', function (accounts) {
           { voter: voter1, weight: tokenSupply, support: Enums.VoteType.For },
         ],
         steps: {
-          execute: { error: 'GovernorWeightQuorumFractional: quorumRatio over quorumRatioMax' },
+          execute: { error: 'GovernorVotesQuorumFractional: quorumRatio over quorumRatioMax' },
         },
       };
     });

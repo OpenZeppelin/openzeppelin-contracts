@@ -238,9 +238,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {IGovernor-_pushVote}. In this module, the support follows Governor Bravo.
+     * @dev See {IGovernor-_countVote}. In this module, the support follows Governor Bravo.
      */
-    function _pushVote(
+    function _countVote(
         uint256 proposalId,
         address account,
         uint8 support,

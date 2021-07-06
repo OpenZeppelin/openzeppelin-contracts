@@ -5,11 +5,11 @@ pragma solidity ^0.8.0;
 import "../Governor.sol";
 
 /**
- * @dev Extension of {Governor} for simple, 3 options, voting.
+ * @dev Extension of {Governor} for simple, 3 options, vote counting.
  *
  * _Available since v4.3._
  */
-abstract contract GovernorVotingSimple is Governor {
+abstract contract GovernorCountingSimple is Governor {
     /**
      * @dev Supported vote types. Matches Governor Bravo ordering.
      */
@@ -71,9 +71,9 @@ abstract contract GovernorVotingSimple is Governor {
     }
 
     /**
-     * @dev See {IGovernor-_pushVote}. In this module, the support follows the `VoteType` enum (from Governor Bravo).
+     * @dev See {IGovernor-_countVote}. In this module, the support follows the `VoteType` enum (from Governor Bravo).
      */
-    function _pushVote(
+    function _countVote(
         uint256 proposalId,
         address account,
         uint8 support,

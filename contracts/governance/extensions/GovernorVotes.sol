@@ -11,7 +11,7 @@ import "../../utils/math/Math.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorWeight is Governor {
+abstract contract GovernorVotes is Governor {
     ERC20Votes public immutable token;
 
     constructor(address tokenAddress) {

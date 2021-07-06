@@ -230,7 +230,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{ value: values[i] }(calldatas[i]);
-            Address._verifyCallResult(success, returndata, "Governor: call reverted without message");
+            Address.verifyCallResult(success, returndata, "Governor: call reverted without message");
         }
 
         emit ProposalExecuted(proposalId);
@@ -310,7 +310,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     /**
      * @notice module:core
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been casted yet, retrieve
-     * voting weight using {IGovernor-getVotes} and call the {IGovernor-_pushVote} internal function.
+     * voting weight using {IGovernor-getVotes} and call the {IGovernor-_countVote} internal function.
      *
      * Emits a {IGovernor-VoteCast} event.
      */
@@ -324,7 +324,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
 
         uint256 weight = getVotes(account, proposal.voteStart.getDeadline());
-        _pushVote(proposalId, account, support, weight);
+        _countVote(proposalId, account, support, weight);
 
         emit VoteCast(account, proposalId, support, weight, reason);
 
@@ -338,7 +338,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * Note: Support is generic and can represent various things depending
      * on the voting system used.
      */
-    function _pushVote(
+    function _countVote(
         uint256 proposalId,
         address account,
         uint8 support,

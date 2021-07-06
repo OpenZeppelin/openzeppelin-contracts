@@ -10,7 +10,7 @@ import "../../token/ERC20/extensions/ERC20VotesComp.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorWeightComp is Governor {
+abstract contract GovernorVotesComp is Governor {
     ERC20VotesComp public immutable token;
 
     constructor(address token_) {

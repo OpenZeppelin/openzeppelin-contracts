@@ -3,15 +3,15 @@
 pragma solidity ^0.8.0;
 
 import "../governance/Governor.sol";
-import "../governance/extensions/GovernorVotingSimple.sol";
-import "../governance/extensions/GovernorWeightQuorumFractional.sol";
+import "../governance/extensions/GovernorCountingSimple.sol";
+import "../governance/extensions/GovernorVotesQuorumFractional.sol";
 
-contract GovernorMock is Governor, GovernorWeightQuorumFractional, GovernorVotingSimple {
+contract GovernorMock is Governor, GovernorVotesQuorumFractional, GovernorCountingSimple {
     constructor(
         string memory name_,
         address token_,
         uint256 quorumRatio_
-    ) Governor(name_) GovernorWeight(token_) GovernorWeightQuorumFractional(quorumRatio_) {}
+    ) Governor(name_) GovernorVotes(token_) GovernorVotesQuorumFractional(quorumRatio_) {}
 
     receive() external payable {}
 
@@ -32,7 +32,7 @@ contract GovernorMock is Governor, GovernorWeightQuorumFractional, GovernorVotin
         public
         view
         virtual
-        override(Governor, GovernorWeight)
+        override(Governor, GovernorVotes)
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);
