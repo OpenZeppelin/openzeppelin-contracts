@@ -225,15 +225,16 @@ contract('Governor', function (accounts) {
 
     describe('send ethers', function () {
       beforeEach(async function () {
-        this.receiver = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
+        this.receiver = { address: web3.utils.toChecksumAddress(web3.utils.randomHex(20)) };
         this.value = web3.utils.toWei('1');
 
         await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: this.value });
         expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(this.value);
+        expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
 
         this.settings = {
           proposal: [
-            [ this.receiver ],
+            [ this.receiver.address ],
             [ this.value ],
             [ '0x' ],
             '<proposal description>',
@@ -257,7 +258,35 @@ contract('Governor', function (accounts) {
           { proposalId: this.id },
         );
         expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
-        expect(await web3.eth.getBalance(this.receiver)).to.be.bignumber.equal(this.value);
+        expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(this.value);
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('call payable function', function () {
+      beforeEach(async function () {
+        this.value = web3.utils.toWei('1');
+
+        await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: this.value });
+        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(this.value);
+        expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
+
+        this.settings = {
+          proposal: [
+            [ this.receiver.address ],
+            [ this.value ],
+            [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+            '<proposal description>',
+          ],
+          tokenHolder: owner,
+          voters: [
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+          ],
+        };
+      });
+      afterEach(async function () {
+        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
+        expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(this.value);
       });
       runGovernorWorkflow();
     });
