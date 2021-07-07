@@ -262,6 +262,48 @@ contract('Governor', function (accounts) {
       runGovernorWorkflow();
     });
 
+    describe('receiver revert without reason', function () {
+      beforeEach(async function () {
+        this.settings = {
+          proposal: [
+            [ this.receiver.address ],
+            [ 0 ],
+            [ this.receiver.contract.methods.mockFunctionRevertsNoReason().encodeABI() ],
+            '<proposal description>',
+          ],
+          tokenHolder: owner,
+          voters: [
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+          ],
+          steps: {
+            execute: { error: 'Governor: call reverted without message' },
+          },
+        };
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('receiver revert with reason', function () {
+      beforeEach(async function () {
+        this.settings = {
+          proposal: [
+            [ this.receiver.address ],
+            [ 0 ],
+            [ this.receiver.contract.methods.mockFunctionRevertsReason().encodeABI() ],
+            '<proposal description>',
+          ],
+          tokenHolder: owner,
+          voters: [
+            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+          ],
+          steps: {
+            execute: { error: 'CallReceiverMock: reverting' },
+          },
+        };
+      });
+      runGovernorWorkflow();
+    });
+
     describe('missing proposal', function () {
       beforeEach(async function () {
         this.settings = {
