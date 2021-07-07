@@ -226,10 +226,14 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      *
      * For security reason, the timelock must be handed over to another admin before setting up a new one. The two
      * operations (hand over the timelock) and do the update can be batched in a single proposal.
+     *
+     * Note that if the timelock admin has been handed over in a previous operation, we refuse updates made through the
+     * timelock if admin of the timelock has already been accepted and the operation is executed outside the scope of
+     * governance.
      */
     function updateTimelock(address newTimelock) external virtual onlyGovernance {
         require(
-            _timelock.pendingAdmin() != address(0),
+            _timelock.admin() == address(this) && _timelock.pendingAdmin() != address(0),
             "GovernorTimelockCompound: old timelock must be transfered before update"
         );
         _updateTimelock(newTimelock);
