@@ -175,16 +175,14 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     {
         id = proposalId;
         eta = proposalEta(proposalId);
+        startBlock = proposalSnapshot(proposalId);
+        endBlock = proposalDeadline(proposalId);
 
         ProposalDetails storage details = _proposalDetails[proposalId];
         proposer = details.proposer;
         forVotes = details.forVotes;
         againstVotes = details.againstVotes;
         abstainVotes = details.abstainVotes;
-
-        ProposalCore memory core = _getProposal(proposalId);
-        startBlock = core.voteStart.getDeadline();
-        endBlock = core.voteEnd.getDeadline();
 
         ProposalState status = state(proposalId);
         canceled = status == ProposalState.Canceled;

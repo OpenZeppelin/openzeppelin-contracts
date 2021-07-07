@@ -161,13 +161,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256);
 
     /**
-     * @dev Internal proposal viewer
-     */
-    function _getProposal(uint256 proposalId) internal view returns (ProposalCore memory) {
-        return _proposals[proposalId];
-    }
-
-    /**
      * @dev Amount of votes already casted passes the threshold limit.
      */
     function _quorumReached(uint256 proposalId) internal view virtual returns (bool);

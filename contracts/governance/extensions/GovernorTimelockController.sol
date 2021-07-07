@@ -22,7 +22,7 @@ abstract contract GovernorTimelockController is IGovernorTimelock, Governor {
     mapping(uint256 => bytes32) private _ids;
 
     /**
-     * @dev Emitted when the minimum delay for future operations is modified.
+     * @dev Emitted when the timelock controller used for proposal execution is modified.
      */
     event TimelockChange(address oldTimelock, address newTimelock);
 
@@ -46,14 +46,20 @@ abstract contract GovernorTimelockController is IGovernorTimelock, Governor {
     function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
         ProposalState proposalState = super.state(proposalId);
 
-        return
-            proposalState == ProposalState.Succeeded
-                ? _timelock.isOperationPending(_ids[proposalId])
-                    ? ProposalState.Queued
-                    : _timelock.isOperationDone(_ids[proposalId])
-                    ? ProposalState.Executed
-                    : proposalState
-                : proposalState;
+        if (proposalState == ProposalState.Succeeded) {
+            bytes32 id = _ids[proposalId];
+            if (id == 0) {
+                return proposalState;
+            } else if (_timelock.isOperationPending(id)) {
+                return ProposalState.Queued;
+            } else if (_timelock.isOperationDone(id)) {
+                return ProposalState.Executed;
+            } else {
+                return proposalState;
+            }
+        } else {
+            return proposalState;
+        }
     }
 
     /**
@@ -67,7 +73,8 @@ abstract contract GovernorTimelockController is IGovernorTimelock, Governor {
      * @dev Public accessor to check the eta of a queued proposal
      */
     function proposalEta(uint256 proposalId) public view virtual override returns (uint256) {
-        return _timelock.getTimestamp(_ids[proposalId]);
+        uint256 eta = _timelock.getTimestamp(_ids[proposalId]);
+        return eta == 1 ? 0 : eta; // _DONE_TIMESTAMP (1) should be replaced with a 0 value
     }
 
     /**
@@ -133,7 +140,7 @@ abstract contract GovernorTimelockController is IGovernorTimelock, Governor {
      * @dev Address through which the governor executes action. In this case, the timelock.
      */
     function _executor() internal view virtual override returns (address) {
-        return timelock();
+        return address(_timelock);
     }
 
     /**
