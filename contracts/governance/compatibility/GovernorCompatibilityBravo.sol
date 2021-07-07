@@ -33,7 +33,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes32 descriptionHash;
     }
 
-    mapping(uint256 => ProposalDetails) internal _proposalDetails;
+    mapping(uint256 => ProposalDetails) private _proposalDetails;
 
     // public for hooking + default: 0
     function proposalThreshold() public view virtual override returns (uint256) {

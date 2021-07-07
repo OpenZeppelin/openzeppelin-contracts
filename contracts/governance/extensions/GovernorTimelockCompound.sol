@@ -73,6 +73,7 @@ interface ICompoundTimelock {
  * _Available since v4.3._
  */
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
+    using SafeCast for uint256;
     using Timers for Timers.Timestamp;
 
     struct ProposalTimelock {
@@ -85,7 +86,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     mapping(uint256 => ProposalTimelock) private _proposalTimelocks;
 
     /**
-     * @dev Emitted when the minimum delay for future operations is modified.
+     * @dev Emitted when the timelock controller used for proposal execution is modified.
      */
     event TimelockChange(address oldTimelock, address newTimelock);
 
@@ -153,7 +154,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successfull");
 
         uint256 eta = block.timestamp + _timelock.delay();
-        _proposalTimelocks[proposalId].timer.setDeadline(SafeCast.toUint64(eta));
+        _proposalTimelocks[proposalId].timer.setDeadline(eta.toUint64());
         for (uint256 i = 0; i < targets.length; ++i) {
             require(
                 !_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta))),
@@ -177,12 +178,10 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         bytes32 descriptionHash
     ) public payable virtual override(IGovernor, Governor) returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-        Address.sendValue(payable(_timelock), msg.value);
-
         uint256 eta = proposalEta(proposalId);
         require(eta > 0, "GovernorTimelockCompound: proposal not yet queued");
         for (uint256 i = 0; i < targets.length; ++i) {
-            _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], eta);
+            _timelock.executeTransaction{value: values[i]}(targets[i], values[i], "", calldatas[i], eta);
         }
         _proposalTimelocks[proposalId].executed = true;
 
@@ -218,7 +217,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      * @dev Address through which the governor executes action. In this case, the timelock.
      */
     function _executor() internal view virtual override returns (address) {
-        return timelock();
+        return address(_timelock);
     }
 
     /**
