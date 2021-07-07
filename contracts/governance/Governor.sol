@@ -233,7 +233,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         ProposalState status = state(proposalId);
-        require(status == ProposalState.Succeeded || status == ProposalState.Queued, "Governor: proposal not successful");
+        require(
+            status == ProposalState.Succeeded || status == ProposalState.Queued,
+            "Governor: proposal not successful"
+        );
         _proposals[proposalId].executed = true;
 
         emit ProposalExecuted(proposalId);
@@ -247,7 +250,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * @dev Internal execution mechanism. Can be overriden to implement different execution mechanism
      */
     function _execute(
-        uint256 /* proposalId */,
+        uint256, /* proposalId */
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,

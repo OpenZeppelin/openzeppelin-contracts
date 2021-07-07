@@ -173,7 +173,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32/*descriptionHash*/
+        bytes32 /*descriptionHash*/
     ) internal virtual override {
         uint256 eta = proposalEta(proposalId);
         require(eta > 0, "GovernorTimelockCompound: proposal not yet queued");
