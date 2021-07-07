@@ -155,29 +155,34 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     /**
      * @dev See {IGovernorCompatibilityBravo-proposals}.
      */
-    function proposals(uint256 proposalId) public view virtual override returns (Proposal memory) {
-        Proposal memory result;
-        result.id = proposalId;
-        result.eta = proposalEta(proposalId);
+    function proposals(uint256 proposalId) public view virtual override returns (
+        uint256 id,
+        address proposer,
+        uint256 eta,
+        uint256 startBlock,
+        uint256 endBlock,
+        uint256 forVotes,
+        uint256 againstVotes,
+        uint256 abstainVotes,
+        bool canceled,
+        bool executed
+    ) {
+        id = proposalId;
+        eta = proposalEta(proposalId);
 
         ProposalDetails storage details = _proposalDetails[proposalId];
-        result.proposer = details.proposer;
-        result.targets = details.targets;
-        result.values = details.values;
-        result.signatures = details.signatures;
-        result.calldatas = details.calldatas;
-        result.forVotes = details.forVotes;
-        result.againstVotes = details.againstVotes;
-        result.abstainVotes = details.abstainVotes;
+        proposer = details.proposer;
+        forVotes = details.forVotes;
+        againstVotes = details.againstVotes;
+        abstainVotes = details.abstainVotes;
 
         ProposalCore memory core = _getProposal(proposalId);
-        result.startBlock = core.voteStart.getDeadline();
-        result.endBlock = core.voteEnd.getDeadline();
+        startBlock = core.voteStart.getDeadline();
+        endBlock = core.voteEnd.getDeadline();
 
         ProposalState status = state(proposalId);
-        result.canceled = status == ProposalState.Canceled;
-        result.executed = status == ProposalState.Executed;
-        return result;
+        canceled = status == ProposalState.Canceled;
+        executed = status == ProposalState.Executed;
     }
 
     /**

@@ -122,10 +122,6 @@ contract('GovernorCompatibilityBravo', function (accounts) {
       expect(proposal.id).to.be.bignumber.equal(this.id);
       expect(proposal.proposer).to.be.equal(proposer);
       expect(proposal.eta).to.be.bignumber.equal(this.eta);
-      expect(proposal.targets).to.be.deep.equal(this.settings.proposal[0]);
-      // expect(proposal.values).to.be.deep.equal(this.settings.proposal[1]);
-      expect(proposal.signatures).to.be.deep.equal(Array(this.settings.proposal[2].length).fill(''));
-      expect(proposal.calldatas).to.be.deep.equal(this.settings.proposal[2]);
       expect(proposal.startBlock).to.be.bignumber.equal(this.snapshot);
       expect(proposal.endBlock).to.be.bignumber.equal(this.deadline);
       expect(proposal.canceled).to.be.equal(false);
@@ -247,10 +243,6 @@ contract('GovernorCompatibilityBravo', function (accounts) {
       expect(proposal.id).to.be.bignumber.equal(this.id);
       expect(proposal.proposer).to.be.equal(proposer);
       expect(proposal.eta).to.be.bignumber.equal(this.eta);
-      expect(proposal.targets).to.be.deep.equal(this.settings.proposal[0]);
-      // expect(proposal.values).to.be.deep.equal(this.settings.proposal[1]);
-      expect(proposal.signatures).to.be.deep.equal(this.settings.proposal[2]);
-      expect(proposal.calldatas).to.be.deep.equal(this.settings.proposal[3]);
       expect(proposal.startBlock).to.be.bignumber.equal(this.snapshot);
       expect(proposal.endBlock).to.be.bignumber.equal(this.deadline);
       expect(proposal.canceled).to.be.equal(false);

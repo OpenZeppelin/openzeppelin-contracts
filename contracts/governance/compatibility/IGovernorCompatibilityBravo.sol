@@ -62,7 +62,18 @@ interface IGovernorCompatibilityBravo is IGovernor {
     /**
      * @dev Part of the Governor Bravo's interface: _"The official record of all proposals ever proposed"_.
      */
-    function proposals(uint256) external view returns (Proposal memory);
+    function proposals(uint256) external view returns (
+        uint256 id,
+        address proposer,
+        uint256 eta,
+        uint256 startBlock,
+        uint256 endBlock,
+        uint256 forVotes,
+        uint256 againstVotes,
+        uint256 abstainVotes,
+        bool canceled,
+        bool executed
+    );
 
     /**
      * @dev Part of the Governor Bravo's interface: _"Function used to propose a new proposal"_.
