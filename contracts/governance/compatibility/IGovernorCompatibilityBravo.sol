@@ -11,7 +11,8 @@ import "../IGovernor.sol";
  */
 interface IGovernorCompatibilityBravo is IGovernor {
     /**
-     * @dev Proposal structure from Compound Governor Bravo
+     * @dev Proposal structure from Compound Governor Bravo. Not actually used by the compatibility layer, as
+     * {{proposal}} returns a very different structure.
      */
     struct Proposal {
         uint256 id;
@@ -28,6 +29,7 @@ interface IGovernorCompatibilityBravo is IGovernor {
         uint256 abstainVotes;
         bool canceled;
         bool executed;
+        mapping (address => Receipt) receipts;
     }
 
     /**
