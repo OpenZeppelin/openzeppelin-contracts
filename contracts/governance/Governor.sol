@@ -16,9 +16,9 @@ import "./IGovernor.sol";
  *
  * This contract is abstract and requiers several function to be implemented in various modules:
  *
- * - A counting module must implement {{quorum}}, {{_quorumReached }}, {{_voteSucceeded }} and {{_countVote }}
- * - A voting module must implement {{getVotes}}
- * - Additionanly, the {{votingPeriod}} must also be implemented
+ * - A counting module must implement {quorum}, {_quorumReached}, {_voteSucceeded} and {_countVote}
+ * - A voting module must implement {getVotes}
+ * - Additionanly, the {votingPeriod} must also be implemented
  *
  * _Available since v4.3._
  */
@@ -81,7 +81,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      *
      * The proposal id is produced by hashing the RLC encoded `targets` array, the `values` array, the `calldatas` array
      * and the descriptionHash (bytes32 which itself is the keccak256 hash of the description string). This proposal id
-     * can be produced from the proposal data which is part of the {{ProposalCreated}} event. It can even be computed in
+     * can be produced from the proposal data which is part of the {ProposalCreated} event. It can even be computed in
      * advance, before the proposal is submitted.
      *
      * Note that the chainId and the governor address are not part of the proposal id computation. Consequently, the
