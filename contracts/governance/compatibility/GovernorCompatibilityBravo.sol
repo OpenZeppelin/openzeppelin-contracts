@@ -155,18 +155,24 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     /**
      * @dev See {IGovernorCompatibilityBravo-proposals}.
      */
-    function proposals(uint256 proposalId) public view virtual override returns (
-        uint256 id,
-        address proposer,
-        uint256 eta,
-        uint256 startBlock,
-        uint256 endBlock,
-        uint256 forVotes,
-        uint256 againstVotes,
-        uint256 abstainVotes,
-        bool canceled,
-        bool executed
-    ) {
+    function proposals(uint256 proposalId)
+        public
+        view
+        virtual
+        override
+        returns (
+            uint256 id,
+            address proposer,
+            uint256 eta,
+            uint256 startBlock,
+            uint256 endBlock,
+            uint256 forVotes,
+            uint256 againstVotes,
+            uint256 abstainVotes,
+            bool canceled,
+            bool executed
+        )
+    {
         id = proposalId;
         eta = proposalEta(proposalId);
 
