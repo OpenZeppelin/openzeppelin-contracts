@@ -29,7 +29,7 @@ abstract contract GovernorTimelockController is IGovernorTimelock, Governor {
     /**
      * @dev Set the timelock.
      */
-    constructor(address timelockAddress) {
+    constructor(TimelockController timelockAddress) {
         _updateTimelock(timelockAddress);
     }
 
@@ -140,12 +140,12 @@ abstract contract GovernorTimelockController is IGovernorTimelock, Governor {
      * @dev Public endpoint to update the underlying timelock instance. Restricted to the timelock itself, so updates
      * must be proposed, scheduled and executed using the {Governor} workflow.
      */
-    function updateTimelock(address newTimelock) external virtual onlyGovernance() {
+    function updateTimelock(TimelockController newTimelock) external virtual onlyGovernance() {
         _updateTimelock(newTimelock);
     }
 
-    function _updateTimelock(address newTimelock) private {
-        emit TimelockChange(address(_timelock), newTimelock);
-        _timelock = TimelockController(payable(newTimelock));
+    function _updateTimelock(TimelockController newTimelock) private {
+        emit TimelockChange(address(_timelock), address(newTimelock));
+        _timelock = newTimelock;
     }
 }

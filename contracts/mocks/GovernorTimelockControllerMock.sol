@@ -13,8 +13,8 @@ contract GovernorTimelockControllerMock is
 {
     constructor(
         string memory name_,
-        address token_,
-        address timelock_,
+        ERC20Votes token_,
+        TimelockController timelock_,
         uint256 quorumRatio_
     )
         Governor(name_)

@@ -9,7 +9,7 @@ import "../governance/extensions/GovernorVotesQuorumFractional.sol";
 contract GovernorMock is Governor, GovernorVotesQuorumFractional, GovernorCountingSimple {
     constructor(
         string memory name_,
-        address token_,
+        ERC20Votes token_,
         uint256 quorumRatio_
     ) Governor(name_) GovernorVotes(token_) GovernorVotesQuorumFractional(quorumRatio_) {}
 

@@ -13,8 +13,8 @@ import "../../token/ERC20/extensions/ERC20VotesComp.sol";
 abstract contract GovernorVotesComp is Governor {
     ERC20VotesComp public immutable token;
 
-    constructor(address token_) {
-        token = ERC20VotesComp(token_);
+    constructor(ERC20VotesComp token_) {
+        token = token_;
     }
 
     /**

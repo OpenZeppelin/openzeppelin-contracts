@@ -9,8 +9,8 @@ import "../governance/extensions/GovernorTimelockCompound.sol";
 contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorTimelockCompound, GovernorVotesComp {
     constructor(
         string memory name_,
-        address token_,
-        address timelock_
+        ERC20VotesComp token_,
+        ICompoundTimelock timelock_
     ) Governor(name_) GovernorVotesComp(token_) GovernorTimelockCompound(timelock_) {}
 
     function supportsInterface(bytes4 interfaceId)

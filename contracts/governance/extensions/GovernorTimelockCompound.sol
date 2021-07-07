@@ -92,7 +92,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Set the timelock.
      */
-    constructor(address timelockAddress) {
+    constructor(ICompoundTimelock timelockAddress) {
         _updateTimelock(timelockAddress);
     }
 
@@ -231,7 +231,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      * timelock if admin of the timelock has already been accepted and the operation is executed outside the scope of
      * governance.
      */
-    function updateTimelock(address newTimelock) external virtual onlyGovernance {
+    function updateTimelock(ICompoundTimelock newTimelock) external virtual onlyGovernance {
         require(
             _timelock.admin() == address(this) && _timelock.pendingAdmin() != address(0),
             "GovernorTimelockCompound: old timelock must be transfered before update"
@@ -239,8 +239,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         _updateTimelock(newTimelock);
     }
 
-    function _updateTimelock(address newTimelock) private {
-        emit TimelockChange(address(_timelock), newTimelock);
-        _timelock = ICompoundTimelock(payable(newTimelock));
+    function _updateTimelock(ICompoundTimelock newTimelock) private {
+        emit TimelockChange(address(_timelock), address(newTimelock));
+        _timelock = newTimelock;
     }
 }

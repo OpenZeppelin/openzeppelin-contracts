@@ -7,7 +7,7 @@ import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotesComp.sol";
 
 contract GovernorCompMock is Governor, GovernorVotesComp, GovernorCountingSimple {
-    constructor(string memory name_, address token_) Governor(name_) GovernorVotesComp(token_) {}
+    constructor(string memory name_, ERC20VotesComp token_) Governor(name_) GovernorVotesComp(token_) {}
 
     receive() external payable {}
 

@@ -14,8 +14,8 @@ import "../../utils/math/Math.sol";
 abstract contract GovernorVotes is Governor {
     ERC20Votes public immutable token;
 
-    constructor(address tokenAddress) {
-        token = ERC20Votes(tokenAddress);
+    constructor(ERC20Votes tokenAddress) {
+        token = tokenAddress;
     }
 
     /**
