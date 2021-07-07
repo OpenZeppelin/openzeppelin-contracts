@@ -231,7 +231,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {IGovernor-proposalWeight}. In this module, only forVotes count toward the quorum.
+     * @dev See {Governor-_quorumReached}. In this module, only forVotes count toward the quorum.
      */
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalDetails storage details = _proposalDetails[proposalId];
@@ -239,7 +239,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {IGovernor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
+     * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
      */
     function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalDetails storage details = _proposalDetails[proposalId];
@@ -247,7 +247,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {IGovernor-_countVote}. In this module, the support follows Governor Bravo.
+     * @dev See {Governor-_countVote}. In this module, the support follows Governor Bravo.
      */
     function _countVote(
         uint256 proposalId,

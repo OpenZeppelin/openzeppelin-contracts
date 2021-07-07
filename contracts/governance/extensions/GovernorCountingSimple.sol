@@ -53,7 +53,7 @@ abstract contract GovernorCountingSimple is Governor {
     }
 
     /**
-     * @dev See {IGovernor-proposalWeight}.
+     * @dev See {Governor-_quorumReached}.
      */
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
@@ -64,7 +64,7 @@ abstract contract GovernorCountingSimple is Governor {
     }
 
     /**
-     * @dev See {IGovernor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
+     * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
      */
     function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
@@ -73,7 +73,7 @@ abstract contract GovernorCountingSimple is Governor {
     }
 
     /**
-     * @dev See {IGovernor-_countVote}. In this module, the support follows the `VoteType` enum (from Governor Bravo).
+     * @dev See {Governor-_countVote}. In this module, the support follows the `VoteType` enum (from Governor Bravo).
      */
     function _countVote(
         uint256 proposalId,

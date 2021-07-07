@@ -15,11 +15,13 @@ Similarly to our other contracts, it is customizable through inheritance and com
 
 * {GovernorTimelockCompound}: A {Governor} extension that performs executions through a compound https://github.com/compound-finance/compound-protocol/blob/master/contracts/Timelock.sol[`Timelock`]. This requires a successful proposal to be queued before then can be executed. The `Timelock` will enforce a delay between the queueing and the execution. With this module, proposals are executed by the external `Timelock` contract, which would have to hold the assets that are being governed.
 
-* {GovernorVotingSimple}: A simple voting mechanism for {Governor} with support 3 vote options: Against, For and Abstain.
+* {GovernorCountingSimple}: A simple voting mechanism for {Governor} with support 3 vote options: Against, For and Abstain.
 
-* {GovernorWeight}: Binding to extract voting weight from an {ERC20Votes} token.
+* {GovernorVotes}: Binding to extract voting weight from an {ERC20Votes} token.
 
-* {GovernorWeightComp}: Binding to extract voting weight from a Comp or {ERC20VotesComp} token.
+* {GovernorVotesQuorumFractional}: Binding to extract voting weight from an {ERC20Votes} token and set the quorum as a fraction of the (snapshoted) total token supply.
+
+* {GovernorVotesComp}: Binding to extract voting weight from a Comp or {ERC20VotesComp} token.
 
 In addition to modules, the {Governor} requires a few virtual functions to be implemented to your particular specifications:
 
@@ -29,7 +31,7 @@ In addition to modules, the {Governor} requires a few virtual functions to be im
 
 Note: Function of the {Governor} contract does NOT include access control. If you want to restrict access (for example to require a minimum balance to submit a proposal), you should add these checks by overloading the particular functions. For security reasons, the {Governor-_cancel} method is internal, and you will have to expose it (which the right access control mechanism) yourself if this is a mechanism you need.
 
-Events emitted by the {Governor} contract are compatible with Compound's `GovernorBravo`. Additionnaly, function compatibility can be added using the {GovernorCompound} compatibility layer. This layer includes a voting system but does not include token bindings. This layer also requiers a timelock module (either {GovernorTimelockController} or {GovernorTimelockCompound}).
+Events emitted by the {Governor} contract are compatible with Compound's `GovernorBravo`. Additionnaly, function compatibility can be added using the {GovernorCompatibilityBravo} compatibility layer. This layer includes a voting system but does not include token bindings. This layer also requiers a timelock module (either {GovernorTimelockController} or {GovernorTimelockCompound}).
 
 === Core
 
@@ -43,13 +45,17 @@ Events emitted by the {Governor} contract are compatible with Compound's `Govern
 
 {{GovernorTimelockCompound}}
 
-{{GovernorVotingSimple}}
+{{GovernorCountingSimple}}
 
-{{GovernorWithToken}}
+{{GovernorVotes}}
+
+{{GovernorVotesQuorumFractional}}
+
+{{GovernorVotesComp}}
 
 === Compatibility
 
-{{GovernorCompound}}
+{{GovernorCompatibilityBravo}}
 
 == Timelock
 
