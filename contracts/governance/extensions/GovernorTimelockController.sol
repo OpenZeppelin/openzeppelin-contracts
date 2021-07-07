@@ -44,16 +44,16 @@ abstract contract GovernorTimelockController is IGovernorTimelock, Governor {
      * @dev Overriden version of the {Governor-state} function with added support for the `Queued` status.
      */
     function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
-        ProposalState proposalState = super.state(proposalId);
+        ProposalState status = super.state(proposalId);
 
-        if (proposalState != ProposalState.Succeeded) {
-            return proposalState;
+        if (status != ProposalState.Succeeded) {
+            return status;
         }
 
         // core tracks execution, so we just have to check if successfull proposal have been queued.
         bytes32 queueid = _ids[proposalId];
         if (queueid == bytes32(0)) {
-            return proposalState;
+            return status;
         } else {
             return ProposalState.Queued;
         }
