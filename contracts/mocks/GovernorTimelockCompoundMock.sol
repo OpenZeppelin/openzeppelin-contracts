@@ -68,13 +68,14 @@ contract GovernorTimelockCompoundMock is
         return super.state(proposalId);
     }
 
-    function execute(
+    function _execute(
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
-    ) public payable virtual override(Governor, GovernorTimelockCompound) returns (uint256 proposalId) {
-        return super.execute(targets, values, calldatas, salt);
+        bytes32 descriptionHash
+    ) internal virtual override(Governor, GovernorTimelockCompound) {
+        super._execute(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     function _cancel(

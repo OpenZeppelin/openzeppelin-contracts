@@ -50,9 +50,9 @@ contract GovernorTimelockControllerMock is
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
+        bytes32 descriptionHash
     ) public returns (uint256 proposalId) {
-        return _cancel(targets, values, calldatas, salt);
+        return _cancel(targets, values, calldatas, descriptionHash);
     }
 
     /**
@@ -68,22 +68,23 @@ contract GovernorTimelockControllerMock is
         return super.state(proposalId);
     }
 
-    function execute(
+    function _execute(
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
-    ) public payable virtual override(Governor, GovernorTimelockController) returns (uint256 proposalId) {
-        return super.execute(targets, values, calldatas, salt);
+        bytes32 descriptionHash
+    ) internal virtual override(Governor, GovernorTimelockController) {
+        super._execute(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     function _cancel(
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 salt
+        bytes32 descriptionHash
     ) internal virtual override(Governor, GovernorTimelockController) returns (uint256 proposalId) {
-        return super._cancel(targets, values, calldatas, salt);
+        return super._cancel(targets, values, calldatas, descriptionHash);
     }
 
     function getVotes(address account, uint256 blockNumber)

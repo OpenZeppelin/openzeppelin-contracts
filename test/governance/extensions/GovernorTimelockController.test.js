@@ -188,7 +188,7 @@ contract('GovernorTimelockController', function (accounts) {
       );
       await expectRevert(
         this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-        'TimelockController: operation is not ready',
+        'Governor: proposal not successful',
       );
     });
     runGovernorWorkflow();
@@ -231,7 +231,7 @@ contract('GovernorTimelockController', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('cancel after queue prevents executin', function () {
+  describe('cancel after queue prevents execution', function () {
     beforeEach(async function () {
       this.settings = {
         proposal: [
@@ -275,7 +275,7 @@ contract('GovernorTimelockController', function (accounts) {
 
       await expectRevert(
         this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-        'TimelockController: operation is not ready',
+        'Governor: proposal not successful',
       );
     });
     runGovernorWorkflow();

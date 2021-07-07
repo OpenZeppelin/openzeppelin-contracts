@@ -177,7 +177,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         ],
         steps: {
           queue: { delay: 30 * 86400 },
-          execute: { error: 'Timelock::executeTransaction: Transaction is stale.' },
+          execute: { error: 'Governor: proposal not successful' },
         },
       };
     });
@@ -238,7 +238,7 @@ contract('GovernorTimelockCompound', function (accounts) {
       );
       await expectRevert(
         this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-        'Timelock::executeTransaction: Transaction hasn\'t been queued.',
+        'Governor: proposal not successful',
       );
     });
     runGovernorWorkflow();
@@ -318,7 +318,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
       await expectRevert(
         this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
-        'GovernorTimelockCompound: proposal not yet queued',
+        'Governor: proposal not successful',
       );
     });
     runGovernorWorkflow();

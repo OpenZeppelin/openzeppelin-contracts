@@ -74,10 +74,24 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public payable virtual override(IGovernor, Governor, GovernorTimelockCompound) returns (uint256) {
+    ) public payable virtual override(IGovernor, Governor) returns (uint256) {
         return super.execute(targets, values, calldatas, salt);
     }
 
+    function _execute(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal virtual override(Governor, GovernorTimelockCompound) {
+        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+    }
+
+    /**
+     * @notice WARNING: this is for mock purposes only. Ability to the _cancel function should be restricted for live
+     * deployments.
+     */
     function cancel(
         address[] memory targets,
         uint256[] memory values,

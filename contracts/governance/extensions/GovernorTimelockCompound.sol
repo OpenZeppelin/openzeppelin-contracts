@@ -78,7 +78,6 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
     struct ProposalTimelock {
         Timers.Timestamp timer;
-        bool executed;
     }
 
     ICompoundTimelock private _timelock;
@@ -117,8 +116,6 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         uint256 eta = proposalEta(proposalId);
         if (eta == 0) {
             return proposalState;
-        } else if (_proposalTimelocks[proposalId].executed) {
-            return ProposalState.Executed;
         } else if (block.timestamp >= eta + _timelock.GRACE_PERIOD()) {
             return ProposalState.Expired;
         } else {
@@ -169,25 +166,20 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overloaded execute function that run the already queued proposal through the timelock.
+     * @dev Overriden execute function that run the already queued proposal through the timelock.
      */
-    function execute(
+    function _execute(
+        uint256 proposalId,
         address[] memory targets,
         uint256[] memory values,
         bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public payable virtual override(IGovernor, Governor) returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        bytes32/*descriptionHash*/
+    ) internal virtual override {
         uint256 eta = proposalEta(proposalId);
         require(eta > 0, "GovernorTimelockCompound: proposal not yet queued");
         for (uint256 i = 0; i < targets.length; ++i) {
             _timelock.executeTransaction{value: values[i]}(targets[i], values[i], "", calldatas[i], eta);
         }
-        _proposalTimelocks[proposalId].executed = true;
-
-        emit ProposalExecuted(proposalId);
-
-        return proposalId;
     }
 
     /**

@@ -232,17 +232,31 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     ) public payable virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful");
+        ProposalState status = state(proposalId);
+        require(status == ProposalState.Succeeded || status == ProposalState.Queued, "Governor: proposal not successful");
         _proposals[proposalId].executed = true;
 
+        emit ProposalExecuted(proposalId);
+
+        _execute(proposalId, targets, values, calldatas, descriptionHash);
+
+        return proposalId;
+    }
+
+    /**
+     * @dev Internal execution mechanism. Can be overriden to implement different execution mechanism
+     */
+    function _execute(
+        uint256 /* proposalId */,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 /*descriptionHash*/
+    ) internal virtual {
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
             Address.verifyCallResult(success, returndata, "Governor: call reverted without message");
         }
-
-        emit ProposalExecuted(proposalId);
-
-        return proposalId;
     }
 
     /**
