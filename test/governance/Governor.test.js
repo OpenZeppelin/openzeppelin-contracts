@@ -54,10 +54,16 @@ contract('Governor', function (accounts) {
   describe('scenario', function () {
     describe('nominal', function () {
       beforeEach(async function () {
+        this.value = web3.utils.toWei('1');
+
+        await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: this.value });
+        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(this.value);
+        expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
+
         this.settings = {
           proposal: [
             [ this.receiver.address ],
-            [ web3.utils.toWei('0') ],
+            [ this.value ],
             [ this.receiver.contract.methods.mockFunction().encodeABI() ],
             '<proposal description>',
           ],
@@ -73,6 +79,7 @@ contract('Governor', function (accounts) {
         this.votingDelay = await this.mock.votingDelay();
         this.votingPeriod = await this.mock.votingPeriod();
       });
+
       afterEach(async function () {
         expect(await this.mock.hasVoted(this.id, owner)).to.be.equal(false);
         expect(await this.mock.hasVoted(this.id, voter1)).to.be.equal(true);
@@ -123,6 +130,9 @@ contract('Governor', function (accounts) {
           this.receiver,
           'MockFunctionCalled',
         );
+
+        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
+        expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(this.value);
       });
       runGovernorWorkflow();
     });
@@ -257,34 +267,6 @@ contract('Governor', function (accounts) {
           'ProposalExecuted',
           { proposalId: this.id },
         );
-        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
-        expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(this.value);
-      });
-      runGovernorWorkflow();
-    });
-
-    describe('call payable function', function () {
-      beforeEach(async function () {
-        this.value = web3.utils.toWei('1');
-
-        await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: this.value });
-        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(this.value);
-        expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
-
-        this.settings = {
-          proposal: [
-            [ this.receiver.address ],
-            [ this.value ],
-            [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-            '<proposal description>',
-          ],
-          tokenHolder: owner,
-          voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
-          ],
-        };
-      });
-      afterEach(async function () {
         expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
         expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(this.value);
       });
