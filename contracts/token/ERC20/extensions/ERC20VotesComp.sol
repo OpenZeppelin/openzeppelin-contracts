@@ -12,7 +12,7 @@ import "./ERC20Votes.sol";
  * with Governor Alpha or Bravo) and if you are sure the supply cap of 2^96^ is enough for you. Otherwise, use the
  * {ERC20Votes} variant of this module.
  *
- * This extensions keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
+ * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
  * power can be queried through the public accessors {getCurrentVotes} and {getPriorVotes}.
  *
