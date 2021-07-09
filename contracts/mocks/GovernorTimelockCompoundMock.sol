@@ -7,9 +7,14 @@ import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotesQuorumFraction.sol";
 
 contract GovernorTimelockCompoundMock is GovernorTimelockCompound, GovernorVotesQuorumFraction, GovernorCountingSimple {
+    uint256 immutable _votingDelay;
+    uint256 immutable _votingPeriod;
+
     constructor(
         string memory name_,
         ERC20Votes token_,
+        uint256 votingDelay_,
+        uint256 votingPeriod_,
         ICompoundTimelock timelock_,
         uint256 quorumNumerator_
     )
@@ -17,7 +22,10 @@ contract GovernorTimelockCompoundMock is GovernorTimelockCompound, GovernorVotes
         GovernorTimelockCompound(timelock_)
         GovernorVotes(token_)
         GovernorVotesQuorumFraction(quorumNumerator_)
-    {}
+    {
+        _votingDelay = votingDelay_;
+        _votingPeriod = votingPeriod_;
+    }
 
     function supportsInterface(bytes4 interfaceId)
         public
@@ -29,8 +37,12 @@ contract GovernorTimelockCompoundMock is GovernorTimelockCompound, GovernorVotes
         return super.supportsInterface(interfaceId);
     }
 
-    function votingPeriod() public pure override(IGovernor, Governor) returns (uint256) {
-        return 16; // blocks
+    function votingDelay() public view override(IGovernor, Governor) returns (uint256) {
+        return _votingDelay;
+    }
+
+    function votingPeriod() public view override(IGovernor, Governor) returns (uint256) {
+        return _votingPeriod;
     }
 
     function quorum(uint256 blockNumber)

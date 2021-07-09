@@ -29,7 +29,7 @@ contract('Governor', function (accounts) {
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.mock = await Governor.new(name, this.token.address, 0);
+    this.mock = await Governor.new(name, this.token.address, 4, 16, 0);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });

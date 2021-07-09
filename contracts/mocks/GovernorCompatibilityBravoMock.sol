@@ -7,11 +7,22 @@ import "../governance/extensions/GovernorVotesComp.sol";
 import "../governance/extensions/GovernorTimelockCompound.sol";
 
 contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorTimelockCompound, GovernorVotesComp {
+    uint256 immutable _votingDelay;
+    uint256 immutable _votingPeriod;
+    uint256 immutable _proposalThreshold;
+
     constructor(
         string memory name_,
         ERC20VotesComp token_,
+        uint256 votingDelay_,
+        uint256 votingPeriod_,
+        uint256 proposalThreshold_,
         ICompoundTimelock timelock_
-    ) Governor(name_) GovernorVotesComp(token_) GovernorTimelockCompound(timelock_) {}
+    ) Governor(name_) GovernorVotesComp(token_) GovernorTimelockCompound(timelock_) {
+        _votingDelay = votingDelay_;
+        _votingPeriod = votingPeriod_;
+        _proposalThreshold = proposalThreshold_;
+    }
 
     function supportsInterface(bytes4 interfaceId)
         public
@@ -23,8 +34,16 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         return super.supportsInterface(interfaceId);
     }
 
-    function votingPeriod() public pure override(IGovernor, Governor) returns (uint256) {
-        return 16; // blocks
+    function votingDelay() public view override(IGovernor, Governor) returns (uint256) {
+        return _votingDelay;
+    }
+
+    function votingPeriod() public view override(IGovernor, Governor) returns (uint256) {
+        return _votingPeriod;
+    }
+
+    function proposalThreshold() public view virtual override returns (uint256) {
+        return _proposalThreshold;
     }
 
     function quorum(uint256) public pure override(IGovernor, Governor) returns (uint256) {

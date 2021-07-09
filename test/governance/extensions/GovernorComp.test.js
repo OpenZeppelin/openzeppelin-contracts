@@ -21,7 +21,7 @@ contract('GovernorComp', function (accounts) {
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.mock = await Governor.new(name, this.token.address);
+    this.mock = await Governor.new(name, this.token.address, 4, 16);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
@@ -33,7 +33,7 @@ contract('GovernorComp', function (accounts) {
   it('deployment check', async function () {
     expect(await this.mock.name()).to.be.equal(name);
     expect(await this.mock.token()).to.be.equal(this.token.address);
-    expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
+    expect(await this.mock.votingDelay()).to.be.bignumber.equal('4');
     expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
   });

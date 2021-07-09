@@ -138,12 +138,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
     /**
      * @dev See {IGovernor-votingDelay}
-     *
-     * Default: 0
      */
-    function votingDelay() public view virtual override returns (uint256) {
-        return 0;
-    }
+    function votingDelay() public view virtual override returns (uint256);
 
     /**
      * @dev See {IGovernor-votingPeriod}

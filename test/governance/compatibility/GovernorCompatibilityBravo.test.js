@@ -34,13 +34,14 @@ function makeContractAddress (creator, nonce) {
 }
 
 contract('GovernorCompatibilityBravo', function (accounts) {
-  const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
+  const [ owner, proposer, voter1, voter2, voter3, voter4, other ] = accounts;
 
   const name = 'OZ-Governor';
   // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
+  const proposalThreshold = web3.utils.toWei('10');
 
   beforeEach(async function () {
     const [ deployer ] = await web3.eth.getAccounts();
@@ -52,19 +53,22 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     const predictGovernor = makeContractAddress(deployer, nonce + 1);
 
     this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
-    this.mock = await Governor.new(name, this.token.address, this.timelock.address);
+    this.mock = await Governor.new(name, this.token.address, 4, 16, proposalThreshold, this.timelock.address);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
     await this.token.delegate(voter2, { from: voter2 });
     await this.token.delegate(voter3, { from: voter3 });
     await this.token.delegate(voter4, { from: voter4 });
+
+    await this.token.transfer(proposer, proposalThreshold, { from: owner });
+    await this.token.delegate(proposer, { from: proposer });
   });
 
   it('deployment check', async function () {
     expect(await this.mock.name()).to.be.equal(name);
     expect(await this.mock.token()).to.be.equal(this.token.address);
-    expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
+    expect(await this.mock.votingDelay()).to.be.bignumber.equal('4');
     expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
     expect(await this.mock.quorumVotes()).to.be.bignumber.equal('0');
@@ -185,6 +189,27 @@ contract('GovernorCompatibilityBravo', function (accounts) {
         this.receiver,
         'MockFunctionCalled',
       );
+    });
+    runGovernorWorkflow();
+  });
+
+  describe('proposalThreshold not reached', function () {
+    beforeEach(async function () {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ], // targets
+          [ web3.utils.toWei('0') ], // values
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ], // calldatas
+          '<proposal description>', // description
+        ],
+        proposer: other,
+        steps: {
+          propose: { error: 'GovernorCompatibilityBravo: proposer votes below proposal threshold' },
+          wait: { enable: false },
+          queue: { enable: false },
+          execute: { enable: false },
+        },
+      };
     });
     runGovernorWorkflow();
   });
@@ -336,6 +361,13 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
         if (tryGet(this.settings, 'steps.propose.delay')) {
           await time.increase(tryGet(this.settings, 'steps.propose.delay'));
+        }
+
+        if (
+          tryGet(this.settings, 'steps.propose.error') === undefined &&
+          tryGet(this.settings, 'steps.propose.noadvance') !== true
+        ) {
+          await time.advanceBlockTo(this.snapshot);
         }
       }
 

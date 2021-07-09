@@ -7,20 +7,28 @@ import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotesQuorumFraction.sol";
 
 contract GovernorMock is Governor, GovernorVotesQuorumFraction, GovernorCountingSimple {
+    uint256 immutable _votingDelay;
+    uint256 immutable _votingPeriod;
+
     constructor(
         string memory name_,
         ERC20Votes token_,
+        uint256 votingDelay_,
+        uint256 votingPeriod_,
         uint256 quorumNumerator_
-    ) Governor(name_) GovernorVotes(token_) GovernorVotesQuorumFraction(quorumNumerator_) {}
+    ) Governor(name_) GovernorVotes(token_) GovernorVotesQuorumFraction(quorumNumerator_) {
+        _votingDelay = votingDelay_;
+        _votingPeriod = votingPeriod_;
+    }
 
     receive() external payable {}
 
-    function votingDelay() public pure override returns (uint256) {
-        return 4; // blocks
+    function votingDelay() public view override returns (uint256) {
+        return _votingDelay;
     }
 
-    function votingPeriod() public pure override returns (uint256) {
-        return 16; // blocks
+    function votingPeriod() public view override returns (uint256) {
+        return _votingPeriod;
     }
 
     function cancel(
