@@ -35,7 +35,7 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
   it('deployment check', async function () {
     expect(await this.mock.name()).to.be.equal(name);
     expect(await this.mock.token()).to.be.equal(this.token.address);
-    expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
+    expect(await this.mock.votingDelay()).to.be.bignumber.equal('4');
     expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
     expect(await this.mock.quorumNumerator()).to.be.bignumber.equal(ratio);

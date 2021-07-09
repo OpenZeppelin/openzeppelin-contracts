@@ -15,6 +15,10 @@ contract GovernorMock is Governor, GovernorVotesQuorumFraction, GovernorCounting
 
     receive() external payable {}
 
+    function votingDelay() public pure override returns (uint256) {
+        return 4; // blocks
+    }
+
     function votingPeriod() public pure override returns (uint256) {
         return 16; // blocks
     }

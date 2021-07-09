@@ -1,4 +1,4 @@
-const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const Enums = require('../helpers/enums');
@@ -46,7 +46,7 @@ contract('Governor', function (accounts) {
   it('deployment check', async function () {
     expect(await this.mock.name()).to.be.equal(name);
     expect(await this.mock.token()).to.be.equal(this.token.address);
-    expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
+    expect(await this.mock.votingDelay()).to.be.bignumber.equal('4');
     expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
   });
@@ -535,7 +535,7 @@ contract('Governor', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('Active', function () {
+    describe('Pending & Active', function () {
       beforeEach(async function () {
         this.settings = {
           proposal: [
@@ -545,15 +545,17 @@ contract('Governor', function (accounts) {
             '<proposal description>',
           ],
           steps: {
+            propose: { noadvance: true },
             wait: { enable: false },
             execute: { enable: false },
           },
         };
       });
       afterEach(async function () {
-        // TODO: votingDelay > 0
-        // expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Pending);
-        // await time.advanceBlock();
+        expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Pending);
+
+        await time.advanceBlockTo(this.snapshot);
+
         expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
       });
       runGovernorWorkflow();

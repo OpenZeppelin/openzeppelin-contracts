@@ -53,6 +53,13 @@ function runGovernorWorkflow () {
       if (tryGet(this.settings, 'steps.propose.delay')) {
         await time.increase(tryGet(this.settings, 'steps.propose.delay'));
       }
+
+      if (
+        tryGet(this.settings, 'steps.propose.error') === undefined &&
+        tryGet(this.settings, 'steps.propose.noadvance') !== true
+      ) {
+        await time.advanceBlockTo(this.snapshot);
+      }
     }
 
     // vote
