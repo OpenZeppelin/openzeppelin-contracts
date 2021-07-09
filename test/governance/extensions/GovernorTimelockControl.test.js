@@ -115,6 +115,41 @@ contract('GovernorTimelockControl', function (accounts) {
     runGovernorWorkflow();
   });
 
+  describe('executed by other proposer', function () {
+    beforeEach(async function () {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+          '<proposal description>',
+        ],
+        voters: [
+          { voter: voter, support: Enums.VoteType.For },
+        ],
+        steps: {
+          queue: { delay: 3600 },
+          execute: { enable: false },
+        },
+      };
+    });
+    afterEach(async function () {
+      await this.timelock.executeBatch(
+        ...this.settings.proposal.slice(0, 3),
+        '0x0',
+        this.descriptionHash,
+      );
+
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
+
+      await expectRevert(
+        this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
+        'Governor: proposal not successful',
+      );
+    });
+    runGovernorWorkflow();
+  });
+
   describe('not queued', function () {
     beforeEach(async function () {
       this.settings = {
