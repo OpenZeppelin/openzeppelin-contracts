@@ -4,14 +4,14 @@ pragma solidity ^0.8.0;
 
 import "../governance/Governor.sol";
 import "../governance/extensions/GovernorCountingSimple.sol";
-import "../governance/extensions/GovernorVotesQuorumFractional.sol";
+import "../governance/extensions/GovernorVotesQuorumFraction.sol";
 
-contract GovernorMock is Governor, GovernorVotesQuorumFractional, GovernorCountingSimple {
+contract GovernorMock is Governor, GovernorVotesQuorumFraction, GovernorCountingSimple {
     constructor(
         string memory name_,
         ERC20Votes token_,
-        uint256 quorumRatio_
-    ) Governor(name_) GovernorVotes(token_) GovernorVotesQuorumFractional(quorumRatio_) {}
+        uint256 quorumNumerator_
+    ) Governor(name_) GovernorVotes(token_) GovernorVotesQuorumFraction(quorumNumerator_) {}
 
     receive() external payable {}
 

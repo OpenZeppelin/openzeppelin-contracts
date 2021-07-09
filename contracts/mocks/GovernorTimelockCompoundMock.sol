@@ -4,23 +4,23 @@ pragma solidity ^0.8.0;
 
 import "../governance/extensions/GovernorTimelockCompound.sol";
 import "../governance/extensions/GovernorCountingSimple.sol";
-import "../governance/extensions/GovernorVotesQuorumFractional.sol";
+import "../governance/extensions/GovernorVotesQuorumFraction.sol";
 
 contract GovernorTimelockCompoundMock is
     GovernorTimelockCompound,
-    GovernorVotesQuorumFractional,
+    GovernorVotesQuorumFraction,
     GovernorCountingSimple
 {
     constructor(
         string memory name_,
         ERC20Votes token_,
         ICompoundTimelock timelock_,
-        uint256 quorumRatio_
+        uint256 quorumNumerator_
     )
         Governor(name_)
         GovernorTimelockCompound(timelock_)
         GovernorVotes(token_)
-        GovernorVotesQuorumFractional(quorumRatio_)
+        GovernorVotesQuorumFraction(quorumNumerator_)
     {}
 
     function supportsInterface(bytes4 interfaceId)
@@ -40,7 +40,7 @@ contract GovernorTimelockCompoundMock is
     function quorum(uint256 blockNumber)
         public
         view
-        override(IGovernor, Governor, GovernorVotesQuorumFractional)
+        override(IGovernor, Governor, GovernorVotesQuorumFraction)
         returns (uint256)
     {
         return super.quorum(blockNumber);

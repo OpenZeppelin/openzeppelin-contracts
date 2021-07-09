@@ -9,7 +9,7 @@ const Token = artifacts.require('ERC20VotesMock');
 const Governor = artifacts.require('GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-contract('GovernorVotesQuorumFractional', function (accounts) {
+contract('GovernorVotesQuorumFraction', function (accounts) {
   const [ owner, voter1, voter2, voter3, voter4 ] = accounts;
 
   const name = 'OZ-Governor';
@@ -38,8 +38,8 @@ contract('GovernorVotesQuorumFractional', function (accounts) {
     expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
     expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
-    expect(await this.mock.quorumRatio()).to.be.bignumber.equal(ratio);
-    expect(await this.mock.quorumRatioMax()).to.be.bignumber.equal('100');
+    expect(await this.mock.quorumNumerator()).to.be.bignumber.equal(ratio);
+    expect(await this.mock.quorumDenominator()).to.be.bignumber.equal('100');
     expect(await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1))))
       .to.be.bignumber.equal(tokenSupply.mul(ratio).divn(100));
   });
@@ -71,7 +71,7 @@ contract('GovernorVotesQuorumFractional', function (accounts) {
         proposal: [
           [ this.mock.address ],
           [ web3.utils.toWei('0') ],
-          [ this.mock.contract.methods.updateQuorumRatio(newRatio).encodeABI() ],
+          [ this.mock.contract.methods.updateQuorumNumerator(newRatio).encodeABI() ],
           '<proposal description>',
         ],
         tokenHolder: owner,
@@ -84,15 +84,15 @@ contract('GovernorVotesQuorumFractional', function (accounts) {
       await expectEvent.inTransaction(
         this.receipts.execute.transactionHash,
         this.mock,
-        'QuorumRatioUpdated',
+        'QuorumNumeratorUpdated',
         {
-          oldQuorumRatio: ratio,
-          newQuorumRatio: newRatio,
+          oldQuorumNumerator: ratio,
+          newQuorumNumerator: newRatio,
         },
       );
 
-      expect(await this.mock.quorumRatio()).to.be.bignumber.equal(newRatio);
-      expect(await this.mock.quorumRatioMax()).to.be.bignumber.equal('100');
+      expect(await this.mock.quorumNumerator()).to.be.bignumber.equal(newRatio);
+      expect(await this.mock.quorumDenominator()).to.be.bignumber.equal('100');
       expect(await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1))))
         .to.be.bignumber.equal(tokenSupply.mul(newRatio).divn(100));
     });
@@ -105,7 +105,7 @@ contract('GovernorVotesQuorumFractional', function (accounts) {
         proposal: [
           [ this.mock.address ],
           [ web3.utils.toWei('0') ],
-          [ this.mock.contract.methods.updateQuorumRatio(new BN(101)).encodeABI() ],
+          [ this.mock.contract.methods.updateQuorumNumerator(new BN(101)).encodeABI() ],
           '<proposal description>',
         ],
         tokenHolder: owner,
@@ -113,7 +113,7 @@ contract('GovernorVotesQuorumFractional', function (accounts) {
           { voter: voter1, weight: tokenSupply, support: Enums.VoteType.For },
         ],
         steps: {
-          execute: { error: 'GovernorVotesQuorumFractional: quorumRatio over quorumRatioMax' },
+          execute: { error: 'GovernorVotesQuorumFraction: quorumNumerator over quorumDenominator' },
         },
       };
     });
