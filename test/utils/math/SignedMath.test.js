@@ -85,11 +85,30 @@ contract('SignedMath', function (accounts) {
       expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
     });
 
-    it('is correctly calculated with one even signed number and one odd number', async function () {
+    it('is correctly calculated with one even signed number and one odd number and even its greater than odd', async function () {
+      const a = new BN('-84346');
+      const b = new BN('57417');
+
+      expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
+    });
+
+    it('is correctly calculated with one even signed number and one odd number and even its less than odd', async function () {
       const a = new BN('-57417');
       const b = new BN('84346');
 
       expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
+    });
+
+    it('is correctly calculated with two max int256 numbers', async function () {
+      const a = MAX_INT256;
+
+      expect(await this.math.average(a, a)).to.be.bignumber.equal(bnAverage(a, a));
+    });
+
+    it('is correctly calculated with two min int256 numbers', async function () {
+      const a = MAX_INT256;
+
+      expect(await this.math.average(a, a)).to.be.bignumber.equal(bnAverage(a, a));
     });
   });
 
