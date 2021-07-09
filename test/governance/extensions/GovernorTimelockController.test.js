@@ -12,10 +12,10 @@ const {
 
 const Token = artifacts.require('ERC20VotesMock');
 const Timelock = artifacts.require('TimelockController');
-const Governor = artifacts.require('GovernorTimelockControllerMock');
+const Governor = artifacts.require('GovernorTimelockControlMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-contract('GovernorTimelockController', function (accounts) {
+contract('GovernorTimelockControl', function (accounts) {
   const [ voter ] = accounts;
 
   const name = 'OZ-Governor';

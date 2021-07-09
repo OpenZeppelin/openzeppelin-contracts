@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.0;
 
-import "../governance/extensions/GovernorTimelockController.sol";
+import "../governance/extensions/GovernorTimelockControl.sol";
 import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotesQuorumFractional.sol";
 
-contract GovernorTimelockControllerMock is
-    GovernorTimelockController,
+contract GovernorTimelockControlMock is
+    GovernorTimelockControl,
     GovernorVotesQuorumFractional,
     GovernorCountingSimple
 {
@@ -18,7 +18,7 @@ contract GovernorTimelockControllerMock is
         uint256 quorumRatio_
     )
         Governor(name_)
-        GovernorTimelockController(timelock_)
+        GovernorTimelockControl(timelock_)
         GovernorVotes(token_)
         GovernorVotesQuorumFractional(quorumRatio_)
     {}
@@ -27,7 +27,7 @@ contract GovernorTimelockControllerMock is
         public
         view
         virtual
-        override(Governor, GovernorTimelockController)
+        override(Governor, GovernorTimelockControl)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
@@ -62,7 +62,7 @@ contract GovernorTimelockControllerMock is
         public
         view
         virtual
-        override(Governor, GovernorTimelockController)
+        override(Governor, GovernorTimelockControl)
         returns (ProposalState)
     {
         return super.state(proposalId);
@@ -74,7 +74,7 @@ contract GovernorTimelockControllerMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal virtual override(Governor, GovernorTimelockController) {
+    ) internal virtual override(Governor, GovernorTimelockControl) {
         super._execute(proposalId, targets, values, calldatas, descriptionHash);
     }
 
@@ -83,7 +83,7 @@ contract GovernorTimelockControllerMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal virtual override(Governor, GovernorTimelockController) returns (uint256 proposalId) {
+    ) internal virtual override(Governor, GovernorTimelockControl) returns (uint256 proposalId) {
         return super._cancel(targets, values, calldatas, descriptionHash);
     }
 
@@ -97,7 +97,7 @@ contract GovernorTimelockControllerMock is
         return super.getVotes(account, blockNumber);
     }
 
-    function _executor() internal view virtual override(Governor, GovernorTimelockController) returns (address) {
+    function _executor() internal view virtual override(Governor, GovernorTimelockControl) returns (address) {
         return super._executor();
     }
 }
