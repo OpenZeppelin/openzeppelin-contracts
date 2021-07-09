@@ -62,7 +62,7 @@ interface ICompoundTimelock {
 
 /**
  * @dev Extension of {Governor} that binds the execution process to a Compound Timelock. This adds a delay, enforced by
- * the external timelock to all successfull proposal (in addition to the voting duration). The {Governor} needs to be
+ * the external timelock to all successful proposal (in addition to the voting duration). The {Governor} needs to be
  * the admin of the timelock for any operation to be performed. A public, unrestricted,
  * {GovernorTimelockCompound-__acceptAdmin} is available to accept ownership of the timelock.
  *
@@ -148,7 +148,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successfull");
+        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful");
 
         uint256 eta = block.timestamp + _timelock.delay();
         _proposalTimelocks[proposalId].timer.setDeadline(eta.toUint64());

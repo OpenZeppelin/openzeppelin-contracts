@@ -112,7 +112,7 @@ interface IGovernor is IERC165 {
 
     /**
      * @notice module:user-config
-     * @dev Minimum number of casted voted requiered for a proposal to be successfull.
+     * @dev Minimum number of casted voted requiered for a proposal to be successful.
      *
      * Note: The `blockNumber` parameter corresponds to the snaphot used for counting vote. This allows to scale the
      * quroum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
@@ -148,7 +148,7 @@ interface IGovernor is IERC165 {
     ) external returns (uint256 proposalId);
 
     /**
-     * @dev Execute a successfull proposal. This requiers the quorum to be reached, the vote to be successfull, and the
+     * @dev Execute a successful proposal. This requiers the quorum to be reached, the vote to be successful, and the
      * deadline to be reached.
      *
      * Emits a {ProposalExecuted} event.

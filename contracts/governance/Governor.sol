@@ -166,7 +166,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
 
     /**
-     * @dev Is the proposal successfull or not.
+     * @dev Is the proposal successful or not.
      */
     function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
 

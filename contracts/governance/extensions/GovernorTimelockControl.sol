@@ -8,7 +8,7 @@ import "../TimelockController.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
- * delay, enforced by the {TimelockController} to all successfull proposal (in addition to the voting duration). The
+ * delay, enforced by the {TimelockController} to all successful proposal (in addition to the voting duration). The
  * {Governor} needs the proposer (an ideally the executor) roles for the {Governor} to work properly.
  *
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
@@ -50,7 +50,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
             return status;
         }
 
-        // core tracks execution, so we just have to check if successfull proposal have been queued.
+        // core tracks execution, so we just have to check if successful proposal have been queued.
         bytes32 queueid = _timelockIds[proposalId];
         if (queueid == bytes32(0)) {
             return status;
@@ -87,7 +87,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successfull");
+        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful");
 
         uint256 delay = _timelock.getMinDelay();
         _timelockIds[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, descriptionHash);
