@@ -10,6 +10,8 @@ import "../Governor.sol";
  * _Available since v4.3._
  */
 abstract contract GovernorCountingSimple is Governor {
+    string public constant COUNTING_MODULE_NAME = type(GovernorCountingSimple).name;
+
     /**
      * @dev Supported vote types. Matches Governor Bravo ordering.
      */

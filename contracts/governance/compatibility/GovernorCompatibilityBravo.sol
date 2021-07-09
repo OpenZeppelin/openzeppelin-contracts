@@ -20,6 +20,12 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     using Counters for Counters.Counter;
     using Timers for Timers.BlockNumber;
 
+    enum VoteType {
+        Against,
+        For,
+        Abstain
+    }
+
     struct ProposalDetails {
         address proposer;
         address[] targets;
@@ -217,7 +223,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
      * @dev See {IGovernorCompatibilityBravo-quorumVotes}.
      */
     function quorumVotes() public view virtual override returns (uint256) {
-        return quorum(block.number);
+        return quorum(block.number - 1);
     }
 
     // ==================================================== Voting ====================================================
@@ -261,11 +267,11 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         receipt.support = support;
         receipt.votes = SafeCast.toUint96(weight);
 
-        if (support == 0) {
+        if (support == uint8(VoteType.Against)) {
             details.againstVotes += weight;
-        } else if (support == 1) {
+        } else if (support == uint8(VoteType.For)) {
             details.forVotes += weight;
-        } else if (support == 2) {
+        } else if (support == uint8(VoteType.Abstain)) {
             details.abstainVotes += weight;
         } else {
             revert("GovernorCompatibilityBravo: invalid vote type");
