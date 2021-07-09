@@ -6,11 +6,7 @@ import "../governance/extensions/GovernorTimelockControl.sol";
 import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotesQuorumFractional.sol";
 
-contract GovernorTimelockControlMock is
-    GovernorTimelockControl,
-    GovernorVotesQuorumFractional,
-    GovernorCountingSimple
-{
+contract GovernorTimelockControlMock is GovernorTimelockControl, GovernorVotesQuorumFractional, GovernorCountingSimple {
     constructor(
         string memory name_,
         ERC20Votes token_,
