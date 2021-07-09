@@ -75,7 +75,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         string memory description
     ) public virtual override returns (uint256) {
         require(
-            getVotes(msg.sender, block.number - 1) > proposalThreshold(),
+            getVotes(msg.sender, block.number - 1) >= proposalThreshold(),
             "GovernorCompatibilityBravo: proposer votes below proposal threshold"
         );
 
