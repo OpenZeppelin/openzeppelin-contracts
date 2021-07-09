@@ -59,7 +59,7 @@ abstract contract GovernorCountingSimple is Governor {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
 
         return
-            quorum(proposalSnapshot(proposalId)) <
+            quorum(proposalSnapshot(proposalId)) <=
             proposalvote.againstVotes + proposalvote.forVotes + proposalvote.abstainVotes;
     }
 
