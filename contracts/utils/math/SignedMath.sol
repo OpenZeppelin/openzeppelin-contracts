@@ -36,7 +36,7 @@ library SignedMath {
      */
     function ceilDiv(int256 a, int256 b) internal pure returns (int256) {
         int256 z = a / b;
-        int8 r = int8(a % b == 0 ? 0 : 1);
+        int256 r = a % b == 0 ? int256(0) : int256(1);
         return z < 0 ? z - r : z + r;
     }
 }
