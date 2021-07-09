@@ -11,7 +11,7 @@ import "../token/ERC721/extensions/ERC721Enumerable.sol";
 contract ERC721EnumerableMock is ERC721Enumerable {
     string private _baseTokenURI;
 
-    constructor (string memory name, string memory symbol) ERC721(name, symbol) { }
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
     function _baseURI() internal view virtual override returns (string memory) {
         return _baseTokenURI;
@@ -37,7 +37,11 @@ contract ERC721EnumerableMock is ERC721Enumerable {
         _safeMint(to, tokenId);
     }
 
-    function safeMint(address to, uint256 tokenId, bytes memory _data) public {
+    function safeMint(
+        address to,
+        uint256 tokenId,
+        bytes memory _data
+    ) public {
         _safeMint(to, tokenId, _data);
     }
 

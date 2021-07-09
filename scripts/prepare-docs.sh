@@ -15,6 +15,7 @@ solidity-docgen \
   -o "$OUTDIR" \
   -e contracts/mocks,contracts/examples \
   --output-structure readmes \
+  --helpers ./docs/helpers.js \
   --solc-module ./scripts/prepare-docs-solc.js
 
 node scripts/gen-nav.js "$OUTDIR" > "$OUTDIR/../nav.adoc"

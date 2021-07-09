@@ -9,7 +9,7 @@ import "../token/ERC721/extensions/ERC721Pausable.sol";
  * This mock just provides a public mint, burn and exists functions for testing purposes
  */
 contract ERC721PausableMock is ERC721Pausable {
-    constructor (string memory name, string memory symbol) ERC721(name, symbol) { }
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
     function pause() external {
         _pause();
@@ -31,7 +31,11 @@ contract ERC721PausableMock is ERC721Pausable {
         _safeMint(to, tokenId);
     }
 
-    function safeMint(address to, uint256 tokenId, bytes memory _data) public {
+    function safeMint(
+        address to,
+        uint256 tokenId,
+        bytes memory _data
+    ) public {
         _safeMint(to, tokenId, _data);
     }
 
