@@ -85,14 +85,14 @@ contract('SignedMath', function (accounts) {
       expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
     });
 
-    it('is correctly calculated with one even signed number and one odd number and even its greater than odd', async function () {
+    it('is correctly calculated with one even signed number and one odd number and even its greater than odd, both in module', async function () {
       const a = new BN('-84346');
       const b = new BN('57417');
 
       expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
     });
 
-    it('is correctly calculated with one even signed number and one odd number and even its less than odd', async function () {
+    it('is correctly calculated with one even signed number and one odd number and even its less than odd, both in module', async function () {
       const a = new BN('-57417');
       const b = new BN('84346');
 
