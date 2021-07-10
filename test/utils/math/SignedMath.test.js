@@ -85,16 +85,59 @@ contract('SignedMath', function (accounts) {
       expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
     });
 
-    it('is correctly calculated with one even signed number and one odd number and even its greater than odd, both in module', async function () {
-      const a = new BN('-84346');
-      const b = new BN('57417');
+    it('is correctly calculated with one even number and one odd signed number and even its greater than odd, both in module', async function () {
+      const a = new BN('2');
+      const b = new BN('-1');
 
       expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
     });
 
-    it('is correctly calculated with one even signed number and one odd number and even its less than odd, both in module', async function () {
-      const a = new BN('-57417');
-      const b = new BN('84346');
+    it('is correctly calculated with one odd number and one even signed number and odd its greater than even, both in module', async function () {
+      const a = new BN('3');
+      const b = new BN('-2');
+
+      expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
+    });
+
+
+    it('is correctly calculated with one even number and one odd signed number and odd its greater than even, both in module', async function () {
+      const a = new BN('2');
+      const b = new BN('-3');
+
+      expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
+    });
+
+    it('is correctly calculated with one odd number and one even signed number and even its greater than odd, both in module', async function () {
+      const a = new BN('3');
+      const b = new BN('-4');
+
+      expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
+    });
+
+    it('is correctly calculated with one even signed number and one odd number and even its greater than odd, both in module', async function () {
+      const a = new BN('-2');
+      const b = new BN('1');
+
+      expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
+    });
+
+    it('is correctly calculated with one odd signed number and one even number and odd its greater than even, both in module', async function () {
+      const a = new BN('-3');
+      const b = new BN('2');
+
+      expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
+    });
+
+    it('is correctly calculated with one even signed number and one odd number and odd its greater than even, both in module', async function () {
+      const a = new BN('-2');
+      const b = new BN('3');
+
+      expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
+    });
+
+    it('is correctly calculated with one odd signed number and one even number and even its greater than odd, both in module', async function () {
+      const a = new BN('-3');
+      const b = new BN('4');
 
       expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
     });
