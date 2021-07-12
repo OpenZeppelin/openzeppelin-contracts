@@ -20,8 +20,9 @@ This directory includes primitives for on-chain governance. We currently only of
 ** *Done:* An operation that has been executed.
 * *Predecessor*: An (optional) dependency between operations. An operation can depend on another operation (its predecessor), forcing the execution order of these two operations.
 * *Role*:
-** *Proposer:* An address (smart contract or EOA) that is in charge of scheduling (and cancelling) operations.
-** *Executor:* An address (smart contract or EOA) that is in charge of executing operations.
+** *Admin:* An address (smart contract or EOA) that is in charge of granting the roles of Proposer and Executor.
+** *Proposer:* An address (smart contract or EOA) that is in charge of scheduling (and cancelling) operations. Can be given to the zero address to allow anyone to act as a Proposer.
+** *Executor:* An address (smart contract or EOA) that is in charge of executing operations. Can be given to the zero address to allow anyone to act as an Executor.
 
 [[timelock-operation]]
 ==== Operation structure
@@ -63,6 +64,8 @@ Operations status can be queried using the functions:
 
 [[timelock-roles]]
 ==== Roles
+
+Proposer and Executor roles can be granted to the zero address to open them up and allow anyone to act as such a role.
 
 [[timelock-admin]]
 ===== Admin
