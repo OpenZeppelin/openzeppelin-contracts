@@ -18,8 +18,11 @@ import "../../interfaces/IERC1271.sol";
  */
 library SignatureChecker {
     function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
-        if ((signature.length == 65 || signature.length == 64) && ECDSA.recover(hash, signature) == signer) {
-            return true;
+        if (signature.length == 64 || signature.length == 65) {
+            (address recovered, string memory error) = ECDSA.tryRecover(hash, signature);
+            if (bytes(error).length == 0 && recovered == signer) {
+                return true;
+            }
         }
         
         (bool success, bytes memory result) = signer.staticcall(abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature));
