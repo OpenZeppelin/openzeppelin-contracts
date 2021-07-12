@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "../token/ERC20/extensions/ERC20Burnable.sol";
 
 contract ERC20BurnableMock is ERC20Burnable {
-    constructor (
+    constructor(
         string memory name,
         string memory symbol,
         address initialAccount,

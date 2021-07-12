@@ -6,7 +6,7 @@ import "../token/ERC20/extensions/ERC20Pausable.sol";
 
 // mock class using ERC20Pausable
 contract ERC20PausableMock is ERC20Pausable {
-    constructor (
+    constructor(
         string memory name,
         string memory symbol,
         address initialAccount,

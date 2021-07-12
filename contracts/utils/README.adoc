@@ -10,7 +10,7 @@ The {Address}, {Arrays} and {Strings} libraries provide more operations related 
 
 For new data types:
 
- * {Counters}: a simple way to get a counter that can only be incremented or decremented. Very useful for ID generation, counting contract activity, among others.
+ * {Counters}: a simple way to get a counter that can only be incremented, decremented or reset. Very useful for ID generation, counting contract activity, among others.
  * {EnumerableMap}: like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`] type, but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
  * {EnumerableSet}: like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
 
@@ -79,6 +79,8 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 {{ERC1820Implementer}}
 
 == Data Structures
+
+{{BitMaps}}
 
 {{EnumerableMap}}
 
