@@ -42,7 +42,7 @@ library ECDSA {
                 s := mload(add(signature, 0x40))
                 v := byte(0, mload(add(signature, 0x60)))
             }
-            return (recover(hash, v, r, s), "");
+            return tryRecover(hash, v, r, s);
         } else if (signature.length == 64) {
             bytes32 r;
             bytes32 vs;
@@ -52,7 +52,7 @@ library ECDSA {
                 r := mload(add(signature, 0x20))
                 vs := mload(add(signature, 0x40))
             }
-            return (recover(hash, r, vs), "");
+            return tryRecover(hash, r, vs);
         } else {
             return (address(0), "ECDSA: invalid signature length");
         }
