@@ -87,7 +87,11 @@ library ECDSA {
      *
      * _Available since v4.2._
      */
-    function tryRecover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address, string memory) {
+    function tryRecover(
+        bytes32 hash,
+        bytes32 r,
+        bytes32 vs
+    ) internal pure returns (address, string memory) {
         bytes32 s;
         uint8 v;
         assembly {
@@ -100,7 +104,11 @@ library ECDSA {
     /**
      * @dev Overload of {ECDSA-recover} that receives the `r and `vs` short-signature fields separately.
      */
-    function recover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address) {
+    function recover(
+        bytes32 hash,
+        bytes32 r,
+        bytes32 vs
+    ) internal pure returns (address) {
         (address recovered, string memory error) = tryRecover(hash, r, vs);
         if (bytes(error).length > 0) {
             revert(error);
@@ -112,7 +120,12 @@ library ECDSA {
      * @dev Overload of {ECDSA-tryRecover} that receives the `v`,
      * `r` and `s` signature fields separately.
      */
-    function tryRecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address, string memory) {
+    function tryRecover(
+        bytes32 hash,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal pure returns (address, string memory) {
         // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
         // unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
         // the valid range for s in (281): 0 < s < secp256k1n ÷ 2 + 1, and for v in (282): v ∈ {27, 28}. Most
@@ -142,7 +155,12 @@ library ECDSA {
      * @dev Overload of {ECDSA-recover} that receives the `v`,
      * `r` and `s` signature fields separately.
      */
-    function recover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
+    function recover(
+        bytes32 hash,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal pure returns (address) {
         (address recovered, string memory error) = tryRecover(hash, v, r, s);
         if (bytes(error).length > 0) {
             revert(error);
