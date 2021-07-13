@@ -20,8 +20,9 @@ This directory includes primitives for on-chain governance. We currently only of
 ** *Done:* An operation that has been executed.
 * *Predecessor*: An (optional) dependency between operations. An operation can depend on another operation (its predecessor), forcing the execution order of these two operations.
 * *Role*:
+** *Admin:* An address (smart contract or EOA) that is in charge of granting the roles of Proposer and Executor.
 ** *Proposer:* An address (smart contract or EOA) that is in charge of scheduling (and cancelling) operations.
-** *Executor:* An address (smart contract or EOA) that is in charge of executing operations.
+** *Executor:* An address (smart contract or EOA) that is in charge of executing operations once the timelock has expired. This role can be given to the zero address to allow anyone to execute operations.
 
 [[timelock-operation]]
 ==== Operation structure
@@ -83,9 +84,8 @@ This role is identified by the *PROPOSER_ROLE* value: `0xb09aa5aeb3702cfd50b6b62
 [[timelock-executor]]
 ===== Executor
 
-The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisig or DAO that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executor can reduce the cost (the executing transaction does not require validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers.
+The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisig or DAO that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executors can reduce the cost (the executing transaction does not require validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers. Alternatively, it is possible to allow _any_ address to execute a proposal once the timelock has expired by granting the executor role to the zero address.
 
 This role is identified by the *EXECUTOR_ROLE* value: `0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63`
-
 
 WARNING: A live contract without at least one proposer and one executor is locked. Make sure these roles are filled by reliable entities before the deployer renounces its administrative rights in favour of the timelock contract itself. See the {AccessControl} documentation to learn more about role management.
