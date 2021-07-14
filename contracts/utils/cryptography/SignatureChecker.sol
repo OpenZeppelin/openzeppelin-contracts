@@ -22,8 +22,8 @@ library SignatureChecker {
         bytes32 hash,
         bytes memory signature
     ) internal view returns (bool) {
-        (address recovered, string memory error) = ECDSA.tryRecover(hash, signature);
-        if (bytes(error).length == 0 && recovered == signer) {
+        (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(hash, signature);
+        if (error == ECDSA.RecoverError.NoError && recovered == signer) {
             return true;
         }
 
