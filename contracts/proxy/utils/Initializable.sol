@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// solhint-disable-next-line compiler-version
 pragma solidity ^0.8.0;
-
-import "../../utils/Address.sol";
 
 /**
  * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
@@ -12,13 +9,12 @@ import "../../utils/Address.sol";
  * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.
  *
  * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as
- * possible by providing the encoded function call as the `_data` argument to {UpgradeableProxy-constructor}.
+ * possible by providing the encoded function call as the `_data` argument to {ERC1967Proxy-constructor}.
  *
  * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure
  * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.
  */
 abstract contract Initializable {
-
     /**
      * @dev Indicates that the contract has been initialized.
      */

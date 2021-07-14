@@ -47,7 +47,7 @@ const pathUpdates = {
   // 'proxy/Proxy.sol': undefined,
   'proxy/TransparentUpgradeableProxy.sol': 'proxy/transparent/TransparentUpgradeableProxy.sol',
   'proxy/UpgradeableBeacon.sol': 'proxy/beacon/UpgradeableBeacon.sol',
-  // 'proxy/UpgradeableProxy.sol': undefined,
+  'proxy/UpgradeableProxy.sol': 'proxy/ERC1967/ERC1967Proxy.sol',
   'token/ERC1155/ERC1155Burnable.sol': 'token/ERC1155/extensions/ERC1155Burnable.sol',
   'token/ERC1155/ERC1155Holder.sol': 'token/ERC1155/utils/ERC1155Holder.sol',
   'token/ERC1155/ERC1155Pausable.sol': 'token/ERC1155/extensions/ERC1155Pausable.sol',

@@ -5,10 +5,9 @@ pragma solidity ^0.8.0;
 import "../../utils/introspection/IERC165.sol";
 
 /**
- * _Available since v3.1._
+ * @dev _Available since v3.1._
  */
 interface IERC1155Receiver is IERC165 {
-
     /**
         @dev Handles the receipt of a single ERC1155 token type. This function is
         called at the end of a `safeTransferFrom` after the balance has been updated.
@@ -28,9 +27,7 @@ interface IERC1155Receiver is IERC165 {
         uint256 id,
         uint256 value,
         bytes calldata data
-    )
-        external
-        returns(bytes4);
+    ) external returns (bytes4);
 
     /**
         @dev Handles the receipt of a multiple ERC1155 token types. This function
@@ -51,7 +48,5 @@ interface IERC1155Receiver is IERC165 {
         uint256[] calldata ids,
         uint256[] calldata values,
         bytes calldata data
-    )
-        external
-        returns(bytes4);
+    ) external returns (bytes4);
 }
