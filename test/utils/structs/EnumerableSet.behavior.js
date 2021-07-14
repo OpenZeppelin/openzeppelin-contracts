@@ -3,27 +3,29 @@ const { expect } = require('chai');
 
 function shouldBehaveLikeSet (valueA, valueB, valueC) {
   async function expectMembersMatch (set, values) {
-    await Promise.all(values.map(value => set.contains(value)))
-      .then(contains => expect(contains.every(Boolean)).to.be.equal(true));
+    const contains = await Promise.all(values.map(value => set.contains(value)));
+    expect(contains.every(Boolean)).to.be.equal(true);
 
-    await set.length()
-      .then(length => expect(length).to.bignumber.equal(values.length.toString()));
+    const length = await set.length();
+    expect(length).to.bignumber.equal(values.length.toString());
 
     // To compare values we convert to strings to workaround Chai
     // limitations when dealing with nested arrays (required for BNs)
-    await Promise.all(Array(values.length).fill().map((_, index) => set.at(index)))
-      .then(results => expect(
-        results.map(v => v.toString()),
-      ).to.have.same.members(
-        values.map(v => v.toString()),
-      ));
+    const indexedValues = await Promise.all(Array(values.length).fill().map(
+      (_, index) => set.at(index)
+    ));
+    expect(
+      indexedValues.map(v => v.toString()),
+    ).to.have.same.members(
+      values.map(v => v.toString()),
+    );
 
-    await set.values()
-      .then(results => expect(
-        results.map(v => v.toString()),
-      ).to.have.same.members(
-        values.map(v => v.toString()),
-      ));
+    const returnedValues = await set.values();
+    expect(
+      returnedValues.map(v => v.toString()),
+    ).to.have.same.members(
+      values.map(v => v.toString()),
+    );
   }
 
   it('starts empty', async function () {
