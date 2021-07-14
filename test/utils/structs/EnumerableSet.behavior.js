@@ -12,12 +12,18 @@ function shouldBehaveLikeSet (valueA, valueB, valueC) {
     // To compare values we convert to strings to workaround Chai
     // limitations when dealing with nested arrays (required for BNs)
     await Promise.all(Array(values.length).fill().map((_, index) => set.at(index)))
-      .then(values => values.map(entry => entry.toString()))
-      .then(values => expect(values).to.have.same.members(values.map(v => v.toString())));
+      .then(results => expect(
+        results.map(v => v.toString()),
+      ).to.have.same.members(
+        values.map(v => v.toString()),
+      ));
 
     await set.values()
-      .then(values => values.map(entry => entry.toString()))
-      .then(values => expect(values).to.have.same.members(values.map(v => v.toString())));
+      .then(results => expect(
+        results.map(v => v.toString()),
+      ).to.have.same.members(
+        values.map(v => v.toString()),
+      ));
   }
 
   it('starts empty', async function () {
