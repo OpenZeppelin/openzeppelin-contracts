@@ -42,21 +42,6 @@ interface IGovernorCompatibilityBravo is IGovernor {
     }
 
     /**
-     * @dev Part of the Governor Bravo's interface: _"The delay before voting on a proposal may take place, once*
-     * proposed, in blocks"_.
-     *
-     * Note: already defined in {IGovernor}
-     */
-    // function votingDelay() external view returns (uint256);
-
-    /**
-     * @dev Part of the Governor Bravo's interface: _"The duration of voting on a proposal, in blocks"_.
-     *
-     * Note: already defined in {IGovernor}
-     */
-    // function votingPeriod() external view returns (uint256);
-
-    /**
      * @dev Part of the Governor Bravo's interface.
      */
     function quorumVotes() external view returns (uint256);
