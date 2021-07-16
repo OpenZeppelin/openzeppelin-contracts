@@ -382,30 +382,6 @@ contract('GovernorTimelockCompound', function (accounts) {
       });
       runGovernorWorkflow();
     });
-
-    describe('prevent losing control over old timelock ', function () {
-      beforeEach(async function () {
-        this.settings = {
-          proposal: [
-            [ this.mock.address ],
-            [ web3.utils.toWei('0') ],
-            [ this.mock.contract.methods.updateTimelock(this.newTimelock.address).encodeABI() ],
-            '<proposal description>',
-          ],
-          voters: [
-            { voter: voter, support: Enums.VoteType.For },
-          ],
-          steps: {
-            queue: { delay: 7 * 86400 },
-            execute: { error: 'Timelock::executeTransaction: Transaction execution reverted.' },
-          },
-        };
-      });
-      afterEach(async function () {
-        expect(await this.mock.timelock()).to.be.bignumber.equal(this.timelock.address);
-      });
-      runGovernorWorkflow();
-    });
   });
 
   describe('transfer timelock to new governor', function () {

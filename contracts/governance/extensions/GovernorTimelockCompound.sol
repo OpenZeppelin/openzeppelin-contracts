@@ -232,10 +232,6 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      * governance.
      */
     function updateTimelock(ICompoundTimelock newTimelock) external virtual onlyGovernance {
-        require(
-            _timelock.admin() == address(this) && _timelock.pendingAdmin() != address(0),
-            "GovernorTimelockCompound: old timelock must be transfered before update"
-        );
         _updateTimelock(newTimelock);
     }
 
