@@ -31,7 +31,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         return (token.getPastTotalSupply(blockNumber) * quorumNumerator()) / quorumDenominator();
     }
 
-    function updateQuorumNumerator(uint256 newQuorumNumerator) external virtual onlyGovernance() {
+    function updateQuorumNumerator(uint256 newQuorumNumerator) external virtual onlyGovernance {
         _updateQuorumNumerator(newQuorumNumerator);
     }
 
