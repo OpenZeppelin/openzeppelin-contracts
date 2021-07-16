@@ -55,6 +55,10 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes32 descriptionHash
     ) public virtual override returns (uint256);
 
+    function COUNTING_MODE() public pure virtual override returns (string memory) {
+        return "support=bravo&quorum=bravo";
+    }
+
     // ============================================== Proposal lifecycle ==============================================
     /**
      * @dev See {IGovernor-propose}.

@@ -49,6 +49,7 @@ contract('Governor', function (accounts) {
     expect(await this.mock.votingDelay()).to.be.bignumber.equal('4');
     expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
+    expect(await this.mock.COUNTING_MODE()).to.be.equal("support=bravo&quorum=for,abstain");
   });
 
   describe('scenario', function () {

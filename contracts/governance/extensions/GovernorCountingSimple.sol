@@ -10,8 +10,6 @@ import "../Governor.sol";
  * _Available since v4.3._
  */
 abstract contract GovernorCountingSimple is Governor {
-    string public constant COUNTING_MODULE_NAME = type(GovernorCountingSimple).name;
-
     /**
      * @dev Supported vote types. Matches Governor Bravo ordering.
      */
@@ -29,6 +27,10 @@ abstract contract GovernorCountingSimple is Governor {
     }
 
     mapping(uint256 => ProposalVote) private _proposalVotes;
+
+    function COUNTING_MODE() public pure virtual override returns (string memory) {
+        return "support=bravo&quorum=for,abstain";
+    }
 
     /**
      * @dev See {IGovernor-hasVoted}.

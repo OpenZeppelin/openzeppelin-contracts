@@ -72,6 +72,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
     expect(await this.mock.quorumVotes()).to.be.bignumber.equal('0');
+    expect(await this.mock.COUNTING_MODE()).to.be.equal("support=bravo&quorum=bravo");
   });
 
   describe('nominal', function () {
