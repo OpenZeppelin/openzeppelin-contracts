@@ -81,6 +81,7 @@ interface IGovernor is IERC165 {
      * https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams[`URLSearchParams`]
      * JavaScript class.
      */
+    // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() external pure returns (string memory);
 
     /**

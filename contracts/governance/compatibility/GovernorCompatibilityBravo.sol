@@ -55,6 +55,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes32 descriptionHash
     ) public virtual override returns (uint256);
 
+    // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
         return "support=bravo&quorum=bravo";
     }
