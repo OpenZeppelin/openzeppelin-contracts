@@ -44,7 +44,7 @@ contract GovernorMock is Governor, GovernorVotesQuorumFraction, GovernorCounting
         public
         view
         virtual
-        override(Governor, GovernorVotes)
+        override(IGovernor, GovernorVotes)
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);

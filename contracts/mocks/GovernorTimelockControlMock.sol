@@ -37,18 +37,18 @@ contract GovernorTimelockControlMock is GovernorTimelockControl, GovernorVotesQu
         return super.supportsInterface(interfaceId);
     }
 
-    function votingDelay() public view override(IGovernor, Governor) returns (uint256) {
+    function votingDelay() public view override returns (uint256) {
         return _votingDelay;
     }
 
-    function votingPeriod() public view override(IGovernor, Governor) returns (uint256) {
+    function votingPeriod() public view override returns (uint256) {
         return _votingPeriod;
     }
 
     function quorum(uint256 blockNumber)
         public
         view
-        override(IGovernor, Governor, GovernorVotesQuorumFraction)
+        override(IGovernor, GovernorVotesQuorumFraction)
         returns (uint256)
     {
         return super.quorum(blockNumber);
@@ -99,7 +99,7 @@ contract GovernorTimelockControlMock is GovernorTimelockControl, GovernorVotesQu
         public
         view
         virtual
-        override(IGovernor, Governor, GovernorVotes)
+        override(IGovernor, GovernorVotes)
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);

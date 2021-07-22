@@ -41,20 +41,6 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
     mapping(uint256 => ProposalDetails) private _proposalDetails;
 
-    // public for hooking
-    function proposalThreshold() public view virtual override returns (uint256);
-
-    // public for hooking
-    function proposalEta(uint256 proposalId) public view virtual override returns (uint256);
-
-    // public for hooking
-    function queue(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) public virtual override returns (uint256);
-
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
         return "support=bravo&quorum=bravo";
