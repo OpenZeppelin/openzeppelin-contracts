@@ -29,7 +29,7 @@ contract('Governor', function (accounts) {
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.mock = await Governor.new(name, this.token.address, 4, 16, 0);
+    this.mock = await Governor.new(name, this.token.address, 4, 16, 10);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
@@ -72,7 +72,7 @@ contract('Governor', function (accounts) {
           tokenHolder: owner,
           voters: [
             { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For, reason: 'This is nice' },
-            { voter: voter2, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
+            { voter: voter2, weight: web3.utils.toWei('7'), support: Enums.VoteType.For },
             { voter: voter3, weight: web3.utils.toWei('5'), support: Enums.VoteType.Against },
             { voter: voter4, weight: web3.utils.toWei('2'), support: Enums.VoteType.Abstain },
           ],
@@ -194,7 +194,7 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: this.voter, signature, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: this.voter, signature, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
           ],
         };
       });
@@ -252,8 +252,8 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
-            { voter: voter2, weight: web3.utils.toWei('1'), support: Enums.VoteType.Abstain },
+            { voter: voter1, weight: web3.utils.toWei('5'), support: Enums.VoteType.For },
+            { voter: voter2, weight: web3.utils.toWei('5'), support: Enums.VoteType.Abstain },
           ],
         };
       });
@@ -285,7 +285,7 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
           ],
           steps: {
             execute: { error: 'Governor: call reverted without message' },
@@ -306,7 +306,7 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
           ],
           steps: {
             execute: { error: 'CallReceiverMock: reverting' },
@@ -329,13 +329,13 @@ contract('Governor', function (accounts) {
           voters: [
             {
               voter: voter1,
-              weight: web3.utils.toWei('1'),
+              weight: web3.utils.toWei('5'),
               support: Enums.VoteType.For,
               error: 'Governor: unknown proposal id',
             },
             {
               voter: voter2,
-              weight: web3.utils.toWei('1'),
+              weight: web3.utils.toWei('5'),
               support: Enums.VoteType.Abstain,
               error: 'Governor: unknown proposal id',
             },
@@ -382,8 +382,8 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
-            { voter: voter2, weight: web3.utils.toWei('1'), support: Enums.VoteType.Abstain },
+            { voter: voter1, weight: web3.utils.toWei('5'), support: Enums.VoteType.For },
+            { voter: voter2, weight: web3.utils.toWei('5'), support: Enums.VoteType.Abstain },
           ],
         };
       });
@@ -406,7 +406,7 @@ contract('Governor', function (accounts) {
           voters: [
             {
               voter: voter1,
-              weight: web3.utils.toWei('1'),
+              weight: web3.utils.toWei('10'),
               support: new BN('255'),
               error: 'GovernorVotingSimple: invalid value for enum VoteType',
             },
@@ -433,12 +433,12 @@ contract('Governor', function (accounts) {
           voters: [
             {
               voter: voter1,
-              weight: web3.utils.toWei('1'),
+              weight: web3.utils.toWei('5'),
               support: Enums.VoteType.For,
             },
             {
               voter: voter1,
-              weight: web3.utils.toWei('1'),
+              weight: web3.utils.toWei('5'),
               support: Enums.VoteType.For,
               error: 'GovernorVotingSimple: vote already casted',
             },
@@ -459,7 +459,9 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('0'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('5'), support: Enums.VoteType.For },
+            { voter: voter2, weight: web3.utils.toWei('4'), support: Enums.VoteType.Abstain },
+            { voter: voter3, weight: web3.utils.toWei('10'), support: Enums.VoteType.Against },
           ],
           steps: {
             execute: { error: 'Governor: proposal not successful' },
@@ -480,7 +482,7 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.Against },
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.Against },
           ],
           steps: {
             execute: { error: 'Governor: proposal not successful' },
@@ -501,7 +503,7 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
           ],
           steps: {
             wait: { enable: false },
@@ -593,7 +595,7 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
           ],
           steps: {
             execute: { enable: false },
@@ -617,7 +619,7 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
           ],
         };
       });
@@ -692,7 +694,7 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
           ],
           steps: {
             wait: { enable: false },
@@ -723,7 +725,7 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
           ],
           steps: {
             execute: { enable: false },
@@ -753,7 +755,7 @@ contract('Governor', function (accounts) {
           ],
           tokenHolder: owner,
           voters: [
-            { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
           ],
         };
       });
