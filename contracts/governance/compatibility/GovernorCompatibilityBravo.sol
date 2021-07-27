@@ -105,6 +105,22 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         );
     }
 
+    function cancel(uint256 proposalId) public virtual override {
+        ProposalDetails storage details = _proposalDetails[proposalId];
+
+        require(
+            _msgSender() == details.proposer || getVotes(details.proposer, block.number - 1) < proposalThreshold(),
+            "GovernorBravo: proposer above threshold"
+        );
+
+        _cancel(
+            details.targets,
+            details.values,
+            _encodeCalldata(details.signatures, details.calldatas),
+            details.descriptionHash
+        );
+    }
+
     /**
      * @dev Encodes calldatas with optional function signature.
      */
