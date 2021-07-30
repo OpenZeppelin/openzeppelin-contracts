@@ -56,9 +56,9 @@ contract SampleGramps is Initializable, SampleHuman {
 contract SampleFather is Initializable, SampleGramps {
     uint256 public father;
 
-    function initialize(string memory _gramps, uint256 _father) public initializer {
-        SampleGramps.initialize(_gramps);
-        father = _father;
+    function initialize(string memory gramps, uint256 father_) public initializer {
+        SampleGramps.initialize(gramps);
+        father = father_;
     }
 }
 

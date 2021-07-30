@@ -20,12 +20,12 @@ contract InitializableMock is Initializable {
         initialize();
     }
 
-    function initializeWithX(uint256 _x) public payable initializer {
-        x = _x;
+    function initializeWithX(uint256 x_) public payable initializer {
+        x = x_;
     }
 
-    function nonInitializable(uint256 _x) public payable {
-        x = _x;
+    function nonInitializable(uint256 x_) public payable {
+        x = x_;
     }
 
     function fail() public pure {

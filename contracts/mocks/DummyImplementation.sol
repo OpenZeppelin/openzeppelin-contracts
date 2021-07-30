@@ -19,12 +19,12 @@ contract DummyImplementation {
         value = 100;
     }
 
-    function initializeNonPayableWithValue(uint256 _value) public {
-        value = _value;
+    function initializeNonPayableWithValue(uint256 value_) public {
+        value = value_;
     }
 
-    function initializePayableWithValue(uint256 _value) public payable {
-        value = _value;
+    function initializePayableWithValue(uint256 value_) public payable {
+        value = value_;
     }
 
     function initialize(

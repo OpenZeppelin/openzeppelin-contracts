@@ -9,8 +9,8 @@ contract Implementation1 is Initializable {
 
     function initialize() public initializer {}
 
-    function setValue(uint256 _number) public {
-        _value = _number;
+    function setValue(uint256 number) public {
+        _value = number;
     }
 }
 
@@ -19,8 +19,8 @@ contract Implementation2 is Initializable {
 
     function initialize() public initializer {}
 
-    function setValue(uint256 _number) public {
-        _value = _number;
+    function setValue(uint256 number) public {
+        _value = number;
     }
 
     function getValue() public view returns (uint256) {
@@ -33,12 +33,12 @@ contract Implementation3 is Initializable {
 
     function initialize() public initializer {}
 
-    function setValue(uint256 _number) public {
-        _value = _number;
+    function setValue(uint256 number) public {
+        _value = number;
     }
 
-    function getValue(uint256 _number) public view returns (uint256) {
-        return _value + _number;
+    function getValue(uint256 number) public view returns (uint256) {
+        return _value + number;
     }
 }
 
@@ -47,8 +47,8 @@ contract Implementation4 is Initializable {
 
     function initialize() public initializer {}
 
-    function setValue(uint256 _number) public {
-        _value = _number;
+    function setValue(uint256 number) public {
+        _value = number;
     }
 
     function getValue() public view returns (uint256) {
