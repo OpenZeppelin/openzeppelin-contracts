@@ -12,7 +12,7 @@ const Error = [ 'None', 'RevertWithMessage', 'RevertWithoutMessage', 'Panic' ]
 const firstTokenId = new BN('5042');
 const secondTokenId = new BN('79217');
 const nonExistentTokenId = new BN('13');
-const baseURI = 'https://api.com/v1/';
+const baseURI = 'https://api.example.com/v1/';
 
 const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
@@ -929,7 +929,7 @@ function shouldBehaveLikeERC721Metadata (errorPrefix, name, symbol, owner) {
 
         it('token URI can be changed by changing the base URI', async function () {
           await this.token.setBaseURI(baseURI);
-          const newBaseURI = 'https://api.com/v2/';
+          const newBaseURI = 'https://api.example.com/v2/';
           await this.token.setBaseURI(newBaseURI);
           expect(await this.token.tokenURI(firstTokenId)).to.be.equal(newBaseURI + firstTokenId.toString());
         });
