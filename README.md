@@ -68,6 +68,8 @@ The latest audit was done on October 2018 on version 2.0.0.
 
 Please report any security issues you find to security@openzeppelin.org.
 
+Critical bug fixes will be backported to past major releases.
+
 ## Contribute
 
 OpenZeppelin Contracts exists thanks to its contributors. There are many ways you can participate and help build high quality software. Check out the [contribution guide](CONTRIBUTING.md)!
