@@ -2,9 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./IERC165.sol";
-
-interface IERC173 is IERC165 {
+interface IERC173 {
     /// @dev This emits when ownership of a contract changes.
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
