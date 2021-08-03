@@ -59,7 +59,7 @@ Events emitted by the {Governor} contract are compatible with Compound's `Govern
 
 == Timelock
 
-In a governance systems, the {TimelockController} contract is in carge of introducing a delay between a proposal and its execution. It can be used with or without a {Governor}.
+In a governance system, the {TimelockController} contract is in carge of introducing a delay between a proposal and its execution. It can be used with or without a {Governor}.
 
 {{TimelockController}}
 

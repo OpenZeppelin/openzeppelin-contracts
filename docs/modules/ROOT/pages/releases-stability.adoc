@@ -79,7 +79,7 @@ The API stability guarantees may need to be broken in order to fix a bug, and we
 
 Starting on version 0.5.0, the Solidity team switched to a faster release cycle, with minor releases every few weeks (v0.5.0 was released on November 2018, and v0.5.5 on March 2019), and major, breaking-change releases every couple of months (with v0.6.0 released on December 2019 and v0.7.0 on July 2020). Including the compiler version in OpenZeppelin Contract's stability guarantees would therefore force the library to either stick to old compilers, or release frequent major updates simply to keep up with newer Solidity releases.
 
-Because of this, *the minimum required Solidity compiler version is not part of the stability guarantees*, and users may be required to upgrade their compiler when using newer versions of Contracts. Bug fixes will still be backported to older library releases so that all versions currently in use receive these updates.
+Because of this, *the minimum required Solidity compiler version is not part of the stability guarantees*, and users may be required to upgrade their compiler when using newer versions of Contracts. Bug fixes will still be backported to past major releases so that all versions currently in use receive these updates.
 
 You can read more about the rationale behind this, the other options we considered and why we went down this path https://github.com/OpenZeppelin/openzeppelin-contracts/issues/1498#issuecomment-449191611[here].
 
