@@ -17,7 +17,12 @@ import "./IGovernorCompatibilityBravo.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorCompatibilityBravo, Governor, GovernorProposalThreshold {
+abstract contract GovernorCompatibilityBravo is
+    IGovernorTimelock,
+    IGovernorCompatibilityBravo,
+    Governor,
+    GovernorProposalThreshold
+{
     using Counters for Counters.Counter;
     using Timers for Timers.BlockNumber;
 
@@ -148,12 +153,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         string memory description
     ) private {
         bytes32 descriptionHash = keccak256(bytes(description));
-        uint256 proposalId = hashProposal(
-            targets,
-            values,
-            _encodeCalldata(signatures, calldatas),
-            descriptionHash
-        );
+        uint256 proposalId = hashProposal(targets, values, _encodeCalldata(signatures, calldatas), descriptionHash);
 
         ProposalDetails storage details = _proposalDetails[proposalId];
         if (details.descriptionHash == bytes32(0)) {
@@ -170,7 +170,12 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     /**
      * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
      */
-    function proposalThreshold() public view virtual override(IGovernorCompatibilityBravo, GovernorProposalThreshold) returns (uint256);
+    function proposalThreshold()
+        public
+        view
+        virtual
+        override(IGovernorCompatibilityBravo, GovernorProposalThreshold)
+        returns (uint256);
 
     /**
      * @dev See {IGovernorCompatibilityBravo-proposals}.
