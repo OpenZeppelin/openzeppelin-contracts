@@ -7,9 +7,28 @@ const fs = require('fs');
 const path = require('path');
 const argv = require('yargs/yargs')()
   .env('')
-  .boolean('enableGasReport')
-  .boolean('ci')
-  .string('compileMode')
+  .options({
+    ci: {
+      type: 'boolean',
+      default: false,
+    },
+    gas: {
+      alias: 'enableGasReport',
+      type: 'boolean',
+      default: false,
+    },
+    mode: {
+      alias: 'compileMode',
+      type: 'string',
+      choices: [ 'production', 'development' ],
+      default: 'development',
+    },
+    compiler: {
+      alias: 'compileVersion',
+      type: 'string',
+      default: '0.8.3',
+    },
+  })
   .argv;
 
 require('@nomiclabs/hardhat-truffle5');
@@ -30,7 +49,7 @@ const withOptimizations = argv.enableGasReport || argv.compileMode === 'producti
  */
 module.exports = {
   solidity: {
-    version: '0.8.3',
+    version: argv.compiler,
     settings: {
       optimizer: {
         enabled: withOptimizations,
