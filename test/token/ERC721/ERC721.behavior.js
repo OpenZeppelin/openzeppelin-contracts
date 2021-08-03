@@ -12,6 +12,7 @@ const Error = [ 'None', 'RevertWithMessage', 'RevertWithoutMessage', 'Panic' ]
 const firstTokenId = new BN('5042');
 const secondTokenId = new BN('79217');
 const nonExistentTokenId = new BN('13');
+const fourthTokenId = new BN(4);
 const baseURI = 'https://api.example.com/v1/';
 
 const RECEIVER_MAGIC_VALUE = '0x150b7a02';
@@ -342,7 +343,6 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
     });
 
     describe('safe mint', function () {
-      const fourthTokenId = new BN(4);
       const tokenId = fourthTokenId;
       const data = '0x42';
 
