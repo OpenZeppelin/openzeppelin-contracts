@@ -3,7 +3,7 @@
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/governance
 
-This directory includes primitives for on-chain governance. We currently only offer the {TimelockController} contract, that can be used as a component in a governance systems to introduce a delay between a proposal and its execution.
+This directory includes primitives for on-chain governance. We currently only offer the {TimelockController} contract, that can be used as a component in governance systems to introduce a delay between a proposal and its execution.
 
 == Timelock
 
