@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "../../utils/Counters.sol";
 import "../../utils/math/SafeCast.sol";
 import "../extensions/IGovernorTimelock.sol";
+import "../extensions/GovernorProposalThreshold.sol";
 import "../Governor.sol";
 import "./IGovernorCompatibilityBravo.sol";
 
@@ -16,7 +17,7 @@ import "./IGovernorCompatibilityBravo.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorCompatibilityBravo, Governor {
+abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorCompatibilityBravo, Governor, GovernorProposalThreshold {
     using Counters for Counters.Counter;
     using Timers for Timers.BlockNumber;
 
@@ -55,8 +56,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override(IGovernor, Governor) returns (uint256) {
-        return propose(targets, values, new string[](calldatas.length), calldatas, description);
+    ) public virtual override(IGovernor, Governor, GovernorProposalThreshold) returns (uint256) {
+        _storeProposal(_msgSender(), targets, values, new string[](calldatas.length), calldatas, description);
+        return super.propose(targets, values, calldatas, description);
     }
 
     /**
@@ -69,14 +71,8 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
-        require(
-            getVotes(msg.sender, block.number - 1) >= proposalThreshold(),
-            "GovernorCompatibilityBravo: proposer votes below proposal threshold"
-        );
-
-        uint256 proposalId = super.propose(targets, values, _encodeCalldata(signatures, calldatas), description);
-        _storeProposal(proposalId, _msgSender(), targets, values, signatures, calldatas, description);
-        return proposalId;
+        _storeProposal(_msgSender(), targets, values, signatures, calldatas, description);
+        return propose(targets, values, _encodeCalldata(signatures, calldatas), description);
     }
 
     /**
@@ -144,7 +140,6 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
      * @dev Store proposal metadata for later lookup
      */
     function _storeProposal(
-        uint256 proposalId,
         address proposer,
         address[] memory targets,
         uint256[] memory values,
@@ -152,17 +147,31 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes[] memory calldatas,
         string memory description
     ) private {
-        ProposalDetails storage details = _proposalDetails[proposalId];
+        bytes32 descriptionHash = keccak256(bytes(description));
+        uint256 proposalId = hashProposal(
+            targets,
+            values,
+            _encodeCalldata(signatures, calldatas),
+            descriptionHash
+        );
 
-        details.proposer = proposer;
-        details.targets = targets;
-        details.values = values;
-        details.signatures = signatures;
-        details.calldatas = calldatas;
-        details.descriptionHash = keccak256(bytes(description));
+        ProposalDetails storage details = _proposalDetails[proposalId];
+        if (details.descriptionHash == bytes32(0)) {
+            details.proposer = proposer;
+            details.targets = targets;
+            details.values = values;
+            details.signatures = signatures;
+            details.calldatas = calldatas;
+            details.descriptionHash = descriptionHash;
+        }
     }
 
     // ==================================================== Views =====================================================
+    /**
+     * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
+     */
+    function proposalThreshold() public view virtual override(IGovernorCompatibilityBravo, GovernorProposalThreshold) returns (uint256);
+
     /**
      * @dev See {IGovernorCompatibilityBravo-proposals}.
      */
