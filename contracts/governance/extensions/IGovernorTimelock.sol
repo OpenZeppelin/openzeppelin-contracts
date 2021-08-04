@@ -9,17 +9,17 @@ import "../IGovernor.sol";
  *
  * _Available since v4.3._
  */
-interface IGovernorTimelock is IGovernor {
+abstract contract IGovernorTimelock is IGovernor {
     event ProposalQueued(uint256 proposalId, uint256 eta);
 
-    function timelock() external view returns (address);
+    function timelock() public view virtual returns (address);
 
-    function proposalEta(uint256 proposalId) external view returns (uint256);
+    function proposalEta(uint256 proposalId) public view virtual returns (uint256);
 
     function queue(
-        address[] calldata targets,
-        uint256[] calldata values,
-        bytes[] calldata calldatas,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) external returns (uint256 proposalId);
+    ) public virtual returns (uint256 proposalId);
 }

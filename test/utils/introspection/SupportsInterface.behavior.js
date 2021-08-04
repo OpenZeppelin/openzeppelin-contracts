@@ -100,7 +100,7 @@ function shouldSupportInterfaces (interfaces = []) {
             expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
           });
 
-          it('claims support', async function () {
+          it('claims support [skip-on-coverage]', async function () {
             expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true);
           });
         });

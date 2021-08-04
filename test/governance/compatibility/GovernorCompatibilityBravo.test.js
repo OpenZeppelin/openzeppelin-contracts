@@ -215,6 +215,51 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     runGovernorWorkflow();
   });
 
+  describe('cancel', function () {
+    beforeEach(async function () {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ], // targets
+          [ web3.utils.toWei('0') ], // values
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ], // calldatas
+          '<proposal description>', // description
+        ],
+        proposer,
+        tokenHolder: owner,
+        steps: {
+          wait: { enable: false },
+          queue: { enable: false },
+          execute: { enable: false },
+        },
+      };
+    });
+
+    describe('by proposer', function () {
+      afterEach(async function () {
+        await this.mock.cancel(this.id, { from: proposer });
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('if proposer below threshold', function () {
+      afterEach(async function () {
+        await this.token.transfer(voter1, web3.utils.toWei('1'), { from: proposer });
+        await this.mock.cancel(this.id);
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('not if proposer above threshold', function () {
+      afterEach(async function () {
+        await expectRevert(
+          this.mock.cancel(this.id),
+          'GovernorBravo: proposer above threshold',
+        );
+      });
+      runGovernorWorkflow();
+    });
+  });
+
   describe('with compatibility interface', function () {
     beforeEach(async function () {
       this.settings = {

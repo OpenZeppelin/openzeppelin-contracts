@@ -34,11 +34,11 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         return super.supportsInterface(interfaceId);
     }
 
-    function votingDelay() public view override(IGovernor, Governor) returns (uint256) {
+    function votingDelay() public view override returns (uint256) {
         return _votingDelay;
     }
 
-    function votingPeriod() public view override(IGovernor, Governor) returns (uint256) {
+    function votingPeriod() public view override returns (uint256) {
         return _votingPeriod;
     }
 
@@ -46,7 +46,7 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         return _proposalThreshold;
     }
 
-    function quorum(uint256) public pure override(IGovernor, Governor) returns (uint256) {
+    function quorum(uint256) public pure override returns (uint256) {
         return 0;
     }
 
@@ -64,7 +64,7 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         public
         view
         virtual
-        override(GovernorCompatibilityBravo, GovernorTimelockCompound)
+        override(IGovernorTimelock, GovernorTimelockCompound)
         returns (uint256)
     {
         return super.proposalEta(proposalId);
@@ -84,7 +84,7 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public virtual override(GovernorCompatibilityBravo, GovernorTimelockCompound) returns (uint256) {
+    ) public virtual override(IGovernorTimelock, GovernorTimelockCompound) returns (uint256) {
         return super.queue(targets, values, calldatas, salt);
     }
 
