@@ -678,7 +678,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
   describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
       await expectRevert(
-        this.token.burn(firstTokenId), 'ERC721: owner query for nonexistent token',
+        this.token.burn(nonExistentTokenId), 'ERC721: owner query for nonexistent token',
       );
     });
 
