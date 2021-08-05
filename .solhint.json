@@ -1,7 +1,6 @@
 {
   "rules": {
     "no-unused-vars": "error",
-    "private-vars-leading-underscore": "error",
     "const-name-snakecase": "error",
     "contract-name-camelcase": "error",
     "event-name-camelcase": "error",
