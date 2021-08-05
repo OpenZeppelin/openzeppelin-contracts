@@ -14,7 +14,6 @@ are usefull to interract with third party contracts that implement them.
 - {IERC721Receiver}
 - {IERC721Enumerable}
 - {IERC721Metadata}
-- {IERC725}
 - {IERC777}
 - {IERC777Recipient}
 - {IERC777Sender}
@@ -30,8 +29,6 @@ are usefull to interract with third party contracts that implement them.
 - {IERC3156FlashBorrower}
 
 == Detailed ABI
-
-{{IERC725}}
 
 {{IERC1271}}
 
