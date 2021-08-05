@@ -25,6 +25,7 @@ are usefull to interract with third party contracts that implement them.
 - {IERC1820Implementer}
 - {IERC1820Registry}
 - {IERC2612}
+- {IERC2981}
 - {IERC3156FlashLender}
 - {IERC3156FlashBorrower}
 
@@ -41,6 +42,8 @@ are usefull to interract with third party contracts that implement them.
 {{IERC1820Registry}}
 
 {{IERC2612}}
+
+{{IERC2981}}
 
 {{IERC3156FlashLender}}
 
