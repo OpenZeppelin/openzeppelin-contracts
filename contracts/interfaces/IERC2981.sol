@@ -10,10 +10,10 @@ import "./IERC165.sol";
 interface IERC2981 is IERC165 {
     /**
      * @notice Called with the sale price to determine how much royalty is owed and to whom.
-     * @param _tokenId - the NFT asset queried for royalty information
-     * @param _salePrice - the sale price of the NFT asset specified by _tokenId
+     * @param tokenId - the NFT asset queried for royalty information
+     * @param salePrice - the sale price of the NFT asset specified by `tokenId`
      * @return receiver - address of who should be sent the royalty payment
-     * @return royaltyAmount - the royalty payment amount for _salePrice
+     * @return royaltyAmount - the royalty payment amount for `salePrice`
      */
     function royaltyInfo(uint256 tokenId, uint256 salePrice)
         external
