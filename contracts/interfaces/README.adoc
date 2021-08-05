@@ -8,7 +8,6 @@ List of standardized interfaces, usefull to interract with third party contracts
 {{IERC20}}
 {{IERC20Metadata}}
 {{IERC165}}
-{{IERC173}}
 {{IERC721}}
 {{IERC721Receiver}}
 {{IERC721Enumerable}}
