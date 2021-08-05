@@ -20,7 +20,7 @@ interface IAccessControl {
      * @dev Emitted when `account` is granted `role`.
      *
      * `sender` is the account that originated the contract call, an admin role
-     * bearer except when using {_setupRole}.
+     * bearer except when using {AccessControl-_setupRole}.
      */
     event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
 
@@ -42,7 +42,7 @@ interface IAccessControl {
      * @dev Returns the admin role that controls `role`. See {grantRole} and
      * {revokeRole}.
      *
-     * To change a role's admin, use {_setRoleAdmin}.
+     * To change a role's admin, use {AccessControl-_setRoleAdmin}.
      */
     function getRoleAdmin(bytes32 role) external view returns (bytes32);
 
