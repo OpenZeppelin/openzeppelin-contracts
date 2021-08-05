@@ -1,4 +1,4 @@
-= Utilities
+= Interfaces
 
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils
