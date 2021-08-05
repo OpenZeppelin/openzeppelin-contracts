@@ -9,7 +9,7 @@ import "../IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract IGovernorCompatibilityBravo is IGovernor {
+interface IGovernorCompatibilityBravo {
     /**
      * @dev Proposal structure from Compound Governor Bravo. Not actually used by the compatibility layer, as
      * {{proposal}} returns a very different structure.
@@ -44,15 +44,14 @@ abstract contract IGovernorCompatibilityBravo is IGovernor {
     /**
      * @dev Part of the Governor Bravo's interface.
      */
-    function quorumVotes() public view virtual returns (uint256);
+    function quorumVotes() external view returns (uint256);
 
     /**
      * @dev Part of the Governor Bravo's interface: _"The official record of all proposals ever proposed"_.
      */
     function proposals(uint256)
-        public
+        external
         view
-        virtual
         returns (
             uint256 id,
             address proposer,
@@ -75,30 +74,29 @@ abstract contract IGovernorCompatibilityBravo is IGovernor {
         string[] memory signatures,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual returns (uint256);
+    ) external returns (uint256);
 
     /**
      * @dev Part of the Governor Bravo's interface: _"Queues a proposal of state succeeded"_.
      */
-    function queue(uint256 proposalId) public virtual;
+    function queue(uint256 proposalId) external;
 
     /**
      * @dev Part of the Governor Bravo's interface: _"Executes a queued proposal if eta has passed"_.
      */
-    function execute(uint256 proposalId) public payable virtual;
+    function execute(uint256 proposalId) external payable;
 
     /**
      * @dev Cancels a proposal only if sender is the proposer, or proposer delegates dropped below proposal threshold.
      */
-    function cancel(uint256 proposalId) public virtual;
+    function cancel(uint256 proposalId) external;
 
     /**
      * @dev Part of the Governor Bravo's interface: _"Gets actions of a proposal"_.
      */
     function getActions(uint256 proposalId)
-        public
+        external
         view
-        virtual
         returns (
             address[] memory targets,
             uint256[] memory values,
@@ -109,10 +107,67 @@ abstract contract IGovernorCompatibilityBravo is IGovernor {
     /**
      * @dev Part of the Governor Bravo's interface: _"Gets the receipt for a voter on a given proposal"_.
      */
-    function getReceipt(uint256 proposalId, address voter) public view virtual returns (Receipt memory);
+    function getReceipt(uint256 proposalId, address voter) external view returns (Receipt memory);
 
     /**
      * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
      */
-    function proposalThreshold() public view virtual returns (uint256);
+    function proposalThreshold() external view returns (uint256);
+}
+
+/**
+ * @dev Equivalent to {IGovernorCompatibilityBravo} but with public functions.
+ *
+ * _Available since v4.3._
+ */
+abstract contract AGovernorCompatibilityBravo is IGovernorCompatibilityBravo, AGovernor {
+    function quorumVotes() public view virtual override returns (uint256);
+
+    function proposals(uint256)
+        public
+        view
+        virtual
+        override
+        returns (
+            uint256 id,
+            address proposer,
+            uint256 eta,
+            uint256 startBlock,
+            uint256 endBlock,
+            uint256 forVotes,
+            uint256 againstVotes,
+            uint256 abstainVotes,
+            bool canceled,
+            bool executed
+        );
+
+    function propose(
+        address[] memory targets,
+        uint256[] memory values,
+        string[] memory signatures,
+        bytes[] memory calldatas,
+        string memory description
+    ) public virtual override returns (uint256);
+
+    function queue(uint256 proposalId) public virtual override;
+
+    function execute(uint256 proposalId) public payable virtual override;
+
+    function cancel(uint256 proposalId) public virtual override;
+
+    function getActions(uint256 proposalId)
+        public
+        view
+        virtual
+        override
+        returns (
+            address[] memory targets,
+            uint256[] memory values,
+            string[] memory signatures,
+            bytes[] memory calldatas
+        );
+
+    function getReceipt(uint256 proposalId, address voter) public view virtual override returns (Receipt memory);
+
+    function proposalThreshold() public view virtual override returns (uint256);
 }

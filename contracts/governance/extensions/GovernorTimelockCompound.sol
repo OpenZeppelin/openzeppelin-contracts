@@ -72,7 +72,7 @@ interface ICompoundTimelock {
  *
  * _Available since v4.3._
  */
-abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
+abstract contract GovernorTimelockCompound is AGovernorTimelock, Governor {
     using SafeCast for uint256;
     using Timers for Timers.Timestamp;
 
@@ -106,7 +106,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     /**
      * @dev Overriden version of the {Governor-state} function with added support for the `Queued` and `Expired` status.
      */
-    function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
+    function state(uint256 proposalId) public view virtual override(AGovernor, Governor) returns (ProposalState) {
         ProposalState status = super.state(proposalId);
 
         if (status != ProposalState.Succeeded) {

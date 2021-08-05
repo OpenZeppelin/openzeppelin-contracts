@@ -17,7 +17,7 @@ import "../TimelockController.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
+abstract contract GovernorTimelockControl is AGovernorTimelock, Governor {
     TimelockController private _timelock;
     mapping(uint256 => bytes32) private _timelockIds;
 
@@ -43,7 +43,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     /**
      * @dev Overriden version of the {Governor-state} function with added support for the `Queued` status.
      */
-    function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
+    function state(uint256 proposalId) public view virtual override(AGovernor, Governor) returns (ProposalState) {
         ProposalState status = super.state(proposalId);
 
         if (status != ProposalState.Succeeded) {

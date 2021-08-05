@@ -9,7 +9,7 @@ import "../utils/introspection/ERC165.sol";
  *
  * _Available since v4.3._
  */
-abstract contract IGovernor is IERC165 {
+interface IGovernor is IERC165 {
     enum ProposalState {
         Pending,
         Active,
@@ -57,13 +57,13 @@ abstract contract IGovernor is IERC165 {
      * @notice module:core
      * @dev Name of the governor instance (used in building the ERC712 domain separator).
      */
-    function name() public view virtual returns (string memory);
+    function name() external view returns (string memory);
 
     /**
      * @notice module:core
      * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
      */
-    function version() public view virtual returns (string memory);
+    function version() external view returns (string memory);
 
     /**
      * @notice module:voting
@@ -82,7 +82,7 @@ abstract contract IGovernor is IERC165 {
      * JavaScript class.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function COUNTING_MODE() public pure virtual returns (string memory);
+    function COUNTING_MODE() external pure returns (string memory);
 
     /**
      * @notice module:core
@@ -93,32 +93,32 @@ abstract contract IGovernor is IERC165 {
         uint256[] calldata values,
         bytes[] calldata calldatas,
         bytes32 descriptionHash
-    ) public pure virtual returns (uint256);
+    ) external pure returns (uint256);
 
     /**
      * @notice module:core
      * @dev Current state of a proposal, following Compound's convention
      */
-    function state(uint256 proposalId) public view virtual returns (ProposalState);
+    function state(uint256 proposalId) external view returns (ProposalState);
 
     /**
      * @notice module:core
      * @dev block number used to retrieve user's votes and quorum.
      */
-    function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);
+    function proposalSnapshot(uint256 proposalId) external view returns (uint256);
 
     /**
      * @notice module:core
      * @dev timestamp at which votes close.
      */
-    function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
+    function proposalDeadline(uint256 proposalId) external view returns (uint256);
 
     /**
      * @notice module:user-config
      * @dev delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
      * leave time for users to buy voting power, of delegate it, before the voting of a proposal starts.
      */
-    function votingDelay() public view virtual returns (uint256);
+    function votingDelay() external view returns (uint256);
 
     /**
      * @notice module:user-config
@@ -127,7 +127,7 @@ abstract contract IGovernor is IERC165 {
      * Note: the {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
      */
-    function votingPeriod() public view virtual returns (uint256);
+    function votingPeriod() external view returns (uint256);
 
     /**
      * @notice module:user-config
@@ -136,7 +136,7 @@ abstract contract IGovernor is IERC165 {
      * Note: The `blockNumber` parameter corresponds to the snaphot used for counting vote. This allows to scale the
      * quroum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
      */
-    function quorum(uint256 blockNumber) public view virtual returns (uint256);
+    function quorum(uint256 blockNumber) external view returns (uint256);
 
     /**
      * @notice module:reputation
@@ -145,13 +145,13 @@ abstract contract IGovernor is IERC165 {
      * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
      * multiple), {ERC20Votes} tokens.
      */
-    function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256);
+    function getVotes(address account, uint256 blockNumber) external view returns (uint256);
 
     /**
      * @notice module:voting
      * @dev Returns weither `account` has casted a vote on `proposalId`.
      */
-    function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
+    function hasVoted(uint256 proposalId, address account) external view returns (bool);
 
     /**
      * @dev Create a new proposal. Vote start {IGovernor-votingDelay} blocks after the proposal is created and ends
@@ -164,7 +164,7 @@ abstract contract IGovernor is IERC165 {
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual returns (uint256 proposalId);
+    ) external returns (uint256 proposalId);
 
     /**
      * @dev Execute a successful proposal. This requiers the quorum to be reached, the vote to be successful, and the
@@ -179,14 +179,14 @@ abstract contract IGovernor is IERC165 {
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public payable virtual returns (uint256 proposalId);
+    ) external payable returns (uint256 proposalId);
 
     /**
      * @dev Cast a vote
      *
      * Emits a {VoteCast} event.
      */
-    function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256 balance);
+    function castVote(uint256 proposalId, uint8 support) external returns (uint256 balance);
 
     /**
      * @dev Cast a with a reason
@@ -197,7 +197,7 @@ abstract contract IGovernor is IERC165 {
         uint256 proposalId,
         uint8 support,
         string calldata reason
-    ) public virtual returns (uint256 balance);
+    ) external returns (uint256 balance);
 
     /**
      * @dev Cast a vote using the user cryptographic signature.
@@ -210,5 +210,72 @@ abstract contract IGovernor is IERC165 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual returns (uint256 balance);
+    ) external returns (uint256 balance);
+}
+
+/**
+ * @dev Equivalent to {IGovernor} but with public functions.
+ *
+ * _Available since v4.3._
+ */
+abstract contract AGovernor is IGovernor {
+    function name() public view virtual override returns (string memory);
+
+    function version() public view virtual override returns (string memory);
+
+    // solhint-disable-next-line func-name-mixedcase
+    function COUNTING_MODE() public pure virtual override returns (string memory);
+
+    function hashProposal(
+        address[] calldata targets,
+        uint256[] calldata values,
+        bytes[] calldata calldatas,
+        bytes32 descriptionHash
+    ) public pure virtual override returns (uint256);
+
+    function state(uint256 proposalId) public view virtual override returns (ProposalState);
+
+    function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256);
+
+    function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256);
+
+    function votingDelay() public view virtual override returns (uint256);
+
+    function votingPeriod() public view virtual override returns (uint256);
+
+    function quorum(uint256 blockNumber) public view virtual override returns (uint256);
+
+    function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256);
+
+    function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool);
+
+    function propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description
+    ) public virtual override returns (uint256 proposalId);
+
+    function execute(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public payable virtual override returns (uint256 proposalId);
+
+    function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256 balance);
+
+    function castVoteWithReason(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason
+    ) public virtual override returns (uint256 balance);
+
+    function castVoteBySig(
+        uint256 proposalId,
+        uint8 support,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual override returns (uint256 balance);
 }

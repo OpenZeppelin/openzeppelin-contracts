@@ -54,7 +54,7 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         public
         view
         virtual
-        override(IGovernor, Governor, GovernorTimelockCompound)
+        override(AGovernor, Governor, GovernorTimelockCompound)
         returns (ProposalState)
     {
         return super.state(proposalId);
@@ -64,7 +64,7 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         public
         view
         virtual
-        override(IGovernorTimelock, GovernorTimelockCompound)
+        override(AGovernorTimelock, GovernorTimelockCompound)
         returns (uint256)
     {
         return super.proposalEta(proposalId);
@@ -75,7 +75,7 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override(IGovernor, Governor, GovernorCompatibilityBravo) returns (uint256) {
+    ) public virtual override(AGovernor, Governor, GovernorCompatibilityBravo) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
 
@@ -84,7 +84,7 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public virtual override(IGovernorTimelock, GovernorTimelockCompound) returns (uint256) {
+    ) public virtual override(AGovernorTimelock, GovernorTimelockCompound) returns (uint256) {
         return super.queue(targets, values, calldatas, salt);
     }
 
@@ -93,7 +93,7 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public payable virtual override(IGovernor, Governor) returns (uint256) {
+    ) public payable virtual override(AGovernor, Governor) returns (uint256) {
         return super.execute(targets, values, calldatas, salt);
     }
 
@@ -133,7 +133,7 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         public
         view
         virtual
-        override(IGovernor, GovernorVotesComp)
+        override(AGovernor, GovernorVotesComp)
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);

@@ -18,8 +18,8 @@ import "./IGovernorCompatibilityBravo.sol";
  * _Available since v4.3._
  */
 abstract contract GovernorCompatibilityBravo is
-    IGovernorTimelock,
-    IGovernorCompatibilityBravo,
+    AGovernorTimelock,
+    AGovernorCompatibilityBravo,
     Governor,
     GovernorProposalThreshold
 {
@@ -61,7 +61,7 @@ abstract contract GovernorCompatibilityBravo is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override(IGovernor, Governor, GovernorProposalThreshold) returns (uint256) {
+    ) public virtual override(AGovernor, Governor, GovernorProposalThreshold) returns (uint256) {
         _storeProposal(_msgSender(), targets, values, new string[](calldatas.length), calldatas, description);
         return super.propose(targets, values, calldatas, description);
     }
@@ -174,7 +174,7 @@ abstract contract GovernorCompatibilityBravo is
         public
         view
         virtual
-        override(IGovernorCompatibilityBravo, GovernorProposalThreshold)
+        override(AGovernorCompatibilityBravo, GovernorProposalThreshold)
         returns (uint256);
 
     /**

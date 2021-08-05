@@ -48,7 +48,7 @@ contract GovernorTimelockControlMock is GovernorTimelockControl, GovernorVotesQu
     function quorum(uint256 blockNumber)
         public
         view
-        override(IGovernor, GovernorVotesQuorumFraction)
+        override(AGovernor, GovernorVotesQuorumFraction)
         returns (uint256)
     {
         return super.quorum(blockNumber);
@@ -99,7 +99,7 @@ contract GovernorTimelockControlMock is GovernorTimelockControl, GovernorVotesQu
         public
         view
         virtual
-        override(IGovernor, GovernorVotes)
+        override(AGovernor, GovernorVotes)
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);
