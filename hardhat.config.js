@@ -13,7 +13,6 @@ const argv = require('yargs/yargs')()
   .argv;
 
 require('@nomiclabs/hardhat-truffle5');
-require('@nomiclabs/hardhat-solhint');
 require('solidity-coverage');
 
 if (argv.enableGasReport) {
@@ -24,6 +23,8 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
 
+const withOptimizations = argv.enableGasReport || argv.compileMode === 'production';
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -32,7 +33,7 @@ module.exports = {
     version: '0.8.3',
     settings: {
       optimizer: {
-        enabled: argv.enableGasReport || argv.compileMode === 'production',
+        enabled: withOptimizations,
         runs: 200,
       },
     },
@@ -40,6 +41,7 @@ module.exports = {
   networks: {
     hardhat: {
       blockGasLimit: 10000000,
+      allowUnlimitedContractSize: !withOptimizations,
     },
   },
   gasReporter: {

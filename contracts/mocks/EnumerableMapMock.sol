@@ -33,7 +33,6 @@ contract EnumerableMapMock {
         return _map.at(index);
     }
 
-
     function tryGet(uint256 key) public view returns (bool, address) {
         return _map.tryGet(key);
     }

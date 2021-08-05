@@ -12,14 +12,13 @@ import "../utils/structs/EnumerableSet.sol";
 abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    mapping (bytes32 => EnumerableSet.AddressSet) private _roleMembers;
+    mapping(bytes32 => EnumerableSet.AddressSet) private _roleMembers;
 
     /**
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IAccessControlEnumerable).interfaceId
-            || super.supportsInterface(interfaceId);
+        return interfaceId == type(IAccessControlEnumerable).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
