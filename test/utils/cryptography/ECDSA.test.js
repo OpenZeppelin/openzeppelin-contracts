@@ -10,7 +10,12 @@ const WRONG_MESSAGE = web3.utils.sha3('Nope');
 
 function to2098Format (signature) {
   const long = web3.utils.hexToBytes(signature);
-  expect(long.length).to.be.equal(65);
+  if (long.length !== 65) {
+    throw new Error('invalid signature length (expected long format)');
+  }
+  if (long[32] >> 7 === 1) {
+    throw new Error('invalid signature \'s\' value');
+  }
   const short = long.slice(0, 64);
   short[32] |= (long[64] % 27) << 7; // set the first bit of the 32nd byte to the v parity bit
   return web3.utils.bytesToHex(short);
@@ -18,7 +23,9 @@ function to2098Format (signature) {
 
 function from2098Format (signature) {
   const short = web3.utils.hexToBytes(signature);
-  expect(short.length).to.be.equal(64);
+  if (short.length !== 64) {
+    throw new Error('invalid signature length (expected short format)');
+  }
   short.push((short[32] >> 7) + 27);
   short[32] &= (1 << 7) - 1; // zero out the first bit of 1 the 32nd byte
   return web3.utils.bytesToHex(short);
@@ -179,19 +186,13 @@ contract('ECDSA', function (accounts) {
     it('reverts with high-s value signature', async function () {
       const message = '0xb94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9';
       // eslint-disable-next-line max-len
-      // const highSSignature = '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bde0a0fc89be718fbc1033e1d30d78be1c68081562ed2e97af876f286f3453231d1b';
-      // eslint-disable-next-line max-len
-      const highSSignature = '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bd7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a11b';
-
+      const highSSignature = '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bde0a0fc89be718fbc1033e1d30d78be1c68081562ed2e97af876f286f3453231d1b';
       await expectRevert(this.ecdsa.recover(message, highSSignature), 'ECDSA: invalid signature \'s\' value');
       await expectRevert(
         this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(highSSignature)),
         'ECDSA: invalid signature \'s\' value',
       );
-      await expectRevert(
-        this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(highSSignature))),
-        'ECDSA: invalid signature \'s\' value',
-      );
+      expect(() => to2098Format(highSSignature)).to.throw('invalid signature \'s\' value');
     });
   });
 
