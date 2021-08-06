@@ -179,17 +179,11 @@ contract('ECDSA', function (accounts) {
     it('reverts with high-s value signature', async function () {
       const message = '0xb94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9';
       // eslint-disable-next-line max-len
-      // const highSSignature = '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bde0a0fc89be718fbc1033e1d30d78be1c68081562ed2e97af876f286f3453231d1b';
-      // eslint-disable-next-line max-len
-      const highSSignature = '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bd7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a11b';
+      const highSSignature = '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bde0a0fc89be718fbc1033e1d30d78be1c68081562ed2e97af876f286f3453231d1b';
 
       await expectRevert(this.ecdsa.recover(message, highSSignature), 'ECDSA: invalid signature \'s\' value');
       await expectRevert(
         this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(highSSignature)),
-        'ECDSA: invalid signature \'s\' value',
-      );
-      await expectRevert(
-        this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(highSSignature))),
         'ECDSA: invalid signature \'s\' value',
       );
     });
