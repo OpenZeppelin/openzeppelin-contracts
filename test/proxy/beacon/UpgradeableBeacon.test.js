@@ -43,7 +43,7 @@ contract('UpgradeableBeacon', function (accounts) {
       const v2 = await Implementation2.new();
       await expectRevert(
         this.beacon.upgradeTo(v2.address, { from: other }),
-        'Ownable: caller is not the owner',
+        `OwnerRestricted("${this.beacon.address}", "${owner}", "${other}")`,
       );
     });
   });

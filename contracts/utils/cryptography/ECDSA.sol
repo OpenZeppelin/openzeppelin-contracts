@@ -54,7 +54,7 @@ library ECDSA {
             }
             return recover(hash, r, vs);
         } else {
-            revert("ECDSA: invalid signature length");
+            revert("ECDSA: invalid signature length"); // TODO: CustomError ?
         }
     }
 
@@ -100,12 +100,12 @@ library ECDSA {
         require(
             uint256(s) <= 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0,
             "ECDSA: invalid signature 's' value"
-        );
-        require(v == 27 || v == 28, "ECDSA: invalid signature 'v' value");
+        ); // TODO: CustomError ?
+        require(v == 27 || v == 28, "ECDSA: invalid signature 'v' value"); // TODO: CustomError ?
 
         // If the signature is valid (and not malleable), return the signer address
         address signer = ecrecover(hash, v, r, s);
-        require(signer != address(0), "ECDSA: invalid signature");
+        require(signer != address(0), "ECDSA: invalid signature"); // TODO: CustomError ?
 
         return signer;
     }

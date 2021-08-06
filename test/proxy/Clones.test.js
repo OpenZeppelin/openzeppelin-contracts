@@ -35,7 +35,7 @@ contract('Clones', function (accounts) {
       // deploy twice
       await expectRevert(
         factory.cloneDeterministic(implementation, salt, '0x'),
-        'ERC1167: create2 failed',
+        'Create2Failed()',
       );
     });
 

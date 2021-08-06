@@ -51,7 +51,7 @@ contract('RefundEscrow', function (accounts) {
 
     it('only the owner can enter closed state', async function () {
       await expectRevert(this.escrow.close({ from: beneficiary }),
-        'Ownable: caller is not the owner',
+        `OwnerRestricted("${this.escrow.address}", "${owner}", "${beneficiary}")`,
       );
 
       const { logs } = await this.escrow.close({ from: owner });
@@ -98,7 +98,7 @@ contract('RefundEscrow', function (accounts) {
 
     it('only the owner can enter refund state', async function () {
       await expectRevert(this.escrow.enableRefunds({ from: beneficiary }),
-        'Ownable: caller is not the owner',
+        `OwnerRestricted("${this.escrow.address}", "${owner}", "${beneficiary}")`,
       );
 
       const { logs } = await this.escrow.enableRefunds({ from: owner });

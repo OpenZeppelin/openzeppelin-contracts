@@ -27,7 +27,7 @@ contract('Initializable', function (accounts) {
       });
 
       it('initializer does not run again', async function () {
-        await expectRevert(this.contract.initialize(), 'Initializable: contract is already initialized');
+        await expectRevert(this.contract.initialize(), 'AlreadyInitialized()');
       });
     });
 

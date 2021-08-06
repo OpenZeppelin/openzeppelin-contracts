@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "../utils/Context.sol";
 import "../utils/Strings.sol";
@@ -99,7 +99,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     /**
      * @dev Custom error triggered when an access is restricted to a specific role.
      */
-    error MissingRole(bytes32 role, address account);
+    error MissingRole(address instance, bytes32 role, address account);
 
     /**
      * @dev Modifier that checks that an account has a specific role. Reverts
@@ -139,7 +139,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      */
     function _checkRole(bytes32 role, address account) internal view {
         if (!hasRole(role, account)) {
-            revert MissingRole(role, account);
+            revert MissingRole(address(this), role, account);
         }
     }
 
@@ -195,7 +195,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * - the caller must be `account`.
      */
     function renounceRole(bytes32 role, address account) public virtual override {
-        require(account == _msgSender(), "AccessControl: can only renounce roles for self");
+        require(account == _msgSender(), "AccessControl: can only renounce roles for self"); // TODO: CustomError ?
 
         _revokeRole(role, account);
     }

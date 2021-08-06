@@ -27,6 +27,6 @@ abstract contract ERC20Pausable is ERC20, Pausable {
     ) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
 
-        require(!paused(), "ERC20Pausable: token transfer while paused");
+        require(!paused(), "ERC20Pausable: token transfer while paused"); // TODO: CustomError ?
     }
 }

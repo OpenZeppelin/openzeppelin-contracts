@@ -45,7 +45,7 @@ contract('ProxyAdmin', function (accounts) {
     it('fails to change proxy admin if its not the proxy owner', async function () {
       await expectRevert(
         this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: anotherAccount }),
-        'caller is not the owner',
+        `OwnerRestricted("${this.proxyAdmin.address}", "${proxyAdminOwner}", "${anotherAccount}")`,
       );
     });
 
@@ -71,7 +71,7 @@ contract('ProxyAdmin', function (accounts) {
       it('fails to upgrade', async function () {
         await expectRevert(
           this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: anotherAccount }),
-          'caller is not the owner',
+          `OwnerRestricted("${this.proxyAdmin.address}", "${proxyAdminOwner}", "${anotherAccount}")`,
         );
       });
     });
@@ -93,7 +93,7 @@ contract('ProxyAdmin', function (accounts) {
           this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData,
             { from: anotherAccount },
           ),
-          'caller is not the owner',
+          `OwnerRestricted("${this.proxyAdmin.address}", "${proxyAdminOwner}", "${anotherAccount}")`,
         );
       });
     });

@@ -46,14 +46,14 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
         bytes32 r,
         bytes32 s
     ) public virtual override {
-        require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
+        require(block.timestamp <= deadline, "ERC20Permit: expired deadline"); // TODO: CustomError ?
 
         bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
 
         bytes32 hash = _hashTypedDataV4(structHash);
 
         address signer = ECDSA.recover(hash, v, r, s);
-        require(signer == owner, "ERC20Permit: invalid signature");
+        require(signer == owner, "ERC20Permit: invalid signature"); // TODO: CustomError ?
 
         _approve(owner, spender, value);
     }

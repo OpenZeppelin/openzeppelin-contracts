@@ -41,7 +41,7 @@ abstract contract ERC1967Upgrade {
      * @dev Stores a new address in the EIP1967 implementation slot.
      */
     function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
+        require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract"); // TODO: CustomError ?
         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
@@ -100,7 +100,7 @@ abstract contract ERC1967Upgrade {
             );
             rollbackTesting.value = false;
             // Check rollback was effective
-            require(oldImplementation == _getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
+            require(oldImplementation == _getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades"); // TODO: CustomError ?
             // Finally reset to the new implementation and log the upgrade
             _upgradeTo(newImplementation);
         }
@@ -129,7 +129,7 @@ abstract contract ERC1967Upgrade {
      * @dev Stores a new address in the EIP1967 admin slot.
      */
     function _setAdmin(address newAdmin) private {
-        require(newAdmin != address(0), "ERC1967: new admin is the zero address");
+        require(newAdmin != address(0), "ERC1967: new admin is the zero address"); // TODO: CustomError ?
         StorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
     }
 
@@ -165,11 +165,11 @@ abstract contract ERC1967Upgrade {
      * @dev Stores a new beacon in the EIP1967 beacon slot.
      */
     function _setBeacon(address newBeacon) private {
-        require(Address.isContract(newBeacon), "ERC1967: new beacon is not a contract");
+        require(Address.isContract(newBeacon), "ERC1967: new beacon is not a contract"); // TODO: CustomError ?
         require(
             Address.isContract(IBeacon(newBeacon).implementation()),
             "ERC1967: beacon implementation is not a contract"
-        );
+        ); // TODO: CustomError ?
         StorageSlot.getAddressSlot(_BEACON_SLOT).value = newBeacon;
     }
 

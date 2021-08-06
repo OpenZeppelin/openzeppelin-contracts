@@ -22,7 +22,7 @@ abstract contract GovernorProposalThreshold is Governor {
         require(
             getVotes(msg.sender, block.number - 1) >= proposalThreshold(),
             "GovernorCompatibilityBravo: proposer votes below proposal threshold"
-        );
+        ); // TODO: CustomError ?
 
         return super.propose(targets, values, calldatas, description);
     }

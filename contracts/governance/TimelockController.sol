@@ -218,8 +218,8 @@ contract TimelockController is AccessControl {
         bytes32 salt,
         uint256 delay
     ) public virtual onlyRole(PROPOSER_ROLE) {
-        require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == datas.length, "TimelockController: length mismatch");
+        require(targets.length == values.length, "TimelockController: length mismatch"); // TODO: CustomError ?
+        require(targets.length == datas.length, "TimelockController: length mismatch"); // TODO: CustomError ?
 
         bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
         _schedule(id, delay);
@@ -232,8 +232,8 @@ contract TimelockController is AccessControl {
      * @dev Schedule an operation that is to becomes valid after a given delay.
      */
     function _schedule(bytes32 id, uint256 delay) private {
-        require(!isOperation(id), "TimelockController: operation already scheduled");
-        require(delay >= getMinDelay(), "TimelockController: insufficient delay");
+        require(!isOperation(id), "TimelockController: operation already scheduled"); // TODO: CustomError ?
+        require(delay >= getMinDelay(), "TimelockController: insufficient delay"); // TODO: CustomError ?
         _timestamps[id] = block.timestamp + delay;
     }
 
@@ -245,7 +245,7 @@ contract TimelockController is AccessControl {
      * - the caller must have the 'proposer' role.
      */
     function cancel(bytes32 id) public virtual onlyRole(PROPOSER_ROLE) {
-        require(isOperationPending(id), "TimelockController: operation cannot be cancelled");
+        require(isOperationPending(id), "TimelockController: operation cannot be cancelled"); // TODO: CustomError ?
         delete _timestamps[id];
 
         emit Cancelled(id);
@@ -289,8 +289,8 @@ contract TimelockController is AccessControl {
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
-        require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == datas.length, "TimelockController: length mismatch");
+        require(targets.length == values.length, "TimelockController: length mismatch"); // TODO: CustomError ?
+        require(targets.length == datas.length, "TimelockController: length mismatch"); // TODO: CustomError ?
 
         bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
         _beforeCall(predecessor);
@@ -304,14 +304,14 @@ contract TimelockController is AccessControl {
      * @dev Checks before execution of an operation's calls.
      */
     function _beforeCall(bytes32 predecessor) private view {
-        require(predecessor == bytes32(0) || isOperationDone(predecessor), "TimelockController: missing dependency");
+        require(predecessor == bytes32(0) || isOperationDone(predecessor), "TimelockController: missing dependency"); // TODO: CustomError ?
     }
 
     /**
      * @dev Checks after execution of an operation's calls.
      */
     function _afterCall(bytes32 id) private {
-        require(isOperationReady(id), "TimelockController: operation is not ready");
+        require(isOperationReady(id), "TimelockController: operation is not ready"); // TODO: CustomError ?
         _timestamps[id] = _DONE_TIMESTAMP;
     }
 
@@ -328,7 +328,7 @@ contract TimelockController is AccessControl {
         bytes calldata data
     ) private {
         (bool success, ) = target.call{value: value}(data);
-        require(success, "TimelockController: underlying transaction reverted");
+        require(success, "TimelockController: underlying transaction reverted"); // TODO: CustomError ?
 
         emit CallExecuted(id, index, target, value, data);
     }
@@ -344,7 +344,7 @@ contract TimelockController is AccessControl {
      * an operation where the timelock is the target and the data is the ABI-encoded call to this function.
      */
     function updateDelay(uint256 newDelay) external virtual {
-        require(msg.sender == address(this), "TimelockController: caller must be timelock");
+        require(msg.sender == address(this), "TimelockController: caller must be timelock"); // TODO: CustomError ?
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
     }

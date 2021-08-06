@@ -35,7 +35,7 @@ abstract contract ERC165Storage is ERC165 {
      * - `interfaceId` cannot be the ERC165 invalid interface (`0xffffffff`).
      */
     function _registerInterface(bytes4 interfaceId) internal virtual {
-        require(interfaceId != 0xffffffff, "ERC165: invalid interface id");
+        require(interfaceId != 0xffffffff, "ERC165: invalid interface id"); // TODO: CustomError ?
         _supportedInterfaces[interfaceId] = true;
     }
 }

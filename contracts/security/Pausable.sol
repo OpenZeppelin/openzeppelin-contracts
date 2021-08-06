@@ -48,7 +48,7 @@ abstract contract Pausable is Context {
      * - The contract must not be paused.
      */
     modifier whenNotPaused() {
-        require(!paused(), "Pausable: paused");
+        require(!paused(), "Pausable: paused"); // TODO: CustomError ?
         _;
     }
 
@@ -60,7 +60,7 @@ abstract contract Pausable is Context {
      * - The contract must be paused.
      */
     modifier whenPaused() {
-        require(paused(), "Pausable: not paused");
+        require(paused(), "Pausable: not paused"); // TODO: CustomError ?
         _;
     }
 

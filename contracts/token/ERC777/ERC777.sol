@@ -143,7 +143,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Also emits a {Sent} event.
      */
     function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-        require(recipient != address(0), "ERC777: transfer to the zero address");
+        require(recipient != address(0), "ERC777: transfer to the zero address"); // TODO: CustomError ?
 
         address from = _msgSender();
 
@@ -179,7 +179,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * @dev See {IERC777-authorizeOperator}.
      */
     function authorizeOperator(address operator) public virtual override {
-        require(_msgSender() != operator, "ERC777: authorizing self as operator");
+        require(_msgSender() != operator, "ERC777: authorizing self as operator"); // TODO: CustomError ?
 
         if (_defaultOperators[operator]) {
             delete _revokedDefaultOperators[_msgSender()][operator];
@@ -194,7 +194,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * @dev See {IERC777-revokeOperator}.
      */
     function revokeOperator(address operator) public virtual override {
-        require(operator != _msgSender(), "ERC777: revoking self as operator");
+        require(operator != _msgSender(), "ERC777: revoking self as operator"); // TODO: CustomError ?
 
         if (_defaultOperators[operator]) {
             _revokedDefaultOperators[_msgSender()][operator] = true;
@@ -224,7 +224,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         bytes memory data,
         bytes memory operatorData
     ) public virtual override {
-        require(isOperatorFor(_msgSender(), sender), "ERC777: caller is not an operator for holder");
+        require(isOperatorFor(_msgSender(), sender), "ERC777: caller is not an operator for holder"); // TODO: CustomError ?
         _send(sender, recipient, amount, data, operatorData, true);
     }
 
@@ -239,7 +239,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         bytes memory data,
         bytes memory operatorData
     ) public virtual override {
-        require(isOperatorFor(_msgSender(), account), "ERC777: caller is not an operator for holder");
+        require(isOperatorFor(_msgSender(), account), "ERC777: caller is not an operator for holder"); // TODO: CustomError ?
         _burn(account, amount, data, operatorData);
     }
 
@@ -279,8 +279,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         address recipient,
         uint256 amount
     ) public virtual override returns (bool) {
-        require(recipient != address(0), "ERC777: transfer to the zero address");
-        require(holder != address(0), "ERC777: transfer from the zero address");
+        require(recipient != address(0), "ERC777: transfer to the zero address"); // TODO: CustomError ?
+        require(holder != address(0), "ERC777: transfer from the zero address"); // TODO: CustomError ?
 
         address spender = _msgSender();
 
@@ -289,7 +289,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         _move(spender, holder, recipient, amount, "", "");
 
         uint256 currentAllowance = _allowances[holder][spender];
-        require(currentAllowance >= amount, "ERC777: transfer amount exceeds allowance");
+        require(currentAllowance >= amount, "ERC777: transfer amount exceeds allowance"); // TODO: CustomError ?
         _approve(holder, spender, currentAllowance - amount);
 
         _callTokensReceived(spender, holder, recipient, amount, "", "", false);
@@ -348,7 +348,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         bytes memory operatorData,
         bool requireReceptionAck
     ) internal virtual {
-        require(account != address(0), "ERC777: mint to the zero address");
+        require(account != address(0), "ERC777: mint to the zero address"); // TODO: CustomError ?
 
         address operator = _msgSender();
 
@@ -381,8 +381,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         bytes memory operatorData,
         bool requireReceptionAck
     ) internal virtual {
-        require(from != address(0), "ERC777: send from the zero address");
-        require(to != address(0), "ERC777: send to the zero address");
+        require(from != address(0), "ERC777: send from the zero address"); // TODO: CustomError ?
+        require(to != address(0), "ERC777: send to the zero address"); // TODO: CustomError ?
 
         address operator = _msgSender();
 
@@ -406,7 +406,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         bytes memory data,
         bytes memory operatorData
     ) internal virtual {
-        require(from != address(0), "ERC777: burn from the zero address");
+        require(from != address(0), "ERC777: burn from the zero address"); // TODO: CustomError ?
 
         address operator = _msgSender();
 
@@ -416,7 +416,7 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         // Update state variables
         uint256 fromBalance = _balances[from];
-        require(fromBalance >= amount, "ERC777: burn amount exceeds balance");
+        require(fromBalance >= amount, "ERC777: burn amount exceeds balance"); // TODO: CustomError ?
         unchecked {
             _balances[from] = fromBalance - amount;
         }
@@ -437,7 +437,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         _beforeTokenTransfer(operator, from, to, amount);
 
         uint256 fromBalance = _balances[from];
-        require(fromBalance >= amount, "ERC777: transfer amount exceeds balance");
+        require(fromBalance >= amount, "ERC777: transfer amount exceeds balance"); // TODO: CustomError ?
         unchecked {
             _balances[from] = fromBalance - amount;
         }
@@ -457,8 +457,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         address spender,
         uint256 value
     ) internal {
-        require(holder != address(0), "ERC777: approve from the zero address");
-        require(spender != address(0), "ERC777: approve to the zero address");
+        require(holder != address(0), "ERC777: approve from the zero address"); // TODO: CustomError ?
+        require(spender != address(0), "ERC777: approve to the zero address"); // TODO: CustomError ?
 
         _allowances[holder][spender] = value;
         emit Approval(holder, spender, value);
@@ -511,7 +511,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         if (implementer != address(0)) {
             IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
         } else if (requireReceptionAck) {
-            require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
+            require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient"); // TODO: CustomError ?
         }
     }
 

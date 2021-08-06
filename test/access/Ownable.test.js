@@ -27,7 +27,7 @@ contract('Ownable', function (accounts) {
     it('prevents non-owners from transferring', async function () {
       await expectRevert(
         this.ownable.transferOwnership(other, { from: other }),
-        'Ownable: caller is not the owner',
+        `OwnerRestricted("${this.ownable.address}", "${owner}", "${other}")`,
       );
     });
 
@@ -50,7 +50,7 @@ contract('Ownable', function (accounts) {
     it('prevents non-owners from renouncement', async function () {
       await expectRevert(
         this.ownable.renounceOwnership({ from: other }),
-        'Ownable: caller is not the owner',
+        `OwnerRestricted("${this.ownable.address}", "${owner}", "${other}")`,
       );
     });
   });

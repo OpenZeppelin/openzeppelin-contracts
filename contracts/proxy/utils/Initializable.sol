@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 /**
  * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
@@ -15,6 +15,8 @@ pragma solidity ^0.8.0;
  * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.
  */
 abstract contract Initializable {
+    error AlreadyInitialized();
+
     /**
      * @dev Indicates that the contract has been initialized.
      */
@@ -29,7 +31,9 @@ abstract contract Initializable {
      * @dev Modifier to protect an initializer function from being invoked twice.
      */
     modifier initializer() {
-        require(_initializing || !_initialized, "Initializable: contract is already initialized");
+        if (!_initializing && _initialized) {
+            revert AlreadyInitialized();
+        }
 
         bool isTopLevelCall = !_initializing;
         if (isTopLevelCall) {

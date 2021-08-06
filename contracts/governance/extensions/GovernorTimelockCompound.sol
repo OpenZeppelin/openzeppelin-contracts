@@ -148,7 +148,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful");
+        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful"); // TODO: CustomError ?
 
         uint256 eta = block.timestamp + _timelock.delay();
         _proposalTimelocks[proposalId].timer.setDeadline(eta.toUint64());
@@ -156,7 +156,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
             require(
                 !_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta))),
                 "GovernorTimelockCompound: identical proposal action already queued"
-            );
+            ); // TODO: CustomError ?
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
 
@@ -176,7 +176,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         bytes32 /*descriptionHash*/
     ) internal virtual override {
         uint256 eta = proposalEta(proposalId);
-        require(eta > 0, "GovernorTimelockCompound: proposal not yet queued");
+        require(eta > 0, "GovernorTimelockCompound: proposal not yet queued"); // TODO: CustomError ?
         for (uint256 i = 0; i < targets.length; ++i) {
             _timelock.executeTransaction{value: values[i]}(targets[i], values[i], "", calldatas[i], eta);
         }

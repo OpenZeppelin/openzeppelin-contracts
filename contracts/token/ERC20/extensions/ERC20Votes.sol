@@ -84,7 +84,7 @@ abstract contract ERC20Votes is ERC20Permit {
      * - `blockNumber` must have been already mined
      */
     function getPastVotes(address account, uint256 blockNumber) public view returns (uint256) {
-        require(blockNumber < block.number, "ERC20Votes: block not yet mined");
+        require(blockNumber < block.number, "ERC20Votes: block not yet mined"); // TODO: CustomError ?
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
 
@@ -97,7 +97,7 @@ abstract contract ERC20Votes is ERC20Permit {
      * - `blockNumber` must have been already mined
      */
     function getPastTotalSupply(uint256 blockNumber) public view returns (uint256) {
-        require(blockNumber < block.number, "ERC20Votes: block not yet mined");
+        require(blockNumber < block.number, "ERC20Votes: block not yet mined"); // TODO: CustomError ?
         return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }
 
@@ -148,14 +148,14 @@ abstract contract ERC20Votes is ERC20Permit {
         bytes32 r,
         bytes32 s
     ) public virtual {
-        require(block.timestamp <= expiry, "ERC20Votes: signature expired");
+        require(block.timestamp <= expiry, "ERC20Votes: signature expired"); // TODO: CustomError ?
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
             v,
             r,
             s
         );
-        require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
+        require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce"); // TODO: CustomError ?
         return _delegate(signer, delegatee);
     }
 
@@ -171,7 +171,7 @@ abstract contract ERC20Votes is ERC20Permit {
      */
     function _mint(address account, uint256 amount) internal virtual override {
         super._mint(account, amount);
-        require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
+        require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes"); // TODO: CustomError ?
 
         _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
     }

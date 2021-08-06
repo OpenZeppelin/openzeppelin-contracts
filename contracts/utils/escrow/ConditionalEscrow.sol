@@ -18,7 +18,7 @@ abstract contract ConditionalEscrow is Escrow {
     function withdrawalAllowed(address payee) public view virtual returns (bool);
 
     function withdraw(address payable payee) public virtual override {
-        require(withdrawalAllowed(payee), "ConditionalEscrow: payee is not allowed to withdraw");
+        require(withdrawalAllowed(payee), "ConditionalEscrow: payee is not allowed to withdraw"); // TODO: CustomError ?
         super.withdraw(payee);
     }
 }

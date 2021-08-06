@@ -89,7 +89,7 @@ abstract contract GovernorCountingSimple is Governor {
     ) internal virtual override {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
 
-        require(!proposalvote.hasVoted[account], "GovernorVotingSimple: vote already casted");
+        require(!proposalvote.hasVoted[account], "GovernorVotingSimple: vote already casted"); // TODO: CustomError ?
         proposalvote.hasVoted[account] = true;
 
         if (support == uint8(VoteType.Against)) {
@@ -99,7 +99,7 @@ abstract contract GovernorCountingSimple is Governor {
         } else if (support == uint8(VoteType.Abstain)) {
             proposalvote.abstainVotes += weight;
         } else {
-            revert("GovernorVotingSimple: invalid value for enum VoteType");
+            revert("GovernorVotingSimple: invalid value for enum VoteType"); // TODO: CustomError ?
         }
     }
 }

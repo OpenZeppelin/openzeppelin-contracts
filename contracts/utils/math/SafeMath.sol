@@ -170,7 +170,7 @@ library SafeMath {
         string memory errorMessage
     ) internal pure returns (uint256) {
         unchecked {
-            require(b <= a, errorMessage);
+            require(b <= a, errorMessage); // TODO: CustomError ?
             return a - b;
         }
     }
@@ -193,7 +193,7 @@ library SafeMath {
         string memory errorMessage
     ) internal pure returns (uint256) {
         unchecked {
-            require(b > 0, errorMessage);
+            require(b > 0, errorMessage); // TODO: CustomError ?
             return a / b;
         }
     }
@@ -219,7 +219,7 @@ library SafeMath {
         string memory errorMessage
     ) internal pure returns (uint256) {
         unchecked {
-            require(b > 0, errorMessage);
+            require(b > 0, errorMessage); // TODO: CustomError ?
             return a % b;
         }
     }

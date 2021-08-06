@@ -48,7 +48,7 @@ abstract contract ReentrancyGuard {
      */
     modifier nonReentrant() {
         // On the first call to nonReentrant, _notEntered will be true
-        require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
+        require(_status != _ENTERED, "ReentrancyGuard: reentrant call"); // TODO: CustomError ?
 
         // Any calls to nonReentrant after this point will fail
         _status = _ENTERED;

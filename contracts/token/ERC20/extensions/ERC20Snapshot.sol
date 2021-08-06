@@ -142,8 +142,8 @@ abstract contract ERC20Snapshot is ERC20 {
     }
 
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots) private view returns (bool, uint256) {
-        require(snapshotId > 0, "ERC20Snapshot: id is 0");
-        require(snapshotId <= _getCurrentSnapshotId(), "ERC20Snapshot: nonexistent id");
+        require(snapshotId > 0, "ERC20Snapshot: id is 0"); // TODO: CustomError ?
+        require(snapshotId <= _getCurrentSnapshotId(), "ERC20Snapshot: nonexistent id"); // TODO: CustomError ?
 
         // When a valid snapshot is queried, there are three possibilities:
         //  a) The queried value was not modified after the snapshot was taken. Therefore, a snapshot entry was never

@@ -43,7 +43,7 @@ contract MinimalForwarder is EIP712 {
         payable
         returns (bool, bytes memory)
     {
-        require(verify(req, signature), "MinimalForwarder: signature does not match request");
+        require(verify(req, signature), "MinimalForwarder: signature does not match request"); // TODO: CustomError ?
         _nonces[req.from] = req.nonce + 1;
 
         (bool success, bytes memory returndata) = req.to.call{gas: req.gas, value: req.value}(

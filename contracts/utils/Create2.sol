@@ -32,12 +32,12 @@ library Create2 {
         bytes memory bytecode
     ) internal returns (address) {
         address addr;
-        require(address(this).balance >= amount, "Create2: insufficient balance");
-        require(bytecode.length != 0, "Create2: bytecode length is zero");
+        require(address(this).balance >= amount, "Create2: insufficient balance"); // TODO: CustomError ?
+        require(bytecode.length != 0, "Create2: bytecode length is zero"); // TODO: CustomError ?
         assembly {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
         }
-        require(addr != address(0), "Create2: Failed on deploy");
+        require(addr != address(0), "Create2: Failed on deploy"); // TODO: CustomError ?
         return addr;
     }
 

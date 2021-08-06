@@ -39,7 +39,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         require(
             newQuorumNumerator <= quorumDenominator(),
             "GovernorVotesQuorumFraction: quorumNumerator over quorumDenominator"
-        );
+        ); // TODO: CustomError ?
 
         uint256 oldQuorumNumerator = _quorumNumerator;
         _quorumNumerator = newQuorumNumerator;

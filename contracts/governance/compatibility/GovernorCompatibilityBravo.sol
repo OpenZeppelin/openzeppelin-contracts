@@ -112,7 +112,7 @@ abstract contract GovernorCompatibilityBravo is
         require(
             _msgSender() == details.proposer || getVotes(details.proposer, block.number - 1) < proposalThreshold(),
             "GovernorBravo: proposer above threshold"
-        );
+        ); // TODO: CustomError ?
 
         _cancel(
             details.targets,
@@ -283,7 +283,7 @@ abstract contract GovernorCompatibilityBravo is
         ProposalDetails storage details = _proposalDetails[proposalId];
         Receipt storage receipt = details.receipts[account];
 
-        require(!receipt.hasVoted, "GovernorCompatibilityBravo: vote already casted");
+        require(!receipt.hasVoted, "GovernorCompatibilityBravo: vote already casted"); // TODO: CustomError ?
         receipt.hasVoted = true;
         receipt.support = support;
         receipt.votes = SafeCast.toUint96(weight);
@@ -295,7 +295,7 @@ abstract contract GovernorCompatibilityBravo is
         } else if (support == uint8(VoteType.Abstain)) {
             details.abstainVotes += weight;
         } else {
-            revert("GovernorCompatibilityBravo: invalid vote type");
+            revert("GovernorCompatibilityBravo: invalid vote type"); // TODO: CustomError ?
         }
     }
 }

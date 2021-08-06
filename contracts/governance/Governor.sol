@@ -44,7 +44,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * sure this modifier is consistant with the execution model.
      */
     modifier onlyGovernance() {
-        require(_msgSender() == _executor(), "Governor: onlyGovernance");
+        require(_msgSender() == _executor(), "Governor: onlyGovernance"); // TODO: CustomError ?
         _;
     }
 
@@ -118,7 +118,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
                     ? ProposalState.Succeeded
                     : ProposalState.Defeated;
         } else {
-            revert("Governor: unknown proposal id");
+            revert("Governor: unknown proposal id"); // TODO: CustomError ?
         }
     }
 
@@ -169,12 +169,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
-        require(targets.length == values.length, "Governor: invalid proposal length");
-        require(targets.length == calldatas.length, "Governor: invalid proposal length");
-        require(targets.length > 0, "Governor: empty proposal");
+        require(targets.length == values.length, "Governor: invalid proposal length"); // TODO: CustomError ?
+        require(targets.length == calldatas.length, "Governor: invalid proposal length"); // TODO: CustomError ?
+        require(targets.length > 0, "Governor: empty proposal"); // TODO: CustomError ?
 
         ProposalCore storage proposal = _proposals[proposalId];
-        require(proposal.voteStart.isUnset(), "Governor: proposal already exists");
+        require(proposal.voteStart.isUnset(), "Governor: proposal already exists"); // TODO: CustomError ?
 
         uint64 snapshot = block.number.toUint64() + votingDelay().toUint64();
         uint64 deadline = snapshot + votingPeriod().toUint64();
@@ -212,7 +212,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         require(
             status == ProposalState.Succeeded || status == ProposalState.Queued,
             "Governor: proposal not successful"
-        );
+        ); // TODO: CustomError ?
         _proposals[proposalId].executed = true;
 
         emit ProposalExecuted(proposalId);
@@ -257,7 +257,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         require(
             status != ProposalState.Canceled && status != ProposalState.Expired && status != ProposalState.Executed,
             "Governor: proposal not active"
-        );
+        ); // TODO: CustomError ?
         _proposals[proposalId].canceled = true;
 
         emit ProposalCanceled(proposalId);
@@ -317,7 +317,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         string memory reason
     ) internal virtual returns (uint256) {
         ProposalCore storage proposal = _proposals[proposalId];
-        require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
+        require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active"); // TODO: CustomError ?
 
         uint256 weight = getVotes(account, proposal.voteStart.getDeadline());
         _countVote(proposalId, account, support, weight);

@@ -175,7 +175,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: other },
             ),
-            `AccessControl: account ${other.toLowerCase()} is missing role ${this.PROPOSER_ROLE}`,
+            `MissingRole("${this.timelock.address}", "${this.PROPOSER_ROLE}", "${other}"`,
           );
         });
 
@@ -298,7 +298,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: other },
                 ),
-                `AccessControl: account ${other.toLowerCase()} is missing role ${this.EXECUTOR_ROLE}`,
+                `MissingRole("${this.timelock.address}", "${this.EXECUTOR_ROLE}", "${other}"`,
               );
             });
           });
@@ -412,7 +412,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: other },
             ),
-            `AccessControl: account ${other.toLowerCase()} is missing role ${this.PROPOSER_ROLE}`,
+            `MissingRole("${this.timelock.address}", "${this.PROPOSER_ROLE}", "${other}"`,
           );
         });
 
@@ -537,7 +537,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: other },
                 ),
-                `AccessControl: account ${other.toLowerCase()} is missing role ${this.EXECUTOR_ROLE}`,
+                `MissingRole("${this.timelock.address}", "${this.EXECUTOR_ROLE}", "${other}"`,
               );
             });
 
@@ -666,7 +666,7 @@ contract('TimelockController', function (accounts) {
       it('prevent non-proposer from canceling', async function () {
         await expectRevert(
           this.timelock.cancel(this.operation.id, { from: other }),
-          `AccessControl: account ${other.toLowerCase()} is missing role ${this.PROPOSER_ROLE}`,
+          `MissingRole("${this.timelock.address}", "${this.PROPOSER_ROLE}", "${other}")`,
         );
       });
     });

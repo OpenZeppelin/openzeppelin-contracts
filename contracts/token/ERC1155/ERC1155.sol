@@ -67,7 +67,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - `account` cannot be the zero address.
      */
     function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
-        require(account != address(0), "ERC1155: balance query for the zero address");
+        require(account != address(0), "ERC1155: balance query for the zero address"); // TODO: CustomError ?
         return _balances[id][account];
     }
 
@@ -85,7 +85,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         override
         returns (uint256[] memory)
     {
-        require(accounts.length == ids.length, "ERC1155: accounts and ids length mismatch");
+        require(accounts.length == ids.length, "ERC1155: accounts and ids length mismatch"); // TODO: CustomError ?
 
         uint256[] memory batchBalances = new uint256[](accounts.length);
 
@@ -100,7 +100,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * @dev See {IERC1155-setApprovalForAll}.
      */
     function setApprovalForAll(address operator, bool approved) public virtual override {
-        require(_msgSender() != operator, "ERC1155: setting approval status for self");
+        require(_msgSender() != operator, "ERC1155: setting approval status for self"); // TODO: CustomError ?
 
         _operatorApprovals[_msgSender()][operator] = approved;
         emit ApprovalForAll(_msgSender(), operator, approved);
@@ -126,7 +126,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not owner nor approved"
-        );
+        ); // TODO: CustomError ?
         _safeTransferFrom(from, to, id, amount, data);
     }
 
@@ -143,7 +143,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: transfer caller is not owner nor approved"
-        );
+        ); // TODO: CustomError ?
         _safeBatchTransferFrom(from, to, ids, amounts, data);
     }
 
@@ -166,14 +166,14 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256 amount,
         bytes memory data
     ) internal virtual {
-        require(to != address(0), "ERC1155: transfer to the zero address");
+        require(to != address(0), "ERC1155: transfer to the zero address"); // TODO: CustomError ?
 
         address operator = _msgSender();
 
         _beforeTokenTransfer(operator, from, to, _asSingletonArray(id), _asSingletonArray(amount), data);
 
         uint256 fromBalance = _balances[id][from];
-        require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
+        require(fromBalance >= amount, "ERC1155: insufficient balance for transfer"); // TODO: CustomError ?
         unchecked {
             _balances[id][from] = fromBalance - amount;
         }
@@ -201,8 +201,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
-        require(to != address(0), "ERC1155: transfer to the zero address");
+        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch"); // TODO: CustomError ?
+        require(to != address(0), "ERC1155: transfer to the zero address"); // TODO: CustomError ?
 
         address operator = _msgSender();
 
@@ -213,7 +213,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             uint256 amount = amounts[i];
 
             uint256 fromBalance = _balances[id][from];
-            require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
+            require(fromBalance >= amount, "ERC1155: insufficient balance for transfer"); // TODO: CustomError ?
             unchecked {
                 _balances[id][from] = fromBalance - amount;
             }
@@ -265,7 +265,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256 amount,
         bytes memory data
     ) internal virtual {
-        require(account != address(0), "ERC1155: mint to the zero address");
+        require(account != address(0), "ERC1155: mint to the zero address"); // TODO: CustomError ?
 
         address operator = _msgSender();
 
@@ -292,8 +292,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {
-        require(to != address(0), "ERC1155: mint to the zero address");
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
+        require(to != address(0), "ERC1155: mint to the zero address"); // TODO: CustomError ?
+        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch"); // TODO: CustomError ?
 
         address operator = _msgSender();
 
@@ -321,14 +321,14 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256 id,
         uint256 amount
     ) internal virtual {
-        require(account != address(0), "ERC1155: burn from the zero address");
+        require(account != address(0), "ERC1155: burn from the zero address"); // TODO: CustomError ?
 
         address operator = _msgSender();
 
         _beforeTokenTransfer(operator, account, address(0), _asSingletonArray(id), _asSingletonArray(amount), "");
 
         uint256 accountBalance = _balances[id][account];
-        require(accountBalance >= amount, "ERC1155: burn amount exceeds balance");
+        require(accountBalance >= amount, "ERC1155: burn amount exceeds balance"); // TODO: CustomError ?
         unchecked {
             _balances[id][account] = accountBalance - amount;
         }
@@ -348,8 +348,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory ids,
         uint256[] memory amounts
     ) internal virtual {
-        require(account != address(0), "ERC1155: burn from the zero address");
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
+        require(account != address(0), "ERC1155: burn from the zero address"); // TODO: CustomError ?
+        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch"); // TODO: CustomError ?
 
         address operator = _msgSender();
 
@@ -360,7 +360,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             uint256 amount = amounts[i];
 
             uint256 accountBalance = _balances[id][account];
-            require(accountBalance >= amount, "ERC1155: burn amount exceeds balance");
+            require(accountBalance >= amount, "ERC1155: burn amount exceeds balance"); // TODO: CustomError ?
             unchecked {
                 _balances[id][account] = accountBalance - amount;
             }
@@ -409,12 +409,13 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         if (to.isContract()) {
             try IERC1155Receiver(to).onERC1155Received(operator, from, id, amount, data) returns (bytes4 response) {
                 if (response != IERC1155Receiver.onERC1155Received.selector) {
-                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                    revert("ERC1155: ERC1155Receiver rejected tokens"); // TODO: CustomError ?
                 }
+            // TODO: Catch CustomError ?
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+                revert("ERC1155: transfer to non ERC1155Receiver implementer"); // TODO: CustomError ?
             }
         }
     }
@@ -432,12 +433,13 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
                 bytes4 response
             ) {
                 if (response != IERC1155Receiver.onERC1155BatchReceived.selector) {
-                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                    revert("ERC1155: ERC1155Receiver rejected tokens"); // TODO: CustomError ?
                 }
+            // TODO: Catch CustomError ?
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+                revert("ERC1155: transfer to non ERC1155Receiver implementer"); // TODO: CustomError ?
             }
         }
     }
