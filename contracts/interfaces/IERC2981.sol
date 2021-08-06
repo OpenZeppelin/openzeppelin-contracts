@@ -9,7 +9,7 @@ import "./IERC165.sol";
  */
 interface IERC2981 is IERC165 {
     /**
-     * @notice Called with the sale price to determine how much royalty is owed and to whom.
+     * @dev Called with the sale price to determine how much royalty is owed and to whom.
      * @param tokenId - the NFT asset queried for royalty information
      * @param salePrice - the sale price of the NFT asset specified by `tokenId`
      * @return receiver - address of who should be sent the royalty payment
