@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.4;
 
+import "../Errors.sol";
 import "../utils/Context.sol";
 
 /**
@@ -20,8 +21,6 @@ abstract contract Ownable is Context {
     address private _owner;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    error OwnerRestricted(address instance, address owner, address caller);
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.

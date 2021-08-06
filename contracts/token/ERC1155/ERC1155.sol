@@ -411,7 +411,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
                 if (response != IERC1155Receiver.onERC1155Received.selector) {
                     revert("ERC1155: ERC1155Receiver rejected tokens"); // TODO: CustomError ?
                 }
-            // TODO: Catch CustomError ?
+                // TODO: Catch CustomError ?
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
@@ -435,7 +435,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
                 if (response != IERC1155Receiver.onERC1155BatchReceived.selector) {
                     revert("ERC1155: ERC1155Receiver rejected tokens"); // TODO: CustomError ?
                 }
-            // TODO: Catch CustomError ?
+                // TODO: Catch CustomError ?
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {

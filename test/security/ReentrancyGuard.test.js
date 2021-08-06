@@ -28,7 +28,7 @@ contract('ReentrancyGuard', function (accounts) {
   // in the side-effects.
   it('does not allow local recursion', async function () {
     await expectRevert(
-      this.reentrancyMock.countLocalRecursive(10), 'ReentrancyGuard: reentrant call',
+      this.reentrancyMock.countLocalRecursive(10), `ReentrancyRestricted("${this.reentrancyMock.address}")`,
     );
   });
 

@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.4;
 
+import "../Errors.sol";
 import "../utils/Context.sol";
 import "../utils/Strings.sol";
 import "../utils/introspection/ERC165.sol";
@@ -97,11 +98,6 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
 
     /**
-     * @dev Custom error triggered when an access is restricted to a specific role.
-     */
-    error MissingRole(address instance, bytes32 role, address account);
-
-    /**
      * @dev Modifier that checks that an account has a specific role. Reverts
      * with a standardized message including the required role.
      *
@@ -139,7 +135,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      */
     function _checkRole(bytes32 role, address account) internal view {
         if (!hasRole(role, account)) {
-            revert MissingRole(address(this), role, account);
+            revert RoleRestricted(address(this), role, account);
         }
     }
 

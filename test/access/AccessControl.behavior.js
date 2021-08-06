@@ -32,7 +32,7 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
     it('non-admin cannot grant role to other accounts', async function () {
       await expectRevert(
         this.accessControl.grantRole(ROLE, authorized, { from: other }),
-        `MissingRole("${this.accessControl.address}", "${DEFAULT_ADMIN_ROLE}", "${other}")`,
+        `RoleRestricted("${this.accessControl.address}", "${DEFAULT_ADMIN_ROLE}", "${other}")`,
       );
     });
 
@@ -66,7 +66,7 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
       it('non-admin cannot revoke role', async function () {
         await expectRevert(
           this.accessControl.revokeRole(ROLE, authorized, { from: other }),
-          `MissingRole("${this.accessControl.address}", "${DEFAULT_ADMIN_ROLE}", "${other}")`,
+          `RoleRestricted("${this.accessControl.address}", "${DEFAULT_ADMIN_ROLE}", "${other}")`,
         );
       });
 
@@ -143,14 +143,14 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
     it('a role\'s previous admins no longer grant roles', async function () {
       await expectRevert(
         this.accessControl.grantRole(ROLE, authorized, { from: admin }),
-        `MissingRole("${this.accessControl.address}", "${OTHER_ROLE}", "${admin}")`,
+        `RoleRestricted("${this.accessControl.address}", "${OTHER_ROLE}", "${admin}")`,
       );
     });
 
     it('a role\'s previous admins no longer revoke roles', async function () {
       await expectRevert(
         this.accessControl.revokeRole(ROLE, authorized, { from: admin }),
-        `MissingRole("${this.accessControl.address}", "${OTHER_ROLE}", "${admin}")`,
+        `RoleRestricted("${this.accessControl.address}", "${OTHER_ROLE}", "${admin}")`,
       );
     });
   });
@@ -167,14 +167,14 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
     it('revert if sender doesn\'t have role #1', async function () {
       await expectRevert(
         this.accessControl.senderProtected(ROLE, { from: other }),
-        `MissingRole("${this.accessControl.address}", "${ROLE}", "${other}")`,
+        `RoleRestricted("${this.accessControl.address}", "${ROLE}", "${other}")`,
       );
     });
 
     it('revert if sender doesn\'t have role #2', async function () {
       await expectRevert(
         this.accessControl.senderProtected(OTHER_ROLE, { from: authorized }),
-        `MissingRole("${this.accessControl.address}", "${OTHER_ROLE}", "${authorized}")`,
+        `RoleRestricted("${this.accessControl.address}", "${OTHER_ROLE}", "${authorized}")`,
       );
     });
   });

@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.4;
 
+import "../../Errors.sol";
+
 /**
  * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
  * behind a proxy. Since a proxied contract can't have a constructor, it's common to move constructor logic to an
@@ -15,8 +17,6 @@ pragma solidity ^0.8.4;
  * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.
  */
 abstract contract Initializable {
-    error AlreadyInitialized();
-
     /**
      * @dev Indicates that the contract has been initialized.
      */
@@ -32,7 +32,7 @@ abstract contract Initializable {
      */
     modifier initializer() {
         if (!_initializing && _initialized) {
-            revert AlreadyInitialized();
+            revert AlreadyInitialized(address(this));
         }
 
         bool isTopLevelCall = !_initializing;

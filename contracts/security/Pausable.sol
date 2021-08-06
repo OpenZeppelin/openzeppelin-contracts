@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
+import "../Errors.sol";
 import "../utils/Context.sol";
 
 /**
@@ -48,7 +49,9 @@ abstract contract Pausable is Context {
      * - The contract must not be paused.
      */
     modifier whenNotPaused() {
-        require(!paused(), "Pausable: paused"); // TODO: CustomError ?
+        if (paused()) {
+            revert PauseRestricted(address(this), true);
+        }
         _;
     }
 
@@ -60,7 +63,9 @@ abstract contract Pausable is Context {
      * - The contract must be paused.
      */
     modifier whenPaused() {
-        require(paused(), "Pausable: not paused"); // TODO: CustomError ?
+        if (!paused()) {
+            revert PauseRestricted(address(this), false);
+        }
         _;
     }
 

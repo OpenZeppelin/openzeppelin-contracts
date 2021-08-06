@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.4;
 
+import "../Errors.sol";
+
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-1167[EIP 1167] is a standard for
  * deploying minimal proxy contracts, also known as "clones".
@@ -16,10 +18,6 @@ pragma solidity ^0.8.4;
  * _Available since v3.4._
  */
 library Clones {
-    error CreateFailed();
-
-    error Create2Failed();
-
     /**
      * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
      *
