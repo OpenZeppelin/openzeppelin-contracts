@@ -22,7 +22,7 @@ contract('ERC721URIStorage', function (accounts) {
       await this.token.mint(owner, firstTokenId);
     });
 
-    const baseURI = 'https://api.com/v1/';
+    const baseURI = 'https://api.example.com/v1/';
     const sampleUri = 'mock://mytoken';
 
     it('it is empty by default', async function () {
@@ -62,7 +62,7 @@ contract('ERC721URIStorage', function (accounts) {
       await this.token.setBaseURI(baseURI);
       await this.token.setTokenURI(firstTokenId, sampleUri);
 
-      const newBaseURI = 'https://api.com/v2/';
+      const newBaseURI = 'https://api.example.com/v2/';
       await this.token.setBaseURI(newBaseURI);
       expect(await this.token.tokenURI(firstTokenId)).to.be.equal(newBaseURI + sampleUri);
     });

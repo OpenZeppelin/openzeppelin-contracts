@@ -54,6 +54,11 @@ contract('Math', function (accounts) {
       const b = new BN('84346');
       expect(await this.math.average(a, b)).to.be.bignumber.equal(bnAverage(a, b));
     });
+
+    it('is correctly calculated with two max uint256 numbers', async function () {
+      const a = MAX_UINT256;
+      expect(await this.math.average(a, a)).to.be.bignumber.equal(bnAverage(a, a));
+    });
   });
 
   describe('ceilDiv', function () {

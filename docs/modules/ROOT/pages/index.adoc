@@ -5,7 +5,6 @@
  * Implementations of standards like xref:erc20.adoc[ERC20] and xref:erc721.adoc[ERC721].
  * Flexible xref:access-control.adoc[role-based permissioning] scheme.
  * Reusable xref:utilities.adoc[Solidity components] to build custom contracts and complex decentralized systems.
- * https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/audit[Audited] by leading security firms (_last full audit on v2.0.0_).
 
 == Overview
 

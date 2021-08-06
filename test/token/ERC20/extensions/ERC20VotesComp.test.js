@@ -52,7 +52,7 @@ async function batchInBlock (txs) {
   }
 }
 
-contract('ERC20Votes', function (accounts) {
+contract('ERC20VotesComp', function (accounts) {
   const [ holder, recipient, holderDelegatee, recipientDelegatee, other1, other2 ] = accounts;
 
   const name = 'My Token';

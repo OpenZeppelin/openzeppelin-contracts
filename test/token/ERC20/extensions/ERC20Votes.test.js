@@ -306,6 +306,9 @@ contract('ERC20Votes', function (accounts) {
       expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: supply, newBalance: supply.subn(1) });
 
+      const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
+      expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
+
       this.holderVotes = supply.subn(1);
       this.recipientVotes = '0';
     });
@@ -316,6 +319,9 @@ contract('ERC20Votes', function (accounts) {
       const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
       expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
+
+      const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
+      expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
 
       this.holderVotes = '0';
       this.recipientVotes = '1';
@@ -329,6 +335,9 @@ contract('ERC20Votes', function (accounts) {
       expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: supply, newBalance: supply.subn(1) });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
+
+      const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
+      expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
 
       this.holderVotes = supply.subn(1);
       this.recipientVotes = '1';

@@ -1,7 +1,7 @@
 {
   "name": "openzeppelin-solidity",
   "description": "Secure Smart Contract library for Solidity",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "files": [
     "/contracts/**/*.sol",
     "/build/contracts/*.json",
@@ -28,6 +28,7 @@
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
+    "test:inheritance": "node scripts/inheritanceOrdering artifacts/build-info/*",
     "gas-report": "env ENABLE_GAS_REPORT=true npm run test"
   },
   "repository": {
@@ -64,7 +65,8 @@
     "eth-sig-util": "^3.0.0",
     "ethereumjs-util": "^7.0.7",
     "ethereumjs-wallet": "^1.0.1",
-    "hardhat": "^2.4.0",
+    "graphlib": "^2.1.8",
+    "hardhat": "^2.5.0",
     "hardhat-gas-reporter": "^1.0.4",
     "keccak256": "^1.0.2",
     "lodash.startcase": "^4.4.0",
@@ -72,12 +74,13 @@
     "merkletreejs": "^0.2.13",
     "micromatch": "^4.0.2",
     "prettier": "^2.3.0",
-    "prettier-plugin-solidity": "^1.0.0-beta.13",
+    "prettier-plugin-solidity": "^1.0.0-beta.16",
     "rimraf": "^3.0.2",
     "solhint": "^3.3.6",
+    "solidity-ast": "^0.4.25",
     "solidity-coverage": "^0.7.11",
     "solidity-docgen": "^0.5.3",
     "web3": "^1.3.0",
-    "yargs": "^17.0.0"
+    "yargs": "^16.2.0"
   }
 }

@@ -29,6 +29,7 @@ jobs:
         env:
           FORCE_COLOR: 1
           ENABLE_GAS_REPORT: true
+      - run: npm run test:inheritance 
       - name: Print gas report
         run: cat gas-report.txt
 
@@ -52,4 +53,4 @@ jobs:
       - run: npm run coverage
         env:
           NODE_OPTIONS: --max_old_space_size=4096
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v2
