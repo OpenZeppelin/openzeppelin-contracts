@@ -23,10 +23,10 @@ library MerkleProof {
         bytes32 root,
         bytes32 leaf
     ) internal pure returns (bool) {
-        (bool success, uint256 index) = verifyAndRecoverIndex(proof, root, leaf);
+        (bool success, ) = verifyAndRecoverIndex(proof, root, leaf);
         return success;
     }
-    
+
     /**
      * @dev Returns true if a `leaf` can be proved to be a part of a Merkle tree
      * defined by `root`. For this, a `proof` must be provided, containing
@@ -57,7 +57,7 @@ library MerkleProof {
         // Check if the computed hash (root) is equal to the provided root
         return (computedHash == root, index);
     }
-    
+
     /**
      * @dev Returns true if a `leaf` can be proved to be a part of a Merkle tree
      * defined by `root`. For this, a `proof` must be provided, containing
