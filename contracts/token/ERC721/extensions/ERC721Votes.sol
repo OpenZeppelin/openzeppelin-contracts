@@ -15,8 +15,9 @@ import "../../../utils/cryptography/ECDSA.sol";
      *  -access control?
      *  -testing
      *  -totalSupply tracking mechanism (for quorum - % supply) 
+     *  -governor module edits 
      */
-     
+
 abstract contract ERC721Votes is ERC20Permit {
    struct Checkpoint {
         uint32 fromBlock;
@@ -33,12 +34,12 @@ abstract contract ERC721Votes is ERC20Permit {
      */
     mapping(uint256 => uint32) public tokenWeights;
      /**
-     * @dev tokenStatus: A mapping of tokenIds to a bool value, noting if it has been customized.
-     Designed specifically for informing getTokenWeight of customized weights.
+     * @dev tokenStatus: A mapping of tokenIds to a bool value, noting if it has been customized
+     (Designed specifically for informing getTokenWeight whether token has been customized)
      */
     mapping(uint256 => bool) private tokenStatus;
      /**
-     * @dev tokenBalances: A mapping of user accounts to an array of all tokenIds in their possession
+     * @dev tokenBalances: A mapping of user account to an array of user tokens
      */
     mapping(address => uint256[]) private tokenBalances;
     mapping(address => Checkpoint[]) private _checkpoints;
@@ -92,19 +93,19 @@ abstract contract ERC721Votes is ERC20Permit {
     }
 
     /**
-     * @dev Enables the customization of specific token weights, unique from others
+     * @dev Enables the customization of specific token weights
      */
-   function setTokenWeight(uint256 tokenId, uint32 weight) internal {
+   function setTokenWeight(uint256 tokenId, uint32 weight) public {
       tokenWeights[tokenId] = weight;
       tokenStatus[tokenId] = true;
     }
 
     /**
      * @dev Gets the token weight of a specific tokenId, defaults to 1 if tokenId weight hasn't been set 
+     * Fn uses tokenStatus to determine if token weight has been customized
      */
-    function getTokenWeight(uint256 tokenId) public view returns(uint32) {
-        if(tokenStatus[tokenId]) return tokenWeights[tokenId];
-        else return 1;
+    function getTokenWeight(uint256 tokenId) internal view returns(uint32) {
+        return tokenStatus[tokenId] ? tokenWeights[tokenId] : 1;
     }
 
     /**
@@ -140,7 +141,7 @@ abstract contract ERC721Votes is ERC20Permit {
     }
 
      /**
-     * @dev Get total votes by accessing the supply at a specific block, multiplying by the set weight (by default 1). Use to determine quorum number
+     * @dev Get total voting weight by accessing supply at a specific block
      */
 
     function getTotalWeight(uint256 blockNumber) public view returns (uint256) {
