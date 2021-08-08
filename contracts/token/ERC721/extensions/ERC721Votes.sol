@@ -2,23 +2,11 @@
 
 pragma solidity ^0.8.0;
 
-import "../../ERC20/extensions/draft-ERC20Permit.sol";
 import "../../../utils/math/Math.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 
-    /** 
-     * To Implement List:
-     *  -change out ERC20Permit contract
-     *  -work on modifying _checkpoints and _totalSupplyCheckpoints to update according to weight snapshot
-     *  -clean up fn modifiers for accuracy
-     *  -access control?
-     *  -testing
-     *  -totalSupply tracking mechanism (for quorum - % supply) 
-     *  -governor module edits 
-     */
-
-abstract contract ERC721Votes is ERC20Permit {
+abstract contract ERC721Votes {
    struct Checkpoint {
         uint32 fromBlock;
         uint224 weight;
@@ -38,10 +26,6 @@ abstract contract ERC721Votes is ERC20Permit {
      (Designed specifically for informing getTokenWeight whether token has been customized)
      */
     mapping(uint256 => bool) private tokenStatus;
-     /**
-     * @dev tokenBalances: A mapping of user account to an array of user tokens
-     */
-    mapping(address => uint256[]) private tokenBalances;
     mapping(address => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
     
@@ -79,23 +63,15 @@ abstract contract ERC721Votes is ERC20Permit {
     /**
      * @dev Gets the current voting weight for `account`
      */
-    function getUserVotes(address account) public view returns (uint256) {
+    function getVotingWeight(address account) public view returns (uint256) {
       uint256 pos = _checkpoints[account].length;
       return pos == 0 ? 0 : _checkpoints[account][pos - 1].weight;
     }
 
     /**
-     * @dev Enables the insertion of tokenIds into a given user account
-     */
-    function setTokenBalances(address account, uint256 tokenId) public {
-      uint256[] storage userTokens = tokenBalances[account];
-      userTokens.push(tokenId);
-    }
-
-    /**
      * @dev Enables the customization of specific token weights
      */
-   function setTokenWeight(uint256 tokenId, uint32 weight) public {
+   function setTokenWeight(uint256 tokenId, uint32 weight) internal {
       tokenWeights[tokenId] = weight;
       tokenStatus[tokenId] = true;
     }
@@ -109,33 +85,13 @@ abstract contract ERC721Votes is ERC20Permit {
     }
 
     /**
-     * @dev Gets the total voting weight of a user through accessing their tokenBalances
-     */
-    function tallyWeight(address account) internal view returns (uint256) {
-        uint256[] memory userTokens = tokenBalances[account];
-        uint256 totalWeight = 0;
-
-        for(uint i; i < userTokens.length; i += 1) {
-          totalWeight += getTokenWeight(userTokens[i]);
-        }
-        return totalWeight;
-    }
-
-    /**
-     * @dev Enables the deletion of tokenIds from a user's tokenBalances array
-     */
-    function deleteTokenFromTokenBalance(address account, uint256 tokenId) public {
-       uint256[] storage userTokens = tokenBalances[account];
-       delete userTokens[tokenId];
-    }
-    /**
      * @dev Retrieve the number of votes for `account` at the end of `blockNumber`.
      *
      * Requirements:
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastVotes(address account, uint256 blockNumber) public view returns (uint256) {
+    function getPastVotingWeight(address account, uint256 blockNumber) public view returns (uint256) {
         require(blockNumber < block.number, "ERC721Votes: block not yet mined");
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
@@ -144,8 +100,9 @@ abstract contract ERC721Votes is ERC20Permit {
      * @dev Get total voting weight by accessing supply at a specific block
      */
 
-    function getTotalWeight(uint256 blockNumber) public view returns (uint256) {
-       return getPastTotalSupply(blockNumber);
+    function totalTokenWeight() public view returns (uint256) {
+      uint256 pos = _totalSupplyCheckpoints[_totalSupplyCheckpoints.length];
+      return pos == 0 ? 0 : _totalSupplyCheckpoints[pos - 1].weight;
     }
     /**
      * @dev Retrieve the `totalSupply` at the end of `blockNumber`. Note, this value is the sum of all balances.
@@ -220,42 +177,52 @@ abstract contract ERC721Votes is ERC20Permit {
     /**
      * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
      */
-    function _maxSupply() internal view virtual returns (uint224) {
+    function _maxTokenWeight() internal view virtual returns (uint224) {
         return type(uint224).max;
     }
 
     /**
-     * @dev Snapshots the totalSupply after it has been increased.
+     * @dev Snapshots the totalSupply after it has been increased. 
+     * Fn requires that totalTokenWeight plus the token weight of the minted 
+     * token is less than maxTokenWeight
      */
-    function _mint(address account, uint256 amount) internal virtual override {
-        super._mint(account, amount);
-        require(totalSupply() <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
+    function _mint(address account, uint256 tokenId) internal virtual override {
+        super._mint(account, tokenId);
+        
+        uint256 updatedTokenWeight = _add(totalTokenWeight(), getTokenWeight(tokenId));
+        uint256 tokenWeight = getTokenWeight(tokenId);
 
-        _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
+        require(updatedTokenWeight <= _maxTokenWeight(), "ERC721Votes: total token weight risks overflowing votes");
+
+        _writeCheckpoint(_totalSupplyCheckpoints, _add, tokenWeight);
     }
 
     /**
      * @dev Snapshots the totalSupply after it has been decreased.
      */
-    function _burn(address account, uint256 amount) internal virtual override {
-        super._burn(account, amount);
+    function _burn(address account, uint256 tokenId) internal virtual override {
+        super._burn(account, tokenId);
 
-        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
+        uint256 tokenWeight = getTokenWeight(tokenId);
+
+        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, tokenWeight);
     }
 
     /**
-     * @dev Move voting power when tokens are transferred.
+     * @dev Move voting weight when tokens are transferred.
      *
      * Emits a {DelegateVotesChanged} event.
      */
     function _afterTokenTransfer(
         address from,
         address to,
-        uint256 amount
+        uint256 tokenId
     ) internal virtual override {
-        super._afterTokenTransfer(from, to, amount);
+        super._afterTokenTransfer(from, to, tokenId);
 
-        _moveVotingPower(delegates(from), delegates(to), amount);
+        uint256 tokenWeight = getTokenWeight(tokenId);
+
+        _moveVotingPower(delegates(from), delegates(to), tokenWeight);
     }
 
     /**
@@ -265,7 +232,7 @@ abstract contract ERC721Votes is ERC20Permit {
      */
     function _delegate(address delegator, address delegatee) internal virtual {
         address currentDelegate = delegates(delegator);
-        uint256 delegatorBalance = tallyWeight(delegator);
+        uint256 delegatorBalance = getVotingWeight(delegator);
         _delegates[delegator] = delegatee;
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
@@ -273,24 +240,34 @@ abstract contract ERC721Votes is ERC20Permit {
         _moveVotingPower(currentDelegate, delegatee, delegatorBalance);
     }
 
+    /**
+     * @dev Moves voting power after votign weight is exchanged, either
+     * through a _delegate transfer or a token transfer.
+     *
+     */
     function _moveVotingPower(
         address src,
         address dst,
-        uint256 amount
+        uint256 tokenWeight
     ) private {
-        if (src != dst && amount > 0) {
+        if (src != dst && tokenWeight > 0) {
             if (src != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, tokenWeight);
                 emit DelegateVotesChanged(src, oldWeight, newWeight);
             }
 
             if (dst != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, tokenWeight);
                 emit DelegateVotesChanged(dst, oldWeight, newWeight);
             }
         }
     }
 
+   /**
+     * @dev Makes a new checkpoint, noting the block and the updated weight 
+     * as a snapshot in time
+     *
+     */
     function _writeCheckpoint(
         Checkpoint[] storage ckpts,
         function(uint256, uint256) view returns (uint256) op,
@@ -315,3 +292,4 @@ abstract contract ERC721Votes is ERC20Permit {
         return a - b;
     }
 }
+

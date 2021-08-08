@@ -21,6 +21,6 @@ abstract contract GovernorERC721Votes is Governor {
      */
      
     function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return token.getPastVotes(account, blockNumber);
+        return token.getVotingWeight(account, blockNumber);
     }
 }
