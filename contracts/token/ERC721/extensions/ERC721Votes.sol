@@ -14,7 +14,11 @@ abstract contract ERC721Votes {
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
-    
+    /**
+     * @dev defaultWeight: default weight proprty set for each individual token (can
+     * be customized using setTokenWeight fn)
+     */
+    uint32 private defaultWeight = 1;
     mapping(address => address) private _delegates;
     /**
      * @dev tokenWeights: A mapping of each individual tokenId to it's weight (defualt = 1, 
@@ -81,7 +85,7 @@ abstract contract ERC721Votes {
      * Fn uses tokenStatus to determine if token weight has been customized
      */
     function getTokenWeight(uint256 tokenId) internal view returns(uint32) {
-        return tokenStatus[tokenId] ? tokenWeights[tokenId] : 1;
+        return tokenStatus[tokenId] ? tokenWeights[tokenId] : defaultWeight;
     }
 
     /**
@@ -232,7 +236,7 @@ abstract contract ERC721Votes {
      */
     function _delegate(address delegator, address delegatee) internal virtual {
         address currentDelegate = delegates(delegator);
-        uint256 delegatorBalance = getVotingWeight(delegator);
+        uint256 delegatorBalance = balanceOf(delegator) * defaultWeight;
         _delegates[delegator] = delegatee;
 
         emit DelegateChanged(delegator, currentDelegate, delegatee);
@@ -241,7 +245,7 @@ abstract contract ERC721Votes {
     }
 
     /**
-     * @dev Moves voting power after votign weight is exchanged, either
+     * @dev Moves voting power after voting weight is exchanged, either
      * through a _delegate transfer or a token transfer.
      *
      */
