@@ -2,11 +2,12 @@
 
 pragma solidity ^0.8.0;
 
+import "./draft-ERC721Permit.sol";
 import "../../../utils/math/Math.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 
-abstract contract ERC721Votes {
+abstract contract ERC721Votes is ERC721Permit {
    struct Checkpoint {
         uint32 fromBlock;
         uint224 weight;
@@ -67,7 +68,7 @@ abstract contract ERC721Votes {
     /**
      * @dev Gets the current voting weight for `account`
      */
-    function getVotingWeight(address account) public view returns (uint256) {
+    function getUserVotes(address account) public view returns (uint256) {
       uint256 pos = _checkpoints[account].length;
       return pos == 0 ? 0 : _checkpoints[account][pos - 1].weight;
     }
@@ -95,7 +96,7 @@ abstract contract ERC721Votes {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastVotingWeight(address account, uint256 blockNumber) public view returns (uint256) {
+    function getVotingWeight(address account, uint256 blockNumber) public view returns (uint256) {
         require(blockNumber < block.number, "ERC721Votes: block not yet mined");
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
@@ -105,7 +106,7 @@ abstract contract ERC721Votes {
      */
 
     function totalTokenWeight() public view returns (uint256) {
-      uint256 pos = _totalSupplyCheckpoints[_totalSupplyCheckpoints.length];
+      uint256 pos = _totalSupplyCheckpoints.length;
       return pos == 0 ? 0 : _totalSupplyCheckpoints[pos - 1].weight;
     }
     /**
@@ -204,8 +205,8 @@ abstract contract ERC721Votes {
     /**
      * @dev Snapshots the totalSupply after it has been decreased.
      */
-    function _burn(address account, uint256 tokenId) internal virtual override {
-        super._burn(account, tokenId);
+    function _burn(uint256 tokenId) internal virtual override {
+        super._burn(tokenId);
 
         uint256 tokenWeight = getTokenWeight(tokenId);
 
