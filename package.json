@@ -12,7 +12,7 @@
   },
   "scripts": {
     "compile": "hardhat compile",
-    "coverage": "hardhat coverage",
+    "coverage": "env COVERAGE=true hardhat coverage",
     "docs": "oz-docs",
     "docs:watch": "npm run docs watch contracts 'docs/*.hbs' docs/helpers.js",
     "prepare-docs": "scripts/prepare-docs.sh",
@@ -53,7 +53,8 @@
     "@nomiclabs/hardhat-truffle5": "^2.0.0",
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/docs-utils": "^0.1.0",
-    "@openzeppelin/test-helpers": "^0.5.9",
+    "@openzeppelin/test-helpers": "^0.5.13",
+    "@truffle/abi-utils": "^0.2.3",
     "chai": "^4.2.0",
     "eslint": "^6.5.1",
     "eslint-config-standard": "^14.1.1",
