@@ -59,6 +59,7 @@ module.exports = {
   },
   networks: {
     hardhat: {
+      hardfork: process.env.COVERAGE ? 'berlin' : 'london',
       blockGasLimit: 10000000,
       allowUnlimitedContractSize: !withOptimizations,
     },
