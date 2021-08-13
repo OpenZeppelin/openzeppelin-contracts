@@ -110,7 +110,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
           {
             voter: voter1,
             support: Enums.VoteType.For,
-            error: 'GovernorCompatibilityBravo: vote already casted',
+            error: 'GovernorCompatibilityBravo: vote already cast',
             skip: true,
           },
         ],
@@ -296,7 +296,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
           {
             voter: voter1,
             support: Enums.VoteType.For,
-            error: 'GovernorCompatibilityBravo: vote already casted',
+            error: 'GovernorCompatibilityBravo: vote already cast',
             skip: true,
           },
         ],

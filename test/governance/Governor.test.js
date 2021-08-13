@@ -440,7 +440,7 @@ contract('Governor', function (accounts) {
               voter: voter1,
               weight: web3.utils.toWei('5'),
               support: Enums.VoteType.For,
-              error: 'GovernorVotingSimple: vote already casted',
+              error: 'GovernorVotingSimple: vote already cast',
             },
           ],
         };
