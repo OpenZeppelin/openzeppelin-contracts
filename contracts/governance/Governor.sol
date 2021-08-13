@@ -137,7 +137,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @dev Amount of votes already casted passes the threshold limit.
+     * @dev Amount of votes already cast passes the threshold limit.
      */
     function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
 
@@ -305,7 +305,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been casted yet, retrieve
+     * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
      * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function.
      *
      * Emits a {IGovernor-VoteCast} event.
