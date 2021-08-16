@@ -8,8 +8,6 @@
  * Add an `interfaces` folder containing solidity interfaces to final ERCs. ([#2517](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2517))
  * `ECDSA`: add `tryRecover` functions that will not throw if the signature is invalid, and will return an error flag instead. ([#2661](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2661))
  * `SignatureChecker`: Reduce gas usage of the `isValidSignatureNow` function for the "signature by EOA" case. ([#2661](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2661))
- * `ECDSA`: add `tryRecover` functions that will not throw if the signature is invalid, and will return an error flag instead. ([#2661](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2661))
- * `SignatureChecker`: Reduce gas usage of the `isValidSignatureNow` function for the "signature by EOA" case. ([#2661](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2661))
 
 ## 4.2.0 (2021-06-30)
 
