@@ -14,7 +14,7 @@ import "./IGovernor.sol";
 /**
  * @dev Core of the governance system, designed to be extended though various modules.
  *
- * This contract is abstract and requiers several function to be implemented in various modules:
+ * This contract is abstract and requires several function to be implemented in various modules:
  *
  * - A counting module must implement {quorum}, {_quorumReached}, {_voteSucceeded} and {_countVote}
  * - A voting module must implement {getVotes}

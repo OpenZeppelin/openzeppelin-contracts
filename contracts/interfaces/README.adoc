@@ -1,7 +1,7 @@
 = Interfaces
 
 [.readme-notice]
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/interfaces
 
 == List of standardized interfaces
 These interfaces are available as `.sol` files, and also as compiler `.json` ABI files (through the npm package). These
