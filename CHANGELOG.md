@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.3.0 (2021-08-17)
 
  * `ERC2771Context`: use private variable from storage to store the forwarder address. Fixes issues where `_msgSender()` was not callable from constructors. ([#2754](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2754))
  * `EnumerableSet`: add `values()` functions that returns an array containing all values in a single call. ([#2768](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2768))
