@@ -18,14 +18,16 @@ library Counters {
         uint256 _value; // default: 0
     }
 
-    function current(Counter storage counter) internal view returns (uint256) {
+    function current(Counter storage counter ) internal view returns (uint256) {
         return counter._value;
     }
+    event test(uint256 k);
 
     function increment(Counter storage counter) internal {
         unchecked {
             counter._value += 1;
         }
+     emit test(counter._value);
     }
 
     function decrement(Counter storage counter) internal {
@@ -34,6 +36,7 @@ library Counters {
         unchecked {
             counter._value = value - 1;
         }
+     emit test(counter._value);
     }
 
     function reset(Counter storage counter) internal {
