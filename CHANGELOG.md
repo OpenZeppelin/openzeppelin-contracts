@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.3.1
+
+ * `TimelockController`: Add additional isOperationReady check.
+
 ## 4.3.0 (2021-08-17)
 
  * `ERC2771Context`: use private variable from storage to store the forwarder address. Fixes issues where `_msgSender()` was not callable from constructors. ([#2754](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2754))
@@ -94,6 +98,10 @@ Make sure you're using git or another version control system to be able to recov
 ### How to upgrade from 4.0-beta.x
 
 Some further changes have been done between the different beta iterations. Transitions made during this period are configured in the `migrate-imports` script. Consequently, you can upgrade from any previous 4.0-beta.x version using the same script as described in the *How to upgrade from 3.x* section.
+
+## 3.4.2
+
+ * `TimelockController`: Add additional isOperationReady check.
 
 ## 3.4.1 (2021-03-03)
 
