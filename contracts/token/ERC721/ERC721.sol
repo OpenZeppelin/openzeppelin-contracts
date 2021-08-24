@@ -359,7 +359,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * Emits a {ApprovalForAll} event.
      */
-    function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
+    function _setApprovalForAll(
+        address owner,
+        address operator,
+        bool approved
+    ) internal virtual {
         // TODO: add sanity checks?
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);

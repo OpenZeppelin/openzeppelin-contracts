@@ -372,7 +372,11 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      *
      * Emits a {ApprovalForAll} event.
      */
-    function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
+    function _setApprovalForAll(
+        address owner,
+        address operator,
+        bool approved
+    ) internal virtual {
         // TODO: add sanity checks?
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
