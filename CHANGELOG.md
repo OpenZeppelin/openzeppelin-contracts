@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.3.1
+## 4.3.1 (2021-08-26)
 
  * `TimelockController`: Add additional isOperationReady check.
 
