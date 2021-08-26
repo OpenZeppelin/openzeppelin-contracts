@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.4.2-solc-0.7
+## 3.4.2-solc-0.7 (2021-08-26)
 
  * `TimelockController`: Add additional isOperationReady check.
 
