@@ -12,6 +12,10 @@ const argv = require('yargs/yargs')()
       type: 'boolean',
       default: false,
     },
+    coverage: {
+      type: 'boolean',
+      default: false,
+    },
     gas: {
       alias: 'enableGasReport',
       type: 'boolean',
@@ -32,7 +36,6 @@ const argv = require('yargs/yargs')()
   .argv;
 
 require('@nomiclabs/hardhat-truffle5');
-require('solidity-coverage');
 
 if (argv.enableGasReport) {
   require('hardhat-gas-reporter');
@@ -59,7 +62,6 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      hardfork: process.env.COVERAGE ? 'berlin' : 'london',
       blockGasLimit: 10000000,
       allowUnlimitedContractSize: !withOptimizations,
     },
@@ -69,3 +71,8 @@ module.exports = {
     outputFile: argv.ci ? 'gas-report.txt' : undefined,
   },
 };
+
+if (argv.coverage) {
+  require('solidity-coverage');
+  module.exports.networks.hardhat.initialBaseFeePerGas = 0;
+}
