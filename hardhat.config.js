@@ -1,7 +1,10 @@
 /// ENVVAR
-// - ENABLE_GAS_REPORT
-// - CI
-// - COMPILE_MODE
+// - CI:                output gas report to file instead of stdout
+// - COVERAGE:          enable coverage report
+// - ENABLE_GAS_REPORT: enable gas report
+// - COMPILE_MODE:      production modes enables optimizations (default: development)
+// - COMPILE_VERSION:   compiler version (default: 0.8.3)
+// - COINMARKETCAP:     coinmarkercat api key for USD value in gas report
 
 const fs = require('fs');
 const path = require('path');
@@ -31,6 +34,10 @@ const argv = require('yargs/yargs')()
       alias: 'compileVersion',
       type: 'string',
       default: '0.8.3',
+    },
+    coinmarketcap: {
+      alias: 'coinmarketcapApiKey',
+      type: 'string',
     },
   })
   .argv;
@@ -69,6 +76,7 @@ module.exports = {
   gasReporter: {
     currency: 'USD',
     outputFile: argv.ci ? 'gas-report.txt' : undefined,
+    coinmarketcap: argv.coinmarketcap,
   },
 };
 
