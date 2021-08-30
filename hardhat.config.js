@@ -1,7 +1,10 @@
 /// ENVVAR
-// - ENABLE_GAS_REPORT
-// - CI
-// - COMPILE_MODE
+// - CI:                output gas report to file instead of stdout
+// - COVERAGE:          enable coverage report
+// - ENABLE_GAS_REPORT: enable gas report
+// - COMPILE_MODE:      production modes enables optimizations (default: development)
+// - COMPILE_VERSION:   compiler version (default: 0.8.3)
+// - COINMARKETCAP:     coinmarkercat api key for USD value in gas report
 
 const fs = require('fs');
 const path = require('path');
@@ -9,6 +12,10 @@ const argv = require('yargs/yargs')()
   .env('')
   .options({
     ci: {
+      type: 'boolean',
+      default: false,
+    },
+    coverage: {
       type: 'boolean',
       default: false,
     },
@@ -28,11 +35,14 @@ const argv = require('yargs/yargs')()
       type: 'string',
       default: '0.8.3',
     },
+    coinmarketcap: {
+      alias: 'coinmarketcapApiKey',
+      type: 'string',
+    },
   })
   .argv;
 
 require('@nomiclabs/hardhat-truffle5');
-require('solidity-coverage');
 
 if (argv.enableGasReport) {
   require('hardhat-gas-reporter');
@@ -59,7 +69,6 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      hardfork: process.env.COVERAGE ? 'berlin' : 'london',
       blockGasLimit: 10000000,
       allowUnlimitedContractSize: !withOptimizations,
     },
@@ -67,5 +76,11 @@ module.exports = {
   gasReporter: {
     currency: 'USD',
     outputFile: argv.ci ? 'gas-report.txt' : undefined,
+    coinmarketcap: argv.coinmarketcap,
   },
 };
+
+if (argv.coverage) {
+  require('solidity-coverage');
+  module.exports.networks.hardhat.initialBaseFeePerGas = 0;
+}
