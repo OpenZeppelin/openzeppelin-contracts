@@ -23,6 +23,23 @@ library MerkleProof {
         bytes32 root,
         bytes32 leaf
     ) internal pure returns (bool) {
+        // Check if the computed hash (root) is equal to the provided root
+        return processProof(proof, leaf) == root;
+    }
+
+    /**
+     * @dev Returns the rebuild hash of node obtained by traversing a Merklee
+     * tree up from `leaf` using `proof`. If `proof` proof is valid, in the send
+     * that it contains the hashes of the sibling on the branch from the leaf to
+     * the root, then this will return the hash of the root of the tree. In
+     * processing the proof we assume the pairs of leafs & pre-images are sorted.
+     *
+     * _Available since v4.4._
+     */
+    function processProof(
+        bytes32[] memory proof,
+        bytes32 leaf
+    ) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
 
         for (uint256 i = 0; i < proof.length; i++) {
@@ -37,7 +54,6 @@ library MerkleProof {
             }
         }
 
-        // Check if the computed hash (root) is equal to the provided root
-        return computedHash == root;
+        return computedHash;
     }
 }
