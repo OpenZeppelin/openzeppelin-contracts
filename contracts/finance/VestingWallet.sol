@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "../../token/ERC20/utils/SafeERC20.sol";
-import "../../utils/Address.sol";
-import "../../utils/Context.sol";
+import "../token/ERC20/utils/SafeERC20.sol";
+import "../utils/Address.sol";
+import "../utils/Context.sol";
 
 /**
  * @title VestingWallet
@@ -101,7 +101,7 @@ contract VestingWallet is Context {
     }
 
     /**
-     * @dev Calculates the amount that has already vested. Default implementation is a linear vesting curve.
+     * @dev Calculates the amount of tokens that has already vested. Default implementation is a linear vesting curve.
      */
     function vestedAmount(address token, uint256 timestamp) public view virtual returns (uint256) {
         if (timestamp < start()) {
@@ -111,6 +111,13 @@ contract VestingWallet is Context {
         } else {
             return (_historicalBalance(token) * (timestamp - start())) / duration();
         }
+    }
+
+    /**
+     * @dev Calculates the amount of ether that has already vested. Default implementation is a linear vesting curve.
+     */
+    function vestedAmount(uint256 timestamp) public view virtual returns (uint256) {
+        return vestedAmount(address(0), timestamp);
     }
 
     /**
