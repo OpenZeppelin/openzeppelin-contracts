@@ -143,6 +143,8 @@ elif [[ "$*" == "final" ]]; then
 
   push_and_publish latest
 
+  npm deprecate 'openzeppelin-solidity@>=4.0.0' "This package is now published as @openzeppelin/contracts. Please change your dependency."
+
   log "Remember to merge the release branch into master and push upstream"
 
 else

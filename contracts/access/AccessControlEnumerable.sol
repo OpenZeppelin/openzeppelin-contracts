@@ -2,17 +2,9 @@
 
 pragma solidity ^0.8.0;
 
+import "./IAccessControlEnumerable.sol";
 import "./AccessControl.sol";
 import "../utils/structs/EnumerableSet.sol";
-
-/**
- * @dev External interface of AccessControlEnumerable declared to support ERC165 detection.
- */
-interface IAccessControlEnumerable {
-    function getRoleMember(bytes32 role, uint256 index) external view returns (address);
-
-    function getRoleMemberCount(bytes32 role) external view returns (uint256);
-}
 
 /**
  * @dev Extension of {AccessControl} that allows enumerating the members of each role.
@@ -56,7 +48,7 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     /**
      * @dev Overload {grantRole} to track enumerable memberships
      */
-    function grantRole(bytes32 role, address account) public virtual override {
+    function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         super.grantRole(role, account);
         _roleMembers[role].add(account);
     }
@@ -64,7 +56,7 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     /**
      * @dev Overload {revokeRole} to track enumerable memberships
      */
-    function revokeRole(bytes32 role, address account) public virtual override {
+    function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         super.revokeRole(role, account);
         _roleMembers[role].remove(account);
     }
@@ -72,7 +64,7 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     /**
      * @dev Overload {renounceRole} to track enumerable memberships
      */
-    function renounceRole(bytes32 role, address account) public virtual override {
+    function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         super.renounceRole(role, account);
         _roleMembers[role].remove(account);
     }
