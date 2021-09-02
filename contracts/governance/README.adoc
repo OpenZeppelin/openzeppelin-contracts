@@ -3,9 +3,82 @@
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/governance
 
-This directory includes primitives for on-chain governance. We currently only offer the {TimelockController} contract, that can be used as a component in a governance systems to introduce a delay between a proposal and its execution.
+This directory includes primitives for on-chain governance.
+
+== Governor
+
+This modular system of Governor contracts allows the deployment on-chain voting protocols similar to https://compound.finance/docs/governance[Compound's Governor Alpha & Bravo] and beyond, through the ability to easily customize multiple aspects of the protocol.
+
+[TIP]
+====
+For a guided experience, set up your Governor contract using https://wizard.openzeppelin.com/#governor[Contracts Wizard].
+
+For a written walkthrough, check out our guide on xref:ROOT:governance.adoc[How to set up on-chain governance].
+====
+
+* {Governor}: The core contract that contains all the logic and primitives. It is abstract and requires choosing one of each of the modules below, or custom ones.
+
+Votes modules determine the source of voting power, and sometimes quorum number.
+
+* {GovernorVotes}: Extracts voting weight from an {ERC20Votes} token.
+
+* {GovernorVotesComp}: Extracts voting weight from a COMP-like or {ERC20VotesComp} token.
+
+* {GovernorVotesQuorumFraction}: Combines with `GovernorVotes` to set the quorum as a fraction of the total token supply.
+
+Counting modules determine valid voting options.
+
+* {GovernorCountingSimple}: Simple voting mechanism with 3 voting options: Against, For and Abstain.
+
+Timelock extensions add a delay for governance decisions to be executed. The workflow is extended to require a `queue` step before execution. With these modules, proposals are executed by the external timelock contract, thus it is the timelock that has to hold the assets that are being governed.
+
+* {GovernorTimelockControl}: Connects with an instance of {TimelockController}. Allows multiple proposers and executors, in addition to the Governor itself.
+
+* {GovernorTimelockCompound}: Connects with an instance of Compound's https://github.com/compound-finance/compound-protocol/blob/master/contracts/Timelock.sol[`Timelock`] contract.
+
+Other extensions can customize the behavior or interface in multiple ways.
+
+* {GovernorCompatibilityBravo}: Extends the interface to be fully `GovernorBravo`-compatible. Note that events are compatible regardless of whether this extension is included or not.
+
+* {GovernorProposalThreshold}: Restricts proposals to delegates with a minimum voting power.
+
+In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
+
+* <<Governor-votingDelay-,`votingDelay()`>>: Delay (in number of blocks) since the proposal is submitted until voting power is fixed and voting starts. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
+* <<Governor-votingPeriod-,`votingPeriod()`>>: Delay (in number of blocks) since the proposal starts until voting ends.
+* <<Governor-quorum-uint256-,`quorum(uint256 blockNumber)`>>: Quorum required for a proposal to be successful. This function includes a `blockNumber` argument so the quorum can adapt through time, for example, to follow a token's `totalSupply`.
+
+NOTE: Functions of the `Governor` contract do not include access control. If you want to restrict access, you should add these checks by overloading the particular functions. Among these, {Governor-_cancel} is internal by default, and you will have to expose it (which the right access control mechanism) yourself if this function is needed.
+
+=== Core
+
+{{IGovernor}}
+
+{{Governor}}
+
+=== Modules
+
+{{GovernorCountingSimple}}
+
+{{GovernorVotes}}
+
+{{GovernorVotesQuorumFraction}}
+
+{{GovernorVotesComp}}
+
+=== Extensions
+
+{{GovernorTimelockControl}}
+
+{{GovernorTimelockCompound}}
+
+{{GovernorProposalThreshold}}
+
+{{GovernorCompatibilityBravo}}
 
 == Timelock
+
+In a governance system, the {TimelockController} contract is in carge of introducing a delay between a proposal and its execution. It can be used with or without a {Governor}.
 
 {{TimelockController}}
 
@@ -20,13 +93,14 @@ This directory includes primitives for on-chain governance. We currently only of
 ** *Done:* An operation that has been executed.
 * *Predecessor*: An (optional) dependency between operations. An operation can depend on another operation (its predecessor), forcing the execution order of these two operations.
 * *Role*:
+** *Admin:* An address (smart contract or EOA) that is in charge of granting the roles of Proposer and Executor.
 ** *Proposer:* An address (smart contract or EOA) that is in charge of scheduling (and cancelling) operations.
-** *Executor:* An address (smart contract or EOA) that is in charge of executing operations.
+** *Executor:* An address (smart contract or EOA) that is in charge of executing operations once the timelock has expired. This role can be given to the zero address to allow anyone to execute operations.
 
 [[timelock-operation]]
 ==== Operation structure
 
-Operation executed by the xref:api:governance.adoc#TimelockController[`TimelockControler`] can contain one or multiple subsequent calls. Depending on whether you need to multiple calls to be executed atomically, you can either use simple or batched operations.
+Operation executed by the xref:api:governance.adoc#TimelockController[`TimelockController`] can contain one or multiple subsequent calls. Depending on whether you need to multiple calls to be executed atomically, you can either use simple or batched operations.
 
 Both operations contain:
 
@@ -83,9 +157,8 @@ This role is identified by the *PROPOSER_ROLE* value: `0xb09aa5aeb3702cfd50b6b62
 [[timelock-executor]]
 ===== Executor
 
-The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisig or DAO that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executor can reduce the cost (the executing transaction does not require validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers.
+The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisig or DAO that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executors can reduce the cost (the executing transaction does not require validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers. Alternatively, it is possible to allow _any_ address to execute a proposal once the timelock has expired by granting the executor role to the zero address.
 
 This role is identified by the *EXECUTOR_ROLE* value: `0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63`
-
 
 WARNING: A live contract without at least one proposer and one executor is locked. Make sure these roles are filled by reliable entities before the deployer renounces its administrative rights in favour of the timelock contract itself. See the {AccessControl} documentation to learn more about role management.
