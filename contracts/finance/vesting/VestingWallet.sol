@@ -2,19 +2,20 @@
 pragma solidity ^0.8.0;
 
 import "../../token/ERC20/utils/SafeERC20.sol";
+import "../../utils/Address.sol";
 import "../../utils/Context.sol";
 
 /**
- * @title ERC20VestingWallet
- * @dev This contract handles the vesting of ERC20 tokens for a given beneficiary. Custody of multiple tokens can be
- * given to this contract, which will release the token to the beneficiary following a given vesting schedule. The
- * vesting schedule is customizable through the {vestedAmount} function.
+ * @title VestingWallet
+ * @dev This contract handles the vesting of Eth and ERC20 tokens for a given beneficiary. Custody of multiple tokens
+ * can be given to this contract, which will release the token to the beneficiary following a given vesting schedule.
+ * The vesting schedule is customizable through the {vestedAmount} function.
  *
  * Any token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
  * be immediately releasable.
  */
-contract ERC20VestingWallet is Context {
+contract VestingWallet is Context {
     event TokensReleased(address token, uint256 amount);
 
     mapping(address => uint256) private _released;
@@ -23,7 +24,7 @@ contract ERC20VestingWallet is Context {
     uint256 private immutable _duration;
 
     modifier onlyBeneficiary() {
-        require(beneficiary() == _msgSender(), "ERC20VestingWallet: access restricted to beneficiary");
+        require(beneficiary() == _msgSender(), "VestingWallet: access restricted to beneficiary");
         _;
     }
 
@@ -35,11 +36,16 @@ contract ERC20VestingWallet is Context {
         uint256 startTimestamp,
         uint256 durationSeconds
     ) {
-        require(beneficiaryAddress != address(0), "ERC20VestingWallet: beneficiary is zero address");
+        require(beneficiaryAddress != address(0), "VestingWallet: beneficiary is zero address");
         _beneficiary = beneficiaryAddress;
         _start = startTimestamp;
         _duration = durationSeconds;
     }
+
+    /**
+     * @dev The contract should be able to receive Eth.
+     */
+    receive() external payable {}
 
     /**
      * @dev Getter for the beneficiary address.
@@ -78,7 +84,20 @@ contract ERC20VestingWallet is Context {
         uint256 releasable = vestedAmount(token, block.timestamp) - released(token);
         _released[token] += releasable;
         emit TokensReleased(token, releasable);
-        SafeERC20.safeTransfer(IERC20(token), beneficiary(), releasable);
+        if (token == address(0)) {
+            Address.sendValue(payable(beneficiary()), releasable);
+        } else {
+            SafeERC20.safeTransfer(IERC20(token), beneficiary(), releasable);
+        }
+    }
+
+    /**
+     * @dev Release the native token (ether) that have already vested.
+     *
+     * Emits a {TokensReleased} event.
+     */
+    function release() public virtual {
+        release(address(0));
     }
 
     /**
@@ -98,6 +117,6 @@ contract ERC20VestingWallet is Context {
      * @dev Calculates the historical balance (current balance + already released balance).
      */
     function _historicalBalance(address token) internal view virtual returns (uint256) {
-        return IERC20(token).balanceOf(address(this)) + released(token);
+        return (token == address(0) ? address(this).balance : IERC20(token).balanceOf(address(this))) + released(token);
     }
 }
