@@ -21,7 +21,16 @@ contract MinimalForwarder is EIP712 {
     }
 
     bytes32 private constant _TYPEHASH =
-        keccak256("ForwardRequest(address from,address to,uint256 value,uint256 gas,uint256 nonce,bytes data)");
+        keccak256(
+            "ForwardRequest("
+            "address from,"
+            "address to,"
+            "uint256 value,"
+            "uint256 gas,"
+            "uint256 nonce,"
+            "bytes data"
+            ")"
+        );
 
     mapping(address => uint256) private _nonces;
 
