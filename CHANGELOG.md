@@ -2,8 +2,8 @@
 
 ## Unreleased
 
- * `Ownable`: add `_transferOwnership` to Ownable. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
- * `AccessControl`: make some private functions internal. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
+ * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
+ * `AccessControl`: change visibility of `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)` from private to internal. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
 
 ## 4.3.1
 
