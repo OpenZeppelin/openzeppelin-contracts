@@ -4,6 +4,7 @@
 
  * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
  * `AccessControl`: change visibility of `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)` from private to internal. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
+ * `AccessControl`: mark `_setupRole(bytes32,address)` as deprecated in favor of the new internal `_grantRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
 
 ## 4.3.1
 
