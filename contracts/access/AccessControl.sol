@@ -199,7 +199,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     /**
      * @dev Grants `role` to `account`.
      *
-     * Internal function without specific requirements
+     * Internal function without access restriction.
      */
     function _grantRole(bytes32 role, address account) internal virtual {
         if (!hasRole(role, account)) {
@@ -211,7 +211,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     /**
      * @dev Revokes `role` from `account`.
      *
-     * Internal function without specific requirements
+     * Internal function without access restriction.
      */
     function _revokeRole(bytes32 role, address account) internal virtual {
         if (hasRole(role, account)) {
