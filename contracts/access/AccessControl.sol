@@ -219,6 +219,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Using this function in any other way is effectively circumventing the admin
      * system imposed by {AccessControl}.
      * ====
+     *
+     * CAUTION: This function is deprecated in favor of {_grantRole}.
      */
     function _setupRole(bytes32 role, address account) internal virtual {
         _grantRole(role, account);
@@ -235,6 +237,11 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
         emit RoleAdminChanged(role, previousAdminRole, adminRole);
     }
 
+    /**
+     * @dev Grants `role` to `account`.
+     *
+     * Internal function without specific requirements
+     */
     function _grantRole(bytes32 role, address account) internal virtual {
         if (!hasRole(role, account)) {
             _roles[role].members[account] = true;
@@ -242,6 +249,11 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
         }
     }
 
+    /**
+     * @dev Revokes `role` from `account`.
+     *
+     * Internal function without specific requirements
+     */
     function _revokeRole(bytes32 role, address account) internal virtual {
         if (hasRole(role, account)) {
             _roles[role].members[account] = false;

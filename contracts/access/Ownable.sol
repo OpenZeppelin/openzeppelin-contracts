@@ -64,8 +64,8 @@ abstract contract Ownable is Context {
     }
 
     /**
-     * @dev Internal function that forces an ownership change. Can be used to
-     * implement custom ownership management logic in childs contracts.
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
      */
     function _transferOwnership(address newOwner) internal virtual {
         address oldOwner = _owner;

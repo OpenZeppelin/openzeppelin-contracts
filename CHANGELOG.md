@@ -3,8 +3,8 @@
 ## Unreleased
 
  * `ERC2771Context`: use private variable from storage to store the forwarder address. Fixes issues where `_msgSender()` was not callable from constructors. ([#2754](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2754))
- * `Ownable`: add `_transferOwnership` to Ownable. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
- * `AccessControl`: make some private functions internal. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
+ * `Ownable`: add an internal `_transferOwnership` to Ownable. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
+ * `AccessControl`: change `_grantRole` and `_revokeRole` visibility from private to internal. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
 
 ## 4.2.0 (2021-06-30)
 
