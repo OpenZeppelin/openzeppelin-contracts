@@ -73,7 +73,7 @@ contract('MerkleProof', function (accounts) {
       expect(results.map(result => result[0])).to.have.members(Array(elements.length).fill(root));
 
       // Indices are unique
-      expect(results.map(result => result[1].toNumber().every((index, i, indices) => indices.indexOf(i) === index)));
+      expect(results.map(result => result[1].toNumber()).every((index, i, indices) => indices.indexOf(i) === index));
     });
   });
 });
