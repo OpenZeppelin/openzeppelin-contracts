@@ -3,7 +3,7 @@ require('@openzeppelin/test-helpers');
 const { MerkleTree } = require('merkletreejs');
 const keccak256 = require('keccak256');
 
-const { expect, assert } = require('chai');
+const { expect } = require('chai');
 
 const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
 
@@ -66,11 +66,14 @@ contract('MerkleProof', function (accounts) {
 
       const results = await Promise.all(elements
         .map(element => keccak256(element))
-        .map(leaf => this.merkleProof.processProof(merkleTree.getHexProof(leaf), leaf))
+        .map(leaf => this.merkleProof.processProof(merkleTree.getHexProof(leaf), leaf)),
       );
 
-      assert(results.map(result => result[0]).every(value => value === root), 'processProof rebuilt invalid root');
-      assert(results.map(result => result[1].toNumber()).every((value, i, values) => values.indexOf(value) === i), 'processProof rebuilt indices duplicate');
+      // All reconstructed roots are correct
+      expect(results.map(result => result[0])).to.have.members(Array(elements.length).fill(root));
+
+      // Indices are unique
+      expect(results.map(result => result[1].toNumber().every((index, i, indices) => indices.indexOf(i) === index)));
     });
   });
 });

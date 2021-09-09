@@ -24,7 +24,7 @@ library MerkleProof {
         bytes32 leaf
     ) internal pure returns (bool) {
         // Check if the computed hash (root) is equal to the provided root
-        (bytes32 computedHash,) = processProof(proof, leaf);
+        (bytes32 computedHash, ) = processProof(proof, leaf);
         return computedHash == root;
     }
 
