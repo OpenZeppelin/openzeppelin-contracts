@@ -24,7 +24,8 @@ library MerkleProof {
         bytes32 leaf
     ) internal pure returns (bool) {
         // Check if the computed hash (root) is equal to the provided root
-        return processProof(proof, leaf) == root;
+        (bytes32 computedHash,) = processProof(proof, leaf);
+        return computedHash == root;
     }
 
     /**
@@ -36,21 +37,22 @@ library MerkleProof {
      *
      * _Available since v4.4._
      */
-    function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
+    function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32, uint256) {
         bytes32 computedHash = leaf;
-
+        uint256 index = 0;
         for (uint256 i = 0; i < proof.length; i++) {
             bytes32 proofElement = proof[i];
-
+            index <<= 1;
             if (computedHash <= proofElement) {
                 // Hash(current computed hash + current element of the proof)
                 computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
             } else {
                 // Hash(current element of the proof + current computed hash)
                 computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
+                index |= 1;
+                // index |= 1 << (proof.length - i - 1); // option 2: better ?
             }
         }
-
-        return computedHash;
+        return (computedHash, index);
     }
 }

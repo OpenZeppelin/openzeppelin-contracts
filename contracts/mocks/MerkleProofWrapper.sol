@@ -12,4 +12,11 @@ contract MerkleProofWrapper {
     ) public pure returns (bool) {
         return MerkleProof.verify(proof, root, leaf);
     }
+
+    function processProof(
+        bytes32[] memory proof,
+        bytes32 leaf
+    ) public pure returns (bytes32, uint256) {
+        return MerkleProof.processProof(proof, leaf);
+    }
 }

@@ -3,7 +3,7 @@ require('@openzeppelin/test-helpers');
 const { MerkleTree } = require('merkletreejs');
 const keccak256 = require('keccak256');
 
-const { expect } = require('chai');
+const { expect, assert } = require('chai');
 
 const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
 
@@ -54,6 +54,23 @@ contract('MerkleProof', function (accounts) {
       const badProof = proof.slice(0, proof.length - 5);
 
       expect(await this.merkleProof.verify(badProof, root, leaf)).to.equal(false);
+    });
+  });
+
+  describe('processProof', function () {
+    it('create unique indices', async function () {
+      const elements = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split('');
+      const merkleTree = new MerkleTree(elements, keccak256, { hashLeaves: true, sortPairs: true });
+
+      const root = merkleTree.getHexRoot();
+
+      const results = await Promise.all(elements
+        .map(element => keccak256(element))
+        .map(leaf => this.merkleProof.processProof(merkleTree.getHexProof(leaf), leaf))
+      );
+
+      assert(results.map(result => result[0]).every(value => value === root), 'processProof rebuilt invalid root');
+      assert(results.map(result => result[1].toNumber()).every((value, i, values) => values.indexOf(value) === i), 'processProof rebuilt indices duplicate');
     });
   });
 });
