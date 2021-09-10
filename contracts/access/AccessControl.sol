@@ -179,7 +179,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * system imposed by {AccessControl}.
      * ====
      *
-     * CAUTION: This function is deprecated in favor of {_grantRole}.
+     * NOTE: This function is deprecated in favor of {_grantRole}.
      */
     function _setupRole(bytes32 role, address account) internal virtual {
         _grantRole(role, account);
