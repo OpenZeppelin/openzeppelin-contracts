@@ -29,9 +29,9 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns the rebuild hash of node obtained by traversing a Merklee
-     * tree up from `leaf` using `proof`. If `proof` proof is valid, in the send
-     * that it contains the hashes of the sibling on the branch from the leaf to
+     * @dev Returns the rebuilt hash of nodes obtained by traversing a Merklee
+     * tree up from `leaf` using `proof`. If `proof` is valid, in the sense
+     * that it contains the hashes of the siblings on the branch from the leaf to
      * the root, then this will return the hash of the root of the tree. In
      * processing the proof we assume the pairs of leafs & pre-images are sorted.
      *
@@ -42,7 +42,7 @@ library MerkleProof {
         uint256 index = 0;
         for (uint256 i = 0; i < proof.length; i++) {
             bytes32 proofElement = proof[i];
-            index <<= 1;
+            index *= 2;
             if (computedHash <= proofElement) {
                 // Hash(current computed hash + current element of the proof)
                 computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
