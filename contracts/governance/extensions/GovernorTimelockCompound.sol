@@ -177,8 +177,9 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ) internal virtual override {
         uint256 eta = proposalEta(proposalId);
         require(eta > 0, "GovernorTimelockCompound: proposal not yet queued");
+        Address.sendValue(payable(_timelock), msg.value);
         for (uint256 i = 0; i < targets.length; ++i) {
-            _timelock.executeTransaction{value: i == 0 ? msg.value : 0}(targets[i], values[i], "", calldatas[i], eta);
+            _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
     }
 
