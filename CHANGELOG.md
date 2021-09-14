@@ -5,8 +5,7 @@
  * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
  * `AccessControl`: add internal `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
  * `AccessControl`: mark `_setupRole(bytes32,address)` as deprecated in favor of `_grantRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
- * `MultiPaymentSplitter`: new contract extending the existing `PaymentSplitter` mechanism to ERC20 assets. ([#2858](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2858))
- * `Distribution`: a new (balance-like) structure for "address to value" mappings that keep track of the total value. ([#2858](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2858))
+ * `PaymentSplitter`: now supports ERC20 assets in addition to Ether. ([#2858](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2858))
 
 ## 4.3.1
 

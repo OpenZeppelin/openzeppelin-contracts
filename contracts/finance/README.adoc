@@ -8,5 +8,3 @@ This directory includes primitives for financial systems. We currently only offe
 == PaymentSplitter
 
 {{PaymentSplitter}}
-
-{{MultiPaymentSplitter}}
