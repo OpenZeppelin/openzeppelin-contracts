@@ -22,7 +22,7 @@ import "./PaymentSplitter.sol";
 contract MultiPaymentSplitter is PaymentSplitter {
     using Distribution for Distribution.AddressToUintWithTotal;
 
-    event ERC20PaymentReleased(IERC20 indexed asset, address indexed to, uint256 amount);
+    event PaymentReleased(IERC20 indexed asset, address to, uint256 amount);
 
     mapping(IERC20 => Distribution.AddressToUintWithTotal) private _released;
 
@@ -33,9 +33,7 @@ contract MultiPaymentSplitter is PaymentSplitter {
      * All addresses in `payees` must be non-zero. Both arrays must have the same non-zero length, and there must be no
      * duplicates in `payees`.
      */
-    constructor(address[] memory payees, uint256[] memory shares_) payable
-    PaymentSplitter(payees, shares_)
-    {}
+    constructor(address[] memory payees, uint256[] memory shares_) payable PaymentSplitter(payees, shares_) {}
 
     /**
      * @dev Getter for the amount of `asset` tokens already released to a payee.
@@ -64,6 +62,6 @@ contract MultiPaymentSplitter is PaymentSplitter {
         _released[asset].add(account, payment);
 
         SafeERC20.safeTransfer(IERC20(asset), account, payment);
-        emit ERC20PaymentReleased(asset, account, payment);
+        emit PaymentReleased(asset, account, payment);
     }
 }
