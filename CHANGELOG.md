@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.3.2
+## 4.3.2 (2021-09-14)
 
  * `UUPSUpgradeable`: Add modifiers to prevent `upgradeTo` and `upgradeToAndCall` being executed on any contract that is not the active ERC1967 proxy. This prevents these functions being called on implementation contracts or minimal ERC1167 clones, in particular.
 
