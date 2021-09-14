@@ -54,10 +54,12 @@ contract MultiPaymentSplitter is PaymentSplitter {
      * percentage of the total shares and their previous withdrawals.
      */
     function release(IERC20 asset, address payable account) public virtual {
-        require(shares(account) > 0, "PaymentSplitter: account has no shares");
+        require(shares(account) > 0, "MultiPaymentSplitter: account has no shares");
 
         uint256 totalReceived = asset.balanceOf(address(this)) + totalReleased(asset);
         uint256 payment = (totalReceived * shares(account)) / totalShares() - _released[asset].getValue(account);
+
+        require(payment != 0, "MultiPaymentSplitter: account is not due payment");
 
         _released[asset].add(account, payment);
 
