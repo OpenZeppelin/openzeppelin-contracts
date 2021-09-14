@@ -1,4 +1,4 @@
-const { balance, constants, ether, expectEvent, send, expectRevert } = require('@openzeppelin/test-helpers');
+const { constants, ether, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
@@ -51,7 +51,7 @@ contract('MultiPaymentSplitter', function (accounts) {
       this.shares = [40, 60];
 
       this.contract = await MultiPaymentSplitter.new(this.payees, this.shares);
-      this.tokens   = [
+      this.tokens = [
         await Token.new('Token #0', 'T0', owner, ether('1000')),
         await Token.new('Token #1', 'T1', owner, ether('1000')),
       ];
