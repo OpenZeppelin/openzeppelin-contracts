@@ -13,6 +13,22 @@ pragma solidity ^0.8.0;
  *
  * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure
  * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.
+ *
+ * [CAUTION]
+ * ====
+ * Avoid leaving a contract uninitialized.
+ *
+ * An uninitialized contract can be used in certain kinds of exploits since it may allow an attacker to take control of
+ * the contract. This includes the implementation contract behind a proxy. You can either invoke the initializer
+ * manually, independently of initialization of the proxy, or you can include a constructor to automatically mark it as
+ * initialized when it is deployed:
+ *
+ * [.hljs-theme-light.nopadding]
+ * ```
+ * /// @custom:oz-upgrades-unsafe-allow constructor
+ * constructor() initializer {}
+ * ```
+ * ====
  */
 abstract contract Initializable {
     /**

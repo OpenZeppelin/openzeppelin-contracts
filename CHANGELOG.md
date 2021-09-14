@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+ * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
+ * `AccessControl`: add internal `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
+ * `AccessControl`: mark `_setupRole(bytes32,address)` as deprecated in favor of `_grantRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
  * `ERC20Permit`: use `SignatureChecker.isValidSignatureNow` to support signatures by ERC1271 wallets. ([#2846](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2846))
 
 ## 4.3.1
