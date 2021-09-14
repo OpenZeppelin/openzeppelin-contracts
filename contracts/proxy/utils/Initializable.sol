@@ -18,10 +18,9 @@ pragma solidity ^0.8.0;
  * ====
  * Avoid leaving a contract uninitialized.
  *
- * An uninitialized contract can be used in certain kinds of exploits since it may allow an attacker to take control of
- * the contract. This includes the implementation contract behind a proxy. You can either invoke the initializer
- * manually, independently of initialization of the proxy, or you can include a constructor to automatically mark it as
- * initialized when it is deployed:
+ * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation
+ * contract, which may impact the proxy. To initialize the implementation contract, you can either invoke the
+ * initializer manually, or you can include a constructor to automatically mark it as initialized when it is deployed:
  *
  * [.hljs-theme-light.nopadding]
  * ```
