@@ -18,6 +18,10 @@ import "../utils/Context.sol";
  * `PaymentSplitter` follows a _pull payment_ model. This means that payments are not automatically forwarded to the
  * accounts but kept in this contract, and the actual transfer is triggered as a separate step by calling the {release}
  * function.
+ *
+ * NOTE: This contract assumes that ERC20 tokens will behave similarly to native tokens (Ether). Rebasing tokens, and
+ * tokens that apply fees during transfers, are likely to not be supported as expected. If in doubt, we encourage you
+ * to run tests before sending real value to this contract.
  */
 contract PaymentSplitter is Context {
     event PayeeAdded(address account, uint256 shares);
