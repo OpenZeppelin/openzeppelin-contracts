@@ -79,11 +79,11 @@ contract PaymentSplitter is Context {
     }
 
     /**
-     * @dev Getter for the total amount of `asset` already released. `asset` can be the as the address of an ERC20
-     * token, or address(0) for Ether.
+     * @dev Getter for the total amount of `asset` already released. `asset` should be the address of an IERC20
+     * contract.
      */
     function totalReleased(IERC20 asset) public view returns (uint256) {
-        return address(asset) == address(0) ? _totalReleased : _erc20TotalReleased[asset];
+        return _erc20TotalReleased[asset];
     }
 
     /**
@@ -101,11 +101,11 @@ contract PaymentSplitter is Context {
     }
 
     /**
-     * @dev Getter for the amount of `asset already released to a payee. `asset` can be the as the address of an ERC20
-     * token, or address(0) for Ether.
+     * @dev Getter for the amount of `asset` tokens already released to a payee. `asset` should be the address of an
+     * IERC20 contract.
      */
     function released(IERC20 asset, address account) public view returns (uint256) {
-        return address(asset) == address(0) ? _released[account] : _erc20Released[asset][account];
+        return _erc20Released[asset][account];
     }
 
     /**
@@ -120,53 +120,52 @@ contract PaymentSplitter is Context {
      * total shares and their previous withdrawals.
      */
     function release(address payable account) public virtual {
-        release(IERC20(address(0)), account);
-    }
-
-    /**
-     * @dev Triggers a transfer to `account` of the amount of `asset` they are owed, according to their percentage of
-     * the total shares and their previous withdrawals. `asset` can be the as the address of an ERC20 token, or
-     * address(0) for Ether.
-     */
-    function release(IERC20 asset, address payable account) public virtual {
         require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
-        uint256 totalReceived = _getBalance(asset) + totalReleased(asset);
-        uint256 payment = (totalReceived * _shares[account]) / _totalShares - released(asset, account);
+        uint256 payment = _pendingPayment(account, address(this).balance + totalReleased(), released(account));
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
-        if (address(asset) == address(0)) {
-            _released[account] += payment;
-            _totalReleased += payment;
-        } else {
-            _erc20Released[asset][account] += payment;
-            _erc20TotalReleased[asset] += payment;
-        }
+        _released[account] += payment;
+        _totalReleased += payment;
 
-        _sendValue(asset, account, payment);
-
-        if (address(asset) == address(0)) {
-            emit PaymentReleased(account, payment);
-        } else {
-            emit ERC20PaymentReleased(asset, account, payment);
-        }
+        Address.sendValue(account, payment);
+        emit PaymentReleased(account, payment);
     }
 
-    function _getBalance(IERC20 asset) private view returns (uint256) {
-        return address(asset) == address(0) ? address(this).balance : asset.balanceOf(address(this));
+    /**
+     * @dev Triggers a transfer to `account` of the amount of `asset` tokens they are owed, according to their
+     * percentage of the total shares and their previous withdrawals. `asset` must be the address of an IERC20
+     * contract.
+     */
+    function release(IERC20 asset, address account) public virtual {
+        require(_shares[account] > 0, "PaymentSplitter: account has no shares");
+
+        uint256 payment = _pendingPayment(
+            account,
+            asset.balanceOf(address(this)) + totalReleased(asset),
+            released(asset, account)
+        );
+
+        require(payment != 0, "PaymentSplitter: account is not due payment");
+
+        _erc20Released[asset][account] += payment;
+        _erc20TotalReleased[asset] += payment;
+
+        SafeERC20.safeTransfer(asset, account, payment);
+        emit ERC20PaymentReleased(asset, account, payment);
     }
 
-    function _sendValue(
-        IERC20 asset,
-        address payable to,
-        uint256 amount
-    ) private {
-        if (address(asset) == address(0)) {
-            Address.sendValue(to, amount);
-        } else {
-            SafeERC20.safeTransfer(asset, to, amount);
-        }
+    /**
+     * @dev internal logic for computing the pending payment of an `account` given the asset historical balances and
+     * already released amounts.
+     */
+    function _pendingPayment(
+        address account,
+        uint256 totalReceived,
+        uint256 assetReleased
+    ) private view returns (uint256) {
+        return ((totalReceived) * _shares[account]) / _totalShares - assetReleased;
     }
 
     /**
