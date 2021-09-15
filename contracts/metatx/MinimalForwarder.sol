@@ -51,7 +51,7 @@ contract MinimalForwarder is EIP712 {
         );
         // Validate that the relayer has sent enough gas for the call.
         // See https://ronan.eth.link/blog/ethereum-gas-dangers/
-        assert(gasleft() > req.gas / 63);
+        require(gasleft() > req.gas / 63, "MinimalForwarder: the relayer has not sent enough gas for the call");
 
         return (success, returndata);
     }
