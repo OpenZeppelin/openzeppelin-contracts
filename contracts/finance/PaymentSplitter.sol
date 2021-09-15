@@ -154,12 +154,14 @@ contract PaymentSplitter is Context {
     }
 
     function _getBalance(IERC20 asset) private view returns (uint256) {
-        return address(asset) == address(0)
-            ? address(this).balance
-            : asset.balanceOf(address(this));
+        return address(asset) == address(0) ? address(this).balance : asset.balanceOf(address(this));
     }
 
-    function _sendValue(IERC20 asset, address payable to, uint256 amount) private {
+    function _sendValue(
+        IERC20 asset,
+        address payable to,
+        uint256 amount
+    ) private {
         if (address(asset) == address(0)) {
             Address.sendValue(to, amount);
         } else {
