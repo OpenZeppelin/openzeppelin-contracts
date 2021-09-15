@@ -22,7 +22,7 @@ import "../utils/Context.sol";
 contract PaymentSplitter is Context {
     event PayeeAdded(address account, uint256 shares);
     event PaymentReleased(address to, uint256 amount);
-    event ERC20PaymentReleased(IERC20 indexed asset, address to, uint256 amount);
+    event ERC20PaymentReleased(IERC20 indexed token, address to, uint256 amount);
     event PaymentReceived(address from, uint256 amount);
 
     uint256 private _totalShares;
@@ -79,11 +79,11 @@ contract PaymentSplitter is Context {
     }
 
     /**
-     * @dev Getter for the total amount of `asset` already released. `asset` should be the address of an IERC20
+     * @dev Getter for the total amount of `token` already released. `token` should be the address of an IERC20
      * contract.
      */
-    function totalReleased(IERC20 asset) public view returns (uint256) {
-        return _erc20TotalReleased[asset];
+    function totalReleased(IERC20 token) public view returns (uint256) {
+        return _erc20TotalReleased[token];
     }
 
     /**
@@ -101,11 +101,11 @@ contract PaymentSplitter is Context {
     }
 
     /**
-     * @dev Getter for the amount of `asset` tokens already released to a payee. `asset` should be the address of an
+     * @dev Getter for the amount of `token` tokens already released to a payee. `token` should be the address of an
      * IERC20 contract.
      */
-    function released(IERC20 asset, address account) public view returns (uint256) {
-        return _erc20Released[asset][account];
+    function released(IERC20 token, address account) public view returns (uint256) {
+        return _erc20Released[token][account];
     }
 
     /**
@@ -122,7 +122,8 @@ contract PaymentSplitter is Context {
     function release(address payable account) public virtual {
         require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
-        uint256 payment = _pendingPayment(account, address(this).balance + totalReleased(), released(account));
+        uint256 totalReceived = address(this).balance + totalReleased();
+        uint256 payment = _pendingPayment(account, totalReceived, released(account));
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
@@ -134,38 +135,35 @@ contract PaymentSplitter is Context {
     }
 
     /**
-     * @dev Triggers a transfer to `account` of the amount of `asset` tokens they are owed, according to their
-     * percentage of the total shares and their previous withdrawals. `asset` must be the address of an IERC20
+     * @dev Triggers a transfer to `account` of the amount of `token` tokens they are owed, according to their
+     * percentage of the total shares and their previous withdrawals. `token` must be the address of an IERC20
      * contract.
      */
-    function release(IERC20 asset, address account) public virtual {
+    function release(IERC20 token, address account) public virtual {
         require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
-        uint256 payment = _pendingPayment(
-            account,
-            asset.balanceOf(address(this)) + totalReleased(asset),
-            released(asset, account)
-        );
+        uint256 totalReceived = token.balanceOf(address(this)) + totalReleased(token);
+        uint256 payment = _pendingPayment(account, totalReceived, released(token, account));
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
-        _erc20Released[asset][account] += payment;
-        _erc20TotalReleased[asset] += payment;
+        _erc20Released[token][account] += payment;
+        _erc20TotalReleased[token] += payment;
 
-        SafeERC20.safeTransfer(asset, account, payment);
-        emit ERC20PaymentReleased(asset, account, payment);
+        SafeERC20.safeTransfer(token, account, payment);
+        emit ERC20PaymentReleased(token, account, payment);
     }
 
     /**
-     * @dev internal logic for computing the pending payment of an `account` given the asset historical balances and
+     * @dev internal logic for computing the pending payment of an `account` given the token historical balances and
      * already released amounts.
      */
     function _pendingPayment(
         address account,
         uint256 totalReceived,
-        uint256 assetReleased
+        uint256 alreadyReleased
     ) private view returns (uint256) {
-        return ((totalReceived) * _shares[account]) / _totalShares - assetReleased;
+        return (totalReceived * _shares[account]) / _totalShares - alreadyReleased;
     }
 
     /**

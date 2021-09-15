@@ -164,7 +164,7 @@ contract('PaymentSplitter', function (accounts) {
         expectEvent(
           await this.contract.release(this.token.address, payee1),
           'ERC20PaymentReleased',
-          { asset: this.token.address, to: payee1, amount: ether('0.20') },
+          { token: this.token.address, to: payee1, amount: ether('0.20') },
         );
 
         await this.token.transfer(this.contract.address, amount, { from: owner });
@@ -172,19 +172,19 @@ contract('PaymentSplitter', function (accounts) {
         expectEvent(
           await this.contract.release(this.token.address, payee1),
           'ERC20PaymentReleased',
-          { asset: this.token.address, to: payee1, amount: ether('0.20') },
+          { token: this.token.address, to: payee1, amount: ether('0.20') },
         );
 
         expectEvent(
           await this.contract.release(this.token.address, payee2),
           'ERC20PaymentReleased',
-          { asset: this.token.address, to: payee2, amount: ether('0.20') },
+          { token: this.token.address, to: payee2, amount: ether('0.20') },
         );
 
         expectEvent(
           await this.contract.release(this.token.address, payee3),
           'ERC20PaymentReleased',
-          { asset: this.token.address, to: payee3, amount: ether('1.40') },
+          { token: this.token.address, to: payee3, amount: ether('1.40') },
         );
 
         expect(await this.token.balanceOf(payee1)).to.be.bignumber.equal(ether('0.40'));
