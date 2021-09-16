@@ -200,5 +200,9 @@ contract('ECDSA', function (accounts) {
     it('prefixes hashes correctly', async function () {
       expect(await this.ecdsa.toEthSignedMessageHash(TEST_MESSAGE)).to.equal(toEthSignedMessageHash(TEST_MESSAGE));
     });
+
+    it('prefixes byte strings correctly', async function () {
+      expect(await this.ecdsa.toEthSignedMessage(TEST_MESSAGE)).to.equal(toEthSignedMessageHash(TEST_MESSAGE));
+    });
   });
 });
