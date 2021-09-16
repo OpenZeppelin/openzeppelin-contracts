@@ -111,7 +111,7 @@ contract('PaymentSplitter', function (accounts) {
           );
         });
         it('reverts if non-payee want to claim', async function () {
-          await send.ether(payer1, this.contract.address, amount);
+          await this.token.transfer(this.contract.address, amount, { from: owner });
           await expectRevert(this.contract.release(this.token.address, nonpayee1),
             'PaymentSplitter: account has no shares',
           );
