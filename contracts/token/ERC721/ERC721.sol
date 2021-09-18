@@ -135,8 +135,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function setApprovalForAll(address operator, bool approved) public virtual override {
         require(operator != _msgSender(), "ERC721: approve to caller");
 
-        _operatorApprovals[_msgSender()][operator] = approved;
-        emit ApprovalForAll(_msgSender(), operator, approved);
+        _setOperatorApproval(_msgSender(), operator, approved);
     }
 
     /**
@@ -354,6 +353,20 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
         emit Approval(ERC721.ownerOf(tokenId), to, tokenId);
+    }
+
+    /**
+     * @dev Approve or revoke approval from `operator` to operate on all tokens owned by `owner`
+     *
+     * Emits a {ApprovalForAll} event.
+     */
+    function _setOperatorApproval(
+        address owner,
+        address operator,
+        bool approved
+    ) internal virtual {
+        _operatorApprovals[owner][operator] = approved;
+        emit ApprovalForAll(owner, operator, approved);
     }
 
     /**
