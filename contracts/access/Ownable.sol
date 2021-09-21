@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./IERC173.sol";
 import "../utils/Context.sol";
+import "../utils/introspection/ERC165.sol";
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -17,7 +18,7 @@ import "../utils/Context.sol";
  * `onlyOwner`, which can be applied to your functions to restrict their use to
  * the owner.
  */
-abstract contract Ownable is Context, IERC173 {
+abstract contract Ownable is Context, ERC165, IERC173 {
     address private _owner;
 
     /**
@@ -25,6 +26,13 @@ abstract contract Ownable is Context, IERC173 {
      */
     constructor() {
         _transferOwnership(_msgSender());
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return interfaceId == type(IERC173).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
