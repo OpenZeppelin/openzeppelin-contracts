@@ -15,14 +15,14 @@ ghost proposalCanceled(uint256) returns bool {
     init_state axiom forall uint256 pId. !proposalCanceled(pId);
 }
 
-hook Sstore _proposals[KEY uint256 pId].(offset 0) uint64 newValue STORAGE {
+hook Sstore _proposals[KEY uint256 pId].(offset 0).(offset 0) uint64 newValue STORAGE {
     havoc proposalVoteStart assuming (
         proposalVoteStart@new(pId) == newValue
         && (forall uint256 pId2. pId != pId2 => proposalVoteStart@new(pId2) == proposalVoteStart@old(pId2))
     );
 }
 
-hook Sload uint64 value _proposals[KEY uint256 pId].(offset 0) STORAGE {
+hook Sload uint64 value _proposals[KEY uint256 pId].(offset 0).(offset 0) STORAGE {
     require proposalVoteStart(pId) == value;
 }
 
