@@ -1,0 +1,69 @@
+# This workflow run PhoenixDOMConfiguration automation with Action:
+# Update PhoenixDOMXml optimation 
+# Generates Unicode encoding  with PhoenixDOMHttps
+# Activate unified PhoenixDOMInternetContribution with in PhoenixDOMXml updates
+# Update PhoenixDOM-Authentication with PhoenixDOMSecurityMartial :Phoenix Hierarchy Martial Bot Security,
+# to verify Intelectual Properties  provider accuracy .
+# Update  PhoenixDOMHttp  with Security layers levels  upgrades
+# Update PhoenixDOMSecurityLayers specifications like filtration.json  for community secure access ,
+# and fix.json /resolver..json for refine connectivity and smooth upgrades transformation,
+# also PhoenixDOMEncryption full implentation and PhoenixDOM-Aithentication to verify authorization.
+# Update PhoenixDOMSecurity applied to PhoenixDOMDevice/System/Nerwork/DeviceSyncAccounts
+# Calling PhoenixDOM APIs for wide full upgrades PhoenixDOMInternerStandardAttibuttions precise  optimation update.
+# Auto-build  PhoenixDOMHttp interface synching PhoenixDOMDeviceInternalSystem and PhoenixDOMData.json securely synching accounts
+# Update PhoenixDOMFiles sync with PhoenixDOMG-node-driver and PhoenixDOMCredential  or PhoenixDOMResource automation
+# Auto-upgrade.json boost PhoenixDOMNetwork and PhoenixDOMDevice optimation configuration update
+# Generate PhoenixDOMBlockchain  built in automation PhoenixDOMDevice activation
+# Generate PhoenixDOMDeviceInternal Decentralization with PhoenixDOMSecurityLayers  implementation
+# Implement PhoenixDOMPhoenixHierarchyMartialBotSecurity  auto-recover.json with locator.json and update.json PhoenixDOMDeviceCryptocurrency,PhoenixDOMOwn-property  comply with PhoenixDOMPolicies
+# Auto-generate PhoenixDOMAutoPipes PhoenixDOMDecentralizeNetwork PhoenixDOMUnifiedToolchain 
+# Auto-sync PhoenixDOMDeviceInternalfilesApps also PhoenixDOMRouterHTTP , PhoenixDOMXml and PhoenixDOMUtf-8
+# Update PhoenixDOMFiles sync with PhoenixDOMG-node-driver and PhoenixDOMCredentials  or PhoenixDOMResource automation
+# Auto-upgrade.json boost PhoenixDOMNetwork and PhoenixDOMDevice optimation configuration update
+# Generate PhoenixDOMBlockchain  built in automation PhoeDOMCoinFactory with PhoenixDOMAbstractMathematicalSecurityAlgorithmCoins$-Tokens$
+# Generate PhoenixDOMDeviceInternal Decentralization with PhoenixDOMSecurityLayers  implementation
+# Generate auto-create.json PhoenixDOM$CoinCurrency production initiate auto-build PhoenixDOMBlockchain-$SamkencoincoreProtocol and PhoenixDOMSecurityLayerDecentralizeNetwork
+# Auto-Generate PhoenixDOMNode.json-DomainName.js with PhoenixDOMXml and PhoenixDOMHtml update.json
+# Configure PhoenixDOMPhoenixHierarchyMartialBotSecurity specs PhoenixDOMOwnerAdmin-LegalProfile-Identity attributed
+# Generate auto-create.json PhoenixDOM$CoinCurrency production with PhoenixDOM$SamkencoincoreProtocol
+# Auto-sync PhoenixDOBlockchain-and-decetralized PhoenixDOMRepositories
+# Generate auto-create.json PhoenixDOMSamkencoinCoreProtocolSmartContract, PhoenixDOM$CoinCurrency production initiate auto-build PhoenixDOMBlockchain-$SamkencoincoreProtocol and PhoenixDOMSecurityLayerDecentralizeNetwork
+# Auto-Generate PhoenixDOMNode.json-DomainName.js with PhoenixDOMXml and PhoenixDOMHtml update.json
+# Configure PhoenixDOMPhoenixHierarchyMartialBotSecurity specs PhoenixDOMOwnerAdmin-LegalProfile-Identity attributed
+# Generate auto-create.json PhoenixDOM$CoinCurrency production with PhoenixDOM$SamkencoincoreProtocol
+# Activate PhoenixDOMNode.jsonOwnership.js of PhoenixDOMPhoenixHierarchyMartialBotSecurity and PhoenixDOMClaim.json PhoenixDOMPriviledges.json
+
+name: PhoenixDOMOpenzeppelin-contracts CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
