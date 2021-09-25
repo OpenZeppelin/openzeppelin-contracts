@@ -87,7 +87,7 @@ library Base64 {
             }
 
             // When data `bytes` is not exactly 3 bytes long
-            // it is padded with `=` characters at the beginning
+            // it is padded with `=` characters at the end
             switch mod(mload(data), 3)
             case 1 {
                 mstore(sub(resultPtr, 2), shl(240, 0x3d3d))
