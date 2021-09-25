@@ -2,6 +2,7 @@
 methods {
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
 }
+
 ghost proposalVoteStart(uint256) returns uint64 {
     init_state axiom forall uint256 pId. proposalVoteStart(pId) == 0;
 }
@@ -15,27 +16,27 @@ ghost proposalCanceled(uint256) returns bool {
     init_state axiom forall uint256 pId. !proposalCanceled(pId);
 }
 
-hook Sstore _proposals[KEY uint256 pId].(offset 0).(offset 0) uint64 newValue STORAGE {
+hook Sstore _proposals[KEY uint256 pId] uint64 newValue STORAGE {
     havoc proposalVoteStart assuming (
-        proposalVoteStart@new(pId) == newValue
+        proposalVoteStart@new(pId) == newValue & (max_uint64-1)
         && (forall uint256 pId2. pId != pId2 => proposalVoteStart@new(pId2) == proposalVoteStart@old(pId2))
     );
 }
 
-hook Sload uint64 value _proposals[KEY uint256 pId].(offset 0).(offset 0) STORAGE {
-    require proposalVoteStart(pId) == value;
+hook Sload uint64 value _proposals[KEY uint256 pId] STORAGE {
+    require proposalVoteStart(pId) == value & (max_uint64-1);
 }
 
 
 hook Sstore _proposals[KEY uint256 pId].(offset 32).(offset 0) uint64 newValue STORAGE {
     havoc proposalVoteEnd assuming (
-        proposalVoteEnd@new(pId) == newValue
+        proposalVoteEnd@new(pId) == newValue & (max_uint64-1)
         && (forall uint256 pId2. pId != pId2 => proposalVoteEnd@new(pId2) == proposalVoteEnd@old(pId2))
     );
 }
 
 hook Sload uint64 value _proposals[KEY uint256 pId].(offset 32).(offset 0) STORAGE {
-    require proposalVoteEnd(pId) == value;
+    require proposalVoteEnd(pId) == value & (max_uint64-1);
 }
 
 rule sanityCheckVoteStart(method f, uint256 pId) {
