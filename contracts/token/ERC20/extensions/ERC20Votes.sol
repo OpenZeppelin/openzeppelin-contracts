@@ -134,7 +134,7 @@ abstract contract ERC20Votes is ERC20Permit {
      * @dev Delegate votes from the sender to `delegatee`.
      */
     function delegate(address delegatee) public virtual {
-        return _delegate(_msgSender(), delegatee);
+        _delegate(_msgSender(), delegatee);
     }
 
     /**
@@ -156,7 +156,7 @@ abstract contract ERC20Votes is ERC20Permit {
             s
         );
         require(nonce == _useNonce(signer), "ERC20Votes: invalid nonce");
-        return _delegate(signer, delegatee);
+        _delegate(signer, delegatee);
     }
 
     /**
