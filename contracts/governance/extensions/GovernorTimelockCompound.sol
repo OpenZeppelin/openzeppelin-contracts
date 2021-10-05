@@ -47,7 +47,8 @@ interface ICompoundTimelock {
         address target,
         uint256 value,
         string memory signature,
-        bytes memory data,'
+        bytes memory data,
+        uint256 eta
     ) external;
 
     function executeTransaction(
