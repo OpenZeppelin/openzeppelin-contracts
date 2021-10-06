@@ -9,8 +9,8 @@ import "../governance/extensions/GovernorVotesComp.sol";
 
 contract GovernorCompatibilityBravoMock is
     GovernorCompatibilityBravo,
-    GovernorTimelockCompound,
     GovernorSettings,
+    GovernorTimelockCompound,
     GovernorVotesComp
 {
     constructor(

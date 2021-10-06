@@ -8,8 +8,8 @@ import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotesQuorumFraction.sol";
 
 contract GovernorTimelockCompoundMock is
-    GovernorTimelockCompound,
     GovernorSettings,
+    GovernorTimelockCompound,
     GovernorVotesQuorumFraction,
     GovernorCountingSimple
 {
