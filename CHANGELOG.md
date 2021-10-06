@@ -5,9 +5,15 @@
  * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
  * `AccessControl`: add internal `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
  * `AccessControl`: mark `_setupRole(bytes32,address)` as deprecated in favor of `_grantRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
+ * `EIP712`: cache `address(this)` to immutable storage to avoid potential issues if a vanilla contract is used in a delegatecall context. ([#2852](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2852))
+ * Add internal `_setApprovalForAll` to `ERC721` and `ERC1155`. ([#2834](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2834))
  * `PaymentSplitter`: now supports ERC20 assets in addition to Ether. ([#2858](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2858))
 
-## 4.3.1
+## 4.3.2 (2021-09-14)
+
+ * `UUPSUpgradeable`: Add modifiers to prevent `upgradeTo` and `upgradeToAndCall` being executed on any contract that is not the active ERC1967 proxy. This prevents these functions being called on implementation contracts or minimal ERC1167 clones, in particular.
+
+## 4.3.1 (2021-08-26)
 
  * `TimelockController`: Add additional isOperationReady check.
 
