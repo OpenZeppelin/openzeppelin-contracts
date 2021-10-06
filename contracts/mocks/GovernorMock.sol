@@ -20,15 +20,6 @@ contract GovernorMock is GovernorSettings, GovernorVotesQuorumFraction, Governor
         GovernorVotesQuorumFraction(quorumNumerator_)
     {}
 
-    function propose(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        string memory description
-    ) public virtual override(Governor, GovernorProposalThreshold) returns (uint256) {
-        return super.propose(targets, values, calldatas, description);
-    }
-
     function cancel(
         address[] memory targets,
         uint256[] memory values,

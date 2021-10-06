@@ -66,12 +66,7 @@ contract GovernorCompatibilityBravoMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    )
-        public
-        virtual
-        override(IGovernor, Governor, GovernorCompatibilityBravo, GovernorProposalThreshold)
-        returns (uint256)
-    {
+    ) public virtual override(IGovernor, Governor, GovernorCompatibilityBravo) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
 
@@ -133,16 +128,6 @@ contract GovernorCompatibilityBravoMock is
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);
-    }
-
-    function proposalThreshold()
-        public
-        view
-        virtual
-        override(GovernorCompatibilityBravo, GovernorSettings)
-        returns (uint256)
-    {
-        return super.proposalThreshold();
     }
 
     function _executor() internal view virtual override(Governor, GovernorTimelockCompound) returns (address) {

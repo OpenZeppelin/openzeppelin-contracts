@@ -69,15 +69,6 @@ contract GovernorTimelockCompoundMock is
         return super.state(proposalId);
     }
 
-    function propose(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        string memory description
-    ) public virtual override(IGovernor, Governor, GovernorProposalThreshold) returns (uint256) {
-        return super.propose(targets, values, calldatas, description);
-    }
-
     function _execute(
         uint256 proposalId,
         address[] memory targets,

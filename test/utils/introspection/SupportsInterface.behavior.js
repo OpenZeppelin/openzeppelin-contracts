@@ -60,6 +60,7 @@ const INTERFACES = {
     'proposalDeadline(uint256)',
     'votingDelay()',
     'votingPeriod()',
+    'proposalThreshold()',
     'quorum(uint256)',
     'getVotes(address,uint256)',
     'hasVoted(uint256,address)',

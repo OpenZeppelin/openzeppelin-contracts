@@ -2,14 +2,14 @@
 
 pragma solidity ^0.8.0;
 
-import "./GovernorProposalThreshold.sol";
+import "../Governor.sol";
 
 /**
  * @dev Extension of {Governor} for settings updatable through governance.
  *
- * _Available since v4.5._
+ * _Available since v4.4._
  */
-abstract contract GovernorSettings is GovernorProposalThreshold {
+abstract contract GovernorSettings is Governor {
     uint256 private _votingDelay;
     uint256 private _votingPeriod;
     uint256 private _proposalThreshold;
