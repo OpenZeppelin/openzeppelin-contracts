@@ -818,4 +818,125 @@ contract('Governor', function (accounts) {
       );
     });
   });
+
+  describe('Settings update', function () {
+    describe('setVotingDelay', function () {
+      beforeEach(async function () {
+        this.settings = {
+          proposal: [
+            [ this.mock.address ],
+            [ web3.utils.toWei('0') ],
+            [ this.mock.contract.methods.setVotingDelay('0').encodeABI() ],
+            '<proposal description>',
+          ],
+          tokenHolder: owner,
+          voters: [
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
+          ],
+        };
+      });
+      afterEach(async function () {
+        expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
+
+        expectEvent(
+          this.receipts.execute,
+          'VotingDelaySet',
+          { oldVotingDelay: '4', newVotingDelay: '0' },
+        );
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('setVotingPeriod', function () {
+      beforeEach(async function () {
+        this.settings = {
+          proposal: [
+            [ this.mock.address ],
+            [ web3.utils.toWei('0') ],
+            [ this.mock.contract.methods.setVotingPeriod('32').encodeABI() ],
+            '<proposal description>',
+          ],
+          tokenHolder: owner,
+          voters: [
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
+          ],
+        };
+      });
+      afterEach(async function () {
+        expect(await this.mock.votingPeriod()).to.be.bignumber.equal('32');
+
+        expectEvent(
+          this.receipts.execute,
+          'VotingPeriodSet',
+          { oldVotingPeriod: '16', newVotingPeriod: '32' },
+        );
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('setVotingPeriod to low', function () {
+      beforeEach(async function () {
+        this.settings = {
+          proposal: [
+            [ this.mock.address ],
+            [ web3.utils.toWei('0') ],
+            [ this.mock.contract.methods.setVotingPeriod('0').encodeABI() ],
+            '<proposal description>',
+          ],
+          tokenHolder: owner,
+          voters: [
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
+          ],
+          steps: {
+            execute: { error: 'GovernorSettings: value too low' },
+          },
+        };
+      });
+      afterEach(async function () {
+        expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('setProposalThreshold', function () {
+      beforeEach(async function () {
+        this.settings = {
+          proposal: [
+            [ this.mock.address ],
+            [ web3.utils.toWei('0') ],
+            [ this.mock.contract.methods.setProposalThreshold('1000000000000000000').encodeABI() ],
+            '<proposal description>',
+          ],
+          tokenHolder: owner,
+          voters: [
+            { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
+          ],
+        };
+      });
+      afterEach(async function () {
+        expect(await this.mock.proposalThreshold()).to.be.bignumber.equal('1000000000000000000');
+
+        expectEvent(
+          this.receipts.execute,
+          'ProposalThresholdSet',
+          { oldProposalThreshold: '0', newProposalThreshold: '1000000000000000000' },
+        );
+      });
+      runGovernorWorkflow();
+    });
+
+    describe('update protected', function () {
+      it('setVotingDelay', async function () {
+        await expectRevert(this.mock.setVotingDelay('0'), 'Governor: onlyGovernance');
+      });
+
+      it('setVotingPeriod', async function () {
+        await expectRevert(this.mock.setVotingPeriod('32'), 'Governor: onlyGovernance');
+      });
+
+      it('setProposalThreshold', async function () {
+        await expectRevert(this.mock.setProposalThreshold('1000000000000000000'), 'Governor: onlyGovernance');
+      });
+    });
+  });
 });
