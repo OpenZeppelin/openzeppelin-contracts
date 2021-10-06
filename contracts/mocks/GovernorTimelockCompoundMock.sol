@@ -3,13 +3,16 @@
 pragma solidity ^0.8.0;
 
 import "../governance/extensions/GovernorTimelockCompound.sol";
+import "../governance/extensions/GovernorSettings.sol";
 import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotesQuorumFraction.sol";
 
-contract GovernorTimelockCompoundMock is GovernorTimelockCompound, GovernorVotesQuorumFraction, GovernorCountingSimple {
-    uint256 immutable _votingDelay;
-    uint256 immutable _votingPeriod;
-
+contract GovernorTimelockCompoundMock is
+    GovernorTimelockCompound,
+    GovernorSettings,
+    GovernorVotesQuorumFraction,
+    GovernorCountingSimple
+{
     constructor(
         string memory name_,
         ERC20Votes token_,
@@ -20,12 +23,10 @@ contract GovernorTimelockCompoundMock is GovernorTimelockCompound, GovernorVotes
     )
         Governor(name_)
         GovernorTimelockCompound(timelock_)
+        GovernorSettings(votingDelay_, votingPeriod_, 0)
         GovernorVotes(token_)
         GovernorVotesQuorumFraction(quorumNumerator_)
-    {
-        _votingDelay = votingDelay_;
-        _votingPeriod = votingPeriod_;
-    }
+    {}
 
     function supportsInterface(bytes4 interfaceId)
         public
@@ -35,14 +36,6 @@ contract GovernorTimelockCompoundMock is GovernorTimelockCompound, GovernorVotes
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
-    }
-
-    function votingDelay() public view override returns (uint256) {
-        return _votingDelay;
-    }
-
-    function votingPeriod() public view override returns (uint256) {
-        return _votingPeriod;
     }
 
     function quorum(uint256 blockNumber)
@@ -74,6 +67,15 @@ contract GovernorTimelockCompoundMock is GovernorTimelockCompound, GovernorVotes
         returns (ProposalState)
     {
         return super.state(proposalId);
+    }
+
+    function propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description
+    ) public virtual override(IGovernor, Governor, GovernorProposalThreshold) returns (uint256) {
+        return super.propose(targets, values, calldatas, description);
     }
 
     function _execute(

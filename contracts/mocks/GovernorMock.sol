@@ -2,31 +2,31 @@
 
 pragma solidity ^0.8.0;
 
-import "../governance/Governor.sol";
+import "../governance/extensions/GovernorSettings.sol";
 import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotesQuorumFraction.sol";
 
-contract GovernorMock is Governor, GovernorVotesQuorumFraction, GovernorCountingSimple {
-    uint256 immutable _votingDelay;
-    uint256 immutable _votingPeriod;
-
+contract GovernorMock is GovernorSettings, GovernorVotesQuorumFraction, GovernorCountingSimple {
     constructor(
         string memory name_,
         ERC20Votes token_,
         uint256 votingDelay_,
         uint256 votingPeriod_,
         uint256 quorumNumerator_
-    ) Governor(name_) GovernorVotes(token_) GovernorVotesQuorumFraction(quorumNumerator_) {
-        _votingDelay = votingDelay_;
-        _votingPeriod = votingPeriod_;
-    }
+    )
+        Governor(name_)
+        GovernorSettings(votingDelay_, votingPeriod_, 0)
+        GovernorVotes(token_)
+        GovernorVotesQuorumFraction(quorumNumerator_)
+    {}
 
-    function votingDelay() public view override returns (uint256) {
-        return _votingDelay;
-    }
-
-    function votingPeriod() public view override returns (uint256) {
-        return _votingPeriod;
+    function propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description
+    ) public virtual override(Governor, GovernorProposalThreshold) returns (uint256) {
+        return super.propose(targets, values, calldatas, description);
     }
 
     function cancel(
