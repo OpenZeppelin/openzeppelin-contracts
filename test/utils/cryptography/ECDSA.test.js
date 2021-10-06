@@ -208,13 +208,14 @@ contract('ECDSA', function (accounts) {
     });
   });
 
-  context('toEthSignedMessage', function () {
-    it('prefixes hashes correctly', async function () {
-      expect(await this.ecdsa.toEthSignedMessageHash(TEST_MESSAGE)).to.equal(toEthSignedMessageHash(TEST_MESSAGE));
+  context('toEthSignedMessageHash', function () {
+    it('prefixes bytes32 data correctly', async function () {
+      expect(await this.ecdsa.methods['toEthSignedMessageHash(bytes32)'](TEST_MESSAGE))
+        .to.equal(toEthSignedMessageHash(TEST_MESSAGE));
     });
 
-    it('prefixes byte strings correctly', async function () {
-      expect(await this.ecdsa.toEthSignedMessageHash(LONGER_TEST_MESSAGE))
+    it('prefixes dynamic length data correctly', async function () {
+      expect(await this.ecdsa.methods['toEthSignedMessageHash(bytes)'](LONGER_TEST_MESSAGE))
         .to.equal(toEthSignedMessageHash(LONGER_TEST_MESSAGE));
     });
   });
