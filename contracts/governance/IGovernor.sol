@@ -103,13 +103,16 @@ abstract contract IGovernor is IERC165 {
 
     /**
      * @notice module:core
-     * @dev block number used to retrieve user's votes and quorum.
+     * @dev block number used to retrieve user's votes and quorum. As per Compound's Comp and OpenZeppelin's
+     * ERC20Votes, the snapshot is performed at the end of this block. Hence, voting for this proposal start at the
+     * beginning of the following block.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);
 
     /**
      * @notice module:core
-     * @dev timestamp at which votes close.
+     * @dev block number at which votes close. Votes close at the end of this block, so it is possible to cast a vote
+     * during this block.
      */
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
 
