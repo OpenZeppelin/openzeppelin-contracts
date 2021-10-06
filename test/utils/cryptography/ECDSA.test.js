@@ -7,7 +7,7 @@ const ECDSAMock = artifacts.require('ECDSAMock');
 
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
-const LONGER_TEST_MESSAGE = '0x' + Buffer.from('Thousand miles of journey begins with a single step.').toString('hex');
+const NON_HASH_MESSAGE = '0x' + Buffer.from('abcd').toString('hex');
 
 function to2098Format (signature) {
   const long = web3.utils.hexToBytes(signature);
@@ -85,13 +85,13 @@ contract('ECDSA', function (accounts) {
         )).to.equal(other);
       });
 
-      it('returns signer address with correct signature for bytes type', async function () {
+      it('returns signer address with correct signature for arbitrary length message', async function () {
         // Create the signature
-        const signature = await web3.eth.sign(LONGER_TEST_MESSAGE, other);
+        const signature = await web3.eth.sign(NON_HASH_MESSAGE, other);
 
         // Recover the signer address from the generated message and signature.
         expect(await this.ecdsa.recover(
-          toEthSignedMessageHash(LONGER_TEST_MESSAGE),
+          toEthSignedMessageHash(NON_HASH_MESSAGE),
           signature,
         )).to.equal(other);
       });
@@ -215,8 +215,8 @@ contract('ECDSA', function (accounts) {
     });
 
     it('prefixes dynamic length data correctly', async function () {
-      expect(await this.ecdsa.methods['toEthSignedMessageHash(bytes)'](LONGER_TEST_MESSAGE))
-        .to.equal(toEthSignedMessageHash(LONGER_TEST_MESSAGE));
+      expect(await this.ecdsa.methods['toEthSignedMessageHash(bytes)'](NON_HASH_MESSAGE))
+        .to.equal(toEthSignedMessageHash(NON_HASH_MESSAGE));
     });
   });
 });
