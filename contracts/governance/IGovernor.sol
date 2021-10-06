@@ -103,31 +103,31 @@ abstract contract IGovernor is IERC165 {
 
     /**
      * @notice module:core
-     * @dev block number used to retrieve user's votes and quorum. As per Compound's Comp and OpenZeppelin's
-     * ERC20Votes, the snapshot is performed at the end of this block. Hence, voting for this proposal start at the
+     * @dev Block number used to retrieve user's votes and quorum. As per Compound's Comp and OpenZeppelin's
+     * ERC20Votes, the snapshot is performed at the end of this block. Hence, voting for this proposal starts at the
      * beginning of the following block.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);
 
     /**
      * @notice module:core
-     * @dev block number at which votes close. Votes close at the end of this block, so it is possible to cast a vote
+     * @dev Block number at which votes close. Votes close at the end of this block, so it is possible to cast a vote
      * during this block.
      */
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
 
     /**
      * @notice module:user-config
-     * @dev delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
+     * @dev Delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
      * leave time for users to buy voting power, of delegate it, before the voting of a proposal starts.
      */
     function votingDelay() public view virtual returns (uint256);
 
     /**
      * @notice module:user-config
-     * @dev delay, in number of blocks, between the vote start and vote ends.
+     * @dev Delay, in number of blocks, between the vote start and vote ends.
      *
-     * Note: the {votingDelay} can delay the start of the vote. This must be considered when setting the voting
+     * NOTE: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
      */
     function votingPeriod() public view virtual returns (uint256);
