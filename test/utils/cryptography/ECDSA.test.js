@@ -7,6 +7,7 @@ const ECDSAMock = artifacts.require('ECDSAMock');
 
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
+const LONGER_TEST_MESSAGE = '0x' + Buffer.from('Thousand miles of journey begins with a single step.').toString('hex');
 
 function to2098Format (signature) {
   const long = web3.utils.hexToBytes(signature);
@@ -202,7 +203,8 @@ contract('ECDSA', function (accounts) {
     });
 
     it('prefixes byte strings correctly', async function () {
-      expect(await this.ecdsa.toEthSignedMessage(TEST_MESSAGE)).to.equal(toEthSignedMessageHash(TEST_MESSAGE));
+      expect(await this.ecdsa.toEthSignedMessage(LONGER_TEST_MESSAGE))
+        .to.equal(toEthSignedMessageHash(LONGER_TEST_MESSAGE));
     });
   });
 });
