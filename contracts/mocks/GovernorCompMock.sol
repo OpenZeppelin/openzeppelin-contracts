@@ -20,8 +20,6 @@ contract GovernorCompMock is Governor, GovernorVotesComp, GovernorCountingSimple
         _votingPeriod = votingPeriod_;
     }
 
-    receive() external payable {}
-
     function votingDelay() public view override returns (uint256) {
         return _votingDelay;
     }
