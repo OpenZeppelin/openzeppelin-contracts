@@ -85,6 +85,17 @@ contract('ECDSA', function (accounts) {
         )).to.equal(other);
       });
 
+      it('returns signer address with correct signature for bytes type', async function () {
+        // Create the signature
+        const signature = await web3.eth.sign(LONGER_TEST_MESSAGE, other);
+
+        // Recover the signer address from the generated message and signature.
+        expect(await this.ecdsa.recover(
+          toEthSignedMessageHash(LONGER_TEST_MESSAGE),
+          signature,
+        )).to.equal(other);
+      });
+
       it('returns a different address', async function () {
         const signature = await web3.eth.sign(TEST_MESSAGE, other);
         expect(await this.ecdsa.recover(WRONG_MESSAGE, signature)).to.not.equal(other);
@@ -203,7 +214,7 @@ contract('ECDSA', function (accounts) {
     });
 
     it('prefixes byte strings correctly', async function () {
-      expect(await this.ecdsa.toEthSignedMessage(LONGER_TEST_MESSAGE))
+      expect(await this.ecdsa.toEthSignedMessageHash(LONGER_TEST_MESSAGE))
         .to.equal(toEthSignedMessageHash(LONGER_TEST_MESSAGE));
     });
   });

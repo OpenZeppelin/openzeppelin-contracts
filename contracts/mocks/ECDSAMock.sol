@@ -35,7 +35,7 @@ contract ECDSAMock {
         return hash.toEthSignedMessageHash();
     }
 
-    function toEthSignedMessage(bytes memory s) public pure returns (bytes32) {
-        return s.toEthSignedMessage();
+    function toEthSignedMessageHash(bytes memory s) public pure returns (bytes32) {
+        return s.toEthSignedMessageHash();
     }
 }
