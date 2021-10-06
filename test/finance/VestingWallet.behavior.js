@@ -20,10 +20,15 @@ function shouldBehaveLikeVesting (beneficiary) {
     {
       const receipt = await this.mock.release(...args);
 
-      await expectEvent.inTransaction(receipt.tx, this.mock, 'TokensReleased', {
-        token: this.token ? this.token.address : constants.ZERO_ADDRESS,
-        amount: '0',
-      });
+      await expectEvent.inTransaction(
+        receipt.tx,
+        this.mock,
+        this.token ? 'ERC20TokensReleased' : 'TokensReleased',
+        Object.fromEntries(Object.entries({
+          token: this.token && this.token.address,
+          amount: '0',
+        }).filter(x => x.every(Boolean))),
+      );
 
       await this.checkRelease(receipt, beneficiary, '0');
 
@@ -40,10 +45,15 @@ function shouldBehaveLikeVesting (beneficiary) {
 
       const receipt = await this.mock.release(...args);
 
-      await expectEvent.inTransaction(receipt.tx, this.mock, 'TokensReleased', {
-        token: this.token ? this.token.address : constants.ZERO_ADDRESS,
-        amount: vested.sub(released),
-      });
+      await expectEvent.inTransaction(
+        receipt.tx,
+        this.mock,
+        this.token ? 'ERC20TokensReleased' : 'TokensReleased',
+        Object.fromEntries(Object.entries({
+          token: this.token && this.token.address,
+          amount: vested.sub(released),
+        }).filter(x => x.every(Boolean))),
+      );
 
       await this.checkRelease(receipt, beneficiary, vested.sub(released));
 
