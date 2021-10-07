@@ -100,10 +100,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * @dev See {IERC1155-setApprovalForAll}.
      */
     function setApprovalForAll(address operator, bool approved) public virtual override {
-        require(_msgSender() != operator, "ERC1155: setting approval status for self");
-
-        _operatorApprovals[_msgSender()][operator] = approved;
-        emit ApprovalForAll(_msgSender(), operator, approved);
+        _setApprovalForAll(_msgSender(), operator, approved);
     }
 
     /**
@@ -367,6 +364,21 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         }
 
         emit TransferBatch(operator, from, address(0), ids, amounts);
+    }
+
+    /**
+     * @dev Approve `operator` to operate on all of `owner` tokens
+     *
+     * Emits a {ApprovalForAll} event.
+     */
+    function _setApprovalForAll(
+        address owner,
+        address operator,
+        bool approved
+    ) internal virtual {
+        require(owner != operator, "ERC1155: setting approval status for self");
+        _operatorApprovals[owner][operator] = approved;
+        emit ApprovalForAll(owner, operator, approved);
     }
 
     /**
