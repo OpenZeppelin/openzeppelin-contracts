@@ -115,9 +115,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
             return ProposalState.Executed;
         } else if (proposal.canceled) {
             return ProposalState.Canceled;
-        } else if (proposal.voteStart.isPending()) {
+        } else if (proposal.voteStart.getDeadline() >= block.number) {
             return ProposalState.Pending;
-        } else if (proposal.voteEnd.isPending()) {
+        } else if (proposal.voteEnd.getDeadline() >= block.number) {
             return ProposalState.Active;
         } else if (proposal.voteEnd.isExpired()) {
             return
