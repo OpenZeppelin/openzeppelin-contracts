@@ -1,6 +1,11 @@
 // Governor.sol base definitions
 methods {
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
+    hashProposal(address[],uint256[],bytes[],bytes32) returns uint256 envfree
+
+    // internal functions made public in harness:
+    _quorumReached(uint256) returns bool envfree
+    _voteSucceeded(uint256) returns bool envfree
 }
 
 ghost proposalVoteStart(uint256) returns uint64 {
@@ -80,3 +85,68 @@ invariant voteStartBeforeVoteEnd(uint256 pId) proposalVoteStart(pId) < proposalV
  * A proposal cannot be both executed and canceled.
  */
 invariant noBothExecutedAndCanceled(uint256 pId) !proposalExecuted(pId) || !proposalCanceled(pId)
+
+/**
+ * A proposal cannot be executed nor canceled before it starts
+ */
+invariant noExecuteOrCancelBeforeStarting(env e, uint256 pId) e.block.timestamp < proposalVoteStart(pId) => !proposalExecuted(pId) && !proposalCanceled(pId)
+
+/**
+ * The voting must start not before the proposal’s creation time
+ */
+rule noStartBeforeCreation(uint256 pId) {
+    uint previousStart = proposalVoteStart(pId);
+    require previousStart == 0;
+    env e;
+    calldataarg arg;
+    propose(e, arg);
+
+    uint newStart = proposalVoteStart(pId);
+    // if created, start is after creation
+    assert newStart != 0 => newStart > e.block.timestamp;
+}
+
+/**
+ * Check hashProposal hashing is reliable (different inputs lead to different buffers hashed)
+ */
+rule checkHashProposal {
+    address[] t1;
+    address[] t2;
+    uint256[] v1;
+    uint256[] v2;
+    bytes[] c1;
+    bytes[] c2;
+    bytes32 d1;
+    bytes32 d2;
+
+    uint256 h1 = hashProposal(t1,v1,c1,d1);
+    uint256 h2 = hashProposal(t2,v2,c2,d2);
+    bool equalHashes = h1 == h2;
+    assert equalHashes => t1.length == t2.length;
+    assert equalHashes => v1.length == v2.length;
+    assert equalHashes => c1.length == c2.length;
+    assert equalHashes => d1 == d2;
+}
+
+/**
+ * A proposal could be executed only if quorum was reached and vote succeeded
+ */
+invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId) proposalExecuted(pId) => _quorumReached(pId) && _voteSucceeded(pId)
+
+/**
+ * Once a proposal is created, voteStart and voteEnd are immutable
+ */
+rule immutableFieldsAfterProposalCreation(uint256 pId, method f) {
+    uint _voteStart = proposalVoteStart(pId);
+    uint _voteEnd = proposalVoteEnd(pId);
+    require _voteStart > 0; // proposal was created
+
+    env e;
+    calldataarg arg;
+    f(e, arg);
+
+    uint voteStart_ = proposalVoteStart(pId);
+    uint voteEnd_ = proposalVoteEnd(pId);
+    assert _voteStart == voteStart_;
+    assert _voteEnd == voteEnd_;
+}
