@@ -1,4 +1,4 @@
-const { constants, expectEvent } = require('@openzeppelin/test-helpers');
+const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 function shouldBehaveLikeVesting (beneficiary) {

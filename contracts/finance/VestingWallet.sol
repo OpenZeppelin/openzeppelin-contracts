@@ -117,7 +117,7 @@ contract VestingWallet is Context {
             return 0;
         } else {
             uint256 historicalBalance = address(this).balance + released();
-            return Math.min(historicalBalance, historicalBalance * (timestamp - start()) / duration());
+            return Math.min(historicalBalance, (historicalBalance * (timestamp - start())) / duration());
         }
     }
 
@@ -129,7 +129,7 @@ contract VestingWallet is Context {
             return 0;
         } else {
             uint256 historicalBalance = IERC20(token).balanceOf(address(this)) + released(token);
-            return Math.min(historicalBalance, historicalBalance * (timestamp - start()) / duration());
+            return Math.min(historicalBalance, (historicalBalance * (timestamp - start())) / duration());
         }
     }
 }
