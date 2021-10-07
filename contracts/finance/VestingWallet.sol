@@ -26,11 +26,6 @@ contract VestingWallet is Context {
     uint256 private immutable _start;
     uint256 private immutable _duration;
 
-    modifier onlyBeneficiary() {
-        require(beneficiary() == _msgSender(), "VestingWallet: access restricted to beneficiary");
-        _;
-    }
-
     /**
      * @dev Set the beneficiary, start timestamp and vesting duration of the vesting wallet.
      */
