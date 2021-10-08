@@ -105,7 +105,7 @@ xref:api:utils.adoc#Base64[`Base64`] util allows you to transform `bytes32` data
 
 This is specially useful to build URL-safe tokenURIs for both xref:api:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-[`ERC721`] or xref:api:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`ERC1155`]. This library provides a clever way to serve URL-safe https://developer.mozilla.org/docs/Web/HTTP/Basics_of_HTTP/Data_URIs/[Data URI] compliant strings to serve on-chain data structures.
 
-Consider this is an example to send JSON Metadata through in a Base64 Data URI using an ERC721:
+Consider this is an example to send JSON Metadata through a Base64 Data URI using an ERC721:
 
 [source, solidity]
 ----
