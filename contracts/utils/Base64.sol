@@ -6,17 +6,19 @@ pragma solidity ^0.8.0;
  * @dev Provides a set of functions to operate with Base64 strings.
  */
 library Base64 {
-  /**
-   * @dev Base64 Encoding/Decoding Table
-   */
+    /**
+     * @dev Base64 Encoding/Decoding Table
+     */
     string internal constant _TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     /**
      * @dev Converts a `bytes` to its Bytes64 `string` representation.
-     * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
-     * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
      */
     function encode(bytes memory data) internal pure returns (string memory) {
+        /**
+         * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
+         * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
+         */
         if (data.length == 0) return "";
 
         // Loads the table into memory
@@ -25,7 +27,7 @@ library Base64 {
         // Encoding takes 3 bytes chunks of binary data from `bytes` data parameter
         // and split into 4 numbers of 6 bits.
         // The final Base64 length should be `bytes` data length multiplied by 4/3 rounded up
-        // - `data.length + 2`  -> Round up 
+        // - `data.length + 2`  -> Round up
         // - `/ 3`              -> Number of 3-bytes chunks
         // - `4 *`              -> 4 characters for each chunk
         uint256 encodedLen = 4 * ((data.length + 2) / 3);
@@ -48,7 +50,11 @@ library Base64 {
             let resultPtr := add(result, 32)
 
             // Run over the input, 3 bytes at a time
-            for { } lt(dataPtr, endPtr) { } {
+            for {
+
+            } lt(dataPtr, endPtr) {
+
+            } {
                 // Advance 3 bytes
                 dataPtr := add(dataPtr, 3)
                 let input := mload(dataPtr)
@@ -61,28 +67,16 @@ library Base64 {
                 // and finally write it in the result pointer but with a left shift
                 // of 256 (1 byte) - 8 (1 ASCII char) = 248 bits
 
-                mstore(
-                  resultPtr, 
-                  shl(248, mload(add(tablePtr, and(shr(18, input), 0x3F))))
-                )
+                mstore(resultPtr, shl(248, mload(add(tablePtr, and(shr(18, input), 0x3F)))))
                 resultPtr := add(resultPtr, 1) // Advance
-                
-                mstore(
-                  resultPtr, 
-                  shl(248, mload(add(tablePtr, and(shr(12, input), 0x3F))))
-                )
+
+                mstore(resultPtr, shl(248, mload(add(tablePtr, and(shr(12, input), 0x3F)))))
                 resultPtr := add(resultPtr, 1) // Advance
-                
-                mstore(
-                  resultPtr,
-                  shl(248, mload(add(tablePtr, and(shr(6, input), 0x3F))))
-                )
+
+                mstore(resultPtr, shl(248, mload(add(tablePtr, and(shr(6, input), 0x3F)))))
                 resultPtr := add(resultPtr, 1) // Advance
-                
-                mstore(
-                  resultPtr,
-                  shl(248, mload(add(tablePtr, and(input, 0x3F))))
-                )
+
+                mstore(resultPtr, shl(248, mload(add(tablePtr, and(input, 0x3F)))))
                 resultPtr := add(resultPtr, 1) // Advance
             }
 
