@@ -9,7 +9,8 @@
  * Add internal `_setApprovalForAll` to `ERC721` and `ERC1155`. ([#2834](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2834))
  * `Governor`: shift vote start and end by one block to better match Compound's GovernorBravo and prevent voting at the Governor level if the voting snapshot is not ready. ([#2892](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2892))
  * `PaymentSplitter`: now supports ERC20 assets in addition to Ether. ([#2858](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2858))
-
+ * `Base64`: add a library to parse bytes into base64 strings using `encode(bytes memory)` function, and provide examples to show how to use to build URL-safe `tokenURIs` ([#2884](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2884))
+ 
 ## 4.3.2 (2021-09-14)
 
  * `UUPSUpgradeable`: Add modifiers to prevent `upgradeTo` and `upgradeToAndCall` being executed on any contract that is not the active ERC1967 proxy. This prevents these functions being called on implementation contracts or minimal ERC1167 clones, in particular.
