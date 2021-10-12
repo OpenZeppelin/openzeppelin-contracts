@@ -559,6 +559,10 @@ contract('Governor', function (accounts) {
 
         await time.advanceBlockTo(this.snapshot);
 
+        expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Pending);
+
+        await time.advanceBlock();
+
         expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
       });
       runGovernorWorkflow();
