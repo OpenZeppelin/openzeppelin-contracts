@@ -29,11 +29,16 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns the rebuilt hash of nodes obtained by traversing a Merklee
-     * tree up from `leaf` using `proof`. If `proof` is valid, in the sense
-     * that it contains the hashes of the siblings on the branch from the leaf to
-     * the root, then this will return the hash of the root of the tree. In
-     * processing the proof we assume the pairs of leafs & pre-images are sorted.
+     * @dev Returns the rebuilt hash obtained by traversing a Merklee tree up
+     * from `leaf` using `proof`, and an index uniquelly identifying the leaf
+     * location in the tree. A `proof` is valid if and only if the rebuilt hash
+     * matches the root of the tree. When processing the proof, the pairs of
+     * leafs & pre-images are assumed to be sorted.
+     * The produced index is unique in the sens that processing two valid proofs
+     * will return the same indices if and only if the leaf at the same location
+     * in the tree. This helps distinguishing two leaves that have the same
+     * bytes32 identifier but are present in different locations in the merkle
+     * tree.
      *
      * _Available since v4.4._
      */
@@ -42,7 +47,7 @@ library MerkleProof {
         uint256 index = 0;
         for (uint256 i = 0; i < proof.length; i++) {
             bytes32 proofElement = proof[i];
-            index *= 2;
+            index <<= 1;
             if (computedHash <= proofElement) {
                 // Hash(current computed hash + current element of the proof)
                 computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
@@ -50,7 +55,6 @@ library MerkleProof {
                 // Hash(current element of the proof + current computed hash)
                 computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
                 index |= 1;
-                // index |= 1 << (proof.length - i - 1); // option 2: better ?
             }
         }
         return (computedHash, index);

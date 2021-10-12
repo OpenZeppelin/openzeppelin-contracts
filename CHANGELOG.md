@@ -2,7 +2,7 @@
 
 ## Unreleased
 
- * `MerkleProof`: add a `processProof` function that returns the rebuilt root hash given a leaf and a proof. ([#2841](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2841))
+ * `MerkleProof`: add a `processProof` function that returns the rebuilt root hash, and a unique leaf indentifier, given a leaf and a proof. ([#2841](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2841))
 
 ## 4.3.1
 
