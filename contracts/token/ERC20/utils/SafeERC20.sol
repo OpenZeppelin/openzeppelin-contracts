@@ -22,6 +22,7 @@ library SafeERC20 {
         address to,
         uint256 value
     ) internal {
+        require(to != address(0), "SafeERC20: transfer to the zero address");
         _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
     }
 
@@ -31,6 +32,7 @@ library SafeERC20 {
         address to,
         uint256 value
     ) internal {
+        require(to != address(0), "SafeERC20: transfer to the zero address");
         _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, from, to, value));
     }
 
