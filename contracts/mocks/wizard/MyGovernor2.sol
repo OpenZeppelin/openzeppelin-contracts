@@ -10,11 +10,11 @@ import "../../governance/extensions/GovernorTimelockControl.sol";
 
 contract MyGovernor2 is
     Governor,
+    GovernorTimelockControl,
     GovernorProposalThreshold,
-    GovernorCountingSimple,
     GovernorVotes,
     GovernorVotesQuorumFraction,
-    GovernorTimelockControl
+    GovernorCountingSimple
 {
     constructor(ERC20Votes _token, TimelockController _timelock)
         Governor("MyGovernor")
