@@ -67,16 +67,16 @@ contract VestingWallet is Context {
     }
 
     /**
-     * @dev Amont of eth already released
+     * @dev Amount of eth already released
      */
-    function released() public view returns (uint256) {
+    function released() public view virtual returns (uint256) {
         return _released;
     }
 
     /**
-     * @dev Amont of token already released
+     * @dev Amount of token already released
      */
-    function released(address token) public view returns (uint256) {
+    function released(address token) public view virtual returns (uint256) {
         return _erc20Released[token];
     }
 
