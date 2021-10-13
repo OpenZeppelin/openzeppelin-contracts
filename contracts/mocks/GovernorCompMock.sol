@@ -2,20 +2,22 @@
 
 pragma solidity ^0.8.0;
 
-import "../governance/extensions/GovernorSettings.sol";
 import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotesComp.sol";
 
-contract GovernorCompMock is GovernorSettings, GovernorVotesComp, GovernorCountingSimple {
-    constructor(
-        string memory name_,
-        ERC20VotesComp token_,
-        uint256 votingDelay_,
-        uint256 votingPeriod_
-    ) Governor(name_) GovernorSettings(votingDelay_, votingPeriod_, 0) GovernorVotesComp(token_) {}
+contract GovernorCompMock is GovernorVotesComp, GovernorCountingSimple {
+    constructor(string memory name_, ERC20VotesComp token_) Governor(name_) GovernorVotesComp(token_) {}
 
     function quorum(uint256) public pure override returns (uint256) {
         return 0;
+    }
+
+    function votingDelay() public pure override returns (uint256) {
+        return 4;
+    }
+
+    function votingPeriod() public pure override returns (uint256) {
+        return 16;
     }
 
     function cancel(
@@ -35,9 +37,5 @@ contract GovernorCompMock is GovernorSettings, GovernorVotesComp, GovernorCounti
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);
-    }
-
-    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
-        return super.proposalThreshold();
     }
 }
