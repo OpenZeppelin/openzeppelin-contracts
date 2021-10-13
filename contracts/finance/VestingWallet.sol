@@ -17,22 +17,22 @@ import "../utils/math/Math.sol";
  * be immediately releasable.
  */
 contract VestingWallet is Context {
-    event TokensReleased(uint256 amount);
-    event ERC20TokensReleased(address token, uint256 amount);
+    event EtherReleased(uint256 amount);
+    event ERC20Released(address token, uint256 amount);
 
     uint256 private _released;
     mapping(address => uint256) private _erc20Released;
     address private immutable _beneficiary;
-    uint256 private immutable _start;
-    uint256 private immutable _duration;
+    uint64 private immutable _start;
+    uint64 private immutable _duration;
 
     /**
      * @dev Set the beneficiary, start timestamp and vesting duration of the vesting wallet.
      */
     constructor(
         address beneficiaryAddress,
-        uint256 startTimestamp,
-        uint256 durationSeconds
+        uint64 startTimestamp,
+        uint64 durationSeconds
     ) {
         require(beneficiaryAddress != address(0), "VestingWallet: beneficiary is zero address");
         _beneficiary = beneficiaryAddress;
@@ -43,7 +43,7 @@ contract VestingWallet is Context {
     /**
      * @dev The contract should be able to receive Eth.
      */
-    receive() external payable {}
+    receive() external virtual payable {}
 
     /**
      * @dev Getter for the beneficiary address.
@@ -88,7 +88,7 @@ contract VestingWallet is Context {
     function release() public virtual {
         uint256 releasable = vestedAmount(block.timestamp) - released();
         _released += releasable;
-        emit TokensReleased(releasable);
+        emit EtherReleased(releasable);
         Address.sendValue(payable(beneficiary()), releasable);
     }
 
@@ -100,7 +100,7 @@ contract VestingWallet is Context {
     function release(address token) public virtual {
         uint256 releasable = vestedAmount(token, block.timestamp) - released(token);
         _erc20Released[token] += releasable;
-        emit ERC20TokensReleased(token, releasable);
+        emit ERC20Released(token, releasable);
         SafeERC20.safeTransfer(IERC20(token), beneficiary(), releasable);
     }
 
@@ -108,23 +108,25 @@ contract VestingWallet is Context {
      * @dev Calculates the amount of ether that has already vested. Default implementation is a linear vesting curve.
      */
     function vestedAmount(uint256 timestamp) public view virtual returns (uint256) {
-        if (timestamp < start()) {
-            return 0;
-        } else {
-            uint256 historicalBalance = address(this).balance + released();
-            return Math.min(historicalBalance, (historicalBalance * (timestamp - start())) / duration());
-        }
+        return _vestingSchedule(address(this).balance + released(), timestamp);
     }
 
     /**
      * @dev Calculates the amount of tokens that has already vested. Default implementation is a linear vesting curve.
      */
     function vestedAmount(address token, uint256 timestamp) public view virtual returns (uint256) {
+        return _vestingSchedule(IERC20(token).balanceOf(address(this)) + released(token), timestamp);
+    }
+
+    /**
+     * @dev Virtual implementation of the vesting formula. This returns the amout vested, as a function of time, for
+     * an asset given its total historical allocation.
+     */
+    function _vestingSchedule(uint256 totalAllocation, uint256 timestamp) internal view virtual returns (uint256) {
         if (timestamp < start()) {
             return 0;
         } else {
-            uint256 historicalBalance = IERC20(token).balanceOf(address(this)) + released(token);
-            return Math.min(historicalBalance, (historicalBalance * (timestamp - start())) / duration());
+            return Math.min(totalAllocation, (totalAllocation * (timestamp - start())) / duration());
         }
     }
 }

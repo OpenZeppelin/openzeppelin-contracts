@@ -23,7 +23,7 @@ function shouldBehaveLikeVesting (beneficiary) {
       await expectEvent.inTransaction(
         receipt.tx,
         this.mock,
-        this.token ? 'ERC20TokensReleased' : 'TokensReleased',
+        this.token ? 'ERC20Released' : 'EtherReleased',
         Object.fromEntries(Object.entries({
           token: this.token && this.token.address,
           amount: '0',
@@ -48,7 +48,7 @@ function shouldBehaveLikeVesting (beneficiary) {
       await expectEvent.inTransaction(
         receipt.tx,
         this.mock,
-        this.token ? 'ERC20TokensReleased' : 'TokensReleased',
+        this.token ? 'ERC20Released' : 'EtherReleased',
         Object.fromEntries(Object.entries({
           token: this.token && this.token.address,
           amount: vested.sub(released),
