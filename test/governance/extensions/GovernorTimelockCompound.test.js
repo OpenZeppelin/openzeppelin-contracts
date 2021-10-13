@@ -51,6 +51,10 @@ contract('GovernorTimelockCompound', function (accounts) {
     'GovernorTimelock',
   ]);
 
+  it('doesn\'t accept ether transfers', async function () {
+    await expectRevert.unspecified(web3.eth.sendTransaction({ from: voter, to: this.mock.address, value: 1 }));
+  });
+
   it('post deployment check', async function () {
     expect(await this.mock.name()).to.be.equal(name);
     expect(await this.mock.token()).to.be.equal(this.token.address);
