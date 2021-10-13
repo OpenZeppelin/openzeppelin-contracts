@@ -41,6 +41,7 @@ contract('Governor', function (accounts) {
   shouldSupportInterfaces([
     'ERC165',
     'Governor',
+    'GovernorExtended'
   ]);
 
   it('deployment check', async function () {
