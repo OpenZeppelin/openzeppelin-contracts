@@ -37,7 +37,7 @@ contract GovernorCompMock is GovernorSettings, GovernorVotesComp, GovernorCounti
         return super.getVotes(account, blockNumber);
     }
 
-    function proposalThreshold() public view override(IGovernor, GovernorSettings) returns (uint256) {
+    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.proposalThreshold();
     }
 }

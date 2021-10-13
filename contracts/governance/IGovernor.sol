@@ -134,12 +134,6 @@ abstract contract IGovernor is IERC165 {
 
     /**
      * @notice module:user-config
-     * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
-     */
-    function proposalThreshold() public view virtual returns (uint256) { return 0; }
-
-    /**
-     * @notice module:user-config
      * @dev Minimum number of cast voted required for a proposal to be successful.
      *
      * Note: The `blockNumber` parameter corresponds to the snaphot used for counting vote. This allows to scale the

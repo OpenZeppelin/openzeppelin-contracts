@@ -61,7 +61,7 @@ contract GovernorCompatibilityBravoMock is
         return super.proposalEta(proposalId);
     }
 
-    function proposalThreshold() public view override(IGovernor, GovernorSettings) returns (uint256) {
+    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
         return super.proposalThreshold();
     }
 

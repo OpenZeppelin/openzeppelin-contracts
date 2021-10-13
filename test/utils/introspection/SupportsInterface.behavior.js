@@ -2,26 +2,6 @@ const { makeInterfaceId } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const Governor_v4_3 = [
-  'name()',
-  'version()',
-  'COUNTING_MODE()',
-  'hashProposal(address[],uint256[],bytes[],bytes32)',
-  'state(uint256)',
-  'proposalSnapshot(uint256)',
-  'proposalDeadline(uint256)',
-  'votingDelay()',
-  'votingPeriod()',
-  'quorum(uint256)',
-  'getVotes(address,uint256)',
-  'hasVoted(uint256,address)',
-  'propose(address[],uint256[],bytes[],string)',
-  'execute(address[],uint256[],bytes[],bytes32)',
-  'castVote(uint256,uint8)',
-  'castVoteWithReason(uint256,uint8,string)',
-  'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
-];
-
 const INTERFACES = {
   ERC165: [
     'supportsInterface(bytes4)',
@@ -70,10 +50,24 @@ const INTERFACES = {
     'getRoleMember(bytes32,uint256)',
     'getRoleMemberCount(bytes32)',
   ],
-  Governor_v4_3,
   Governor: [
-    ...Governor_v4_3,
-    'proposalThreshold()',
+    'name()',
+    'version()',
+    'COUNTING_MODE()',
+    'hashProposal(address[],uint256[],bytes[],bytes32)',
+    'state(uint256)',
+    'proposalSnapshot(uint256)',
+    'proposalDeadline(uint256)',
+    'votingDelay()',
+    'votingPeriod()',
+    'quorum(uint256)',
+    'getVotes(address,uint256)',
+    'hasVoted(uint256,address)',
+    'propose(address[],uint256[],bytes[],string)',
+    'execute(address[],uint256[],bytes[],bytes32)',
+    'castVote(uint256,uint8)',
+    'castVoteWithReason(uint256,uint8,string)',
+    'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
   ],
   GovernorTimelock: [
     'timelock()',

@@ -66,12 +66,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
-        // In addition to the current interfaceId, also support previous version of the interfaceId that did not
-        // include the proposalThreshold() function as standard
-        return
-            interfaceId == type(IGovernor).interfaceId ^ this.proposalThreshold.selector ||
-            interfaceId == type(IGovernor).interfaceId ||
-            super.supportsInterface(interfaceId);
+        return interfaceId == type(IGovernor).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
@@ -146,6 +141,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposals[proposalId].voteEnd.getDeadline();
+    }
+
+    /**
+     * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
+     */
+    function proposalThreshold() public view virtual returns (uint256) {
+        return 0;
     }
 
     /**

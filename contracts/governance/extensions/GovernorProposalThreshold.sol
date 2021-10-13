@@ -10,12 +10,12 @@ import "../Governor.sol";
  * _Available since v4.3._
  */
 abstract contract GovernorProposalThreshold is Governor {
-    function propose(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, string memory description)
-        public
-        virtual
-        override
-        returns (uint256)
-    {
+    function propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description
+    ) public virtual override returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
 }
