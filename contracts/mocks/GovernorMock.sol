@@ -7,7 +7,12 @@ import "../governance/extensions/GovernorSettings.sol";
 import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotesQuorumFraction.sol";
 
-contract GovernorMock is GovernorProposalThreshold, GovernorSettings, GovernorVotesQuorumFraction, GovernorCountingSimple {
+contract GovernorMock is
+    GovernorProposalThreshold,
+    GovernorSettings,
+    GovernorVotesQuorumFraction,
+    GovernorCountingSimple
+{
     constructor(
         string memory name_,
         ERC20Votes token_,
