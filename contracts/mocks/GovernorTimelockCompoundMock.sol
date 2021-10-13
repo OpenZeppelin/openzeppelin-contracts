@@ -69,6 +69,10 @@ contract GovernorTimelockCompoundMock is
         return super.state(proposalId);
     }
 
+    function proposalThreshold() public view override(IGovernor, GovernorSettings) returns (uint256) {
+        return super.proposalThreshold();
+    }
+
     function _execute(
         uint256 proposalId,
         address[] memory targets,
