@@ -43,7 +43,7 @@ contract VestingWallet is Context {
     /**
      * @dev The contract should be able to receive Eth.
      */
-    receive() external virtual payable {}
+    receive() external payable virtual {}
 
     /**
      * @dev Getter for the beneficiary address.
