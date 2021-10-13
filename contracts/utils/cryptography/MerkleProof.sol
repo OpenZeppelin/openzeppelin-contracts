@@ -23,40 +23,29 @@ library MerkleProof {
         bytes32 root,
         bytes32 leaf
     ) internal pure returns (bool) {
-        // Check if the computed hash (root) is equal to the provided root
-        (bytes32 computedHash, ) = processProof(proof, leaf);
-        return computedHash == root;
+        return processProof(proof, leaf) == root;
     }
 
     /**
      * @dev Returns the rebuilt hash obtained by traversing a Merklee tree up
-     * from `leaf` using `proof`, and an index uniquelly identifying the leaf
-     * location in the tree. A `proof` is valid if and only if the rebuilt hash
-     * matches the root of the tree. When processing the proof, the pairs of
-     * leafs & pre-images are assumed to be sorted.
-     * The produced index is unique in the sens that processing two valid proofs
-     * will return the same indices if and only if the leaf at the same location
-     * in the tree. This helps distinguishing two leaves that have the same
-     * bytes32 identifier but are present in different locations in the merkle
-     * tree.
+     * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
+     * hash matches the root of the tree. When processing the proof, the pairs
+     * of leafs & pre-images are assumed to be sorted.
      *
      * _Available since v4.4._
      */
-    function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32, uint256) {
+    function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
-        uint256 index = 0;
         for (uint256 i = 0; i < proof.length; i++) {
             bytes32 proofElement = proof[i];
-            index <<= 1;
             if (computedHash <= proofElement) {
                 // Hash(current computed hash + current element of the proof)
                 computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
             } else {
                 // Hash(current element of the proof + current computed hash)
                 computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
-                index |= 1;
             }
         }
-        return (computedHash, index);
+        return computedHash;
     }
 }

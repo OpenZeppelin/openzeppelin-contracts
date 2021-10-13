@@ -13,7 +13,7 @@ contract MerkleProofWrapper {
         return MerkleProof.verify(proof, root, leaf);
     }
 
-    function processProof(bytes32[] memory proof, bytes32 leaf) public pure returns (bytes32, uint256) {
+    function processProof(bytes32[] memory proof, bytes32 leaf) public pure returns (bytes32) {
         return MerkleProof.processProof(proof, leaf);
     }
 }

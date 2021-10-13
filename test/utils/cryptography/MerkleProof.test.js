@@ -56,24 +56,4 @@ contract('MerkleProof', function (accounts) {
       expect(await this.merkleProof.verify(badProof, root, leaf)).to.equal(false);
     });
   });
-
-  describe('processProof', function () {
-    it('create unique indices', async function () {
-      const elements = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split('');
-      const merkleTree = new MerkleTree(elements, keccak256, { hashLeaves: true, sortPairs: true });
-
-      const root = merkleTree.getHexRoot();
-
-      const results = await Promise.all(elements
-        .map(element => keccak256(element))
-        .map(leaf => this.merkleProof.processProof(merkleTree.getHexProof(leaf), leaf)),
-      );
-
-      // All reconstructed roots are correct
-      expect(results.map(result => result[0])).to.have.members(Array(elements.length).fill(root));
-
-      // Indices are unique
-      expect(results.map(result => result[1].toNumber()).every((index, i, indices) => indices.indexOf(i) === index));
-    });
-  });
 });
