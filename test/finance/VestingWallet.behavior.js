@@ -1,33 +1,39 @@
 const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
+function releasedEvent (token, amount) {
+  return token
+    ? [ 'ERC20Released', { token: token.address, amount } ]
+    : [ 'EtherReleased', { amount } ];
+}
+
 function shouldBehaveLikeVesting (beneficiary) {
   it('check vesting schedule', async function () {
-    const args = this.token ? [ this.token.address ] : [];
+    const [ method, ...args ] = this.token
+      ? [ 'vestedAmount(address,uint64)', this.token.address]
+      : [ 'vestedAmount(uint64)' ];
 
     for (const timestamp of this.schedule) {
-      expect(await this.mock.vestedAmount(...args, timestamp))
+      expect(await this.mock.methods[method](...args, timestamp))
         .to.be.bignumber.equal(this.vestingFn(timestamp));
     }
   });
 
   it('execute vesting schedule', async function () {
-    const args = this.token ? [ this.token.address ] : [];
+    const [ method, ...args ] = this.token
+      ? [ 'release(address)', this.token.address]
+      : [ 'release()' ];
 
     let released = web3.utils.toBN(0);
     const before = await this.getBalance(beneficiary);
 
     {
-      const receipt = await this.mock.release(...args);
+      const receipt = await this.mock.methods[method](...args);
 
       await expectEvent.inTransaction(
         receipt.tx,
         this.mock,
-        this.token ? 'ERC20Released' : 'EtherReleased',
-        Object.fromEntries(Object.entries({
-          token: this.token && this.token.address,
-          amount: '0',
-        }).filter(x => x.every(Boolean))),
+        ...releasedEvent(this.token, '0'),
       );
 
       await this.checkRelease(receipt, beneficiary, '0');
@@ -43,16 +49,12 @@ function shouldBehaveLikeVesting (beneficiary) {
         params: [ timestamp.toNumber() ],
       }, resolve));
 
-      const receipt = await this.mock.release(...args);
+      const receipt = await this.mock.methods[method](...args);
 
       await expectEvent.inTransaction(
         receipt.tx,
         this.mock,
-        this.token ? 'ERC20Released' : 'EtherReleased',
-        Object.fromEntries(Object.entries({
-          token: this.token && this.token.address,
-          amount: vested.sub(released),
-        }).filter(x => x.every(Boolean))),
+        ...releasedEvent(this.token, vested.sub(released)),
       );
 
       await this.checkRelease(receipt, beneficiary, vested.sub(released));

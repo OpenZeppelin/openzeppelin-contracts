@@ -86,7 +86,7 @@ contract VestingWallet is Context {
      * Emits a {TokensReleased} event.
      */
     function release() public virtual {
-        uint256 releasable = vestedAmount(block.timestamp) - released();
+        uint256 releasable = vestedAmount(uint64(block.timestamp)) - released();
         _released += releasable;
         emit EtherReleased(releasable);
         Address.sendValue(payable(beneficiary()), releasable);
@@ -98,7 +98,7 @@ contract VestingWallet is Context {
      * Emits a {TokensReleased} event.
      */
     function release(address token) public virtual {
-        uint256 releasable = vestedAmount(token, block.timestamp) - released(token);
+        uint256 releasable = vestedAmount(token, uint64(block.timestamp)) - released(token);
         _erc20Released[token] += releasable;
         emit ERC20Released(token, releasable);
         SafeERC20.safeTransfer(IERC20(token), beneficiary(), releasable);
@@ -107,14 +107,14 @@ contract VestingWallet is Context {
     /**
      * @dev Calculates the amount of ether that has already vested. Default implementation is a linear vesting curve.
      */
-    function vestedAmount(uint256 timestamp) public view virtual returns (uint256) {
+    function vestedAmount(uint64 timestamp) public view virtual returns (uint256) {
         return _vestingSchedule(address(this).balance + released(), timestamp);
     }
 
     /**
      * @dev Calculates the amount of tokens that has already vested. Default implementation is a linear vesting curve.
      */
-    function vestedAmount(address token, uint256 timestamp) public view virtual returns (uint256) {
+    function vestedAmount(address token, uint64 timestamp) public view virtual returns (uint256) {
         return _vestingSchedule(IERC20(token).balanceOf(address(this)) + released(token), timestamp);
     }
 
@@ -122,11 +122,13 @@ contract VestingWallet is Context {
      * @dev Virtual implementation of the vesting formula. This returns the amout vested, as a function of time, for
      * an asset given its total historical allocation.
      */
-    function _vestingSchedule(uint256 totalAllocation, uint256 timestamp) internal view virtual returns (uint256) {
+    function _vestingSchedule(uint256 totalAllocation, uint64 timestamp) internal view virtual returns (uint256) {
         if (timestamp < start()) {
             return 0;
+        } else if (timestamp > start() + duration()) {
+            return totalAllocation;
         } else {
-            return Math.min(totalAllocation, (totalAllocation * (timestamp - start())) / duration());
+            return (totalAllocation * (timestamp - start())) / duration();
         }
     }
 }
