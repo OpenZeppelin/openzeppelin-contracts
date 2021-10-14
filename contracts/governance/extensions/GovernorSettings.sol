@@ -53,14 +53,13 @@ abstract contract GovernorSettings is Governor {
     }
 
     function _setVotingDelay(uint256 newVotingDelay) internal virtual {
-        uint256 oldVotingDelay = _votingDelay;
+        emit VotingDelaySet(_votingDelay, newVotingDelay);
         _votingDelay = newVotingDelay;
-        emit VotingDelaySet(oldVotingDelay, newVotingDelay);
     }
 
     function _setVotingPeriod(uint256 newVotingPeriod) internal virtual {
         // voting period must be at least one block long
-        require(newVotingPeriod > 0, "GovernorSettings: value too low");
+        require(newVotingPeriod > 0, "GovernorSettings: voting period too low");
         uint256 oldVotingPeriod = _votingPeriod;
         _votingPeriod = newVotingPeriod;
         emit VotingPeriodSet(oldVotingPeriod, newVotingPeriod);
