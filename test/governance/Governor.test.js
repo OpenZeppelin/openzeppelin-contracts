@@ -878,7 +878,7 @@ contract('Governor', function (accounts) {
       runGovernorWorkflow();
     });
 
-    describe('setVotingPeriod to low', function () {
+    describe('setVotingPeriod to 0', function () {
       beforeEach(async function () {
         this.settings = {
           proposal: [
@@ -892,7 +892,7 @@ contract('Governor', function (accounts) {
             { voter: voter1, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
           ],
           steps: {
-            execute: { error: 'GovernorSettings: value too low' },
+            execute: { error: 'GovernorSettings: voting period too low' },
           },
         };
       });
