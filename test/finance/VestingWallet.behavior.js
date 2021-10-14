@@ -10,7 +10,7 @@ function releasedEvent (token, amount) {
 function shouldBehaveLikeVesting (beneficiary) {
   it('check vesting schedule', async function () {
     const [ method, ...args ] = this.token
-      ? [ 'vestedAmount(address,uint64)', this.token.address]
+      ? [ 'vestedAmount(address,uint64)', this.token.address ]
       : [ 'vestedAmount(uint64)' ];
 
     for (const timestamp of this.schedule) {
@@ -21,7 +21,7 @@ function shouldBehaveLikeVesting (beneficiary) {
 
   it('execute vesting schedule', async function () {
     const [ method, ...args ] = this.token
-      ? [ 'release(address)', this.token.address]
+      ? [ 'release(address)', this.token.address ]
       : [ 'release()' ];
 
     let released = web3.utils.toBN(0);
