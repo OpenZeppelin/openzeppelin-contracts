@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-
+ * `IGovernor`: Corrected documentation for what vote support stands for. 0 is against and 1 is for. 
  * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
  * `AccessControl`: add internal `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
  * `AccessControl`: mark `_setupRole(bytes32,address)` as deprecated in favor of `_grantRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
@@ -308,11 +308,11 @@ For example, a contract using `GSNBouncerSignature` would have to be changed in 
 
 Refer to the table below to adjust your inheritance list.
 
-| 2.4.0-beta                         | 2.4.0                        |
-| ---------------------------------- | ---------------------------- |
-| `GSNRecipient, GSNBouncerSignature`| `GSNRecipientSignature`      |
-| `GSNRecipient, GSNBouncerERC20Fee` | `GSNRecipientERC20Fee`       |
-| `GSNBouncerBase`                   | `GSNRecipient`               |
+| 2.4.0-beta                          | 2.4.0                   |
+| ----------------------------------- | ----------------------- |
+| `GSNRecipient, GSNBouncerSignature` | `GSNRecipientSignature` |
+| `GSNRecipient, GSNBouncerERC20Fee`  | `GSNRecipientERC20Fee`  |
+| `GSNBouncerBase`                    | `GSNRecipient`          |
 
 ## 2.3.0 (2019-05-27)
 
