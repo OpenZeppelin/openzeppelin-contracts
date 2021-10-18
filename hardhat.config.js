@@ -33,7 +33,7 @@ const argv = require('yargs/yargs')()
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.3',
+      default: '0.8.9',
     },
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
