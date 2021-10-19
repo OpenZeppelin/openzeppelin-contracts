@@ -1,7 +1,7 @@
 const fs = require('fs');
 const glob = require('glob');
 
-const { version } = require('../package.json');
+const { version } = require('../../package.json');
 
 const files = glob.sync('contracts/!(mocks)/**/*.sol');
 
