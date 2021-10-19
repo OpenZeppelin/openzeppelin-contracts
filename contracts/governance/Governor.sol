@@ -348,6 +348,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
+     * @dev Relaying mechanism allowing the acting governor (possibly a timelock) to extract value and token sent to
+     * the governor by mistake.
+     */
+    function relay(address target, uint256 value, bytes calldata data) external onlyGovernance {
+        Address.functionCallWithValue(target, data, value);
+    }
+
+    /**
      * @dev Address through which the governor executes action. Will be overloaded by module that execute actions
      * through another contract such as a timelock.
      */
