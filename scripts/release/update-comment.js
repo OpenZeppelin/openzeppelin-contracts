@@ -1,5 +1,15 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
 const glob = require('glob');
+const proc = require('child_process');
+
+const gitStatus = proc.execFileSync('git', ['status', '--porcelain', '-uno', 'contracts']);
+
+if (gitStatus.length > 0) {
+  console.error('Contracts directory is not clean');
+  process.exit(1);
+}
 
 const { version } = require('../../package.json');
 
@@ -13,3 +23,5 @@ for (const file of files) {
   );
   fs.writeFileSync(file, updated);
 }
+
+proc.execFileSync('git', ['add', '--update', 'contracts']);
