@@ -24,7 +24,7 @@ abstract contract ERC1155Supply is ERC1155 {
     }
 
     /**
-     * @dev Indicates weither any token exist with a given id, or not.
+     * @dev Indicates whether any token exist with a given id, or not.
      */
     function exists(uint256 id) public view virtual returns (bool) {
         return ERC1155Supply.totalSupply(id) > 0;
