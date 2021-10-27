@@ -2,15 +2,15 @@
 
 ## Unreleased
 
- * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
- * `AccessControl`: add internal `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
- * `AccessControl`: mark `_setupRole(bytes32,address)` as deprecated in favor of `_grantRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
- * `EIP712`: cache `address(this)` to immutable storage to avoid potential issues if a vanilla contract is used in a delegatecall context. ([#2852](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2852))
+ * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2568))
+ * `AccessControl`: add internal `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2568))
+ * `AccessControl`: mark `_setupRole(bytes32,address)` as deprecated in favor of `_grantRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2568))
+ * `EIP712`: cache `address(this)` to immutable storage to avoid potential issues if a vanilla contract is used in a delegatecall context. ([#2852](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2852))
  * Add internal `_setApprovalForAll` to `ERC721` and `ERC1155`. ([#2834](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2834))
- * `Governor`: shift vote start and end by one block to better match Compound's GovernorBravo and prevent voting at the Governor level if the voting snapshot is not ready. ([#2892](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2892))
- * `GovernorSettings`: a new governor module that manages voting settings updatable through governance actions. ([#2904](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2904))
- * `PaymentSplitter`: now supports ERC20 assets in addition to Ether. ([#2858](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2858))
- * `ECDSA`: add a variant of `toEthSignedMessageHash` for arbitrary length message hashing. ([#2865](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2865))
+ * `Governor`: shift vote start and end by one block to better match Compound's GovernorBravo and prevent voting at the Governor level if the voting snapshot is not ready. ([#2892](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2892))
+ * `GovernorSettings`: a new governor module that manages voting settings updatable through governance actions. ([#2904](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2904))
+ * `PaymentSplitter`: now supports ERC20 assets in addition to Ether. ([#2858](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2858))
+ * `ECDSA`: add a variant of `toEthSignedMessageHash` for arbitrary length message hashing. ([#2865](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2865))
  * `MerkleProof`: add a `processProof` function that returns the rebuilt root hash given a leaf and a proof. ([#2841](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2841))
  * `VestingWallet`: new contract that handles the vesting of Ether and ERC20 tokens following a customizable vesting schedule. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2748))
  * `Governor`: enable receiving Ether when a Timelock contract is not used. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2748))
