@@ -15,6 +15,7 @@
  * `VestingWallet`: new contract that handles the vesting of Ether and ERC20 tokens following a customizable vesting schedule. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2748))
  * `Governor`: enable receiving Ether when a Timelock contract is not used. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2748))
  * `GovernorTimelockCompound`: fix ability to use Ether stored in the Timelock contract. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2748))
+ * `Governor`: add a relay function to help recover assets sent to a timelock-using governor instance. ([#2926](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2926))
 
 ## 4.3.2 (2021-09-14)
 
