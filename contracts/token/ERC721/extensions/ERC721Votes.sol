@@ -199,9 +199,8 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      */
     function _afterTokenTransfer(
         address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual override{
+        address to
+    ) internal virtual {
         _moveVotingPower(delegates(from), delegates(to), 1);
     }
 
@@ -286,5 +285,18 @@ abstract contract ERC721Votes is ERC721, EIP712 {
 
     function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
         return a - b;
+    }
+    
+    /**
+     * @dev Moves token from the caller's account to `recipient`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address recipient, uint256 tokenId) external returns (bool){
+        _transfer(_msgSender(), recipient, tokenId);
+        _afterTokenTransfer(_msgSender(), recipient);
+        return true;
     }
 }
