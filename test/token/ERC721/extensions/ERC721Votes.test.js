@@ -14,6 +14,7 @@ const queue = promisify(setImmediate);
 const ERC721VotesMock = artifacts.require('ERC721VotesMock');
 
 const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
+const { Console } = require('console');
 
 const Delegation = [
   { name: 'delegatee', type: 'address' },
@@ -84,9 +85,14 @@ contract('ERC721Votes', function (accounts) {
   });
 
   it('minting restriction', async function () {
-    const amount = new BN('2').pow(new BN('224'));
+    const lastTokenId = new BN('2').pow(new BN('224'));
+    this.token.mint(holder, NFT1);
+    this.token.mint(holder, NFT2);
+    this.token.mint(holder, NFT3);
+    this.token.mint(holder, supply);
+
     await expectRevert(
-      this.token.mint(holder, amount),
+      this.token.mint(holder, lastTokenId),
       'ERC721Votes: total supply risks overflowing votes',
     );
   });
@@ -106,15 +112,15 @@ contract('ERC721Votes', function (accounts) {
         expectEvent(receipt, 'DelegateVotesChanged', {
           delegate: holder,
           previousBalance: '0',
-          newBalance: supply,
+          newBalance: '1',
         });
 
         expect(await this.token.delegates(holder)).to.be.equal(holder);
 
-        expect(await this.token.getVotes(holder)).to.be.bignumber.equal(supply);
+        expect(await this.token.getVotes(holder)).to.be.bignumber.equal('1');
         expect(await this.token.getPastVotes(holder, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
         await time.advanceBlock();
-        expect(await this.token.getPastVotes(holder, receipt.blockNumber)).to.be.bignumber.equal(supply);
+        expect(await this.token.getPastVotes(holder, receipt.blockNumber)).to.be.bignumber.equal('1');
       });
 
       it('delegation without balance', async function () {
@@ -169,15 +175,15 @@ contract('ERC721Votes', function (accounts) {
         expectEvent(receipt, 'DelegateVotesChanged', {
           delegate: delegatorAddress,
           previousBalance: '0',
-          newBalance: supply,
+          newBalance: '1',
         });
 
         expect(await this.token.delegates(delegatorAddress)).to.be.equal(delegatorAddress);
 
-        expect(await this.token.getVotes(delegatorAddress)).to.be.bignumber.equal(supply);
+        expect(await this.token.getVotes(delegatorAddress)).to.be.bignumber.equal('1');
         expect(await this.token.getPastVotes(delegatorAddress, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
         await time.advanceBlock();
-        expect(await this.token.getPastVotes(delegatorAddress, receipt.blockNumber)).to.be.bignumber.equal(supply);
+        expect(await this.token.getPastVotes(delegatorAddress, receipt.blockNumber)).to.be.bignumber.equal('1');
       });
 
       it('rejects reused signature', async function () {
@@ -251,7 +257,7 @@ contract('ERC721Votes', function (accounts) {
 
   describe('change delegation', function () {
     beforeEach(async function () {
-      await this.token.mint(holder, supply);//TODO: Avoid tokenId duplicate
+      await this.token.mint(holder, supply);
       await this.token.delegate(holder, { from: holder });
     });
 
@@ -266,24 +272,24 @@ contract('ERC721Votes', function (accounts) {
       });
       expectEvent(receipt, 'DelegateVotesChanged', {
         delegate: holder,
-        previousBalance: supply,
+        previousBalance: '1',
         newBalance: '0',
       });
       expectEvent(receipt, 'DelegateVotesChanged', {
         delegate: holderDelegatee,
         previousBalance: '0',
-        newBalance: supply,
+        newBalance: '1',
       });
 
       expect(await this.token.delegates(holder)).to.be.equal(holderDelegatee);
 
       expect(await this.token.getVotes(holder)).to.be.bignumber.equal('0');
-      expect(await this.token.getVotes(holderDelegatee)).to.be.bignumber.equal(supply);
-      expect(await this.token.getPastVotes(holder, receipt.blockNumber - 1)).to.be.bignumber.equal(supply);
+      expect(await this.token.getVotes(holderDelegatee)).to.be.bignumber.equal('1');
+      expect(await this.token.getPastVotes(holder, receipt.blockNumber - 1)).to.be.bignumber.equal('1');
       expect(await this.token.getPastVotes(holderDelegatee, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
       await time.advanceBlock();
       expect(await this.token.getPastVotes(holder, receipt.blockNumber)).to.be.bignumber.equal('0');
-      expect(await this.token.getPastVotes(holderDelegatee, receipt.blockNumber)).to.be.bignumber.equal(supply);
+      expect(await this.token.getPastVotes(holderDelegatee, receipt.blockNumber)).to.be.bignumber.equal('1');
     });
   });
 
@@ -293,8 +299,8 @@ contract('ERC721Votes', function (accounts) {
     });
 
     it('no delegation', async function () {
-      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
+      const { receipt } = await this.token.transfer(recipient, supply, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
       expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
 
       this.holderVotes = '0';
@@ -304,22 +310,22 @@ contract('ERC721Votes', function (accounts) {
     it('sender delegation', async function () {
       await this.token.delegate(holder, { from: holder });
 
-      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
-      expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: supply, newBalance: supply.subn(1) });
+      const { receipt } = await this.token.transfer(recipient, supply, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: '1', newBalance: '0' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
       expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
 
-      this.holderVotes = supply.subn(1);
+      this.holderVotes = '0';
       this.recipientVotes = '0';
     });
 
     it('receiver delegation', async function () {
       await this.token.delegate(recipient, { from: recipient });
 
-      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
+      const { receipt } = await this.token.transfer(recipient, supply, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
@@ -333,15 +339,15 @@ contract('ERC721Votes', function (accounts) {
       await this.token.delegate(holder, { from: holder });
       await this.token.delegate(recipient, { from: recipient });
 
-      const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
-      expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: supply, newBalance: supply.subn(1) });
+      const { receipt } = await this.token.transfer(recipient, supply, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: '1', newBalance: '0'});
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
       expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
 
-      this.holderVotes = supply.subn(1);
+      this.holderVotes = '0';
       this.recipientVotes = '1';
     });
 
@@ -368,54 +374,55 @@ contract('ERC721Votes', function (accounts) {
 
     describe('balanceOf', function () {
       it('grants to initial account', async function () {
-        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal('10000000000000000000000000');
+        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal('4');
       });
     });
 
     describe('numCheckpoints', function () {
       it('returns the number of checkpoints for a delegate', async function () {
-        await this.token.transfer(recipient, '100', { from: holder }); //give an account a few tokens for readability
+
+        await this.token.transfer(recipient, NFT1, { from: holder }); //give an account two tokens for readability
+        await this.token.transfer(recipient, NFT2, { from: holder }); 
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
 
         const t1 = await this.token.delegate(other1, { from: recipient });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
-
-        const t2 = await this.token.transfer(other2, 10, { from: recipient });
+        
+        const t2 = await this.token.transfer(other2, NFT1, { from: recipient });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
-
-        const t3 = await this.token.transfer(other2, 10, { from: recipient });
+        
+        const t3 = await this.token.transfer(other2, NFT2, { from: recipient });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('3');
 
-        const t4 = await this.token.transfer(recipient, 20, { from: holder });
+        const t4 = await this.token.transfer(recipient, NFT3, { from: holder });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('4');
 
-        expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '100' ]);
-        expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t2.receipt.blockNumber.toString(), '90' ]);
-        expect(await this.token.checkpoints(other1, 2)).to.be.deep.equal([ t3.receipt.blockNumber.toString(), '80' ]);
-        expect(await this.token.checkpoints(other1, 3)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '100' ]);
+        expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '2' ]);
+        expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t2.receipt.blockNumber.toString(), '1' ]);
+        expect(await this.token.checkpoints(other1, 2)).to.be.deep.equal([ t3.receipt.blockNumber.toString(), '0' ]);
+        expect(await this.token.checkpoints(other1, 3)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '1' ]);
 
         await time.advanceBlock();
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal('100');
-        expect(await this.token.getPastVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal('90');
-        expect(await this.token.getPastVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal('80');
-        expect(await this.token.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal('100');
+        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal('2');
+        expect(await this.token.getPastVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal('1');
+        expect(await this.token.getPastVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal('0');
+        expect(await this.token.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal('1');
       });
 
       it('does not add more than one checkpoint in a block', async function () {
-        await this.token.transfer(recipient, '100', { from: holder });
+        await this.token.transfer(recipient, NFT1, { from: holder });
+        await this.token.transfer(recipient, NFT2, { from: holder });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
 
         const [ t1, t2, t3 ] = await batchInBlock([
           () => this.token.delegate(other1, { from: recipient, gas: 100000 }),
-          () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
-          () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
+          () => this.token.transfer(other2, NFT1, { from: recipient, gas: 100000 }),
+          () => this.token.transfer(other2, NFT2, { from: recipient, gas: 100000 }),
         ]);
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
         expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '80' ]);
-        // expectReve(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ '0', '0' ]); // Reverts due to array overflow check
-        // expect(await this.token.checkpoints(other1, 2)).to.be.deep.equal([ '0', '0' ]); // Reverts due to array overflow check
 
-        const t4 = await this.token.transfer(recipient, 20, { from: holder });
+        const t4 = await this.token.transfer(recipient, NFT3, { from: holder });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
         expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '100' ]);
       });
@@ -438,8 +445,8 @@ contract('ERC721Votes', function (accounts) {
         await time.advanceBlock();
         await time.advanceBlock();
 
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal('10000000000000000000000000');
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
+        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal('4');
+        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal('4');
       });
 
       it('returns zero if < first checkpoint block', async function () {
@@ -449,39 +456,41 @@ contract('ERC721Votes', function (accounts) {
         await time.advanceBlock();
 
         expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
+        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal('4');
       });
 
       it('generally returns the voting balance at the appropriate checkpoint', async function () {
-        const t1 = await this.token.delegate(other1, { from: holder });//TODO: Make it NFT like
-        await time.advanceBlock();
-        await time.advanceBlock();
-        const t2 = await this.token.transfer(other2, 10, { from: holder });
-        await time.advanceBlock();
-        await time.advanceBlock();
-        const t3 = await this.token.transfer(other2, 20, { from: holder });
-        await time.advanceBlock();
-        await time.advanceBlock();
-        const t4 = await this.token.transfer(holder, 30, { from: other2 });
-        await time.advanceBlock();
-        await time.advanceBlock();
+        const total = await this.token.balanceOf(holder);
 
+        const t1 = await this.token.delegate(other1, { from: holder });
+        await time.advanceBlock();
+        await time.advanceBlock();        
+        const t2 = await this.token.transfer(other2, NFT1, { from: holder });
+        await time.advanceBlock();
+        await time.advanceBlock();
+        const t3 = await this.token.transfer(other2, NFT2, { from: holder });
+        await time.advanceBlock();
+        await time.advanceBlock();
+        const t4 = await this.token.transfer(holder, NFT2, { from: other2 });
+        await time.advanceBlock();
+        await time.advanceBlock();
+        
         expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal('10000000000000000000000000');
-        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
-        expect(await this.token.getPastVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal('9999999999999999999999990');
-        expect(await this.token.getPastVotes(other1, t2.receipt.blockNumber + 1)).to.be.bignumber.equal('9999999999999999999999990');
-        expect(await this.token.getPastVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal('9999999999999999999999980');
-        expect(await this.token.getPastVotes(other1, t3.receipt.blockNumber + 1)).to.be.bignumber.equal('9999999999999999999999980');
-        expect(await this.token.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal('10000000000000000000000000');
-        expect(await this.token.getPastVotes(other1, t4.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
+        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal(total);
+        expect(await this.token.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal(total);
+        expect(await this.token.getPastVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal('3');
+        expect(await this.token.getPastVotes(other1, t2.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
+        expect(await this.token.getPastVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal('2');
+        expect(await this.token.getPastVotes(other1, t3.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
+        expect(await this.token.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal('3');
+        expect(await this.token.getPastVotes(other1, t4.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
       });
     });
   });
 
   describe('getPastTotalSupply', function () {
     beforeEach(async function () {
-      await this.token.delegate(holder, { from: holder });
+     // await this.token.delegate(holder, { from: holder });
     });
 
     it('reverts if block number >= current block', async function () {
@@ -501,8 +510,8 @@ contract('ERC721Votes', function (accounts) {
       await time.advanceBlock();
       await time.advanceBlock();
 
-      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber)).to.be.bignumber.equal(supply);
-      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal(supply);
+      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber)).to.be.bignumber.equal('1');
+      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
     });
 
     it('returns zero if < first checkpoint block', async function () {
@@ -512,7 +521,7 @@ contract('ERC721Votes', function (accounts) {
       await time.advanceBlock();
 
       expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
+      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
     });
 
     it('generally returns the voting balance at the appropriate checkpoint', async function () {
@@ -532,7 +541,6 @@ contract('ERC721Votes', function (accounts) {
       await time.advanceBlock();
       await time.advanceBlock();
 
-      console.log(await this.token.getPastTotalSupply(t1.receipt.blockNumber - 1));
       expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
       expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber)).to.be.bignumber.equal('1');
       expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
