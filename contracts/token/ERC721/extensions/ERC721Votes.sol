@@ -8,7 +8,6 @@ import "../../../utils/Counters.sol";
 import "../../../utils/math/Math.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
-import "../../../utils/cryptography/draft-EIP712.sol";
 /**
  * @dev Extension of ERC721 to support Compound-like voting and delegation. This version is more generic than Compound's,
  * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
@@ -179,11 +178,9 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Snapshots the totalSupply after it has been increased.
      */
     function _mint(address account, uint256 tokenId) internal virtual override {
-        require(_totalSupply+1 <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
-        
         super._mint(account, tokenId);
-        _totalSupply += 1;
-        
+        require(totalSupply() <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
+
         _writeCheckpoint(_totalSupplyCheckpoints, _add, 1);
     }
 
@@ -192,7 +189,6 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      */
     function _burn(uint256 tokenId) internal virtual override {
         super._burn(tokenId);
-        _totalSupply -= 1;
         _writeCheckpoint(_totalSupplyCheckpoints, _subtract, 1);
     }
 
