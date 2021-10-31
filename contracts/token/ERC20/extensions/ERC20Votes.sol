@@ -256,4 +256,17 @@ abstract contract ERC20Votes is ERC20Permit {
     function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
         return a - b;
     }
+    
+    /**
+     * @dev Moves token from the caller's account to `recipient`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address recipient, uint256 tokenId) external returns (bool){
+        _transfer(_msgSender(), recipient, tokenId);
+        _afterTokenTransfer(_msgSender(), recipient);
+        return true;
+    }
 }
