@@ -11,8 +11,6 @@ import "../../../utils/cryptography/ECDSA.sol";
  * @dev Extension of ERC721 to support Compound-like voting and delegation. This version is more generic than Compound's,
  * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
  *
- * NOTE: If exact COMP compatibility is required, use the {ERC721VotesComp} variant of this module.
- *
  * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
  * power can be queried through the public accessors {getVotes} and {getPastVotes}.
