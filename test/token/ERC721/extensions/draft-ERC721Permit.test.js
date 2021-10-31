@@ -50,7 +50,7 @@ contract('ERC721Permit', function (accounts) {
     );
   });
 
-  describe.only('permit', function () {
+  describe('permit', function () {
     const wallet = Wallet.generate();
 
     const owner = wallet.getAddressString();
