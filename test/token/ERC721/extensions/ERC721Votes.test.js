@@ -99,7 +99,7 @@ contract('ERC721Votes', function (accounts) {
 
   describe('set delegation', function () {
     describe('call', function () {
-      it('delegation with balance', async function () {//TODO: Make it NFT like
+      it('delegation with tokenId', async function () {
         await this.token.mint(holder, supply);
         expect(await this.token.delegates(holder)).to.be.equal(ZERO_ADDRESS);
 
@@ -123,7 +123,7 @@ contract('ERC721Votes', function (accounts) {
         expect(await this.token.getPastVotes(holder, receipt.blockNumber)).to.be.bignumber.equal('1');
       });
 
-      it('delegation without balance', async function () {
+      it('delegation without tokenId', async function () {
         expect(await this.token.delegates(holder)).to.be.equal(ZERO_ADDRESS);
 
         const { receipt } = await this.token.delegate(holder, { from: holder });
