@@ -490,7 +490,7 @@ contract('ERC721Votes', function (accounts) {
 
   describe('getPastTotalSupply', function () {
     beforeEach(async function () {
-     // await this.token.delegate(holder, { from: holder });
+      await this.token.delegate(holder, { from: holder });
     });
 
     it('reverts if block number >= current block', async function () {
