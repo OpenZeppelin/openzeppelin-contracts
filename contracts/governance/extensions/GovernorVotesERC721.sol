@@ -12,7 +12,11 @@ import "../../utils/math/Math.sol";
  *
  * _Available since v4.5._
  */
+<<<<<<< HEAD
 abstract contract GovernorVotesERC721 is Governor {
+=======
+abstract contract ERC721GovernorVotesERC721 is Governor {
+>>>>>>> Adding  _afterTokenTransfer to base ERC271 contract
     ERC721Votes public immutable token;
 
     /**
