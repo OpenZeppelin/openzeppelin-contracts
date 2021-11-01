@@ -61,7 +61,7 @@ contract('ERC721Votes', function (accounts) {
   const name = 'My Token';
   const symbol = 'MTKN';
   const version = '1';
-  const supply = new BN('10000000000000000000000000');
+  const initalTokenId = new BN('10000000000000000000000000');
 
   beforeEach(async function () {
     this.token = await ERC721VotesMock.new(name, symbol);
@@ -89,7 +89,7 @@ contract('ERC721Votes', function (accounts) {
     this.token.mint(holder, NFT1);
     this.token.mint(holder, NFT2);
     this.token.mint(holder, NFT3);
-    this.token.mint(holder, supply);
+    this.token.mint(holder, initalTokenId);
 
     await expectRevert(
       this.token.mint(holder, lastTokenId),
@@ -100,7 +100,7 @@ contract('ERC721Votes', function (accounts) {
   describe('set delegation', function () {
     describe('call', function () {
       it('delegation with tokenId', async function () {
-        await this.token.mint(holder, supply);
+        await this.token.mint(holder, initalTokenId);
         expect(await this.token.delegates(holder)).to.be.equal(ZERO_ADDRESS);
 
         const { receipt } = await this.token.delegate(holder, { from: holder });
@@ -151,7 +151,7 @@ contract('ERC721Votes', function (accounts) {
       }});
 
       beforeEach(async function () {
-        await this.token.mint(delegatorAddress, supply);
+        await this.token.mint(delegatorAddress, initalTokenId);
       });
 
       it('accept signed delegation', async function () {
@@ -257,7 +257,7 @@ contract('ERC721Votes', function (accounts) {
 
   describe('change delegation', function () {
     beforeEach(async function () {
-      await this.token.mint(holder, supply);
+      await this.token.mint(holder, initalTokenId);
       await this.token.delegate(holder, { from: holder });
     });
 
@@ -295,12 +295,12 @@ contract('ERC721Votes', function (accounts) {
 
   describe('transfers', function () {
     beforeEach(async function () {
-      await this.token.mint(holder, supply);
+      await this.token.mint(holder, initalTokenId);
     });
 
     it('no delegation', async function () {
-      const { receipt } = await this.token.transferFrom(recipient, supply, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
+      const { receipt } = await this.token.transferFrom(recipient, initalTokenId, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: initalTokenId });
       expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
 
       this.holderVotes = '0';
@@ -310,8 +310,8 @@ contract('ERC721Votes', function (accounts) {
     it('sender delegation', async function () {
       await this.token.delegate(holder, { from: holder });
 
-      const { receipt } = await this.token.transferFrom(recipient, supply, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
+      const { receipt } = await this.token.transferFrom(recipient, initalTokenId, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: initalTokenId });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: '1', newBalance: '0' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
@@ -324,8 +324,8 @@ contract('ERC721Votes', function (accounts) {
     it('receiver delegation', async function () {
       await this.token.delegate(recipient, { from: recipient });
 
-      const { receipt } = await this.token.transferFrom(recipient, supply, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
+      const { receipt } = await this.token.transferFrom(recipient, initalTokenId, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: initalTokenId });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
@@ -339,8 +339,8 @@ contract('ERC721Votes', function (accounts) {
       await this.token.delegate(holder, { from: holder });
       await this.token.delegate(recipient, { from: recipient });
 
-      const { receipt } = await this.token.transferFrom(recipient, supply, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
+      const { receipt } = await this.token.transferFrom(recipient, initalTokenId, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: initalTokenId });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: '1', newBalance: '0'});
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
 
@@ -366,7 +366,7 @@ contract('ERC721Votes', function (accounts) {
   // The following tests are a adaptation of https://github.com/compound-finance/compound-protocol/blob/master/tests/Governance/CompTest.js.
   describe('Compound test suite', function () {
     beforeEach(async function () {
-      await this.token.mint(holder, supply);
+      await this.token.mint(holder, initalTokenId);
       await this.token.mint(holder, NFT1);
       await this.token.mint(holder, NFT2);
       await this.token.mint(holder, NFT3);
@@ -505,7 +505,7 @@ contract('ERC721Votes', function (accounts) {
     });
 
     it('returns the latest block if >= last checkpoint block', async function () {
-      t1 = await this.token.mint(holder, supply);
+      t1 = await this.token.mint(holder, initalTokenId);
 
       await time.advanceBlock();
       await time.advanceBlock();
@@ -516,7 +516,7 @@ contract('ERC721Votes', function (accounts) {
 
     it('returns zero if < first checkpoint block', async function () {
       await time.advanceBlock();
-      const t1 = await this.token.mint(holder, supply);
+      const t1 = await this.token.mint(holder, initalTokenId);
       await time.advanceBlock();
       await time.advanceBlock();
 
