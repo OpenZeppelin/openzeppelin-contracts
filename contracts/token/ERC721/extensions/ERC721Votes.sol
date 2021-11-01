@@ -7,12 +7,9 @@ import "./draft-ERC721Permit.sol";
 import "../../../utils/math/Math.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
-
 /**
  * @dev Extension of ERC721 to support Compound-like voting and delegation. This version is more generic than Compound's,
  * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
- *
- * NOTE: If exact COMP compatibility is required, use the {ERC721VotesComp} variant of this module.
  *
  * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
@@ -170,11 +167,11 @@ abstract contract ERC721Votes is ERC721Permit {
     /**
      * @dev Snapshots the totalSupply after it has been increased.
      */
-    function _mint(address account, uint256 amount) internal virtual override {
-        super._mint(account, amount);//TODO: update for NFT
+    function _mint(address account, uint256 tokenId) internal virtual override {
+        super._mint(account, tokenId);
         require(totalSupply() <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
 
-        _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
+        _writeCheckpoint(_totalSupplyCheckpoints, _add, 1);
     }
 
     /**
@@ -183,7 +180,7 @@ abstract contract ERC721Votes is ERC721Permit {
     function _burn(uint256 tokenId) internal virtual override {
         super._burn(tokenId);
 
-        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, tokenId);
+        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, 1);
     }
 
     /**
@@ -193,10 +190,9 @@ abstract contract ERC721Votes is ERC721Permit {
      */
     function _afterTokenTransfer(
         address from,
-        address to,
-        uint256 amount
+        address to
     ) internal virtual {
-        _moveVotingPower(delegates(from), delegates(to), amount);//TODO: Update to be NFT logic
+        _moveVotingPower(delegates(from), delegates(to), 1);
     }
 
     /**
@@ -232,7 +228,7 @@ abstract contract ERC721Votes is ERC721Permit {
         }
     }
 
-    function _writeCheckpoint(//TODO: update for NFT
+    function _writeCheckpoint(
         Checkpoint[] storage ckpts,
         function(uint256, uint256) view returns (uint256) op,
         uint256 delta
@@ -254,5 +250,18 @@ abstract contract ERC721Votes is ERC721Permit {
 
     function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
         return a - b;
+    }
+    
+    /**
+     * @dev Moves token from the caller's account to `recipient`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address recipient, uint256 tokenId) external returns (bool){
+        _transfer(_msgSender(), recipient, tokenId);
+        _afterTokenTransfer(_msgSender(), recipient);
+        return true;
     }
 }
