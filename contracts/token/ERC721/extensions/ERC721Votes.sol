@@ -4,9 +4,11 @@
 pragma solidity ^0.8.0;
 
 import "../ERC721.sol";
+import "../../../utils/Counters.sol";
 import "../../../utils/math/Math.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
+import "../../../utils/cryptography/draft-EIP712.sol";
 /**
  * @dev Extension of ERC721 to support Compound-like voting and delegation. This version is more generic than Compound's,
  * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
@@ -22,18 +24,28 @@ import "../../../utils/cryptography/ECDSA.sol";
  *
  * _Available since v4.2._
  */
-abstract contract ERC721Votes is ERC721 {
+abstract contract ERC721Votes is ERC721, EIP712 {
+    using Counters for Counters.Counter;
+
     struct Checkpoint {
         uint32 fromBlock;
         uint224 votes;
     }
-
+    uint256 _totalSupply;
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping(address => address) private _delegates;
+    mapping(address => Counters.Counter) private _nonces;
     mapping(address => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
+
+    /**
+     * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
+     *
+     * It's a good idea to use the same `name` that is defined as the ERC721 token name.
+     
+    constructor(string memory name, string memory symbol) ERC721(name,symbol) EIP712(name, "1") {}*/
 
     /**
      * @dev Emitted when an account changes their delegate.
@@ -169,7 +181,8 @@ abstract contract ERC721Votes is ERC721 {
      */
     function _mint(address account, uint256 tokenId) internal virtual override {
         super._mint(account, tokenId);
-        require(totalSupply() <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
+        _totalSupply += 1;
+        require(_totalSupply <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
 
         _writeCheckpoint(_totalSupplyCheckpoints, _add, 1);
     }
@@ -179,7 +192,7 @@ abstract contract ERC721Votes is ERC721 {
      */
     function _burn(uint256 tokenId) internal virtual override {
         super._burn(tokenId);
-
+        _totalSupply -= 1;
         _writeCheckpoint(_totalSupplyCheckpoints, _subtract, 1);
     }
 
@@ -190,7 +203,8 @@ abstract contract ERC721Votes is ERC721 {
      */
     function _afterTokenTransfer(
         address from,
-        address to
+        address to,
+        uint256 tokenId
     ) internal virtual override{
         _moveVotingPower(delegates(from), delegates(to), 1);
     }
@@ -242,6 +256,32 @@ abstract contract ERC721Votes is ERC721 {
         } else {
             ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
         }
+    }
+
+    /**
+     * @dev "Consume a nonce": return the current value and increment.
+     *
+     * _Available since v4.1._
+     */
+    function _useNonce(address owner) internal virtual returns (uint256 current) {
+        Counters.Counter storage nonce = _nonces[owner];
+        current = nonce.current();
+        nonce.increment();
+    }
+
+    /**
+     * @dev Returns an address nonce.
+     */
+    function nonces(address owner) public view virtual returns (uint256) {
+        return _nonces[owner].current();
+    }
+
+    /**
+     * @dev Returns DOMAIN_SEPARATOR.
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function DOMAIN_SEPARATOR() external view returns (bytes32) {
+        return _domainSeparatorV4();
     }
 
     function _add(uint256 a, uint256 b) private pure returns (uint256) {
