@@ -5,7 +5,11 @@ pragma solidity ^0.8.0;
 import "../token/ERC721/extensions/ERC721Votes.sol";
 
 contract ERC721VotesMock is ERC721Votes {
+<<<<<<< HEAD
     constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}
+=======
+    constructor(string memory name, string memory symbol) ERC721(name,symbol) EIP712(name, "1") {}
+>>>>>>> Updating tests based on new contract changes
 
     function mint(address account, uint256 tokenId) public {
         _mint(account, tokenId);
