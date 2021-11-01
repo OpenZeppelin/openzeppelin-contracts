@@ -19,12 +19,7 @@ contract ERC721VotesMock is ERC721Votes {
         return block.chainid;
     }
 
-<<<<<<< HEAD
     function _maxSupply() internal pure override returns (uint224) {
         return uint224(5);
-=======
-    function _maxSupply() internal pure override returns(uint224){
-        return uint224(4);
->>>>>>> Updating ERC721Vote tests
     }
 }
