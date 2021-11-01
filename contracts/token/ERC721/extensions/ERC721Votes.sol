@@ -8,6 +8,7 @@ import "../../../utils/Counters.sol";
 import "../../../utils/math/Math.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
+import "../../../utils/cryptography/draft-EIP712.sol";
 /**
  * @dev Extension of ERC721 to support Compound-like voting and delegation. This version is more generic than Compound's,
  * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
@@ -43,7 +44,12 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
      *
      * It's a good idea to use the same `name` that is defined as the ERC721 token name.
+<<<<<<< HEAD
     */
+=======
+     
+    constructor(string memory name, string memory symbol) ERC721(name,symbol) EIP712(name, "1") {}*/
+>>>>>>> Updating tests based on new contract changes
 
     /**
      * @dev Emitted when an account changes their delegate.
@@ -179,7 +185,8 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      */
     function _mint(address account, uint256 tokenId) internal virtual override {
         super._mint(account, tokenId);
-        require(totalSupply() <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
+        _totalSupply += 1;
+        require(_totalSupply <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
 
         _writeCheckpoint(_totalSupplyCheckpoints, _add, 1);
     }
@@ -189,6 +196,10 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      */
     function _burn(uint256 tokenId) internal virtual override {
         super._burn(tokenId);
+<<<<<<< HEAD
+=======
+        _totalSupply -= 1;
+>>>>>>> Updating tests based on new contract changes
         _writeCheckpoint(_totalSupplyCheckpoints, _subtract, 1);
     }
 
@@ -199,8 +210,14 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      */
     function _afterTokenTransfer(
         address from,
+<<<<<<< HEAD
         address to
     ) internal virtual {
+=======
+        address to,
+        uint256 tokenId
+    ) internal virtual override{
+>>>>>>> Updating tests based on new contract changes
         _moveVotingPower(delegates(from), delegates(to), 1);
     }
 
