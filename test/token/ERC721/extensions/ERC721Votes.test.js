@@ -415,16 +415,16 @@ contract('ERC721Votes', function (accounts) {
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
 
         const [ t1, t2, t3 ] = await batchInBlock([
-          () => this.token.delegate(other1, { from: recipient, gas: 100000 }),
-          () => this.token.transfer(other2, NFT1, { from: recipient, gas: 100000 }),
-          () => this.token.transfer(other2, NFT2, { from: recipient, gas: 100000 }),
+          () => this.token.delegate(other1, { from: recipient, gas: 200000 }),
+          () => this.token.transfer(other2, NFT1, { from: recipient, gas: 200000 }),
+          () => this.token.transfer(other2, NFT2, { from: recipient, gas: 200000 }),
         ]);
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
-        expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '80' ]);
+        expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '0' ]);
 
         const t4 = await this.token.transfer(recipient, NFT3, { from: holder });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
-        expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '100' ]);
+        expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '1' ]);
       });
     });
 
