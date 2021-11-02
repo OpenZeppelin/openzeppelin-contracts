@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.3.2 (governance/extensions/ERC72GovernorVotesERC721.sol)
+// OpenZeppelin Contracts v4.3.2 (governance/extensions/ERC721GovernorVotesERC721.sol)
 
 pragma solidity ^0.8.0;
 
@@ -12,7 +12,7 @@ import "../../utils/math/Math.sol";
  *
  * _Available since v4.3._
  */
-abstract contract ERC72GovernorVotesERC721 is Governor {
+abstract contract GovernorVotesERC721 is Governor {
     ERC721Votes public immutable token;
 
     constructor(ERC721Votes tokenAddress) {

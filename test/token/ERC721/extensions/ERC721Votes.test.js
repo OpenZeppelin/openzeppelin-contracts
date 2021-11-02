@@ -61,7 +61,7 @@ contract('ERC721Votes', function (accounts) {
   const name = 'My Token';
   const symbol = 'MTKN';
   const version = '1';
-  const supply = new BN('10000000000000000000000000');
+  const initalTokenId = new BN('10000000000000000000000000');
 
   beforeEach(async function () {
     this.token = await ERC721VotesMock.new(name, symbol);
@@ -89,7 +89,7 @@ contract('ERC721Votes', function (accounts) {
     this.token.mint(holder, NFT1);
     this.token.mint(holder, NFT2);
     this.token.mint(holder, NFT3);
-    this.token.mint(holder, supply);
+    this.token.mint(holder, initalTokenId);
 
     await expectRevert(
       this.token.mint(holder, lastTokenId),
@@ -100,7 +100,7 @@ contract('ERC721Votes', function (accounts) {
   describe('set delegation', function () {
     describe('call', function () {
       it('delegation with tokenId', async function () {
-        await this.token.mint(holder, supply);
+        await this.token.mint(holder, initalTokenId);
         expect(await this.token.delegates(holder)).to.be.equal(ZERO_ADDRESS);
 
         const { receipt } = await this.token.delegate(holder, { from: holder });
@@ -151,7 +151,7 @@ contract('ERC721Votes', function (accounts) {
       }});
 
       beforeEach(async function () {
-        await this.token.mint(delegatorAddress, supply);
+        await this.token.mint(delegatorAddress, initalTokenId);
       });
 
       it('accept signed delegation', async function () {
@@ -257,7 +257,7 @@ contract('ERC721Votes', function (accounts) {
 
   describe('change delegation', function () {
     beforeEach(async function () {
-      await this.token.mint(holder, supply);
+      await this.token.mint(holder, initalTokenId);
       await this.token.delegate(holder, { from: holder });
     });
 
@@ -295,12 +295,12 @@ contract('ERC721Votes', function (accounts) {
 
   describe('transfers', function () {
     beforeEach(async function () {
-      await this.token.mint(holder, supply);
+      await this.token.mint(holder, initalTokenId);
     });
 
     it('no delegation', async function () {
-      const { receipt } = await this.token.transfer(recipient, supply, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
+      const { receipt } = await this.token.transferFrom(holder, recipient, initalTokenId, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: initalTokenId });
       expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
 
       this.holderVotes = '0';
@@ -310,8 +310,8 @@ contract('ERC721Votes', function (accounts) {
     it('sender delegation', async function () {
       await this.token.delegate(holder, { from: holder });
 
-      const { receipt } = await this.token.transfer(recipient, supply, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
+      const { receipt } = await this.token.transferFrom(holder, recipient, initalTokenId, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: initalTokenId });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: '1', newBalance: '0' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
@@ -324,8 +324,8 @@ contract('ERC721Votes', function (accounts) {
     it('receiver delegation', async function () {
       await this.token.delegate(recipient, { from: recipient });
 
-      const { receipt } = await this.token.transfer(recipient, supply, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
+      const { receipt } = await this.token.transferFrom(holder, recipient, initalTokenId, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: initalTokenId });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
@@ -339,8 +339,8 @@ contract('ERC721Votes', function (accounts) {
       await this.token.delegate(holder, { from: holder });
       await this.token.delegate(recipient, { from: recipient });
 
-      const { receipt } = await this.token.transfer(recipient, supply, { from: holder });
-      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: supply });
+      const { receipt } = await this.token.transferFrom(holder, recipient, initalTokenId, { from: holder });
+      expectEvent(receipt, 'Transfer', { from: holder, to: recipient, tokenId: initalTokenId });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: holder, previousBalance: '1', newBalance: '0'});
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
 
@@ -366,7 +366,7 @@ contract('ERC721Votes', function (accounts) {
   // The following tests are a adaptation of https://github.com/compound-finance/compound-protocol/blob/master/tests/Governance/CompTest.js.
   describe('Compound test suite', function () {
     beforeEach(async function () {
-      await this.token.mint(holder, supply);
+      await this.token.mint(holder, initalTokenId);
       await this.token.mint(holder, NFT1);
       await this.token.mint(holder, NFT2);
       await this.token.mint(holder, NFT3);
@@ -381,20 +381,20 @@ contract('ERC721Votes', function (accounts) {
     describe('numCheckpoints', function () {
       it('returns the number of checkpoints for a delegate', async function () {
 
-        await this.token.transfer(recipient, NFT1, { from: holder }); //give an account two tokens for readability
-        await this.token.transfer(recipient, NFT2, { from: holder }); 
+        await this.token.transferFrom(holder, recipient, NFT1, { from: holder }); //give an account two tokens for readability
+        await this.token.transferFrom(holder, recipient, NFT2, { from: holder }); 
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
 
         const t1 = await this.token.delegate(other1, { from: recipient });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
         
-        const t2 = await this.token.transfer(other2, NFT1, { from: recipient });
+        const t2 = await this.token.transferFrom(recipient, other2, NFT1, { from: recipient });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
         
-        const t3 = await this.token.transfer(other2, NFT2, { from: recipient });
+        const t3 = await this.token.transferFrom(recipient, other2, NFT2, { from: recipient });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('3');
 
-        const t4 = await this.token.transfer(recipient, NFT3, { from: holder });
+        const t4 = await this.token.transferFrom(holder, recipient, NFT3, { from: holder });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('4');
 
         expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '2' ]);
@@ -410,19 +410,19 @@ contract('ERC721Votes', function (accounts) {
       });
 
       it('does not add more than one checkpoint in a block', async function () {
-        await this.token.transfer(recipient, NFT1, { from: holder });
-        await this.token.transfer(recipient, NFT2, { from: holder });
+        await this.token.transferFrom(holder, recipient, NFT1, { from: holder });
+        await this.token.transferFrom(holder, recipient, NFT2, { from: holder });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
 
         const [ t1, t2, t3 ] = await batchInBlock([
           () => this.token.delegate(other1, { from: recipient, gas: 200000 }),
-          () => this.token.transfer(other2, NFT1, { from: recipient, gas: 200000 }),
-          () => this.token.transfer(other2, NFT2, { from: recipient, gas: 200000 }),
+          () => this.token.transferFrom(recipient, other2, NFT1, { from: recipient, gas: 200000 }),
+          () => this.token.transferFrom(recipient, other2, NFT2, { from: recipient, gas: 200000 }),
         ]);
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
         expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '0' ]);
 
-        const t4 = await this.token.transfer(recipient, NFT3, { from: holder });
+        const t4 = await this.token.transferFrom(holder, recipient, NFT3, { from: holder });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
         expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '1' ]);
       });
@@ -465,13 +465,13 @@ contract('ERC721Votes', function (accounts) {
         const t1 = await this.token.delegate(other1, { from: holder });
         await time.advanceBlock();
         await time.advanceBlock();        
-        const t2 = await this.token.transfer(other2, NFT1, { from: holder });
+        const t2 = await this.token.transferFrom(holder, other2, NFT1, { from: holder });
         await time.advanceBlock();
         await time.advanceBlock();
-        const t3 = await this.token.transfer(other2, NFT2, { from: holder });
+        const t3 = await this.token.transferFrom(holder, other2, NFT2, { from: holder });
         await time.advanceBlock();
         await time.advanceBlock();
-        const t4 = await this.token.transfer(holder, NFT2, { from: other2 });
+        const t4 = await this.token.transferFrom(other2, holder, NFT2, { from: other2 });
         await time.advanceBlock();
         await time.advanceBlock();
         
@@ -505,7 +505,7 @@ contract('ERC721Votes', function (accounts) {
     });
 
     it('returns the latest block if >= last checkpoint block', async function () {
-      t1 = await this.token.mint(holder, supply);
+      t1 = await this.token.mint(holder, initalTokenId);
 
       await time.advanceBlock();
       await time.advanceBlock();
@@ -516,7 +516,7 @@ contract('ERC721Votes', function (accounts) {
 
     it('returns zero if < first checkpoint block', async function () {
       await time.advanceBlock();
-      const t1 = await this.token.mint(holder, supply);
+      const t1 = await this.token.mint(holder, initalTokenId);
       await time.advanceBlock();
       await time.advanceBlock();
 
