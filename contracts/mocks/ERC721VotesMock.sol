@@ -2,14 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "../token/ERC721/extensions/ERC721Votes.sol";
+import "../token/ERC721/extensions/draft-ERC721Votes.sol";
 
 contract ERC721VotesMock is ERC721Votes {
-<<<<<<< HEAD
-    constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}
-=======
-    constructor(string memory name, string memory symbol) ERC721(name,symbol) EIP712(name, "1") {}
->>>>>>> Updating tests based on new contract changes
+    constructor(string memory name, string memory symbol) ERC721Votes(name, symbol) {}
 
     function mint(address account, uint256 tokenId) public {
         _mint(account, tokenId);
@@ -23,7 +19,7 @@ contract ERC721VotesMock is ERC721Votes {
         return block.chainid;
     }
 
-    function _maxSupply() internal pure override returns(uint224){
-        return uint224(4);
+    function _maxSupply() internal pure override returns (uint224) {
+        return uint224(5);
     }
 }
