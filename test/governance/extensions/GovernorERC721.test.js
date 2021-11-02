@@ -44,7 +44,7 @@ contract('GovernorERC721Mock', function (accounts) {
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
   });
 
-  describe.only('voting with ERC721 token', function () {
+  describe('voting with ERC721 token', function () {
     beforeEach(async function () {
       this.settings = {
         proposal: [
