@@ -45,11 +45,15 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      *
      * It's a good idea to use the same `name` that is defined as the ERC721 token name.
 <<<<<<< HEAD
+<<<<<<< HEAD
     */
 =======
      
     constructor(string memory name, string memory symbol) ERC721(name,symbol) EIP712(name, "1") {}*/
 >>>>>>> Updating tests based on new contract changes
+=======
+    */
+>>>>>>> Governance adocs update
 
     /**
      * @dev Emitted when an account changes their delegate.
