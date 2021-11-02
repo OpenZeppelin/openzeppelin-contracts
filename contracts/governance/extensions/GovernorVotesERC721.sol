@@ -12,7 +12,7 @@ import "../../utils/math/Math.sol";
  *
  * _Available since v4.3._
  */
-abstract contract ERC721GovernorVotesERC721 is Governor {
+abstract contract GovernorVotesERC721 is Governor {
     ERC721Votes public immutable token;
 
     constructor(ERC721Votes tokenAddress) {
