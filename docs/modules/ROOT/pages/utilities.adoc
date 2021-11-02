@@ -38,7 +38,7 @@ In Solidity, it's frequently helpful to know whether or not a contract supports 
 * xref:api:introspection.adoc#ERC165Checker[`ERC165Checker`] — ERC165Checker simplifies the process of checking whether or not a contract supports an interface you care about.
 * include with `using ERC165Checker for address;`
 * xref:api:introspection.adoc#ERC165Checker-_supportsInterface-address-bytes4-[`myAddress._supportsInterface(bytes4)`]
-* xref:api:introspection.adoc#ERC165Checker-_supportsAllInterfaces-address-bytes4---[`myAddress._supportsAllInterfaces(bytes4[])`]
+* xref:api:introspection.adoc#ERC165Checker-_supportsAllInterfaces-address-bytes4---[`myAddress._supportsAllInterfaces(bytes4[\])`]
 
 [source,solidity]
 ----
