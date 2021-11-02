@@ -41,6 +41,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{ERC721URIStorage}}
 
+{{ERC721Votes}}
+
 == Presets
 
 These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
