@@ -64,20 +64,22 @@ contract('GovernorERC721Mock', function (accounts) {
     });
 
     afterEach(async function () {
-      expect(await this.mock.hasVoted(this.id, owner)).to.be.equal(false);
-      expect(await this.mock.hasVoted(this.id, voter1)).to.be.equal(true);
-      expect(await this.mock.hasVoted(this.id, voter2)).to.be.equal(true);
-      expect(await this.mock.hasVoted(this.id, voter3)).to.be.equal(true);
-      expect(await this.mock.hasVoted(this.id, voter4)).to.be.equal(true);
+      expect(await this.mock.hasVoted(this.id, owner)).to.be.equal(false);      
 
-      this.receipts.castVote.filter(Boolean).forEach(vote => {
+      for(const vote of this.receipts.castVote.filter(Boolean)){       
         const { voter } = vote.logs.find(Boolean).args;
+        
+        expect(await this.mock.hasVoted(this.id, voter)).to.be.equal(true);
+
         expectEvent(
           vote,
           'VoteCast',
           this.settings.voters.find(({ address }) => address === voter),
         );
-      });
+
+        expect(await this.token.getVotes(voter, vote.blockNumber)).to.be.bignumber.equal('1');
+      }
+
       await this.mock.proposalVotes(this.id).then(result => {
         for (const [key, value] of Object.entries(Enums.VoteType)) {
           expect(result[`${key.toLowerCase()}Votes`]).to.be.bignumber.equal(
@@ -86,6 +88,8 @@ contract('GovernorERC721Mock', function (accounts) {
         }
       });
     });
+
     runGovernorWorkflow();
+
   });
 });
