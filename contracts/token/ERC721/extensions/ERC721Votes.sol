@@ -44,8 +44,7 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
      *
      * It's a good idea to use the same `name` that is defined as the ERC721 token name.
-     
-    constructor(string memory name, string memory symbol) ERC721(name,symbol) EIP712(name, "1") {}*/
+    */
 
     /**
      * @dev Emitted when an account changes their delegate.
