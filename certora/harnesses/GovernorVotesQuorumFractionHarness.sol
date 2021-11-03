@@ -1,14 +1,14 @@
-import "../../contracts/governance/extensions/GovernorVotesQuorumFractionGovernor.sol";
+import "../../contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 
 contract GovernorVotesQuorumFractionHarness is GovernorVotesQuorumFraction {
 
     mapping (uint256 => bool) __quoromReached;
-    function _quorumReached(uint256 proposalId) internal view override virtual returns (bool) {
+    function _quorumReached(uint256 proposalId) public view override virtual returns (bool) {
         return __quoromReached[proposalId];
     }
 
     mapping (uint256 => bool) __voteSucceeded;
-    function _voteSucceeded(uint256 proposalId) internal view override virtual returns (bool) {
+    function _voteSucceeded(uint256 proposalId) public view override virtual returns (bool) {
         return __voteSucceeded[proposalId];
     }
 

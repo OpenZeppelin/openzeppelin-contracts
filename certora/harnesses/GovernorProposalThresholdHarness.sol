@@ -15,12 +15,12 @@ contract GovernorProposalThresholdHarness is GovernorProposalThreshold {
     }
 
     mapping (uint256 => bool) __quoromReached;
-    function _quorumReached(uint256 proposalId) internal view override virtual returns (bool) {
+    function _quorumReached(uint256 proposalId) public view override virtual returns (bool) {
         return __quoromReached[proposalId];
     }
 
     mapping (uint256 => bool) __voteSucceeded;
-    function _voteSucceeded(uint256 proposalId) internal view override virtual returns (bool) {
+    function _voteSucceeded(uint256 proposalId) public view override virtual returns (bool) {
         return __voteSucceeded[proposalId];
     }
 
@@ -51,6 +51,11 @@ contract GovernorProposalThresholdHarness is GovernorProposalThreshold {
         uint256 weight
     ) internal override virtual {
         // havoc something
+    }
+
+    uint256 _proposalThreshold;
+    function proposalThreshold() public view override virtual returns (uint256) {
+        return _proposalThreshold;
     }
 
     constructor(string memory name) Governor(name) {}
