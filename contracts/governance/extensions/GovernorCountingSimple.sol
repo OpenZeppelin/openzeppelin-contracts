@@ -63,7 +63,7 @@ abstract contract GovernorCountingSimple is Governor {
     /**
      * @dev See {Governor-_quorumReached}.
      */
-    function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
+    function _quorumReached(uint256 proposalId) public view virtual override returns (bool) {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
 
         return quorum(proposalSnapshot(proposalId)) <= proposalvote.forVotes + proposalvote.abstainVotes;
@@ -72,7 +72,7 @@ abstract contract GovernorCountingSimple is Governor {
     /**
      * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be strictly over the againstVotes.
      */
-    function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
+    function _voteSucceeded(uint256 proposalId) public view virtual override returns (bool) {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
 
         return proposalvote.forVotes > proposalvote.againstVotes;

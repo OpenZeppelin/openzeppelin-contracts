@@ -4,4 +4,6 @@ Contract=$1
 Spec=$2
 shift 2
 certoraRun certora/harnesses/${Contract}Harness.sol \
-    --verify ${Contract}Harness:certora/specs/${Spec}.spec "$@"
+    --verify ${Contract}Harness:certora/specs/${Spec}.spec "$@" \
+    --solc solc8.0
+    
