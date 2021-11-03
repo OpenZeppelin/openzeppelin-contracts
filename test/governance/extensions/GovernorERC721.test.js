@@ -1,4 +1,4 @@
-const { BN, expectEvent } = require('@openzeppelin/test-helpers');
+const { expectEvent } = require('@openzeppelin/test-helpers');
 const Enums = require('../../helpers/enums');
 
 const {
@@ -29,7 +29,7 @@ contract('GovernorERC721Mock', function (accounts) {
     await this.token.mint(owner, NFT1);
     await this.token.mint(owner, NFT2);
     await this.token.mint(owner, NFT3);
-    
+
     await this.token.delegate(voter1, { from: voter1 });
     await this.token.delegate(voter2, { from: voter2 });
     await this.token.delegate(voter3, { from: voter3 });
@@ -59,16 +59,16 @@ contract('GovernorERC721Mock', function (accounts) {
           { voter: voter2, nftWeight: NFT1, support: Enums.VoteType.For },
           { voter: voter3, nftWeight: NFT2, support: Enums.VoteType.Against },
           { voter: voter4, nftWeight: NFT3, support: Enums.VoteType.Abstain },
-        ]
-      }
+        ],
+      };
     });
 
     afterEach(async function () {
-      expect(await this.mock.hasVoted(this.id, owner)).to.be.equal(false);      
+      expect(await this.mock.hasVoted(this.id, owner)).to.be.equal(false);
 
-      for(const vote of this.receipts.castVote.filter(Boolean)){       
+      for (const vote of this.receipts.castVote.filter(Boolean)) {
         const { voter } = vote.logs.find(Boolean).args;
-        
+
         expect(await this.mock.hasVoted(this.id, voter)).to.be.equal(true);
 
         expectEvent(
@@ -83,13 +83,12 @@ contract('GovernorERC721Mock', function (accounts) {
       await this.mock.proposalVotes(this.id).then(result => {
         for (const [key, value] of Object.entries(Enums.VoteType)) {
           expect(result[`${key.toLowerCase()}Votes`]).to.be.bignumber.equal(
-            Object.values(this.settings.voters).filter(({ support }) => support === value).length.toString()
+            Object.values(this.settings.voters).filter(({ support }) => support === value).length.toString(),
           );
         }
       });
     });
 
     runGovernorWorkflow();
-
   });
 });
