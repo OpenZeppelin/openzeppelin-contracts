@@ -41,6 +41,7 @@ contract GovernorVotesQuorumFractionHarness is GovernorVotesQuorumFraction {
         // havoc something
     }
 
-    constructor(string memory name) Governor(name) {}
+    constructor(ERC20Votes tokenAddr, string memory name, uint256 quorumNumeratorValue) 
+            GovernorVotesQuorumFraction(quorumNumeratorValue) GovernorVotes(tokenAddr) Governor(name) {}
 
 }
