@@ -47,5 +47,5 @@ contract GovernorVotesHarness is GovernorVotes {
         // havoc something
     }
 
-    constructor(ERC20Votes tokenAddr) GovernorVotes(tokenAddr) {}
+    constructor(ERC20Votes tokenAddr, string memory name) GovernorVotes(tokenAddr) Governor(name) {}
 }
