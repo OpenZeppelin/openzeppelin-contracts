@@ -154,12 +154,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     /**
      * @dev Amount of votes already cast passes the threshold limit.
      */
-    function _quorumReached(uint256 proposalId) public view virtual returns (bool);
+    function _quorumReached(uint256 proposalId) public view virtual returns (bool); // HARNESS: changed to public
 
     /**
      * @dev Is the proposal successful or not.
      */
-    function _voteSucceeded(uint256 proposalId) public view virtual returns (bool);
+    function _voteSucceeded(uint256 proposalId) public view virtual returns (bool); // HARNESS: changed to public
 
     /**
      * @dev Register a vote with a given support and voting weight.
