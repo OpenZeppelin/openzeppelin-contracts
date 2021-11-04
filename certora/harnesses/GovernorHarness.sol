@@ -2,6 +2,14 @@ import "../../contracts/governance/Governor.sol";
 
 contract GovernorHarness is Governor {
 
+    function isExecuted(uint256 proposalId) public view returns (bool) {
+        return _proposals[proposalId].executed;
+    }
+    
+    function isCanceled(uint256 proposalId) public view returns (bool) {
+        return _proposals[proposalId].canceled;
+    }
+
     mapping(uint256 => uint256) _quorum;
 
     function quorum(uint256 blockNumber) public view override virtual returns (uint256) {
