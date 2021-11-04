@@ -167,7 +167,7 @@ For 2) we will use GovernorVotesQuorumFraction which works together with ERC20Vo
 
 For 3) we will use GovernorCountingSimple, a module that offers 3 options to voters: For, Against, and Abstain, and where only For and Abstain votes are counted towards quorum.
 
-For 4) we will use the GovernorVotesERC721 module, which hooks to an ERC721Votes instance to determine the voting power of an account based on the token balance they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token.
+For 4) we will use the GovernorVotesERC721 module, which hooks to an ERC721Votes instance to determine the voting power of an account based on the NFTs they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token.
 
 Besides these modules, Governor itself has some parameters we must set.
 
