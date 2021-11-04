@@ -130,7 +130,7 @@ If your project requires The voting power of each account in our governance setu
 pragma solidity ^0.8.2;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Votes.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
 
 contract MyToken is ERC721, EIP712, ERC721Votes {
     constructor() ERC721("MyToken", "MTK") EIP712("MyToken", "1") {}

@@ -343,7 +343,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         emit Transfer(from, to, tokenId);
 
-        _afterTokenTransfer(from, to, tokenId);
+        _afterTokenTransfer(from, to);
     }
 
     /**
@@ -440,7 +440,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function _afterTokenTransfer(
         address from,
-        address to,
-        uint256 tokenId
+        address to
     ) internal virtual {}
 }

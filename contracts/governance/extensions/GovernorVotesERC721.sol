@@ -4,23 +4,25 @@
 pragma solidity ^0.8.0;
 
 import "../Governor.sol";
-import "../../token/ERC721/extensions/ERC721Votes.sol";
+import "../../token/ERC721/extensions/draft-ERC721Votes.sol";
 import "../../utils/math/Math.sol";
 
 /**
  * @dev Extension of {Governor} for voting weight extraction from an {ERC721Votes} token.
  *
- * _Available since v4.3._
+ * _Available since v4.5._
  */
 abstract contract GovernorVotesERC721 is Governor {
     ERC721Votes public immutable token;
-
+    /**
+     * @dev Need the ERC721Votes address to be initialized
+     */
     constructor(ERC721Votes tokenAddress) {
         token = tokenAddress;
     }
 
     /**
-     * Read the voting weight from the token's built in snapshot mechanism (see {IGovernor-getVotes}).
+     * @dev Read the voting weight from the token's built in snapshot mechanism (see {IGovernor-getVotes}).
      */
     function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         return token.getPastVotes(account, blockNumber);

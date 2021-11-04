@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.3.2 (token/ERC721/extensions/ERC721Votes.sol)
+// OpenZeppelin Contracts v4.3.2 (token/ERC721/extensions/draft-ERC721Votes.sol)
 
 pragma solidity ^0.8.0;
 
@@ -22,7 +22,7 @@ import "../../../utils/cryptography/draft-EIP712.sol";
  * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
  * will significantly increase the base gas cost of transfers.
  *
- * _Available since v4.2._
+ * _Available since v4.5._
  */
 abstract contract ERC721Votes is ERC721, EIP712 {
     using Counters for Counters.Counter;
@@ -203,9 +203,10 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      */
     function _afterTokenTransfer(
         address from,
-        address to,
-        uint256 tokenId
+        address to
     ) internal virtual override{
+        super._afterTokenTransfer(from, to);
+
         _moveVotingPower(delegates(from), delegates(to), 1);
     }
 
