@@ -71,6 +71,7 @@ function runGovernorWorkflow () {
     if (tryGet(this.settings, 'voters')) {
       this.receipts.castVote = [];
       for (const voter of this.settings.voters) {
+        console.log('voting',voter);
         if (!voter.signature) {
           this.receipts.castVote.push(
             await getReceiptOrRevert(
