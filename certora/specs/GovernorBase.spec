@@ -2,25 +2,32 @@
 methods {
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
     hashProposal(address[],uint256[],bytes[],bytes32) returns uint256 envfree
+    isExecuted(uint256) returns bool envfree
+    isCanceled(uint256) returns bool envfree
 
     // internal functions made public in harness:
     _quorumReached(uint256) returns bool envfree
     _voteSucceeded(uint256) returns bool envfree
 }
 
+/*
 ghost proposalVoteStart(uint256) returns uint64 {
     init_state axiom forall uint256 pId. proposalVoteStart(pId) == 0;
 }
 ghost proposalVoteEnd(uint256) returns uint64 {
     init_state axiom forall uint256 pId. proposalVoteEnd(pId) == 0;
 }
+*/
+
+/*
 ghost proposalExecuted(uint256) returns bool {
     init_state axiom forall uint256 pId. !proposalExecuted(pId);
 }
 ghost proposalCanceled(uint256) returns bool {
     init_state axiom forall uint256 pId. !proposalCanceled(pId);
 }
-
+*/
+/*
 hook Sstore _proposals[KEY uint256 pId].voteStart._deadline uint64 newValue STORAGE {
     havoc proposalVoteStart assuming (
         proposalVoteStart@new(pId) == newValue
@@ -42,21 +49,22 @@ hook Sstore _proposals[KEY uint256 pId].voteEnd._deadline uint64 newValue STORAG
 hook Sload uint64 value _proposals[KEY uint256 pId].voteEnd._deadline STORAGE {
     require proposalVoteEnd(pId) == value;
 }
+*/
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////// SANITY CHECKS ///////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //
-
+/*
 rule sanityCheckVoteStart(method f, uint256 pId) {
-    uint64 preGhost = proposalVoteStart(pId);
+    uint64 preGhost = _proposals(pId).voteStart._deadline;
     uint256 pre = proposalSnapshot(pId);
 
     env e;
     calldataarg arg;
     f(e, arg);
 
-    uint64 postGhost = proposalVoteStart(pId);
+    uint64 postGhost = _proposals(pId).voteStart._deadline;
     uint256 post = proposalSnapshot(pId);
 
     assert preGhost == postGhost <=> pre == post, "ghost changes are correlated with getter changes";
@@ -77,7 +85,7 @@ rule sanityCheckVoteEnd(method f, uint256 pId) {
     assert preGhost == postGhost <=> pre == post, "ghost changes are correlated with getter changes";
     assert pre == preGhost => post == postGhost, "if correlated at the beginning should be correlated at the end";
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// INVARIANTS ////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -91,12 +99,12 @@ invariant voteStartBeforeVoteEnd(uint256 pId) proposalVoteStart(pId) < proposalV
 /**
  * A proposal cannot be both executed and canceled.
  */
-invariant noBothExecutedAndCanceled(uint256 pId) !proposalExecuted(pId) || !proposalCanceled(pId)
+invariant noBothExecutedAndCanceled(uint256 pId) !isExecuted(pId) || !isCanceled(pId)
 
 /**
  * A proposal cannot be executed nor canceled before it starts
  */
-invariant noExecuteOrCancelBeforeStarting(env e, uint256 pId) e.block.timestamp < proposalVoteStart(pId) => !proposalExecuted(pId) && !proposalCanceled(pId)
+invariant noExecuteOrCancelBeforeStarting(env e, uint256 pId) e.block.timestamp < proposalVoteStart(pId) => !isExecuted(pId) && !isCanceled(pId)
 
 /**
  * The voting must start not before the proposal’s creation time

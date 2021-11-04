@@ -3,7 +3,6 @@ certoraRun certora/harnesses/GovernorHarness.sol \
     --solc solc8.0 \
     --staging \
     --optimistic_loop \
-    --disableLocalTypeChecking \
     --settings -copyLoopUnroll=4 \
-    --rule voteStartBeforeVoteEnd \
+    --rule noExecuteOrCancelBeforeStarting \
     --msg "$1"

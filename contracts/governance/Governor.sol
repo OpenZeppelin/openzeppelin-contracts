@@ -38,7 +38,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
     string private _name;
 
-    mapping(uint256 => ProposalCore) private _proposals;
+    mapping(uint256 => ProposalCore) public _proposals;
 
     /**
      * @dev Restrict access to governor executing address. Some module might override the _executor function to make
