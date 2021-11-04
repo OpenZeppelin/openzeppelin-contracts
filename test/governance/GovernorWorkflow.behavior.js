@@ -34,7 +34,7 @@ function runGovernorWorkflow () {
         } else if (voter.nfts) {
           for (const nft of voter.nfts) {
             await this.token.transferFrom(this.settings.tokenHolder, voter.voter, nft,
-            { from: this.settings.tokenHolder });
+              { from: this.settings.tokenHolder });
           }
         }
       }

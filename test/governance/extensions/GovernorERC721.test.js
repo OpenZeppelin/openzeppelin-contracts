@@ -22,6 +22,18 @@ contract('GovernorERC721Mock', function (accounts) {
   const NFT3 = web3.utils.toWei('30');
   const NFT4 = web3.utils.toWei('40');
 
+  // Must be the same as in contract
+  const ProposalState = {
+    Pending: new BN('0'),
+    Active: new BN('1'),
+    Canceled: new BN('2'),
+    Defeated: new BN('3'),
+    Succeeded: new BN('4'),
+    Queued: new BN('5'),
+    Expired: new BN('6'),
+    Executed: new BN('7'),
+  };
+
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
@@ -47,7 +59,7 @@ contract('GovernorERC721Mock', function (accounts) {
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
   });
 
-  describe.only('voting with ERC721 token', function () {
+  describe('voting with ERC721 token', function () {
     beforeEach(async function () {
       this.settings = {
         proposal: [
@@ -80,23 +92,25 @@ contract('GovernorERC721Mock', function (accounts) {
           this.settings.voters.find(({ address }) => address === voter),
         );
 
-        if (voter == voter2) {
+        if (voter === voter2) {
           expect(await this.token.getVotes(voter, vote.blockNumber)).to.be.bignumber.equal('2');
         } else {
           expect(await this.token.getVotes(voter, vote.blockNumber)).to.be.bignumber.equal('1');
-        }       
+        }
       }
 
       await this.mock.proposalVotes(this.id).then(result => {
         for (const [key, value] of Object.entries(Enums.VoteType)) {
           expect(result[`${key.toLowerCase()}Votes`]).to.be.bignumber.equal(
             Object.values(this.settings.voters).filter(({ support }) => support === value).reduce(
-              (acc, {nfts}) => acc.add(new BN(nfts.length)),
+              (acc, { nfts }) => acc.add(new BN(nfts.length)),
               new BN('0'),
-              ),
+            ),
           );
         }
       });
+
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(ProposalState.Executed);
     });
 
     runGovernorWorkflow();

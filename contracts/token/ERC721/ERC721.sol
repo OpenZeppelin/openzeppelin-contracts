@@ -423,23 +423,17 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address to,
         uint256 tokenId
     ) internal virtual {}
-     
-     /**
+
+    /**
      * @dev Hook that is called after any transfer of tokens. This includes
      * minting and burning.
      *
      * Calling conditions:
      *
-     * - when `from` and `to` are both non-zero, `tokenId` of ``from``'s tokens
-     * has been transferred to `to`.
-     * - when `from` is zero, `tokenId` tokens have been minted for `to`.
-     * - when `to` is zero, `tokenId` of ``from``'s tokens have been burned.
+     * - when `from` and `to` are both non-zero.
      * - `from` and `to` are never both zero.
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _afterTokenTransfer(
-        address from,
-        address to
-    ) internal virtual {}
+    function _afterTokenTransfer(address from, address to) internal virtual {}
 }
