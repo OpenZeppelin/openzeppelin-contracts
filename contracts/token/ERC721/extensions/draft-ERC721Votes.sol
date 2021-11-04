@@ -179,7 +179,7 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Snapshots the totalSupply after it has been increased.
      */
     function _mint(address account, uint256 tokenId) internal virtual override {
-        require(_totalSupply+1 <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
+        require(_totalSupply + 1 <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
         
         super._mint(account, tokenId);
         _totalSupply += 1;
@@ -204,7 +204,7 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     function _afterTokenTransfer(
         address from,
         address to
-    ) internal virtual override{
+    ) internal virtual override {
         super._afterTokenTransfer(from, to);
 
         _moveVotingPower(delegates(from), delegates(to), 1);
