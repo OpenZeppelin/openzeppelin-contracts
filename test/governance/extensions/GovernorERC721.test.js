@@ -1,4 +1,5 @@
 const { expectEvent } = require('@openzeppelin/test-helpers');
+const { BN } = require('bn.js');
 const Enums = require('../../helpers/enums');
 
 const {
@@ -78,18 +79,21 @@ contract('GovernorERC721Mock', function (accounts) {
           'VoteCast',
           this.settings.voters.find(({ address }) => address === voter),
         );
-        console.log(voter);
+
         if (voter == voter2) {
           expect(await this.token.getVotes(voter, vote.blockNumber)).to.be.bignumber.equal('2');
         } else {
           expect(await this.token.getVotes(voter, vote.blockNumber)).to.be.bignumber.equal('1');
-        }        
+        }       
       }
 
       await this.mock.proposalVotes(this.id).then(result => {
         for (const [key, value] of Object.entries(Enums.VoteType)) {
           expect(result[`${key.toLowerCase()}Votes`]).to.be.bignumber.equal(
-            Object.values(this.settings.voters).filter(({ support }) => support === value).length.toString(),
+            Object.values(this.settings.voters).filter(({ support }) => support === value).reduce(
+              (acc, {nfts}) => acc.add(new BN(nfts.length)),
+              new BN('0'),
+              ),
           );
         }
       });
