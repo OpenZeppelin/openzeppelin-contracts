@@ -5,7 +5,8 @@ do
     echo ${file%.*}
     certoraRun certora/harnesses/$file \
     --verify ${file%.*}:certora/specs/sanity.spec "$@" \
-    --solc solc8.0 \
-    --staging \
-    --msg "sanity ${file}"
+    --solc solc8.0 --staging \
+    --optimistic_loop \
+    --msg "checking sanity on ${file%.*}"
+    --settings -copyLoopUnroll=4
 done
