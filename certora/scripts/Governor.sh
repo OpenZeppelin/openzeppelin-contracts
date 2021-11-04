@@ -4,4 +4,6 @@ certoraRun certora/harnesses/GovernorHarness.sol \
     --staging \
     --msg $1 \
     --disableLocalTypeChecking \
-    --rule voteStartBeforeVoteEnd
+    --optimistic_loop \
+    --settings -copyLoopUnroll=4
+    --rule sanityCheckVoteStart

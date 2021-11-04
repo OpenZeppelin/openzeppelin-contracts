@@ -32,7 +32,6 @@ hook Sload uint64 value _proposals[KEY uint256 pId].voteStart._deadline STORAGE 
     require proposalVoteStart(pId) == value;
 }
 
-
 hook Sstore _proposals[KEY uint256 pId].voteEnd._deadline uint64 newValue STORAGE {
     havoc proposalVoteEnd assuming (
         proposalVoteEnd@new(pId) == newValue
