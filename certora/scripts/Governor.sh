@@ -5,4 +5,3 @@ certoraRun certora/harnesses/GovernorHarness.sol \
     --msg $1 \
     --disableLocalTypeChecking \
     --rule voteStartBeforeVoteEnd
-
