@@ -14,7 +14,10 @@ import "../../utils/math/Math.sol";
  */
 abstract contract GovernorVotesERC721 is Governor {
     ERC721Votes public immutable token;
+<<<<<<< HEAD
 
+=======
+>>>>>>> Improving documentation, adding spaces, renaming variables
     /**
      * @dev Need the ERC721Votes address to be initialized
      */
