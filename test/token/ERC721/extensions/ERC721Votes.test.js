@@ -53,14 +53,15 @@ async function batchInBlock (txs) {
 }
 
 contract('ERC721Votes', function (accounts) {
-  const [ holder, recipient, holderDelegatee, recipientDelegatee, other1, other2 ] = accounts;
+  const [ holder, recipient, holderDelegatee, recipientDelegatee, other1, other2 ] = accounts;  
+  const NFT0 = new BN('10000000000000000000000000');
   const NFT1 = new BN('10');
   const NFT2 = new BN('20');
-  const NFT3 = new BN('30');
+  const NFT3 = new BN('30');  
+  const NFT4 = new BN('40');
   const name = 'My Token';
   const symbol = 'MTKN';
   const version = '1';
-  const NFT0 = new BN('10000000000000000000000000');
 
   beforeEach(async function () {
     this.token = await ERC721VotesMock.new(name, symbol);
@@ -89,6 +90,7 @@ contract('ERC721Votes', function (accounts) {
     this.token.mint(holder, NFT2);
     this.token.mint(holder, NFT3);
     this.token.mint(holder, NFT0);
+    this.token.mint(holder, NFT4);
 
     await expectRevert(
       this.token.mint(holder, lastTokenId),

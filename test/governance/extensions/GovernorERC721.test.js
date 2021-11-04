@@ -15,20 +15,22 @@ contract('GovernorERC721Mock', function (accounts) {
   const name = 'OZ-Governor';
   const tokenName = 'MockNFToken';
   const tokenSymbol = 'MTKN';
-  const initalTokenId = web3.utils.toWei('100');
+  const NFT0 = web3.utils.toWei('100');
   const NFT1 = web3.utils.toWei('10');
   const NFT2 = web3.utils.toWei('20');
   const NFT3 = web3.utils.toWei('30');
+  const NFT4 = web3.utils.toWei('40');
 
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
     this.mock = await Governor.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
-    await this.token.mint(owner, initalTokenId);
+    await this.token.mint(owner, NFT0);
     await this.token.mint(owner, NFT1);
     await this.token.mint(owner, NFT2);
     await this.token.mint(owner, NFT3);
+    await this.token.mint(owner, NFT4);
 
     await this.token.delegate(voter1, { from: voter1 });
     await this.token.delegate(voter2, { from: voter2 });
@@ -44,7 +46,7 @@ contract('GovernorERC721Mock', function (accounts) {
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
   });
 
-  describe('voting with ERC721 token', function () {
+  describe.only('voting with ERC721 token', function () {
     beforeEach(async function () {
       this.settings = {
         proposal: [
@@ -55,10 +57,10 @@ contract('GovernorERC721Mock', function (accounts) {
         ],
         tokenHolder: owner,
         voters: [
-          { voter: voter1, nftWeight: initalTokenId, support: Enums.VoteType.For },
-          { voter: voter2, nftWeight: NFT1, support: Enums.VoteType.For },
-          { voter: voter3, nftWeight: NFT2, support: Enums.VoteType.Against },
-          { voter: voter4, nftWeight: NFT3, support: Enums.VoteType.Abstain },
+          { voter: voter1, nfts: [NFT0], support: Enums.VoteType.For },
+          { voter: voter2, nfts: [NFT1, NFT2], support: Enums.VoteType.For },
+          { voter: voter3, nfts: [NFT3], support: Enums.VoteType.Against },
+          { voter: voter4, nfts: [NFT4], support: Enums.VoteType.Abstain },
         ],
       };
     });
@@ -76,8 +78,12 @@ contract('GovernorERC721Mock', function (accounts) {
           'VoteCast',
           this.settings.voters.find(({ address }) => address === voter),
         );
-
-        expect(await this.token.getVotes(voter, vote.blockNumber)).to.be.bignumber.equal('1');
+        console.log(voter);
+        if (voter == voter2) {
+          expect(await this.token.getVotes(voter, vote.blockNumber)).to.be.bignumber.equal('2');
+        } else {
+          expect(await this.token.getVotes(voter, vote.blockNumber)).to.be.bignumber.equal('1');
+        }        
       }
 
       await this.mock.proposalVotes(this.id).then(result => {
