@@ -205,7 +205,7 @@ abstract contract ERC721Votes is ERC721, EIP712 {
         address from,
         address to,
         uint256 tokenId
-    ) internal virtual override{
+    ) internal virtual override {
         _moveVotingPower(delegates(from), delegates(to), 1);
     }
 
