@@ -9,6 +9,7 @@ import "../../../utils/math/Math.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 import "../../../utils/cryptography/draft-EIP712.sol";
+
 /**
  * @dev Extension of ERC721 to support Compound-like voting and delegation. This version is more generic than Compound's,
  * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
@@ -44,9 +45,9 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
      *
      * It's a good idea to use the same `name` that is defined as the ERC721 token name.
-    */
-    constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {} 
-    
+     */
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}
+
     /**
      * @dev Emitted when an account changes their delegate.
      */
@@ -181,10 +182,10 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      */
     function _mint(address account, uint256 tokenId) internal virtual override {
         require(_totalSupply + 1 <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
-        
+
         super._mint(account, tokenId);
         _totalSupply += 1;
-        
+
         _writeCheckpoint(_totalSupplyCheckpoints, _add, 1);
     }
 
@@ -285,6 +286,11 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     function DOMAIN_SEPARATOR() external view returns (bytes32) {
         return _domainSeparatorV4();
     }
+
+    /**
+    * @dev Returns token voting power
+    */
+    function _getVotingPower(uint tokenId) internal virtual returns(uint256) {}
 
     function _add(uint256 a, uint256 b) private pure returns (uint256) {
         return a + b;
