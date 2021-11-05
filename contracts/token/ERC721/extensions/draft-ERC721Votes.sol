@@ -288,11 +288,11 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     }
 
     /**
-    * @dev Returns token voting power
-    * The default token value is 1. To implement a different value 
-    * computation you should override it sending the tokenId.
-    */
-    function _getVotingPower() internal virtual returns(uint256) {
+     * @dev Returns token voting power
+     * The default token value is 1. To implement a different value
+     * computation you should override it sending the tokenId.
+     */
+    function _getVotingPower() internal virtual returns (uint256) {
         return 1;
     }
 
