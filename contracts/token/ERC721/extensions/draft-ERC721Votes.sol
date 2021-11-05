@@ -46,7 +46,7 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      *
      * It's a good idea to use the same `name` that is defined as the ERC721 token name.
      */
-    constructor(string memory name) EIP712(name, "1") {}
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}
 
     /**
      * @dev Emitted when an account changes their delegate.
@@ -203,10 +203,10 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      *
      * Emits a {DelegateVotesChanged} event.
      */
-    function _afterTokenTransfer(address from, address to) internal virtual override {
-        super._afterTokenTransfer(from, to);
+    function _afterTokenTransfer(address from, address to,  uint256 tokenId) internal virtual override {
+        super._afterTokenTransfer(from, to, tokenId);
 
-        _moveVotingPower(delegates(from), delegates(to), 1);
+        _moveVotingPower(delegates(from), delegates(to), _getVotingPower());
     }
 
     /**
@@ -286,8 +286,12 @@ abstract contract ERC721Votes is ERC721, EIP712 {
 
     /**
     * @dev Returns token voting power
+    * The default token value is 1. To implement a different value 
+    * computation you should override it sending the tokenId.
     */
-    function _getVotingPower(uint tokenId) internal virtual returns(uint256) {}
+    function _getVotingPower() internal virtual returns(uint256) {
+        return 1;
+    }
 
     function _add(uint256 a, uint256 b) private pure returns (uint256) {
         return a + b;
