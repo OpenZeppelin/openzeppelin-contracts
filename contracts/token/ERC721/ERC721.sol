@@ -435,5 +435,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _afterTokenTransfer(address from, address to, uint256 tokenId) internal virtual {}
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual {}
 }
