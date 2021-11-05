@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.3.2 (token/ERC721/extensions/ERC721Votes.sol)
+// OpenZeppelin Contracts v4.3.2 (token/ERC721/extensions/draft-ERC721Votes.sol)
 
 pragma solidity ^0.8.0;
 
@@ -9,6 +9,7 @@ import "../../../utils/math/Math.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 import "../../../utils/cryptography/draft-EIP712.sol";
+
 /**
  * @dev Extension of ERC721 to support Compound-like voting and delegation. This version is more generic than Compound's,
  * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
@@ -22,7 +23,7 @@ import "../../../utils/cryptography/draft-EIP712.sol";
  * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
  * will significantly increase the base gas cost of transfers.
  *
- * _Available since v4.2._
+ * _Available since v4.5._
  */
 abstract contract ERC721Votes is ERC721, EIP712 {
     using Counters for Counters.Counter;
@@ -44,7 +45,8 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
      *
      * It's a good idea to use the same `name` that is defined as the ERC721 token name.
-    */
+     */
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}
 
     /**
      * @dev Emitted when an account changes their delegate.
@@ -179,11 +181,11 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Snapshots the totalSupply after it has been increased.
      */
     function _mint(address account, uint256 tokenId) internal virtual override {
-        require(_totalSupply+1 <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
-        
+        require(_totalSupply + 1 <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
+
         super._mint(account, tokenId);
         _totalSupply += 1;
-        
+
         _writeCheckpoint(_totalSupplyCheckpoints, _add, 1);
     }
 
@@ -205,8 +207,10 @@ abstract contract ERC721Votes is ERC721, EIP712 {
         address from,
         address to,
         uint256 tokenId
-    ) internal virtual override{
-        _moveVotingPower(delegates(from), delegates(to), 1);
+    ) internal virtual override {
+        super._afterTokenTransfer(from, to, tokenId);
+
+        _moveVotingPower(delegates(from), delegates(to), _getVotingPower());
     }
 
     /**
@@ -282,6 +286,15 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() external view returns (bytes32) {
         return _domainSeparatorV4();
+    }
+
+    /**
+     * @dev Returns token voting power
+     * The default token value is 1. To implement a different value
+     * computation you should override it sending the tokenId.
+     */
+    function _getVotingPower() internal virtual returns (uint256) {
+        return 1;
     }
 
     function _add(uint256 a, uint256 b) private pure returns (uint256) {
