@@ -1,6 +1,7 @@
 // Governor.sol base definitions
 methods {
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
+    proposalDeadline(uint256) returns uint256 envfree
     hashProposal(address[],uint256[],bytes[],bytes32) returns uint256 envfree
     isExecuted(uint256) returns bool envfree
     isCanceled(uint256) returns bool envfree
@@ -91,39 +92,60 @@ rule sanityCheckVoteEnd(method f, uint256 pId) {
 //////////////////////////////////////////////////////////////////////////////
 //
 
+invariant inizialized()
+        forall uint256 pId. proposalSnapshot(pId) != 0 && proposalDeadline(pId) != 0 
+                => pId != 0
+
+invariant uninizialized(uint256 pId)
+        proposalSnapshot(pId) == 0 => proposalDeadline(pId) == 0
+
 /**
  * A proposal cannot end unless it started.
  */
-invariant voteStartBeforeVoteEnd(uint256 pId) proposalVoteStart(pId) < proposalVoteEnd(pId)
+//invariant voteStartBeforeVoteEnd1(uint256 pId) proposalSnapshot(pId) < proposalDeadline(pId)
+// ALARM
+invariant voteStartBeforeVoteEnd(uint256 pId)
+        (proposalSnapshot(pId) == 0 <=> proposalDeadline(pId) == 0) &&
+        proposalSnapshot(pId) < proposalDeadline(pId)
 
 /**
  * A proposal cannot be both executed and canceled.
  */
+ // @AK - no violations
 invariant noBothExecutedAndCanceled(uint256 pId) !isExecuted(pId) || !isCanceled(pId)
 
 /**
- * A proposal cannot be executed nor canceled before it starts
+ * A proposal cannot be neither executed nor canceled before it starts
  */
-invariant noExecuteOrCancelBeforeStarting(env e, uint256 pId) e.block.timestamp < proposalVoteStart(pId) => !isExecuted(pId) && !isCanceled(pId)
+  // @AK - violations convert to a rule
+invariant noExecuteOrCancelBeforeStarting(env e, uint256 pId) e.block.number < proposalSnapshot(pId) 
+        => !isExecuted(pId) && !isCanceled(pId)
+
+/**
+ * A proposal could be executed only if quorum was reached and vote succeeded
+ */
+  // @AK - no violations
+invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId) isExecuted(pId) => _quorumReached(pId) && _voteSucceeded(pId)
 
 /**
  * The voting must start not before the proposal’s creation time
  */
 rule noStartBeforeCreation(uint256 pId) {
-    uint previousStart = proposalVoteStart(pId);
+    uint previousStart = proposalSnapshot(pId);
     require previousStart == 0;
     env e;
     calldataarg arg;
     propose(e, arg);
 
-    uint newStart = proposalVoteStart(pId);
+    uint newStart = proposalSnapshot(pId);
     // if created, start is after creation
-    assert newStart != 0 => newStart > e.block.timestamp;
+    assert newStart != 0 => newStart >= e.block.number;
 }
 
 /**
  * Check hashProposal hashing is reliable (different inputs lead to different buffers hashed)
  */
+ /*
 rule checkHashProposal {
     address[] t1;
     address[] t2;
@@ -142,26 +164,24 @@ rule checkHashProposal {
     assert equalHashes => c1.length == c2.length;
     assert equalHashes => d1 == d2;
 }
+*/
 
-/**
- * A proposal could be executed only if quorum was reached and vote succeeded
- */
-invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId) proposalExecuted(pId) => _quorumReached(pId) && _voteSucceeded(pId)
 
 /**
  * Once a proposal is created, voteStart and voteEnd are immutable
  */
+ // @AK - no violations
 rule immutableFieldsAfterProposalCreation(uint256 pId, method f) {
-    uint _voteStart = proposalVoteStart(pId);
-    uint _voteEnd = proposalVoteEnd(pId);
+    uint _voteStart = proposalSnapshot(pId);
+    uint _voteEnd = proposalDeadline(pId);
     require _voteStart > 0; // proposal was created
 
     env e;
     calldataarg arg;
     f(e, arg);
 
-    uint voteStart_ = proposalVoteStart(pId);
-    uint voteEnd_ = proposalVoteEnd(pId);
+    uint voteStart_ = proposalSnapshot(pId);
+    uint voteEnd_ = proposalDeadline(pId);
     assert _voteStart == voteStart_;
     assert _voteEnd == voteEnd_;
 }
