@@ -40,6 +40,18 @@ invariant noExecuteOrCancelBeforeStarting(env e, uint256 pId) e.block.number < p
  */
 invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId) isExecuted(pId) => _quorumReached(pId) && _voteSucceeded(pId)
 
+/*
+ * No functions should be allowed to run after a job is deemed as canceled
+ */
+invariant cannotSetIfCanceled(uint256 pId)
+    isCanceled(pId) => lastReverted == true
+
+/*
+ * No functions should be allowed to run after a job is deemed as executed
+ */
+invariant cannotSetIfExecuted(uint256 pId)
+    isExecuted(pId) => lastReverted == true
+
 
 
 //////////////////////////////////////////////////////////////////////////////
