@@ -5,6 +5,11 @@ methods {
     hashProposal(address[],uint256[],bytes[],bytes32) returns uint256 envfree
     isExecuted(uint256) returns bool envfree
     isCanceled(uint256) returns bool envfree
+    initialized(uint256) returns bool envfree
+
+    hasVoted(uint256, address) returns bool
+
+    castVote(uint256, uint8) returns uint256
 
     // internal functions made public in harness:
     _quorumReached(uint256) returns bool envfree
@@ -23,6 +28,12 @@ methods {
 invariant voteStartBeforeVoteEnd(uint256 pId)
         (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) < proposalDeadline(pId))
              && (proposalSnapshot(pId) == 0 => proposalDeadline(pId) == 0)
+        /*
+        proposalSnapshot(pId) < proposalDeadline(pId) || (proposalSnapshot(pId) == 0 && proposalDeadline(pId) == 0)
+        { preserved {
+            require initialized(pId) == true;
+        }}
+        */
 
 /**
  * A proposal cannot be both executed and canceled.
@@ -115,4 +126,27 @@ rule immutableFieldsAfterProposalCreation(uint256 pId, method f) {
     uint voteEnd_ = proposalDeadline(pId);
     assert _voteStart == voteStart_;
     assert _voteEnd == voteEnd_;
+}
+
+/**
+* Check if it's possible to vote two time. Relevant to GovernorCountingSimpleHarness.sol contract
+*/
+rule doubleVoting(uint256 pId, uint8 sup) {
+    env e;
+    address user = e.msg.sender;
+
+    bool votedCheck = hasVoted(e, pId, user);
+    require votedCheck == true;
+
+    castVote@withrevert(e, pId, sup);
+    bool reverted = lastReverted;
+
+    assert reverted, "double voting accured";
+}
+
+/**
+* 
+*/
+rule votingSumAndPower(uint256 pId, uint8 sup, method f) {
+
 }
