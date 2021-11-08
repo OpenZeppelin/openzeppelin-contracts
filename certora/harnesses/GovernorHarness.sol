@@ -64,6 +64,19 @@ contract GovernorHarness is Governor {
         return _votingPeriod;
     }
 
+    constructor(string memory name) Governor(name) {}
+
+    // _countVots == Sum of castVote
+    // 
+    // RHS:
+    // 1) use counter_vote_power as a counter
+    // 2) use counter_vote_power as a temp var for a ghost
+    // 
+    // LHS:
+    // mapping of count
+    // countMap
+
+    mapping(uint256 => mapping(address => uint256)) counted_weight_by_id;
 
     function _countVote(
         uint256 proposalId,
@@ -71,9 +84,46 @@ contract GovernorHarness is Governor {
         uint8 support,
         uint256 weight
     ) internal override virtual {
-        // havoc something
+        counted_weight_by_id[proposalId][account] += weight;
     }
 
-    constructor(string memory name) Governor(name) {}
 
+    mapping(uint256 => uint256) counter_vote_power_by_id;
+    
+    function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
+        address voter = _msgSender();
+        // 1)
+        counter_vote_power_by_id[proposalId] += _castVote(proposalId, voter, support, "");
+        return _castVote(proposalId, voter, support, "");
+        // 2)
+        // counter_vote_power_by_id[proposalId] = _castVote(proposalId, voter, support, "");
+        // return counter_vote_power;
+    }
+
+    function castVoteWithReason(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason
+    ) public virtual override returns (uint256) {
+        address voter = _msgSender();
+        counter_vote_power_by_id[proposalId] += _castVote(proposalId, voter, support, reason);
+        return _castVote(proposalId, voter, support, reason);
+    }
+
+    function castVoteBySig(
+        uint256 proposalId,
+        uint8 support,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual override returns (uint256) {
+        address voter = ECDSA.recover(
+            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support))),
+            v,
+            r,
+            s
+        );
+        counter_vote_power_by_id[proposalId] += _castVote(proposalId, voter, support, "");
+        return _castVote(proposalId, voter, support, "");
+    }
 }
