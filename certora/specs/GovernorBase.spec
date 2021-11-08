@@ -61,7 +61,13 @@ invariant cannotSetIfCanceled(uint256 pId)
  * No functions should be allowed to run after a job is deemed as executed
  */
 invariant cannotSetIfExecuted(uint256 pId)
-    isExecuted(pId) => lastReverted == true
+    isExecuted(pId) => lastReverted == true 
+    {
+        preserved execute(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) with (env e)
+        {
+            require(isExecuted(pId));
+        }
+    }
 
 
 
