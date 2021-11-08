@@ -10,6 +10,15 @@ contract GovernorHarness is Governor {
         return _proposals[proposalId].canceled;
     }
 
+
+    function initialized(uint256 proposalId) public view returns (bool){
+        if (_proposals[proposalId].voteStart._deadline != 0 && _proposals[proposalId].voteEnd._deadline != 0) {
+            return true;
+        }
+        return false;
+    }
+
+
     mapping(uint256 => uint256) _quorum;
 
     function quorum(uint256 blockNumber) public view override virtual returns (uint256) {
@@ -64,6 +73,7 @@ contract GovernorHarness is Governor {
         return _votingPeriod;
     }
 
+
     constructor(string memory name) Governor(name) {}
 
     // _countVots == Sum of castVote
@@ -76,28 +86,32 @@ contract GovernorHarness is Governor {
     // mapping of count
     // countMap
 
-    mapping(uint256 => mapping(address => uint256)) counted_weight_by_id;
+    mapping(uint256 => uint256) counted_weight;
 
+    // uint decision;
+    // uint numberOfOptions;
     function _countVote(
         uint256 proposalId,
         address account,
         uint8 support,
         uint256 weight
     ) internal override virtual {
-        counted_weight_by_id[proposalId][account] += weight;
+        counted_weight[proposalId] += weight;
     }
 
-
-    mapping(uint256 => uint256) counter_vote_power_by_id;
+    mapping(uint256 => uint256) public counter_vote_power_by_id;
+    mapping(uint256 => uint256) public ghost_vote_power_by_id;
     
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
         address voter = _msgSender();
-        // 1)
-        counter_vote_power_by_id[proposalId] += _castVote(proposalId, voter, support, "");
-        return _castVote(proposalId, voter, support, "");
         // 2)
-        // counter_vote_power_by_id[proposalId] = _castVote(proposalId, voter, support, "");
-        // return counter_vote_power;
+        ghost_vote_power_by_id[proposalId] = _castVote(proposalId, voter, support, "");
+        
+        // 1)
+        counter_vote_power_by_id[proposalId] += ghost_vote_power_by_id[proposalId];
+
+        // return _castVote(proposalId, voter, support, "");
+        return ghost_vote_power_by_id[proposalId];
     }
 
     function castVoteWithReason(
