@@ -1,6 +1,6 @@
 = How to set up on-chain governance
 
-In this guide we will learn how OpenZeppelin’s Govenor contract works, how to set it up, and how to use it to create proposals, vote for them, and execute them, using tools provided by Ethers.js and Tally.
+In this guide we will learn how OpenZeppelin’s Governor contract works, how to set it up, and how to use it to create proposals, vote for them, and execute them, using tools provided by Ethers.js and Tally.
 
 NOTE: Find detailed contract documentation at xref:api:governance.adoc[Governance API].
 
@@ -306,7 +306,7 @@ image::tally-admin.png[Administration Panel in Tally]
 
 We will see now how to do this manually using Ethers.js.
 
-If a timelock was set up, the first step to execution is queueing. You will notice that both the queue and execute functions require passing in all of the proposal parameters, as opposed to just the proposal id. This is necessary because this data is not stored on chain, as a measure to save gas. Note that these parameters can always be found in the events emitted by the contract. The only parameter that is not sent in its entirety is the description, since this is only needed in its hashed form to compute the proposal id.
+If a timelock was set up, the first step to execution is queueing. You will notice that both the queue and execute functions require passing in the entire proposal parameters, as opposed to just the proposal id. This is necessary because this data is not stored on chain, as a measure to save gas. Note that these parameters can always be found in the events emitted by the contract. The only parameter that is not sent in its entirety is the description, since this is only needed in its hashed form to compute the proposal id.
 
 To queue, we call the queue function:
 
