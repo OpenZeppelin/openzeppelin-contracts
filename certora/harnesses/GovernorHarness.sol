@@ -120,8 +120,13 @@ contract GovernorHarness is Governor {
         string calldata reason
     ) public virtual override returns (uint256) {
         address voter = _msgSender();
-        counter_vote_power_by_id[proposalId] += _castVote(proposalId, voter, support, reason);
-        return _castVote(proposalId, voter, support, reason);
+        // 2)
+        ghost_vote_power_by_id[proposalId] = _castVote(proposalId, voter, support, reason);
+        
+        // 1)
+        counter_vote_power_by_id[proposalId] += ghost_vote_power_by_id[proposalId];
+
+        return ghost_vote_power_by_id[proposalId];
     }
 
     function castVoteBySig(
@@ -137,7 +142,12 @@ contract GovernorHarness is Governor {
             r,
             s
         );
-        counter_vote_power_by_id[proposalId] += _castVote(proposalId, voter, support, "");
-        return _castVote(proposalId, voter, support, "");
+        // 2)
+        ghost_vote_power_by_id[proposalId] = _castVote(proposalId, voter, support, "");
+
+        // 1)
+        counter_vote_power_by_id[proposalId] += ghost_vote_power_by_id[proposalId];
+
+        return ghost_vote_power_by_id[proposalId];
     }
 }
