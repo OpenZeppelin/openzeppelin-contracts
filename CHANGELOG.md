@@ -17,6 +17,10 @@
  * `Governor`: enable receiving Ether when a Timelock contract is not used. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2748))
  * `GovernorTimelockCompound`: fix ability to use Ether stored in the Timelock contract. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2748))
 
+## 4.3.3
+
+ * `ERC1155Supply`: Handle `totalSupply` changes by hooking into `_beforeTokenTransfer` to ensure consistency of balances and supply during `IERC1155Receiver.onERC1155Received` calls.
+
 ## 4.3.2 (2021-09-14)
 
  * `UUPSUpgradeable`: Add modifiers to prevent `upgradeTo` and `upgradeToAndCall` being executed on any contract that is not the active ERC1967 proxy. This prevents these functions being called on implementation contracts or minimal ERC1167 clones, in particular.
