@@ -21,8 +21,8 @@ methods {
  */
 //invariant voteStartBeforeVoteEnd1(uint256 pId) proposalSnapshot(pId) < proposalDeadline(pId)
 invariant voteStartBeforeVoteEnd(uint256 pId)
-        (proposalSnapshot(pId) == 0 <=> proposalDeadline(pId) == 0) &&
-        proposalSnapshot(pId) < proposalDeadline(pId)
+        (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) < proposalDeadline(pId))
+             && (proposalSnapshot(pId) == 0 => proposalDeadline(pId) == 0)
 
 /**
  * A proposal cannot be both executed and canceled.
