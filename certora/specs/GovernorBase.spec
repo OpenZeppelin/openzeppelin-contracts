@@ -75,28 +75,28 @@ invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId)
 /*
  * No functions should be allowed to run after a job is deemed as canceled
  */
-invariant cannotSetIfCanceled(uint256 pId)
-    isCanceled(pId) => lastReverted == true
+rule cannotSetIfCanceled(uint256 pId, method f) filtered { f-> !f.isView }{
+    require(isCanceled(pId));
+    env e; calldataarg args;
+    f(e, args);
+    assert(isCanceled(pId) => lastReverted == true, "Function did not revert when canceled");
+}
 
 /*
  * No functions should be allowed to run after a job is deemed as executed
  */
-invariant cannotSetIfExecuted(uint256 pId)
-    isExecuted(pId) => lastReverted == true 
-    {
-        preserved execute(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) with (env e)
-        {
-            require(isExecuted(pId));
-        }
-    }
+rule cannotSetIfExecuted(uint256 pId, method f) filtered { f-> !f.isView }{
+    require(isExecuted(pId));
+    env e; calldataarg args;
+    f(e, args);
+    assert(isExecuted(pId) => lastReverted == true, "Function did not revert after executed");
+}
 
 /*
  * sum of all votes casted is equal to the sum of voting power of those who voted
  */
 invariant SumOfVotesCastEqualSumOfPowerOfVoted(uint256 pId)
-        counted_weight(pId) == counter_vote_power_by_id(pId) &&
-         counted_weight(pId) == vote_power_ghost &&
-         counter_vote_power_by_id(pId) == vote_power_ghost
+        counted_weight(pId) == vote_power_ghost()
 
 //////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// RULES ////////////////////////////////////
