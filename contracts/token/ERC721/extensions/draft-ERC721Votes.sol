@@ -32,14 +32,14 @@ abstract contract ERC721Votes is ERC721, EIP712 {
         uint32 fromBlock;
         uint224 votes;
     }
-    uint256 _totalSupply;
+    uint256 _totalVotingPower;
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping(address => address) private _delegates;
     mapping(address => Counters.Counter) private _nonces;
     mapping(address => Checkpoint[]) private _checkpoints;
-    Checkpoint[] private _totalSupplyCheckpoints;
+    Checkpoint[] private _totalVotingPowerCheckpoints;
 
     /**
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
@@ -100,16 +100,16 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     }
 
     /**
-     * @dev Retrieve the `totalSupply` at the end of `blockNumber`. Note, this value is the sum of all balances.
+     * @dev Retrieve the `totalVotingPower` at the end of `blockNumber`. Note, this value is the sum of all balances.
      * It is but NOT the sum of all the delegated votes!
      *
      * Requirements:
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber) public view returns (uint256) {
+    function getPastVotingPower(uint256 blockNumber) public view returns (uint256) {
         require(blockNumber < block.number, "ERC721Votes: block not yet mined");
-        return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
+        return _checkpointsLookup(_totalVotingPowerCheckpoints, blockNumber);
     }
 
     /**
@@ -181,12 +181,12 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Snapshots the totalSupply after it has been increased.
      */
     function _mint(address account, uint256 tokenId) internal virtual override {
-        require(_totalSupply + 1 <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
+        require(_totalVotingPower + 1 <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
 
         super._mint(account, tokenId);
-        _totalSupply += 1;
+        _totalVotingPower += 1;
 
-        _writeCheckpoint(_totalSupplyCheckpoints, _add, 1);
+        _writeCheckpoint(_totalVotingPowerCheckpoints, _add, 1);
     }
 
     /**
@@ -194,8 +194,8 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      */
     function _burn(uint256 tokenId) internal virtual override {
         super._burn(tokenId);
-        _totalSupply -= 1;
-        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, 1);
+        _totalVotingPower -= 1;
+        _writeCheckpoint(_totalVotingPowerCheckpoints, _subtract, 1);
     }
 
     /**
@@ -210,7 +210,7 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     ) internal virtual override {
         super._afterTokenTransfer(from, to, tokenId);
 
-        _moveVotingPower(delegates(from), delegates(to), _getVotingPower());
+        _moveVotingPower(delegates(from), delegates(to), 1);
     }
 
     /**
@@ -286,15 +286,6 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() external view returns (bytes32) {
         return _domainSeparatorV4();
-    }
-
-    /**
-     * @dev Returns token voting power
-     * The default token value is 1. To implement a different value
-     * computation you should override it sending the tokenId.
-     */
-    function _getVotingPower() internal virtual returns (uint256) {
-        return 1;
     }
 
     function _add(uint256 a, uint256 b) private pure returns (uint256) {
