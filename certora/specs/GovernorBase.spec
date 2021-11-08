@@ -1,4 +1,6 @@
-// Governor.sol base definitions
+//////////////////////////////////////////////////////////////////////////////
+///////////////////// Governor.sol base definitions //////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 methods {
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
     proposalDeadline(uint256) returns uint256 envfree
@@ -14,7 +16,23 @@ methods {
     // internal functions made public in harness:
     _quorumReached(uint256) returns bool envfree
     _voteSucceeded(uint256) returns bool envfree
+
+    // getter for checking the sums
+    counter_vote_power_by_id(uint256) returns uint256 envfree
+    ghost_vote_power_by_id(uint256) returns uint256 envfree
+    counted_weight(uint256) returns uint256 envfree
 }
+
+//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////// GHOSTS /////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+ghost vote_power_ghost() returns uint256;
+
+hook Sstore ghost_vote_power_by_id[KEY uint256 pId] uint256 current_power STORAGE{
+    havoc vote_power_ghost assuming vote_power_ghost@new() == vote_power_ghost@old() + current_power;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// INVARIANTS ////////////////////////////////////
@@ -38,18 +56,21 @@ invariant voteStartBeforeVoteEnd(uint256 pId)
 /**
  * A proposal cannot be both executed and canceled.
  */
-invariant noBothExecutedAndCanceled(uint256 pId) !isExecuted(pId) || !isCanceled(pId)
+invariant noBothExecutedAndCanceled(uint256 pId) 
+        !isExecuted(pId) || !isCanceled(pId)
 
 /**
  * A proposal cannot be neither executed nor canceled before it starts
  */
-invariant noExecuteOrCancelBeforeStarting(env e, uint256 pId) e.block.number < proposalSnapshot(pId) 
-        => !isExecuted(pId) && !isCanceled(pId)
+invariant noExecuteOrCancelBeforeStarting(env e, uint256 pId) 
+        e.block.number < proposalSnapshot(pId) 
+            => !isExecuted(pId) && !isCanceled(pId)
 
 /**
  * A proposal could be executed only if quorum was reached and vote succeeded
  */
-invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId) isExecuted(pId) => _quorumReached(pId) && _voteSucceeded(pId)
+invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId) 
+        isExecuted(pId) => _quorumReached(pId) && _voteSucceeded(pId)
 
 /*
  * No functions should be allowed to run after a job is deemed as canceled
@@ -69,7 +90,13 @@ invariant cannotSetIfExecuted(uint256 pId)
         }
     }
 
-
+/*
+ * sum of all votes casted is equal to the sum of voting power of those who voted
+ */
+invariant SumOfVotesCastEqualSumOfPowerOfVoted(uint256 pId)
+        counted_weight(pId) == counter_vote_power_by_id(pId) &&
+         counted_weight(pId) == vote_power_ghost &&
+         counter_vote_power_by_id(pId) == vote_power_ghost
 
 //////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// RULES ////////////////////////////////////
@@ -148,11 +175,4 @@ rule doubleVoting(uint256 pId, uint8 sup) {
     bool reverted = lastReverted;
 
     assert reverted, "double voting accured";
-}
-
-/**
-* 
-*/
-rule votingSumAndPower(uint256 pId, uint8 sup, method f) {
-
 }
