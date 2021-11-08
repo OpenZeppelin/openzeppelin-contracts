@@ -32,7 +32,10 @@ abstract contract GovernorExtendedVoting is Governor {
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalState status = super.state(proposalId);
 
-        if ((status == ProposalState.Defeated || status == ProposalState.Succeeded) && _extendedVoteEnd[proposalId].getDeadline() >= block.number) {
+        if (
+            (status == ProposalState.Defeated || status == ProposalState.Succeeded) &&
+            _extendedVoteEnd[proposalId].getDeadline() >= block.number
+        ) {
             return ProposalState.Active;
         }
 
