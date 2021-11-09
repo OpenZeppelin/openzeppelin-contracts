@@ -147,7 +147,7 @@ rule immutableFieldsAfterProposalCreation(uint256 pId, method f) {
 }
 
 /**
-* Check if it's possible to vote two time. Relevant to GovernorCountingSimpleHarness.sol contract
+* A user cannot vote twice
 */
 rule doubleVoting(uint256 pId, uint8 sup) {
     env e;
