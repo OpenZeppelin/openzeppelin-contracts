@@ -97,7 +97,7 @@ abstract contract GovernorCountingSimple is Governor {
         } else if (support == uint8(VoteType.For)) {
             proposalvote.forVotes += weight;
         } else if (support == uint8(VoteType.Abstain)) {
-            proposalvote.abstainVotes += weight;
+     //       proposalvote.abstainVotes += weight;
         } else {
             revert("GovernorVotingSimple: invalid value for enum VoteType");
         }

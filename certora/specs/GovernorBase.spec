@@ -19,18 +19,8 @@ methods {
 
     // getter for checking the sums
     counter_vote_power_by_id(uint256) returns uint256 envfree
-    ghost_vote_power_by_id(uint256) returns uint256 envfree
+    ghost_sum_vote_power_by_id(uint256) returns uint256 envfree
     counted_weight(uint256) returns uint256 envfree
-}
-
-//////////////////////////////////////////////////////////////////////////////
-///////////////////////////////// GHOSTS /////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-ghost vote_power_ghost() returns uint256;
-
-hook Sstore ghost_vote_power_by_id[KEY uint256 pId] uint256 current_power STORAGE{
-    havoc vote_power_ghost assuming vote_power_ghost@new() == vote_power_ghost@old() + current_power;
 }
 
 
@@ -92,11 +82,6 @@ rule cannotSetIfExecuted(uint256 pId, method f) filtered { f-> !f.isView }{
     assert(isExecuted(pId) => lastReverted == true, "Function did not revert after executed");
 }
 
-/*
- * sum of all votes casted is equal to the sum of voting power of those who voted
- */
-invariant SumOfVotesCastEqualSumOfPowerOfVoted(uint256 pId)
-        counted_weight(pId) == vote_power_ghost()
 
 //////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// RULES ////////////////////////////////////
@@ -174,10 +159,5 @@ rule doubleVoting(uint256 pId, uint8 sup) {
     castVote@withrevert(e, pId, sup);
     bool reverted = lastReverted;
 
-    assert reverted, "double voting accured";
+    assert votedCheck => reverted, "double voting accured";
 }
-
-/**
-* 
-*/
-//rule votingSumAndPower(uint256 pId, uint8 sup, method f) {}

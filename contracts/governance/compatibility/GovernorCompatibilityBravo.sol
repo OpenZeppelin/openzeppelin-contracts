@@ -260,7 +260,7 @@ abstract contract GovernorCompatibilityBravo is
     /**
      * @dev See {Governor-_quorumReached}. In this module, only forVotes count toward the quorum.
      */
-    function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
+    function _quorumReached(uint256 proposalId) public view virtual override returns (bool) { // HARNESS: changed to public from internal
         ProposalDetails storage details = _proposalDetails[proposalId];
         return quorum(proposalSnapshot(proposalId)) < details.forVotes;
     }
@@ -268,7 +268,7 @@ abstract contract GovernorCompatibilityBravo is
     /**
      * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
      */
-    function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
+    function _voteSucceeded(uint256 proposalId) public view virtual override returns (bool) { // HARNESS: changed to public from internal
         ProposalDetails storage details = _proposalDetails[proposalId];
         return details.forVotes > details.againstVotes;
     }

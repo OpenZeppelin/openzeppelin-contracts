@@ -41,16 +41,21 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
         return _votingPeriod;
     }
 
-/*
-    function votingDelay() public pure override returns (uint256) {
-        return _votingDelay;
-    }
 
+    mapping(uint256 => uint256) public ghost_sum_vote_power_by_id;
 
-    function votingPeriod() public pure override returns (uint256) {
-        return _votingPeriod;
+    function _castVote(
+        uint256 proposalId,
+        address account,
+        uint8 support,
+        string memory reason
+    ) internal override virtual returns (uint256) {
+        
+        uint deltaWeight = super._castVote(proposalId, account, support, reason);  //HARNESS
+        ghost_sum_vote_power_by_id[proposalId] += deltaWeight;
+
+        return deltaWeight;        
     }
-*/
 
     // The following functions are overrides required by Solidity.
 
