@@ -7,7 +7,7 @@ methods {
     hashProposal(address[],uint256[],bytes[],bytes32) returns uint256 envfree
     isExecuted(uint256) returns bool envfree
     isCanceled(uint256) returns bool envfree
-    initialized(uint256) returns bool envfree
+    // initialized(uint256) returns bool envfree
 
     hasVoted(uint256, address) returns bool
 
@@ -176,3 +176,8 @@ rule doubleVoting(uint256 pId, uint8 sup) {
 
     assert reverted, "double voting accured";
 }
+
+/**
+* 
+*/
+//rule votingSumAndPower(uint256 pId, uint8 sup, method f) {}
