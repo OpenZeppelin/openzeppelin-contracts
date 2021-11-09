@@ -14,7 +14,7 @@ methods {
     castVote(uint256, uint8) returns uint256
 
     // internal functions made public in harness:
-    _quorumReached(uint256) returns bool envfre
+    _quorumReached(uint256) returns bool envfree
     _voteSucceeded(uint256) returns bool envfree
 
     // getter for checking the sums
