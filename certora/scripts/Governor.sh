@@ -4,5 +4,5 @@ certoraRun certora/harnesses/GovernorHarness.sol \
     --staging \
     --optimistic_loop \
     --settings -copyLoopUnroll=4 \
-    --rule noExecuteOrCancelBeforeStarting \
+    --rule voteStartBeforeVoteEnd \
     --msg "$1"
