@@ -51,7 +51,7 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
         string memory reason
     ) internal override virtual returns (uint256) {
         
-        uint deltaWeight = super._castVote(proposalId, account, support, reason);  //HARNESS
+        uint256 deltaWeight = super._castVote(proposalId, account, support, reason);  //HARNESS
         ghost_sum_vote_power_by_id[proposalId] += deltaWeight;
 
         return deltaWeight;        
