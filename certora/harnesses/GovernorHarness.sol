@@ -74,6 +74,16 @@ contract GovernorHarness is Governor {
     }
 
 
+    function _countVote(
+        uint256 proposalId,
+        address account,
+        uint8 support,
+        uint256 weight
+    ) internal override virtual {
+        // havoc something
+    }
+
+
     constructor(string memory name) Governor(name) {}
 
     // _countVots == Sum of castVote
@@ -86,68 +96,12 @@ contract GovernorHarness is Governor {
     // mapping of count
     // countMap
 
-    mapping(uint256 => uint256) counted_weight;
-
     // uint decision;
     // uint numberOfOptions;
-    function _countVote(
-        uint256 proposalId,
-        address account,
-        uint8 support,
-        uint256 weight
-    ) internal override virtual {
-        counted_weight[proposalId] += weight;
-    }
 
-    mapping(uint256 => uint256) public counter_vote_power_by_id;
-    mapping(uint256 => uint256) public ghost_vote_power_by_id;
-    
-    function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
-        address voter = _msgSender();
-        // 2)
-        ghost_vote_power_by_id[proposalId] = _castVote(proposalId, voter, support, "");
-        
-        // 1)
-        counter_vote_power_by_id[proposalId] += ghost_vote_power_by_id[proposalId];
-
-        // return _castVote(proposalId, voter, support, "");
-        return ghost_vote_power_by_id[proposalId];
-    }
-
-    function castVoteWithReason(
-        uint256 proposalId,
-        uint8 support,
-        string calldata reason
-    ) public virtual override returns (uint256) {
-        address voter = _msgSender();
-        // 2)
-        ghost_vote_power_by_id[proposalId] = _castVote(proposalId, voter, support, reason);
-        
-        // 1)
-        counter_vote_power_by_id[proposalId] += ghost_vote_power_by_id[proposalId];
-
-        return ghost_vote_power_by_id[proposalId];
-    }
-
-    function castVoteBySig(
-        uint256 proposalId,
-        uint8 support,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public virtual override returns (uint256) {
-        address voter = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support))),
-            v,
-            r,
-            s
-        );
-        // 2)
-        ghost_vote_power_by_id[proposalId] = _castVote(proposalId, voter, support, "");
-
-        // 1)
-        counter_vote_power_by_id[proposalId] += ghost_vote_power_by_id[proposalId];
-
-        return ghost_vote_power_by_id[proposalId];
+    function callPropose(address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas) public virtual returns (uint256) {
+        return super.propose(targets, values, calldatas, "");
     }
 }
