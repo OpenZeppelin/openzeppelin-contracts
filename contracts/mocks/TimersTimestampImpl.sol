@@ -5,20 +5,21 @@ pragma solidity ^0.8.0;
 import "../utils/Timers.sol";
 
 contract TimersTimestampImpl {
+    using Timers for uint64;
     using Timers for Timers.Timestamp;
 
     Timers.Timestamp private _timer;
 
     function getDeadline() public view returns (uint64) {
-        return _timer.getDeadline();
+        return _timer.toUint64();
     }
 
     function setDeadline(uint64 timestamp) public {
-        _timer.setDeadline(timestamp);
+        _timer = timestamp.toTimestamp();
     }
 
     function reset() public {
-        _timer.reset();
+        _timer = uint64(0).toTimestamp();
     }
 
     function isUnset() public view returns (bool) {

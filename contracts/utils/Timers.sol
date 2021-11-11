@@ -1,73 +1,60 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.3.2 (utils/Timers.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.8;
 
 /**
  * @dev Tooling for timepoints, timers and delays
  */
 library Timers {
-    struct Timestamp {
-        uint64 _deadline;
+    type Timestamp is uint64;
+    type BlockNumber is uint64;
+
+    function toTimestamp(uint64 timer) internal pure returns (Timestamp) {
+        return Timestamp.wrap(timer);
     }
 
-    function getDeadline(Timestamp memory timer) internal pure returns (uint64) {
-        return timer._deadline;
+    function toUint64(Timestamp timer) internal pure returns (uint64) {
+        return Timestamp.unwrap(timer);
     }
 
-    function setDeadline(Timestamp storage timer, uint64 timestamp) internal {
-        timer._deadline = timestamp;
+    function isUnset(Timestamp timer) internal pure returns (bool) {
+        return Timestamp.unwrap(timer) == 0;
     }
 
-    function reset(Timestamp storage timer) internal {
-        timer._deadline = 0;
+    function isStarted(Timestamp timer) internal pure returns (bool) {
+        return Timestamp.unwrap(timer) > 0;
     }
 
-    function isUnset(Timestamp memory timer) internal pure returns (bool) {
-        return timer._deadline == 0;
+    function isPending(Timestamp timer) internal view returns (bool) {
+        return Timestamp.unwrap(timer) > block.timestamp;
     }
 
-    function isStarted(Timestamp memory timer) internal pure returns (bool) {
-        return timer._deadline > 0;
+    function isExpired(Timestamp timer) internal view returns (bool) {
+        return isStarted(timer) && Timestamp.unwrap(timer) <= block.timestamp;
     }
 
-    function isPending(Timestamp memory timer) internal view returns (bool) {
-        return timer._deadline > block.timestamp;
+    function toBlockNumber(uint64 timer) internal pure returns (BlockNumber) {
+        return BlockNumber.wrap(timer);
     }
 
-    function isExpired(Timestamp memory timer) internal view returns (bool) {
-        return isStarted(timer) && timer._deadline <= block.timestamp;
+    function toUint64(BlockNumber timer) internal pure returns (uint64) {
+        return BlockNumber.unwrap(timer);
     }
 
-    struct BlockNumber {
-        uint64 _deadline;
+    function isUnset(BlockNumber timer) internal pure returns (bool) {
+        return BlockNumber.unwrap(timer) == 0;
     }
 
-    function getDeadline(BlockNumber memory timer) internal pure returns (uint64) {
-        return timer._deadline;
+    function isStarted(BlockNumber timer) internal pure returns (bool) {
+        return BlockNumber.unwrap(timer) > 0;
     }
 
-    function setDeadline(BlockNumber storage timer, uint64 timestamp) internal {
-        timer._deadline = timestamp;
+    function isPending(BlockNumber timer) internal view returns (bool) {
+        return BlockNumber.unwrap(timer) > block.number;
     }
 
-    function reset(BlockNumber storage timer) internal {
-        timer._deadline = 0;
-    }
-
-    function isUnset(BlockNumber memory timer) internal pure returns (bool) {
-        return timer._deadline == 0;
-    }
-
-    function isStarted(BlockNumber memory timer) internal pure returns (bool) {
-        return timer._deadline > 0;
-    }
-
-    function isPending(BlockNumber memory timer) internal view returns (bool) {
-        return timer._deadline > block.number;
-    }
-
-    function isExpired(BlockNumber memory timer) internal view returns (bool) {
-        return isStarted(timer) && timer._deadline <= block.number;
+    function isExpired(BlockNumber timer) internal view returns (bool) {
+        return isStarted(timer) && BlockNumber.unwrap(timer) <= block.number;
     }
 }

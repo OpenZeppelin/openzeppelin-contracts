@@ -25,6 +25,7 @@ import "./IGovernor.sol";
  */
 abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     using SafeCast for uint256;
+    using Timers for uint64;
     using Timers for Timers.BlockNumber;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
@@ -116,9 +117,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
             return ProposalState.Executed;
         } else if (proposal.canceled) {
             return ProposalState.Canceled;
-        } else if (proposal.voteStart.getDeadline() >= block.number) {
+        } else if (proposal.voteStart.toUint64() >= block.number) {
             return ProposalState.Pending;
-        } else if (proposal.voteEnd.getDeadline() >= block.number) {
+        } else if (proposal.voteEnd.toUint64() >= block.number) {
             return ProposalState.Active;
         } else if (proposal.voteEnd.isExpired()) {
             return
@@ -134,14 +135,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * @dev See {IGovernor-proposalSnapshot}.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].voteStart.getDeadline();
+        return _proposals[proposalId].voteStart.toUint64();
     }
 
     /**
      * @dev See {IGovernor-proposalDeadline}.
      */
     function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].voteEnd.getDeadline();
+        return _proposals[proposalId].voteEnd.toUint64();
     }
 
     /**
@@ -199,8 +200,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint64 snapshot = block.number.toUint64() + votingDelay().toUint64();
         uint64 deadline = snapshot + votingPeriod().toUint64();
 
-        proposal.voteStart.setDeadline(snapshot);
-        proposal.voteEnd.setDeadline(deadline);
+        proposal.voteStart = snapshot.toBlockNumber();
+        proposal.voteEnd = deadline.toBlockNumber();
 
         emit ProposalCreated(
             proposalId,
@@ -339,7 +340,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         ProposalCore storage proposal = _proposals[proposalId];
         require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
 
-        uint256 weight = getVotes(account, proposal.voteStart.getDeadline());
+        uint256 weight = getVotes(account, proposal.voteStart.toUint64());
         _countVote(proposalId, account, support, weight);
 
         emit VoteCast(account, proposalId, support, weight, reason);
