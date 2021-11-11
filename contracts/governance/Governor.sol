@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.3.2 (governance/Governor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -115,9 +116,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
             return ProposalState.Executed;
         } else if (proposal.canceled) {
             return ProposalState.Canceled;
-        } else if (proposal.voteStart.isPending()) {
+        } else if (proposal.voteStart.getDeadline() >= block.number) {
             return ProposalState.Pending;
-        } else if (proposal.voteEnd.isPending()) {
+        } else if (proposal.voteEnd.getDeadline() >= block.number) {
             return ProposalState.Active;
         } else if (proposal.voteEnd.isExpired()) {
             return
@@ -141,6 +142,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposals[proposalId].voteEnd.getDeadline();
+    }
+
+    /**
+     * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
+     */
+    function proposalThreshold() public view virtual returns (uint256) {
+        return 0;
     }
 
     /**
@@ -174,6 +182,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
+        require(
+            getVotes(msg.sender, block.number - 1) >= proposalThreshold(),
+            "GovernorCompatibilityBravo: proposer votes below proposal threshold"
+        );
+
         uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
         require(targets.length == values.length, "Governor: invalid proposal length");

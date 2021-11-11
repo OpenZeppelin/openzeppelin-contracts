@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.3.2 (governance/compatibility/GovernorCompatibilityBravo.sol)
 
 pragma solidity ^0.8.0;
 
 import "../../utils/Counters.sol";
 import "../../utils/math/SafeCast.sol";
 import "../extensions/IGovernorTimelock.sol";
-import "../extensions/GovernorProposalThreshold.sol";
 import "../Governor.sol";
 import "./IGovernorCompatibilityBravo.sol";
 
@@ -19,12 +19,7 @@ import "./IGovernorCompatibilityBravo.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorCompatibilityBravo is
-    IGovernorTimelock,
-    IGovernorCompatibilityBravo,
-    Governor,
-    GovernorProposalThreshold
-{
+abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorCompatibilityBravo, Governor {
     using Counters for Counters.Counter;
     using Timers for Timers.BlockNumber;
 
@@ -63,7 +58,7 @@ abstract contract GovernorCompatibilityBravo is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override(IGovernor, Governor, GovernorProposalThreshold) returns (uint256) {
+    ) public virtual override(IGovernor, Governor) returns (uint256) {
         _storeProposal(_msgSender(), targets, values, new string[](calldatas.length), calldatas, description);
         return super.propose(targets, values, calldatas, description);
     }
@@ -169,16 +164,6 @@ abstract contract GovernorCompatibilityBravo is
     }
 
     // ==================================================== Views =====================================================
-    /**
-     * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
-     */
-    function proposalThreshold()
-        public
-        view
-        virtual
-        override(IGovernorCompatibilityBravo, GovernorProposalThreshold)
-        returns (uint256);
-
     /**
      * @dev See {IGovernorCompatibilityBravo-proposals}.
      */

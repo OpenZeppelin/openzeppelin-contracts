@@ -26,6 +26,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{IERC1155Receiver}}
 
+{{ERC1155Receiver}}
+
 == Extensions
 
 {{ERC1155Pausable}}

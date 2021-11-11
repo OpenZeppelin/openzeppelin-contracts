@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.3.2 (governance/IGovernor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -73,7 +74,7 @@ abstract contract IGovernor is IERC165 {
      *
      * There are 2 standard keys: `support` and `quorum`.
      *
-     * - `support=bravo` refers to the vote options 0 = For, 1 = Against, 2 = Abstain, as in `GovernorBravo`.
+     * - `support=bravo` refers to the vote options 0 = Against, 1 = For, 2 = Abstain, as in `GovernorBravo`.
      * - `quorum=bravo` means that only For votes are counted towards quorum.
      * - `quorum=for,abstain` means that both For and Abstain votes are counted towards quorum.
      *
@@ -103,28 +104,31 @@ abstract contract IGovernor is IERC165 {
 
     /**
      * @notice module:core
-     * @dev block number used to retrieve user's votes and quorum.
+     * @dev Block number used to retrieve user's votes and quorum. As per Compound's Comp and OpenZeppelin's
+     * ERC20Votes, the snapshot is performed at the end of this block. Hence, voting for this proposal starts at the
+     * beginning of the following block.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);
 
     /**
      * @notice module:core
-     * @dev timestamp at which votes close.
+     * @dev Block number at which votes close. Votes close at the end of this block, so it is possible to cast a vote
+     * during this block.
      */
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
 
     /**
      * @notice module:user-config
-     * @dev delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
+     * @dev Delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
      * leave time for users to buy voting power, of delegate it, before the voting of a proposal starts.
      */
     function votingDelay() public view virtual returns (uint256);
 
     /**
      * @notice module:user-config
-     * @dev delay, in number of blocks, between the vote start and vote ends.
+     * @dev Delay, in number of blocks, between the vote start and vote ends.
      *
-     * Note: the {votingDelay} can delay the start of the vote. This must be considered when setting the voting
+     * NOTE: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
      */
     function votingPeriod() public view virtual returns (uint256);

@@ -3,14 +3,16 @@
 pragma solidity ^0.8.0;
 
 import "../governance/compatibility/GovernorCompatibilityBravo.sol";
-import "../governance/extensions/GovernorVotesComp.sol";
 import "../governance/extensions/GovernorTimelockCompound.sol";
+import "../governance/extensions/GovernorSettings.sol";
+import "../governance/extensions/GovernorVotesComp.sol";
 
-contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorTimelockCompound, GovernorVotesComp {
-    uint256 immutable _votingDelay;
-    uint256 immutable _votingPeriod;
-    uint256 immutable _proposalThreshold;
-
+contract GovernorCompatibilityBravoMock is
+    GovernorCompatibilityBravo,
+    GovernorSettings,
+    GovernorTimelockCompound,
+    GovernorVotesComp
+{
     constructor(
         string memory name_,
         ERC20VotesComp token_,
@@ -18,11 +20,12 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         uint256 votingPeriod_,
         uint256 proposalThreshold_,
         ICompoundTimelock timelock_
-    ) Governor(name_) GovernorVotesComp(token_) GovernorTimelockCompound(timelock_) {
-        _votingDelay = votingDelay_;
-        _votingPeriod = votingPeriod_;
-        _proposalThreshold = proposalThreshold_;
-    }
+    )
+        Governor(name_)
+        GovernorTimelockCompound(timelock_)
+        GovernorSettings(votingDelay_, votingPeriod_, proposalThreshold_)
+        GovernorVotesComp(token_)
+    {}
 
     function supportsInterface(bytes4 interfaceId)
         public
@@ -32,18 +35,6 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
-    }
-
-    function votingDelay() public view override returns (uint256) {
-        return _votingDelay;
-    }
-
-    function votingPeriod() public view override returns (uint256) {
-        return _votingPeriod;
-    }
-
-    function proposalThreshold() public view virtual override returns (uint256) {
-        return _proposalThreshold;
     }
 
     function quorum(uint256) public pure override returns (uint256) {
@@ -68,6 +59,10 @@ contract GovernorCompatibilityBravoMock is GovernorCompatibilityBravo, GovernorT
         returns (uint256)
     {
         return super.proposalEta(proposalId);
+    }
+
+    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
+        return super.proposalThreshold();
     }
 
     function propose(

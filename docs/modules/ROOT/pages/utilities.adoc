@@ -16,7 +16,7 @@ The data signer can be recovered with xref:api:cryptography.adoc#ECDSA-recover-b
 using ECDSA for bytes32;
 
 function _verify(bytes32 data, bytes memory signature, address account) internal pure returns (bool) {
-    return keccak256(data)
+    return data
         .toEthSignedMessageHash()
         .recover(signature) == account;
 }
@@ -31,14 +31,14 @@ xref:api:cryptography.adoc#MerkleProof[`MerkleProof`] provides xref:api:cryptogr
 [[introspection]]
 == Introspection
 
-In Solidity, it's frequently helpful to know whether or not a contract supports an interface you'd like to use. ERC165 is a standard that helps do runtime interface detection. Contracts provides helpers both for implementing ERC165 in your contracts and querying other contracts:
+In Solidity, it's frequently helpful to know whether or not a contract supports an interface you'd like to use. ERC165 is a standard that helps do runtime interface detection. Contracts provide helpers both for implementing ERC165 in your contracts and querying other contracts:
 
 * xref:api:introspection.adoc#IERC165[`IERC165`] — this is the ERC165 interface that defines xref:api:introspection.adoc#IERC165-supportsInterface-bytes4-[`supportsInterface`]. When implementing ERC165, you'll conform to this interface.
 * xref:api:introspection.adoc#ERC165[`ERC165`] — inherit this contract if you'd like to support interface detection using a lookup table in contract storage. You can register interfaces using xref:api:introspection.adoc#ERC165-_registerInterface-bytes4-[`_registerInterface(bytes4)`]: check out example usage as part of the ERC721 implementation.
 * xref:api:introspection.adoc#ERC165Checker[`ERC165Checker`] — ERC165Checker simplifies the process of checking whether or not a contract supports an interface you care about.
 * include with `using ERC165Checker for address;`
 * xref:api:introspection.adoc#ERC165Checker-_supportsInterface-address-bytes4-[`myAddress._supportsInterface(bytes4)`]
-* xref:api:introspection.adoc#ERC165Checker-_supportsAllInterfaces-address-bytes4---[`myAddress._supportsAllInterfaces(bytes4[])`]
+* xref:api:introspection.adoc#ERC165Checker-_supportsAllInterfaces-address-bytes4---[`myAddress._supportsAllInterfaces(bytes4[\])`]
 
 [source,solidity]
 ----
