@@ -82,7 +82,7 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 == Timelock
 
-In a governance system, the {TimelockController} contract is in carge of introducing a delay between a proposal and its execution. It can be used with or without a {Governor}.
+In a governance system, the {TimelockController} contract is in charge of introducing a delay between a proposal and its execution. It can be used with or without a {Governor}.
 
 {{TimelockController}}
 
