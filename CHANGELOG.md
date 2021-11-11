@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.3.3
+## 4.3.3 (2021-11-11)
 
  * `ERC1155Supply`: Handle `totalSupply` changes by hooking into `_beforeTokenTransfer` to ensure consistency of balances and supply during `IERC1155Receiver.onERC1155Received` calls.
 
