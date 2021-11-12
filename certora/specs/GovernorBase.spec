@@ -37,40 +37,44 @@ methods {
 */
 
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////// Global Valid States /////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 
-    // not complete
-    /*
-     * If any of the properties are non zero, the rest has to be non zero 
-     */
-     // start   !0  !0  !0
-     // end =   !0  !0  !0
-     // exe = 0  0  1   1
-     // can = 0  1  0   1
-    invariant proposalInitiated(uint256 pId)
-            (proposalSnapshot(pId) != 0 <=> proposalDeadline(pId) != 0) &&
-            (isCanceled(pId) => proposalSnapshot(pId) != 0) &&
-            (isExecuted(pId) => proposalSnapshot(pId) != 0)
 
-    // pass
-    /*
-     * A proposal cannot end unless it started.
-     */
-    invariant voteStartBeforeVoteEnd(uint256 pId)
-        (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) < proposalDeadline(pId))
-             && (proposalSnapshot(pId) == 0 => proposalDeadline(pId) == 0)
+/*
+ * If any of the properties are non zero, the rest has to be non zero 
+ */
+ // start   !0  !0  !0
+ // end =   !0  !0  !0
+ // exe = 0  0  1   1
+ // can = 0  1  0   1
+invariant proposalInitiated(uint256 pId)
+        (proposalSnapshot(pId) != 0 <=> proposalDeadline(pId) != 0) &&
+        (isCanceled(pId) => proposalSnapshot(pId) != 0) &&
+        (isExecuted(pId) => proposalSnapshot(pId) != 0)
 
 
-    // pass
-    /*
-     * A proposal cannot be both executed and canceled.
-     */
-    invariant noBothExecutedAndCanceled(uint256 pId) 
-            !isExecuted(pId) || !isCanceled(pId)
+/*
+ * A proposal cannot end unless it started.
+ */
+invariant voteStartBeforeVoteEnd(uint256 pId)
+    (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) < proposalDeadline(pId))
+         && (proposalSnapshot(pId) == 0 => proposalDeadline(pId) == 0)
 
+
+/*
+ * A proposal cannot be both executed and canceled.
+ */
+invariant noBothExecutedAndCanceled(uint256 pId) 
+        !isExecuted(pId) || !isCanceled(pId)
+
+
+/**
+ * A proposal could be executed only if quorum was reached and vote succeeded
+ */
+invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId) 
+        isExecuted(pId) => _quorumReached(pId) && _voteSucceeded(pId)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -81,22 +85,20 @@ methods {
 //------------- Voting Period --------------
 //==========================================
 
-    // pass
-    /*
-     * A user cannot vote twice
-     */
-    rule doubleVoting(uint256 pId, uint8 sup) {
-        env e;
-        address user = e.msg.sender;
 
-        bool votedCheck = hasVoted(e, pId, user);
-        require votedCheck == true;
+/*
+ * A user cannot vote twice
+ */
+rule doubleVoting(uint256 pId, uint8 sup) {
+    env e;
+    address user = e.msg.sender;        
+    bool votedCheck = hasVoted(e, pId, user);
 
-        castVote@withrevert(e, pId, sup);
-        bool reverted = lastReverted;
+    castVote@withrevert(e, pId, sup);
+    bool reverted = lastReverted;
 
-        assert votedCheck => reverted, "double voting accured";
-    }
+    assert votedCheck => reverted, "double voting accured";
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -107,76 +109,75 @@ methods {
 //-------- Propose() --> End of Time --------
 //===========================================
 
-    // pass
-    /*
-     * The voting must start not before the proposal’s creation time
-     */
-    rule noStartBeforeCreation(uint256 pId) {
-        uint256 previousStart = proposalSnapshot(pId);
-        require previousStart == 0;
-        env e;
-        calldataarg arg;
-        propose(e, arg);
 
-        uint newStart = proposalSnapshot(pId);
-        // if created, start is after current block number (creation block)
-        assert(newStart != previousStart => newStart >= e.block.number);
-    }
+/*
+ * The voting must start not before the proposal’s creation time
+ */
+rule noStartBeforeCreation(uint256 pId) {
+    uint256 previousStart = proposalSnapshot(pId);
+    require previousStart == 0;
+    env e;
+    calldataarg arg;
+    propose(e, arg);
+
+    uint newStart = proposalSnapshot(pId);
+    // if created, start is after current block number (creation block)
+    assert(newStart != previousStart => newStart >= e.block.number);
+}
 
 
-    // pass
-    /*
-     * Once a proposal is created, voteStart and voteEnd are immutable
-     */
-    rule immutableFieldsAfterProposalCreation(uint256 pId, method f) {
-        uint _voteStart = proposalSnapshot(pId);
-        uint _voteEnd = proposalDeadline(pId);
-        require _voteStart > 0; // proposal was created - relation proved in noStartBeforeCreation
+/*
+ * Once a proposal is created, voteStart and voteEnd are immutable
+ */
+rule immutableFieldsAfterProposalCreation(uint256 pId, method f) {
+    uint _voteStart = proposalSnapshot(pId);
+    uint _voteEnd = proposalDeadline(pId);
+    require _voteStart > 0; // proposal was created - relation proved in noStartBeforeCreation
 
-        env e;
-        calldataarg arg;
-        f(e, arg);
+    env e;
+    calldataarg arg;
+    f(e, arg);
 
-        uint voteStart_ = proposalSnapshot(pId);
-        uint voteEnd_ = proposalDeadline(pId);
-        assert _voteStart == voteStart_;
-        assert _voteEnd == voteEnd_;
-    }
+    uint voteStart_ = proposalSnapshot(pId);
+    uint voteEnd_ = proposalDeadline(pId);
+    assert _voteStart == voteStart_;
+    assert _voteEnd == voteEnd_;
+}
 
-    // pass
-    /*
-     * A proposal cannot be neither executed nor canceled before it starts
-     */
-    rule noExecuteOrCancelBeforeStarting(uint256 pId, method f){
-        env e;
 
-        require !isExecuted(pId) && !isCanceled(pId);
+/*
+ * A proposal cannot be neither executed nor canceled before it starts
+ */
+rule noExecuteOrCancelBeforeStarting(uint256 pId, method f){
+    env e;
 
-        calldataarg arg;
-        f(e, arg);
+    require !isExecuted(pId) && !isCanceled(pId);
 
-        assert e.block.number < proposalSnapshot(pId) => (!isExecuted(pId) && !isCanceled(pId)), "executed/cancelled before start";
-    }
+    calldataarg arg;
+    f(e, arg);
+
+    assert e.block.number < proposalSnapshot(pId) => (!isExecuted(pId) && !isCanceled(pId)), "executed/cancelled before start";
+}
 
 //============================================
 //--- End of Voting Period --> End of Time ---
 //============================================
 
-    // pass
-    /*
-     * A proposal cannot be neither executed nor canceled before proposal's deadline
-     */
-    rule noExecuteOrCancelBeforeDeadline(uint256 pId, method f){
-        env e;
 
-        requireInvariant voteStartBeforeVoteEnd(pId);
-        require !isExecuted(pId) && !isCanceled(pId);
+/*
+ * A proposal cannot be neither executed nor canceled before proposal's deadline
+ */
+rule noExecuteOrCancelBeforeDeadline(uint256 pId, method f){
+    env e;
 
-        calldataarg arg;
-        f(e, arg);
+    requireInvariant voteStartBeforeVoteEnd(pId);
+    require !isExecuted(pId) && !isCanceled(pId);
 
-        assert e.block.number < proposalDeadline(pId) => (!isExecuted(pId) && !isCanceled(pId)), "executed/cancelled before deadline";
-    }
+    calldataarg arg;
+    f(e, arg);
+
+    assert e.block.number < proposalDeadline(pId) => (!isExecuted(pId) && !isCanceled(pId)), "executed/cancelled before deadline";
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////// Integrity Of Functions (Unit Tests) /////////////////////
@@ -210,26 +211,26 @@ rule checkHashProposal {
 //////////////////////////////// High Level Rules //////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-    // not passing
-    /*
-     * all non-view functions should revert if proposal is executed
-     */
-    rule allFunctionsRevertIfExecuted(uint256 pId, method f) filtered { f -> !f.isView } {
-        env e; calldataarg args;
-        require(isExecuted(pId));
-        f@withrevert(e,args);
-        assert(lastReverted == true, "Function was not reverted");
-    }
 
-    // not passing
-    /*
-     * all non-view functions should revert if proposal is canceled
-     */
-    rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView } {
-        env e; calldataarg args;
-        uint256 pId = e.msg.value;
-        require(isCanceled(pId));
-        requireInvariant noBothExecutedAndCanceled(pId);
-        f@withrevert(e,args);
-        assert(lastReverted == true, "Function was not reverted");
-    }
+/*
+ * all non-view functions should revert if proposal is executed
+ */
+rule allFunctionsRevertIfExecuted(uint256 pId, method f) filtered { f -> !f.isView } {
+    env e; calldataarg args;
+    require(isExecuted(pId));
+    f@withrevert(e,args);
+    assert(lastReverted == true, "Function was not reverted");
+}
+
+
+/*
+ * all non-view functions should revert if proposal is canceled
+ */
+rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView } {
+    env e; calldataarg args;
+    uint256 pId = e.msg.value;
+    require(isCanceled(pId));
+    requireInvariant noBothExecutedAndCanceled(pId);
+    f@withrevert(e,args);
+    assert(lastReverted == true, "Function was not reverted");
+}
