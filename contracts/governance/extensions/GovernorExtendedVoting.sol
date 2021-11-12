@@ -4,6 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "../Governor.sol";
+import "../../utils/math/Math.sol";
 
 /**
  * @dev Extension of {Governor} for extending voting past quorum being reached.
@@ -27,19 +28,10 @@ abstract contract GovernorExtendedVoting is Governor {
     }
 
     /**
-     * @dev Overriden version of the {Governor-state} function.
+     * @dev Overriden version of the {Governor-proposalDeadline} function to consider extended deadlines.
      */
-    function state(uint256 proposalId) public view virtual override returns (ProposalState) {
-        ProposalState status = super.state(proposalId);
-
-        if (
-            (status == ProposalState.Defeated || status == ProposalState.Succeeded) &&
-            _extendedVoteEnd[proposalId].getDeadline() >= block.number
-        ) {
-            return ProposalState.Active;
-        }
-
-        return status;
+    function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
+        return Math.max(super.proposalDeadline(proposalId), _extendedVoteEnd[proposalId].getDeadline());
     }
 
     /**
