@@ -18,3 +18,4 @@ Note that the Solidity language itself only guarantees security updates for the 
 Please report any security issues you find to security@openzeppelin.org.
 
 Critical bug fixes will be backported to past major releases.
+ 
