@@ -10,7 +10,7 @@ const Error = [ 'None', 'RevertWithMessage', 'RevertWithoutMessage', 'Panic' ]
   .reduce((acc, entry, idx) => Object.assign({ [entry]: idx }, acc), {});
 
 const firstTokenId = new BN('5042');
-const secondTokenId = new BN('79217');
+const secondTokenId = new BN('49217');
 const nonExistentTokenId = new BN('13');
 const fourthTokenId = new BN(4);
 const baseURI = 'https://api.example.com/v1/';
