@@ -2,6 +2,7 @@ import "GovernorBase.spec"
 
 methods {
     ghost_sum_vote_power_by_id(uint256) returns uint256 envfree
+    //_getVotes(address, uint256) returns uint256
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -41,6 +42,13 @@ hook Sstore _proposalVotes[KEY uint256 pId].abstainVotes uint256 votes (uint256 
     havoc sum_tracked_weight assuming sum_tracked_weight@new() == sum_tracked_weight@old() - old_votes + votes;
 }
 
+/*
+ghost totalVotesPossible() returns uint256{
+    init_state axiom totalVotesPossible() == 0;
+}
+
+hook Sstore _getVotes[KEY address pId][KEY uint256 blockNumber] uint256 voteWeight (uint old_voteWeight) STORAGE
+*/
 //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// INVARIANTS ////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -55,6 +63,16 @@ invariant SumOfVotesCastEqualSumOfPowerOfVotedPerProposal(uint256 pId)
 /*
  * sum of all votes casted is equal to the sum of voting power of those who voted
  */
-invariant SumOfVotesCastEqualSumOfPowerOfVoted()
-        sum_tracked_weight() == sum_all_votes_power()
+// invariant SumOfVotesCastEqualSumOfPowerOfVoted()
+//         sum_tracked_weight() == sum_all_votes_power()
 
+/*
+* totalVoted >= vote(id)
+*/
+invariant OneIsNotMoreThanAll(uint256 pId)
+        sum_all_votes_power() >= tracked_weight(pId)
+
+/*
+* totalVotesPossible (supply/weight) >= votePower(id)
+*/
+invariant possibleTotalVotes(uint pId)
