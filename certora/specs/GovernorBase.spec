@@ -47,12 +47,16 @@ methods {
  */
  // start   !0  !0  !0
  // end =   !0  !0  !0
- // exe = 0  0  1   1
- // can = 0  1  0   1
+ // exe = 0  0   1   1
+ // can = 0  1   0   1
 invariant proposalInitiated(uint256 pId)
         (proposalSnapshot(pId) != 0 <=> proposalDeadline(pId) != 0) &&
         (isCanceled(pId) => proposalSnapshot(pId) != 0) &&
         (isExecuted(pId) => proposalSnapshot(pId) != 0)
+        { preserved with (env e){   
+            require e.block.number > 0;
+        }}
+        
 
 
 /*

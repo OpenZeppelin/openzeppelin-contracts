@@ -1,8 +1,9 @@
 certoraRun certora/harnesses/GovernorBasicHarness.sol \
     --verify GovernorBasicHarness:certora/specs/GovernorBase.spec \
     --solc solc8.2 \
-    --staging \
+    --staging uri/add_with_env_to_preserved_all \
     --optimistic_loop \
     --settings -copyLoopUnroll=4 \
-    --rule doubleVoting \
+    --disableLocalTypeChecking \
+    --rule proposalInitiated \
     --msg "$1"
