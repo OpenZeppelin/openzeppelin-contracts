@@ -2,12 +2,23 @@ import "GovernorBase.spec"
 
 methods {
     ghost_sum_vote_power_by_id(uint256) returns uint256 envfree
+    // castVote(uint256, uint8) returns uint256
+    // castVoteBySig(uint256,uint8,uint8,bytes32,bytes32) returns uint256
     //_getVotes(address, uint256) returns uint256
 }
 
 //////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////// GHOSTS /////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
+
+ghost hasVoteGhost(uint256) returns uint256 {
+    init_state axiom forall uint256 pId. hasVoteGhost(pId) == 0;
+}
+
+hook Sstore _proposalVotes[KEY uint256 pId].hasVoted[KEY address user] bool current_voting_State (bool old_voting_state) STORAGE{
+    havoc hasVoteGhost assuming forall uint256 p. ((p == pId && current_voting_State && !old_voting_state) ? (hasVoteGhost@new(p) == hasVoteGhost@old(p) + 1)  :
+                                                  (hasVoteGhost@new(p) == hasVoteGhost@old(p)));
+}
 
 ghost sum_all_votes_power() returns uint256 {
     init_state axiom sum_all_votes_power() == 0;
@@ -75,4 +86,31 @@ invariant OneIsNotMoreThanAll(uint256 pId)
 /*
 * totalVotesPossible (supply/weight) >= votePower(id)
 */
-invariant possibleTotalVotes(uint pId)
+// invariant possibleTotalVotes(uint pId)
+
+/*
+rule someOtherRuleToRemoveLater(uint256 num){
+    env e; calldataarg args; method f;
+    uint256 x = hasVoteGhost(num);
+    f(e, args);
+    assert(false);
+}
+*/
+
+
+rule oneUserVotesInCast(uint256 pId, method f) filtered { f -> ((f.selector == castVote(uint256, uint8).selector) || 
+                                                                f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector) }{
+    env e; calldataarg args;
+    uint256 ghost_Before = hasVoteGhost(pId);
+    f(e, args);
+    uint256 ghost_After = hasVoteGhost(pId);
+    assert(ghost_After == ghost_Before + 1, "Raised by more than 1");
+}
+
+
+rule noVoteForSomeoneElse(uint256 pId, uint8 support){
+    env e;
+    uint256 voter = e.msg.sender;
+    castVote(e, pId, support);
+
+}
