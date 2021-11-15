@@ -110,7 +110,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * @dev See {IGovernor-state}.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
-        ProposalCore memory proposal = _proposals[proposalId];
+        ProposalCore storage proposal = _proposals[proposalId];
 
         if (proposal.executed) {
             return ProposalState.Executed;
