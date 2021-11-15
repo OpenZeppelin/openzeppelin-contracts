@@ -10,6 +10,10 @@ contract GovernorHarness is Governor {
         return _proposals[proposalId].canceled;
     }
 
+    function snapshot(uint256 proposalId) public view returns (uint64) {
+        return _proposals[proposalId].voteStart._deadline;
+    }
+
 
     function initialized(uint256 proposalId) public view returns (bool){
         if (_proposals[proposalId].voteStart._deadline != 0 && _proposals[proposalId].voteEnd._deadline != 0) {

@@ -4,7 +4,13 @@ methods {
     ghost_sum_vote_power_by_id(uint256) returns uint256 envfree
     // castVote(uint256, uint8) returns uint256
     // castVoteBySig(uint256,uint8,uint8,bytes32,bytes32) returns uint256
-    //_getVotes(address, uint256) returns uint256
+	
+	snapshot(uint256) returns uint64 envfree
+    quorum(uint256) returns uint256 envfree
+    proposalVotes(uint256) returns (uint256, uint256, uint256) envfree
+
+    getVotes(address, uint256) returns uint256 envfree
+    //getVotes(address, uint256) => CONSTANT
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -21,45 +27,78 @@ hook Sstore _proposalVotes[KEY uint256 pId].hasVoted[KEY address user] bool curr
 }
 
 ghost sum_all_votes_power() returns uint256 {
-    init_state axiom sum_all_votes_power() == 0;
+	init_state axiom sum_all_votes_power() == 0;
 }
 
-hook Sstore ghost_sum_vote_power_by_id[KEY uint256 pId] uint256 current_power (uint256 old_power) STORAGE{
-    havoc sum_all_votes_power assuming sum_all_votes_power@new() == sum_all_votes_power@old() - old_power + current_power;
+hook Sstore ghost_sum_vote_power_by_id [KEY uint256 pId] uint256 current_power(uint256 old_power) STORAGE {
+	havoc sum_all_votes_power assuming sum_all_votes_power@new() == sum_all_votes_power@old() - old_power + current_power;
 }
 
 ghost tracked_weight(uint256) returns uint256 {
-    init_state axiom forall uint256 p. tracked_weight(p) == 0;
+	init_state axiom forall uint256 p. tracked_weight(p) == 0;
 }
 ghost sum_tracked_weight() returns uint256 {
-    init_state axiom sum_tracked_weight() == 0;
+	init_state axiom sum_tracked_weight() == 0;
 }
 
-hook Sstore _proposalVotes[KEY uint256 pId].againstVotes uint256 votes (uint256 old_votes) STORAGE {
-    havoc tracked_weight assuming forall uint256 p. (p == pId => tracked_weight@new(p) == tracked_weight@old(p) - old_votes + votes) && 
-                                                    (p != pId => tracked_weight@new(p) == tracked_weight@old(p));
-    havoc sum_tracked_weight assuming sum_tracked_weight@new() == sum_tracked_weight@old() - old_votes + votes;
+ghost votesAgainst() returns uint256 {
+    init_state axiom votesAgainst() == 0;
 }
 
-hook Sstore _proposalVotes[KEY uint256 pId].forVotes uint256 votes (uint256 old_votes) STORAGE {
-    havoc tracked_weight assuming forall uint256 p. (p == pId => tracked_weight@new(p) == tracked_weight@old(p) - old_votes + votes) && 
-                                                    (p != pId => tracked_weight@new(p) == tracked_weight@old(p));
-    havoc sum_tracked_weight assuming sum_tracked_weight@new() == sum_tracked_weight@old() - old_votes + votes;
+ghost votesFor() returns uint256 {
+    init_state axiom votesFor() == 0;
 }
 
-hook Sstore _proposalVotes[KEY uint256 pId].abstainVotes uint256 votes (uint256 old_votes) STORAGE {
-    havoc tracked_weight assuming forall uint256 p. (p == pId => tracked_weight@new(p) == tracked_weight@old(p) - old_votes + votes) && 
-                                                    (p != pId => tracked_weight@new(p) == tracked_weight@old(p));
-    havoc sum_tracked_weight assuming sum_tracked_weight@new() == sum_tracked_weight@old() - old_votes + votes;
+ghost votesAbstain() returns uint256 {
+    init_state axiom votesAbstain() == 0;
+}
+
+hook Sstore _proposalVotes [KEY uint256 pId].againstVotes uint256 votes(uint256 old_votes) STORAGE {
+	havoc tracked_weight assuming forall uint256 p.(p == pId => tracked_weight@new(p) == tracked_weight@old(p) - old_votes + votes) &&
+	                                            (p != pId => tracked_weight@new(p) == tracked_weight@old(p));
+	havoc sum_tracked_weight assuming sum_tracked_weight@new() == sum_tracked_weight@old() - old_votes + votes;
+    havoc votesAgainst assuming votesAgainst@new() == votesAgainst@old() - old_votes + votes;
+}
+
+hook Sstore _proposalVotes [KEY uint256 pId].forVotes uint256 votes(uint256 old_votes) STORAGE {
+	havoc tracked_weight assuming forall uint256 p.(p == pId => tracked_weight@new(p) == tracked_weight@old(p) - old_votes + votes) &&
+	                                            (p != pId => tracked_weight@new(p) == tracked_weight@old(p));
+	havoc sum_tracked_weight assuming sum_tracked_weight@new() == sum_tracked_weight@old() - old_votes + votes;
+    havoc votesFor assuming votesFor@new() == votesFor@old() - old_votes + votes;
+}
+
+hook Sstore _proposalVotes [KEY uint256 pId].abstainVotes uint256 votes(uint256 old_votes) STORAGE {
+	havoc tracked_weight assuming forall uint256 p.(p == pId => tracked_weight@new(p) == tracked_weight@old(p) - old_votes + votes) &&
+	                                            (p != pId => tracked_weight@new(p) == tracked_weight@old(p));
+	havoc sum_tracked_weight assuming sum_tracked_weight@new() == sum_tracked_weight@old() - old_votes + votes;
+    havoc votesAbstain assuming votesAbstain@new() == votesAbstain@old() - old_votes + votes;
 }
 
 /*
-ghost totalVotesPossible() returns uint256{
-    init_state axiom totalVotesPossible() == 0;
+ghost totalVotesPossible(uint256) returns uint256 {
+	init_state axiom forall uint256 bn. totalVotesPossible(bn) == 0;
 }
 
-hook Sstore _getVotes[KEY address pId][KEY uint256 blockNumber] uint256 voteWeight (uint old_voteWeight) STORAGE
+ghost possibleMaxOfVoters(uint256) returns uint256{
+    init_state axiom forall uint256 pId. possibleMaxOfVoters(pId) == 0;
+}
+
+hook Sstore _getVotes[KEY address uId][KEY uint256 blockNumber] uint256 voteWeight(uint256 old_voteWeight) STORAGE {
+	havoc totalVotesPossible assuming forall uint256 bn.
+	                                (bn == blockNumber => totalVotesPossible@new(bn) == totalVotesPossible@old(bn) - old_voteWeight + voteWeight)
+	                                && (bn != blockNumber => totalVotesPossible@new(bn) == totalVotesPossible@old(bn));
+    //somehow havoc possibleMaxOfVoters based on scheme. Probably can be implemented if previous havoc is possible
+}
 */
+/*
+_proposalVotes[pId].hasVoted[account] -> bool
+								^
+								|
+					go through all accounts,
+					if true =>
+possibleMaxOfVoters(pId) += getVotes(pId, acount);
+*/
+
 //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// INVARIANTS ////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -68,25 +107,36 @@ hook Sstore _getVotes[KEY address pId][KEY uint256 blockNumber] uint256 voteWeig
 /*
  * sum of all votes casted is equal to the sum of voting power of those who voted, per each proposal
  */
-invariant SumOfVotesCastEqualSumOfPowerOfVotedPerProposal(uint256 pId)
-        tracked_weight(pId) == ghost_sum_vote_power_by_id(pId)
-
+invariant SumOfVotesCastEqualSumOfPowerOfVotedPerProposal(uint256 pId) 
+	tracked_weight(pId) == ghost_sum_vote_power_by_id(pId)
+		
 /*
  * sum of all votes casted is equal to the sum of voting power of those who voted
  */
-// invariant SumOfVotesCastEqualSumOfPowerOfVoted()
-//         sum_tracked_weight() == sum_all_votes_power()
-
+invariant SumOfVotesCastEqualSumOfPowerOfVoted() 
+	sum_tracked_weight() == sum_all_votes_power()
+		
 /*
 * totalVoted >= vote(id)
 */
-invariant OneIsNotMoreThanAll(uint256 pId)
-        sum_all_votes_power() >= tracked_weight(pId)
+invariant OneIsNotMoreThanAll(uint256 pId) 
+	sum_all_votes_power() >= tracked_weight(pId)
+
+
+//NEED GHOST FIX	
+/*
+* totalVotesPossible >= votePower(id)
+*/
+//invariant possibleTotalVotes(uint256 pId) 
+//	tracked_weight(pId) <= totalVotesPossible(snapshot(pId))
 
 /*
-* totalVotesPossible (supply/weight) >= votePower(id)
+* totalVotesPossible >= votePower(id)
 */
 // invariant possibleTotalVotes(uint pId)
+//invariant trackedVsTotal(uint256 pId) 
+//	tracked_weight(pId) <= possibleMaxOfVoters(pId)
+
 
 /*
 rule someOtherRuleToRemoveLater(uint256 num){
@@ -114,3 +164,61 @@ rule noVoteForSomeoneElse(uint256 pId, uint8 support){
     castVote(e, pId, support);
 
 }
+
+
+//ok
+rule votingWeightMonotonicity(method f){
+    uint256 votingWeightBefore = sum_tracked_weight();
+
+    env e; 
+    calldataarg args;
+    f(e, args);
+
+    uint256 votingWeightAfter = sum_tracked_weight();
+
+    assert votingWeightBefore <= votingWeightAfter, "Voting weight was decreased somehow";
+}
+
+// timeouts and strange violations
+// https://vaas-stg.certora.com/output/3106/23f63c84c58b06285f4f/?anonymousKey=e5a7dc2e0ce7829cf5af8eb29a4ba231d915704c
+rule quorumMonotonicity(method f, uint256 blockNumber){
+    uint256 quorumBefore = quorum(blockNumber);
+
+    env e; 
+    calldataarg args;
+    f(e, args);
+
+    uint256 quorumAfter = quorum(blockNumber);
+
+    assert quorumBefore <= quorumAfter, "Quorum was decreased somehow";
+}
+
+// getVotes() returns different results.
+// are we assuming that a person with 0 votes can vote? are we assuming that a person may have 0 votes
+// it seems like a weight can be 0. At least there is no check for it
+// If it can be 0 then < should be changed to <= but it gives less coverage
+rule hasVotedCorrelation(uint256 pId, method f, address acc, env e){
+    uint256 againstBefore = votesAgainst();
+    uint256 forBefore = votesFor();
+    uint256 abstainBefore = votesAbstain();
+    //againstBefore, forBefore, abstainBefore = proposalVotes(pId);
+
+    bool hasVotedBefore = hasVoted(e, pId, acc);
+    uint256 votesBefore = getVotes(acc, pId);
+    require votesBefore > 0;
+
+    calldataarg args;
+    f(e, args);
+
+    uint256 againstAfter = votesAgainst();
+    uint256 forAfter = votesFor();
+    uint256 abstainAfter = votesAbstain();
+    //againstAfter, forAfter, abstainAfter = proposalVotes(pId);
+
+    uint256 votesAfter = getVotes(acc, pId);
+    bool hasVotedAfter = hasVoted(e, pId, acc);
+
+    assert hasVotedBefore != hasVotedAfter => againstBefore < againstAfter || forBefore < forAfter || abstainBefore < abstainAfter, "no correlation";
+}
+
+

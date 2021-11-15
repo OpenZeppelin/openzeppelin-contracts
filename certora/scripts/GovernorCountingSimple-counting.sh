@@ -4,5 +4,5 @@ certoraRun certora/harnesses/GovernorBasicHarness.sol \
     --staging \
     --optimistic_loop \
     --settings -copyLoopUnroll=4 \
-    --rule OneIsNoMoreThanAll \
+    --rule hasVotedCorrelation \
     --msg "$1"

@@ -21,6 +21,8 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
         GovernorTimelockCompound(_timelock)
     {}
 
+    
+
     function isExecuted(uint256 proposalId) public view returns (bool) {
         return _proposals[proposalId].executed;
     }
@@ -56,6 +58,14 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
 
         return deltaWeight;        
     }
+
+    /*
+    mapping (address => mapping (uint256 => uint256)) _getVotes;
+
+    function getVotesHarnness(address account, uint256 blockNumber) public {
+        _getVotes[account][blockNumber] = getVotes(account, blockNumber);
+    }
+    */
 
     // The following functions are overrides required by Solidity.
 
