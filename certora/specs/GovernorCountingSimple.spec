@@ -147,7 +147,9 @@ rule someOtherRuleToRemoveLater(uint256 num){
 }
 */
 
-
+/*
+ * Checks that only one user is updated in the system when calling cast vote functions (assuming hasVoted is changing correctly, false->true, with every vote cast)
+ */
 rule oneUserVotesInCast(uint256 pId, method f) filtered { f -> ((f.selector == castVote(uint256, uint8).selector) || 
                                                                 f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector) }{
     env e; calldataarg args;
@@ -157,14 +159,20 @@ rule oneUserVotesInCast(uint256 pId, method f) filtered { f -> ((f.selector == c
     assert(ghost_After == ghost_Before + 1, "Raised by more than 1");
 }
 
-
+/*
+ * Checks that in any call to cast vote functions only the sender's value is updated
+ */
+ /*
 rule noVoteForSomeoneElse(uint256 pId, uint8 support){
     env e;
-    uint256 voter = e.msg.sender;
+    address voter = e.msg.sender;
+    bool hasVotedBefore = hasVoted(pId, voter);
+    require(!hasVotedBefore);
     castVote(e, pId, support);
-
+    bool hasVotedAfter = hasVoted(pId, voter);
+    assert(hasVotedBefore != hasVotedAfter => forall address user. user != voter);
 }
-
+*/
 
 //ok
 rule votingWeightMonotonicity(method f){
@@ -220,5 +228,3 @@ rule hasVotedCorrelation(uint256 pId, method f, address acc, env e){
 
     assert hasVotedBefore != hasVotedAfter => againstBefore < againstAfter || forBefore < forAfter || abstainBefore < abstainAfter, "no correlation";
 }
-
-
