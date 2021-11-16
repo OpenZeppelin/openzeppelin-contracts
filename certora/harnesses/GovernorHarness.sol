@@ -109,13 +109,12 @@ contract GovernorHarness is Governor {
         return super.propose(targets, values, calldatas, "");
     }
 
-    uint256 public proposalid_global;
-    uint8 public support_global;
 
-    function castVoteWithReason(uint256 proposalId, 
-    uint8 support, string calldata reason) public virtual override returns (uint256){
-        require(proposalId == proposalid_global);
-        require(support == support_global);
+    // Harness of castVoteWithReason to be able to impose requirement on the proposal ID.
+    uint256 public _pId_Harness;
+    function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) 
+    public override returns (uint256) {
+        require(proposalId == _pId_Harness);
         return super.castVoteWithReason(proposalId, support, reason);
     }
 }
