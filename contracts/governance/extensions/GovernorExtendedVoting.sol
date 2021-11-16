@@ -37,6 +37,8 @@ abstract contract GovernorExtendedVoting is Governor {
 
     /**
      * @dev Overriden version of the {Governor-_castVote} function.
+     *
+     * Might emit a {ProposalExtended} event.
      */
     function _castVote(
         uint256 proposalId,
