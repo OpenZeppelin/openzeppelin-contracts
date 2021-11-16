@@ -16,12 +16,12 @@ contract GovernorExtendedVotingMock is GovernorSettings, GovernorVotes, Governor
         uint256 votingDelay_,
         uint256 votingPeriod_,
         uint256 quorum_,
-        uint64 votingDelayExtention_
+        uint64 votingDelayExtension_
     )
         Governor(name_)
         GovernorSettings(votingDelay_, votingPeriod_, 0)
         GovernorVotes(token_)
-        GovernorExtendedVoting(votingDelayExtention_)
+        GovernorExtendedVoting(votingDelayExtension_)
     {
         _quorum = quorum_;
     }

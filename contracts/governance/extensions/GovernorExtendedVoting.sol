@@ -19,13 +19,13 @@ abstract contract GovernorExtendedVoting is Governor {
     mapping(uint256 => Timers.BlockNumber) private _extendedVoteEnd;
 
     event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
-    event VotingDelayExtentionSet(uint64 oldVotingDelayExtention, uint64 newVotingDelayExtention);
+    event VotingDelayExtensionSet(uint64 oldVotingDelayExtension, uint64 newVotingDelayExtension);
 
     /**
      * @dev Initialize the delay extension.
      */
-    constructor(uint64 initialVotingDelayExtention) {
-        _setVotingDelayExtention(initialVotingDelayExtention);
+    constructor(uint64 initialVotingDelayExtension) {
+        _setVotingDelayExtension(initialVotingDelayExtension);
     }
 
     /**
@@ -51,7 +51,7 @@ abstract contract GovernorExtendedVoting is Governor {
         Timers.BlockNumber storage extension = _extendedVoteEnd[proposalId];
 
         if (extension.isUnset() && _quorumReached(proposalId)) {
-            uint64 extendedDeadline = block.number.toUint64() + votingDelayExtention();
+            uint64 extendedDeadline = block.number.toUint64() + votingDelayExtension();
 
             if (extendedDeadline > proposalDeadline(proposalId)) {
                 emit ProposalExtended(proposalId, extendedDeadline);
@@ -66,26 +66,26 @@ abstract contract GovernorExtendedVoting is Governor {
     /**
      * @dev Public accessor for the voting delay extension duration.
      */
-    function votingDelayExtention() public view virtual returns (uint64) {
+    function votingDelayExtension() public view virtual returns (uint64) {
         return _votingDelayExtension;
     }
 
     /**
      * @dev Update the voting delay extension duration. This operation can only be performed through a governance proposal.
      *
-     * Emits a {VotingDelayExtentionSet} event.
+     * Emits a {VotingDelayExtensionSet} event.
      */
-    function setVotingDelayExtention(uint64 newVotingDelayExtention) public onlyGovernance {
-        _setVotingDelayExtention(newVotingDelayExtention);
+    function setVotingDelayExtension(uint64 newVotingDelayExtension) public onlyGovernance {
+        _setVotingDelayExtension(newVotingDelayExtension);
     }
 
     /**
      * @dev Internal setter for the voting delay extension duration.
      *
-     * Emits a {VotingDelayExtentionSet} event.
+     * Emits a {VotingDelayExtensionSet} event.
      */
-    function _setVotingDelayExtention(uint64 newVotingDelayExtention) internal virtual {
-        emit VotingDelayExtentionSet(_votingDelayExtension, newVotingDelayExtention);
-        _votingDelayExtension = newVotingDelayExtention;
+    function _setVotingDelayExtension(uint64 newVotingDelayExtension) internal virtual {
+        emit VotingDelayExtensionSet(_votingDelayExtension, newVotingDelayExtension);
+        _votingDelayExtension = newVotingDelayExtension;
     }
 }
