@@ -4,23 +4,23 @@
 
 methods {
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
-    proposalDeadline(uint256) returns uint256 envfree
+    proposalDeadline(uint256) returns uint256 envfree // matches proposalVoteEnd
     hashProposal(address[],uint256[],bytes[],bytes32) returns uint256 envfree
     isExecuted(uint256) returns bool envfree
     isCanceled(uint256) returns bool envfree
     execute(address[], uint256[], bytes[], bytes32) returns uint256
-    // initialized(uint256) returns bool envfree
-
     hasVoted(uint256, address) returns bool
-
     castVote(uint256, uint8) returns uint256
-    // castVoteBySig(uint256,uint8,uint8,bytes32,bytes32) returns uint256
 
     // internal functions made public in harness:
     _quorumReached(uint256) returns bool envfree
     _voteSucceeded(uint256) returns bool envfree
 
-    // hashProposal(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash) => uniqueHashGhost(descriptionHash)
+
+    _pId_Harness() returns uint256 envfree;
+
+    // function summarization
+    hashProposal(address[], uint256[], bytes[], bytes32) => CONSTANT
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -32,25 +32,30 @@ methods {
 //////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// Helper Functions ///////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-/*
-function callFunctionWithParams(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash, uint256 proposalId, uint8 support, string reason, uint8 v, bytes32 r, bytes32 s, method f) {
+
+function callFunctionWithProposal(uint256 proposalId, method f) {
+    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descriptionHash;
+    uint8 support; uint8 v; bytes32 r; bytes32 s;
 	env e;
 	if (f.selector == callPropose(address[], uint256[], bytes[]).selector) {
-		callPropose(e, targets, values, calldatas);
+		uint256 result = callPropose@withrevert(e, targets, values, calldatas);
+        require(proposalId == result);
 	} else if (f.selector == execute(address[], uint256[], bytes[], bytes32).selector) {
-		execute(e, targets, values, calldatas, descriptionHash);
+		uint256 result = execute@withrevert(e, targets, values, calldatas, descriptionHash);
+        require(result == proposalId);
 	} else if (f.selector == castVote(uint256, uint8).selector) {
-		castVote(e, proposalId, support);
-	} else if  (f.selector == castVoteWithReason(uint256, uint8, string).selector) {
-		castVoteWithReason(e, proposalId, support, reason);
+		castVote@withrevert(e, proposalId, support);
+	} else if  (f.selector == 0x7b3c71d3) {
+        calldataarg args;
+        require(_pId_Harness() == proposalId);
+        f@withrevert(e, args);
 	} else if (f.selector == castVoteBySig(uint256, uint8,uint8, bytes32, bytes32).selector) {
-		castVoteBySig(e, proposalId, support, v, r, s);
+		castVoteBySig@withrevert(e, proposalId, support, v, r, s);
 	} else {
-		calldataarg args;
-		f(e,args);
-	}
+        calldataarg args;
+        f@withrevert(e, args);
+    }
 }
-*/
 
 /*
  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,46 +251,43 @@ rule checkHashProposal {
 /*
  * all non-view functions should revert if proposal is executed
  */
-rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView } {
-    env e; calldataarg args;
-    uint256 pId; uint8 sup; uint8 v; bytes32 r; bytes32 s ;
+// summarization - hashProposal => Const - for any set of arguments passed to the function the same value will be returned.
+// that means that for different arguments passed, the same value will be returned, for example: func(a,b,c,d) == func(o,p,g,r)
+// the summarization is not an under estimation in this case, because we want to check that for a specific proposal ID (pId), any 
+// (non view) function call is reverting. We dont care what happen with other pIds, and dont care how the hash function generates the ID.
+rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selector != 0x7d5e81e2 && !f.isFallback} {
+    env e; calldataarg args;                                                         //     ^
+    uint256 pId;                                                                     //  propose
     require(isExecuted(pId));
+    requireInvariant proposalInitiated(pId);
     requireInvariant noBothExecutedAndCanceled(pId);
-    // f@withrevert(e,args);
-    // castVote@withrevert(e, pId, sup);
-    castVoteBySig@withrevert(e, pId, sup, v, r, s);
-    assert(lastReverted == true, "Function was not reverted");
+    callFunctionWithProposal(pId, f);
+    assert(lastReverted, "Function was not reverted");
 }
-
 
 /*
  * all non-view functions should revert if proposal is canceled
  */
-rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView } {
-    env e; calldataarg args;
-    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descriptionHash;
-    uint256 pId = uniqueHashGhost(descriptionHash);
-    uint8 sup; uint8 v; bytes32 r; bytes32 s;
-    
+rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selector != 0x7d5e81e2 && !f.isFallback} {
+    env e; calldataarg args;                                                         //     ^
+    uint256 pId;                                                                     //  propose
     require(isCanceled(pId));
     requireInvariant noBothExecutedAndCanceled(pId);
-    // castVote@withrevert(e, pId, sup);
-    // castVoteWithReason(e, pId, sup, "");
-    // castVoteBySig@withrevert(e, pId, sup, v, r, s);
-    require(isCanceled(pId) => proposalSnapshot(pId) != 0);
-    execute@withrevert(e, targets, values, calldatas, descriptionHash);
-    assert(lastReverted == true, "Function was not reverted");
+    requireInvariant proposalInitiated(pId);
+    callFunctionWithProposal(pId, f);
+    assert(lastReverted, "Function was not reverted");
 }
 
 /*
  * Shows that executed can only change due to execute()
  */
-rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash, method f) filtered {f -> f.selector != (execute(address[], uint256[], bytes[], bytes32).selector)} {
+rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash, method f) {
     env e; calldataarg args;
-    uint256 pId = hashProposal(targets, values, calldatas, descriptionHash);
+    uint256 pId;
     bool executedBefore = isExecuted(pId);
     require(!executedBefore);
-    f(e, args);
+    callFunctionWithProposal(pId, f);
+    require(!lastReverted);
     // execute(e, targets, values, calldatas, descriptionHash);
     bool executedAfter = isExecuted(pId);
     assert(executedAfter != executedBefore, "executed property did not change");
