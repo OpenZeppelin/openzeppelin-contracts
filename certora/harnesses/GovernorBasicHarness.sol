@@ -59,6 +59,12 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
         return deltaWeight;        
     }
 
+    function callPropose(address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas) public virtual returns (uint256) {
+        return super.propose(targets, values, calldatas, "");
+    }
+
     /*
     mapping (address => mapping (uint256 => uint256)) _getVotes;
 

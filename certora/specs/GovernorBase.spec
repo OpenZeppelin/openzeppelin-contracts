@@ -21,6 +21,7 @@ methods {
 
     // function summarization
     hashProposal(address[], uint256[], bytes[], bytes32) => CONSTANT
+    proposalThreshold() returns uint256 envfree
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -291,4 +292,20 @@ rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] c
     // execute(e, targets, values, calldatas, descriptionHash);
     bool executedAfter = isExecuted(pId);
     assert(executedAfter != executedBefore, "executed property did not change");
+}
+
+
+/*
+* User should not be able to affect proposal threshold
+*/
+rule unaffectedThreshhold(method f){
+    uint256 thresholdBefore = proposalThreshold();
+
+    env e;
+    calldataarg args;
+    f(e, args);
+
+    uint256 thresholdAfter = proposalThreshold();
+
+    assert thresholdBefore == thresholdAfter, "threshold was changed";
 }
