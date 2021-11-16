@@ -9,6 +9,7 @@ import "../utils/Context.sol";
  * @dev Context variant with ERC2771 support.
  */
 abstract contract ERC2771Context is Context {
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     address private immutable _trustedForwarder;
 
     constructor(address trustedForwarder) {
