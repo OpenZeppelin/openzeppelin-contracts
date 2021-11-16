@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0-rc.0 (token/ERC1155/utils/ERC1155Holder.sol)
+// OpenZeppelin Contracts v4.4.0-rc.1 (token/ERC1155/utils/ERC1155Holder.sol)
 
 pragma solidity ^0.8.0;
 
