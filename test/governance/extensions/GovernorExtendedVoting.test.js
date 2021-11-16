@@ -107,6 +107,10 @@ contract('GovernorExtendedVoting', function (accounts) {
           'VoteCast',
           this.settings.voters.find(({ address }) => address === voter),
         );
+        expectEvent.notEmitted(
+          vote,
+          'ProposalExtended',
+        );
       });
       expectEvent(
         this.receipts.execute,
@@ -163,6 +167,12 @@ contract('GovernorExtendedVoting', function (accounts) {
       // vote duration is extended
       const extendedBlock = new BN(tx.receipt.blockNumber).add(votingDelayExtention);
       expect(await this.mock.proposalDeadline(this.id)).to.be.bignumber.equal(extendedBlock);
+
+      expectEvent(
+        tx,
+        'ProposalExtended',
+        { proposalId: this.id, extendedDeadline: extendedBlock },
+      );
 
       // vote is still active after expected end
       await time.advanceBlockTo(endBlock.addn(1));

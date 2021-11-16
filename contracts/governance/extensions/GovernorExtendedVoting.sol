@@ -18,6 +18,7 @@ abstract contract GovernorExtendedVoting is Governor {
     uint64 private _votingDelayExtension;
     mapping(uint256 => Timers.BlockNumber) private _extendedVoteEnd;
 
+    event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
     event VotingDelayExtentionSet(uint64 oldVotingDelayExtention, uint64 newVotingDelayExtention);
 
     /**
@@ -47,8 +48,15 @@ abstract contract GovernorExtendedVoting is Governor {
 
         if (_quorumReached(proposalId)) {
             Timers.BlockNumber storage extension = _extendedVoteEnd[proposalId];
+
             if (extension.isUnset()) {
-                extension.setDeadline(block.number.toUint64() + votingDelayExtention());
+                uint64 extendedDeadline = block.number.toUint64() + votingDelayExtention();
+
+                if (extendedDeadline > proposalDeadline(proposalId)) {
+                    emit ProposalExtended(proposalId, extendedDeadline);
+                }
+
+                extension.setDeadline(extendedDeadline);
             }
         }
 

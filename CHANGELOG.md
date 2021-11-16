@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+ * `GovernorExtendedVoting`: add new module to ensure a minimum voting duration is available after the quorum is reached. ([#2973](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2973))
+
+## Unreleased
 
  * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2568))
  * `AccessControl`: add internal `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2568))
