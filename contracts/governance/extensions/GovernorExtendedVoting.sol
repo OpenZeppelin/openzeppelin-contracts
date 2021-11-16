@@ -46,18 +46,16 @@ abstract contract GovernorExtendedVoting is Governor {
     ) internal virtual override returns (uint256) {
         uint256 result = super._castVote(proposalId, account, support, reason);
 
-        if (_quorumReached(proposalId)) {
-            Timers.BlockNumber storage extension = _extendedVoteEnd[proposalId];
+        Timers.BlockNumber storage extension = _extendedVoteEnd[proposalId];
 
-            if (extension.isUnset()) {
-                uint64 extendedDeadline = block.number.toUint64() + votingDelayExtention();
+        if (extension.isUnset() && _quorumReached(proposalId)) {
+            uint64 extendedDeadline = block.number.toUint64() + votingDelayExtention();
 
-                if (extendedDeadline > proposalDeadline(proposalId)) {
-                    emit ProposalExtended(proposalId, extendedDeadline);
-                }
-
-                extension.setDeadline(extendedDeadline);
+            if (extendedDeadline > proposalDeadline(proposalId)) {
+                emit ProposalExtended(proposalId, extendedDeadline);
             }
+
+            extension.setDeadline(extendedDeadline);
         }
 
         return result;
