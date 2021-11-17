@@ -22,6 +22,14 @@ methods {
     // function summarization
     hashProposal(address[], uint256[], bytes[], bytes32) => CONSTANT
     proposalThreshold() returns uint256 envfree
+
+    getVotes(address, uint256) returns uint256 envfree => DISPATCHER(true)
+    //getVotes(address, uint256) => DISPATCHER(true)
+
+    getPastTotalSupply(uint256) returns uint256 envfree => DISPATCHER(true)
+    //getPastTotalSupply(uint256) => DISPATCHER(true)
+
+    getPastVotes(address, uint256) returns uint256 envfree => DISPATCHER(true)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -90,7 +98,6 @@ invariant proposalInitiated(uint256 pId)
             require e.block.number > 0;
         }}*/
         
-
 
 /*
  * A proposal cannot end unless it started.

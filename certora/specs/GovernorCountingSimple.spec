@@ -12,14 +12,6 @@ methods {
     quorumNumerator() returns uint256
     updateQuorumNumerator(uint256)
     _executor() returns address
-
-    getVotes(address, uint256) returns uint256 envfree => DISPATCHER(true)
-    //getVotes(address, uint256) => DISPATCHER(true)
-
-    getPastTotalSupply(uint256) returns uint256 envfree => DISPATCHER(true)
-    //getPastTotalSupply(uint256) => DISPATCHER(true)
-
-    getPastVotes(address, uint256) returns uint256 envfree => DISPATCHER(true)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -39,9 +31,9 @@ ghost sum_all_votes_power() returns uint256 {
 	init_state axiom sum_all_votes_power() == 0;
 }
 
-//hook Sstore ghost_sum_vote_power_by_id [KEY uint256 pId] uint256 current_power(uint256 old_power) STORAGE {
-//	havoc sum_all_votes_power assuming sum_all_votes_power@new() == sum_all_votes_power@old() - old_power + current_power;
-//}
+hook Sstore ghost_sum_vote_power_by_id [KEY uint256 pId] uint256 current_power(uint256 old_power) STORAGE {
+	havoc sum_all_votes_power assuming sum_all_votes_power@new() == sum_all_votes_power@old() - old_power + current_power;
+}
 
 ghost tracked_weight(uint256) returns uint256 {
 	init_state axiom forall uint256 p. tracked_weight(p) == 0;

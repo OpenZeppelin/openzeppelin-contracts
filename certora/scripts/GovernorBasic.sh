@@ -1,4 +1,4 @@
-certoraRun certora/harnesses/GovernorBasicHarness.sol \
+certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/GovernorBasicHarness.sol \
     --verify GovernorBasicHarness:certora/specs/GovernorBase.spec \
     --solc solc8.2 \
     --staging shelly/forSasha \

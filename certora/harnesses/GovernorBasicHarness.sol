@@ -71,9 +71,10 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
     // Harness of castVoteWithReason to be able to impose requirement on the proposal ID.
     uint256 public _pId_Harness;
     function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) 
-    public 
-    override(IGovernor, Governor) 
-    returns (uint256) {
+        public 
+        override(IGovernor, Governor) 
+        returns (uint256) 
+    {
         require(proposalId == _pId_Harness);
         return super.castVoteWithReason(proposalId, support, reason);
     }
