@@ -274,6 +274,7 @@ rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) filtered {f -
 // how to check executor()?
 // to make it public instead of internal is not best idea, I think.
 // currentContract gives a violation in 
+// maybe need harness implementation for one of the contracts
 rule privilegedOnly(method f){
     env e;
     calldataarg arg;

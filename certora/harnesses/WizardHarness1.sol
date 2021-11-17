@@ -5,23 +5,25 @@ import "../../contracts/governance/Governor.sol";
 import "../../contracts/governance/extensions/GovernorCountingSimple.sol";
 import "../../contracts/governance/extensions/GovernorVotes.sol";
 import "../../contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import "../../contracts/governance/extensions/GovernorTimelockCompound.sol";
+import "../../contracts/governance/extensions/GovernorTimelockControl.sol";
+import "../../contracts/governance/extensions/GovernorProposalThreshold.sol";
 
 /* 
 Wizard options:
+ProposalThreshhold = 10
 ERC20Votes
-TimelockCompound
+TimelockCOntroller
 */
 
-contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockCompound {
-    constructor(ERC20Votes _token, ICompoundTimelock _timelock, string memory name, uint256 quorumFraction)
+contract WizardHarness1 is Governor, GovernorProposalThreshold, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
+    constructor(ERC20Votes _token, TimelockController _timelock, string memory name, uint256 quorumFraction)
         Governor(name)
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(quorumFraction)
-        GovernorTimelockCompound(_timelock)
+        GovernorTimelockControl(_timelock)
     {}
 
-    
+    //HARNESS
 
     function isExecuted(uint256 proposalId) public view returns (bool) {
         return _proposals[proposalId].executed;
@@ -33,19 +35,9 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
 
     uint256 _votingDelay;
 
-    function votingDelay() public view override virtual returns (uint256) {  // HARNESS: pure -> view
-        return _votingDelay;
-    }
-
     uint256 _votingPeriod;
 
-    function votingPeriod() public view override virtual returns (uint256) {  // HARNESS: pure -> view
-        return _votingPeriod;
-    }
-
-    function snapshot(uint256 proposalId) public view returns (uint64) {
-        return _proposals[proposalId].voteStart._deadline;
-    }
+    uint256 _proposalThreshold;
 
     mapping(uint256 => uint256) public ghost_sum_vote_power_by_id;
 
@@ -68,14 +60,24 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
         return super.propose(targets, values, calldatas, "");
     }
 
-    // Harness of castVoteWithReason to be able to impose requirement on the proposal ID.
-    uint256 public _pId_Harness;
-    function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) 
-    public 
-    override(IGovernor, Governor) 
-    returns (uint256) {
-        require(proposalId == _pId_Harness);
-        return super.castVoteWithReason(proposalId, support, reason);
+    function snapshot(uint256 proposalId) public view returns (uint64) {
+        return _proposals[proposalId].voteStart._deadline;
+    }
+
+    
+
+    // original code
+
+    function votingDelay() public view override returns (uint256) {     // HARNESS: pure -> view
+        return _votingDelay;                                            // HARNESS: parametric
+    }
+
+    function votingPeriod() public view override returns (uint256) {    // HARNESS: pure -> view
+        return _votingPeriod;                                           // HARNESS: parametric
+    }
+
+    function proposalThreshold() public view override returns (uint256) {   // HARNESS: pure -> view
+        return _proposalThreshold;                                          // HARNESS: parametric
     }
 
     // The following functions are overrides required by Solidity.
@@ -101,7 +103,7 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
     function state(uint256 proposalId)
         public
         view
-        override(Governor, GovernorTimelockCompound)
+        override(Governor, GovernorTimelockControl)
         returns (ProposalState)
     {
         return super.state(proposalId);
@@ -109,7 +111,7 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
 
     function propose(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, string memory description)
         public
-        override(Governor, IGovernor)
+        override(Governor, GovernorProposalThreshold, IGovernor)
         returns (uint256)
     {
         return super.propose(targets, values, calldatas, description);
@@ -117,14 +119,14 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
 
     function _execute(uint256 proposalId, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
         internal
-        override(Governor, GovernorTimelockCompound)
+        override(Governor, GovernorTimelockControl)
     {
         super._execute(proposalId, targets, values, calldatas, descriptionHash);
     }
 
     function _cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
         internal
-        override(Governor, GovernorTimelockCompound)
+        override(Governor, GovernorTimelockControl)
         returns (uint256)
     {
         return super._cancel(targets, values, calldatas, descriptionHash);
@@ -133,7 +135,7 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
     function _executor()
         internal
         view
-        override(Governor, GovernorTimelockCompound)
+        override(Governor, GovernorTimelockControl)
         returns (address)
     {
         return super._executor();
@@ -142,7 +144,7 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(Governor, GovernorTimelockCompound)
+        override(Governor, GovernorTimelockControl)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
