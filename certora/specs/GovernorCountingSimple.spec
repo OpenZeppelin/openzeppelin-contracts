@@ -1,5 +1,7 @@
 import "GovernorBase.spec"
 
+using ERC20VotesHarness as erc20votes
+
 methods {
     ghost_sum_vote_power_by_id(uint256) returns uint256 envfree
     // castVote(uint256, uint8) returns uint256
@@ -81,12 +83,11 @@ ghost totalVotesPossible(uint256) returns uint256 {
 }
 
 // Was done with _getVotes by mistake. Should check GovernorBasicHarness but _getVotes is from GovernorHarness
-//hook Sstore _getVotes[KEY address uId][KEY uint256 blockNumber] uint256 voteWeight(uint256 old_voteWeight) STORAGE {
-//	havoc totalVotesPossible assuming forall uint256 bn.
-//	                                (bn == blockNumber => totalVotesPossible@new(bn) == totalVotesPossible@old(bn) - old_voteWeight + voteWeight)
-//	                                && (bn != blockNumber => totalVotesPossible@new(bn) == totalVotesPossible@old(bn));
-//    
-//}
+hook Sstore erc20votes._getPastVotes[KEY address uId][KEY uint256 blockNumber] uint256 voteWeight(uint256 old_voteWeight) STORAGE {
+	havoc totalVotesPossible assuming forall uint256 bn.
+	                                (bn == blockNumber => totalVotesPossible@new(bn) == totalVotesPossible@old(bn) - old_voteWeight + voteWeight)
+	                                && (bn != blockNumber => totalVotesPossible@new(bn) == totalVotesPossible@old(bn));
+}
 
 
 
@@ -118,8 +119,8 @@ invariant OneIsNotMoreThanAll(uint256 pId)
 /*
 * totalVotesPossible >= votePower(id)
 */
-//invariant possibleTotalVotes(uint256 pId) 
-//	tracked_weight(pId) <= totalVotesPossible(snapshot(pId))
+invariant possibleTotalVotes(uint256 pId) 
+	tracked_weight(pId) <= totalVotesPossible(snapshot(pId))
 
 /*
 * totalVotesPossible >= votePower(id)
@@ -255,7 +256,7 @@ rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) filtered {f -
     uint256 votesAfter = getVotes(acc, bn);
     bool hasVotedAfter = hasVoted(e, pId, acc);
 
-    assert hasVotedBefore != hasVotedAfter => againstBefore < againstAfter || forBefore < forAfter || abstainBefore < abstainAfter, "no correlation";
+    assert hasVotedBefore != hasVotedAfter => againstBefore <= againstAfter || forBefore <= forAfter || abstainBefore <= abstainAfter, "no correlation";
 }
 
 
