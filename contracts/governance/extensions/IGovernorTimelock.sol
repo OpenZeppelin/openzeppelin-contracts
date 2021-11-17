@@ -10,7 +10,7 @@ import "../IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract IGovernorTimelock is IGovernor {
+interface IGovernorTimelock is IGovernor {
     event ProposalQueued(uint256 proposalId, uint256 eta);
 
     function timelock() public view virtual returns (address);
