@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+ * `ERC2771Context`: revert to immutable storage to store the forwarder address. This is possible with solidity 0.8.8 added support for reading immutable variables in constructor. ([#2917](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2917))
+
+## Unreleased
+
  * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
  * `AccessControl`: add internal `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
  * `AccessControl`: mark `_setupRole(bytes32,address)` as deprecated in favor of `_grantRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2568))
