@@ -1,6 +1,6 @@
 = How to set up on-chain governance
 
-In this guide we will learn how OpenZeppelin’s Govenor contract works, how to set it up, and how to use it to create proposals, vote for them, and execute them, using tools provided by Ethers.js and Tally.
+In this guide we will learn how OpenZeppelin’s Governor contract works, how to set it up, and how to use it to create proposals, vote for them, and execute them, using tools provided by Ethers.js and Tally.
 
 NOTE: Find detailed contract documentation at xref:api:governance.adoc[Governance API].
 
@@ -28,7 +28,7 @@ When using a timelock with your Governor contract, you can use either OpenZeppel
 
 === Tally
 
-Tally is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
+https://www.withtally.com[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
 
 For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use Defender Admin as an alternative interface.
 
@@ -134,6 +134,7 @@ For 3) we will use GovernorCountingSimple, a module that offers 3 options to vot
 Besides these modules, Governor itself has some parameters we must set.
 
 votingDelay: How long after a proposal is created should voting power be fixed. A large voting delay gives users time to unstake tokens if necessary.
+
 votingPeriod: How long does a proposal remain open to votes.
 
 These parameters are specified in number of blocks. Assuming block time of around 13.14 seconds, we will set votingDelay = 1 day = 6570 blocks, and votingPeriod = 1 week = 45992 blocks.
@@ -249,7 +250,11 @@ It is good practice to add a timelock to governance decisions. This allows users
 
 IMPORTANT: When using a timelock, it is the timelock that will execute proposals and thus the timelock that should hold any funds, ownership, and access control roles. Funds in the Governor contract are not currently retrievable when using a timelock! (As of version 4.3 there is a caveat when using the Compound Timelock: ETH in the timelock is not easily usable, so it is recommended to manage ERC20 funds only in this combination until a future version resolves the issue.)
 
-TimelockController uses an AccessControl setup that we need to understand in order to set up roles. The Proposer role is in charge of queueing operations: this is the role the Governor instance should be granted, and it should likely be the only proposer in the system. The Executor role is in charge of executing already available operations: we can assign this role to the special zero address to allow anyone to execute (if operations can be particularly time sensitive, the Governor should be made Executor instead). Lastly, there is the Admin role, which can grant and revoke the two previous roles: this is a very sensitive role that will be granted automatically to both deployer and timelock itself, but should be renounced by the deployer after setup.
+TimelockController uses an AccessControl setup that we need to understand in order to set up roles.
+
+- The Proposer role is in charge of queueing operations: this is the role the Governor instance should be granted, and it should likely be the only proposer in the system.
+- The Executor role is in charge of executing already available operations: we can assign this role to the special zero address to allow anyone to execute (if operations can be particularly time sensitive, the Governor should be made Executor instead).
+- Lastly, there is the Admin role, which can grant and revoke the two previous roles: this is a very sensitive role that will be granted automatically to both deployer and timelock itself, but should be renounced by the deployer after setup.
 
 == Proposal Lifecycle
 
@@ -301,7 +306,7 @@ image::tally-admin.png[Administration Panel in Tally]
 
 We will see now how to do this manually using Ethers.js.
 
-If a timelock was set up, the first step to execution is queueing. You will notice that both the queue and execute functions require passing in all of the proposal parameters, as opposed to just the proposal id. This is necessary because this data is not stored on chain, as a measure to save gas. Note that these parameters can always be found in the events emitted by the contract. The only parameter that is not sent in its entirety is the description, since this is only needed in its hashed form to compute the proposal id.
+If a timelock was set up, the first step to execution is queueing. You will notice that both the queue and execute functions require passing in the entire proposal parameters, as opposed to just the proposal id. This is necessary because this data is not stored on chain, as a measure to save gas. Note that these parameters can always be found in the events emitted by the contract. The only parameter that is not sent in its entirety is the description, since this is only needed in its hashed form to compute the proposal id.
 
 To queue, we call the queue function:
 

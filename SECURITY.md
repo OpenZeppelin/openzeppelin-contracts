@@ -11,6 +11,8 @@ The recommendation is to use the latest version available.
 | 2.5     | :white_check_mark:                   |
 | < 2.0   | :x:                                  |
 
+Note that the Solidity language itself only guarantees security updates for the latest release.
+
 ## Reporting a Vulnerability
 
 Please report any security issues you find to security@openzeppelin.org.
