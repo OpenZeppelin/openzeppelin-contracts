@@ -12,7 +12,6 @@ methods {
     proposalVotes(uint256) returns (uint256, uint256, uint256) envfree
 
     quorumNumerator() returns uint256
-    updateQuorumNumerator(uint256)
     _executor() returns address
 
     erc20votes._getPastVotes(address, uint256) returns uint256 envfree
