@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.0;
 
-import "../governance/extensions/GovernorExtendedVoting.sol";
+import "../governance/extensions/GovernorVoteExtension.sol";
 import "../governance/extensions/GovernorSettings.sol";
 import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotes.sol";
 
-contract GovernorExtendedVotingMock is GovernorSettings, GovernorVotes, GovernorCountingSimple, GovernorExtendedVoting {
+contract GovernorVoteExtensionMock is GovernorSettings, GovernorVotes, GovernorCountingSimple, GovernorVoteExtension {
     uint256 private _quorum;
 
     constructor(
@@ -16,12 +16,12 @@ contract GovernorExtendedVotingMock is GovernorSettings, GovernorVotes, Governor
         uint256 votingDelay_,
         uint256 votingPeriod_,
         uint256 quorum_,
-        uint64 votingDelayExtension_
+        uint64 voteExtension_
     )
         Governor(name_)
         GovernorSettings(votingDelay_, votingPeriod_, 0)
         GovernorVotes(token_)
-        GovernorExtendedVoting(votingDelayExtension_)
+        GovernorVoteExtension(voteExtension_)
     {
         _quorum = quorum_;
     }
@@ -34,7 +34,7 @@ contract GovernorExtendedVotingMock is GovernorSettings, GovernorVotes, Governor
         public
         view
         virtual
-        override(Governor, GovernorExtendedVoting)
+        override(Governor, GovernorVoteExtension)
         returns (uint256)
     {
         return super.proposalDeadline(proposalId);
@@ -49,7 +49,7 @@ contract GovernorExtendedVotingMock is GovernorSettings, GovernorVotes, Governor
         address account,
         uint8 support,
         string memory reason
-    ) internal virtual override(Governor, GovernorExtendedVoting) returns (uint256) {
+    ) internal virtual override(Governor, GovernorVoteExtension) returns (uint256) {
         return super._castVote(proposalId, account, support, reason);
     }
 }

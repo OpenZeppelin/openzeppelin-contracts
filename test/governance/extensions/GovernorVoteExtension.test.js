@@ -6,10 +6,10 @@ const {
 } = require('../GovernorWorkflow.behavior');
 
 const Token = artifacts.require('ERC20VotesCompMock');
-const Governor = artifacts.require('GovernorExtendedVotingMock');
+const Governor = artifacts.require('GovernorVoteExtensionMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-contract('GovernorExtendedVoting', function (accounts) {
+contract('GovernorVoteExtension', function (accounts) {
   const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
 
   const name = 'OZ-Governor';
@@ -19,13 +19,13 @@ contract('GovernorExtendedVoting', function (accounts) {
   const tokenSupply = web3.utils.toWei('100');
   const votingDelay = new BN(4);
   const votingPeriod = new BN(16);
-  const votingDelayExtension = new BN(8);
+  const voteExtension = new BN(8);
   const quorum = web3.utils.toWei('1');
 
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, quorum, votingDelayExtension);
+    this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, quorum, voteExtension);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
@@ -40,7 +40,7 @@ contract('GovernorExtendedVoting', function (accounts) {
     expect(await this.mock.votingDelay()).to.be.bignumber.equal(votingDelay);
     expect(await this.mock.votingPeriod()).to.be.bignumber.equal(votingPeriod);
     expect(await this.mock.quorum(0)).to.be.bignumber.equal(quorum);
-    expect(await this.mock.votingDelayExtension()).to.be.bignumber.equal(votingDelayExtension);
+    expect(await this.mock.voteExtension()).to.be.bignumber.equal(voteExtension);
   });
 
   describe('nominal is unaffected', function () {
@@ -165,7 +165,7 @@ contract('GovernorExtendedVoting', function (accounts) {
       const tx = await this.mock.castVote(this.id, Enums.VoteType.For, { from: voter2 });
 
       // vote duration is extended
-      const extendedBlock = new BN(tx.receipt.blockNumber).add(votingDelayExtension);
+      const extendedBlock = new BN(tx.receipt.blockNumber).add(voteExtension);
       expect(await this.mock.proposalDeadline(this.id)).to.be.bignumber.equal(extendedBlock);
 
       expectEvent(
@@ -188,14 +188,14 @@ contract('GovernorExtendedVoting', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('setVotingDelayExtension', function () {
+  describe('setVoteExtension', function () {
     beforeEach(async function () {
-      this.newVotingDelayExtension = new BN(0); // disable voting delay extension
+      this.newVoteExtension = new BN(0); // disable voting delay extension
     });
 
     it('protected', async function () {
       await expectRevert(
-        this.mock.setVotingDelayExtension(this.newVotingDelayExtension),
+        this.mock.setVoteExtension(this.newVoteExtension),
         'Governor: onlyGovernance',
       );
     });
@@ -206,7 +206,7 @@ contract('GovernorExtendedVoting', function (accounts) {
           proposal: [
             [ this.mock.address ],
             [ web3.utils.toWei('0') ],
-            [ this.mock.contract.methods.setVotingDelayExtension(this.newVotingDelayExtension).encodeABI() ],
+            [ this.mock.contract.methods.setVoteExtension(this.newVoteExtension).encodeABI() ],
             '<proposal description>',
           ],
           proposer,
@@ -229,10 +229,10 @@ contract('GovernorExtendedVoting', function (accounts) {
         );
         expectEvent(
           this.receipts.execute,
-          'VotingDelayExtensionSet',
-          { oldVotingDelayExtension: votingDelayExtension, newVotingDelayExtension: this.newVotingDelayExtension },
+          'VoteExtensionSet',
+          { oldVoteExtension: voteExtension, newVoteExtension: this.newVoteExtension },
         );
-        expect(await this.mock.votingDelayExtension()).to.be.bignumber.equal(this.newVotingDelayExtension);
+        expect(await this.mock.voteExtension()).to.be.bignumber.equal(this.newVoteExtension);
       });
       runGovernorWorkflow();
     });
