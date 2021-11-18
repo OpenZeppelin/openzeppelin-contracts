@@ -8,12 +8,14 @@ methods {
     // castVoteBySig(uint256,uint8,uint8,bytes32,bytes32) returns uint256
 	
 	snapshot(uint256) returns uint64 envfree
-    quorum(uint256) returns uint256 envfree
+    quorum(uint256) returns uint256
     proposalVotes(uint256) returns (uint256, uint256, uint256) envfree
 
     quorumNumerator() returns uint256
     updateQuorumNumerator(uint256)
     _executor() returns address
+
+    erc20votes._getPastVotes(address, uint256) returns uint256 envfree
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -89,6 +91,8 @@ hook Sstore erc20votes._getPastVotes[KEY address uId][KEY uint256 blockNumber] u
 	                                && (bn != blockNumber => totalVotesPossible@new(bn) == totalVotesPossible@old(bn));
 }
 
+invariant checkGetVotesGhost(address uId, uint256 blockNumber)
+    erc20votes._getPastVotes(uId, blockNumber) == getPastVotes(uId, blockNumber)
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -183,13 +187,14 @@ rule votingWeightMonotonicity(method f){
 // can't use link because contracts are abstract, they don't have bytecode/constructor
 // add implementation harness
 rule quorumMonotonicity(method f, uint256 blockNumber){
-    uint256 quorumBefore = quorum(blockNumber);
-
     env e; 
+    
+    uint256 quorumBefore = quorum(e, blockNumber);
+    
     calldataarg args;
     f(e, args);
 
-    uint256 quorumAfter = quorum(blockNumber);
+    uint256 quorumAfter = quorum(e, blockNumber);
 
     assert quorumBefore <= quorumAfter, "Quorum was decreased somehow";
 }
@@ -241,7 +246,7 @@ rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) filtered {f -
     address acc = e.msg.sender;
 
     bool hasVotedBefore = hasVoted(e, pId, acc);
-    uint256 votesBefore = getVotes(acc, bn);
+    uint256 votesBefore = getVotes(e, acc, bn);
     require votesBefore > 0;
 
     //calldataarg args;
@@ -253,7 +258,7 @@ rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) filtered {f -
     uint256 abstainAfter = votesAbstain();
     //againstAfter, forAfter, abstainAfter = proposalVotes(pId);
 
-    uint256 votesAfter = getVotes(acc, bn);
+    uint256 votesAfter = getVotes(e, acc, bn);
     bool hasVotedAfter = hasVoted(e, pId, acc);
 
     assert hasVotedBefore != hasVotedAfter => againstBefore <= againstAfter || forBefore <= forAfter || abstainBefore <= abstainAfter, "no correlation";

@@ -13,7 +13,7 @@ methods {
     castVote(uint256, uint8) returns uint256
 
     // internal functions made public in harness:
-    _quorumReached(uint256) returns bool envfree
+    _quorumReached(uint256) returns bool
     _voteSucceeded(uint256) returns bool envfree
 
 
@@ -23,7 +23,7 @@ methods {
     hashProposal(address[], uint256[], bytes[], bytes32) => CONSTANT
     proposalThreshold() returns uint256 envfree
 
-    getVotes(address, uint256) returns uint256 envfree => DISPATCHER(true)
+    getVotes(address, uint256) returns uint256 => DISPATCHER(true)
     //getVotes(address, uint256) => DISPATCHER(true)
 
     getPastTotalSupply(uint256) returns uint256 envfree => DISPATCHER(true)
@@ -117,8 +117,8 @@ invariant noBothExecutedAndCanceled(uint256 pId)
 /**
  * A proposal could be executed only if quorum was reached and vote succeeded
  */
-invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId) 
-        isExecuted(pId) => _quorumReached(pId) && _voteSucceeded(pId)
+invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e) 
+        isExecuted(pId) => _quorumReached(e, pId) && _voteSucceeded(pId)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
