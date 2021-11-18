@@ -11,6 +11,8 @@ methods {
     execute(address[], uint256[], bytes[], bytes32) returns uint256
     hasVoted(uint256, address) returns bool
     castVote(uint256, uint8) returns uint256
+    updateQuorumNumerator(uint256)
+
 
     // internal functions made public in harness:
     _quorumReached(uint256) returns bool
@@ -256,6 +258,11 @@ rule checkHashProposal {
 ////////////////////////////////////////////////////////////////////////////////
 
 
+////////////////////////////////////////////////////////////////////////////////
+///////////////////////////// Not Categorized Yet //////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
 /*
  * all non-view functions should revert if proposal is executed
  */
@@ -263,9 +270,9 @@ rule checkHashProposal {
 // that means that for different arguments passed, the same value will be returned, for example: func(a,b,c,d) == func(o,p,g,r)
 // the summarization is not an under estimation in this case, because we want to check that for a specific proposal ID (pId), any 
 // (non view) function call is reverting. We dont care what happen with other pIds, and dont care how the hash function generates the ID.
-rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selector != 0x7d5e81e2 && !f.isFallback} {
-    env e; calldataarg args;                                                         //     ^
-    uint256 pId;                                                                     //  propose
+rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selector != 0x7d5e81e2 && !f.isFallback && f.selector != updateQuorumNumerator(uint256).selector && f.selector != 0xa890c910} {
+    env e; calldataarg args;                                                         //     ^                                                                                                    ^
+    uint256 pId;                                                                     //  propose                                                                                           updateTimelock
     require(isExecuted(pId));
     requireInvariant proposalInitiated(pId);
     requireInvariant noBothExecutedAndCanceled(pId);
@@ -276,9 +283,9 @@ rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selec
 /*
  * all non-view functions should revert if proposal is canceled
  */
-rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selector != 0x7d5e81e2 && !f.isFallback} {
-    env e; calldataarg args;                                                         //     ^
-    uint256 pId;                                                                     //  propose
+rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selector != 0x7d5e81e2 && !f.isFallback && f.selector != updateQuorumNumerator(uint256).selector && f.selector != 0xa890c910} {
+    env e; calldataarg args;                                                         //     ^                                                                                                     ^
+    uint256 pId;                                                                     //  propose                                                                                           updateTimelock
     require(isCanceled(pId));
     requireInvariant noBothExecutedAndCanceled(pId);
     requireInvariant proposalInitiated(pId);
