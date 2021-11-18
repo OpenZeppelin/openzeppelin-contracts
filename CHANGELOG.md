@@ -2,7 +2,7 @@
 
 ## Unreleased
 
- * `ERC2771Context`: revert to immutable storage to store the forwarder address. This is possible with solidity 0.8.8 added support for reading immutable variables in constructor. ([#2917](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2917))
+ * `ERC2771Context`: use immutable storage to store the forwarder address, no longer an issue since Solidity >=0.8.8 allows reading immutable variables in the constructor. ([#2917](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2917))
 
 ## Unreleased
 
