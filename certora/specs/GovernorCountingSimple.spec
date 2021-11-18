@@ -25,10 +25,10 @@ ghost hasVoteGhost(uint256) returns uint256 {
     init_state axiom forall uint256 pId. hasVoteGhost(pId) == 0;
 }
 
-//hook Sstore _proposalVotes[KEY uint256 pId].hasVoted[KEY address user] bool current_voting_State (bool old_voting_state) STORAGE{
-//    havoc hasVoteGhost assuming forall uint256 p. ((p == pId && current_voting_State && !old_voting_state) ? (hasVoteGhost@new(p) == hasVoteGhost@old(p) + 1)  :
-//                                                  (hasVoteGhost@new(p) == hasVoteGhost@old(p)));
-//}
+hook Sstore _proposalVotes[KEY uint256 pId].hasVoted[KEY address user] bool current_voting_State (bool old_voting_state) STORAGE{
+   havoc hasVoteGhost assuming forall uint256 p. ((p == pId && current_voting_State && !old_voting_state) ? (hasVoteGhost@new(p) == hasVoteGhost@old(p) + 1)  :
+                                                 (hasVoteGhost@new(p) == hasVoteGhost@old(p)));
+}
 
 ghost sum_all_votes_power() returns uint256 {
 	init_state axiom sum_all_votes_power() == 0;
