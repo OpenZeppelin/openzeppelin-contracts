@@ -348,8 +348,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @dev Relaying mechanism allowing the acting governor (possibly a timelock) to extract value and token sent to
-     * the governor by mistake.
+     * @dev Relays a transaction or function call to an arbitrary target. In cases where the governance executor
+     * is some contract other than the governor itself, like when using a timelock, this function can be invoked
+     * in a governance proposal to recover tokens or Ether that was sent to the governor contract by mistake.
+     * Note that if the executor is simply the governor itself, use of `relay` is redundant.
      */
     function relay(
         address target,
