@@ -2,6 +2,8 @@
 ///////////////////// Governor.sol base definitions //////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+using ERC20VotesHarness as erc20votes
+
 methods {
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
     proposalDeadline(uint256) returns uint256 envfree // matches proposalVoteEnd
@@ -28,10 +30,10 @@ methods {
     getVotes(address, uint256) returns uint256 => DISPATCHER(true)
     //getVotes(address, uint256) => DISPATCHER(true)
 
-    getPastTotalSupply(uint256) returns uint256 envfree => DISPATCHER(true)
+    erc20votes.getPastTotalSupply(uint256) returns uint256
     //getPastTotalSupply(uint256) => DISPATCHER(true)
 
-    getPastVotes(address, uint256) returns uint256 envfree => DISPATCHER(true)
+    erc20votes.getPastVotes(address, uint256) returns uint256
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -105,7 +107,7 @@ invariant proposalInitiated(uint256 pId)
  * A proposal cannot end unless it started.
  */
 invariant voteStartBeforeVoteEnd(uint256 pId)
-    (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) < proposalDeadline(pId))
+    (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) <= proposalDeadline(pId))  // from < to <= because snapshot and deadline can be the same block number if delays are set to 0
          && (proposalSnapshot(pId) == 0 => proposalDeadline(pId) == 0)
 
 
@@ -119,9 +121,20 @@ invariant noBothExecutedAndCanceled(uint256 pId)
 /**
  * A proposal could be executed only if quorum was reached and vote succeeded
  */
-invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e) 
-        isExecuted(pId) => _quorumReached(e, pId) && _voteSucceeded(pId)
+//invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e) 
+//        isExecuted(pId) => _quorumReached(e, pId) && _voteSucceeded(pId)
 
+rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
+
+    bool isExecutedBefore = isExecuted(pId);
+
+    calldataarg args;
+    f(e, args);
+    
+    bool isExecutedAfter = isExecuted(pId);
+
+    assert isExecutedBefore != isExecutedAfter => _quorumReached(e, pId) && _voteSucceeded(pId), "quorum was changed";
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////// In-State Rules /////////////////////////////////////

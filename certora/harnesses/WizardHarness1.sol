@@ -76,6 +76,10 @@ contract WizardHarness1 is Governor, GovernorProposalThreshold, GovernorCounting
         return super.castVoteWithReason(proposalId, support, reason);
     }
 
+    function getExecutor() public returns (address){
+        return _executor();
+    }
+
     // original code
 
     function votingDelay() public view override returns (uint256) {     // HARNESS: pure -> view

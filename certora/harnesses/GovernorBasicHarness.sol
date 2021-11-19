@@ -43,10 +43,6 @@ contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes
         return _votingPeriod;
     }
 
-    function snapshot(uint256 proposalId) public view returns (uint64) {
-        return _proposals[proposalId].voteStart._deadline;
-    }
-
     mapping(uint256 => uint256) public ghost_sum_vote_power_by_id;
 
     function _castVote(

@@ -6,15 +6,18 @@ methods {
     ghost_sum_vote_power_by_id(uint256) returns uint256 envfree
     // castVote(uint256, uint8) returns uint256
     // castVoteBySig(uint256,uint8,uint8,bytes32,bytes32) returns uint256
-	
-	snapshot(uint256) returns uint64 envfree
+
     quorum(uint256) returns uint256
     proposalVotes(uint256) returns (uint256, uint256, uint256) envfree
 
     quorumNumerator() returns uint256
     _executor() returns address
 
-    erc20votes._getPastVotes(address, uint256) returns uint256 envfree
+    erc20votes._getPastVotes(address, uint256) returns uint256
+
+    getExecutor() returns address
+
+    //0xe38335e5 => DISPATCHER(true)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -90,9 +93,17 @@ hook Sstore erc20votes._getPastVotes[KEY address uId][KEY uint256 blockNumber] u
 	                                && (bn != blockNumber => totalVotesPossible@new(bn) == totalVotesPossible@old(bn));
 }
 
-invariant checkGetVotesGhost(address uId, uint256 blockNumber)
-    erc20votes._getPastVotes(uId, blockNumber) == getPastVotes(uId, blockNumber)
+invariant checkGetVotesGhost(address uId, uint256 blockNumber, env e)
+    erc20votes._getPastVotes(e, uId, blockNumber) == erc20votes.getPastVotes(e, uId, blockNumber)
 
+rule whatCahnges(uint256 blockNumber, method f) {
+    env e;
+    calldataarg args;
+    uint256 ghostBefore = totalVotesPossible(blockNumber);
+    f(e,args);
+    uint256 ghostAfter = totalVotesPossible(blockNumber);
+    assert ghostAfter ==  ghostBefore, "ghost was changed";
+}
 
 //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// INVARIANTS ////////////////////////////////////
@@ -122,8 +133,11 @@ invariant OneIsNotMoreThanAll(uint256 pId)
 /*
 * totalVotesPossible >= votePower(id)
 */
-invariant possibleTotalVotes(uint256 pId) 
-	tracked_weight(pId) <= totalVotesPossible(snapshot(pId))
+invariant possibleTotalVotes(uint256 pId, env e) 
+	tracked_weight(pId) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId))
+
+invariant voteGettersCheck(uint256 pId, address acc, env e) 
+	erc20votes.getPastVotes(e, acc, proposalSnapshot(pId)) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId))
 
 /*
 * totalVotesPossible >= votePower(id)
@@ -178,7 +192,7 @@ rule noVoteForSomeoneElse(uint256 pId, uint8 support){
     assert(hasVotedBefore != hasVotedAfter => (forall address user. user != voter => !hasVoted(e, pId, user)));
 }
 
-// ok
+
 rule votingWeightMonotonicity(method f){
     uint256 votingWeightBefore = sum_tracked_weight();
 
@@ -189,22 +203,6 @@ rule votingWeightMonotonicity(method f){
     uint256 votingWeightAfter = sum_tracked_weight();
 
     assert votingWeightBefore <= votingWeightAfter, "Voting weight was decreased somehow";
-}
-
-// ok with this branch: thomas/bool-hook-values
-// can't use link because contracts are abstract, they don't have bytecode/constructor
-// add implementation harness
-rule quorumMonotonicity(method f, uint256 blockNumber){
-    env e; 
-    
-    uint256 quorumBefore = quorum(e, blockNumber);
-    
-    calldataarg args;
-    f(e, args);
-
-    uint256 quorumAfter = quorum(e, blockNumber);
-
-    assert quorumBefore <= quorumAfter, "Quorum was decreased somehow";
 }
 
 
@@ -233,18 +231,8 @@ function callFunctionWithParams(method f, uint256 proposalId, env e) {
 	}
 }
 
-
-// getVotes() returns different results.
-// how to ensure that the same acc is used in getVotes() in uint256 votesBefore = getVotes(acc, bn);/uint256 votesAfter = getVotes(acc, bn); and in callFunctionWithParams
-// votesBefore and votesAfter give different results but shoudn't
-
-// are we assuming that a person with 0 votes can vote? are we assuming that a person may have 0 votes
-// it seems like a weight can be 0. At least there is no check for it
-// If it can be 0 then < should be changed to <= but it gives less coverage
-
 // run on ALex's branch to avoid tiomeouts: --staging alex/external-timeout-for-solvers
 // --staging shelly/forSasha
-// implement ERC20Votes as a harness
 rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) filtered {f -> f.selector != 0x7d5e81e2}{
     uint256 againstBefore = votesAgainst();
     uint256 forBefore = votesFor();
@@ -276,21 +264,19 @@ rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) filtered {f -
 /*
 * Check privileged operations
 */
-// NO NEED FOR SPECIFIC CHANGES
-// how to check executor()?
-// to make it public instead of internal is not best idea, I think.
-// currentContract gives a violation in 
-// maybe need harness implementation for one of the contracts
-rule privilegedOnly(method f){
+rule privilegedOnly(method f, uint256 newQuorumNumerator){
     env e;
     calldataarg arg;
     uint256 quorumNumBefore = quorumNumerator(e);
+    //require e.msg.sender == currentContract;
 
     f(e, arg);
 
+    //updateQuorumNumerator(e, newQuorumNumerator);
+
     uint256 quorumNumAfter = quorumNumerator(e);
 
-    address executorCheck = currentContract;
+    address executorCheck = getExecutor(e);
     // address executorCheck = _executor(e);
 
     assert quorumNumBefore != quorumNumAfter => e.msg.sender == executorCheck, "non priveleged user changed quorum numerator";
