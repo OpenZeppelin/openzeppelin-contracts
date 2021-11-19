@@ -156,19 +156,21 @@ rule someOtherRuleToRemoveLater(uint256 num){
 }
 */
 
+
 /*
  * Checks that only one user is updated in the system when calling cast vote functions (assuming hasVoted is changing correctly, false->true, with every vote cast)
  */
-rule oneUserVotesInCast(uint256 pId, uint8 sup, method f) filtered {f -> f.selector == castVote(uint256, uint8).selector || f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector} {
-    env e; calldataarg args;                                                            //              ^                           ^
-    uint256 ghost_Before = hasVoteGhost(pId);                                           //           propose                castVoteWithReason
+rule oneUserVotesInCast(uint256 pId, uint8 sup, method f) filtered {f -> f.selector == castVote(uint256, uint8).selector || 
+                                                                    f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector} {
+    env e; calldataarg args;                                                            
+    uint256 ghost_Before = hasVoteGhost(pId);                                           
     if (f.selector == castVote(uint256, uint8).selector)
-	{
-		castVote(e, pId, sup);
-	} /*else if (f.selector == 0x7b3c71d3) {
+    {
+        castVote(e, pId, sup);
+    } /*else if (f.selector == 0x7b3c71d3) {
         require(_pId_Harness() == proposalId);
-		f(e,args);
-	}*/ else if (f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector) {
+        f(e,args);
+    }*/ else if (f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector) {
         uint8 v; bytes32 r; bytes32 s;
         castVoteBySig(e, pId, sup, v, r, s);
     } else{
@@ -178,18 +180,33 @@ rule oneUserVotesInCast(uint256 pId, uint8 sup, method f) filtered {f -> f.selec
     assert(ghost_After == ghost_Before + 1, "Raised by more than 1");
 }
 
+
 /*
  * Checks that in any call to cast vote functions only the sender's value is updated
  */
-
-rule noVoteForSomeoneElse(uint256 pId, uint8 support){
-    env e;
+rule noVoteForSomeoneElse(uint256 pId, uint8 sup, method f) filtered {f -> f.selector == castVote(uint256, uint8).selector || 
+                                                                          f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector} {
+    env e; calldataarg args;
     address voter = e.msg.sender;
-    bool hasVotedBefore = hasVoted(e, pId, voter);
-    require(!hasVotedBefore);
-    castVote(e, pId, support);
-    bool hasVotedAfter = hasVoted(e, pId, voter);
-    assert(hasVotedBefore != hasVotedAfter => (forall address user. user != voter => !hasVoted(e, pId, user)));
+    address user;
+    bool hasVotedBefore_Voter = hasVoted(e, pId, voter);
+    bool hasVotedBefore_User = hasVoted(e, pId, user);
+    require(!hasVotedBefore_Voter);
+    if (f.selector == castVote(uint256, uint8).selector)
+    {
+        castVote(e, pId, sup);
+    } /*else if (f.selector == 0x7b3c71d3) {
+        require(_pId_Harness() == proposalId);
+        f(e,args);
+    }*/ else if (f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector) {
+        uint8 v; bytes32 r; bytes32 s;
+        castVoteBySig(e, pId, sup, v, r, s);
+    } else{
+        f(e, args);
+    }
+    bool hasVotedAfter_Voter = hasVoted(e, pId, voter);
+    bool hasVotedAfter_User = hasVoted(e, pId, user);
+    assert hasVotedBefore_Voter != hasVotedAfter_Voter => (user != voter => hasVotedBefore_User == hasVotedAfter_User);
 }
 
 
