@@ -24,7 +24,7 @@ methods {
     _pId_Harness() returns uint256 envfree;
 
     // function summarization
-    hashProposal(address[], uint256[], bytes[], bytes32) => CONSTANT
+    // hashProposal(address[], uint256[], bytes[], bytes32) => CONSTANT
     proposalThreshold() returns uint256 envfree
 
     getVotes(address, uint256) returns uint256 => DISPATCHER(true)
