@@ -24,23 +24,14 @@ methods {
     _pId_Harness() returns uint256 envfree;
 
     // function summarization
-    // hashProposal(address[], uint256[], bytes[], bytes32) => CONSTANT
     proposalThreshold() returns uint256 envfree
 
     getVotes(address, uint256) returns uint256 => DISPATCHER(true)
-    //getVotes(address, uint256) => DISPATCHER(true)
 
     erc20votes.getPastTotalSupply(uint256) returns uint256
-    //getPastTotalSupply(uint256) => DISPATCHER(true)
 
     erc20votes.getPastVotes(address, uint256) returns uint256
 }
-
-//////////////////////////////////////////////////////////////////////////////
-////////////////////////////////// Ghosts ////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-// ghost uniqueHashGhost(bytes32) returns uint256;
 
 //////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// Helper Functions ///////////////////////////////
@@ -58,7 +49,7 @@ function callFunctionWithProposal(uint256 proposalId, method f) {
         require(result == proposalId);
 	} else if (f.selector == castVote(uint256, uint8).selector) {
 		castVote@withrevert(e, proposalId, support);
-	} else if  (f.selector == 0x7b3c71d3) {
+	} else if  (f.selector == 0x7b3c71d3 /* castVoteWithReason */) {
         calldataarg args;
         require(_pId_Harness() == proposalId);
         f@withrevert(e, args);
@@ -92,48 +83,76 @@ function callFunctionWithProposal(uint256 proposalId, method f) {
 
 
 /*
- * If any of the properties are non zero, the rest has to be non zero 
+ * Start and end date are either initialized (non zero) or uninitialized (zero) simultaneously
  */
-invariant proposalInitiated(uint256 pId)
-        (proposalSnapshot(pId) != 0 <=> proposalDeadline(pId) != 0) &&
-        (isCanceled(pId) => proposalSnapshot(pId) != 0) &&
-        (isExecuted(pId) => proposalSnapshot(pId) != 0)
+ // To use env with general preserved block first disable type checking then
+ // use Uri's branch - --staging uri/add_with_env_to_preserved_all
+invariant startAndEndDatesNonZero(uint256 pId)
+        proposalSnapshot(pId) != 0 <=> proposalDeadline(pId) != 0
         /*{ preserved with (env e){   
-            require e.block.number > 0;
+                require e.block.number > 0;
         }}*/
         
 
 /*
- * A proposal cannot end unless it started.
+ * If a proposal is canceled it must have a start and an end date 
  */
-invariant voteStartBeforeVoteEnd(uint256 pId)
-    (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) <= proposalDeadline(pId))  // from < to <= because snapshot and deadline can be the same block number if delays are set to 0
-         && (proposalSnapshot(pId) == 0 => proposalDeadline(pId) == 0)
+ // To use env with general preserved block first disable type checking then
+ // use Uri's branch - --staging uri/add_with_env_to_preserved_all
+invariant canceledImplyStartAndEndDateNonZero(uint pId)
+        isCanceled(pId) => proposalSnapshot(pId) != 0
+        /*{ preserved with (env e){
+                requireInvariant startAndEndDatesNonZero(pId);
+                require e.block.number > 0;
+        }}*/
 
 
 /*
- * A proposal cannot be both executed and canceled.
+ * If a proposal is executed it must have a start and an end date 
+ */
+ // To use env with general preserved block first disable type checking then
+ // use Uri's branch - --staging uri/add_with_env_to_preserved_all
+invariant executedImplyStartAndEndDateNonZero(uint pId)
+        isExecuted(pId) => proposalSnapshot(pId) != 0
+        /*{ preserved with (env e){
+                requireInvariant startAndEndDatesNonZero(pId);
+                require e.block.number > 0;
+        }}*/
+
+
+/*
+ * A proposal starting block number must be <= to the proposal end date
+ */
+invariant voteStartBeforeVoteEnd(uint256 pId)
+        // from < to <= because snapshot and deadline can be the same block number if delays are set to 0
+        // This is possible before the integration of GovernorSettings.sol to the system.
+        // After integration of GovernorSettings.sol the invariant expression should be changed from <= to <
+        (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) <= proposalDeadline(pId))
+        { preserved {
+            requireInvariant startAndEndDatesNonZero(pId);
+        }}
+
+
+/*
+ * A proposal cannot be both executed and canceled simultaneously.
  */
 invariant noBothExecutedAndCanceled(uint256 pId) 
         !isExecuted(pId) || !isCanceled(pId)
 
 
-/**
+/*
  * A proposal could be executed only if quorum was reached and vote succeeded
  */
-//invariant executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e) 
-//        isExecuted(pId) => _quorumReached(e, pId) && _voteSucceeded(pId)
-
+ // the executeBatch line in _execute was commented in GovernorTimelockContril.sol
 rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
 
     bool isExecutedBefore = isExecuted(pId);
-
+    
     calldataarg args;
     f(e, args);
     
     bool isExecutedAfter = isExecuted(pId);
-
-    assert isExecutedBefore != isExecutedAfter => _quorumReached(e, pId) && _voteSucceeded(pId), "quorum was changed";
+    assert ((isExecutedBefore != isExecutedAfter) && !isExecutedBefore) => (_quorumReached(e, pId) && _voteSucceeded(pId)), "quorum was changed";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -144,19 +163,31 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
 //------------- Voting Period --------------
 //==========================================
 
-
 /*
  * A user cannot vote twice
  */
-rule doubleVoting(uint256 pId, uint8 sup) {
-    env e;
+rule doubleVoting(uint256 pId, uint8 sup, method f) filtered { f-> f.selector == castVote(uint256, uint8).selector || 
+                                                                   f.selector == castVoteWithReason(uint256, uint8, string).selector || 
+                                                                   f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector} {
+    env e; calldataarg args;
     address user = e.msg.sender;        
     bool votedCheck = hasVoted(e, pId, user);
 
-    castVote@withrevert(e, pId, sup);
-    bool reverted = lastReverted;
+    if (f.selector == castVote(uint256, uint8).selector)
+    {
+        castVote@withrevert(e, pId, sup);
+    } else if (f.selector == castVoteWithReason(uint256, uint8, string).selector) {
+        string reason;
+        castVoteWithReason@withrevert(e, pId, sup, reason);
+    } else if (f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector) {
+        uint8 v; bytes32 r; bytes32 s;
+        castVoteBySig@withrevert(e, pId, sup, v, r, s);
+    } else{
+        f@withrevert(e, args);
+    }
 
-    assert votedCheck => reverted, "double voting accured";
+
+    assert votedCheck => lastReverted, "double voting accured";
 }
 
 
@@ -287,7 +318,7 @@ rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selec
     env e; calldataarg args;                                                         //     ^                                                                                                    ^
     uint256 pId;                                                                     //  propose                                                                                           updateTimelock
     require(isExecuted(pId));
-    requireInvariant proposalInitiated(pId);
+    // requireInvariant proposalInitiated(pId);
     requireInvariant noBothExecutedAndCanceled(pId);
     callFunctionWithProposal(pId, f);
     assert(lastReverted, "Function was not reverted");
@@ -301,7 +332,7 @@ rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selec
     uint256 pId;                                                                     //  propose                                                                                           updateTimelock
     require(isCanceled(pId));
     requireInvariant noBothExecutedAndCanceled(pId);
-    requireInvariant proposalInitiated(pId);
+    // requireInvariant proposalInitiated(pId);
     callFunctionWithProposal(pId, f);
     assert(lastReverted, "Function was not reverted");
 }
