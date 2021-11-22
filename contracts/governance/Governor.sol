@@ -320,7 +320,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
             v,
             r,
             s
-        );
+        ); // mention that we assume that hashing works correctly
         return _castVote(proposalId, voter, support, "");
     }
 

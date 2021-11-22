@@ -92,8 +92,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
 
         uint256 delay = _timelock.getMinDelay();
         _timelockIds[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, descriptionHash);
-        // HARNESS
-        //_timelock.scheduleBatch(targets, values, calldatas, 0, descriptionHash, delay);
+        _timelock.scheduleBatch(targets, values, calldatas, 0, descriptionHash, delay);
 
         emit ProposalQueued(proposalId, block.timestamp + delay);
 
@@ -110,8 +109,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual override {
-        // HARNESS
-        // _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
+         _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
     }
 
     /**

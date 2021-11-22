@@ -32,8 +32,8 @@ methods {
     erc20votes.getPastTotalSupply(uint256) returns uint256
     erc20votes.getPastVotes(address, uint256) returns uint256
 
-    scheduleBatch(address[],uint256[],bytes[],bytes32,bytes32,uint256) => NONDET
-    executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => NONDET
+    //scheduleBatch(address[],uint256[],bytes[],bytes32,bytes32,uint256) => DISPATCHER(true)
+    //executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => DISPATCHER(true)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -191,8 +191,7 @@ rule doubleVoting(uint256 pId, uint8 sup, method f) filtered { f-> f.selector ==
     } else{
         f@withrevert(e, args);
     }
-
-
+    
     assert votedCheck => lastReverted, "double voting accured";
 }
 

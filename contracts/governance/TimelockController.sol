@@ -299,6 +299,7 @@ contract TimelockController is AccessControl {
             _call(id, i, targets[i], values[i], datas[i]);
         }
         _afterCall(id);
+        // ASSUME THAT THERE IS NO REENTRANCY IN WIZARDHARNESS1
     }
 
     /**
