@@ -36,6 +36,8 @@ methods {
     //executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => DISPATCHER(true)
 }
 
+definition proposalCreated(uint256 pId) returns bool = proposalSnapshot(pId) > 0;
+
 //////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// Helper Functions ///////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -90,6 +92,9 @@ function callFunctionWithProposal(uint256 proposalId, method f) {
 
 /*
  * Start and end date are either initialized (non zero) or uninitialized (zero) simultaneously
+ * This invariant assumes that the block number cannot be 0 at any stage of the contract cycle
+ * This is very safe assumption as usually the 0 block is genesis block which is uploaded with data
+ * by the developers and will not be valid to raise proposals (at the current way that block chain is functioning)
  */
  // To use env with general preserved block first disable type checking then
  // use Uri's branch - --staging uri/add_with_env_to_preserved_all
@@ -108,7 +113,7 @@ invariant startAndEndDatesNonZero(uint256 pId)
 invariant canceledImplyStartAndEndDateNonZero(uint pId)
         isCanceled(pId) => proposalSnapshot(pId) != 0
         /*{ preserved with (env e){
-                requireInvariant startAndEndDatesNonZero(pId);
+                requireInvariant startAndEndDatesNonZero(pId); //@note maybe unndeeded
                 require e.block.number > 0;
         }}*/
 
@@ -121,7 +126,7 @@ invariant canceledImplyStartAndEndDateNonZero(uint pId)
 invariant executedImplyStartAndEndDateNonZero(uint pId)
         isExecuted(pId) => proposalSnapshot(pId) != 0
         /*{ preserved with (env e){
-                requireInvariant startAndEndDatesNonZero(pId);
+                requireInvariant startAndEndDatesNonZero(pId); //@note maybe unndeeded
                 require e.block.number > 0;
         }}*/
 
@@ -149,16 +154,16 @@ invariant noBothExecutedAndCanceled(uint256 pId)
 /*
  * A proposal could be executed only if quorum was reached and vote succeeded
  */
- // the executeBatch line in _execute was commented in GovernorTimelockContril.sol
 rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
-
     bool isExecutedBefore = isExecuted(pId);
+    bool quorumReachedBefore = _quorumReached(e, pId);
+    bool voteSucceededBefore = _voteSucceeded(pId);
     
     calldataarg args;
     f(e, args);
     
     bool isExecutedAfter = isExecuted(pId);
-    assert ((isExecutedBefore != isExecutedAfter) && !isExecutedBefore) => (_quorumReached(e, pId) && _voteSucceeded(pId)), "quorum was changed";
+    assert (!isExecutedBefore && isExecutedAfter) => (quorumReachedBefore && voteSucceededBefore), "quorum was changed";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -172,26 +177,19 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
 /*
  * A user cannot vote twice
  */
-rule doubleVoting(uint256 pId, uint8 sup, method f) filtered { f-> f.selector == castVote(uint256, uint8).selector || 
-                                                                   f.selector == castVoteWithReason(uint256, uint8, string).selector || 
-                                                                   f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector} {
-    env e; calldataarg args;
+ // Checked for castVote only. all 3 castVote functions call _castVote, so the completness of the verification is counted on
+ // the fact that the 3 functions themselves makes no chages, but rather call an internal function to execute.
+ // That means that we do not check those 3 functions directly, however for castVote & castVoteWithReason it is quite trivial
+ // to understand why this is ok. For castVoteBySig we basically assume that the signature referendum is correct without checking it.
+ // We could check each function seperately and pass the rule, but that would have uglyfied the code with no concrete 
+ // benefit, as it is evident that nothing is happening in the first 2 functions (calling a view function), and we do not desire to check the signature verification.
+rule doubleVoting(uint256 pId, uint8 sup, method f) {
+    env e;
     address user = e.msg.sender;        
     bool votedCheck = hasVoted(e, pId, user);
 
-    if (f.selector == castVote(uint256, uint8).selector)
-    {
-        castVote@withrevert(e, pId, sup);
-    } else if (f.selector == castVoteWithReason(uint256, uint8, string).selector) {
-        string reason;
-        castVoteWithReason@withrevert(e, pId, sup, reason);
-    } else if (f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector) {
-        uint8 v; bytes32 r; bytes32 s;
-        castVoteBySig@withrevert(e, pId, sup, v, r, s);
-    } else{
-        f@withrevert(e, args);
-    }
-    
+    castVote@withrevert(e, pId, sup);
+
     assert votedCheck => lastReverted, "double voting accured";
 }
 
@@ -203,22 +201,6 @@ rule doubleVoting(uint256 pId, uint8 sup, method f) filtered { f-> f.selector ==
 //===========================================
 //-------- Propose() --> End of Time --------
 //===========================================
-
-
-/*
- * The voting must start not before the proposal’s creation time
- */
-rule noStartBeforeCreation(uint256 pId) {
-    uint256 previousStart = proposalSnapshot(pId);
-    require previousStart == 0;
-    env e;
-    calldataarg arg;
-    propose(e, arg);
-
-    uint newStart = proposalSnapshot(pId);
-    // if created, start is after current block number (creation block)
-    assert(newStart != previousStart => newStart >= e.block.number);
-}
 
 
 /*
@@ -237,6 +219,23 @@ rule immutableFieldsAfterProposalCreation(uint256 pId, method f) {
     uint voteEnd_ = proposalDeadline(pId);
     assert _voteStart == voteStart_;
     assert _voteEnd == voteEnd_;
+}
+
+
+/*
+ * Voting cannot start at a block number prior to proposal’s creation block number
+ */
+rule noStartBeforeCreation(uint256 pId) {
+    uint256 previousStart = proposalSnapshot(pId);
+    // This line makes sure that we see only cases where start date is changed from 0, i.e. creation of proposal
+    // We proved in immutableFieldsAfterProposalCreation that once dates set for proposal, it cannot be changed
+    require previousStart == 0;
+    env e; calldataarg arg;
+    propose(e, arg);
+
+    uint newStart = proposalSnapshot(pId);
+    // if created, start is after current block number (creation block)
+    assert(newStart != previousStart => newStart >= e.block.number);
 }
 
 
@@ -278,29 +277,6 @@ rule noExecuteOrCancelBeforeDeadline(uint256 pId, method f){
 ////////////////////// Integrity Of Functions (Unit Tests) /////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-/**
- * Check hashProposal hashing is reliable (different inputs lead to different buffers hashed)
- */
-/*
-rule checkHashProposal {
-    address[] t1;
-    address[] t2;
-    uint256[] v1;
-    uint256[] v2;
-    bytes[] c1;
-    bytes[] c2;
-    bytes32 d1;
-    bytes32 d2;
-
-    uint256 h1 = hashProposal(t1,v1,c1,d1);
-    uint256 h2 = hashProposal(t2,v2,c2,d2);
-    bool equalHashes = h1 == h2;
-    assert equalHashes => t1.length == t2.length;
-    assert equalHashes => v1.length == v2.length;
-    assert equalHashes => c1.length == c2.length;
-    assert equalHashes => d1 == d2;
-}
-*/
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// High Level Rules ////////////////////////////////
