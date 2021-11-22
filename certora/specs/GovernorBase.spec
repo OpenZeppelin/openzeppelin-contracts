@@ -14,6 +14,7 @@ methods {
     hasVoted(uint256, address) returns bool
     castVote(uint256, uint8) returns uint256
     updateQuorumNumerator(uint256)
+    queue(address[], uint256[], bytes[], bytes32) returns uint256
 
 
     // internal functions made public in harness:
@@ -29,8 +30,10 @@ methods {
     getVotes(address, uint256) returns uint256 => DISPATCHER(true)
 
     erc20votes.getPastTotalSupply(uint256) returns uint256
-
     erc20votes.getPastVotes(address, uint256) returns uint256
+
+    scheduleBatch(address[],uint256[],bytes[],bytes32,bytes32,uint256) => NONDET
+    executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => NONDET
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -55,6 +58,9 @@ function callFunctionWithProposal(uint256 proposalId, method f) {
         f@withrevert(e, args);
 	} else if (f.selector == castVoteBySig(uint256, uint8,uint8, bytes32, bytes32).selector) {
 		castVoteBySig@withrevert(e, proposalId, support, v, r, s);
+    } else if (f.selector == queue(address[], uint256[], bytes[], bytes32).selector) {
+		require targets.length <= 1 && values.length <= 1 && calldatas.length <= 1;
+        queue@withrevert(e, targets, values, calldatas, descriptionHash);
 	} else {
         calldataarg args;
         f@withrevert(e, args);

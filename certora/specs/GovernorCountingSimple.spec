@@ -16,8 +16,6 @@ methods {
     erc20votes._getPastVotes(address, uint256) returns uint256
 
     getExecutor() returns address
-
-    //0xe38335e5 => DISPATCHER(true)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -133,11 +131,35 @@ invariant OneIsNotMoreThanAll(uint256 pId)
 /*
 * totalVotesPossible >= votePower(id)
 */
-invariant possibleTotalVotes(uint256 pId, env e) 
-	tracked_weight(pId) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId))
+//invariant possibleTotalVotes(uint256 pId, env e) 
+//	tracked_weight(pId) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId))
 
-invariant voteGettersCheck(uint256 pId, address acc, env e) 
-	erc20votes.getPastVotes(e, acc, proposalSnapshot(pId)) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId))
+rule possibleTotalVotes(uint256 pId, env e, method f) {
+    require tracked_weight(pId) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId));
+
+    calldataarg args;
+    f(e, args);
+
+    assert tracked_weight(pId) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId)), "bla bla bla";
+}
+
+//invariant voteGettersCheck(uint256 pId, address acc, env e) 
+//	erc20votes.getPastVotes(e, acc, proposalSnapshot(pId)) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId))
+
+rule voteGettersCheck(uint256 pId, address acc, env e, method f){
+    address[] targets;
+    uint256[] values;
+    bytes[] calldatas;
+
+    require erc20votes.getPastVotes(e, acc, proposalSnapshot(pId)) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId));
+    
+    uint256 result = callPropose(e, targets, values, calldatas);
+
+    require result == pId;
+
+    assert erc20votes.getPastVotes(e, acc, proposalSnapshot(pId)) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId)),
+            "getPastVotes is greater";
+}
 
 /*
 * totalVotesPossible >= votePower(id)

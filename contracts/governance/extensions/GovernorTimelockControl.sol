@@ -92,7 +92,8 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
 
         uint256 delay = _timelock.getMinDelay();
         _timelockIds[proposalId] = _timelock.hashOperationBatch(targets, values, calldatas, 0, descriptionHash);
-        _timelock.scheduleBatch(targets, values, calldatas, 0, descriptionHash, delay);
+        // HARNESS
+        //_timelock.scheduleBatch(targets, values, calldatas, 0, descriptionHash, delay);
 
         emit ProposalQueued(proposalId, block.timestamp + delay);
 
