@@ -4,8 +4,6 @@ using ERC20VotesHarness as erc20votes
 
 methods {
     ghost_sum_vote_power_by_id(uint256) returns uint256 envfree
-    // castVote(uint256, uint8) returns uint256
-    // castVoteBySig(uint256,uint8,uint8,bytes32,bytes32) returns uint256
 
     quorum(uint256) returns uint256
     proposalVotes(uint256) returns (uint256, uint256, uint256) envfree
@@ -16,12 +14,19 @@ methods {
     erc20votes._getPastVotes(address, uint256) returns uint256
 
     getExecutor() returns address
+
+    timelock() returns address
 }
+
 
 //////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////// GHOSTS /////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+
+/*
+ * ghost to keep track of changes in hasVoted status of users
+ */
 ghost hasVoteGhost(uint256) returns uint256 {
     init_state axiom forall uint256 pId. hasVoteGhost(pId) == 0;
 }
@@ -31,6 +36,13 @@ hook Sstore _proposalVotes[KEY uint256 pId].hasVoted[KEY address user] bool curr
                                                  (hasVoteGhost@new(p) == hasVoteGhost@old(p)));
 }
 
+
+
+//////////// ghosts to keep track of votes counting ////////////
+
+/*
+ * the sum of voting power of those who voted
+ */
 ghost sum_all_votes_power() returns uint256 {
 	init_state axiom sum_all_votes_power() == 0;
 }
@@ -39,21 +51,37 @@ hook Sstore ghost_sum_vote_power_by_id [KEY uint256 pId] uint256 current_power(u
 	havoc sum_all_votes_power assuming sum_all_votes_power@new() == sum_all_votes_power@old() - old_power + current_power;
 }
 
+/*
+ * sum of all votes casted per proposal
+ */
 ghost tracked_weight(uint256) returns uint256 {
 	init_state axiom forall uint256 p. tracked_weight(p) == 0;
 }
+
+/*
+ * sum of all votes casted
+ */
 ghost sum_tracked_weight() returns uint256 {
 	init_state axiom sum_tracked_weight() == 0;
 }
 
+/*
+ * getter for _proposalVotes.againstVotes
+ */
 ghost votesAgainst() returns uint256 {
     init_state axiom votesAgainst() == 0;
 }
 
+/*
+ * getter for _proposalVotes.forVotes
+ */
 ghost votesFor() returns uint256 {
     init_state axiom votesFor() == 0;
 }
 
+/*
+ * getter for _proposalVotes.abstainVotes
+ */
 ghost votesAbstain() returns uint256 {
     init_state axiom votesAbstain() == 0;
 }
@@ -80,29 +108,6 @@ hook Sstore _proposalVotes [KEY uint256 pId].abstainVotes uint256 votes(uint256 
 }
 
 
-ghost totalVotesPossible(uint256) returns uint256 {
-	init_state axiom forall uint256 bn. totalVotesPossible(bn) == 0;
-}
-
-// Was done with _getVotes by mistake. Should check GovernorBasicHarness but _getVotes is from GovernorHarness
-hook Sstore erc20votes._getPastVotes[KEY address uId][KEY uint256 blockNumber] uint256 voteWeight(uint256 old_voteWeight) STORAGE {
-	havoc totalVotesPossible assuming forall uint256 bn.
-	                                (bn == blockNumber => totalVotesPossible@new(bn) == totalVotesPossible@old(bn) - old_voteWeight + voteWeight)
-	                                && (bn != blockNumber => totalVotesPossible@new(bn) == totalVotesPossible@old(bn));
-}
-
-invariant checkGetVotesGhost(address uId, uint256 blockNumber, env e)
-    erc20votes._getPastVotes(e, uId, blockNumber) == erc20votes.getPastVotes(e, uId, blockNumber)
-
-rule whatCahnges(uint256 blockNumber, method f) {
-    env e;
-    calldataarg args;
-    uint256 ghostBefore = totalVotesPossible(blockNumber);
-    f(e,args);
-    uint256 ghostAfter = totalVotesPossible(blockNumber);
-    assert ghostAfter ==  ghostBefore, "ghost was changed";
-}
-
 //////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// INVARIANTS ////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -113,125 +118,100 @@ rule whatCahnges(uint256 blockNumber, method f) {
  */
 invariant SumOfVotesCastEqualSumOfPowerOfVotedPerProposal(uint256 pId) 
 	tracked_weight(pId) == ghost_sum_vote_power_by_id(pId)
-		
+
+
 /*
  * sum of all votes casted is equal to the sum of voting power of those who voted
  */
 invariant SumOfVotesCastEqualSumOfPowerOfVoted() 
 	sum_tracked_weight() == sum_all_votes_power()
-		
+
+
 /*
-* totalVoted >= vote(id)
+* sum of all votes casted is greater or equal to the sum of voting power of those who voted at a specific proposal
 */
 invariant OneIsNotMoreThanAll(uint256 pId) 
 	sum_all_votes_power() >= tracked_weight(pId)
 
 
-//NEED GHOST FIX	
-/*
-* totalVotesPossible >= votePower(id)
-*/
-//invariant possibleTotalVotes(uint256 pId, env e) 
-//	tracked_weight(pId) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId))
+//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////// RULES //////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
-rule possibleTotalVotes(uint256 pId, env e, method f) {
+//NOT FINISHED
+/*
+* the sum of voting power of those who voted is less or equal to the maximum possible votes, per each proposal
+*/
+rule possibleTotalVotes(uint256 pId, uint8 sup, env e, method f) {
+
+    // add requireinvariant  for all i, j. i = i - 1 && i < j => checkpointlookup[i] < checkpointlookup[j];
     require tracked_weight(pId) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId));
 
+    uint256 againstB;
+    uint256 forB;
+    uint256 absatinB;
+    againstB, forB, absatinB = proposalVotes(pId);
+
     calldataarg args;
-    f(e, args);
+    //f(e, args);
+
+    castVote(e, pId, sup);
+
+    uint256 against;
+    uint256 for;
+    uint256 absatin;
+    against, for, absatin = proposalVotes(pId);
+
+    uint256 ps = proposalSnapshot(pId);
 
     assert tracked_weight(pId) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId)), "bla bla bla";
 }
-
-//invariant voteGettersCheck(uint256 pId, address acc, env e) 
-//	erc20votes.getPastVotes(e, acc, proposalSnapshot(pId)) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId))
-
-rule voteGettersCheck(uint256 pId, address acc, env e, method f){
-    address[] targets;
-    uint256[] values;
-    bytes[] calldatas;
-
-    require erc20votes.getPastVotes(e, acc, proposalSnapshot(pId)) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId));
-    
-    uint256 result = callPropose(e, targets, values, calldatas);
-
-    require result == pId;
-
-    assert erc20votes.getPastVotes(e, acc, proposalSnapshot(pId)) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId)),
-            "getPastVotes is greater";
-}
-
-/*
-* totalVotesPossible >= votePower(id)
-*/
-// invariant possibleTotalVotes(uint pId)
-//invariant trackedVsTotal(uint256 pId) 
-//	tracked_weight(pId) <= possibleMaxOfVoters(pId)
-
-
-/*
-rule someOtherRuleToRemoveLater(uint256 num){
-    env e; calldataarg args; method f;
-    uint256 x = hasVoteGhost(num);
-    f(e, args);
-    assert(false);
-}
-*/
 
 
 /*
  * Checks that only one user is updated in the system when calling cast vote functions (assuming hasVoted is changing correctly, false->true, with every vote cast)
  */
-rule oneUserVotesInCast(uint256 pId, uint8 sup, method f) filtered {f -> f.selector == castVote(uint256, uint8).selector || 
-                                                                    f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector} {
+rule oneUserVotesInCast(uint256 pId, uint8 sup, method f) filtered {f -> f.selector == castVote(uint256, uint8).selector 
+                                                                            || f.selector == castVoteWithReason(uint256, uint8, string).selector 
+                                                                            || f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector} {
     env e; calldataarg args;                                                            
-    uint256 ghost_Before = hasVoteGhost(pId);                                           
-    if (f.selector == castVote(uint256, uint8).selector)
-    {
-        castVote(e, pId, sup);
-    } /*else if (f.selector == 0x7b3c71d3) {
-        require(_pId_Harness() == proposalId);
-        f(e,args);
-    }*/ else if (f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector) {
-        uint8 v; bytes32 r; bytes32 s;
-        castVoteBySig(e, pId, sup, v, r, s);
-    } else{
-        f(e, args);
-    }
+    uint256 ghost_Before = hasVoteGhost(pId);     
+
+    helperFunctionsWithRevert(pId, f, e);
+    require(!lastReverted);
+    
     uint256 ghost_After = hasVoteGhost(pId);
     assert(ghost_After == ghost_Before + 1, "Raised by more than 1");
 }
 
 
 /*
- * Checks that in any call to cast vote functions only the sender's value is updated
+ * Only sender's voting status can be changed by execution of any cast vote function
  */
-rule noVoteForSomeoneElse(uint256 pId, uint8 sup, method f) filtered {f -> f.selector == castVote(uint256, uint8).selector || 
-                                                                          f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector} {
+rule noVoteForSomeoneElse(uint256 pId, uint8 sup, method f) filtered {f -> f.selector == castVote(uint256, uint8).selector 
+                                                                            || f.selector == castVoteWithReason(uint256, uint8, string).selector 
+                                                                            || f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector } {
     env e; calldataarg args;
+
     address voter = e.msg.sender;
     address user;
+
     bool hasVotedBefore_Voter = hasVoted(e, pId, voter);
     bool hasVotedBefore_User = hasVoted(e, pId, user);
-    require(!hasVotedBefore_Voter);
-    if (f.selector == castVote(uint256, uint8).selector)
-    {
-        castVote(e, pId, sup);
-    } /*else if (f.selector == 0x7b3c71d3) {
-        require(_pId_Harness() == proposalId);
-        f(e,args);
-    }*/ else if (f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector) {
-        uint8 v; bytes32 r; bytes32 s;
-        castVoteBySig(e, pId, sup, v, r, s);
-    } else{
-        f(e, args);
-    }
+
+    helperFunctionsWithRevert(pId, f, e);
+    require(!lastReverted);
+
     bool hasVotedAfter_Voter = hasVoted(e, pId, voter);
     bool hasVotedAfter_User = hasVoted(e, pId, user);
-    assert hasVotedBefore_Voter != hasVotedAfter_Voter => (user != voter => hasVotedBefore_User == hasVotedAfter_User);
+
+    assert !hasVotedBefore_Voter && hasVotedAfter_Voter && (user != voter => hasVotedBefore_User == hasVotedAfter_User);
 }
 
 
+/*
+* Total voting tally is monotonically non-decreasing in every operation 
+*/
 rule votingWeightMonotonicity(method f){
     uint256 votingWeightBefore = sum_tracked_weight();
 
@@ -245,78 +225,54 @@ rule votingWeightMonotonicity(method f){
 }
 
 
-function callFunctionWithParams(method f, uint256 proposalId, env e) {
-    address[] targets;
-    uint256[] values;
-    bytes[] calldatas;
-    bytes32 descriptionHash;
-    uint8 support;
-    uint8 v; bytes32 r; bytes32 s;
-	if (f.selector == callPropose(address[], uint256[], bytes[]).selector) {
-		uint256 result = callPropose(e, targets, values, calldatas);
-        require result == proposalId;
-	} else if (f.selector == execute(address[], uint256[], bytes[], bytes32).selector) {
-        uint256 result = execute(e, targets, values, calldatas, descriptionHash);
-        require result == proposalId;
-	} else if (f.selector == castVote(uint256, uint8).selector) {
-		castVote(e, proposalId, support);
-	//} else if  (f.selector == castVoteWithReason(uint256, uint8, string).selector) {
-	//	castVoteWithReason(e, proposalId, support, reason);
-	} else if (f.selector == castVoteBySig(uint256, uint8,uint8, bytes32, bytes32).selector) {
-		castVoteBySig(e, proposalId, support, v, r, s);
-	} else {
-		calldataarg args;
-		f(e,args);
-	}
-}
-
-// run on ALex's branch to avoid tiomeouts: --staging alex/external-timeout-for-solvers
-// --staging shelly/forSasha
+/*
+* A change in hasVoted must be correlated with an non-decreasing of the vote supports (nondecrease because user can vote with weight 0)
+*/
 rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) filtered {f -> f.selector != 0x7d5e81e2}{
+    address acc = e.msg.sender;
+    
     uint256 againstBefore = votesAgainst();
     uint256 forBefore = votesFor();
     uint256 abstainBefore = votesAbstain();
-    //againstBefore, forBefore, abstainBefore = proposalVotes(pId);
-
-    address acc = e.msg.sender;
 
     bool hasVotedBefore = hasVoted(e, pId, acc);
-    uint256 votesBefore = getVotes(e, acc, bn);
-    require votesBefore > 0;
 
-    //calldataarg args;
-    //f(e, args);
-    callFunctionWithParams(f, pId, e);
+    helperFunctionsWithRevert(pId, f, e);
 
     uint256 againstAfter = votesAgainst();
     uint256 forAfter = votesFor();
     uint256 abstainAfter = votesAbstain();
-    //againstAfter, forAfter, abstainAfter = proposalVotes(pId);
-
-    uint256 votesAfter = getVotes(e, acc, bn);
+    
     bool hasVotedAfter = hasVoted(e, pId, acc);
 
-    assert hasVotedBefore != hasVotedAfter => againstBefore <= againstAfter || forBefore <= forAfter || abstainBefore <= abstainAfter, "no correlation";
+    assert (!hasVotedBefore && hasVotedAfter) => againstBefore <= againstAfter || forBefore <= forAfter || abstainBefore <= abstainAfter, "no correlation";
 }
 
 
 /*
-* Check privileged operations
+* Only privileged users can execute privileged operations, e.g. change _quorumNumerator or _timelock
 */
-rule privilegedOnly(method f, uint256 newQuorumNumerator){
+rule privilegedOnlyNumerator(method f, uint256 newQuorumNumerator){
     env e;
     calldataarg arg;
     uint256 quorumNumBefore = quorumNumerator(e);
-    //require e.msg.sender == currentContract;
 
     f(e, arg);
 
-    //updateQuorumNumerator(e, newQuorumNumerator);
-
     uint256 quorumNumAfter = quorumNumerator(e);
-
     address executorCheck = getExecutor(e);
-    // address executorCheck = _executor(e);
 
     assert quorumNumBefore != quorumNumAfter => e.msg.sender == executorCheck, "non priveleged user changed quorum numerator";
+}
+
+rule privilegedOnlyTimelock(method f, uint256 newQuorumNumerator){
+    env e;
+    calldataarg arg;
+    uint256 timelockBefore = timelock(e);
+
+    f(e, arg);
+
+    uint256 timelockAfter = timelock(e);
+
+    assert timelockBefore != timelockAfter => e.msg.sender == timelockBefore, "non priveleged user changed timelock";
 }
