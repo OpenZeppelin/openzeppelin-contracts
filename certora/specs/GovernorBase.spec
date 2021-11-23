@@ -36,17 +36,6 @@ methods {
 //////////////////////////////// Definitions /////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-// definition proposalNotExist(uint256 pId) returns bool = 
-//     !isExecuted(pId) && !isCanceled(pId) && proposalSnapshot(pId) == 0 && proposalDeadline(pId) == 0;
-
-// definition proposalCreatedAndRunning(uint256 pId) returns bool = 
-//     !isExecuted(pId) && !isCanceled(pId) && proposalSnapshot(pId) != 0 && proposalDeadline(pId) != 0;
-
-// definition proposalCanceled(uint256 pId) returns bool =
-//     !isExecuted(pId) && isCanceled(pId) && proposalSnapshot(pId) != 0 && proposalDeadline(pId) != 0;
-
-// definition proposalExecuted(uint256 pId) returns bool =
-//     isExecuted(pId) && !isCanceled(pId) && proposalSnapshot(pId) != 0 && proposalDeadline(pId) != 0;
 
 // proposal was created - relation proved in noStartBeforeCreation
 definition proposalCreated(uint256 pId) returns bool = proposalSnapshot(pId) > 0;
@@ -56,10 +45,9 @@ definition proposalCreated(uint256 pId) returns bool = proposalSnapshot(pId) > 0
 ///////////////////////////// Helper Functions ///////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-function helperFunctionWithRevert(uint256 proposalId, method f) {
+function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
     address[] targets; uint256[] values; bytes[] calldatas; string reason; bytes32 descriptionHash;
     uint8 support; uint8 v; bytes32 r; bytes32 s;
-	env e;
 	if (f.selector == propose(address[], uint256[], bytes[], string).selector) {
 		uint256 result = propose@withrevert(e, targets, values, calldatas, reason);
         require(result == proposalId);
@@ -296,7 +284,7 @@ rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selec
     requireInvariant noBothExecutedAndCanceled(pId);
     requireInvariant executedImplyStartAndEndDateNonZero(pId);
 
-    helperFunctionWithRevert(pId, f);
+    helperFunctionsWithRevert(pId, f, e);
 
     assert(lastReverted, "Function was not reverted");
 }
@@ -312,7 +300,7 @@ rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selec
     requireInvariant noBothExecutedAndCanceled(pId);
     requireInvariant canceledImplyStartAndEndDateNonZero(pId);
 
-    helperFunctionWithRevert(pId, f);
+    helperFunctionsWithRevert(pId, f, e);
 
     assert(lastReverted, "Function was not reverted");
 }
@@ -326,7 +314,7 @@ rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] c
     bool executedBefore = isExecuted(pId);
     require(!executedBefore);
 
-    helperFunctionWithRevert(pId, f);
+    helperFunctionsWithRevert(pId, f, e);
     require(!lastReverted);
 
     bool executedAfter = isExecuted(pId);
