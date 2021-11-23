@@ -272,39 +272,6 @@ rule noExecuteOrCancelBeforeDeadline(uint256 pId, method f){
 ///////////////////////////// Not Categorized Yet //////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-
-/*
- * All non-view functions should revert if proposal is executed
- */
-rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selector != updateQuorumNumerator(uint256).selector && 
-                                                            !f.isFallback && f.selector != updateTimelock(address).selector} {
-    env e; calldataarg args;
-    uint256 pId;
-    require(isExecuted(pId));
-    requireInvariant noBothExecutedAndCanceled(pId);
-    requireInvariant executedImplyStartAndEndDateNonZero(pId);
-
-    helperFunctionsWithRevert(pId, f, e);
-
-    assert(lastReverted, "Function was not reverted");
-}
-
-/*
- * All non-view functions should revert if proposal is canceled
- */
-rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selector != updateQuorumNumerator(uint256).selector && 
-                                                            !f.isFallback && f.selector != updateTimelock(address).selector} {
-    env e; calldataarg args;
-    uint256 pId;
-    require(isCanceled(pId));
-    requireInvariant noBothExecutedAndCanceled(pId);
-    requireInvariant canceledImplyStartAndEndDateNonZero(pId);
-
-    helperFunctionsWithRevert(pId, f, e);
-
-    assert(lastReverted, "Function was not reverted");
-}
-
 /*
  * Shows that executed can only change due to execute()
  */
@@ -319,4 +286,42 @@ rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] c
 
     bool executedAfter = isExecuted(pId);
     assert(executedAfter != executedBefore, "executed property did not change");
+}
+
+
+
+/*
+ * All proposal specific (non-view) functions should revert if proposal is executed
+ */
+ // In this rule we show that if a function is executed, i.e. execute() was called on the proposal ID,
+ // non of the proposal specific functions can make changes again. In executedOnlyAfterExecuteFunc 
+ // we connected the executed attribute to the execute() function, showing that only execute() can
+ // change it, and that it will always change it.
+rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selector != updateQuorumNumerator(uint256).selector && 
+                                                            !f.isFallback && f.selector != updateTimelock(address).selector} {
+    env e; calldataarg args;
+    uint256 pId;
+    require(isExecuted(pId));
+    requireInvariant noBothExecutedAndCanceled(pId);
+    requireInvariant executedImplyStartAndEndDateNonZero(pId);
+
+    helperFunctionsWithRevert(pId, f, e);
+
+    assert(lastReverted, "Function was not reverted");
+}
+
+/*
+ * All proposal specific (non-view) functions should revert if proposal is canceled
+ */
+rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selector != updateQuorumNumerator(uint256).selector && 
+                                                            !f.isFallback && f.selector != updateTimelock(address).selector} {
+    env e; calldataarg args;
+    uint256 pId;
+    require(isCanceled(pId));
+    requireInvariant noBothExecutedAndCanceled(pId);
+    requireInvariant canceledImplyStartAndEndDateNonZero(pId);
+
+    helperFunctionsWithRevert(pId, f, e);
+
+    assert(lastReverted, "Function was not reverted");
 }
