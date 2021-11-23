@@ -56,7 +56,7 @@ definition proposalCreated(uint256 pId) returns bool = proposalSnapshot(pId) > 0
 ///////////////////////////// Helper Functions ///////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-function callFunctionWithProposal(uint256 proposalId, method f) {
+function helperFunctionWithRevert(uint256 proposalId, method f) {
     address[] targets; uint256[] values; bytes[] calldatas; string reason; bytes32 descriptionHash;
     uint8 support; uint8 v; bytes32 r; bytes32 s;
 	env e;
@@ -294,8 +294,9 @@ rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selec
     uint256 pId;
     require(isExecuted(pId));
     requireInvariant noBothExecutedAndCanceled(pId);
+    requireInvariant executedImplyStartAndEndDateNonZero(pId);
 
-    callFunctionWithProposal(pId, f);
+    helperFunctionWithRevert(pId, f);
 
     assert(lastReverted, "Function was not reverted");
 }
@@ -309,8 +310,9 @@ rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selec
     uint256 pId;
     require(isCanceled(pId));
     requireInvariant noBothExecutedAndCanceled(pId);
+    requireInvariant canceledImplyStartAndEndDateNonZero(pId);
 
-    callFunctionWithProposal(pId, f);
+    helperFunctionWithRevert(pId, f);
 
     assert(lastReverted, "Function was not reverted");
 }
@@ -324,25 +326,9 @@ rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] c
     bool executedBefore = isExecuted(pId);
     require(!executedBefore);
 
-    callFunctionWithProposal(pId, f);
+    helperFunctionWithRevert(pId, f);
     require(!lastReverted);
-    
+
     bool executedAfter = isExecuted(pId);
     assert(executedAfter != executedBefore, "executed property did not change");
-}
-
-
-/*
-* User should not be able to affect proposal threshold
-*/
-rule unaffectedThreshhold(method f){
-    uint256 thresholdBefore = proposalThreshold();
-
-    env e;
-    calldataarg args;
-    f(e, args);
-
-    uint256 thresholdAfter = proposalThreshold();
-
-    assert thresholdBefore == thresholdAfter, "threshold was changed";
 }
