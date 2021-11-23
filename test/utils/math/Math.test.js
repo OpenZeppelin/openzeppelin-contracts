@@ -1,6 +1,6 @@
 const { BN, constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { MAX_UINT256 } = constants;
+const { MAX_UINT256, MAX_INT256, MIN_INT256 } = constants;
 
 const MathMock = artifacts.require('MathMock');
 
@@ -84,5 +84,13 @@ contract('Math', function (accounts) {
       const b = new BN('1');
       expect(await this.math.ceilDiv(MAX_UINT256, b)).to.be.bignumber.equal(MAX_UINT256);
     });
+  });
+
+  describe('abs', function () {
+    for (const n of [MIN_INT256, MIN_INT256.addn(1), new BN('-1'), new BN('0'), new BN('1'), MAX_INT256.subn(1), MAX_INT256]) {
+      it(`correctly computes the absolute value of ${n}`, async function () {
+        expect(await this.math.abs(n)).to.be.bignumber.equal(n.abs());
+      });
+    }
   });
 });
