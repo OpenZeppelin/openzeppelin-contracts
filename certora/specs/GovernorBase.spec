@@ -16,13 +16,9 @@ methods {
     updateQuorumNumerator(uint256)
     queue(address[], uint256[], bytes[], bytes32) returns uint256
 
-
     // internal functions made public in harness:
     _quorumReached(uint256) returns bool
     _voteSucceeded(uint256) returns bool envfree
-
-
-    _pId_Harness() returns uint256 envfree;
 
     // function summarization
     proposalThreshold() returns uint256 envfree
@@ -36,28 +32,44 @@ methods {
     //executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => DISPATCHER(true)
 }
 
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// Definitions /////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+// definition proposalNotExist(uint256 pId) returns bool = 
+//     !isExecuted(pId) && !isCanceled(pId) && proposalSnapshot(pId) == 0 && proposalDeadline(pId) == 0;
+
+// definition proposalCreatedAndRunning(uint256 pId) returns bool = 
+//     !isExecuted(pId) && !isCanceled(pId) && proposalSnapshot(pId) != 0 && proposalDeadline(pId) != 0;
+
+// definition proposalCanceled(uint256 pId) returns bool =
+//     !isExecuted(pId) && isCanceled(pId) && proposalSnapshot(pId) != 0 && proposalDeadline(pId) != 0;
+
+// definition proposalExecuted(uint256 pId) returns bool =
+//     isExecuted(pId) && !isCanceled(pId) && proposalSnapshot(pId) != 0 && proposalDeadline(pId) != 0;
+
+// proposal was created - relation proved in noStartBeforeCreation
 definition proposalCreated(uint256 pId) returns bool = proposalSnapshot(pId) > 0;
+
 
 //////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// Helper Functions ///////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 function callFunctionWithProposal(uint256 proposalId, method f) {
-    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descriptionHash;
+    address[] targets; uint256[] values; bytes[] calldatas; string reason; bytes32 descriptionHash;
     uint8 support; uint8 v; bytes32 r; bytes32 s;
 	env e;
-	if (f.selector == callPropose(address[], uint256[], bytes[]).selector) {
-		uint256 result = callPropose@withrevert(e, targets, values, calldatas);
-        require(proposalId == result);
+	if (f.selector == propose(address[], uint256[], bytes[], string).selector) {
+		uint256 result = propose@withrevert(e, targets, values, calldatas, reason);
+        require(result == proposalId);
 	} else if (f.selector == execute(address[], uint256[], bytes[], bytes32).selector) {
 		uint256 result = execute@withrevert(e, targets, values, calldatas, descriptionHash);
         require(result == proposalId);
 	} else if (f.selector == castVote(uint256, uint8).selector) {
 		castVote@withrevert(e, proposalId, support);
-	} else if  (f.selector == 0x7b3c71d3 /* castVoteWithReason */) {
-        calldataarg args;
-        require(_pId_Harness() == proposalId);
-        f@withrevert(e, args);
+	} else if  (f.selector == castVoteWithReason(uint256, uint8, string).selector) {
+        castVoteWithReason@withrevert(e, proposalId, support, reason);
 	} else if (f.selector == castVoteBySig(uint256, uint8,uint8, bytes32, bytes32).selector) {
 		castVoteBySig@withrevert(e, proposalId, support, v, r, s);
     } else if (f.selector == queue(address[], uint256[], bytes[], bytes32).selector) {
@@ -207,18 +219,18 @@ rule doubleVoting(uint256 pId, uint8 sup, method f) {
  * Once a proposal is created, voteStart and voteEnd are immutable
  */
 rule immutableFieldsAfterProposalCreation(uint256 pId, method f) {
-    uint _voteStart = proposalSnapshot(pId);
-    uint _voteEnd = proposalDeadline(pId);
-    require _voteStart > 0; // proposal was created - relation proved in noStartBeforeCreation
+    uint256 _voteStart = proposalSnapshot(pId);
+    uint256 _voteEnd = proposalDeadline(pId);
 
-    env e;
-    calldataarg arg;
+    require proposalCreated(pId); // startDate > 0
+    
+    env e; calldataarg arg;
     f(e, arg);
 
-    uint voteStart_ = proposalSnapshot(pId);
-    uint voteEnd_ = proposalDeadline(pId);
-    assert _voteStart == voteStart_;
-    assert _voteEnd == voteEnd_;
+    uint256 voteStart_ = proposalSnapshot(pId);
+    uint256 voteEnd_ = proposalDeadline(pId);
+    assert _voteStart == voteStart_, "Start date was changed";
+    assert _voteEnd == voteEnd_, "End date was changed";
 }
 
 
@@ -229,29 +241,16 @@ rule noStartBeforeCreation(uint256 pId) {
     uint256 previousStart = proposalSnapshot(pId);
     // This line makes sure that we see only cases where start date is changed from 0, i.e. creation of proposal
     // We proved in immutableFieldsAfterProposalCreation that once dates set for proposal, it cannot be changed
-    require previousStart == 0;
+    require !proposalCreated(pId); // previousStart == 0;
+    
     env e; calldataarg arg;
     propose(e, arg);
 
-    uint newStart = proposalSnapshot(pId);
+    uint256 newStart = proposalSnapshot(pId);
     // if created, start is after current block number (creation block)
     assert(newStart != previousStart => newStart >= e.block.number);
 }
 
-
-/*
- * A proposal cannot be neither executed nor canceled before it starts
- */
-rule noExecuteOrCancelBeforeStarting(uint256 pId, method f){
-    env e;
-
-    require !isExecuted(pId) && !isCanceled(pId);
-
-    calldataarg arg;
-    f(e, arg);
-
-    assert e.block.number < proposalSnapshot(pId) => (!isExecuted(pId) && !isCanceled(pId)), "executed/cancelled before start";
-}
 
 //============================================
 //--- End of Voting Period --> End of Time ---
@@ -259,15 +258,13 @@ rule noExecuteOrCancelBeforeStarting(uint256 pId, method f){
 
 
 /*
- * A proposal cannot be neither executed nor canceled before proposal's deadline
+ * A proposal can neither be executed nor canceled before it ends
  */
+ // By induction it cannot be executed nor canceled before it starts, due to voteStartBeforeVoteEnd
 rule noExecuteOrCancelBeforeDeadline(uint256 pId, method f){
-    env e;
-
-    requireInvariant voteStartBeforeVoteEnd(pId);
     require !isExecuted(pId) && !isCanceled(pId);
 
-    calldataarg arg;
+    env e; calldataarg arg;
     f(e, arg);
 
     assert e.block.number < proposalDeadline(pId) => (!isExecuted(pId) && !isCanceled(pId)), "executed/cancelled before deadline";
@@ -289,32 +286,32 @@ rule noExecuteOrCancelBeforeDeadline(uint256 pId, method f){
 
 
 /*
- * all non-view functions should revert if proposal is executed
+ * All non-view functions should revert if proposal is executed
  */
-// summarization - hashProposal => Const - for any set of arguments passed to the function the same value will be returned.
-// that means that for different arguments passed, the same value will be returned, for example: func(a,b,c,d) == func(o,p,g,r)
-// the summarization is not an under estimation in this case, because we want to check that for a specific proposal ID (pId), any 
-// (non view) function call is reverting. We dont care what happen with other pIds, and dont care how the hash function generates the ID.
-rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selector != 0x7d5e81e2 && !f.isFallback && f.selector != updateQuorumNumerator(uint256).selector && f.selector != 0xa890c910} {
-    env e; calldataarg args;                                                         //     ^                                                                                                    ^
-    uint256 pId;                                                                     //  propose                                                                                           updateTimelock
+rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selector != updateQuorumNumerator(uint256).selector && 
+                                                            !f.isFallback && f.selector != updateTimelock(address).selector} {
+    env e; calldataarg args;
+    uint256 pId;
     require(isExecuted(pId));
-    // requireInvariant proposalInitiated(pId);
     requireInvariant noBothExecutedAndCanceled(pId);
+
     callFunctionWithProposal(pId, f);
+
     assert(lastReverted, "Function was not reverted");
 }
 
 /*
- * all non-view functions should revert if proposal is canceled
+ * All non-view functions should revert if proposal is canceled
  */
-rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selector != 0x7d5e81e2 && !f.isFallback && f.selector != updateQuorumNumerator(uint256).selector && f.selector != 0xa890c910} {
-    env e; calldataarg args;                                                         //     ^                                                                                                     ^
-    uint256 pId;                                                                     //  propose                                                                                           updateTimelock
+rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selector != updateQuorumNumerator(uint256).selector && 
+                                                            !f.isFallback && f.selector != updateTimelock(address).selector} {
+    env e; calldataarg args;
+    uint256 pId;
     require(isCanceled(pId));
     requireInvariant noBothExecutedAndCanceled(pId);
-    // requireInvariant proposalInitiated(pId);
+
     callFunctionWithProposal(pId, f);
+
     assert(lastReverted, "Function was not reverted");
 }
 
@@ -326,9 +323,10 @@ rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] c
     uint256 pId;
     bool executedBefore = isExecuted(pId);
     require(!executedBefore);
+
     callFunctionWithProposal(pId, f);
     require(!lastReverted);
-    // execute(e, targets, values, calldatas, descriptionHash);
+    
     bool executedAfter = isExecuted(pId);
     assert(executedAfter != executedBefore, "executed property did not change");
 }
