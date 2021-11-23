@@ -24,20 +24,6 @@ methods {
 //////////////////////////////////////////////////////////////////////////////
 
 
-/*
- * ghost to keep track of changes in hasVoted status of users
- */
-ghost hasVoteGhost(uint256) returns uint256 {
-    init_state axiom forall uint256 pId. hasVoteGhost(pId) == 0;
-}
-
-hook Sstore _proposalVotes[KEY uint256 pId].hasVoted[KEY address user] bool current_voting_State (bool old_voting_state) STORAGE{
-   havoc hasVoteGhost assuming forall uint256 p. ((p == pId && current_voting_State && !old_voting_state) ? (hasVoteGhost@new(p) == hasVoteGhost@old(p) + 1)  :
-                                                 (hasVoteGhost@new(p) == hasVoteGhost@old(p)));
-}
-
-
-
 //////////// ghosts to keep track of votes counting ////////////
 
 /*
@@ -138,6 +124,7 @@ invariant OneIsNotMoreThanAll(uint256 pId)
 ///////////////////////////////// RULES //////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+
 //NOT FINISHED
 /*
 * the sum of voting power of those who voted is less or equal to the maximum possible votes, per each proposal
@@ -169,23 +156,6 @@ rule possibleTotalVotes(uint256 pId, uint8 sup, env e, method f) {
 
 
 /*
- * Checks that only one user is updated in the system when calling cast vote functions (assuming hasVoted is changing correctly, false->true, with every vote cast)
- */
-rule oneUserVotesInCast(uint256 pId, uint8 sup, method f) filtered {f -> f.selector == castVote(uint256, uint8).selector 
-                                                                            || f.selector == castVoteWithReason(uint256, uint8, string).selector 
-                                                                            || f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector} {
-    env e; calldataarg args;                                                            
-    uint256 ghost_Before = hasVoteGhost(pId);     
-
-    helperFunctionsWithRevert(pId, f, e);
-    require(!lastReverted);
-    
-    uint256 ghost_After = hasVoteGhost(pId);
-    assert(ghost_After == ghost_Before + 1, "Raised by more than 1");
-}
-
-
-/*
  * Only sender's voting status can be changed by execution of any cast vote function
  */
 rule noVoteForSomeoneElse(uint256 pId, uint8 sup, method f) filtered {f -> f.selector == castVote(uint256, uint8).selector 
@@ -196,16 +166,14 @@ rule noVoteForSomeoneElse(uint256 pId, uint8 sup, method f) filtered {f -> f.sel
     address voter = e.msg.sender;
     address user;
 
-    bool hasVotedBefore_Voter = hasVoted(e, pId, voter);
     bool hasVotedBefore_User = hasVoted(e, pId, user);
 
     helperFunctionsWithRevert(pId, f, e);
     require(!lastReverted);
 
-    bool hasVotedAfter_Voter = hasVoted(e, pId, voter);
     bool hasVotedAfter_User = hasVoted(e, pId, user);
 
-    assert !hasVotedBefore_Voter && hasVotedAfter_Voter && (user != voter => hasVotedBefore_User == hasVotedAfter_User);
+    assert user != voter => hasVotedBefore_User == hasVotedAfter_User;
 }
 
 
