@@ -53,28 +53,12 @@ contract WizardHarness1 is Governor, GovernorProposalThreshold, GovernorCounting
 
         return deltaWeight;        
     }
-
-    function callPropose(address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas) public virtual returns (uint256) {
-        return super.propose(targets, values, calldatas, "");
-    }
+    
 
     function snapshot(uint256 proposalId) public view returns (uint64) {
         return _proposals[proposalId].voteStart._deadline;
     }
 
-
-    // Harness of castVoteWithReason to be able to impose requirement on the proposal ID.
-    uint256 public _pId_Harness;
-    function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) 
-        public 
-        override(IGovernor, Governor) 
-        returns (uint256) 
-    {
-        require(proposalId == _pId_Harness);
-        return super.castVoteWithReason(proposalId, support, reason);
-    }
 
     function getExecutor() public view returns (address){
         return _executor();
