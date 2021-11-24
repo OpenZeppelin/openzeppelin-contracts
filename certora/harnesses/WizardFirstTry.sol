@@ -13,7 +13,7 @@ ERC20Votes
 TimelockCompound
 */
 
-contract GovernorBasicHarness is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockCompound {
+contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockCompound {
     constructor(ERC20Votes _token, ICompoundTimelock _timelock, string memory name, uint256 quorumFraction)
         Governor(name)
         GovernorVotes(_token)

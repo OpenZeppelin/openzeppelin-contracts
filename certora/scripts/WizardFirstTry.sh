@@ -1,5 +1,5 @@
-certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/GovernorBasicHarness.sol \
-    --verify GovernorBasicHarness:certora/specs/GovernorBase.spec \
+certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/WizardFirstTry.sol \
+    --verify WizardFirstTry:certora/specs/GovernorBase.spec \
     --solc solc8.2 \
     --staging shelly/forSasha \
     --optimistic_loop \
