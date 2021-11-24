@@ -25,6 +25,8 @@ import "../../../utils/Counters.sol";
  * The account that deploys the contract will be granted the minter and pauser
  * roles, as well as the default admin role, which will let it grant both minter
  * and pauser roles to other accounts.
+ *
+ * _Deprecated in favor of https://wizard.openzeppelin.com/[Contracts Wizard]._
  */
 contract ERC721PresetMinterPauserAutoId is
     Context,

@@ -15,6 +15,8 @@ import "../extensions/ERC20Burnable.sol";
  * its documentation for details.
  *
  * _Available since v3.4._
+ *
+ * _Deprecated in favor of https://wizard.openzeppelin.com/[Contracts Wizard]._
  */
 contract ERC20PresetFixedSupply is ERC20Burnable {
     /**
