@@ -196,7 +196,7 @@ rule votingWeightMonotonicity(method f){
 /*
 * A change in hasVoted must be correlated with an non-decreasing of the vote supports (nondecrease because user can vote with weight 0)
 */
-rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) filtered {f -> f.selector != 0x7d5e81e2}{
+rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) {
     address acc = e.msg.sender;
     
     uint256 againstBefore = votesAgainst();
@@ -206,6 +206,7 @@ rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) filtered {f -
     bool hasVotedBefore = hasVoted(e, pId, acc);
 
     helperFunctionsWithRevert(pId, f, e);
+    require(!lastReverted);
 
     uint256 againstAfter = votesAgainst();
     uint256 forAfter = votesFor();

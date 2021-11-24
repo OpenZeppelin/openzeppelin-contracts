@@ -112,8 +112,7 @@ invariant startAndEndDatesNonZero(uint256 pId)
  // use Uri's branch - --staging uri/add_with_env_to_preserved_all
 invariant canceledImplyStartAndEndDateNonZero(uint pId)
         isCanceled(pId) => proposalSnapshot(pId) != 0
-        /*{ preserved with (env e){
-                requireInvariant startAndEndDatesNonZero(pId); //@note maybe unndeeded
+        /*{preserved with (env e){               
                 require e.block.number > 0;
         }}*/
 
@@ -126,22 +125,22 @@ invariant canceledImplyStartAndEndDateNonZero(uint pId)
 invariant executedImplyStartAndEndDateNonZero(uint pId)
         isExecuted(pId) => proposalSnapshot(pId) != 0
         /*{ preserved with (env e){
-                requireInvariant startAndEndDatesNonZero(pId); //@note maybe unndeeded
                 require e.block.number > 0;
         }}*/
 
 
 /*
- * A proposal starting block number must be <= to the proposal end date
+ * A proposal starting block number must be less or equal than the proposal end date
  */
 invariant voteStartBeforeVoteEnd(uint256 pId)
         // from < to <= because snapshot and deadline can be the same block number if delays are set to 0
         // This is possible before the integration of GovernorSettings.sol to the system.
         // After integration of GovernorSettings.sol the invariant expression should be changed from <= to <
         (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) <= proposalDeadline(pId))
-        { preserved {
+        // (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) <= proposalDeadline(pId))
+        /*{ preserved {
             requireInvariant startAndEndDatesNonZero(pId);
-        }}
+        }}*/
 
 
 /*
@@ -231,8 +230,8 @@ rule noStartBeforeCreation(uint256 pId) {
     // We proved in immutableFieldsAfterProposalCreation that once dates set for proposal, it cannot be changed
     require !proposalCreated(pId); // previousStart == 0;
     
-    env e; calldataarg arg;
-    propose(e, arg);
+    env e; calldataarg args;
+    propose(e, args);
 
     uint256 newStart = proposalSnapshot(pId);
     // if created, start is after current block number (creation block)
@@ -252,8 +251,8 @@ rule noStartBeforeCreation(uint256 pId) {
 rule noExecuteOrCancelBeforeDeadline(uint256 pId, method f){
     require !isExecuted(pId) && !isCanceled(pId);
 
-    env e; calldataarg arg;
-    f(e, arg);
+    env e; calldataarg args;
+    f(e, args);
 
     assert e.block.number < proposalDeadline(pId) => (!isExecuted(pId) && !isCanceled(pId)), "executed/cancelled before deadline";
 }
@@ -271,23 +270,6 @@ rule noExecuteOrCancelBeforeDeadline(uint256 pId, method f){
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// Not Categorized Yet //////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
-/*
- * Shows that executed can only change due to execute()
- */
-rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash, method f) {
-    env e; calldataarg args;
-    uint256 pId;
-    bool executedBefore = isExecuted(pId);
-    require(!executedBefore);
-
-    helperFunctionsWithRevert(pId, f, e);
-    require(!lastReverted);
-
-    bool executedAfter = isExecuted(pId);
-    assert(executedAfter != executedBefore, "executed property did not change");
-}
-
 
 
 /*
@@ -324,4 +306,20 @@ rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selec
     helperFunctionsWithRevert(pId, f, e);
 
     assert(lastReverted, "Function was not reverted");
+}
+
+/*
+ * Proposal can be switched to executed only via execute() function
+ */
+rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash, method f) {
+    env e; calldataarg args;
+    uint256 pId;
+    bool executedBefore = isExecuted(pId);
+    require(!executedBefore);
+
+    helperFunctionsWithRevert(pId, f, e);
+    require(!lastReverted);
+
+    bool executedAfter = isExecuted(pId);
+    assert(executedAfter != executedBefore, "executed property did not change");
 }
