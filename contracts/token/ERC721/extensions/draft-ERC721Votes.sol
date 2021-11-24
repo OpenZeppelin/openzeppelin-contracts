@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.3.2 (token/ERC721/extensions/ERC721Votes.sol)
+// OpenZeppelin Contracts v4.3.2 (token/ERC721/extensions/draft-ERC721Votes.sol)
 
 pragma solidity ^0.8.0;
 
@@ -9,6 +9,7 @@ import "../../../utils/math/Math.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 import "../../../utils/cryptography/draft-EIP712.sol";
+
 /**
  * @dev Extension of ERC721 to support Compound-like voting and delegation. This version is more generic than Compound's,
  * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
@@ -22,7 +23,7 @@ import "../../../utils/cryptography/draft-EIP712.sol";
  * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
  * will significantly increase the base gas cost of transfers.
  *
- * _Available since v4.2._
+ * _Available since v4.5._
  */
 abstract contract ERC721Votes is ERC721, EIP712 {
     using Counters for Counters.Counter;
@@ -31,29 +32,21 @@ abstract contract ERC721Votes is ERC721, EIP712 {
         uint32 fromBlock;
         uint224 votes;
     }
-    uint256 _totalSupply;
+    uint256 _totalVotingPower;
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping(address => address) private _delegates;
     mapping(address => Counters.Counter) private _nonces;
     mapping(address => Checkpoint[]) private _checkpoints;
-    Checkpoint[] private _totalSupplyCheckpoints;
+    Checkpoint[] private _totalVotingPowerCheckpoints;
 
     /**
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
      *
      * It's a good idea to use the same `name` that is defined as the ERC721 token name.
-<<<<<<< HEAD
-<<<<<<< HEAD
-    */
-=======
-     
-    constructor(string memory name, string memory symbol) ERC721(name,symbol) EIP712(name, "1") {}*/
->>>>>>> Updating tests based on new contract changes
-=======
-    */
->>>>>>> Governance adocs update
+     */
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}
 
     /**
      * @dev Emitted when an account changes their delegate.
@@ -107,16 +100,16 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     }
 
     /**
-     * @dev Retrieve the `totalSupply` at the end of `blockNumber`. Note, this value is the sum of all balances.
+     * @dev Retrieve the `totalVotingPower` at the end of `blockNumber`. Note, this value is the sum of all balances.
      * It is but NOT the sum of all the delegated votes!
      *
      * Requirements:
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber) public view returns (uint256) {
+    function getPastVotingPower(uint256 blockNumber) public view returns (uint256) {
         require(blockNumber < block.number, "ERC721Votes: block not yet mined");
-        return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
+        return _checkpointsLookup(_totalVotingPowerCheckpoints, blockNumber);
     }
 
     /**
@@ -188,12 +181,12 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Snapshots the totalSupply after it has been increased.
      */
     function _mint(address account, uint256 tokenId) internal virtual override {
-        require(_totalSupply+1 <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
-        
+        require(_totalVotingPower + 1 <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
+
         super._mint(account, tokenId);
-        _totalSupply += 1;
-        
-        _writeCheckpoint(_totalSupplyCheckpoints, _add, 1);
+        _totalVotingPower += 1;
+
+        _writeCheckpoint(_totalVotingPowerCheckpoints, _add, 1);
     }
 
     /**
@@ -201,11 +194,8 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      */
     function _burn(uint256 tokenId) internal virtual override {
         super._burn(tokenId);
-<<<<<<< HEAD
-=======
-        _totalSupply -= 1;
->>>>>>> Updating tests based on new contract changes
-        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, 1);
+        _totalVotingPower -= 1;
+        _writeCheckpoint(_totalVotingPowerCheckpoints, _subtract, 1);
     }
 
     /**
@@ -215,14 +205,11 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      */
     function _afterTokenTransfer(
         address from,
-<<<<<<< HEAD
-        address to
-    ) internal virtual {
-=======
         address to,
         uint256 tokenId
-    ) internal virtual override{
->>>>>>> Updating tests based on new contract changes
+    ) internal virtual override {
+        super._afterTokenTransfer(from, to, tokenId);
+
         _moveVotingPower(delegates(from), delegates(to), 1);
     }
 
@@ -307,18 +294,5 @@ abstract contract ERC721Votes is ERC721, EIP712 {
 
     function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
         return a - b;
-    }
-    
-    /**
-     * @dev Moves token from the caller's account to `recipient`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transfer(address recipient, uint256 tokenId) external returns (bool){
-        _transfer(_msgSender(), recipient, tokenId);
-        _afterTokenTransfer(_msgSender(), recipient);
-        return true;
     }
 }
