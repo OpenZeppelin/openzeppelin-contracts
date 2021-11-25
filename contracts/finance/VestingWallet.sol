@@ -19,7 +19,7 @@ import "../utils/math/Math.sol";
  */
 contract VestingWallet is Context {
     event EtherReleased(uint256 amount);
-    event ERC20Released(address token, uint256 amount);
+    event ERC20Released(address indexed token, uint256 amount);
 
     uint256 private _released;
     mapping(address => uint256) private _erc20Released;
