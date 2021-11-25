@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0-rc.1 (utils/Timers.sol)
+// OpenZeppelin Contracts v4.4.0 (utils/Timers.sol)
 
 pragma solidity ^0.8.0;
 

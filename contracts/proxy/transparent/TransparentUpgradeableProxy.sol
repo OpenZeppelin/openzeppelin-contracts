@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0-rc.1 (proxy/transparent/TransparentUpgradeableProxy.sol)
+// OpenZeppelin Contracts v4.4.0 (proxy/transparent/TransparentUpgradeableProxy.sol)
 
 pragma solidity ^0.8.0;
 

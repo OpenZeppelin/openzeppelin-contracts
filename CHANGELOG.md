@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.4.0
+## 4.4.0 (2021-11-25)
 
  * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2568))
  * `AccessControl`: add internal `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2568))
