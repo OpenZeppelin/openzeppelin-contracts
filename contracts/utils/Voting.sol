@@ -35,7 +35,7 @@ library Voting {
     function delegate(Votes storage self, address account, address newDelegation, uint256 balance) internal {
         address oldDelegation = delegates(self, account);
         self._delegation[account] = newDelegation;
-        moveVotingPower(self, oldDelegation, newDelegation, balance, _dummy);
+       _moveVotingPower(self, oldDelegation, newDelegation, balance, _dummy);
     }
 
     function delegate(
@@ -47,12 +47,12 @@ library Voting {
     ) internal {
         address oldDelegation = delegates(self, account);
         self._delegation[account] = newDelegation;
-        moveVotingPower(self, oldDelegation, newDelegation, balance, hookDelegateVotesChanged);
+       _moveVotingPower(self, oldDelegation, newDelegation, balance, hookDelegateVotesChanged);
     }
 
     function mint(Votes storage self, address to, uint256 amount) internal {
         self._totalCheckpoints.push(_add, amount);
-        moveVotingPower(self, address(0), delegates(self, to), amount, _dummy);
+       _moveVotingPower(self, address(0), delegates(self, to), amount, _dummy);
     }
 
     function mint(
@@ -62,12 +62,12 @@ library Voting {
         function(address, uint256, uint256) hookDelegateVotesChanged
     ) internal {
         self._totalCheckpoints.push(_add, amount);
-        moveVotingPower(self, address(0), delegates(self, to), amount, hookDelegateVotesChanged);
+       _moveVotingPower(self, address(0), delegates(self, to), amount, hookDelegateVotesChanged);
     }
 
     function burn(Votes storage self, address from, uint256 amount) internal {
         self._totalCheckpoints.push(_subtract, amount);
-        moveVotingPower(self, delegates(self, from), address(0), amount, _dummy);
+       _moveVotingPower(self, delegates(self, from), address(0), amount, _dummy);
     }
 
     function burn(
@@ -77,11 +77,11 @@ library Voting {
         function(address, uint256, uint256) hookDelegateVotesChanged
     ) internal {
         self._totalCheckpoints.push(_subtract, amount);
-        moveVotingPower(self, delegates(self, from), address(0), amount, hookDelegateVotesChanged);
+       _moveVotingPower(self, delegates(self, from), address(0), amount, hookDelegateVotesChanged);
     }
 
     function transfer(Votes storage self, address from, address to, uint256 amount) internal {
-        moveVotingPower(self, delegates(self, from), delegates(self, to), amount, _dummy);
+       _moveVotingPower(self, delegates(self, from), delegates(self, to), amount, _dummy);
     }
 
     function transfer(
@@ -91,7 +91,7 @@ library Voting {
         uint256 amount,
         function(address, uint256, uint256) hookDelegateVotesChanged
     ) internal {
-        moveVotingPower(self, delegates(self, from), delegates(self, to), amount, hookDelegateVotesChanged);
+       _moveVotingPower(self, delegates(self, from), delegates(self, to), amount, hookDelegateVotesChanged);
     }
 
    function _moveVotingPower(
