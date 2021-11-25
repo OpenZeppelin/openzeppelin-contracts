@@ -54,7 +54,6 @@ contract WizardFirstPriority is Governor, GovernorProposalThreshold, GovernorCou
         return deltaWeight;        
     }
     
-
     function snapshot(uint256 proposalId) public view returns (uint64) {
         return _proposals[proposalId].voteStart._deadline;
     }
@@ -64,7 +63,7 @@ contract WizardFirstPriority is Governor, GovernorProposalThreshold, GovernorCou
         return _executor();
     }
 
-    // original code
+    // original code, harnessed
 
     function votingDelay() public view override returns (uint256) {     // HARNESS: pure -> view
         return _votingDelay;                                            // HARNESS: parametric

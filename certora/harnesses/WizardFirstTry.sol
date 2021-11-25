@@ -21,7 +21,7 @@ contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, Gove
         GovernorTimelockCompound(_timelock)
     {}
 
-    
+    //HARNESS
 
     function isExecuted(uint256 proposalId) public view returns (bool) {
         return _proposals[proposalId].executed;
@@ -31,17 +31,17 @@ contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, Gove
         return _proposals[proposalId].canceled;
     }
 
+    function snapshot(uint256 proposalId) public view returns (uint64) {
+        return _proposals[proposalId].voteStart._deadline;
+    }
+
+    function getExecutor() public view returns (address){
+        return _executor();
+    }
+
     uint256 _votingDelay;
 
-    function votingDelay() public view override virtual returns (uint256) {  // HARNESS: pure -> view
-        return _votingDelay;
-    }
-
     uint256 _votingPeriod;
-
-    function votingPeriod() public view override virtual returns (uint256) {  // HARNESS: pure -> view
-        return _votingPeriod;
-    }
 
     mapping(uint256 => uint256) public ghost_sum_vote_power_by_id;
 
@@ -58,21 +58,14 @@ contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, Gove
         return deltaWeight;        
     }
 
-    function callPropose(address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas) public virtual returns (uint256) {
-        return super.propose(targets, values, calldatas, "");
+    // original code, harnessed
+
+    function votingDelay() public view override virtual returns (uint256) {     // HARNESS: pure -> view
+        return _votingDelay;                                                    // HARNESS: parametric
     }
 
-    // Harness of castVoteWithReason to be able to impose requirement on the proposal ID.
-    uint256 public _pId_Harness;
-    function castVoteWithReason(uint256 proposalId, uint8 support, string calldata reason) 
-        public 
-        override(IGovernor, Governor) 
-        returns (uint256) 
-    {
-        require(proposalId == _pId_Harness);
-        return super.castVoteWithReason(proposalId, support, reason);
+    function votingPeriod() public view override virtual returns (uint256) {    // HARNESS: pure -> view
+        return _votingPeriod;                                                   // HARNESS: parametric
     }
 
     // The following functions are overrides required by Solidity.
