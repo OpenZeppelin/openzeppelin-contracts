@@ -5,5 +5,5 @@ certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/WizardFirst
     --staging shelly/forSasha \
     --optimistic_loop \
     --settings -copyLoopUnroll=4 \
-    --rule hasVotedCorrelation \
+    --rule noVoteForSomeoneElse \
     --msg "$1"

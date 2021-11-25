@@ -61,7 +61,6 @@ function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
 	} else if (f.selector == castVoteBySig(uint256, uint8,uint8, bytes32, bytes32).selector) {
 		castVoteBySig@withrevert(e, proposalId, support, v, r, s);
     } else if (f.selector == queue(address[], uint256[], bytes[], bytes32).selector) {
-		require targets.length <= 1 && values.length <= 1 && calldatas.length <= 1;
         queue@withrevert(e, targets, values, calldatas, descriptionHash);
 	} else {
         calldataarg args;
@@ -96,8 +95,7 @@ function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
  * This is very safe assumption as usually the 0 block is genesis block which is uploaded with data
  * by the developers and will not be valid to raise proposals (at the current way that block chain is functioning)
  */
- // To use env with general preserved block first disable type checking then
- // use Uri's branch - --staging uri/add_with_env_to_preserved_all
+ // To use env with general preserved block disable type checking [--disableLocalTypeChecking]
 invariant startAndEndDatesNonZero(uint256 pId)
         proposalSnapshot(pId) != 0 <=> proposalDeadline(pId) != 0
         /*{ preserved with (env e){   
@@ -108,25 +106,23 @@ invariant startAndEndDatesNonZero(uint256 pId)
 /*
  * If a proposal is canceled it must have a start and an end date 
  */
- // To use env with general preserved block first disable type checking then
- // use Uri's branch - --staging uri/add_with_env_to_preserved_all
+ // To use env with general preserved block disable type checking [--disableLocalTypeChecking]
 invariant canceledImplyStartAndEndDateNonZero(uint pId)
         isCanceled(pId) => proposalSnapshot(pId) != 0
-        /*{preserved with (env e){               
+        {preserved with (env e){               
                 require e.block.number > 0;
-        }}*/
+        }}
 
 
 /*
  * If a proposal is executed it must have a start and an end date 
  */
- // To use env with general preserved block first disable type checking then
- // use Uri's branch - --staging uri/add_with_env_to_preserved_all
+ // To use env with general preserved block disable type checking [--disableLocalTypeChecking] 
 invariant executedImplyStartAndEndDateNonZero(uint pId)
         isExecuted(pId) => proposalSnapshot(pId) != 0
-        /*{ preserved with (env e){
+        { preserved with (env e){
                 require e.block.number > 0;
-        }}*/
+        }}
 
 
 /*
@@ -138,9 +134,9 @@ invariant voteStartBeforeVoteEnd(uint256 pId)
         // After integration of GovernorSettings.sol the invariant expression should be changed from <= to <
         (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) <= proposalDeadline(pId))
         // (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) <= proposalDeadline(pId))
-        /*{ preserved {
+        { preserved {
             requireInvariant startAndEndDatesNonZero(pId);
-        }}*/
+        }}
 
 
 /*

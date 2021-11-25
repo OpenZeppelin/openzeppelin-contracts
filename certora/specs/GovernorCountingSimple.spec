@@ -158,9 +158,13 @@ rule possibleTotalVotes(uint256 pId, uint8 sup, env e, method f) {
 /*
  * Only sender's voting status can be changed by execution of any cast vote function
  */
-rule noVoteForSomeoneElse(uint256 pId, uint8 sup, method f) filtered {f -> f.selector == castVote(uint256, uint8).selector 
-                                                                            || f.selector == castVoteWithReason(uint256, uint8, string).selector 
-                                                                            || f.selector == castVoteBySig(uint256, uint8, uint8, bytes32, bytes32).selector } {
+// Checked for castVote only. all 3 castVote functions call _castVote, so the completness of the verification is counted on
+ // the fact that the 3 functions themselves makes no chages, but rather call an internal function to execute.
+ // That means that we do not check those 3 functions directly, however for castVote & castVoteWithReason it is quite trivial
+ // to understand why this is ok. For castVoteBySig we basically assume that the signature referendum is correct without checking it.
+ // We could check each function seperately and pass the rule, but that would have uglyfied the code with no concrete 
+ // benefit, as it is evident that nothing is happening in the first 2 functions (calling a view function), and we do not desire to check the signature verification.
+rule noVoteForSomeoneElse(uint256 pId, uint8 sup, method f) {
     env e; calldataarg args;
 
     address voter = e.msg.sender;
@@ -168,7 +172,7 @@ rule noVoteForSomeoneElse(uint256 pId, uint8 sup, method f) filtered {f -> f.sel
 
     bool hasVotedBefore_User = hasVoted(e, pId, user);
 
-    helperFunctionsWithRevert(pId, f, e);
+    castVote@withrevert(e, pId, sup);
     require(!lastReverted);
 
     bool hasVotedAfter_User = hasVoted(e, pId, user);
