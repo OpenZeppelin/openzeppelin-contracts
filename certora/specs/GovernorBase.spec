@@ -98,9 +98,9 @@ function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
  // To use env with general preserved block disable type checking [--disableLocalTypeChecking]
 invariant startAndEndDatesNonZero(uint256 pId)
         proposalSnapshot(pId) != 0 <=> proposalDeadline(pId) != 0
-        /*{ preserved with (env e){   
+        { preserved with (env e){   
                 require e.block.number > 0;
-        }}*/
+        }}
         
 
 /*
@@ -121,7 +121,8 @@ invariant canceledImplyStartAndEndDateNonZero(uint pId)
 invariant executedImplyStartAndEndDateNonZero(uint pId)
         isExecuted(pId) => proposalSnapshot(pId) != 0
         { preserved with (env e){
-                require e.block.number > 0;
+            requireInvariant startAndEndDatesNonZero(pId);
+            require e.block.number > 0;
         }}
 
 
