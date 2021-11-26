@@ -4,6 +4,9 @@ pragma solidity ^0.8.0;
 import "./math/Math.sol";
 import "./math/SafeCast.sol";
 
+/**
+ * @dev Checkpoints operations.
+ */
 library Checkpoints {
     struct Checkpoint {
         uint32 index;
@@ -14,19 +17,31 @@ library Checkpoints {
         Checkpoint[] _checkpoints;
     }
 
+    /**
+    * @dev Returns checkpoints length.
+    */
     function length(History storage self) internal view returns (uint256) {
         return self._checkpoints.length;
     }
 
+    /**
+    * @dev Returns checkpoints at given position.
+    */
     function at(History storage self, uint256 pos) internal view returns (Checkpoint memory) {
         return self._checkpoints[pos];
     }
 
+    /**
+    * @dev Returns total amount of checkpoints.
+    */
     function latest(History storage self) internal view returns (uint256) {
         uint256 pos = length(self);
         return pos == 0 ? 0 : at(self, pos - 1).value;
     }
 
+    /**
+    * @dev Returns checkpoints at given block number.
+    */
     function past(History storage self, uint256 index) internal view returns (uint256) {
         require(index < block.number, "block not yet mined");
 
@@ -43,6 +58,9 @@ library Checkpoints {
         return high == 0 ? 0 : at(self, high - 1).value;
     }
 
+    /**
+    * @dev Creates checkpoint
+    */
     function push(
         History storage self,
         uint256 value
@@ -57,6 +75,9 @@ library Checkpoints {
         return (old, value);
     }
 
+    /**
+    * @dev Creates checkpoint
+    */
     function push(
         History storage self,
         function(uint256, uint256) view returns (uint256) op,
