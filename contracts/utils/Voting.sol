@@ -44,7 +44,7 @@ library Voting {
     }
     
     /**
-    * @dev Get number of checkpoints for `account`.
+    * @dev Get number of checkpoints for `account` including delegation.
     */
     function getTotalAccountVotes(Votes storage self, address account) internal view returns (uint256) {
         return self._userCheckpoints[account].length();
