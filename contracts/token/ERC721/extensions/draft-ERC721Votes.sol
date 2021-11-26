@@ -106,7 +106,7 @@ abstract contract ERC721Votes is ERC721, EIP712 {
         require(blockNumber < block.number, "ERC721Votes: block not yet mined");
         return _votes.getTotalVotesAt(blockNumber);
     }
-    
+
     /**
      * @dev Delegate votes from the sender to `delegatee`.
      */
@@ -161,7 +161,7 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     function _burn(uint256 tokenId) internal virtual override {
         address from = ownerOf(tokenId);
         super._burn(tokenId);
-        _totalVotingPower -= 1;        
+        _totalVotingPower -= 1;
         _votes.burn(from, 1, _hookDelegateVotesChanged);
     }
 
@@ -176,7 +176,7 @@ abstract contract ERC721Votes is ERC721, EIP712 {
         uint256 tokenId
     ) internal virtual override {
         super._afterTokenTransfer(from, to, tokenId);
-         _votes.transfer(from, to, 1, _hookDelegateVotesChanged);
+        _votes.transfer(from, to, 1, _hookDelegateVotesChanged);
     }
 
     /**
@@ -215,7 +215,11 @@ abstract contract ERC721Votes is ERC721, EIP712 {
         return _domainSeparatorV4();
     }
 
-    function _hookDelegateVotesChanged(address account, uint256 previousBalance, uint256 newBalance) private {
+    function _hookDelegateVotesChanged(
+        address account,
+        uint256 previousBalance,
+        uint256 newBalance
+    ) private {
         emit DelegateVotesChanged(account, previousBalance, newBalance);
     }
 }

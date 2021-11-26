@@ -4,6 +4,9 @@
 
 * `GovernorTimelockControl`: improve the `state()` function to have it reflect cases where a proposal has been canceled directly on the timelock. ([#2977](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2977))
 * `Math`: add a `abs(int256)` method that returns the unsigned absolute value of a signed value. ([#2984](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2984))
+* Preset contracts are now deprecated in favor of [Contracts Wizard](https://wizard.openzeppelin.com). ([#2986](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2986))
+
+## 4.4.0 (2021-11-25)
 
 ## Unreleased
  * `Voting`: Create library to be use for ERC721 and ERC1155 voting ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))

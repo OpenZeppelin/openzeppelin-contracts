@@ -18,30 +18,30 @@ library Checkpoints {
     }
 
     /**
-    * @dev Returns checkpoints length.
-    */
+     * @dev Returns checkpoints length.
+     */
     function length(History storage self) internal view returns (uint256) {
         return self._checkpoints.length;
     }
 
     /**
-    * @dev Returns checkpoints at given position.
-    */
+     * @dev Returns checkpoints at given position.
+     */
     function at(History storage self, uint256 pos) internal view returns (Checkpoint memory) {
         return self._checkpoints[pos];
     }
 
     /**
-    * @dev Returns total amount of checkpoints.
-    */
+     * @dev Returns total amount of checkpoints.
+     */
     function latest(History storage self) internal view returns (uint256) {
         uint256 pos = length(self);
         return pos == 0 ? 0 : at(self, pos - 1).value;
     }
 
     /**
-    * @dev Returns checkpoints at given block number.
-    */
+     * @dev Returns checkpoints at given block number.
+     */
     function past(History storage self, uint256 index) internal view returns (uint256) {
         require(index < block.number, "block not yet mined");
 
@@ -59,25 +59,24 @@ library Checkpoints {
     }
 
     /**
-    * @dev Creates checkpoint
-    */
-    function push(
-        History storage self,
-        uint256 value
-    ) internal returns (uint256, uint256) {
+     * @dev Creates checkpoint
+     */
+    function push(History storage self, uint256 value) internal returns (uint256, uint256) {
         uint256 pos = length(self);
-        uint256 old   = latest(self);
+        uint256 old = latest(self);
         if (pos > 0 && self._checkpoints[pos - 1].index == block.number) {
             self._checkpoints[pos - 1].value = SafeCast.toUint224(value);
         } else {
-            self._checkpoints.push(Checkpoint({ index: SafeCast.toUint32(block.number), value: SafeCast.toUint224(value) }));
+            self._checkpoints.push(
+                Checkpoint({index: SafeCast.toUint32(block.number), value: SafeCast.toUint224(value)})
+            );
         }
         return (old, value);
     }
 
     /**
-    * @dev Creates checkpoint
-    */
+     * @dev Creates checkpoint
+     */
     function push(
         History storage self,
         function(uint256, uint256) view returns (uint256) op,
