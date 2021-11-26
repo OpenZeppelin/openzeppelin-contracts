@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.3.2 (finance/VestingWallet.sol)
+// OpenZeppelin Contracts v4.4.0 (finance/VestingWallet.sol)
 pragma solidity ^0.8.0;
 
 import "../token/ERC20/utils/SafeERC20.sol";
@@ -19,7 +19,7 @@ import "../utils/math/Math.sol";
  */
 contract VestingWallet is Context {
     event EtherReleased(uint256 amount);
-    event ERC20Released(address token, uint256 amount);
+    event ERC20Released(address indexed token, uint256 amount);
 
     uint256 private _released;
     mapping(address => uint256) private _erc20Released;

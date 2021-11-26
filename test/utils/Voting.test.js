@@ -15,19 +15,18 @@ contract('Voting', function (accounts) {
   });
 
   describe('move voting power', function () {
-
     beforeEach(async function () {
-     this.tx1 = await this.voting.mint(account1,1);
-     this.tx2 = await this.voting.mint(account2,1);
-     this.tx3 = await this.voting.mint(account3,1);
+      this.tx1 = await this.voting.mint(account1, 1);
+      this.tx2 = await this.voting.mint(account2, 1);
+      this.tx3 = await this.voting.mint(account3, 1);
     });
 
     it('mints', async function () {
       expect(await this.voting.getTotalVotes()).to.be.bignumber.equal('3');
-      
-      expect(await this.voting.getTotalVotesAt(this.tx1.receipt.blockNumber-1)).to.be.bignumber.equal('0');
-      expect(await this.voting.getTotalVotesAt(this.tx2.receipt.blockNumber-1)).to.be.bignumber.equal('1');
-      expect(await this.voting.getTotalVotesAt(this.tx3.receipt.blockNumber-1)).to.be.bignumber.equal('2');
+
+      expect(await this.voting.getTotalVotesAt(this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+      expect(await this.voting.getTotalVotesAt(this.tx2.receipt.blockNumber - 1)).to.be.bignumber.equal('1');
+      expect(await this.voting.getTotalVotesAt(this.tx3.receipt.blockNumber - 1)).to.be.bignumber.equal('2');
     });
 
     it('reverts if block number >= current block', async function () {
@@ -38,13 +37,13 @@ contract('Voting', function (accounts) {
     });
 
     it('burns', async function () {
-      await this.voting.burn(account1,1);
+      await this.voting.burn(account1, 1);
       expect(await this.voting.getTotalVotes()).to.be.bignumber.equal('2');
 
-      await this.voting.burn(account2,1);
+      await this.voting.burn(account2, 1);
       expect(await this.voting.getTotalVotes()).to.be.bignumber.equal('1');
 
-      await this.voting.burn(account3,1);
+      await this.voting.burn(account3, 1);
       expect(await this.voting.getTotalVotes()).to.be.bignumber.equal('0');
     });
 
@@ -54,7 +53,7 @@ contract('Voting', function (accounts) {
       expect(await this.voting.delegates(account3)).to.be.equal(account2);
     });
 
-    it('transfers', async function () {      
+    it('transfers', async function () {
       await this.voting.delegate(account1, account2, 1);
       await this.voting.transfer(account1, account2, 1);
 
@@ -62,5 +61,4 @@ contract('Voting', function (accounts) {
       expect(await this.voting.getTotalAccountVotes(account2)).to.be.bignumber.equal('2');
     });
   });
-
 });
