@@ -30,6 +30,13 @@ contract('Voting', function (accounts) {
       expect(await this.voting.getTotalVotesAt(this.tx3.receipt.blockNumber-1)).to.be.bignumber.equal('2');
     });
 
+    it('reverts if block number >= current block', async function () {
+      await expectRevert(
+        this.voting.getTotalVotesAt(this.tx3.receipt.blockNumber + 1),
+        'block not yet mined',
+      );
+    });
+
     it('burns', async function () {
       await this.voting.burn(account1,1);
       expect(await this.voting.getTotalVotes()).to.be.bignumber.equal('2');
