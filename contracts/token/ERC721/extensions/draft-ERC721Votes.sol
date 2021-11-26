@@ -7,6 +7,7 @@ import "../ERC721.sol";
 import "../../../utils/Voting.sol";
 import "../../../utils/Counters.sol";
 import "../../../utils/math/Math.sol";
+import "../../../utils/Checkpoints.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 import "../../../utils/cryptography/draft-EIP712.sol";
@@ -29,11 +30,6 @@ import "../../../utils/cryptography/draft-EIP712.sol";
 abstract contract ERC721Votes is ERC721, EIP712 {
     using Counters for Counters.Counter;
     using Voting for Voting.Votes;
-
-    struct Checkpoint {
-        uint32 fromBlock;
-        uint224 votes;
-    }
 
     uint256 _totalVotingPower;
     bytes32 private constant _DELEGATION_TYPEHASH =
@@ -63,7 +59,14 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Get number of checkpoints for `account`.
      */
     function numCheckpoints(address account) public view virtual returns (uint32) {
-        return SafeCast.toUint32(_votes.getVotes(account));
+        return SafeCast.toUint32(_votes.getTotalAccountVotes(account));
+    }
+
+    /**
+     * @dev Get the `pos`-th checkpoint for `account`.
+     */
+    function checkpointAt(address account, uint32 pos) public view virtual returns (Checkpoints.Checkpoint memory) {
+        return _votes.getTotalAccountVotesAt(account, pos);
     }
 
     /**
@@ -156,9 +159,9 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Snapshots the totalSupply after it has been decreased.
      */
     function _burn(uint256 tokenId) internal virtual override {
-        super._burn(tokenId);
-        _totalVotingPower -= 1;
         address from = ownerOf(tokenId);
+        super._burn(tokenId);
+        _totalVotingPower -= 1;        
         _votes.burn(from, 1, _hookDelegateVotesChanged);
     }
 

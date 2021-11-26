@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "./Checkpoints.sol";
-import "hardhat/console.sol";
 
 library Voting {
     using Checkpoints for Checkpoints.History;
@@ -27,6 +26,10 @@ library Voting {
     
     function getTotalAccountVotes(Votes storage self, address account) internal view returns (uint256) {
         return self._userCheckpoints[account].length();
+    } 
+
+    function getTotalAccountVotesAt(Votes storage self, address account, uint32 pos) internal view returns (Checkpoints.Checkpoint memory) {
+        return self._userCheckpoints[account].at(pos);
     } 
 
     function getTotalVotesAt(Votes storage self, uint256 timestamp) internal view returns (uint256) {
@@ -56,7 +59,6 @@ library Voting {
     }
 
     function mint(Votes storage self, address to, uint256 amount) internal {
-        console.log("minting 1");
         self._totalCheckpoints.push(_add, amount);
        _moveVotingPower(self, address(0), delegates(self, to), amount, _dummy);
     }
@@ -67,13 +69,11 @@ library Voting {
         uint256 amount,
         function(address, uint256, uint256) hookDelegateVotesChanged
     ) internal {
-        console.log("minting 2");
         self._totalCheckpoints.push(_add, amount);
        _moveVotingPower(self, address(0), delegates(self, to), amount, hookDelegateVotesChanged);
     }
 
     function burn(Votes storage self, address from, uint256 amount) internal {
-        console.log("burn 1");
         self._totalCheckpoints.push(_subtract, amount);
        _moveVotingPower(self, delegates(self, from), address(0), amount, _dummy);
     }
@@ -84,7 +84,6 @@ library Voting {
         uint256 amount,
         function(address, uint256, uint256) hookDelegateVotesChanged
     ) internal {
-        console.log("burn 2");
         self._totalCheckpoints.push(_subtract, amount);
        _moveVotingPower(self, delegates(self, from), address(0), amount, hookDelegateVotesChanged);
     }
@@ -110,8 +109,6 @@ library Voting {
         uint256 amount,
         function(address, uint256, uint256) hookDelegateVotesChanged
     ) private {
-        console.log("moving voting power");
-        console.log(block.number);
         if (src != dst && amount > 0) {
             if (src != address(0)) {
                 (uint256 oldValue, uint256 newValue) = self._userCheckpoints[src].push(_subtract, amount);
