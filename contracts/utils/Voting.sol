@@ -35,7 +35,7 @@ library Voting {
     function getTotalAccountVotesAt(Votes storage self, address account, uint32 pos) internal view returns (Checkpoints.Checkpoint memory) {
         return self._userCheckpoints[account].at(pos);
     } 
-    
+
     /**
     * @dev Returns total amount of votes. 
     */
@@ -58,7 +58,7 @@ library Voting {
     }
 
     /**
-    * @dev Updates delegation information.
+    * @dev Returns account delegation.
     */
     function delegates(Votes storage self, address account) internal view returns (address) {
         return self._delegation[account];
