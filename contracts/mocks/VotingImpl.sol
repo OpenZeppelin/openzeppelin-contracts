@@ -19,7 +19,7 @@ contract VotingImpl {
 
     function getTotalAccountVotesAt(address account, uint32 pos) public view returns (Checkpoints.Checkpoint memory) {
         return _votes.getTotalAccountVotesAt(account, pos);
-    } 
+    }
 
     function getTotalVotes() public view returns (uint256) {
         return _votes.getTotalVotes();
@@ -27,7 +27,7 @@ contract VotingImpl {
 
     function getTotalAccountVotes(address account) public view returns (uint256) {
         return _votes.getTotalAccountVotes(account);
-    } 
+    }
 
     function getTotalVotesAt(uint256 timestamp) public view returns (uint256) {
         return _votes.getTotalVotesAt(timestamp);
@@ -37,7 +37,11 @@ contract VotingImpl {
         return _votes.delegates(account);
     }
 
-    function delegate(address account, address newDelegation, uint256 balance) public {
+    function delegate(
+        address account,
+        address newDelegation,
+        uint256 balance
+    ) public {
         return _votes.delegate(account, newDelegation, balance);
     }
 
@@ -46,11 +50,14 @@ contract VotingImpl {
     }
 
     function burn(address from, uint256 amount) public {
-       return _votes.burn(from, amount);
+        return _votes.burn(from, amount);
     }
 
-    function transfer(address from, address to, uint256 amount) public {
-      return _votes.transfer(from, to, amount);
+    function transfer(
+        address from,
+        address to,
+        uint256 amount
+    ) public {
+        return _votes.transfer(from, to, amount);
     }
-
 }
