@@ -16,7 +16,7 @@ contract('Checkpoints', function (accounts) {
     expect(await this.checkpoint.length()).to.be.bignumber.equal('3');
   });
 
-  it('calls at', async function () {    
+  it('calls at', async function () {
     expect((await this.checkpoint.at(0))[1]).to.be.bignumber.equal('1');
     expect((await this.checkpoint.at(1))[1]).to.be.bignumber.equal('2');
     expect((await this.checkpoint.at(2))[1]).to.be.bignumber.equal('3');

@@ -5,7 +5,7 @@ const { expect } = require('chai');
 const VotingImp = artifacts.require('VotingImpl');
 
 contract('Voting', function (accounts) {
-  const [ account1, account2, account3 ] = accounts; 
+  const [ account1, account2, account3 ] = accounts;
   beforeEach(async function () {
     this.voting = await VotingImp.new();
   });
