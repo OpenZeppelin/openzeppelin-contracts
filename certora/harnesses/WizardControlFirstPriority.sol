@@ -15,7 +15,7 @@ ERC20Votes
 TimelockCOntroller
 */
 
-contract WizardFirstPriority is Governor, GovernorProposalThreshold, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
+contract WizardControlFirstPriority is Governor, GovernorProposalThreshold, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
     constructor(ERC20Votes _token, TimelockController _timelock, string memory name, uint256 quorumFraction)
         Governor(name)
         GovernorVotes(_token)

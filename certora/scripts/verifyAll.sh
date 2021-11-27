@@ -5,10 +5,10 @@ do
         contractFile=$(basename $contract)
         specFile=$(basename $spec)
         echo "Processing ${contractFile%.*} with $specFile"
-        if [ "${contractFile%.*}" = "WizardFirstPriority" ];
+        if [[ "${contractFile%.*}" = *"WizardControl"* ]];
         then
             certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
-            --link WizardFirstPriority:token=ERC20VotesHarness \
+            --link ${contractFile%.*}:token=ERC20VotesHarness \
             --verify ${contractFile%.*}:certora/specs/$specFile "$@" \
             --solc solc8.2 \
             --staging shelly/forSasha \
