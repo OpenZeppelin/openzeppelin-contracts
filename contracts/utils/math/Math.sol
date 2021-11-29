@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.0 (utils/math/Math.sol)
 
 pragma solidity ^0.8.0;
 
@@ -38,5 +39,15 @@ library Math {
     function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
         // (a + b - 1) / b can overflow on addition, so we distribute.
         return a / b + (a % b == 0 ? 0 : 1);
+    }
+
+    /**
+     * @dev Returns the absolute unsigned value of a signed value.
+     */
+    function abs(int256 n) internal pure returns (uint256) {
+        unchecked {
+            // must be unchecked in order to support `n = type(int256).min`
+            return uint256(n >= 0 ? n : -n);
+        }
     }
 }

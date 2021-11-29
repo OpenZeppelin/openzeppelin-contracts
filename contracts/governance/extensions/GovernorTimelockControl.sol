@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.0 (governance/extensions/GovernorTimelockControl.sol)
 
 pragma solidity ^0.8.0;
 
@@ -56,8 +57,10 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
             return status;
         } else if (_timelock.isOperationDone(queueid)) {
             return ProposalState.Executed;
-        } else {
+        } else if (_timelock.isOperationPending(queueid)) {
             return ProposalState.Queued;
+        } else {
+            return ProposalState.Canceled;
         }
     }
 

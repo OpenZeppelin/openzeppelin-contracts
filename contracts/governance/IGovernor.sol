@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.0 (governance/IGovernor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -73,7 +74,7 @@ abstract contract IGovernor is IERC165 {
      *
      * There are 2 standard keys: `support` and `quorum`.
      *
-     * - `support=bravo` refers to the vote options 0 = For, 1 = Against, 2 = Abstain, as in `GovernorBravo`.
+     * - `support=bravo` refers to the vote options 0 = Against, 1 = For, 2 = Abstain, as in `GovernorBravo`.
      * - `quorum=bravo` means that only For votes are counted towards quorum.
      * - `quorum=for,abstain` means that both For and Abstain votes are counted towards quorum.
      *

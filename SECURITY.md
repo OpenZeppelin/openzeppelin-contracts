@@ -1,5 +1,11 @@
 # Security Policy
 
+## Bug Bounty
+
+We have a [**bug bounty program** on Immunefi](https://www.immunefi.com/bounty/openzeppelin). Please report any security issues you find through the Immunefi dashboard, or reach out to security@openzeppelin.com.
+
+Critical bug fixes will be backported to past major releases.
+
 ## Supported Versions
 
 The recommendation is to use the latest version available.
@@ -11,8 +17,4 @@ The recommendation is to use the latest version available.
 | 2.5     | :white_check_mark:                   |
 | < 2.0   | :x:                                  |
 
-## Reporting a Vulnerability
-
-Please report any security issues you find to security@openzeppelin.org.
-
-Critical bug fixes will be backported to past major releases.
+Note that the Solidity language itself only guarantees security updates for the latest release.

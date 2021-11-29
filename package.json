@@ -1,7 +1,7 @@
 {
   "name": "openzeppelin-solidity",
   "description": "Secure Smart Contract library for Solidity",
-  "version": "4.3.2",
+  "version": "4.4.0",
   "files": [
     "/contracts/**/*.sol",
     "/build/contracts/*.json",
@@ -66,6 +66,7 @@
     "eth-sig-util": "^3.0.0",
     "ethereumjs-util": "^7.0.7",
     "ethereumjs-wallet": "^1.0.1",
+    "glob": "^7.2.0",
     "graphlib": "^2.1.8",
     "hardhat": "^2.0.6",
     "hardhat-gas-reporter": "^1.0.4",

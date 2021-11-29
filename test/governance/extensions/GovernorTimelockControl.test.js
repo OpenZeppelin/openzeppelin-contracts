@@ -16,7 +16,7 @@ const Governor = artifacts.require('GovernorTimelockControlMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 contract('GovernorTimelockControl', function (accounts) {
-  const [ voter ] = accounts;
+  const [ admin, voter ] = accounts;
 
   const name = 'OZ-Governor';
   // const version = '1';
@@ -33,6 +33,7 @@ contract('GovernorTimelockControl', function (accounts) {
     this.receiver = await CallReceiver.new();
     // normal setup: governor is proposer, everyone is executor, timelock is its own admin
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), this.mock.address);
+    await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), admin);
     await this.timelock.grantRole(await this.timelock.EXECUTOR_ROLE(), constants.ZERO_ADDRESS);
     await this.timelock.revokeRole(await this.timelock.TIMELOCK_ADMIN_ROLE(), deployer);
     await this.token.mint(voter, tokenSupply);
@@ -44,6 +45,10 @@ contract('GovernorTimelockControl', function (accounts) {
     'Governor',
     'GovernorTimelock',
   ]);
+
+  it('doesn\'t accept ether transfers', async function () {
+    await expectRevert.unspecified(web3.eth.sendTransaction({ from: voter, to: this.mock.address, value: 1 }));
+  });
 
   it('post deployment check', async function () {
     expect(await this.mock.name()).to.be.equal(name);
@@ -312,6 +317,45 @@ contract('GovernorTimelockControl', function (accounts) {
         this.mock.execute(...this.settings.proposal.slice(0, -1), this.descriptionHash),
         'Governor: proposal not successful',
       );
+    });
+    runGovernorWorkflow();
+  });
+
+  describe('cancel on timelock is forwarded in state', function () {
+    beforeEach(async function () {
+      this.settings = {
+        proposal: [
+          [ this.receiver.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+          '<proposal description>',
+        ],
+        voters: [
+          { voter: voter, support: Enums.VoteType.For },
+        ],
+        steps: {
+          queue: { delay: 3600 },
+          execute: { enable: false },
+        },
+      };
+    });
+    afterEach(async function () {
+      const timelockid = await this.timelock.hashOperationBatch(
+        ...this.settings.proposal.slice(0, 3),
+        '0x0',
+        this.descriptionHash,
+      );
+
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
+
+      const receipt = await this.timelock.cancel(timelockid, { from: admin });
+      expectEvent(
+        receipt,
+        'Cancelled',
+        { id: timelockid },
+      );
+
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
     });
     runGovernorWorkflow();
   });

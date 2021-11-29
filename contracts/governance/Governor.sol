@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.0 (governance/Governor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -144,6 +145,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
+     * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
+     */
+    function proposalThreshold() public view virtual returns (uint256) {
+        return 0;
+    }
+
+    /**
      * @dev Amount of votes already cast passes the threshold limit.
      */
     function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
@@ -174,6 +182,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
+        require(
+            getVotes(msg.sender, block.number - 1) >= proposalThreshold(),
+            "GovernorCompatibilityBravo: proposer votes below proposal threshold"
+        );
+
         uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
         require(targets.length == values.length, "Governor: invalid proposal length");
