@@ -382,10 +382,10 @@ contract('ERC721Votes', function (accounts) {
     describe('numCheckpoints', function () {
       it('returns the number of checkpoints for a delegate', async function () {
 
-        await this.token.transferFrom(holder, recipient, NFT1, { from: holder }); //give an account two tokens for readability        
+        await this.token.transferFrom(holder, recipient, NFT1, { from: holder }); //give an account two tokens for readability
         await this.token.transferFrom(holder, recipient, NFT2, { from: holder }); 
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
-        
+
         const t1 = await this.token.delegate(other1, { from: recipient });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
         const t2 = await this.token.transferFrom(recipient, other2, NFT1, { from: recipient });
