@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.3.2 (governance/extensions/GovernorSettings.sol)
+// OpenZeppelin Contracts v4.4.0 (governance/extensions/GovernorSettings.sol)
 
 pragma solidity ^0.8.0;
 
@@ -58,7 +58,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingDelaySet} event.
      */
-    function setVotingDelay(uint256 newVotingDelay) public onlyGovernance {
+    function setVotingDelay(uint256 newVotingDelay) public virtual onlyGovernance {
         _setVotingDelay(newVotingDelay);
     }
 
@@ -67,7 +67,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingPeriodSet} event.
      */
-    function setVotingPeriod(uint256 newVotingPeriod) public onlyGovernance {
+    function setVotingPeriod(uint256 newVotingPeriod) public virtual onlyGovernance {
         _setVotingPeriod(newVotingPeriod);
     }
 
@@ -76,12 +76,12 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {ProposalThresholdSet} event.
      */
-    function setProposalThreshold(uint256 newProposalThreshold) public onlyGovernance {
+    function setProposalThreshold(uint256 newProposalThreshold) public virtual onlyGovernance {
         _setProposalThreshold(newProposalThreshold);
     }
 
     /**
-     * @dev Internal setter for the the voting delay.
+     * @dev Internal setter for the voting delay.
      *
      * Emits a {VotingDelaySet} event.
      */
@@ -91,7 +91,7 @@ abstract contract GovernorSettings is Governor {
     }
 
     /**
-     * @dev Internal setter for the the voting period.
+     * @dev Internal setter for the voting period.
      *
      * Emits a {VotingPeriodSet} event.
      */
@@ -103,7 +103,7 @@ abstract contract GovernorSettings is Governor {
     }
 
     /**
-     * @dev Internal setter for the the proposal threshold.
+     * @dev Internal setter for the proposal threshold.
      *
      * Emits a {ProposalThresholdSet} event.
      */

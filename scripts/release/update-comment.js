@@ -4,7 +4,7 @@ const fs = require('fs');
 const glob = require('glob');
 const proc = require('child_process');
 
-const gitStatus = proc.execFileSync('git', ['status', '--porcelain', '-uno', 'contracts']);
+const gitStatus = proc.execFileSync('git', ['status', '--porcelain', '-uno', 'contracts/**/*.sol']);
 
 if (gitStatus.length > 0) {
   console.error('Contracts directory is not clean');
