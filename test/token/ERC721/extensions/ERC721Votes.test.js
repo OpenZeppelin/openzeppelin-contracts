@@ -84,20 +84,6 @@ contract('ERC721Votes', function (accounts) {
     );
   });
 
-  it('minting restriction', async function () {
-    const lastTokenId = new BN('2').pow(new BN('224'));
-    this.token.mint(holder, NFT1);
-    this.token.mint(holder, NFT2);
-    this.token.mint(holder, NFT3);
-    this.token.mint(holder, NFT0);
-    this.token.mint(holder, NFT4);
-
-    await expectRevert(
-      this.token.mint(holder, lastTokenId),
-      'ERC721Votes: total supply risks overflowing votes',
-    );
-  });
-
   describe('set delegation', function () {
     describe('call', function () {
       it('delegation with tokens', async function () {

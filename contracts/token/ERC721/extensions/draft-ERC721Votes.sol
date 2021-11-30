@@ -31,7 +31,6 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     using Counters for Counters.Counter;
     using Voting for Voting.Votes;
 
-    uint256 _totalVotingPower;
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
@@ -147,10 +146,7 @@ abstract contract ERC721Votes is ERC721, EIP712 {
      * @dev Snapshots the totalSupply after it has been increased.
      */
     function _mint(address account, uint256 tokenId) internal virtual override {
-        require(_totalVotingPower + 1 <= _maxSupply(), "ERC721Votes: total supply risks overflowing votes");
-
         super._mint(account, tokenId);
-        _totalVotingPower += 1;
 
         _votes.mint(account, 1, _hookDelegateVotesChanged);
     }
@@ -161,7 +157,6 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     function _burn(uint256 tokenId) internal virtual override {
         address from = ownerOf(tokenId);
         super._burn(tokenId);
-        _totalVotingPower -= 1;
         _votes.burn(from, 1, _hookDelegateVotesChanged);
     }
 

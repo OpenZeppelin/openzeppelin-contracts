@@ -18,8 +18,4 @@ contract ERC721VotesMock is ERC721Votes {
     function getChainId() external view returns (uint256) {
         return block.chainid;
     }
-
-    function _maxSupply() internal pure override returns (uint224) {
-        return uint224(5);
-    }
 }
