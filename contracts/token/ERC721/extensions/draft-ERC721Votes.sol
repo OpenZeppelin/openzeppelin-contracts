@@ -161,16 +161,16 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     }
 
     /**
-     * @dev Move voting power when tokens are transferred.
+     * @dev Transfers `tokenId` from `from` to `to` and moves voting power when tokens are transferred
      *
-     * Emits a {DelegateVotesChanged} event.
+     * Emits a {Transfer} event.
      */
-    function _afterTokenTransfer(
+    function _transfer(
         address from,
         address to,
         uint256 tokenId
     ) internal virtual override {
-        super._afterTokenTransfer(from, to, tokenId);
+        super._transfer(from, to, tokenId);
         _votes.transfer(from, to, 1, _hookDelegateVotesChanged);
     }
 
