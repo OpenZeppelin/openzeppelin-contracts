@@ -55,20 +55,6 @@ abstract contract ERC721Votes is ERC721, EIP712 {
     event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
 
     /**
-     * @dev Get number of checkpoints for `account`.
-     */
-    function numCheckpoints(address account) public view virtual returns (uint32) {
-        return SafeCast.toUint32(_votes.getTotalAccountVotes(account));
-    }
-
-    /**
-     * @dev Get the `pos`-th checkpoint for `account`.
-     */
-    function checkpointAt(address account, uint32 pos) public view virtual returns (Checkpoints.Checkpoint memory) {
-        return _votes.getTotalAccountVotesAt(account, pos);
-    }
-
-    /**
      * @dev Get the address `account` is currently delegating to.
      */
     function delegates(address account) public view virtual returns (address) {
