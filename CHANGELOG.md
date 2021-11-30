@@ -2,7 +2,7 @@
 
 ## Unreleased
 
- * `Governor`: add a relay function to help recover assets sent to a timelock-using governor instance. ([#2926](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2926))
+ * `Governor`: add a relay function to help recover assets sent to a governor that is not its own executor (e.g. when using a timelock). ([#2926](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2926))
 
 ## Unreleased
 
