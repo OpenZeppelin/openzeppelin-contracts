@@ -4,27 +4,30 @@ do
     do      
         contractFile=$(basename $contract)
         specFile=$(basename $spec)
-        echo "Processing ${contractFile%.*} with $specFile"
-        if [[ "${contractFile%.*}" = *"WizardControl"* ]];
+        if [[ "${specFile%.*}" != "RulesInProgress" ]];
         then
-            certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
-            --link ${contractFile%.*}:token=ERC20VotesHarness \
-            --verify ${contractFile%.*}:certora/specs/$specFile "$@" \
-            --solc solc8.2 \
-            --staging shelly/forSasha \
-            --disableLocalTypeChecking \
-            --optimistic_loop \
-            --settings -copyLoopUnroll=4 \
-            --msg "checking $specFile on ${contractFile%.*}"
-        else
-            certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
-            --verify ${contractFile%.*}:certora/specs/$specFile "$@" \
-            --solc solc8.2 \
-            --staging shelly/forSasha \
-            --disableLocalTypeChecking \
-            --optimistic_loop \
-            --settings -copyLoopUnroll=4 \
-            --msg "checking $specFile on ${contractFile%.*}"
+            echo "Processing ${contractFile%.*} with $specFile"
+            if [[ "${contractFile%.*}" = *"WizardControl"* ]];
+            then
+                certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
+                --link ${contractFile%.*}:token=ERC20VotesHarness \
+                --verify ${contractFile%.*}:certora/specs/$specFile "$@" \
+                --solc solc8.2 \
+                --staging shelly/forSasha \
+                --disableLocalTypeChecking \
+                --optimistic_loop \
+                --settings -copyLoopUnroll=4 \
+                --msg "checking $specFile on ${contractFile%.*}"
+            else
+                certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
+                --verify ${contractFile%.*}:certora/specs/$specFile "$@" \
+                --solc solc8.2 \
+                --staging shelly/forSasha \
+                --disableLocalTypeChecking \
+                --optimistic_loop \
+                --settings -copyLoopUnroll=4 \
+                --msg "checking $specFile on ${contractFile%.*}"
+            fi
         fi
     done
 done
