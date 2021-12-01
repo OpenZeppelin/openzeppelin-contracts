@@ -25,13 +25,4 @@ contract ERC20VotesHarness is ERC20Votes {
         _getPastVotes[delegator][block.number] -= balanceOf(delegator);
         _getPastVotes[delegatee][block.number] += balanceOf(delegator);
     }
-
-    /*
-    function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        uint256 gpv = super.getPastVotes(account, blockNumber);
-        require (_getPastVotes[account][blockNumber] == gpv);
-        return gpv;
-    }
-    */
-
 }

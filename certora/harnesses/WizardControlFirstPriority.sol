@@ -12,7 +12,7 @@ import "../../contracts/governance/extensions/GovernorProposalThreshold.sol";
 Wizard options:
 ProposalThreshhold = 10
 ERC20Votes
-TimelockCOntroller
+TimelockController
 */
 
 contract WizardControlFirstPriority is Governor, GovernorProposalThreshold, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
@@ -77,6 +77,7 @@ contract WizardControlFirstPriority is Governor, GovernorProposalThreshold, Gove
         return _proposalThreshold;                                          // HARNESS: parametric
     }
 
+    // original code, not harnessed
     // The following functions are overrides required by Solidity.
 
     function quorum(uint256 blockNumber)

@@ -68,6 +68,7 @@ contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, Gove
         return _votingPeriod;                                                   // HARNESS: parametric
     }
 
+    // original code, not harnessed
     // The following functions are overrides required by Solidity.
 
     function quorum(uint256 blockNumber)
