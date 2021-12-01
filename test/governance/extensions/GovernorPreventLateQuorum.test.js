@@ -25,7 +25,14 @@ contract('GovernorPreventLateQuorum', function (accounts) {
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, quorum, lateQuorumVoteExtension);
+    this.mock = await Governor.new(
+      name,
+      this.token.address,
+      votingDelay,
+      votingPeriod,
+      quorum,
+      lateQuorumVoteExtension,
+    );
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
