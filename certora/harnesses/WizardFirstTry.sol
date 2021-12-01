@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-import "../../contracts/governance/Governor.sol";
-import "../../contracts/governance/extensions/GovernorCountingSimple.sol";
-import "../../contracts/governance/extensions/GovernorVotes.sol";
-import "../../contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import "../../contracts/governance/extensions/GovernorTimelockCompound.sol";
+import "../munged/governance/Governor.sol";
+import "../munged/governance/extensions/GovernorCountingSimple.sol";
+import "../munged/governance/extensions/GovernorVotes.sol";
+import "../munged/governance/extensions/GovernorVotesQuorumFraction.sol";
+import "../munged/governance/extensions/GovernorTimelockCompound.sol";
 
 /* 
 Wizard options:
