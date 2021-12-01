@@ -38,8 +38,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
     string private _name;
 
-    mapping(uint256 => ProposalCore) public _proposals;
- 
+    mapping(uint256 => ProposalCore) private _proposals;
+
     /**
      * @dev Restrict access to governor executing address. Some module might override the _executor function to make
      * sure this modifier is consistant with the execution model.
@@ -154,12 +154,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     /**
      * @dev Amount of votes already cast passes the threshold limit.
      */
-    function _quorumReached(uint256 proposalId) public view virtual returns (bool); // HARNESS: changed to public from internal
+    function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
 
     /**
      * @dev Is the proposal successful or not.
      */
-    function _voteSucceeded(uint256 proposalId) public view virtual returns (bool); // HARNESS: changed to public from internal
+    function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
 
     /**
      * @dev Register a vote with a given support and voting weight.
@@ -320,7 +320,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
             v,
             r,
             s
-        ); // mention that we assume that hashing works correctly
+        );
         return _castVote(proposalId, voter, support, "");
     }
 

@@ -109,7 +109,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual override {
-         _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
+        _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
     }
 
     /**

@@ -84,7 +84,7 @@ abstract contract ERC20Votes is ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastVotes(address account, uint256 blockNumber) public view virtual returns (uint256) {
+    function getPastVotes(address account, uint256 blockNumber) public view returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
