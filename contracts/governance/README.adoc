@@ -42,7 +42,7 @@ Other extensions can customize the behavior or interface in multiple ways.
 
 * {GovernorSettings}: Manages some of the settings (voting delay, voting period duration, and proposal threshold) in a way that can be updated through a governance proposal, without requiering an upgrade.
 
-* {GovernorExtendedVoting}: Extend the voting deadline if the quorum is reached late. This prevents a voter with significant voting power from voting at the last minute, reaching the quorum, and leaving no time for other voters to react. This module guarantees a minimum duration for other voters to contribute and try to oppose the decision.
+* {GovernorPreventLateQuorum}: Ensures there is a minimum voting period after quorum is reached as a security protection against large voters.
 
 In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
 
@@ -75,6 +75,8 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 {{GovernorTimelockCompound}}
 
 {{GovernorSettings}}
+
+{{GovernorPreventLateQuorum}}
 
 {{GovernorCompatibilityBravo}}
 

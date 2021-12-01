@@ -6,10 +6,10 @@ const {
 } = require('../GovernorWorkflow.behavior');
 
 const Token = artifacts.require('ERC20VotesCompMock');
-const Governor = artifacts.require('GovernorVoteExtensionMock');
+const Governor = artifacts.require('GovernorPreventLateQuorumMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-contract('GovernorVoteExtension', function (accounts) {
+contract('GovernorPreventLateQuorum', function (accounts) {
   const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
 
   const name = 'OZ-Governor';
