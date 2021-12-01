@@ -117,39 +117,6 @@ abstract contract Votes is EIP712 {
     }
 
     /**
-     * @dev Mints new vote.
-     */
-    function _mintVote(
-        address to,
-        uint256 amount
-    ) internal {
-        _totalCheckpoints.push(_add, amount);
-        _moveVotingPower(address(0), _delegates(to), amount);
-    }
-
-    /**
-     * @dev Burns new vote.
-     */
-    function _burnVote(
-        address from,
-        uint256 amount
-    ) internal {
-        _totalCheckpoints.push(_subtract, amount);
-        _moveVotingPower(_delegates(from), address(0), amount);
-    }
-
-    /**
-     * @dev Transfers voting power.
-     */
-    function _transferVote(
-        address from,
-        address to,
-        uint256 amount
-    ) internal {
-        _moveVotingPower(_delegates(from), _delegates(to), amount);
-    }
-
-    /**
      * @dev Moves voting power.
      */
     function _moveVotingPower(
@@ -159,10 +126,12 @@ abstract contract Votes is EIP712 {
     ) internal {
         if (src != dst && amount > 0) {
             if (src != address(0)) {
+                _totalCheckpoints.push(_subtract, amount);
                 (uint256 oldValue, uint256 newValue) = _userCheckpoints[src].push(_subtract, amount);
                 emit DelegateVotesChanged(src, oldValue, newValue);
             }
             if (dst != address(0)) {
+                _totalCheckpoints.push(_add, amount);
                 (uint256 oldValue, uint256 newValue) = _userCheckpoints[dst].push(_add, amount);
                 emit DelegateVotesChanged(dst, oldValue, newValue);
             }

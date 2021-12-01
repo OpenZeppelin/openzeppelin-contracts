@@ -35,6 +35,16 @@ abstract contract ERC721Votes is ERC721, Votes {
     }
 
     /**
+     * @dev Returns total amount of votes at given position.
+    */
+    function getPastVotes(
+        address account,
+        uint256 timestamp
+    ) external view returns (uint256) {
+        return _getPastVotes(account, timestamp);
+    }
+
+    /**
      * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
      */
     function _maxSupply() internal view virtual returns (uint224) {
@@ -47,7 +57,7 @@ abstract contract ERC721Votes is ERC721, Votes {
     function _mint(address account, uint256 tokenId) internal virtual override {
         super._mint(account, tokenId);
 
-        _mintVote(account, 1);
+        _afterTokenTransfer(address(0), account, tokenId);
     }
 
     /**
@@ -56,7 +66,7 @@ abstract contract ERC721Votes is ERC721, Votes {
     function _burn(uint256 tokenId) internal virtual override {
         address from = ownerOf(tokenId);
         super._burn(tokenId);
-        _burnVote(from, 1);
+        _afterTokenTransfer(from, address(0), tokenId);
     }
 
     /**

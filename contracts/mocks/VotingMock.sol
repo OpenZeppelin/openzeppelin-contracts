@@ -4,7 +4,9 @@ pragma solidity ^0.8.0;
 
 import "../utils/Votes.sol";
 
-abstract contract VotesMock is Votes {
+contract VotesMock is Votes {
+
+    constructor(string memory name)EIP712(name, "1") {}
 
     function getVotes(address account) public view returns (uint256) {
         return _getVotes(account);
@@ -27,7 +29,7 @@ abstract contract VotesMock is Votes {
     }
 
     function getTotalVotesAt(uint256 timestamp) public view returns (uint256) {
-        return super.getTotalVotesAt(timestamp);
+        return getPastTotalSupply(timestamp);
     }
 
     function delegates(address account) public view returns (address) {
@@ -42,19 +44,7 @@ abstract contract VotesMock is Votes {
         return _delegate(account, newDelegation, balance);
     }
 
-    function mint(address to, uint256 amount) public {
-        return _mintVote(to, amount);
-    }
-
-    function burn(address from, uint256 amount) public {
-        return _burnVote(from, amount);
-    }
-
-    function transfer(
-        address from,
-        address to,
-        uint256 amount
-    ) public {
-        return _transferVote(from, to, amount);
+    function _getDelegatorVotes(address) internal virtual override returns(uint256){
+        return 1;
     }
 }
