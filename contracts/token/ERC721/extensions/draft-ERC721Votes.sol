@@ -63,7 +63,7 @@ abstract contract ERC721Votes is ERC721, Votes {
      * @dev Move voting power when tokens are transferred.
      *
      * Emits a {DelegateVotesChanged} event.
-     */
+    */
     function _afterTokenTransfer(
         address from,
         address to,
@@ -72,5 +72,12 @@ abstract contract ERC721Votes is ERC721, Votes {
         super._afterTokenTransfer(from, to, tokenId);
 
         _moveVotingPower(_delegates(from), _delegates(to), 1);
+    }
+
+    /**
+     * @dev Returns the balance of the delegator account
+    */
+    function _getDelegatorVotes(address delegator) internal virtual override returns(uint256){
+        return balanceOf(delegator);
     }
 }

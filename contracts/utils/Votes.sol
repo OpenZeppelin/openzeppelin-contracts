@@ -231,5 +231,8 @@ abstract contract Votes is EIP712 {
         return _domainSeparatorV4();
     }
 
+    /**
+     * @dev Returns the balance of the delegator account
+    */
     function _getDelegatorVotes(address) internal virtual returns(uint256);
 }
