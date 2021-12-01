@@ -19,13 +19,13 @@ contract('GovernorPreventLateQuorum', function (accounts) {
   const tokenSupply = web3.utils.toWei('100');
   const votingDelay = new BN(4);
   const votingPeriod = new BN(16);
-  const voteExtension = new BN(8);
+  const lateQuorumVoteExtension = new BN(8);
   const quorum = web3.utils.toWei('1');
 
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, quorum, voteExtension);
+    this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, quorum, lateQuorumVoteExtension);
     this.receiver = await CallReceiver.new();
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
@@ -40,7 +40,7 @@ contract('GovernorPreventLateQuorum', function (accounts) {
     expect(await this.mock.votingDelay()).to.be.bignumber.equal(votingDelay);
     expect(await this.mock.votingPeriod()).to.be.bignumber.equal(votingPeriod);
     expect(await this.mock.quorum(0)).to.be.bignumber.equal(quorum);
-    expect(await this.mock.voteExtension()).to.be.bignumber.equal(voteExtension);
+    expect(await this.mock.lateQuorumVoteExtension()).to.be.bignumber.equal(lateQuorumVoteExtension);
   });
 
   describe('nominal is unaffected', function () {
@@ -165,7 +165,7 @@ contract('GovernorPreventLateQuorum', function (accounts) {
       const tx = await this.mock.castVote(this.id, Enums.VoteType.For, { from: voter2 });
 
       // vote duration is extended
-      const extendedBlock = new BN(tx.receipt.blockNumber).add(voteExtension);
+      const extendedBlock = new BN(tx.receipt.blockNumber).add(lateQuorumVoteExtension);
       expect(await this.mock.proposalDeadline(this.id)).to.be.bignumber.equal(extendedBlock);
 
       expectEvent(
@@ -188,14 +188,14 @@ contract('GovernorPreventLateQuorum', function (accounts) {
     runGovernorWorkflow();
   });
 
-  describe('setVoteExtension', function () {
+  describe('setLateQuorumVoteExtension', function () {
     beforeEach(async function () {
       this.newVoteExtension = new BN(0); // disable voting delay extension
     });
 
     it('protected', async function () {
       await expectRevert(
-        this.mock.setVoteExtension(this.newVoteExtension),
+        this.mock.setLateQuorumVoteExtension(this.newVoteExtension),
         'Governor: onlyGovernance',
       );
     });
@@ -206,7 +206,7 @@ contract('GovernorPreventLateQuorum', function (accounts) {
           proposal: [
             [ this.mock.address ],
             [ web3.utils.toWei('0') ],
-            [ this.mock.contract.methods.setVoteExtension(this.newVoteExtension).encodeABI() ],
+            [ this.mock.contract.methods.setLateQuorumVoteExtension(this.newVoteExtension).encodeABI() ],
             '<proposal description>',
           ],
           proposer,
@@ -229,10 +229,10 @@ contract('GovernorPreventLateQuorum', function (accounts) {
         );
         expectEvent(
           this.receipts.execute,
-          'VoteExtensionSet',
-          { oldVoteExtension: voteExtension, newVoteExtension: this.newVoteExtension },
+          'LateQuorumVoteExtensionSet',
+          { oldVoteExtension: lateQuorumVoteExtension, newVoteExtension: this.newVoteExtension },
         );
-        expect(await this.mock.voteExtension()).to.be.bignumber.equal(this.newVoteExtension);
+        expect(await this.mock.lateQuorumVoteExtension()).to.be.bignumber.equal(this.newVoteExtension);
       });
       runGovernorWorkflow();
     });

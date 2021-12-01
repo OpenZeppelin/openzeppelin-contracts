@@ -7,7 +7,12 @@ import "../governance/extensions/GovernorSettings.sol";
 import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotes.sol";
 
-contract GovernorPreventLateQuorumMock is GovernorSettings, GovernorVotes, GovernorCountingSimple, GovernorPreventLateQuorum {
+contract GovernorPreventLateQuorumMock is
+    GovernorSettings,
+    GovernorVotes,
+    GovernorCountingSimple,
+    GovernorPreventLateQuorum
+{
     uint256 private _quorum;
 
     constructor(
