@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./Context.sol";
 import "./Counters.sol";
 import "./Checkpoints.sol";
 import "./cryptography/draft-EIP712.sol";
@@ -8,7 +9,7 @@ import "./cryptography/draft-EIP712.sol";
 /**
  * @dev Voting operations.
  */
-abstract contract Votes is EIP712 {
+abstract contract Votes is EIP712, Context {
     using Checkpoints for Checkpoints.History;
     using Counters for Counters.Counter;
 
@@ -82,12 +83,10 @@ abstract contract Votes is EIP712 {
     }
 
     /**
-     * @dev Change delegation for `delegator` to `delegatee`.
-     *
-     * Emits events {DelegateChanged} and {DelegateVotesChanged}.
+     * @dev Delegate votes from the sender to `delegatee`.
      */
-    function _delegate(address delegator, address delegatee) internal virtual {
-        emit DelegateChanged(delegator, delegates(delegator), delegatee);
+    function delegate(address delegatee) public virtual {
+        address delegator = _msgSender();
         _delegate(delegator, delegatee, _getDelegatorVotes(delegator));
     }
 
@@ -99,7 +98,9 @@ abstract contract Votes is EIP712 {
     }
 
     /**
-     * @dev Delegates voting power.
+     * @dev Change delegation for `delegator` to `delegatee`.
+     *
+     * Emits events {DelegateChanged} and {DelegateVotesChanged}.
      */
     function _delegate(
         address account,
@@ -123,13 +124,17 @@ abstract contract Votes is EIP712 {
         uint256 amount
     ) internal {
         if (src != dst && amount > 0) {
-            if (src != address(0)) {
+            if (dst == address(0) && src != address(0)) {
                 _totalCheckpoints.push(_subtract, amount);
+            } else if (src == address(0) && dst != address(0)) {
+                _totalCheckpoints.push(_add, amount);
+            }
+
+            if (src != address(0)) {
                 (uint256 oldValue, uint256 newValue) = _userCheckpoints[src].push(_subtract, amount);
                 emit DelegateVotesChanged(src, oldValue, newValue);
             }
             if (dst != address(0)) {
-                _totalCheckpoints.push(_add, amount);
                 (uint256 oldValue, uint256 newValue) = _userCheckpoints[dst].push(_add, amount);
                 emit DelegateVotesChanged(dst, oldValue, newValue);
             }
@@ -155,7 +160,7 @@ abstract contract Votes is EIP712 {
             s
         );
         require(nonce == _useNonce(signer), "ERC721Votes: invalid nonce");
-        _delegate(signer, delegatee);
+        _delegate(signer, delegatee, _getDelegatorVotes(signer));
     }
 
     /**
