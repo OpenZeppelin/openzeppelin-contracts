@@ -3,6 +3,6 @@ certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/WizardFirst
     --solc solc8.2 \
     --staging shelly/forSasha \
     --optimistic_loop \
+    --disableLocalTypeChecking \
     --settings -copyLoopUnroll=4 \
-    --rule allFunctionsRevertIfCanceled \
     --msg "$1"

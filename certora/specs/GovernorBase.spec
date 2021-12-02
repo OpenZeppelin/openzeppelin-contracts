@@ -25,8 +25,8 @@ methods {
 
     getVotes(address, uint256) returns uint256 => DISPATCHER(true)
 
-    erc20votes.getPastTotalSupply(uint256) returns uint256
-    erc20votes.getPastVotes(address, uint256) returns uint256
+    getPastTotalSupply(uint256) returns uint256    => NONDET
+    getPastVotes(address, uint256) returns uint256 => NONDET
 
     //scheduleBatch(address[],uint256[],bytes[],bytes32,bytes32,uint256) => DISPATCHER(true)
     //executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => DISPATCHER(true)
@@ -281,7 +281,7 @@ rule allFunctionsRevertIfExecuted(method f) filtered { f ->
       && f.selector != updateTimelock(address).selector
       && f.selector != updateQuorumNumerator(uint256).selector
       && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
-      && f.selector != __acceptAdmin().selector
+      && f.selector != 0xb9a61961 // __acceptAdmin()
 } {
     env e; calldataarg args;
     uint256 pId;
@@ -302,7 +302,7 @@ rule allFunctionsRevertIfCanceled(method f) filtered {
       && f.selector != updateTimelock(address).selector
       && f.selector != updateQuorumNumerator(uint256).selector
       && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
-      && f.selector != __acceptAdmin().selector
+      && f.selector != 0xb9a61961 // __acceptAdmin()
 } {
     env e; calldataarg args;
     uint256 pId;
