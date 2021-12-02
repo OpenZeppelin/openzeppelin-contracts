@@ -9,7 +9,7 @@ import "./cryptography/draft-EIP712.sol";
 /**
  * @dev Voting operations.
  */
-abstract contract Votes is EIP712, Context {
+abstract contract Votes is Context, EIP712 {
     using Checkpoints for Checkpoints.History;
     using Counters for Counters.Counter;
 
