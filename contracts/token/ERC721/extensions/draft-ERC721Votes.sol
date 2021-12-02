@@ -26,7 +26,6 @@ import "../../../utils/cryptography/ECDSA.sol";
  * _Available since v4.5._
  */
 abstract contract ERC721Votes is ERC721, Votes {
-
     /**
      * @dev Delegate votes from the sender to `delegatee`.
      */
@@ -36,11 +35,8 @@ abstract contract ERC721Votes is ERC721, Votes {
 
     /**
      * @dev Returns total amount of votes at given position.
-    */
-    function getPastVotes(
-        address account,
-        uint256 timestamp
-    ) external view returns (uint256) {
+     */
+    function getPastVotes(address account, uint256 timestamp) external view returns (uint256) {
         return _getPastVotes(account, timestamp);
     }
 
@@ -73,12 +69,12 @@ abstract contract ERC721Votes is ERC721, Votes {
      * @dev Move voting power when tokens are transferred.
      *
      * Emits a {DelegateVotesChanged} event.
-    */
+     */
     function _afterTokenTransfer(
         address from,
         address to,
         uint256 tokenId
-    ) internal virtual override{
+    ) internal virtual override {
         super._afterTokenTransfer(from, to, tokenId);
 
         _moveVotingPower(delegates(from), delegates(to), 1);
@@ -86,8 +82,8 @@ abstract contract ERC721Votes is ERC721, Votes {
 
     /**
      * @dev Returns the balance of the delegator account
-    */
-    function _getDelegatorVotes(address delegator) internal virtual override returns(uint256){
+     */
+    function _getDelegatorVotes(address delegator) internal virtual override returns (uint256) {
         return balanceOf(delegator);
     }
 }

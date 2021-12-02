@@ -39,10 +39,7 @@ abstract contract Votes is EIP712 {
     /**
      * @dev Returns total amount of votes at given position.
      */
-    function _getPastVotes(
-        address account,
-        uint256 timestamp
-    ) internal view returns (uint256) {
+    function _getPastVotes(address account, uint256 timestamp) internal view returns (uint256) {
         return _userCheckpoints[account].past(timestamp);
     }
 
@@ -62,10 +59,11 @@ abstract contract Votes is EIP712 {
     /**
      * @dev Get checkpoint for `account` for specific position.
      */
-    function _getTotalAccountVotesAt(
-        address account,
-        uint32 pos
-    ) internal view returns (Checkpoints.Checkpoint memory) {
+    function _getTotalAccountVotesAt(address account, uint32 pos)
+        internal
+        view
+        returns (Checkpoints.Checkpoint memory)
+    {
         return _userCheckpoints[account].at(pos);
     }
 
@@ -178,7 +176,7 @@ abstract contract Votes is EIP712 {
      * @dev "Consume a nonce": return the current value and increment.
      *
      * _Available since v4.1._
-    */
+     */
     function _useNonce(address owner) internal virtual returns (uint256 current) {
         Counters.Counter storage nonce = _nonces[owner];
         current = nonce.current();
@@ -187,7 +185,7 @@ abstract contract Votes is EIP712 {
 
     /**
      * @dev Returns an address nonce.
-    */
+     */
     function nonces(address owner) public view virtual returns (uint256) {
         return _nonces[owner].current();
     }
@@ -202,6 +200,6 @@ abstract contract Votes is EIP712 {
 
     /**
      * @dev Returns the balance of the delegator account
-    */
-    function _getDelegatorVotes(address) internal virtual returns(uint256);
+     */
+    function _getDelegatorVotes(address) internal virtual returns (uint256);
 }

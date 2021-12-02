@@ -7,7 +7,7 @@ const Votes = artifacts.require('VotesMock');
 contract('Voting', function (accounts) {
   const [ account1, account2, account3 ] = accounts;
   beforeEach(async function () {
-    this.voting = await Votes.new("MyVote");
+    this.voting = await Votes.new('MyVote');
   });
 
   it('starts with zero votes', async function () {
