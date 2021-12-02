@@ -40,6 +40,6 @@ contract VotesMock is Votes {
     }
 
     function giveVotingPower(address account, uint8 amount) external {
-        _moveVotingPower(address(0), delegates(account), amount);
+        _moveVotingPower(address(0), account, amount);
     }
 }
