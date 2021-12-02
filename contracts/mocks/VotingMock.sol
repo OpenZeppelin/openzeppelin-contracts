@@ -8,10 +8,6 @@ contract VotesMock is Votes {
 
     constructor(string memory name)EIP712(name, "1") {}
 
-    function getVotes(address account) public view returns (uint256) {
-        return _getVotes(account);
-    }
-
     function getVotesAt(address account, uint256 timestamp) public view returns (uint256) {
         return _getPastVotes(account, timestamp);
     }
@@ -32,10 +28,6 @@ contract VotesMock is Votes {
         return getPastTotalSupply(timestamp);
     }
 
-    function delegates(address account) public view returns (address) {
-        return _delegates(account);
-    }
-
     function delegate(
         address account,
         address newDelegation,
@@ -49,6 +41,6 @@ contract VotesMock is Votes {
     }
 
     function giveVotingPower(address account, uint8 amount) external {
-        _moveVotingPower(address(0), _delegates(account), amount);
+        _moveVotingPower(address(0), delegates(account), amount);
     }
 }

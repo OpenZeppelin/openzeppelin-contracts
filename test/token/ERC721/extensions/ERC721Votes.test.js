@@ -425,20 +425,20 @@ contract('ERC721Votes', function (accounts) {
     });
   });
 
-  describe('getPastVotingPower', function () {
+  describe('getPastTotalSupply', function () {
     beforeEach(async function () {
       await this.token.delegate(holder, { from: holder });
     });
 
     it('reverts if block number >= current block', async function () {
       await expectRevert(
-        this.token.getPastVotingPower(5e10),
+        this.token.getPastTotalSupply(5e10),
         'ERC721Votes: block not yet mined',
       );
     });
 
     it('returns 0 if there are no checkpoints', async function () {
-      expect(await this.token.getPastVotingPower(0)).to.be.bignumber.equal('0');
+      expect(await this.token.getPastTotalSupply(0)).to.be.bignumber.equal('0');
     });
 
     it('returns the latest block if >= last checkpoint block', async function () {
@@ -447,8 +447,8 @@ contract('ERC721Votes', function (accounts) {
       await time.advanceBlock();
       await time.advanceBlock();
 
-      expect(await this.token.getPastVotingPower(t1.receipt.blockNumber)).to.be.bignumber.equal('1');
-      expect(await this.token.getPastVotingPower(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber)).to.be.bignumber.equal('1');
+      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
     });
 
     it('returns zero if < first checkpoint block', async function () {
@@ -457,8 +457,8 @@ contract('ERC721Votes', function (accounts) {
       await time.advanceBlock();
       await time.advanceBlock();
 
-      expect(await this.token.getPastVotingPower(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-      expect(await this.token.getPastVotingPower(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
     });
 
     it('generally returns the voting balance at the appropriate checkpoint', async function () {
@@ -478,17 +478,17 @@ contract('ERC721Votes', function (accounts) {
       await time.advanceBlock();
       await time.advanceBlock();
 
-      expect(await this.token.getPastVotingPower(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-      expect(await this.token.getPastVotingPower(t1.receipt.blockNumber)).to.be.bignumber.equal('1');
-      expect(await this.token.getPastVotingPower(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
-      expect(await this.token.getPastVotingPower(t2.receipt.blockNumber)).to.be.bignumber.equal('0');
-      expect(await this.token.getPastVotingPower(t2.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
-      expect(await this.token.getPastVotingPower(t3.receipt.blockNumber)).to.be.bignumber.equal('1');
-      expect(await this.token.getPastVotingPower(t3.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
-      expect(await this.token.getPastVotingPower(t4.receipt.blockNumber)).to.be.bignumber.equal('0');
-      expect(await this.token.getPastVotingPower(t4.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
-      expect(await this.token.getPastVotingPower(t5.receipt.blockNumber)).to.be.bignumber.equal('1');
-      expect(await this.token.getPastVotingPower(t5.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber)).to.be.bignumber.equal('1');
+      expect(await this.token.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+      expect(await this.token.getPastTotalSupply(t2.receipt.blockNumber)).to.be.bignumber.equal('0');
+      expect(await this.token.getPastTotalSupply(t2.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
+      expect(await this.token.getPastTotalSupply(t3.receipt.blockNumber)).to.be.bignumber.equal('1');
+      expect(await this.token.getPastTotalSupply(t3.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+      expect(await this.token.getPastTotalSupply(t4.receipt.blockNumber)).to.be.bignumber.equal('0');
+      expect(await this.token.getPastTotalSupply(t4.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
+      expect(await this.token.getPastTotalSupply(t5.receipt.blockNumber)).to.be.bignumber.equal('1');
+      expect(await this.token.getPastTotalSupply(t5.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
     });
   });
 });

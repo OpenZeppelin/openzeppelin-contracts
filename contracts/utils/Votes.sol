@@ -32,7 +32,7 @@ abstract contract Votes is EIP712 {
     /**
      * @dev Returns total amount of votes for account.
      */
-    function _getVotes(address account) internal view returns (uint256) {
+    function getVotes(address account) public view returns (uint256) {
         return _userCheckpoints[account].latest();
     }
 
@@ -89,14 +89,14 @@ abstract contract Votes is EIP712 {
      * Emits events {DelegateChanged} and {DelegateVotesChanged}.
      */
     function _delegate(address delegator, address delegatee) internal virtual {
-        emit DelegateChanged(delegator, _delegates(delegator), delegatee);
+        emit DelegateChanged(delegator, delegates(delegator), delegatee);
         _delegate(delegator, delegatee, _getDelegatorVotes(delegator));
     }
 
     /**
      * @dev Returns account delegation.
      */
-    function _delegates(address account) internal view returns (address) {
+    function delegates(address account) public view returns (address) {
         return _delegation[account];
     }
 
@@ -108,7 +108,7 @@ abstract contract Votes is EIP712 {
         address newDelegation,
         uint256 balance
     ) internal {
-        address oldDelegation = _delegates(account);
+        address oldDelegation = delegates(account);
         _delegation[account] = newDelegation;
 
         emit DelegateChanged(account, oldDelegation, newDelegation);
