@@ -318,17 +318,15 @@ rule allFunctionsRevertIfCanceled(method f) filtered {
 /*
  * Proposal can be switched to executed only via execute() function
  */
-rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash, method f) filtered {
-    f -> f.selector != queue(address[],uint256[],bytes[],bytes32).selector
-} {
+rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash, method f) {
     env e; calldataarg args;
     uint256 pId;
     bool executedBefore = isExecuted(pId);
     require(!executedBefore);
 
     helperFunctionsWithRevert(pId, f, e);
-    require(!lastReverted);
 
     bool executedAfter = isExecuted(pId);
-    assert(executedAfter != executedBefore, "executed property did not change");
+    assert(executedAfter != executedBefore => f.selector == execute(address[], uint256[], bytes[], bytes32).selector, "isExecuted only changes in the execute method");
 }
+
