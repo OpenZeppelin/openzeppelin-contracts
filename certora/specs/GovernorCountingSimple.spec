@@ -125,36 +125,6 @@ invariant OneIsNotMoreThanAll(uint256 pId)
 //////////////////////////////////////////////////////////////////////////////
 
 
-//NOT FINISHED
-/*
-* the sum of voting power of those who voted is less or equal to the maximum possible votes, per each proposal
-*/
-rule possibleTotalVotes(uint256 pId, uint8 sup, env e, method f) {
-
-    // add requireinvariant  for all i, j. i = i - 1 && i < j => checkpointlookup[i] < checkpointlookup[j];
-    require tracked_weight(pId) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId));
-
-    uint256 againstB;
-    uint256 forB;
-    uint256 absatinB;
-    againstB, forB, absatinB = proposalVotes(pId);
-
-    calldataarg args;
-    //f(e, args);
-
-    castVote(e, pId, sup);
-
-    uint256 against;
-    uint256 for;
-    uint256 absatin;
-    against, for, absatin = proposalVotes(pId);
-
-    uint256 ps = proposalSnapshot(pId);
-
-    assert tracked_weight(pId) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId)), "bla bla bla";
-}
-
-
 /*
  * Only sender's voting status can be changed by execution of any cast vote function
  */

@@ -276,8 +276,13 @@ rule noExecuteOrCancelBeforeDeadline(uint256 pId, method f){
  // non of the proposal specific functions can make changes again. In executedOnlyAfterExecuteFunc 
  // we connected the executed attribute to the execute() function, showing that only execute() can
  // change it, and that it will always change it.
-rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selector != updateQuorumNumerator(uint256).selector && 
-                                                            !f.isFallback && f.selector != updateTimelock(address).selector} {
+rule allFunctionsRevertIfExecuted(method f) filtered { f ->
+    !f.isView && !f.isFallback
+      && f.selector != updateTimelock(address).selector
+      && f.selector != updateQuorumNumerator(uint256).selector
+      && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
+      && f.selector != __acceptAdmin().selector
+} {
     env e; calldataarg args;
     uint256 pId;
     require(isExecuted(pId));
@@ -292,8 +297,13 @@ rule allFunctionsRevertIfExecuted(method f) filtered { f -> !f.isView && f.selec
 /*
  * All proposal specific (non-view) functions should revert if proposal is canceled
  */
-rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selector != updateQuorumNumerator(uint256).selector && 
-                                                            !f.isFallback && f.selector != updateTimelock(address).selector} {
+rule allFunctionsRevertIfCanceled(method f) filtered {
+    f -> !f.isView && !f.isFallback
+      && f.selector != updateTimelock(address).selector
+      && f.selector != updateQuorumNumerator(uint256).selector
+      && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
+      && f.selector != __acceptAdmin().selector
+} {
     env e; calldataarg args;
     uint256 pId;
     require(isCanceled(pId));
@@ -308,7 +318,9 @@ rule allFunctionsRevertIfCanceled(method f) filtered { f -> !f.isView && f.selec
 /*
  * Proposal can be switched to executed only via execute() function
  */
-rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash, method f) {
+rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash, method f) filtered {
+    f -> f.selector != queue(address[],uint256[],bytes[],bytes32).selector
+} {
     env e; calldataarg args;
     uint256 pId;
     bool executedBefore = isExecuted(pId);
