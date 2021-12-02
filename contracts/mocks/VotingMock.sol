@@ -47,4 +47,8 @@ contract VotesMock is Votes {
     function _getDelegatorVotes(address) internal virtual override returns(uint256){
         return 1;
     }
+
+    function giveVotingPower(address account, uint8 amount) external {
+        _moveVotingPower(address(0), _delegates(account), amount);
+    }
 }
