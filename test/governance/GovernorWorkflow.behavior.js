@@ -25,7 +25,7 @@ function runGovernorWorkflow () {
     this.id = await this.mock.hashProposal(...this.settings.proposal.slice(0, -1), this.descriptionHash);
   });
 
-  it('run', async function () {
+  it.only('run', async function () {
     // transfer tokens
     if (tryGet(this.settings, 'voters')) {
       for (const voter of this.settings.voters) {

@@ -14,7 +14,7 @@ contract('Voting', function (accounts) {
     expect(await this.voting.getTotalVotes()).to.be.bignumber.equal('0');
   });
 
-  describe('move voting power', function () {
+  describe.only('move voting power', function () {
     beforeEach(async function () {
       this.tx1 = await this.voting.giveVotingPower(account1, 1);
       this.tx2 = await this.voting.giveVotingPower(account2, 1);
@@ -23,7 +23,7 @@ contract('Voting', function (accounts) {
 
     it('reverts if block number >= current block', async function () {
       await expectRevert(
-        this.voting.getTotalVotesAt(this.tx3.receipt.blockNumber + 1),
+        this.voting.getPastTotalSupply(this.tx3.receipt.blockNumber + 1),
         'block not yet mined',
       );
     });
@@ -34,7 +34,7 @@ contract('Voting', function (accounts) {
       expect(await this.voting.delegates(account3)).to.be.equal(account2);
     });
 
-    it.only('returns amount of votes for account', async function () {
+    it('returns amount of votes for account', async function () {
       expect(await this.voting.getVotes(account1)).to.be.bignumber.equal('1');
     });
   });

@@ -4,11 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "../ERC721.sol";
-import "../../../utils/Votes.sol";
-import "../../../utils/math/Math.sol";
-import "../../../utils/Checkpoints.sol";
-import "../../../utils/math/SafeCast.sol";
-import "../../../utils/cryptography/ECDSA.sol";
+import "../../../governance/utils/Votes.sol";
 
 /**
  * @dev Extension of ERC721 to support Compound-like voting and delegation. This version is more generic than Compound's,

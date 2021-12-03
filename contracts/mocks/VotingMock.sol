@@ -2,17 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/Votes.sol";
+import "../governance/utils/Votes.sol";
 
 contract VotesMock is Votes {
     constructor(string memory name) EIP712(name, "1") {}
 
     function getTotalVotes() public view returns (uint256) {
         return _getTotalVotes();
-    }
-
-    function getTotalVotesAt(uint256 timestamp) public view returns (uint256) {
-        return getPastTotalSupply(timestamp);
     }
 
     function delegate(address account, address newDelegation) public {

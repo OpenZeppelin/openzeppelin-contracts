@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./Context.sol";
-import "./Counters.sol";
-import "./Checkpoints.sol";
-import "../interfaces/IVotes.sol";
-import "./cryptography/draft-EIP712.sol";
+import "../../utils/Context.sol";
+import "../../utils/Counters.sol";
+import "../../utils/Checkpoints.sol";
+import "./IVotes.sol";
+import "../../utils/cryptography/draft-EIP712.sol";
 
 /**
  * @dev Voting operations.
