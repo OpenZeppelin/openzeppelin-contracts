@@ -28,30 +28,6 @@ import "../../../utils/cryptography/ECDSA.sol";
 abstract contract ERC721Votes is ERC721, Votes {
 
     /**
-     * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
-     */
-    function _maxSupply() internal view virtual returns (uint224) {
-        return type(uint224).max;
-    }
-
-    /**
-     * @dev Snapshots the totalSupply after it has been increased.
-     */
-    function _mint(address account, uint256 tokenId) internal virtual override {
-        super._mint(account, tokenId);
-        _afterTokenTransfer(address(0), account, tokenId);
-    }
-
-    /**
-     * @dev Snapshots the totalSupply after it has been decreased.
-     */
-    function _burn(uint256 tokenId) internal virtual override {
-        address from = ownerOf(tokenId);
-        super._burn(tokenId);
-        _afterTokenTransfer(from, address(0), tokenId);
-    }
-
-    /**
      * @dev Move voting power when tokens are transferred.
      *
      * Emits a {DelegateVotesChanged} event.
@@ -68,7 +44,7 @@ abstract contract ERC721Votes is ERC721, Votes {
     /**
      * @dev Returns the balance of the delegator account
      */
-    function _getDelegatorVotes(address delegator) internal virtual override returns (uint256) {
+    function _getDelegatorVotingPower(address delegator) internal virtual override returns (uint256) {
         return balanceOf(delegator);
     }
 }

@@ -18,7 +18,7 @@ import "./cryptography/draft-EIP712.sol";
  * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
  * will significantly increase the base gas cost of transfers.
  *
- * When using this module, the derived contract must implement {_getDelegatorVotes}, and can use {_moveVotingPower}
+ * When using this module, the derived contract must implement {_getDelegatorVotingPower}, and can use {_moveVotingPower}
  * when a delegator's voting power is changed.
  */
 abstract contract Votes is Context, EIP712 {
@@ -27,7 +27,7 @@ abstract contract Votes is Context, EIP712 {
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
-    mapping(address => address) private _delegation;
+    mapping(address => address) private _delegateCheckpoints;
     mapping(address => Checkpoints.History) private _userCheckpoints;
     mapping(address => Counters.Counter) private _nonces;
     Checkpoints.History private _totalCheckpoints;
@@ -88,14 +88,14 @@ abstract contract Votes is Context, EIP712 {
      */
     function delegate(address delegatee) public virtual {
         address delegator = _msgSender();
-        _delegate(delegator, delegatee, _getDelegatorVotes(delegator));
+        _delegate(delegator, delegatee);
     }
 
     /**
      * @dev Returns account delegation.
      */
     function delegates(address account) public view virtual returns (address) {
-        return _delegation[account];
+        return _delegateCheckpoints[account];
     }
 
     /**
@@ -104,16 +104,15 @@ abstract contract Votes is Context, EIP712 {
      * Emits events {DelegateChanged} and {DelegateVotesChanged}.
      */
     function _delegate(
-        address account,
-        address newDelegation,
-        uint256 balance
+        address delegator,
+        address newDelegation
     ) internal virtual{
-        address oldDelegation = delegates(account);
-        _delegation[account] = newDelegation;
+        address oldDelegation = delegates(delegator);
+        _delegateCheckpoints[delegator] = newDelegation;
 
-        emit DelegateChanged(account, oldDelegation, newDelegation);
+        emit DelegateChanged(delegator, oldDelegation, newDelegation);
 
-        _moveVotingPower(oldDelegation, newDelegation, balance);
+        _moveVotingPower(oldDelegation, newDelegation, _getDelegatorVotingPower(delegator));
     }
 
     /**
@@ -135,7 +134,7 @@ abstract contract Votes is Context, EIP712 {
             s
         );
         require(nonce == _useNonce(signer), "ERC721Votes: invalid nonce");
-        _delegate(signer, delegatee, _getDelegatorVotes(signer));
+        _delegate(signer, delegatee);
     }
 
     /**
@@ -207,5 +206,5 @@ abstract contract Votes is Context, EIP712 {
     /**
      * @dev Returns the balance of the delegator account
      */
-    function _getDelegatorVotes(address) internal virtual returns (uint256);
+    function _getDelegatorVotingPower(address) internal virtual returns (uint256);
 }
