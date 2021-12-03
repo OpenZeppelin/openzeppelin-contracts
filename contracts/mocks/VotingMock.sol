@@ -19,10 +19,7 @@ contract VotesMock is Votes {
         return getPastTotalSupply(timestamp);
     }
 
-    function delegate(
-        address account,
-        address newDelegation
-    ) public {
+    function delegate(address account, address newDelegation) public {
         return _delegate(account, newDelegation);
     }
 

@@ -26,7 +26,6 @@ import "../../../utils/cryptography/ECDSA.sol";
  * _Available since v4.5._
  */
 abstract contract ERC721Votes is ERC721, Votes {
-
     /**
      * @dev Move voting power when tokens are transferred.
      *

@@ -103,10 +103,7 @@ abstract contract Votes is Context, EIP712 {
      *
      * Emits events {DelegateChanged} and {DelegateVotesChanged}.
      */
-    function _delegate(
-        address delegator,
-        address newDelegation
-    ) internal virtual{
+    function _delegate(address delegator, address newDelegation) internal virtual {
         address oldDelegation = delegates(delegator);
         _delegateCheckpoints[delegator] = newDelegation;
 
@@ -116,8 +113,8 @@ abstract contract Votes is Context, EIP712 {
     }
 
     /**
-    * @dev Delegates votes from signer to `delegatee`
-    */
+     * @dev Delegates votes from signer to `delegatee`
+     */
     function delegateBySig(
         address delegatee,
         uint256 nonce,
@@ -144,7 +141,7 @@ abstract contract Votes is Context, EIP712 {
         address from,
         address to,
         uint256 amount
-    ) internal virtual{
+    ) internal virtual {
         if (from != to && amount > 0) {
             if (from == address(0)) {
                 _totalCheckpoints.push(_add, amount);
