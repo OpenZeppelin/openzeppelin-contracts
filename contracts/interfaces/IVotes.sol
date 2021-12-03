@@ -29,14 +29,14 @@ interface IVotes {
     function getPastTotalSupply(uint256 blockNumber) external view returns (uint256);
 
     /**
-     * @dev Delegate votes from the sender to `delegatee`.
-     */
-    function delegate(address delegatee) external;
-
-    /**
      * @dev Returns account delegation.
      */
     function delegates(address account) external view returns (address);
+
+    /**
+     * @dev Delegate votes from the sender to `delegatee`.
+     */
+    function delegate(address delegatee) external;
 
     /**
      * @dev Delegates votes from signer to `delegatee`

@@ -28,10 +28,12 @@ abstract contract Votes is Context, EIP712, IVotes {
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
+
     mapping(address => address) private _delegateCheckpoints;
     mapping(address => Checkpoints.History) private _userCheckpoints;
-    mapping(address => Counters.Counter) private _nonces;
     Checkpoints.History private _totalCheckpoints;
+
+    mapping(address => Counters.Counter) private _nonces;
 
     /**
      * @dev Emitted when an account changes their delegate.
@@ -78,10 +80,10 @@ abstract contract Votes is Context, EIP712, IVotes {
     }
 
     /**
-     * @dev Get number of checkpoints for `account` including delegation.
+     * @dev Returns account delegation.
      */
-    function _getTotalAccountVotes(address account) internal view virtual returns (uint256) {
-        return _userCheckpoints[account].length();
+    function delegates(address account) public view virtual override returns (address) {
+        return _delegateCheckpoints[account];
     }
 
     /**
@@ -90,27 +92,6 @@ abstract contract Votes is Context, EIP712, IVotes {
     function delegate(address delegatee) public virtual override {
         address delegator = _msgSender();
         _delegate(delegator, delegatee);
-    }
-
-    /**
-     * @dev Returns account delegation.
-     */
-    function delegates(address account) public view virtual override returns (address) {
-        return _delegateCheckpoints[account];
-    }
-
-    /**
-     * @dev Change delegation for `delegator` to `delegatee`.
-     *
-     * Emits events {DelegateChanged} and {DelegateVotesChanged}.
-     */
-    function _delegate(address delegator, address newDelegation) internal virtual {
-        address oldDelegation = delegates(delegator);
-        _delegateCheckpoints[delegator] = newDelegation;
-
-        emit DelegateChanged(delegator, oldDelegation, newDelegation);
-
-        _moveVotingPower(oldDelegation, newDelegation, _getDelegatorVotingPower(delegator));
     }
 
     /**
@@ -133,6 +114,20 @@ abstract contract Votes is Context, EIP712, IVotes {
         );
         require(nonce == _useNonce(signer), "ERC721Votes: invalid nonce");
         _delegate(signer, delegatee);
+    }
+
+    /**
+     * @dev Change delegation for `delegator` to `delegatee`.
+     *
+     * Emits events {DelegateChanged} and {DelegateVotesChanged}.
+     */
+    function _delegate(address delegator, address newDelegation) internal virtual {
+        address oldDelegation = delegates(delegator);
+        _delegateCheckpoints[delegator] = newDelegation;
+
+        emit DelegateChanged(delegator, oldDelegation, newDelegation);
+
+        _moveVotingPower(oldDelegation, newDelegation, _getDelegatorVotingPower(delegator));
     }
 
     /**

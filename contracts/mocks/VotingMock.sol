@@ -11,10 +11,6 @@ contract VotesMock is Votes {
         return _getTotalVotes();
     }
 
-    function getTotalAccountVotes(address account) public view returns (uint256) {
-        return _getTotalAccountVotes(account);
-    }
-
     function getTotalVotesAt(uint256 timestamp) public view returns (uint256) {
         return getPastTotalSupply(timestamp);
     }

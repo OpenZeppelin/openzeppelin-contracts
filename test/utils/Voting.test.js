@@ -34,8 +34,8 @@ contract('Voting', function (accounts) {
       expect(await this.voting.delegates(account3)).to.be.equal(account2);
     });
 
-    it('returns amount of votes for account', async function () {
-      expect(await this.voting.getTotalAccountVotes(account1)).to.be.bignumber.equal('1');
+    it.only('returns amount of votes for account', async function () {
+      expect(await this.voting.getVotes(account1)).to.be.bignumber.equal('1');
     });
   });
 });

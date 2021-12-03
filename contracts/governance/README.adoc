@@ -68,8 +68,6 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorVotesQuorumFraction}}
 
-{{GovernorVotesERC721}}
-
 {{GovernorVotesComp}}
 
 === Extensions

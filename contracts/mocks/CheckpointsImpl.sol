@@ -9,10 +9,6 @@ contract CheckpointsImpl {
 
     Checkpoints.History private _totalCheckpoints;
 
-    function length() public view returns (uint256) {
-        return _totalCheckpoints.length();
-    }
-
     function latest() public view returns (uint256) {
         return _totalCheckpoints.latest();
     }

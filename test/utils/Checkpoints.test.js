@@ -12,10 +12,6 @@ contract('Checkpoints', function (accounts) {
     this.tx3 = await this.checkpoint.push(3);
   });
 
-  it('calls length', async function () {
-    expect(await this.checkpoint.length()).to.be.bignumber.equal('3');
-  });
-
   it('calls latest', async function () {
     expect(await this.checkpoint.latest()).to.be.bignumber.equal('3');
   });
