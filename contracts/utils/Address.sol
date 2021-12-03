@@ -15,6 +15,12 @@ library Address {
      * It is unsafe to assume that an address for which this function returns
      * false is an externally-owned account (EOA) and not a contract.
      *
+     * **You cannot rely on `isContract` to protect against flash loan attacks!**
+     * Using `isContract` to intentionally prevent calls from contracts should be avoided, as it:
+     * 1) breaks composability
+     * 2) breaks support for smart wallets like Gnosis Safe where every user is a contract
+     * 3) can be circumvented by calling from a contract constructor
+     *
      * Among others, `isContract` will return false for the following
      * types of addresses:
      *
