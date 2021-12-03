@@ -287,6 +287,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         _owners[tokenId] = to;
 
         emit Transfer(address(0), to, tokenId);
+
         _afterTokenTransfer(address(0), to, tokenId);
     }
 
