@@ -18,14 +18,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns checkpoints length.
-     */
-    function length(History storage self) internal view returns (uint256) {
-        return self._checkpoints.length;
-    }
-
-    /**
-     * @dev Returns total amount of checkpoints.
+     * @dev Returns the value in the latest checkpoint.
      */
     function latest(History storage self) internal view returns (uint256) {
         uint256 pos = self._checkpoints.length;

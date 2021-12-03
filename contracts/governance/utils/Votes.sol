@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./Context.sol";
-import "./Counters.sol";
-import "./Checkpoints.sol";
-import "../interfaces/IVotes.sol";
-import "./cryptography/draft-EIP712.sol";
+import "../../utils/Context.sol";
+import "../../utils/Counters.sol";
+import "../../utils/Checkpoints.sol";
+import "./IVotes.sol";
+import "../../utils/cryptography/draft-EIP712.sol";
 
 /**
  * @dev Voting operations.
@@ -22,16 +22,18 @@ import "./cryptography/draft-EIP712.sol";
  * When using this module, the derived contract must implement {_getDelegatorVotingPower}, and can use {_moveVotingPower}
  * when a delegator's voting power is changed.
  */
-abstract contract Votes is Context, EIP712, IVotes {
+abstract contract Votes is IVotes, Context, EIP712 {
     using Checkpoints for Checkpoints.History;
     using Counters for Counters.Counter;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
-    mapping(address => address) private _delegateCheckpoints;
-    mapping(address => Checkpoints.History) private _userCheckpoints;
-    mapping(address => Counters.Counter) private _nonces;
+
+    mapping(address => address) private _delegation;
+    mapping(address => Checkpoints.History) private _delegateCheckpoints;
     Checkpoints.History private _totalCheckpoints;
+
+    mapping(address => Counters.Counter) private _nonces;
 
     /**
      * @dev Emitted when an account changes their delegate.
@@ -47,14 +49,14 @@ abstract contract Votes is Context, EIP712, IVotes {
      * @dev Returns total amount of votes for account.
      */
     function getVotes(address account) public view virtual override returns (uint256) {
-        return _userCheckpoints[account].latest();
+        return _delegateCheckpoints[account].latest();
     }
 
     /**
      * @dev Returns total amount of votes at given blockNumber.
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return _userCheckpoints[account].getAtBlock(blockNumber);
+        return _delegateCheckpoints[account].getAtBlock(blockNumber);
     }
 
     /**
@@ -78,10 +80,10 @@ abstract contract Votes is Context, EIP712, IVotes {
     }
 
     /**
-     * @dev Get number of checkpoints for `account` including delegation.
+     * @dev Returns account delegation.
      */
-    function _getTotalAccountVotes(address account) internal view virtual returns (uint256) {
-        return _userCheckpoints[account].length();
+    function delegates(address account) public view virtual override returns (address) {
+        return _delegation[account];
     }
 
     /**
@@ -90,27 +92,6 @@ abstract contract Votes is Context, EIP712, IVotes {
     function delegate(address delegatee) public virtual override {
         address delegator = _msgSender();
         _delegate(delegator, delegatee);
-    }
-
-    /**
-     * @dev Returns account delegation.
-     */
-    function delegates(address account) public view virtual override returns (address) {
-        return _delegateCheckpoints[account];
-    }
-
-    /**
-     * @dev Change delegation for `delegator` to `delegatee`.
-     *
-     * Emits events {DelegateChanged} and {DelegateVotesChanged}.
-     */
-    function _delegate(address delegator, address newDelegation) internal virtual {
-        address oldDelegation = delegates(delegator);
-        _delegateCheckpoints[delegator] = newDelegation;
-
-        emit DelegateChanged(delegator, oldDelegation, newDelegation);
-
-        _moveVotingPower(oldDelegation, newDelegation, _getDelegatorVotingPower(delegator));
     }
 
     /**
@@ -136,6 +117,20 @@ abstract contract Votes is Context, EIP712, IVotes {
     }
 
     /**
+     * @dev Change delegation for `delegator` to `delegatee`.
+     *
+     * Emits events {DelegateChanged} and {DelegateVotesChanged}.
+     */
+    function _delegate(address delegator, address newDelegation) internal virtual {
+        address oldDelegation = delegates(delegator);
+        _delegation[delegator] = newDelegation;
+
+        emit DelegateChanged(delegator, oldDelegation, newDelegation);
+
+        _moveVotingPower(oldDelegation, newDelegation, _getDelegatorVotingPower(delegator));
+    }
+
+    /**
      * @dev Moves voting power.
      */
     function _moveVotingPower(
@@ -147,13 +142,13 @@ abstract contract Votes is Context, EIP712, IVotes {
             if (from == address(0)) {
                 _totalCheckpoints.push(_add, amount);
             } else {
-                (uint256 oldValue, uint256 newValue) = _userCheckpoints[from].push(_subtract, amount);
+                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(_subtract, amount);
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
             if (to == address(0)) {
                 _totalCheckpoints.push(_subtract, amount);
             } else {
-                (uint256 oldValue, uint256 newValue) = _userCheckpoints[to].push(_add, amount);
+                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(_add, amount);
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
         }

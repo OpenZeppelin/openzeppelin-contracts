@@ -7,7 +7,7 @@ const {
 } = require('./../GovernorWorkflow.behavior');
 
 const Token = artifacts.require('ERC721VotesMock');
-const Governor = artifacts.require('GovernorVoteMock');
+const Governor = artifacts.require('GovernorVoteMocks');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 contract('GovernorERC721Mock', function (accounts) {

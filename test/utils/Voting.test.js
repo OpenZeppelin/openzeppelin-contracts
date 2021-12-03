@@ -23,7 +23,7 @@ contract('Voting', function (accounts) {
 
     it('reverts if block number >= current block', async function () {
       await expectRevert(
-        this.voting.getTotalVotesAt(this.tx3.receipt.blockNumber + 1),
+        this.voting.getPastTotalSupply(this.tx3.receipt.blockNumber + 1),
         'block not yet mined',
       );
     });
@@ -35,7 +35,7 @@ contract('Voting', function (accounts) {
     });
 
     it('returns amount of votes for account', async function () {
-      expect(await this.voting.getTotalAccountVotes(account1)).to.be.bignumber.equal('1');
+      expect(await this.voting.getVotes(account1)).to.be.bignumber.equal('1');
     });
   });
 });
