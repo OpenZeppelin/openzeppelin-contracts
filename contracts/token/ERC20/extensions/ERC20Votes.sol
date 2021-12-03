@@ -135,7 +135,7 @@ abstract contract ERC20Votes is ERC20Permit, IVotes {
     /**
      * @dev Delegate votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee) public virtual override{
+    function delegate(address delegatee) public virtual override {
         _delegate(_msgSender(), delegatee);
     }
 
@@ -149,7 +149,7 @@ abstract contract ERC20Votes is ERC20Permit, IVotes {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual override{
+    ) public virtual override {
         require(block.timestamp <= expiry, "ERC20Votes: signature expired");
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),

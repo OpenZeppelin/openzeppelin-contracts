@@ -10,12 +10,12 @@ pragma solidity ^0.8.0;
 interface IVotes {
     /**
      * @dev Returns total amount of votes for account.
-    */
+     */
     function getVotes(address account) external view returns (uint256);
 
     /**
      * @dev Returns total amount of votes at given blockNumber.
-    */
+     */
     function getPastVotes(address account, uint256 blockNumber) external view returns (uint256);
 
     /**
@@ -49,5 +49,4 @@ interface IVotes {
         bytes32 r,
         bytes32 s
     ) external;
-
 }

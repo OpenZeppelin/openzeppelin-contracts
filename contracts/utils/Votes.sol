@@ -123,7 +123,7 @@ abstract contract Votes is Context, EIP712, IVotes {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual override{
+    ) public virtual override {
         require(block.timestamp <= expiry, "ERC721Votes: signature expired");
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
