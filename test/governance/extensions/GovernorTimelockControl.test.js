@@ -16,7 +16,7 @@ const Governor = artifacts.require('GovernorTimelockControlMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 contract('GovernorTimelockControl', function (accounts) {
-  const [ admin, voter ] = accounts;
+  const [ admin, voter, other ] = accounts;
 
   const name = 'OZ-Governor';
   // const version = '1';
@@ -319,6 +319,57 @@ contract('GovernorTimelockControl', function (accounts) {
       );
     });
     runGovernorWorkflow();
+  });
+
+  describe('relay', function () {
+    beforeEach(async function () {
+      await this.token.mint(this.mock.address, 1);
+      this.call = [
+        this.token.address,
+        0,
+        this.token.contract.methods.transfer(other, 1).encodeABI(),
+      ];
+    });
+
+    it('protected', async function () {
+      await expectRevert(
+        this.mock.relay(...this.call),
+        'Governor: onlyGovernance',
+      );
+    });
+
+    describe('using workflow', function () {
+      beforeEach(async function () {
+        this.settings = {
+          proposal: [
+            [
+              this.mock.address,
+            ],
+            [
+              web3.utils.toWei('0'),
+            ],
+            [
+              this.mock.contract.methods.relay(...this.call).encodeABI(),
+            ],
+            '<proposal description>',
+          ],
+          voters: [
+            { voter: voter, support: Enums.VoteType.For },
+          ],
+          steps: {
+            queue: { delay: 7 * 86400 },
+          },
+        };
+
+        expect(await this.token.balanceOf(this.mock.address), 1);
+        expect(await this.token.balanceOf(other), 0);
+      });
+      afterEach(async function () {
+        expect(await this.token.balanceOf(this.mock.address), 0);
+        expect(await this.token.balanceOf(other), 1);
+      });
+      runGovernorWorkflow();
+    });
   });
 
   describe('cancel on timelock is forwarded in state', function () {
