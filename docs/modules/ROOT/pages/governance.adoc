@@ -190,7 +190,7 @@ import "./governance/extensions/GovernorVotesQuorumFraction.sol";
 import "./governance/extensions/GovernorTimelockControl.sol";
 
 contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
-    constructor(ERC20Votes _token, TimelockController _timelock)
+    constructor(IVotes _token, TimelockController _timelock)
         Governor("MyGovernor")
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)

@@ -3,10 +3,10 @@
 pragma solidity ^0.8.0;
 
 import "../governance/extensions/GovernorCountingSimple.sol";
-import "../governance/extensions/GovernorVotesERC721.sol";
+import "../governance/extensions/GovernorVotes.sol";
 
-contract GovernorERC721Mock is GovernorVotesERC721, GovernorCountingSimple {
-    constructor(string memory name_, ERC721Votes token_) Governor(name_) GovernorVotesERC721(token_) {}
+contract GovernorVoteMock is GovernorVotes, GovernorCountingSimple {
+    constructor(string memory name_, IVotes token_) Governor(name_) GovernorVotes(token_) {}
 
     function quorum(uint256) public pure override returns (uint256) {
         return 0;
@@ -33,7 +33,7 @@ contract GovernorERC721Mock is GovernorVotesERC721, GovernorCountingSimple {
         public
         view
         virtual
-        override(IGovernor, GovernorVotesERC721)
+        override(IGovernor, GovernorVotes)
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);

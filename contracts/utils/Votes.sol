@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "./Context.sol";
 import "./Counters.sol";
 import "./Checkpoints.sol";
+import "../interfaces/IVotes.sol";
 import "./cryptography/draft-EIP712.sol";
 
 /**
@@ -21,7 +22,7 @@ import "./cryptography/draft-EIP712.sol";
  * When using this module, the derived contract must implement {_getDelegatorVotingPower}, and can use {_moveVotingPower}
  * when a delegator's voting power is changed.
  */
-abstract contract Votes is Context, EIP712 {
+abstract contract Votes is Context, EIP712, IVotes {
     using Checkpoints for Checkpoints.History;
     using Counters for Counters.Counter;
 
@@ -45,14 +46,14 @@ abstract contract Votes is Context, EIP712 {
     /**
      * @dev Returns total amount of votes for account.
      */
-    function getVotes(address account) public view virtual returns (uint256) {
+    function getVotes(address account) public view virtual override returns (uint256) {
         return _userCheckpoints[account].latest();
     }
 
     /**
      * @dev Returns total amount of votes at given blockNumber.
      */
-    function getPastVotes(address account, uint256 blockNumber) public view virtual returns (uint256) {
+    function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         return _userCheckpoints[account].getAtBlock(blockNumber);
     }
 
@@ -64,7 +65,7 @@ abstract contract Votes is Context, EIP712 {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber) public view virtual returns (uint256) {
+    function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC721Votes: block not yet mined");
         return _totalCheckpoints.getAtBlock(blockNumber);
     }
@@ -86,7 +87,7 @@ abstract contract Votes is Context, EIP712 {
     /**
      * @dev Delegate votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee) public virtual {
+    function delegate(address delegatee) public virtual override {
         address delegator = _msgSender();
         _delegate(delegator, delegatee);
     }
@@ -94,7 +95,7 @@ abstract contract Votes is Context, EIP712 {
     /**
      * @dev Returns account delegation.
      */
-    function delegates(address account) public view virtual returns (address) {
+    function delegates(address account) public view virtual override returns (address) {
         return _delegateCheckpoints[account];
     }
 
@@ -122,7 +123,7 @@ abstract contract Votes is Context, EIP712 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual {
+    ) public virtual override{
         require(block.timestamp <= expiry, "ERC721Votes: signature expired");
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
