@@ -17,7 +17,7 @@ contract CheckpointsImpl {
         return _totalCheckpoints.latest();
     }
 
-    function past(uint256 blockNumber) public view returns (uint256) {
+    function getAtBlock(uint256 blockNumber) public view returns (uint256) {
         return _totalCheckpoints.getAtBlock(blockNumber);
     }
 

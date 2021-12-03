@@ -21,13 +21,12 @@ contract VotesMock is Votes {
 
     function delegate(
         address account,
-        address newDelegation,
-        uint256 balance
+        address newDelegation
     ) public {
-        return _delegate(account, newDelegation, balance);
+        return _delegate(account, newDelegation);
     }
 
-    function _getDelegatorVotes(address) internal virtual override returns (uint256) {
+    function _getDelegatorVotingPower(address) internal virtual override returns (uint256) {
         return 1;
     }
 
