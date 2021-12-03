@@ -9,8 +9,8 @@ import "./math/SafeCast.sol";
  */
 library Checkpoints {
     struct Checkpoint {
-        uint32 index;
-        uint224 value;
+        uint32 _blockNumber;
+        uint224 _value;
     }
 
     struct History {
@@ -36,7 +36,7 @@ library Checkpoints {
      */
     function latest(History storage self) internal view returns (uint256) {
         uint256 pos = length(self);
-        return pos == 0 ? 0 : at(self, pos - 1).value;
+        return pos == 0 ? 0 : at(self, pos - 1)._value;
     }
 
     /**
@@ -49,13 +49,13 @@ library Checkpoints {
         uint256 low = 0;
         while (low < high) {
             uint256 mid = Math.average(low, high);
-            if (at(self, mid).index > index) {
+            if (at(self, mid)._blockNumber > index) {
                 high = mid;
             } else {
                 low = mid + 1;
             }
         }
-        return high == 0 ? 0 : at(self, high - 1).value;
+        return high == 0 ? 0 : at(self, high - 1)._value;
     }
 
     /**
@@ -64,8 +64,8 @@ library Checkpoints {
     function push(History storage self, uint256 value) internal returns (uint256, uint256) {
         uint256 pos = length(self);
         uint256 old = latest(self);
-        if (pos > 0 && self._checkpoints[pos - 1].index == block.number) {
-            self._checkpoints[pos - 1].value = SafeCast.toUint224(value);
+        if (pos > 0 && self._checkpoints[pos - 1]._blockNumber == block.number) {
+            self._checkpoints[pos - 1]._value = SafeCast.toUint224(value);
         } else {
             self._checkpoints.push(
                 Checkpoint({index: SafeCast.toUint32(block.number), value: SafeCast.toUint224(value)})
