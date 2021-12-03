@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.3.2 (governance/compatibility/GovernorCompatibilityBravo.sol)
+// OpenZeppelin Contracts v4.4.0 (governance/compatibility/GovernorCompatibilityBravo.sol)
 
 pragma solidity ^0.8.0;
 
@@ -247,7 +247,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
      */
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalDetails storage details = _proposalDetails[proposalId];
-        return quorum(proposalSnapshot(proposalId)) < details.forVotes;
+        return quorum(proposalSnapshot(proposalId)) <= details.forVotes;
     }
 
     /**

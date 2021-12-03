@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.3.2 (governance/Governor.sol)
+// OpenZeppelin Contracts v4.4.0 (governance/Governor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -110,23 +110,36 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * @dev See {IGovernor-state}.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
-        ProposalCore memory proposal = _proposals[proposalId];
+        ProposalCore storage proposal = _proposals[proposalId];
 
         if (proposal.executed) {
             return ProposalState.Executed;
-        } else if (proposal.canceled) {
+        }
+
+        if (proposal.canceled) {
             return ProposalState.Canceled;
-        } else if (proposal.voteStart.getDeadline() >= block.number) {
-            return ProposalState.Pending;
-        } else if (proposal.voteEnd.getDeadline() >= block.number) {
-            return ProposalState.Active;
-        } else if (proposal.voteEnd.isExpired()) {
-            return
-                _quorumReached(proposalId) && _voteSucceeded(proposalId)
-                    ? ProposalState.Succeeded
-                    : ProposalState.Defeated;
-        } else {
+        }
+
+        uint256 snapshot = proposalSnapshot(proposalId);
+
+        if (snapshot == 0) {
             revert("Governor: unknown proposal id");
+        }
+
+        if (snapshot >= block.number) {
+            return ProposalState.Pending;
+        }
+
+        uint256 deadline = proposalDeadline(proposalId);
+
+        if (deadline >= block.number) {
+            return ProposalState.Active;
+        }
+
+        if (_quorumReached(proposalId) && _voteSucceeded(proposalId)) {
+            return ProposalState.Succeeded;
+        } else {
+            return ProposalState.Defeated;
         }
     }
 
@@ -345,6 +358,20 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         emit VoteCast(account, proposalId, support, weight, reason);
 
         return weight;
+    }
+
+    /**
+     * @dev Relays a transaction or function call to an arbitrary target. In cases where the governance executor
+     * is some contract other than the governor itself, like when using a timelock, this function can be invoked
+     * in a governance proposal to recover tokens or Ether that was sent to the governor contract by mistake.
+     * Note that if the executor is simply the governor itself, use of `relay` is redundant.
+     */
+    function relay(
+        address target,
+        uint256 value,
+        bytes calldata data
+    ) external onlyGovernance {
+        Address.functionCallWithValue(target, data, value);
     }
 
     /**

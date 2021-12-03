@@ -40,6 +40,11 @@ TIP: If you're new to smart contract development, head to xref:learn::developing
 
 To keep your system secure, you should **always** use the installed code as-is, and neither copy-paste it from online sources, nor modify it yourself. The library is designed so that only the contracts and functions you use are deployed, so you don't need to worry about it needlessly increasing gas costs.
 
+[[security]]
+== Security
+
+Please report any security issues you find via our https://www.immunefi.com/bounty/openzeppelin[bug bounty program on Immunefi] or directly to security@openzeppelin.org.
+
 [[next-steps]]
 == Learn More
 
