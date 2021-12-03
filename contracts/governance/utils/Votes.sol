@@ -29,8 +29,8 @@ abstract contract Votes is Context, IVotes, EIP712 {
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
-    mapping(address => address) private _delegateCheckpoints;
-    mapping(address => Checkpoints.History) private _userCheckpoints;
+    mapping(address => address) private _delegation;
+    mapping(address => Checkpoints.History) private _delegateCheckpoints;
     Checkpoints.History private _totalCheckpoints;
 
     mapping(address => Counters.Counter) private _nonces;
@@ -49,14 +49,14 @@ abstract contract Votes is Context, IVotes, EIP712 {
      * @dev Returns total amount of votes for account.
      */
     function getVotes(address account) public view virtual override returns (uint256) {
-        return _userCheckpoints[account].latest();
+        return _delegateCheckpoints[account].latest();
     }
 
     /**
      * @dev Returns total amount of votes at given blockNumber.
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return _userCheckpoints[account].getAtBlock(blockNumber);
+        return _delegateCheckpoints[account].getAtBlock(blockNumber);
     }
 
     /**
@@ -83,7 +83,7 @@ abstract contract Votes is Context, IVotes, EIP712 {
      * @dev Returns account delegation.
      */
     function delegates(address account) public view virtual override returns (address) {
-        return _delegateCheckpoints[account];
+        return _delegation[account];
     }
 
     /**
@@ -123,7 +123,7 @@ abstract contract Votes is Context, IVotes, EIP712 {
      */
     function _delegate(address delegator, address newDelegation) internal virtual {
         address oldDelegation = delegates(delegator);
-        _delegateCheckpoints[delegator] = newDelegation;
+        _delegation[delegator] = newDelegation;
 
         emit DelegateChanged(delegator, oldDelegation, newDelegation);
 
@@ -142,13 +142,13 @@ abstract contract Votes is Context, IVotes, EIP712 {
             if (from == address(0)) {
                 _totalCheckpoints.push(_add, amount);
             } else {
-                (uint256 oldValue, uint256 newValue) = _userCheckpoints[from].push(_subtract, amount);
+                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(_subtract, amount);
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
             if (to == address(0)) {
                 _totalCheckpoints.push(_subtract, amount);
             } else {
-                (uint256 oldValue, uint256 newValue) = _userCheckpoints[to].push(_add, amount);
+                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(_add, amount);
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
         }
