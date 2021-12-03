@@ -133,7 +133,7 @@ import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-solidity/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
 
 contract MyToken is ERC721Votes {
-    constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}
+    constructor() ERC721("MyToken", "MTK") EIP712("MyToken", "1") {}
 
     // The functions below are overrides required by Solidity.
 
