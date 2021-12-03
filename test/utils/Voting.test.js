@@ -14,7 +14,7 @@ contract('Voting', function (accounts) {
     expect(await this.voting.getTotalVotes()).to.be.bignumber.equal('0');
   });
 
-  describe.only('move voting power', function () {
+  describe('move voting power', function () {
     beforeEach(async function () {
       this.tx1 = await this.voting.giveVotingPower(account1, 1);
       this.tx2 = await this.voting.giveVotingPower(account2, 1);
