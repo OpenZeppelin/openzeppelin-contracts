@@ -22,7 +22,7 @@ import "../../utils/cryptography/draft-EIP712.sol";
  * When using this module, the derived contract must implement {_getDelegatorVotingPower}, and can use {_moveVotingPower}
  * when a delegator's voting power is changed.
  */
-abstract contract Votes is Context, IVotes, EIP712 {
+abstract contract Votes is IVotes, Context, EIP712 {
     using Checkpoints for Checkpoints.History;
     using Counters for Counters.Counter;
 
