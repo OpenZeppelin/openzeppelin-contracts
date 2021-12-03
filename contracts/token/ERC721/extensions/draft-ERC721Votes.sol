@@ -26,12 +26,6 @@ import "../../../utils/cryptography/ECDSA.sol";
  * _Available since v4.5._
  */
 abstract contract ERC721Votes is ERC721, Votes {
-    /**
-     * @dev Returns total amount of votes at given position.
-     */
-    function getPastVotes(address account, uint256 timestamp) external view returns (uint256) {
-        return _getPastVotes(account, timestamp);
-    }
 
     /**
      * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).

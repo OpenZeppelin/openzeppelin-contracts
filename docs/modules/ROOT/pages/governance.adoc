@@ -129,8 +129,8 @@ If your project requires The voting power of each account in our governance setu
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-import "openzeppelin-solidity/contracts/token/ERC721/ERC721.sol";
-import "openzeppelin-solidity/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
+import "openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
 
 contract MyToken is ERC721Votes {
     constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}

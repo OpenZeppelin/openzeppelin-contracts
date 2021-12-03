@@ -13,16 +13,12 @@ contract CheckpointsImpl {
         return _totalCheckpoints.length();
     }
 
-    function at(uint256 pos) public view returns (Checkpoints.Checkpoint memory) {
-        return _totalCheckpoints.at(pos);
-    }
-
     function latest() public view returns (uint256) {
         return _totalCheckpoints.latest();
     }
 
-    function past(uint256 index) public view returns (uint256) {
-        return _totalCheckpoints.past(index);
+    function past(uint256 blockNumber) public view returns (uint256) {
+        return _totalCheckpoints.getAtBlock(blockNumber);
     }
 
     function push(uint256 value) public returns (uint256, uint256) {
