@@ -25,8 +25,8 @@ methods {
 
     getVotes(address, uint256) returns uint256 => DISPATCHER(true)
 
-    getPastTotalSupply(uint256) returns uint256    => NONDET
-    getPastVotes(address, uint256) returns uint256 => NONDET
+    getPastTotalSupply(uint256 t) returns uint256      => PER_CALLEE_CONSTANT
+    getPastVotes(address a, uint256 t) returns uint256 => PER_CALLEE_CONSTANT
 
     //scheduleBatch(address[],uint256[],bytes[],bytes32,bytes32,uint256) => DISPATCHER(true)
     //executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => DISPATCHER(true)
