@@ -146,17 +146,15 @@ abstract contract Votes is Context, EIP712 {
         uint256 amount
     ) internal virtual{
         if (from != to && amount > 0) {
-            if (to == address(0) && from != address(0)) {
-                _totalCheckpoints.push(_subtract, amount);
-            } else if (from == address(0) && to != address(0)) {
+            if (from == address(0)) {
                 _totalCheckpoints.push(_add, amount);
-            }
-
-            if (from != address(0)) {
+            } else {
                 (uint256 oldValue, uint256 newValue) = _userCheckpoints[from].push(_subtract, amount);
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
-            if (to != address(0)) {
+            if (to == address(0)) {
+                _totalCheckpoints.push(_subtract, amount);
+            } else {
                 (uint256 oldValue, uint256 newValue) = _userCheckpoints[to].push(_add, amount);
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
