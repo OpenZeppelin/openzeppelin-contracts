@@ -9,8 +9,8 @@ import "./math/SafeCast.sol";
  */
 library Checkpoints {
     struct Checkpoint {
-        uint32 index;
-        uint224 value;
+        uint32 _blockNumber;
+        uint224 _value;
     }
 
     struct History {
@@ -25,50 +25,43 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns checkpoints at given position.
-     */
-    function at(History storage self, uint256 pos) internal view returns (Checkpoint memory) {
-        return self._checkpoints[pos];
-    }
-
-    /**
      * @dev Returns total amount of checkpoints.
      */
     function latest(History storage self) internal view returns (uint256) {
-        uint256 pos = length(self);
-        return pos == 0 ? 0 : at(self, pos - 1).value;
+        uint256 pos = self._checkpoints.length;
+        return pos == 0 ? 0 : self._checkpoints[pos - 1]._value;
     }
 
     /**
      * @dev Returns checkpoints at given block number.
      */
-    function past(History storage self, uint256 index) internal view returns (uint256) {
-        require(index < block.number, "block not yet mined");
+    function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
+        require(blockNumber < block.number, "block not yet mined");
 
-        uint256 high = length(self);
+        uint256 high = self._checkpoints.length;
         uint256 low = 0;
         while (low < high) {
             uint256 mid = Math.average(low, high);
-            if (at(self, mid).index > index) {
+            if (self._checkpoints[mid]._blockNumber > blockNumber) {
                 high = mid;
             } else {
                 low = mid + 1;
             }
         }
-        return high == 0 ? 0 : at(self, high - 1).value;
+        return high == 0 ? 0 : self._checkpoints[high - 1]._value;
     }
 
     /**
      * @dev Creates checkpoint
      */
     function push(History storage self, uint256 value) internal returns (uint256, uint256) {
-        uint256 pos = length(self);
+        uint256 pos = self._checkpoints.length;
         uint256 old = latest(self);
-        if (pos > 0 && self._checkpoints[pos - 1].index == block.number) {
-            self._checkpoints[pos - 1].value = SafeCast.toUint224(value);
+        if (pos > 0 && self._checkpoints[pos - 1]._blockNumber == block.number) {
+            self._checkpoints[pos - 1]._value = SafeCast.toUint224(value);
         } else {
             self._checkpoints.push(
-                Checkpoint({index: SafeCast.toUint32(block.number), value: SafeCast.toUint224(value)})
+                Checkpoint({_blockNumber: SafeCast.toUint32(block.number), _value: SafeCast.toUint224(value)})
             );
         }
         return (old, value);

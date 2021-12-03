@@ -16,25 +16,19 @@ contract('Checkpoints', function (accounts) {
     expect(await this.checkpoint.length()).to.be.bignumber.equal('3');
   });
 
-  it('calls at', async function () {
-    expect((await this.checkpoint.at(0))[1]).to.be.bignumber.equal('1');
-    expect((await this.checkpoint.at(1))[1]).to.be.bignumber.equal('2');
-    expect((await this.checkpoint.at(2))[1]).to.be.bignumber.equal('3');
-  });
-
   it('calls latest', async function () {
     expect(await this.checkpoint.latest()).to.be.bignumber.equal('3');
   });
 
-  it('calls past', async function () {
-    expect(await this.checkpoint.past(this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-    expect(await this.checkpoint.past(this.tx2.receipt.blockNumber - 1)).to.be.bignumber.equal('1');
-    expect(await this.checkpoint.past(this.tx3.receipt.blockNumber - 1)).to.be.bignumber.equal('2');
+  it('calls getAtBlock', async function () {
+    expect(await this.checkpoint.getAtBlock(this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+    expect(await this.checkpoint.getAtBlock(this.tx2.receipt.blockNumber - 1)).to.be.bignumber.equal('1');
+    expect(await this.checkpoint.getAtBlock(this.tx3.receipt.blockNumber - 1)).to.be.bignumber.equal('2');
   });
 
   it('reverts if block number >= current block', async function () {
     await expectRevert(
-      this.checkpoint.past(this.tx3.receipt.blockNumber + 1),
+      this.checkpoint.getAtBlock(this.tx3.receipt.blockNumber + 1),
       'block not yet mined',
     );
   });

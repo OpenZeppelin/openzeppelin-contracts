@@ -20,7 +20,7 @@ The ERC20 extension to keep track of votes and vote delegation is one such case.
 
 === ERC721Votes
 
-The ERC721 extension to keep track of votes and vote delegation is one such case. 
+The ERC721 extension to keep track of votes and vote delegation is one such case.
 
 === Governor & GovernorCompatibilityBravo
 
@@ -129,19 +129,20 @@ If your project requires The voting power of each account in our governance setu
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
+import "openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
 
 contract MyToken is ERC721Votes {
-    constructor() ERC721Votes("MyToken", "MTK"){}
+    constructor() ERC721("MyToken", "MTK") EIP712("MyToken", "1") {}
 
     // The functions below are overrides required by Solidity.
 
     function _afterTokenTransfer(
         address from,
-        address to
+        address to,
+        uint256 tokenId
     ) internal override(ERC721Votes) {
-        super._afterTokenTransfer(from, to);
+        super._afterTokenTransfer(from, to, tokenId);
     }
 
     function _mint(address to, uint256 tokenId) internal override(ERC721Votes) {
@@ -189,7 +190,7 @@ import "./governance/extensions/GovernorVotesQuorumFraction.sol";
 import "./governance/extensions/GovernorTimelockControl.sol";
 
 contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
-    constructor(ERC20Votes _token, TimelockController _timelock)
+    constructor(IVotes _token, TimelockController _timelock)
         Governor("MyGovernor")
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
@@ -331,7 +332,7 @@ This will create a new proposal, with a proposal id that is obtained by hashing 
 
 === Cast a Vote
 
-Once a proposal is active, stakeholders can cast their vote. This is done through a function in the Governor contract that users can invoke directly from a governance UI such as Tally. 
+Once a proposal is active, stakeholders can cast their vote. This is done through a function in the Governor contract that users can invoke directly from a governance UI such as Tally.
 
 image::tally-vote.png[Voting in Tally]
 

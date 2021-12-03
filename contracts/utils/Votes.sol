@@ -4,21 +4,34 @@ pragma solidity ^0.8.0;
 import "./Context.sol";
 import "./Counters.sol";
 import "./Checkpoints.sol";
+import "../interfaces/IVotes.sol";
 import "./cryptography/draft-EIP712.sol";
 
 /**
  * @dev Voting operations.
+ *
+ * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
+ * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
+ * power can be queried through {getVotes}.
+ *
+ * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it
+ * requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
+ * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
+ * will significantly increase the base gas cost of transfers.
+ *
+ * When using this module, the derived contract must implement {_getDelegatorVotingPower}, and can use {_moveVotingPower}
+ * when a delegator's voting power is changed.
  */
-abstract contract Votes is Context, EIP712 {
+abstract contract Votes is Context, EIP712, IVotes {
     using Checkpoints for Checkpoints.History;
     using Counters for Counters.Counter;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
-    mapping(address => address) _delegation;
-    mapping(address => Checkpoints.History) _userCheckpoints;
+    mapping(address => address) private _delegateCheckpoints;
+    mapping(address => Checkpoints.History) private _userCheckpoints;
     mapping(address => Counters.Counter) private _nonces;
-    Checkpoints.History _totalCheckpoints;
+    Checkpoints.History private _totalCheckpoints;
 
     /**
      * @dev Emitted when an account changes their delegate.
@@ -33,15 +46,15 @@ abstract contract Votes is Context, EIP712 {
     /**
      * @dev Returns total amount of votes for account.
      */
-    function getVotes(address account) public view returns (uint256) {
+    function getVotes(address account) public view virtual override returns (uint256) {
         return _userCheckpoints[account].latest();
     }
 
     /**
-     * @dev Returns total amount of votes at given position.
+     * @dev Returns total amount of votes at given blockNumber.
      */
-    function _getPastVotes(address account, uint256 timestamp) internal view returns (uint256) {
-        return _userCheckpoints[account].past(timestamp);
+    function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
+        return _userCheckpoints[account].getAtBlock(blockNumber);
     }
 
     /**
@@ -52,49 +65,38 @@ abstract contract Votes is Context, EIP712 {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber) public view returns (uint256) {
+    function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC721Votes: block not yet mined");
-        return _totalCheckpoints.past(blockNumber);
-    }
-
-    /**
-     * @dev Get checkpoint for `account` for specific position.
-     */
-    function _getTotalAccountVotesAt(address account, uint32 pos)
-        internal
-        view
-        returns (Checkpoints.Checkpoint memory)
-    {
-        return _userCheckpoints[account].at(pos);
+        return _totalCheckpoints.getAtBlock(blockNumber);
     }
 
     /**
      * @dev Returns total amount of votes.
      */
-    function _getTotalVotes() internal view returns (uint256) {
+    function _getTotalVotes() internal view virtual returns (uint256) {
         return _totalCheckpoints.latest();
     }
 
     /**
      * @dev Get number of checkpoints for `account` including delegation.
      */
-    function _getTotalAccountVotes(address account) internal view returns (uint256) {
+    function _getTotalAccountVotes(address account) internal view virtual returns (uint256) {
         return _userCheckpoints[account].length();
     }
 
     /**
      * @dev Delegate votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee) public virtual {
+    function delegate(address delegatee) public virtual override {
         address delegator = _msgSender();
-        _delegate(delegator, delegatee, _getDelegatorVotes(delegator));
+        _delegate(delegator, delegatee);
     }
 
     /**
      * @dev Returns account delegation.
      */
-    function delegates(address account) public view returns (address) {
-        return _delegation[account];
+    function delegates(address account) public view virtual override returns (address) {
+        return _delegateCheckpoints[account];
     }
 
     /**
@@ -102,43 +104,13 @@ abstract contract Votes is Context, EIP712 {
      *
      * Emits events {DelegateChanged} and {DelegateVotesChanged}.
      */
-    function _delegate(
-        address account,
-        address newDelegation,
-        uint256 balance
-    ) internal {
-        address oldDelegation = delegates(account);
-        _delegation[account] = newDelegation;
+    function _delegate(address delegator, address newDelegation) internal virtual {
+        address oldDelegation = delegates(delegator);
+        _delegateCheckpoints[delegator] = newDelegation;
 
-        emit DelegateChanged(account, oldDelegation, newDelegation);
+        emit DelegateChanged(delegator, oldDelegation, newDelegation);
 
-        _moveVotingPower(oldDelegation, newDelegation, balance);
-    }
-
-    /**
-     * @dev Moves voting power.
-     */
-    function _moveVotingPower(
-        address src,
-        address dst,
-        uint256 amount
-    ) internal {
-        if (src != dst && amount > 0) {
-            if (dst == address(0) && src != address(0)) {
-                _totalCheckpoints.push(_subtract, amount);
-            } else if (src == address(0) && dst != address(0)) {
-                _totalCheckpoints.push(_add, amount);
-            }
-
-            if (src != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _userCheckpoints[src].push(_subtract, amount);
-                emit DelegateVotesChanged(src, oldValue, newValue);
-            }
-            if (dst != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _userCheckpoints[dst].push(_add, amount);
-                emit DelegateVotesChanged(dst, oldValue, newValue);
-            }
-        }
+        _moveVotingPower(oldDelegation, newDelegation, _getDelegatorVotingPower(delegator));
     }
 
     /**
@@ -151,7 +123,7 @@ abstract contract Votes is Context, EIP712 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual {
+    ) public virtual override {
         require(block.timestamp <= expiry, "ERC721Votes: signature expired");
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
@@ -160,7 +132,31 @@ abstract contract Votes is Context, EIP712 {
             s
         );
         require(nonce == _useNonce(signer), "ERC721Votes: invalid nonce");
-        _delegate(signer, delegatee, _getDelegatorVotes(signer));
+        _delegate(signer, delegatee);
+    }
+
+    /**
+     * @dev Moves voting power.
+     */
+    function _moveVotingPower(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {
+        if (from != to && amount > 0) {
+            if (from == address(0)) {
+                _totalCheckpoints.push(_add, amount);
+            } else {
+                (uint256 oldValue, uint256 newValue) = _userCheckpoints[from].push(_subtract, amount);
+                emit DelegateVotesChanged(from, oldValue, newValue);
+            }
+            if (to == address(0)) {
+                _totalCheckpoints.push(_subtract, amount);
+            } else {
+                (uint256 oldValue, uint256 newValue) = _userCheckpoints[to].push(_add, amount);
+                emit DelegateVotesChanged(to, oldValue, newValue);
+            }
+        }
     }
 
     /**
@@ -206,5 +202,5 @@ abstract contract Votes is Context, EIP712 {
     /**
      * @dev Returns the balance of the delegator account
      */
-    function _getDelegatorVotes(address) internal virtual returns (uint256);
+    function _getDelegatorVotingPower(address) internal virtual returns (uint256);
 }

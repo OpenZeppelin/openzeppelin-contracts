@@ -29,15 +29,12 @@ contract('Voting', function (accounts) {
     });
 
     it('delegates', async function () {
-      await this.voting.delegate(account3, account2, 1);
+      await this.voting.delegate(account3, account2);
 
       expect(await this.voting.delegates(account3)).to.be.equal(account2);
     });
 
     it('returns amount of votes for account', async function () {
-      const Checkpoint = await this.voting.getTotalAccountVotesAt(account1, 0);
-
-      expect(Checkpoint[1]).to.be.bignumber.equal('1');
       expect(await this.voting.getTotalAccountVotes(account1)).to.be.bignumber.equal('1');
     });
   });

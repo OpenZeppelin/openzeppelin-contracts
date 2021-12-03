@@ -84,10 +84,6 @@ contract('ERC721Votes', function (accounts) {
     );
   });
 
-  it('returns max supply', async function () {
-    expect(await this.token.maxSupply()).to.be.bignumber;
-  });
-
   describe('set delegation', function () {
     describe('call', function () {
       it('delegation with tokens', async function () {
