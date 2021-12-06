@@ -60,7 +60,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
     }
 
     /**
-     * @dev Retrieve the `totalVotingPower` at the end of `blockNumber`. Note, this value is the sum of all balances.
+     * @dev Retrieve the votes total supply at the end of `blockNumber`. Note, this value is the sum of all balances.
      * It is but NOT the sum of all the delegated votes!
      *
      * Requirements:
