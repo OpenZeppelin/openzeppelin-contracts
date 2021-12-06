@@ -185,8 +185,9 @@ abstract contract Votes is IVotes, Context, EIP712 {
     }
 
     /**
-     * @dev "Consume a nonce": return the current value and increment.
+     * @dev Consumes a nonce.
      *
+     * Returns the current value and increments nonce.
      */
     function _useNonce(address owner) internal virtual returns (uint256 current) {
         Counters.Counter storage nonce = _nonces[owner];

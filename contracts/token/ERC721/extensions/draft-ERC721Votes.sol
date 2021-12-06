@@ -7,7 +7,7 @@ import "../ERC721.sol";
 import "../../../governance/utils/Votes.sol";
 
 /**
- * @dev Extension of ERC721 to support voting and delegation. Each individual NFT counts for 1 vote.
+ * @dev Extension of ERC721 to support voting and delegation, where each individual NFT counts as 1 vote.
  *
  * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the `delegate` function directly, or by providing a signature to be used with `delegateBySig`. Voting
