@@ -8,7 +8,8 @@ import "./IVotes.sol";
 import "../../utils/cryptography/draft-EIP712.sol";
 
 /**
- * @dev Voting operations.
+ * @dev This is a base abstract contract that tracks voting power for a set of accounts with a vote delegation system.
+ * It can be combined with a token contract to represent voting power as the token unit, see {ERC721Votes}.
  *
  * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
@@ -19,8 +20,10 @@ import "../../utils/cryptography/draft-EIP712.sol";
  * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
  * will significantly increase the base gas cost of transfers.
  *
- * When using this module, the derived contract must implement {_getDelegatorVotingPower}, and can use {_moveVotingPower}
+ * When using this module, the derived contract must implement {_getDelegatorVotingPower}, and can use {_transferVotingAssets}
  * when a delegator's voting power is changed.
+ *
+ * _Available since v4.5._
  */
 abstract contract Votes is IVotes, Context, EIP712 {
     using Checkpoints for Checkpoints.History;
@@ -53,7 +56,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
     }
 
     /**
-     * @dev Returns total amount of votes at given blockNumber.
+     * @dev Returns total amount of votes at given blockNumber for account.
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         return _delegateCheckpoints[account].getAtBlock(blockNumber);
@@ -184,7 +187,6 @@ abstract contract Votes is IVotes, Context, EIP712 {
     /**
      * @dev "Consume a nonce": return the current value and increment.
      *
-     * _Available since v4.1._
      */
     function _useNonce(address owner) internal virtual returns (uint256 current) {
         Counters.Counter storage nonce = _nonces[owner];

@@ -5,7 +5,11 @@ import "./math/Math.sol";
 import "./math/SafeCast.sol";
 
 /**
- * @dev Checkpoints operations.
+ * @dev This library defines the `History` struct, for checkpointing values as they change at different points in
+ * time, and later looking up past values by block number. See {Votes}.
+ *
+ * To create a history of checkpoints define a variable type `Checkpoints.History` in your contract. Using the
+ * {push} function you can store checkpoints corresponding to the current transaction block.
  */
 library Checkpoints {
     struct Checkpoint {
