@@ -453,7 +453,7 @@ contract('ERC721Votes', function (accounts) {
 
     it('returns the same total supply on transfers', async function () {
       await this.token.delegate(holder, { from: holder });
-      await this.token.delegate(recipient, { from: recipient });
+      //await this.token.delegate(recipient, { from: recipient });
 
       const { receipt } = await this.token.transferFrom(holder, recipient, NFT0, { from: holder });
 

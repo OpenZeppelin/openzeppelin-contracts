@@ -5,7 +5,13 @@ import "./math/Math.sol";
 import "./math/SafeCast.sol";
 
 /**
- * @dev Checkpoints operations.
+ * @dev This library defines the `History` struct, for checkpointing values as they change at different points in
+ * time, and later looking up past values by block number. See {Votes}.
+ *
+ * To create a history of checkpoints define a variable type `Checkpoints.History` in your contract, and store new
+ * checkpoints or the current transaction block using the {push} function.
+ *
+ * _Available since v4.5._
  */
 library Checkpoints {
     struct Checkpoint {
@@ -45,7 +51,10 @@ library Checkpoints {
     }
 
     /**
-     * @dev Creates checkpoint
+     * @dev Creates checkpoint if History is `empty`, or if the current `blockNumber` is higher than the latest
+     * position `_blockNumber`, otherwise will change the stored value for current block.
+     *
+     * Returns previous value and current value.
      */
     function push(History storage self, uint256 value) internal returns (uint256, uint256) {
         uint256 pos = self._checkpoints.length;
@@ -61,7 +70,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Creates checkpoint
+     * @dev Creates checkpoint using the given `op` to compute `value`.
      */
     function push(
         History storage self,

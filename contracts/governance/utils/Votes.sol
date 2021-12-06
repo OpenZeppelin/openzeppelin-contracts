@@ -4,11 +4,12 @@ pragma solidity ^0.8.0;
 import "../../utils/Context.sol";
 import "../../utils/Counters.sol";
 import "../../utils/Checkpoints.sol";
-import "./IVotes.sol";
 import "../../utils/cryptography/draft-EIP712.sol";
+import "./IVotes.sol";
 
 /**
- * @dev Voting operations.
+ * @dev This is a base abstract contract that tracks voting power for a set of accounts with a vote delegation system.
+ * It can be combined with a token contract to represent voting power as the token unit, see {ERC721Votes}.
  *
  * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
@@ -19,8 +20,10 @@ import "../../utils/cryptography/draft-EIP712.sol";
  * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
  * will significantly increase the base gas cost of transfers.
  *
- * When using this module, the derived contract must implement {_getDelegatorVotingPower}, and can use {_moveVotingPower}
+ * When using this module, the derived contract must implement {_getDelegatorVotingPower}, and can use {_transferVotingAssets}
  * when a delegator's voting power is changed.
+ *
+ * _Available since v4.5._
  */
 abstract contract Votes is IVotes, Context, EIP712 {
     using Checkpoints for Checkpoints.History;
@@ -53,14 +56,14 @@ abstract contract Votes is IVotes, Context, EIP712 {
     }
 
     /**
-     * @dev Returns total amount of votes at given blockNumber.
+     * @dev Returns total amount of votes at given blockNumber for account.
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         return _delegateCheckpoints[account].getAtBlock(blockNumber);
     }
 
     /**
-     * @dev Retrieve the `totalVotingPower` at the end of `blockNumber`. Note, this value is the sum of all balances.
+     * @dev Retrieve the votes total supply at the end of `blockNumber`. Note, this value is the sum of all balances.
      * It is but NOT the sum of all the delegated votes!
      *
      * Requirements:
@@ -75,7 +78,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
     /**
      * @dev Returns total amount of votes.
      */
-    function _getTotalVotes() internal view virtual returns (uint256) {
+    function _getTotalSupply() internal view virtual returns (uint256) {
         return _totalCheckpoints.latest();
     }
 
@@ -131,23 +134,36 @@ abstract contract Votes is IVotes, Context, EIP712 {
     }
 
     /**
+     * @dev Transfers voting assets.
+     */
+    function _transferVotingAssets(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {
+        if (from == address(0)) {
+            _totalCheckpoints.push(_add, amount);
+        }
+        if (to == address(0)) {
+            _totalCheckpoints.push(_subtract, amount);
+        }
+        _moveVotingPower(delegates(from), delegates(to), amount);
+    }
+
+    /**
      * @dev Moves voting power.
      */
     function _moveVotingPower(
         address from,
         address to,
         uint256 amount
-    ) internal virtual {
+    ) private {
         if (from != to && amount > 0) {
-            if (from == address(0)) {
-                _totalCheckpoints.push(_add, amount);
-            } else {
+            if (from != address(0)) {
                 (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(_subtract, amount);
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
-            if (to == address(0)) {
-                _totalCheckpoints.push(_subtract, amount);
-            } else {
+            if (to != address(0)) {
                 (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(_add, amount);
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
@@ -169,9 +185,9 @@ abstract contract Votes is IVotes, Context, EIP712 {
     }
 
     /**
-     * @dev "Consume a nonce": return the current value and increment.
+     * @dev Consumes a nonce.
      *
-     * _Available since v4.1._
+     * Returns the current value and increments nonce.
      */
     function _useNonce(address owner) internal virtual returns (uint256 current) {
         Counters.Counter storage nonce = _nonces[owner];

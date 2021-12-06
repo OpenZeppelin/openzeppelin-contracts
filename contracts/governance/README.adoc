@@ -22,8 +22,6 @@ Votes modules determine the source of voting power, and sometimes quorum number.
 
 * {GovernorVotes}: Extracts voting weight from an {ERC20Votes} token.
 
-* {GovernorVotesERC721}: Extracts voting weight from an {ERC721Votes} token.
-
 * {GovernorVotesComp}: Extracts voting weight from a COMP-like or {ERC20VotesComp} token.
 
 * {GovernorVotesQuorumFraction}: Combines with `GovernorVotes` to set the quorum as a fraction of the total token supply.
@@ -86,11 +84,16 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorProposalThreshold}}
 
+== Utils
+
+{{Votes}}
+
 == Timelock
 
 In a governance system, the {TimelockController} contract is in charge of introducing a delay between a proposal and its execution. It can be used with or without a {Governor}.
 
 {{TimelockController}}
+
 
 [[timelock-terminology]]
 ==== Terminology
