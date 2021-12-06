@@ -32,8 +32,8 @@ abstract contract ERC721Votes is ERC721, Votes {
         address to,
         uint256 tokenId
     ) internal virtual override {
-        super._afterTokenTransfer(from, to, tokenId);
         _transferVotingAssets(from, to, 1);
+        super._afterTokenTransfer(from, to, tokenId);
     }
 
     /**

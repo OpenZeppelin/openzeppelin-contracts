@@ -75,7 +75,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
     /**
      * @dev Returns total amount of votes.
      */
-    function _getTotalVotes() internal view virtual returns (uint256) {
+    function _getTotalSupply() internal view virtual returns (uint256) {
         return _totalCheckpoints.latest();
     }
 

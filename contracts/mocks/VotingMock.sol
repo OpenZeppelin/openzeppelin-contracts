@@ -7,8 +7,8 @@ import "../governance/utils/Votes.sol";
 contract VotesMock is Votes {
     constructor(string memory name) EIP712(name, "1") {}
 
-    function getTotalVotes() public view returns (uint256) {
-        return _getTotalVotes();
+    function getTotalSupply() public view returns (uint256) {
+        return _getTotalSupply();
     }
 
     function delegate(address account, address newDelegation) public {

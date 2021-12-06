@@ -35,7 +35,7 @@ contract('Voting', function (accounts) {
     });
 
     it('returns total amount of votes', async function () {
-      expect(await this.voting.getTotalVotes()).to.be.bignumber.equal('3');
+      expect(await this.voting.getTotalSupply()).to.be.bignumber.equal('3');
     });
   });
 });
