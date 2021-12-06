@@ -228,12 +228,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         _beforeTokenTransfer(sender, recipient, amount);
 
-        uint256 senderBalance = _balances[sender];
+        uint256 senderBalance = balanceOf(sender);
         require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
         unchecked {
-            _balances[sender] = senderBalance - amount;
+            _setBalance(sender, senderBalance - amount);
         }
-        _balances[recipient] += amount;
+        _setBalance(recipient, balanceOf(recipient) + amount);
 
         emit Transfer(sender, recipient, amount);
 
@@ -254,8 +254,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         _beforeTokenTransfer(address(0), account, amount);
 
-        _totalSupply += amount;
-        _balances[account] += amount;
+        _setTotalSupply(totalSupply() + amount);
+        _setBalance(account, balanceOf(account) + amount);
         emit Transfer(address(0), account, amount);
 
         _afterTokenTransfer(address(0), account, amount);
@@ -277,12 +277,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         _beforeTokenTransfer(account, address(0), amount);
 
-        uint256 accountBalance = _balances[account];
+        uint256 accountBalance = balanceOf(account);
         require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
         unchecked {
-            _balances[account] = accountBalance - amount;
+            _setBalance(account, accountBalance - amount);
         }
-        _totalSupply -= amount;
+        _setTotalSupply(totalSupply() - amount);
 
         emit Transfer(account, address(0), amount);
 
@@ -312,6 +312,14 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
+    }
+
+    function _setBalance(address account, uint256 amount) internal virtual {
+        _balances[account] = amount;
+    }
+
+    function _setTotalSupply(uint256 amount) internal virtual {
+        _totalSupply = amount;
     }
 
     /**
