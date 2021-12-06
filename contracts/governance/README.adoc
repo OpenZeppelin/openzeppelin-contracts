@@ -22,8 +22,6 @@ Votes modules determine the source of voting power, and sometimes quorum number.
 
 * {GovernorVotes}: Extracts voting weight from an {ERC20Votes} token.
 
-* {GovernorVotesERC721}: Extracts voting weight from an {ERC721Votes} token.
-
 * {GovernorVotesComp}: Extracts voting weight from a COMP-like or {ERC20VotesComp} token.
 
 * {GovernorVotesQuorumFraction}: Combines with `GovernorVotes` to set the quorum as a fraction of the total token supply.
