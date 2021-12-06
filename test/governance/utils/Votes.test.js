@@ -11,7 +11,7 @@ contract('Voting', function (accounts) {
   });
 
   it('starts with zero votes', async function () {
-    expect(await this.voting.getTotalVotes()).to.be.bignumber.equal('0');
+    expect(await this.voting.getTotalSupply()).to.be.bignumber.equal('0');
   });
 
   describe('move voting power', function () {
