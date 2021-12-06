@@ -131,23 +131,36 @@ abstract contract Votes is IVotes, Context, EIP712 {
     }
 
     /**
+     * @dev Transfers voting assets.
+     */
+    function _transferVotingAssets(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {
+        if (from == address(0)) {
+            _totalCheckpoints.push(_add, amount);
+        }
+        if (to == address(0)) {
+            _totalCheckpoints.push(_subtract, amount);
+        }
+        _moveVotingPower(delegates(from), delegates(to), amount);
+    }
+
+    /**
      * @dev Moves voting power.
      */
     function _moveVotingPower(
         address from,
         address to,
         uint256 amount
-    ) internal virtual {
+    ) private {
         if (from != to && amount > 0) {
-            if (from == address(0)) {
-                _totalCheckpoints.push(_add, amount);
-            } else {
+            if (from != address(0)) {
                 (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(_subtract, amount);
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
-            if (to == address(0)) {
-                _totalCheckpoints.push(_subtract, amount);
-            } else {
+            if (to != address(0)) {
                 (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(_add, amount);
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
