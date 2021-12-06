@@ -4,7 +4,7 @@ const { expect } = require('chai');
 
 const Votes = artifacts.require('VotesMock');
 
-contract('Voting', function (accounts) {
+contract('Votes', function (accounts) {
   const [ account1, account2, account3 ] = accounts;
   beforeEach(async function () {
     this.voting = await Votes.new('MyVote');
@@ -24,7 +24,7 @@ contract('Voting', function (accounts) {
     it('reverts if block number >= current block', async function () {
       await expectRevert(
         this.voting.getPastTotalSupply(this.tx3.receipt.blockNumber + 1),
-        'Checkpoints: block not yet mined',
+        'Votes: block not yet finished',
       );
     });
 

@@ -71,7 +71,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
      * - `blockNumber` must have been already mined
      */
     function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
-        require(blockNumber < block.number, "ERC721Votes: block not yet mined");
+        require(blockNumber < block.number, "Votes: block not yet finished");
         return _totalCheckpoints.getAtBlock(blockNumber);
     }
 
