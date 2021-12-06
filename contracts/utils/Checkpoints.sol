@@ -35,7 +35,7 @@ library Checkpoints {
      * @dev Returns checkpoints at given block number.
      */
     function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
-        require(blockNumber < block.number, "block not yet mined");
+        require(blockNumber < block.number, "Checkpoints: block not yet mined");
 
         uint256 high = self._checkpoints.length;
         uint256 low = 0;
