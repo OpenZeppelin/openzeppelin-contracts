@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 import "../../utils/Context.sol";
 import "../../utils/Counters.sol";
 import "../../utils/Checkpoints.sol";
-import "./IVotes.sol";
 import "../../utils/cryptography/draft-EIP712.sol";
+import "./IVotes.sol";
 
 /**
  * @dev This is a base abstract contract that tracks voting power for a set of accounts with a vote delegation system.
