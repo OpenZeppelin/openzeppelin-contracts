@@ -57,7 +57,7 @@ abstract contract Initializable {
      * @dev Modifier to protect an initializer function from being invoked twice.
      */
     modifier initializer() {
-        require(_initializing ? isConstructor() : !_initialized, "Initializable: contract is already initialized");
+        require(_initializing ? _isConstructor() : !_initialized, "Initializable: contract is already initialized");
 
         bool isTopLevelCall = !_initializing;
         if (isTopLevelCall) {
@@ -72,7 +72,7 @@ abstract contract Initializable {
         }
     }
 
-    function isConstructor() private view returns(bool) {
+    function _isConstructor() private view returns (bool) {
         return !Address.isContract(address(this));
     }
 }
