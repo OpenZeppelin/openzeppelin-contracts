@@ -3,6 +3,7 @@ const { expectRevert } = require('@openzeppelin/test-helpers');
 const { assert } = require('chai');
 
 const InitializableMock = artifacts.require('InitializableMock');
+const ConstructorInitializableMock = artifacts.require('ConstructorInitializableMock');
 const SampleChild = artifacts.require('SampleChild');
 
 contract('Initializable', function (accounts) {
@@ -32,13 +33,36 @@ contract('Initializable', function (accounts) {
     });
 
     context('after nested initialize', function () {
-      beforeEach('initializing', async function () {
-        await this.contract.initializeNested();
+      context('with initializer methods', function () {
+        it('nested initializer reverts', async function () {
+          await expectRevert(this.contract.initializeNested(), 'Initializable: contract is already initialized');
+        });
       });
 
-      it('initializer has run', async function () {
-        assert.isTrue(await this.contract.initializerRan());
+      context('with onlyInitializing methods', function () {
+        beforeEach('initializing', async function () {
+          await this.contract.initializeNested2();
+        });
+
+        it('nested initializer has run', async function () {
+          assert.isTrue(await this.contract.initializerRan2());
+        });
       });
+    });
+
+    it('cannot call onlyInitializable function outside the scope of an initializable function', async function () {
+      await expectRevert(this.contract.initialize2(), 'Initializable: contract is not initializing');
+    });
+  });
+
+  describe('initialization during construction', function () {
+    beforeEach('initializing', async function () {
+      this.contract2 = await ConstructorInitializableMock.new();
+    });
+
+    it('nested initializer can run during construction', async function () {
+      assert.isTrue(await this.contract2.initializerRan());
+      assert.isTrue(await this.contract2.initializerRan2());
     });
   });
 
