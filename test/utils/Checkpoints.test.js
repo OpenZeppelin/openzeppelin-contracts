@@ -13,7 +13,7 @@ contract('Checkpoints', function (accounts) {
     expect(await this.checkpoint.latest()).to.be.bignumber.equal('0');
   });
 
-  describe.only('with checkpoints', function () {
+  describe('with checkpoints', function () {
     beforeEach(async function () {
       this.tx1 = await this.checkpoint.push(1);
       this.tx2 = await this.checkpoint.push(2);
@@ -28,7 +28,8 @@ contract('Checkpoints', function (accounts) {
     it('calls getAtBlock', async function () {
       expect(await this.checkpoint.getAtBlock(this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
       expect(await this.checkpoint.getAtBlock(this.tx2.receipt.blockNumber - 1)).to.be.bignumber.equal('1');
-      expect(await this.checkpoint.getAtBlock(this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');//Block with no new checkpoints
+      // Block with no new checkpoints
+      expect(await this.checkpoint.getAtBlock(this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
       expect(await this.checkpoint.getAtBlock(this.tx3.receipt.blockNumber - 1)).to.be.bignumber.equal('2');
       await time.advanceBlock();
       await time.advanceBlock();
