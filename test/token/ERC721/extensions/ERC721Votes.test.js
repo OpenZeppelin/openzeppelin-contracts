@@ -434,7 +434,7 @@ contract('ERC721Votes', function (accounts) {
     it('reverts if block number >= current block', async function () {
       await expectRevert(
         this.token.getPastTotalSupply(5e10),
-        'ERC721Votes: block not yet mined',
+        'Votes: block not yet mined',
       );
     });
 
