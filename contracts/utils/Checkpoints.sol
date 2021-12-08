@@ -6,10 +6,10 @@ import "./math/SafeCast.sol";
 
 /**
  * @dev This library defines the `History` struct, for checkpointing values as they change at different points in
- * time, and later looking up past values by block number. See {Votes}.
+ * time, and later looking up past values by block number. See {Votes} as an example.
  *
- * To create a history of checkpoints define a variable type `Checkpoints.History` in your contract, and store new
- * checkpoints or the current transaction block using the {push} function.
+ * To create a history of checkpoints define a variable type `Checkpoints.History` in your contract, and store a new
+ * checkpoint for the current transaction block using the {push} function.
  *
  * _Available since v4.5._
  */
@@ -24,7 +24,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the latest checkpoint.
+     * @dev Returns the value in the latest checkpoint, or zero if there are no checkpoints.
      */
     function latest(History storage self) internal view returns (uint256) {
         uint256 pos = self._checkpoints.length;
@@ -32,7 +32,8 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns checkpoints at given block number.
+     * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
+     * before it is returned, or zero otherwise.
      */
     function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
@@ -51,10 +52,9 @@ library Checkpoints {
     }
 
     /**
-     * @dev Creates checkpoint if History is `empty`, or if the current `blockNumber` is higher than the latest
-     * position `_blockNumber`, otherwise will change the stored value for current block.
+     * @dev Pushes a value onto a History so that it is stored as the checkpoint for the current block.
      *
-     * Returns previous value and current value.
+     * Returns previous value and new value.
      */
     function push(History storage self, uint256 value) internal returns (uint256, uint256) {
         uint256 pos = self._checkpoints.length;
@@ -70,7 +70,10 @@ library Checkpoints {
     }
 
     /**
-     * @dev Creates checkpoint using the given `op` to compute `value`.
+     * @dev Pushes a value onto a History, by updating the latest value using binary operation `op`. The new value will
+     * be set to `op(latest, delta)`.
+     *
+     * Returns previous value and new value.
      */
     function push(
         History storage self,
