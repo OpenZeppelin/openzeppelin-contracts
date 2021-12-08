@@ -70,16 +70,13 @@ contract('ERC721Votes', function (accounts) {
     });
 
     it('grants to initial account', async function () {
-      expect(await this.votes.balanceOf(this.account1)).to.be.bignumber.equal('4');
+      expect(await this.votes.balanceOf(account1)).to.be.bignumber.equal('4');
     });
   });
 
   describe('transfers', function () {
     beforeEach(async function () {
       await this.votes.mint(account1, this.NFT0);
-      await this.votes.mint(account1, this.NFT1);
-      await this.votes.mint(account1, this.NFT2);
-      await this.votes.mint(account1, this.NFT3);
     });
 
     it('no delegation', async function () {
@@ -151,6 +148,10 @@ contract('ERC721Votes', function (accounts) {
     });
 
     it('generally returns the voting balance at the appropriate checkpoint', async function () {
+      await this.votes.mint(account1, this.NFT1);
+      await this.votes.mint(account1, this.NFT2);
+      await this.votes.mint(account1, this.NFT3);
+
       const total = await this.votes.balanceOf(account1);
 
       const t1 = await this.votes.delegate(other1, { from: account1 });
