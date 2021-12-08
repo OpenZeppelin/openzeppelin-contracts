@@ -129,7 +129,6 @@ abstract contract Votes is IVotes, Context, EIP712 {
         _delegation[delegator] = newDelegation;
 
         emit DelegateChanged(delegator, oldDelegation, newDelegation);
-
         _moveVotingPower(oldDelegation, newDelegation, _getDelegatorVotingPower(delegator));
     }
 

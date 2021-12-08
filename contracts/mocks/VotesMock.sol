@@ -5,6 +5,9 @@ pragma solidity ^0.8.0;
 import "../governance/utils/Votes.sol";
 
 contract VotesMock is Votes {
+    mapping(address => uint256) private _balances;
+    mapping(uint256 => address) private _owners;
+
     constructor(string memory name) EIP712(name, "1") {}
 
     function getTotalSupply() public view returns (uint256) {
@@ -15,11 +18,23 @@ contract VotesMock is Votes {
         return _delegate(account, newDelegation);
     }
 
-    function _getDelegatorVotingPower(address) internal virtual override returns (uint256) {
-        return 1;
+    function _getDelegatorVotingPower(address account) internal virtual override returns (uint256) {
+        return _balances[account];
     }
 
-    function giveVotingPower(address account, uint8 amount) external {
-        _transferVotingAssets(address(0), account, amount);
+    function mint(address account, uint256 voteId) external {
+        _balances[account] += 1;
+        _owners[voteId] = account;
+        _transferVotingAssets(address(0), account, 1);
+    }
+
+    function burn(uint256 voteId) external {
+        address owner = _owners[voteId];
+        _balances[owner] -= 1;
+        _transferVotingAssets(owner, address(0), 1);
+    }
+
+    function getChainId() external view returns (uint256) {
+        return block.chainid;
     }
 }
