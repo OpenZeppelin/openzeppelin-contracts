@@ -71,7 +71,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
      * - `blockNumber` must have been already mined
      */
     function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
-        require(blockNumber < block.number, "Votes: block not yet finished");
+        require(blockNumber < block.number, "Votes: block not yet mined");
         return _totalCheckpoints.getAtBlock(blockNumber);
     }
 
@@ -108,14 +108,14 @@ abstract contract Votes is IVotes, Context, EIP712 {
         bytes32 r,
         bytes32 s
     ) public virtual override {
-        require(block.timestamp <= expiry, "ERC721Votes: signature expired");
+        require(block.timestamp <= expiry, "Votes: signature expired");
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
             v,
             r,
             s
         );
-        require(nonce == _useNonce(signer), "ERC721Votes: invalid nonce");
+        require(nonce == _useNonce(signer), "Votes: invalid nonce");
         _delegate(signer, delegatee);
     }
 
