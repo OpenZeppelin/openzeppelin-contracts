@@ -36,11 +36,11 @@ contract('Checkpoints', function (accounts) {
 
     it('returns past values', async function () {
       expect(await this.checkpoint.getAtBlock(this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-      expect(await this.checkpoint.getAtBlock(this.tx1.receipt.blockNumber    )).to.be.bignumber.equal('1');
-      expect(await this.checkpoint.getAtBlock(this.tx2.receipt.blockNumber    )).to.be.bignumber.equal('2');
+      expect(await this.checkpoint.getAtBlock(this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
+      expect(await this.checkpoint.getAtBlock(this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
       // Block with no new checkpoints
       expect(await this.checkpoint.getAtBlock(this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
-      expect(await this.checkpoint.getAtBlock(this.tx3.receipt.blockNumber    )).to.be.bignumber.equal('3');
+      expect(await this.checkpoint.getAtBlock(this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
       expect(await this.checkpoint.getAtBlock(this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
     });
 
