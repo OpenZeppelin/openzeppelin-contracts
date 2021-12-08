@@ -40,7 +40,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
       describe('when the recipient is not the zero address', function () {
         const to = anotherAccount;
 
-        describe('when the spender has enough approved balance', function () {
+        describe('when the spender has enough approved allowance', function () {
           beforeEach(async function () {
             await this.token.approve(spender, initialSupply, { from: initialHolder });
           });
@@ -84,37 +84,50 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
           });
 
           describe('when the token owner does not have enough balance', function () {
-            const amount = initialSupply.addn(1);
+            const amount = initialSupply;
+
+            beforeEach('reducing balance', async function () {
+              await this.token.transfer(to, 1, { from: tokenOwner });
+            });
 
             it('reverts', async function () {
-              await expectRevert(this.token.transferFrom(
-                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds balance`,
+              await expectRevert(
+                this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
+                `${errorPrefix}: transfer amount exceeds balance`,
               );
             });
           });
         });
 
-        describe('when the spender does not have enough approved balance', function () {
+        describe('when the spender does not have enough approved allowance', function () {
+          const allowance = initialSupply.subn(1);
+
           beforeEach(async function () {
-            await this.token.approve(spender, initialSupply.subn(1), { from: tokenOwner });
+            await this.token.approve(spender, allowance, { from: tokenOwner });
           });
 
           describe('when the token owner has enough balance', function () {
             const amount = initialSupply;
 
             it('reverts', async function () {
-              await expectRevert(this.token.transferFrom(
-                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds allowance`,
+              await expectRevert(
+                this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
+                `${errorPrefix}: transfer amount exceeds allowance`,
               );
             });
           });
 
           describe('when the token owner does not have enough balance', function () {
-            const amount = initialSupply.addn(1);
+            const amount = allowance;
+
+            beforeEach('reducing balance', async function () {
+              await this.token.transfer(to, initialSupply, { from: tokenOwner });
+            });
 
             it('reverts', async function () {
-              await expectRevert(this.token.transferFrom(
-                tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer amount exceeds balance`,
+              await expectRevert(
+                this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
+                `${errorPrefix}: transfer amount exceeds balance`,
               );
             });
           });
@@ -143,8 +156,9 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
       const to = recipient;
 
       it('reverts', async function () {
-        await expectRevert(this.token.transferFrom(
-          tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer from the zero address`,
+        await expectRevert(
+          this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
+          `${errorPrefix}: approve from the zero address`,
         );
       });
     });
