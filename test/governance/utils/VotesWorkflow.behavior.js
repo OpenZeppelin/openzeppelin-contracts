@@ -17,7 +17,7 @@ const Delegation = [
 const version = '1';
 
 function runVotesWorkflow () {
-  describe.only("run votes workflow", function () {
+  describe('run votes workflow', function () {
     it('initial nonce is 0', async function () {
       expect(await this.votes.nonces(this.account1)).to.be.bignumber.equal('0');
     });
@@ -151,6 +151,7 @@ function runVotesWorkflow () {
     describe('set delegation', function () {
       describe('call', function () {
         it('delegation with tokens', async function () {
+          await this.votes.mint(this.account1, this.NFT0);
           expect(await this.votes.delegates(this.account1)).to.be.equal(ZERO_ADDRESS);
 
           const { receipt } = await this.votes.delegate(this.account1, { from: this.account1 });
@@ -191,6 +192,7 @@ function runVotesWorkflow () {
 
     describe('change delegation', function () {
       beforeEach(async function () {
+        await this.votes.mint(this.account1, this.NFT0);
         await this.votes.delegate(this.account1, { from: this.account1 });
       });
 
@@ -213,13 +215,13 @@ function runVotesWorkflow () {
           previousBalance: '0',
           newBalance: '1',
         });
-
+        const prevBlock = receipt.blockNumber - 1;
         expect(await this.votes.delegates(this.account1)).to.be.equal(this.account1Delegatee);
 
         expect(await this.votes.getVotes(this.account1)).to.be.bignumber.equal('0');
         expect(await this.votes.getVotes(this.account1Delegatee)).to.be.bignumber.equal('1');
         expect(await this.votes.getPastVotes(this.account1, receipt.blockNumber - 1)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastVotes(this.account1Delegatee, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastVotes(this.account1Delegatee, prevBlock)).to.be.bignumber.equal('0');
         await time.advanceBlock();
         expect(await this.votes.getPastVotes(this.account1, receipt.blockNumber)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastVotes(this.account1Delegatee, receipt.blockNumber)).to.be.bignumber.equal('1');
@@ -319,8 +321,9 @@ function runVotesWorkflow () {
           await time.advanceBlock();
           await time.advanceBlock();
           const latest = await this.votes.getVotes(this.account2);
+          const nextBlock = t1.receipt.blockNumber + 1;
           expect(await this.votes.getPastVotes(this.account2, t1.receipt.blockNumber)).to.be.bignumber.equal(latest);
-          expect(await this.votes.getPastVotes(this.account2, t1.receipt.blockNumber + 1)).to.be.bignumber.equal(latest);
+          expect(await this.votes.getPastVotes(this.account2, nextBlock)).to.be.bignumber.equal(latest);
         });
 
         it('returns zero if < first checkpoint block', async function () {
