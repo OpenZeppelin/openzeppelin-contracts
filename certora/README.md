@@ -8,35 +8,32 @@ Documentation for CVT and the specification language are available
 ## Running the verification
 
 The scripts in the `certora/scripts` directory are used to submit verification
-jobs to the Certora verification service. These scripts should be run from the
-root directory; for example by running
-
-```
-sh certora/scripts/WizardFirstPriority.sh <meaningful comment>
-```
-
-After the job is complete, the results will be available on
+jobs to the Certora verification service. After the job is complete, the results will be available on
 [the Certora portal](https://vaas-stg.certora.com/).
 
-The `verifyAll` script runs all spec files agains all contracts in the `certora/harness` that start with `Wizard` meaning that a contract generated in [wizard](https://wizard.openzeppelin.com/#governor). If you want to verify new wizard's instance you also need to give it a name starting with "Wizard..." or "WizardControl..." if you use `TimelockController` and harness this contract. We don't recommend to do it because a list of harnesses may go beyond wizard's contract. Moreover, the set of setting to run the Certora verification service may vary. The main goal of this script is to run all specs written by the team against all contracts properly harnessed.
-
-The `WizardFirstPriority` and `WizardFirstTry` scripts run one of the scripts for the corresponding contract. In order to run another spec you should change spec file name `<specName>` in the script (flag `--verify`):
+These scripts should be run from the root directory; for example by running
 
 ```
---verify WizardFirstPriority:certora/specs/<specName>.spec \
+sh certora/scripts/verifyAll.sh <meaningful comment>
 ```
 
-for example:
+The most important of these is `verifyAll.sh`, which checks
+all of the harnessed contracts (`certora/harness/Wizard*.sol`) against all of
+the specifications (`certora/spec/*.spec`).
+
+The other scripts run a subset of the specifications or the contracts.  You can
+verify different contracts or specifications by changing the `--verify` option,
+and you can run a single rule or method with the `--rule` or `--method` option.
+
+For example, to verify the `WizardFirstPriority` contract against the
+`GovernorCountingSimple` specification, you could change the `--verify` line of
+the `WizardControlFirstPriortity.sh` script to:
 
 ```
 --verify WizardFirstPriority:certora/specs/GovernorCountingSimple.spec \
 ```
 
-
-MENTION TIMEOUTS ISSUES
-
-
-## Adapting to changes
+## Adapting to changes in the contracts
 
 Some of our rules require the code to be simplified in various ways. Our
 primary tool for performing these simplifications is to run verification on a
@@ -46,3 +43,14 @@ These "harness" contracts can be found in the `certora/harness` directory.
 This pattern does require some modifications to the original code: some methods
 need to be made virtual or public, for example. These changes are handled by
 applying a patch to the code before verification.
+
+When one of the `verify` scripts is executed, it first applies the patch file
+`certora/applyHarness.patch` to the `contracts` directory, placing the output
+in the `certora/munged` directory. We then verify the contracts in the
+`certora/munged` directory.
+
+If the original contracts change, it is possible to create a conflict with the
+patch. In this case, the verify scripts will report an error message and output
+rejected changes in the `munged` directory. After merging the changes, run
+`make record` in the `certora` directory; this will regenerate the patch file,
+which can then be checked into git.
