@@ -1,3 +1,5 @@
+make -C certora munged
+
 for f in certora/harnesses/Wizard*.sol
 do
     echo "Processing $f"

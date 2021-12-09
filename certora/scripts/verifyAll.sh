@@ -1,5 +1,7 @@
 #!/bin/bash
 
+make -C certora munged
+
 for contract in certora/harnesses/Wizard*.sol;
 do
     for spec in certora/specs/*.spec;

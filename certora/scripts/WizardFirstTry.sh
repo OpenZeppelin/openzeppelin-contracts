@@ -1,3 +1,5 @@
+make -C certora munged
+
 certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/WizardFirstTry.sol \
     --verify WizardFirstTry:certora/specs/GovernorBase.spec \
     --solc solc8.2 \
