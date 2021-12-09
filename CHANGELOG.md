@@ -7,6 +7,7 @@
 * Preset contracts are now deprecated in favor of [Contracts Wizard](https://wizard.openzeppelin.com). ([#2986](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2986))
  * `Governor`: add a relay function to help recover assets sent to a governor that is not its own executor (e.g. when using a timelock). ([#2926](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2926))
  * `GovernorPreventLateQuorum`: add new module to ensure a minimum voting duration is available after the quorum is reached. ([#2973](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2973))
+ * `ERC721`: improved revert reason when transferring from wrong owner. ([#2975](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2975))
 
 ## 4.4.0 (2021-11-25)
 
