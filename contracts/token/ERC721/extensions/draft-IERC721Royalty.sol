@@ -10,7 +10,7 @@ import "../../../interfaces/IERC165.sol";
  *
  * _Available since v4.5._
  */
-interface IERC721Royalty is IERC165{
+interface IERC721Royalty is IERC165 {
 
     /**
     * @dev Called with the sale price to determine how much royalty

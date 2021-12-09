@@ -4,13 +4,15 @@
 pragma solidity ^0.8.0;
 
 import "./draft-IERC721Royalty.sol";
+import "../../../utils/introspection/ERC165Storage.sol";
+import "hardhat/console.sol";
 
 /**
  * @dev TBD
  *
  * _Available since v4.5._
  */
-abstract contract ERC721Royalty is IERC721Royalty {
+abstract contract ERC721Royalty is IERC721Royalty, ERC165Storage {
     struct RoyaltyInfo {
         address receiver;
         uint256 royaltyAmount;
@@ -30,8 +32,10 @@ abstract contract ERC721Royalty is IERC721Royalty {
         uint256 tokenId,
         address recipient,
         uint256 value
-    ) internal {
-        require(value <= 10000, 'ERC2981Royalties: Too high');
+    ) internal virtual {
+        require(value < 100, 'ERC2981: Royalty percentage is too high');
+        require(recipient != address(0), "ERC2981: Invalid recipient");
+
         _tokenRoyalty[tokenId] = RoyaltyInfo(recipient, value);
     }
 
@@ -39,12 +43,15 @@ abstract contract ERC721Royalty is IERC721Royalty {
     *
     * Requirements:
     * - `recipient` cannot be the zero address.
-    * - `value` must indicate the percentage value using two decimals.
+    * - `value` must indicate the percentage value.
     */
     function _setRoyalty(
         address recipient,
         uint256 value
-    ) internal {
+    ) internal virtual {
+        require(value < 100, 'ERC2981: Royalty percentage is too high');
+        require(recipient != address(0), "ERC2981: Invalid recipient");
+
         _royaltyInfo = RoyaltyInfo(recipient, value);
     }
 
@@ -54,16 +61,17 @@ abstract contract ERC721Royalty is IERC721Royalty {
     function royaltyInfo(
             uint256 _tokenId,
             uint256 _salePrice
-    ) external view returns (
+    ) external view override returns (
             address receiver,
             uint256 royaltyAmount
     ){
         if(_tokenRoyalty[_tokenId].receiver != address(0)){
-            receiver = _tokenRoyalty[_tokenId].receiver;
-            royaltyAmount = (_salePrice * _tokenRoyalty[_tokenId].royaltyAmount) / 10000;
+            RoyaltyInfo memory royalty = _tokenRoyalty[_tokenId];
+            receiver = royalty.receiver;
+            royaltyAmount = (_salePrice * royalty.royaltyAmount) / 100;
         }else{
             receiver = _royaltyInfo.receiver;
-            royaltyAmount = (_salePrice * _royaltyInfo.royaltyAmount) / 10000;
+            royaltyAmount = (_salePrice * _royaltyInfo.royaltyAmount) / 100;
         }
     }
 }
