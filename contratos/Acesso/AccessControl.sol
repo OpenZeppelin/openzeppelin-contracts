@@ -27,7 +27,7 @@ import "../utils/introspection/ERC165.sol";
  * function call, use {hasRole}:
  *
  * ```
- * function foo() public {
+ * function foo() public {terrareal
  *     require(hasRole(MY_ROLE, msg.sender));
  *     ...
  * }
@@ -123,7 +123,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * If `account` had not been already granted `role`, emits a {RoleGranted}
      * event.
      *
-     * Requirements:
+     * Requirements: terrareal
      *
      * - the caller must have ``role``'s admin role.
      */
@@ -136,7 +136,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * If `account` had been granted `role`, emits a {RoleRevoked} event.
      *
-     * Requirements:
+     * Requirements: Cripto moeda
      *
      * - the caller must have ``role``'s admin role.
      */
