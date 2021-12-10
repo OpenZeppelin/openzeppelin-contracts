@@ -8,7 +8,11 @@ import "../../../utils/introspection/ERC165Storage.sol";
 import "hardhat/console.sol";
 
 /**
- * @dev TBD
+ * @dev Implementation of the ERC721 Royalty extension allowing royalty information to be stored and retrieved, as defined in
+ * https://eips.ethereum.org/EIPS/eip-2981[EIP-2981].
+ *
+ * Adds the {_setTokenRoyalty} methods to set the token royalty information, and {_setRoyalty} method to set a global
+ * royalty information.
  *
  * _Available since v4.5._
  */
@@ -21,7 +25,8 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC165Storage {
     RoyaltyInfo private _royaltyInfo;
     mapping(uint256 => RoyaltyInfo) private _tokenRoyalty;
 
-    /*@dev Sets tokens royalties
+    /*
+     * @dev Sets tokens royalties
      *
      * Requirements:
      * - `tokenId` must be already mined.
@@ -39,7 +44,9 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC165Storage {
         _tokenRoyalty[tokenId] = RoyaltyInfo(recipient, value);
     }
 
-    /*@dev Sets global royalty
+    /*
+     *
+     * @dev Sets global royalty
      *
      * Requirements:
      * - `recipient` cannot be the zero address.
