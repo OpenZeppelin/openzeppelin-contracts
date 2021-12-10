@@ -62,7 +62,7 @@ function shouldBehaveLikeVotes () {
 
         const { receipt } = await this.votes.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
         expectEvent(receipt, 'DelegateChanged', {
-          delegator: delegatorAddress,
+          account: delegatorAddress,
           fromDelegate: ZERO_ADDRESS,
           toDelegate: delegatorAddress,
         });
@@ -156,7 +156,7 @@ function shouldBehaveLikeVotes () {
 
           const { receipt } = await this.votes.delegate(this.account1, { from: this.account1 });
           expectEvent(receipt, 'DelegateChanged', {
-            delegator: this.account1,
+            account: this.account1,
             fromDelegate: ZERO_ADDRESS,
             toDelegate: this.account1,
           });
@@ -179,7 +179,7 @@ function shouldBehaveLikeVotes () {
 
           const { receipt } = await this.votes.delegate(this.account1, { from: this.account1 });
           expectEvent(receipt, 'DelegateChanged', {
-            delegator: this.account1,
+            account: this.account1,
             fromDelegate: ZERO_ADDRESS,
             toDelegate: this.account1,
           });
@@ -201,7 +201,7 @@ function shouldBehaveLikeVotes () {
 
         const { receipt } = await this.votes.delegate(this.account1Delegatee, { from: this.account1 });
         expectEvent(receipt, 'DelegateChanged', {
-          delegator: this.account1,
+          account: this.account1,
           fromDelegate: this.account1,
           toDelegate: this.account1Delegatee,
         });
