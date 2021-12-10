@@ -55,15 +55,10 @@ contract('Initializable', function (accounts) {
     });
   });
 
-  describe('initialization during construction', function () {
-    beforeEach('initializing', async function () {
-      this.contract2 = await ConstructorInitializableMock.new();
-    });
-
-    it('nested initializer can run during construction', async function () {
-      assert.isTrue(await this.contract2.initializerRan());
-      assert.isTrue(await this.contract2.initializerRan2());
-    });
+  it('nested initializer can run during construction', async function () {
+    const contract2 = await ConstructorInitializableMock.new();
+    assert.isTrue(await contract2.initializerRan());
+    assert.isTrue(await contract2.initializerRan2());
   });
 
   describe('complex testing with inheritance', function () {
