@@ -72,7 +72,7 @@ library Strings {
         bytes memory buffer = bytes(value);
         for (uint256 i = 0; i < buffer.length; i++) {
             if (buffer[i] >= "a" && buffer[i] <= "z") {
-                buffer[i] = bytes1(uint8(buffer[i]) - 32);
+                buffer[i] ^= 0x20;
             }
         }
         return string(buffer);
@@ -85,7 +85,7 @@ library Strings {
         bytes memory buffer = bytes(value);
         for (uint256 i = 0; i < buffer.length; i++) {
             if (buffer[i] >= "A" && buffer[i] <= "Z") {
-                buffer[i] = bytes1(uint8(buffer[i]) + 32);
+                buffer[i] |= 0x20;
             }
         }
         return string(buffer);
