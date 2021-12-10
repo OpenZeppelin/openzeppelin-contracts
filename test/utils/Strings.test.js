@@ -60,9 +60,8 @@ contract('Strings', function (accounts) {
   describe('toUpper', function () {
     it('converts a lowercase string to an uppercase string', async function () {
       // Start at the character before 'A' and end at the character after 'z'
-      const allChars = '@ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` ' +
+      const allChars = '@ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \\ ] ^ _ ` ' +
                        'a b c d e f g h i j k l m n o p q r s t u v w x y z {';
-
       expect(await this.strings.toUpperMock(allChars))
         .to.equal(allChars.toUpperCase());
     });
@@ -71,9 +70,8 @@ contract('Strings', function (accounts) {
   describe('toLower', function () {
     it('converts a lowercase string to an uppercase string', async function () {
       // Start at the character before 'A' and end at the character after 'z'
-      const allChars = '@ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` ' +
+      const allChars = '@ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \\ ] ^ _ ` ' +
                        'a b c d e f g h i j k l m n o p q r s t u v w x y z {';
-      
       expect(await this.strings.toLowerMock(allChars))
         .to.equal(allChars.toLowerCase());
     });
