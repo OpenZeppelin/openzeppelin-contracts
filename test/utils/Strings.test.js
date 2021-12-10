@@ -68,7 +68,7 @@ contract('Strings', function (accounts) {
                     'Û Ü Ý Þ ß à á â ã ä å æ ç è é ê ë ì í î ï ð ñ ò ó ô õ ö ÷ ø ù ú û ü ý þ ÿ';
 
       expect(await this.contract.toUpper(allChars).to.equal(allChars.toUpperCase()));
-    })
+    });
   });
 
   describe('toLower', function () {
@@ -82,6 +82,6 @@ contract('Strings', function (accounts) {
                     'Û Ü Ý Þ ß à á â ã ä å æ ç è é ê ë ì í î ï ð ñ ò ó ô õ ö ÷ ø ù ú û ü ý þ ÿ';
 
       expect(await this.contract.toLower(allChars).to.equal(allChars.toLowerCase()));
-    })
+    });
   });
 });
