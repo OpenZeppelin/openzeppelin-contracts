@@ -10,23 +10,23 @@ import "../proxy/utils/Initializable.sol";
  */
 contract InitializableMock is Initializable {
     bool public initializerRan;
-    bool public initializerRan2;
+    bool public onlyInitializingRan;
     uint256 public x;
 
     function initialize() public initializer {
         initializerRan = true;
     }
 
-    function initialize2() public onlyInitializing {
-        initializerRan2 = true;
+    function initializeOnlyInitializing() public onlyInitializing {
+        onlyInitializingRan = true;
     }
 
-    function initializeNested() public initializer {
+    function initializerNested() public initializer {
         initialize();
     }
 
-    function initializeNested2() public initializer {
-        initialize2();
+    function onlyInitializingNested() public initializer {
+        initializeOnlyInitializing();
     }
 
     function initializeWithX(uint256 _x) public payable initializer {
@@ -44,18 +44,18 @@ contract InitializableMock is Initializable {
 
 contract ConstructorInitializableMock is Initializable {
     bool public initializerRan;
-    bool public initializerRan2;
+    bool public onlyInitializingRan;
 
     constructor() initializer {
         initialize();
-        initialize2();
+        initializeOnlyInitializing();
     }
 
     function initialize() public initializer {
         initializerRan = true;
     }
 
-    function initialize2() public onlyInitializing {
-        initializerRan2 = true;
+    function initializeOnlyInitializing() public onlyInitializing {
+        onlyInitializingRan = true;
     }
 }

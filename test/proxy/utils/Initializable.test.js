@@ -1,5 +1,4 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-
 const { assert } = require('chai');
 
 const InitializableMock = artifacts.require('InitializableMock');
@@ -32,33 +31,26 @@ contract('Initializable', function (accounts) {
       });
     });
 
-    context('after nested initialize', function () {
-      context('with initializer methods', function () {
-        it('nested initializer reverts', async function () {
-          await expectRevert(this.contract.initializeNested(), 'Initializable: contract is already initialized');
-        });
+    context('nested under an initializer', function () {
+      it('initializer modifier reverts', async function () {
+        await expectRevert(this.contract.initializerNested(), 'Initializable: contract is already initialized');
       });
 
-      context('with onlyInitializing methods', function () {
-        beforeEach('initializing', async function () {
-          await this.contract.initializeNested2();
-        });
-
-        it('nested initializer has run', async function () {
-          assert.isTrue(await this.contract.initializerRan2());
-        });
+      it('onlyInitializing modifier succeeds', async function () {
+        await this.contract.onlyInitializingNested();
+        assert.isTrue(await this.contract.onlyInitializingRan());
       });
     });
 
     it('cannot call onlyInitializable function outside the scope of an initializable function', async function () {
-      await expectRevert(this.contract.initialize2(), 'Initializable: contract is not initializing');
+      await expectRevert(this.contract.initializeOnlyInitializing(), 'Initializable: contract is not initializing');
     });
   });
 
   it('nested initializer can run during construction', async function () {
     const contract2 = await ConstructorInitializableMock.new();
     assert.isTrue(await contract2.initializerRan());
-    assert.isTrue(await contract2.initializerRan2());
+    assert.isTrue(await contract2.onlyInitializingRan());
   });
 
   describe('complex testing with inheritance', function () {
