@@ -66,7 +66,7 @@ library Strings {
     }
 
     /**
-     * @dev Converts each character ('a' to 'z') of an ASCII `string` to it's upper-case form ('A' to 'Z').
+     * @dev Converts each character ('a' to 'z') of an `string` to it's upper-case form ('A' to 'Z').
      */
     function toUpper(string calldata value) internal pure returns (string memory) {
         bytes memory buffer = bytes(value);
@@ -79,7 +79,7 @@ library Strings {
     }
 
     /**
-     * @dev Converts each character ('A' to 'Z') of an ASCII `string` to it's lower-case form ('a' to 'z').
+     * @dev Converts each character ('A' to 'Z') of an `string` to it's lower-case form ('a' to 'z').
      */
     function toLower(string calldata value) internal pure returns (string memory) {
         bytes memory buffer = bytes(value);
