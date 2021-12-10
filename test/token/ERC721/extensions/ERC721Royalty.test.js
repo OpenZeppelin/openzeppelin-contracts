@@ -17,34 +17,32 @@ contract('ERC721Royalty', function (accounts) {
     this.token = await ERC721RoyaltyMock.new();
   });
 
-  it("supports interface", async function () {
-    shouldSupportInterfaces(['ERC2981']);
-  });
+  shouldSupportInterfaces(['ERC2981']);
 
-  describe("global royalty", function () {
+  describe('global royalty', function () {
     beforeEach(async function () {
       await this.token.setRoyalty(account1, royaltyAmount);
     });
 
-    it("updates royalty amount", async function () {
+    it('updates royalty amount', async function () {
       const newAmount = new BN('25');
-      let royalty = new BN((salePrice * royaltyAmount)/100);
-      //Initial royalty check
+      let royalty = new BN((salePrice * royaltyAmount) / 100);
+      // Initial royalty check
       const initInfo = await this.token.royaltyInfo(tokenId1, salePrice);
 
       expect(initInfo.receiver).to.be.equal(account1);
       expect(initInfo.royaltyAmount).to.be.bignumber.equal(royalty);
 
-      //Updated royalty check
+      // Updated royalty check
       await this.token.setRoyalty(account1, newAmount);
-      royalty = new BN((salePrice * newAmount)/100);
+      royalty = new BN((salePrice * newAmount) / 100);
       const newInfo = await this.token.royaltyInfo(tokenId1, salePrice);
 
       expect(newInfo.receiver).to.be.equal(account1);
       expect(newInfo.royaltyAmount).to.be.bignumber.equal(royalty);
     });
 
-    it("holds same royalty value for different tokens", async function () {
+    it('holds same royalty value for different tokens', async function () {
       const newAmount = new BN('20');
       await this.token.setRoyalty(account1, newAmount);
 
@@ -52,10 +50,9 @@ contract('ERC721Royalty', function (accounts) {
       const token2Info = await this.token.royaltyInfo(tokenId2, salePrice);
 
       expect(token1Info.royaltyAmount).to.be.bignumber.equal(token2Info.royaltyAmount);
-
     });
 
-    it("reverts if invalid parameters", async function () {
+    it('reverts if invalid parameters', async function () {
       await expectRevert(
         this.token.setRoyalty(ZERO_ADDRESS, royaltyAmount),
         'ERC2981: Invalid recipient',
@@ -68,42 +65,41 @@ contract('ERC721Royalty', function (accounts) {
     });
   });
 
-  describe("token based royalty", function () {
+  describe('token based royalty', function () {
     beforeEach(async function () {
       await this.token.setTokenRoyalty(tokenId1, account1, royaltyAmount);
     });
 
-    it("updates royalty amount", async function () {
+    it('updates royalty amount', async function () {
       const newAmount = new BN('25');
-      let royalty = new BN((salePrice * royaltyAmount)/100);
-      //Initial royalty check
+      let royalty = new BN((salePrice * royaltyAmount) / 100);
+      // Initial royalty check
       const initInfo = await this.token.royaltyInfo(tokenId1, salePrice);
 
       expect(initInfo.receiver).to.be.equal(account1);
       expect(initInfo.royaltyAmount).to.be.bignumber.equal(royalty);
 
-      //Updated royalty check
+      // Updated royalty check
       await this.token.setTokenRoyalty(tokenId1, account1, newAmount);
-      royalty = new BN((salePrice * newAmount)/100);
+      royalty = new BN((salePrice * newAmount) / 100);
       const newInfo = await this.token.royaltyInfo(tokenId1, salePrice);
 
       expect(newInfo.receiver).to.be.equal(account1);
       expect(newInfo.royaltyAmount).to.be.bignumber.equal(royalty);
     });
 
-    it("holds different values for different tokens", async function () {
+    it('holds different values for different tokens', async function () {
       const newAmount = new BN('20');
       await this.token.setTokenRoyalty(tokenId2, account1, newAmount);
 
       const token1Info = await this.token.royaltyInfo(tokenId1, salePrice);
       const token2Info = await this.token.royaltyInfo(tokenId2, salePrice);
 
-      //must be different even at the same SalePrice
+      // must be different even at the same SalePrice
       expect(token1Info.royaltyAmount).to.not.be.equal(token2Info.royaltyAmount);
-
     });
 
-    it("reverts if invalid parameters", async function () {
+    it('reverts if invalid parameters', async function () {
       await expectRevert(
         this.token.setTokenRoyalty(tokenId1, ZERO_ADDRESS, royaltyAmount),
         'ERC2981: Invalid recipient',

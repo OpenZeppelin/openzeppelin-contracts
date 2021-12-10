@@ -11,21 +11,17 @@ import "../../../interfaces/IERC165.sol";
  * _Available since v4.5._
  */
 interface IERC721Royalty is IERC165 {
-
     /**
-    * @dev Called with the sale price to determine how much royalty
-    * is owed and to whom.
-    *
-    * Requirements:
-    * - `_tokenId` must be already mined, and have its royalty info set
-    * - `_salePrice` cannot be the zero.
-    *
-    */
-    function royaltyInfo(
-            uint256 _tokenId,
-            uint256 _salePrice
-    ) external view returns (
-            address receiver,
-            uint256 royaltyAmount
-    );
+     * @dev Called with the sale price to determine how much royalty
+     * is owed and to whom.
+     *
+     * Requirements:
+     * - `_tokenId` must be already mined, and have its royalty info set
+     * - `_salePrice` cannot be the zero.
+     *
+     */
+    function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
+        external
+        view
+        returns (address receiver, uint256 royaltyAmount);
 }

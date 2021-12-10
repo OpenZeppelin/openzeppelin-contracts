@@ -22,34 +22,31 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC165Storage {
     mapping(uint256 => RoyaltyInfo) private _tokenRoyalty;
 
     /*@dev Sets tokens royalties
-    *
-    * Requirements:
-    * - `tokenId` must be already mined.
-    * - `recipient` cannot be the zero address.
-    * - `value` must indicate the percentage value using two decimals.
-    */
+     *
+     * Requirements:
+     * - `tokenId` must be already mined.
+     * - `recipient` cannot be the zero address.
+     * - `value` must indicate the percentage value using two decimals.
+     */
     function _setTokenRoyalty(
         uint256 tokenId,
         address recipient,
         uint256 value
     ) internal virtual {
-        require(value < 100, 'ERC2981: Royalty percentage is too high');
+        require(value < 100, "ERC2981: Royalty percentage is too high");
         require(recipient != address(0), "ERC2981: Invalid recipient");
 
         _tokenRoyalty[tokenId] = RoyaltyInfo(recipient, value);
     }
 
     /*@dev Sets global royalty
-    *
-    * Requirements:
-    * - `recipient` cannot be the zero address.
-    * - `value` must indicate the percentage value.
-    */
-    function _setRoyalty(
-        address recipient,
-        uint256 value
-    ) internal virtual {
-        require(value < 100, 'ERC2981: Royalty percentage is too high');
+     *
+     * Requirements:
+     * - `recipient` cannot be the zero address.
+     * - `value` must indicate the percentage value.
+     */
+    function _setRoyalty(address recipient, uint256 value) internal virtual {
+        require(value < 100, "ERC2981: Royalty percentage is too high");
         require(recipient != address(0), "ERC2981: Invalid recipient");
 
         _royaltyInfo = RoyaltyInfo(recipient, value);
@@ -58,18 +55,17 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC165Storage {
     /**
      * @dev See {IERC721Royalty-royaltyInfo}
      */
-    function royaltyInfo(
-            uint256 _tokenId,
-            uint256 _salePrice
-    ) external view override returns (
-            address receiver,
-            uint256 royaltyAmount
-    ){
-        if(_tokenRoyalty[_tokenId].receiver != address(0)){
+    function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
+        external
+        view
+        override
+        returns (address receiver, uint256 royaltyAmount)
+    {
+        if (_tokenRoyalty[_tokenId].receiver != address(0)) {
             RoyaltyInfo memory royalty = _tokenRoyalty[_tokenId];
             receiver = royalty.receiver;
             royaltyAmount = (_salePrice * royalty.royaltyAmount) / 100;
-        }else{
+        } else {
             receiver = _royaltyInfo.receiver;
             royaltyAmount = (_salePrice * _royaltyInfo.royaltyAmount) / 100;
         }
