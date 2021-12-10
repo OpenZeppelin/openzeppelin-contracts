@@ -94,7 +94,6 @@ In a governance system, the {TimelockController} contract is in charge of introd
 
 {{TimelockController}}
 
-
 [[timelock-terminology]]
 ==== Terminology
 
