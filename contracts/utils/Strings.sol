@@ -70,8 +70,8 @@ library Strings {
      */
     function toUpper(string calldata value) internal pure returns (string memory) {
         bytes memory buffer = bytes(value);
-        for (uint i = 0; i < buffer.length; i++) {
-            if (buffer[i] >= 'a' && buffer[i] <= 'z') {
+        for (uint256 i = 0; i < buffer.length; i++) {
+            if (buffer[i] >= "a" && buffer[i] <= "z") {
                 buffer[i] = bytes1(uint8(buffer[i]) - 32);
             }
         }
@@ -83,8 +83,8 @@ library Strings {
      */
     function toLower(string calldata value) internal pure returns (string memory) {
         bytes memory buffer = bytes(value);
-        for (uint i = 0; i < buffer.length; i++) {
-            if (buffer[i] >= 'A' && buffer[i] <= 'Z') {
+        for (uint256 i = 0; i < buffer.length; i++) {
+            if (buffer[i] >= "A" && buffer[i] <= "Z") {
                 buffer[i] = bytes1(uint8(buffer[i]) + 32);
             }
         }
