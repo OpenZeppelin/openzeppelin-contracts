@@ -8,6 +8,8 @@
  * `Governor`: add a relay function to help recover assets sent to a governor that is not its own executor (e.g. when using a timelock). ([#2926](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2926))
  * `GovernorPreventLateQuorum`: add new module to ensure a minimum voting duration is available after the quorum is reached. ([#2973](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2973))
  * `ERC721`: improved revert reason when transferring from wrong owner. ([#2975](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2975))
+ * `Votes`: Added a base contract for vote tracking with delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
+ * `ERC721Votes`: Added an extension of ERC721 enabled with vote tracking and delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
 
 ## 4.4.1 (2021-12-10)
 

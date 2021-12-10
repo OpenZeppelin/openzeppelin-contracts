@@ -31,6 +31,11 @@ function runGovernorWorkflow () {
       for (const voter of this.settings.voters) {
         if (voter.weight) {
           await this.token.transfer(voter.voter, voter.weight, { from: this.settings.tokenHolder });
+        } else if (voter.nfts) {
+          for (const nft of voter.nfts) {
+            await this.token.transferFrom(this.settings.tokenHolder, voter.voter, nft,
+              { from: this.settings.tokenHolder });
+          }
         }
       }
     }
