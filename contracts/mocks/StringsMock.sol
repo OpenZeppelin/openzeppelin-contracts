@@ -16,4 +16,12 @@ contract StringsMock {
     function fromUint256HexFixed(uint256 value, uint256 length) public pure returns (string memory) {
         return Strings.toHexString(value, length);
     }
+
+    function toUpperMock(string calldata value) public pure returns (string memory) {
+        return Strings.toUpper(value);
+    }
+
+    function toLowerMock(string calldata value) public pure returns (string memory) {
+        return Strings.toLower(value);
+    }
 }
