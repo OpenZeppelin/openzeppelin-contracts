@@ -24,7 +24,7 @@ It is no longer possible to call an `initializer`-protected function from within
  }
  contract B is A {
      function initialize() public initializer {
-         A.initialize(); 
+         A.initialize();
      }
  }
 ```
