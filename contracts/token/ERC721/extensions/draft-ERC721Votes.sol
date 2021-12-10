@@ -7,22 +7,18 @@ import "../ERC721.sol";
 import "../../../governance/utils/Votes.sol";
 
 /**
- * @dev Extension of ERC721 to support voting and delegation, where each individual NFT counts as 1 vote.
+ * @dev Extension of ERC721 to support voting and delegation as implemented by {Votes}, where each individual NFT counts
+ * as 1 vote unit.
  *
- * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
- * by calling the `delegate` function directly, or by providing a signature to be used with `delegateBySig`. Voting
- * power can be queried through the public accessors `getVotes` and `getPastVotes`.
- *
- * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it
- * requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
- * Enabling self-delegation can easily be done by overriding the `delegates` function. Keep in mind however that this
- * will significantly increase the base gas cost of transfers.
+ * Tokens do not count as votes until they are delegated, because votes must be tracked which incurs an additional cost
+ * on every transfer. Token holders can either delegate to a trusted representative who will decide how to make use of
+ * the votes in governance decisions, or they can delegate to themselves to be their own representative.
  *
  * _Available since v4.5._
  */
 abstract contract ERC721Votes is ERC721, Votes {
     /**
-     * @dev Move voting power when tokens are transferred.
+     * @dev Adjusts votes when tokens are transferred.
      *
      * Emits a {Votes-DelegateVotesChanged} event.
      */
@@ -31,14 +27,14 @@ abstract contract ERC721Votes is ERC721, Votes {
         address to,
         uint256 tokenId
     ) internal virtual override {
-        _transferVotingAssets(from, to, 1);
+        _transferVotingUnits(from, to, 1);
         super._afterTokenTransfer(from, to, tokenId);
     }
 
     /**
-     * @dev Returns the balance of the delegator account
+     * @dev Returns the balance of `account`.
      */
-    function _getDelegatorVotingPower(address delegator) internal virtual override returns (uint256) {
-        return balanceOf(delegator);
+    function _getVotingUnits(address account) internal virtual override returns (uint256) {
+        return balanceOf(account);
     }
 }

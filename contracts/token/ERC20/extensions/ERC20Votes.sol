@@ -40,16 +40,6 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     Checkpoint[] private _totalSupplyCheckpoints;
 
     /**
-     * @dev Emitted when an account changes their delegate.
-     */
-    event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
-
-    /**
-     * @dev Emitted when a token transfer or delegate change results in changes to an account's voting power.
-     */
-    event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
-
-    /**
      * @dev Get the `pos`-th checkpoint for `account`.
      */
     function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoint memory) {

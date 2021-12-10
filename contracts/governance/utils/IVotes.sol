@@ -3,43 +3,52 @@
 pragma solidity ^0.8.0;
 
 /**
- * @dev Interface of the Votes standard.
+ * @dev Common interface for {ERC20Votes}, {ERC721Votes}, and other {Votes}-enabled contracts.
  *
- * _Available since v4.4._
+ * _Available since v4.5._
  */
 interface IVotes {
     /**
-     * @dev Returns total amount of votes for account.
+     * @dev Emitted when an account changes their delegate.
+     */
+    event DelegateChanged(address indexed account, address indexed fromDelegate, address indexed toDelegate);
+
+    /**
+     * @dev Emitted when a token transfer or delegate change results in changes to a delegate's number of votes.
+     */
+    event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
+
+    /**
+     * @dev Returns the current amount of votes that `account` has.
      */
     function getVotes(address account) external view returns (uint256);
 
     /**
-     * @dev Returns total amount of votes at given blockNumber.
+     * @dev Returns the amount of votes that `account` had at the end of a past block (`blockNumber`).
      */
     function getPastVotes(address account, uint256 blockNumber) external view returns (uint256);
 
     /**
-     * @dev Retrieve the `totalVotingPower` at the end of `blockNumber`. Note, this value is the sum of all balances.
-     * It is but NOT the sum of all the delegated votes!
+     * @dev Returns the total supply of votes available at the end of a past block (`blockNumber`).
      *
-     * Requirements:
-     *
-     * - `blockNumber` must have been already mined
+     * NOTE: This value is the sum of all available votes, which is not necessarily the sum of all delegated votes.
+     * Votes that have not been delegated are still part of total supply, even though they would not participate in a
+     * vote.
      */
     function getPastTotalSupply(uint256 blockNumber) external view returns (uint256);
 
     /**
-     * @dev Returns account delegation.
+     * @dev Returns the delegate that `account` has chosen.
      */
     function delegates(address account) external view returns (address);
 
     /**
-     * @dev Delegate votes from the sender to `delegatee`.
+     * @dev Delegates votes from the sender to `delegatee`.
      */
     function delegate(address delegatee) external;
 
     /**
-     * @dev Delegates votes from signer to `delegatee`
+     * @dev Delegates votes from signer to `delegatee`.
      */
     function delegateBySig(
         address delegatee,

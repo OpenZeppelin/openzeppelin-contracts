@@ -8,20 +8,22 @@ import "../../utils/cryptography/draft-EIP712.sol";
 import "./IVotes.sol";
 
 /**
- * @dev This is a base abstract contract that tracks voting power for a set of accounts with a vote delegation system.
- * It can be combined with a token contract to represent voting power as the token unit, see {ERC721Votes}.
+ * @dev This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
+ * transferred, and provides a system of vote delegation, where an account can delegate its voting units to a sort of
+ * "representative" that will pool delegated voting units from different accounts and can then use it to vote in
+ * decisions. In fact, voting units _must_ be delegated in order to count as actual votes, and an account has to
+ * delegate those votes to itself if it wishes to participate in decisions and does not have a trusted representative.
  *
- * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
- * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
- * power can be queried through {getVotes}.
+ * This contract is often combined with a token contract such that voting units correspond to token units. For an
+ * example, see {ERC721Votes}.
  *
- * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it
- * requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
- * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
- * will significantly increase the base gas cost of transfers.
+ * The full history of delegate votes is tracked on-chain so that governance protocols can consider votes as distributed
+ * at a particular block number to protect against flash loans and double voting. The opt-in delegate system makes the
+ * cost of this history tracking optional.
  *
- * When using this module, the derived contract must implement {_getDelegatorVotingPower}, and can use {_transferVotingAssets}
- * when a delegator's voting power is changed.
+ * When using this module the derived contract must implement {_getVotingUnits} (for example, make it return
+ * {ERC721-balanceOf}), and can use {_transferVotingUnits} to track a change in the distribution of those units (in the
+ * previous example, it would be included in {ERC721-_beforeTokenTransfer}).
  *
  * _Available since v4.5._
  */
@@ -39,32 +41,29 @@ abstract contract Votes is IVotes, Context, EIP712 {
     mapping(address => Counters.Counter) private _nonces;
 
     /**
-     * @dev Emitted when an account changes their delegate.
-     */
-    event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
-
-    /**
-     * @dev Emitted when a token transfer or delegate change results in changes to an account's voting power.
-     */
-    event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
-
-    /**
-     * @dev Returns total amount of votes for account.
+     * @dev Returns the current amount of votes that `account` has.
      */
     function getVotes(address account) public view virtual override returns (uint256) {
         return _delegateCheckpoints[account].latest();
     }
 
     /**
-     * @dev Returns total amount of votes at given blockNumber for account.
+     * @dev Returns the amount of votes that `account` had at the end of a past block (`blockNumber`).
+     *
+     * Requirements:
+     *
+     * - `blockNumber` must have been already mined
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         return _delegateCheckpoints[account].getAtBlock(blockNumber);
     }
 
     /**
-     * @dev Retrieve the votes total supply at the end of `blockNumber`. Note, this value is the sum of all balances.
-     * It is but NOT the sum of all the delegated votes!
+     * @dev Returns the total supply of votes available at the end of a past block (`blockNumber`).
+     *
+     * NOTE: This value is the sum of all available votes, which is not necessarily the sum of all delegated votes.
+     * Votes that have not been delegated are still part of total supply, even though they would not participate in a
+     * vote.
      *
      * Requirements:
      *
@@ -76,29 +75,29 @@ abstract contract Votes is IVotes, Context, EIP712 {
     }
 
     /**
-     * @dev Returns total amount of votes.
+     * @dev Returns the current total supply of votes.
      */
     function _getTotalSupply() internal view virtual returns (uint256) {
         return _totalCheckpoints.latest();
     }
 
     /**
-     * @dev Returns account delegation.
+     * @dev Returns the delegate that `account` has chosen.
      */
     function delegates(address account) public view virtual override returns (address) {
         return _delegation[account];
     }
 
     /**
-     * @dev Delegate votes from the sender to `delegatee`.
+     * @dev Delegates votes from the sender to `delegatee`.
      */
     function delegate(address delegatee) public virtual override {
-        address delegator = _msgSender();
-        _delegate(delegator, delegatee);
+        address account = _msgSender();
+        _delegate(account, delegatee);
     }
 
     /**
-     * @dev Delegates votes from signer to `delegatee`
+     * @dev Delegates votes from signer to `delegatee`.
      */
     function delegateBySig(
         address delegatee,
@@ -120,22 +119,23 @@ abstract contract Votes is IVotes, Context, EIP712 {
     }
 
     /**
-     * @dev Change delegation for `delegator` to `delegatee`.
+     * @dev Delegate all of `account`'s voting units to `delegatee`.
      *
      * Emits events {DelegateChanged} and {DelegateVotesChanged}.
      */
-    function _delegate(address delegator, address newDelegation) internal virtual {
-        address oldDelegation = delegates(delegator);
-        _delegation[delegator] = newDelegation;
+    function _delegate(address account, address delegatee) internal virtual {
+        address oldDelegate = delegates(account);
+        _delegation[account] = delegatee;
 
-        emit DelegateChanged(delegator, oldDelegation, newDelegation);
-        _moveVotingPower(oldDelegation, newDelegation, _getDelegatorVotingPower(delegator));
+        emit DelegateChanged(account, oldDelegate, delegatee);
+        _moveDelegateVotes(oldDelegate, delegatee, _getVotingUnits(account));
     }
 
     /**
-     * @dev Transfers voting assets.
+     * @dev Transfers, mints, or burns voting units. To register a mint, `from` should be zero. To register a burn, `to`
+     * should be zero. Total supply of voting units will be adjusted with mints and burns.
      */
-    function _transferVotingAssets(
+    function _transferVotingUnits(
         address from,
         address to,
         uint256 amount
@@ -146,13 +146,13 @@ abstract contract Votes is IVotes, Context, EIP712 {
         if (to == address(0)) {
             _totalCheckpoints.push(_subtract, amount);
         }
-        _moveVotingPower(delegates(from), delegates(to), amount);
+        _moveDelegateVotes(delegates(from), delegates(to), amount);
     }
 
     /**
-     * @dev Moves voting power.
+     * @dev Moves delegated votes from one delegate to another.
      */
-    function _moveVotingPower(
+    function _moveDelegateVotes(
         address from,
         address to,
         uint256 amount
@@ -169,16 +169,10 @@ abstract contract Votes is IVotes, Context, EIP712 {
         }
     }
 
-    /**
-     * @dev Adds two numbers.
-     */
     function _add(uint256 a, uint256 b) private pure returns (uint256) {
         return a + b;
     }
 
-    /**
-     * @dev Subtracts two numbers.
-     */
     function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
         return a - b;
     }
@@ -202,7 +196,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
     }
 
     /**
-     * @dev Returns DOMAIN_SEPARATOR.
+     * @dev Returns the contract's {EIP712} domain separator.
      */
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() external view returns (bytes32) {
@@ -210,7 +204,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
     }
 
     /**
-     * @dev Returns the balance of the delegator account
+     * @dev Must return the voting units held by an account.
      */
-    function _getDelegatorVotingPower(address) internal virtual returns (uint256);
+    function _getVotingUnits(address) internal virtual returns (uint256);
 }
