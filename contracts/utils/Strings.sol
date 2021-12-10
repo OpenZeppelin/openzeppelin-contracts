@@ -64,4 +64,17 @@ library Strings {
         require(value == 0, "Strings: hex length insufficient");
         return string(buffer);
     }
+
+    /**
+     * @dev Converts each character ('a' to 'z') of an ASCII `string` to it's upper-case form ('A' to 'Z').
+     */
+    function toUpper(string memory value) internal pure returns (string memory) {
+        bytes memory buffer = bytes(value);
+        for (uint i = 0; i < buffer.length; i++) {
+            if (buffer[i] >= 'a' && buffer[i] <= 'z') {
+                buffer[i] = bytes1(uint8(buffer[i]) - 32);
+            }
+        }
+        return string(buffer);
+    }
 }
