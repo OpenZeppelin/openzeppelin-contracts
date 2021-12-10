@@ -8,7 +8,6 @@ const queue = promisify(setImmediate);
 
 const ERC721VotesMock = artifacts.require('ERC721VotesMock');
 
-const { runVotesWorkflow } = require('../../../governance/utils/VotesWorkflow.behavior');
 
 
 async function countPendingTransactions() {
@@ -41,6 +40,7 @@ async function batchInBlock (txs) {
     await network.provider.send('evm_setAutomine', [true]);
   }
 }
+const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 
 contract('ERC721Votes', function (accounts) {
   const [ account1, account2, account1Delegatee, other1, other2 ] = accounts;
@@ -201,6 +201,6 @@ contract('ERC721Votes', function (accounts) {
       this.name = 'My Vote';
     });
 
-    runVotesWorkflow();
+    shouldBehaveLikeVotes();
   });
 });

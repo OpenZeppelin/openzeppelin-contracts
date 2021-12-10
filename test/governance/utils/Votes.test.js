@@ -3,8 +3,8 @@ const { expectRevert, BN } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const {
-  runVotesWorkflow,
-} = require('./VotesWorkflow.behavior');
+  shouldBehaveLikeVotes,
+} = require('./Votes.behavior');
 
 const Votes = artifacts.require('VotesMock');
 
@@ -56,6 +56,6 @@ contract('Votes', function (accounts) {
       this.NFT3 = new BN('30');
     });
 
-    runVotesWorkflow();
+    shouldBehaveLikeVotes();
   });
 });
