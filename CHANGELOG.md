@@ -1,5 +1,25 @@
 # Changelog
 
+## 4.4.1 (2021-12-10)
+
+ * `Initializable`: change the existing `initializer` modifier and add a new `onlyInitializing` modifier to prevent reentrancy risk. ([#3006](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3006))
+
+### Breaking change
+
+It is no longer possible to call an `initializer`-protected function from within another `initializer` function outside the context of a constructor. Projects using OpenZeppelin upgradeable proxies should continue to work as is, since in the common case the initializer is invoked in the constructor directly. If this is not the case for you, the suggested change is to use the new `onlyInitializing` modifier in the following way:
+
+```diff
+ contract A {
+-    function initialize() public   initializer { ... }
++    function initialize() internal onlyInitializing { ... }
+ }
+ contract B is A {
+     function initialize() public initializer {
+         A.initialize();
+     }
+ }
+```
+
 ## 4.4.0 (2021-11-25)
 
  * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2568))
