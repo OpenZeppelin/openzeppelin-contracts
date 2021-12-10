@@ -35,7 +35,7 @@ function shouldBehaveLikeVotes () {
       const delegatorAddress = web3.utils.toChecksumAddress(delegator.getAddressString());
       const nonce = 0;
 
-      const buildData = (chainId, verifyingContract, message) => ({
+      const buildData = (chainId, verifyingContract, name, message) => ({
         data: {
           primaryType: 'Delegation',
           types: { EIP712Domain, Delegation },
@@ -51,7 +51,7 @@ function shouldBehaveLikeVotes () {
       it('accept signed delegation', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, {
+          buildData(this.chainId, this.votes.address, this.name, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -83,7 +83,7 @@ function shouldBehaveLikeVotes () {
       it('rejects reused signature', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, {
+          buildData(this.chainId, this.votes.address, this.name, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -101,7 +101,7 @@ function shouldBehaveLikeVotes () {
       it('rejects bad delegatee', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, {
+          buildData(this.chainId, this.votes.address, this.name, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -118,7 +118,7 @@ function shouldBehaveLikeVotes () {
       it('rejects bad nonce', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, {
+          buildData(this.chainId, this.votes.address, this.name, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -134,7 +134,7 @@ function shouldBehaveLikeVotes () {
         const expiry = (await time.latest()) - time.duration.weeks(1);
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, {
+          buildData(this.chainId, this.votes.address, this.name, {
             delegatee: delegatorAddress,
             nonce,
             expiry,
