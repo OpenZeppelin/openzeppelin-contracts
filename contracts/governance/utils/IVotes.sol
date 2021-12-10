@@ -11,7 +11,7 @@ interface IVotes {
     /**
      * @dev Emitted when an account changes their delegate.
      */
-    event DelegateChanged(address indexed account, address indexed fromDelegate, address indexed toDelegate);
+    event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
 
     /**
      * @dev Emitted when a token transfer or delegate change results in changes to a delegate's number of votes.
