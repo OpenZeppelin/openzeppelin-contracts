@@ -17,7 +17,7 @@ contract GovernorPreventLateQuorumMock is
 
     constructor(
         string memory name_,
-        ERC20Votes token_,
+        IVotes token_,
         uint256 votingDelay_,
         uint256 votingPeriod_,
         uint256 quorum_,
