@@ -147,9 +147,9 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      *     ]
      * }
      * ```
-     * 
+     *
      * `primaryType` is `Delegation`
-     * 
+     *
      * reference: https://medium.com/compound-finance/delegation-and-voting-with-eip-712-signatures-a636c9dfec5e
      */
     function delegateBySig(
