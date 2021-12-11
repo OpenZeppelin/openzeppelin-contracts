@@ -131,6 +131,26 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
 
     /**
      * @dev Delegates votes from signer to `delegatee`
+     *
+     * Types for creating EIP712 signature(v, r, s) are as below
+     * ```
+     * {
+     *     EIP712Domain: [
+     *         { name: 'name', type: 'string' },
+     *         { name: 'chainId', type: 'uint256' },
+     *         { name: 'verifyingContract', type: 'address' },
+     *     ],
+     *     Delegation: [
+     *         { name: 'delegatee', type: 'address' },
+     *         { name: 'nonce', type: 'uint256' },
+     *         { name: 'expiry', type: 'uint256' }
+     *     ]
+     * }
+     * ```
+     * 
+     * `primaryType` is `Delegation`
+     * 
+     * reference: https://medium.com/compound-finance/delegation-and-voting-with-eip-712-signatures-a636c9dfec5e
      */
     function delegateBySig(
         address delegatee,
