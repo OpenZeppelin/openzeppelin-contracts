@@ -2,9 +2,9 @@ const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC721EnumerableTokenMock = artifacts.require('ERC721EnumerableTokenMock');
+const ERC721EnumerableStoredTokenMock = artifacts.require('ERC721EnumerableStoredTokenMock');
 
-contract('ERC721EnumerableToken', function (accounts) {
+contract('ERC721EnumerableStoredToken', function (accounts) {
   const [ owner ] = accounts;
 
   const name = 'Non Fungible Token';
@@ -14,7 +14,7 @@ contract('ERC721EnumerableToken', function (accounts) {
   const nonExistentTokenId = new BN('13');
 
   beforeEach(async function () {
-    this.token = await ERC721EnumerableTokenMock.new(name, symbol);
+    this.token = await ERC721EnumerableStoredTokenMock.new(name, symbol);
   });
 
   describe('token URI', function () {
@@ -29,9 +29,22 @@ contract('ERC721EnumerableToken', function (accounts) {
       expect(await this.token.tokenURI(firstTokenId)).to.be.equal('');
     });
 
+    it('totalSupply is 1 when minted', async function () {
+      const actualSupply = await this.token.totalSupply();
+      expect(actualSupply).to.be.bignumber.equal('1');
+    });
+
+    it('totalSupply is 2 when minted twice', async function () {
+      const secondTokenId = new BN('5043');
+      await this.token.mint(owner, secondTokenId);
+      const actualSupply = await this.token.totalSupply();
+      expect(actualSupply).to.be.bignumber.equal('2');
+    });
+
+
     it('reverts when queried for non existent token id', async function () {
       await expectRevert(
-        this.token.tokenURI(nonExistentTokenId), 'ERC721EnumerableToken: URI query for nonexistent token',
+        this.token.tokenURI(nonExistentTokenId), 'ERC721EnumerableStoredToken: URI query for nonexistent token',
       );
     });
 
@@ -42,7 +55,7 @@ contract('ERC721EnumerableToken', function (accounts) {
 
     it('reverts when setting for non existent token id', async function () {
       await expectRevert(
-        this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721EnumerableToken: URI set of nonexistent token',
+        this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721EnumerableStoredToken: URI set of nonexistent token',
       );
     });
 
@@ -78,7 +91,7 @@ contract('ERC721EnumerableToken', function (accounts) {
 
       expect(await this.token.exists(firstTokenId)).to.equal(false);
       await expectRevert(
-        this.token.tokenURI(firstTokenId), 'ERC721EnumerableToken: URI query for nonexistent token',
+        this.token.tokenURI(firstTokenId), 'ERC721EnumerableStoredToken: URI query for nonexistent token',
       );
     });
 
@@ -89,8 +102,25 @@ contract('ERC721EnumerableToken', function (accounts) {
 
       expect(await this.token.exists(firstTokenId)).to.equal(false);
       await expectRevert(
-        this.token.tokenURI(firstTokenId), 'ERC721EnumerableToken: URI query for nonexistent token',
+        this.token.tokenURI(firstTokenId), 'ERC721EnumerableStoredToken: URI query for nonexistent token',
       );
+    });
+
+    it('totalSupply is 0 when token is burnt ', async function () {
+      await this.token.burn(firstTokenId, { from: owner });
+
+      const actualSupply = await this.token.totalSupply();
+      expect(actualSupply).to.be.bignumber.equal('0');
+    });
+
+    it('totalSupply is reduced by 1 when one token is burnt ', async function () {
+      const secondTokenId = new BN('5043');
+      await this.token.mint(owner, secondTokenId);
+
+      await this.token.burn(firstTokenId, { from: owner });
+
+      const actualSupply = await this.token.totalSupply();
+      expect(actualSupply).to.be.bignumber.equal('1');
     });
   });
 });

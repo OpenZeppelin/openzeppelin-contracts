@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.0;
 
-import "../token/ERC721/extensions/ERC721EnumerableToken.sol";
+import "../token/ERC721/extensions/ERC721EnumerableStoredToken.sol";
 
 /**
- * @title ERC721EnumerableTokenMock
+ * @title ERC721EnumerableStoredTokenMock
  * This mock just provides a public safeMint, mint, and burn functions for testing purposes
  */
-contract ERC721EnumerableTokenMock is ERC721EnumerableToken {
+contract ERC721EnumerableStoredTokenMock is ERC721EnumerableStoredToken {
     string private _baseTokenURI;
 
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
