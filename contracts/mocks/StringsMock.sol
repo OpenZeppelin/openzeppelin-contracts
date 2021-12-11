@@ -18,10 +18,10 @@ contract StringsMock {
     }
 
     function toUpperMock(string calldata value) public pure returns (string memory) {
-        return Strings.toUpper(value);
+        return Strings.normalizeUpperASCII(value);
     }
 
     function toLowerMock(string calldata value) public pure returns (string memory) {
-        return Strings.toLower(value);
+        return Strings.normalizeLowerASCII(value);
     }
 }
