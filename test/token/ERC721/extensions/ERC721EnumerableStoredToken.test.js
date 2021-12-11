@@ -41,7 +41,6 @@ contract('ERC721EnumerableStoredToken', function (accounts) {
       expect(actualSupply).to.be.bignumber.equal('2');
     });
 
-
     it('reverts when queried for non existent token id', async function () {
       await expectRevert(
         this.token.tokenURI(nonExistentTokenId), 'ERC721EnumerableStoredToken: URI query for nonexistent token',
@@ -55,8 +54,8 @@ contract('ERC721EnumerableStoredToken', function (accounts) {
 
     it('reverts when setting for non existent token id', async function () {
       await expectRevert(
-        this.token.setTokenURI(nonExistentTokenId, sampleUri), 'ERC721EnumerableStoredToken: URI set of nonexistent token',
-      );
+        this.token.setTokenURI(nonExistentTokenId, sampleUri),
+        'ERC721EnumerableStoredToken: URI set of nonexistent token');
     });
 
     it('base URI can be set', async function () {
