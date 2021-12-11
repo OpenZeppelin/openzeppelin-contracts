@@ -72,7 +72,7 @@ library Strings {
     function normalizeUpperASCII(string calldata value) internal pure returns (string memory) {
         bytes memory buffer = bytes(value);
         for (uint256 i = 0; i < buffer.length; i++) {
-            require(buffer[i] & 0x80 == 0); // If the 1000_0000 bit is set in a char, string is non-ASCII
+            require(buffer[i] & 0x80 == 0, "Basic ASCII string required."); // 0x80-bit == non-ASCII
             if (buffer[i] >= "a" && buffer[i] <= "z") {
                 buffer[i] ^= 0x20; // removes "lower-case bit"
             }
@@ -87,7 +87,7 @@ library Strings {
     function normalizeLowerASCII(string calldata value) internal pure returns (string memory) {
         bytes memory buffer = bytes(value);
         for (uint256 i = 0; i < buffer.length; i++) {
-            require(buffer[i] & 0x80 == 0); // If the 1000_0000 bit is set in a char, string is non-ASCII
+            require(buffer[i] & 0x80 == 0, "Basic ASCII string required."); // 0x80-bit == non-ASCII
             if (buffer[i] >= "A" && buffer[i] <= "Z") {
                 buffer[i] |= 0x20; // adds "lower-case bit"
             }
