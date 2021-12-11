@@ -66,26 +66,30 @@ library Strings {
     }
 
     /**
-     * @dev Converts each character ('a' to 'z') of an `string` to it's upper-case form ('A' to 'Z').
+     * @dev Converts each character ('a' to 'z') of a `string` to it's upper-case form ('A' to 'Z').
+     * Requires string to be comprised of ASCII set of characters.
      */
-    function toUpper(string calldata value) internal pure returns (string memory) {
+    function normalizeUpperASCII(string calldata value) internal pure returns (string memory) {
         bytes memory buffer = bytes(value);
         for (uint256 i = 0; i < buffer.length; i++) {
+            require(buffer[i] & 0x80 == 0); // If the 1000_0000 bit is set in a char, string is non-ASCII
             if (buffer[i] >= "a" && buffer[i] <= "z") {
-                buffer[i] ^= 0x20;
+                buffer[i] ^= 0x20; // removes "lower-case bit"
             }
         }
         return string(buffer);
     }
 
     /**
-     * @dev Converts each character ('A' to 'Z') of an `string` to it's lower-case form ('a' to 'z').
+     * @dev Converts each character ('A' to 'Z') of a `string` to it's lower-case form ('a' to 'z').
+     * Requires string to be comprised of ASCII set of characters.
      */
-    function toLower(string calldata value) internal pure returns (string memory) {
+    function normalizeLowerASCII(string calldata value) internal pure returns (string memory) {
         bytes memory buffer = bytes(value);
         for (uint256 i = 0; i < buffer.length; i++) {
+            require(buffer[i] & 0x80 == 0); // If the 1000_0000 bit is set in a char, string is non-ASCII
             if (buffer[i] >= "A" && buffer[i] <= "Z") {
-                buffer[i] |= 0x20;
+                buffer[i] |= 0x20; // adds "lower-case bit"
             }
         }
         return string(buffer);
