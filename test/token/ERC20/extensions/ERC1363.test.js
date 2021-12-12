@@ -14,7 +14,7 @@ contract('ERC1363', function (accounts) {
   const symbol = 'MTKN';
 
   beforeEach(async function () {
-    this.token    = await ERC1363Mock.new(name, symbol, holder, initialSupply);
+    this.token = await ERC1363Mock.new(name, symbol, holder, initialSupply);
     this.receiver = await ERC1363ReceiverMock.new();
   });
 
@@ -27,26 +27,58 @@ contract('ERC1363', function (accounts) {
     it('without data', async function () {
       const data = null;
 
-      const { tx } = await this.token.methods['transferAndCall(address,uint256)'](this.receiver.address, value, { from: holder });
+      const { tx } = await this.token.methods['transferAndCall(address,uint256)'](
+        this.receiver.address,
+        value,
+        { from: holder },
+      );
 
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', { from: holder, to: this.receiver.address, value });
-      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', { operator: holder, from: holder, value, data });
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.receiver.address,
+        value,
+      });
+      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', {
+        operator: holder,
+        from: holder,
+        value,
+        data,
+      });
     });
 
     it('with data', async function () {
       const data = '0x123456';
 
-      const { tx } = await this.token.methods['transferAndCall(address,uint256,bytes)'](this.receiver.address, value, data, { from: holder });
+      const { tx } = await this.token.methods['transferAndCall(address,uint256,bytes)'](
+        this.receiver.address,
+        value,
+        data,
+        { from: holder },
+      );
 
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', { from: holder, to: this.receiver.address, value });
-      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', { operator: holder, from: holder, value, data });
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.receiver.address,
+        value,
+      });
+      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', {
+        operator: holder,
+        from: holder,
+        value,
+        data,
+      });
     });
 
     it('with reverting hook', async function () {
       const data = '0x01';
 
       await expectRevert(
-        this.token.methods['transferAndCall(address,uint256,bytes)'](this.receiver.address, value, data, { from: holder }),
+        this.token.methods['transferAndCall(address,uint256,bytes)'](
+          this.receiver.address,
+          value,
+          data,
+          { from: holder },
+        ),
         'onTransferReceived revert',
       );
     });
@@ -60,26 +92,61 @@ contract('ERC1363', function (accounts) {
     it('without data', async function () {
       const data = null;
 
-      const { tx } = await this.token.methods['transferFromAndCall(address,address,uint256)'](holder, this.receiver.address, value, { from: operator });
+      const { tx } = await this.token.methods['transferFromAndCall(address,address,uint256)'](
+        holder,
+        this.receiver.address,
+        value,
+        { from: operator },
+      );
 
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', { from: holder, to: this.receiver.address, value });
-      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', { operator, from: holder, value, data });
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.receiver.address,
+        value,
+      });
+      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', {
+        operator,
+        from: holder,
+        value,
+        data,
+      });
     });
 
     it('with data', async function () {
       const data = '0x123456';
 
-      const { tx } = await this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](holder, this.receiver.address, value, data, { from: operator });
+      const { tx } = await this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](
+        holder,
+        this.receiver.address,
+        value,
+        data,
+        { from: operator },
+      );
 
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', { from: holder, to: this.receiver.address, value });
-      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', { operator, from: holder, value, data });
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.receiver.address,
+        value,
+      });
+      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', {
+        operator,
+        from: holder,
+        value,
+        data,
+      });
     });
 
     it('with reverting hook', async function () {
       const data = '0x01';
 
       await expectRevert(
-        this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](holder, this.receiver.address, value, data, { from: operator }),
+        this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](
+          holder,
+          this.receiver.address,
+          value,
+          data,
+          { from: operator },
+        ),
         'onTransferReceived revert',
       );
     });
@@ -89,26 +156,56 @@ contract('ERC1363', function (accounts) {
     it('without data', async function () {
       const data = null;
 
-      const { tx } = await this.token.methods['approveAndCall(address,uint256)'](this.receiver.address, value, { from: holder });
+      const { tx } = await this.token.methods['approveAndCall(address,uint256)'](
+        this.receiver.address,
+        value,
+        { from: holder },
+      );
 
-      await expectEvent.inTransaction(tx, this.token, 'Approval', { owner: holder, spender: this.receiver.address, value });
-      await expectEvent.inTransaction(tx, this.receiver, 'ApprovalReceived', { owner: holder, value, data });
+      await expectEvent.inTransaction(tx, this.token, 'Approval', {
+        owner: holder,
+        spender: this.receiver.address,
+        value,
+      });
+      await expectEvent.inTransaction(tx, this.receiver, 'ApprovalReceived', {
+        owner: holder,
+        value,
+        data,
+      });
     });
 
     it('with data', async function () {
       const data = '0x123456';
 
-      const { tx } = await this.token.methods['approveAndCall(address,uint256,bytes)'](this.receiver.address, value, data, { from: holder });
+      const { tx } = await this.token.methods['approveAndCall(address,uint256,bytes)'](
+        this.receiver.address,
+        value,
+        data,
+        { from: holder },
+      );
 
-      await expectEvent.inTransaction(tx, this.token, 'Approval', { owner: holder, spender: this.receiver.address, value });
-      await expectEvent.inTransaction(tx, this.receiver, 'ApprovalReceived', { owner: holder, value, data });
+      await expectEvent.inTransaction(tx, this.token, 'Approval', {
+        owner: holder,
+        spender: this.receiver.address,
+        value,
+      });
+      await expectEvent.inTransaction(tx, this.receiver, 'ApprovalReceived', {
+        owner: holder,
+        value,
+        data,
+      });
     });
 
     it('with reverting hook', async function () {
       const data = '0x01';
 
       await expectRevert(
-        this.token.methods['approveAndCall(address,uint256,bytes)'](this.receiver.address, value, data, { from: holder }),
+        this.token.methods['approveAndCall(address,uint256,bytes)'](
+          this.receiver.address,
+          value,
+          data,
+          { from: holder },
+        ),
         'onApprovalReceived revert',
       );
     });
