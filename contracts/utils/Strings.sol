@@ -67,15 +67,15 @@ library Strings {
 
     /**
      * @dev Converts each character ('a' to 'z') of a `string` to it's upper-case form ('A' to 'Z').
-     * Requires string to be comprised of ASCII set of characters.
+     * Requires parameter string `value` to be comprised purely of basic-ASCII characters.
      */
     function normalizeUpperASCII(string calldata value) internal pure returns (string memory) {
         bytes memory buffer = bytes(value);
         for (uint256 i = 0; i < buffer.length; i++) {
-            require(buffer[i] & 0x80 == 0, "Basic ASCII string required."); // 0x80-bit == non-ASCII
-            if (buffer[i] >= "a" && buffer[i] <= "z") {
-                buffer[i] ^= 0x20; // removes "lower-case bit"
-                assert(buffer[i] >= "A" && buffer[i] <= "Z");
+            require(buffer[i] & 0x80 == 0, "Basic ASCII string required."); // 0x80-bit on is non-ASCII.
+            if (buffer[i] >= "a" && buffer[i] <= "z") { // only work on lower-case characters.
+                buffer[i] &= 0x1F; // mask-off the lower-case bit.
+                assert(buffer[i] >= "A" && buffer[i] <= "Z"); // assert invariance in change to uppercase.
             }
         }
         return string(buffer);
@@ -83,15 +83,15 @@ library Strings {
 
     /**
      * @dev Converts each character ('A' to 'Z') of a `string` to it's lower-case form ('a' to 'z').
-     * Requires string to be comprised of ASCII set of characters.
+     * Requires parameter string `value` to be comprised purely of basic-ASCII characters.
      */
     function normalizeLowerASCII(string calldata value) internal pure returns (string memory) {
         bytes memory buffer = bytes(value);
         for (uint256 i = 0; i < buffer.length; i++) {
-            require(buffer[i] & 0x80 == 0, "Basic ASCII string required."); // 0x80-bit == non-ASCII
-            if (buffer[i] >= "A" && buffer[i] <= "Z") {
-                buffer[i] |= 0x20; // adds "lower-case bit"
-                assert(buffer[i] >= "a" && buffer[i] <= "z");
+            require(buffer[i] & 0x80 == 0, "Basic ASCII string required."); // 0x80-bit on is non-ASCII.
+            if (buffer[i] >= "A" && buffer[i] <= "Z") { // only work on upper-case characters.
+                buffer[i] |= 0x20; // mask-on the lower-case bit.
+                assert(buffer[i] >= "a" && buffer[i] <= "z"); // assert invariance in change to lowercase.
             }
         }
         return string(buffer);
