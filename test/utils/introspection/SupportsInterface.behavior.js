@@ -39,6 +39,14 @@ const INTERFACES = {
     'onERC1155Received(address,address,uint256,uint256,bytes)',
     'onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)',
   ],
+  ERC1363: [
+    'transferAndCall(address,uint256)',
+    'transferAndCall(address,uint256,bytes)',
+    'transferFromAndCall(address,address,uint256)',
+    'transferFromAndCall(address,address,uint256,bytes)',
+    'approveAndCall(address,uint256)',
+    'approveAndCall(address,uint256,bytes)',
+  ],
   AccessControl: [
     'hasRole(bytes32,address)',
     'getRoleAdmin(bytes32)',
