@@ -75,6 +75,7 @@ library Strings {
             require(buffer[i] & 0x80 == 0, "Basic ASCII string required."); // 0x80-bit == non-ASCII
             if (buffer[i] >= "a" && buffer[i] <= "z") {
                 buffer[i] ^= 0x20; // removes "lower-case bit"
+                assert(buffer[i] >= "A" && buffer[i] <= "Z");
             }
         }
         return string(buffer);
@@ -90,6 +91,7 @@ library Strings {
             require(buffer[i] & 0x80 == 0, "Basic ASCII string required."); // 0x80-bit == non-ASCII
             if (buffer[i] >= "A" && buffer[i] <= "Z") {
                 buffer[i] |= 0x20; // adds "lower-case bit"
+                assert(buffer[i] >= "a" && buffer[i] <= "z");
             }
         }
         return string(buffer);
