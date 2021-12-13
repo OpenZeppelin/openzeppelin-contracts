@@ -21,45 +21,45 @@ contract('ERC721Royalty', function (accounts) {
 
   describe('global royalty', function () {
     beforeEach(async function () {
-      await this.token.setGlobalRoyalty (account1, royaltyFraction);
+      await this.token.setGlobalRoyalty(account1, royaltyFraction);
     });
 
     it('updates royalty amount', async function () {
-      const newAmount = new BN('25');
-      let royalty = new BN((salePrice * royaltyFraction) / 100);
+      const newPercentage = new BN('25');
+      let royalty = new BN((salePrice * royaltyFraction) / 10000);
       // Initial royalty check
       const initInfo = await this.token.royaltyInfo(tokenId1, salePrice);
 
-      expect(initInfo.receiver).to.be.equal(account1);
-      expect(initInfo.royaltyFraction).to.be.bignumber.equal(royalty);
+      expect(initInfo[0]).to.be.equal(account1);
+      expect(initInfo[1]).to.be.bignumber.equal(royalty);
 
       // Updated royalty check
-      await this.token.setGlobalRoyalty (account1, newAmount);
-      royalty = new BN((salePrice * newAmount) / 100);
+      await this.token.setGlobalRoyalty(account1, newPercentage);
+      royalty = new BN((salePrice * newPercentage) / 10000);
       const newInfo = await this.token.royaltyInfo(tokenId1, salePrice);
 
-      expect(newInfo.receiver).to.be.equal(account1);
-      expect(newInfo.royaltyFraction).to.be.bignumber.equal(royalty);
+      expect(newInfo[0]).to.be.equal(account1);
+      expect(newInfo[1]).to.be.bignumber.equal(royalty);
     });
 
     it('holds same royalty value for different tokens', async function () {
-      const newAmount = new BN('20');
-      await this.token.setGlobalRoyalty (account1, newAmount);
+      const newPercentage = new BN('20');
+      await this.token.setGlobalRoyalty(account1, newPercentage);
 
       const token1Info = await this.token.royaltyInfo(tokenId1, salePrice);
       const token2Info = await this.token.royaltyInfo(tokenId2, salePrice);
 
-      expect(token1Info.royaltyFraction).to.be.bignumber.equal(token2Info.royaltyFraction);
+      expect(token1Info[1]).to.be.bignumber.equal(token2Info[1]);
     });
 
     it('reverts if invalid parameters', async function () {
       await expectRevert(
-        this.token.setGlobalRoyalty (ZERO_ADDRESS, royaltyFraction),
+        this.token.setGlobalRoyalty(ZERO_ADDRESS, royaltyFraction),
         'ERC2981: Invalid receiver',
       );
 
       await expectRevert(
-        this.token.setGlobalRoyalty (account1, new BN('100')),
+        this.token.setGlobalRoyalty(account1, new BN('100')),
         'ERC2981: Royalty percentage is too high',
       );
     });
@@ -71,32 +71,32 @@ contract('ERC721Royalty', function (accounts) {
     });
 
     it('updates royalty amount', async function () {
-      const newAmount = new BN('25');
-      let royalty = new BN((salePrice * royaltyFraction) / 100);
+      const newPercentage = new BN('25');
+      let royalty = new BN((salePrice * royaltyFraction) / 10000);
       // Initial royalty check
       const initInfo = await this.token.royaltyInfo(tokenId1, salePrice);
 
-      expect(initInfo.receiver).to.be.equal(account1);
-      expect(initInfo.royaltyFraction).to.be.bignumber.equal(royalty);
+      expect(initInfo[0]).to.be.equal(account1);
+      expect(initInfo[1]).to.be.bignumber.equal(royalty);
 
       // Updated royalty check
-      await this.token.setTokenRoyalty(tokenId1, account1, newAmount);
-      royalty = new BN((salePrice * newAmount) / 100);
+      await this.token.setTokenRoyalty(tokenId1, account1, newPercentage);
+      royalty = new BN((salePrice * newPercentage) / 10000);
       const newInfo = await this.token.royaltyInfo(tokenId1, salePrice);
 
-      expect(newInfo.receiver).to.be.equal(account1);
-      expect(newInfo.royaltyFraction).to.be.bignumber.equal(royalty);
+      expect(newInfo[0]).to.be.equal(account1);
+      expect(newInfo[1]).to.be.bignumber.equal(royalty);
     });
 
     it('holds different values for different tokens', async function () {
-      const newAmount = new BN('20');
-      await this.token.setTokenRoyalty(tokenId2, account1, newAmount);
+      const newPercentage = new BN('20');
+      await this.token.setTokenRoyalty(tokenId2, account1, newPercentage);
 
       const token1Info = await this.token.royaltyInfo(tokenId1, salePrice);
       const token2Info = await this.token.royaltyInfo(tokenId2, salePrice);
 
       // must be different even at the same SalePrice
-      expect(token1Info.royaltyFraction).to.not.be.equal(token2Info.royaltyFraction);
+      expect(token1Info[1]).to.not.be.equal(token2Info.royaltyFraction);
     });
 
     it('reverts if invalid parameters', async function () {

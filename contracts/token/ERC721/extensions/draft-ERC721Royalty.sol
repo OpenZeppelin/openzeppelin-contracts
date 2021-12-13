@@ -49,7 +49,8 @@ abstract contract ERC721Royalty is ERC165, IERC721Royalty {
      *
      * Requirements:
      * - `receiver` cannot be the zero address.
-     * - `fraction` must indicate the percentage fraction.
+     * - `fraction` must indicate the percentage fraction. Needs to be set appropriately
+     * according to the _feeDenominator granularity.
      */
     function _setGlobalRoyalty(address receiver, uint256 fraction) internal virtual {
         require(fraction < 100, "ERC2981: Royalty percentage is too high");
@@ -61,28 +62,34 @@ abstract contract ERC721Royalty is ERC165, IERC721Royalty {
     /**
      * @dev See {IERC721Royalty-royaltyInfo}
      */
-    function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
-        external
-        view
-        override
-        returns (address receiver, uint256 royaltyFraction)
-    {
+    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view override returns (address, uint256) {
+        address receiver;
+        uint256 royaltyAmount;
+
         if (_tokenRoyaltyInfo[_tokenId].receiver != address(0)) {
             RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
             receiver = royalty.receiver;
-            royaltyFraction = (_salePrice * royalty.royaltyFraction) / 100;
+            royaltyAmount = (_salePrice * royalty.royaltyFraction) / _feeDenominator();
         } else {
             receiver = _globalRoyaltyInfo.receiver;
-            royaltyFraction = (_salePrice * _globalRoyaltyInfo.royaltyFraction) / 100;
+            royaltyAmount = (_salePrice * _globalRoyaltyInfo.royaltyFraction) / _feeDenominator();
         }
+
+        return (receiver, royaltyAmount);
     }
 
     /**
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
-        return
-            interfaceId == type(IERC721Royalty).interfaceId ||
-            super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC721Royalty).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @dev Returns the percentage granularity being used. The default denominator is 10000
+     *  but it can be customized by an override.
+     */
+    function _feeDenominator() internal pure virtual returns (uint256) {
+        return 10000;
     }
 }
