@@ -14,12 +14,12 @@ contract ERC721RoyaltyMock is ERC721Royalty {
     function setTokenRoyalty(
         uint256 tokenId,
         address recipient,
-        uint256 value
+        uint256 fraction
     ) public {
-        _setTokenRoyalty(tokenId, recipient, value);
+        _setTokenRoyalty(tokenId, recipient, fraction);
     }
 
-    function setGlobalRoyalty (address recipient, uint256 value) public {
-        _setGlobalRoyalty(recipient, value);
+    function setGlobalRoyalty (address recipient, uint256 fraction) public {
+        _setGlobalRoyalty(recipient, fraction);
     }
 }

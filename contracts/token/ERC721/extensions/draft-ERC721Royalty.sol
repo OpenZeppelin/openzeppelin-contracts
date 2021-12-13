@@ -19,29 +19,29 @@ import "hardhat/console.sol";
 abstract contract ERC721Royalty is IERC721Royalty, ERC165Storage {
     struct RoyaltyInfo {
         address receiver;
-        uint256 royaltyAmount;
+        uint256 royaltyFraction;
     }
 
-    RoyaltyInfo private _royaltyInfo;
-    mapping(uint256 => RoyaltyInfo) private _tokenRoyalty;
+    RoyaltyInfo private _globalRoyaltyInfo;
+    mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
 
     /*
      * @dev Sets tokens royalties
      *
      * Requirements:
      * - `tokenId` must be already mined.
-     * - `recipient` cannot be the zero address.
-     * - `value` must indicate the percentage value using two decimals.
+     * - `receiver` cannot be the zero address.
+     * - `fraction` must indicate the percentage fraction using two decimals.
      */
     function _setTokenRoyalty(
         uint256 tokenId,
-        address recipient,
-        uint256 value
+        address receiver,
+        uint256 fraction
     ) internal virtual {
-        require(value < 100, "ERC2981: Royalty percentage is too high");
-        require(recipient != address(0), "ERC2981: Invalid recipient");
+        require(fraction < 100, "ERC2981: Royalty percentage is too high");
+        require(receiver != address(0), "ERC2981: Invalid receiver");
 
-        _tokenRoyalty[tokenId] = RoyaltyInfo(recipient, value);
+        _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, fraction);
     }
 
     /*
@@ -49,14 +49,14 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC165Storage {
      * @dev Sets global royalty
      *
      * Requirements:
-     * - `recipient` cannot be the zero address.
-     * - `value` must indicate the percentage value.
+     * - `receiver` cannot be the zero address.
+     * - `fraction` must indicate the percentage fraction.
      */
-    function _setGlobalRoyalty(address recipient, uint256 value) internal virtual {
-        require(value < 100, "ERC2981: Royalty percentage is too high");
-        require(recipient != address(0), "ERC2981: Invalid recipient");
+    function _setGlobalRoyalty(address receiver, uint256 fraction) internal virtual {
+        require(fraction < 100, "ERC2981: Royalty percentage is too high");
+        require(receiver != address(0), "ERC2981: Invalid receiver");
 
-        _royaltyInfo = RoyaltyInfo(recipient, value);
+        _globalRoyaltyInfo = RoyaltyInfo(receiver, fraction);
     }
 
     /**
@@ -66,15 +66,15 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC165Storage {
         external
         view
         override
-        returns (address receiver, uint256 royaltyAmount)
+        returns (address receiver, uint256 royaltyFraction)
     {
-        if (_tokenRoyalty[_tokenId].receiver != address(0)) {
-            RoyaltyInfo memory royalty = _tokenRoyalty[_tokenId];
+        if (_tokenRoyaltyInfo[_tokenId].receiver != address(0)) {
+            RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
             receiver = royalty.receiver;
-            royaltyAmount = (_salePrice * royalty.royaltyAmount) / 100;
+            royaltyFraction = (_salePrice * royalty.royaltyFraction) / 100;
         } else {
-            receiver = _royaltyInfo.receiver;
-            royaltyAmount = (_salePrice * _royaltyInfo.royaltyAmount) / 100;
+            receiver = _globalRoyaltyInfo.receiver;
+            royaltyFraction = (_salePrice * _globalRoyaltyInfo.royaltyFraction) / 100;
         }
     }
 }
