@@ -4,8 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "./draft-IERC721Royalty.sol";
-import "../../../utils/introspection/ERC165Storage.sol";
-import "hardhat/console.sol";
+import "../../../utils/introspection/ERC165.sol";
 
 /**
  * @dev Implementation of the ERC721 Royalty extension allowing royalty information to be stored and retrieved, as defined in
@@ -16,7 +15,7 @@ import "hardhat/console.sol";
  *
  * _Available since v4.5._
  */
-abstract contract ERC721Royalty is IERC721Royalty, ERC165Storage {
+abstract contract ERC721Royalty is ERC165, IERC721Royalty {
     struct RoyaltyInfo {
         address receiver;
         uint256 royaltyFraction;
@@ -76,5 +75,14 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC165Storage {
             receiver = _globalRoyaltyInfo.receiver;
             royaltyFraction = (_salePrice * _globalRoyaltyInfo.royaltyFraction) / 100;
         }
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+        return
+            interfaceId == type(IERC721Royalty).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 }

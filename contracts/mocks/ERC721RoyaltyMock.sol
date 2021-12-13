@@ -7,8 +7,8 @@ import "../token/ERC721/extensions/draft-ERC721Royalty.sol";
 contract ERC721RoyaltyMock is ERC721Royalty {
     bytes4 private constant _INTERFACE_ID_ERC2981 = 0x2a55205a;
 
-    constructor() {
-        _registerInterface(_INTERFACE_ID_ERC2981);
+    constructor() public {
+
     }
 
     function setTokenRoyalty(

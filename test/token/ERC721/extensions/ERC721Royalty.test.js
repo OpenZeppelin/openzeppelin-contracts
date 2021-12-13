@@ -55,7 +55,7 @@ contract('ERC721Royalty', function (accounts) {
     it('reverts if invalid parameters', async function () {
       await expectRevert(
         this.token.setGlobalRoyalty (ZERO_ADDRESS, royaltyFraction),
-        'ERC2981: Invalid recipient',
+        'ERC2981: Invalid receiver',
       );
 
       await expectRevert(
@@ -102,7 +102,7 @@ contract('ERC721Royalty', function (accounts) {
     it('reverts if invalid parameters', async function () {
       await expectRevert(
         this.token.setTokenRoyalty(tokenId1, ZERO_ADDRESS, royaltyFraction),
-        'ERC2981: Invalid recipient',
+        'ERC2981: Invalid receiver',
       );
 
       await expectRevert(
