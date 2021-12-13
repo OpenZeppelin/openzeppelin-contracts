@@ -73,7 +73,8 @@ library Strings {
         bytes memory buffer = bytes(value);
         for (uint256 i = 0; i < buffer.length; i++) {
             require(buffer[i] & 0x80 == 0, "Basic ASCII string required."); // 0x80-bit on is non-ASCII.
-            if (buffer[i] >= "a" && buffer[i] <= "z") { // only work on lower-case characters.
+            // only work on lower-case characters.
+            if (buffer[i] >= "a" && buffer[i] <= "z") {
                 buffer[i] &= 0xDF; // mask-off the lower-case bit.
                 assert(buffer[i] >= "A" && buffer[i] <= "Z"); // assert invariance in change to uppercase.
             }
@@ -89,7 +90,8 @@ library Strings {
         bytes memory buffer = bytes(value);
         for (uint256 i = 0; i < buffer.length; i++) {
             require(buffer[i] & 0x80 == 0, "Basic ASCII string required."); // 0x80-bit on is non-ASCII.
-            if (buffer[i] >= "A" && buffer[i] <= "Z") { // only work on upper-case characters.
+            // only work on upper-case characters.
+            if (buffer[i] >= "A" && buffer[i] <= "Z") {
                 buffer[i] |= 0x20; // mask-on the lower-case bit.
                 assert(buffer[i] >= "a" && buffer[i] <= "z"); // assert invariance in change to lowercase.
             }
