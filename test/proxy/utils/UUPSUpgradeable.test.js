@@ -44,7 +44,7 @@ contract('UUPSUpgradeable', function (accounts) {
     expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeUnsafe.address });
   });
 
-  it('reject upgrade to broken upgradeable implementation', async function () {
+  it.skip('reject upgrade to broken upgradeable implementation (no longer supported)', async function () {
     await expectRevert(
       this.instance.upgradeTo(this.implUpgradeBroken.address),
       'ERC1967Upgrade: upgrade breaks further upgrades',
@@ -55,7 +55,7 @@ contract('UUPSUpgradeable', function (accounts) {
   it('reject upgrade to non uups implementation', async function () {
     await expectRevert(
       this.instance.upgradeTo(this.implUpgradeNonUUPS.address),
-      'Address: low-level delegate call failed',
+      'Transaction reverted: function selector was not recognized and there\'s no fallback function',
     );
   });
 
@@ -66,7 +66,7 @@ contract('UUPSUpgradeable', function (accounts) {
     // infinite loop reverts when a nested call is out-of-gas
     await expectRevert(
       this.instance.upgradeTo(otherInstance.address),
-      'Address: low-level delegate call failed',
+      'Function must not be called through delegatecall',
     );
   });
 });

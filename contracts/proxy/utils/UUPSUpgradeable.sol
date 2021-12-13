@@ -3,6 +3,7 @@
 
 pragma solidity ^0.8.0;
 
+import "../ERC1822/IProxiable.sol";
 import "../ERC1967/ERC1967Upgrade.sol";
 
 /**
@@ -17,7 +18,7 @@ import "../ERC1967/ERC1967Upgrade.sol";
  *
  * _Available since v4.1._
  */
-abstract contract UUPSUpgradeable is ERC1967Upgrade {
+abstract contract UUPSUpgradeable is IProxiable, ERC1967Upgrade {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address private immutable __self = address(this);
 
@@ -32,6 +33,23 @@ abstract contract UUPSUpgradeable is ERC1967Upgrade {
         require(address(this) != __self, "Function must be called through delegatecall");
         require(_getImplementation() == __self, "Function must be called through active proxy");
         _;
+    }
+
+    /**
+     * @dev Check that the execution is not being performed through a delegate call. This allows a function to be
+     * callable on the implementing contract but not through proxies.
+     */
+    modifier notDelegated() {
+        require(address(this) == __self, "Function must not be called through delegatecall");
+        _;
+    }
+
+    /**
+     * @dev Implementation of the ERC1822 {proxiableUUID} function. This returns the storage slot used by the
+     * implementation. It is used to validate that the this implementation remains valid after an upgrade.
+     */
+    function proxiableUUID() external view virtual override notDelegated returns (bytes32) {
+        return _IMPLEMENTATION_SLOT;
     }
 
     /**
