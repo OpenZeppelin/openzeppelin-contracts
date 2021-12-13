@@ -79,9 +79,7 @@ library Strings {
             if (buffer[i] >= "a" && buffer[i] <= "z") {
                 // remove the lower-case bit. 0xDF is the bit-wise complement ('~') of
                 // the lower-case bit mask (0x20).
-                buffer[i] &= 0xDF;
-                // assert invariance in conversion to upper-case.
-                assert(buffer[i] >= "A" && buffer[i] <= "Z");
+                buffer[i] &= ~bytes1(0x20);
             }
         }
         // return the upper-case normalized, basic-ASCII string result.
@@ -102,8 +100,6 @@ library Strings {
             if (buffer[i] >= "A" && buffer[i] <= "Z") {
                 // set the lower-case bit (0x20).
                 buffer[i] |= 0x20;
-                // assert invariance in conversion to lower-case.
-                assert((buffer[i] >= "a") && (buffer[i] <= "z"));
             }
         }
         // return the lower-case normalized, basic-ASCII string result.
