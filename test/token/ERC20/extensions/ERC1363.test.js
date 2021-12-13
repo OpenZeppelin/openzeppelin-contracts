@@ -69,18 +69,48 @@ contract('ERC1363', function (accounts) {
       });
     });
 
-    it('with reverting hook', async function () {
-      const data = '0x01';
+    describe('revert', function () {
+      it('invalid return value', async function () {
+        const data = '0x00';
 
-      await expectRevert(
-        this.token.methods['transferAndCall(address,uint256,bytes)'](
-          this.receiver.address,
-          value,
-          data,
-          { from: holder },
-        ),
-        'onTransferReceived revert',
-      );
+        await expectRevert(
+          this.token.methods['transferAndCall(address,uint256,bytes)'](
+            this.receiver.address,
+            value,
+            data,
+            { from: holder },
+          ),
+          'ERC1363: onTransferReceived invalid result',
+        );
+      });
+
+      it('hook reverts with message', async function () {
+        const data = '0x01';
+
+        await expectRevert(
+          this.token.methods['transferAndCall(address,uint256,bytes)'](
+            this.receiver.address,
+            value,
+            data,
+            { from: holder },
+          ),
+          'onTransferReceived revert',
+        );
+      });
+
+      it('hook reverts with error', async function () {
+        const data = '0x02';
+
+        await expectRevert(
+          this.token.methods['transferAndCall(address,uint256,bytes)'](
+            this.receiver.address,
+            value,
+            data,
+            { from: holder },
+          ),
+          'ERC1363: onTransferReceived reverted without reason',
+        );
+      });
     });
   });
 
@@ -136,19 +166,51 @@ contract('ERC1363', function (accounts) {
       });
     });
 
-    it('with reverting hook', async function () {
-      const data = '0x01';
+    describe('revert', function () {
+      it('invalid return value', async function () {
+        const data = '0x00';
 
-      await expectRevert(
-        this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](
-          holder,
-          this.receiver.address,
-          value,
-          data,
-          { from: operator },
-        ),
-        'onTransferReceived revert',
-      );
+        await expectRevert(
+          this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](
+            holder,
+            this.receiver.address,
+            value,
+            data,
+            { from: operator },
+          ),
+          'ERC1363: onTransferReceived invalid result',
+        );
+      });
+
+      it('hook reverts with message', async function () {
+        const data = '0x01';
+
+        await expectRevert(
+          this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](
+            holder,
+            this.receiver.address,
+            value,
+            data,
+            { from: operator },
+          ),
+          'onTransferReceived revert',
+        );
+      });
+
+      it('hook reverts with error', async function () {
+        const data = '0x02';
+
+        await expectRevert(
+          this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](
+            holder,
+            this.receiver.address,
+            value,
+            data,
+            { from: operator },
+          ),
+          'ERC1363: onTransferReceived reverted without reason',
+        );
+      });
     });
   });
 
@@ -196,18 +258,48 @@ contract('ERC1363', function (accounts) {
       });
     });
 
-    it('with reverting hook', async function () {
-      const data = '0x01';
+    describe('revert', function () {
+      it('invalid return value', async function () {
+        const data = '0x00';
 
-      await expectRevert(
-        this.token.methods['approveAndCall(address,uint256,bytes)'](
-          this.receiver.address,
-          value,
-          data,
-          { from: holder },
-        ),
-        'onApprovalReceived revert',
-      );
+        await expectRevert(
+          this.token.methods['approveAndCall(address,uint256,bytes)'](
+            this.receiver.address,
+            value,
+            data,
+            { from: holder },
+          ),
+          'ERC1363: onApprovalReceived invalid result',
+        );
+      });
+
+      it('hook reverts with message', async function () {
+        const data = '0x01';
+
+        await expectRevert(
+          this.token.methods['approveAndCall(address,uint256,bytes)'](
+            this.receiver.address,
+            value,
+            data,
+            { from: holder },
+          ),
+          'onApprovalReceived revert',
+        );
+      });
+
+      it('hook reverts with error', async function () {
+        const data = '0x02';
+
+        await expectRevert(
+          this.token.methods['approveAndCall(address,uint256,bytes)'](
+            this.receiver.address,
+            value,
+            data,
+            { from: holder },
+          ),
+          'ERC1363: onApprovalReceived reverted without reason',
+        );
+      });
     });
   });
 });
