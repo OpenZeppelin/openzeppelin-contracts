@@ -37,7 +37,8 @@ abstract contract ERC721Royalty is ERC165, IERC721Royalty {
         address receiver,
         uint256 fraction
     ) internal virtual {
-        require(fraction < 100, "ERC2981: Royalty percentage is too high");
+        require(fraction > 0, "ERC2981: Royalty percentage is too low");
+        require(fraction <= _feeDenominator(), "ERC2981: Royalty percentage will exceed salePrice");
         require(receiver != address(0), "ERC2981: Invalid receiver");
 
         _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, fraction);
@@ -53,7 +54,8 @@ abstract contract ERC721Royalty is ERC165, IERC721Royalty {
      * according to the _feeDenominator granularity.
      */
     function _setGlobalRoyalty(address receiver, uint256 fraction) internal virtual {
-        require(fraction < 100, "ERC2981: Royalty percentage is too high");
+        require(fraction > 0, "ERC2981: Royalty percentage is too low");
+        require(fraction <= _feeDenominator(), "ERC2981: Royalty percentage will exceed salePrice");
         require(receiver != address(0), "ERC2981: Invalid receiver");
 
         _globalRoyaltyInfo = RoyaltyInfo(receiver, fraction);
@@ -90,4 +92,22 @@ abstract contract ERC721Royalty is ERC165, IERC721Royalty {
     function _feeDenominator() internal pure virtual returns (uint256) {
         return 10000;
     }
+
+    /**
+     * @dev Destroys `tokenId`.
+     * The royalty information is cleared when the token is burned.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     *
+     * Emits a {Transfer} event.
+
+    function _burn(uint256 tokenId) internal virtual override {
+        super._burn(tokenId);
+
+        if (_tokenRoyaltyInfo[tokenId].royaltyFraction != 0) {
+            delete _tokenRoyaltyInfo[tokenId];
+        }
+    }   */
 }

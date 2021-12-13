@@ -59,8 +59,13 @@ contract('ERC721Royalty', function (accounts) {
       );
 
       await expectRevert(
-        this.token.setGlobalRoyalty(account1, new BN('100')),
-        'ERC2981: Royalty percentage is too high',
+        this.token.setGlobalRoyalty(account1, new BN('0')),
+        'ERC2981: Royalty percentage is too low',
+      );
+
+      await expectRevert(
+        this.token.setTokenRoyalty(tokenId1, account1, new BN('11000')),
+        'ERC2981: Royalty percentage will exceed salePrice',
       );
     });
   });
@@ -106,8 +111,13 @@ contract('ERC721Royalty', function (accounts) {
       );
 
       await expectRevert(
-        this.token.setTokenRoyalty(tokenId1, account1, new BN('100')),
-        'ERC2981: Royalty percentage is too high',
+        this.token.setTokenRoyalty(tokenId1, account1, new BN('0')),
+        'ERC2981: Royalty percentage is too low',
+      );
+
+      await expectRevert(
+        this.token.setTokenRoyalty(tokenId1, account1, new BN('11000')),
+        'ERC2981: Royalty percentage will exceed salePrice',
       );
     });
   });
