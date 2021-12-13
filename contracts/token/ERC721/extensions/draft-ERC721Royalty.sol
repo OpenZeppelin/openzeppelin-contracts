@@ -3,6 +3,7 @@
 
 pragma solidity ^0.8.0;
 
+import "../ERC721.sol";
 import "./draft-IERC721Royalty.sol";
 import "../../../utils/introspection/ERC165.sol";
 
@@ -15,7 +16,7 @@ import "../../../utils/introspection/ERC165.sol";
  *
  * _Available since v4.5._
  */
-abstract contract ERC721Royalty is ERC165, IERC721Royalty {
+abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
     struct RoyaltyInfo {
         address receiver;
         uint256 royaltyFraction;
@@ -24,7 +25,7 @@ abstract contract ERC721Royalty is ERC165, IERC721Royalty {
     RoyaltyInfo private _globalRoyaltyInfo;
     mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
 
-    /*
+    /**
      * @dev Sets tokens royalties
      *
      * Requirements:
@@ -40,11 +41,12 @@ abstract contract ERC721Royalty is ERC165, IERC721Royalty {
         require(fraction > 0, "ERC2981: Royalty percentage is too low");
         require(fraction <= _feeDenominator(), "ERC2981: Royalty percentage will exceed salePrice");
         require(receiver != address(0), "ERC2981: Invalid receiver");
+        require(_exists(tokenId), "ERC2981: Nonexistent token");
 
         _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, fraction);
     }
 
-    /*
+    /**
      *
      * @dev Sets global royalty
      *
@@ -81,7 +83,7 @@ abstract contract ERC721Royalty is ERC165, IERC721Royalty {
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
         return interfaceId == type(IERC721Royalty).interfaceId || super.supportsInterface(interfaceId);
     }
 
@@ -94,6 +96,21 @@ abstract contract ERC721Royalty is ERC165, IERC721Royalty {
     }
 
     /**
+     * @dev Removes `tokenId` royalty information.
+     * The royalty information is cleared when the token is burned.
+     *
+     * Requirements:
+     *
+     * - `tokenId` royalty information must exist.
+     *
+     */
+    function _deleteTokenRoyalty(uint256 tokenId) internal virtual {
+        if (_tokenRoyaltyInfo[tokenId].royaltyFraction != 0) {
+            delete _tokenRoyaltyInfo[tokenId];
+        }
+    }
+
+    /**
      * @dev Destroys `tokenId`.
      * The royalty information is cleared when the token is burned.
      *
@@ -102,12 +119,9 @@ abstract contract ERC721Royalty is ERC165, IERC721Royalty {
      * - `tokenId` must exist.
      *
      * Emits a {Transfer} event.
-
+     */
     function _burn(uint256 tokenId) internal virtual override {
         super._burn(tokenId);
-
-        if (_tokenRoyaltyInfo[tokenId].royaltyFraction != 0) {
-            delete _tokenRoyaltyInfo[tokenId];
-        }
-    }   */
+        _deleteTokenRoyalty(tokenId);
+    }
 }

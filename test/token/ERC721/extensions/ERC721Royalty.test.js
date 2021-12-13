@@ -14,7 +14,10 @@ contract('ERC721Royalty', function (accounts) {
   const royaltyFraction = new BN('10');
 
   beforeEach(async function () {
-    this.token = await ERC721RoyaltyMock.new();
+    this.token = await ERC721RoyaltyMock.new('My Token', 'TKN');
+
+    await this.token.mint(account1, tokenId1);
+    await this.token.mint(account1, tokenId2);
   });
 
   shouldSupportInterfaces(['ERC2981']);
@@ -118,6 +121,24 @@ contract('ERC721Royalty', function (accounts) {
       await expectRevert(
         this.token.setTokenRoyalty(tokenId1, account1, new BN('11000')),
         'ERC2981: Royalty percentage will exceed salePrice',
+      );
+
+      await expectRevert(
+        this.token.setTokenRoyalty(new BN('787'), account1, new BN('100')),
+        'ERC2981: Nonexistent token',
+      );
+    });
+
+    it('removes royalty information after burn', async function () {
+      await this.token.burn(tokenId1);
+      const tokenInfo = await this.token.royaltyInfo(tokenId1, salePrice);
+
+      expect(tokenInfo[0]).to.be.equal(ZERO_ADDRESS);
+      expect(tokenInfo[1]).to.be.bignumber.equal(new BN('0'));
+
+      await expectRevert(
+        this.token.setTokenRoyalty(tokenId1, account1, new BN('100')),
+        'ERC2981: Nonexistent token',
       );
     });
   });
