@@ -19,7 +19,7 @@ contract ERC721RoyaltyMock is ERC721Royalty {
         _setTokenRoyalty(tokenId, recipient, value);
     }
 
-    function setRoyalty(address recipient, uint256 value) public {
-        _setRoyalty(recipient, value);
+    function setGlobalRoyalty (address recipient, uint256 value) public {
+        _setGlobalRoyalty(recipient, value);
     }
 }

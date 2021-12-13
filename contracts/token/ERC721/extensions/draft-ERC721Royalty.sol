@@ -11,7 +11,7 @@ import "hardhat/console.sol";
  * @dev Implementation of the ERC721 Royalty extension allowing royalty information to be stored and retrieved, as defined in
  * https://eips.ethereum.org/EIPS/eip-2981[EIP-2981].
  *
- * Adds the {_setTokenRoyalty} methods to set the token royalty information, and {_setRoyalty} method to set a global
+ * Adds the {_setTokenRoyalty} methods to set the token royalty information, and {_setGlobalRoyalty} method to set a global
  * royalty information.
  *
  * _Available since v4.5._
@@ -52,7 +52,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC165Storage {
      * - `recipient` cannot be the zero address.
      * - `value` must indicate the percentage value.
      */
-    function _setRoyalty(address recipient, uint256 value) internal virtual {
+    function _setGlobalRoyalty(address recipient, uint256 value) internal virtual {
         require(value < 100, "ERC2981: Royalty percentage is too high");
         require(recipient != address(0), "ERC2981: Invalid recipient");
 
