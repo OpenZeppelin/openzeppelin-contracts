@@ -66,7 +66,7 @@ library Strings {
     }
 
     /**
-     * @dev Convert each lower-case character ('a' to 'z') of a basic-ASCII `string` to it's 
+     * @dev Convert each lower-case character ('a' to 'z') of a basic-ASCII `string` to it's
      * upper-case form ('A' to 'Z') and returns an upper-case normalized, basic-ASCII string.
      */
     function normalizeUpperASCII(string calldata value) internal pure returns (string memory) {
@@ -74,7 +74,7 @@ library Strings {
         bytes memory buffer = bytes(value);
         for (uint256 i = 0; i < buffer.length; i++) {
             // require basic-ASCII input. 0x80 is a mask that signals non-basic-ASCII characters.
-            require(buffer[i] & 0x80 == 0, "Basic ASCII string required."); 
+            require(buffer[i] & 0x80 == 0, "Basic ASCII string required.");
             // only work on lower-case characters.
             if (buffer[i] >= "a" && buffer[i] <= "z") {
                 // remove the lower-case bit. 0xDF is the bit-wise complement ('~') of
@@ -89,7 +89,7 @@ library Strings {
     }
 
     /**
-     * @dev Converts each upper-case character ('A' to 'Z') of a basic-ASCII `string` to it's 
+     * @dev Converts each upper-case character ('A' to 'Z') of a basic-ASCII `string` to it's
      * lower-case form ('a' to 'z') and returns a lower-case normalized, basic-ASCII string.
      */
     function normalizeLowerASCII(string calldata value) internal pure returns (string memory) {
@@ -103,7 +103,7 @@ library Strings {
                 // set the lower-case bit (0x20).
                 buffer[i] |= 0x20;
                 // assert invariance in conversion to lower-case.
-                assert((buffer[i] >= "a") && (buffer[i] <= "z")); 
+                assert((buffer[i] >= "a") && (buffer[i] <= "z"));
             }
         }
         // return the lower-case normalized, basic-ASCII string result.
