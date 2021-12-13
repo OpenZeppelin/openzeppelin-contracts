@@ -22,9 +22,10 @@ contract('ERC721Royalty', function (accounts) {
 
   it('calls supports interface', async function () {
     const result = await this.token.supportsInterface('0x2a55205a');
+    const expected = true;
 
-    expect(result).to.not.be.undefined;
-    expect(result).to.be.true;
+    expect(result).to.not.equal(undefined);
+    expect(result).to.equal(expected);
   });
 
   shouldSupportInterfaces(['ERC2981']);
