@@ -17,11 +17,11 @@ contract StringsMock {
         return Strings.toHexString(value, length);
     }
 
-    function toUpperMock(string calldata value) public pure returns (string memory) {
+    function mockNormalizeUpperASCII(string calldata value) public pure returns (string memory) {
         return Strings.normalizeUpperASCII(value);
     }
 
-    function toLowerMock(string calldata value) public pure returns (string memory) {
+    function mockNormalizeLowerASCII(string calldata value) public pure returns (string memory) {
         return Strings.normalizeLowerASCII(value);
     }
 }
