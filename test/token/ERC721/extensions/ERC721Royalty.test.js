@@ -7,7 +7,7 @@ const { shouldSupportInterfaces } = require('../../../utils/introspection/Suppor
 const ERC721RoyaltyMock = artifacts.require('ERC721RoyaltyMock');
 
 contract('ERC721Royalty', function (accounts) {
-  const [ account1 ] = accounts;
+  const [ account1, account2 ] = accounts;
   const tokenId1 = new BN('1');
   const tokenId2 = new BN('2');
   const salePrice = new BN('1000');
@@ -64,13 +64,20 @@ contract('ERC721Royalty', function (accounts) {
     });
 
     it('can hold global and token royalty information', async function () {
-      const newPercentage = new BN('20');
-      await this.token.setGlobalRoyalty(account1, newPercentage);
+      const newPercentage = new BN('30');
+      const royalty = new BN((salePrice * newPercentage) / 10000);
+
+      await this.token.setTokenRoyalty(tokenId2, account2, newPercentage);
 
       const token1Info = await this.token.royaltyInfo(tokenId1, salePrice);
       const token2Info = await this.token.royaltyInfo(tokenId2, salePrice);
+      // Tokens must not have same values
+      expect(token1Info[1]).to.not.be.bignumber.equal(token2Info[1]);
+      expect(token1Info[0]).to.not.be.equal(token2Info[0]);
 
-      expect(token1Info[1]).to.be.bignumber.equal(token2Info[1]);
+      // Updated token must have new values
+      expect(token2Info[0]).to.be.equal(account2);
+      expect(token2Info[1]).to.be.bignumber.equal(royalty);
     });
 
     it('Remove royalty information', async function () {
@@ -79,10 +86,10 @@ contract('ERC721Royalty', function (accounts) {
 
       const token1Info = await this.token.royaltyInfo(tokenId1, salePrice);
       const token2Info = await this.token.royaltyInfo(tokenId2, salePrice);
-      //Test royalty info is still persistent across all tokens
+      // Test royalty info is still persistent across all tokens
       expect(token1Info[0]).to.be.bignumber.equal(token2Info[0]);
       expect(token1Info[1]).to.be.bignumber.equal(token2Info[1]);
-      //Test information was deleted
+      // Test information was deleted
       expect(token1Info[0]).to.be.equal(ZERO_ADDRESS);
       expect(token1Info[1]).to.be.bignumber.equal(newValue);
     });
