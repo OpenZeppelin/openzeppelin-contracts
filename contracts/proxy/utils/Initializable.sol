@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.3.2 (proxy/utils/Initializable.sol)
+// OpenZeppelin Contracts v4.4.0 (proxy/utils/Initializable.sol)
 
 pragma solidity ^0.8.0;
 
+import "../../utils/Address.sol";
+
 /**
  * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
- * behind a proxy. Since a proxied contract can't have a constructor, it's common to move constructor logic to an
+ * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an
  * external initializer function, usually called `initialize`. It then becomes necessary to protect this initializer
  * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.
  *
@@ -45,7 +47,10 @@ abstract contract Initializable {
      * @dev Modifier to protect an initializer function from being invoked twice.
      */
     modifier initializer() {
-        require(_initializing || !_initialized, "Initializable: contract is already initialized");
+        // If the contract is initializing we ignore whether _initialized is set in order to support multiple
+        // inheritance patterns, but we only do this in the context of a constructor, because in other contexts the
+        // contract may have been reentered.
+        require(_initializing ? _isConstructor() : !_initialized, "Initializable: contract is already initialized");
 
         bool isTopLevelCall = !_initializing;
         if (isTopLevelCall) {
@@ -58,5 +63,18 @@ abstract contract Initializable {
         if (isTopLevelCall) {
             _initializing = false;
         }
+    }
+
+    /**
+     * @dev Modifier to protect an initialization function so that it can only be invoked by functions with the
+     * {initializer} modifier, directly or indirectly.
+     */
+    modifier onlyInitializing() {
+        require(_initializing, "Initializable: contract is not initializing");
+        _;
+    }
+
+    function _isConstructor() private view returns (bool) {
+        return !Address.isContract(address(this));
     }
 }
