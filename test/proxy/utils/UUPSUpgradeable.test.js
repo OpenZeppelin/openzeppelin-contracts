@@ -6,6 +6,8 @@ const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock')
 const UUPSUpgradeableBrokenMock = artifacts.require('UUPSUpgradeableBrokenMock');
 const CountersImpl = artifacts.require('CountersImpl');
 
+const Legacy = [ './legacy/UUPSUpgradeableMockV1' ];
+
 contract('UUPSUpgradeable', function (accounts) {
   before(async function () {
     this.implInitial = await UUPSUpgradeableMock.new();
@@ -68,5 +70,25 @@ contract('UUPSUpgradeable', function (accounts) {
       this.instance.upgradeTo(otherInstance.address),
       'Function must not be called through delegatecall',
     );
+  });
+
+  describe(`compatibility with legacy version of UUPSUpgradeable`, function () {
+    // This could possibly be cleaner/simpler with ethers.js
+    for (const path of Legacy) {
+      it(`can upgrade from ${path}`, async function () {
+        const artefact = require(path);
+        // deploy legacy implementation
+        const legacy = new web3.eth.Contract(artefact.abi);
+        const { _address: implAddr } = await legacy.deploy({ data: artefact.bytecode }).send({ from: accounts[0] });
+
+        // deploy proxy
+        const { address: proxyAddr } = await ERC1967Proxy.new(implAddr, '0x');
+        const proxy = new web3.eth.Contract(artefact.abi, proxyAddr);
+
+        // perform upgrade
+        const receipt = await proxy.methods.upgradeTo(this.implInitial.address).send({ from: accounts[0] });
+        expectEvent(receipt, 'Upgraded', { implementation: this.implInitial.address });
+      });
+    }
   });
 });
