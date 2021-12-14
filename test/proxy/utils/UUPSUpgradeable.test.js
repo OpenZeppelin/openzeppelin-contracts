@@ -72,7 +72,7 @@ contract('UUPSUpgradeable', function (accounts) {
     );
   });
 
-  describe(`compatibility with legacy version of UUPSUpgradeable`, function () {
+  describe('compatibility with legacy version of UUPSUpgradeable', function () {
     // This could possibly be cleaner/simpler with ethers.js
     for (const path of Legacy) {
       it(`can upgrade from ${path}`, async function () {
