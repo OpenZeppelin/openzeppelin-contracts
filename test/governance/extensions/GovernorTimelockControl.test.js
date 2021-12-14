@@ -43,6 +43,7 @@ contract('GovernorTimelockControl', function (accounts) {
   shouldSupportInterfaces([
     'ERC165',
     'Governor',
+    'GovernorWithData',
     'GovernorTimelock',
   ]);
 

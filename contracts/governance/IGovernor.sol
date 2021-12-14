@@ -193,6 +193,17 @@ abstract contract IGovernor is IERC165 {
     function castVote(uint256 proposalId, uint8 support) public virtual returns (uint256 balance);
 
     /**
+     * @dev Cast a vote with contextual data
+     *
+     * Emits a {VoteCast} event.
+     */
+    function castVoteWithData(
+        uint256 proposalId,
+        uint8 support,
+        bytes memory data
+    ) public virtual returns (uint256 balance);
+
+    /**
      * @dev Cast a vote with a reason
      *
      * Emits a {VoteCast} event.
@@ -201,6 +212,18 @@ abstract contract IGovernor is IERC165 {
         uint256 proposalId,
         uint8 support,
         string calldata reason
+    ) public virtual returns (uint256 balance);
+
+    /**
+     * @dev Cast a vote with a reason and contextual data
+     *
+     * Emits a {VoteCast} event.
+     */
+    function castVoteWithReasonAndData(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason,
+        bytes memory data
     ) public virtual returns (uint256 balance);
 
     /**

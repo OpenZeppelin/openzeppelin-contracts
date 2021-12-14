@@ -86,7 +86,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
-        return interfaceId == type(IGovernor).interfaceId || super.supportsInterface(interfaceId);
+        // In addition to the current interfaceId, also support previous version of the interfaceId that did not
+        // include the castVoteWithData() and castVoteWithReasonAndData() functions as standard
+        return interfaceId == (type(IGovernor).interfaceId ^ this.castVoteWithReasonAndData.selector ^ this.castVoteWithData.selector)
+            || interfaceId == type(IGovernor).interfaceId
+            || super.supportsInterface(interfaceId);
     }
 
     /**
@@ -202,7 +206,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint256 proposalId,
         address account,
         uint8 support,
-        uint256 weight
+        uint256 weight,
+        bytes memory data
     ) internal virtual;
 
     /**
@@ -360,7 +365,19 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
         address voter = _msgSender();
-        return _castVote(proposalId, voter, support, "");
+        return _castVote(proposalId, voter, support, "", "");
+    }
+
+    /**
+     * @dev See {IGovernor-castVoteWithData}.
+     */
+    function castVoteWithData(
+        uint256 proposalId,
+        uint8 support,
+        bytes memory data
+    ) public virtual override returns (uint256) {
+        address voter = _msgSender();
+        return _castVote(proposalId, voter, support, "", data);
     }
 
     /**
@@ -371,8 +388,20 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint8 support,
         string calldata reason
     ) public virtual override returns (uint256) {
+        return castVoteWithReasonAndData(proposalId, support, reason, "");
+    }
+
+    /**
+     * @dev See {IGovernor-castVoteWithReasonAndData}.
+     */
+    function castVoteWithReasonAndData(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason,
+        bytes memory data
+    ) public virtual override returns (uint256) {
         address voter = _msgSender();
-        return _castVote(proposalId, voter, support, reason);
+        return _castVote(proposalId, voter, support, reason, data);
     }
 
     /**
@@ -391,7 +420,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
             r,
             s
         );
-        return _castVote(proposalId, voter, support, "");
+        return _castVote(proposalId, voter, support, "", "");
     }
 
     /**
@@ -404,13 +433,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint256 proposalId,
         address account,
         uint8 support,
-        string memory reason
+        string memory reason,
+        bytes memory data
     ) internal virtual returns (uint256) {
         ProposalCore storage proposal = _proposals[proposalId];
         require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
 
         uint256 weight = getVotes(account, proposal.voteStart.getDeadline());
-        _countVote(proposalId, account, support, weight);
+        _countVote(proposalId, account, support, weight, data);
 
         emit VoteCast(account, proposalId, support, weight, reason);
 

@@ -86,8 +86,10 @@ abstract contract GovernorCountingSimple is Governor {
         uint256 proposalId,
         address account,
         uint8 support,
-        uint256 weight
+        uint256 weight,
+        bytes memory data
     ) internal virtual override {
+        (data); // silence compiler warnings
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
 
         require(!proposalvote.hasVoted[account], "GovernorVotingSimple: vote already cast");

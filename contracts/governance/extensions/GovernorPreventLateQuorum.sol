@@ -57,9 +57,10 @@ abstract contract GovernorPreventLateQuorum is Governor {
         uint256 proposalId,
         address account,
         uint8 support,
-        string memory reason
+        string memory reason,
+        bytes memory data
     ) internal virtual override returns (uint256) {
-        uint256 result = super._castVote(proposalId, account, support, reason);
+        uint256 result = super._castVote(proposalId, account, support, reason, data);
 
         Timers.BlockNumber storage extendedDeadline = _extendedDeadlines[proposalId];
 
