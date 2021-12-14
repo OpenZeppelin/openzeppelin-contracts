@@ -63,15 +63,34 @@ contract('ERC721Royalty', function (accounts) {
       expect(token1Info[1]).to.be.bignumber.equal(token2Info[1]);
     });
 
+    it('can hold global and token royalty information', async function () {
+      const newPercentage = new BN('20');
+      await this.token.setGlobalRoyalty(account1, newPercentage);
+
+      const token1Info = await this.token.royaltyInfo(tokenId1, salePrice);
+      const token2Info = await this.token.royaltyInfo(tokenId2, salePrice);
+
+      expect(token1Info[1]).to.be.bignumber.equal(token2Info[1]);
+    });
+
+    it('Remove royalty information', async function () {
+      const newValue = new BN('0');
+      await this.token.deleteRoyalty();
+
+      const token1Info = await this.token.royaltyInfo(tokenId1, salePrice);
+      const token2Info = await this.token.royaltyInfo(tokenId2, salePrice);
+      //Test royalty info is still persistent across all tokens
+      expect(token1Info[0]).to.be.bignumber.equal(token2Info[0]);
+      expect(token1Info[1]).to.be.bignumber.equal(token2Info[1]);
+      //Test information was deleted
+      expect(token1Info[0]).to.be.equal(ZERO_ADDRESS);
+      expect(token1Info[1]).to.be.bignumber.equal(newValue);
+    });
+
     it('reverts if invalid parameters', async function () {
       await expectRevert(
         this.token.setGlobalRoyalty(ZERO_ADDRESS, royaltyFraction),
         'ERC2981: Invalid receiver',
-      );
-
-      await expectRevert(
-        this.token.setGlobalRoyalty(account1, new BN('0')),
-        'ERC2981: Royalty percentage is too low',
       );
 
       await expectRevert(
@@ -119,11 +138,6 @@ contract('ERC721Royalty', function (accounts) {
       await expectRevert(
         this.token.setTokenRoyalty(tokenId1, ZERO_ADDRESS, royaltyFraction),
         'ERC2981: Invalid receiver',
-      );
-
-      await expectRevert(
-        this.token.setTokenRoyalty(tokenId1, account1, new BN('0')),
-        'ERC2981: Royalty percentage is too low',
       );
 
       await expectRevert(

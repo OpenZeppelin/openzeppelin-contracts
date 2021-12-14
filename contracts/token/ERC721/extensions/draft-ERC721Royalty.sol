@@ -19,11 +19,18 @@ import "../../../utils/introspection/ERC165.sol";
 abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
     struct RoyaltyInfo {
         address receiver;
-        uint256 royaltyFraction;
+        uint96 royaltyFraction;
     }
 
     RoyaltyInfo private _globalRoyaltyInfo;
     mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
+        return interfaceId == type(IERC721Royalty).interfaceId || super.supportsInterface(interfaceId);
+    }
 
     /**
      * @dev Sets tokens royalties
@@ -36,9 +43,8 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
     function _setTokenRoyalty(
         uint256 tokenId,
         address receiver,
-        uint256 fraction
+        uint96 fraction
     ) internal virtual {
-        require(fraction > 0, "ERC2981: Royalty percentage is too low");
         require(fraction <= _feeDenominator(), "ERC2981: Royalty percentage will exceed salePrice");
         require(receiver != address(0), "ERC2981: Invalid receiver");
         require(_exists(tokenId), "ERC2981: Nonexistent token");
@@ -55,8 +61,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
      * - `fraction` must indicate the percentage fraction. Needs to be set appropriately
      * according to the _feeDenominator granularity.
      */
-    function _setGlobalRoyalty(address receiver, uint256 fraction) internal virtual {
-        require(fraction > 0, "ERC2981: Royalty percentage is too low");
+    function _setGlobalRoyalty(address receiver, uint96 fraction) internal virtual {
         require(fraction <= _feeDenominator(), "ERC2981: Royalty percentage will exceed salePrice");
         require(receiver != address(0), "ERC2981: Invalid receiver");
 
@@ -81,17 +86,10 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
     }
 
     /**
-     * @dev See {IERC165-supportsInterface}.
-     */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
-        return interfaceId == type(IERC721Royalty).interfaceId || super.supportsInterface(interfaceId);
-    }
-
-    /**
      * @dev Returns the percentage granularity being used. The default denominator is 10000
      *  but it can be customized by an override.
      */
-    function _feeDenominator() internal pure virtual returns (uint256) {
+    function _feeDenominator() internal pure virtual returns (uint96) {
         return 10000;
     }
 
@@ -106,6 +104,14 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
      */
     function _deleteTokenRoyalty(uint256 tokenId) internal virtual {
         delete _tokenRoyaltyInfo[tokenId];
+    }
+
+    /**
+     * @dev Removes global royalty information.
+     *
+     */
+    function _deleteRoyalty() internal virtual {
+        delete _globalRoyaltyInfo;
     }
 
     /**
