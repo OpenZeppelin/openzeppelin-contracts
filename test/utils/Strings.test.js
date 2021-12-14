@@ -59,41 +59,41 @@ contract("Strings", function (accounts) {
 
   describe("mockNormalizeUpperASCII", function () {
     it("Normalizes a string to use upper-case basic-ASCII.", async function () {
-      const upper_case = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`;
-      const lower_case = `abcdefghijklmnopqrstuvwxyz`;
-      const case_less = " !\"#$%&'()*+,-./0123456789:;<=>?@[\\]^_`{|}~";
+      const uppercase = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`;
+      const lowercase = `abcdefghijklmnopqrstuvwxyz`;
+      const caseless = " !\"#$%&'()*+,-./0123456789:;<=>?@[\\]^_`{|}~";
 
-      expect(await this.strings.mockNormalizeUpperASCII(lower_case))
-        .to.equal(upper_case)
-        .to.equal(lower_case.toUpperCase());
+      expect(await this.strings.mockNormalizeUpperASCII(lowercase))
+        .to.equal(uppercase)
+        .to.equal(lowercase.toUpperCase());
 
-      expect(await this.strings.mockNormalizeUpperASCII(upper_case))
-        .to.equal(upper_case)
-        .to.equal(upper_case.toUpperCase());
+      expect(await this.strings.mockNormalizeUpperASCII(uppercase))
+        .to.equal(uppercase)
+        .to.equal(uppercase.toUpperCase());
 
-      expect(await this.strings.mockNormalizeUpperASCII(case_less))
-        .to.equal(case_less)
-        .to.equal(case_less.toUpperCase());
+      expect(await this.strings.mockNormalizeUpperASCII(caseless))
+        .to.equal(caseless)
+        .to.equal(caseless.toUpperCase());
     });
   });
 
   describe("mockNormalizeLowerASCII", function () {
     it("Normalizes a string to use lower-case basic-ASCII.", async function () {
-      const upper_case = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`;
-      const lower_case = `abcdefghijklmnopqrstuvwxyz`;
-      const case_less = " !\"#$%&'()*+,-./0123456789:;<=>?@[\\]^_`{|}~";
+      const uppercase = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`;
+      const lowercase = `abcdefghijklmnopqrstuvwxyz`;
+      const caseless = " !\"#$%&'()*+,-./0123456789:;<=>?@[\\]^_`{|}~";
 
-      expect(await this.strings.mockNormalizeLowerASCII(upper_case))
-        .to.equal(lower_case)
-        .to.equal(upper_case.toLowerCase());
+      expect(await this.strings.mockNormalizeLowerASCII(uppercase))
+        .to.equal(lowercase)
+        .to.equal(uppercase.toLowerCase());
 
-      expect(await this.strings.mockNormalizeLowerASCII(lower_case))
-        .to.equal(lower_case)
-        .to.equal(lower_case.toLowerCase());
+      expect(await this.strings.mockNormalizeLowerASCII(lowercase))
+        .to.equal(lowercase)
+        .to.equal(lowercase.toLowerCase());
 
-      expect(await this.strings.mockNormalizeLowerASCII(case_less))
-        .to.equal(case_less)
-        .to.equal(case_less.toLowerCase());
+      expect(await this.strings.mockNormalizeLowerASCII(caseless))
+        .to.equal(caseless)
+        .to.equal(caseless.toLowerCase());
     });
   });
 });
