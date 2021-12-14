@@ -105,9 +105,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
      *
      */
     function _deleteTokenRoyalty(uint256 tokenId) internal virtual {
-        if (_tokenRoyaltyInfo[tokenId].royaltyFraction != 0) {
-            delete _tokenRoyaltyInfo[tokenId];
-        }
+        delete _tokenRoyaltyInfo[tokenId];
     }
 
     /**
