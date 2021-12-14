@@ -25,92 +25,56 @@ contract('ERC1363', function (accounts) {
 
   describe('transferAndCall', function () {
     it('without data', async function () {
-      const data = null;
-
-      const { tx } = await this.token.methods['transferAndCall(address,uint256)'](
-        this.receiver.address,
-        value,
-        { from: holder },
-      );
-
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: holder,
-        to: this.receiver.address,
-        value,
-      });
-      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', {
-        operator: holder,
-        from: holder,
-        value,
-        data,
-      });
+      this.function = 'transferAndCall(address,uint256)';
+      this.operator = holder;
     });
 
     it('with data', async function () {
-      const data = '0x123456';
-
-      const { tx } = await this.token.methods['transferAndCall(address,uint256,bytes)'](
-        this.receiver.address,
-        value,
-        data,
-        { from: holder },
-      );
-
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: holder,
-        to: this.receiver.address,
-        value,
-      });
-      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', {
-        operator: holder,
-        from: holder,
-        value,
-        data,
-      });
+      this.function = 'transferAndCall(address,uint256,bytes)';
+      this.data     = '0x123456';
+      this.operator = holder;
     });
 
-    describe('revert', function () {
-      it('invalid return value', async function () {
-        const data = '0x00';
+    it('invalid return value', async function () {
+      this.function = 'transferAndCall(address,uint256,bytes)';
+      this.data     = '0x00';
+      this.operator = holder;
+      this.revert   = 'ERC1363: onTransferReceived invalid result';
+    });
 
-        await expectRevert(
-          this.token.methods['transferAndCall(address,uint256,bytes)'](
-            this.receiver.address,
-            value,
-            data,
-            { from: holder },
-          ),
-          'ERC1363: onTransferReceived invalid result',
-        );
-      });
+    it('hook reverts with message', async function () {
+      this.function = 'transferAndCall(address,uint256,bytes)';
+      this.data     = '0x01';
+      this.operator = holder;
+      this.revert   = 'onTransferReceived revert';
+    });
 
-      it('hook reverts with message', async function () {
-        const data = '0x01';
+    it('hook reverts with error', async function () {
+      this.function = 'transferAndCall(address,uint256,bytes)';
+      this.data     = '0x02';
+      this.operator = holder;
+      this.revert   = 'ERC1363: onTransferReceived reverted without reason';
+    });
 
-        await expectRevert(
-          this.token.methods['transferAndCall(address,uint256,bytes)'](
-            this.receiver.address,
-            value,
-            data,
-            { from: holder },
-          ),
-          'onTransferReceived revert',
-        );
-      });
+    afterEach(async function () {
+      const txPromise = this.token.methods[this.function](...[ this.receiver.address, value, this.data ].filter(Boolean), { from: this.operator });
 
-      it('hook reverts with error', async function () {
-        const data = '0x02';
-
-        await expectRevert(
-          this.token.methods['transferAndCall(address,uint256,bytes)'](
-            this.receiver.address,
-            value,
-            data,
-            { from: holder },
-          ),
-          'ERC1363: onTransferReceived reverted without reason',
-        );
-      });
+      if (this.revert == undefined) {
+        const { tx } = await txPromise;
+        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+          from: this.from || this.operator,
+          to: this.receiver.address,
+          value,
+        });
+        await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', {
+          operator: this.operator,
+          from: this.from || this.operator,
+          value,
+          data: this.data ?? null,
+        });
+      } else {
+        await expectRevert(txPromise, this.revert);
+      }
     });
   });
 
@@ -120,186 +84,116 @@ contract('ERC1363', function (accounts) {
     });
 
     it('without data', async function () {
-      const data = null;
-
-      const { tx } = await this.token.methods['transferFromAndCall(address,address,uint256)'](
-        holder,
-        this.receiver.address,
-        value,
-        { from: operator },
-      );
-
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: holder,
-        to: this.receiver.address,
-        value,
-      });
-      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', {
-        operator,
-        from: holder,
-        value,
-        data,
-      });
+      this.function = 'transferFromAndCall(address,address,uint256)';
+      this.from     = holder;
+      this.operator = operator;
     });
 
     it('with data', async function () {
-      const data = '0x123456';
-
-      const { tx } = await this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](
-        holder,
-        this.receiver.address,
-        value,
-        data,
-        { from: operator },
-      );
-
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: holder,
-        to: this.receiver.address,
-        value,
-      });
-      await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', {
-        operator,
-        from: holder,
-        value,
-        data,
-      });
+      this.function = 'transferFromAndCall(address,address,uint256,bytes)';
+      this.data     = '0x123456';
+      this.from     = holder;
+      this.operator = operator;
     });
 
-    describe('revert', function () {
-      it('invalid return value', async function () {
-        const data = '0x00';
+    it('invalid return value', async function () {
+      this.function = 'transferFromAndCall(address,address,uint256,bytes)';
+      this.data     = '0x00';
+      this.from     = holder;
+      this.operator = operator;
+      this.revert   = 'ERC1363: onTransferReceived invalid result';
+    });
 
-        await expectRevert(
-          this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](
-            holder,
-            this.receiver.address,
-            value,
-            data,
-            { from: operator },
-          ),
-          'ERC1363: onTransferReceived invalid result',
-        );
-      });
+    it('hook reverts with message', async function () {
+      this.function = 'transferFromAndCall(address,address,uint256,bytes)';
+      this.data     = '0x01';
+      this.from     = holder;
+      this.operator = operator;
+      this.revert   = 'onTransferReceived revert';
+    });
 
-      it('hook reverts with message', async function () {
-        const data = '0x01';
+    it('hook reverts with error', async function () {
+      this.function = 'transferFromAndCall(address,address,uint256,bytes)';
+      this.data     = '0x02';
+      this.from     = holder;
+      this.operator = operator;
+      this.revert   = 'ERC1363: onTransferReceived reverted without reason';
+    });
 
-        await expectRevert(
-          this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](
-            holder,
-            this.receiver.address,
-            value,
-            data,
-            { from: operator },
-          ),
-          'onTransferReceived revert',
-        );
-      });
+    afterEach(async function () {
+      const txPromise = this.token.methods[this.function](...[ this.from, this.receiver.address, value, this.data ].filter(Boolean), { from: this.operator });
 
-      it('hook reverts with error', async function () {
-        const data = '0x02';
-
-        await expectRevert(
-          this.token.methods['transferFromAndCall(address,address,uint256,bytes)'](
-            holder,
-            this.receiver.address,
-            value,
-            data,
-            { from: operator },
-          ),
-          'ERC1363: onTransferReceived reverted without reason',
-        );
-      });
+      if (this.revert == undefined) {
+        const { tx } = await txPromise;
+        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+          from: this.from || this.operator,
+          to: this.receiver.address,
+          value,
+        });
+        await expectEvent.inTransaction(tx, this.receiver, 'TransferReceived', {
+          operator: this.operator,
+          from: this.from || this.operator,
+          value,
+          data: this.data ?? null,
+        });
+      } else {
+        await expectRevert(txPromise, this.revert);
+      }
     });
   });
 
   describe('approveAndCall', function () {
     it('without data', async function () {
-      const data = null;
-
-      const { tx } = await this.token.methods['approveAndCall(address,uint256)'](
-        this.receiver.address,
-        value,
-        { from: holder },
-      );
-
-      await expectEvent.inTransaction(tx, this.token, 'Approval', {
-        owner: holder,
-        spender: this.receiver.address,
-        value,
-      });
-      await expectEvent.inTransaction(tx, this.receiver, 'ApprovalReceived', {
-        owner: holder,
-        value,
-        data,
-      });
+      this.function = 'approveAndCall(address,uint256)';
+      this.owner    = holder;
     });
 
     it('with data', async function () {
-      const data = '0x123456';
-
-      const { tx } = await this.token.methods['approveAndCall(address,uint256,bytes)'](
-        this.receiver.address,
-        value,
-        data,
-        { from: holder },
-      );
-
-      await expectEvent.inTransaction(tx, this.token, 'Approval', {
-        owner: holder,
-        spender: this.receiver.address,
-        value,
-      });
-      await expectEvent.inTransaction(tx, this.receiver, 'ApprovalReceived', {
-        owner: holder,
-        value,
-        data,
-      });
+      this.function = 'approveAndCall(address,uint256,bytes)';
+      this.data     = '0x123456';
+      this.owner    = holder;
     });
 
-    describe('revert', function () {
-      it('invalid return value', async function () {
-        const data = '0x00';
+    it('invalid return value', async function () {
+      this.function = 'approveAndCall(address,uint256,bytes)';
+      this.data     = '0x00';
+      this.owner    = holder;
+      this.revert   = 'ERC1363: onApprovalReceived invalid result';
+    });
 
-        await expectRevert(
-          this.token.methods['approveAndCall(address,uint256,bytes)'](
-            this.receiver.address,
-            value,
-            data,
-            { from: holder },
-          ),
-          'ERC1363: onApprovalReceived invalid result',
-        );
-      });
+    it('hook reverts with message', async function () {
+      this.function = 'approveAndCall(address,uint256,bytes)';
+      this.data     = '0x01';
+      this.owner    = holder;
+      this.revert   = 'onApprovalReceived revert';
+    });
 
-      it('hook reverts with message', async function () {
-        const data = '0x01';
+    it('hook reverts with error', async function () {
+      this.function = 'approveAndCall(address,uint256,bytes)';
+      this.data     = '0x02';
+      this.owner    = holder;
+      this.revert   = 'ERC1363: onApprovalReceived reverted without reason';
+    });
 
-        await expectRevert(
-          this.token.methods['approveAndCall(address,uint256,bytes)'](
-            this.receiver.address,
-            value,
-            data,
-            { from: holder },
-          ),
-          'onApprovalReceived revert',
-        );
-      });
+    afterEach(async function () {
+      const txPromise = this.token.methods[this.function](...[ this.receiver.address, value, this.data ].filter(Boolean), { from: this.owner })
 
-      it('hook reverts with error', async function () {
-        const data = '0x02';
+      if (this.revert == undefined) {
+        const { tx } = await txPromise;
 
-        await expectRevert(
-          this.token.methods['approveAndCall(address,uint256,bytes)'](
-            this.receiver.address,
-            value,
-            data,
-            { from: holder },
-          ),
-          'ERC1363: onApprovalReceived reverted without reason',
-        );
-      });
+        await expectEvent.inTransaction(tx, this.token, 'Approval', {
+          owner: this.owner,
+          spender: this.receiver.address,
+          value,
+        });
+        await expectEvent.inTransaction(tx, this.receiver, 'ApprovalReceived', {
+          owner: this.owner,
+          value,
+          data: this.data ?? null,
+        });
+      } else {
+        await expectRevert(txPromise, this.revert);
+      }
     });
   });
 });
