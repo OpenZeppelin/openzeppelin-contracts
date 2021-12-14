@@ -34,16 +34,14 @@ contract('Strings', function (accounts) {
 
     it('converts MAX_UINT256', async function () {
       expect(await this.strings.fromUint256Hex(constants.MAX_UINT256)).to.equal(
-        web3.utils.toHex(constants.MAX_UINT256)
-      );
+        web3.utils.toHex(constants.MAX_UINT256));
     });
   });
 
   describe('from uint256 - fixed hex format', function () {
     it('converts a positive number (long)', async function () {
       expect(await this.strings.fromUint256HexFixed(0x4132, 32)).to.equal(
-        '0x0000000000000000000000000000000000000000000000000000000000004132'
-      );
+        '0x0000000000000000000000000000000000000000000000000000000000004132');
     });
 
     it('converts a positive number (short)', async function () {
@@ -52,8 +50,7 @@ contract('Strings', function (accounts) {
 
     it('converts MAX_UINT256', async function () {
       expect(await this.strings.fromUint256HexFixed(constants.MAX_UINT256, 32)).to.equal(
-        web3.utils.toHex(constants.MAX_UINT256)
-      );
+        web3.utils.toHex(constants.MAX_UINT256));
     });
   });
 
