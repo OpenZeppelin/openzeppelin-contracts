@@ -72,11 +72,8 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
      * @dev See {IERC721Royalty-royaltyInfo}
      */
     function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view override returns (address, uint256) {
-        RoyaltyInfo memory royalty;
-
-        if (_tokenRoyaltyInfo[_tokenId].receiver != address(0)) {
-            royalty = _tokenRoyaltyInfo[_tokenId];
-        } else {
+        RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
+        if (royalty.receiver == address(0)) {
             royalty = _globalRoyaltyInfo;
         }
 
