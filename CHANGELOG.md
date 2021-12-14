@@ -11,7 +11,7 @@
  * `Votes`: Added a base contract for vote tracking with delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
  * `ERC721Votes`: Added an extension of ERC721 enabled with vote tracking and delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
 
-## 4.4.1 (2021-12-10)
+## 4.4.1 (2021-12-14)
 
  * `Initializable`: change the existing `initializer` modifier and add a new `onlyInitializing` modifier to prevent reentrancy risk. ([#3006](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3006))
 
