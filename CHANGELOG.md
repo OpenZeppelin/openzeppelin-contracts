@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.4.1
+## 4.4.1 (2021-12-14)
 
  * `Initializable`: change the existing `initializer` modifier and add a new `onlyInitializing` modifier to prevent reentrancy risk. ([#3006](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3006))
 
