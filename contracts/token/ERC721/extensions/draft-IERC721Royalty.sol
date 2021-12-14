@@ -26,5 +26,5 @@ interface IERC721Royalty is IERC165 {
     function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
         external
         view
-        returns (address receiver, uint256 royaltyFraction);
+        returns (address receiver, uint256 royaltyAmount);
 }
