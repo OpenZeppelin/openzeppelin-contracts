@@ -80,6 +80,24 @@ contract('ERC721Royalty', function (accounts) {
       expect(token2Info[1]).to.be.bignumber.equal(royalty);
     });
 
+    it('can reset token after setting royalty', async function () {
+      const newPercentage = new BN('30');
+      let royalty = new BN((salePrice * newPercentage) / 10000);
+      await this.token.setTokenRoyalty(tokenId1, account2, newPercentage);
+
+      const tokenInfo = await this.token.royaltyInfo(tokenId1, salePrice);
+
+      // Tokens must have own information
+      expect(tokenInfo[1]).to.be.bignumber.equal(royalty);
+      expect(tokenInfo[0]).to.be.equal(account2);
+
+      await this.token.setTokenRoyalty(tokenId2, account1, new BN('0'));
+      const result = await this.token.royaltyInfo(tokenId2, salePrice);
+      // Token must not share global information
+      expect(result[0]).to.be.equal(account1);
+      expect(result[1]).to.be.bignumber.equal(new BN('0'));
+    });
+
     it('Remove royalty information', async function () {
       const newValue = new BN('0');
       await this.token.deleteRoyalty();
@@ -144,7 +162,7 @@ contract('ERC721Royalty', function (accounts) {
     it('reverts if invalid parameters', async function () {
       await expectRevert(
         this.token.setTokenRoyalty(tokenId1, ZERO_ADDRESS, royaltyFraction),
-        'ERC2981: Invalid receiver',
+        'ERC2981: Invalid parameters',
       );
 
       await expectRevert(

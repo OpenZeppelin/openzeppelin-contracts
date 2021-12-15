@@ -46,7 +46,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
         uint96 fraction
     ) internal virtual {
         require(fraction <= _feeDenominator(), "ERC2981: Royalty percentage will exceed salePrice");
-        require(receiver != address(0), "ERC2981: Invalid receiver");
+        require(receiver != address(0), "ERC2981: Invalid parameters");
         require(_exists(tokenId), "ERC2981: Nonexistent token");
 
         _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, fraction);
@@ -73,6 +73,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
      */
     function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view override returns (address, uint256) {
         RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
+
         if (royalty.receiver == address(0)) {
             royalty = _globalRoyaltyInfo;
         }
