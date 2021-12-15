@@ -93,14 +93,14 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
 
     /**
      * @dev Removes `tokenId` royalty information.
-     * The royalty information is cleared when the token is burned.
+     * The royalty information is cleared and the token royalty fallbacks to the global royalty.
      *
      * Requirements:
      *
      * - `tokenId` royalty information must exist.
      *
      */
-    function _deleteTokenRoyalty(uint256 tokenId) internal virtual {
+    function _resetTokenRoyalty(uint256 tokenId) internal virtual {
         delete _tokenRoyaltyInfo[tokenId];
     }
 
@@ -124,6 +124,6 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
      */
     function _burn(uint256 tokenId) internal virtual override {
         super._burn(tokenId);
-        _deleteTokenRoyalty(tokenId);
+        _resetTokenRoyalty(tokenId);
     }
 }
