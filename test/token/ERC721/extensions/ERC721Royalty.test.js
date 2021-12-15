@@ -82,7 +82,7 @@ contract('ERC721Royalty', function (accounts) {
 
     it('can reset token after setting royalty', async function () {
       const newPercentage = new BN('30');
-      let royalty = new BN((salePrice * newPercentage) / 10000);
+      const royalty = new BN((salePrice * newPercentage) / 10000);
       await this.token.setTokenRoyalty(tokenId1, account2, newPercentage);
 
       const tokenInfo = await this.token.royaltyInfo(tokenId1, salePrice);
