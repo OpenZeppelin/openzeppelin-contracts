@@ -14,6 +14,9 @@ import "../../../utils/introspection/ERC165.sol";
  * Adds the {_setTokenRoyalty} methods to set the token royalty information, and {_setGlobalRoyalty} method to set a global
  * royalty information.
  *
+ * NOTE: As specified in EIP-2981, royalties are technically optional and payment is not enforced by this contract.
+ * See https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP.
+ *
  * _Available since v4.5._
  */
 abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
