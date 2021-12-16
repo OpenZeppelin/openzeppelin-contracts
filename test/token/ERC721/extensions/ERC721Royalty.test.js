@@ -30,7 +30,7 @@ contract('ERC721Royalty', function (accounts) {
 
   shouldSupportInterfaces(['ERC2981']);
 
-  describe.only('default royalty', function () {
+  describe('default royalty', function () {
     beforeEach(async function () {
       await this.token.setDefaultRoyalty(account1, royaltyFraction);
     });
