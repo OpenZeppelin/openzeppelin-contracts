@@ -1,49 +1,37 @@
 const fs = require('fs');
-const git = require('gift');
+const proc = require('child_process');
 const semver = require('semver');
 
 const { version } = require('../../package.json');
 
-function check(error, message) {
-    if (error) {
-        console.error(message ?? error);
-        process.exit(1);
-    }
+const status = proc.execFileSync('git', ['status', '--porcelain', '-uno', 'contracts/**/*.sol']);
+if (status.length > 0) {
+  console.error('Contracts directory is not clean');
+  process.exit(1);
 }
 
-const repo = git('.');
+const [ tag ] = proc.execFileSync('git', ['tag'])
+  .toString()
+  .split(/\r?\n/)
+  .filter(v => semver.valid(v) && semver.lte(v, version))
+  .sort(semver.rcompare);
 
-repo.git('status --porcelain -uno contracts/**/*.sol', (error, status) => {
-    check(error);
-    check(!!status, 'Contracts directory is not clean');
+// Ordering tag → HEAD is important here.
+// Is it right to use HEAD ?
+const diffs = proc.execFileSync('git', ['diff', tag, 'HEAD', '--name-only'])
+  .toString()
+  .split(/\r?\n/)
+  .filter(path => path.startsWith('contracts/'))
+  .filter(path => !path.startsWith('contracts/mocks'))
+  .filter(path => path.endsWith('.sol'));
 
-    repo.tags((error, tags) => {
-        check(error);
+for (const file of diffs) {
+  const current = fs.readFileSync(file, 'utf8');
+  const updated = current.replace(
+    /(\/\/ SPDX-License-Identifier:.*)$(\n\/\/ OpenZeppelin Contracts v.*$)?/m,
+    `$1\n// Last updated in OpenZeppelin Contracts v${version} (${file.replace('contracts/', '')})`,
+  );
+  fs.writeFileSync(file, updated);
+}
 
-        const [ tag ] = tags
-            .map(({ name }) => name)
-            .filter(v => semver.valid(v) && semver.lte(v, version))
-            .sort(semver.rcompare);
-
-        repo.diff('master', tag, (error, diffs) => {
-            check(error);
-
-            diffs
-                .filter(({ b_path: path }) => path.startsWith('contracts/'))
-                .filter(({ b_path: path }) => !path.startsWith('contracts/mocks'))
-                .filter(({ b_path: path }) => path.endsWith('.sol'))
-                .forEach(({ b_path: path }) => {
-                    const current = fs.readFileSync(path, 'utf8');
-                    const updated = current.replace(
-                        /(\/\/ SPDX-License-Identifier:.*)$(\n\/\/ OpenZeppelin Contracts v.*$)?/m,
-                        `$1\n// Last updated in OpenZeppelin Contracts v${version} (${path.replace('contracts/', '')})`,
-                    );
-                    fs.writeFileSync(path, updated);
-                });
-
-            repo.git('add --update contracts', (error) => {
-                check(error);
-            });
-        });
-    });
-});
+proc.execFileSync('git', ['add', '--update', 'contracts']);
