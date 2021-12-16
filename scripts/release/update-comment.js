@@ -18,12 +18,11 @@ const [ tag ] = proc.execFileSync('git', ['tag'])
 
 // Ordering tag → HEAD is important here.
 // Is it right to use HEAD ?
-const files = proc.execFileSync('git', ['diff', tag, 'HEAD', '--name-only'])
+const files = proc.execFileSync('git', ['diff', tag, 'HEAD', '--name-only', 'contracts/**/*.sol'])
   .toString()
   .split(/\r?\n/)
-  .filter(path => path.startsWith('contracts/'))
-  .filter(path => !path.startsWith('contracts/mocks'))
-  .filter(path => path.endsWith('.sol'));
+  .filter(Boolean)
+  .filter(file => !file.match(/mock/i));
 
 for (const file of files) {
   const current = fs.readFileSync(file, 'utf8');
