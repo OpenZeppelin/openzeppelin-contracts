@@ -56,8 +56,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
     }
 
     /**
-     *
-     * @dev Sets global royalty
+     * @dev Sets the royalty info that tokens will default to.
      *
      * Requirements:
      * - `receiver` cannot be the zero address.
