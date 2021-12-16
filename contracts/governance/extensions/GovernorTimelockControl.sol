@@ -16,6 +16,7 @@ import "../TimelockController.sol";
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
  * inaccessible.
  *
+ * WARNING: Do not share Timelock with several proposers.
  * _Available since v4.3._
  */
 abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
