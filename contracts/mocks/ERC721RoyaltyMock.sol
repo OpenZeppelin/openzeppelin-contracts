@@ -15,8 +15,8 @@ contract ERC721RoyaltyMock is ERC721Royalty {
         _setTokenRoyalty(tokenId, recipient, fraction);
     }
 
-    function setGlobalRoyalty(address recipient, uint96 fraction) public {
-        _setGlobalRoyalty(recipient, fraction);
+    function setDefaultRoyalty(address recipient, uint96 fraction) public {
+        _setDefaultRoyalty(recipient, fraction);
     }
 
     function mint(address to, uint256 tokenId) public {
@@ -28,6 +28,6 @@ contract ERC721RoyaltyMock is ERC721Royalty {
     }
 
     function deleteRoyalty() public {
-        _deleteRoyalty();
+        _deleteDefaultRoyalty();
     }
 }

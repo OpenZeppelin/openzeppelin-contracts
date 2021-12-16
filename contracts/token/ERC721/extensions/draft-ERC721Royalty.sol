@@ -11,7 +11,7 @@ import "../../../utils/introspection/ERC165.sol";
  * @dev Implementation of the ERC721 Royalty extension allowing royalty information to be stored and retrieved, as defined in
  * https://eips.ethereum.org/EIPS/eip-2981[EIP-2981].
  *
- * Adds the {_setTokenRoyalty} methods to set the token royalty information, and {_setGlobalRoyalty} method to set a global
+ * Adds the {_setTokenRoyalty} methods to set the token royalty information, and {_setDefaultRoyalty} method to set a default
  * royalty information.
  *
  * NOTE: As specified in EIP-2981, royalties are technically optional and payment is not enforced by this contract.
@@ -25,7 +25,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
         uint96 royaltyFraction;
     }
 
-    RoyaltyInfo private _globalRoyaltyInfo;
+    RoyaltyInfo private _defaultRoyaltyInfo;
     mapping(uint256 => RoyaltyInfo) private _tokenRoyaltyInfo;
 
     /**
@@ -63,11 +63,11 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
      * - `fraction` must indicate the percentage fraction. Needs to be set appropriately
      * according to the _feeDenominator granularity.
      */
-    function _setGlobalRoyalty(address receiver, uint96 fraction) internal virtual {
+    function _setDefaultRoyalty(address receiver, uint96 fraction) internal virtual {
         require(fraction <= _feeDenominator(), "ERC2981: Royalty percentage will exceed salePrice");
         require(receiver != address(0), "ERC2981: Invalid receiver");
 
-        _globalRoyaltyInfo = RoyaltyInfo(receiver, fraction);
+        _defaultRoyaltyInfo = RoyaltyInfo(receiver, fraction);
     }
 
     /**
@@ -77,7 +77,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
         RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
 
         if (royalty.receiver == address(0)) {
-            royalty = _globalRoyaltyInfo;
+            royalty = _defaultRoyaltyInfo;
         }
 
         uint256 royaltyAmount = (_salePrice * royalty.royaltyFraction) / _feeDenominator();
@@ -95,7 +95,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
 
     /**
      * @dev Removes `tokenId` royalty information.
-     * The royalty information is cleared and the token royalty fallbacks to the global royalty.
+     * The royalty information is cleared and the token royalty fallbacks to the default royalty.
      *
      * Requirements:
      *
@@ -107,11 +107,11 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
     }
 
     /**
-     * @dev Removes global royalty information.
+     * @dev Removes default royalty information.
      *
      */
-    function _deleteRoyalty() internal virtual {
-        delete _globalRoyaltyInfo;
+    function _deleteDefaultRoyalty() internal virtual {
+        delete _defaultRoyaltyInfo;
     }
 
     /**
