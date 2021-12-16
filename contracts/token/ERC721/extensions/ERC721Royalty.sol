@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (token/ERC721/extensions/draft-ERC721Royalty.sol)
+// OpenZeppelin Contracts v4.4.0 (token/ERC721/extensions/ERC721Royalty.sol)
 
 pragma solidity ^0.8.0;
 
 import "../ERC721.sol";
-import "./draft-IERC721Royalty.sol";
+import "../../../interfaces/IERC2981.sol";
 import "../../../utils/introspection/ERC165.sol";
 
 /**
@@ -19,7 +19,7 @@ import "../../../utils/introspection/ERC165.sol";
  *
  * _Available since v4.5._
  */
-abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
+abstract contract ERC721Royalty is IERC2981, ERC721 {
     struct RoyaltyInfo {
         address receiver;
         uint96 royaltyFraction;
@@ -32,7 +32,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, IERC165) returns (bool) {
-        return interfaceId == type(IERC721Royalty).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
@@ -71,7 +71,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
     }
 
     /**
-     * @dev See {IERC721Royalty-royaltyInfo}
+     * @dev See {IERC2981-royaltyInfo}
      */
     function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view override returns (address, uint256) {
         RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
