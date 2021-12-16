@@ -1,6 +1,5 @@
 const { BN, constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { describe } = require('yargs');
 const { ZERO_ADDRESS } = constants;
 
 const { shouldBehaveLikeERC2981 } = require('../../common/ERC2981.behavior');
