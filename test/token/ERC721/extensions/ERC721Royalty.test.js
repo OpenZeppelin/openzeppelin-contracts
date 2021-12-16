@@ -20,14 +20,6 @@ contract('ERC721Royalty', function (accounts) {
     await this.token.mint(account1, tokenId2);
   });
 
-  it('calls supports interface', async function () {
-    const result = await this.token.supportsInterface('0x2a55205a');
-    const expected = true;
-
-    expect(result).to.not.equal(undefined);
-    expect(result).to.equal(expected);
-  });
-
   shouldSupportInterfaces(['ERC2981']);
 
   describe('default royalty', function () {
