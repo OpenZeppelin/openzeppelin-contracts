@@ -2,13 +2,13 @@ const fs = require('fs');
 const proc = require('child_process');
 const semver = require('semver');
 
-const { version } = require('../../package.json');
-
-const status = proc.execFileSync('git', ['status', '--porcelain', '-uno', 'contracts/**/*.sol']);
-if (status.length > 0) {
+const gitStatus = proc.execFileSync('git', ['status', '--porcelain', '-uno', 'contracts/**/*.sol']);
+if (gitStatus.length > 0) {
   console.error('Contracts directory is not clean');
   process.exit(1);
 }
+
+const { version } = require('../../package.json');
 
 const [ tag ] = proc.execFileSync('git', ['tag'])
   .toString()
@@ -18,14 +18,14 @@ const [ tag ] = proc.execFileSync('git', ['tag'])
 
 // Ordering tag → HEAD is important here.
 // Is it right to use HEAD ?
-const diffs = proc.execFileSync('git', ['diff', tag, 'HEAD', '--name-only'])
+const files = proc.execFileSync('git', ['diff', tag, 'HEAD', '--name-only'])
   .toString()
   .split(/\r?\n/)
   .filter(path => path.startsWith('contracts/'))
   .filter(path => !path.startsWith('contracts/mocks'))
   .filter(path => path.endsWith('.sol'));
 
-for (const file of diffs) {
+for (const file of files) {
   const current = fs.readFileSync(file, 'utf8');
   const updated = current.replace(
     /(\/\/ SPDX-License-Identifier:.*)$(\n\/\/ OpenZeppelin Contracts v.*$)?/m,
