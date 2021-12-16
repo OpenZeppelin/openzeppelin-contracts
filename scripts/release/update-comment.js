@@ -22,7 +22,7 @@ repo.git('status --porcelain -uno contracts/**/*.sol', (error, status) => {
 
         const [ tag ] = tags
             .map(({ name }) => name)
-            .filter(semver.valid)
+            .filter(v => semver.valid(v) && semver.lte(v, version))
             .sort(semver.rcompare);
 
         repo.diff('master', tag, (error, diffs) => {
