@@ -36,7 +36,7 @@ abstract contract ERC721Royalty is IERC721Royalty, ERC721 {
     }
 
     /**
-     * @dev Sets tokens royalties
+     * @dev Sets the royalty info for a specific token id, overriding the default royalty info.
      *
      * Requirements:
      * - `tokenId` must be already mined.
