@@ -281,6 +281,7 @@ rule allFunctionsRevertIfExecuted(method f) filtered { f ->
       && f.selector != updateTimelock(address).selector
       && f.selector != updateQuorumNumerator(uint256).selector
       && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
+      && f.selector != relay(address,uint256,bytes).selector
       && f.selector != 0xb9a61961 // __acceptAdmin()
 } {
     env e; calldataarg args;
@@ -302,6 +303,7 @@ rule allFunctionsRevertIfCanceled(method f) filtered {
       && f.selector != updateTimelock(address).selector
       && f.selector != updateQuorumNumerator(uint256).selector
       && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
+      && f.selector != relay(address,uint256,bytes).selector
       && f.selector != 0xb9a61961 // __acceptAdmin()
 } {
     env e; calldataarg args;
