@@ -3,7 +3,7 @@
 // - COVERAGE:          enable coverage report
 // - ENABLE_GAS_REPORT: enable gas report
 // - COMPILE_MODE:      production modes enables optimizations (default: development)
-// - COMPILE_VERSION:   compiler version (default: 0.8.3)
+// - COMPILE_VERSION:   compiler version (default: 0.8.4)
 // - COINMARKETCAP:     coinmarkercat api key for USD value in gas report
 
 const fs = require('fs');
@@ -33,7 +33,7 @@ const argv = require('yargs/yargs')()
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.3',
+      default: '0.8.4',
     },
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
