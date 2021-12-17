@@ -15,7 +15,9 @@ const { version } = require('../../package.json');
 // Get latest tag according to semver.
 const [ tag ] = run('git', 'tag')
   .split(/\r?\n/)
-  .filter(v => semver.valid(v) && semver.lte(v, version))
+  .map(v => semver.valid(semver.coerce(v))) // remove postfix such as '-rc.x'
+  .filter(Boolean) // remove invalid tags
+  .filter(v => semver.lt(v, version)) // only consider older tags
   .sort(semver.rcompare);
 
 // Ordering tag → HEAD is important here.
