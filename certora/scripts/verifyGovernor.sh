@@ -4,7 +4,7 @@ make -C certora munged
 
 for contract in certora/harnesses/Wizard*.sol;
 do
-    for spec in certora/specs/*.spec;
+    for spec in certora/specs/governor*.spec;
     do      
         contractFile=$(basename $contract)
         specFile=$(basename $spec)
