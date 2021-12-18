@@ -91,14 +91,14 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * @dev See {IERC20-totalSupply}.
      */
     function totalSupply() public view virtual override returns (uint256) {
-        return _data.totalSupply();
+        return _data.totalSupply(_callbacks());
     }
 
     /**
      * @dev See {IERC20-balanceOf}.
      */
     function balanceOf(address account) public view virtual override returns (uint256) {
-        return _data.balanceOf(account);
+        return _data.balanceOf(account, _callbacks());
     }
 
     /**
@@ -110,14 +110,14 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - the caller must have a balance of at least `amount`.
      */
     function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-        return _data.transfer(_msgSender(), recipient, amount, _beforeTokenTransfer, _afterTokenTransfer);
+        return _data.transfer(_msgSender(), recipient, amount, _callbacks());
     }
 
     /**
      * @dev See {IERC20-allowance}.
      */
     function allowance(address owner, address spender) public view virtual override returns (uint256) {
-        return _data.allowance(owner, spender);
+        return _data.allowance(owner, spender, _callbacks());
     }
 
     /**
@@ -128,7 +128,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `spender` cannot be the zero address.
      */
     function approve(address spender, uint256 amount) public virtual override returns (bool) {
-        return _data.approve(_msgSender(), spender, amount, _beforeTokenApproval, _afterTokenApproval);
+        return _data.approve(_msgSender(), spender, amount, _callbacks());
     }
 
     /**
@@ -154,10 +154,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
             sender,
             recipient,
             amount,
-            _beforeTokenTransfer,
-            _afterTokenTransfer,
-            _beforeTokenApproval,
-            _afterTokenApproval
+            _callbacks()
         );
     }
 
@@ -174,7 +171,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `spender` cannot be the zero address.
      */
     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
-        return _data.increaseAllowance(_msgSender(), spender, addedValue, _beforeTokenApproval, _afterTokenApproval);
+        return _data.increaseAllowance(_msgSender(), spender, addedValue, _callbacks());
     }
 
     /**
@@ -192,7 +189,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * `subtractedValue`.
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
-        return _data.decreaseAllowance(_msgSender(), spender, subtractedValue, _beforeTokenApproval, _afterTokenApproval);
+        return _data.decreaseAllowance(_msgSender(), spender, subtractedValue, _callbacks());
     }
 
     /**
@@ -214,7 +211,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         address recipient,
         uint256 amount
     ) internal virtual {
-        _data._transfer(sender, recipient, amount, _beforeTokenTransfer, _afterTokenTransfer);
+        _data._transfer(sender, recipient, amount, _callbacks());
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
@@ -227,7 +224,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `account` cannot be the zero address.
      */
     function _mint(address account, uint256 amount) internal virtual {
-        _data._mint(account, amount, _beforeTokenTransfer, _afterTokenTransfer);
+        _data._mint(account, amount, _callbacks());
     }
 
     /**
@@ -242,7 +239,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `account` must have at least `amount` tokens.
      */
     function _burn(address account, uint256 amount) internal virtual {
-        _data._burn(account, amount, _beforeTokenTransfer, _afterTokenTransfer);
+        _data._burn(account, amount, _callbacks());
     }
 
     /**
@@ -259,7 +256,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `spender` cannot be the zero address.
      */
     function _approve(address owner, address spender, uint256 amount) internal virtual {
-        _data._approve(owner, spender, amount, _beforeTokenApproval, _afterTokenApproval);
+        _data._approve(owner, spender, amount, _callbacks());
     }
 
     /**
@@ -304,17 +301,48 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         emit Transfer(from, to, amount);
     }
 
-    function _beforeTokenApproval(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {}
+    function _beforeTokenApproval(address owner, address spender, uint256 amount) private {}
 
-    function _afterTokenApproval(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {
+    function _afterTokenApproval(address owner, address spender, uint256 amount) private {
         emit Approval(owner, spender, amount);
+    }
+
+    function _getTotalSupply(uint256 totalSupply_) private pure returns (uint256) {
+        return totalSupply_;
+    }
+
+    function _setTotalSupply(uint256 totalSupply_) private pure returns (uint256) {
+        return totalSupply_;
+    }
+
+    function _getBalance(address /* account */, uint256 balance) private pure returns (uint256) {
+        return balance;
+    }
+
+    function _setBalance(address /* account */, uint256 balance) private pure returns (uint256) {
+        return balance;
+    }
+
+    function _getAllowance(address /* owner */, address /* spender */, uint256 amount) private pure returns (uint256) {
+        return amount;
+    }
+
+    function _setAllowance(address /* owner */, address /* spender */, uint256 amount) private pure returns (uint256) {
+        return amount;
+    }
+
+    function _callbacks() private pure returns (ERC20Accounting.Callbacks memory) {
+        return ERC20Accounting.Callbacks({
+            getTotalSupply: _getTotalSupply,
+            setTotalSupply: _setTotalSupply,
+            getBalance: _getBalance,
+            setBalance: _setBalance,
+            getAllowance: _getAllowance,
+            setAllowance: _setAllowance,
+            beforeTokenApproval: _beforeTokenApproval,
+            afterTokenApproval: _afterTokenApproval,
+            beforeTokenTransfer: _beforeTokenTransfer,
+            afterTokenTransfer: _afterTokenTransfer
+        });
     }
 }

@@ -14,12 +14,32 @@ library ERC20Accounting {
         uint256 _totalSupply;
     }
 
-    function totalSupply(Data storage self) internal view returns (uint256) {
-        return self._totalSupply;
+    struct Callbacks {
+        function(uint256) internal view returns (uint256) getTotalSupply;
+        function(uint256) internal view returns (uint256) setTotalSupply;
+        function(address,uint256) internal view returns (uint256) getBalance;
+        function(address,uint256) internal view returns (uint256) setBalance;
+        function(address,address,uint256) internal view returns (uint256) getAllowance;
+        function(address,address,uint256) internal view returns (uint256) setAllowance;
+        function(address,address,uint256) internal beforeTokenTransfer;
+        function(address,address,uint256) internal afterTokenTransfer;
+        function(address,address,uint256) internal beforeTokenApproval;
+        function(address,address,uint256) internal afterTokenApproval;
     }
 
-    function balanceOf(Data storage self, address account) internal view returns (uint256) {
-        return self._balances[account];
+    function totalSupply(
+        Data storage self,
+        Callbacks memory cbs 
+    ) internal view returns (uint256) {
+        return cbs.getTotalSupply(self._totalSupply);
+    }
+
+    function balanceOf(
+        Data storage self,
+        address account,
+        Callbacks memory cbs
+    ) internal view returns (uint256) {
+        return cbs.getBalance(account, self._balances[account]);
     }
 
     function transfer(
@@ -27,15 +47,19 @@ library ERC20Accounting {
         address msgSender,
         address recipient,
         uint256 amount,
-        function(address,address,uint256) internal _beforeTokenTransfer,
-        function(address,address,uint256) internal _afterTokenTransfer
+        Callbacks memory cbs
     ) internal returns (bool) {
-        _transfer(self, msgSender, recipient, amount, _beforeTokenTransfer, _afterTokenTransfer);
+        _transfer(self, msgSender, recipient, amount, cbs);
         return true;
     }
 
-    function allowance(Data storage self, address owner, address spender) internal view returns (uint256) {
-        return self._allowances[owner][spender];
+    function allowance(
+        Data storage self,
+        address owner,
+        address spender,
+        Callbacks memory cbs
+    ) internal view returns (uint256) {
+        return cbs.getAllowance(owner, spender, self._allowances[owner][spender]);
     }
 
     function approve(
@@ -43,10 +67,9 @@ library ERC20Accounting {
         address msgSender,
         address spender,
         uint256 amount,
-        function(address,address,uint256) internal _beforeTokenApproval,
-        function(address,address,uint256) internal _afterTokenApproval
+        Callbacks memory cbs
     ) internal returns (bool) {
-        _approve(self, msgSender, spender, amount, _beforeTokenApproval, _afterTokenApproval);
+        _approve(self, msgSender, spender, amount, cbs);
         return true;
     }
 
@@ -56,17 +79,14 @@ library ERC20Accounting {
         address sender,
         address recipient,
         uint256 amount,
-        function(address,address,uint256) internal _beforeTokenTransfer,
-        function(address,address,uint256) internal _afterTokenTransfer,
-        function(address,address,uint256) internal _beforeTokenApproval,
-        function(address,address,uint256) internal _afterTokenApproval
+        Callbacks memory cbs
     ) internal returns (bool) {
-        _transfer(self, sender, recipient, amount, _beforeTokenTransfer, _afterTokenTransfer);
+        _transfer(self, sender, recipient, amount, cbs);
 
-        uint256 currentAllowance = self._allowances[sender][msgSender];
+        uint256 currentAllowance = cbs.getAllowance(sender, msgSender, self._allowances[sender][msgSender]);
         require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
         unchecked {
-            _approve(self, sender, msgSender, currentAllowance - amount, _beforeTokenApproval, _afterTokenApproval);
+            _approve(self, sender, msgSender, currentAllowance - amount, cbs);
         }
 
         return true;
@@ -77,10 +97,10 @@ library ERC20Accounting {
         address msgSender,
         address spender,
         uint256 addedValue,
-        function(address,address,uint256) internal _beforeTokenApproval,
-        function(address,address,uint256) internal _afterTokenApproval
+        Callbacks memory cbs
     ) internal returns (bool) {
-        _approve(self, msgSender, spender, self._allowances[msgSender][spender] + addedValue, _beforeTokenApproval, _afterTokenApproval);
+        uint256 currentAllowance = cbs.getAllowance(msgSender, spender, self._allowances[msgSender][spender]);
+        _approve(self, msgSender, spender, currentAllowance + addedValue, cbs);
         return true;
     }
 
@@ -89,13 +109,12 @@ library ERC20Accounting {
         address msgSender,
         address spender,
         uint256 subtractedValue,
-        function(address,address,uint256) internal _beforeTokenApproval,
-        function(address,address,uint256) internal _afterTokenApproval
+        Callbacks memory cbs
     ) internal returns (bool) {
-        uint256 currentAllowance = self._allowances[msgSender][spender];
+        uint256 currentAllowance = cbs.getAllowance(msgSender, spender, self._allowances[msgSender][spender]);
         require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
         unchecked {
-            _approve(self, msgSender, spender, currentAllowance - subtractedValue, _beforeTokenApproval, _afterTokenApproval);
+            _approve(self, msgSender, spender, currentAllowance - subtractedValue, cbs);
         }
 
         return true;
@@ -106,60 +125,57 @@ library ERC20Accounting {
         address sender,
         address recipient,
         uint256 amount,
-        function(address,address,uint256) internal _beforeTokenTransfer,
-        function(address,address,uint256) internal _afterTokenTransfer
+        Callbacks memory cbs
     ) internal {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
-        _beforeTokenTransfer(sender, recipient, amount);
+        cbs.beforeTokenTransfer(sender, recipient, amount);
 
-        uint256 senderBalance = self._balances[sender];
+        uint256 senderBalance = cbs.getBalance(sender, self._balances[sender]);
         require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
         unchecked {
-            self._balances[sender] = senderBalance - amount;
+            self._balances[sender] = cbs.setBalance(sender, senderBalance - amount);
         }
-        self._balances[recipient] += amount;
+        self._balances[recipient] = cbs.setBalance(recipient, cbs.getBalance(recipient, self._balances[recipient]) + amount);
 
-        _afterTokenTransfer(sender, recipient, amount);
+        cbs.afterTokenTransfer(sender, recipient, amount);
     }
 
     function _mint(
         Data storage self,
         address account,
         uint256 amount,
-        function(address,address,uint256) internal _beforeTokenTransfer,
-        function(address,address,uint256) internal _afterTokenTransfer
+        Callbacks memory cbs
     ) internal {
         require(account != address(0), "ERC20: mint to the zero address");
 
-        _beforeTokenTransfer(address(0), account, amount);
+        cbs.beforeTokenTransfer(address(0), account, amount);
 
-        self._totalSupply += amount;
-        self._balances[account] += amount;
+        self._totalSupply = cbs.setTotalSupply(cbs.getTotalSupply(self._totalSupply) + amount);
+        self._balances[account] = cbs.setBalance(account, cbs.getBalance(account, self._balances[account]) + amount);
 
-        _afterTokenTransfer(address(0), account, amount);
+        cbs.afterTokenTransfer(address(0), account, amount);
     }
 
     function _burn(
         Data storage self,
         address account,
         uint256 amount,
-        function(address,address,uint256) internal _beforeTokenTransfer,
-        function(address,address,uint256) internal _afterTokenTransfer
+        Callbacks memory cbs
     ) internal {
         require(account != address(0), "ERC20: burn from the zero address");
 
-        _beforeTokenTransfer(account, address(0), amount);
+        cbs.beforeTokenTransfer(account, address(0), amount);
 
-        uint256 accountBalance = self._balances[account];
+        uint256 accountBalance = cbs.getBalance(account, self._balances[account]);
         require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
         unchecked {
-            self._balances[account] = accountBalance - amount;
+            self._balances[account] = cbs.setBalance(account, accountBalance - amount);
         }
-        self._totalSupply -= amount;
+        self._totalSupply = cbs.setTotalSupply(cbs.getTotalSupply(self._totalSupply) - amount);
 
-        _afterTokenTransfer(account, address(0), amount);
+        cbs.afterTokenTransfer(account, address(0), amount);
     }
 
     function _approve(
@@ -167,16 +183,15 @@ library ERC20Accounting {
         address owner,
         address spender,
         uint256 amount,
-        function(address,address,uint256) internal _beforeTokenApproval,
-        function(address,address,uint256) internal _afterTokenApproval
+        Callbacks memory cbs
     ) internal {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
 
-        _beforeTokenApproval(owner, spender, amount);
+        cbs.beforeTokenApproval(owner, spender, amount);
 
-        self._allowances[owner][spender] = amount;
+        self._allowances[owner][spender] = cbs.setAllowance(owner, spender, amount);
 
-        _afterTokenApproval(owner, spender, amount);
+        cbs.afterTokenApproval(owner, spender, amount);
     }
 }
