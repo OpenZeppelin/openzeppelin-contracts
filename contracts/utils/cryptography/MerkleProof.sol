@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (utils/cryptography/MerkleProof.sol)
 
 pragma solidity ^0.8.0;
 
@@ -23,11 +24,21 @@ library MerkleProof {
         bytes32 root,
         bytes32 leaf
     ) internal pure returns (bool) {
-        bytes32 computedHash = leaf;
+        return processProof(proof, leaf) == root;
+    }
 
+    /**
+     * @dev Returns the rebuilt hash obtained by traversing a Merklee tree up
+     * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
+     * hash matches the root of the tree. When processing the proof, the pairs
+     * of leafs & pre-images are assumed to be sorted.
+     *
+     * _Available since v4.4._
+     */
+    function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
+        bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
             bytes32 proofElement = proof[i];
-
             if (computedHash <= proofElement) {
                 // Hash(current computed hash + current element of the proof)
                 computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
@@ -36,8 +47,6 @@ library MerkleProof {
                 computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
             }
         }
-
-        // Check if the computed hash (root) is equal to the provided root
-        return computedHash == root;
+        return computedHash;
     }
 }

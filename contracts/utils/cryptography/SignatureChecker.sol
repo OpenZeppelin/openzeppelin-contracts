@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (utils/cryptography/SignatureChecker.sol)
 
 pragma solidity ^0.8.0;
 
@@ -8,7 +9,7 @@ import "../../interfaces/IERC1271.sol";
 
 /**
  * @dev Signature verification helper: Provide a single mechanism to verify both private-key (EOA) ECDSA signature and
- * ERC1271 contract sigantures. Using this instead of ECDSA.recover in your contract will make them compatible with
+ * ERC1271 contract signatures. Using this instead of ECDSA.recover in your contract will make them compatible with
  * smart contract wallets such as Argent and Gnosis.
  *
  * Note: unlike ECDSA signatures, contract signature's are revocable, and the outcome of this function can thus change
@@ -22,14 +23,14 @@ library SignatureChecker {
         bytes32 hash,
         bytes memory signature
     ) internal view returns (bool) {
-        if (Address.isContract(signer)) {
-            try IERC1271(signer).isValidSignature(hash, signature) returns (bytes4 magicValue) {
-                return magicValue == IERC1271(signer).isValidSignature.selector;
-            } catch {
-                return false;
-            }
-        } else {
-            return ECDSA.recover(hash, signature) == signer;
+        (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(hash, signature);
+        if (error == ECDSA.RecoverError.NoError && recovered == signer) {
+            return true;
         }
+
+        (bool success, bytes memory result) = signer.staticcall(
+            abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)
+        );
+        return (success && result.length == 32 && abi.decode(result, (bytes4)) == IERC1271.isValidSignature.selector);
     }
 }

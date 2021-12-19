@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (utils/structs/BitMaps.sol)
 pragma solidity ^0.8.0;
 
 /**
@@ -14,8 +15,8 @@ library BitMaps {
      * @dev Returns whether the bit at `index` is set.
      */
     function get(BitMap storage bitmap, uint256 index) internal view returns (bool) {
-        uint256 bucket = index / 256;
-        uint256 mask = 1 << (index % 256);
+        uint256 bucket = index >> 8;
+        uint256 mask = 1 << (index & 0xff);
         return bitmap._data[bucket] & mask != 0;
     }
 
@@ -38,8 +39,8 @@ library BitMaps {
      * @dev Sets the bit at `index`.
      */
     function set(BitMap storage bitmap, uint256 index) internal {
-        uint256 bucket = index / 256;
-        uint256 mask = 1 << (index % 256);
+        uint256 bucket = index >> 8;
+        uint256 mask = 1 << (index & 0xff);
         bitmap._data[bucket] |= mask;
     }
 
@@ -47,8 +48,8 @@ library BitMaps {
      * @dev Unsets the bit at `index`.
      */
     function unset(BitMap storage bitmap, uint256 index) internal {
-        uint256 bucket = index / 256;
-        uint256 mask = 1 << (index % 256);
+        uint256 bucket = index >> 8;
+        uint256 mask = 1 << (index & 0xff);
         bitmap._data[bucket] &= ~mask;
     }
 }
