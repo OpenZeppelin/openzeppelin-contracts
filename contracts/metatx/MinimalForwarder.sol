@@ -54,12 +54,12 @@ contract MinimalForwarder is EIP712 {
         // Validate that the relayer has sent enough gas for the call.
         // See https://ronan.eth.link/blog/ethereum-gas-dangers/
         if (gasleft() <= req.gas / 63) {
-          // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
-          // Panic error do not consume all gas since Solidity 0.8.0
-          // https://docs.soliditylang.org/en/v0.8.0/control-structures.html#panic-via-assert-and-error-via-require
-          assembly {
-            invalid()
-          }
+            // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
+            // Panic error do not consume all gas since Solidity 0.8.0
+            // https://docs.soliditylang.org/en/v0.8.0/control-structures.html#panic-via-assert-and-error-via-require
+            assembly {
+                invalid()
+            }
         }
 
         return (success, returndata);
