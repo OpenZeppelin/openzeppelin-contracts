@@ -18,7 +18,9 @@ import "../TimelockController.sol";
  *
  * _Available since v4.3._
  *
- * WARNING: Do not share Timelock with several proposers.
+ * WARNING: Setting up the TimelockController to have additional proposers besides the governor introduces the risk that
+ * approved governance proposals could be blocked by the other proposers, effectively executing a Denial of Service attack,
+ * and therefore blocking access to governance-controlled assets.
  *
  */
 abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
