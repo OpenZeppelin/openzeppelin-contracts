@@ -13,6 +13,7 @@ function shouldBehaveLikeERC2981 () {
     beforeEach(async function () {
       await this.token.setDefaultRoyalty(this.account1, royaltyFraction);
     });
+
     it('checks royalty is set', async function () {
       const royalty = new BN((this.salePrice * royaltyFraction) / 10000);
 

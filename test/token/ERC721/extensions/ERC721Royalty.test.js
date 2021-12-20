@@ -8,6 +8,7 @@ contract('ERC721Royalty', function (accounts) {
   const [ account1, account2 ] = accounts;
   const tokenId1 = new BN('1');
   const tokenId2 = new BN('2');
+  const royalty = new BN('200');
   const salePrice = new BN('1000');
 
   beforeEach(async function () {
@@ -23,6 +24,10 @@ contract('ERC721Royalty', function (accounts) {
   });
 
   describe('token specific functions', function () {
+    beforeEach(async function () {
+      await this.token.setTokenRoyalty(tokenId1, account1, royalty);
+    });
+
     it('removes royalty information after burn', async function () {
       await this.token.burn(tokenId1);
       const tokenInfo = await this.token.royaltyInfo(tokenId1, salePrice);

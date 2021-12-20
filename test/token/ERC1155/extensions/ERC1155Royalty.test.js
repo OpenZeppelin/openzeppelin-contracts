@@ -11,6 +11,7 @@ contract('ERC1155Royalty', function (accounts) {
   const uri = 'https://token.com';
   const tokenId1 = new BN('1');
   const tokenId2 = new BN('2');
+  const royalty = new BN('200');
   const salePrice = new BN('1000');
   const firstTokenAmount = new BN('42');
   const secondTokenAmount = new BN('23');
@@ -28,7 +29,19 @@ contract('ERC1155Royalty', function (accounts) {
   });
 
   describe('token specific functions', function () {
-    it('removes royalty information after burn', async function () {
+    beforeEach(async function () {
+      await this.token.setTokenRoyalty(tokenId1, account1, royalty);
+    });
+
+    it('keeps royalty information after burning single token for id', async function () {
+      await this.token.burn(account1, tokenId1, new BN('1'));
+      const tokenInfo = await this.token.royaltyInfo(tokenId1, salePrice);
+      const result = new BN((this.salePrice * royalty) / 10000);
+      expect(tokenInfo[0]).to.be.equal(account1);
+      expect(tokenInfo[1]).to.be.bignumber.equal(result);
+    });
+
+    it('removes royalty information after burning all tokens for id', async function () {
       await this.token.burn(account1, tokenId1, firstTokenAmount);
       const tokenInfo = await this.token.royaltyInfo(tokenId1, salePrice);
 
