@@ -17,8 +17,10 @@ import "../../../utils/introspection/ERC165.sol";
  * NOTE: As specified in EIP-2981, royalties are technically optional and payment is not enforced by this contract.
  * See https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP.
  *
+ * WARNING: Be aware not to inherit from ERC1155Supply when inheriting from this contract, this would cause an expensive
+ * minting operation.
+ *
  * _Available since v4.5._
- * WARNING: Be aware not to inherit from ERC1155Supply when inheriting from this contract since some operations will be more expensive.
  *
  */
 abstract contract ERC1155Royalty is ERC2981, ERC1155Supply {
