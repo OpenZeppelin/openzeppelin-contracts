@@ -17,8 +17,9 @@ import "../../../utils/introspection/ERC165.sol";
  * NOTE: As specified in EIP-2981, royalties are technically optional and payment is not enforced by this contract.
  * See https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP.
  *
- * WARNING: Be aware not to inherit from ERC1155Supply when inheriting from this contract, this would cause an expensive
- * minting operation.
+ * WARNING: This contract inherits from ERC1155Supply, which has a higher minting cost than the base ERC1155 contract. To avoid this
+ * cost use the ERC1155 base contract and inherit ERC2981 directly, with the downside that burning all the supply for a token will
+ *  not delete the royalty info from storage.
  *
  * _Available since v4.5._
  *
