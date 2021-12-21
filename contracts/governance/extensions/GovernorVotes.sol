@@ -1,21 +1,20 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (governance/extensions/GovernorVotes.sol)
+// OpenZeppelin Contracts v4.4.1 (governance/extensions/GovernorVotes.sol)
 
 pragma solidity ^0.8.0;
 
 import "../Governor.sol";
-import "../../token/ERC20/extensions/ERC20Votes.sol";
-import "../../utils/math/Math.sol";
+import "../utils/IVotes.sol";
 
 /**
- * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token.
+ * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes} token.
  *
  * _Available since v4.3._
  */
 abstract contract GovernorVotes is Governor {
-    ERC20Votes public immutable token;
+    IVotes public immutable token;
 
-    constructor(ERC20Votes tokenAddress) {
+    constructor(IVotes tokenAddress) {
         token = tokenAddress;
     }
 

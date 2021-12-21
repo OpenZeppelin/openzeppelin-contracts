@@ -86,6 +86,8 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 {{EnumerableSet}}
 
+{{Checkpoints}}
+
 == Libraries
 
 {{Create2}}
