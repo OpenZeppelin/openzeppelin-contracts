@@ -174,8 +174,8 @@ contract('MinimalForwarder', function (accounts) {
           this.forwarder.execute(this.req, this.sign(), { gas: gasAvailable }),
         );
 
-        const { gasUsed } = await web3.eth.getBlock('latest')
-          .then(({ transactions }) => web3.eth.getTransactionReceipt(transactions.find(Boolean)));
+        const { transactions } = await web3.eth.getBlock('latest');
+        const { gasUsed } = await web3.eth.getTransactionReceipt(transactions[0]);
 
         expect(gasUsed).to.be.equal(gasAvailable);
       });
