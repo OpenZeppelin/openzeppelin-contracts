@@ -152,7 +152,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      * `name` and `version` should match values passed in contract's constructor.
      *
      * NOTE: https://medium.com/compound-finance/delegation-and-voting-with-eip-712-signatures-a636c9dfec5e[Compound's delegateBySig implementation] does not include `version` in `EIP712Domain`.
-     * However, the way OpenZeppelin's EIP712 implementation computes domain seperator, `version` is required.
+     * However, the way OpenZeppelin's EIP712 implementation computes domain separator, `version` is required.
      *
      * `primaryType` is `Delegation`
      */
