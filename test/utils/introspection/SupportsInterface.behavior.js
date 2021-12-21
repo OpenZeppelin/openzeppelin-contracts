@@ -69,7 +69,7 @@ const INTERFACES = {
     'castVoteWithReason(uint256,uint8,string)',
     'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
   ],
-  GovernorWithData: [
+  GovernorWithParams: [
     'name()',
     'version()',
     'COUNTING_MODE()',
@@ -85,9 +85,9 @@ const INTERFACES = {
     'propose(address[],uint256[],bytes[],string)',
     'execute(address[],uint256[],bytes[],bytes32)',
     'castVote(uint256,uint8)',
-    'castVoteWithData(uint256,uint8,bytes)',
+    'castVoteWithParams(uint256,uint8,bytes)',
     'castVoteWithReason(uint256,uint8,string)',
-    'castVoteWithReasonAndData(uint256,uint8,string,bytes)',
+    'castVoteWithReasonAndParams(uint256,uint8,string,bytes)',
     'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
   ],
   GovernorTimelock: [
