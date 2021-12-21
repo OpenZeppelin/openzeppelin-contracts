@@ -149,12 +149,68 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      * }
      * ```
      *
-     * `name` and `version` should match values passed in contract's constructor.
+     * `name` and `version` should match values passed in contract's constructor. By default, value of `version` is hardcoded to `"1"` in constructor.
      *
      * NOTE: https://medium.com/compound-finance/delegation-and-voting-with-eip-712-signatures-a636c9dfec5e[Compound's delegateBySig implementation] does not include `version` in `EIP712Domain`.
      * However, the way OpenZeppelin's EIP712 implementation computes domain separator, `version` is required.
      *
      * The message's primary type is `Delegation`.
+     *
+     * If you are using ethers library, https://docs.ethers.io/v5/api/signer/#Signer-signTypedData[signer._signTypedData] can be used.
+     *
+     * ```js
+     * const signature = await wallet._signTypedData({
+     *     chainId: 5,
+     *     name: 'Mytoken',
+     *     verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+     *     version: '1',
+     * },
+     *     {
+     *         // No need for EIP712Domain with ethers since ethers except domain data as first argument
+     *         Delegation: [
+     *             { name: 'delegatee', type: 'address' },
+     *             { name: 'nonce', type: 'uint256' },
+     *             { name: 'expiry', type: 'uint256' },
+     *         ],
+     *     }, {
+     *     delegatee: '<some address>',
+     *     nonce: '<some nonce>',
+     *     expiry: '<some expiry>',
+     * });
+     * ```
+     *
+     * `eth_signTypedData_v4` with raw JSON-RPC can be used in following way
+     *
+     * ```js
+     * const msgParams = JSON.stringify({
+     *     domain: {
+     *         chainId: 5,
+     *         name: 'Mytoken',
+     *         verifyingContract: '0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC',
+     *         version: '1',
+     *     },
+     *     types: {
+     *         EIP712Domain: [
+     *             { name: 'name', type: 'string' },
+     *             { name: 'version', type: 'string' },
+     *             { name: 'chainId', type: 'uint256' },
+     *             { name: 'verifyingContract', type: 'address' },
+     *         ],
+     *         Delegation: [
+     *             { name: 'delegatee', type: 'address' },
+     *             { name: 'nonce', type: 'uint256' },
+     *             { name: 'expiry', type: 'uint256' },
+     *         ],
+     *     },
+     *     message: {
+     *         delegatee: '<some address>',
+     *         nonce: '<some nonce>',
+     *         expiry: '<some expiry>',
+     *     },
+     *     primaryType: 'Delegation',
+     * });
+     * const signature = await provider.send('eth_signTypedData_v4', [ from, msgParams ]);
+     * ```
      */
     function delegateBySig(
         address delegatee,
