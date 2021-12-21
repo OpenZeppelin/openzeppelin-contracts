@@ -6,7 +6,7 @@ const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock')
 const UUPSUpgradeableBrokenMock = artifacts.require('UUPSUpgradeableBrokenMock');
 const CountersImpl = artifacts.require('CountersImpl');
 
-const Legacy = [ './legacy/UUPSUpgradeableMockV1' ];
+const Legacy = [ 'UUPSLegacyV1' ].map(artifacts.require);
 
 contract('UUPSUpgradeable', function (accounts) {
   before(async function () {
@@ -73,22 +73,18 @@ contract('UUPSUpgradeable', function (accounts) {
   });
 
   describe('compatibility with legacy version of UUPSUpgradeable', function () {
-    // This could possibly be cleaner/simpler with ethers.js
-    for (const path of Legacy) {
-      it(`can upgrade from ${path}`, async function () {
-        const artefact = require(path);
-        // deploy legacy implementation
-        const legacy = new web3.eth.Contract(artefact.abi);
-        const { _address: implAddr } = await legacy.deploy({ data: artefact.bytecode }).send({ from: accounts[0] });
+    for (const artefact of Legacy) {
+      it(`can upgrade from ${artefact._json.contractName}`, async function () {
+        const legacyImpl = await artefact.new();
+        const legacyInstance = await ERC1967Proxy.new(legacyImpl.address, '0x').then(({ address }) => artefact.at(address));
 
-        // deploy proxy
-        const { address: proxyAddr } = await ERC1967Proxy.new(implAddr, '0x');
-        const proxy = new web3.eth.Contract(artefact.abi, proxyAddr);
+        const receipt = await legacyInstance.upgradeTo(this.implInitial.address);
 
-        // perform upgrade
-        const receipt = await proxy.methods.upgradeTo(this.implInitial.address).send({ from: accounts[0] });
+        // only produce a single upgrade event
+        expect(receipt.logs.filter(({ address, event }) => address == legacyInstance.address && event == 'Upgraded' ).length).to.be.equal(1);
+        // produces the right event
         expectEvent(receipt, 'Upgraded', { implementation: this.implInitial.address });
       });
-    }
+    };
   });
 });
