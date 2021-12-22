@@ -35,6 +35,21 @@ library SafeERC20 {
         _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, from, to, value));
     }
 
+    function tryApprove(
+        IERC20 token,
+        address spender,
+        uint256 value,
+        bool retry
+    ) internal {
+        bytes memory approveData = abi.encodeWithSelector(token.approve.selector, spender, value);
+        (bool success, bytes memory returndata) = address(token).call(approveData);
+        if (!success || (returndata.length > 0 && !abi.decode(returndata, (bool)))) {
+            require(retry, "SafeERC20: approve failed");
+            _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, 0));
+            _callOptionalReturn(token, approveData);
+        }
+    }
+
     /**
      * @dev Deprecated. This function has issues similar to the ones found in
      * {IERC20-approve}, and its usage is discouraged.
