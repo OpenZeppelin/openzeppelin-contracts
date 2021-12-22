@@ -76,13 +76,17 @@ contract('UUPSUpgradeable', function (accounts) {
     for (const artefact of Legacy) {
       it(`can upgrade from ${artefact._json.contractName}`, async function () {
         const legacyImpl = await artefact.new();
-        const legacyInstance = await ERC1967Proxy.new(legacyImpl.address, '0x').then(({ address }) => artefact.at(address));
+        const legacyInstance = await ERC1967Proxy.new(legacyImpl.address, '0x')
+          .then(({ address }) => artefact.at(address));
 
         const receipt = await legacyInstance.upgradeTo(this.implInitial.address);
 
-        // only produce a single upgrade event
-        expect(receipt.logs.filter(({ address, event }) => address == legacyInstance.address && event == 'Upgraded' ).length).to.be.equal(1);
-        // produces the right event
+        const UpgradedEvents = receipt.logs.filter(({ address, event }) =>
+          address === legacyInstance.address &&
+          event === 'Upgraded',
+        );
+        expect(UpgradedEvents.length).to.be.equal(1);
+
         expectEvent(receipt, 'Upgraded', { implementation: this.implInitial.address });
       });
     };
