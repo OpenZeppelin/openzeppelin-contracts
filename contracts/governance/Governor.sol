@@ -87,10 +87,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
         // In addition to the current interfaceId, also support previous version of the interfaceId that did not
-        // include the castVoteWithParams() and castVoteWithReasonAndParams() functions as standard
+        // include the castVoteWithReasonAndParams() function as standard
         return
-            interfaceId ==
-            (type(IGovernor).interfaceId ^ this.castVoteWithReasonAndParams.selector ^ this.castVoteWithParams.selector) ||
+            interfaceId == (type(IGovernor).interfaceId ^ this.castVoteWithReasonAndParams.selector) ||
             interfaceId == type(IGovernor).interfaceId ||
             super.supportsInterface(interfaceId);
     }
@@ -368,18 +367,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
         address voter = _msgSender();
         return _castVote(proposalId, voter, support, "", "");
-    }
-
-    /**
-     * @dev See {IGovernor-castVoteWithParams}.
-     */
-    function castVoteWithParams(
-        uint256 proposalId,
-        uint8 support,
-        bytes memory params
-    ) public virtual override returns (uint256) {
-        address voter = _msgSender();
-        return _castVote(proposalId, voter, support, "", params);
     }
 
     /**

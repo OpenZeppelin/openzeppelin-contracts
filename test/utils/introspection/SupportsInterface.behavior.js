@@ -85,7 +85,6 @@ const INTERFACES = {
     'propose(address[],uint256[],bytes[],string)',
     'execute(address[],uint256[],bytes[],bytes32)',
     'castVote(uint256,uint8)',
-    'castVoteWithParams(uint256,uint8,bytes)',
     'castVoteWithReason(uint256,uint8,string)',
     'castVoteWithReasonAndParams(uint256,uint8,string,bytes)',
     'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
