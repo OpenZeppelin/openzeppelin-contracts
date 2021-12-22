@@ -26,7 +26,7 @@ const files = run('git', 'diff', tag, 'HEAD', '--name-only', 'contracts/**/*.sol
 for (const file of files) {
   const current = fs.readFileSync(file, 'utf8');
   const updated = current.replace(
-    /(\/\/ SPDX-License-Identifier:.*)$(\n\/\/ OpenZeppelin Contracts v.*$)?/m,
+    /(\/\/ SPDX-License-Identifier:.*)$(\n\/\/ OpenZeppelin Contracts .*$)?/m,
     `$1\n// OpenZeppelin Contracts (last updated v${version}) (${file.replace('contracts/', '')})`,
   );
   fs.writeFileSync(file, updated);
