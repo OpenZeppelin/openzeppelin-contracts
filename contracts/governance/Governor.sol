@@ -212,6 +212,16 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     ) internal virtual;
 
     /**
+     * @dev Default additional encoded parameters used by castVote methods that don't include them
+     *
+     * Note: Should be overriden by specific implementations to use an appropriate value, the
+     * meaning of the additional params, in the context of that implementation
+     */
+    function _defaultParams() internal view virtual returns (bytes memory) {
+        return "";
+    }
+
+    /**
      * @dev See {IGovernor-propose}.
      */
     function propose(
@@ -366,7 +376,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
         address voter = _msgSender();
-        return _castVote(proposalId, voter, support, "", "");
+        return _castVote(proposalId, voter, support, "", _defaultParams());
     }
 
     /**
@@ -377,7 +387,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint8 support,
         string calldata reason
     ) public virtual override returns (uint256) {
-        return castVoteWithReasonAndParams(proposalId, support, reason, "");
+        return castVoteWithReasonAndParams(proposalId, support, reason, _defaultParams());
     }
 
     /**
@@ -409,7 +419,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
             r,
             s
         );
-        return _castVote(proposalId, voter, support, "", "");
+        return _castVote(proposalId, voter, support, "", _defaultParams());
     }
 
     /**
