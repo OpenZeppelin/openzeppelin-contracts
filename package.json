@@ -78,6 +78,7 @@
     "prettier": "^2.3.0",
     "prettier-plugin-solidity": "^1.0.0-beta.16",
     "rimraf": "^3.0.2",
+    "semver": "^7.3.5",
     "solhint": "^3.3.6",
     "solidity-ast": "^0.4.25",
     "solidity-coverage": "^0.7.11",
