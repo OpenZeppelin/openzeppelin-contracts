@@ -1,6 +1,6 @@
 = ERC721
 
-We've discussed how you can make a _fungible_ token using xref:erc20.adoc[ERC20], but what if not all tokens are alike? This comes up in situations like *real estate* or *collectibles*, where some items are valued more than others, due to their usefulness, rarity, etc. ERC721 is a standard for representing ownership of xref:tokens.adoc#different-kinds-of-tokens[_non-fungible_ tokens], that is, where each token is unique.
+We've discussed how you can make a _fungible_ token using xref:erc20.adoc[ERC20], but what if not all tokens are alike? This comes up in situations like *real estate*, *voting rights*, or *collectibles*, where some items are valued more than others, due to their usefulness, rarity, etc. ERC721 is a standard for representing ownership of xref:tokens.adoc#different-kinds-of-tokens[_non-fungible_ tokens], that is, where each token is unique.
 
 ERC721 is a more complex standard than ERC20, with multiple optional extensions, and is split across a number of contracts. The OpenZeppelin Contracts provide flexibility regarding how these are combined, along with custom useful extensions. Check out the xref:api:token/ERC721.adoc[API Reference] to learn more about these.
 
@@ -16,10 +16,11 @@ Here's what a contract for tokenized items might look like:
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract GameItem is ERC721URIStorage {
+contract GameItem is ERC721, ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
