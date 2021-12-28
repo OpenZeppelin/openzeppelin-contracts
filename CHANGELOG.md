@@ -10,6 +10,7 @@
  * `ERC721`: improved revert reason when transferring from wrong owner. ([#2975](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2975))
  * `Votes`: Added a base contract for vote tracking with delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
  * `ERC721Votes`: Added an extension of ERC721 enabled with vote tracking and delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
+ * `ERC2771Context`: use immutable storage to store the forwarder address, no longer an issue since Solidity >=0.8.8 allows reading immutable variables in the constructor. ([#2917](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2917))
  * `ERC20`: reduce allowance before triggering transfer.
 
 ## 4.4.1 (2021-12-14)
