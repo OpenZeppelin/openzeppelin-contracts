@@ -131,8 +131,8 @@ contract My721Token is ERC721 {
         returns (string memory)
     {
         bytes memory dataURI = abi.encodePacked(
-            '{ 
-                "name": "My721Token #', tokenId.toString(), '"',
+            '{',
+                '"name": "My721Token #', tokenId.toString(), '"',
                 // Replace with extra ERC721 Metadata properties
             '}'
         );
