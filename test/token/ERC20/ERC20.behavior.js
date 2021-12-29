@@ -63,23 +63,19 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
             });
 
             it('emits a transfer event', async function () {
-              const { logs } = await this.token.transferFrom(tokenOwner, to, amount, { from: spender });
-
-              expectEvent.inLogs(logs, 'Transfer', {
-                from: tokenOwner,
-                to: to,
-                value: amount,
-              });
+              expectEvent(
+                await this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
+                'Transfer',
+                { from: tokenOwner, to: to, value: amount },
+              );
             });
 
             it('emits an approval event', async function () {
-              const { logs } = await this.token.transferFrom(tokenOwner, to, amount, { from: spender });
-
-              expectEvent.inLogs(logs, 'Approval', {
-                owner: tokenOwner,
-                spender: spender,
-                value: await this.token.allowance(tokenOwner, spender),
-              });
+              expectEvent(
+                await this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
+                'Approval',
+                { owner: tokenOwner, spender: spender, value: await this.token.allowance(tokenOwner, spender) },
+              );
             });
           });
 
@@ -158,7 +154,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
       it('reverts', async function () {
         await expectRevert(
           this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
-          `from the zero address`,
+          `${errorPrefix}: approve from the zero address`,
         );
       });
     });
@@ -197,13 +193,11 @@ function shouldBehaveLikeERC20Transfer (errorPrefix, from, to, balance, transfer
       });
 
       it('emits a transfer event', async function () {
-        const { logs } = await transfer.call(this, from, to, amount);
-
-        expectEvent.inLogs(logs, 'Transfer', {
-          from,
-          to,
-          value: amount,
-        });
+        expectEvent(
+          await transfer.call(this, from, to, amount),
+          'Transfer',
+          { from, to, value: amount },
+        );
       });
     });
 
@@ -219,13 +213,11 @@ function shouldBehaveLikeERC20Transfer (errorPrefix, from, to, balance, transfer
       });
 
       it('emits a transfer event', async function () {
-        const { logs } = await transfer.call(this, from, to, amount);
-
-        expectEvent.inLogs(logs, 'Transfer', {
-          from,
-          to,
-          value: amount,
-        });
+        expectEvent(
+          await transfer.call(this, from, to, amount),
+          'Transfer',
+          { from, to, value: amount },
+        );
       });
     });
   });
@@ -245,13 +237,11 @@ function shouldBehaveLikeERC20Approve (errorPrefix, owner, spender, supply, appr
       const amount = supply;
 
       it('emits an approval event', async function () {
-        const { logs } = await approve.call(this, owner, spender, amount);
-
-        expectEvent.inLogs(logs, 'Approval', {
-          owner: owner,
-          spender: spender,
-          value: amount,
-        });
+        expectEvent(
+          await approve.call(this, owner, spender, amount),
+          'Approval',
+          { owner: owner, spender: spender, value: amount },
+        );
       });
 
       describe('when there was no approved amount before', function () {
@@ -279,13 +269,11 @@ function shouldBehaveLikeERC20Approve (errorPrefix, owner, spender, supply, appr
       const amount = supply.addn(1);
 
       it('emits an approval event', async function () {
-        const { logs } = await approve.call(this, owner, spender, amount);
-
-        expectEvent.inLogs(logs, 'Approval', {
-          owner: owner,
-          spender: spender,
-          value: amount,
-        });
+        expectEvent(
+          await approve.call(this, owner, spender, amount),
+          'Approval',
+          { owner: owner, spender: spender, value: amount },
+        );
       });
 
       describe('when there was no approved amount before', function () {
