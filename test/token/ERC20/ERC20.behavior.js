@@ -121,7 +121,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
             const amount = allowance;
 
             beforeEach('reducing balance', async function () {
-              await this.token.transfer(to, initialSupply, { from: tokenOwner });
+              await this.token.transfer(to, 2, { from: tokenOwner });
             });
 
             it('reverts', async function () {
