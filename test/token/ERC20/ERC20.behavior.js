@@ -40,7 +40,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
       describe('when the recipient is not the zero address', function () {
         const to = anotherAccount;
 
-        describe('when the spender has enough approved allowance', function () {
+        describe('when the spender has enough allowance', function () {
           beforeEach(async function () {
             await this.token.approve(spender, initialSupply, { from: initialHolder });
           });
@@ -95,7 +95,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
           });
         });
 
-        describe('when the spender does not have enough approved allowance', function () {
+        describe('when the spender does not have enough allowance', function () {
           const allowance = initialSupply.subn(1);
 
           beforeEach(async function () {
@@ -117,7 +117,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
             const amount = allowance;
 
             beforeEach('reducing balance', async function () {
-              await this.token.transfer(to, initialSupply, { from: tokenOwner });
+              await this.token.transfer(to, 2, { from: tokenOwner });
             });
 
             it('reverts', async function () {
