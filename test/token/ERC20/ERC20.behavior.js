@@ -154,7 +154,7 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
       it('reverts', async function () {
         await expectRevert(
           this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
-          `${errorPrefix}: approve from the zero address`,
+          'from the zero address',
         );
       });
     });
