@@ -118,7 +118,6 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 
 contract My721Token is ERC721 {
     using Strings for uint256;
-    using Base64 for bytes;
 
     constructor() ERC721("My721Token", "MTK") {}
     
@@ -140,7 +139,7 @@ contract My721Token is ERC721 {
         return string(
             abi.encodePacked(
                 "data:application/json;base64,", 
-                dataURI.encode()
+                Base64.encode(dataURI)
             )
         );
     }
