@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../ERC1822/IProxiable.sol";
+import "../../interfaces/draft-IERC1822.sol";
 import "../ERC1967/ERC1967Upgrade.sol";
 
 /**
@@ -18,7 +18,7 @@ import "../ERC1967/ERC1967Upgrade.sol";
  *
  * _Available since v4.1._
  */
-abstract contract UUPSUpgradeable is IProxiable, ERC1967Upgrade {
+abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address private immutable __self = address(this);
 

@@ -1,4 +1,6 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { web3 } = require('@openzeppelin/test-helpers/src/setup');
+const { ImplementationSlot, toChecksumAddress } = require('../../helpers/erc1967');
 
 const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
@@ -55,9 +57,8 @@ contract('UUPSUpgradeable', function (accounts) {
 
   // delegate to a non existing upgradeTo function causes a low level revert
   it('reject upgrade to non uups implementation', async function () {
-    await expectRevert(
+    await expectRevert.unspecified(
       this.instance.upgradeTo(this.implUpgradeNonUUPS.address),
-      'Transaction reverted: function selector was not recognized and there\'s no fallback function',
     );
   });
 
@@ -88,6 +89,10 @@ contract('UUPSUpgradeable', function (accounts) {
         expect(UpgradedEvents.length).to.be.equal(1);
 
         expectEvent(receipt, 'Upgraded', { implementation: this.implInitial.address });
+
+        const implementationSlot = await web3.eth.getStorageAt(legacyInstance.address, ImplementationSlot);
+        const implementationAddress = toChecksumAddress(implementationSlot.substr(-40));
+        expect(implementationAddress).to.be.equal(this.implInitial.address);
       });
     };
   });

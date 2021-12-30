@@ -4,7 +4,7 @@
 pragma solidity ^0.8.2;
 
 import "../beacon/IBeacon.sol";
-import "../ERC1822/IProxiable.sol";
+import "../../interfaces/draft-IERC1822.sol";
 import "../../utils/Address.sol";
 import "../../utils/StorageSlot.sol";
 
@@ -83,11 +83,14 @@ abstract contract ERC1967Upgrade {
         bytes memory data,
         bool forceCall
     ) internal {
+        // Upgrades from old implementations will perform a rollback test. This test requires this
+        // new implementation to upgrade to an old, non-ERC1822 compliant, implementation. Removing
+        // this special case will break upgrade paths from old UUPS implementation to new ones.
         if (StorageSlot.getBooleanSlot(_ROLLBACK_SLOT).value) {
             _setImplementation(newImplementation);
         } else {
             require(
-                IProxiable(newImplementation).proxiableUUID() == _IMPLEMENTATION_SLOT,
+                IERC1822Proxiable(newImplementation).proxiableUUID() == _IMPLEMENTATION_SLOT,
                 "Invalid proxiableUUID value"
             );
             _upgradeToAndCall(newImplementation, data, forceCall);

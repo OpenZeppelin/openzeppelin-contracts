@@ -1,15 +1,9 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
-const ethereumjsUtil = require('ethereumjs-util');
+const { expectRevert } = require('@openzeppelin/test-helpers');
+const { ImplementationSlot, toChecksumAddress } = require('../helpers/erc1967');
 
 const { expect } = require('chai');
 
 const DummyImplementation = artifacts.require('DummyImplementation');
-
-const IMPLEMENTATION_LABEL = 'eip1967.proxy.implementation';
-
-function toChecksumAddress (address) {
-  return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0'));
-}
 
 module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress, proxyCreator) {
   it('cannot be initialized with a non-contract address', async function () {
@@ -23,14 +17,14 @@ module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress,
   });
 
   before('deploy implementation', async function () {
-    this.implementation = web3.utils.toChecksumAddress((await DummyImplementation.new()).address);
+    this.implementation = toChecksumAddress((await DummyImplementation.new()).address);
   });
 
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
-      const slot = '0x' + new BN(ethereumjsUtil.keccak256(Buffer.from(IMPLEMENTATION_LABEL))).subn(1).toString(16);
-      const implementation = toChecksumAddress((await web3.eth.getStorageAt(this.proxy, slot)).substr(-40));
-      expect(implementation).to.be.equal(this.implementation);
+      const implementationSlot = await web3.eth.getStorageAt(this.proxy, ImplementationSlot);
+      const implementationAddress = toChecksumAddress(implementationSlot.substr(-40));
+      expect(implementationAddress).to.be.equal(this.implementation);
     });
 
     it('initializes the proxy', async function () {
