@@ -1,6 +1,6 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { web3 } = require('@openzeppelin/test-helpers/src/setup');
-const { ImplementationSlot, toChecksumAddress } = require('../../helpers/erc1967');
+const { ImplementationSlot } = require('../../helpers/erc1967');
 
 const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
@@ -91,7 +91,7 @@ contract('UUPSUpgradeable', function (accounts) {
         expectEvent(receipt, 'Upgraded', { implementation: this.implInitial.address });
 
         const implementationSlot = await web3.eth.getStorageAt(legacyInstance.address, ImplementationSlot);
-        const implementationAddress = toChecksumAddress(implementationSlot.substr(-40));
+        const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
         expect(implementationAddress).to.be.equal(this.implInitial.address);
       });
     };

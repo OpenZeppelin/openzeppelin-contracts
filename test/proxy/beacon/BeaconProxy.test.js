@@ -1,5 +1,5 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const { BeaconSlot, toChecksumAddress } = require('../../helpers/erc1967');
+const { BeaconSlot } = require('../../helpers/erc1967');
 
 const { expect } = require('chai');
 
@@ -46,7 +46,7 @@ contract('BeaconProxy', function (accounts) {
     before(function () {
       this.assertInitialized = async ({ value, balance }) => {
         const beaconSlot = await web3.eth.getStorageAt(this.proxy.address, BeaconSlot);
-        const beaconAddress = toChecksumAddress(beaconSlot.substr(-40));
+        const beaconAddress = web3.utils.toChecksumAddress(beaconSlot.substr(-40));
         expect(beaconAddress).to.equal(this.beacon.address);
 
         const dummy = new DummyImplementation(this.proxy.address);
