@@ -1,5 +1,5 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const { ImplementationSlot } = require('../helpers/erc1967');
+const { getSlot, ImplementationSlot } = require('../helpers/erc1967');
 
 const { expect } = require('chai');
 
@@ -22,7 +22,7 @@ module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress,
 
   const assertProxyInitialization = function ({ value, balance }) {
     it('sets the implementation address', async function () {
-      const implementationSlot = await web3.eth.getStorageAt(this.proxy, ImplementationSlot);
+      const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
       const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
       expect(implementationAddress).to.be.equal(this.implementation);
     });

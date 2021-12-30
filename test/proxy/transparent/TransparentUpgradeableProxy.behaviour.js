@@ -1,6 +1,6 @@
 const { BN, expectRevert, expectEvent, constants } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
-const { ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
+const { getSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
 
 const { expect } = require('chai');
 
@@ -305,13 +305,13 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
 
   describe('storage', function () {
     it('should store the implementation address in specified location', async function () {
-      const implementationSlot = await web3.eth.getStorageAt(this.proxyAddress, ImplementationSlot);
+      const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
       const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
       expect(implementationAddress).to.be.equal(this.implementationV0);
     });
 
     it('should store the admin proxy in specified location', async function () {
-      const proxyAdminSlot = await web3.eth.getStorageAt(this.proxyAddress, AdminSlot);
+      const proxyAdminSlot = await getSlot(this.proxy, AdminSlot);
       const proxyAdminAddress = web3.utils.toChecksumAddress(proxyAdminSlot.substr(-40));
       expect(proxyAdminAddress).to.be.equal(proxyAdminAddress);
     });
