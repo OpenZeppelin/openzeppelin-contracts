@@ -40,7 +40,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * callable on the implementing contract but not through proxies.
      */
     modifier notDelegated() {
-        require(address(this) == __self, "Function must not be called through delegatecall");
+        require(address(this) == __self, "UUPSUpgradeable: must not be called through delegatecall");
         _;
     }
 
