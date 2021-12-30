@@ -1,5 +1,4 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const { keccak256 } = require('ethereumjs-util');
 const { BeaconSlot, toChecksumAddress } = require('../../helpers/erc1967');
 
 const { expect } = require('chai');

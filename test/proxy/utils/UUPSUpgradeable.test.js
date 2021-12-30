@@ -69,7 +69,7 @@ contract('UUPSUpgradeable', function (accounts) {
     // infinite loop reverts when a nested call is out-of-gas
     await expectRevert(
       this.instance.upgradeTo(otherInstance.address),
-      'Function must not be called through delegatecall',
+      'UUPSUpgradeable: must not be called through delegatecall',
     );
   });
 
