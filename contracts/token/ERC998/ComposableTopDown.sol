@@ -2,6 +2,9 @@ pragma solidity ^0.8.0;
 
 /**********************************
 /* Author: Nick Mudge, <nick@perfectabstractions.com>, https://medium.com/@mudgen.
+
+   edit by @3scava1i3r
+   
 /**********************************/
 
 //jshint ignore: start
@@ -26,6 +29,19 @@ contract ComposableTopDown is IERC721, IERC998ERC721TopDown, IERC998ERC721TopDow
 IERC998ERC20TopDown, IERC998ERC20TopDownEnumerable {
     // return this.rootOwnerOf.selector ^ this.rootOwnerOfChild.selector ^
     //   this.tokenOwnerOf.selector ^ this.ownerOfChild.selector;
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165) returns (bool) {
+        return
+            interfaceId == type(IERC721).interfaceId ||
+            interfaceId == type(IERC998ERC721TopDown).interfaceId ||
+            interfaceId == type(IERC998ERC721TopDownEnumerable).interfaceId ||
+            interfaceId == type(IERC998ERC20TopDown).interfaceId ||
+            interfaceId == type(IERC998ERC20TopDownEnumerable).interfaceId;
+    }
+
     bytes32 constant ERC998_MAGIC_VALUE = "0xcd740db5";
 
     uint256 tokenCount = 0;
@@ -110,7 +126,7 @@ IERC998ERC20TopDown, IERC998ERC20TopDownEnumerable {
             // Case 3: Token owner is other contract
             // Or
             // Case 4: Token owner is user
-            return ERC998_MAGIC_VALUE << 224 | bytes32(rootOwnerAddress);
+            return ERC998_MAGIC_VALUE << 224 | bytes32(uint256(uint160(rootOwnerAddress)));
         }
     }
 
@@ -268,7 +284,7 @@ IERC998ERC20TopDown, IERC998ERC20TopDownEnumerable {
         require(tokenId > 0 || childTokenIndex[tokenId][_childContract][_childTokenId] > 0);
         require(tokenId == _fromTokenId);
         require(_to != address(0));
-        address rootOwner = address(rootOwnerOf(tokenId));
+        address rootOwner = address(uint160(uint256(rootOwnerOf(tokenId))));
         require(rootOwner == msg.sender || tokenOwnerToOperators[rootOwner][msg.sender] ||
         rootOwnerAndTokenIdToApprovedAddress[rootOwner][tokenId] == msg.sender);
         removeChild(tokenId, _childContract, _childTokenId);
@@ -281,7 +297,7 @@ IERC998ERC20TopDown, IERC998ERC20TopDownEnumerable {
         require(tokenId > 0 || childTokenIndex[tokenId][_childContract][_childTokenId] > 0);
         require(tokenId == _fromTokenId);
         require(_to != address(0));
-        address rootOwner = address(rootOwnerOf(tokenId));
+        address rootOwner = address(uint160(uint256(rootOwnerOf(tokenId))));
         require(rootOwner == msg.sender || tokenOwnerToOperators[rootOwner][msg.sender] ||
         rootOwnerAndTokenIdToApprovedAddress[rootOwner][tokenId] == msg.sender);
         removeChild(tokenId, _childContract, _childTokenId);
@@ -294,7 +310,7 @@ IERC998ERC20TopDown, IERC998ERC20TopDownEnumerable {
         require(tokenId > 0 || childTokenIndex[tokenId][_childContract][_childTokenId] > 0);
         require(tokenId == _fromTokenId);
         require(_to != address(0));
-        address rootOwner = address(rootOwnerOf(tokenId));
+        address rootOwner = address(uint160(uint256(rootOwnerOf(tokenId))));
         require(rootOwner == msg.sender || tokenOwnerToOperators[rootOwner][msg.sender] ||
         rootOwnerAndTokenIdToApprovedAddress[rootOwner][tokenId] == msg.sender);
         removeChild(tokenId, _childContract, _childTokenId);
@@ -306,7 +322,7 @@ IERC998ERC20TopDown, IERC998ERC20TopDownEnumerable {
         assembly {
             let success := call(gas(), _childContract, 0, add(_calldata, 0x20), mload(_calldata), _calldata, 0)
         }
-        IERC721(_childContract).transferFrom(this, _to, _childTokenId);
+        IERC721(_childContract).transferFrom(address(this), _to, _childTokenId);
         emit TransferChild(tokenId, _to, _childContract, _childTokenId);
     }
 
@@ -315,7 +331,7 @@ IERC998ERC20TopDown, IERC998ERC20TopDownEnumerable {
         require(tokenId > 0 || childTokenIndex[tokenId][_childContract][_childTokenId] > 0);
         require(tokenId == _fromTokenId);
         require(_toContract != address(0));
-        address rootOwner = address(rootOwnerOf(tokenId));
+        address rootOwner = address(uint160(uint256(rootOwnerOf(tokenId))));
         require(rootOwner == msg.sender || tokenOwnerToOperators[rootOwner][msg.sender] ||
         rootOwnerAndTokenIdToApprovedAddress[rootOwner][tokenId] == msg.sender);
         removeChild(_fromTokenId, _childContract, _childTokenId);
@@ -385,7 +401,7 @@ IERC998ERC20TopDown, IERC998ERC20TopDownEnumerable {
     function ownerOfChild(address _childContract, uint256 _childTokenId)override external view returns (bytes32 parentTokenOwner, uint256 parentTokenId) {
         parentTokenId = childTokenOwner[_childContract][_childTokenId];
         require(parentTokenId > 0 || childTokenIndex[parentTokenId][_childContract][_childTokenId] > 0);
-        return (ERC998_MAGIC_VALUE << 224 | bytes32(tokenIdToTokenOwner[parentTokenId]), parentTokenId);
+        return (ERC998_MAGIC_VALUE << 224 | bytes32(uint256(uint160(tokenIdToTokenOwner[parentTokenId]))), parentTokenId);
     }
 
     function childExists(address _childContract, uint256 _childTokenId) external view returns (bool) {
@@ -444,7 +460,7 @@ IERC998ERC20TopDown, IERC998ERC20TopDownEnumerable {
                 erc20Contracts[_tokenId][contractIndex] = lastContract;
                 erc20ContractIndex[_tokenId][lastContract] = contractIndex;
             }
-            erc20Contracts[_tokenId].length--;
+            erc20Contracts[_tokenId].pop;
             delete erc20ContractIndex[_tokenId][_erc20Contract];
         }
     }
@@ -452,7 +468,7 @@ IERC998ERC20TopDown, IERC998ERC20TopDownEnumerable {
 
     function transferERC20(uint256 _tokenId, address _to, address _erc20Contract, uint256 _value)override external {
         require(_to != address(0));
-        address rootOwner = address(rootOwnerOf(_tokenId));
+        address rootOwner = address(uint160(uint256(rootOwnerOf(_tokenId))));
         require(rootOwner == msg.sender || tokenOwnerToOperators[rootOwner][msg.sender] ||
         rootOwnerAndTokenIdToApprovedAddress[rootOwner][_tokenId] == msg.sender);
         removeERC20(_tokenId, _erc20Contract, _value);
@@ -463,7 +479,7 @@ IERC998ERC20TopDown, IERC998ERC20TopDownEnumerable {
     // implementation of ERC 223
     function transferERC223(uint256 _tokenId, address _to, address _erc223Contract, uint256 _value, bytes memory _data)override external {
         require(_to != address(0));
-        address rootOwner = address(rootOwnerOf(_tokenId));
+        address rootOwner = address(uint160(uint256(rootOwnerOf(_tokenId))));
         require(rootOwner == msg.sender || tokenOwnerToOperators[rootOwner][msg.sender] ||
         rootOwnerAndTokenIdToApprovedAddress[rootOwner][_tokenId] == msg.sender);
         removeERC20(_tokenId, _erc223Contract, _value);
