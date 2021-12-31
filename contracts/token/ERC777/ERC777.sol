@@ -287,11 +287,11 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         _callTokensToSend(spender, holder, recipient, amount, "", "");
 
-        _move(spender, holder, recipient, amount, "", "");
-
         uint256 currentAllowance = _allowances[holder][spender];
         require(currentAllowance >= amount, "ERC777: transfer amount exceeds allowance");
         _approve(holder, spender, currentAllowance - amount);
+
+        _move(spender, holder, recipient, amount, "", "");
 
         _callTokensReceived(spender, holder, recipient, amount, "", "", false);
 
