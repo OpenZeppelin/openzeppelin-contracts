@@ -41,7 +41,7 @@ contract('SafeCast', async (accounts) => {
     });
   }
 
-  [8, 16, 32, 64, 128].forEach(bits => testToUint(bits));
+  [8, 16, 32, 64, 96, 128, 224].forEach(bits => testToUint(bits));
 
   describe('toUint256', () => {
     const maxInt256 = new BN('2').pow(new BN(255)).subn(1);

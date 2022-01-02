@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (proxy/Proxy.sol)
 
 pragma solidity ^0.8.0;
 
@@ -16,10 +17,9 @@ abstract contract Proxy {
     /**
      * @dev Delegates the current call to `implementation`.
      *
-     * This function does not return to its internall call site, it will return directly to the external caller.
+     * This function does not return to its internal call site, it will return directly to the external caller.
      */
     function _delegate(address implementation) internal virtual {
-        // solhint-disable-next-line no-inline-assembly
         assembly {
             // Copy msg.data. We take full control of memory in this inline assembly
             // block because it will not return to Solidity code. We overwrite the
@@ -35,8 +35,12 @@ abstract contract Proxy {
 
             switch result
             // delegatecall returns 0 on error.
-            case 0 { revert(0, returndatasize()) }
-            default { return(0, returndatasize()) }
+            case 0 {
+                revert(0, returndatasize())
+            }
+            default {
+                return(0, returndatasize())
+            }
         }
     }
 
@@ -60,7 +64,7 @@ abstract contract Proxy {
      * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if no other
      * function in the contract matches the call data.
      */
-    fallback () external payable virtual {
+    fallback() external payable virtual {
         _fallback();
     }
 
@@ -68,7 +72,7 @@ abstract contract Proxy {
      * @dev Fallback function that delegates calls to the address returned by `_implementation()`. Will run if call data
      * is empty.
      */
-    receive () external payable virtual {
+    receive() external payable virtual {
         _fallback();
     }
 
@@ -78,6 +82,5 @@ abstract contract Proxy {
      *
      * If overriden should call `super._beforeFallback()`.
      */
-    function _beforeFallback() internal virtual {
-    }
+    function _beforeFallback() internal virtual {}
 }

@@ -18,7 +18,11 @@ contract ERC20ReturnFalseMock is Context {
         return false;
     }
 
-    function transferFrom(address, address, uint256) public returns (bool) {
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) public returns (bool) {
         _dummy = 0;
         return false;
     }
@@ -29,13 +33,13 @@ contract ERC20ReturnFalseMock is Context {
     }
 
     function allowance(address, address) public view returns (uint256) {
-        require(_dummy == 0); // Duummy read from a state variable so that the function is view
+        require(_dummy == 0); // Dummy read from a state variable so that the function is view
         return 0;
     }
 }
 
 contract ERC20ReturnTrueMock is Context {
-    mapping (address => uint256) private _allowances;
+    mapping(address => uint256) private _allowances;
 
     // IERC20's functions are not pure, but these mock implementations are: to prevent Solidity from issuing warnings,
     // we write to a dummy state variable.
@@ -46,7 +50,11 @@ contract ERC20ReturnTrueMock is Context {
         return true;
     }
 
-    function transferFrom(address, address, uint256) public returns (bool) {
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) public returns (bool) {
         _dummy = 0;
         return true;
     }
@@ -66,7 +74,7 @@ contract ERC20ReturnTrueMock is Context {
 }
 
 contract ERC20NoReturnMock is Context {
-    mapping (address => uint256) private _allowances;
+    mapping(address => uint256) private _allowances;
 
     // IERC20's functions are not pure, but these mock implementations are: to prevent Solidity from issuing warnings,
     // we write to a dummy state variable.
@@ -76,7 +84,11 @@ contract ERC20NoReturnMock is Context {
         _dummy = 0;
     }
 
-    function transferFrom(address, address, uint256) public {
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) public {
         _dummy = 0;
     }
 
@@ -98,7 +110,7 @@ contract SafeERC20Wrapper is Context {
 
     IERC20 private _token;
 
-    constructor (IERC20 token) {
+    constructor(IERC20 token) {
         _token = token;
     }
 

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (token/ERC721/extensions/ERC721URIStorage.sol)
 
 pragma solidity ^0.8.0;
 
@@ -11,7 +12,7 @@ abstract contract ERC721URIStorage is ERC721 {
     using Strings for uint256;
 
     // Optional mapping for token URIs
-    mapping (uint256 => string) private _tokenURIs;
+    mapping(uint256 => string) private _tokenURIs;
 
     /**
      * @dev See {IERC721Metadata-tokenURI}.

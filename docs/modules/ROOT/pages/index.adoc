@@ -5,7 +5,6 @@
  * Implementations of standards like xref:erc20.adoc[ERC20] and xref:erc721.adoc[ERC721].
  * Flexible xref:access-control.adoc[role-based permissioning] scheme.
  * Reusable xref:utilities.adoc[Solidity components] to build custom contracts and complex decentralized systems.
- * https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/audit[Audited] by leading security firms (_last full audit on v2.0.0_).
 
 == Overview
 
@@ -41,6 +40,11 @@ TIP: If you're new to smart contract development, head to xref:learn::developing
 
 To keep your system secure, you should **always** use the installed code as-is, and neither copy-paste it from online sources, nor modify it yourself. The library is designed so that only the contracts and functions you use are deployed, so you don't need to worry about it needlessly increasing gas costs.
 
+[[security]]
+== Security
+
+Please report any security issues you find via our https://www.immunefi.com/bounty/openzeppelin[bug bounty program on Immunefi] or directly to security@openzeppelin.org.
+
 [[next-steps]]
 == Learn More
 
@@ -52,7 +56,7 @@ The guides in the sidebar will teach about different concepts, and how to use th
 
 The xref:api:token/ERC20.adoc[full API] is also thoroughly documented, and serves as a great reference when developing your smart contract application. You can also ask for help or follow Contracts' development in the https://forum.openzeppelin.com[community forum].
 
-Finally, you may want to take a look at the https://blog.openzeppelin.com/guides/[guides on our blog], which cover several common use cases and good practices.. The following articles provide great background reading, though please note, some of the referenced tools have changed as the tooling in the ecosystem continues to rapidly evolve.
+Finally, you may want to take a look at the https://blog.openzeppelin.com/guides/[guides on our blog], which cover several common use cases and good practices. The following articles provide great background reading, though please note, some of the referenced tools have changed as the tooling in the ecosystem continues to rapidly evolve.
 
 * https://blog.openzeppelin.com/the-hitchhikers-guide-to-smart-contracts-in-ethereum-848f08001f05[The Hitchhiker’s Guide to Smart Contracts in Ethereum] will help you get an overview of the various tools available for smart contract development, and help you set up your environment.
 * https://blog.openzeppelin.com/a-gentle-introduction-to-ethereum-programming-part-1-783cc7796094[A Gentle Introduction to Ethereum Programming, Part 1] provides very useful information on an introductory level, including many basic concepts from the Ethereum platform.

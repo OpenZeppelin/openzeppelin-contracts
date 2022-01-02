@@ -14,4 +14,6 @@
 ** xref:erc777.adoc[ERC777]
 ** xref:erc1155.adoc[ERC1155]
 
+* xref:governance.adoc[Governance]
+
 * xref:utilities.adoc[Utilities]

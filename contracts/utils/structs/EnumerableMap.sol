@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (utils/structs/EnumerableMap.sol)
 
 pragma solidity ^0.8.0;
 
@@ -43,8 +44,7 @@ library EnumerableMap {
     struct Map {
         // Storage of keys
         EnumerableSet.Bytes32Set _keys;
-
-        mapping (bytes32 => bytes32) _values;
+        mapping(bytes32 => bytes32) _values;
     }
 
     /**
@@ -54,7 +54,11 @@ library EnumerableMap {
      * Returns true if the key was added to the map, that is if it was not
      * already present.
      */
-    function _set(Map storage map, bytes32 key, bytes32 value) private returns (bool) {
+    function _set(
+        Map storage map,
+        bytes32 key,
+        bytes32 value
+    ) private returns (bool) {
         map._values[key] = value;
         return map._keys.add(key);
     }
@@ -83,16 +87,16 @@ library EnumerableMap {
         return map._keys.length();
     }
 
-   /**
-    * @dev Returns the key-value pair stored at position `index` in the map. O(1).
-    *
-    * Note that there are no guarantees on the ordering of entries inside the
-    * array, and it may change when more entries are added or removed.
-    *
-    * Requirements:
-    *
-    * - `index` must be strictly less than {length}.
-    */
+    /**
+     * @dev Returns the key-value pair stored at position `index` in the map. O(1).
+     *
+     * Note that there are no guarantees on the ordering of entries inside the
+     * array, and it may change when more entries are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
     function _at(Map storage map, uint256 index) private view returns (bytes32, bytes32) {
         bytes32 key = map._keys.at(index);
         return (key, map._values[key]);
@@ -130,7 +134,11 @@ library EnumerableMap {
      * CAUTION: This function is deprecated because it requires allocating memory for the error
      * message unnecessarily. For custom revert reasons use {_tryGet}.
      */
-    function _get(Map storage map, bytes32 key, string memory errorMessage) private view returns (bytes32) {
+    function _get(
+        Map storage map,
+        bytes32 key,
+        string memory errorMessage
+    ) private view returns (bytes32) {
         bytes32 value = map._values[key];
         require(value != 0 || _contains(map, key), errorMessage);
         return value;
@@ -149,7 +157,11 @@ library EnumerableMap {
      * Returns true if the key was added to the map, that is if it was not
      * already present.
      */
-    function set(UintToAddressMap storage map, uint256 key, address value) internal returns (bool) {
+    function set(
+        UintToAddressMap storage map,
+        uint256 key,
+        address value
+    ) internal returns (bool) {
         return _set(map._inner, bytes32(key), bytes32(uint256(uint160(value))));
     }
 
@@ -176,15 +188,15 @@ library EnumerableMap {
         return _length(map._inner);
     }
 
-   /**
-    * @dev Returns the element stored at position `index` in the set. O(1).
-    * Note that there are no guarantees on the ordering of values inside the
-    * array, and it may change when more values are added or removed.
-    *
-    * Requirements:
-    *
-    * - `index` must be strictly less than {length}.
-    */
+    /**
+     * @dev Returns the element stored at position `index` in the set. O(1).
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
     function at(UintToAddressMap storage map, uint256 index) internal view returns (uint256, address) {
         (bytes32 key, bytes32 value) = _at(map._inner, index);
         return (uint256(key), address(uint160(uint256(value))));
@@ -218,7 +230,11 @@ library EnumerableMap {
      * CAUTION: This function is deprecated because it requires allocating memory for the error
      * message unnecessarily. For custom revert reasons use {tryGet}.
      */
-    function get(UintToAddressMap storage map, uint256 key, string memory errorMessage) internal view returns (address) {
+    function get(
+        UintToAddressMap storage map,
+        uint256 key,
+        string memory errorMessage
+    ) internal view returns (address) {
         return address(uint160(uint256(_get(map._inner, bytes32(key), errorMessage))));
     }
 }

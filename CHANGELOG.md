@@ -2,18 +2,94 @@
 
 ## Unreleased
 
- * `ERC20Votes`: add a new extension of the `ERC20` token with support for voting snapshots and delegation. This extension is compatible with Compound's `Comp` token interface. ([#2632](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2632))
+ * `GovernorTimelockControl`: improve the `state()` function to have it reflect cases where a proposal has been canceled directly on the timelock. ([#2977](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2977))
+ * `Math`: add a `abs(int256)` method that returns the unsigned absolute value of a signed value. ([#2984](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2984))
+ * Preset contracts are now deprecated in favor of [Contracts Wizard](https://wizard.openzeppelin.com). ([#2986](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2986))
+ * `Governor`: add a relay function to help recover assets sent to a governor that is not its own executor (e.g. when using a timelock). ([#2926](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2926))
+ * `GovernorPreventLateQuorum`: add new module to ensure a minimum voting duration is available after the quorum is reached. ([#2973](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2973))
+ * `ERC721`: improved revert reason when transferring from wrong owner. ([#2975](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2975))
+ * `Votes`: Added a base contract for vote tracking with delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
+ * `ERC721Votes`: Added an extension of ERC721 enabled with vote tracking and delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
+ * `ERC2771Context`: use immutable storage to store the forwarder address, no longer an issue since Solidity >=0.8.8 allows reading immutable variables in the constructor. ([#2917](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2917))
+ * `Base64`: add a library to parse bytes into base64 strings using `encode(bytes memory)` function, and provide examples to show how to use to build URL-safe `tokenURIs` ([#2884](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2884))
+ * `ERC20`: reduce allowance before triggering transfer.
+
+## 4.4.1 (2021-12-14)
+
+ * `Initializable`: change the existing `initializer` modifier and add a new `onlyInitializing` modifier to prevent reentrancy risk. ([#3006](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3006))
+
+### Breaking change
+
+It is no longer possible to call an `initializer`-protected function from within another `initializer` function outside the context of a constructor. Projects using OpenZeppelin upgradeable proxies should continue to work as is, since in the common case the initializer is invoked in the constructor directly. If this is not the case for you, the suggested change is to use the new `onlyInitializing` modifier in the following way:
+
+```diff
+ contract A {
+-    function initialize() public   initializer { ... }
++    function initialize() internal onlyInitializing { ... }
+ }
+ contract B is A {
+     function initialize() public initializer {
+         A.initialize();
+     }
+ }
+```
+
+## 4.4.0 (2021-11-25)
+
+ * `Ownable`: add an internal `_transferOwnership(address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2568))
+ * `AccessControl`: add internal `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2568))
+ * `AccessControl`: mark `_setupRole(bytes32,address)` as deprecated in favor of `_grantRole(bytes32,address)`. ([#2568](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2568))
+ * `AccessControlEnumerable`: hook into `_grantRole(bytes32,address)` and `_revokeRole(bytes32,address)`. ([#2946](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2946))
+ * `EIP712`: cache `address(this)` to immutable storage to avoid potential issues if a vanilla contract is used in a delegatecall context. ([#2852](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2852))
+ * Add internal `_setApprovalForAll` to `ERC721` and `ERC1155`. ([#2834](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2834))
+ * `Governor`: shift vote start and end by one block to better match Compound's GovernorBravo and prevent voting at the Governor level if the voting snapshot is not ready. ([#2892](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2892))
+ * `GovernorCompatibilityBravo`: consider quorum an inclusive rather than exclusive minimum to match Compound's GovernorBravo. ([#2974](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2974))
+ * `GovernorSettings`: a new governor module that manages voting settings updatable through governance actions. ([#2904](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2904))
+ * `PaymentSplitter`: now supports ERC20 assets in addition to Ether. ([#2858](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2858))
+ * `ECDSA`: add a variant of `toEthSignedMessageHash` for arbitrary length message hashing. ([#2865](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2865))
+ * `MerkleProof`: add a `processProof` function that returns the rebuilt root hash given a leaf and a proof. ([#2841](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2841))
+ * `VestingWallet`: new contract that handles the vesting of Ether and ERC20 tokens following a customizable vesting schedule. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2748))
+ * `Governor`: enable receiving Ether when a Timelock contract is not used. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
+ * `GovernorTimelockCompound`: fix ability to use Ether stored in the Timelock contract. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
+
+## 4.3.3
+
+ * `ERC1155Supply`: Handle `totalSupply` changes by hooking into `_beforeTokenTransfer` to ensure consistency of balances and supply during `IERC1155Receiver.onERC1155Received` calls.
+
+## 4.3.2 (2021-09-14)
+
+ * `UUPSUpgradeable`: Add modifiers to prevent `upgradeTo` and `upgradeToAndCall` being executed on any contract that is not the active ERC1967 proxy. This prevents these functions being called on implementation contracts or minimal ERC1167 clones, in particular.
+
+## 4.3.1 (2021-08-26)
+
+ * `TimelockController`: Add additional isOperationReady check.
+
+## 4.3.0 (2021-08-17)
+
+ * `ERC2771Context`: use private variable from storage to store the forwarder address. Fixes issues where `_msgSender()` was not callable from constructors. ([#2754](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2754))
+ * `EnumerableSet`: add `values()` functions that returns an array containing all values in a single call. ([#2768](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2768))
+ * `Governor`: added a modular system of `Governor` contracts based on `GovernorAlpha` and `GovernorBravo`. ([#2672](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2672))
+ * Add an `interfaces` folder containing solidity interfaces to final ERCs. ([#2517](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2517))
+ * `ECDSA`: add `tryRecover` functions that will not throw if the signature is invalid, and will return an error flag instead. ([#2661](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2661))
+ * `SignatureChecker`: Reduce gas usage of the `isValidSignatureNow` function for the "signature by EOA" case. ([#2661](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2661))
+
+## 4.2.0 (2021-06-30)
+
+ * `ERC20Votes`: add a new extension of the `ERC20` token with support for voting snapshots and delegation. ([#2632](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2632))
+ * `ERC20VotesComp`: Variant of `ERC20Votes` that is compatible with Compound's `Comp` token interface but restricts supply to `uint96`. ([#2706](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2706))
+ * `ERC20Wrapper`: add a new extension of the `ERC20` token which wraps an underlying token. Deposit and withdraw guarantee that the total supply is backed by a corresponding amount of underlying token. ([#2633](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2633))
  * Enumerables: Improve gas cost of removal in `EnumerableSet` and `EnumerableMap`.
  * Enumerables: Improve gas cost of lookup in `EnumerableSet` and `EnumerableMap`.
  * `Counter`: add a reset method. ([#2678](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2678))
- * Tokens: Wrap definitely safe subtractions in `unchecked` blocks. 
+ * Tokens: Wrap definitely safe subtractions in `unchecked` blocks.
  * `Math`: Add a `ceilDiv` method for performing ceiling division.
  * `ERC1155Supply`: add a new `ERC1155` extension that keeps track of the totalSupply of each tokenId. ([#2593](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2593))
+ * `BitMaps`: add a new `BitMaps` library that provides a storage efficient datastructure for `uint256` to `bool` mapping with contiguous keys. ([#2710](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2710))
 
- ### Breaking Changes
- 
+### Breaking Changes
+
  * `ERC20FlashMint` is no longer a Draft ERC. ([#2673](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2673)))
- 
+
 **How to update:** Change your import paths by removing the `draft-` prefix from `@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20FlashMint.sol`.
 
 > See [Releases and Stability: Drafts](https://docs.openzeppelin.com/contracts/4.x/releases-stability#drafts).
@@ -82,6 +158,14 @@ Make sure you're using git or another version control system to be able to recov
 ### How to upgrade from 4.0-beta.x
 
 Some further changes have been done between the different beta iterations. Transitions made during this period are configured in the `migrate-imports` script. Consequently, you can upgrade from any previous 4.0-beta.x version using the same script as described in the *How to upgrade from 3.x* section.
+
+## 3.4.2
+
+ * `TimelockController`: Add additional isOperationReady check.
+
+## 3.4.1 (2021-03-03)
+
+ * `ERC721`: made `_approve` an internal function (was private).
 
 ## 3.4.0 (2021-02-02)
 

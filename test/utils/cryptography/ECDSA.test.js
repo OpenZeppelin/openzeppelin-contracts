@@ -1,5 +1,5 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const { toEthSignedMessageHash, fixSignature } = require('../../helpers/sign');
+const { toEthSignedMessageHash } = require('../../helpers/sign');
 
 const { expect } = require('chai');
 
@@ -7,10 +7,16 @@ const ECDSAMock = artifacts.require('ECDSAMock');
 
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
+const NON_HASH_MESSAGE = '0x' + Buffer.from('abcd').toString('hex');
 
 function to2098Format (signature) {
   const long = web3.utils.hexToBytes(signature);
-  expect(long.length).to.be.equal(65);
+  if (long.length !== 65) {
+    throw new Error('invalid signature length (expected long format)');
+  }
+  if (long[32] >> 7 === 1) {
+    throw new Error('invalid signature \'s\' value');
+  }
   const short = long.slice(0, 64);
   short[32] |= (long[64] % 27) << 7; // set the first bit of the 32nd byte to the v parity bit
   return web3.utils.bytesToHex(short);
@@ -18,10 +24,31 @@ function to2098Format (signature) {
 
 function from2098Format (signature) {
   const short = web3.utils.hexToBytes(signature);
-  expect(short.length).to.be.equal(64);
+  if (short.length !== 64) {
+    throw new Error('invalid signature length (expected short format)');
+  }
   short.push((short[32] >> 7) + 27);
   short[32] &= (1 << 7) - 1; // zero out the first bit of 1 the 32nd byte
   return web3.utils.bytesToHex(short);
+}
+
+function split (signature) {
+  const raw = web3.utils.hexToBytes(signature);
+  switch (raw.length) {
+  case 64:
+    return [
+      web3.utils.bytesToHex(raw.slice(0, 32)), // r
+      web3.utils.bytesToHex(raw.slice(32, 64)), // vs
+    ];
+  case 65:
+    return [
+      raw[64], // v
+      web3.utils.bytesToHex(raw.slice(0, 32)), // r
+      web3.utils.bytesToHex(raw.slice(32, 64)), // s
+    ];
+  default:
+    expect.fail('Invalid siganture length, cannot split');
+  }
 }
 
 contract('ECDSA', function (accounts) {
@@ -46,6 +73,41 @@ contract('ECDSA', function (accounts) {
   });
 
   context('recover with valid signature', function () {
+    context('using web3.eth.sign', function () {
+      it('returns signer address with correct signature', async function () {
+        // Create the signature
+        const signature = await web3.eth.sign(TEST_MESSAGE, other);
+
+        // Recover the signer address from the generated message and signature.
+        expect(await this.ecdsa.recover(
+          toEthSignedMessageHash(TEST_MESSAGE),
+          signature,
+        )).to.equal(other);
+      });
+
+      it('returns signer address with correct signature for arbitrary length message', async function () {
+        // Create the signature
+        const signature = await web3.eth.sign(NON_HASH_MESSAGE, other);
+
+        // Recover the signer address from the generated message and signature.
+        expect(await this.ecdsa.recover(
+          toEthSignedMessageHash(NON_HASH_MESSAGE),
+          signature,
+        )).to.equal(other);
+      });
+
+      it('returns a different address', async function () {
+        const signature = await web3.eth.sign(TEST_MESSAGE, other);
+        expect(await this.ecdsa.recover(WRONG_MESSAGE, signature)).to.not.equal(other);
+      });
+
+      it('reverts with invalid signature', async function () {
+        // eslint-disable-next-line max-len
+        const signature = '0x332ce75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e01c';
+        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
+      });
+    });
+
     context('with v0 signature', function () {
       // Signature generated outside ganache with method web3.eth.sign(signer, message)
       const signer = '0x2cc1166f6212628A0deEf2B33BEFB2187D35b86c';
@@ -56,12 +118,18 @@ contract('ECDSA', function (accounts) {
         const version = '00';
         const signature = signatureWithoutVersion + version;
         await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
+        await expectRevert(
+          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
+          'ECDSA: invalid signature \'v\' value',
+        );
       });
 
       it('works with 27 as version value', async function () {
         const version = '1b'; // 27 = 1b.
         const signature = signatureWithoutVersion + version;
         expect(await this.ecdsa.recover(TEST_MESSAGE, signature)).to.equal(signer);
+        expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.equal(signer);
+        expect(await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature)))).to.equal(signer);
       });
 
       it('reverts with wrong version', async function () {
@@ -70,6 +138,10 @@ contract('ECDSA', function (accounts) {
         const version = '02';
         const signature = signatureWithoutVersion + version;
         await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
+        await expectRevert(
+          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
+          'ECDSA: invalid signature \'v\' value',
+        );
       });
 
       it('works with short EIP2098 format', async function () {
@@ -89,12 +161,18 @@ contract('ECDSA', function (accounts) {
         const version = '01';
         const signature = signatureWithoutVersion + version;
         await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
+        await expectRevert(
+          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
+          'ECDSA: invalid signature \'v\' value',
+        );
       });
 
       it('works with 28 as version value', async function () {
         const version = '1c'; // 28 = 1c.
         const signature = signatureWithoutVersion + version;
         expect(await this.ecdsa.recover(TEST_MESSAGE, signature)).to.equal(signer);
+        expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.equal(signer);
+        expect(await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature)))).to.equal(signer);
       });
 
       it('reverts with wrong version', async function () {
@@ -103,6 +181,10 @@ contract('ECDSA', function (accounts) {
         const version = '02';
         const signature = signatureWithoutVersion + version;
         await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
+        await expectRevert(
+          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
+          'ECDSA: invalid signature \'v\' value',
+        );
       });
 
       it('works with short EIP2098 format', async function () {
@@ -117,38 +199,24 @@ contract('ECDSA', function (accounts) {
       const message = '0xb94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9';
       // eslint-disable-next-line max-len
       const highSSignature = '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bde0a0fc89be718fbc1033e1d30d78be1c68081562ed2e97af876f286f3453231d1b';
-
       await expectRevert(this.ecdsa.recover(message, highSSignature), 'ECDSA: invalid signature \'s\' value');
-    });
-
-    context('using web3.eth.sign', function () {
-      it('returns signer address with correct signature', async function () {
-        // Create the signature
-        const signature = fixSignature(await web3.eth.sign(TEST_MESSAGE, other));
-
-        // Recover the signer address from the generated message and signature.
-        expect(await this.ecdsa.recover(
-          toEthSignedMessageHash(TEST_MESSAGE),
-          signature,
-        )).to.equal(other);
-      });
-
-      it('returns a different address', async function () {
-        const signature = fixSignature(await web3.eth.sign(TEST_MESSAGE, other));
-        expect(await this.ecdsa.recover(WRONG_MESSAGE, signature)).to.not.equal(other);
-      });
-
-      it('reverts with invalid signature', async function () {
-        // eslint-disable-next-line max-len
-        const signature = '0x332ce75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e01c';
-        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
-      });
+      await expectRevert(
+        this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(highSSignature)),
+        'ECDSA: invalid signature \'s\' value',
+      );
+      expect(() => to2098Format(highSSignature)).to.throw('invalid signature \'s\' value');
     });
   });
 
-  context('toEthSignedMessage', function () {
-    it('prefixes hashes correctly', async function () {
-      expect(await this.ecdsa.toEthSignedMessageHash(TEST_MESSAGE)).to.equal(toEthSignedMessageHash(TEST_MESSAGE));
+  context('toEthSignedMessageHash', function () {
+    it('prefixes bytes32 data correctly', async function () {
+      expect(await this.ecdsa.methods['toEthSignedMessageHash(bytes32)'](TEST_MESSAGE))
+        .to.equal(toEthSignedMessageHash(TEST_MESSAGE));
+    });
+
+    it('prefixes dynamic length data correctly', async function () {
+      expect(await this.ecdsa.methods['toEthSignedMessageHash(bytes)'](NON_HASH_MESSAGE))
+        .to.equal(toEthSignedMessageHash(NON_HASH_MESSAGE));
     });
   });
 });

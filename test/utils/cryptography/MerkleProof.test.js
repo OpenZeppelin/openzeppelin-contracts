@@ -37,7 +37,7 @@ contract('MerkleProof', function (accounts) {
       const badElements = ['d', 'e', 'f'];
       const badMerkleTree = new MerkleTree(badElements);
 
-      const badProof = badMerkleTree.getHexProof(badElements[0], keccak256, { hashLeaves: true, sortPairs: true });
+      const badProof = badMerkleTree.getHexProof(badElements[0]);
 
       expect(await this.merkleProof.verify(badProof, correctRoot, correctLeaf)).to.equal(false);
     });

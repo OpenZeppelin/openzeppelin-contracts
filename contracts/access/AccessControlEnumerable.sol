@@ -1,17 +1,11 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (access/AccessControlEnumerable.sol)
 
 pragma solidity ^0.8.0;
 
+import "./IAccessControlEnumerable.sol";
 import "./AccessControl.sol";
 import "../utils/structs/EnumerableSet.sol";
-
-/**
- * @dev External interface of AccessControlEnumerable declared to support ERC165 detection.
- */
-interface IAccessControlEnumerable {
-    function getRoleMember(bytes32 role, uint256 index) external view returns (address);
-    function getRoleMemberCount(bytes32 role) external view returns (uint256);
-}
 
 /**
  * @dev Extension of {AccessControl} that allows enumerating the members of each role.
@@ -19,14 +13,13 @@ interface IAccessControlEnumerable {
 abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    mapping (bytes32 => EnumerableSet.AddressSet) private _roleMembers;
+    mapping(bytes32 => EnumerableSet.AddressSet) private _roleMembers;
 
     /**
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IAccessControlEnumerable).interfaceId
-            || super.supportsInterface(interfaceId);
+        return interfaceId == type(IAccessControlEnumerable).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
@@ -54,34 +47,18 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
     }
 
     /**
-     * @dev Overload {grantRole} to track enumerable memberships
+     * @dev Overload {_grantRole} to track enumerable memberships
      */
-    function grantRole(bytes32 role, address account) public virtual override {
-        super.grantRole(role, account);
+    function _grantRole(bytes32 role, address account) internal virtual override {
+        super._grantRole(role, account);
         _roleMembers[role].add(account);
     }
 
     /**
-     * @dev Overload {revokeRole} to track enumerable memberships
+     * @dev Overload {_revokeRole} to track enumerable memberships
      */
-    function revokeRole(bytes32 role, address account) public virtual override {
-        super.revokeRole(role, account);
+    function _revokeRole(bytes32 role, address account) internal virtual override {
+        super._revokeRole(role, account);
         _roleMembers[role].remove(account);
-    }
-
-    /**
-     * @dev Overload {renounceRole} to track enumerable memberships
-     */
-    function renounceRole(bytes32 role, address account) public virtual override {
-        super.renounceRole(role, account);
-        _roleMembers[role].remove(account);
-    }
-
-    /**
-     * @dev Overload {_setupRole} to track enumerable memberships
-     */
-    function _setupRole(bytes32 role, address account) internal virtual override {
-        super._setupRole(role, account);
-        _roleMembers[role].add(account);
     }
 }
