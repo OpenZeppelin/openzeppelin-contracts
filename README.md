@@ -16,8 +16,16 @@
 
 ### Installation
 
+**Using Hardhat**
+
 ```console
 $ npm install @openzeppelin/contracts
+```
+
+**Using Forge**
+
+```console
+$ forge install openzeppelin/openzeppelin-contracts
 ```
 
 OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/contracts/releases-stability#api-stability), which means your contracts won't break unexpectedly when upgrading to a newer minor version.
