@@ -256,7 +256,7 @@ library EnumerableMap {
         address key,
         uint256 value
     ) internal returns (bool) {
-        return _set(map._inner, bytes32(key), bytes32(value));
+        return _set(map._inner, bytes32(uint256(uint160(key))), bytes32(value));
     }
 
     /**
@@ -265,14 +265,14 @@ library EnumerableMap {
      * Returns true if the key was removed from the map, that is if it was present.
      */
     function remove(AddressToUintMap storage map, address key) internal returns (bool) {
-        return _remove(map._inner, bytes32(key));
+        return _remove(map._inner, bytes32(uint256(uint160(key))));
     }
 
     /**
      * @dev Returns true if the key is in the map. O(1).
      */
     function contains(AddressToUintMap storage map, address key) internal view returns (bool) {
-        return _contains(map._inner, bytes32(key));
+        return _contains(map._inner, bytes32(uint256(uint160(key))));
     }
 
     /**
@@ -293,7 +293,7 @@ library EnumerableMap {
      */
     function at(AddressToUintMap storage map, uint256 index) internal view returns (address, uint256) {
         (bytes32 key, bytes32 value) = _at(map._inner, index);
-        return (address(uint160(key)), uint256(value));
+        return (address(uint160(uint256(key))), uint256(value));
     }
 
     /**
@@ -303,7 +303,7 @@ library EnumerableMap {
      * _Available since v3.4._
      */
     function tryGet(AddressToUintMap storage map, address key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = _tryGet(map._inner, bytes32(key));
+        (bool success, bytes32 value) = _tryGet(map._inner, bytes32(uint256(uint160(key))));
         return (success, uint256(value));
     }
 
@@ -315,7 +315,7 @@ library EnumerableMap {
      * - `key` must be in the map.
      */
     function get(AddressToUintMap storage map, address key) internal view returns (uint256) {
-        return address(uint160(uint256(_get(map._inner, bytes32(key)))));
+        return uint256(_get(map._inner, bytes32(uint256(uint160(key)))));
     }
 
     /**
@@ -329,6 +329,6 @@ library EnumerableMap {
         address key,
         string memory errorMessage
     ) internal view returns (uint256) {
-        return uint256(_get(map._inner, bytes32(key), errorMessage));
+        return uint256(_get(map._inner, bytes32(uint256(uint160(key))), errorMessage));
     }
 }
