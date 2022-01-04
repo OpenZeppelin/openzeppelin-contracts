@@ -17,21 +17,21 @@ interface IERC721RentAgreement is IERC165 {
      *
      * May throw if the change is not desired.
      */
-    function onChangeAgreement(IERC721 erc721, uint256 tokenId) external;
+    function onChangeAgreement(uint256 tokenId) external;
 
     /**
      * Called when an account accepts a renting contract and wants to start the location.
      *
      * May throw if the contract does not accept the rent.
      */
-    function onStartRent(IERC721 erc721, uint256 tokenId, address tokenRenter) external;
+    function onStartRent(uint256 tokenId, address tokenRenter) external;
 
     /**
      * Called when the owner or the renter wants to stop a started rent agreement.
      *
      * May throw if the stop is not approved.
      */
-    function onStopRent(IERC721 erc721, uint256 tokenId, RentingRole role) external;
+    function onStopRent(uint256 tokenId, RentingRole role) external;
 }
 
 /**
@@ -50,14 +50,9 @@ interface IERC721Rent {
     function setRentAgreement(IERC721RentAgreement aggreement, uint256 tokenId) external;
 
     /**
-     * Set the rent agreement for all owned NFTs. If a renting agreement already existed,
-     * its onSetAgreement() is called, which may cancel the change.
-     *
-     * Requirements:
-     *
-     * - tokens must not be currently rented.
+     * Returns the aggreement contract of that token or address 0 if none is set.
      */
-    function setRentAgreementForAll(IERC721RentAgreement aggreement) external;
+    function rentAggreementOf(uint256 tokenId) external view returns (IERC721RentAgreement);
 
     /**
      * Start the rental of an NFT. May throy if onStartRent() throws.
@@ -84,6 +79,5 @@ interface IERC721Rent {
     /**
      * Returns true if the token is currently being rent by someone.
      */
-    function isRented(uint256 tokenId) external returns (bool);
-
+    function isRented(uint256 tokenId) external view returns (bool);
 }

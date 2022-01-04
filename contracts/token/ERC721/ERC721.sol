@@ -4,6 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "./IERC721.sol";
+import "./IERC721Rent.sol";
 import "./IERC721Receiver.sol";
 import "./extensions/IERC721Metadata.sol";
 import "../../utils/Address.sol";
@@ -16,7 +17,7 @@ import "../../utils/introspection/ERC165.sol";
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
  */
-contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
+contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
     using Address for address;
     using Strings for uint256;
 
@@ -37,6 +38,12 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
     // Mapping from owner to operator approvals
     mapping(address => mapping(address => bool)) private _operatorApprovals;
+
+    // Mapping from token ID to agreement
+    mapping(uint256 => IERC721RentAgreement) private _rentAgreements;
+
+    // Mapping from token ID to owners of rented tokens
+    mapping(uint256 => address) private _rentedOwners;
 
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
@@ -110,9 +117,12 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual override {
-        address owner = ERC721.ownerOf(tokenId);
-        require(to != owner, "ERC721: approval to current owner");
+        address owner = _rentedOwners[tokenId];
+        if (owner == address(0)) {
+            owner = ERC721.ownerOf(tokenId);
+        }
 
+        require(to != owner, "ERC721: approval to current owner");
         require(
             _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
             "ERC721: approve caller is not owner nor approved for all"
@@ -152,6 +162,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address to,
         uint256 tokenId
     ) public virtual override {
+        require(_rentedOwners[tokenId] == address(0), "ERC721: token is rented");
         //solhint-disable-next-line max-line-length
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
 
@@ -178,8 +189,58 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId,
         bytes memory _data
     ) public virtual override {
+        require(_rentedOwners[tokenId] == address(0), "ERC721: token is rented");
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
         _safeTransfer(from, to, tokenId, _data);
+    }
+
+    function setRentAgreement(IERC721RentAgreement agreement, uint256 tokenId) public override {
+        require(_rentedOwners[tokenId] == address(0), "ERC721: token is rented");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
+        IERC721RentAgreement currentAgreement = _rentAgreements[tokenId];
+
+        if (address(currentAgreement) != address(0)) {
+            currentAgreement.onChangeAgreement(tokenId);
+        }
+
+        _rentAgreements[tokenId] = agreement;
+    }
+
+    function rentAggreementOf(uint256 tokenId) public view virtual override returns (IERC721RentAgreement) {
+        return _rentAgreements[tokenId];
+    }
+
+    function acceptRentAgreement(uint256 tokenId) public virtual override {
+        require(_rentedOwners[tokenId] == address(0), "ERC721: token is rented");
+        address owner = ERC721.ownerOf(tokenId);
+        require(_msgSender() != owner, "ERC721: rent to current owner");
+        IERC721RentAgreement agreement = rentAggreementOf(tokenId);
+        require(address(agreement) != address(0), "ERC721: rent without rent agreement");
+
+        agreement.onStartRent(tokenId, _msgSender());
+        _rentedOwners[tokenId] = owner;
+        _tranferKeepApprovals(owner, _msgSender(), tokenId);
+    }
+
+    function stopRentAgreement(uint256 tokenId) public virtual override {
+        address owner = _rentedOwners[tokenId];
+        require(owner != address(0), "ERC721: token is not rented");
+        IERC721RentAgreement agreement = rentAggreementOf(tokenId);
+
+        require(
+            _msgSender() == owner || _isApprovedOrOwner(_msgSender(), tokenId),
+            "ERC721: stop rent caller is not owner, renter nor approved"
+        );
+
+        address renter = ERC721.ownerOf(tokenId);
+        agreement.onStopRent(tokenId, _msgSender() == renter ? RentingRole.Renter : RentingRole.OwnerOrApprover);
+        _tranferKeepApprovals(renter, owner, tokenId);
+        delete _rentedOwners[tokenId];
+    }
+
+    function isRented(uint256 tokenId) public view virtual override returns (bool) {
+        require(_exists(tokenId), "ERC721: nonexistent token");
+        return _rentedOwners[tokenId] != address(0);
     }
 
     /**
@@ -302,6 +363,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
+        require(_rentedOwners[tokenId] == address(0), "ERC721: token is rented");
         address owner = ERC721.ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId);
@@ -340,6 +402,25 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         // Clear approvals from the previous owner
         _approve(address(0), tokenId);
+
+        _balances[from] -= 1;
+        _balances[to] += 1;
+        _owners[tokenId] = to;
+
+        emit Transfer(from, to, tokenId);
+
+        _afterTokenTransfer(from, to, tokenId);
+    }
+
+    function _tranferKeepApprovals(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual {
+        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
+        require(to != address(0), "ERC721: transfer to the zero address");
+
+        _beforeTokenTransfer(from, to, tokenId);
 
         _balances[from] -= 1;
         _balances[to] += 1;
