@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./IERC721.sol";
-import "../../utils/introspection/IERC165.sol";
+import "../IERC721.sol";
+import "../../../utils/introspection/IERC165.sol";
 
 enum RentingRole {
     OwnerOrApprover,

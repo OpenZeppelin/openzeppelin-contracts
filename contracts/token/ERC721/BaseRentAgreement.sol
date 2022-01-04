@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-import "./IERC721Rent.sol";
+import "./extensions/IERC721Rent.sol";
 
 contract BaseRentAgreement {
     enum RentStatus {

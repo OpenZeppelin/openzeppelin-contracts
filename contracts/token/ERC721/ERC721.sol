@@ -4,8 +4,8 @@
 pragma solidity ^0.8.0;
 
 import "./IERC721.sol";
-import "./IERC721Rent.sol";
 import "./IERC721Receiver.sol";
+import "./extensions/IERC721Rent.sol";
 import "./extensions/IERC721Metadata.sol";
 import "../../utils/Address.sol";
 import "../../utils/Context.sol";
@@ -197,13 +197,13 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
     function setRentAgreement(IERC721RentAgreement agreement, uint256 tokenId) public override {
         require(_rentedOwners[tokenId] == address(0), "ERC721: token is rented");
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
+
         IERC721RentAgreement currentAgreement = _rentAgreements[tokenId];
+        _rentAgreements[tokenId] = agreement;
 
         if (address(currentAgreement) != address(0)) {
             currentAgreement.onChangeAgreement(tokenId);
         }
-
-        _rentAgreements[tokenId] = agreement;
     }
 
     function rentAggreementOf(uint256 tokenId) public view virtual override returns (IERC721RentAgreement) {
@@ -217,9 +217,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
         IERC721RentAgreement agreement = rentAggreementOf(tokenId);
         require(address(agreement) != address(0), "ERC721: rent without rent agreement");
 
-        agreement.onStartRent(tokenId, _msgSender());
         _rentedOwners[tokenId] = owner;
         _tranferKeepApprovals(owner, _msgSender(), tokenId);
+        agreement.onStartRent(tokenId, _msgSender());
     }
 
     function stopRentAgreement(uint256 tokenId) public virtual override {
@@ -233,9 +233,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
         );
 
         address renter = ERC721.ownerOf(tokenId);
-        agreement.onStopRent(tokenId, _msgSender() == renter ? RentingRole.Renter : RentingRole.OwnerOrApprover);
-        _tranferKeepApprovals(renter, owner, tokenId);
         delete _rentedOwners[tokenId];
+        _tranferKeepApprovals(renter, owner, tokenId);
+        agreement.onStopRent(tokenId, _msgSender() == renter ? RentingRole.Renter : RentingRole.OwnerOrApprover);
     }
 
     function isRented(uint256 tokenId) public view virtual override returns (bool) {

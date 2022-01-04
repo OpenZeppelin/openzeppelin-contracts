@@ -70,6 +70,7 @@ const pathUpdates = {
   // 'token/ERC721/ERC721.sol': undefined,
   'token/ERC721/IERC721Enumerable.sol': 'token/ERC721/extensions/IERC721Enumerable.sol',
   'token/ERC721/IERC721Metadata.sol': 'token/ERC721/extensions/IERC721Metadata.sol',
+  'token/ERC721/IERC721Rent.sol': 'token/ERC721/extensions/IERC721Rent.sol',
   // 'token/ERC721/IERC721Receiver.sol': undefined,
   // 'token/ERC721/IERC721.sol': undefined,
   // 'token/ERC777/ERC777.sol': undefined,
@@ -89,7 +90,7 @@ const pathUpdates = {
   // 'utils/Strings.sol': undefined,
 };
 
-async function main (paths = [ 'contracts' ]) {
+async function main (paths = ['contracts']) {
   const files = await listFilesRecursively(paths, /\.sol$/);
 
   const updatedFiles = [];
@@ -142,7 +143,7 @@ async function updateFile (file, update) {
 }
 
 function updateImportPaths (source) {
-  for (const [ oldPath, newPath ] of Object.entries(pathUpdates)) {
+  for (const [oldPath, newPath] of Object.entries(pathUpdates)) {
     source = source.replace(
       path.join('@openzeppelin/contracts', oldPath),
       path.join('@openzeppelin/contracts', newPath),
