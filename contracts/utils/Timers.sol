@@ -71,22 +71,27 @@ library Timers {
         return isStarted(timer) && timer._deadline <= block.number;
     }
 
-    enum TimerType {
+    enum Type {
         TIMESTAMP,
         BLOCKNUMBER
     }
 
     struct Generic {
         uint64 _deadline;
-        TimerType _type;
+        Type _type;
     }
 
     function getDeadline(Generic memory timer) internal pure returns (uint64) {
         return timer._deadline;
     }
 
-    function setDeadline(Generic storage timer, uint64 deadline) internal {
+    function setDeadline(
+        Generic storage timer,
+        uint64 deadline,
+        Type typeSelector
+    ) internal {
         timer._deadline = deadline;
+        timer._type = typeSelector;
     }
 
     function reset(Generic storage timer) internal {
@@ -102,7 +107,7 @@ library Timers {
     }
 
     function isPending(Generic memory timer) internal view returns (bool) {
-        if (timer._type == TimerType.BLOCKNUMBER) {
+        if (timer._type == Type.BLOCKNUMBER) {
             return timer._deadline > block.number;
         } else {
             return timer._deadline > block.timestamp;
@@ -110,7 +115,7 @@ library Timers {
     }
 
     function isExpired(Generic memory timer) internal view returns (bool) {
-        if (timer._type == TimerType.BLOCKNUMBER) {
+        if (timer._type == Type.BLOCKNUMBER) {
             return isStarted(timer) && timer._deadline <= block.number;
         } else {
             return isStarted(timer) && timer._deadline <= block.timestamp;

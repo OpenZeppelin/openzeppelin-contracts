@@ -25,13 +25,13 @@ import "./IGovernor.sol";
  */
 abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     using SafeCast for uint256;
-    using Timers for Timers.BlockNumber;
+    using Timers for Timers.Generic;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
 
     struct ProposalCore {
-        Timers.BlockNumber voteStart;
-        Timers.BlockNumber voteEnd;
+        Timers.Generic voteStart;
+        Timers.Generic voteEnd;
         bool executed;
         bool canceled;
     }
@@ -82,6 +82,20 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function version() public view virtual override returns (string memory) {
         return "1";
+    }
+
+    /**
+     * @dev See {IGovernor-timerType}.
+     */
+    function timerType() public view override returns (string memory) {
+        return _timerType() == Timers.Type.BLOCKNUMBER ? "BlockNumber" : "Timestamp";
+    }
+
+    /**
+     * @dev Override this function to modify Governor Timer type.
+     */
+    function _timerType() internal view virtual returns (Timers.Type) {
+        return Timers.Type.BLOCKNUMBER;
     }
 
     /**
@@ -212,8 +226,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint64 snapshot = block.number.toUint64() + votingDelay().toUint64();
         uint64 deadline = snapshot + votingPeriod().toUint64();
 
-        proposal.voteStart.setDeadline(snapshot);
-        proposal.voteEnd.setDeadline(deadline);
+        proposal.voteStart.setDeadline(snapshot, _timerType());
+        proposal.voteEnd.setDeadline(deadline, _timerType());
 
         emit ProposalCreated(
             proposalId,
