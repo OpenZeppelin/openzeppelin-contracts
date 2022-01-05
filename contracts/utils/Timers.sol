@@ -70,4 +70,50 @@ library Timers {
     function isExpired(BlockNumber memory timer) internal view returns (bool) {
         return isStarted(timer) && timer._deadline <= block.number;
     }
+
+    enum TimerType {
+        TIMESTAMP,
+        BLOCKNUMBER
+    }
+
+    struct Generic {
+        uint64 _deadline;
+        TimerType _type;
+    }
+
+    function getDeadline(Generic memory timer) internal pure returns (uint64) {
+        return timer._deadline;
+    }
+
+    function setDeadline(Generic storage timer, uint64 deadline) internal {
+        timer._deadline = deadline;
+    }
+
+    function reset(Generic storage timer) internal {
+        timer._deadline = 0;
+    }
+
+    function isUnset(Generic memory timer) internal pure returns (bool) {
+        return timer._deadline == 0;
+    }
+
+    function isStarted(Generic memory timer) internal pure returns (bool) {
+        return timer._deadline > 0;
+    }
+
+    function isPending(Generic memory timer) internal view returns (bool) {
+        if (timer._type == TimerType.BLOCKNUMBER) {
+            return timer._deadline > block.number;
+        } else {
+            return timer._deadline > block.timestamp;
+        }
+    }
+
+    function isExpired(Generic memory timer) internal view returns (bool) {
+        if (timer._type == TimerType.BLOCKNUMBER) {
+            return isStarted(timer) && timer._deadline <= block.number;
+        } else {
+            return isStarted(timer) && timer._deadline <= block.timestamp;
+        }
+    }
 }
