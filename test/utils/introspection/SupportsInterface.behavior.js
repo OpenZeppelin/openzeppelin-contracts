@@ -53,6 +53,7 @@ const INTERFACES = {
   Governor: [
     'name()',
     'version()',
+    'timerType()',
     'COUNTING_MODE()',
     'hashProposal(address[],uint256[],bytes[],bytes32)',
     'state(uint256)',
