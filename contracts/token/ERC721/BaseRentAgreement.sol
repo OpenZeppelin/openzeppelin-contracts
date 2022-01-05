@@ -58,13 +58,13 @@ contract BaseRentAgreement {
     }
 
     // Called when an owner of an NFT changes or removes its NTF renting contract.
-    function onChangeAgreement(int256) public view onlyErc721Contract {
+    function afterRentAgreementReplaced(int256) public view onlyErc721Contract {
         require(rentStatus == RentStatus.pending, "Rent agreement has to be pending to be updated.");
         require(!rentPaid, "Rent already paid");
     }
 
     // Called when an account accepts a renting contract and wants to start the location.
-    function onStartRent(uint256 tokenId, address tokenRenter) public onlyErc721Contract {
+    function afterRentStarted(uint256 tokenId, address tokenRenter) public onlyErc721Contract {
         require(renter == tokenRenter, "Wrong renter.");
         require(rentStatus == RentStatus.pending, "Rent status has to be pending.");
         require(rentPaid, "Rent has to be paid first.");
@@ -90,7 +90,7 @@ contract BaseRentAgreement {
     }
 
     // Called when the owner or the renter wants to stop an active rent agreement.
-    function onStopRent(uint256 tokenId) public onlyErc721Contract {
+    function afterRentStopped(uint256 tokenId) public onlyErc721Contract {
         require(rentStatus == RentStatus.active, "Rent status has to be active");
         rentStatus = RentStatus.finished;
 

@@ -202,7 +202,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
         _rentAgreements[tokenId] = agreement;
 
         if (address(currentAgreement) != address(0)) {
-            currentAgreement.onChangeAgreement(tokenId);
+            currentAgreement.afterRentAgreementReplaced(tokenId);
         }
     }
 
@@ -219,7 +219,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
 
         _rentedOwners[tokenId] = owner;
         _tranferKeepApprovals(owner, forAddress, tokenId);
-        agreement.onStartRent(_msgSender(), forAddress, tokenId);
+        agreement.afterRentStarted(_msgSender(), forAddress, tokenId);
     }
 
     function stopRentAgreement(uint256 tokenId) public virtual override {
@@ -230,7 +230,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
 
         delete _rentedOwners[tokenId];
         _tranferKeepApprovals(renter, owner, tokenId);
-        agreement.onStopRent(_msgSender(), tokenId);
+        agreement.afterRentStopped(_msgSender(), tokenId);
     }
 
     function isRented(uint256 tokenId) public view virtual override returns (bool) {
@@ -397,14 +397,19 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
 
         // Clear approvals from the previous owner
         _approve(address(0), tokenId);
-        delete _rentAgreements[tokenId];
 
         _balances[from] -= 1;
         _balances[to] += 1;
         _owners[tokenId] = to;
 
-        emit Transfer(from, to, tokenId);
+        IERC721RentAgreement rentAgreement = _rentAgreements[tokenId];
+        delete _rentAgreements[tokenId];
 
+        if (address(rentAgreement) != address(0)) {
+            rentAgreement.afterRentAgreementReplaced(tokenId);
+        }
+
+        emit Transfer(from, to, tokenId);
         _afterTokenTransfer(from, to, tokenId);
     }
 

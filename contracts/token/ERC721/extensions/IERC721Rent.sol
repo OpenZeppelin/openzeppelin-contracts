@@ -13,7 +13,7 @@ interface IERC721RentAgreement is IERC165 {
      *
      * May throw if the change is not desired.
      */
-    function onChangeAgreement(uint256 tokenId) external;
+    function afterRentAgreementReplaced(uint256 tokenId) external;
 
     /**
      * Called when an account accepts a renting contract and wants to start the location.
@@ -21,7 +21,7 @@ interface IERC721RentAgreement is IERC165 {
      *
      * May throw if the contract does not accept the rent.
      */
-    function onStartRent(
+    function afterRentStarted(
         address from,
         address forAddress,
         uint256 tokenId
@@ -33,7 +33,7 @@ interface IERC721RentAgreement is IERC165 {
      *
      * May throw if the stop is not approved.
      */
-    function onStopRent(address from, uint256 tokenId) external;
+    function afterRentStopped(address from, uint256 tokenId) external;
 }
 
 /**
@@ -42,7 +42,7 @@ interface IERC721RentAgreement is IERC165 {
 interface IERC721Rent is IERC721 {
     /**
      * Set the rent agreement for a specific NFT. If a renting agreement already existed,
-     * its onChangeAgreement() is called, which may cancel the change.
+     * its afterRentAgreementReplaced() is called, which may cancel the change.
      * The agreement is cleared when the token is transferred.
      *
      * Requirements:
@@ -58,7 +58,7 @@ interface IERC721Rent is IERC721 {
     function rentAggreementOf(uint256 tokenId) external view returns (IERC721RentAgreement);
 
     /**
-     * Start the rental of an NFT. May throy if onStartRent() throws.
+     * Start the rental of an NFT. May throw if afterRentStarted() throws.
      *
      * Requirements:
      *
@@ -69,7 +69,7 @@ interface IERC721Rent is IERC721 {
     function acceptRentAgreement(address forAddress, uint256 tokenId) external;
 
     /**
-     * Stop the rental of an NFT. May throw if onStopRent() throws.
+     * Stop the rental of an NFT. May throw if afterRentStopped() throws.
      *
      * Requirements:
      *
