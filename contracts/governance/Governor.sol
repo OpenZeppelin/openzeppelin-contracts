@@ -370,7 +370,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         address target,
         uint256 value,
         bytes calldata data
-    ) external onlyGovernance {
+    ) external virtual onlyGovernance {
         Address.functionCallWithValue(target, data, value);
     }
 
