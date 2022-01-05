@@ -90,15 +90,15 @@ contract BaseRentAgreement {
     }
 
     // Called when the owner or the renter wants to stop an active rent agreement.
-    function onStopRent(uint256 tokenId, RentingRole role) public onlyErc721Contract {
+    function onStopRent(uint256 tokenId) public onlyErc721Contract {
         require(rentStatus == RentStatus.active, "Rent status has to be active");
         rentStatus = RentStatus.finished;
 
-        if (role == RentingRole.Renter) {
-            _stopRentRenter();
-        } else {
-            _stopRentOwner();
-        }
+        //if (role == RentingRole.Renter) {
+        _stopRentRenter();
+        //} else {
+        _stopRentOwner();
+        //}
 
         // Emit an event.
         emit RentStatusChanged(owner, renter, tokenId, startTime, RentStatus.active, RentStatus.finished);

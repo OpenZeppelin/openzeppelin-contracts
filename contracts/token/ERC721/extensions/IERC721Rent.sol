@@ -4,11 +4,6 @@ pragma solidity ^0.8.0;
 import "../IERC721.sol";
 import "../../../utils/introspection/IERC165.sol";
 
-enum RentingRole {
-    OwnerOrApprover,
-    Renter
-}
-
 /**
  * @title ERC721 token rent aggreement interface
  */
@@ -22,26 +17,33 @@ interface IERC721RentAgreement is IERC165 {
 
     /**
      * Called when an account accepts a renting contract and wants to start the location.
+     * `from` is the address that called the holder, `forAddress` is the rent beneficiary.
      *
      * May throw if the contract does not accept the rent.
      */
-    function onStartRent(uint256 tokenId, address tokenRenter) external;
+    function onStartRent(
+        address from,
+        address forAddress,
+        uint256 tokenId
+    ) external;
 
     /**
      * Called when the owner or the renter wants to stop a started rent agreement.
+     * `from` is the address that called the holder.
      *
      * May throw if the stop is not approved.
      */
-    function onStopRent(uint256 tokenId, RentingRole role) external;
+    function onStopRent(address from, uint256 tokenId) external;
 }
 
 /**
  * @title ERC721 token rent interface
  */
-interface IERC721Rent {
+interface IERC721Rent is IERC721 {
     /**
      * Set the rent agreement for a specific NFT. If a renting agreement already existed,
      * its onChangeAgreement() is called, which may cancel the change.
+     * The agreement is cleared when the token is transferred.
      *
      * Requirements:
      *
@@ -60,18 +62,17 @@ interface IERC721Rent {
      *
      * Requirements:
      *
-     * - the sender must not own the NFT
+     * - `forAddress` must not own the NFT
      * - `tokenId` token must not be currently rented.
      * - the renting agreement contract must accept the rental.
      */
-    function acceptRentAgreement(uint256 tokenId) external;
+    function acceptRentAgreement(address forAddress, uint256 tokenId) external;
 
     /**
      * Stop the rental of an NFT. May throw if onStopRent() throws.
      *
      * Requirements:
      *
-     * - the sender must be the renter of the NFT, its original owner or approved by the original owner.
      * - `tokenId` token must be currently rented.
      * - the renting agreement contract must accept the termination.
      */

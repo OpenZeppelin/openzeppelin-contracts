@@ -5,13 +5,31 @@ pragma solidity ^0.8.0;
 import "../token/ERC721/extensions/IERC721Rent.sol";
 
 contract ERC721RentAgreementMock is IERC721RentAgreement {
-    function onChangeAgreement(uint256) external override {}
+    bool private _fail;
 
-    function onStartRent(uint256, address) external override {}
+    // Interface
+    function onChangeAgreement(uint256) external view override {
+        require(!_fail, "Failed from agreement contract");
+    }
 
-    function onStopRent(uint256, RentingRole) external override {}
+    function onStartRent(
+        address,
+        address,
+        uint256
+    ) external view override {
+        require(!_fail, "Failed from agreement contract");
+    }
+
+    function onStopRent(address, uint256) external view override {
+        require(!_fail, "Failed from agreement contract");
+    }
 
     function supportsInterface(bytes4) external pure override returns (bool) {
         return true;
+    }
+
+    // For the test
+    function setFail(bool fail) public {
+        _fail = fail;
     }
 }
