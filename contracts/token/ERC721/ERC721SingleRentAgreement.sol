@@ -62,7 +62,7 @@ contract ERC721SingleRentAgreement is Context, IERC721RentAgreement, ERC165 {
 
     // Called when an owner of an NFT changes or removes its NTF renting contract.
     function afterRentAgreementReplaced(uint256) public view override onlyErc721Contract {
-        require(rentStatus == RentStatus.pending, "Rent agreement has to be pending to be updated.");
+        require(rentStatus == RentStatus.pending, "Rent agreement has to be pending to be updated");
         require(!rentPaid, "Rent already paid");
     }
 
@@ -71,7 +71,7 @@ contract ERC721SingleRentAgreement is Context, IERC721RentAgreement, ERC165 {
         address,
         address forAddress,
         uint256 tokenId
-    ) public onlyErc721Contract {
+    ) public override onlyErc721Contract {
         require(block.timestamp <= expirationDate, "rental agreement expired");
         require(renter == forAddress, "Wrong renter.");
         require(rentStatus == RentStatus.pending, "Rent status has to be pending");
@@ -98,7 +98,7 @@ contract ERC721SingleRentAgreement is Context, IERC721RentAgreement, ERC165 {
     }
 
     // Called when the owner or the renter wants to stop an active rent agreement.
-    function afterRentStopped(address from, uint256 tokenId) public onlyErc721Contract {
+    function afterRentStopped(address from, uint256 tokenId) public override onlyErc721Contract {
         require(rentStatus == RentStatus.active, "Rent status has to be active");
         rentStatus = RentStatus.finished;
 
