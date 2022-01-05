@@ -194,7 +194,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
         _safeTransfer(from, to, tokenId, _data);
     }
 
-    function setRentAgreement(IERC721RentAgreement agreement, uint256 tokenId) public override {
+    function setRentAgreement(IERC721RentAgreement agreement, uint256 tokenId) public virtual override {
         require(_rentedOwners[tokenId] == address(0), "ERC721: token is rented");
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
 
