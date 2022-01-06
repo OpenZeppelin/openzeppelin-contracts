@@ -25,13 +25,13 @@ library SignedMath {
      * towards zero.
      */
     function average(int256 a, int256 b) internal pure returns (int256) {
-        if ((b < 0 && a > 0 && -b < a) || (a < 0 && b > 0 && -a < b))
-            return (a / 2) + (b / 2) + (((a % 2 + b % 2) - 1) / 2);
-
-        if ((b < 0 && a > 0 && -b > a) || (a < 0 && b > 0 && -a > b))
-            return (a / 2) + (b / 2) + (((a % 2 + b % 2) + 1) / 2);
-
-        return (a / 2) + (b / 2) + ((a % 2 + b % 2) / 2);
+        // (a + b) / 2 can overflow, and the unsigned formula doesn't simply translate to signed integers
+        int256 base = (a & b) + (a ^ b) / 2;
+        if ((a < 0 && b < 0) || ((a < 0 || b < 0) && (a + b > 0))) {
+            return base + (a ^ b) % 2;
+        } else {
+            return base;
+        }
     }
 
     /**
