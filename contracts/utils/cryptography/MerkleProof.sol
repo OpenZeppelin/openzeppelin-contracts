@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (utils/cryptography/MerkleProof.sol)
+// OpenZeppelin Contracts v4.4.1 (utils/cryptography/MerkleProof.sol)
 
 pragma solidity ^0.8.0;
 
@@ -41,12 +41,20 @@ library MerkleProof {
             bytes32 proofElement = proof[i];
             if (computedHash <= proofElement) {
                 // Hash(current computed hash + current element of the proof)
-                computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
+                computedHash = _efficientHash(computedHash, proofElement);
             } else {
                 // Hash(current element of the proof + current computed hash)
-                computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
+                computedHash = _efficientHash(proofElement, computedHash);
             }
         }
         return computedHash;
+    }
+
+    function _efficientHash(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
+        assembly {
+            mstore(0x00, a)
+            mstore(0x20, b)
+            value := keccak256(0x00, 0x40)
+        }
     }
 }

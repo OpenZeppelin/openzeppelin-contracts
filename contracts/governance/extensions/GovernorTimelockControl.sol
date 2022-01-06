@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (governance/extensions/GovernorTimelockControl.sol)
+// OpenZeppelin Contracts v4.4.1 (governance/extensions/GovernorTimelockControl.sol)
 
 pragma solidity ^0.8.0;
 
@@ -10,11 +10,15 @@ import "../TimelockController.sol";
 /**
  * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
  * delay, enforced by the {TimelockController} to all successful proposal (in addition to the voting duration). The
- * {Governor} needs the proposer (an ideally the executor) roles for the {Governor} to work properly.
+ * {Governor} needs the proposer (and ideally the executor) roles for the {Governor} to work properly.
  *
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
  * inaccessible.
+ *
+ * WARNING: Setting up the TimelockController to have additional proposers besides the governor introduces the risk that
+ * approved governance proposals could be blocked by the other proposers, effectively executing a Denial of Service attack,
+ * and therefore blocking access to governance-controlled assets.
  *
  * _Available since v4.3._
  */
