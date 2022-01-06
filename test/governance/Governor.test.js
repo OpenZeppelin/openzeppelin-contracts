@@ -929,6 +929,13 @@ contract('Governor', function (accounts) {
       runGovernorWorkflow();
     });
 
+    describe('timers', function () {
+      it('timerType', async function () {
+        const timerType = await this.mock.timerType();
+        expect(timerType).to.be.equal('BlockNumber');
+      });
+    });
+
     describe('update protected', function () {
       it('setVotingDelay', async function () {
         await expectRevert(this.mock.setVotingDelay('0'), 'Governor: onlyGovernance');
