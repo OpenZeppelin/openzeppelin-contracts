@@ -7,13 +7,14 @@ import "../../interfaces/IERC2981.sol";
 import "../../utils/introspection/ERC165.sol";
 
 /**
- * @dev Implementation of the Royalty Standard allowing royalty information to be stored and retrieved.
+ * @dev Implementation of the NFT Royalty Standard, a standardized way to retrieve royalty payment information.
  *
- * Adds the {_setTokenRoyalty} methods to set the token royalty information, and {_setDefaultRoyalty} method to set a default
- * royalty information.
+ * Royalty information can be specified globally for all token ids via {_setDefaultRoyalty}, and/or individually for
+ * specific token ids via {_setTokenRoyalty}. The latter takes precedence over the first.
  *
- * NOTE: As specified in EIP-2981, royalties are technically optional and payment is not enforced by this contract.
- * See https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP.
+ * IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
+ * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
+ * voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
  *
  * _Available since v4.5._
  */
