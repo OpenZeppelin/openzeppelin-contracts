@@ -31,8 +31,8 @@ contract('TimersGeneric', function (accounts) {
     expect(await this.instance.getDeadline()).to.be.bignumber.equal(new BN(this.now - 100));
     expect(await this.instance.isUnset()).to.be.equal(false);
     expect(await this.instance.isStarted()).to.be.equal(true);
-    expect(await this.instance.isPending()).to.be.equal(false);
-    expect(await this.instance.isExpired()).to.be.equal(true);
+    expect(await this.instance.isPending()).to.be.equal(true);
+    expect(await this.instance.isExpired()).to.be.equal(false);
   });
 
   it('reset', async function () {
