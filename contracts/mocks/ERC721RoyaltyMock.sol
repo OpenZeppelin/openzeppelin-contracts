@@ -27,7 +27,7 @@ contract ERC721RoyaltyMock is ERC721Royalty {
         _burn(tokenId);
     }
 
-    function deleteRoyalty() public {
+    function deleteDefaultRoyalty() public {
         _deleteDefaultRoyalty();
     }
 }

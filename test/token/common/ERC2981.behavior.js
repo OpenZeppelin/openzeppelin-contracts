@@ -47,7 +47,7 @@ function shouldBehaveLikeERC2981 () {
 
     it('Remove royalty information', async function () {
       const newValue = new BN('0');
-      await this.token.deleteRoyalty();
+      await this.token.deleteDefaultRoyalty();
 
       const token1Info = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
       const token2Info = await this.token.royaltyInfo(this.tokenId2, this.salePrice);

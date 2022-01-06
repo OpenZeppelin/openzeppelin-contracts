@@ -36,7 +36,7 @@ contract ERC1155RoyaltyMock is ERC1155Royalty {
         _burn(from, id, amount);
     }
 
-    function deleteRoyalty() public {
+    function deleteDefaultRoyalty() public {
         _deleteDefaultRoyalty();
     }
 }
