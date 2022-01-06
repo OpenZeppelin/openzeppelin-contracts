@@ -5,7 +5,7 @@ cd "$(git rev-parse --show-toplevel)"
 
 # avoids re-compilation during publishing of both packages
 if [[ ! -v ALREADY_COMPILED ]]; then
-  npm run prepublish
+  npm run clean
   npm run prepare
   npm run prepack
 fi

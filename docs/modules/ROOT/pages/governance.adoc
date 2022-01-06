@@ -1,0 +1,337 @@
+= How to set up on-chain governance
+
+In this guide we will learn how OpenZeppelin’s Governor contract works, how to set it up, and how to use it to create proposals, vote for them, and execute them, using tools provided by Ethers.js and Tally.
+
+NOTE: Find detailed contract documentation at xref:api:governance.adoc[Governance API].
+
+== Introduction
+
+Decentralized protocols are in constant evolution from the moment they are publicly released. Often, the initial team retains control of this evolution in the first stages, but eventually delegates it to a community of stakeholders. The process by which this community makes decisions is called on-chain governance, and it has become a central component of decentralized protocols, fueling varied decisions such as parameter tweaking, smart contract upgrades, integrations with other protocols, treasury management, grants, etc.
+
+This governance protocol is generally implemented in a special-purpose contract called “Governor”. The GovernorAlpha and GovernorBravo contracts designed by Compound have been very successful and popular so far, with the downside that projects with different requirements have had to fork the code to customize it for their needs, which can pose a high risk of introducing security issues. For OpenZeppelin Contracts, we set out to build a modular system of Governor contracts so that forking is not needed, and different requirements can be accommodated by writing small modules using Solidity inheritance. You will find the most common requirements out of the box in OpenZeppelin Contracts, but writing additional ones is simple, and we will be adding new features as requested by the community in future releases. Additionally, the design of OpenZeppelin Governor requires minimal use of storage and results in more gas efficient operation.
+
+== Compatibility
+
+OpenZeppelin’s Governor system was designed with a concern for compatibility with existing systems that were based on Compound’s GovernorAlpha and GovernorBravo. Because of this, you will find that many modules are presented in two variants, one of which is built for compatibility with those systems.
+
+=== ERC20Votes & ERC20VotesComp
+
+The ERC20 extension to keep track of votes and vote delegation is one such case. The shorter one is the more generic version because it can support token supplies greater than 2^96, while the “Comp” variant is limited in that regard, but exactly fits the interface of the COMP token that is used by GovernorAlpha and Bravo. Both contract variants share the same events, so they are fully compatible when looking at events only.
+
+=== Governor & GovernorCompatibilityBravo
+
+An OpenZeppelin Governor contract is by default not interface-compatible with GovernorAlpha or Bravo, since some of the functions are different or missing, although it shares all of the same events. However, it’s possible to opt in to full compatibility by inheriting from the GovernorCompatibilityBravo module. The contract will be cheaper to deploy and use without this module.
+
+=== GovernorTimelockControl & GovernorTimelockCompound
+
+When using a timelock with your Governor contract, you can use either OpenZeppelin’s TimelockController or Compound’s Timelock. Based on the choice of timelock, you should choose the corresponding Governor module: GovernorTimelockControl or GovernorTimelockCompound respectively. This allows you to migrate an existing GovernorAlpha instance to an OpenZeppelin-based Governor without changing the timelock in use.
+
+=== Tally
+
+https://www.withtally.com[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
+
+For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use Defender Admin as an alternative interface.
+
+In the rest of this guide, we will focus on a fresh deploy of the vanilla OpenZeppelin Governor features without concern for compatibility with GovernorAlpha or Bravo.
+
+== Setup
+
+=== Token
+
+The voting power of each account in our governance setup will be determined by an ERC20 token. The token has to implement the ERC20Votes extension. This extension will keep track of historical balances so that voting power is retrieved from past snapshots rather than current balance, which is an important protection that prevents double voting.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.2;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+
+contract MyToken is ERC20, ERC20Permit, ERC20Votes {
+    constructor() ERC20("MyToken", "MTK") ERC20Permit("MyToken") {}
+
+    // The functions below are overrides required by Solidity.
+
+    function _afterTokenTransfer(address from, address to, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._afterTokenTransfer(from, to, amount);
+    }
+
+    function _mint(address to, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._mint(to, amount);
+    }
+
+    function _burn(address account, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._burn(account, amount);
+    }
+}
+```
+
+If your project already has a live token that does not include ERC20Votes and is not upgradeable, you can wrap it in a governance token by using ERC20Wrapper. This will allow token holders to participate in governance by wrapping their tokens 1-to-1.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.2;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
+
+contract MyToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
+    constructor(IERC20 wrappedToken)
+        ERC20("MyToken", "MTK")
+        ERC20Permit("MyToken")
+        ERC20Wrapper(wrappedToken)
+    {}
+
+    // The functions below are overrides required by Solidity.
+
+    function _afterTokenTransfer(address from, address to, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._afterTokenTransfer(from, to, amount);
+    }
+
+    function _mint(address to, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._mint(to, amount);
+    }
+
+    function _burn(address account, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._burn(account, amount);
+    }
+}
+```
+
+NOTE: Voting power could be determined in different ways: multiple ERC20 tokens, ERC721 tokens, sybil resistant identities, etc. All of these options are potentially supported by writing a custom Votes module for your Governor. The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`].
+
+=== Governor
+
+Initially, we will build a Governor without a timelock. The core logic is given by the Governor contract, but we still need to choose: 1) how voting power is determined, 2) how many votes are needed for quorum, 3) what options people have when casting a vote and how those votes are counted, and 4) what type of token should be used to vote. Each of these aspects is customizable by writing your own module, or more easily choosing one from OpenZeppelin Contracts.
+
+For 1) we will use the GovernorVotes module, which hooks to an IVotes instance to determine the voting power of an account based on the token balance they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token.
+
+For 2) we will use GovernorVotesQuorumFraction which works together with ERC20Votes to define quorum as a percentage of the total supply at the block a proposal’s voting power is retrieved. This requires a constructor parameter to set the percentage. Most Governors nowadays use 4%, so we will initialize the module with parameter 4 (this indicates the percentage, resulting in 4%).
+
+For 3) we will use GovernorCountingSimple, a module that offers 3 options to voters: For, Against, and Abstain, and where only For and Abstain votes are counted towards quorum.
+
+Besides these modules, Governor itself has some parameters we must set.
+
+votingDelay: How long after a proposal is created should voting power be fixed. A large voting delay gives users time to unstake tokens if necessary.
+
+votingPeriod: How long does a proposal remain open to votes.
+
+These parameters are specified in number of blocks. Assuming block time of around 13.14 seconds, we will set votingDelay = 1 day = 6570 blocks, and votingPeriod = 1 week = 45992 blocks.
+
+We can optionally set a proposal threshold as well. This restricts proposal creation to accounts who have enough voting power.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.2;
+
+import "./governance/Governor.sol";
+import "./governance/compatibility/GovernorCompatibilityBravo.sol";
+import "./governance/extensions/GovernorVotes.sol";
+import "./governance/extensions/GovernorVotesQuorumFraction.sol";
+import "./governance/extensions/GovernorTimelockControl.sol";
+
+contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
+    constructor(IVotes _token, TimelockController _timelock)
+        Governor("MyGovernor")
+        GovernorVotes(_token)
+        GovernorVotesQuorumFraction(4)
+        GovernorTimelockControl(_timelock)
+    {}
+
+    function votingDelay() public pure override returns (uint256) {
+        return 6575; // 1 day
+    }
+
+    function votingPeriod() public pure override returns (uint256) {
+        return 46027; // 1 week
+    }
+
+    function proposalThreshold() public pure override returns (uint256) {
+        return 0;
+    }
+
+    // The functions below are overrides required by Solidity.
+
+    function quorum(uint256 blockNumber)
+        public
+        view
+        override(IGovernor, GovernorVotesQuorumFraction)
+        returns (uint256)
+    {
+        return super.quorum(blockNumber);
+    }
+
+    function getVotes(address account, uint256 blockNumber)
+        public
+        view
+        override(IGovernor, GovernorVotes)
+        returns (uint256)
+    {
+        return super.getVotes(account, blockNumber);
+    }
+
+    function state(uint256 proposalId)
+        public
+        view
+        override(Governor, IGovernor, GovernorTimelockControl)
+        returns (ProposalState)
+    {
+        return super.state(proposalId);
+    }
+
+    function propose(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, string memory description)
+        public
+        override(Governor, GovernorCompatibilityBravo, IGovernor)
+        returns (uint256)
+    {
+        return super.propose(targets, values, calldatas, description);
+    }
+
+    function _execute(uint256 proposalId, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+        internal
+        override(Governor, GovernorTimelockControl)
+    {
+        super._execute(proposalId, targets, values, calldatas, descriptionHash);
+    }
+
+    function _cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+        internal
+        override(Governor, GovernorTimelockControl)
+        returns (uint256)
+    {
+        return super._cancel(targets, values, calldatas, descriptionHash);
+    }
+
+    function _executor()
+        internal
+        view
+        override(Governor, GovernorTimelockControl)
+        returns (address)
+    {
+        return super._executor();
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(Governor, IERC165, GovernorTimelockControl)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+}
+
+```
+
+=== Timelock
+
+It is good practice to add a timelock to governance decisions. This allows users to exit the system if they disagree with a decision before it is executed. We will use OpenZeppelin’s TimelockController in combination with the GovernorTimelockControl module.
+
+IMPORTANT: When using a timelock, it is the timelock that will execute proposals and thus the timelock that should hold any funds, ownership, and access control roles. Funds in the Governor contract are not currently retrievable when using a timelock! (As of version 4.3 there is a caveat when using the Compound Timelock: ETH in the timelock is not easily usable, so it is recommended to manage ERC20 funds only in this combination until a future version resolves the issue.)
+
+TimelockController uses an AccessControl setup that we need to understand in order to set up roles.
+
+- The Proposer role is in charge of queueing operations: this is the role the Governor instance should be granted, and it should likely be the only proposer in the system.
+- The Executor role is in charge of executing already available operations: we can assign this role to the special zero address to allow anyone to execute (if operations can be particularly time sensitive, the Governor should be made Executor instead).
+- Lastly, there is the Admin role, which can grant and revoke the two previous roles: this is a very sensitive role that will be granted automatically to both deployer and timelock itself, but should be renounced by the deployer after setup.
+
+== Proposal Lifecycle
+
+Let’s walk through how to create and execute a proposal on our newly deployed Governor.
+
+A proposal is a sequence of actions that the Governor contract will perform if it passes. Each action consists of a target address, calldata encoding a function call, and an amount of ETH to include. Additionally, a proposal includes a human-readable description.
+
+=== Create a Proposal
+
+Let’s say we want to create a proposal to give a team a grant, in the form of ERC20 tokens from the governance treasury. This proposal will consist of a single action where the target is the ERC20 token, calldata is the encoded function call `transfer(<team wallet>, <grant amount>)`, and with 0 ETH attached.
+
+Generally a proposal will be created with the help of an interface such as Tally or Defender. Here we will show how to create the proposal using Ethers.js.
+
+First we get all the parameters necessary for the proposal action.
+
+```javascript
+const tokenAddress = ...;
+const token = await ethers.getContractAt(‘ERC20’, tokenAddress);
+
+const teamAddress = ...;
+const grantAmount = ...;
+const transferCalldata = token.interface.encodeFunctionData(‘transfer’, [teamAddress, grantAmount]);
+```
+
+Now we are ready to call the propose function of the governor. Note that we don’t pass in one array of actions, but instead three arrays corresponding to the list of targets, the list of values, and the list of calldatas. In this case it’s a single action, so it’s simple:
+
+```javascript
+await governor.propose(
+  [tokenAddress],
+  [0],
+  [transferCalldata],
+  “Proposal #1: Give grant to team”,
+);
+```
+
+This will create a new proposal, with a proposal id that is obtained by hashing together the proposal data, and which will also be found in an event in the logs of the transaction.
+
+=== Cast a Vote
+
+Once a proposal is active, stakeholders can cast their vote. This is done through a function in the Governor contract that users can invoke directly from a governance UI such as Tally.
+
+image::tally-vote.png[Voting in Tally]
+
+=== Execute the Proposal
+
+Once the voting period is over, if quorum was reached (enough voting power participated) and the majority voted in favor, the proposal is considered successful and can proceed to be executed. This can also be done in Tally in the "Administration Panel" section of a project.
+
+image::tally-admin.png[Administration Panel in Tally]
+
+We will see now how to do this manually using Ethers.js.
+
+If a timelock was set up, the first step to execution is queueing. You will notice that both the queue and execute functions require passing in the entire proposal parameters, as opposed to just the proposal id. This is necessary because this data is not stored on chain, as a measure to save gas. Note that these parameters can always be found in the events emitted by the contract. The only parameter that is not sent in its entirety is the description, since this is only needed in its hashed form to compute the proposal id.
+
+To queue, we call the queue function:
+
+```javascript
+const descriptionHash = ethers.utils.id(“Proposal #1: Give grant to team”);
+
+await governor.queue(
+  [tokenAddress],
+  [0],
+  [transferCalldata],
+  descriptionHash,
+);
+```
+
+This will cause the governor to interact with the timelock contract and queue the actions for execution after the required delay.
+
+After enough time has passed (according to the timelock parameters), the proposal can be executed. If there was no timelock to begin with, this step can be ran immediately after the proposal succeeds.
+
+```javascript
+await governor.execute(
+  [tokenAddress],
+  [0],
+  [transferCalldata],
+  descriptionHash,
+);
+```
+
+Executing the proposal will transfer the ERC20 tokens to the chosen recipient. To wrap up: we set up a system where a treasury is controlled by the collective decision of the token holders of a project, and all actions are executed via proposals enforced by on-chain votes.

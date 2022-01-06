@@ -1,0 +1,23 @@
+name: Upgradeable Trigger
+
+on:
+  push:
+    branches:
+      - master
+      - release-v*
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - id: app
+        uses: getsentry/action-github-app-token@v1
+        with:
+          app_id: ${{ secrets.UPGRADEABLE_APP_ID }}
+          private_key: ${{ secrets.UPGRADEABLE_APP_PK }}
+      - run: |
+          curl -X POST \
+            https://api.github.com/repos/OpenZeppelin/openzeppelin-contracts-upgradeable/dispatches \
+            -H 'Accept: application/vnd.github.v3+json' \
+            -H 'Authorization: token ${{ steps.app.outputs.token }}' \
+            -d '{ "event_type": "Update", "client_payload": { "ref": "${{ github.ref }}" } }'
