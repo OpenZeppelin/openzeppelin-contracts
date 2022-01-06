@@ -22,7 +22,6 @@ import "../../../utils/introspection/ERC165.sol";
  *  not delete the royalty info from storage.
  *
  * _Available since v4.5._
- *
  */
 abstract contract ERC1155Royalty is ERC2981, ERC1155Supply {
     /**
