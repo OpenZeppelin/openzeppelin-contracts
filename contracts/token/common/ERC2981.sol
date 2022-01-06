@@ -104,7 +104,7 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     }
 
     /**
-     * @dev Resets royalty information for the token id to the global default.
+     * @dev Resets royalty information for the token id back to the global default.
      */
     function _resetTokenRoyalty(uint256 tokenId) internal virtual {
         delete _tokenRoyaltyInfo[tokenId];
