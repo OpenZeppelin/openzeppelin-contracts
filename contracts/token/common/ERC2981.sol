@@ -12,6 +12,9 @@ import "../../utils/introspection/ERC165.sol";
  * Royalty information can be specified globally for all token ids via {_setDefaultRoyalty}, and/or individually for
  * specific token ids via {_setTokenRoyalty}. The latter takes precedence over the first.
  *
+ * Royalty is specified as a fraction of sale price. {_feeDenominator} is overridable but defaults to 10000, meaning the
+ * fee is specified in basis points by default.
+ *
  * IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
  * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
  * voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
@@ -35,41 +38,42 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     }
 
     /**
-     * @dev Sets the royalty info for a specific token id, overriding the default royalty info.
+     * @dev Sets the royalty information for a specific token id, overriding the global default.
      *
      * Requirements:
-     * - `tokenId` must be already mined.
+     *
+     * - `tokenId` must be already minted.
      * - `receiver` cannot be the zero address.
-     * - `fraction` must indicate the percentage fraction using two decimals.
+     * - `feeNumerator` cannot be greater than the fee denominator.
      */
     function _setTokenRoyalty(
         uint256 tokenId,
         address receiver,
-        uint96 fraction
+        uint96 feeNumerator
     ) internal virtual {
-        require(fraction <= _feeDenominator(), "ERC2981: Royalty percentage will exceed salePrice");
+        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
         require(receiver != address(0), "ERC2981: Invalid parameters");
 
-        _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, fraction);
+        _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, feeNumerator);
     }
 
     /**
-     * @dev Sets the royalty info that tokens will default to.
+     * @dev Sets the royalty information that all ids in this contract will default to.
      *
      * Requirements:
+     *
      * - `receiver` cannot be the zero address.
-     * - `fraction` must indicate the percentage fraction. Needs to be set appropriately
-     * according to the _feeDenominator granularity.
+     * - `feeNumerator` cannot be greater than the fee denominator.
      */
-    function _setDefaultRoyalty(address receiver, uint96 fraction) internal virtual {
-        require(fraction <= _feeDenominator(), "ERC2981: Royalty percentage will exceed salePrice");
-        require(receiver != address(0), "ERC2981: Invalid receiver");
+    function _setDefaultRoyalty(address receiver, uint96 feeNumerator) internal virtual {
+        require(feeNumerator <= _feeDenominator(), "ERC2981: royalty fee will exceed salePrice");
+        require(receiver != address(0), "ERC2981: invalid receiver");
 
-        _defaultRoyaltyInfo = RoyaltyInfo(receiver, fraction);
+        _defaultRoyaltyInfo = RoyaltyInfo(receiver, feeNumerator);
     }
 
     /**
-     * @dev See {IERC2981-royaltyInfo}
+     * @inheritdoc IERC2981
      */
     function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view override returns (address, uint256) {
         RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
@@ -84,21 +88,16 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     }
 
     /**
-     * @dev Returns the percentage granularity being used. The default denominator is 10000
-     *  but it can be customized by an override.
+     * @dev The denominator with which to interpret the fee set in {_setTokenRoyalty} and {_setDefaultRoyalty} as a
+     * fraction of the sale price. Defaults to 10000 so fees are expressed in basis points, but may be customized by an
+     * override.
      */
     function _feeDenominator() internal pure virtual returns (uint96) {
         return 10000;
     }
 
     /**
-     * @dev Removes `tokenId` royalty information.
-     * The royalty information is cleared and the token royalty fallbacks to the default royalty.
-     *
-     * Requirements:
-     *
-     * - `tokenId` royalty information must exist.
-     *
+     * @dev Resets royalty information for the token id to the global default.
      */
     function _resetTokenRoyalty(uint256 tokenId) internal virtual {
         delete _tokenRoyaltyInfo[tokenId];
@@ -106,7 +105,6 @@ abstract contract ERC2981 is IERC2981, ERC165 {
 
     /**
      * @dev Removes default royalty information.
-     *
      */
     function _deleteDefaultRoyalty() internal virtual {
         delete _defaultRoyaltyInfo;
