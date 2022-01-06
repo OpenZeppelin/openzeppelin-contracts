@@ -13,8 +13,8 @@ contract TimersGenericImpl {
         return _timer.getDeadline();
     }
 
-    function setDeadline(uint64 generic) public {
-        _timer.setDeadline(generic, Timers.Type.TIMESTAMP);
+    function setDeadline(uint64 generic, Timers.Type timerType) public {
+        _timer.setDeadline(generic, timerType);
     }
 
     function reset() public {

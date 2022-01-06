@@ -18,7 +18,7 @@ contract('TimersGeneric', function (accounts) {
   });
 
   it('pending', async function () {
-    await this.instance.setDeadline(this.now + 100);
+    await this.instance.setDeadline(this.now + 100, 0);
     expect(await this.instance.getDeadline()).to.be.bignumber.equal(new BN(this.now + 100));
     expect(await this.instance.isUnset()).to.be.equal(false);
     expect(await this.instance.isStarted()).to.be.equal(true);
@@ -27,7 +27,7 @@ contract('TimersGeneric', function (accounts) {
   });
 
   it('expired', async function () {
-    await this.instance.setDeadline(this.now - 100);
+    await this.instance.setDeadline(this.now - 100, 1);
     expect(await this.instance.getDeadline()).to.be.bignumber.equal(new BN(this.now - 100));
     expect(await this.instance.isUnset()).to.be.equal(false);
     expect(await this.instance.isStarted()).to.be.equal(true);
@@ -45,7 +45,7 @@ contract('TimersGeneric', function (accounts) {
   });
 
   it('fast forward', async function () {
-    await this.instance.setDeadline(this.now + 100);
+    await this.instance.setDeadline(this.now + 100, 0);
     expect(await this.instance.isPending()).to.be.equal(true);
     expect(await this.instance.isExpired()).to.be.equal(false);
     await time.increaseTo(this.now + 100);
