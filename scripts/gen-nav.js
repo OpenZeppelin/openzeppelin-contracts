@@ -14,12 +14,12 @@ console.log('.API');
 
 function getPageTitle (directory) {
   switch (directory) {
-    case 'metatx':
-      return 'Meta Transactions';
-    case 'common':
-      return 'Common (Tokens)';
-    default:
-      return startCase(directory);
+  case 'metatx':
+    return 'Meta Transactions';
+  case 'common':
+    return 'Common (Tokens)';
+  default:
+    return startCase(directory);
   }
 }
 
