@@ -28,7 +28,7 @@ library SignedMath {
         // (a + b) / 2 can overflow, and the unsigned formula doesn't simply translate to signed integers
         int256 base = (a & b) + (a ^ b) / 2;
         if ((a < 0 && b < 0) || ((a < 0 || b < 0) && (a + b > 0))) {
-            return base + (a ^ b) % 2;
+            return base + ((a ^ b) % 2);
         } else {
             return base;
         }
