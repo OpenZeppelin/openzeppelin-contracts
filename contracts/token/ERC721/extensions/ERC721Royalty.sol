@@ -8,7 +8,8 @@ import "../../common/ERC2981.sol";
 import "../../../utils/introspection/ERC165.sol";
 
 /**
- * @dev Extension of ERC721 with the NFT Royalty Standard, a standardized way to retrieve royalty payment information.
+ * @dev Extension of ERC721 with the ERC2981 NFT Royalty Standard, a standardized way to retrieve royalty payment
+ * information.
  *
  * Royalty information can be specified globally for all token ids via {_setDefaultRoyalty}, and/or individually for
  * specific token ids via {_setTokenRoyalty}. The latter takes precedence over the first.
@@ -28,14 +29,7 @@ abstract contract ERC721Royalty is ERC2981, ERC721 {
     }
 
     /**
-     * @dev Destroys `tokenId`.
-     * The royalty information is cleared when the token is burned.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
-     *
-     * Emits a {Transfer} event.
+     * @dev See {ERC721-_burn}. This override additionally clears the royalty information for the token.
      */
     function _burn(uint256 tokenId) internal virtual override {
         super._burn(tokenId);
