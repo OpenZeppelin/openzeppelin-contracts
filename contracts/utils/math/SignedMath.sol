@@ -21,11 +21,11 @@ library SignedMath {
     }
 
     /**
-     * @dev Returns the average of two signed numbers. The result is rounded
-     * towards zero.
+     * @dev Returns the average of two signed numbers without overflow.
+     * The result is rounded towards zero.
      */
     function average(int256 a, int256 b) internal pure returns (int256) {
-        // (a + b) / 2 can overflow, and the unsigned formula doesn't simply translate to signed integers
+        // Formula from the book "Hacker's Delight"
         int256 x = (a & b) + ((a ^ b) >> 1);
         return x + (int256(uint256(x) >> 255) & (a ^ b));
     }
