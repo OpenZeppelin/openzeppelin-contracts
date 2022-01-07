@@ -123,7 +123,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
      * been queued.
      */
     // Reentrancy here is not a risk because the external call on ln 136 will not affect state variable changes on ln 137
-    //slither-disable-next-line reentrancy-no-eth
+    // slither-disable-next-line reentrancy-no-eth
     function _cancel(
         address[] memory targets,
         uint256[] memory values,
