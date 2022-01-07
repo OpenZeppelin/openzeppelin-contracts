@@ -62,8 +62,8 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 12.x
-      - run: yarn install
-      - run: yarn compile
+      - run: npm install
+      - run: npm compile
 
       - uses: actions/cache@v2
         id: cache
