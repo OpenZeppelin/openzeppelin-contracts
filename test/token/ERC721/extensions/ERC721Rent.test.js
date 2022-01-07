@@ -7,7 +7,6 @@ const ERC721RentAgreementMock = artifacts.require('ERC721RentAgreementMock');
 
 contract('ERC721Rent', function (accounts) {
   const [owner, renter, renter2] = accounts;
-
   const tokenId = new BN(1);
 
   const name = 'Non Fungible Token';
@@ -88,8 +87,8 @@ contract('ERC721Rent', function (accounts) {
     });
 
     it('has the right balance', async function () {
-      expect((await this.token.balanceOf(owner)).toNumber()).to.equal(0);
-      expect((await this.token.balanceOf(renter)).toNumber()).to.equal(1);
+      expect(await this.token.balanceOf(owner)).to.bignumber.equal('0');
+      expect(await this.token.balanceOf(renter)).to.bignumber.equal('1');
     });
 
     it('does not allow the transfer of the token', async function () {
@@ -148,8 +147,8 @@ contract('ERC721Rent', function (accounts) {
     });
 
     it('has the right balance', async function () {
-      expect((await this.token.balanceOf(owner)).toNumber()).to.equal(1);
-      expect((await this.token.balanceOf(renter)).toNumber()).to.equal(0);
+      expect(await this.token.balanceOf(owner)).to.bignumber.equal('1');
+      expect(await this.token.balanceOf(renter)).to.bignumber.equal('0');
     });
 
     it('can be rented again by someone else', async function () {

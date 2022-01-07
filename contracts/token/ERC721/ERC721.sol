@@ -194,7 +194,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
         _safeTransfer(from, to, tokenId, _data);
     }
 
-    function setRentAgreement(IERC721RentAgreement agreement, uint256 tokenId) public virtual override {
+    function setRentAgreement(IERC721RentAgreement agreement, uint256 tokenId) external virtual override {
         require(_rentedOwners[tokenId] == address(0), "ERC721: token is rented");
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
 
@@ -206,13 +206,13 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
         }
     }
 
-    function rentAggreementOf(uint256 tokenId) public view virtual override returns (IERC721RentAgreement) {
+    function rentAggreementOf(uint256 tokenId) external view virtual override returns (IERC721RentAgreement) {
         return _rentAgreements[tokenId];
     }
 
-    function acceptRentAgreement(address forAddress, uint256 tokenId) public virtual override {
+    function acceptRentAgreement(address forAddress, uint256 tokenId) external virtual override {
         require(_rentedOwners[tokenId] == address(0), "ERC721: token is rented");
-        IERC721RentAgreement agreement = rentAggreementOf(tokenId);
+        IERC721RentAgreement agreement = _rentAgreements[tokenId];
         require(address(agreement) != address(0), "ERC721: rent without rent agreement");
         address owner = ERC721.ownerOf(tokenId);
         require(forAddress != owner, "ERC721: rent to current owner");
@@ -222,10 +222,10 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
         agreement.afterRentStarted(_msgSender(), tokenId);
     }
 
-    function stopRentAgreement(uint256 tokenId) public virtual override {
+    function stopRentAgreement(uint256 tokenId) external virtual override {
         address owner = _rentedOwners[tokenId];
         require(owner != address(0), "ERC721: token is not rented");
-        IERC721RentAgreement agreement = rentAggreementOf(tokenId);
+        IERC721RentAgreement agreement = _rentAgreements[tokenId];
         address renter = ERC721.ownerOf(tokenId);
 
         delete _rentedOwners[tokenId];
@@ -233,7 +233,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
         agreement.afterRentStopped(_msgSender(), tokenId);
     }
 
-    function rentedOwnerOf(uint256 tokenId) public view virtual override returns (address) {
+    function rentedOwnerOf(uint256 tokenId) external view virtual override returns (address) {
         require(_exists(tokenId), "ERC721: nonexistent token");
         return _rentedOwners[tokenId];
     }
