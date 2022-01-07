@@ -62,15 +62,14 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 12.x
-      - run: npm install
-      - run: npm compile
-
       - uses: actions/cache@v2
         id: cache
         with:
           path: '**/node_modules'
           key: npm-v2-${{ hashFiles('**/package-lock.json') }}
           restore-keys: npm-v2-
+      - run: npm ci
+        if: steps.cache.outputs.cache-hit != 'true'
       - name: Set up Python
         uses: actions/setup-python@v2
 
