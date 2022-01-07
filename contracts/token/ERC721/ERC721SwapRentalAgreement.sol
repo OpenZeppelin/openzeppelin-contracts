@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
 import "../../utils/Context.sol";
-import "./extensions/IERC721Rent.sol";
+import "./extensions/IERC721Rental.sol";
 import "../../utils/introspection/ERC165.sol";
 
 /// @title An agreement to swap two ERC721 between their respective owners.
@@ -9,14 +9,14 @@ import "../../utils/introspection/ERC165.sol";
 /// @notice The swap contract specifies the rental period and the rental expiration time in the constructor.
 /// After the expiration time, the contract is considered as invalid and cannot be started.
 /// Before it expires, it can be started, and restarted at any time.
-contract ERC721SwapRentalAgreement is Context, IERC721RentAgreement, ERC165 {
+contract ERC721SwapRentalAgreement is Context, IERC721RentalAgreement, ERC165 {
     enum RentalStatus {
         pending,
         active
     }
 
     struct Token {
-        IERC721Rent source;
+        IERC721Rental source;
         bool approvedForRental;
         uint256 tokenId;
     }
@@ -33,8 +33,8 @@ contract ERC721SwapRentalAgreement is Context, IERC721RentAgreement, ERC165 {
     RentalAgreement public rentalAgreement;
 
     constructor(
-        IERC721Rent _source1,
-        IERC721Rent _source2,
+        IERC721Rental _source1,
+        IERC721Rental _source2,
         uint256 _tokenId1,
         uint256 _tokenId2,
         uint40 _rentalDuration,
@@ -69,8 +69,8 @@ contract ERC721SwapRentalAgreement is Context, IERC721RentAgreement, ERC165 {
         _;
     }
 
-    /// @inheritdoc IERC721RentAgreement
-    function afterRentAgreementReplaced(uint256) public view override onlyErc721Contracts {
+    /// @inheritdoc IERC721RentalAgreement
+    function afterRentalAgreementReplaced(uint256) public view override onlyErc721Contracts {
         require(
             rentalAgreement.rentalStatus == RentalStatus.pending,
             "ERC721SwapRentalAgreement: rental agreement already active"
@@ -101,18 +101,18 @@ contract ERC721SwapRentalAgreement is Context, IERC721RentAgreement, ERC165 {
         rentalAgreement.startTime = uint40(block.timestamp);
 
         // Swap the tokens.
-        token1.source.acceptRentAgreement(token2.source.ownerOf(token2.tokenId), token1.tokenId);
-        token2.source.acceptRentAgreement(token1.source.rentedOwnerOf(token1.tokenId), token2.tokenId);
+        token1.source.acceptRentalAgreement(token2.source.ownerOf(token2.tokenId), token1.tokenId);
+        token2.source.acceptRentalAgreement(token1.source.rentedOwnerOf(token1.tokenId), token2.tokenId);
     }
 
-    /// @inheritdoc IERC721RentAgreement
-    function afterRentStarted(address from, uint256) public view override onlyErc721Contracts {
+    /// @inheritdoc IERC721RentalAgreement
+    function afterRentalStarted(address from, uint256) public view override onlyErc721Contracts {
         require(from == address(this));
     }
 
     /// @return bool: returns true if the target is the owner or approved or an operator.
     function _isOwnerOrApprover(
-        IERC721Rent source,
+        IERC721Rental source,
         uint256 tokenId,
         address owner,
         address target
@@ -121,7 +121,7 @@ contract ERC721SwapRentalAgreement is Context, IERC721RentAgreement, ERC165 {
     }
 
     /// @notice it aims to be called by the two token owners independently to approve their respective token for swap.
-    function approveRental(IERC721Rent source, uint256 tokenId) external {
+    function approveRental(IERC721Rental source, uint256 tokenId) external {
         Token memory token1 = rentalAgreement.token1;
         Token memory token2 = rentalAgreement.token2;
 
@@ -178,12 +178,12 @@ contract ERC721SwapRentalAgreement is Context, IERC721RentAgreement, ERC165 {
         rentalAgreement.rentalStatus = RentalStatus.pending;
 
         // Swap back the tokens.
-        token1.source.stopRentAgreement(token1.tokenId);
-        token2.source.stopRentAgreement(token2.tokenId);
+        token1.source.stopRentalAgreement(token1.tokenId);
+        token2.source.stopRentalAgreement(token2.tokenId);
     }
 
-    /// @inheritdoc IERC721RentAgreement
-    function afterRentStopped(address from, uint256) public view override onlyErc721Contracts {
+    /// @inheritdoc IERC721RentalAgreement
+    function afterRentalStopped(address from, uint256) public view override onlyErc721Contracts {
         require(address(this) == from);
     }
 }

@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import "./IERC721.sol";
 import "./IERC721Receiver.sol";
-import "./extensions/IERC721Rent.sol";
+import "./extensions/IERC721Rental.sol";
 import "./extensions/IERC721Metadata.sol";
 import "../../utils/Address.sol";
 import "../../utils/Context.sol";
@@ -17,7 +17,7 @@ import "../../utils/introspection/ERC165.sol";
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
  */
-contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
+contract ERC721 is Context, ERC165, IERC721, IERC721Rental, IERC721Metadata {
     using Address for address;
     using Strings for uint256;
 
@@ -40,7 +40,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
     // Mapping from token ID to agreement
-    mapping(uint256 => IERC721RentAgreement) private _rentAgreements;
+    mapping(uint256 => IERC721RentalAgreement) private _rentalAgreements;
 
     // Mapping from token ID to owners of rented tokens
     mapping(uint256 => address) private _rentedOwners;
@@ -194,45 +194,50 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
         _safeTransfer(from, to, tokenId, _data);
     }
 
-    function setRentAgreement(IERC721RentAgreement agreement, uint256 tokenId) external virtual override {
+    /// @inheritdoc IERC721Rental
+    function setRentalAgreement(IERC721RentalAgreement agreement, uint256 tokenId) external virtual override {
         require(_rentedOwners[tokenId] == address(0), "ERC721: token is rented");
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not owner nor approved");
 
-        IERC721RentAgreement currentAgreement = _rentAgreements[tokenId];
-        _rentAgreements[tokenId] = agreement;
+        IERC721RentalAgreement currentAgreement = _rentalAgreements[tokenId];
+        _rentalAgreements[tokenId] = agreement;
 
         if (address(currentAgreement) != address(0)) {
-            currentAgreement.afterRentAgreementReplaced(tokenId);
+            currentAgreement.afterRentalAgreementReplaced(tokenId);
         }
     }
 
-    function rentAggreementOf(uint256 tokenId) external view virtual override returns (IERC721RentAgreement) {
-        return _rentAgreements[tokenId];
+    /// @inheritdoc IERC721Rental
+    function rentalAgreementOf(uint256 tokenId) external view virtual override returns (IERC721RentalAgreement) {
+        return _rentalAgreements[tokenId];
     }
 
-    function acceptRentAgreement(address forAddress, uint256 tokenId) external virtual override {
+    /// @inheritdoc IERC721Rental
+    function acceptRentalAgreement(address forAddress, uint256 tokenId) external virtual override {
         require(_rentedOwners[tokenId] == address(0), "ERC721: token is rented");
-        IERC721RentAgreement agreement = _rentAgreements[tokenId];
-        require(address(agreement) != address(0), "ERC721: rent without rent agreement");
+        IERC721RentalAgreement agreement = _rentalAgreements[tokenId];
+        require(address(agreement) != address(0), "ERC721: rental without rental agreement");
         address owner = ERC721.ownerOf(tokenId);
-        require(forAddress != owner, "ERC721: rent to current owner");
+        require(forAddress != owner, "ERC721: rental to current owner");
 
         _rentedOwners[tokenId] = owner;
         _tranferKeepApprovals(owner, forAddress, tokenId);
-        agreement.afterRentStarted(_msgSender(), tokenId);
+        agreement.afterRentalStarted(_msgSender(), tokenId);
     }
 
-    function stopRentAgreement(uint256 tokenId) external virtual override {
+    /// @inheritdoc IERC721Rental
+    function stopRentalAgreement(uint256 tokenId) external virtual override {
         address owner = _rentedOwners[tokenId];
         require(owner != address(0), "ERC721: token is not rented");
-        IERC721RentAgreement agreement = _rentAgreements[tokenId];
+        IERC721RentalAgreement agreement = _rentalAgreements[tokenId];
         address renter = ERC721.ownerOf(tokenId);
 
         delete _rentedOwners[tokenId];
         _tranferKeepApprovals(renter, owner, tokenId);
-        agreement.afterRentStopped(_msgSender(), tokenId);
+        agreement.afterRentalStopped(_msgSender(), tokenId);
     }
 
+    /// @inheritdoc IERC721Rental
     function rentedOwnerOf(uint256 tokenId) external view virtual override returns (address) {
         require(_exists(tokenId), "ERC721: nonexistent token");
         return _rentedOwners[tokenId];
@@ -402,17 +407,18 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rent, IERC721Metadata {
         _balances[to] += 1;
         _owners[tokenId] = to;
 
-        IERC721RentAgreement rentAgreement = _rentAgreements[tokenId];
-        delete _rentAgreements[tokenId];
+        IERC721RentalAgreement rentAgreement = _rentalAgreements[tokenId];
+        delete _rentalAgreements[tokenId];
 
         if (address(rentAgreement) != address(0)) {
-            rentAgreement.afterRentAgreementReplaced(tokenId);
+            rentAgreement.afterRentalAgreementReplaced(tokenId);
         }
 
         emit Transfer(from, to, tokenId);
         _afterTokenTransfer(from, to, tokenId);
     }
 
+    /// @dev same as `_transfer`, but does not erase the approvals.
     function _tranferKeepApprovals(
         address from,
         address to,

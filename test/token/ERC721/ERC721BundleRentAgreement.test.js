@@ -8,11 +8,11 @@ const {
 const { expect } = require('chai');
 
 const ERC721Mock = artifacts.require('ERC721Mock');
-const ERC721BundleRentAgreement = artifacts.require(
-  'ERC721BundleRentAgreement',
+const ERC721BundleRentalAgreement = artifacts.require(
+  'ERC721BundleRentalAgreement',
 );
 
-contract('ERC721BundleRentAgreement', function (accounts) {
+contract('ERC721BundleRentalAgreement', function (accounts) {
   const [owner, renter, approved, approvedForAll, other] = accounts;
   const tokenId = new BN(1);
 
@@ -24,36 +24,36 @@ contract('ERC721BundleRentAgreement', function (accounts) {
 
   before(async function () {
     this.token = await ERC721Mock.new(name, symbol);
-    this.agreement = await ERC721BundleRentAgreement.new(
+    this.agreement = await ERC721BundleRentalAgreement.new(
       defaultPricePerSecond,
       defaultCancelationFee,
     );
     await this.token.mint(owner, tokenId);
-    await this.token.setRentAgreement(this.agreement.address, tokenId, {
+    await this.token.setRentalAgreement(this.agreement.address, tokenId, {
       from: owner,
     });
   });
 
   describe('unauthorized action are reverted', async function () {
-    it('cannot call IERC721RentAgreement to modify state', async function () {
+    it('cannot call IERC721RentalAgreement to modify state', async function () {
       expect(
-        ERC721BundleRentAgreement.abi.find(
-          (abi) => abi.name === 'afterRentAgreementReplaced',
+        ERC721BundleRentalAgreement.abi.find(
+          (abi) => abi.name === 'afterRentalAgreementReplaced',
         ).constant,
       ).to.equal(true);
       expect(
-        ERC721BundleRentAgreement.abi.find(
-          (abi) => abi.name === 'afterRentStarted',
+        ERC721BundleRentalAgreement.abi.find(
+          (abi) => abi.name === 'afterRentalStarted',
         ).constant,
       ).to.equal(true);
 
       await expectRevert(
-        this.agreement.afterRentStopped(
+        this.agreement.afterRentalStopped(
           '0x0000000000000000000000000000000000000000',
           tokenId,
           { from: owner },
         ),
-        'IERC721RentAgreement: token is not rented',
+        'IERC721RentalAgreement: token is not rented',
       );
     });
 
@@ -62,7 +62,7 @@ contract('ERC721BundleRentAgreement', function (accounts) {
         this.agreement.payAndStartRent(this.token.address, tokenId, new BN(0), {
           from: renter,
         }),
-        'IERC721RentAgreement: rental duration',
+        'IERC721RentalAgreement: rental duration',
       );
     });
 
@@ -71,7 +71,7 @@ contract('ERC721BundleRentAgreement', function (accounts) {
         this.agreement.payAndStartRent(this.token.address, tokenId, new BN(1), {
           from: renter,
         }),
-        'IERC721RentAgreement: rent price not matched',
+        'IERC721RentalAgreement: rental price not matched',
       );
     });
 
@@ -80,7 +80,7 @@ contract('ERC721BundleRentAgreement', function (accounts) {
         this.agreement.payAndCancelRent(this.token.address, tokenId, {
           from: renter,
         }),
-        'IERC721RentAgreement: token is not rented',
+        'IERC721RentalAgreement: token is not rented',
       );
     });
 
@@ -98,13 +98,13 @@ contract('ERC721BundleRentAgreement', function (accounts) {
         this.agreement.cancelationFeesForRenter(this.token.address, tokenId, {
           from: renter,
         }),
-        'IERC721RentAgreement: token is not rented',
+        'IERC721RentalAgreement: token is not rented',
       );
       await expectRevert(
         this.agreement.cancelationFeesForOwner(this.token.address, tokenId, {
           from: renter,
         }),
-        'IERC721RentAgreement: token is not rented',
+        'IERC721RentalAgreement: token is not rented',
       );
     });
 
@@ -118,7 +118,7 @@ contract('ERC721BundleRentAgreement', function (accounts) {
             from: renter,
           },
         ),
-        'IERC721RentAgreement: only owner or approved of token',
+        'IERC721RentalAgreement: only owner or approved of token',
       );
     });
 
@@ -130,7 +130,7 @@ contract('ERC721BundleRentAgreement', function (accounts) {
           new BN(1),
           { from: renter },
         ),
-        'IERC721RentAgreement: only owner or approved of token',
+        'IERC721RentalAgreement: only owner or approved of token',
       );
     });
 
@@ -142,7 +142,7 @@ contract('ERC721BundleRentAgreement', function (accounts) {
           new BN(1),
           { from: renter },
         ),
-        'IERC721RentAgreement: only owner or approved of token',
+        'IERC721RentalAgreement: only owner or approved of token',
       );
     });
   });
@@ -186,13 +186,13 @@ contract('ERC721BundleRentAgreement', function (accounts) {
     it('cannot finish the contract before the end', async function () {
       await expectRevert(
         this.agreement.finishRent(this.token.address, tokenId, { from: owner }),
-        'IERC721RentAgreement: rental is not finished',
+        'IERC721RentalAgreement: rental is not finished',
       );
       await expectRevert(
         this.agreement.finishRent(this.token.address, tokenId, {
           from: renter,
         }),
-        'IERC721RentAgreement: rental is not finished',
+        'IERC721RentalAgreement: rental is not finished',
       );
     });
 
@@ -218,7 +218,7 @@ contract('ERC721BundleRentAgreement', function (accounts) {
         this.agreement.payAndCancelRent(this.token.address, tokenId, {
           from: other,
         }),
-        'IERC721RentAgreement: only renter, owner or approved of token',
+        'IERC721RentalAgreement: only renter, owner or approved of token',
       );
     });
 
@@ -227,17 +227,17 @@ contract('ERC721BundleRentAgreement', function (accounts) {
         this.agreement.payAndCancelRent(this.token.address, tokenId, {
           from: owner,
         }),
-        'IERC721RentAgreement: cancelation fee not matched',
+        'IERC721RentalAgreement: cancelation fee not matched',
       );
       await expectRevert(
         this.agreement.payAndCancelRent(this.token.address, tokenId, {
           from: renter,
         }),
-        'IERC721RentAgreement: cancelation fee not matched',
+        'IERC721RentalAgreement: cancelation fee not matched',
       );
     });
 
-    it('anybody can finish the rent after its duration', async function () {
+    it('anybody can finish the rental after its duration', async function () {
       await time.increase(100);
       const result = await this.agreement.finishRent(
         this.token.address,
@@ -255,10 +255,10 @@ contract('ERC721BundleRentAgreement', function (accounts) {
 
     it('does not allow to change the agreement if it has funds', async function () {
       await expectRevert(
-        this.token.setRentAgreement(this.agreement.address, tokenId, {
+        this.token.setRentalAgreement(this.agreement.address, tokenId, {
           from: owner,
         }),
-        'IERC721RentAgreement: rent has not been redeemed',
+        'IERC721RentalAgreement: rent has not been redeemed',
       );
     });
 
@@ -284,7 +284,7 @@ contract('ERC721BundleRentAgreement', function (accounts) {
     });
 
     it('allows to change the agreement', async function () {
-      await this.token.setRentAgreement(this.agreement.address, tokenId, {
+      await this.token.setRentalAgreement(this.agreement.address, tokenId, {
         from: owner,
       });
     });
@@ -491,7 +491,7 @@ contract('ERC721BundleRentAgreement', function (accounts) {
     before(async function () {
       this.token2 = await ERC721Mock.new(name, symbol);
       await this.token2.mint(owner, tokenId);
-      await this.token2.setRentAgreement(this.agreement.address, tokenId, {
+      await this.token2.setRentalAgreement(this.agreement.address, tokenId, {
         from: owner,
       });
     });

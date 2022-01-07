@@ -43,7 +43,7 @@ contract('ERC721SingleRentalAgreement', function (accounts) {
     );
 
     // Set Rent agreement.
-    await this.erc721.setRentAgreement(this.erc721SingleRentalAgreement.address, this.tokenId, { from: this.owner });
+    await this.erc721.setRentalAgreement(this.erc721SingleRentalAgreement.address, this.tokenId, { from: this.owner });
   });
 
   context('Start Rent', async function () {
@@ -54,14 +54,14 @@ contract('ERC721SingleRentalAgreement', function (accounts) {
 
     it('Only erc721 contract can update state', async function () {
       await expectRevert(
-        this.erc721SingleRentalAgreement.afterRentAgreementReplaced(this.tokenId, { from: this.renter }),
+        this.erc721SingleRentalAgreement.afterRentalAgreementReplaced(this.tokenId, { from: this.renter }),
         'ERC721SingleRentalAgreement: only erc721Contract contract can modify rental agreement state',
       );
     });
 
     it('Cannot start rent if rent not paid', async function () {
       await expectRevert(
-        this.erc721.acceptRentAgreement(this.renter, this.tokenId, { from: this.renter }),
+        this.erc721.acceptRentalAgreement(this.renter, this.tokenId, { from: this.renter }),
         'ERC721SingleRentalAgreement: rent has to be paid first',
       );
     });
@@ -81,20 +81,20 @@ contract('ERC721SingleRentalAgreement', function (accounts) {
       assert.equal(rentPaid, true);
 
       // Assert rent is active.
-      await this.erc721.acceptRentAgreement(this.renter, this.tokenId, { from: this.renter });
+      await this.erc721.acceptRentalAgreement(this.renter, this.tokenId, { from: this.renter });
       const status = await this.erc721SingleRentalAgreement.rentalStatus();
       expect(status.toString()).to.equal(RENT_STATUS.ACTIVE.toString());
     });
 
     it('Enable to change agreement when pending and not paid', async function () {
-      await this.erc721SingleRentalAgreement.afterRentAgreementReplaced(this.tokenId, { from: this.erc721Address });
+      await this.erc721SingleRentalAgreement.afterRentalAgreementReplaced(this.tokenId, { from: this.erc721Address });
     });
 
     it('Cannot change agreement after the rent has been paid', async function () {
       // Pay rent.
       await this.erc721SingleRentalAgreement.payRent({ from: this.renter, value: this.rentalFees });
       await expectRevert(
-        this.erc721SingleRentalAgreement.afterRentAgreementReplaced(this.tokenId, { from: this.erc721Address }),
+        this.erc721SingleRentalAgreement.afterRentalAgreementReplaced(this.tokenId, { from: this.erc721Address }),
         'ERC721SingleRentalAgreement: rent already paid',
       );
     });
@@ -114,14 +114,14 @@ contract('ERC721SingleRentalAgreement', function (accounts) {
     // Pay rent.
     await agreement.payRent({ from: renter, value: fees });
     // Start rent.
-    await erc721.acceptRentAgreement(renter, tokenId, { from: renter });
+    await erc721.acceptRentalAgreement(renter, tokenId, { from: renter });
   };
 
   context('Finish rent', async function () {
     it('Owner cannot finish rent before the rental period is over', async function () {
       await startRent(this.erc721SingleRentalAgreement, this.renter, this.rentalFees, this.erc721, this.tokenId);
       await expectRevert(
-        this.erc721.stopRentAgreement(this.tokenId, { from: this.owner }),
+        this.erc721.stopRentalAgreement(this.tokenId, { from: this.owner }),
         'ERC721SingleRentalAgreement: rental period not finished yet',
       );
     });
@@ -129,13 +129,13 @@ contract('ERC721SingleRentalAgreement', function (accounts) {
     it('Owner is able to finish rent after the rental period is over', async function () {
       await startRent(this.erc721SingleRentalAgreement, this.renter, this.rentalFees, this.erc721, this.tokenId);
       await time.increase(1809600); // Increase Ganache time by 2 weeks.
-      await this.erc721.stopRentAgreement(this.tokenId, { from: this.owner });
+      await this.erc721.stopRentalAgreement(this.tokenId, { from: this.owner });
     });
 
     it('Renter is able to finish rent before the rental period is over', async function () {
       await startRent(this.erc721SingleRentalAgreement, this.renter, this.rentalFees, this.erc721, this.tokenId);
       await time.increase(302400); // Increase Ganache time by 3.5 days.
-      await this.erc721.stopRentAgreement(this.tokenId, { from: this.renter });
+      await this.erc721.stopRentalAgreement(this.tokenId, { from: this.renter });
       const renterBalance = await this.erc721SingleRentalAgreement.balances(this.renter);
       const ownerBalance = await this.erc721SingleRentalAgreement.balances(this.owner);
       const expectedBalance = new BN(10000);

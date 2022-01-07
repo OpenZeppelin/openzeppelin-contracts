@@ -26,31 +26,31 @@ contract('ERC721Rent', function (accounts) {
     });
 
     it('has no agreement contract', async function () {
-      expect(await this.token.rentAggreementOf(tokenId)).to.equal(
+      expect(await this.token.rentalAgreementOf(tokenId)).to.equal(
         '0x0000000000000000000000000000000000000000',
       );
     });
 
     it('cannot be rented', async function () {
       await expectRevert(
-        this.token.acceptRentAgreement(owner, tokenId),
-        'ERC721: rent without rent agreement',
+        this.token.acceptRentalAgreement(owner, tokenId),
+        'ERC721: rental without rental agreement',
       );
       await expectRevert(
-        this.token.acceptRentAgreement(renter, tokenId),
-        'ERC721: rent without rent agreement',
+        this.token.acceptRentalAgreement(renter, tokenId),
+        'ERC721: rental without rental agreement',
       );
     });
 
     it('cannot stop being rented', async function () {
       await expectRevert(
-        this.token.stopRentAgreement(tokenId, { from: renter }),
+        this.token.stopRentalAgreement(tokenId, { from: renter }),
         'ERC721: token is not rented',
       );
     });
 
     it('can set an agreement', async function () {
-      await this.token.setRentAgreement(this.agreement.address, tokenId, {
+      await this.token.setRentalAgreement(this.agreement.address, tokenId, {
         from: owner,
       });
     });
@@ -58,21 +58,21 @@ contract('ERC721Rent', function (accounts) {
 
   describe('a contract with an agreement accepting all', async function () {
     it('has the expected agreement', async function () {
-      expect(await this.token.rentAggreementOf(tokenId)).to.equal(
+      expect(await this.token.rentalAgreementOf(tokenId)).to.equal(
         this.agreement.address,
       );
     });
 
     it('cannot be rented by its owner', async function () {
       await expectRevert(
-        this.token.acceptRentAgreement(owner, tokenId),
-        'ERC721: rent to current owner',
+        this.token.acceptRentalAgreement(owner, tokenId),
+        'ERC721: rental to current owner',
       );
     });
 
     it('can be rented by someone else', async function () {
       expectEvent(
-        await this.token.acceptRentAgreement(renter, tokenId),
+        await this.token.acceptRentalAgreement(renter, tokenId),
         'Transfer',
         { from: owner, to: renter, tokenId: tokenId },
       );
@@ -119,18 +119,18 @@ contract('ERC721Rent', function (accounts) {
 
     it('cannot be rented again', async function () {
       await expectRevert(
-        this.token.acceptRentAgreement(renter, tokenId),
+        this.token.acceptRentalAgreement(renter, tokenId),
         'ERC721: token is rented',
       );
       await expectRevert(
-        this.token.acceptRentAgreement(renter2, tokenId),
+        this.token.acceptRentalAgreement(renter2, tokenId),
         'ERC721: token is rented',
       );
     });
 
     it('can stop the rental', async function () {
       expectEvent(
-        await this.token.stopRentAgreement(tokenId, { from: renter }),
+        await this.token.stopRentalAgreement(tokenId, { from: renter }),
         'Transfer',
         { from: renter, to: owner, tokenId: tokenId },
       );
@@ -153,7 +153,7 @@ contract('ERC721Rent', function (accounts) {
 
     it('can be rented again by someone else', async function () {
       expectEvent(
-        await this.token.acceptRentAgreement(renter2, tokenId),
+        await this.token.acceptRentalAgreement(renter2, tokenId),
         'Transfer',
         { from: owner, to: renter2, tokenId: tokenId },
       );
@@ -165,7 +165,7 @@ contract('ERC721Rent', function (accounts) {
 
     it('can be stopped by the owner', async function () {
       expectEvent(
-        await this.token.stopRentAgreement(tokenId, { from: owner }),
+        await this.token.stopRentalAgreement(tokenId, { from: owner }),
         'Transfer',
         { from: renter2, to: owner, tokenId: tokenId },
       );
@@ -173,18 +173,18 @@ contract('ERC721Rent', function (accounts) {
 
     it('cannot change the agreement during a rental', async function () {
       expectEvent(
-        await this.token.acceptRentAgreement(renter2, tokenId),
+        await this.token.acceptRentalAgreement(renter2, tokenId),
         'Transfer',
         { from: owner, to: renter2, tokenId: tokenId },
       );
       await expectRevert(
-        this.token.setRentAgreement(this.agreement.address, tokenId, {
+        this.token.setRentalAgreement(this.agreement.address, tokenId, {
           from: owner,
         }),
         'ERC721: token is rented',
       );
       expectEvent(
-        await this.token.stopRentAgreement(tokenId, { from: renter }),
+        await this.token.stopRentalAgreement(tokenId, { from: renter }),
         'Transfer',
         { from: renter2, to: owner, tokenId: tokenId },
       );
@@ -195,7 +195,7 @@ contract('ERC721Rent', function (accounts) {
     it('cannot change the rental aggreement', async function () {
       await this.agreement.setFail(true);
       await expectRevert(
-        this.token.setRentAgreement(this.agreement.address, tokenId, {
+        this.token.setRentalAgreement(this.agreement.address, tokenId, {
           from: owner,
         }),
         'Failed from agreement contract',
@@ -204,21 +204,21 @@ contract('ERC721Rent', function (accounts) {
 
     it('cannot start the rental aggreement', async function () {
       await expectRevert(
-        this.token.acceptRentAgreement(renter, tokenId),
+        this.token.acceptRentalAgreement(renter, tokenId),
         'Failed from agreement contract',
       );
     });
 
     it('cannot stop the rental aggreement', async function () {
       await this.agreement.setFail(false);
-      this.token.acceptRentAgreement(renter, tokenId);
+      this.token.acceptRentalAgreement(renter, tokenId);
       await this.agreement.setFail(true);
       await expectRevert(
-        this.token.stopRentAgreement(tokenId, { from: owner }),
+        this.token.stopRentalAgreement(tokenId, { from: owner }),
         'Failed from agreement contract',
       );
       await expectRevert(
-        this.token.stopRentAgreement(tokenId, { from: renter }),
+        this.token.stopRentalAgreement(tokenId, { from: renter }),
         'Failed from agreement contract',
       );
     });
@@ -227,12 +227,12 @@ contract('ERC721Rent', function (accounts) {
   describe('when a token changes owner', async function () {
     it('removes the agreement contract', async function () {
       await this.agreement.setFail(false);
-      await this.token.stopRentAgreement(tokenId, { from: renter });
-      expect(await this.token.rentAggreementOf(tokenId)).to.equal(
+      await this.token.stopRentalAgreement(tokenId, { from: renter });
+      expect(await this.token.rentalAgreementOf(tokenId)).to.equal(
         this.agreement.address,
       );
       await this.token.transferFrom(owner, renter, tokenId, { from: owner });
-      expect(await this.token.rentAggreementOf(tokenId)).to.equal(
+      expect(await this.token.rentalAgreementOf(tokenId)).to.equal(
         '0x0000000000000000000000000000000000000000',
       );
     });

@@ -32,7 +32,7 @@ contract('ERC721SwapRentalAgreement', function (accounts) {
     this.name3 = 'Non Fungible Token 3';
     this.symbol3 = 'NFT3';
     // Mint the same token id for owner2 in the non registered contract.
-    // That will make pass the requires in the `setRentAgreement` function.
+    // That will make pass the requires in the `setRentalAgreement` function.
     this.nonRegisteredToken = await ERC721Mock.new(this.name3, this.symbol3);
     await this.nonRegisteredToken.mint(this.owner2, this.tokenId2);
 
@@ -53,9 +53,9 @@ contract('ERC721SwapRentalAgreement', function (accounts) {
     );
 
     // Set Rent agreement.
-    await this.token1.setRentAgreement(this.erc721SwapRentalAgreement.address, this.tokenId1, { from: this.owner1 });
-    await this.token2.setRentAgreement(this.erc721SwapRentalAgreement.address, this.tokenId2, { from: this.owner2 });
-    await this.nonRegisteredToken.setRentAgreement(this.erc721SwapRentalAgreement.address, this.tokenId2, {
+    await this.token1.setRentalAgreement(this.erc721SwapRentalAgreement.address, this.tokenId1, { from: this.owner1 });
+    await this.token2.setRentalAgreement(this.erc721SwapRentalAgreement.address, this.tokenId2, { from: this.owner2 });
+    await this.nonRegisteredToken.setRentalAgreement(this.erc721SwapRentalAgreement.address, this.tokenId2, {
       from: this.owner2,
     });
   });
@@ -69,7 +69,7 @@ contract('ERC721SwapRentalAgreement', function (accounts) {
     it('Only registered contracts can modify agreement', async function () {
       // Can't start rent agreement if not registered contract.
       await expectRevert(
-        this.nonRegisteredToken.acceptRentAgreement(this.owner1, this.tokenId2, {
+        this.nonRegisteredToken.acceptRentalAgreement(this.owner1, this.tokenId2, {
           from: this.owner2,
         }),
         'ERC721SwapRentalAgreement: only registered erc721 can change state',

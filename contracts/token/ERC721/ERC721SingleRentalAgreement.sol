@@ -1,10 +1,10 @@
 pragma solidity ^0.8.0;
 
 import "../../utils/Context.sol";
-import "./extensions/IERC721Rent.sol";
+import "./extensions/IERC721Rental.sol";
 import "../../utils/introspection/ERC165.sol";
 
-contract ERC721SingleRentalAgreement is Context, IERC721RentAgreement, ERC165 {
+contract ERC721SingleRentalAgreement is Context, IERC721RentalAgreement, ERC165 {
     enum RentalStatus {
         pending,
         active,
@@ -63,8 +63,8 @@ contract ERC721SingleRentalAgreement is Context, IERC721RentAgreement, ERC165 {
         _;
     }
 
-    /// @inheritdoc IERC721RentAgreement
-    function afterRentAgreementReplaced(uint256) public view override onlyErc721Contract {
+    /// @inheritdoc IERC721RentalAgreement
+    function afterRentalAgreementReplaced(uint256) public view override onlyErc721Contract {
         require(
             rentalStatus == RentalStatus.pending,
             "ERC721SingleRentalAgreement: rental agreement has to be pending to be updated."
@@ -72,10 +72,10 @@ contract ERC721SingleRentalAgreement is Context, IERC721RentAgreement, ERC165 {
         require(!rentPaid, "ERC721SingleRentalAgreement: rent already paid");
     }
 
-    /// @inheritdoc IERC721RentAgreement
-    function afterRentStarted(address, uint256 tokenId) public override onlyErc721Contract {
+    /// @inheritdoc IERC721RentalAgreement
+    function afterRentalStarted(address, uint256 tokenId) public override onlyErc721Contract {
         require(block.timestamp <= expirationDate, "ERC721SingleRentalAgreement: rental agreement expired");
-        require(renter == IERC721Rent(_msgSender()).ownerOf(tokenId), "Wrong renter.");
+        require(renter == IERC721Rental(_msgSender()).ownerOf(tokenId), "Wrong renter.");
         require(rentalStatus == RentalStatus.pending, "ERC721SingleRentalAgreement: rental status has to be pending");
         require(rentPaid, "ERC721SingleRentalAgreement: rent has to be paid first");
 
@@ -99,8 +99,8 @@ contract ERC721SingleRentalAgreement is Context, IERC721RentAgreement, ERC165 {
         emit RentPayment(owner, renter, msg.value);
     }
 
-    /// @inheritdoc IERC721RentAgreement
-    function afterRentStopped(address from, uint256 tokenId) public override onlyErc721Contract {
+    /// @inheritdoc IERC721RentalAgreement
+    function afterRentalStopped(address from, uint256 tokenId) public override onlyErc721Contract {
         require(rentalStatus == RentalStatus.active, "ERC721SingleRentalAgreement: rental status has to be active");
         rentalStatus = RentalStatus.finished;
 
@@ -162,6 +162,6 @@ contract ERC721SingleRentalAgreement is Context, IERC721RentAgreement, ERC165 {
     }
 
     function supportsInterface(bytes4 interfaceId) public view override(ERC165, IERC165) returns (bool) {
-        return interfaceId == type(IERC721RentAgreement).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC721RentalAgreement).interfaceId || super.supportsInterface(interfaceId);
     }
 }

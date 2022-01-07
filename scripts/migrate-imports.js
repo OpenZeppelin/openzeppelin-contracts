@@ -70,7 +70,7 @@ const pathUpdates = {
   // 'token/ERC721/ERC721.sol': undefined,
   'token/ERC721/IERC721Enumerable.sol': 'token/ERC721/extensions/IERC721Enumerable.sol',
   'token/ERC721/IERC721Metadata.sol': 'token/ERC721/extensions/IERC721Metadata.sol',
-  'token/ERC721/IERC721Rent.sol': 'token/ERC721/extensions/IERC721Rent.sol',
+  'token/ERC721/IERC721Rental.sol': 'token/ERC721/extensions/IERC721Rental.sol',
   // 'token/ERC721/IERC721Receiver.sol': undefined,
   // 'token/ERC721/IERC721.sol': undefined,
   // 'token/ERC777/ERC777.sol': undefined,
