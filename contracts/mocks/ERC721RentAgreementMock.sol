@@ -12,11 +12,7 @@ contract ERC721RentAgreementMock is IERC721RentAgreement {
         require(!_fail, "Failed from agreement contract");
     }
 
-    function afterRentStarted(
-        address,
-        address,
-        uint256
-    ) external view override {
+    function afterRentStarted(address, uint256) external view override {
         require(!_fail, "Failed from agreement contract");
     }
 

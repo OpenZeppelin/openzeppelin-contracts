@@ -21,7 +21,9 @@ contract('ERC721Rent', function (accounts) {
 
   describe('a contract with no agreement', async function () {
     it('is not rented', async function () {
-      expect(await this.token.isRented(tokenId)).to.equal(false);
+      expect(await this.token.rentedOwnerOf(tokenId)).to.equal(
+        '0x0000000000000000000000000000000000000000',
+      );
     });
 
     it('has no agreement contract', async function () {
@@ -78,7 +80,7 @@ contract('ERC721Rent', function (accounts) {
     });
 
     it('becomes rented', async function () {
-      expect(await this.token.isRented(tokenId)).to.equal(true);
+      expect(await this.token.rentedOwnerOf(tokenId)).to.equal(owner);
     });
 
     it('display the right owner', async function () {
@@ -136,7 +138,9 @@ contract('ERC721Rent', function (accounts) {
     });
 
     it('becomes no longer rented', async function () {
-      expect(await this.token.isRented(tokenId)).to.equal(false);
+      expect(await this.token.rentedOwnerOf(tokenId)).to.equal(
+        '0x0000000000000000000000000000000000000000',
+      );
     });
 
     it('display the right owner', async function () {
@@ -157,7 +161,7 @@ contract('ERC721Rent', function (accounts) {
     });
 
     it('is rented again', async function () {
-      expect(await this.token.isRented(tokenId)).to.equal(true);
+      expect(await this.token.rentedOwnerOf(tokenId)).to.equal(owner);
     });
 
     it('can be stopped by the owner', async function () {

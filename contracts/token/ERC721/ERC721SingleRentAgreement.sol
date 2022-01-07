@@ -67,13 +67,9 @@ contract ERC721SingleRentAgreement is Context, IERC721RentAgreement, ERC165 {
     }
 
     // Called when an account accepts a renting contract and wants to start the location.
-    function afterRentStarted(
-        address,
-        address forAddress,
-        uint256 tokenId
-    ) public override onlyErc721Contract {
+    function afterRentStarted(address, uint256 tokenId) public override onlyErc721Contract {
         require(block.timestamp <= expirationDate, "rental agreement expired");
-        require(renter == forAddress, "Wrong renter.");
+        require(renter == IERC721Rent(_msgSender()).ownerOf(tokenId), "Wrong renter.");
         require(rentStatus == RentStatus.pending, "Rent status has to be pending");
         require(rentPaid, "Rent has to be paid first");
 
@@ -81,7 +77,7 @@ contract ERC721SingleRentAgreement is Context, IERC721RentAgreement, ERC165 {
         startTime = block.timestamp;
 
         // Emit an event.
-        emit RentStatusChanged(owner, forAddress, tokenId, startTime, RentStatus.pending, RentStatus.active);
+        emit RentStatusChanged(owner, renter, tokenId, startTime, RentStatus.pending, RentStatus.active);
     }
 
     function payRent() public payable {
