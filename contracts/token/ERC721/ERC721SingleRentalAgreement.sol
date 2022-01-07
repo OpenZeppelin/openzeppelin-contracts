@@ -4,6 +4,14 @@ import "../../utils/Context.sol";
 import "./extensions/IERC721Rent.sol";
 import "../../utils/introspection/ERC165.sol";
 
+/// @title ERC721 simple rental agreement.
+/// Define a simple rental agreement following the principles:
+///   - The rent is valid for a rental period
+///   - The rent has an expration date: after this date it cannot be started.
+///   - The rent can be started only once.
+///   - A rental fee has to be paid by the renter to the owner.
+///   - The owner cannot do early rent termination.
+///   - The renter can do an early rent termination and get refunded proportionally to the actual duration.
 contract ERC721SingleRentalAgreement is Context, IERC721RentAgreement, ERC165 {
     enum RentalStatus {
         pending,
@@ -86,6 +94,8 @@ contract ERC721SingleRentalAgreement is Context, IERC721RentAgreement, ERC165 {
         emit RentalStatusChanged(owner, renter, tokenId, startTime, RentalStatus.pending, RentalStatus.active);
     }
 
+    /// Enables the renter to pay the rent.
+    /// The rent has to be paid in order to start the rent agreement.
     function payRent() public payable {
         require(block.timestamp <= expirationDate, "ERC721SingleRentalAgreement: rental agreement expired");
         require(!rentPaid, "ERC721SingleRentalAgreement: rent already paid");
@@ -116,6 +126,9 @@ contract ERC721SingleRentalAgreement is Context, IERC721RentAgreement, ERC165 {
         emit RentalStatusChanged(owner, renter, tokenId, startTime, RentalStatus.active, RentalStatus.finished);
     }
 
+    /// Enable the renter to do finish the rental.
+    /// If this is an early termination, the renter can be refunded 
+    /// proportionally to the rental time consumed. 
     function _stopRentalRenter() private {
         // Early rental termination.
         if (block.timestamp <= startTime + rentalDuration) {
@@ -128,6 +141,8 @@ contract ERC721SingleRentalAgreement is Context, IERC721RentAgreement, ERC165 {
         }
     }
 
+    /// Enable the owner to finish the rental.
+    /// Token owner cannot do rental early termination.
     function _stopRentalOwner() private view {
         // Owner can't do early rent termination.
         require(
@@ -136,6 +151,7 @@ contract ERC721SingleRentalAgreement is Context, IERC721RentAgreement, ERC165 {
         );
     }
 
+    /// Enable renter and owner to redeem their balances.
     function redeemFunds(uint256 _value) public {
         require(
             rentalStatus == RentalStatus.finished,
