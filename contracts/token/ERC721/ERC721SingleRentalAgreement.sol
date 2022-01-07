@@ -4,8 +4,8 @@ import "../../utils/Context.sol";
 import "./extensions/IERC721Rent.sol";
 import "../../utils/introspection/ERC165.sol";
 
-contract ERC721SingleRentAgreement is Context, IERC721RentAgreement, ERC165 {
-    enum RentStatus {
+contract ERC721SingleRentalAgreement is Context, IERC721RentAgreement, ERC165 {
+    enum RentalStatus {
         pending,
         active,
         finished
@@ -15,24 +15,24 @@ contract ERC721SingleRentAgreement is Context, IERC721RentAgreement, ERC165 {
     address public renter;
     address public owner;
     address public erc721Contract;
-    uint256 public rentDuration;
+    uint256 public rentalDuration;
     uint256 public expirationDate;
     uint256 public startTime;
     uint256 public rentalFees;
     bool public rentPaid;
-    RentStatus public rentStatus;
+    RentalStatus public rentalStatus;
 
     // Mapping owners address to balances;
     mapping(address => uint256) public balances;
 
     // ====== Events ====== //.
-    event RentStatusChanged(
+    event RentalStatusChanged(
         address owner,
         address renter,
         uint256 tokenId,
         uint256 timestamp,
-        RentStatus oldStatus,
-        RentStatus newStatus
+        RentalStatus oldStatus,
+        RentalStatus newStatus
     );
 
     event RentPayment(address owner, address renter, uint256 amount);
@@ -49,42 +49,48 @@ contract ERC721SingleRentAgreement is Context, IERC721RentAgreement, ERC165 {
         owner = _owner;
         renter = _renter;
         erc721Contract = _erc721Contract;
-        rentDuration = _duration;
+        rentalDuration = _duration;
         expirationDate = _expirationDate;
         rentalFees = _rentalFees;
     }
 
     // ===== Modifiers ====== //
     modifier onlyErc721Contract() {
-        require(_msgSender() == erc721Contract, "Only erc721Contract contract can modify rent agreement state");
+        require(
+            _msgSender() == erc721Contract,
+            "ERC721SingleRentalAgreement: only erc721Contract contract can modify rental agreement state"
+        );
         _;
     }
 
-    // Called when an owner of an NFT changes or removes its NTF renting contract.
+    /// @inheritdoc IERC721RentAgreement
     function afterRentAgreementReplaced(uint256) public view override onlyErc721Contract {
-        require(rentStatus == RentStatus.pending, "Rent agreement has to be pending to be updated");
-        require(!rentPaid, "Rent already paid");
+        require(
+            rentalStatus == RentalStatus.pending,
+            "ERC721SingleRentalAgreement: rental agreement has to be pending to be updated."
+        );
+        require(!rentPaid, "ERC721SingleRentalAgreement: rent already paid");
     }
 
-    // Called when an account accepts a renting contract and wants to start the location.
+    /// @inheritdoc IERC721RentAgreement
     function afterRentStarted(address, uint256 tokenId) public override onlyErc721Contract {
-        require(block.timestamp <= expirationDate, "rental agreement expired");
+        require(block.timestamp <= expirationDate, "ERC721SingleRentalAgreement: rental agreement expired");
         require(renter == IERC721Rent(_msgSender()).ownerOf(tokenId), "Wrong renter.");
-        require(rentStatus == RentStatus.pending, "Rent status has to be pending");
-        require(rentPaid, "Rent has to be paid first");
+        require(rentalStatus == RentalStatus.pending, "ERC721SingleRentalAgreement: rental status has to be pending");
+        require(rentPaid, "ERC721SingleRentalAgreement: rent has to be paid first");
 
-        rentStatus = RentStatus.active;
+        rentalStatus = RentalStatus.active;
         startTime = block.timestamp;
 
         // Emit an event.
-        emit RentStatusChanged(owner, renter, tokenId, startTime, RentStatus.pending, RentStatus.active);
+        emit RentalStatusChanged(owner, renter, tokenId, startTime, RentalStatus.pending, RentalStatus.active);
     }
 
     function payRent() public payable {
-        require(block.timestamp <= expirationDate, "rental agreement expired");
-        require(!rentPaid, "Rent already paid");
-        require(_msgSender() == renter, "Renter has to pay the rental fees");
-        require(msg.value == rentalFees, "Wrong rental fees amount");
+        require(block.timestamp <= expirationDate, "ERC721SingleRentalAgreement: rental agreement expired");
+        require(!rentPaid, "ERC721SingleRentalAgreement: rent already paid");
+        require(_msgSender() == renter, "ERC721SingleRentalAgreement: renter has to pay the rental fees");
+        require(msg.value == rentalFees, "ERC721SingleRentalAgreement: wrong rental fees amount");
 
         rentPaid = true;
         balances[owner] += msg.value;
@@ -93,28 +99,28 @@ contract ERC721SingleRentAgreement is Context, IERC721RentAgreement, ERC165 {
         emit RentPayment(owner, renter, msg.value);
     }
 
-    // Called when the owner or the renter wants to stop an active rent agreement.
+    /// @inheritdoc IERC721RentAgreement
     function afterRentStopped(address from, uint256 tokenId) public override onlyErc721Contract {
-        require(rentStatus == RentStatus.active, "Rent status has to be active");
-        rentStatus = RentStatus.finished;
+        require(rentalStatus == RentalStatus.active, "ERC721SingleRentalAgreement: rental status has to be active");
+        rentalStatus = RentalStatus.finished;
 
         if (from == owner) {
-            _stopRentOwner();
+            _stopRentalOwner();
         } else if (from == renter) {
-            _stopRentRenter();
+            _stopRentalRenter();
         } else {
             revert();
         }
 
         // Emit an event.
-        emit RentStatusChanged(owner, renter, tokenId, startTime, RentStatus.active, RentStatus.finished);
+        emit RentalStatusChanged(owner, renter, tokenId, startTime, RentalStatus.active, RentalStatus.finished);
     }
 
-    function _stopRentRenter() private {
-        // Early rent termination.
-        if (block.timestamp <= startTime + rentDuration) {
+    function _stopRentalRenter() private {
+        // Early rental termination.
+        if (block.timestamp <= startTime + rentalDuration) {
             uint256 _rentalPeriod = block.timestamp - startTime;
-            uint256 _rentalRate = (100 * _rentalPeriod) / rentDuration;
+            uint256 _rentalRate = (100 * _rentalPeriod) / rentalDuration;
 
             // Update the balances to reflect the rental period.
             balances[renter] = (rentalFees * _rentalRate) / 100;
@@ -122,20 +128,26 @@ contract ERC721SingleRentAgreement is Context, IERC721RentAgreement, ERC165 {
         }
     }
 
-    function _stopRentOwner() private view {
+    function _stopRentalOwner() private view {
         // Owner can't do early rent termination.
-        require(block.timestamp >= startTime + rentDuration, "Rental period not finished yet");
+        require(
+            block.timestamp >= startTime + rentalDuration,
+            "ERC721SingleRentalAgreement: rental period not finished yet"
+        );
     }
 
     function redeemFunds(uint256 _value) public {
-        require(rentStatus == RentStatus.finished, "Rent has to be finished to redeem funds");
+        require(
+            rentalStatus == RentalStatus.finished,
+            "ERC721SingleRentalAgreement: rental has to be finished to redeem funds"
+        );
 
         uint256 _balance = balances[_msgSender()];
-        require(_value <= _balance, "Not enough funds to redeem");
+        require(_value <= _balance, "ERC721SingleRentalAgreement: not enough funds to redeem");
         balances[_msgSender()] -= _value;
 
         // Check if the transfer is successful.
-        require(_attemptETHTransfer(_msgSender(), _value), "ETH transfer failed");
+        require(_attemptETHTransfer(_msgSender(), _value), "ERC721SingleRentalAgreement: ETH transfer failed");
 
         // Emit an event.
         emit FundsRedeemed(_msgSender(), _value, balances[_msgSender()]);
