@@ -125,6 +125,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev See {IERC20-approve}.
      *
+     * Note If `amount` is the maximum `uint256`, the allowance is not updated on
+     * `transferFrom`. This is semantically equivalent to an infinite approval.
+     *
      * Requirements:
      *
      * - `spender` cannot be the zero address.
@@ -139,6 +142,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * Emits an {Approval} event indicating the updated allowance. This is not
      * required by the EIP. See the note at the beginning of {ERC20}.
+     *
+     * Note Does not update the allowance if the current allowance
+     * is the maximum `uint256`.
      *
      * Requirements:
      *

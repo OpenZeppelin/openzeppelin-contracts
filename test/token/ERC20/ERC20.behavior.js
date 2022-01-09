@@ -1,6 +1,6 @@
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { ZERO_ADDRESS } = constants;
+const { ZERO_ADDRESS, MAX_UINT256 } = constants;
 
 function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recipient, anotherAccount) {
   describe('total supply', function () {
@@ -126,6 +126,25 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
                 `${errorPrefix}: transfer amount exceeds balance`,
               );
             });
+          });
+        });
+
+        describe('when the spender has unlimited allowance', function () {
+          beforeEach(async function () {
+            await this.token.approve(spender, MAX_UINT256, { from: initialHolder });
+          });
+
+          it('does nott decreases the spender allowance', async function () {
+            await this.token.transferFrom(tokenOwner, to, 1, { from: spender });
+
+            expect(await this.token.allowance(tokenOwner, spender)).to.be.bignumber.equal(MAX_UINT256);
+          });
+
+          it('does not emits an approval event', async function () {
+            expectEvent.notEmitted(
+              await this.token.transferFrom(tokenOwner, to, 1, { from: spender }),
+              'Approval',
+            );
           });
         });
       });
