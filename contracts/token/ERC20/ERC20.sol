@@ -230,10 +230,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         uint256 senderBalance = _balances[sender];
         require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
-        unchecked {
-            _balances[sender] = senderBalance - amount;
-        }
-        _balances[recipient] += amount;
+        _processTransfer(sender, recipient, amount);
 
         emit Transfer(sender, recipient, amount);
 
@@ -333,6 +330,31 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         address to,
         uint256 amount
     ) internal virtual {}
+
+    /**
+     * @dev Hook that is called for transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+     * will be transferred to `to`.
+     * - when `from` is zero, `amount` tokens will be minted for `to`.
+     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
+     * - `from` and `to` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _processTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {
+        unchecked {
+            _balances[from] -= amount;
+        }
+        _balances[to] += amount;
+    }
 
     /**
      * @dev Hook that is called after any transfer of tokens. This includes
