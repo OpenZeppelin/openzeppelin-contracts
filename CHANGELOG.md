@@ -13,8 +13,8 @@
  * `ERC2771Context`: use immutable storage to store the forwarder address, no longer an issue since Solidity >=0.8.8 allows reading immutable variables in the constructor. ([#2917](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2917))
  * `Base64`: add a library to parse bytes into base64 strings using `encode(bytes memory)` function, and provide examples to show how to use to build URL-safe `tokenURIs` ([#2884](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2884))
  * `ERC20`: reduce allowance before triggering transfer.
- * `ERC20`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`.
- * `ERC777`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`.
+ * `ERC20`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`. ([#3085](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3085))
+ * `ERC777`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`. ([#3085](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3085))
 
 ## 4.4.1 (2021-12-14)
 
