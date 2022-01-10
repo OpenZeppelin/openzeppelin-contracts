@@ -134,13 +134,13 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
             await this.token.approve(spender, MAX_UINT256, { from: initialHolder });
           });
 
-          it('does not decreases the spender allowance', async function () {
+          it('does not decrease the spender allowance', async function () {
             await this.token.transferFrom(tokenOwner, to, 1, { from: spender });
 
             expect(await this.token.allowance(tokenOwner, spender)).to.be.bignumber.equal(MAX_UINT256);
           });
 
-          it('does not emits an approval event', async function () {
+          it('does not emit an approval event', async function () {
             expectEvent.notEmitted(
               await this.token.transferFrom(tokenOwner, to, 1, { from: spender }),
               'Approval',
