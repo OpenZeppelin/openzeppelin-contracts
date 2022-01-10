@@ -258,7 +258,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC20-approve}.
      *
-     * Note If `value` is the maximum `uint256`, the allowance is not updated on
+     * NOTE: If `value` is the maximum `uint256`, the allowance is not updated on
      * `transferFrom`. This is semantically equivalent to an infinite approval.
      *
      * Note that accounts cannot have allowance issued by their operators.
@@ -272,7 +272,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC20-transferFrom}.
      *
-     * Note Does not update the allowance if the current allowance
+     * NOTE: Does not update the allowance if the current allowance
      * is the maximum `uint256`.
      *
      * Note that operator and allowance concepts are orthogonal: operators cannot
