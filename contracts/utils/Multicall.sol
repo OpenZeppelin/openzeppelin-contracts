@@ -21,4 +21,15 @@ abstract contract Multicall {
         }
         return results;
     }
+    
+    /**
+     * @dev Receives and returns value of a batch of view calls on this contract.
+     */
+    function multicallview(bytes[] calldata data) external view returns (bytes[] memory results) {
+        results = new bytes[](data.length);
+        for (uint256 i = 0; i < data.length; i++) {
+            results[i] = Address.functionDelegateCall(address(this), data[i]);
+        }
+        return results;
+    }
 }
