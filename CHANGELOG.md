@@ -15,6 +15,9 @@
  * `Base64`: add a library to parse bytes into base64 strings using `encode(bytes memory)` function, and provide examples to show how to use to build URL-safe `tokenURIs`. ([#2884](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2884))
  * `ERC20`: reduce allowance before triggering transfer. ([#3056](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3056))
 
+### Bugfixes
+ * `GovernorCompatibilityBravo`: Fix error in the encoding of calldata for proposal submitted through the compatibility interface. Older versions incorrectly prefixed the calldata with the bytes length, leadding to incorrect call executions.([#3100](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3100))
+
 ## 4.4.1 (2021-12-14)
 
  * `Initializable`: change the existing `initializer` modifier and add a new `onlyInitializing` modifier to prevent reentrancy risk. ([#3006](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3006))
