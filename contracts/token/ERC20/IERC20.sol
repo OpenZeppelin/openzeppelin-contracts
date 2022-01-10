@@ -40,9 +40,6 @@ interface IERC20 {
      *
      * Returns a boolean value indicating whether the operation succeeded.
      *
-     * Note If `amount` is the maximum `uint`, the allowance is not updated on
-     * `transferFrom`. This is semantically equivalent to an infinite approval. 
-     *
      * IMPORTANT: Beware that changing an allowance with this method brings the risk
      * that someone may use both the old and the new allowance by unfortunate
      * transaction ordering. One possible solution to mitigate this race
@@ -58,9 +55,6 @@ interface IERC20 {
      * @dev Moves `amount` tokens from `sender` to `recipient` using the
      * allowance mechanism. `amount` is then deducted from the caller's
      * allowance.
-     * 
-     * Note Does not update the allowance if the current allowance
-     * is the maximum `uint`.
      *
      * Returns a boolean value indicating whether the operation succeeded.
      *
