@@ -32,8 +32,15 @@ function runGovernorWorkflow () {
   beforeEach(async function () {
     this.receipts = {};
 
+    // distinguish depending on the proposal length
+    // - length 4: propose(address[], uint256[], bytes[], string) → GovernorCore
+    // - length 5: propose(address[], uint256[], string[], bytes[], string) → GovernorCompatibilityBravo
     this.useCompatibilityInterface = this.settings.proposal.length === 5;
+
+    // compute description hash
     this.descriptionHash = web3.utils.keccak256(this.settings.proposal.slice(-1).find(Boolean));
+
+    // condensed proposal, used for queue and execute operation
     this.settings.shortProposal = [
       // targets
       this.settings.proposal[0],
@@ -50,6 +57,7 @@ function runGovernorWorkflow () {
       this.descriptionHash,
     ];
 
+    // proposal id
     this.id = await this.mock.hashProposal(...this.settings.shortProposal);
   });
 
