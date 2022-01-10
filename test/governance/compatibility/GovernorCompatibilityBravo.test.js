@@ -1,4 +1,4 @@
-const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const Enums = require('../../helpers/enums');
 const RLP = require('rlp');
 
@@ -10,24 +10,6 @@ const Token = artifacts.require('ERC20VotesCompMock');
 const Timelock = artifacts.require('CompTimelock');
 const Governor = artifacts.require('GovernorCompatibilityBravoMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
-
-async function getReceiptOrRevert (promise, error = undefined) {
-  if (error) {
-    await expectRevert(promise, error);
-    return undefined;
-  } else {
-    const { receipt } = await promise;
-    return receipt;
-  }
-}
-
-function tryGet (obj, path = '') {
-  try {
-    return path.split('.').reduce((o, k) => o[k], obj);
-  } catch (_) {
-    return undefined;
-  }
-}
 
 function makeContractAddress (creator, nonce) {
   return web3.utils.toChecksumAddress(web3.utils.sha3(RLP.encode([creator, nonce])).slice(12).substring(14));
@@ -194,6 +176,67 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     runGovernorWorkflow();
   });
 
+  describe('with function selector and arguments', function () {
+    beforeEach(async function () {
+      this.settings = {
+        proposal: [
+          Array(4).fill(this.receiver.address),
+          Array(4).fill(web3.utils.toWei('0')),
+          [
+            '',
+            '',
+            'mockFunctionNonPayable()',
+            'mockFunctionWithArgs(uint256,uint256)',
+          ],
+          [
+            this.receiver.contract.methods.mockFunction().encodeABI(),
+            this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI(),
+            '0x',
+            web3.eth.abi.encodeParameters(['uint256', 'uint256'], [18, 43]),
+          ],
+          '<proposal description>', // description
+        ],
+        proposer,
+        tokenHolder: owner,
+        voters: [
+          {
+            voter: voter1,
+            weight: web3.utils.toWei('10'),
+            support: Enums.VoteType.For,
+          },
+        ],
+        steps: {
+          queue: { delay: 7 * 86400 },
+        },
+      };
+    });
+    runGovernorWorkflow();
+    afterEach(async function () {
+      await expectEvent.inTransaction(
+        this.receipts.execute.transactionHash,
+        this.receiver,
+        'MockFunctionCalled',
+      );
+      await expectEvent.inTransaction(
+        this.receipts.execute.transactionHash,
+        this.receiver,
+        'MockFunctionCalled',
+      );
+      await expectEvent.inTransaction(
+        this.receipts.execute.transactionHash,
+        this.receiver,
+        'MockFunctionCalledWithArgs',
+        { a: '17', b: '42' },
+      );
+      await expectEvent.inTransaction(
+        this.receipts.execute.transactionHash,
+        this.receiver,
+        'MockFunctionCalledWithArgs',
+        { a: '18', b: '43' },
+      );
+    });
+  });
+
   describe('proposalThreshold not reached', function () {
     beforeEach(async function () {
       this.settings = {
@@ -266,8 +309,8 @@ contract('GovernorCompatibilityBravo', function (accounts) {
         proposal: [
           [ this.receiver.address ], // targets
           [ web3.utils.toWei('0') ], // values
-          [ '' ], // signatures
-          [ this.receiver.contract.methods.mockFunction().encodeABI() ], // calldatas
+          [ 'mockFunction()' ], // signatures
+          [ '0x' ], // calldatas
           '<proposal description>', // description
         ],
         proposer,
@@ -351,8 +394,8 @@ contract('GovernorCompatibilityBravo', function (accounts) {
           proposer,
           targets: this.settings.proposal[0],
           // values: this.settings.proposal[1].map(value => new BN(value)),
-          signatures: this.settings.proposal[2],
-          calldatas: this.settings.proposal[3],
+          signatures: this.settings.proposal[2].map(_ => ''),
+          calldatas: this.settings.shortProposal[2],
           startBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay),
           endBlock: new BN(this.receipts.propose.blockNumber).add(this.votingDelay).add(this.votingPeriod),
           description: this.settings.proposal[4],
@@ -378,98 +421,6 @@ contract('GovernorCompatibilityBravo', function (accounts) {
         'MockFunctionCalled',
       );
     });
-
-    it('run', async function () {
-      // transfer tokens
-      if (tryGet(this.settings, 'voters')) {
-        for (const voter of this.settings.voters) {
-          if (voter.weight) {
-            await this.token.transfer(voter.voter, voter.weight, { from: this.settings.tokenHolder });
-          }
-        }
-      }
-
-      // propose
-      if (this.mock.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
-        this.receipts.propose = await getReceiptOrRevert(
-          this.mock.methods['propose(address[],uint256[],string[],bytes[],string)'](
-            ...this.settings.proposal,
-            { from: this.settings.proposer },
-          ),
-          tryGet(this.settings, 'steps.propose.error'),
-        );
-
-        if (tryGet(this.settings, 'steps.propose.error') === undefined) {
-          this.id = this.receipts.propose.logs.find(({ event }) => event === 'ProposalCreated').args.proposalId;
-          this.snapshot = await this.mock.proposalSnapshot(this.id);
-          this.deadline = await this.mock.proposalDeadline(this.id);
-        }
-
-        if (tryGet(this.settings, 'steps.propose.delay')) {
-          await time.increase(tryGet(this.settings, 'steps.propose.delay'));
-        }
-
-        if (
-          tryGet(this.settings, 'steps.propose.error') === undefined &&
-          tryGet(this.settings, 'steps.propose.noadvance') !== true
-        ) {
-          await time.advanceBlockTo(this.snapshot);
-        }
-      }
-
-      // vote
-      if (tryGet(this.settings, 'voters')) {
-        this.receipts.castVote = [];
-        for (const voter of this.settings.voters) {
-          if (!voter.signature) {
-            this.receipts.castVote.push(
-              await getReceiptOrRevert(
-                this.mock.castVote(this.id, voter.support, { from: voter.voter }),
-                voter.error,
-              ),
-            );
-          } else {
-            const { v, r, s } = await voter.signature({ proposalId: this.id, support: voter.support });
-            this.receipts.castVote.push(
-              await getReceiptOrRevert(
-                this.mock.castVoteBySig(this.id, voter.support, v, r, s),
-                voter.error,
-              ),
-            );
-          }
-          if (tryGet(voter, 'delay')) {
-            await time.increase(tryGet(voter, 'delay'));
-          }
-        }
-      }
-
-      // fast forward
-      if (tryGet(this.settings, 'steps.wait.enable') !== false) {
-        await time.advanceBlockTo(this.deadline);
-      }
-
-      // queue
-      if (this.mock.queue && tryGet(this.settings, 'steps.queue.enable') !== false) {
-        this.receipts.queue = await getReceiptOrRevert(
-          this.mock.methods['queue(uint256)'](this.id, { from: this.settings.queuer }),
-          tryGet(this.settings, 'steps.queue.error'),
-        );
-        this.eta = await this.mock.proposalEta(this.id);
-        if (tryGet(this.settings, 'steps.queue.delay')) {
-          await time.increase(tryGet(this.settings, 'steps.queue.delay'));
-        }
-      }
-
-      // execute
-      if (this.mock.execute && tryGet(this.settings, 'steps.execute.enable') !== false) {
-        this.receipts.execute = await getReceiptOrRevert(
-          this.mock.methods['execute(uint256)'](this.id, { from: this.settings.executer }),
-          tryGet(this.settings, 'steps.execute.error'),
-        );
-        if (tryGet(this.settings, 'steps.execute.delay')) {
-          await time.increase(tryGet(this.settings, 'steps.execute.delay'));
-        }
-      }
-    });
+    runGovernorWorkflow();
   });
 });
