@@ -6,9 +6,8 @@ const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
 const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock');
 const UUPSUpgradeableBrokenMock = artifacts.require('UUPSUpgradeableBrokenMock');
+const UUPSUpgradeableLegacyMock = artifacts.require('UUPSUpgradeableLegacyMock');
 const CountersImpl = artifacts.require('CountersImpl');
-
-const Legacy = [ 'UUPSLegacyV1' ].map(artifacts.require);
 
 contract('UUPSUpgradeable', function (accounts) {
   before(async function () {
@@ -48,13 +47,6 @@ contract('UUPSUpgradeable', function (accounts) {
     expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeUnsafe.address });
   });
 
-  it.skip('reject upgrade to broken upgradeable implementation (no longer supported)', async function () {
-    await expectRevert(
-      this.instance.upgradeTo(this.implUpgradeBroken.address),
-      'ERC1967Upgrade: upgrade breaks further upgrades',
-    );
-  });
-
   // delegate to a non existing upgradeTo function causes a low level revert
   it('reject upgrade to non uups implementation', async function () {
     await expectRevert.unspecified(
@@ -73,27 +65,23 @@ contract('UUPSUpgradeable', function (accounts) {
     );
   });
 
-  describe('compatibility with legacy version of UUPSUpgradeable', function () {
-    for (const artefact of Legacy) {
-      it(`can upgrade from ${artefact._json.contractName}`, async function () {
-        const legacyImpl = await artefact.new();
-        const legacyInstance = await ERC1967Proxy.new(legacyImpl.address, '0x')
-          .then(({ address }) => artefact.at(address));
+  it('can upgrade from legacy implementations', async function () {
+    const legacyImpl = await UUPSUpgradeableLegacyMock.new();
+    const legacyInstance = await ERC1967Proxy.new(legacyImpl.address, '0x')
+      .then(({ address }) => UUPSUpgradeableLegacyMock.at(address));
 
-        const receipt = await legacyInstance.upgradeTo(this.implInitial.address);
+    const receipt = await legacyInstance.upgradeTo(this.implInitial.address);
 
-        const UpgradedEvents = receipt.logs.filter(({ address, event }) =>
-          address === legacyInstance.address &&
-          event === 'Upgraded',
-        );
-        expect(UpgradedEvents.length).to.be.equal(1);
+    const UpgradedEvents = receipt.logs.filter(({ address, event }) =>
+      address === legacyInstance.address &&
+      event === 'Upgraded',
+    );
+    expect(UpgradedEvents.length).to.be.equal(1);
 
-        expectEvent(receipt, 'Upgraded', { implementation: this.implInitial.address });
+    expectEvent(receipt, 'Upgraded', { implementation: this.implInitial.address });
 
-        const implementationSlot = await getSlot(legacyInstance, ImplementationSlot);
-        const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
-        expect(implementationAddress).to.be.equal(this.implInitial.address);
-      });
-    };
+    const implementationSlot = await getSlot(legacyInstance, ImplementationSlot);
+    const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+    expect(implementationAddress).to.be.equal(this.implInitial.address);
   });
 });
