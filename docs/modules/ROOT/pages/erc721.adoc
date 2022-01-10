@@ -16,10 +16,11 @@ Here's what a contract for tokenized items might look like:
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract GameItem is ERC721URIStorage {
+contract GameItem is ERC721, ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -78,7 +79,9 @@ This `tokenURI` should resolve to a JSON document that might look something like
 
 For more information about the `tokenURI` metadata JSON Schema, check out the https://eips.ethereum.org/EIPS/eip-721[ERC721 specification].
 
-NOTE: you'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly). You could also leverage IPFS to store the tokenURI information, but these techniques are out of the scope of this overview guide.
+NOTE: You'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! 
+
+TIP: If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly) by providing a xref:utilities.adoc#base64[`Base64`] Data URI with the JSON schema encoded. You could also leverage IPFS to store the tokenURI information, but these techniques are out of the scope of this overview guide.
 
 [[Presets]]
 == Preset ERC721 contract

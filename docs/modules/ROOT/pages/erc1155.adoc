@@ -112,7 +112,9 @@ The JSON document for token ID 2 might look something like:
 
 For more information about the metadata JSON Schema, check out the https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1155.md#erc-1155-metadata-uri-json-schema[ERC-1155 Metadata URI JSON Schema].
 
-NOTE: you'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game!
+NOTE: You'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! 
+
+TIP: If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly) by providing a xref:utilities.adoc#base64[`Base64`] Data URI with the JSON schema encoded. You could also leverage IPFS to store the URI information, but these techniques are out of the scope of this overview guide
 
 [[sending-to-contracts]]
 == Sending Tokens to Contracts
