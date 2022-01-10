@@ -74,6 +74,9 @@ const INTERFACES = {
     'proposalEta(uint256)',
     'queue(address[],uint256[],bytes[],bytes32)',
   ],
+  ERC2981: [
+    'royaltyInfo(uint256,uint256)',
+  ],
 };
 
 const INTERFACE_IDS = {};
