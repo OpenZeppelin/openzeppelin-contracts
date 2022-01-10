@@ -17,7 +17,7 @@
 
 ### Breaking change
 
-Solidity pragma in `utils/Address.sol` is increased from `^0.8.0` to `^0.8.1`. This is required by the `account.code.length` syntax that replaces inline assembly. This may require users of this library to bump their compiler version from `0.8.0` to `0.8.1` or later. Note that other part of the code already include stricter requirements.
+Solidity pragma in `utils/Address.sol` is increased from `^0.8.0` to `^0.8.1`. This is required by the `account.code.length` syntax that replaces inline assembly. This may require users to bump their compiler version from `0.8.0` to `0.8.1` or later. Note that other partS of the code already include stricter requirements.
 
 ## 4.4.1 (2021-12-14)
 
