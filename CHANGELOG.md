@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ * `ERC2891`: add implementation of the royalty standard, and the respective extensions for `ERC721` and `ERC1155`. ([#3012](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3012))
  * `GovernorTimelockControl`: improve the `state()` function to have it reflect cases where a proposal has been canceled directly on the timelock. ([#2977](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2977))
  * `Math`: add a `abs(int256)` method that returns the unsigned absolute value of a signed value. ([#2984](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2984))
  * Preset contracts are now deprecated in favor of [Contracts Wizard](https://wizard.openzeppelin.com). ([#2986](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2986))
@@ -11,8 +12,8 @@
  * `Votes`: Added a base contract for vote tracking with delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
  * `ERC721Votes`: Added an extension of ERC721 enabled with vote tracking and delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
  * `ERC2771Context`: use immutable storage to store the forwarder address, no longer an issue since Solidity >=0.8.8 allows reading immutable variables in the constructor. ([#2917](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2917))
- * `Base64`: add a library to parse bytes into base64 strings using `encode(bytes memory)` function, and provide examples to show how to use to build URL-safe `tokenURIs` ([#2884](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2884))
- * `ERC20`: reduce allowance before triggering transfer.
+ * `Base64`: add a library to parse bytes into base64 strings using `encode(bytes memory)` function, and provide examples to show how to use to build URL-safe `tokenURIs`. ([#2884](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2884))
+ * `ERC20`: reduce allowance before triggering transfer. ([#3056](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3056))
  * Some more functions have been made virtual to customize them via overrides. In many cases this will not imply that other functions in the contract will automatically adapt to the overridden definitions. People who wish to override should consult the source code to understand the impact and if they need to override any additional functions to achieve the desired behavior.
 
 ## 4.4.1 (2021-12-14)
