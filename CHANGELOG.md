@@ -15,6 +15,10 @@
  * `Base64`: add a library to parse bytes into base64 strings using `encode(bytes memory)` function, and provide examples to show how to use to build URL-safe `tokenURIs`. ([#2884](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2884))
  * `ERC20`: reduce allowance before triggering transfer. ([#3056](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3056))
 
+### Breaking change
+
+Solidity pragma in `utils/Address.sol` is increased from `^0.8.0` to `^0.8.1`. This is required by the `account.code.length` syntax that replaces inline assembly. This may require users of this library to bump their compiler version from `0.8.0` to `0.8.1` or later. Note that other part of the code already include stricter requirements.
+
 ## 4.4.1 (2021-12-14)
 
  * `Initializable`: change the existing `initializer` modifier and add a new `onlyInitializing` modifier to prevent reentrancy risk. ([#3006](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3006))
