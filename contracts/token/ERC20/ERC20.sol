@@ -125,8 +125,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev See {IERC20-approve}.
      *
-     * Note If `amount` is the maximum `uint256`, the allowance is not updated.
-     * on `transferFrom`. This is semantically equivalent to an infinite approval.
+     * Note If `amount` is the maximum `uint256`, the allowance is not updated on
+     * `transferFrom`. This is semantically equivalent to an infinite approval.
      *
      * Requirements:
      *
