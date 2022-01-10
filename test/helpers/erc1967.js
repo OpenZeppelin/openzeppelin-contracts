@@ -20,5 +20,5 @@ module.exports = {
   ImplementationSlot: labelToSlot(ImplementationLabel),
   AdminSlot: labelToSlot(AdminLabel),
   BeaconSlot: labelToSlot(BeaconLabel),
-  getSlot
+  getSlot,
 };
