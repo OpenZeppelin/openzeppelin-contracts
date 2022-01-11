@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.4.2 (2022-01-11)
+
+### Bugfixes
+ * `GovernorCompatibilityBravo`: Fix error in the encoding of calldata for proposals submitted through the compatibility interface with explicit signatures. ([#3100](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3100))
+
 ## 4.4.1 (2021-12-14)
 
  * `Initializable`: change the existing `initializer` modifier and add a new `onlyInitializing` modifier to prevent reentrancy risk. ([#3006](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3006))

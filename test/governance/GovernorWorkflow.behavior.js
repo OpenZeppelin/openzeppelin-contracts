@@ -18,11 +18,47 @@ function tryGet (obj, path = '') {
   }
 }
 
+function zip (...args) {
+  return Array(Math.max(...args.map(array => array.length)))
+    .fill()
+    .map((_, i) => args.map(array => array[i]));
+}
+
+function concatHex (...args) {
+  return web3.utils.bytesToHex([].concat(...args.map(h => web3.utils.hexToBytes(h || '0x'))));
+}
+
 function runGovernorWorkflow () {
   beforeEach(async function () {
     this.receipts = {};
+
+    // distinguish depending on the proposal length
+    // - length 4: propose(address[], uint256[], bytes[], string) → GovernorCore
+    // - length 5: propose(address[], uint256[], string[], bytes[], string) → GovernorCompatibilityBravo
+    this.useCompatibilityInterface = this.settings.proposal.length === 5;
+
+    // compute description hash
     this.descriptionHash = web3.utils.keccak256(this.settings.proposal.slice(-1).find(Boolean));
-    this.id = await this.mock.hashProposal(...this.settings.proposal.slice(0, -1), this.descriptionHash);
+
+    // condensed proposal, used for queue and execute operation
+    this.settings.shortProposal = [
+      // targets
+      this.settings.proposal[0],
+      // values
+      this.settings.proposal[1],
+      // calldata (prefix selector if necessary)
+      this.useCompatibilityInterface
+        ? zip(
+          this.settings.proposal[2].map(selector => selector && web3.eth.abi.encodeFunctionSignature(selector)),
+          this.settings.proposal[3],
+        ).map(hexs => concatHex(...hexs))
+        : this.settings.proposal[2],
+      // descriptionHash
+      this.descriptionHash,
+    ];
+
+    // proposal id
+    this.id = await this.mock.hashProposal(...this.settings.shortProposal);
   });
 
   it('run', async function () {
@@ -38,7 +74,11 @@ function runGovernorWorkflow () {
     // propose
     if (this.mock.propose && tryGet(this.settings, 'steps.propose.enable') !== false) {
       this.receipts.propose = await getReceiptOrRevert(
-        this.mock.methods['propose(address[],uint256[],bytes[],string)'](
+        this.mock.methods[
+          this.useCompatibilityInterface
+            ? 'propose(address[],uint256[],string[],bytes[],string)'
+            : 'propose(address[],uint256[],bytes[],string)'
+        ](
           ...this.settings.proposal,
           { from: this.settings.proposer },
         ),
@@ -98,11 +138,15 @@ function runGovernorWorkflow () {
     // queue
     if (this.mock.queue && tryGet(this.settings, 'steps.queue.enable') !== false) {
       this.receipts.queue = await getReceiptOrRevert(
-        this.mock.methods['queue(address[],uint256[],bytes[],bytes32)'](
-          ...this.settings.proposal.slice(0, -1),
-          this.descriptionHash,
-          { from: this.settings.queuer },
-        ),
+        this.useCompatibilityInterface
+          ? this.mock.methods['queue(uint256)'](
+            this.id,
+            { from: this.settings.queuer },
+          )
+          : this.mock.methods['queue(address[],uint256[],bytes[],bytes32)'](
+            ...this.settings.shortProposal,
+            { from: this.settings.queuer },
+          ),
         tryGet(this.settings, 'steps.queue.error'),
       );
       this.eta = await this.mock.proposalEta(this.id);
@@ -114,11 +158,15 @@ function runGovernorWorkflow () {
     // execute
     if (this.mock.execute && tryGet(this.settings, 'steps.execute.enable') !== false) {
       this.receipts.execute = await getReceiptOrRevert(
-        this.mock.methods['execute(address[],uint256[],bytes[],bytes32)'](
-          ...this.settings.proposal.slice(0, -1),
-          this.descriptionHash,
-          { from: this.settings.executer },
-        ),
+        this.useCompatibilityInterface
+          ? this.mock.methods['execute(uint256)'](
+            this.id,
+            { from: this.settings.executer },
+          )
+          : this.mock.methods['execute(address[],uint256[],bytes[],bytes32)'](
+            ...this.settings.shortProposal,
+            { from: this.settings.executer },
+          ),
         tryGet(this.settings, 'steps.execute.error'),
       );
       if (tryGet(this.settings, 'steps.execute.delay')) {
