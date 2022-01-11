@@ -221,7 +221,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rental, IERC721Metadata {
         require(forAddress != owner, "ERC721: rental to current owner");
 
         _rentedOwners[tokenId] = owner;
-        _tranferKeepApprovals(owner, forAddress, tokenId);
+        _transferKeepApprovals(owner, forAddress, tokenId);
         agreement.afterRentalStarted(_msgSender(), tokenId);
     }
 
@@ -233,7 +233,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rental, IERC721Metadata {
         address renter = ERC721.ownerOf(tokenId);
 
         delete _rentedOwners[tokenId];
-        _tranferKeepApprovals(renter, owner, tokenId);
+        _transferKeepApprovals(renter, owner, tokenId);
         agreement.afterRentalStopped(_msgSender(), tokenId);
     }
 
@@ -419,7 +419,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rental, IERC721Metadata {
     }
 
     /// @dev same as `_transfer`, but does not erase the approvals.
-    function _tranferKeepApprovals(
+    function _transferKeepApprovals(
         address from,
         address to,
         uint256 tokenId
