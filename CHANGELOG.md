@@ -15,8 +15,10 @@
  * `Base64`: add a library to parse bytes into base64 strings using `encode(bytes memory)` function, and provide examples to show how to use to build URL-safe `tokenURIs`. ([#2884](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2884))
  * `ERC20`: reduce allowance before triggering transfer. ([#3056](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3056))
 
+## 4.4.2 (2022-01-11)
+
 ### Bugfixes
- * `GovernorCompatibilityBravo`: Fix error in the encoding of calldata for proposals submitted through the compatibility interface. Older versions incorrectly prefixed the calldata with the bytes length, leading to incorrect call executions. ([#3100](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3100))
+ * `GovernorCompatibilityBravo`: Fix error in the encoding of calldata for proposals submitted through the compatibility interface with explicit signatures. ([#3100](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3100))
 
 ## 4.4.1 (2021-12-14)
 
