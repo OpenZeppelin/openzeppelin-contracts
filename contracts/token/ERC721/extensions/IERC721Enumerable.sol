@@ -27,6 +27,8 @@ interface IERC721Enumerable is IERC721 {
      */
     function tokenByIndex(uint256 index) external view returns (uint256);
 
-
+    /**
+     * Returns an array with all the token Ids that an address owns
+     */
     function tokensByOwner(address owner) external view returns (uint256[] memory);
 }
