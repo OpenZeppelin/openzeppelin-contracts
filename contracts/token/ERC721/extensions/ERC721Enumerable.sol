@@ -55,6 +55,18 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     }
 
     /**
+     * @dev See {IERC721Enumerable-tokensByOwner}.
+     */
+    function tokensByOwner(address owner) public view virtual override returns (uint256[] memory) {
+        uint256 length = ERC721.balanceOf(owner);
+        uint256[] memory tokens = new uint256[](length);
+        for (uint256 i = 0; i < length; i++) {
+            tokens[i] = _ownedTokens[owner][i];
+        }
+        return tokens;
+    }
+
+    /**
      * @dev Hook that is called before any token transfer. This includes minting
      * and burning.
      *
