@@ -16,7 +16,7 @@
  * `ERC20`: reduce allowance before triggering transfer. ([#3056](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3056))
  * `ERC20`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`. ([#3085](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3085))
  * `ERC777`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`. ([#3085](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3085))
- * `SignedMath`: a new signed version of the Math library with `max`, `min`, `average`and `ceilDiv`. ([#2686](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2686))
+ * `SignedMath`: a new signed version of the Math library with `max`, `min`,  and `average`. ([#2686](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2686))
 
 ### Breaking change
 

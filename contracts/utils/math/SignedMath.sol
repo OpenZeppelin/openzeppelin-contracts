@@ -29,16 +29,4 @@ library SignedMath {
         int256 x = (a & b) + ((a ^ b) >> 1);
         return x + (int256(uint256(x) >> 255) & (a ^ b));
     }
-
-    /**
-     * @dev Returns the ceiling of the division of two signed numbers.
-     *
-     * This differs from standard division with `/` in that it rounds up instead
-     * of rounding down.
-     */
-    function ceilDiv(int256 a, int256 b) internal pure returns (int256) {
-        int256 z = a / b;
-        int256 r = a % b == 0 ? int256(0) : int256(1);
-        return z < 0 ? z - r : z + r;
-    }
 }

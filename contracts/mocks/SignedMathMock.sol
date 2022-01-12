@@ -16,8 +16,4 @@ contract SignedMathMock {
     function average(int256 a, int256 b) public pure returns (int256) {
         return SignedMath.average(a, b);
     }
-
-    function ceilDiv(int256 a, int256 b) public pure returns (int256) {
-        return SignedMath.ceilDiv(a, b);
-    }
 }
