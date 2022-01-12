@@ -21,6 +21,7 @@ const INTERFACES = {
     'totalSupply()',
     'tokenOfOwnerByIndex(address,uint256)',
     'tokenByIndex(uint256)',
+    'tokensByOwner(address)',
   ],
   ERC721Metadata: [
     'name()',
