@@ -19,6 +19,7 @@
  * `SignedMath`: a new signed version of the Math library with `max`, `min`,  and `average`. ([#2686](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2686))
  * `ERC1967Upgrade`: Refactor the secure upgrade to use `ERC1822` instead of the previous rollback mechanism. This reduces code complexity and attack surface with similar security guarantees. ([#3021](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3021))
  * `UUPSUpgradeable`: Add `ERC1822` compliance to support the updated secure upgrade mechanism. ([#3021](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3021))
+ * Some more functions have been made virtual to customize them via overrides. In many cases this will not imply that other functions in the contract will automatically adapt to the overridden definitions. People who wish to override should consult the source code to understand the impact and if they need to override any additional functions to achieve the desired behavior.
 
 ### Breaking changes
 
