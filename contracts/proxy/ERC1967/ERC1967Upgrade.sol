@@ -78,7 +78,7 @@ abstract contract ERC1967Upgrade {
      *
      * Emits an {Upgraded} event.
      */
-    function _upgradeToAndCallSecure(
+    function _upgradeToAndCallUUPS(
         address newImplementation,
         bytes memory data,
         bool forceCall
