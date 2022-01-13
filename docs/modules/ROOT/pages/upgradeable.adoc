@@ -1,0 +1,73 @@
+= Using with Upgrades
+
+If your contract is going to be deployed with upgradeability, such as using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins], you will need to use the Upgradeable variant of OpenZeppelin Contracts.
+
+This variant is available as a separate package called `@openzeppelin/contracts-upgradeable`, which is hosted in the repository https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable[OpenZeppelin/openzeppelin-contracts-upgradeable].
+
+It follows all of the rules for xref:upgrades-plugins::writing-upgradeable.adoc[Writing Upgradeable Contracts]: constructors are replaced by initializer functions, state variables are initialized in initializer functions, and we additionally check for storage incompatibilities across minor versions.
+
+TIP: OpenZeppelin provides a full suite of tools for deploying and securing upgradeable smart contracts. xref:openzeppelin::upgrades.adoc[Check out the full list of resources].
+
+== Overview
+
+=== Installation
+
+```console
+$ npm install @openzeppelin/contracts-upgradeable
+```
+
+=== Usage
+
+The package replicates the structure of the main OpenZeppelin Contracts package, but every file and contract has the suffix `Upgradeable`.
+
+```diff
+-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
++import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+ 
+-contract MyCollectible is ERC721 {
++contract MyCollectible is ERC721Upgradeable {
+```
+
+Constructors are replaced by internal initializer functions following the naming convention `+__{ContractName}_init+`. Since these are internal, you must always define your own public initializer function and call the parent initializer of the contract you extend.
+
+```diff
+-    constructor() ERC721("MyCollectible", "MCO") public {
++    function initialize() initializer public {
++        __ERC721_init("MyCollectible", "MCO");
+     }
+```
+
+CAUTION: Use with multiple inheritance requires special attention. See the section below titled <<multiple-inheritance>>.
+
+Once this contract is set up and compiled, you can deploy it using the xref:upgrades-plugins::index.adoc[Upgrades Plugins]. The following snippet shows an example deployment script using Hardhat.
+
+```js
+// scripts/deploy-my-collectible.js
+const { ethers, upgrades } = require("hardhat");
+
+async function main() {
+  const MyCollectible = await ethers.getContractFactory("MyCollectible");
+
+  const mc = await upgrades.deployProxy(MyCollectible);
+
+  await mc.deployed();
+  console.log("MyCollectible deployed to:", mc.address);
+}
+
+main();
+```
+
+== Further Notes
+
+[[multiple-inheritance]]
+=== Multiple Inheritance
+
+Initializer functions are not linearized by the compiler like constructors. Because of this, each `+__{ContractName}_init+` function embeds the linearized calls to all parent initializers. As a consequence, calling two of these `init` functions can potentially initialize the same contract twice.
+
+The function `+__{ContractName}_init_unchained+` found in every contract is the initializer function minus the calls to parent initializers, and can be used to avoid the double initialization problem, but doing this manually is not recommended. We hope to be able to implement safety checks for this in future versions of the Upgrades Plugins.
+
+=== Storage Gaps
+
+You may notice that every contract includes a state variable named `+__gap+`. This is empty reserved space in storage that is put in place in Upgradeable contracts. It allows us to freely add new state variables in the future without compromising the storage compatibility with existing deployments.
+
+It isn't safe to simply add a state variable because it "shifts down" all of the state variables below in the inheritance chain. This makes the storage layouts incompatible, as explained in xref:upgrades-plugins::writing-upgradeable.adoc#modifying-your-contracts[Writing Upgradeable Contracts]. The size of the `+__gap+` array is calculated so that the amount of storage used by a contract always adds up to the same number (in this case 50 storage slots).

@@ -1,0 +1,17 @@
+diff --git a/contracts/token/ERC20/extensions/ERC20VotesUpgradeable.sol b/contracts/token/ERC20/extensions/ERC20VotesUpgradeable.sol
+index a7a9af54..0b7f838d 100644
+--- a/contracts/token/ERC20/extensions/ERC20VotesUpgradeable.sol
++++ b/contracts/token/ERC20/extensions/ERC20VotesUpgradeable.sol
+@@ -24,12 +24,6 @@ import "../../../proxy/utils/Initializable.sol";
+  * _Available since v4.2._
+  */
+ abstract contract ERC20VotesUpgradeable is Initializable, IVotesUpgradeable, ERC20PermitUpgradeable {
+-    function __ERC20Votes_init() internal onlyInitializing {
+-        __Context_init_unchained();
+-        __EIP712_init_unchained(name, "1");
+-        __ERC20Votes_init_unchained();
+-    }
+-
+     function __ERC20Votes_init_unchained() internal onlyInitializing {
+     }
+     struct Checkpoint {

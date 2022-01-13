@@ -1,0 +1,36 @@
+name: Transpile
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [patched/*]
+
+concurrency:
+  group: transpile-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  transpile:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/heads/patched/')
+    steps:
+      - run: echo ::set-output name=name::"${GITHUB_REF#refs/heads/patched/}"
+        id: branch
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+      - uses: actions/cache@v2
+        id: cache
+        with:
+          path: '**/node_modules'
+          key: npm-v2-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: npm-v2-
+      - run: npm ci
+        if: steps.cache.outputs.cache-hit != 'true'
+      - run: bash scripts/upgradeable/git-user-config.sh
+      - run: bash scripts/upgradeable/transpile-onto.sh ${{ steps.branch.outputs.name }} origin/${{ steps.branch.outputs.name }}
+      - run: git push origin ${{ steps.branch.outputs.name }}

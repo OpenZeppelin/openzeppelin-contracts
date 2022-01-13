@@ -1,0 +1,131 @@
+= Extending Contracts
+
+Most of the OpenZeppelin Contracts are expected to be used via https://solidity.readthedocs.io/en/latest/contracts.html#inheritance[inheritance]: you will _inherit_ from them when writing your own contracts.
+
+This is the commonly found `is` syntax, like in `contract MyToken is ERC20`.
+
+[NOTE]
+====
+Unlike ``contract``s, Solidity ``library``s are not inherited from and instead rely on the https://solidity.readthedocs.io/en/latest/contracts.html#using-for[`using for`] syntax.
+
+OpenZeppelin Contracts has some ``library``s: most are in the xref:api:utils.adoc[Utils] directory.
+====
+
+== Overriding
+
+Inheritance is often used to add the parent contract's functionality to your own contract, but that's not all it can do. You can also _change_ how some parts of the parent behave using _overrides_.
+
+For example, imagine you want to change xref:api:access.adoc#AccessControl[`AccessControl`] so that xref:api:access.adoc#AccessControl-revokeRole-bytes32-address-[`revokeRole`] can no longer be called. This can be achieved using overrides:
+
+```solidity
+// contracts/ModifiedAccessControl.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract ModifiedAccessControl is AccessControl {
+    // Override the revokeRole function
+    function revokeRole(bytes32, address) public override {
+        revert("ModifiedAccessControl: cannot revoke roles");
+    }
+}
+```
+
+The old `revokeRole` is then replaced by our override, and any calls to it will immediately revert. We cannot _remove_ the function from the contract, but reverting on all calls is good enough.
+
+=== Calling `super`
+
+Sometimes you want to _extend_ a parent's behavior, instead of outright changing it to something else. This is where `super` comes in.
+
+The `super` keyword will let you call functions defined in a parent contract, even if they are overridden. This mechanism can be used to add additional checks to a function, emit events, or otherwise add functionality as you see fit.
+
+TIP: For more information on how overrides work, head over to the https://solidity.readthedocs.io/en/latest/contracts.html#index-17[official Solidity documentation].
+
+Here is a modified version of xref:api:access.adoc#AccessControl[`AccessControl`] where xref:api:access.adoc#AccessControl-revokeRole-bytes32-address-[`revokeRole`] cannot be used to revoke the `DEFAULT_ADMIN_ROLE`:
+
+
+```solidity
+// contracts/ModifiedAccessControl.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract ModifiedAccessControl is AccessControl {
+    function revokeRole(bytes32 role, address account) public override {
+        require(
+            role != DEFAULT_ADMIN_ROLE,
+            "ModifiedAccessControl: cannot revoke default admin role"
+        );
+
+        super.revokeRole(role, account);
+    }
+}
+```
+
+The `super.revokeRole` statement at the end will invoke ``AccessControl``'s original version of `revokeRole`, the same code that would've run if there were no overrides in place.
+
+NOTE: As of v3.0.0, `view` functions are not `virtual` in OpenZeppelin, and therefore cannot be overridden. We're considering https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2154[lifting this restriction] in an upcoming release. Let us know if this is something you care about!
+
+[[using-hooks]]
+== Using Hooks
+
+Sometimes, in order to extend a parent contract you will need to override multiple related functions, which leads to code duplication and increased likelihood of bugs.
+
+For example, consider implementing safe xref:api:token/ERC20.adoc#ERC20[`ERC20`] transfers in the style of xref:api:token/ERC721.adoc#IERC721Receiver[`IERC721Receiver`]. You may think overriding xref:api:token/ERC20.adoc#ERC20-transfer-address-uint256-[`transfer`] and xref:api:token/ERC20.adoc#ERC20-transferFrom-address-address-uint256-[`transferFrom`] would be enough, but what about  xref:api:token/ERC20.adoc#ERC20-_transfer-address-address-uint256-[`_transfer`] and xref:api:token/ERC20.adoc#ERC20-_mint-address-uint256-[`_mint`]? To prevent you from having to deal with these details, we introduced **hooks**.
+
+Hooks are simply functions that are called before or after some action takes place. They provide a centralized point to _hook into_ and extend the original behavior.
+
+Here's how you would implement the `IERC721Receiver` pattern in `ERC20`, using the xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`_beforeTokenTransfer`] hook:
+
+```solidity
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+contract ERC20WithSafeTransfer is ERC20 {
+    function _beforeTokenTransfer(address from, address to, uint256 amount)
+        internal virtual override
+    {
+        super._beforeTokenTransfer(from, to, amount);
+
+        require(_validRecipient(to), "ERC20WithSafeTransfer: invalid recipient");
+    }
+
+    function _validRecipient(address to) private view returns (bool) {
+        ...
+    }
+    
+    ...
+}
+```
+
+Using hooks this way leads to cleaner and safer code, without having to rely on a deep understanding of the parent's internals.
+
+[NOTE]
+====
+Hooks are a new feature of OpenZeppelin Contracts v3.0.0, and we're eager to learn how you plan to use them!
+
+So far, the only available hook is `_beforeTransferHook`, in all of xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`ERC20`], xref:api:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-[`ERC721`], xref:api:token/ERC777.adoc#ERC777-_beforeTokenTransfer-address-address-address-uint256-[`ERC777`] and xref:api:token/ERC1155.adoc#ERC1155-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-[`ERC1155`]. If you have ideas for new hooks, let us know!
+====
+
+=== Rules of Hooks
+
+There's a few guidelines you should follow when writing code that uses hooks in order to prevent issues. They are very simple, but do make sure you follow them:
+
+1. Whenever you override a parent's hook, re-apply the `virtual` attribute to the hook. That will allow child contracts to add more functionality to the hook.
+2. **Always** call the parent's hook in your override using `super`. This will make sure all hooks in the inheritance tree are called: contracts like xref:api:token/ERC20.adoc#ERC20Pausable[`ERC20Pausable`] rely on this behavior.
+
+```solidity
+contract MyToken is ERC20 {
+    function _beforeTokenTransfer(address from, address to, uint256 amount)
+        internal virtual override // Add virtual here!
+    {
+        super._beforeTokenTransfer(from, to, amount); // Call parent hook
+        ...
+    }
+}
+```
+That's it! Enjoy simpler code using hooks!
+

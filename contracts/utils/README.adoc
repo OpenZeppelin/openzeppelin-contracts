@@ -1,0 +1,109 @@
+= Utilities
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils
+
+Miscellaneous contracts and libraries containing utility functions you can use to improve security, work with new data types, or safely use low-level primitives.
+
+The {Address}, {Arrays}, {Base64} and {Strings} libraries provide more operations related to these native data types, while {SafeCast} adds ways to safely convert between the different signed and unsigned numeric types.
+{Multicall} provides a function to batch together multiple calls in a single external call.
+
+For new data types:
+
+ * {Counters}: a simple way to get a counter that can only be incremented, decremented or reset. Very useful for ID generation, counting contract activity, among others.
+ * {EnumerableMap}: like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`] type, but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
+ * {EnumerableSet}: like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
+
+[NOTE]
+====
+Because Solidity does not support generic types, {EnumerableMap} and {EnumerableSet} are specialized to a limited number of key-value types.
+
+As of v3.0, {EnumerableMap} supports `uint256 -> address` (`UintToAddressMap`), and {EnumerableSet} supports `address` and `uint256` (`AddressSet` and `UintSet`).
+====
+
+Finally, {Create2} contains all necessary utilities to safely use the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode], without having to deal with low-level assembly.
+
+== Math
+
+{{Math}}
+
+{{SignedMath}}
+
+{{SafeCast}}
+
+{{SafeMath}}
+
+{{SignedSafeMath}}
+
+== Cryptography
+
+{{ECDSA}}
+
+{{SignatureChecker}}
+
+{{MerkleProof}}
+
+{{EIP712}}
+
+== Escrow
+
+{{ConditionalEscrow}}
+
+{{Escrow}}
+
+{{RefundEscrow}}
+
+== Introspection
+
+This set of interfaces and contracts deal with https://en.wikipedia.org/wiki/Type_introspection[type introspection] of contracts, that is, examining which functions can be called on them. This is usually referred to as a contract's _interface_.
+
+Ethereum contracts have no native concept of an interface, so applications must usually simply trust they are not making an incorrect call. For trusted setups this is a non-issue, but often unknown and untrusted third-party addresses need to be interacted with. There may even not be any direct calls to them! (e.g. `ERC20` tokens may be sent to a contract that lacks a way to transfer them out of it, locking them forever). In these cases, a contract _declaring_ its interface can be very helpful in preventing errors.
+
+There are two main ways to approach this.
+
+* Locally, where a contract implements `IERC165` and declares an interface, and a second one queries it directly via `ERC165Checker`.
+* Globally, where a global and unique registry (`IERC1820Registry`) is used to register implementers of a certain interface (`IERC1820Implementer`). It is then the registry that is queried, which allows for more complex setups, like contracts implementing interfaces for externally-owned accounts.
+
+Note that, in all cases, accounts simply _declare_ their interfaces, but they are not required to actually implement them. This mechanism can therefore be used to both prevent errors and allow for complex interactions (see `ERC777`), but it must not be relied on for security.
+
+{{IERC165}}
+
+{{ERC165}}
+
+{{ERC165Storage}}
+
+{{ERC165Checker}}
+
+{{IERC1820Registry}}
+
+{{IERC1820Implementer}}
+
+{{ERC1820Implementer}}
+
+== Data Structures
+
+{{BitMaps}}
+
+{{EnumerableMap}}
+
+{{EnumerableSet}}
+
+{{Checkpoints}}
+
+== Libraries
+
+{{Create2}}
+
+{{Address}}
+
+{{Arrays}}
+
+{{Base64}}
+
+{{Counters}}
+
+{{Strings}}
+
+{{StorageSlot}}
+
+{{Multicall}}

@@ -1,0 +1,28 @@
+name: Merge upstream
+
+on:
+  push:
+    branches: [patches]
+  workflow_dispatch: {}
+  repository_dispatch:
+    types: [Update]
+    # client_payload: { ref: string }
+
+concurrency:
+  group: merge-${{ github.event.client_payload.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: patches
+          fetch-depth: 0
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+      - run: bash scripts/upgradeable/git-user-config.sh
+      - run: bash scripts/upgradeable/merge-upstream.sh
+        env:
+          REF: ${{ github.event.client_payload.ref || github.ref}}
+      - run: git push origin HEAD
