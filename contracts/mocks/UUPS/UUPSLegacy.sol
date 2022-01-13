@@ -10,6 +10,8 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
     // Inlined from ERC1967Upgrade
     bytes32 private constant _ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
 
+    // ERC1967Upgrade._setImplementation is private so we reproduce it here.
+    // An extra underscore prevents a name clash error.
     function __setImplementation(address newImplementation) private {
         require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
