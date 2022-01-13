@@ -10,8 +10,11 @@ pragma solidity ^0.8.0;
 interface IERC1822Proxiable {
     /**
      * @dev Returns the storage slot that the proxiable contract assumes is being used to store the implementation
-     * address. Must revert if invoked through delegatecall, i.e. through a proxy, otherwise risks bricking a contract
-     * that upgrades to it.
+     * address.
+     *
+     * IMPORTANT: A proxy pointing at a proxiable contract should not be considered proxiable itself, because this risks
+     * bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
+     * function revert if invoked through a proxy.
      */
     function proxiableUUID() external view returns (bytes32);
 }
