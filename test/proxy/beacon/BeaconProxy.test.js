@@ -1,6 +1,5 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
-const ethereumjsUtil = require('ethereumjs-util');
-const { keccak256 } = ethereumjsUtil;
+const { expectRevert } = require('@openzeppelin/test-helpers');
+const { getSlot, BeaconSlot } = require('../../helpers/erc1967');
 
 const { expect } = require('chai');
 
@@ -10,13 +9,6 @@ const DummyImplementation = artifacts.require('DummyImplementation');
 const DummyImplementationV2 = artifacts.require('DummyImplementationV2');
 const BadBeaconNoImpl = artifacts.require('BadBeaconNoImpl');
 const BadBeaconNotContract = artifacts.require('BadBeaconNotContract');
-
-function toChecksumAddress (address) {
-  return ethereumjsUtil.toChecksumAddress('0x' + address.replace(/^0x/, '').padStart(40, '0').substr(-40));
-}
-
-const BEACON_LABEL = 'eip1967.proxy.beacon';
-const BEACON_SLOT = '0x' + new BN(keccak256(Buffer.from(BEACON_LABEL))).subn(1).toString(16);
 
 contract('BeaconProxy', function (accounts) {
   const [anotherAccount] = accounts;
@@ -53,7 +45,8 @@ contract('BeaconProxy', function (accounts) {
   describe('initialization', function () {
     before(function () {
       this.assertInitialized = async ({ value, balance }) => {
-        const beaconAddress = toChecksumAddress(await web3.eth.getStorageAt(this.proxy.address, BEACON_SLOT));
+        const beaconSlot = await getSlot(this.proxy, BeaconSlot);
+        const beaconAddress = web3.utils.toChecksumAddress(beaconSlot.substr(-40));
         expect(beaconAddress).to.equal(this.beacon.address);
 
         const dummy = new DummyImplementation(this.proxy.address);
