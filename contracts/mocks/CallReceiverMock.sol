@@ -6,11 +6,18 @@ contract CallReceiverMock {
     string public sharedAnswer;
 
     event MockFunctionCalled();
+    event MockFunctionCalledWithArgs(uint256 a, uint256 b);
 
     uint256[] private _array;
 
     function mockFunction() public payable returns (string memory) {
         emit MockFunctionCalled();
+
+        return "0x1234";
+    }
+
+    function mockFunctionWithArgs(uint256 a, uint256 b) public payable returns (string memory) {
+        emit MockFunctionCalledWithArgs(a, b);
 
         return "0x1234";
     }
