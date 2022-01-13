@@ -47,8 +47,9 @@ contract('UUPSUpgradeable', function (accounts) {
 
   // delegate to a non existing upgradeTo function causes a low level revert
   it('reject upgrade to non uups implementation', async function () {
-    await expectRevert.unspecified(
+    await expectRevert(
       this.instance.upgradeTo(this.implUpgradeNonUUPS.address),
+      'ERC1967Upgrade: new implementation is not UUPS',
     );
   });
 
@@ -56,10 +57,9 @@ contract('UUPSUpgradeable', function (accounts) {
     const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
     const otherInstance = await UUPSUpgradeableMock.at(address);
 
-    // infinite loop reverts when a nested call is out-of-gas
     await expectRevert(
       this.instance.upgradeTo(otherInstance.address),
-      'UUPSUpgradeable: must not be called through delegatecall',
+      'ERC1967Upgrade: new implementation is not UUPS',
     );
   });
 

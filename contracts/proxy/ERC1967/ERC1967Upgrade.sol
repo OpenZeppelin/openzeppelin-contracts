@@ -89,10 +89,11 @@ abstract contract ERC1967Upgrade {
         if (StorageSlot.getBooleanSlot(_ROLLBACK_SLOT).value) {
             _setImplementation(newImplementation);
         } else {
-            require(
-                IERC1822Proxiable(newImplementation).proxiableUUID() == _IMPLEMENTATION_SLOT,
-                "Invalid proxiableUUID value"
-            );
+            try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
+                require(slot == _IMPLEMENTATION_SLOT, "ERC1967Upgrade: unsupported proxiableUUID");
+            } catch {
+                revert("ERC1967Upgrade: new implementation is not UUPS");
+            }
             _upgradeToAndCall(newImplementation, data, forceCall);
         }
     }
