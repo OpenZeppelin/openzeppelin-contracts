@@ -5,7 +5,6 @@ const { getSlot, ImplementationSlot } = require('../../helpers/erc1967');
 const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
 const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock');
-const UUPSUpgradeableBrokenMock = artifacts.require('UUPSUpgradeableBrokenMock');
 const UUPSUpgradeableLegacyMock = artifacts.require('UUPSUpgradeableLegacyMock');
 const CountersImpl = artifacts.require('CountersImpl');
 
@@ -14,7 +13,6 @@ contract('UUPSUpgradeable', function (accounts) {
     this.implInitial = await UUPSUpgradeableMock.new();
     this.implUpgradeOk = await UUPSUpgradeableMock.new();
     this.implUpgradeUnsafe = await UUPSUpgradeableUnsafeMock.new();
-    this.implUpgradeBroken = await UUPSUpgradeableBrokenMock.new();
     this.implUpgradeNonUUPS = await CountersImpl.new();
   });
 
