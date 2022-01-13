@@ -19,13 +19,3 @@ contract UUPSUpgradeableUnsafeMock is UUPSUpgradeableMock {
         ERC1967Upgrade._upgradeToAndCall(newImplementation, data, false);
     }
 }
-
-contract UUPSUpgradeableBrokenMock is UUPSUpgradeableMock {
-    function upgradeTo(address) external virtual override {
-        // pass
-    }
-
-    function upgradeToAndCall(address, bytes memory) external payable virtual override {
-        // pass
-    }
-}

@@ -17,10 +17,13 @@
  * `ERC20`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`. ([#3085](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3085))
  * `ERC777`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`. ([#3085](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3085))
  * `SignedMath`: a new signed version of the Math library with `max`, `min`,  and `average`. ([#2686](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2686))
+ * `ERC1967Upgrade`: Refactor the secure upgrade to use `ERC1822` instead of the previous rollback mechanism. This reduces code complexity and attack surface with similar security guarantees. ([#3021](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3021))
+ * `UUPSUpgradeable`: Add `ERC1822` compliance to support the updated secure upgrade mechanism. ([#3021](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3021))
 
-### Breaking change
+### Breaking changes
 
-Solidity pragma in `utils/Address.sol` is increased from `^0.8.0` to `^0.8.1`. This is required by the `account.code.length` syntax that replaces inline assembly. This may require users to bump their compiler version from `0.8.0` to `0.8.1` or later. Note that other parts of the code already include stricter requirements.
+* `ERC1967Upgrade`: The function `_upgradeToAndCallSecure` was renamed to `_upgradeToAndCallUUPS`, along with the change in security mechanism described above.
+* `Address`: The Solidity pragma is increased from `^0.8.0` to `^0.8.1`. This is required by the `account.code.length` syntax that replaces inline assembly. This may require users to bump their compiler version from `0.8.0` to `0.8.1` or later. Note that other parts of the code already include stricter requirements.
 
 ## 4.4.2 (2022-01-11)
 
