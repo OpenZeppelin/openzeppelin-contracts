@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (governance/compatibility/GovernorCompatibilityBravo.sol)
+// OpenZeppelin Contracts (last updated v4.5.0-rc.0) (governance/compatibility/GovernorCompatibilityBravo.sol)
 
 pragma solidity ^0.8.0;
 

@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 4.5.0
 
  * `ERC2891`: add implementation of the royalty standard, and the respective extensions for `ERC721` and `ERC1155`. ([#3012](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3012))
  * `GovernorTimelockControl`: improve the `state()` function to have it reflect cases where a proposal has been canceled directly on the timelock. ([#2977](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2977))
