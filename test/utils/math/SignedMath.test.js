@@ -74,4 +74,20 @@ contract('SignedMath', function (accounts) {
       }
     });
   });
+
+  describe('abs', function () {
+    for (const n of [
+      MIN_INT256,
+      MIN_INT256.addn(1),
+      new BN('-1'),
+      new BN('0'),
+      new BN('1'),
+      MAX_INT256.subn(1),
+      MAX_INT256,
+    ]) {
+      it(`correctly computes the absolute value of ${n}`, async function () {
+        expect(await this.math.abs(n)).to.be.bignumber.equal(n.abs());
+      });
+    }
+  });
 });
