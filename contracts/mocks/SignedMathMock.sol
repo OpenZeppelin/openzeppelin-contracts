@@ -16,4 +16,8 @@ contract SignedMathMock {
     function average(int256 a, int256 b) public pure returns (int256) {
         return SignedMath.average(a, b);
     }
+
+    function abs(int256 n) public pure returns (uint256) {
+        return SignedMath.abs(n);
+    }
 }
