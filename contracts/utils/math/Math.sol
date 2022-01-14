@@ -40,14 +40,4 @@ library Math {
         // (a + b - 1) / b can overflow on addition, so we distribute.
         return a / b + (a % b == 0 ? 0 : 1);
     }
-
-    /**
-     * @dev Returns the absolute unsigned value of a signed value.
-     */
-    function abs(int256 n) internal pure returns (uint256) {
-        unchecked {
-            // must be unchecked in order to support `n = type(int256).min`
-            return uint256(n >= 0 ? n : -n);
-        }
-    }
 }
