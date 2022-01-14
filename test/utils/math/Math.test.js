@@ -1,6 +1,6 @@
 const { BN, constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { MAX_UINT256, MAX_INT256, MIN_INT256 } = constants;
+const { MAX_UINT256 } = constants;
 
 const MathMock = artifacts.require('MathMock');
 
