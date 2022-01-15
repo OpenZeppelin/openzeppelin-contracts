@@ -42,7 +42,7 @@ contract('MulticallToken', function (accounts) {
       this.multicallToken.contract.methods.transfer(bob, amount).encodeABI(),
     ], { from: deployer });
 
-    await expectRevert(call, 'ERC20: transfer amount exceeds balance');
+    await expectRevert(call, 'ERC20: amount exceeds balance');
     expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
   });
 
@@ -52,6 +52,6 @@ contract('MulticallToken', function (accounts) {
       this.multicallToken.contract.methods.transfer(bob, amount).encodeABI(),
     ], { from: deployer });
 
-    await expectRevert(call, 'ERC20: transfer amount exceeds balance');
+    await expectRevert(call, 'ERC20: amount exceeds balance');
   });
 });

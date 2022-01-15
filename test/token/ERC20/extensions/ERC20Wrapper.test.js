@@ -67,7 +67,7 @@ contract('ERC20', function (accounts) {
       await this.underlying.approve(this.token.address, MAX_UINT256, { from: initialHolder });
       await expectRevert(
         this.token.depositFor(initialHolder, MAX_UINT256, { from: initialHolder }),
-        'ERC20: transfer amount exceeds balance',
+        'ERC20: amount exceeds balance',
       );
     });
 
@@ -96,7 +96,7 @@ contract('ERC20', function (accounts) {
     it('missing balance', async function () {
       await expectRevert(
         this.token.withdrawTo(initialHolder, MAX_UINT256, { from: initialHolder }),
-        'ERC20: burn amount exceeds balance',
+        'ERC20: amount exceeds balance',
       );
     });
 

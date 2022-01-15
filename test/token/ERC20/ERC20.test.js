@@ -1,5 +1,6 @@
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+const { Contract } = require('hardhat/internal/hardhat-network/stack-traces/model');
 const { ZERO_ADDRESS } = constants;
 
 const {
@@ -242,7 +243,7 @@ contract('ERC20', function (accounts) {
     describe('for a non zero account', function () {
       it('rejects burning more than balance', async function () {
         await expectRevert(this.token.burn(
-          initialHolder, initialSupply.addn(1)), 'ERC20: burn amount exceeds balance',
+          initialHolder, initialSupply.addn(1)), 'ERC20: amount exceeds balance',
         );
       });
 

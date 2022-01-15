@@ -212,6 +212,38 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return true;
     }
 
+    function _arbitraryTransfer(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) internal virtual {
+        _beforeTokenTransfer(sender, recipient, amount);
+
+        if (sender != address(0)) {
+            uint256 senderBalance = _balances[sender];
+            require(senderBalance >= amount, "ERC20: amount exceeds balance");
+            unchecked {
+                _balances[sender] = senderBalance - amount;
+            }
+
+            if (recipient == address(0)) {
+                _totalSupply -= amount;
+            }
+        }
+
+        if (recipient != address(0)) {
+            _balances[recipient] += amount;
+
+            if (sender == address(0)) {
+                _totalSupply += amount;
+            }
+        }
+
+        emit Transfer(sender, recipient, amount);
+
+        _afterTokenTransfer(sender, recipient, amount);
+    }
+
     /**
      * @dev Moves `amount` of tokens from `sender` to `recipient`.
      *
@@ -231,23 +263,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         address recipient,
         uint256 amount
     ) internal virtual {
-        _beforeTokenTransfer(sender, recipient, amount);
+        require(sender != address(0), "ERC20: transfer from the zero address");
+        require(recipient != address(0), "ERC20: transfer to the zero address");
 
-        if (sender != address(0)) {
-            uint256 senderBalance = _balances[sender];
-            require(senderBalance >= amount, "ERC20: amount exceeds balance");
-            unchecked {
-                _balances[sender] = senderBalance - amount;
-            }
-        }
-
-        if (recipient != address(0)) {
-            _balances[recipient] += amount;
-        }
-
-        emit Transfer(sender, recipient, amount);
-
-        _afterTokenTransfer(sender, recipient, amount);
+        _arbitraryTransfer(sender, recipient, amount);
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
@@ -262,8 +281,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function _mint(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: mint to the zero address");
 
-        _totalSupply += amount;
-        _transfer(address(0), account, amount);
+        _arbitraryTransfer(address(0), account, amount);
     }
 
     /**
@@ -280,8 +298,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function _burn(address account, uint256 amount) internal virtual {
         require(account != address(0), "ERC20: burn from the zero address");
 
-        _totalSupply -= amount;
-        _transfer(account, address(0), amount);
+        _arbitraryTransfer(account, address(0), amount);
     }
 
     /**

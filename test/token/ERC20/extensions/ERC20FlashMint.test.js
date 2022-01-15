@@ -76,7 +76,7 @@ contract('ERC20FlashMint', function (accounts) {
       const data = this.token.contract.methods.transfer(other, 10).encodeABI();
       await expectRevert(
         this.token.flashLoan(receiver.address, this.token.address, loanAmount, data),
-        'ERC20: burn amount exceeds balance',
+        'ERC20: amount exceeds balance',
       );
     });
 
