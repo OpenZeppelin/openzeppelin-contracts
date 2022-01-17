@@ -1,6 +1,10 @@
-const { BN, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { web3 } = require('@openzeppelin/test-helpers/src/setup');
 const Enums = require('../../helpers/enums');
+const ethSigUtil = require('eth-sig-util');
+const Wallet = require('ethereumjs-wallet').default;
+const { EIP712Domain } = require('../../helpers/eip712');
+const { fromRpcSig } = require('ethereumjs-util');
 
 const { runGovernorWorkflow } = require('../GovernorWorkflow.behavior');
 
@@ -12,6 +16,7 @@ contract('GovernorWithParams', function (accounts) {
   const [owner, proposer, voter1, voter2, voter3, voter4] = accounts;
 
   const name = 'OZ-Governor';
+  const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
@@ -104,7 +109,7 @@ contract('GovernorWithParams', function (accounts) {
   });
 
   describe('Voting with params is properly supported', function () {
-      const voter2Weight = web3.utils.toWei('1.0');
+    const voter2Weight = web3.utils.toWei('1.0');
     beforeEach(async function () {
       this.settings = {
         proposal: [
@@ -117,8 +122,7 @@ contract('GovernorWithParams', function (accounts) {
         tokenHolder: owner,
         voters: [
           { voter: voter1, weight: web3.utils.toWei('0.2'), support: Enums.VoteType.Against },
-          { voter: voter2, weight: voter2Weight }, // do not actually vote, only getting tokens
-          { voter: voter3, weight: web3.utils.toWei('0.9') }, // do not actually vote, only getting tokens
+          { voter: voter2, weight: voter2Weight }, // do not actually vote, only getting tokenss
         ],
         steps: {
           wait: { enable: false },
@@ -132,14 +136,97 @@ contract('GovernorWithParams', function (accounts) {
 
       const uintParam = new BN(1);
       const strParam = 'These are my params';
-      const reducedWeight =  (new BN(voter2Weight)).sub(uintParam);
+      const reducedWeight = new BN(voter2Weight).sub(uintParam);
       const params = web3.eth.abi.encodeParameters(['uint256', 'string'], [uintParam, strParam]);
       const tx = await this.mock.castVoteWithReasonAndParams(this.id, Enums.VoteType.For, '', params, { from: voter2 });
 
       expectEvent(tx, 'CountParams', { uintParam, strParam });
-      expectEvent(tx, 'VoteCast', {voter: voter2, weight: reducedWeight});
+      expectEvent(tx, 'VoteCast', { voter: voter2, weight: reducedWeight });
+    });
+    runGovernorWorkflow();
+  });
 
-      // TODO: Cast vote with voter3 using params & signature; confirm events exist in tx receipt
+  describe('Voting with params by signature is propoerly supported', function () {
+    const voterBySig = Wallet.generate(); // generate voter by signature wallet
+    const sigVoterWeight = web3.utils.toWei('1.0');
+
+    beforeEach(async function () {
+      this.chainId = await web3.eth.getChainId();
+      this.voter = web3.utils.toChecksumAddress(voterBySig.getAddressString());
+
+      // use delegateBySig to enable vote delegation sig voting wallet
+      const { v, r, s } = fromRpcSig(
+        ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), {
+          data: {
+            types: {
+              EIP712Domain,
+              Delegation: [
+                { name: 'delegatee', type: 'address' },
+                { name: 'nonce', type: 'uint256' },
+                { name: 'expiry', type: 'uint256' },
+              ],
+            },
+            domain: { name: tokenName, version: '1', chainId: this.chainId, verifyingContract: this.token.address },
+            primaryType: 'Delegation',
+            message: { delegatee: this.voter, nonce: 0, expiry: constants.MAX_UINT256 },
+          },
+        }),
+      );
+      await this.token.delegateBySig(this.voter, 0, constants.MAX_UINT256, v, r, s);
+
+      this.settings = {
+        proposal: [
+          [this.receiver.address],
+          [0],
+          [this.receiver.contract.methods.mockFunction().encodeABI()],
+          '<proposal description>',
+        ],
+        proposer,
+        tokenHolder: owner,
+        voters: [
+          { voter: voter1, weight: web3.utils.toWei('0.2'), support: Enums.VoteType.Against },
+          { voter: this.voter, weight: sigVoterWeight }, // do not actually vote, only getting tokens
+        ],
+        steps: {
+          wait: { enable: false },
+          execute: { enable: false },
+        },
+      };
+    });
+
+    afterEach(async function () {
+      expect(await this.mock.state(this.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
+
+      const reason = 'This is my reason';
+      const uintParam = new BN(1);
+      const strParam = 'These are my params';
+      const reducedWeight = new BN(sigVoterWeight).sub(uintParam);
+      const params = web3.eth.abi.encodeParameters(['uint256', 'string'], [uintParam, strParam]);
+
+      // prepare signature for vote by signature
+      const { v, r, s } = fromRpcSig(
+        ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), {
+          data: {
+            types: {
+              EIP712Domain,
+              ExtendedBallot: [
+                { name: 'proposalId', type: 'uint256' },
+                { name: 'support', type: 'uint8' },
+                { name: 'reason', type: 'string' },
+                { name: 'params', type: 'bytes' },
+              ],
+            },
+            domain: { name, version, chainId: this.chainId, verifyingContract: this.mock.address },
+            primaryType: 'ExtendedBallot',
+            message: { proposalId: this.id, support: Enums.VoteType.For, reason, params },
+          },
+        }),
+      );
+
+      const tx = await this.mock.castVoteWithReasonAndParamsBySig(this.id, Enums.VoteType.For, reason, params, v, r, s);
+
+      expectEvent(tx, 'CountParams', { uintParam, strParam });
+      expectEvent(tx, 'VoteCast', { voter: this.voter, weight: reducedWeight });
     });
     runGovernorWorkflow();
   });

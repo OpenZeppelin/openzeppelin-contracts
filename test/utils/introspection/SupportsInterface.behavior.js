@@ -88,6 +88,7 @@ const INTERFACES = {
     'castVoteWithReason(uint256,uint8,string)',
     'castVoteWithReasonAndParams(uint256,uint8,string,bytes)',
     'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
+    'castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)',
   ],
   GovernorTimelock: [
     'timelock()',

@@ -216,13 +216,28 @@ abstract contract IGovernor is IERC165 {
     ) public virtual returns (uint256 balance);
 
     /**
-     * @dev Cast a vote using the user cryptographic signature.
+     * @dev Cast a vote using the user's cryptographic signature.
      *
      * Emits a {VoteCast} event.
      */
     function castVoteBySig(
         uint256 proposalId,
         uint8 support,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual returns (uint256 balance);
+
+    /**
+     * @dev Cast a vote with a reason and additional encoded parameters using the user's cryptographic signature.
+     *
+     * Emits a {VoteCast} event.
+     */
+    function castVoteWithReasonAndParamsBySig(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason,
+        bytes memory params,
         uint8 v,
         bytes32 r,
         bytes32 s

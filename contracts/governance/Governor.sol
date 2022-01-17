@@ -30,6 +30,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     using Timers for Timers.BlockNumber;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
+    bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
+        keccak256("ExtendedBallot(uint256 proposalId,uint8 support,string reason,bytes params)");
 
     struct ProposalCore {
         Timers.BlockNumber voteStart;
@@ -89,7 +91,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         // In addition to the current interfaceId, also support previous version of the interfaceId that did not
         // include the castVoteWithReasonAndParams() function as standard
         return
-            interfaceId == (type(IGovernor).interfaceId ^ this.castVoteWithReasonAndParams.selector) ||
+            interfaceId ==
+            (type(IGovernor).interfaceId ^
+                this.castVoteWithReasonAndParams.selector ^
+                this.castVoteWithReasonAndParamsBySig.selector) ||
             interfaceId == type(IGovernor).interfaceId ||
             super.supportsInterface(interfaceId);
     }
@@ -436,6 +441,38 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
             s
         );
         return _castVote(proposalId, voter, support, "", _defaultParams());
+    }
+
+    /**
+     * @dev See {IGovernor-castVoteWithReasonAndParamsBySig}.
+     */
+    function castVoteWithReasonAndParamsBySig(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason,
+        bytes memory params,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual override returns (uint256) {
+        address voter = ECDSA.recover(
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        EXTENDED_BALLOT_TYPEHASH,
+                        proposalId,
+                        support,
+                        keccak256(bytes(reason)),
+                        keccak256(params)
+                    )
+                )
+            ),
+            v,
+            r,
+            s
+        );
+
+        return _castVote(proposalId, voter, support, reason, params);
     }
 
     /**
