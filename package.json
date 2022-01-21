@@ -29,7 +29,8 @@
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
     "test:inheritance": "node scripts/inheritanceOrdering artifacts/build-info/*",
-    "gas-report": "env ENABLE_GAS_REPORT=true npm run test"
+    "gas-report": "env ENABLE_GAS_REPORT=true npm run test",
+    "slither": "npm run clean && slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas"
   },
   "repository": {
     "type": "git",
