@@ -261,8 +261,8 @@ contract TimelockController is AccessControl {
      *
      * - the caller must have the 'executor' role.
      */
-    // Reentrancy here is not a risk because the _beforeCall and _afterCall functions acts as guards to avoid
-    // _call to execute a proposal in the wrong status.
+    // This function can reenter, but it doesn't pose a risk because _afterCall checks that the proposal is pending,
+    // thus any modifications to the operation during reentrancy should be caught.
     // slither-disable-next-line reentrancy-eth
     function execute(
         address target,
