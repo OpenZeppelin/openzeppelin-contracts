@@ -162,9 +162,9 @@ contract ERC777 is Context, IERC777, IERC20 {
      */
     function isOperatorFor(address operator, address tokenHolder) public view virtual override returns (bool) {
         return
-        operator == tokenHolder ||
-        (_defaultOperators[operator] && !_revokedDefaultOperators[tokenHolder][operator]) ||
-        _operators[tokenHolder][operator];
+            operator == tokenHolder ||
+            (_defaultOperators[operator] && !_revokedDefaultOperators[tokenHolder][operator]) ||
+            _operators[tokenHolder][operator];
     }
 
     /**
