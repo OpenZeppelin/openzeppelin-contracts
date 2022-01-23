@@ -411,9 +411,9 @@ contract ERC777 is Context, IERC777, IERC20 {
         // Update state variables
         uint256 fromBalance = _balances[from];
         require(fromBalance >= amount, "ERC777: burn amount exceeds balance");
-    unchecked {
-        _balances[from] = fromBalance - amount;
-    }
+        unchecked {
+            _balances[from] = fromBalance - amount;
+        }
         _totalSupply -= amount;
 
         emit Burned(operator, from, amount, data, operatorData);
