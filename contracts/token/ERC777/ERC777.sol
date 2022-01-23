@@ -432,9 +432,9 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         uint256 fromBalance = _balances[from];
         require(fromBalance >= amount, "ERC777: transfer amount exceeds balance");
-    unchecked {
-        _balances[from] = fromBalance - amount;
-    }
+        unchecked {
+            _balances[from] = fromBalance - amount;
+        }
         _balances[to] += amount;
 
         emit Sent(operator, from, to, amount, userData, operatorData);
