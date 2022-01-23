@@ -1,0 +1,30 @@
+= Tokens
+
+Ah, the "token": blockchain's most powerful and most misunderstood tool.
+
+A token is a _representation of something in the blockchain_. This something can be money, time, services, shares in a company, a virtual pet, anything. By representing things as tokens, we can allow smart contracts to interact with them, exchange them, create or destroy them.
+
+== But First, [strikethrough]#Coffee# a Primer on Token Contracts
+
+Much of the confusion surrounding tokens comes from two concepts getting mixed up: _token contracts_ and the actual _tokens_.
+
+A _token contract_ is simply an Ethereum smart contract. "Sending tokens" actually means "calling a method on a smart contract that someone wrote and deployed". At the end of the day, a token contract is not much more a mapping of addresses to balances, plus some methods to add and subtract from those balances.
+
+It is these balances that represent the _tokens_ themselves. Someone "has tokens" when their balance in the token contract is non-zero. That's it! These balances could be considered money, experience points in a game, deeds of ownership, or voting rights, and each of these tokens would be stored in different token contracts.
+
+[[different-kinds-of-tokens]]
+== Different Kinds of Tokens
+
+Note that there's a big difference between having two voting rights and two deeds of ownership: each vote is equal to all others, but houses usually are not! This is called https://en.wikipedia.org/wiki/Fungibility[fungibility]. _Fungible goods_ are equivalent and interchangeable, like Ether, fiat currencies, and voting rights. _Non-fungible_ goods are unique and distinct, like deeds of ownership, or collectibles.
+
+In a nutshell, when dealing with non-fungibles (like your house) you care about _which ones_ you have, while in fungible assets (like your bank account statement) what matters is _how much_ you have.
+
+== Standards
+
+Even though the concept of a token is simple, they have a variety of complexities in the implementation. Because everything in Ethereum is just a smart contract, and there are no rules about what smart contracts have to do, the community has developed a variety of *standards* (called EIPs or ERCs) for documenting how a contract can interoperate with other contracts.
+
+You've probably heard of the ERC20 or ERC721 token standards, and that's why you're here. Head to our specialized guides to learn more about these:
+
+ * xref:erc20.adoc[ERC20]: the most widespread token standard for fungible assets, albeit somewhat limited by its simplicity.
+ * xref:erc721.adoc[ERC721]: the de-facto solution for non-fungible tokens, often used for collectibles and games.
+ * xref:erc777.adoc[ERC777]: a richer standard for fungible tokens, enabling new use cases and building on past learnings. Backwards compatible with ERC20.

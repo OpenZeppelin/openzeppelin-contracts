@@ -1,0 +1,71 @@
+{
+  "name": "openzeppelin-solidity",
+  "version": "2.5.1",
+  "description": "Secure Smart Contract library for Solidity",
+  "files": [
+    "/contracts/**/*.sol",
+    "/build/contracts/*.json",
+    "!/contracts/mocks",
+    "!/contracts/examples",
+    "/test/behaviors"
+  ],
+  "scripts": {
+    "compile": "scripts/compile.sh",
+    "coverage": "scripts/coverage.sh",
+    "docs": "oz-docs -c docs",
+    "docs:watch": "npm run docs watch contracts 'docs/*.hbs'",
+    "prepare-docs": "scripts/prepare-docs.sh",
+    "lint": "npm run lint:js && npm run lint:sol",
+    "lint:fix": "npm run lint:js:fix",
+    "lint:js": "eslint --ignore-path .gitignore .",
+    "lint:js:fix": "eslint --ignore-path .gitignore . --fix",
+    "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
+    "prepare": "node scripts/prepare.js",
+    "release": "scripts/release/release.sh",
+    "version": "scripts/release/version.sh",
+    "test": "mocha --exit --recursive test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts.git"
+  },
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "smart",
+    "contracts",
+    "security",
+    "zeppelin"
+  ],
+  "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
+  },
+  "homepage": "https://openzeppelin.com/contracts/",
+  "devDependencies": {
+    "@openzeppelin/cli": "^2.5.3",
+    "@openzeppelin/gsn-helpers": "^0.2.3",
+    "@openzeppelin/gsn-provider": "^0.1.9",
+    "@openzeppelin/test-environment": "^0.1.2",
+    "@openzeppelin/test-helpers": "^0.5.4",
+    "chai": "^4.2.0",
+    "eslint": "^6.5.1",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-mocha-no-only": "^1.1.0",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "ethereumjs-util": "^6.2.0",
+    "ganache-core-coverage": "https://github.com/OpenZeppelin/ganache-core-coverage/releases/download/2.5.3-coverage/ganache-core-coverage-2.5.3.tgz",
+    "lodash.startcase": "^4.4.0",
+    "micromatch": "^4.0.2",
+    "mocha": "^7.0.0",
+    "openzeppelin-docs-utils": "github:OpenZeppelin/docs-utils",
+    "solhint": "2.3.0",
+    "solidity-coverage": "github:rotcivegaf/solidity-coverage#5875f5b7bc74d447f3312c9c0e9fc7814b482477",
+    "solidity-docgen": "^0.3.13"
+  },
+  "dependencies": {}
+}

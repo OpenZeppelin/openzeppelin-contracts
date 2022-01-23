@@ -1,0 +1,84 @@
+version: 2
+# 2.1 does not yet support local run
+# unless with workaround. For simplicity just use it.
+# https://github.com/CircleCI-Public/circleci-cli/issues/79
+
+aliases:
+  - &defaults
+    docker:
+      - image: circleci/node:10
+
+  - &cache_key_node_modules
+    key: v1-node_modules-{{ checksum "package-lock.json" }}
+
+jobs:
+  dependencies:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          <<: *cache_key_node_modules
+      - run:
+          name: Install npm dependencies and prepare
+          command: |
+            if [ ! -d node_modules ]; then
+              npm ci
+            else
+              npm run prepare
+            fi
+      - persist_to_workspace:
+          root: .
+          paths:
+            - node_modules
+            - build
+      - save_cache:
+          paths:
+            - node_modules
+          <<: *cache_key_node_modules
+
+  lint:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Linter
+          command: npm run lint
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Unit tests
+          command: npm run test
+
+  coverage:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Unit tests with coverage report
+          command: npm run coverage
+
+      # TODO(xinbenlv, #1839): run SOLC_NIGHTLY to be run but allow it to fail.
+
+workflows:
+  version: 2
+  everything:
+    jobs:
+      - dependencies
+      - lint:
+          requires:
+            - dependencies
+      - test:
+          requires:
+            - dependencies
+      - coverage:
+          requires:
+            - dependencies
+
