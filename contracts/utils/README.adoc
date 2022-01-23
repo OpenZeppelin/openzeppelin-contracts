@@ -1,0 +1,52 @@
+= Utilities
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/utils
+
+Miscellaneous contracts and libraries containing utility functions you can use to improve security, work with new data types, or safely use low-level primitives.
+
+Security tools include:
+
+ * {Pausable}: provides a simple way to halt activity in your contracts (often in response to an external threat).
+ * {ReentrancyGuard}: protects you from https://blog.openzeppelin.com/reentrancy-after-istanbul/[reentrant calls].
+
+The {Address}, {Arrays} and {Strings} libraries provide more operations related to these native data types, while {SafeCast} adds ways to safely convert between the different signed and unsigned numeric types.
+
+For new data types:
+
+ * {Counters}: a simple way to get a counter that can only be incremented or decremented. Very useful for ID generation, counting contract activity, among others.
+ * {EnumerableMap}: like Solidity's https://solidity.readthedocs.io/en/latest/types.html#mapping-types[`mapping`] type, but with key-value _enumeration_: this will let you know how many entries a mapping has, and iterate over them (which is not possible with `mapping`).
+ * {EnumerableSet}: like {EnumerableMap}, but for https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets]. Can be used to store privileged accounts, issued IDs, etc.
+
+[NOTE]
+====
+Because Solidity does not support generic types, {EnumerableMap} and {EnumerableSet} are specialized to a limited number of key-value types.
+
+As of v3.0, {EnumerableMap} supports `uint256 -> address` (`UintToAddressMap`), and {EnumerableSet} supports `address` and `uint256` (`AddressSet` and `UintSet`).
+====
+
+Finally, {Create2} contains all necessary utilities to safely use the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode], without having to deal with low-level assembly.
+
+== Contracts
+
+{{Pausable}}
+
+{{ReentrancyGuard}}
+
+== Libraries
+
+{{Address}}
+
+{{Arrays}}
+
+{{Counters}}
+
+{{Create2}}
+
+{{EnumerableMap}}
+
+{{EnumerableSet}}
+
+{{SafeCast}}
+
+{{Strings}}

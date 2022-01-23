@@ -1,0 +1,42 @@
+= Proxies
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/proxy
+
+This is a low-level set of contracts implementing different proxy patterns with and without upgradeability. For an in-depth overview of this pattern check out the xref:upgrades-plugins::proxies.adoc[Proxy Upgrade Pattern] page.
+
+The abstract {Proxy} contract implements the core delegation functionality. If the concrete proxies that we provide below are not suitable, we encourage building on top of this base contract since it contains an assembly block that may be hard to get right.
+
+Upgradeability is implemented in the {UpgradeableProxy} contract, although it provides only an internal upgrade interface. For an upgrade interface exposed externally to an admin, we provide {TransparentUpgradeableProxy}. Both of these contracts use the storage slots specified in https://eips.ethereum.org/EIPS/eip-1967[EIP1967] to avoid clashes with the storage of the implementation contract behind the proxy.
+
+An alternative upgradeability mechanism is provided in <<Beacon>>. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction. In this pattern, the proxy contract doesn't hold the implementation address in storage like {UpgradeableProxy}, but the address of a {UpgradeableBeacon} contract, which is where the implementation address is actually stored and retrieved from. The `upgrade` operations that change the implementation contract address are then sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
+
+The {Clones} library provides a way to deploy minimal non-upgradeable proxies for cheap. This can be useful for applications that require deploying many instances of the same contract (for example one per user, or one per task). These instances are designed to be both cheap to deploy, and cheap to call. The drawback being that they are not upgradeable.
+
+CAUTION: Using upgradeable proxies correctly and securely is a difficult task that requires deep knowledge of the proxy pattern, Solidity, and the EVM. Unless you want a lot of low level control, we recommend using the xref:upgrades-plugins::index.adoc[OpenZeppelin Upgrades Plugins] for Truffle and Buidler.
+
+== Core
+
+{{Proxy}}
+
+{{UpgradeableProxy}}
+
+{{TransparentUpgradeableProxy}}
+
+== Beacon
+
+{{BeaconProxy}}
+
+{{IBeacon}}
+
+{{UpgradeableBeacon}}
+
+== Minimal Clones
+
+{{Clones}}
+
+== Utilities
+
+{{Initializable}}
+
+{{ProxyAdmin}}

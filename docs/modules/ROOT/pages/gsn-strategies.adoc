@@ -1,0 +1,160 @@
+= GSN Strategies
+
+This guide shows you different strategies to accept relayed calls via the Gas Station Network (GSN) using OpenZeppelin Contracts.
+
+First, we will go over what a 'GSN strategy' is, and then showcase how to use the two most common strategies.
+Finally, we will cover how to create your own custom strategies.
+
+If you're still learning about the basics of the Gas Station Network, you should first head over to the xref:gsn.adoc[GSN Guide].
+
+[[gsn-strategies]]
+== GSN Strategies Explained
+
+A *GSN strategy* decides which relayed call gets approved and which relayed call gets rejected. Strategies are a key concept within the GSN. Dapps need a strategy to prevent malicious users from spending the dapp's funds for relayed call fees.
+
+As we have seen in the xref:gsn.adoc[GSN Guide], in order to be GSN enabled, your contracts need to extend from xref:api:GSN.adoc#GSNRecipient[`GSNRecipient`].
+
+A GSN recipient contract needs the following to work:
+
+1. It needs to have funds deposited on its RelayHub.
+2. It needs to handle `msg.sender` and `msg.data` differently.
+3. It needs to decide how to approve and reject relayed calls.
+
+Depositing funds for the GSN recipient contract can be done via the https://gsn.openzeppelin.com/recipients[GSN Dapp tool] or programmatically with xref:gsn-helpers::api.adoc#javascript_interface[*OpenZeppelin GSN Helpers*].
+
+The actual user's `msg.sender` and `msg.data` can be obtained safely via xref:api:GSN.adoc#GSNRecipient-_msgSender--[`_msgSender()`] and xref:api:GSN.adoc#GSNRecipient-_msgData--[`_msgData()`] of xref:api:GSN.adoc#GSNRecipient[`GSNRecipient`].
+
+Deciding how to approve and reject relayed calls is a bit more complex. Chances are you probably want to choose which users can use your contracts via the GSN and potentially charge them for it, like a bouncer at a nightclub. We call these _GSN strategies_.
+
+The base xref:api:GSN.adoc#GSNRecipient[`GSNRecipient`] contract doesn't include a strategy, so you must either use one of the pre-built ones or write your own. We will first go over using the included strategies: xref:api:GSN.adoc#GSNRecipientSignature[`GSNRecipientSignature`] and xref:api:GSN.adoc#GSNRecipientERC20Fee[`GSNRecipientERC20Fee`].
+
+== `GSNRecipientSignature`
+
+xref:api:GSN.adoc#GSNRecipientSignature[`GSNRecipientSignature`] lets users relay calls via the GSN to your recipient contract (charging you for it) if they can prove that an account you trust approved them to do so. The way they do this is via a _signature_.
+
+The relayed call must include a signature of the relayed call parameters by the same account that was added to the contract as a trusted signer. If it is not the same, `GSNRecipientSignature` will not accept the relayed call.
+
+This means that you need to set up a system where your trusted account signs the relayed call parameters to then include in the relayed call, as long as they are valid users (according to your business logic).
+
+The definition of a valid user depends on your system, but an example is users that have completed their sign up via some kind of https://en.wikipedia.org/wiki/OAuth[OAuth] and validation, e.g. gone through a captcha or validated their email address.
+You could restrict it further and let new users send a specific number of relayed calls (e.g. limit to 5 relayed calls via the GSN, at which point the user needs to create a wallet).
+Alternatively, you could charge the user off-chain (e.g. via credit card) for credit on your system and let them create relayed calls until their credit runs out.
+
+The great thing about this setup is that *your contract doesn't need to change* if you want to change the business rules. All you are doing is changing the backend logic conditions under which users use your contract for free.
+On the other hand, you need to have a backend server, microservice, or lambda function to accomplish this.
+
+=== How Does `GSNRecipientSignature` Work?
+
+`GSNRecipientSignature` decides whether or not to accept the relayed call based on the included signature.
+
+The `acceptRelayedCall` implementation recovers the address from the signature of the relayed call parameters in `approvalData` and compares it to the trusted signer.
+If the included signature matches the trusted signer, the relayed call is approved.
+On the other hand, when the included signature doesn't match the trusted signer, the relayed call gets rejected with an error code of `INVALID_SIGNER`.
+
+=== How to Use `GSNRecipientSignature`
+
+You will need to create an off-chain service (e.g. backend server, microservice, or lambda function) that your dapp calls to sign (or not sign, based on your business logic) the relayed call parameters with your trusted signer account.  The signature is then included as the `approvalData` in the relayed call.
+
+Instead of using `GSNRecipient` directly, your GSN recipient contract will instead inherit from `GSNRecipientSignature`, as well as setting the trusted signer in the constructor of `GSNRecipientSignature` as per the following sample code below:
+
+[source,solidity]
+----
+import "@openzeppelin/contracts/GSN/GSNRecipientSignature.sol";
+
+contract MyContract is GSNRecipientSignature {
+    constructor(address trustedSigner) public GSNRecipientSignature(trustedSigner) {
+    }
+}
+----
+
+TIP: We wrote an in-depth guide on how to setup a signing server that works with `GSNRecipientSignature`, https://forum.openzeppelin.com/t/advanced-gsn-gsnrecipientsignature-sol/1414[check it out!]
+
+== `GSNRecipientERC20Fee`
+
+xref:api:GSN.adoc#GSNRecipientERC20Fee[`GSNRecipientERC20Fee`] is a bit more complex (but don't worry, it has already been written for you!). Unlike `GSNRecipientSignature`, `GSNRecipientERC20Fee` doesn't require any off-chain services.
+Instead of off-chain approving each relayed call, you will give special-purpose ERC20 tokens to your users. These tokens are then used as payment for relayed calls to your recipient contract.
+Any user that has enough tokens to pay has their relayed calls automatically approved and the recipient contract will cover their transaction costs!
+
+Each recipient contract has their own special-purpose token.  The exchange rate from token to ether is 1:1, as the tokens are used to pay your contract to cover the gas fees when using the GSN.
+
+`GSNRecipientERC20Fee` has an internal xref:api:GSN.adoc#GSNRecipientERC20Fee-_mint-address-uint256-[`_mint`] function. Firstly, you need to setup a way to call it (e.g. add a public function with some form of xref:access-control.adoc[access control] such as xref:api:access.adoc#MinterRole-onlyMinter--[`onlyMinter`]).
+Then, issue tokens to users based on your business logic. For example, you could mint a limited amount of tokens to new users, mint tokens when users buy them off-chain, give tokens based on a users subscription, etc.
+
+NOTE: *Users do not need to call approve* on their tokens for your recipient contract to use them. They are a modified ERC20 variant that lets the recipient contract retrieve them.
+
+=== How Does `GSNRecipientERC20Fee` Work?
+
+`GSNRecipientERC20Fee` decides to approve or reject relayed calls based on the balance of the users tokens.
+
+The `acceptRelayedCall` function implementation checks the users token balance.
+If the user doesn't have enough tokens the relayed call gets rejected with an error of `INSUFFICIENT_BALANCE`.
+If there are enough tokens, the relayed call is approved with the end users address, `maxPossibleCharge`, `transactionFee` and `gasPrice` data being returned so it can be used in `_preRelayedCall` and `_postRelayedCall`.
+
+In `_preRelayedCall` function the `maxPossibleCharge` amount of tokens is transferred to the recipient contract.
+The maximum amount of tokens required is transferred assuming that the relayed call will use all the gas available.
+Then, in the `_postRelayedCall` function, the actual amount is calculated, including the recipient contract implementation and ERC20 token transfers, and the difference is refunded.
+
+The maximum amount of tokens required is transferred in `_preRelayedCall` to protect the contract from exploits (this is really similar to how ether is locked in Ethereum transactions).
+
+NOTE: The gas cost estimation is not 100% accurate, we may tweak it further down the road.
+
+NOTE: Always use `_preRelayedCall` and `_postRelayedCall` functions.  Internal `_preRelayedCall` and `_postRelayedCall` functions are used instead of public `preRelayedCall` and `postRelayedCall` functions, as the public functions are prevented from being called by non-RelayHub contracts.
+
+=== How to Use `GSNRecipientERC20Fee`
+
+Your GSN recipient contract needs to inherit from `GSNRecipientERC20Fee` along with appropriate xref:access-control.adoc[access control] (for token minting), set the token details in the constructor of `GSNRecipientERC20Fee` and create a public `mint` function suitably protected by your chosen access control as per the following sample code (which uses xref:api:access.adoc#AccessControl[`AccessControl`]):
+
+[source,solidity]
+----
+// contracts/MyContract.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.0;
+
+import "@openzeppelin/contracts/GSN/GSNRecipientERC20Fee.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract MyContract is GSNRecipientERC20Fee, AccessControl {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
+    constructor() public GSNRecipientERC20Fee("FeeToken", "FEE") {
+        _setupRole(MINTER_ROLE, _msgSender());
+    }
+
+    function _msgSender() internal view override(Context, GSNRecipient) returns (address payable) {
+        return GSNRecipient._msgSender();
+    }
+
+    function _msgData() internal view override(Context, GSNRecipient) returns (bytes memory) {
+        return GSNRecipient._msgData();
+    }
+
+    function mint(address account, uint256 amount) public {
+        require(hasRole(MINTER_ROLE, _msgSender()), "Caller is not a minter");
+        _mint(account, amount);
+    }
+}
+----
+
+== Custom Strategies
+
+If the included strategies don't quite fit your business needs, you can also write your own! For example, your custom strategy could use a specified token to pay for relayed calls with a custom exchange rate to ether.  Alternatively you could issue users who subscribe to your dapp ERC721 tokens, and accounts holding the subscription token could use your contract for free as part of the subscription. There are lots of potential options!
+
+To write a custom strategy, simply inherit from `GSNRecipient` and implement the `acceptRelayedCall`, `_preRelayedCall` and `_postRelayedCall` functions.
+
+Your `acceptRelayedCall` implementation decides whether or not to accept the relayed call: return `_approveRelayedCall` to accept, and return `_rejectRelayedCall` with an error code to reject.
+
+Not all GSN strategies use `_preRelayedCall` and `_postRelayedCall` (though they must still be implemented, e.g. `GSNRecipientSignature` leaves them empty), but are useful when your strategy involves charging end users.
+
+`_preRelayedCall` should take the maximum possible charge, with `_postRelayedCall` refunding any difference from the actual charge once the relayed call has been made.
+When returning `_approveRelayedCall` to approve the relayed call, the end users address, `maxPossibleCharge`, `transactionFee` and `gasPrice` data can also be returned so that the data can be used in `_preRelayedCall` and `_postRelayedCall`.
+See https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v3.0.0/contracts/GSN/GSNRecipientERC20Fee.sol[the code for `GSNRecipientERC20Fee`] as an example implementation.
+
+Once your strategy is ready, all your GSN recipient needs to do is inherit from it:
+
+[source,solidity]
+----
+contract MyContract is MyCustomGSNStrategy {
+    constructor() public MyCustomGSNStrategy() {
+    }
+}
+----

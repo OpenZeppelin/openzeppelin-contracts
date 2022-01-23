@@ -1,0 +1,55 @@
+= ERC 20
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/token/erc20
+
+This set of interfaces, contracts, and utilities are all related to the https://eips.ethereum.org/EIPS/eip-20[ERC20 Token Standard].
+
+TIP: For an overview of ERC20 tokens and a walk through on how to create a token contract read our xref:ROOT:erc20.adoc[ERC20 guide].
+
+There a few core contracts that implement the behavior specified in the EIP:
+
+* {IERC20}: the interface all ERC20 implementations should conform to.
+* {ERC20}: the implementation of the ERC20 interface, including the <<ERC20-name,`name`>>, <<ERC20-symbol,`symbol`>> and <<ERC20-decimals,`decimals`>> optional standard extension to the base interface.
+
+Additionally there are multiple custom extensions, including:
+
+* {ERC20Permit}: gasless approval of tokens.
+* {ERC20Snapshot}: efficient storage of past token balances to be later queried at any point in time.
+* {ERC20Burnable}: destruction of own tokens.
+* {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
+* {ERC20Pausable}: ability to pause token transfers.
+
+Finally, there are some utilities to interact with ERC20 contracts in various ways.
+
+* {SafeERC20}: a wrapper around the interface that eliminates the need to handle boolean return values.
+* {TokenTimelock}: hold tokens for a beneficiary until a specified time.
+
+The following related EIPs are in draft status and can be found in the drafts directory.
+
+- {IERC20Permit}
+- {ERC20Permit}
+
+NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc20.adoc#Presets[ERC20 Presets] (such as {ERC20PresetMinterPauser}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
+
+== Core
+
+{{IERC20}}
+
+{{ERC20}}
+
+== Extensions
+
+{{ERC20Snapshot}}
+
+{{ERC20Pausable}}
+
+{{ERC20Burnable}}
+
+{{ERC20Capped}}
+
+== Utilities
+
+{{SafeERC20}}
+
+{{TokenTimelock}}

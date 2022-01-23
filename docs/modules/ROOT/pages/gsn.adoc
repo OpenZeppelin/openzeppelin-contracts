@@ -1,0 +1,90 @@
+= Writing GSN-capable contracts
+
+The https://gsn.openzeppelin.com[Gas Station Network] allows you to build apps where you pay for your users transactions, so they do not need to hold Ether to pay for gas, easing their onboarding process. In this guide, we will learn how to write smart contracts that can receive transactions from the GSN, by using OpenZeppelin Contracts.
+
+If you're new to the GSN, you probably want to first take a look at the xref:learn::sending-gasless-transactions.adoc[overview of the system] to get a clearer picture of how gasless transactions are achieved. Otherwise, strap in!
+
+== Receiving a Relayed Call
+
+The first step to writing a recipient is to inherit from our GSNRecipient contract. If you're also inheriting from other contracts, such as ERC20, this will work just fine: adding GSNRecipient will make all of your token functions GSN-callable.
+
+```solidity
+import "@openzeppelin/contracts/GSN/GSNRecipient.sol";
+
+contract MyContract is GSNRecipient, ... {
+
+}
+```
+
+=== `msg.sender` and `msg.data`
+
+There's only one extra detail you need to take care of when working with GSN recipient contracts: _you must never use `msg.sender` or `msg.data` directly_. On relayed calls, `msg.sender` will be `RelayHub` instead of your user! This doesn't mean however you won't be able to retrieve your users' addresses: `GSNRecipient` provides two functions, `_msgSender()` and `_msgData()`, which are drop-in replacements for `msg.sender` and `msg.data` while taking care of the low-level details. As long as you use these two functions instead of the original getters, you're good to go!
+
+WARNING: Third-party contracts you inherit from may not use these replacement functions, making them unsafe to use when mixed with `GSNRecipient`. If in doubt, head on over to our https://forum.openzeppelin.com/c/support[support forum].
+
+=== Accepting and Charging
+
+Unlike regular contract function calls, each relayed call has an additional number of steps it must go through, which are functions of the `IRelayRecipient` interface `RelayHub` will call on your contract. `GSNRecipient` includes this interface but no implementation: most of writing a recipient involves handling these function calls. They are designed to provide flexibility, but basic recipients can safely ignore most of them while still being secure and sound.
+
+The OpenZeppelin Contracts provide a number of tried-and-tested approaches for you to use out of the box, but you should still have a basic idea of what's going on under the hood.
+
+==== `acceptRelayedCall`
+
+First, RelayHub will ask your recipient contract if it wants to receive a relayed call. Recall that you will be charged for incurred gas costs by the relayer, so you should only accept calls that you're willing to pay for!
+
+[source,solidity]
+----
+    function acceptRelayedCall(
+        address relay,
+        address from,
+        bytes calldata encodedFunction,
+        uint256 transactionFee,
+        uint256 gasPrice,
+        uint256 gasLimit,
+        uint256 nonce,
+        bytes calldata approvalData,
+        uint256 maxPossibleCharge
+    ) external view returns (uint256, bytes memory);
+----
+
+There are multiple ways to make this work, including:
+
+. having a whitelist of trusted users
+. only accepting calls to an onboarding function
+. charging users in tokens (possibly issued by you)
+. delegating the acceptance logic off-chain
+
+All relayed call requests can be rejected at no cost to the recipient.
+
+In this function, you return a number indicating whether you accept the call (0) or not (any other number). You can also return some arbitrary data that will get passed along to the following two functions (pre and post) as an execution context.
+
+=== pre and postRelayedCall
+
+After a relayed call is accepted, RelayHub will give your contract two opportunities to charge your user for their call, perform some bookkeeping, etc.: _before_ and _after_ the actual relayed call is made. These functions are aptly named `preRelayedCall` and `postRelayedCall`.
+
+[source,solidity]
+----
+
+function preRelayedCall(bytes calldata context) external returns (bytes32);
+----
+
+`preRelayedCall` will inform you of the maximum cost the call may have, and can be used to charge the user in advance. This is useful if the user may spend their allowance as part of the call, so you can lock some funds here.
+
+[source,solidity]
+----
+    function postRelayedCall(
+        bytes calldata context,
+        bool success,
+        uint256 actualCharge,
+        bytes32 preRetVal
+    ) external;
+----
+
+`postRelayedCall` will give you an accurate estimate of the transaction cost, making it a natural place to charge users. It will also let you know if the relayed call reverted or not. This allows you, for instance, to not charge users for reverted calls - but remember that you will be charged by the relayer nonetheless.
+
+These functions allow you to implement, for instance, a flow where you charge your users for the relayed transactions in a custom token. You can lock some of their tokens in `pre`, and execute the actual charge in `post`. This is similar to how gas fees work in Ethereum: the network first locks enough ETH to pay for the transaction's gas limit at its gas price, and then pays for what it actually spent.
+
+== Further reading
+
+Read our xref:gsn-strategies.adoc[guide on the payment strategies] pre-built and shipped in OpenZeppelin Contracts, or check out xref:api:GSN.adoc[the API reference of the GSN base contracts].
+

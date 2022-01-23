@@ -1,0 +1,87 @@
+= ERC721
+
+We've discussed how you can make a _fungible_ token using xref:erc20.adoc[ERC20], but what if not all tokens are alike? This comes up in situations like *real estate* or *collectibles*, where some items are valued more than others, due to their usefulness, rarity, etc. ERC721 is a standard for representing ownership of xref:tokens.adoc#different-kinds-of-tokens[_non-fungible_ tokens], that is, where each token is unique.
+
+ERC721 is a more complex standard than ERC20, with multiple optional extensions, and is split across a number of contracts. The OpenZeppelin Contracts provide flexibility regarding how these are combined, along with custom useful extensions. Check out the xref:api:token/ERC721.adoc[API Reference] to learn more about these.
+
+== Constructing an ERC721 Token Contract
+
+We'll use ERC721 to track items in our game, which will each have their own unique attributes. Whenever one is to be awarded to a player, it will be minted and sent to them. Players are free to keep their token or trade it with other people as they see fit, as they would any other asset on the blockchain!  Please note any account can call `awardItem` to mint items.  To restrict what accounts can mint items we can add xref:access-control.adoc[Access Control].
+
+Here's what a contract for tokenized items might look like:
+
+[source,solidity]
+----
+// contracts/GameItem.sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.0;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+
+contract GameItem is ERC721 {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
+    constructor() public ERC721("GameItem", "ITM") {}
+
+    function awardItem(address player, string memory tokenURI)
+        public
+        returns (uint256)
+    {
+        _tokenIds.increment();
+
+        uint256 newItemId = _tokenIds.current();
+        _mint(player, newItemId);
+        _setTokenURI(newItemId, tokenURI);
+
+        return newItemId;
+    }
+}
+----
+
+The xref:api:token/ERC721.adoc#ERC721[`ERC721`] contract includes all standard extensions (xref:api:token/ERC721.adoc#IERC721Metadata[`IERC721Metadata`] and xref:api:token/ERC721.adoc#IERC721Enumerable[`IERC721Enumerable`]). That's where the xref:api:token/ERC721.adoc#ERC721-_setTokenURI-uint256-string-[`_setTokenURI`] method comes from: we use it to store an item's metadata.
+
+Also note that, unlike ERC20, ERC721 lacks a `decimals` field, since each token is distinct and cannot be partitioned.
+
+New items can be created:
+
+[source,javascript]
+----
+> gameItem.awardItem(playerAddress, "https://game.example/item-id-8u5h2m.json")
+Transaction successful. Transaction hash: 0x...
+Events emitted:
+ - Transfer(0x0000000000000000000000000000000000000000, playerAddress, 7)
+----
+
+And the owner and metadata of each item queried:
+
+[source,javascript]
+----
+> gameItem.ownerOf(7)
+playerAddress
+> gameItem.tokenURI(7)
+"https://game.example/item-id-8u5h2m.json"
+----
+
+This `tokenURI` should resolve to a JSON document that might look something like:
+
+[source,json]
+----
+{
+    "name": "Thor's hammer",
+    "description": "Mjölnir, the legendary hammer of the Norse god of thunder.",
+    "image": "https://game.example/item-id-8u5h2m.png",
+    "strength": 20
+}
+----
+
+For more information about the `tokenURI` metadata JSON Schema, check out the https://eips.ethereum.org/EIPS/eip-721[ERC721 specification].
+
+NOTE: you'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly). You could also leverage IPFS to store the tokenURI information, but these techniques are out of the scope of this overview guide.
+
+[[Presets]]
+== Preset ERC721 contract
+A preset ERC721 is available, xref:api:presets#ERC721PresetMinterPauserAutoId[`ERC721PresetMinterPauserAutoId`]. It is preset to allow for token minting (create) with token ID and URI auto generation, stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
+
+This contract is ready to deploy without having to write any Solidity code.  It can be used as-is for quick prototyping and testing, but is also suitable for production environments.

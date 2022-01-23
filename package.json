@@ -1,0 +1,77 @@
+{
+  "name": "openzeppelin-solidity",
+  "description": "Secure Smart Contract library for Solidity",
+  "version": "3.4.2",
+  "files": [
+    "/contracts/**/*.sol",
+    "/build/contracts/*.json",
+    "!/contracts/mocks",
+    "/test/behaviors"
+  ],
+  "scripts": {
+    "compile": "buidler compile",
+    "coverage": "buidler coverage",
+    "docs": "oz-docs",
+    "docs:watch": "npm run docs watch contracts 'docs/*.hbs'",
+    "prepare-docs": "scripts/prepare-docs.sh",
+    "lint": "npm run lint:js && npm run lint:sol",
+    "lint:fix": "npm run lint:js:fix",
+    "lint:js": "eslint --ignore-path .gitignore .",
+    "lint:js:fix": "eslint --ignore-path .gitignore . --fix",
+    "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
+    "prepublish": "rimraf build contracts/build artifacts cache",
+    "prepare": "npm run compile",
+    "prepack": "scripts/prepack.sh",
+    "release": "scripts/release/release.sh",
+    "version": "scripts/release/version.sh",
+    "test": "buidler test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts.git"
+  },
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "smart",
+    "contracts",
+    "security",
+    "zeppelin"
+  ],
+  "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
+  },
+  "homepage": "https://openzeppelin.com/contracts/",
+  "devDependencies": {
+    "@nomiclabs/buidler": "^1.4.8",
+    "@nomiclabs/buidler-truffle5": "^1.3.4",
+    "@nomiclabs/buidler-web3": "^1.3.4",
+    "@openzeppelin/docs-utils": "^0.1.0",
+    "@openzeppelin/gsn-helpers": "^0.2.3",
+    "@openzeppelin/gsn-provider": "^0.1.10",
+    "@openzeppelin/test-helpers": "^0.5.9",
+    "chai": "^4.2.0",
+    "eslint": "^6.5.1",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-mocha-no-only": "^1.1.0",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eth-sig-util": "^3.0.0",
+    "ethereumjs-util": "^7.0.7",
+    "ethereumjs-wallet": "^1.0.1",
+    "lodash.startcase": "^4.4.0",
+    "lodash.zip": "^4.2.0",
+    "micromatch": "^4.0.2",
+    "mocha": "^8.0.1",
+    "rimraf": "^3.0.2",
+    "solhint": "^3.2.0",
+    "solidity-coverage": "^0.7.11",
+    "solidity-docgen": "^0.5.3",
+    "web3": "^1.3.0"
+  },
+  "dependencies": {}
+}

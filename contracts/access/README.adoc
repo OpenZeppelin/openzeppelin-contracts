@@ -1,0 +1,101 @@
+= Access
+
+[.readme-notice]
+NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/access
+
+This directory provides ways to restrict who can access the functions of a contract or when they can do it.
+
+- {AccessControl} provides a general role based access control mechanism. Multiple hierarchical roles can be created and assigned each to multiple accounts.
+- {Ownable} is a simpler mechanism with a single owner "role" that can be assigned to a single account. This simpler mechanism can be useful for quick tests but projects with production concerns are likely to outgrow it.
+- {TimelockController} is used in combination with one of the above two mechanisms. By assigning a role to an instance of the `TimelockController` contract, the access to the functions controlled by that role will be delayed by some amount of time.
+
+== Authorization
+
+{{Ownable}}
+
+{{AccessControl}}
+
+== Timelock
+
+{{TimelockController}}
+
+[[timelock-terminology]]
+==== Terminology
+
+* *Operation:* A transaction (or a set of transactions) that is the subject of the timelock. It has to be scheduled by a proposer and executed by an executor. The timelock enforces a minimum delay between the proposition and the execution (see xref:access-control.adoc#operation_lifecycle[operation lifecycle]). If the operation contains multiple transactions (batch mode), they are executed atomically. Operations are identified by the hash of their content.
+* *Operation status:*
+** *Unset:* An operation that is not part of the timelock mechanism.
+** *Pending:* An operation that has been scheduled, before the timer expires.
+** *Ready:* An operation that has been scheduled, after the timer expires.
+** *Done:* An operation that has been executed.
+* *Predecessor*: An (optional) dependency between operations. An operation can depend on another operation (its predecessor), forcing the execution order of these two operations.
+* *Role*:
+** *Proposer:* An address (smart contract or EOA) that is in charge of scheduling (and cancelling) operations.
+** *Executor:* An address (smart contract or EOA) that is in charge of executing operations.
+
+[[timelock-operation]]
+==== Operation structure
+
+Operation executed by the xref:api:access.adoc#TimelockController[`TimelockControler`] can contain one or multiple subsequent calls. Depending on whether you need to multiple calls to be executed atomically, you can either use simple or batched operations.
+
+Both operations contain:
+
+* *Target*, the address of the smart contract that the timelock should operate on.
+* *Value*, in wei, that should be sent with the transaction. Most of the time this will be 0. Ether can be deposited before-end or passed along when executing the transaction.
+* *Data*, containing the encoded function selector and parameters of the call. This can be produced using a number of tools. For example, a maintenance operation granting role `ROLE` to `ACCOUNT` can be encode using web3js as follows:
+
+```javascript
+const data = timelock.contract.methods.grantRole(ROLE, ACCOUNT).encodeABI()
+```
+
+* *Predecessor*, that specifies a dependency between operations. This dependency is optional. Use `bytes32(0)` if the operation does not have any dependency.
+* *Salt*, used to disambiguate two otherwise identical operations. This can be any random value.
+
+In the case of batched operations, `target`, `value` and `data` are specified as arrays, which must be of the same length.
+
+[[timelock-operation-lifecycle]]
+==== Operation lifecycle
+
+Timelocked operations are identified by a unique id (their hash) and follow a specific lifecycle:
+
+`Unset` -> `Pending` -> `Pending` + `Ready` -> `Done`
+
+* By calling xref:api:access.adoc#TimelockController-schedule-address-uint256-bytes-bytes32-bytes32-uint256-[`schedule`] (or xref:api:access.adoc#TimelockController-scheduleBatch-address---uint256---bytes---bytes32-bytes32-uint256-[`scheduleBatch`]), a proposer moves the operation from the `Unset` to the `Pending` state. This starts a timer that must be longer than the minimum delay. The timer expires at a timestamp accessible through the xref:api:access.adoc#TimelockController-getTimestamp-bytes32-[`getTimestamp`] method.
+* Once the timer expires, the operation automatically gets the `Ready` state. At this point, it can be executed.
+* By calling xref:api:access.adoc#TimelockController-TimelockController-execute-address-uint256-bytes-bytes32-bytes32-[`execute`] (or xref:api:access.adoc#TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-[`executeBatch`]), an executor triggers the operation's underlying transactions and moves it to the `Done` state. If the operation has a predecessor, it has to be in the `Done` state for this transition to succeed.
+* xref:api:access.adoc#TimelockController-TimelockController-cancel-bytes32-[`cancel`] allows proposers to cancel any `Pending` operation. This resets the operation to the `Unset` state. It is thus possible for a proposer to re-schedule an operation that has been cancelled. In this case, the timer restarts when the operation is re-scheduled.
+
+Operations status can be queried using the functions:
+
+* xref:api:access.adoc#TimelockController-isOperationPending-bytes32-[`isOperationPending(bytes32)`]
+* xref:api:access.adoc#TimelockController-isOperationReady-bytes32-[`isOperationReady(bytes32)`]
+* xref:api:access.adoc#TimelockController-isOperationDone-bytes32-[`isOperationDone(bytes32)`]
+
+[[timelock-roles]]
+==== Roles
+
+[[timelock-admin]]
+===== Admin
+
+The admins are in charge of managing proposers and executors. For the timelock to be self-governed, this role should only be given to the timelock itself. Upon deployment, both the timelock and the deployer have this role. After further configuration and testing, the deployer can renounce this role such that all further maintenance operations have to go through the timelock process.
+
+This role is identified by the *TIMELOCK_ADMIN_ROLE* value: `0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5`
+
+[[timelock-proposer]]
+===== Proposer
+
+The proposers are in charge of scheduling (and cancelling) operations. This is a critical role, that should be given to governing entities. This could be an EOA, a multisig, or a DAO.
+
+WARNING: *Proposer fight:* Having multiple proposers, while providing redundancy in case one becomes unavailable, can be dangerous. As proposer have their say on all operations, they could cancel operations they disagree with, including operations to remove them for the proposers.
+
+This role is identified by the *PROPOSER_ROLE* value: `0xb09aa5aeb3702cfd50b6b62bc4532604938f21248a27a1d5ca736082b6819cc1`
+
+[[timelock-executor]]
+===== Executor
+
+The executors are in charge of executing the operations scheduled by the proposers once the timelock expires. Logic dictates that multisig or DAO that are proposers should also be executors in order to guarantee operations that have been scheduled will eventually be executed. However, having additional executor can reduce the cost (the executing transaction does not require validation by the multisig or DAO that proposed it), while ensuring whoever is in charge of execution cannot trigger actions that have not been scheduled by the proposers.
+
+This role is identified by the *EXECUTOR_ROLE* value: `0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63`
+
+
+WARNING: A live contract without at least one proposer and one executor is locked. Make sure these roles are filled by reliable entities before the deployer renounces its administrative rights in favour of the timelock contract itself. See the {AccessControl} documentation to learn more about role management.
