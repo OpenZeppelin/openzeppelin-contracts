@@ -144,16 +144,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Also emits a {Sent} event.
      */
     function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-        require(recipient != address(0), "ERC777: transfer to the zero address");
-
-        address from = _msgSender();
-
-        _callTokensToSend(from, from, recipient, amount, "", "");
-
-        _move(from, from, recipient, amount, "", "");
-
-        _callTokensReceived(from, from, recipient, amount, "", "", false);
-
+        _send(_msgSender(), recipient, amount, "", "", false);
         return true;
     }
 
@@ -171,9 +162,9 @@ contract ERC777 is Context, IERC777, IERC20 {
      */
     function isOperatorFor(address operator, address tokenHolder) public view virtual override returns (bool) {
         return
-            operator == tokenHolder ||
-            (_defaultOperators[operator] && !_revokedDefaultOperators[tokenHolder][operator]) ||
-            _operators[tokenHolder][operator];
+        operator == tokenHolder ||
+        (_defaultOperators[operator] && !_revokedDefaultOperators[tokenHolder][operator]) ||
+        _operators[tokenHolder][operator];
     }
 
     /**
@@ -286,13 +277,9 @@ contract ERC777 is Context, IERC777, IERC20 {
         address recipient,
         uint256 amount
     ) public virtual override returns (bool) {
-        require(recipient != address(0), "ERC777: transfer to the zero address");
-        require(holder != address(0), "ERC777: transfer from the zero address");
+        _send(holder, recipient, amount, "", "", false);
 
         address spender = _msgSender();
-
-        _callTokensToSend(spender, holder, recipient, amount, "", "");
-
         uint256 currentAllowance = _allowances[holder][spender];
         if (currentAllowance != type(uint256).max) {
             require(currentAllowance >= amount, "ERC777: transfer amount exceeds allowance");
@@ -300,10 +287,6 @@ contract ERC777 is Context, IERC777, IERC20 {
                 _approve(holder, spender, currentAllowance - amount);
             }
         }
-
-        _move(spender, holder, recipient, amount, "", "");
-
-        _callTokensReceived(spender, holder, recipient, amount, "", "", false);
 
         return true;
     }
@@ -428,9 +411,9 @@ contract ERC777 is Context, IERC777, IERC20 {
         // Update state variables
         uint256 fromBalance = _balances[from];
         require(fromBalance >= amount, "ERC777: burn amount exceeds balance");
-        unchecked {
-            _balances[from] = fromBalance - amount;
-        }
+    unchecked {
+        _balances[from] = fromBalance - amount;
+    }
         _totalSupply -= amount;
 
         emit Burned(operator, from, amount, data, operatorData);
@@ -449,9 +432,9 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         uint256 fromBalance = _balances[from];
         require(fromBalance >= amount, "ERC777: transfer amount exceeds balance");
-        unchecked {
-            _balances[from] = fromBalance - amount;
-        }
+    unchecked {
+        _balances[from] = fromBalance - amount;
+    }
         _balances[to] += amount;
 
         emit Sent(operator, from, to, amount, userData, operatorData);
