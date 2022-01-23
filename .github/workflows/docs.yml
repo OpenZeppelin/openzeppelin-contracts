@@ -1,7 +1,8 @@
 name: Build Docs
 
 on:
-  push: release-v*
+  push:
+    branches: [release-v*]
 
 jobs:
   trigger:
