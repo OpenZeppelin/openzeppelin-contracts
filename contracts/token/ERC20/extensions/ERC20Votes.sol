@@ -20,8 +20,6 @@ import "../../../utils/cryptography/ECDSA.sol";
  *
  * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it
  * requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
- * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
- * will significantly increase the base gas cost of transfers.
  *
  * _Available since v4.2._
  */
