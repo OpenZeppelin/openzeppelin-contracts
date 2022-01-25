@@ -8,7 +8,7 @@ contract ERC721RentAgreementMock is IERC721RentalAgreement {
     bool private _fail;
 
     // Interface
-    function afterRentalAgreementReplaced(uint256) external view override {
+    function afterAgreementRemoved(uint256) external view override {
         require(!_fail, "Failed from agreement contract");
     }
 

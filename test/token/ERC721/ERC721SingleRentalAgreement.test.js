@@ -53,13 +53,13 @@ contract('ERC721SingleRentalAgreement', function (accounts) {
 
     it('Only erc721 contract can update state', async function () {
       await expectRevert(
-        this.erc721SingleRentalAgreement.afterRentalAgreementReplaced(this.tokenId, { from: this.renter }),
+        this.erc721SingleRentalAgreement.afterAgreementRemoved(this.tokenId, { from: this.renter }),
         'ERC721SingleRentalAgreement: only erc721Contract contract can modify rental agreement state',
       );
     });
 
     it('Enable to change agreement when status is pending', async function () {
-      await this.erc721SingleRentalAgreement.afterRentalAgreementReplaced(this.tokenId, { from: this.erc721.address });
+      await this.erc721SingleRentalAgreement.afterAgreementRemoved(this.tokenId, { from: this.erc721.address });
     });
   });
 
@@ -94,7 +94,7 @@ contract('ERC721SingleRentalAgreement', function (accounts) {
       // Pay rent.
       await this.erc721SingleRentalAgreement.payAndStartRent({ from: this.renter, value: this.rentalFees });
       await expectRevert(
-        this.erc721SingleRentalAgreement.afterRentalAgreementReplaced(this.tokenId, { from: this.erc721.address }),
+        this.erc721SingleRentalAgreement.afterAgreementRemoved(this.tokenId, { from: this.erc721.address }),
         'ERC721SingleRentalAgreement: rental agreement has to be pending to be updated',
       );
     });

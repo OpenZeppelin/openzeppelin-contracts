@@ -77,7 +77,7 @@ contract ERC721SingleRentalAgreement is Context, IERC721RentalAgreement, ERC165 
     }
 
     /// @inheritdoc IERC721RentalAgreement
-    function afterRentalAgreementReplaced(uint256) public view override onlyErc721Contract {
+    function afterAgreementRemoved(uint256) public view override onlyErc721Contract {
         require(
             rentalStatus == RentalStatus.pending,
             "ERC721SingleRentalAgreement: rental agreement has to be pending to be updated."

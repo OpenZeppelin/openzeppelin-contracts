@@ -70,7 +70,7 @@ contract ERC721SwapRentalAgreement is Context, IERC721RentalAgreement, ERC165 {
     }
 
     /// @inheritdoc IERC721RentalAgreement
-    function afterRentalAgreementReplaced(uint256) public view override onlyErc721Contracts {
+    function afterAgreementRemoved(uint256) public view override onlyErc721Contracts {
         require(
             rentalAgreement.rentalStatus == RentalStatus.pending,
             "ERC721SwapRentalAgreement: rental agreement already active"

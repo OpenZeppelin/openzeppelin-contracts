@@ -203,7 +203,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rental, IERC721Metadata {
         _rentalAgreements[tokenId] = agreement;
 
         if (address(currentAgreement) != address(0)) {
-            currentAgreement.afterRentalAgreementReplaced(tokenId);
+            currentAgreement.afterAgreementRemoved(tokenId);
         }
     }
 
@@ -411,7 +411,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Rental, IERC721Metadata {
         delete _rentalAgreements[tokenId];
 
         if (address(rentAgreement) != address(0)) {
-            rentAgreement.afterRentalAgreementReplaced(tokenId);
+            rentAgreement.afterAgreementRemoved(tokenId);
         }
 
         emit Transfer(from, to, tokenId);

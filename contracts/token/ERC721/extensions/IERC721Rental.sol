@@ -9,14 +9,14 @@ import "../../../utils/introspection/IERC165.sol";
 /// Defines the interface that a rental agreement contract should support to be used by
 /// `IERC721Rental`.
 interface IERC721RentalAgreement is IERC165 {
-    /// Function called at the end of `IERC721Rental.setRentalAgreement` to replace an
-    /// existing rental agreement contract of a token.
+    /// Function called at the end of `IERC721Rental.setRentalAgreement` on the agreement
+    /// currently set for the token, if one exists.
     ///
     /// @dev Allows the agreement to cancel the change by reverting if it deems it
     /// necessary. The `IERC721Rental` is calling this function, so all information needed
-    /// can be queried through the `msg.sender`. This event is not called if a rental agreement
-    /// is not in progress.
-    function afterRentalAgreementReplaced(uint256 tokenId) external;
+    /// can be queried through the `msg.sender`. This event is only called when the token
+    /// is not rented, as it is not allowed to change an agreement during a rental.
+    function afterAgreementRemoved(uint256 tokenId) external;
 
     /// Function called at the end of `IERC721Rental.acceptRentalAgreement`.
     ///
@@ -52,13 +52,13 @@ interface IERC721RentalAgreement is IERC165 {
 interface IERC721Rental is IERC721 {
     /// Set the rental agreement contract for a specific token.
     ///
-    /// A previously set rental agreement contract must accept its replacement.
-    /// The caller must be the owner or their approver or operator.
+    /// A previously set rental agreement contract must accept the change.
+    /// The caller must be the owner (not the renter) or their approver or operator.
     /// The token must not be currently rented.
     /// The agreement is removed upon token transfer.
     ///
-    /// @dev If an agreement was set, calls its
-    /// `IERC721RentalAgreement.afterRentalAgreementReplaced` at the end of the call.
+    /// @dev If an agreement was already set before this call, calls its
+    /// `IERC721RentalAgreement.afterAgreementRemoved` at the end of the call.
     ///
     /// @param agreement The agreement. Set to 0 to remove the current agreement.
     function setRentalAgreement(IERC721RentalAgreement agreement, uint256 tokenId) external;
@@ -87,7 +87,7 @@ interface IERC721Rental is IERC721 {
     /// @dev Calls `IERC721RentalAgreement.afterRentalStopped` at the end of the call.
     function stopRentalAgreement(uint256 tokenId) external;
 
-    /// @return The address of the rented token owner, or 0 is there is no rental in
-    /// progress.
+    /// @return The address of the asset owner and not the renter, or 0 if there is no
+    /// rental in progress.
     function rentedOwnerOf(uint256 tokenId) external view returns (address);
 }

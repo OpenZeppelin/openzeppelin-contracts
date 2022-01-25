@@ -41,7 +41,7 @@ contract ERC721BundleRentalAgreement is IERC721RentalAgreement, ERC165 {
     }
 
     /// @inheritdoc IERC721RentalAgreement
-    function afterRentalAgreementReplaced(uint256 tokenId) external view virtual override {
+    function afterAgreementRemoved(uint256 tokenId) external view virtual override {
         // We don't need to check if a rental is in progress because the IERC721Rental does that for us
         // We don't allow to change the contract if funds remain, because we don't store the owner
         require(

@@ -38,7 +38,7 @@ contract('ERC721BundleRentalAgreement', function (accounts) {
     it('cannot call IERC721RentalAgreement to modify state', async function () {
       expect(
         ERC721BundleRentalAgreement.abi.find(
-          (abi) => abi.name === 'afterRentalAgreementReplaced',
+          (abi) => abi.name === 'afterAgreementRemoved',
         ).constant,
       ).to.equal(true);
       expect(
