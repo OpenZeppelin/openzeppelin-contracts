@@ -277,8 +277,6 @@ contract ERC777 is Context, IERC777, IERC20 {
         address recipient,
         uint256 amount
     ) public virtual override returns (bool) {
-        _send(holder, recipient, amount, "", "", false);
-
         address spender = _msgSender();
         uint256 currentAllowance = _allowances[holder][spender];
         if (currentAllowance != type(uint256).max) {
@@ -287,6 +285,8 @@ contract ERC777 is Context, IERC777, IERC20 {
                 _approve(holder, spender, currentAllowance - amount);
             }
         }
+
+        _send(holder, recipient, amount, "", "", false);
 
         return true;
     }
@@ -375,8 +375,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         bytes memory operatorData,
         bool requireReceptionAck
     ) internal virtual {
-        require(from != address(0), "ERC777: send from the zero address");
-        require(to != address(0), "ERC777: send to the zero address");
+        require(from != address(0), "ERC777: transfer from the zero address");
+        require(to != address(0), "ERC777: transfer to the zero address");
 
         address operator = _msgSender();
 
