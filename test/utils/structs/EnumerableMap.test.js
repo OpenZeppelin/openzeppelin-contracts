@@ -19,7 +19,7 @@ contract('EnumerableMap', function (accounts) {
       this.map = await EnumerableUintToAddressMapMock.new();
     });
 
-    async function expectMembersMatch(map, keys, values) {
+    async function expectMembersMatch (map, keys, values) {
       expect(keys.length).to.equal(values.length);
 
       await Promise.all(keys.map(async key =>
@@ -195,7 +195,7 @@ contract('EnumerableMap', function (accounts) {
       this.map = await EnumerableUintToUintMapMock.new();
     });
 
-    async function expectMembersMatch(map, keys, values) {
+    async function expectMembersMatch (map, keys, values) {
       expect(keys.length).to.equal(values.length);
 
       await Promise.all(keys.map(async key =>
@@ -387,7 +387,7 @@ contract('EnumerableMap', function (accounts) {
       this.map = await EnumerableUintToBytes32MapMock.new();
     });
 
-    async function expectMembersMatch(map, keys, values) {
+    async function expectMembersMatch (map, keys, values) {
       expect(keys.length).to.equal(values.length);
 
       await Promise.all(keys.map(async key =>
