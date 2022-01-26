@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../utils/structs/EnumerableMap.sol";
 
-contract EnumerableMapMock {
+contract EnumerableUintToAddressMapMock {
     using EnumerableMap for EnumerableMap.UintToAddressMap;
 
     event OperationResult(bool result);
@@ -42,6 +42,48 @@ contract EnumerableMapMock {
     }
 
     function getWithMessage(uint256 key, string calldata errorMessage) public view returns (address) {
+        return _map.get(key, errorMessage);
+    }
+}
+
+contract EnumerableBytes32ToBytes32MapMock {
+    using EnumerableMap for EnumerableMap.Bytes32ToBytes32Map;
+
+    event OperationResult(bool result);
+
+    EnumerableMap.Bytes32ToBytes32Map private _map;
+
+    function contains(bytes32 key) public view returns (bool) {
+        return _map.contains(key);
+    }
+
+    function set(bytes32 key, bytes32 value) public {
+        bool result = _map.set(key, value);
+        emit OperationResult(result);
+    }
+
+    function remove(bytes32 key) public {
+        bool result = _map.remove(key);
+        emit OperationResult(result);
+    }
+
+    function length() public view returns (uint256) {
+        return _map.length();
+    }
+
+    function at(uint256 index) public view returns (bytes32 key, bytes32 value) {
+        return _map.at(index);
+    }
+
+    function tryGet(bytes32 key) public view returns (bool, bytes32) {
+        return _map.tryGet(key);
+    }
+
+    function get(bytes32 key) public view returns (bytes32) {
+        return _map.get(key);
+    }
+
+    function getWithMessage(bytes32 key, string calldata errorMessage) public view returns (bytes32) {
         return _map.get(key, errorMessage);
     }
 }
