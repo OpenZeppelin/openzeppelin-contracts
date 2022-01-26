@@ -2,7 +2,7 @@
 
 ## Unreleased
 
- * `AccessControl`: add a virtual `_onlyRole(bytes32)` function that can be overriden to alter the the `onlyRole` modifier behavior. ([#xxxx](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/xxxx))
+ * `AccessControl`: add a virtual `_checkRole(bytes32)` function that can be overriden to alter the the `onlyRole` modifier behavior. ([#3137](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3137))
 
 ## Unreleased
 
