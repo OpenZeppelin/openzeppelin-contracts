@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+ * `AccessControl`: add a virtual `_onlyRole(bytes32)` function that can be overriden to alter the the `onlyRole` modifier behavior. ([#xxxx](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/xxxx))
+
+## Unreleased
+
  * `ERC2891`: add implementation of the royalty standard, and the respective extensions for `ERC721` and `ERC1155`. ([#3012](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3012))
  * `GovernorTimelockControl`: improve the `state()` function to have it reflect cases where a proposal has been canceled directly on the timelock. ([#2977](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2977))
  * Preset contracts are now deprecated in favor of [Contracts Wizard](https://wizard.openzeppelin.com). ([#2986](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2986))
