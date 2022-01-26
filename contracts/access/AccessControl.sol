@@ -90,6 +90,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Overriding this function changes the behavior of the {onlyRole} modifier.
      *
      * Format of the revert message is described in {_checkRole}.
+     *
+     * _Available since v4.6._
      */
     function _checkRole(bytes32 role) internal view virtual {
         _checkRole(role, _msgSender());
