@@ -9,6 +9,7 @@ import "../utils/introspection/ERC165.sol";
 import "../utils/math/SafeCast.sol";
 import "../utils/Address.sol";
 import "../utils/Context.sol";
+import "../utils/Counters.sol";
 import "../utils/Timers.sol";
 import "./IGovernor.sol";
 
@@ -26,6 +27,7 @@ import "./IGovernor.sol";
 abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
+    using Counters for Counters.Counter;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
 
@@ -39,6 +41,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     string private _name;
 
     mapping(uint256 => ProposalCore) private _proposals;
+    mapping(bytes => Counters.Counter) private _relayAuthorized;
 
     /**
      * @dev Restrict access to governor executing address. Some module might override the _executor function to make
@@ -250,7 +253,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
         emit ProposalExecuted(proposalId);
 
+        _beforeExecute(proposalId, targets, values, calldatas, descriptionHash);
         _execute(proposalId, targets, values, calldatas, descriptionHash);
+        _afterExecute(proposalId, targets, values, calldatas, descriptionHash);
 
         return proposalId;
     }
@@ -269,6 +274,40 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
             Address.verifyCallResult(success, returndata, errorMessage);
+        }
+    }
+
+    /**
+     * @dev Hook before execution is trigerred. Authorizes relaying.
+     */
+    function _beforeExecute(
+        uint256, /* proposalId */
+        address[] memory targets,
+        uint256[] memory /* values */,
+        bytes[] memory calldatas,
+        bytes32 /*descriptionHash*/
+    ) internal virtual {
+        for (uint256 i = 0; i < targets.length; ++i) {
+            if (targets[i] == address(this)) {
+                _relayAuthorized[calldatas[i]].increment();
+            }
+        }
+    }
+
+    /**
+     * @dev Hook before execution is trigerred. Authorizes relaying.
+     */
+    function _afterExecute(
+        uint256, /* proposalId */
+        address[] memory targets,
+        uint256[] memory /* values */,
+        bytes[] memory calldatas,
+        bytes32 /*descriptionHash*/
+    ) internal virtual {
+        for (uint256 i = 0; i < targets.length; ++i) {
+            if (targets[i] == address(this)) {
+                _relayAuthorized[calldatas[i]].reset();
+            }
         }
     }
 
@@ -371,6 +410,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint256 value,
         bytes calldata data
     ) external virtual onlyGovernance {
+        _relayAuthorized[msg.data].decrement();
         Address.functionCallWithValue(target, data, value);
     }
 
