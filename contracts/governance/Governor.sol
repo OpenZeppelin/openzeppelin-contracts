@@ -310,6 +310,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual {
+        for (uint256 i = 0; i < targets.length; ++i) {
+            if (targets[i] == address(this) && extractSelector(calldatas[i]) == this.relay.selector) {
+                _relayAuthorized[calldatas[i]].reset();
+            }
+        }
     }
 
     /**
