@@ -13,6 +13,12 @@ import "../utils/Counters.sol";
 import "../utils/Timers.sol";
 import "./IGovernor.sol";
 
+function extractSelector(bytes memory data) returns (bytes4 selector) {
+    assembly {
+        selector := mload(add(data, 0x20))
+    }
+}
+
 /**
  * @dev Core of the governance system, designed to be extended though various modules.
  *
@@ -278,7 +284,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @dev Hook before execution is trigerred. Authorizes relaying.
+     * @dev Hook before execution is trigerred.
      */
     function _beforeExecute(
         uint256, /* proposalId */
@@ -288,14 +294,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         bytes32 /*descriptionHash*/
     ) internal virtual {
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (targets[i] == address(this)) {
+            if (targets[i] == address(this) && extractSelector(calldatas[i]) == this.relay.selector) {
                 _relayAuthorized[calldatas[i]].increment();
             }
         }
     }
 
     /**
-     * @dev Hook before execution is trigerred. Authorizes relaying.
+     * @dev Hook after execution is trigerred.
      */
     function _afterExecute(
         uint256, /* proposalId */
@@ -304,11 +310,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual {
-        for (uint256 i = 0; i < targets.length; ++i) {
-            if (targets[i] == address(this)) {
-                _relayAuthorized[calldatas[i]].reset();
-            }
-        }
     }
 
     /**
