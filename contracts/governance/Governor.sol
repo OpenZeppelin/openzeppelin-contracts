@@ -55,7 +55,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     modifier onlyGovernance() {
         require(_msgSender() == _executor(), "Governor: onlyGovernance");
         if (_executor() != address(this)) {
-            _governanceCall[msg.data].decrement();
+            _useCallPermission(msg.data);
         }
         _;
     }
@@ -298,7 +298,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         if (_executor() != address(this)) {
             for (uint256 i = 0; i < targets.length; ++i) {
                 if (targets[i] == address(this)) {
-                    _governanceCall[calldatas[i]].increment();
+                    _addCallPermission(calldatas[i]);
                 }
             }
         }
@@ -317,7 +317,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         if (_executor() != address(this)) {
             for (uint256 i = 0; i < targets.length; ++i) {
                 if (targets[i] == address(this)) {
-                    _governanceCall[calldatas[i]].reset();
+                    _clearCallPermission(calldatas[i]);
                 }
             }
         }
@@ -431,5 +431,17 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function _executor() internal view virtual returns (address) {
         return address(this);
+    }
+
+    function _addCallPermission(bytes memory call) private {
+        _governanceCall[call].increment();
+    }
+
+    function _useCallPermission(bytes memory call) private {
+        _governanceCall[call].decrement();
+    }
+
+    function _clearCallPermission(bytes memory call) private {
+        _governanceCall[call].reset();
     }
 }
