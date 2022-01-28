@@ -346,7 +346,7 @@ contract('GovernorTimelockControl', function (accounts) {
         constants.ZERO_BYTES32,
         constants.ZERO_BYTES32,
         3600,
-        { from: admin},
+        { from: admin },
       );
 
       await time.increase(3600);
@@ -358,7 +358,7 @@ contract('GovernorTimelockControl', function (accounts) {
           this.mock.contract.methods.relay(...this.call).encodeABI(),
           constants.ZERO_BYTES32,
           constants.ZERO_BYTES32,
-          { from: admin},
+          { from: admin },
         ),
         'TimelockController: underlying transaction reverted',
       );
