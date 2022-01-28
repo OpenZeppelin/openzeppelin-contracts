@@ -13,12 +13,6 @@ import "../utils/Counters.sol";
 import "../utils/Timers.sol";
 import "./IGovernor.sol";
 
-function extractSelector(bytes memory data) returns (bytes4 selector) {
-    assembly {
-        selector := mload(add(data, 0x20))
-    }
-}
-
 /**
  * @dev Core of the governance system, designed to be extended though various modules.
  *
@@ -47,7 +41,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     string private _name;
 
     mapping(uint256 => ProposalCore) private _proposals;
-    mapping(bytes => Counters.Counter) private _relayAuthorized;
+
+    // This mapping keeps track of the governor operating on itself. Calls to functions protected by the
+    // {onlyGovernance} modifier needs to be whitelisted in this mapping. Whitelisting is set in {_beforeExecute},
+    // and reset in {_afterExecute}. This ensures that the execution of {onlyGovernance} protected calls can only
+    // be achieved through successful proposals.
+    mapping(bytes => Counters.Counter) private _governanceCall;
 
     /**
      * @dev Restrict access to governor executing address. Some module might override the _executor function to make
@@ -55,6 +54,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     modifier onlyGovernance() {
         require(_msgSender() == _executor(), "Governor: onlyGovernance");
+        _governanceCall[msg.data].decrement();
         _;
     }
 
@@ -294,8 +294,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         bytes32 /*descriptionHash*/
     ) internal virtual {
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (targets[i] == address(this) && extractSelector(calldatas[i]) == this.relay.selector) {
-                _relayAuthorized[calldatas[i]].increment();
+            if (targets[i] == address(this)) {
+                _governanceCall[calldatas[i]].increment();
             }
         }
     }
@@ -311,8 +311,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         bytes32 /*descriptionHash*/
     ) internal virtual {
         for (uint256 i = 0; i < targets.length; ++i) {
-            if (targets[i] == address(this) && extractSelector(calldatas[i]) == this.relay.selector) {
-                _relayAuthorized[calldatas[i]].reset();
+            if (targets[i] == address(this)) {
+                _governanceCall[calldatas[i]].reset();
             }
         }
     }
@@ -416,7 +416,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint256 value,
         bytes calldata data
     ) external virtual onlyGovernance {
-        _relayAuthorized[msg.data].decrement();
         Address.functionCallWithValue(target, data, value);
     }
 
