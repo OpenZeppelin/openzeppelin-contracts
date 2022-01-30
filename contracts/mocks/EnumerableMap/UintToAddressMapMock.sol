@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/structs/EnumerableMap.sol";
+import "../../utils/structs/EnumerableMap.sol";
 
-contract EnumerableMapMock {
+contract UintToAddressMapMock {
     using EnumerableMap for EnumerableMap.UintToAddressMap;
 
     event OperationResult(bool result);
