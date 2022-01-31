@@ -3,8 +3,8 @@ const { expect } = require('chai');
 
 const Bytes32VectorMock = artifacts.require('Bytes32VectorMock');
 
-async function getContent(vector) {
-  const length = await vector.length().then(bn => bn.toNumber())
+async function getContent (vector) {
+  const length = await vector.length().then(bn => bn.toNumber());
   const values = await Promise.all(Array(length).fill().map((_, i) => vector.at(i)));
   return values;
 }
@@ -35,8 +35,8 @@ contract('Vector', function (accounts) {
 
       it('content is valid', async function () {
         expect(await this.vector.empty()).to.be.equal(false);
-        expect(await this.vector.front()).to.be.equal(bytesA)
-        expect(await this.vector.back()).to.be.equal(bytesC)
+        expect(await this.vector.front()).to.be.equal(bytesA);
+        expect(await this.vector.back()).to.be.equal(bytesC);
         expect(await getContent(this.vector)).to.have.all.members([ bytesA, bytesB, bytesC ]);
       });
 
@@ -44,21 +44,20 @@ contract('Vector', function (accounts) {
         await expectRevert.unspecified(this.vector.at(10));
       });
 
-
       describe('push', function () {
         it('front', async function () {
           await this.vector.pushFront(bytesD);
 
-          expect(await this.vector.front()).to.be.equal(bytesD)
-          expect(await this.vector.back()).to.be.equal(bytesC)
+          expect(await this.vector.front()).to.be.equal(bytesD);
+          expect(await this.vector.back()).to.be.equal(bytesC);
           expect(await getContent(this.vector)).to.have.all.members([ bytesD, bytesA, bytesB, bytesC ]);
         });
 
         it('back', async function () {
           await this.vector.pushBack(bytesD);
 
-          expect(await this.vector.front()).to.be.equal(bytesA)
-          expect(await this.vector.back()).to.be.equal(bytesD)
+          expect(await this.vector.front()).to.be.equal(bytesA);
+          expect(await this.vector.back()).to.be.equal(bytesD);
           expect(await getContent(this.vector)).to.have.all.members([ bytesA, bytesB, bytesC, bytesD ]);
         });
       });
@@ -67,16 +66,16 @@ contract('Vector', function (accounts) {
         it('front', async function () {
           expectEvent(await this.vector.popFront(), 'OperationResult', { value: bytesA });
 
-          expect(await this.vector.front()).to.be.equal(bytesB)
-          expect(await this.vector.back()).to.be.equal(bytesC)
+          expect(await this.vector.front()).to.be.equal(bytesB);
+          expect(await this.vector.back()).to.be.equal(bytesC);
           expect(await getContent(this.vector)).to.have.all.members([ bytesB, bytesC ]);
         });
 
         it('back', async function () {
           expectEvent(await this.vector.popBack(), 'OperationResult', { value: bytesC });
 
-          expect(await this.vector.front()).to.be.equal(bytesA)
-          expect(await this.vector.back()).to.be.equal(bytesB)
+          expect(await this.vector.front()).to.be.equal(bytesA);
+          expect(await this.vector.back()).to.be.equal(bytesB);
           expect(await getContent(this.vector)).to.have.all.members([ bytesA, bytesB ]);
         });
       });
