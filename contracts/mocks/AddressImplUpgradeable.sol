@@ -7,7 +7,6 @@ import "../proxy/utils/Initializable.sol";
 
 contract AddressImplUpgradeable is Initializable {
     function __AddressImpl_init() internal onlyInitializing {
-        __AddressImpl_init_unchained();
     }
 
     function __AddressImpl_init_unchained() internal onlyInitializing {
@@ -45,5 +44,11 @@ contract AddressImplUpgradeable is Initializable {
 
     // sendValue's tests require the contract to hold Ether
     receive() external payable {}
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

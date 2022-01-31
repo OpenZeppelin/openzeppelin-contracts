@@ -16,9 +16,6 @@ import "../../../proxy/utils/Initializable.sol";
  */
 contract ERC1155HolderUpgradeable is Initializable, ERC1155ReceiverUpgradeable {
     function __ERC1155Holder_init() internal onlyInitializing {
-        __ERC165_init_unchained();
-        __ERC1155Receiver_init_unchained();
-        __ERC1155Holder_init_unchained();
     }
 
     function __ERC1155Holder_init_unchained() internal onlyInitializing {
@@ -42,5 +39,11 @@ contract ERC1155HolderUpgradeable is Initializable, ERC1155ReceiverUpgradeable {
     ) public virtual override returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

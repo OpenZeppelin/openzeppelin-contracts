@@ -52,6 +52,12 @@ contract SupportsInterfaceWithLookupMockUpgradeable is Initializable, IERC165Upg
         require(interfaceId != 0xffffffff, "ERC165InterfacesSupported: invalid interface id");
         _supportedInterfaces[interfaceId] = true;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }
 
@@ -66,5 +72,11 @@ contract ERC165InterfacesSupportedUpgradeable is Initializable, SupportsInterfac
             _registerInterface(interfaceIds[i]);
         }
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

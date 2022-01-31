@@ -14,8 +14,6 @@ import "../../../proxy/utils/Initializable.sol";
  */
 abstract contract ERC20BurnableUpgradeable is Initializable, ContextUpgradeable, ERC20Upgradeable {
     function __ERC20Burnable_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC20Burnable_init_unchained();
     }
 
     function __ERC20Burnable_init_unchained() internal onlyInitializing {
@@ -48,5 +46,11 @@ abstract contract ERC20BurnableUpgradeable is Initializable, ContextUpgradeable,
         }
         _burn(account, amount);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

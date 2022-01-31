@@ -8,14 +8,9 @@ import "../proxy/utils/Initializable.sol";
 
 contract GovernorCompMockUpgradeable is Initializable, GovernorVotesCompUpgradeable, GovernorCountingSimpleUpgradeable {
     function __GovernorCompMock_init(string memory name_, ERC20VotesCompUpgradeable token_) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
         __EIP712_init_unchained(name_, version());
-        __IGovernor_init_unchained();
         __Governor_init_unchained(name_);
         __GovernorVotesComp_init_unchained(token_);
-        __GovernorCountingSimple_init_unchained();
-        __GovernorCompMock_init_unchained(name_, token_);
     }
 
     function __GovernorCompMock_init_unchained(string memory, ERC20VotesCompUpgradeable) internal onlyInitializing {}
@@ -50,5 +45,11 @@ contract GovernorCompMockUpgradeable is Initializable, GovernorVotesCompUpgradea
     {
         return super.getVotes(account, blockNumber);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

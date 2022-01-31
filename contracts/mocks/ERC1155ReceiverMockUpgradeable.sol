@@ -21,7 +21,6 @@ contract ERC1155ReceiverMockUpgradeable is Initializable, ERC165Upgradeable, IER
         bytes4 batRetval,
         bool batReverts
     ) internal onlyInitializing {
-        __ERC165_init_unchained();
         __ERC1155ReceiverMock_init_unchained(recRetval, recReverts, batRetval, batReverts);
     }
 
@@ -60,5 +59,11 @@ contract ERC1155ReceiverMockUpgradeable is Initializable, ERC165Upgradeable, IER
         emit BatchReceived(operator, from, ids, values, data, gasleft());
         return _batRetval;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

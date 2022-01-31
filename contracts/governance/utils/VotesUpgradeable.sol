@@ -31,8 +31,6 @@ import "../../proxy/utils/Initializable.sol";
  */
 abstract contract VotesUpgradeable is Initializable, IVotesUpgradeable, ContextUpgradeable, EIP712Upgradeable {
     function __Votes_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __Votes_init_unchained();
     }
 
     function __Votes_init_unchained() internal onlyInitializing {
@@ -216,5 +214,11 @@ abstract contract VotesUpgradeable is Initializable, IVotesUpgradeable, ContextU
      * @dev Must return the voting units held by an account.
      */
     function _getVotingUnits(address) internal virtual returns (uint256);
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[46] private __gap;
 }

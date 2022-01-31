@@ -23,10 +23,6 @@ import "../../../proxy/utils/Initializable.sol";
  */
 abstract contract ERC721RoyaltyUpgradeable is Initializable, ERC2981Upgradeable, ERC721Upgradeable {
     function __ERC721Royalty_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __ERC2981_init_unchained();
-        __ERC721Royalty_init_unchained();
     }
 
     function __ERC721Royalty_init_unchained() internal onlyInitializing {
@@ -45,5 +41,11 @@ abstract contract ERC721RoyaltyUpgradeable is Initializable, ERC2981Upgradeable,
         super._burn(tokenId);
         _resetTokenRoyalty(tokenId);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

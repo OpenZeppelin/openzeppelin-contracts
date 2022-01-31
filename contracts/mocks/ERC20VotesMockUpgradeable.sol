@@ -7,12 +7,9 @@ import "../proxy/utils/Initializable.sol";
 
 contract ERC20VotesMockUpgradeable is Initializable, ERC20VotesUpgradeable {
     function __ERC20VotesMock_init(string memory name, string memory symbol) internal onlyInitializing {
-        __Context_init_unchained();
         __ERC20_init_unchained(name, symbol);
         __EIP712_init_unchained(name, "1");
         __ERC20Permit_init_unchained(name);
-        __ERC20Votes_init_unchained();
-        __ERC20VotesMock_init_unchained(name, symbol);
     }
 
     function __ERC20VotesMock_init_unchained(string memory, string memory) internal onlyInitializing {}
@@ -28,5 +25,11 @@ contract ERC20VotesMockUpgradeable is Initializable, ERC20VotesUpgradeable {
     function getChainId() external view returns (uint256) {
         return block.chainid;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

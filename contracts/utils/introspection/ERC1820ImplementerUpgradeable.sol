@@ -16,7 +16,6 @@ import "../../proxy/utils/Initializable.sol";
  */
 contract ERC1820ImplementerUpgradeable is Initializable, IERC1820ImplementerUpgradeable {
     function __ERC1820Implementer_init() internal onlyInitializing {
-        __ERC1820Implementer_init_unchained();
     }
 
     function __ERC1820Implementer_init_unchained() internal onlyInitializing {
@@ -48,5 +47,11 @@ contract ERC1820ImplementerUpgradeable is Initializable, IERC1820ImplementerUpgr
     function _registerInterfaceForAddress(bytes32 interfaceHash, address account) internal virtual {
         _supportedInterfaces[interfaceHash][account] = true;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

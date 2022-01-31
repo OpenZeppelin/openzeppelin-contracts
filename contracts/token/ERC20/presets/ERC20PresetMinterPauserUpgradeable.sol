@@ -40,14 +40,8 @@ contract ERC20PresetMinterPauserUpgradeable is Initializable, ContextUpgradeable
      * See {ERC20-constructor}.
      */
     function __ERC20PresetMinterPauser_init(string memory name, string memory symbol) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __AccessControl_init_unchained();
-        __AccessControlEnumerable_init_unchained();
         __ERC20_init_unchained(name, symbol);
-        __ERC20Burnable_init_unchained();
         __Pausable_init_unchained();
-        __ERC20Pausable_init_unchained();
         __ERC20PresetMinterPauser_init_unchained(name, symbol);
     }
 
@@ -107,5 +101,11 @@ contract ERC20PresetMinterPauserUpgradeable is Initializable, ContextUpgradeable
     ) internal virtual override(ERC20Upgradeable, ERC20PausableUpgradeable) {
         super._beforeTokenTransfer(from, to, amount);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

@@ -14,10 +14,6 @@ import "../../proxy/utils/Initializable.sol";
  */
 abstract contract GovernorProposalThresholdUpgradeable is Initializable, GovernorUpgradeable {
     function __GovernorProposalThreshold_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __IGovernor_init_unchained();
-        __GovernorProposalThreshold_init_unchained();
     }
 
     function __GovernorProposalThreshold_init_unchained() internal onlyInitializing {
@@ -30,5 +26,11 @@ abstract contract GovernorProposalThresholdUpgradeable is Initializable, Governo
     ) public virtual override returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

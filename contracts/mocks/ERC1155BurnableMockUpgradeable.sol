@@ -7,11 +7,7 @@ import "../proxy/utils/Initializable.sol";
 
 contract ERC1155BurnableMockUpgradeable is Initializable, ERC1155BurnableUpgradeable {
     function __ERC1155BurnableMock_init(string memory uri) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
         __ERC1155_init_unchained(uri);
-        __ERC1155Burnable_init_unchained();
-        __ERC1155BurnableMock_init_unchained(uri);
     }
 
     function __ERC1155BurnableMock_init_unchained(string memory) internal onlyInitializing {}
@@ -24,5 +20,11 @@ contract ERC1155BurnableMockUpgradeable is Initializable, ERC1155BurnableUpgrade
     ) public {
         _mint(to, id, value, data);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

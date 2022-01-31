@@ -8,26 +8,23 @@ import "../../proxy/utils/Initializable.sol";
 
 contract UUPSUpgradeableMockUpgradeable is Initializable, CountersImplUpgradeable, UUPSUpgradeable {
     function __UUPSUpgradeableMock_init() internal onlyInitializing {
-        __CountersImpl_init_unchained();
-        __ERC1967Upgrade_init_unchained();
-        __UUPSUpgradeable_init_unchained();
-        __UUPSUpgradeableMock_init_unchained();
     }
 
     function __UUPSUpgradeableMock_init_unchained() internal onlyInitializing {
     }
     // Not having any checks in this function is dangerous! Do not do this outside tests!
     function _authorizeUpgrade(address) internal virtual override {}
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }
 
 contract UUPSUpgradeableUnsafeMockUpgradeable is Initializable, UUPSUpgradeableMockUpgradeable {
     function __UUPSUpgradeableUnsafeMock_init() internal onlyInitializing {
-        __CountersImpl_init_unchained();
-        __ERC1967Upgrade_init_unchained();
-        __UUPSUpgradeable_init_unchained();
-        __UUPSUpgradeableMock_init_unchained();
-        __UUPSUpgradeableUnsafeMock_init_unchained();
     }
 
     function __UUPSUpgradeableUnsafeMock_init_unchained() internal onlyInitializing {
@@ -39,5 +36,11 @@ contract UUPSUpgradeableUnsafeMockUpgradeable is Initializable, UUPSUpgradeableM
     function upgradeToAndCall(address newImplementation, bytes memory data) external payable virtual override {
         ERC1967UpgradeUpgradeable._upgradeToAndCall(newImplementation, data, false);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

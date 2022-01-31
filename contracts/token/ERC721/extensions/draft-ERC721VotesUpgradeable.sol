@@ -19,10 +19,6 @@ import "../../../proxy/utils/Initializable.sol";
  */
 abstract contract ERC721VotesUpgradeable is Initializable, ERC721Upgradeable, VotesUpgradeable {
     function __ERC721Votes_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __Votes_init_unchained();
-        __ERC721Votes_init_unchained();
     }
 
     function __ERC721Votes_init_unchained() internal onlyInitializing {
@@ -47,5 +43,11 @@ abstract contract ERC721VotesUpgradeable is Initializable, ERC721Upgradeable, Vo
     function _getVotingUnits(address account) internal virtual override returns (uint256) {
         return balanceOf(account);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

@@ -1,10 +1,11 @@
 name: Build Docs
 
 on:
-  push: release-v*
+  push:
+    branches: [release-v*]
 
 jobs:
-  trigger:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

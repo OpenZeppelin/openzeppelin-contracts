@@ -16,9 +16,6 @@ import "../../../proxy/utils/Initializable.sol";
  */
 abstract contract ERC1155SupplyUpgradeable is Initializable, ERC1155Upgradeable {
     function __ERC1155Supply_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __ERC1155Supply_init_unchained();
     }
 
     function __ERC1155Supply_init_unchained() internal onlyInitializing {
@@ -64,5 +61,11 @@ abstract contract ERC1155SupplyUpgradeable is Initializable, ERC1155Upgradeable 
             }
         }
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

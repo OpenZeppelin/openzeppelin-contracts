@@ -16,9 +16,6 @@ abstract contract GovernorVotesCompUpgradeable is Initializable, GovernorUpgrade
     ERC20VotesCompUpgradeable public token;
 
     function __GovernorVotesComp_init(ERC20VotesCompUpgradeable token_) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __IGovernor_init_unchained();
         __GovernorVotesComp_init_unchained(token_);
     }
 
@@ -32,5 +29,11 @@ abstract contract GovernorVotesCompUpgradeable is Initializable, GovernorUpgrade
     function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         return token.getPriorVotes(account, blockNumber);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

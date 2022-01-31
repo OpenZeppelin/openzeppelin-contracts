@@ -8,13 +8,9 @@ import "../proxy/utils/Initializable.sol";
 
 contract ERC1155PausableMockUpgradeable is Initializable, ERC1155MockUpgradeable, ERC1155PausableUpgradeable {
     function __ERC1155PausableMock_init(string memory uri) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
         __ERC1155_init_unchained(uri);
         __ERC1155Mock_init_unchained(uri);
         __Pausable_init_unchained();
-        __ERC1155Pausable_init_unchained();
-        __ERC1155PausableMock_init_unchained(uri);
     }
 
     function __ERC1155PausableMock_init_unchained(string memory) internal onlyInitializing {}
@@ -37,5 +33,11 @@ contract ERC1155PausableMockUpgradeable is Initializable, ERC1155MockUpgradeable
     ) internal virtual override(ERC1155Upgradeable, ERC1155PausableUpgradeable) {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

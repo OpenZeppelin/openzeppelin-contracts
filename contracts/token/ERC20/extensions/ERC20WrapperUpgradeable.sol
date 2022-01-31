@@ -20,7 +20,6 @@ abstract contract ERC20WrapperUpgradeable is Initializable, ERC20Upgradeable {
     IERC20Upgradeable public underlying;
 
     function __ERC20Wrapper_init(IERC20Upgradeable underlyingToken) internal onlyInitializing {
-        __Context_init_unchained();
         __ERC20Wrapper_init_unchained(underlyingToken);
     }
 
@@ -55,5 +54,11 @@ abstract contract ERC20WrapperUpgradeable is Initializable, ERC20Upgradeable {
         _mint(account, value);
         return value;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

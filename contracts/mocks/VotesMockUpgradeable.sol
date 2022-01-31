@@ -10,10 +10,7 @@ contract VotesMockUpgradeable is Initializable, VotesUpgradeable {
     mapping(uint256 => address) private _owners;
 
     function __VotesMock_init(string memory name) internal onlyInitializing {
-        __Context_init_unchained();
         __EIP712_init_unchained(name, "1");
-        __Votes_init_unchained();
-        __VotesMock_init_unchained(name);
     }
 
     function __VotesMock_init_unchained(string memory) internal onlyInitializing {}
@@ -45,5 +42,11 @@ contract VotesMockUpgradeable is Initializable, VotesUpgradeable {
     function getChainId() external view returns (uint256) {
         return block.chainid;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }

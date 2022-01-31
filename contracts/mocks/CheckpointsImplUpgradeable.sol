@@ -7,7 +7,6 @@ import "../proxy/utils/Initializable.sol";
 
 contract CheckpointsImplUpgradeable is Initializable {
     function __CheckpointsImpl_init() internal onlyInitializing {
-        __CheckpointsImpl_init_unchained();
     }
 
     function __CheckpointsImpl_init_unchained() internal onlyInitializing {
@@ -27,5 +26,11 @@ contract CheckpointsImplUpgradeable is Initializable {
     function push(uint256 value) public returns (uint256, uint256) {
         return _totalCheckpoints.push(value);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

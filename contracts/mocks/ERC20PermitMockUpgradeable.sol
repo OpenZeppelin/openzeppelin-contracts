@@ -12,7 +12,6 @@ contract ERC20PermitMockUpgradeable is Initializable, ERC20PermitUpgradeable {
         address initialAccount,
         uint256 initialBalance
     ) internal onlyInitializing {
-        __Context_init_unchained();
         __ERC20_init_unchained(name, symbol);
         __EIP712_init_unchained(name, "1");
         __ERC20Permit_init_unchained(name);
@@ -31,5 +30,11 @@ contract ERC20PermitMockUpgradeable is Initializable, ERC20PermitUpgradeable {
     function getChainId() external view returns (uint256) {
         return block.chainid;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

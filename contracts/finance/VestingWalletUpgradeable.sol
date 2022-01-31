@@ -36,7 +36,6 @@ contract VestingWalletUpgradeable is Initializable, ContextUpgradeable {
         uint64 startTimestamp,
         uint64 durationSeconds
     ) internal onlyInitializing {
-        __Context_init_unchained();
         __VestingWallet_init_unchained(beneficiaryAddress, startTimestamp, durationSeconds);
     }
 
@@ -142,5 +141,11 @@ contract VestingWalletUpgradeable is Initializable, ContextUpgradeable {
             return (totalAllocation * (timestamp - start())) / duration();
         }
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }

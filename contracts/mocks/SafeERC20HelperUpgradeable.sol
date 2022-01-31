@@ -9,8 +9,6 @@ import "../proxy/utils/Initializable.sol";
 
 contract ERC20ReturnFalseMockUpgradeable is Initializable, ContextUpgradeable {
     function __ERC20ReturnFalseMock_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC20ReturnFalseMock_init_unchained();
     }
 
     function __ERC20ReturnFalseMock_init_unchained() internal onlyInitializing {
@@ -44,13 +42,17 @@ contract ERC20ReturnFalseMockUpgradeable is Initializable, ContextUpgradeable {
         require(_dummy == 0); // Dummy read from a state variable so that the function is view
         return 0;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }
 
 contract ERC20ReturnTrueMockUpgradeable is Initializable, ContextUpgradeable {
     function __ERC20ReturnTrueMock_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC20ReturnTrueMock_init_unchained();
     }
 
     function __ERC20ReturnTrueMock_init_unchained() internal onlyInitializing {
@@ -87,13 +89,17 @@ contract ERC20ReturnTrueMockUpgradeable is Initializable, ContextUpgradeable {
     function allowance(address owner, address) public view returns (uint256) {
         return _allowances[owner];
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }
 
 contract ERC20NoReturnMockUpgradeable is Initializable, ContextUpgradeable {
     function __ERC20NoReturnMock_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC20NoReturnMock_init_unchained();
     }
 
     function __ERC20NoReturnMock_init_unchained() internal onlyInitializing {
@@ -127,6 +133,12 @@ contract ERC20NoReturnMockUpgradeable is Initializable, ContextUpgradeable {
     function allowance(address owner, address) public view returns (uint256) {
         return _allowances[owner];
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }
 
@@ -136,7 +148,6 @@ contract SafeERC20WrapperUpgradeable is Initializable, ContextUpgradeable {
     IERC20Upgradeable private _token;
 
     function __SafeERC20Wrapper_init(IERC20Upgradeable token) internal onlyInitializing {
-        __Context_init_unchained();
         __SafeERC20Wrapper_init_unchained(token);
     }
 
@@ -171,5 +182,11 @@ contract SafeERC20WrapperUpgradeable is Initializable, ContextUpgradeable {
     function allowance() public view returns (uint256) {
         return _token.allowance(address(0), address(0));
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

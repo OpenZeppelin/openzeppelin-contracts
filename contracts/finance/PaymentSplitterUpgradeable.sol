@@ -49,7 +49,6 @@ contract PaymentSplitterUpgradeable is Initializable, ContextUpgradeable {
      * duplicates in `payees`.
      */
     function __PaymentSplitter_init(address[] memory payees, uint256[] memory shares_) internal onlyInitializing {
-        __Context_init_unchained();
         __PaymentSplitter_init_unchained(payees, shares_);
     }
 
@@ -192,5 +191,11 @@ contract PaymentSplitterUpgradeable is Initializable, ContextUpgradeable {
         _totalShares = _totalShares + shares_;
         emit PayeeAdded(account, shares_);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[43] private __gap;
 }

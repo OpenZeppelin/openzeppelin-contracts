@@ -13,10 +13,7 @@ import "../../proxy/utils/Initializable.sol";
  */
 abstract contract ConditionalEscrowUpgradeable is Initializable, EscrowUpgradeable {
     function __ConditionalEscrow_init() internal onlyInitializing {
-        __Context_init_unchained();
         __Ownable_init_unchained();
-        __Escrow_init_unchained();
-        __ConditionalEscrow_init_unchained();
     }
 
     function __ConditionalEscrow_init_unchained() internal onlyInitializing {
@@ -32,5 +29,11 @@ abstract contract ConditionalEscrowUpgradeable is Initializable, EscrowUpgradeab
         require(withdrawalAllowed(payee), "ConditionalEscrow: payee is not allowed to withdraw");
         super.withdraw(payee);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

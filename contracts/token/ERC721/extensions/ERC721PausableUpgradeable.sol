@@ -16,10 +16,7 @@ import "../../../proxy/utils/Initializable.sol";
  */
 abstract contract ERC721PausableUpgradeable is Initializable, ERC721Upgradeable, PausableUpgradeable {
     function __ERC721Pausable_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
         __Pausable_init_unchained();
-        __ERC721Pausable_init_unchained();
     }
 
     function __ERC721Pausable_init_unchained() internal onlyInitializing {
@@ -40,5 +37,11 @@ abstract contract ERC721PausableUpgradeable is Initializable, ERC721Upgradeable,
 
         require(!paused(), "ERC721Pausable: token transfer while paused");
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

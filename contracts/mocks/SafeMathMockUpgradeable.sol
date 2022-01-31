@@ -7,7 +7,6 @@ import "../proxy/utils/Initializable.sol";
 
 contract SafeMathMockUpgradeable is Initializable {
     function __SafeMathMock_init() internal onlyInitializing {
-        __SafeMathMock_init_unchained();
     }
 
     function __SafeMathMock_init_unchained() internal onlyInitializing {
@@ -142,5 +141,11 @@ contract SafeMathMockUpgradeable is Initializable {
             mem := sub(mload(0x40), mem)
         }
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

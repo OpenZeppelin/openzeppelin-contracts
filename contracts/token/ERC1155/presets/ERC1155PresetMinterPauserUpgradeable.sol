@@ -38,14 +38,8 @@ contract ERC1155PresetMinterPauserUpgradeable is Initializable, ContextUpgradeab
      * deploys the contract.
      */
     function __ERC1155PresetMinterPauser_init(string memory uri) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __AccessControl_init_unchained();
-        __AccessControlEnumerable_init_unchained();
         __ERC1155_init_unchained(uri);
-        __ERC1155Burnable_init_unchained();
         __Pausable_init_unchained();
-        __ERC1155Pausable_init_unchained();
         __ERC1155PresetMinterPauser_init_unchained(uri);
     }
 
@@ -141,5 +135,11 @@ contract ERC1155PresetMinterPauserUpgradeable is Initializable, ContextUpgradeab
     ) internal virtual override(ERC1155Upgradeable, ERC1155PausableUpgradeable) {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

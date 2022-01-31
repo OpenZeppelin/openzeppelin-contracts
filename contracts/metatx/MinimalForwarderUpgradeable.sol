@@ -29,7 +29,6 @@ contract MinimalForwarderUpgradeable is Initializable, EIP712Upgradeable {
 
     function __MinimalForwarder_init() internal onlyInitializing {
         __EIP712_init_unchained("MinimalForwarder", "0.0.1");
-        __MinimalForwarder_init_unchained();
     }
 
     function __MinimalForwarder_init_unchained() internal onlyInitializing {}
@@ -70,5 +69,11 @@ contract MinimalForwarderUpgradeable is Initializable, EIP712Upgradeable {
 
         return (success, returndata);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

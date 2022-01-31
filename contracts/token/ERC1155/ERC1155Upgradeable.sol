@@ -34,8 +34,6 @@ contract ERC1155Upgradeable is Initializable, ContextUpgradeable, ERC165Upgradea
      * @dev See {_setURI}.
      */
     function __ERC1155_init(string memory uri_) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
         __ERC1155_init_unchained(uri_);
     }
 
@@ -468,5 +466,11 @@ contract ERC1155Upgradeable is Initializable, ContextUpgradeable, ERC165Upgradea
 
         return array;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[47] private __gap;
 }

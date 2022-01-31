@@ -8,7 +8,6 @@ import "../proxy/utils/Initializable.sol";
 // Bytes32Set
 contract EnumerableBytes32SetMockUpgradeable is Initializable {
     function __EnumerableBytes32SetMock_init() internal onlyInitializing {
-        __EnumerableBytes32SetMock_init_unchained();
     }
 
     function __EnumerableBytes32SetMock_init_unchained() internal onlyInitializing {
@@ -44,13 +43,18 @@ contract EnumerableBytes32SetMockUpgradeable is Initializable {
     function values() public view returns (bytes32[] memory) {
         return _set.values();
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }
 
 // AddressSet
 contract EnumerableAddressSetMockUpgradeable is Initializable {
     function __EnumerableAddressSetMock_init() internal onlyInitializing {
-        __EnumerableAddressSetMock_init_unchained();
     }
 
     function __EnumerableAddressSetMock_init_unchained() internal onlyInitializing {
@@ -86,13 +90,18 @@ contract EnumerableAddressSetMockUpgradeable is Initializable {
     function values() public view returns (address[] memory) {
         return _set.values();
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }
 
 // UintSet
 contract EnumerableUintSetMockUpgradeable is Initializable {
     function __EnumerableUintSetMock_init() internal onlyInitializing {
-        __EnumerableUintSetMock_init_unchained();
     }
 
     function __EnumerableUintSetMock_init_unchained() internal onlyInitializing {
@@ -128,5 +137,11 @@ contract EnumerableUintSetMockUpgradeable is Initializable {
     function values() public view returns (uint256[] memory) {
         return _set.values();
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }

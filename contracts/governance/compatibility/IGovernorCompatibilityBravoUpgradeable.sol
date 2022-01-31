@@ -13,8 +13,6 @@ import "../../proxy/utils/Initializable.sol";
  */
 abstract contract IGovernorCompatibilityBravoUpgradeable is Initializable, IGovernorUpgradeable {
     function __IGovernorCompatibilityBravo_init() internal onlyInitializing {
-        __IGovernor_init_unchained();
-        __IGovernorCompatibilityBravo_init_unchained();
     }
 
     function __IGovernorCompatibilityBravo_init_unchained() internal onlyInitializing {
@@ -119,5 +117,11 @@ abstract contract IGovernorCompatibilityBravoUpgradeable is Initializable, IGove
      * @dev Part of the Governor Bravo's interface: _"Gets the receipt for a voter on a given proposal"_.
      */
     function getReceipt(uint256 proposalId, address voter) public view virtual returns (Receipt memory);
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

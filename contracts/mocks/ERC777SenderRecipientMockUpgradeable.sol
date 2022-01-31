@@ -12,8 +12,6 @@ import "../proxy/utils/Initializable.sol";
 
 contract ERC777SenderRecipientMockUpgradeable is Initializable, ContextUpgradeable, IERC777SenderUpgradeable, IERC777RecipientUpgradeable, ERC1820ImplementerUpgradeable {
     function __ERC777SenderRecipientMock_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC1820Implementer_init_unchained();
         __ERC777SenderRecipientMock_init_unchained();
     }
 
@@ -168,5 +166,11 @@ contract ERC777SenderRecipientMockUpgradeable is Initializable, ContextUpgradeab
     ) public {
         token.burn(amount, data);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

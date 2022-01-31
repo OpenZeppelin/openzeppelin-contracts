@@ -7,7 +7,6 @@ import "../proxy/utils/Initializable.sol";
 
 contract SignedMathMockUpgradeable is Initializable {
     function __SignedMathMock_init() internal onlyInitializing {
-        __SignedMathMock_init_unchained();
     }
 
     function __SignedMathMock_init_unchained() internal onlyInitializing {
@@ -23,5 +22,11 @@ contract SignedMathMockUpgradeable is Initializable {
     function average(int256 a, int256 b) public pure returns (int256) {
         return SignedMathUpgradeable.average(a, b);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

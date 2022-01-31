@@ -22,12 +22,6 @@ import "../../proxy/utils/Initializable.sol";
  */
 abstract contract GovernorCompatibilityBravoUpgradeable is Initializable, IGovernorTimelockUpgradeable, IGovernorCompatibilityBravoUpgradeable, GovernorUpgradeable {
     function __GovernorCompatibilityBravo_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __IGovernor_init_unchained();
-        __IGovernorTimelock_init_unchained();
-        __IGovernorCompatibilityBravo_init_unchained();
-        __GovernorCompatibilityBravo_init_unchained();
     }
 
     function __GovernorCompatibilityBravo_init_unchained() internal onlyInitializing {
@@ -297,5 +291,11 @@ abstract contract GovernorCompatibilityBravoUpgradeable is Initializable, IGover
             revert("GovernorCompatibilityBravo: invalid vote type");
         }
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

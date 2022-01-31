@@ -22,18 +22,11 @@ contract GovernorCompatibilityBravoMockUpgradeable is
         uint256 proposalThreshold_,
         ICompoundTimelockUpgradeable timelock_
     ) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
         __EIP712_init_unchained(name_, version());
-        __IGovernor_init_unchained();
-        __IGovernorTimelock_init_unchained();
-        __IGovernorCompatibilityBravo_init_unchained();
         __Governor_init_unchained(name_);
-        __GovernorCompatibilityBravo_init_unchained();
         __GovernorSettings_init_unchained(votingDelay_, votingPeriod_, proposalThreshold_);
         __GovernorTimelockCompound_init_unchained(timelock_);
         __GovernorVotesComp_init_unchained(token_);
-        __GovernorCompatibilityBravoMock_init_unchained(name_, token_, votingDelay_, votingPeriod_, proposalThreshold_, timelock_);
     }
 
     function __GovernorCompatibilityBravoMock_init_unchained(
@@ -155,5 +148,11 @@ contract GovernorCompatibilityBravoMockUpgradeable is
     function _executor() internal view virtual override(GovernorUpgradeable, GovernorTimelockCompoundUpgradeable) returns (address) {
         return super._executor();
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

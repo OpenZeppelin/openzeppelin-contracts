@@ -7,7 +7,6 @@ import "../proxy/utils/Initializable.sol";
 
 contract SignatureCheckerMockUpgradeable is Initializable {
     function __SignatureCheckerMock_init() internal onlyInitializing {
-        __SignatureCheckerMock_init_unchained();
     }
 
     function __SignatureCheckerMock_init_unchained() internal onlyInitializing {
@@ -21,5 +20,11 @@ contract SignatureCheckerMockUpgradeable is Initializable {
     ) public view returns (bool) {
         return signer.isValidSignatureNow(hash, signature);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

@@ -10,7 +10,6 @@ import "../proxy/utils/Initializable.sol";
  */
 contract ClashingImplementationUpgradeable is Initializable {
     function __ClashingImplementation_init() internal onlyInitializing {
-        __ClashingImplementation_init_unchained();
     }
 
     function __ClashingImplementation_init_unchained() internal onlyInitializing {
@@ -22,5 +21,11 @@ contract ClashingImplementationUpgradeable is Initializable {
     function delegatedFunction() external pure returns (bool) {
         return true;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

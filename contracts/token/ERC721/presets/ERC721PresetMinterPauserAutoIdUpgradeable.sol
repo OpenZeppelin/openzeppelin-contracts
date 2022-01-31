@@ -64,15 +64,8 @@ contract ERC721PresetMinterPauserAutoIdUpgradeable is
         string memory symbol,
         string memory baseTokenURI
     ) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __AccessControl_init_unchained();
-        __AccessControlEnumerable_init_unchained();
         __ERC721_init_unchained(name, symbol);
-        __ERC721Enumerable_init_unchained();
-        __ERC721Burnable_init_unchained();
         __Pausable_init_unchained();
-        __ERC721Pausable_init_unchained();
         __ERC721PresetMinterPauserAutoId_init_unchained(name, symbol, baseTokenURI);
     }
 
@@ -161,5 +154,11 @@ contract ERC721PresetMinterPauserAutoIdUpgradeable is
     {
         return super.supportsInterface(interfaceId);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }

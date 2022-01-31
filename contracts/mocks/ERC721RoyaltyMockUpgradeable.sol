@@ -7,12 +7,7 @@ import "../proxy/utils/Initializable.sol";
 
 contract ERC721RoyaltyMockUpgradeable is Initializable, ERC721RoyaltyUpgradeable {
     function __ERC721RoyaltyMock_init(string memory name, string memory symbol) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __ERC2981_init_unchained();
         __ERC721_init_unchained(name, symbol);
-        __ERC721Royalty_init_unchained();
-        __ERC721RoyaltyMock_init_unchained(name, symbol);
     }
 
     function __ERC721RoyaltyMock_init_unchained(string memory, string memory) internal onlyInitializing {}
@@ -40,5 +35,11 @@ contract ERC721RoyaltyMockUpgradeable is Initializable, ERC721RoyaltyUpgradeable
     function deleteDefaultRoyalty() public {
         _deleteDefaultRoyalty();
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

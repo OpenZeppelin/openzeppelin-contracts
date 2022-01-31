@@ -13,10 +13,6 @@ import "../proxy/utils/Initializable.sol";
  */
 abstract contract AccessControlEnumerableUpgradeable is Initializable, IAccessControlEnumerableUpgradeable, AccessControlUpgradeable {
     function __AccessControlEnumerable_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __AccessControl_init_unchained();
-        __AccessControlEnumerable_init_unchained();
     }
 
     function __AccessControlEnumerable_init_unchained() internal onlyInitializing {
@@ -71,5 +67,11 @@ abstract contract AccessControlEnumerableUpgradeable is Initializable, IAccessCo
         super._revokeRole(role, account);
         _roleMembers[role].remove(account);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

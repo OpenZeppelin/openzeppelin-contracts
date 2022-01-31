@@ -21,8 +21,6 @@ import "./Initializable.sol";
  */
 abstract contract UUPSUpgradeable is Initializable, IERC1822ProxiableUpgradeable, ERC1967UpgradeUpgradeable {
     function __UUPSUpgradeable_init() internal onlyInitializing {
-        __ERC1967Upgrade_init_unchained();
-        __UUPSUpgradeable_init_unchained();
     }
 
     function __UUPSUpgradeable_init_unchained() internal onlyInitializing {
@@ -100,5 +98,11 @@ abstract contract UUPSUpgradeable is Initializable, IERC1822ProxiableUpgradeable
      * ```
      */
     function _authorizeUpgrade(address newImplementation) internal virtual;
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

@@ -14,9 +14,6 @@ import "../../../proxy/utils/Initializable.sol";
  */
 abstract contract ERC721EnumerableUpgradeable is Initializable, ERC721Upgradeable, IERC721EnumerableUpgradeable {
     function __ERC721Enumerable_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __ERC721Enumerable_init_unchained();
     }
 
     function __ERC721Enumerable_init_unchained() internal onlyInitializing {
@@ -169,5 +166,11 @@ abstract contract ERC721EnumerableUpgradeable is Initializable, ERC721Upgradeabl
         delete _allTokensIndex[tokenId];
         _allTokens.pop();
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[46] private __gap;
 }

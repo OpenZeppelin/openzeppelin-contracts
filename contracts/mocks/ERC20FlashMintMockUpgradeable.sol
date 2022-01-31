@@ -12,9 +12,7 @@ contract ERC20FlashMintMockUpgradeable is Initializable, ERC20FlashMintUpgradeab
         address initialAccount,
         uint256 initialBalance
     ) internal onlyInitializing {
-        __Context_init_unchained();
         __ERC20_init_unchained(name, symbol);
-        __ERC20FlashMint_init_unchained();
         __ERC20FlashMintMock_init_unchained(name, symbol, initialAccount, initialBalance);
     }
 
@@ -26,5 +24,11 @@ contract ERC20FlashMintMockUpgradeable is Initializable, ERC20FlashMintUpgradeab
     ) internal onlyInitializing {
         _mint(initialAccount, initialBalance);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

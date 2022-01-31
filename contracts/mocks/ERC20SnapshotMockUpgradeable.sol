@@ -12,9 +12,7 @@ contract ERC20SnapshotMockUpgradeable is Initializable, ERC20SnapshotUpgradeable
         address initialAccount,
         uint256 initialBalance
     ) internal onlyInitializing {
-        __Context_init_unchained();
         __ERC20_init_unchained(name, symbol);
-        __ERC20Snapshot_init_unchained();
         __ERC20SnapshotMock_init_unchained(name, symbol, initialAccount, initialBalance);
     }
 
@@ -38,5 +36,11 @@ contract ERC20SnapshotMockUpgradeable is Initializable, ERC20SnapshotUpgradeable
     function burn(address account, uint256 amount) public {
         _burn(account, amount);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

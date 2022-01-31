@@ -37,9 +37,6 @@ abstract contract GovernorPreventLateQuorumUpgradeable is Initializable, Governo
      * at proposal creation.
      */
     function __GovernorPreventLateQuorum_init(uint64 initialVoteExtension) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __IGovernor_init_unchained();
         __GovernorPreventLateQuorum_init_unchained(initialVoteExtension);
     }
 
@@ -112,5 +109,11 @@ abstract contract GovernorPreventLateQuorumUpgradeable is Initializable, Governo
         emit LateQuorumVoteExtensionSet(_voteExtension, newVoteExtension);
         _voteExtension = newVoteExtension;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }

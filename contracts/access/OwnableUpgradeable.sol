@@ -27,7 +27,6 @@ abstract contract OwnableUpgradeable is Initializable, ContextUpgradeable {
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
     function __Ownable_init() internal onlyInitializing {
-        __Context_init_unchained();
         __Ownable_init_unchained();
     }
 
@@ -79,5 +78,11 @@ abstract contract OwnableUpgradeable is Initializable, ContextUpgradeable {
         _owner = newOwner;
         emit OwnershipTransferred(oldOwner, newOwner);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

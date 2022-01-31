@@ -28,9 +28,6 @@ abstract contract GovernorSettingsUpgradeable is Initializable, GovernorUpgradea
         uint256 initialVotingPeriod,
         uint256 initialProposalThreshold
     ) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __IGovernor_init_unchained();
         __GovernorSettings_init_unchained(initialVotingDelay, initialVotingPeriod, initialProposalThreshold);
     }
 
@@ -123,5 +120,11 @@ abstract contract GovernorSettingsUpgradeable is Initializable, GovernorUpgradea
         emit ProposalThresholdSet(_proposalThreshold, newProposalThreshold);
         _proposalThreshold = newProposalThreshold;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[47] private __gap;
 }

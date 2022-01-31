@@ -54,10 +54,7 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
      * @dev Sets the value for {name} and {version}
      */
     function __Governor_init(string memory name_) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
         __EIP712_init_unchained(name_, version());
-        __IGovernor_init_unchained();
         __Governor_init_unchained(name_);
     }
 
@@ -390,5 +387,11 @@ abstract contract GovernorUpgradeable is Initializable, ContextUpgradeable, ERC1
     function _executor() internal view virtual returns (address) {
         return address(this);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }

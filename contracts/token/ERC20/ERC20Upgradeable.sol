@@ -53,7 +53,6 @@ contract ERC20Upgradeable is Initializable, ContextUpgradeable, IERC20Upgradeabl
      * construction.
      */
     function __ERC20_init(string memory name_, string memory symbol_) internal onlyInitializing {
-        __Context_init_unchained();
         __ERC20_init_unchained(name_, symbol_);
     }
 
@@ -367,5 +366,11 @@ contract ERC20Upgradeable is Initializable, ContextUpgradeable, IERC20Upgradeabl
         address to,
         uint256 amount
     ) internal virtual {}
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[45] private __gap;
 }

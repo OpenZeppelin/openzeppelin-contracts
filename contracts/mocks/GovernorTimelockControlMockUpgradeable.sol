@@ -22,18 +22,12 @@ contract GovernorTimelockControlMockUpgradeable is
         TimelockControllerUpgradeable timelock_,
         uint256 quorumNumerator_
     ) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
         __EIP712_init_unchained(name_, version());
-        __IGovernor_init_unchained();
-        __IGovernorTimelock_init_unchained();
         __Governor_init_unchained(name_);
         __GovernorSettings_init_unchained(votingDelay_, votingPeriod_, 0);
         __GovernorTimelockControl_init_unchained(timelock_);
         __GovernorVotes_init_unchained(token_);
         __GovernorVotesQuorumFraction_init_unchained(quorumNumerator_);
-        __GovernorCountingSimple_init_unchained();
-        __GovernorTimelockControlMock_init_unchained(name_, token_, votingDelay_, votingPeriod_, timelock_, quorumNumerator_);
     }
 
     function __GovernorTimelockControlMock_init_unchained(
@@ -122,5 +116,11 @@ contract GovernorTimelockControlMockUpgradeable is
     function _executor() internal view virtual override(GovernorUpgradeable, GovernorTimelockControlUpgradeable) returns (address) {
         return super._executor();
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

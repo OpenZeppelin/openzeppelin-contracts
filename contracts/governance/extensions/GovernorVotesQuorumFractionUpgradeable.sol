@@ -18,9 +18,6 @@ abstract contract GovernorVotesQuorumFractionUpgradeable is Initializable, Gover
     event QuorumNumeratorUpdated(uint256 oldQuorumNumerator, uint256 newQuorumNumerator);
 
     function __GovernorVotesQuorumFraction_init(uint256 quorumNumeratorValue) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __IGovernor_init_unchained();
         __GovernorVotesQuorumFraction_init_unchained(quorumNumeratorValue);
     }
 
@@ -55,5 +52,11 @@ abstract contract GovernorVotesQuorumFractionUpgradeable is Initializable, Gover
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

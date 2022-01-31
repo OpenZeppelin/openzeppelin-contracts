@@ -32,7 +32,6 @@ abstract contract PausableUpgradeable is Initializable, ContextUpgradeable {
      * @dev Initializes the contract in unpaused state.
      */
     function __Pausable_init() internal onlyInitializing {
-        __Context_init_unchained();
         __Pausable_init_unchained();
     }
 
@@ -94,5 +93,11 @@ abstract contract PausableUpgradeable is Initializable, ContextUpgradeable {
         _paused = false;
         emit Unpaused(_msgSender());
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

@@ -13,8 +13,6 @@ import "../../proxy/utils/Initializable.sol";
  */
 abstract contract IGovernorTimelockUpgradeable is Initializable, IGovernorUpgradeable {
     function __IGovernorTimelock_init() internal onlyInitializing {
-        __IGovernor_init_unchained();
-        __IGovernorTimelock_init_unchained();
     }
 
     function __IGovernorTimelock_init_unchained() internal onlyInitializing {
@@ -31,5 +29,11 @@ abstract contract IGovernorTimelockUpgradeable is Initializable, IGovernorUpgrad
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public virtual returns (uint256 proposalId);
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

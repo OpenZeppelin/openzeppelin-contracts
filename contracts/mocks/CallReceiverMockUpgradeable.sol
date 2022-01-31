@@ -5,7 +5,6 @@ import "../proxy/utils/Initializable.sol";
 
 contract CallReceiverMockUpgradeable is Initializable {
     function __CallReceiverMock_init() internal onlyInitializing {
-        __CallReceiverMock_init_unchained();
     }
 
     function __CallReceiverMock_init_unchained() internal onlyInitializing {
@@ -61,5 +60,11 @@ contract CallReceiverMockUpgradeable is Initializable {
         sharedAnswer = "42";
         return "0x1234";
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }

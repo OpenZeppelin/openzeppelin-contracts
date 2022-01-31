@@ -7,7 +7,6 @@ import "../proxy/utils/Initializable.sol";
 
 contract ERC165CheckerMockUpgradeable is Initializable {
     function __ERC165CheckerMock_init() internal onlyInitializing {
-        __ERC165CheckerMock_init_unchained();
     }
 
     function __ERC165CheckerMock_init_unchained() internal onlyInitializing {
@@ -29,5 +28,11 @@ contract ERC165CheckerMockUpgradeable is Initializable {
     function getSupportedInterfaces(address account, bytes4[] memory interfaceIds) public view returns (bool[] memory) {
         return account.getSupportedInterfaces(interfaceIds);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

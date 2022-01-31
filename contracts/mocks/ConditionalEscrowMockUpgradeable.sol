@@ -8,11 +8,7 @@ import "../proxy/utils/Initializable.sol";
 // mock class using ConditionalEscrow
 contract ConditionalEscrowMockUpgradeable is Initializable, ConditionalEscrowUpgradeable {
     function __ConditionalEscrowMock_init() internal onlyInitializing {
-        __Context_init_unchained();
         __Ownable_init_unchained();
-        __Escrow_init_unchained();
-        __ConditionalEscrow_init_unchained();
-        __ConditionalEscrowMock_init_unchained();
     }
 
     function __ConditionalEscrowMock_init_unchained() internal onlyInitializing {
@@ -26,5 +22,11 @@ contract ConditionalEscrowMockUpgradeable is Initializable, ConditionalEscrowUpg
     function withdrawalAllowed(address payee) public view override returns (bool) {
         return _allowed[payee];
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

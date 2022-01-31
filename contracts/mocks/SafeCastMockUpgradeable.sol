@@ -7,7 +7,6 @@ import "../proxy/utils/Initializable.sol";
 
 contract SafeCastMockUpgradeable is Initializable {
     function __SafeCastMock_init() internal onlyInitializing {
-        __SafeCastMock_init_unchained();
     }
 
     function __SafeCastMock_init_unchained() internal onlyInitializing {
@@ -70,5 +69,11 @@ contract SafeCastMockUpgradeable is Initializable {
     function toInt8(int256 a) public pure returns (int8) {
         return a.toInt8();
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

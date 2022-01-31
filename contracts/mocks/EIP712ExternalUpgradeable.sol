@@ -9,7 +9,6 @@ import "../proxy/utils/Initializable.sol";
 contract EIP712ExternalUpgradeable is Initializable, EIP712Upgradeable {
     function __EIP712External_init(string memory name, string memory version) internal onlyInitializing {
         __EIP712_init_unchained(name, version);
-        __EIP712External_init_unchained(name, version);
     }
 
     function __EIP712External_init_unchained(string memory, string memory) internal onlyInitializing {}
@@ -34,5 +33,11 @@ contract EIP712ExternalUpgradeable is Initializable, EIP712Upgradeable {
     function getChainId() external view returns (uint256) {
         return block.chainid;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

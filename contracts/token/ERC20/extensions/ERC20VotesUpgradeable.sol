@@ -26,6 +26,9 @@ import "../../../proxy/utils/Initializable.sol";
  * _Available since v4.2._
  */
 abstract contract ERC20VotesUpgradeable is Initializable, IVotesUpgradeable, ERC20PermitUpgradeable {
+    function __ERC20Votes_init() internal onlyInitializing {
+    }
+
     function __ERC20Votes_init_unchained() internal onlyInitializing {
     }
     struct Checkpoint {
@@ -249,5 +252,11 @@ abstract contract ERC20VotesUpgradeable is Initializable, IVotesUpgradeable, ERC
     function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
         return a - b;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[47] private __gap;
 }

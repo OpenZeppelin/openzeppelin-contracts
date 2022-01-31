@@ -5,18 +5,22 @@ import "../proxy/utils/Initializable.sol";
 
 abstract contract ImplUpgradeable is Initializable {
     function __Impl_init() internal onlyInitializing {
-        __Impl_init_unchained();
     }
 
     function __Impl_init_unchained() internal onlyInitializing {
     }
     function version() public pure virtual returns (string memory);
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }
 
 contract DummyImplementationUpgradeable is Initializable {
     function __DummyImplementation_init() internal onlyInitializing {
-        __DummyImplementation_init_unchained();
     }
 
     function __DummyImplementation_init_unchained() internal onlyInitializing {
@@ -62,13 +66,17 @@ contract DummyImplementationUpgradeable is Initializable {
     function reverts() public pure {
         require(false, "DummyImplementation reverted");
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[47] private __gap;
 }
 
 contract DummyImplementationV2Upgradeable is Initializable, DummyImplementationUpgradeable {
     function __DummyImplementationV2_init() internal onlyInitializing {
-        __DummyImplementation_init_unchained();
-        __DummyImplementationV2_init_unchained();
     }
 
     function __DummyImplementationV2_init_unchained() internal onlyInitializing {
@@ -80,5 +88,11 @@ contract DummyImplementationV2Upgradeable is Initializable, DummyImplementationU
     function version() public pure override returns (string memory) {
         return "V2";
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

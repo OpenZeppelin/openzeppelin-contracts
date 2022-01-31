@@ -13,9 +13,6 @@ import "../../../proxy/utils/Initializable.sol";
  */
 abstract contract ERC721BurnableUpgradeable is Initializable, ContextUpgradeable, ERC721Upgradeable {
     function __ERC721Burnable_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __ERC721Burnable_init_unchained();
     }
 
     function __ERC721Burnable_init_unchained() internal onlyInitializing {
@@ -32,5 +29,11 @@ abstract contract ERC721BurnableUpgradeable is Initializable, ContextUpgradeable
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
         _burn(tokenId);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

@@ -16,18 +16,11 @@ contract MyGovernorUpgradeable is
     GovernorVotesQuorumFractionUpgradeable
 {
     function __MyGovernor_init(IVotesUpgradeable _token, TimelockControllerUpgradeable _timelock) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
         __EIP712_init_unchained("MyGovernor", version());
-        __IGovernor_init_unchained();
-        __IGovernorTimelock_init_unchained();
-        __IGovernorCompatibilityBravo_init_unchained();
         __Governor_init_unchained("MyGovernor");
         __GovernorTimelockControl_init_unchained(_timelock);
-        __GovernorCompatibilityBravo_init_unchained();
         __GovernorVotes_init_unchained(_token);
         __GovernorVotesQuorumFraction_init_unchained(4);
-        __MyGovernor_init_unchained(_token, _timelock);
     }
 
     function __MyGovernor_init_unchained(IVotesUpgradeable, TimelockControllerUpgradeable) internal onlyInitializing {}
@@ -113,5 +106,11 @@ contract MyGovernorUpgradeable is
     {
         return super.supportsInterface(interfaceId);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

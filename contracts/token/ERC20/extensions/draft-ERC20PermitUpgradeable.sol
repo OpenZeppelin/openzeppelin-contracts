@@ -34,7 +34,6 @@ abstract contract ERC20PermitUpgradeable is Initializable, ERC20Upgradeable, IER
      * It's a good idea to use the same `name` that is defined as the ERC20 token name.
      */
     function __ERC20Permit_init(string memory name) internal onlyInitializing {
-        __Context_init_unchained();
         __EIP712_init_unchained(name, "1");
         __ERC20Permit_init_unchained(name);
     }
@@ -91,5 +90,11 @@ abstract contract ERC20PermitUpgradeable is Initializable, ERC20Upgradeable, IER
         current = nonce.current();
         nonce.increment();
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

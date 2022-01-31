@@ -35,7 +35,6 @@ contract ERC777PresetFixedSupplyUpgradeable is Initializable, ERC777Upgradeable 
         uint256 initialSupply,
         address owner
     ) internal onlyInitializing {
-        __Context_init_unchained();
         __ERC777_init_unchained(name, symbol, defaultOperators);
         __ERC777PresetFixedSupply_init_unchained(name, symbol, defaultOperators, initialSupply, owner);
     }
@@ -49,5 +48,11 @@ contract ERC777PresetFixedSupplyUpgradeable is Initializable, ERC777Upgradeable 
     ) internal onlyInitializing {
         _mint(owner, initialSupply, "", "");
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

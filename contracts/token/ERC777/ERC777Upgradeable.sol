@@ -63,7 +63,6 @@ contract ERC777Upgradeable is Initializable, ContextUpgradeable, IERC777Upgradea
         string memory symbol_,
         address[] memory defaultOperators_
     ) internal onlyInitializing {
-        __Context_init_unchained();
         __ERC777_init_unchained(name_, symbol_, defaultOperators_);
     }
 
@@ -556,5 +555,11 @@ contract ERC777Upgradeable is Initializable, ContextUpgradeable, IERC777Upgradea
         address to,
         uint256 amount
     ) internal virtual {}
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[41] private __gap;
 }

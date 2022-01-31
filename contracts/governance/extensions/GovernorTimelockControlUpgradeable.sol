@@ -36,10 +36,6 @@ abstract contract GovernorTimelockControlUpgradeable is Initializable, IGovernor
      * @dev Set the timelock.
      */
     function __GovernorTimelockControl_init(TimelockControllerUpgradeable timelockAddress) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __IGovernor_init_unchained();
-        __IGovernorTimelock_init_unchained();
         __GovernorTimelockControl_init_unchained(timelockAddress);
     }
 
@@ -166,5 +162,11 @@ abstract contract GovernorTimelockControlUpgradeable is Initializable, IGovernor
         emit TimelockChange(address(_timelock), address(newTimelock));
         _timelock = newTimelock;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[48] private __gap;
 }

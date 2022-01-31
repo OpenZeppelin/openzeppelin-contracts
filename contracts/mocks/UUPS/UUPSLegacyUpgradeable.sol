@@ -9,11 +9,6 @@ import "../../proxy/utils/Initializable.sol";
 // It's used to test that newer UUPS contracts are considered valid upgrades by older UUPS contracts.
 contract UUPSUpgradeableLegacyMockUpgradeable is Initializable, UUPSUpgradeableMockUpgradeable {
     function __UUPSUpgradeableLegacyMock_init() internal onlyInitializing {
-        __CountersImpl_init_unchained();
-        __ERC1967Upgrade_init_unchained();
-        __UUPSUpgradeable_init_unchained();
-        __UUPSUpgradeableMock_init_unchained();
-        __UUPSUpgradeableLegacyMock_init_unchained();
     }
 
     function __UUPSUpgradeableLegacyMock_init_unchained() internal onlyInitializing {
@@ -76,5 +71,11 @@ contract UUPSUpgradeableLegacyMockUpgradeable is Initializable, UUPSUpgradeableM
         (bool success, bytes memory returndata) = target.delegatecall(data);
         return AddressUpgradeable.verifyCallResult(success, returndata, "Address: low-level delegate call failed");
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

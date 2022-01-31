@@ -49,9 +49,6 @@ import "../proxy/utils/Initializable.sol";
  */
 abstract contract AccessControlUpgradeable is Initializable, ContextUpgradeable, IAccessControlUpgradeable, ERC165Upgradeable {
     function __AccessControl_init() internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
-        __AccessControl_init_unchained();
     }
 
     function __AccessControl_init_unchained() internal onlyInitializing {
@@ -229,5 +226,11 @@ abstract contract AccessControlUpgradeable is Initializable, ContextUpgradeable,
             emit RoleRevoked(role, account, _msgSender());
         }
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

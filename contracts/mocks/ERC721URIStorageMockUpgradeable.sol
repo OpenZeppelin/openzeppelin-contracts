@@ -13,11 +13,7 @@ contract ERC721URIStorageMockUpgradeable is Initializable, ERC721URIStorageUpgra
     string private _baseTokenURI;
 
     function __ERC721URIStorageMock_init(string memory name, string memory symbol) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
         __ERC721_init_unchained(name, symbol);
-        __ERC721URIStorage_init_unchained();
-        __ERC721URIStorageMock_init_unchained(name, symbol);
     }
 
     function __ERC721URIStorageMock_init_unchained(string memory, string memory) internal onlyInitializing {}
@@ -61,5 +57,11 @@ contract ERC721URIStorageMockUpgradeable is Initializable, ERC721URIStorageUpgra
     function burn(uint256 tokenId) public {
         _burn(tokenId);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

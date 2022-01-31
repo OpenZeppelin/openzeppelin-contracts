@@ -24,14 +24,10 @@ contract GovernorPreventLateQuorumMockUpgradeable is
         uint256 quorum_,
         uint64 voteExtension_
     ) internal onlyInitializing {
-        __Context_init_unchained();
-        __ERC165_init_unchained();
         __EIP712_init_unchained(name_, version());
-        __IGovernor_init_unchained();
         __Governor_init_unchained(name_);
         __GovernorSettings_init_unchained(votingDelay_, votingPeriod_, 0);
         __GovernorVotes_init_unchained(token_);
-        __GovernorCountingSimple_init_unchained();
         __GovernorPreventLateQuorum_init_unchained(voteExtension_);
         __GovernorPreventLateQuorumMock_init_unchained(name_, token_, votingDelay_, votingPeriod_, quorum_, voteExtension_);
     }
@@ -73,5 +69,11 @@ contract GovernorPreventLateQuorumMockUpgradeable is
     ) internal virtual override(GovernorUpgradeable, GovernorPreventLateQuorumUpgradeable) returns (uint256) {
         return super._castVote(proposalId, account, support, reason);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[49] private __gap;
 }

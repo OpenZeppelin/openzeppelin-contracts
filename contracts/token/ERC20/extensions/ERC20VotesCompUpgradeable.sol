@@ -24,6 +24,9 @@ import "../../../proxy/utils/Initializable.sol";
  * _Available since v4.2._
  */
 abstract contract ERC20VotesCompUpgradeable is Initializable, ERC20VotesUpgradeable {
+    function __ERC20VotesComp_init() internal onlyInitializing {
+    }
+
     function __ERC20VotesComp_init_unchained() internal onlyInitializing {
     }
     /**
@@ -46,5 +49,11 @@ abstract contract ERC20VotesCompUpgradeable is Initializable, ERC20VotesUpgradea
     function _maxSupply() internal view virtual override returns (uint224) {
         return type(uint96).max;
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }

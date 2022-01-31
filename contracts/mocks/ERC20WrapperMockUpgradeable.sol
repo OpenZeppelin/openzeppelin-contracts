@@ -11,10 +11,8 @@ contract ERC20WrapperMockUpgradeable is Initializable, ERC20WrapperUpgradeable {
         string memory name,
         string memory symbol
     ) internal onlyInitializing {
-        __Context_init_unchained();
         __ERC20_init_unchained(name, symbol);
         __ERC20Wrapper_init_unchained(_underlyingToken);
-        __ERC20WrapperMock_init_unchained(_underlyingToken, name, symbol);
     }
 
     function __ERC20WrapperMock_init_unchained(
@@ -26,5 +24,11 @@ contract ERC20WrapperMockUpgradeable is Initializable, ERC20WrapperUpgradeable {
     function recover(address account) public returns (uint256) {
         return _recover(account);
     }
+
+    /**
+     * This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
     uint256[50] private __gap;
 }
