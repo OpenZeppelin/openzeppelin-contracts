@@ -12,38 +12,51 @@ library Vector {
     }
 
     function pushBack(Bytes32Vector storage vector, bytes32 value) internal {
-        vector.data[vector.end++] = value;
+        unchecked {
+            vector.data[vector.end++] = value;
+        }
     }
 
     function pushFront(Bytes32Vector storage vector, bytes32 value) internal {
-        vector.data[--vector.begin] = value;
+        unchecked {
+            vector.data[--vector.begin] = value;
+        }
     }
 
     function popFront(Bytes32Vector storage vector) internal returns (bytes32 value) {
         if (empty(vector)) revert Empty();
-        int128 idx = vector.begin++;
-        value = vector.data[idx];
-        delete vector.data[idx];
+        unchecked {
+            int128 idx = vector.begin++;
+            value = vector.data[idx];
+            delete vector.data[idx];
+        }
     }
 
     function popBack(Bytes32Vector storage vector) internal returns (bytes32 value) {
         if (empty(vector)) revert Empty();
-        int128 idx = --vector.end;
-        value = vector.data[idx];
-        delete vector.data[idx];
+        unchecked {
+            int128 idx = --vector.end;
+            value = vector.data[idx];
+            delete vector.data[idx];
+        }
     }
 
     function front(Bytes32Vector storage vector) internal view returns (bytes32 value) {
         if (empty(vector)) revert Empty();
-        return vector.data[vector.begin];
+        unchecked {
+            return vector.data[vector.begin];
+        }
     }
 
     function back(Bytes32Vector storage vector) internal view returns (bytes32 value) {
         if (empty(vector)) revert Empty();
-        return vector.data[vector.end - 1];
+        unchecked {
+            return vector.data[vector.end - 1];
+        }
     }
 
     function at(Bytes32Vector storage vector, uint256 i) internal view returns (bytes32 value) {
+        // leave check here: overflow could happen
         int128 idx = vector.begin + int128(int256(i));
         if (idx >= vector.end) revert OutOfBound();
         return vector.data[idx];
@@ -55,7 +68,9 @@ library Vector {
     }
 
     function length(Bytes32Vector storage vector) internal view returns (uint256) {
-        return uint256(uint128(vector.end - vector.begin));
+        unchecked {
+            return uint256(int256(vector.end - vector.begin));
+        }
     }
 
     function empty(Bytes32Vector storage vector) internal view returns (bool) {
