@@ -25,13 +25,10 @@ contract('MerkleProof', function (accounts) {
 
       expect(await this.merkleProof.verify(proof, root, leaf)).to.equal(true);
 
-      // It is also possible to create valid proofs for certain 64-byte values *not* in elements:
-
-      // Buffer.concat([keccak256(elements[0]), keccak256(elements[1])].sort(Buffer.compare))
-      let noSuchElement = Buffer.from('03783fac2efed8fbc9ad443e592ee30e61d65f471140c10ca155e937b435b7601f675bff07515f5df96737194ea945c36c41e7b4fcef307b7cd4d0e602a69111', 'hex');
-
-      let noSuchLeaf = keccak256(noSuchElement);
-
+      // For demonstration, it is also possible to create valid proofs for certain 64-byte values *not* in elements:
+      const noSuchLeaf = keccak256(
+        Buffer.concat([keccak256(elements[0]), keccak256(elements[1])].sort(Buffer.compare)),
+      );
       expect(await this.merkleProof.verify(proof.slice(1), root, noSuchLeaf)).to.equal(true);
     });
 
