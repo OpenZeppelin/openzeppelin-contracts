@@ -26,7 +26,7 @@ import "./EnumerableSet.sol";
  * }
  * ```
  *
- * As of v4.5.0, the following map types are supported:
+ * As of v4.6.0, the following map types are supported:
  *
  * - `uint256 -> address` (`UintToAddressMap`)
  * - `address -> uint256` (`AddressToUintMap`)
