@@ -24,6 +24,7 @@ contract('AddressToUintMap', function (accounts) {
   describe('set', function () {
     it('adds a key', async function () {
       const receipt = await this.map.set(accountA, valueA);
+
       expectEvent(receipt, 'OperationResult', { result: true });
 
       await expectMembersMatch(this.map, [accountA], [valueA]);
@@ -42,6 +43,7 @@ contract('AddressToUintMap', function (accounts) {
       await this.map.set(accountA, valueA);
 
       const receipt = await this.map.set(accountA, valueA);
+
       expectEvent(receipt, 'OperationResult', { result: false });
 
       await expectMembersMatch(this.map, [accountA], [valueA]);
@@ -60,14 +62,17 @@ contract('AddressToUintMap', function (accounts) {
       await this.map.set(accountA, valueA);
 
       const receipt = await this.map.remove(accountA);
+
       expectEvent(receipt, 'OperationResult', { result: true });
 
       expect(await this.map.contains(accountA)).to.equal(false);
+
       await expectMembersMatch(this.map, [], []);
     });
 
     it('returns false when removing keys not in the set', async function () {
       const receipt = await this.map.remove(accountA);
+
       expectEvent(receipt, 'OperationResult', { result: false });
 
       expect(await this.map.contains(accountA)).to.equal(false);
@@ -125,17 +130,9 @@ contract('AddressToUintMap', function (accounts) {
       it('existing value', async function () {
         expect(await this.map.get(accountA)).to.bignumber.equal(valueA);
       });
+
       it('missing value', async function () {
         await expectRevert(this.map.get(accountB), 'EnumerableMap: nonexistent key');
-      });
-    });
-
-    describe('get with message', function () {
-      it('existing value', async function () {
-        expect(await this.map.getWithMessage(accountA, 'custom error string')).to.bignumber.equal(valueA);
-      });
-      it('missing value', async function () {
-        await expectRevert(this.map.getWithMessage(accountB, 'custom error string'), 'custom error string');
       });
     });
 
@@ -148,6 +145,7 @@ contract('AddressToUintMap', function (accounts) {
 
         expect(actual).to.deep.equal(expected);
       });
+
       it('missing value', async function () {
         const actual = stringifyTryGetValue(await this.map.tryGet(accountB));
         const expected = stringifyTryGetValue({ 0: false, 1: new BN('0') });

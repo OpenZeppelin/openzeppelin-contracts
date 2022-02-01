@@ -40,8 +40,4 @@ contract AddressToUintMapMock {
     function get(address key) public view returns (uint256) {
         return _map.get(key);
     }
-
-    function getWithMessage(address key, string calldata errorMessage) public view returns (uint256) {
-        return _map.get(key, errorMessage);
-    }
 }

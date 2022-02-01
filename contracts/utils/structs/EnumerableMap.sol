@@ -246,7 +246,7 @@ library EnumerableMap {
         Map _inner;
     }
 
-    /**
+   /**
      * @dev Adds a key-value pair to a map, or updates the value for an existing
      * key. O(1).
      *
@@ -258,7 +258,7 @@ library EnumerableMap {
         address key,
         uint256 value
     ) internal returns (bool) {
-        return _set(map._inner, addressToBytes32(key), bytes32(value));
+        return _set(map._inner, bytes32(uint256(uint160(key))), bytes32(value));
     }
 
     /**
@@ -267,14 +267,14 @@ library EnumerableMap {
      * Returns true if the key was removed from the map, that is if it was present.
      */
     function remove(AddressToUintMap storage map, address key) internal returns (bool) {
-        return _remove(map._inner, addressToBytes32(key));
+        return _remove(map._inner, bytes32(uint256(uint160(key))));
     }
 
     /**
      * @dev Returns true if the key is in the map. O(1).
      */
     function contains(AddressToUintMap storage map, address key) internal view returns (bool) {
-        return _contains(map._inner, addressToBytes32(key));
+        return _contains(map._inner, bytes32(uint256(uint160(key))));
     }
 
     /**
@@ -295,7 +295,7 @@ library EnumerableMap {
      */
     function at(AddressToUintMap storage map, uint256 index) internal view returns (address, uint256) {
         (bytes32 key, bytes32 value) = _at(map._inner, index);
-        return (bytes32ToAddress(key), uint256(value));
+        return (address(uint160(uint256(key))), uint256(value));
     }
 
     /**
@@ -305,7 +305,7 @@ library EnumerableMap {
      * _Available since v3.4._
      */
     function tryGet(AddressToUintMap storage map, address key) internal view returns (bool, uint256) {
-        (bool success, bytes32 value) = _tryGet(map._inner, addressToBytes32(key));
+        (bool success, bytes32 value) = _tryGet(map._inner, bytes32(uint256(uint160(key))));
         return (success, uint256(value));
     }
 
@@ -317,28 +317,6 @@ library EnumerableMap {
      * - `key` must be in the map.
      */
     function get(AddressToUintMap storage map, address key) internal view returns (uint256) {
-        return uint256(_get(map._inner, addressToBytes32(key)));
+        return uint256(_get(map._inner, bytes32(uint256(uint160(key)))));
     }
-
-    /**
-     * @dev Same as {get}, with a custom error message when `key` is not in the map.
-     *
-     * CAUTION: This function is deprecated because it requires allocating memory for the error
-     * message unnecessarily. For custom revert reasons use {tryGet}.
-     */
-    function get(
-        AddressToUintMap storage map,
-        address key,
-        string memory errorMessage
-    ) internal view returns (uint256) {
-        return uint256(_get(map._inner, addressToBytes32(key), errorMessage));
-    }
-}
-
-function addressToBytes32(address _address) pure returns (bytes32) {
-    return bytes32(uint256(uint160(_address)));
-}
-
-function bytes32ToAddress(bytes32 _bytes32) pure returns (address) {
-    return address(uint160(uint256(_bytes32)));
 }

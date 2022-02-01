@@ -1,7 +1,6 @@
 const zip = require('lodash.zip');
 
-const toString = (value) => value.toString();
-const toStringArray = (array) => array.map(toString);
+const toStringArray = (array) => array.map((i) => i.toString());
 
 async function expectMembersMatch (map, keys, values) {
   const stringKeys = toStringArray(keys);
@@ -11,7 +10,7 @@ async function expectMembersMatch (map, keys, values) {
 
   await Promise.all(keys.map(async (key) => expect(await map.contains(key)).to.equal(true)));
 
-  expect(await map.length()).to.bignumber.equal(toString(keys.length));
+  expect(await map.length()).to.bignumber.equal(keys.length.toString());
 
   expect(toStringArray(await Promise.all(keys.map((key) => map.get(key))))).to.have.same.members(stringValues);
 
@@ -21,7 +20,7 @@ async function expectMembersMatch (map, keys, values) {
     await Promise.all(
       [...Array(keys.length).keys()].map(async (index) => {
         const { key, value } = await map.at(index);
-        return [toString(key), toString(value)];
+        return [key.toString(), value.toString()];
       }),
     ),
   ).to.have.same.deep.members(zip(stringKeys, stringValues));
