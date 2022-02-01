@@ -45,9 +45,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev Sets the values for {name} and {symbol}.
      *
-     * The default value of {decimals} is 18. To select a different value for
-     * {decimals} you should overload it.
-     *
      * All two of these values are immutable: they can only be set once during
      * construction.
      */
