@@ -26,10 +26,10 @@ import "./EnumerableSet.sol";
  * }
  * ```
  *
- * As of v4.6.0, the following map types are supported:
+ * The following map types are supported:
  *
- * - `uint256 -> address` (`UintToAddressMap`)
- * - `address -> uint256` (`AddressToUintMap`)
+ * - `uint256 -> address` (`UintToAddressMap`) since v3.0.0
+ * - `address -> uint256` (`AddressToUintMap`) since v4.6.0
  */
 library EnumerableMap {
     using EnumerableSet for EnumerableSet.Bytes32Set;
