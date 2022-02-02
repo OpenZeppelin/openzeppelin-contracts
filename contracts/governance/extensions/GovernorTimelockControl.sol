@@ -150,7 +150,9 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
 
     /**
      * @dev Public endpoint to update the underlying timelock instance. Restricted to the timelock itself, so updates
-     * must be proposed, scheduled and executed using the {Governor} workflow.
+     * must be proposed, scheduled, and executed through governance proposals.
+     *
+     * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
     function updateTimelock(TimelockController newTimelock) external virtual onlyGovernance {
         _updateTimelock(newTimelock);
