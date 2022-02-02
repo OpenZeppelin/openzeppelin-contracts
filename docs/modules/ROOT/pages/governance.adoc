@@ -248,7 +248,7 @@ contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, Gove
 
 It is good practice to add a timelock to governance decisions. This allows users to exit the system if they disagree with a decision before it is executed. We will use OpenZeppelin’s TimelockController in combination with the GovernorTimelockControl module.
 
-IMPORTANT: When using a timelock, it is the timelock that will execute proposals and thus the timelock that should hold any funds, ownership, and access control roles. Funds in the Governor contract are not currently retrievable when using a timelock! (As of version 4.3 there is a caveat when using the Compound Timelock: ETH in the timelock is not easily usable, so it is recommended to manage ERC20 funds only in this combination until a future version resolves the issue.)
+IMPORTANT: When using a timelock, it is the timelock that will execute proposals and thus the timelock that should hold any funds, ownership, and access control roles. Before version 4.5 there was no way to recover funds in the Governor contract when using a timelock! Before version 4.3, when using the Compound Timelock, ETH in the timelock was not easily accessible.
 
 TimelockController uses an AccessControl setup that we need to understand in order to set up roles.
 
