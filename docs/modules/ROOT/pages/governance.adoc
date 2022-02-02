@@ -294,7 +294,9 @@ This will create a new proposal, with a proposal id that is obtained by hashing 
 
 === Cast a Vote
 
-Once a proposal is active, stakeholders can cast their vote. This is done through a function in the Governor contract that users can invoke directly from a governance UI such as Tally.
+Once a proposal is active, delegates can cast their vote. Note that it is delegates who carry voting power: if a token holder wants to participate, they can set a trusted representative as their delegate, or they can become a delegate themselves by self-delegating their voting power.
+
+Votes are cast by interacting with the Governor contract through the `castVote` family of functions. Voters would generally invoke this from a governance UI such as Tally.
 
 image::tally-vote.png[Voting in Tally]
 
