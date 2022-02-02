@@ -17,9 +17,10 @@ import "../../proxy/utils/Initializable.sol";
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
  * inaccessible.
  *
- * WARNING: Setting up the TimelockController to have additional proposers besides the governor introduces the risk that
- * approved governance proposals could be blocked by the other proposers, effectively executing a Denial of Service attack,
- * and therefore blocking access to governance-controlled assets.
+ * WARNING: Setting up the TimelockController to have additional proposers besides the governor is very risky, as it
+ * grants them powers that they must be trusted or known not to use: 1) {onlyGovernance} functions like {relay} are
+ * available to them through the timelock, and 2) approved governance proposals can be blocked by them, effectively
+ * executing a Denial of Service attack. This risk will be mitigated in a future release.
  *
  * _Available since v4.3._
  */
@@ -152,7 +153,9 @@ abstract contract GovernorTimelockControlUpgradeable is Initializable, IGovernor
 
     /**
      * @dev Public endpoint to update the underlying timelock instance. Restricted to the timelock itself, so updates
-     * must be proposed, scheduled and executed using the {Governor} workflow.
+     * must be proposed, scheduled, and executed through governance proposals.
+     *
+     * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
     function updateTimelock(TimelockControllerUpgradeable newTimelock) external virtual onlyGovernance {
         _updateTimelock(newTimelock);
