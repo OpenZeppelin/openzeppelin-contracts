@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 library Vector {
     error Empty();
-    error OutOfBound();
+    error OutOfBounds();
 
     struct Bytes32Vector {
         int128 begin;
@@ -58,7 +58,7 @@ library Vector {
     function at(Bytes32Vector storage vector, uint256 i) internal view returns (bytes32 value) {
         // leave check here: overflow could happen
         int128 idx = vector.begin + int128(int256(i));
-        if (idx >= vector.end) revert OutOfBound();
+        if (idx >= vector.end) revert OutOfBounds();
         return vector.data[idx];
     }
 
