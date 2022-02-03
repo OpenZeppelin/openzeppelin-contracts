@@ -24,6 +24,7 @@ contract TimelockController is AccessControl {
     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
+    bytes32 public constant CANCELLOR_ROLE = keccak256("CANCELLOR_ROLE");
     uint256 internal constant _DONE_TIMESTAMP = uint256(1);
 
     mapping(bytes32 => uint256) private _timestamps;
@@ -68,14 +69,16 @@ contract TimelockController is AccessControl {
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
+        _setRoleAdmin(CANCELLOR_ROLE, TIMELOCK_ADMIN_ROLE);
 
         // deployer + self administration
         _setupRole(TIMELOCK_ADMIN_ROLE, _msgSender());
         _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
 
-        // register proposers
+        // register proposers (and give them cancellor role)
         for (uint256 i = 0; i < proposers.length; ++i) {
             _setupRole(PROPOSER_ROLE, proposers[i]);
+            _setupRole(CANCELLOR_ROLE, proposers[i]);
         }
 
         // register executors
@@ -243,9 +246,9 @@ contract TimelockController is AccessControl {
      *
      * Requirements:
      *
-     * - the caller must have the 'proposer' role.
+     * - the caller must have the 'cancellor' role.
      */
-    function cancel(bytes32 id) public virtual onlyRole(PROPOSER_ROLE) {
+    function cancel(bytes32 id) public virtual onlyRole(CANCELLOR_ROLE) {
         require(isOperationPending(id), "TimelockController: operation cannot be cancelled");
         delete _timestamps[id];
 
