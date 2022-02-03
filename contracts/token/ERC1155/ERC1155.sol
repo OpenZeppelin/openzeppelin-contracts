@@ -167,8 +167,10 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         require(to != address(0), "ERC1155: transfer to the zero address");
 
         address operator = _msgSender();
+        uint256[] memory ids = _asSingletonArray(id);
+        uint256[] memory amounts = _asSingletonArray(amount);
 
-        _beforeTokenTransfer(operator, from, to, _asSingletonArray(id), _asSingletonArray(amount), data);
+        _beforeTokenTransfer(operator, from, to, ids, amounts, data);
 
         uint256 fromBalance = _balances[id][from];
         require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
@@ -181,7 +183,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
 
-        _afterTokenTransfer(operator, from, to, _asSingletonArray(id), _asSingletonArray(amount), data);
+        _afterTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
     /**
@@ -224,7 +226,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, amounts, data);
 
-        _afterTokenTransfer(operator,  from, to, ids, amounts, data);
+        _afterTokenTransfer(operator, from, to, ids, amounts, data);
     }
 
     /**
@@ -270,15 +272,17 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         require(to != address(0), "ERC1155: mint to the zero address");
 
         address operator = _msgSender();
+        uint256[] memory ids = _asSingletonArray(id);
+        uint256[] memory amounts = _asSingletonArray(amount);
 
-        _beforeTokenTransfer(operator, address(0), to, _asSingletonArray(id), _asSingletonArray(amount), data);
+        _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
 
         _balances[id][to] += amount;
         emit TransferSingle(operator, address(0), to, id, amount);
 
         _doSafeTransferAcceptanceCheck(operator, address(0), to, id, amount, data);
 
-        _afterTokenTransfer(operator, address(0), to, _asSingletonArray(id), _asSingletonArray(amount), data);
+        _afterTokenTransfer(operator, address(0), to, ids, amounts, data);
     }
 
     /**
@@ -330,8 +334,10 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         require(from != address(0), "ERC1155: burn from the zero address");
 
         address operator = _msgSender();
+        uint256[] memory ids = _asSingletonArray(id);
+        uint256[] memory amounts = _asSingletonArray(amount);
 
-        _beforeTokenTransfer(operator, from, address(0), _asSingletonArray(id), _asSingletonArray(amount), "");
+        _beforeTokenTransfer(operator, from, address(0), ids, amounts, "");
 
         uint256 fromBalance = _balances[id][from];
         require(fromBalance >= amount, "ERC1155: burn amount exceeds balance");
@@ -341,7 +347,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
         emit TransferSingle(operator, from, address(0), id, amount);
 
-        _afterTokenTransfer(operator, from, address(0), _asSingletonArray(id), _asSingletonArray(amount), "");
+        _afterTokenTransfer(operator, from, address(0), ids, amounts, "");
     }
 
     /**
@@ -422,7 +428,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {}
-    
+
     /**
      * @dev Hook that is called after any token transfer. This includes minting
      * and burning, as well as batched variants.
