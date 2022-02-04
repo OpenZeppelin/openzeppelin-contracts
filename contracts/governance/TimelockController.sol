@@ -64,7 +64,7 @@ contract TimelockController is AccessControl {
      * proposer and the canceller role (for backward compatibility). The
      * executors receive the executor role.
      *
-     * Note: At construction, both the deployer and the timelock itself are
+     * NOTE: At construction, both the deployer and the timelock itself are
      * administrators. This helps further configuration of the timelock by the
      * deployer. After configuration is done, it is recommended that the
      * deployer renounces its admin position and relies on timelocked
