@@ -84,7 +84,7 @@ contract TimelockController is AccessControl {
         _setupRole(TIMELOCK_ADMIN_ROLE, _msgSender());
         _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
 
-        // register proposers (and give them cancellor role)
+        // register proposers and cancellers
         for (uint256 i = 0; i < proposers.length; ++i) {
             _setupRole(PROPOSER_ROLE, proposers[i]);
             _setupRole(CANCELLER_ROLE, proposers[i]);
