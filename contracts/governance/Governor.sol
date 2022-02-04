@@ -41,8 +41,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     mapping(uint256 => ProposalCore) private _proposals;
 
     /**
-     * @dev Restrict access to governor executing address. Some module might override the _executor function to make
-     * sure this modifier is consistant with the execution model.
+     * @dev Restrict access of functions to the governance executor, which may be the Governor itself or a timelock
+     * contract, as specified by {_executor}. This generally means that function with this modifier must be voted on and
+     * executed through the governance protocol.
      */
     modifier onlyGovernance() {
         require(_msgSender() == _executor(), "Governor: onlyGovernance");
@@ -370,7 +371,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         address target,
         uint256 value,
         bytes calldata data
-    ) external onlyGovernance {
+    ) external virtual onlyGovernance {
         Address.functionCallWithValue(target, data, value);
     }
 

@@ -2,13 +2,14 @@
 
 ## Unreleased
 
+ * `AccessControl`: add a virtual `_checkRole(bytes32)` function that can be overriden to alter the `onlyRole` modifier behavior. ([#3137](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3137))
+ * `EnumerableMap`: add new `AddressToUintMap` map type. ([#3150](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3150))
  * `ERC1155`: Add a `_afterTokenTransfer` hook for improved expendability. ([#3166](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3166))
 
 ## Unreleased
 
- * `ERC2891`: add implementation of the royalty standard, and the respective extensions for `ERC721` and `ERC1155`. ([#3012](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3012))
+ * `ERC2981`: add implementation of the royalty standard, and the respective extensions for `ERC721` and `ERC1155`. ([#3012](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3012))
  * `GovernorTimelockControl`: improve the `state()` function to have it reflect cases where a proposal has been canceled directly on the timelock. ([#2977](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2977))
- * `Math`: add a `abs(int256)` method that returns the unsigned absolute value of a signed value. ([#2984](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2984))
  * Preset contracts are now deprecated in favor of [Contracts Wizard](https://wizard.openzeppelin.com). ([#2986](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2986))
  * `Governor`: add a relay function to help recover assets sent to a governor that is not its own executor (e.g. when using a timelock). ([#2926](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2926))
  * `GovernorPreventLateQuorum`: add new module to ensure a minimum voting duration is available after the quorum is reached. ([#2973](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2973))
@@ -16,19 +17,25 @@
  * `Votes`: Added a base contract for vote tracking with delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
  * `ERC721Votes`: Added an extension of ERC721 enabled with vote tracking and delegation. ([#2944](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2944))
  * `ERC2771Context`: use immutable storage to store the forwarder address, no longer an issue since Solidity >=0.8.8 allows reading immutable variables in the constructor. ([#2917](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2917))
- * `Base64`: add a library to parse bytes into base64 strings using `encode(bytes memory)` function, and provide examples to show how to use to build URL-safe `tokenURIs`. ([#2884](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#2884))
- * `ERC20`: reduce allowance before triggering transfer. ([#3056](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3056))
- * `ERC20`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`. ([#3085](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3085))
- * `ERC777`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`. ([#3085](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3085))
+ * `Base64`: add a library to parse bytes into base64 strings using `encode(bytes memory)` function, and provide examples to show how to use to build URL-safe `tokenURIs`. ([#2884](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2884))
+ * `ERC20`: reduce allowance before triggering transfer. ([#3056](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3056))
+ * `ERC20`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`. ([#3085](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3085))
+ * `ERC777`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`. ([#3085](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3085))
+ * `SignedMath`: a new signed version of the Math library with `max`, `min`,  and `average`. ([#2686](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2686))
+ * `SignedMath`: add a `abs(int256)` method that returns the unsigned absolute value of a signed value. ([#2984](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2984))
+ * `ERC1967Upgrade`: Refactor the secure upgrade to use `ERC1822` instead of the previous rollback mechanism. This reduces code complexity and attack surface with similar security guarantees. ([#3021](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3021))
+ * `UUPSUpgradeable`: Add `ERC1822` compliance to support the updated secure upgrade mechanism. ([#3021](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3021))
+ * Some more functions have been made virtual to customize them via overrides. In many cases this will not imply that other functions in the contract will automatically adapt to the overridden definitions. People who wish to override should consult the source code to understand the impact and if they need to override any additional functions to achieve the desired behavior.
 
-### Breaking change
+### Breaking changes
 
-Solidity pragma in `utils/Address.sol` is increased from `^0.8.0` to `^0.8.1`. This is required by the `account.code.length` syntax that replaces inline assembly. This may require users to bump their compiler version from `0.8.0` to `0.8.1` or later. Note that other parts of the code already include stricter requirements.
+* `ERC1967Upgrade`: The function `_upgradeToAndCallSecure` was renamed to `_upgradeToAndCallUUPS`, along with the change in security mechanism described above.
+* `Address`: The Solidity pragma is increased from `^0.8.0` to `^0.8.1`. This is required by the `account.code.length` syntax that replaces inline assembly. This may require users to bump their compiler version from `0.8.0` to `0.8.1` or later. Note that other parts of the code already include stricter requirements.
 
 ## 4.4.2 (2022-01-11)
 
 ### Bugfixes
- * `GovernorCompatibilityBravo`: Fix error in the encoding of calldata for proposals submitted through the compatibility interface with explicit signatures. ([#3100](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/#3100))
+ * `GovernorCompatibilityBravo`: Fix error in the encoding of calldata for proposals submitted through the compatibility interface with explicit signatures. ([#3100](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3100))
 
 ## 4.4.1 (2021-12-14)
 

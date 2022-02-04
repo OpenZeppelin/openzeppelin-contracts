@@ -224,14 +224,16 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
     /**
      * @dev Public endpoint to update the underlying timelock instance. Restricted to the timelock itself, so updates
-     * must be proposed, scheduled and executed using the {Governor} workflow.
+     * must be proposed, scheduled, and executed through governance proposals.
      *
-     * For security reason, the timelock must be handed over to another admin before setting up a new one. The two
+     * For security reasons, the timelock must be handed over to another admin before setting up a new one. The two
      * operations (hand over the timelock) and do the update can be batched in a single proposal.
      *
      * Note that if the timelock admin has been handed over in a previous operation, we refuse updates made through the
      * timelock if admin of the timelock has already been accepted and the operation is executed outside the scope of
      * governance.
+
+     * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
     function updateTimelock(ICompoundTimelock newTimelock) external virtual onlyGovernance {
         _updateTimelock(newTimelock);
