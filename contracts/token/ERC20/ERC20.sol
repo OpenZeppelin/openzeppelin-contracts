@@ -148,25 +148,25 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * Requirements:
      *
-     * - `sender` and `recipient` cannot be the zero address.
+     * - `source` and `recipient` cannot be the zero address.
      * - `sender` must have a balance of at least `amount`.
-     * - the caller must have allowance for ``sender``'s tokens of at least
+     * - the caller must have allowance for ``source``'s tokens of at least
      * `amount`.
      */
     function transferFrom(
-        address sender,
+        address source,
         address recipient,
         uint256 amount
     ) public virtual override returns (bool) {
-        uint256 currentAllowance = _allowances[sender][_msgSender()];
+        uint256 currentAllowance = _allowances[source][_msgSender()];
         if (currentAllowance != type(uint256).max) {
             require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
             unchecked {
-                _approve(sender, _msgSender(), currentAllowance - amount);
+                _approve(source, _msgSender(), currentAllowance - amount);
             }
         }
 
-        _transfer(sender, recipient, amount);
+        _transfer(source, recipient, amount);
 
         return true;
     }
