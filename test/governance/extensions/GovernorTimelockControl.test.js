@@ -31,11 +31,19 @@ contract('GovernorTimelockControl', function (accounts) {
     this.timelock = await Timelock.new(3600, [], []);
     this.mock = await Governor.new(name, this.token.address, 4, 16, this.timelock.address, 0);
     this.receiver = await CallReceiver.new();
+
+    this.TIMELOCK_ADMIN_ROLE = await this.timelock.TIMELOCK_ADMIN_ROLE();
+    this.PROPOSER_ROLE = await this.timelock.PROPOSER_ROLE();
+    this.EXECUTOR_ROLE = await this.timelock.EXECUTOR_ROLE();
+    this.CANCELLER_ROLE = await this.timelock.CANCELLER_ROLE();
+
     // normal setup: governor is proposer, everyone is executor, timelock is its own admin
-    await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), this.mock.address);
-    await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), admin);
-    await this.timelock.grantRole(await this.timelock.EXECUTOR_ROLE(), constants.ZERO_ADDRESS);
-    await this.timelock.revokeRole(await this.timelock.TIMELOCK_ADMIN_ROLE(), deployer);
+    await this.timelock.grantRole(this.PROPOSER_ROLE, this.mock.address);
+    await this.timelock.grantRole(this.PROPOSER_ROLE, admin);
+    await this.timelock.grantRole(this.CANCELLER_ROLE, this.mock.address);
+    await this.timelock.grantRole(this.CANCELLER_ROLE, admin);
+    await this.timelock.grantRole(this.EXECUTOR_ROLE, constants.ZERO_ADDRESS);
+    await this.timelock.revokeRole(this.TIMELOCK_ADMIN_ROLE, deployer);
     await this.token.mint(voter, tokenSupply);
     await this.token.delegate(voter, { from: voter });
   });
