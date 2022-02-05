@@ -90,6 +90,21 @@ library Address {
 
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with
+     * `gasLimit` and  `returnLimit` as max allowed amount to be returned from the call.
+     *
+     * _Available since v4.5._
+     */
+    function safeFunctionCall(
+        address target,
+        bytes memory data,
+        uint256 gasLimit,
+        uint256 returnLimit
+    ) internal returns (uint256, bytes memory) {
+        return safeFunctionCall(target, data, "Address: low-level call failed", gasLimit, returnLimit);
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with
      * `errorMessage` as a fallback revert reason when `target` reverts.
      *
      * _Available since v3.1._
@@ -100,6 +115,22 @@ library Address {
         string memory errorMessage
     ) internal returns (bytes memory) {
         return functionCallWithValue(target, data, 0, errorMessage);
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`], but with
+     * `gasLimit` and  `returnLimit` as max allowed amount to be returned from the call.
+     *
+     * _Available since v4.5._
+     */
+    function safeFunctionCall(
+        address target,
+        bytes memory data,
+        string memory errorMessage,
+        uint256 gasLimit,
+        uint256 returnLimit
+    ) internal returns (uint256, bytes memory) {
+        return safeFunctionCallWithValue(target, data, 0, errorMessage, gasLimit, returnLimit);
     }
 
     /**
@@ -123,6 +154,30 @@ library Address {
 
     /**
      * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
+     * with `gasLimit` and  `returnLimit` as max allowed amount to be returned from the call.
+     *
+     * _Available since v4.5._
+     */
+    function safeFunctionCallWithValue(
+        address target,
+        bytes memory data,
+        uint256 value,
+        uint256 gasLimit,
+        uint256 returnLimit
+    ) internal returns (uint256, bytes memory) {
+        return
+            safeFunctionCallWithValue(
+                target,
+                data,
+                value,
+                "Address: low-level call with value and limit failed",
+                gasLimit,
+                returnLimit
+            );
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
      * with `errorMessage` as a fallback revert reason when `target` reverts.
      *
      * _Available since v3.1._
@@ -133,48 +188,27 @@ library Address {
         uint256 value,
         string memory errorMessage
     ) internal returns (bytes memory returndata) {
-        (, returndata) = functionCallWithValueAndReturnLimit(target, data, value, type(uint256).max, errorMessage);
+        (, returndata) = safeFunctionCallWithValue(target, data, value, errorMessage, gasleft(), type(uint256).max);
     }
 
     /**
-     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
-     * with `returnLimit` as max allowed amount to be returned from the call.
+     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-string-}[`functionCallWithValue`], but
+     * with `gasLimit` and  `returnLimit` as max allowed amount to be returned from the call.
      *
      * _Available since v4.5._
      */
-    function functionCallWithValueAndReturnLimit(
+    function safeFunctionCallWithValue(
         address target,
         bytes memory data,
         uint256 value,
+        string memory errorMessage,
+        uint256 gasLimit,
         uint256 returnLimit
-    ) internal returns (uint256, bytes memory) {
-        return
-            functionCallWithValueAndReturnLimit(
-                target,
-                data,
-                value,
-                returnLimit,
-                "Address: low-level call with value and limit failed"
-            );
-    }
-
-    /**
-     * @dev Same as {xref-Address-functionCallWithValueAndLimit-address-bytes-uint256-string-}[`functionCallWithValueAndLimit`], but
-     * with `errorMessage` as a fallback revert reason when `target` reverts.
-     *
-     * _Available since v4.5._
-     */
-    function functionCallWithValueAndReturnLimit(
-        address target,
-        bytes memory data,
-        uint256 value,
-        uint256 returnLimit,
-        string memory errorMessage
     ) internal returns (uint256, bytes memory) {
         require(address(this).balance >= value, "Address: insufficient balance for call");
         require(isContract(target), "Address: call to non-contract");
 
-        (bool success, ) = target.call{value: value}(data);
+        (bool success, ) = target.call{value: value, gas: gasLimit}(data);
         return verifyCallResultWithReturnLimit(success, returnLimit, errorMessage);
     }
 
@@ -189,6 +223,21 @@ library Address {
     }
 
     /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but
+     * with `gasLimit` and  `returnLimit` as max allowed amount to be returned from the call.
+     *
+     * _Available since v4.5._
+     */
+    function safeFunctionStaticCall(
+        address target,
+        bytes memory data,
+        uint256 gasLimit,
+        uint256 returnLimit
+    ) internal view returns (uint256, bytes memory) {
+        return safeFunctionStaticCall(target, data, "Address: low-level static call failed", gasLimit, returnLimit);
+    }
+
+    /**
      * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
      * but performing a static call.
      *
@@ -199,38 +248,25 @@ library Address {
         bytes memory data,
         string memory errorMessage
     ) internal view returns (bytes memory returndata) {
-        (, returndata) = functionStaticCallWithReturnLimit(target, data, type(uint256).max, errorMessage);
+        (, returndata) = safeFunctionStaticCall(target, data, errorMessage, gasleft(), type(uint256).max);
     }
 
     /**
-     * @dev Same as {xref-Address-functionCallWithReturnLimit-address-bytes-returnLimit-}[`functionCallWithReturnLimit`],
-     * but performing a static call.
+     * @dev Same as {xref-Address-functionStaticCall-address-bytes-string-}[`functionStaticCall`],
+     * but with `gasLimit` and  `returnLimit` as max allowed amount to be returned from the call.
      *
      * _Available since v4.5._
      */
-    function functionStaticCallWithReturnLimit(
+    function safeFunctionStaticCall(
         address target,
         bytes memory data,
+        string memory errorMessage,
+        uint256 gasLimit,
         uint256 returnLimit
-    ) internal view returns (uint256, bytes memory returndata) {
-        return functionStaticCallWithReturnLimit(target, data, returnLimit, "Address: low-level static call failed");
-    }
-
-    /**
-     * @dev Same as {xref-Address-functionCallWithReturnLimit-address-bytes-string-}[`functionCallWithReturnLimit`],
-     * but performing a static call.
-     *
-     * _Available since v4.5._
-     */
-    function functionStaticCallWithReturnLimit(
-        address target,
-        bytes memory data,
-        uint256 returnLimit,
-        string memory errorMessage
     ) internal view returns (uint256, bytes memory returndata) {
         require(isContract(target), "Address: static call to non-contract");
 
-        (bool success, ) = target.staticcall(data);
+        (bool success, ) = target.staticcall{gas: gasLimit}(data);
         return verifyCallResultWithReturnLimit(success, returnLimit, errorMessage);
     }
 
