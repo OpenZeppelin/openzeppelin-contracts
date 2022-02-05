@@ -3,6 +3,8 @@
 
 pragma solidity ^0.8.1;
 
+import "./math/Math.sol";
+
 /**
  * @dev Collection of functions related to the address type
  */
@@ -130,12 +132,50 @@ library Address {
         bytes memory data,
         uint256 value,
         string memory errorMessage
-    ) internal returns (bytes memory) {
+    ) internal returns (bytes memory returndata) {
+        (, returndata) = functionCallWithValueAndReturnLimit(target, data, value, type(uint256).max, errorMessage);
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
+     * with `returnLimit` as max allowed amount to be returned from the call.
+     *
+     * _Available since v4.5._
+     */
+    function functionCallWithValueAndReturnLimit(
+        address target,
+        bytes memory data,
+        uint256 value,
+        uint256 returnLimit
+    ) internal returns (uint256, bytes memory) {
+        return
+            functionCallWithValueAndReturnLimit(
+                target,
+                data,
+                value,
+                returnLimit,
+                "Address: low-level call with value and limit failed"
+            );
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCallWithValueAndLimit-address-bytes-uint256-string-}[`functionCallWithValueAndLimit`], but
+     * with `errorMessage` as a fallback revert reason when `target` reverts.
+     *
+     * _Available since v4.5._
+     */
+    function functionCallWithValueAndReturnLimit(
+        address target,
+        bytes memory data,
+        uint256 value,
+        uint256 returnLimit,
+        string memory errorMessage
+    ) internal returns (uint256, bytes memory) {
         require(address(this).balance >= value, "Address: insufficient balance for call");
         require(isContract(target), "Address: call to non-contract");
 
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
-        return verifyCallResult(success, returndata, errorMessage);
+        (bool success, ) = target.call{value: value}(data);
+        return verifyCallResultWithReturnLimit(success, returnLimit, errorMessage);
     }
 
     /**
@@ -158,11 +198,40 @@ library Address {
         address target,
         bytes memory data,
         string memory errorMessage
-    ) internal view returns (bytes memory) {
+    ) internal view returns (bytes memory returndata) {
+        (, returndata) = functionStaticCallWithReturnLimit(target, data, type(uint256).max, errorMessage);
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCallWithReturnLimit-address-bytes-returnLimit-}[`functionCallWithReturnLimit`],
+     * but performing a static call.
+     *
+     * _Available since v4.5._
+     */
+    function functionStaticCallWithReturnLimit(
+        address target,
+        bytes memory data,
+        uint256 returnLimit
+    ) internal view returns (uint256, bytes memory returndata) {
+        return functionStaticCallWithReturnLimit(target, data, returnLimit, "Address: low-level static call failed");
+    }
+
+    /**
+     * @dev Same as {xref-Address-functionCallWithReturnLimit-address-bytes-string-}[`functionCallWithReturnLimit`],
+     * but performing a static call.
+     *
+     * _Available since v4.5._
+     */
+    function functionStaticCallWithReturnLimit(
+        address target,
+        bytes memory data,
+        uint256 returnLimit,
+        string memory errorMessage
+    ) internal view returns (uint256, bytes memory returndata) {
         require(isContract(target), "Address: static call to non-contract");
 
-        (bool success, bytes memory returndata) = target.staticcall(data);
-        return verifyCallResult(success, returndata, errorMessage);
+        (bool success, ) = target.staticcall(data);
+        return verifyCallResultWithReturnLimit(success, returnLimit, errorMessage);
     }
 
     /**
@@ -206,6 +275,41 @@ library Address {
         if (success) {
             return returndata;
         } else {
+            // Look for revert reason and bubble it up if present
+            if (returndata.length > 0) {
+                // The easiest way to bubble the revert reason is using memory via assembly
+
+                assembly {
+                    let returndata_size := mload(returndata)
+                    revert(add(32, returndata), returndata_size)
+                }
+            } else {
+                revert(errorMessage);
+            }
+        }
+    }
+
+    /**
+     * @dev Tool to verifies that a low level call was successful, and revert if it wasn't, either by bubbling the
+     * revert reason using the provided one, returnLimit helpt to handle "returnbomb" attacks
+     * (see https://github.com/nomad-xyz/ExcessivelySafeCall).
+     *
+     * _Available since v4.5._
+     */
+    function verifyCallResultWithReturnLimit(
+        bool success,
+        uint256 returnLimit,
+        string memory errorMessage
+    ) internal pure returns (uint256 dataLength, bytes memory returndata) {
+        assembly {
+            dataLength := returndatasize()
+        }
+        returndata = new bytes(Math.min(returnLimit, dataLength));
+        assembly {
+            returndatacopy(add(returndata, 0x20), 0, mload(returndata))
+        }
+
+        if (!success) {
             // Look for revert reason and bubble it up if present
             if (returndata.length > 0) {
                 // The easiest way to bubble the revert reason is using memory via assembly
