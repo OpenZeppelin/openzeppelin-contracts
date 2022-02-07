@@ -160,12 +160,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         address to,
         uint256 amount
     ) public virtual override returns (bool) {
-        address owner = _msgSender();
-        uint256 currentAllowance = _allowances[from][owner];
+        address spender = _msgSender();
+        uint256 currentAllowance = allowance(from, spender);
         if (currentAllowance != type(uint256).max) {
             require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
             unchecked {
-                _approve(from, owner, currentAllowance - amount);
+                _approve(from, spender, currentAllowance - amount);
             }
         }
 
