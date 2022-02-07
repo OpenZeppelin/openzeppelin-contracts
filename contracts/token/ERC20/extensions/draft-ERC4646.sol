@@ -7,9 +7,9 @@ import "../utils/SafeERC20.sol";
 import "../../../interfaces/draft-IERC4626.sol";
 
 abstract contract ERC4262 is ERC20, IERC4626 {
-    IERC20 private immutable _asset;
+    IERC20Metadata private immutable _asset;
 
-    constructor (IERC20 __asset) {
+    constructor (IERC20Metadata __asset) {
         _asset = __asset;
     }
 
@@ -114,10 +114,14 @@ abstract contract ERC4262 is ERC20, IERC4626 {
     }
 
     function _sharesToAssets(uint256 shares) internal view virtual returns (uint256) {
-        return totalSupply() == 0 ? shares : shares * totalAssets() / totalSupply();
+        return totalAssets() == 0 && totalSupply() == 0
+            ? shares * (10 ** _asset.decimals()) / (10 ** decimals())
+            : shares * totalAssets() / totalSupply();
     }
 
     function _assetsToShares(uint256 assets) internal view virtual returns (uint256) {
-        return totalAssets() == 0 ? assets : assets * totalSupply() / totalAssets();
+        return totalAssets() == 0 && totalSupply() == 0
+            ? assets * (10 ** decimals()) / (10 ** _asset.decimals())
+            : assets * totalSupply() / totalAssets();
     }
 }
