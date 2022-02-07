@@ -51,6 +51,21 @@ contract('ERC721SingleRentalAgreement', function (accounts) {
       expect(status.toNumber()).to.equal(RENT_STATUS.PENDING);
     });
 
+    it('owner', async function () {
+      const owner = await this.erc721SingleRentalAgreement.getOwner();
+      expect(owner).to.equal(this.owner);
+    });
+
+    it('duration', async function () {
+      const duration = await this.erc721SingleRentalAgreement.getRentalDuration();
+      expect(duration.toNumber()).to.equal(this.duration.toNumber());
+    });
+
+    it('rentalFees', async function () {
+      const fees = await this.erc721SingleRentalAgreement.getRentalFees();
+      expect(fees.toNumber()).to.equal(this.rentalFees.toNumber());
+    });
+
     it('Only erc721 contract can update state', async function () {
       await expectRevert(
         this.erc721SingleRentalAgreement.afterAgreementRemoved(this.tokenId, { from: this.renter }),
@@ -67,6 +82,8 @@ contract('ERC721SingleRentalAgreement', function (accounts) {
     it('Address balances', async function () {
       // Pay rent with exceeded amount.
       await this.erc721SingleRentalAgreement.payAndStartRent({ from: this.renter, value: 2 * this.rentalFees });
+      const renter = await this.erc721SingleRentalAgreement.getRenter();
+      expect(renter).to.equal(this.renter);
       const ownerBalance = await this.erc721SingleRentalAgreement.balances(this.owner);
       const renterBalance = await this.erc721SingleRentalAgreement.balances(this.owner);
       expect(ownerBalance.toNumber()).to.equal(this.rentalFees.toNumber());
