@@ -27,10 +27,6 @@ contract MathMockUpgradeable is Initializable {
         return MathUpgradeable.ceilDiv(a, b);
     }
 
-    function abs(int256 n) public pure returns (uint256) {
-        return MathUpgradeable.abs(n);
-    }
-
     /**
      * This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
