@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.x.0 (proxy/ERC1822/IProxiable.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (interfaces/draft-IERC1822.sol)
 
 pragma solidity ^0.8.0;
 
