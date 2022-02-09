@@ -293,13 +293,7 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         _callTokensToSend(spender, holder, recipient, amount, "", "");
 
-        uint256 currentAllowance = _allowances[holder][spender];
-        if (currentAllowance != type(uint256).max) {
-            require(currentAllowance >= amount, "ERC777: transfer amount exceeds allowance");
-            unchecked {
-                _approve(holder, spender, currentAllowance - amount);
-            }
-        }
+        _spendAllowance(holder, spender, amount);
 
         _move(spender, holder, recipient, amount, "", "");
 
@@ -523,6 +517,28 @@ contract ERC777 is Context, IERC777, IERC20 {
             IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
         } else if (requireReceptionAck) {
             require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
+        }
+    }
+
+    /**
+     * @dev Spend `amount` form the allowance of `owner` toward `spender`.
+     *
+     * Does not update the allowance amount in case of infinite allowance.
+     * Revert if not enough allowance is available.
+     *
+     * Might emit an {Approval} event.
+     */
+    function _spendAllowance(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal virtual {
+        uint256 currentAllowance = allowance(owner, spender);
+        if (currentAllowance != type(uint256).max) {
+            require(currentAllowance >= amount, "ERC777: insufficient allowance");
+            unchecked {
+                _approve(owner, spender, currentAllowance - amount);
+            }
         }
     }
 

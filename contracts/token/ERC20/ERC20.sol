@@ -161,16 +161,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         uint256 amount
     ) public virtual override returns (bool) {
         address spender = _msgSender();
-        uint256 currentAllowance = allowance(from, spender);
-        if (currentAllowance != type(uint256).max) {
-            require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
-            unchecked {
-                _approve(from, spender, currentAllowance - amount);
-            }
-        }
-
+        _spendAllowance(from, spender, amount);
         _transfer(from, to, amount);
-
         return true;
     }
 
@@ -325,6 +317,28 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
+    }
+
+    /**
+     * @dev Spend `amount` form the allowance of `owner` toward `spender`.
+     *
+     * Does not update the allowance amount in case of infinite allowance.
+     * Revert if not enough allowance is available.
+     *
+     * Might emit an {Approval} event.
+     */
+    function _spendAllowance(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal virtual {
+        uint256 currentAllowance = allowance(owner, spender);
+        if (currentAllowance != type(uint256).max) {
+            require(currentAllowance >= amount, "ERC20: insufficient allowance");
+            unchecked {
+                _approve(owner, spender, currentAllowance - amount);
+            }
+        }
     }
 
     /**
