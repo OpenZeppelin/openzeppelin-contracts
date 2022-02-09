@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0-rc.0) (utils/Checkpoints.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (utils/Checkpoints.sol)
 pragma solidity ^0.8.0;
 
 import "./math/Math.sol";
