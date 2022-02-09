@@ -116,10 +116,10 @@ contract ERC777 is Context, IERC777, IERC20 {
     }
 
     /**
-     * @dev Returns the amount of tokens owned by an account (`holder`).
+     * @dev Returns the amount of tokens owned by an account (`tokenHolder`).
      */
-    function balanceOf(address holder) public view virtual override(IERC20, IERC777) returns (uint256) {
-        return _balances[holder];
+    function balanceOf(address tokenHolder) public view virtual override(IERC20, IERC777) returns (uint256) {
+        return _balances[tokenHolder];
     }
 
     /**
@@ -128,12 +128,11 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
     function send(
-        address to,
+        address recipient,
         uint256 amount,
         bytes memory data
     ) public virtual override {
-        address from = _msgSender();
-        _send(from, to, amount, data, "", true);
+        _send(_msgSender(), recipient, amount, data, "", true);
     }
 
     /**
@@ -144,9 +143,8 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Also emits a {Sent} event.
      */
-    function transfer(address to, uint256 amount) public virtual override returns (bool) {
-        address from = _msgSender();
-        _send(from, to, amount, "", "", false);
+    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+        _send(_msgSender(), recipient, amount, "", "", false);
         return true;
     }
 
@@ -156,50 +154,47 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
     function burn(uint256 amount, bytes memory data) public virtual override {
-        address from = _msgSender();
-        _burn(from, amount, data, "");
+        _burn(_msgSender(), amount, data, "");
     }
 
     /**
      * @dev See {IERC777-isOperatorFor}.
      */
-    function isOperatorFor(address operator, address holder) public view virtual override returns (bool) {
+    function isOperatorFor(address operator, address tokenHolder) public view virtual override returns (bool) {
         return
-            operator == holder ||
-            (_defaultOperators[operator] && !_revokedDefaultOperators[holder][operator]) ||
-            _operators[holder][operator];
+            operator == tokenHolder ||
+            (_defaultOperators[operator] && !_revokedDefaultOperators[tokenHolder][operator]) ||
+            _operators[tokenHolder][operator];
     }
 
     /**
      * @dev See {IERC777-authorizeOperator}.
      */
     function authorizeOperator(address operator) public virtual override {
-        address holder = _msgSender();
-        require(holder != operator, "ERC777: authorizing self as operator");
+        require(_msgSender() != operator, "ERC777: authorizing self as operator");
 
         if (_defaultOperators[operator]) {
-            delete _revokedDefaultOperators[holder][operator];
+            delete _revokedDefaultOperators[_msgSender()][operator];
         } else {
-            _operators[holder][operator] = true;
+            _operators[_msgSender()][operator] = true;
         }
 
-        emit AuthorizedOperator(operator, holder);
+        emit AuthorizedOperator(operator, _msgSender());
     }
 
     /**
      * @dev See {IERC777-revokeOperator}.
      */
     function revokeOperator(address operator) public virtual override {
-        address holder = _msgSender();
-        require(holder != operator, "ERC777: revoking self as operator");
+        require(operator != _msgSender(), "ERC777: revoking self as operator");
 
         if (_defaultOperators[operator]) {
-            _revokedDefaultOperators[holder][operator] = true;
+            _revokedDefaultOperators[_msgSender()][operator] = true;
         } else {
-            delete _operators[holder][operator];
+            delete _operators[_msgSender()][operator];
         }
 
-        emit RevokedOperator(operator, holder);
+        emit RevokedOperator(operator, _msgSender());
     }
 
     /**
@@ -215,15 +210,14 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Emits {Sent} and {IERC20-Transfer} events.
      */
     function operatorSend(
-        address from,
-        address to,
+        address sender,
+        address recipient,
         uint256 amount,
         bytes memory data,
         bytes memory operatorData
     ) public virtual override {
-        address operator = _msgSender();
-        require(isOperatorFor(operator, from), "ERC777: caller is not an operator for holder");
-        _send(from, to, amount, data, operatorData, true);
+        require(isOperatorFor(_msgSender(), sender), "ERC777: caller is not an operator for holder");
+        _send(sender, recipient, amount, data, operatorData, true);
     }
 
     /**
@@ -232,14 +226,13 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Emits {Burned} and {IERC20-Transfer} events.
      */
     function operatorBurn(
-        address from,
+        address account,
         uint256 amount,
         bytes memory data,
         bytes memory operatorData
     ) public virtual override {
-        address operator = _msgSender();
-        require(isOperatorFor(operator, from), "ERC777: caller is not an operator for holder");
-        _burn(from, amount, data, operatorData);
+        require(isOperatorFor(_msgSender(), account), "ERC777: caller is not an operator for holder");
+        _burn(account, amount, data, operatorData);
     }
 
     /**
@@ -249,21 +242,21 @@ contract ERC777 is Context, IERC777, IERC20 {
      * not have allowance, and accounts with allowance may not be operators
      * themselves.
      */
-    function allowance(address owner, address spender) public view virtual override returns (uint256) {
-        return _allowances[owner][spender];
+    function allowance(address holder, address spender) public view virtual override returns (uint256) {
+        return _allowances[holder][spender];
     }
 
     /**
      * @dev See {IERC20-approve}.
      *
-     * NOTE: If `amount` is the maximum `uint256`, the allowance is not updated on
+     * NOTE: If `value` is the maximum `uint256`, the allowance is not updated on
      * `transferFrom`. This is semantically equivalent to an infinite approval.
      *
      * Note that accounts cannot have allowance issued by their operators.
      */
-    function approve(address spender, uint256 amount) public virtual override returns (bool) {
-        address owner = _msgSender();
-        _approve(owner, spender, amount);
+    function approve(address spender, uint256 value) public virtual override returns (bool) {
+        address holder = _msgSender();
+        _approve(holder, spender, value);
         return true;
     }
 
@@ -280,21 +273,21 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Emits {Sent}, {IERC20-Transfer} and {IERC20-Approval} events.
      */
     function transferFrom(
-        address from,
-        address to,
+        address holder,
+        address recipient,
         uint256 amount
     ) public virtual override returns (bool) {
         address spender = _msgSender();
-        _spendAllowance(from, spender, amount);
-        _send(from, to, amount, "", "", false);
+        _spendAllowance(holder, spender, amount);
+        _send(holder, recipient, amount, "", "", false);
         return true;
     }
 
     /**
-     * @dev Creates `amount` tokens and assigns them to `to`, increasing
+     * @dev Creates `amount` tokens and assigns them to `account`, increasing
      * the total supply.
      *
-     * If a send hook is registered for `to`, the corresponding function
+     * If a send hook is registered for `account`, the corresponding function
      * will be called with `operator`, `data` and `operatorData`.
      *
      * See {IERC777Sender} and {IERC777Recipient}.
@@ -303,25 +296,25 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Requirements
      *
-     * - `to` cannot be the zero address.
-     * - if `to` is a contract, it must implement the {IERC777Recipient}
+     * - `account` cannot be the zero address.
+     * - if `account` is a contract, it must implement the {IERC777Recipient}
      * interface.
      */
     function _mint(
-        address to,
+        address account,
         uint256 amount,
         bytes memory userData,
         bytes memory operatorData
     ) internal virtual {
-        _mint(to, amount, userData, operatorData, true);
+        _mint(account, amount, userData, operatorData, true);
     }
 
     /**
-     * @dev Creates `amount` tokens and assigns them to `to`, increasing
+     * @dev Creates `amount` tokens and assigns them to `account`, increasing
      * the total supply.
      *
      * If `requireReceptionAck` is set to true, and if a send hook is
-     * registered for `to`, the corresponding function will be called with
+     * registered for `account`, the corresponding function will be called with
      * `operator`, `data` and `operatorData`.
      *
      * See {IERC777Sender} and {IERC777Recipient}.
@@ -330,31 +323,31 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Requirements
      *
-     * - `to` cannot be the zero address.
-     * - if `to` is a contract, it must implement the {IERC777Recipient}
+     * - `account` cannot be the zero address.
+     * - if `account` is a contract, it must implement the {IERC777Recipient}
      * interface.
      */
     function _mint(
-        address to,
+        address account,
         uint256 amount,
-        bytes memory data,
+        bytes memory userData,
         bytes memory operatorData,
         bool requireReceptionAck
     ) internal virtual {
-        require(to != address(0), "ERC777: mint to the zero address");
+        require(account != address(0), "ERC777: mint to the zero address");
 
         address operator = _msgSender();
 
-        _beforeTokenTransfer(operator, address(0), to, amount);
+        _beforeTokenTransfer(operator, address(0), account, amount);
 
         // Update state variables
         _totalSupply += amount;
-        _balances[to] += amount;
+        _balances[account] += amount;
 
-        _callTokensReceived(operator, address(0), to, amount, data, operatorData, requireReceptionAck);
+        _callTokensReceived(operator, address(0), account, amount, userData, operatorData, requireReceptionAck);
 
-        emit Minted(operator, to, amount, data, operatorData);
-        emit Transfer(address(0), to, amount);
+        emit Minted(operator, account, amount, userData, operatorData);
+        emit Transfer(address(0), account, amount);
     }
 
     /**
@@ -362,7 +355,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * @param from address token holder address
      * @param to address recipient address
      * @param amount uint256 amount of tokens to transfer
-     * @param data bytes extra information provided by the token holder (if any)
+     * @param userData bytes extra information provided by the token holder (if any)
      * @param operatorData bytes extra information provided by the operator (if any)
      * @param requireReceptionAck if true, contract recipients are required to implement ERC777TokensRecipient
      */
@@ -370,7 +363,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         address from,
         address to,
         uint256 amount,
-        bytes memory data,
+        bytes memory userData,
         bytes memory operatorData,
         bool requireReceptionAck
     ) internal virtual {
@@ -379,11 +372,11 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         address operator = _msgSender();
 
-        _callTokensToSend(operator, from, to, amount, data, operatorData);
+        _callTokensToSend(operator, from, to, amount, userData, operatorData);
 
-        _move(operator, from, to, amount, data, operatorData);
+        _move(operator, from, to, amount, userData, operatorData);
 
-        _callTokensReceived(operator, from, to, amount, data, operatorData, requireReceptionAck);
+        _callTokensReceived(operator, from, to, amount, userData, operatorData, requireReceptionAck);
     }
 
     /**
@@ -446,15 +439,15 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Note that accounts cannot have allowance issued by their operators.
      */
     function _approve(
-        address owner,
+        address holder,
         address spender,
-        uint256 amount
+        uint256 value
     ) internal virtual {
-        require(owner != address(0), "ERC777: approve from the zero address");
+        require(holder != address(0), "ERC777: approve from the zero address");
         require(spender != address(0), "ERC777: approve to the zero address");
 
-        _allowances[owner][spender] = amount;
-        emit Approval(owner, spender, amount);
+        _allowances[holder][spender] = value;
+        emit Approval(holder, spender, value);
     }
 
     /**

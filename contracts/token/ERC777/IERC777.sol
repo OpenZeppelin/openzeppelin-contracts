@@ -41,12 +41,12 @@ interface IERC777 {
     /**
      * @dev Returns the amount of tokens owned by an account (`owner`).
      */
-    function balanceOf(address holder) external view returns (uint256);
+    function balanceOf(address owner) external view returns (uint256);
 
     /**
-     * @dev Moves `amount` tokens from the caller's account to `to`.
+     * @dev Moves `amount` tokens from the caller's account to `recipient`.
      *
-     * If send or receive hooks are registered for the caller and `to`,
+     * If send or receive hooks are registered for the caller and `recipient`,
      * the corresponding functions will be called with `data` and empty
      * `operatorData`. See {IERC777Sender} and {IERC777Recipient}.
      *
@@ -55,12 +55,12 @@ interface IERC777 {
      * Requirements
      *
      * - the caller must have at least `amount` tokens.
-     * - `to` cannot be the zero address.
-     * - if `to` is a contract, it must implement the {IERC777Recipient}
+     * - `recipient` cannot be the zero address.
+     * - if `recipient` is a contract, it must implement the {IERC777Recipient}
      * interface.
      */
     function send(
-        address to,
+        address recipient,
         uint256 amount,
         bytes calldata data
     ) external;
@@ -87,7 +87,7 @@ interface IERC777 {
      *
      * See {operatorSend} and {operatorBurn}.
      */
-    function isOperatorFor(address operator, address holder) external view returns (bool);
+    function isOperatorFor(address operator, address tokenHolder) external view returns (bool);
 
     /**
      * @dev Make an account an operator of the caller.
@@ -126,10 +126,10 @@ interface IERC777 {
     function defaultOperators() external view returns (address[] memory);
 
     /**
-     * @dev Moves `amount` tokens from `from` to `to`. The caller must
-     * be an operator of `from`.
+     * @dev Moves `amount` tokens from `sender` to `recipient`. The caller must
+     * be an operator of `sender`.
      *
-     * If send or receive hooks are registered for `from` and `to`,
+     * If send or receive hooks are registered for `sender` and `recipient`,
      * the corresponding functions will be called with `data` and
      * `operatorData`. See {IERC777Sender} and {IERC777Recipient}.
      *
@@ -137,38 +137,38 @@ interface IERC777 {
      *
      * Requirements
      *
-     * - `from` cannot be the zero address.
-     * - `from` must have at least `amount` tokens.
-     * - the caller must be an operator for `from`.
-     * - `to` cannot be the zero address.
-     * - if `to` is a contract, it must implement the {IERC777Recipient}
+     * - `sender` cannot be the zero address.
+     * - `sender` must have at least `amount` tokens.
+     * - the caller must be an operator for `sender`.
+     * - `recipient` cannot be the zero address.
+     * - if `recipient` is a contract, it must implement the {IERC777Recipient}
      * interface.
      */
     function operatorSend(
-        address from,
-        address to,
+        address sender,
+        address recipient,
         uint256 amount,
         bytes calldata data,
         bytes calldata operatorData
     ) external;
 
     /**
-     * @dev Destroys `amount` tokens from `from`, reducing the total supply.
-     * The caller must be an operator of `from`.
+     * @dev Destroys `amount` tokens from `account`, reducing the total supply.
+     * The caller must be an operator of `account`.
      *
-     * If a send hook is registered for `from`, the corresponding function
+     * If a send hook is registered for `account`, the corresponding function
      * will be called with `data` and `operatorData`. See {IERC777Sender}.
      *
      * Emits a {Burned} event.
      *
      * Requirements
      *
-     * - `from` cannot be the zero address.
-     * - `from` must have at least `amount` tokens.
-     * - the caller must be an operator for `from`.
+     * - `account` cannot be the zero address.
+     * - `account` must have at least `amount` tokens.
+     * - the caller must be an operator for `account`.
      */
     function operatorBurn(
-        address from,
+        address account,
         uint256 amount,
         bytes calldata data,
         bytes calldata operatorData
