@@ -123,6 +123,9 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
      * @dev Overriden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
      * been queued.
      */
+    // This function can reenter through the external call to the timelock, but we assume the timelock is trusted and
+    // well behaved (according to TimelockController) and this will not happen.
+    // slither-disable-next-line reentrancy-no-eth
     function _cancel(
         address[] memory targets,
         uint256[] memory values,

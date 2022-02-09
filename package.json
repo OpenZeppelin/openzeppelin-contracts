@@ -29,7 +29,8 @@
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
     "test:inheritance": "node scripts/inheritanceOrdering artifacts/build-info/*",
-    "gas-report": "env ENABLE_GAS_REPORT=true npm run test"
+    "gas-report": "env ENABLE_GAS_REPORT=true npm run test",
+    "slither": "npm run clean && slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas"
   },
   "repository": {
     "type": "git",
@@ -81,7 +82,7 @@
     "semver": "^7.3.5",
     "solhint": "^3.3.6",
     "solidity-ast": "^0.4.25",
-    "solidity-coverage": "^0.7.11",
+    "solidity-coverage": "^0.7.18",
     "solidity-docgen": "^0.5.3",
     "web3": "^1.3.0",
     "yargs": "^16.2.0"

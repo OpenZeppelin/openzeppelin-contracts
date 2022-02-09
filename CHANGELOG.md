@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+ * `AccessControl`: add a virtual `_checkRole(bytes32)` function that can be overriden to alter the `onlyRole` modifier behavior. ([#3137](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3137))
+ * `EnumerableMap`: add new `AddressToUintMap` map type. ([#3150](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3150))
+
 ## 4.5.0 (2022-02-09)
 
  * `ERC2981`: add implementation of the royalty standard, and the respective extensions for `ERC721` and `ERC1155`. ([#3012](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3012))
