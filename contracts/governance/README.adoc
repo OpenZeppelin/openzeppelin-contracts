@@ -42,13 +42,15 @@ Other extensions can customize the behavior or interface in multiple ways.
 
 * {GovernorSettings}: Manages some of the settings (voting delay, voting period duration, and proposal threshold) in a way that can be updated through a governance proposal, without requiering an upgrade.
 
+* {GovernorPreventLateQuorum}: Ensures there is a minimum voting period after quorum is reached as a security protection against large voters.
+
 In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
 
 * <<Governor-votingDelay-,`votingDelay()`>>: Delay (in number of blocks) since the proposal is submitted until voting power is fixed and voting starts. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
 * <<Governor-votingPeriod-,`votingPeriod()`>>: Delay (in number of blocks) since the proposal starts until voting ends.
 * <<Governor-quorum-uint256-,`quorum(uint256 blockNumber)`>>: Quorum required for a proposal to be successful. This function includes a `blockNumber` argument so the quorum can adapt through time, for example, to follow a token's `totalSupply`.
 
-NOTE: Functions of the `Governor` contract do not include access control. If you want to restrict access, you should add these checks by overloading the particular functions. Among these, {Governor-_cancel} is internal by default, and you will have to expose it (which the right access control mechanism) yourself if this function is needed.
+NOTE: Functions of the `Governor` contract do not include access control. If you want to restrict access, you should add these checks by overloading the particular functions. Among these, {Governor-_cancel} is internal by default, and you will have to expose it (with the right access control mechanism) yourself if this function is needed.
 
 === Core
 
@@ -74,11 +76,17 @@ NOTE: Functions of the `Governor` contract do not include access control. If you
 
 {{GovernorSettings}}
 
+{{GovernorPreventLateQuorum}}
+
 {{GovernorCompatibilityBravo}}
 
 === Deprecated
 
 {{GovernorProposalThreshold}}
+
+== Utils
+
+{{Votes}}
 
 == Timelock
 

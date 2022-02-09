@@ -57,3 +57,8 @@ allFiredEvents
 # hardhat
 cache
 artifacts
+
+# Certora
+.certora*
+.last_confs
+certora_*

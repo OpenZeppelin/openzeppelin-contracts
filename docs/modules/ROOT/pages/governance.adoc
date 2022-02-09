@@ -28,7 +28,7 @@ When using a timelock with your Governor contract, you can use either OpenZeppel
 
 === Tally
 
-Tally is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
+https://www.withtally.com[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
 
 For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use Defender Admin as an alternative interface.
 
@@ -119,13 +119,13 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
 }
 ```
 
-NOTE: Voting power could be determined in different ways: multiple ERC20 tokens, ERC721 tokens, sybil resistant identities, etc. All of these options are potentially supported by writing a custom Votes module for your Governor.
+NOTE: Voting power could be determined in different ways: multiple ERC20 tokens, ERC721 tokens, sybil resistant identities, etc. All of these options are potentially supported by writing a custom Votes module for your Governor. The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`].
 
 === Governor
 
-Initially, we will build a Governor without a timelock. The core logic is given by the Governor contract, but we still need to choose: 1) how voting power is determined, 2) how many votes are needed for quorum, and 3) what options people have when casting a vote and how those votes are counted. Each of these aspects is customizable by writing your own module, or more easily choosing one from OpenZeppelin Contracts.
+Initially, we will build a Governor without a timelock. The core logic is given by the Governor contract, but we still need to choose: 1) how voting power is determined, 2) how many votes are needed for quorum, 3) what options people have when casting a vote and how those votes are counted, and 4) what type of token should be used to vote. Each of these aspects is customizable by writing your own module, or more easily choosing one from OpenZeppelin Contracts.
 
-For 1) we will use the GovernorVotes module, which hooks to an ERC20Votes instance to determine the voting power of an account based on the token balance they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token.
+For 1) we will use the GovernorVotes module, which hooks to an IVotes instance to determine the voting power of an account based on the token balance they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token.
 
 For 2) we will use GovernorVotesQuorumFraction which works together with ERC20Votes to define quorum as a percentage of the total supply at the block a proposal’s voting power is retrieved. This requires a constructor parameter to set the percentage. Most Governors nowadays use 4%, so we will initialize the module with parameter 4 (this indicates the percentage, resulting in 4%).
 
@@ -134,6 +134,7 @@ For 3) we will use GovernorCountingSimple, a module that offers 3 options to vot
 Besides these modules, Governor itself has some parameters we must set.
 
 votingDelay: How long after a proposal is created should voting power be fixed. A large voting delay gives users time to unstake tokens if necessary.
+
 votingPeriod: How long does a proposal remain open to votes.
 
 These parameters are specified in number of blocks. Assuming block time of around 13.14 seconds, we will set votingDelay = 1 day = 6570 blocks, and votingPeriod = 1 week = 45992 blocks.
@@ -151,7 +152,7 @@ import "./governance/extensions/GovernorVotesQuorumFraction.sol";
 import "./governance/extensions/GovernorTimelockControl.sol";
 
 contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
-    constructor(ERC20Votes _token, TimelockController _timelock)
+    constructor(IVotes _token, TimelockController _timelock)
         Governor("MyGovernor")
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
@@ -247,9 +248,13 @@ contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, Gove
 
 It is good practice to add a timelock to governance decisions. This allows users to exit the system if they disagree with a decision before it is executed. We will use OpenZeppelin’s TimelockController in combination with the GovernorTimelockControl module.
 
-IMPORTANT: When using a timelock, it is the timelock that will execute proposals and thus the timelock that should hold any funds, ownership, and access control roles. Funds in the Governor contract are not currently retrievable when using a timelock! (As of version 4.3 there is a caveat when using the Compound Timelock: ETH in the timelock is not easily usable, so it is recommended to manage ERC20 funds only in this combination until a future version resolves the issue.)
+IMPORTANT: When using a timelock, it is the timelock that will execute proposals and thus the timelock that should hold any funds, ownership, and access control roles. Before version 4.5 there was no way to recover funds in the Governor contract when using a timelock! Before version 4.3, when using the Compound Timelock, ETH in the timelock was not easily accessible.
 
-TimelockController uses an AccessControl setup that we need to understand in order to set up roles. The Proposer role is in charge of queueing operations: this is the role the Governor instance should be granted, and it should likely be the only proposer in the system. The Executor role is in charge of executing already available operations: we can assign this role to the special zero address to allow anyone to execute (if operations can be particularly time sensitive, the Governor should be made Executor instead). Lastly, there is the Admin role, which can grant and revoke the two previous roles: this is a very sensitive role that will be granted automatically to both deployer and timelock itself, but should be renounced by the deployer after setup.
+TimelockController uses an AccessControl setup that we need to understand in order to set up roles.
+
+- The Proposer role is in charge of queueing operations: this is the role the Governor instance should be granted, and it should likely be the only proposer in the system.
+- The Executor role is in charge of executing already available operations: we can assign this role to the special zero address to allow anyone to execute (if operations can be particularly time sensitive, the Governor should be made Executor instead).
+- Lastly, there is the Admin role, which can grant and revoke the two previous roles: this is a very sensitive role that will be granted automatically to both deployer and timelock itself, but should be renounced by the deployer after setup.
 
 == Proposal Lifecycle
 
@@ -289,7 +294,9 @@ This will create a new proposal, with a proposal id that is obtained by hashing 
 
 === Cast a Vote
 
-Once a proposal is active, stakeholders can cast their vote. This is done through a function in the Governor contract that users can invoke directly from a governance UI such as Tally. 
+Once a proposal is active, delegates can cast their vote. Note that it is delegates who carry voting power: if a token holder wants to participate, they can set a trusted representative as their delegate, or they can become a delegate themselves by self-delegating their voting power.
+
+Votes are cast by interacting with the Governor contract through the `castVote` family of functions. Voters would generally invoke this from a governance UI such as Tally.
 
 image::tally-vote.png[Voting in Tally]
 

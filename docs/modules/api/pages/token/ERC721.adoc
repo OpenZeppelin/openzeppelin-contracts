@@ -192,6 +192,8 @@
 :xref-Governor-castVoteBySig-uint256-uint8-uint8-bytes32-bytes32-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-uint8-bytes32-bytes32-
 :Governor-_castVote: pass:normal[xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-[`Governor._castVote`]]
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
+:Governor-relay: pass:normal[xref:governance.adoc#Governor-relay-address-uint256-bytes-[`Governor.relay`]]
+:xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
 :Governor-_executor: pass:normal[xref:governance.adoc#Governor-_executor--[`Governor._executor`]]
 :xref-Governor-_executor--: xref:governance.adoc#Governor-_executor--
 :Governor-ProposalCore: pass:normal[xref:governance.adoc#Governor-ProposalCore[`Governor.ProposalCore`]]
@@ -368,6 +370,24 @@
 :xref-GovernorCountingSimple-ProposalVote: xref:governance.adoc#GovernorCountingSimple-ProposalVote
 :GovernorCountingSimple-VoteType: pass:normal[xref:governance.adoc#GovernorCountingSimple-VoteType[`GovernorCountingSimple.VoteType`]]
 :xref-GovernorCountingSimple-VoteType: xref:governance.adoc#GovernorCountingSimple-VoteType
+:GovernorPreventLateQuorum: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum[`GovernorPreventLateQuorum`]]
+:xref-GovernorPreventLateQuorum: xref:governance.adoc#GovernorPreventLateQuorum
+:GovernorPreventLateQuorum-constructor: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-constructor-uint64-[`GovernorPreventLateQuorum.constructor`]]
+:xref-GovernorPreventLateQuorum-constructor-uint64-: xref:governance.adoc#GovernorPreventLateQuorum-constructor-uint64-
+:GovernorPreventLateQuorum-proposalDeadline: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-proposalDeadline-uint256-[`GovernorPreventLateQuorum.proposalDeadline`]]
+:xref-GovernorPreventLateQuorum-proposalDeadline-uint256-: xref:governance.adoc#GovernorPreventLateQuorum-proposalDeadline-uint256-
+:GovernorPreventLateQuorum-_castVote: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-_castVote-uint256-address-uint8-string-[`GovernorPreventLateQuorum._castVote`]]
+:xref-GovernorPreventLateQuorum-_castVote-uint256-address-uint8-string-: xref:governance.adoc#GovernorPreventLateQuorum-_castVote-uint256-address-uint8-string-
+:GovernorPreventLateQuorum-lateQuorumVoteExtension: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-lateQuorumVoteExtension--[`GovernorPreventLateQuorum.lateQuorumVoteExtension`]]
+:xref-GovernorPreventLateQuorum-lateQuorumVoteExtension--: xref:governance.adoc#GovernorPreventLateQuorum-lateQuorumVoteExtension--
+:GovernorPreventLateQuorum-setLateQuorumVoteExtension: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-setLateQuorumVoteExtension-uint64-[`GovernorPreventLateQuorum.setLateQuorumVoteExtension`]]
+:xref-GovernorPreventLateQuorum-setLateQuorumVoteExtension-uint64-: xref:governance.adoc#GovernorPreventLateQuorum-setLateQuorumVoteExtension-uint64-
+:GovernorPreventLateQuorum-_setLateQuorumVoteExtension: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-_setLateQuorumVoteExtension-uint64-[`GovernorPreventLateQuorum._setLateQuorumVoteExtension`]]
+:xref-GovernorPreventLateQuorum-_setLateQuorumVoteExtension-uint64-: xref:governance.adoc#GovernorPreventLateQuorum-_setLateQuorumVoteExtension-uint64-
+:GovernorPreventLateQuorum-ProposalExtended: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-ProposalExtended-uint256-uint64-[`GovernorPreventLateQuorum.ProposalExtended`]]
+:xref-GovernorPreventLateQuorum-ProposalExtended-uint256-uint64-: xref:governance.adoc#GovernorPreventLateQuorum-ProposalExtended-uint256-uint64-
+:GovernorPreventLateQuorum-LateQuorumVoteExtensionSet: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-LateQuorumVoteExtensionSet-uint64-uint64-[`GovernorPreventLateQuorum.LateQuorumVoteExtensionSet`]]
+:xref-GovernorPreventLateQuorum-LateQuorumVoteExtensionSet-uint64-uint64-: xref:governance.adoc#GovernorPreventLateQuorum-LateQuorumVoteExtensionSet-uint64-uint64-
 :GovernorProposalThreshold: pass:normal[xref:governance.adoc#GovernorProposalThreshold[`GovernorProposalThreshold`]]
 :xref-GovernorProposalThreshold: xref:governance.adoc#GovernorProposalThreshold
 :GovernorProposalThreshold-propose: pass:normal[xref:governance.adoc#GovernorProposalThreshold-propose-address---uint256---bytes---string-[`GovernorProposalThreshold.propose`]]
@@ -484,10 +504,10 @@
 :xref-GovernorTimelockControl-TimelockChange-address-address-: xref:governance.adoc#GovernorTimelockControl-TimelockChange-address-address-
 :GovernorVotes: pass:normal[xref:governance.adoc#GovernorVotes[`GovernorVotes`]]
 :xref-GovernorVotes: xref:governance.adoc#GovernorVotes
-:GovernorVotes-token: pass:normal[xref:governance.adoc#GovernorVotes-token-contract-ERC20Votes[`GovernorVotes.token`]]
-:xref-GovernorVotes-token-contract-ERC20Votes: xref:governance.adoc#GovernorVotes-token-contract-ERC20Votes
-:GovernorVotes-constructor: pass:normal[xref:governance.adoc#GovernorVotes-constructor-contract-ERC20Votes-[`GovernorVotes.constructor`]]
-:xref-GovernorVotes-constructor-contract-ERC20Votes-: xref:governance.adoc#GovernorVotes-constructor-contract-ERC20Votes-
+:GovernorVotes-token: pass:normal[xref:governance.adoc#GovernorVotes-token-contract-IVotes[`GovernorVotes.token`]]
+:xref-GovernorVotes-token-contract-IVotes: xref:governance.adoc#GovernorVotes-token-contract-IVotes
+:GovernorVotes-constructor: pass:normal[xref:governance.adoc#GovernorVotes-constructor-contract-IVotes-[`GovernorVotes.constructor`]]
+:xref-GovernorVotes-constructor-contract-IVotes-: xref:governance.adoc#GovernorVotes-constructor-contract-IVotes-
 :GovernorVotes-getVotes: pass:normal[xref:governance.adoc#GovernorVotes-getVotes-address-uint256-[`GovernorVotes.getVotes`]]
 :xref-GovernorVotes-getVotes-address-uint256-: xref:governance.adoc#GovernorVotes-getVotes-address-uint256-
 :GovernorVotesComp: pass:normal[xref:governance.adoc#GovernorVotesComp[`GovernorVotesComp`]]
@@ -524,6 +544,52 @@
 :xref-IGovernorTimelock-queue-address---uint256---bytes---bytes32-: xref:governance.adoc#IGovernorTimelock-queue-address---uint256---bytes---bytes32-
 :IGovernorTimelock-ProposalQueued: pass:normal[xref:governance.adoc#IGovernorTimelock-ProposalQueued-uint256-uint256-[`IGovernorTimelock.ProposalQueued`]]
 :xref-IGovernorTimelock-ProposalQueued-uint256-uint256-: xref:governance.adoc#IGovernorTimelock-ProposalQueued-uint256-uint256-
+:IVotes: pass:normal[xref:governance.adoc#IVotes[`IVotes`]]
+:xref-IVotes: xref:governance.adoc#IVotes
+:IVotes-getVotes: pass:normal[xref:governance.adoc#IVotes-getVotes-address-[`IVotes.getVotes`]]
+:xref-IVotes-getVotes-address-: xref:governance.adoc#IVotes-getVotes-address-
+:IVotes-getPastVotes: pass:normal[xref:governance.adoc#IVotes-getPastVotes-address-uint256-[`IVotes.getPastVotes`]]
+:xref-IVotes-getPastVotes-address-uint256-: xref:governance.adoc#IVotes-getPastVotes-address-uint256-
+:IVotes-getPastTotalSupply: pass:normal[xref:governance.adoc#IVotes-getPastTotalSupply-uint256-[`IVotes.getPastTotalSupply`]]
+:xref-IVotes-getPastTotalSupply-uint256-: xref:governance.adoc#IVotes-getPastTotalSupply-uint256-
+:IVotes-delegates: pass:normal[xref:governance.adoc#IVotes-delegates-address-[`IVotes.delegates`]]
+:xref-IVotes-delegates-address-: xref:governance.adoc#IVotes-delegates-address-
+:IVotes-delegate: pass:normal[xref:governance.adoc#IVotes-delegate-address-[`IVotes.delegate`]]
+:xref-IVotes-delegate-address-: xref:governance.adoc#IVotes-delegate-address-
+:IVotes-delegateBySig: pass:normal[xref:governance.adoc#IVotes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-[`IVotes.delegateBySig`]]
+:xref-IVotes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-: xref:governance.adoc#IVotes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-
+:IVotes-DelegateChanged: pass:normal[xref:governance.adoc#IVotes-DelegateChanged-address-address-address-[`IVotes.DelegateChanged`]]
+:xref-IVotes-DelegateChanged-address-address-address-: xref:governance.adoc#IVotes-DelegateChanged-address-address-address-
+:IVotes-DelegateVotesChanged: pass:normal[xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-[`IVotes.DelegateVotesChanged`]]
+:xref-IVotes-DelegateVotesChanged-address-uint256-uint256-: xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-
+:Votes: pass:normal[xref:governance.adoc#Votes[`Votes`]]
+:xref-Votes: xref:governance.adoc#Votes
+:Votes-getVotes: pass:normal[xref:governance.adoc#Votes-getVotes-address-[`Votes.getVotes`]]
+:xref-Votes-getVotes-address-: xref:governance.adoc#Votes-getVotes-address-
+:Votes-getPastVotes: pass:normal[xref:governance.adoc#Votes-getPastVotes-address-uint256-[`Votes.getPastVotes`]]
+:xref-Votes-getPastVotes-address-uint256-: xref:governance.adoc#Votes-getPastVotes-address-uint256-
+:Votes-getPastTotalSupply: pass:normal[xref:governance.adoc#Votes-getPastTotalSupply-uint256-[`Votes.getPastTotalSupply`]]
+:xref-Votes-getPastTotalSupply-uint256-: xref:governance.adoc#Votes-getPastTotalSupply-uint256-
+:Votes-_getTotalSupply: pass:normal[xref:governance.adoc#Votes-_getTotalSupply--[`Votes._getTotalSupply`]]
+:xref-Votes-_getTotalSupply--: xref:governance.adoc#Votes-_getTotalSupply--
+:Votes-delegates: pass:normal[xref:governance.adoc#Votes-delegates-address-[`Votes.delegates`]]
+:xref-Votes-delegates-address-: xref:governance.adoc#Votes-delegates-address-
+:Votes-delegate: pass:normal[xref:governance.adoc#Votes-delegate-address-[`Votes.delegate`]]
+:xref-Votes-delegate-address-: xref:governance.adoc#Votes-delegate-address-
+:Votes-delegateBySig: pass:normal[xref:governance.adoc#Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-[`Votes.delegateBySig`]]
+:xref-Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-: xref:governance.adoc#Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-
+:Votes-_delegate: pass:normal[xref:governance.adoc#Votes-_delegate-address-address-[`Votes._delegate`]]
+:xref-Votes-_delegate-address-address-: xref:governance.adoc#Votes-_delegate-address-address-
+:Votes-_transferVotingUnits: pass:normal[xref:governance.adoc#Votes-_transferVotingUnits-address-address-uint256-[`Votes._transferVotingUnits`]]
+:xref-Votes-_transferVotingUnits-address-address-uint256-: xref:governance.adoc#Votes-_transferVotingUnits-address-address-uint256-
+:Votes-_useNonce: pass:normal[xref:governance.adoc#Votes-_useNonce-address-[`Votes._useNonce`]]
+:xref-Votes-_useNonce-address-: xref:governance.adoc#Votes-_useNonce-address-
+:Votes-nonces: pass:normal[xref:governance.adoc#Votes-nonces-address-[`Votes.nonces`]]
+:xref-Votes-nonces-address-: xref:governance.adoc#Votes-nonces-address-
+:Votes-DOMAIN_SEPARATOR: pass:normal[xref:governance.adoc#Votes-DOMAIN_SEPARATOR--[`Votes.DOMAIN_SEPARATOR`]]
+:xref-Votes-DOMAIN_SEPARATOR--: xref:governance.adoc#Votes-DOMAIN_SEPARATOR--
+:Votes-_getVotingUnits: pass:normal[xref:governance.adoc#Votes-_getVotingUnits-address-[`Votes._getVotingUnits`]]
+:xref-Votes-_getVotingUnits-address-: xref:governance.adoc#Votes-_getVotingUnits-address-
 :IERC1271: pass:normal[xref:interfaces.adoc#IERC1271[`IERC1271`]]
 :xref-IERC1271: xref:interfaces.adoc#IERC1271
 :IERC1271-isValidSignature: pass:normal[xref:interfaces.adoc#IERC1271-isValidSignature-bytes32-bytes-[`IERC1271.isValidSignature`]]
@@ -566,6 +632,10 @@
 :xref-IERC3156FlashLender-flashFee-address-uint256-: xref:interfaces.adoc#IERC3156FlashLender-flashFee-address-uint256-
 :IERC3156FlashLender-flashLoan: pass:normal[xref:interfaces.adoc#IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-[`IERC3156FlashLender.flashLoan`]]
 :xref-IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-: xref:interfaces.adoc#IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-
+:IERC1822Proxiable: pass:normal[xref:interfaces.adoc#IERC1822Proxiable[`IERC1822Proxiable`]]
+:xref-IERC1822Proxiable: xref:interfaces.adoc#IERC1822Proxiable
+:IERC1822Proxiable-proxiableUUID: pass:normal[xref:interfaces.adoc#IERC1822Proxiable-proxiableUUID--[`IERC1822Proxiable.proxiableUUID`]]
+:xref-IERC1822Proxiable-proxiableUUID--: xref:interfaces.adoc#IERC1822Proxiable-proxiableUUID--
 :IERC2612: pass:normal[xref:interfaces.adoc#IERC2612[`IERC2612`]]
 :xref-IERC2612: xref:interfaces.adoc#IERC2612
 :ERC2771Context: pass:normal[xref:metatx.adoc#ERC2771Context[`ERC2771Context`]]
@@ -618,8 +688,8 @@
 :xref-ERC1967Upgrade-_upgradeTo-address-: xref:proxy.adoc#ERC1967Upgrade-_upgradeTo-address-
 :ERC1967Upgrade-_upgradeToAndCall: pass:normal[xref:proxy.adoc#ERC1967Upgrade-_upgradeToAndCall-address-bytes-bool-[`ERC1967Upgrade._upgradeToAndCall`]]
 :xref-ERC1967Upgrade-_upgradeToAndCall-address-bytes-bool-: xref:proxy.adoc#ERC1967Upgrade-_upgradeToAndCall-address-bytes-bool-
-:ERC1967Upgrade-_upgradeToAndCallSecure: pass:normal[xref:proxy.adoc#ERC1967Upgrade-_upgradeToAndCallSecure-address-bytes-bool-[`ERC1967Upgrade._upgradeToAndCallSecure`]]
-:xref-ERC1967Upgrade-_upgradeToAndCallSecure-address-bytes-bool-: xref:proxy.adoc#ERC1967Upgrade-_upgradeToAndCallSecure-address-bytes-bool-
+:ERC1967Upgrade-_upgradeToAndCallUUPS: pass:normal[xref:proxy.adoc#ERC1967Upgrade-_upgradeToAndCallUUPS-address-bytes-bool-[`ERC1967Upgrade._upgradeToAndCallUUPS`]]
+:xref-ERC1967Upgrade-_upgradeToAndCallUUPS-address-bytes-bool-: xref:proxy.adoc#ERC1967Upgrade-_upgradeToAndCallUUPS-address-bytes-bool-
 :ERC1967Upgrade-_getAdmin: pass:normal[xref:proxy.adoc#ERC1967Upgrade-_getAdmin--[`ERC1967Upgrade._getAdmin`]]
 :xref-ERC1967Upgrade-_getAdmin--: xref:proxy.adoc#ERC1967Upgrade-_getAdmin--
 :ERC1967Upgrade-_changeAdmin: pass:normal[xref:proxy.adoc#ERC1967Upgrade-_changeAdmin-address-[`ERC1967Upgrade._changeAdmin`]]
@@ -714,6 +784,10 @@
 :xref-UUPSUpgradeable: xref:proxy.adoc#UUPSUpgradeable
 :UUPSUpgradeable-onlyProxy: pass:normal[xref:proxy.adoc#UUPSUpgradeable-onlyProxy--[`UUPSUpgradeable.onlyProxy`]]
 :xref-UUPSUpgradeable-onlyProxy--: xref:proxy.adoc#UUPSUpgradeable-onlyProxy--
+:UUPSUpgradeable-notDelegated: pass:normal[xref:proxy.adoc#UUPSUpgradeable-notDelegated--[`UUPSUpgradeable.notDelegated`]]
+:xref-UUPSUpgradeable-notDelegated--: xref:proxy.adoc#UUPSUpgradeable-notDelegated--
+:UUPSUpgradeable-proxiableUUID: pass:normal[xref:proxy.adoc#UUPSUpgradeable-proxiableUUID--[`UUPSUpgradeable.proxiableUUID`]]
+:xref-UUPSUpgradeable-proxiableUUID--: xref:proxy.adoc#UUPSUpgradeable-proxiableUUID--
 :UUPSUpgradeable-upgradeTo: pass:normal[xref:proxy.adoc#UUPSUpgradeable-upgradeTo-address-[`UUPSUpgradeable.upgradeTo`]]
 :xref-UUPSUpgradeable-upgradeTo-address-: xref:proxy.adoc#UUPSUpgradeable-upgradeTo-address-
 :UUPSUpgradeable-upgradeToAndCall: pass:normal[xref:proxy.adoc#UUPSUpgradeable-upgradeToAndCall-address-bytes-[`UUPSUpgradeable.upgradeToAndCall`]]
@@ -782,6 +856,26 @@
 :xref-Arrays: xref:utils.adoc#Arrays
 :Arrays-findUpperBound: pass:normal[xref:utils.adoc#Arrays-findUpperBound-uint256---uint256-[`Arrays.findUpperBound`]]
 :xref-Arrays-findUpperBound-uint256---uint256-: xref:utils.adoc#Arrays-findUpperBound-uint256---uint256-
+:Base64: pass:normal[xref:utils.adoc#Base64[`Base64`]]
+:xref-Base64: xref:utils.adoc#Base64
+:Base64-_TABLE: pass:normal[xref:utils.adoc#Base64-_TABLE-string[`Base64._TABLE`]]
+:xref-Base64-_TABLE-string: xref:utils.adoc#Base64-_TABLE-string
+:Base64-encode: pass:normal[xref:utils.adoc#Base64-encode-bytes-[`Base64.encode`]]
+:xref-Base64-encode-bytes-: xref:utils.adoc#Base64-encode-bytes-
+:Checkpoints: pass:normal[xref:utils.adoc#Checkpoints[`Checkpoints`]]
+:xref-Checkpoints: xref:utils.adoc#Checkpoints
+:Checkpoints-latest: pass:normal[xref:utils.adoc#Checkpoints-latest-struct-Checkpoints-History-[`Checkpoints.latest`]]
+:xref-Checkpoints-latest-struct-Checkpoints-History-: xref:utils.adoc#Checkpoints-latest-struct-Checkpoints-History-
+:Checkpoints-getAtBlock: pass:normal[xref:utils.adoc#Checkpoints-getAtBlock-struct-Checkpoints-History-uint256-[`Checkpoints.getAtBlock`]]
+:xref-Checkpoints-getAtBlock-struct-Checkpoints-History-uint256-: xref:utils.adoc#Checkpoints-getAtBlock-struct-Checkpoints-History-uint256-
+:Checkpoints-push: pass:normal[xref:utils.adoc#Checkpoints-push-struct-Checkpoints-History-uint256-[`Checkpoints.push`]]
+:xref-Checkpoints-push-struct-Checkpoints-History-uint256-: xref:utils.adoc#Checkpoints-push-struct-Checkpoints-History-uint256-
+:Checkpoints-push: pass:normal[xref:utils.adoc#Checkpoints-push-struct-Checkpoints-History-function--uint256-uint256--view-returns--uint256--uint256-[`Checkpoints.push`]]
+:xref-Checkpoints-push-struct-Checkpoints-History-function--uint256-uint256--view-returns--uint256--uint256-: xref:utils.adoc#Checkpoints-push-struct-Checkpoints-History-function--uint256-uint256--view-returns--uint256--uint256-
+:Checkpoints-Checkpoint: pass:normal[xref:utils.adoc#Checkpoints-Checkpoint[`Checkpoints.Checkpoint`]]
+:xref-Checkpoints-Checkpoint: xref:utils.adoc#Checkpoints-Checkpoint
+:Checkpoints-History: pass:normal[xref:utils.adoc#Checkpoints-History[`Checkpoints.History`]]
+:xref-Checkpoints-History: xref:utils.adoc#Checkpoints-History
 :Context: pass:normal[xref:utils.adoc#Context[`Context`]]
 :xref-Context: xref:utils.adoc#Context
 :Context-_msgSender: pass:normal[xref:utils.adoc#Context-_msgSender--[`Context._msgSender`]]
@@ -1078,6 +1172,16 @@
 :xref-SafeMath-div-uint256-uint256-string-: xref:utils.adoc#SafeMath-div-uint256-uint256-string-
 :SafeMath-mod: pass:normal[xref:utils.adoc#SafeMath-mod-uint256-uint256-string-[`SafeMath.mod`]]
 :xref-SafeMath-mod-uint256-uint256-string-: xref:utils.adoc#SafeMath-mod-uint256-uint256-string-
+:SignedMath: pass:normal[xref:utils.adoc#SignedMath[`SignedMath`]]
+:xref-SignedMath: xref:utils.adoc#SignedMath
+:SignedMath-max: pass:normal[xref:utils.adoc#SignedMath-max-int256-int256-[`SignedMath.max`]]
+:xref-SignedMath-max-int256-int256-: xref:utils.adoc#SignedMath-max-int256-int256-
+:SignedMath-min: pass:normal[xref:utils.adoc#SignedMath-min-int256-int256-[`SignedMath.min`]]
+:xref-SignedMath-min-int256-int256-: xref:utils.adoc#SignedMath-min-int256-int256-
+:SignedMath-average: pass:normal[xref:utils.adoc#SignedMath-average-int256-int256-[`SignedMath.average`]]
+:xref-SignedMath-average-int256-int256-: xref:utils.adoc#SignedMath-average-int256-int256-
+:SignedMath-abs: pass:normal[xref:utils.adoc#SignedMath-abs-int256-[`SignedMath.abs`]]
+:xref-SignedMath-abs-int256-: xref:utils.adoc#SignedMath-abs-int256-
 :SignedSafeMath: pass:normal[xref:utils.adoc#SignedSafeMath[`SignedSafeMath`]]
 :xref-SignedSafeMath: xref:utils.adoc#SignedSafeMath
 :SignedSafeMath-mul: pass:normal[xref:utils.adoc#SignedSafeMath-mul-int256-int256-[`SignedSafeMath.mul`]]
@@ -1256,26 +1360,6 @@
 :xref-IERC1155MetadataURI: xref:token/ERC1155.adoc#IERC1155MetadataURI
 :IERC1155MetadataURI-uri: pass:normal[xref:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`IERC1155MetadataURI.uri`]]
 :xref-IERC1155MetadataURI-uri-uint256-: xref:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-
-:ERC1155PresetMinterPauser: pass:normal[xref:token/ERC1155.adoc#ERC1155PresetMinterPauser[`ERC1155PresetMinterPauser`]]
-:xref-ERC1155PresetMinterPauser: xref:token/ERC1155.adoc#ERC1155PresetMinterPauser
-:ERC1155PresetMinterPauser-MINTER_ROLE: pass:normal[xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-MINTER_ROLE-bytes32[`ERC1155PresetMinterPauser.MINTER_ROLE`]]
-:xref-ERC1155PresetMinterPauser-MINTER_ROLE-bytes32: xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-MINTER_ROLE-bytes32
-:ERC1155PresetMinterPauser-PAUSER_ROLE: pass:normal[xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-PAUSER_ROLE-bytes32[`ERC1155PresetMinterPauser.PAUSER_ROLE`]]
-:xref-ERC1155PresetMinterPauser-PAUSER_ROLE-bytes32: xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-PAUSER_ROLE-bytes32
-:ERC1155PresetMinterPauser-constructor: pass:normal[xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-constructor-string-[`ERC1155PresetMinterPauser.constructor`]]
-:xref-ERC1155PresetMinterPauser-constructor-string-: xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-constructor-string-
-:ERC1155PresetMinterPauser-mint: pass:normal[xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-mint-address-uint256-uint256-bytes-[`ERC1155PresetMinterPauser.mint`]]
-:xref-ERC1155PresetMinterPauser-mint-address-uint256-uint256-bytes-: xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-mint-address-uint256-uint256-bytes-
-:ERC1155PresetMinterPauser-mintBatch: pass:normal[xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-mintBatch-address-uint256---uint256---bytes-[`ERC1155PresetMinterPauser.mintBatch`]]
-:xref-ERC1155PresetMinterPauser-mintBatch-address-uint256---uint256---bytes-: xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-mintBatch-address-uint256---uint256---bytes-
-:ERC1155PresetMinterPauser-pause: pass:normal[xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-pause--[`ERC1155PresetMinterPauser.pause`]]
-:xref-ERC1155PresetMinterPauser-pause--: xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-pause--
-:ERC1155PresetMinterPauser-unpause: pass:normal[xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-unpause--[`ERC1155PresetMinterPauser.unpause`]]
-:xref-ERC1155PresetMinterPauser-unpause--: xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-unpause--
-:ERC1155PresetMinterPauser-supportsInterface: pass:normal[xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-supportsInterface-bytes4-[`ERC1155PresetMinterPauser.supportsInterface`]]
-:xref-ERC1155PresetMinterPauser-supportsInterface-bytes4-: xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-supportsInterface-bytes4-
-:ERC1155PresetMinterPauser-_beforeTokenTransfer: pass:normal[xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-[`ERC1155PresetMinterPauser._beforeTokenTransfer`]]
-:xref-ERC1155PresetMinterPauser-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-: xref:token/ERC1155.adoc#ERC1155PresetMinterPauser-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-
 :ERC1155Holder: pass:normal[xref:token/ERC1155.adoc#ERC1155Holder[`ERC1155Holder`]]
 :xref-ERC1155Holder: xref:token/ERC1155.adoc#ERC1155Holder
 :ERC1155Holder-onERC1155Received: pass:normal[xref:token/ERC1155.adoc#ERC1155Holder-onERC1155Received-address-address-uint256-uint256-bytes-[`ERC1155Holder.onERC1155Received`]]
@@ -1320,6 +1404,8 @@
 :xref-ERC20-_burn-address-uint256-: xref:token/ERC20.adoc#ERC20-_burn-address-uint256-
 :ERC20-_approve: pass:normal[xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-[`ERC20._approve`]]
 :xref-ERC20-_approve-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-
+:ERC20-_spendAllowance: pass:normal[xref:token/ERC20.adoc#ERC20-_spendAllowance-address-address-uint256-[`ERC20._spendAllowance`]]
+:xref-ERC20-_spendAllowance-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_spendAllowance-address-address-uint256-
 :ERC20-_beforeTokenTransfer: pass:normal[xref:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`ERC20._beforeTokenTransfer`]]
 :xref-ERC20-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-
 :ERC20-_afterTokenTransfer: pass:normal[xref:token/ERC20.adoc#ERC20-_afterTokenTransfer-address-address-uint256-[`ERC20._afterTokenTransfer`]]
@@ -1412,10 +1498,6 @@
 :xref-ERC20Votes-_afterTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20Votes-_afterTokenTransfer-address-address-uint256-
 :ERC20Votes-_delegate: pass:normal[xref:token/ERC20.adoc#ERC20Votes-_delegate-address-address-[`ERC20Votes._delegate`]]
 :xref-ERC20Votes-_delegate-address-address-: xref:token/ERC20.adoc#ERC20Votes-_delegate-address-address-
-:ERC20Votes-DelegateChanged: pass:normal[xref:token/ERC20.adoc#ERC20Votes-DelegateChanged-address-address-address-[`ERC20Votes.DelegateChanged`]]
-:xref-ERC20Votes-DelegateChanged-address-address-address-: xref:token/ERC20.adoc#ERC20Votes-DelegateChanged-address-address-address-
-:ERC20Votes-DelegateVotesChanged: pass:normal[xref:token/ERC20.adoc#ERC20Votes-DelegateVotesChanged-address-uint256-uint256-[`ERC20Votes.DelegateVotesChanged`]]
-:xref-ERC20Votes-DelegateVotesChanged-address-uint256-uint256-: xref:token/ERC20.adoc#ERC20Votes-DelegateVotesChanged-address-uint256-uint256-
 :ERC20Votes-Checkpoint: pass:normal[xref:token/ERC20.adoc#ERC20Votes-Checkpoint[`ERC20Votes.Checkpoint`]]
 :xref-ERC20Votes-Checkpoint: xref:token/ERC20.adoc#ERC20Votes-Checkpoint
 :ERC20VotesComp: pass:normal[xref:token/ERC20.adoc#ERC20VotesComp[`ERC20VotesComp`]]
@@ -1466,26 +1548,6 @@
 :xref-IERC20Permit-nonces-address-: xref:token/ERC20.adoc#IERC20Permit-nonces-address-
 :IERC20Permit-DOMAIN_SEPARATOR: pass:normal[xref:token/ERC20.adoc#IERC20Permit-DOMAIN_SEPARATOR--[`IERC20Permit.DOMAIN_SEPARATOR`]]
 :xref-IERC20Permit-DOMAIN_SEPARATOR--: xref:token/ERC20.adoc#IERC20Permit-DOMAIN_SEPARATOR--
-:ERC20PresetFixedSupply: pass:normal[xref:token/ERC20.adoc#ERC20PresetFixedSupply[`ERC20PresetFixedSupply`]]
-:xref-ERC20PresetFixedSupply: xref:token/ERC20.adoc#ERC20PresetFixedSupply
-:ERC20PresetFixedSupply-constructor: pass:normal[xref:token/ERC20.adoc#ERC20PresetFixedSupply-constructor-string-string-uint256-address-[`ERC20PresetFixedSupply.constructor`]]
-:xref-ERC20PresetFixedSupply-constructor-string-string-uint256-address-: xref:token/ERC20.adoc#ERC20PresetFixedSupply-constructor-string-string-uint256-address-
-:ERC20PresetMinterPauser: pass:normal[xref:token/ERC20.adoc#ERC20PresetMinterPauser[`ERC20PresetMinterPauser`]]
-:xref-ERC20PresetMinterPauser: xref:token/ERC20.adoc#ERC20PresetMinterPauser
-:ERC20PresetMinterPauser-MINTER_ROLE: pass:normal[xref:token/ERC20.adoc#ERC20PresetMinterPauser-MINTER_ROLE-bytes32[`ERC20PresetMinterPauser.MINTER_ROLE`]]
-:xref-ERC20PresetMinterPauser-MINTER_ROLE-bytes32: xref:token/ERC20.adoc#ERC20PresetMinterPauser-MINTER_ROLE-bytes32
-:ERC20PresetMinterPauser-PAUSER_ROLE: pass:normal[xref:token/ERC20.adoc#ERC20PresetMinterPauser-PAUSER_ROLE-bytes32[`ERC20PresetMinterPauser.PAUSER_ROLE`]]
-:xref-ERC20PresetMinterPauser-PAUSER_ROLE-bytes32: xref:token/ERC20.adoc#ERC20PresetMinterPauser-PAUSER_ROLE-bytes32
-:ERC20PresetMinterPauser-constructor: pass:normal[xref:token/ERC20.adoc#ERC20PresetMinterPauser-constructor-string-string-[`ERC20PresetMinterPauser.constructor`]]
-:xref-ERC20PresetMinterPauser-constructor-string-string-: xref:token/ERC20.adoc#ERC20PresetMinterPauser-constructor-string-string-
-:ERC20PresetMinterPauser-mint: pass:normal[xref:token/ERC20.adoc#ERC20PresetMinterPauser-mint-address-uint256-[`ERC20PresetMinterPauser.mint`]]
-:xref-ERC20PresetMinterPauser-mint-address-uint256-: xref:token/ERC20.adoc#ERC20PresetMinterPauser-mint-address-uint256-
-:ERC20PresetMinterPauser-pause: pass:normal[xref:token/ERC20.adoc#ERC20PresetMinterPauser-pause--[`ERC20PresetMinterPauser.pause`]]
-:xref-ERC20PresetMinterPauser-pause--: xref:token/ERC20.adoc#ERC20PresetMinterPauser-pause--
-:ERC20PresetMinterPauser-unpause: pass:normal[xref:token/ERC20.adoc#ERC20PresetMinterPauser-unpause--[`ERC20PresetMinterPauser.unpause`]]
-:xref-ERC20PresetMinterPauser-unpause--: xref:token/ERC20.adoc#ERC20PresetMinterPauser-unpause--
-:ERC20PresetMinterPauser-_beforeTokenTransfer: pass:normal[xref:token/ERC20.adoc#ERC20PresetMinterPauser-_beforeTokenTransfer-address-address-uint256-[`ERC20PresetMinterPauser._beforeTokenTransfer`]]
-:xref-ERC20PresetMinterPauser-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20PresetMinterPauser-_beforeTokenTransfer-address-address-uint256-
 :SafeERC20: pass:normal[xref:token/ERC20.adoc#SafeERC20[`SafeERC20`]]
 :xref-SafeERC20: xref:token/ERC20.adoc#SafeERC20
 :SafeERC20-safeTransfer: pass:normal[xref:token/ERC20.adoc#SafeERC20-safeTransfer-contract-IERC20-address-uint256-[`SafeERC20.safeTransfer`]]
@@ -1564,6 +1626,8 @@
 :xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
 :ERC721-_beforeTokenTransfer: pass:normal[xref:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-[`ERC721._beforeTokenTransfer`]]
 :xref-ERC721-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-
+:ERC721-_afterTokenTransfer: pass:normal[xref:token/ERC721.adoc#ERC721-_afterTokenTransfer-address-address-uint256-[`ERC721._afterTokenTransfer`]]
+:xref-ERC721-_afterTokenTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_afterTokenTransfer-address-address-uint256-
 :IERC721: pass:normal[xref:token/ERC721.adoc#IERC721[`IERC721`]]
 :xref-IERC721: xref:token/ERC721.adoc#IERC721
 :IERC721-balanceOf: pass:normal[xref:token/ERC721.adoc#IERC721-balanceOf-address-[`IERC721.balanceOf`]]
@@ -1614,6 +1678,12 @@
 :xref-ERC721Pausable: xref:token/ERC721.adoc#ERC721Pausable
 :ERC721Pausable-_beforeTokenTransfer: pass:normal[xref:token/ERC721.adoc#ERC721Pausable-_beforeTokenTransfer-address-address-uint256-[`ERC721Pausable._beforeTokenTransfer`]]
 :xref-ERC721Pausable-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721Pausable-_beforeTokenTransfer-address-address-uint256-
+:ERC721Royalty: pass:normal[xref:token/ERC721.adoc#ERC721Royalty[`ERC721Royalty`]]
+:xref-ERC721Royalty: xref:token/ERC721.adoc#ERC721Royalty
+:ERC721Royalty-supportsInterface: pass:normal[xref:token/ERC721.adoc#ERC721Royalty-supportsInterface-bytes4-[`ERC721Royalty.supportsInterface`]]
+:xref-ERC721Royalty-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721Royalty-supportsInterface-bytes4-
+:ERC721Royalty-_burn: pass:normal[xref:token/ERC721.adoc#ERC721Royalty-_burn-uint256-[`ERC721Royalty._burn`]]
+:xref-ERC721Royalty-_burn-uint256-: xref:token/ERC721.adoc#ERC721Royalty-_burn-uint256-
 :ERC721URIStorage: pass:normal[xref:token/ERC721.adoc#ERC721URIStorage[`ERC721URIStorage`]]
 :xref-ERC721URIStorage: xref:token/ERC721.adoc#ERC721URIStorage
 :ERC721URIStorage-tokenURI: pass:normal[xref:token/ERC721.adoc#ERC721URIStorage-tokenURI-uint256-[`ERC721URIStorage.tokenURI`]]
@@ -1638,26 +1708,12 @@
 :xref-IERC721Metadata-symbol--: xref:token/ERC721.adoc#IERC721Metadata-symbol--
 :IERC721Metadata-tokenURI: pass:normal[xref:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-[`IERC721Metadata.tokenURI`]]
 :xref-IERC721Metadata-tokenURI-uint256-: xref:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-
-:ERC721PresetMinterPauserAutoId: pass:normal[xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId[`ERC721PresetMinterPauserAutoId`]]
-:xref-ERC721PresetMinterPauserAutoId: xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId
-:ERC721PresetMinterPauserAutoId-MINTER_ROLE: pass:normal[xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-MINTER_ROLE-bytes32[`ERC721PresetMinterPauserAutoId.MINTER_ROLE`]]
-:xref-ERC721PresetMinterPauserAutoId-MINTER_ROLE-bytes32: xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-MINTER_ROLE-bytes32
-:ERC721PresetMinterPauserAutoId-PAUSER_ROLE: pass:normal[xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-PAUSER_ROLE-bytes32[`ERC721PresetMinterPauserAutoId.PAUSER_ROLE`]]
-:xref-ERC721PresetMinterPauserAutoId-PAUSER_ROLE-bytes32: xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-PAUSER_ROLE-bytes32
-:ERC721PresetMinterPauserAutoId-constructor: pass:normal[xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-constructor-string-string-string-[`ERC721PresetMinterPauserAutoId.constructor`]]
-:xref-ERC721PresetMinterPauserAutoId-constructor-string-string-string-: xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-constructor-string-string-string-
-:ERC721PresetMinterPauserAutoId-_baseURI: pass:normal[xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-_baseURI--[`ERC721PresetMinterPauserAutoId._baseURI`]]
-:xref-ERC721PresetMinterPauserAutoId-_baseURI--: xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-_baseURI--
-:ERC721PresetMinterPauserAutoId-mint: pass:normal[xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-mint-address-[`ERC721PresetMinterPauserAutoId.mint`]]
-:xref-ERC721PresetMinterPauserAutoId-mint-address-: xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-mint-address-
-:ERC721PresetMinterPauserAutoId-pause: pass:normal[xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-pause--[`ERC721PresetMinterPauserAutoId.pause`]]
-:xref-ERC721PresetMinterPauserAutoId-pause--: xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-pause--
-:ERC721PresetMinterPauserAutoId-unpause: pass:normal[xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-unpause--[`ERC721PresetMinterPauserAutoId.unpause`]]
-:xref-ERC721PresetMinterPauserAutoId-unpause--: xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-unpause--
-:ERC721PresetMinterPauserAutoId-_beforeTokenTransfer: pass:normal[xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-_beforeTokenTransfer-address-address-uint256-[`ERC721PresetMinterPauserAutoId._beforeTokenTransfer`]]
-:xref-ERC721PresetMinterPauserAutoId-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-_beforeTokenTransfer-address-address-uint256-
-:ERC721PresetMinterPauserAutoId-supportsInterface: pass:normal[xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-supportsInterface-bytes4-[`ERC721PresetMinterPauserAutoId.supportsInterface`]]
-:xref-ERC721PresetMinterPauserAutoId-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-supportsInterface-bytes4-
+:ERC721Votes: pass:normal[xref:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]]
+:xref-ERC721Votes: xref:token/ERC721.adoc#ERC721Votes
+:ERC721Votes-_afterTokenTransfer: pass:normal[xref:token/ERC721.adoc#ERC721Votes-_afterTokenTransfer-address-address-uint256-[`ERC721Votes._afterTokenTransfer`]]
+:xref-ERC721Votes-_afterTokenTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721Votes-_afterTokenTransfer-address-address-uint256-
+:ERC721Votes-_getVotingUnits: pass:normal[xref:token/ERC721.adoc#ERC721Votes-_getVotingUnits-address-[`ERC721Votes._getVotingUnits`]]
+:xref-ERC721Votes-_getVotingUnits-address-: xref:token/ERC721.adoc#ERC721Votes-_getVotingUnits-address-
 :ERC721Holder: pass:normal[xref:token/ERC721.adoc#ERC721Holder[`ERC721Holder`]]
 :xref-ERC721Holder: xref:token/ERC721.adoc#ERC721Holder
 :ERC721Holder-onERC721Received: pass:normal[xref:token/ERC721.adoc#ERC721Holder-onERC721Received-address-address-uint256-bytes-[`ERC721Holder.onERC721Received`]]
@@ -1714,6 +1770,8 @@
 :xref-ERC777-_burn-address-uint256-bytes-bytes-: xref:token/ERC777.adoc#ERC777-_burn-address-uint256-bytes-bytes-
 :ERC777-_approve: pass:normal[xref:token/ERC777.adoc#ERC777-_approve-address-address-uint256-[`ERC777._approve`]]
 :xref-ERC777-_approve-address-address-uint256-: xref:token/ERC777.adoc#ERC777-_approve-address-address-uint256-
+:ERC777-_spendAllowance: pass:normal[xref:token/ERC777.adoc#ERC777-_spendAllowance-address-address-uint256-[`ERC777._spendAllowance`]]
+:xref-ERC777-_spendAllowance-address-address-uint256-: xref:token/ERC777.adoc#ERC777-_spendAllowance-address-address-uint256-
 :ERC777-_beforeTokenTransfer: pass:normal[xref:token/ERC777.adoc#ERC777-_beforeTokenTransfer-address-address-address-uint256-[`ERC777._beforeTokenTransfer`]]
 :xref-ERC777-_beforeTokenTransfer-address-address-address-uint256-: xref:token/ERC777.adoc#ERC777-_beforeTokenTransfer-address-address-address-uint256-
 :IERC777: pass:normal[xref:token/ERC777.adoc#IERC777[`IERC777`]]
@@ -1766,6 +1824,84 @@
 :xref-ERC777PresetFixedSupply: xref:token/ERC777.adoc#ERC777PresetFixedSupply
 :ERC777PresetFixedSupply-constructor: pass:normal[xref:token/ERC777.adoc#ERC777PresetFixedSupply-constructor-string-string-address---uint256-address-[`ERC777PresetFixedSupply.constructor`]]
 :xref-ERC777PresetFixedSupply-constructor-string-string-address---uint256-address-: xref:token/ERC777.adoc#ERC777PresetFixedSupply-constructor-string-string-address---uint256-address-
+:ERC2981: pass:normal[xref:token/common.adoc#ERC2981[`ERC2981`]]
+:xref-ERC2981: xref:token/common.adoc#ERC2981
+:ERC2981-supportsInterface: pass:normal[xref:token/common.adoc#ERC2981-supportsInterface-bytes4-[`ERC2981.supportsInterface`]]
+:xref-ERC2981-supportsInterface-bytes4-: xref:token/common.adoc#ERC2981-supportsInterface-bytes4-
+:ERC2981-royaltyInfo: pass:normal[xref:token/common.adoc#ERC2981-royaltyInfo-uint256-uint256-[`ERC2981.royaltyInfo`]]
+:xref-ERC2981-royaltyInfo-uint256-uint256-: xref:token/common.adoc#ERC2981-royaltyInfo-uint256-uint256-
+:ERC2981-_feeDenominator: pass:normal[xref:token/common.adoc#ERC2981-_feeDenominator--[`ERC2981._feeDenominator`]]
+:xref-ERC2981-_feeDenominator--: xref:token/common.adoc#ERC2981-_feeDenominator--
+:ERC2981-_setDefaultRoyalty: pass:normal[xref:token/common.adoc#ERC2981-_setDefaultRoyalty-address-uint96-[`ERC2981._setDefaultRoyalty`]]
+:xref-ERC2981-_setDefaultRoyalty-address-uint96-: xref:token/common.adoc#ERC2981-_setDefaultRoyalty-address-uint96-
+:ERC2981-_deleteDefaultRoyalty: pass:normal[xref:token/common.adoc#ERC2981-_deleteDefaultRoyalty--[`ERC2981._deleteDefaultRoyalty`]]
+:xref-ERC2981-_deleteDefaultRoyalty--: xref:token/common.adoc#ERC2981-_deleteDefaultRoyalty--
+:ERC2981-_setTokenRoyalty: pass:normal[xref:token/common.adoc#ERC2981-_setTokenRoyalty-uint256-address-uint96-[`ERC2981._setTokenRoyalty`]]
+:xref-ERC2981-_setTokenRoyalty-uint256-address-uint96-: xref:token/common.adoc#ERC2981-_setTokenRoyalty-uint256-address-uint96-
+:ERC2981-_resetTokenRoyalty: pass:normal[xref:token/common.adoc#ERC2981-_resetTokenRoyalty-uint256-[`ERC2981._resetTokenRoyalty`]]
+:xref-ERC2981-_resetTokenRoyalty-uint256-: xref:token/common.adoc#ERC2981-_resetTokenRoyalty-uint256-
+:ERC2981-RoyaltyInfo: pass:normal[xref:token/common.adoc#ERC2981-RoyaltyInfo[`ERC2981.RoyaltyInfo`]]
+:xref-ERC2981-RoyaltyInfo: xref:token/common.adoc#ERC2981-RoyaltyInfo
+:ERC1155PresetMinterPauser: pass:normal[xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser[`ERC1155PresetMinterPauser`]]
+:xref-ERC1155PresetMinterPauser: xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser
+:ERC1155PresetMinterPauser-MINTER_ROLE: pass:normal[xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-MINTER_ROLE-bytes32[`ERC1155PresetMinterPauser.MINTER_ROLE`]]
+:xref-ERC1155PresetMinterPauser-MINTER_ROLE-bytes32: xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-MINTER_ROLE-bytes32
+:ERC1155PresetMinterPauser-PAUSER_ROLE: pass:normal[xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-PAUSER_ROLE-bytes32[`ERC1155PresetMinterPauser.PAUSER_ROLE`]]
+:xref-ERC1155PresetMinterPauser-PAUSER_ROLE-bytes32: xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-PAUSER_ROLE-bytes32
+:ERC1155PresetMinterPauser-constructor: pass:normal[xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-constructor-string-[`ERC1155PresetMinterPauser.constructor`]]
+:xref-ERC1155PresetMinterPauser-constructor-string-: xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-constructor-string-
+:ERC1155PresetMinterPauser-mint: pass:normal[xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-mint-address-uint256-uint256-bytes-[`ERC1155PresetMinterPauser.mint`]]
+:xref-ERC1155PresetMinterPauser-mint-address-uint256-uint256-bytes-: xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-mint-address-uint256-uint256-bytes-
+:ERC1155PresetMinterPauser-mintBatch: pass:normal[xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-mintBatch-address-uint256---uint256---bytes-[`ERC1155PresetMinterPauser.mintBatch`]]
+:xref-ERC1155PresetMinterPauser-mintBatch-address-uint256---uint256---bytes-: xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-mintBatch-address-uint256---uint256---bytes-
+:ERC1155PresetMinterPauser-pause: pass:normal[xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-pause--[`ERC1155PresetMinterPauser.pause`]]
+:xref-ERC1155PresetMinterPauser-pause--: xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-pause--
+:ERC1155PresetMinterPauser-unpause: pass:normal[xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-unpause--[`ERC1155PresetMinterPauser.unpause`]]
+:xref-ERC1155PresetMinterPauser-unpause--: xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-unpause--
+:ERC1155PresetMinterPauser-supportsInterface: pass:normal[xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-supportsInterface-bytes4-[`ERC1155PresetMinterPauser.supportsInterface`]]
+:xref-ERC1155PresetMinterPauser-supportsInterface-bytes4-: xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-supportsInterface-bytes4-
+:ERC1155PresetMinterPauser-_beforeTokenTransfer: pass:normal[xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-[`ERC1155PresetMinterPauser._beforeTokenTransfer`]]
+:xref-ERC1155PresetMinterPauser-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-: xref:token/ERC1155/presets.md#ERC1155PresetMinterPauser-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-
+:ERC20PresetFixedSupply: pass:normal[xref:token/ERC20/presets.md#ERC20PresetFixedSupply[`ERC20PresetFixedSupply`]]
+:xref-ERC20PresetFixedSupply: xref:token/ERC20/presets.md#ERC20PresetFixedSupply
+:ERC20PresetFixedSupply-constructor: pass:normal[xref:token/ERC20/presets.md#ERC20PresetFixedSupply-constructor-string-string-uint256-address-[`ERC20PresetFixedSupply.constructor`]]
+:xref-ERC20PresetFixedSupply-constructor-string-string-uint256-address-: xref:token/ERC20/presets.md#ERC20PresetFixedSupply-constructor-string-string-uint256-address-
+:ERC20PresetMinterPauser: pass:normal[xref:token/ERC20/presets.md#ERC20PresetMinterPauser[`ERC20PresetMinterPauser`]]
+:xref-ERC20PresetMinterPauser: xref:token/ERC20/presets.md#ERC20PresetMinterPauser
+:ERC20PresetMinterPauser-MINTER_ROLE: pass:normal[xref:token/ERC20/presets.md#ERC20PresetMinterPauser-MINTER_ROLE-bytes32[`ERC20PresetMinterPauser.MINTER_ROLE`]]
+:xref-ERC20PresetMinterPauser-MINTER_ROLE-bytes32: xref:token/ERC20/presets.md#ERC20PresetMinterPauser-MINTER_ROLE-bytes32
+:ERC20PresetMinterPauser-PAUSER_ROLE: pass:normal[xref:token/ERC20/presets.md#ERC20PresetMinterPauser-PAUSER_ROLE-bytes32[`ERC20PresetMinterPauser.PAUSER_ROLE`]]
+:xref-ERC20PresetMinterPauser-PAUSER_ROLE-bytes32: xref:token/ERC20/presets.md#ERC20PresetMinterPauser-PAUSER_ROLE-bytes32
+:ERC20PresetMinterPauser-constructor: pass:normal[xref:token/ERC20/presets.md#ERC20PresetMinterPauser-constructor-string-string-[`ERC20PresetMinterPauser.constructor`]]
+:xref-ERC20PresetMinterPauser-constructor-string-string-: xref:token/ERC20/presets.md#ERC20PresetMinterPauser-constructor-string-string-
+:ERC20PresetMinterPauser-mint: pass:normal[xref:token/ERC20/presets.md#ERC20PresetMinterPauser-mint-address-uint256-[`ERC20PresetMinterPauser.mint`]]
+:xref-ERC20PresetMinterPauser-mint-address-uint256-: xref:token/ERC20/presets.md#ERC20PresetMinterPauser-mint-address-uint256-
+:ERC20PresetMinterPauser-pause: pass:normal[xref:token/ERC20/presets.md#ERC20PresetMinterPauser-pause--[`ERC20PresetMinterPauser.pause`]]
+:xref-ERC20PresetMinterPauser-pause--: xref:token/ERC20/presets.md#ERC20PresetMinterPauser-pause--
+:ERC20PresetMinterPauser-unpause: pass:normal[xref:token/ERC20/presets.md#ERC20PresetMinterPauser-unpause--[`ERC20PresetMinterPauser.unpause`]]
+:xref-ERC20PresetMinterPauser-unpause--: xref:token/ERC20/presets.md#ERC20PresetMinterPauser-unpause--
+:ERC20PresetMinterPauser-_beforeTokenTransfer: pass:normal[xref:token/ERC20/presets.md#ERC20PresetMinterPauser-_beforeTokenTransfer-address-address-uint256-[`ERC20PresetMinterPauser._beforeTokenTransfer`]]
+:xref-ERC20PresetMinterPauser-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC20/presets.md#ERC20PresetMinterPauser-_beforeTokenTransfer-address-address-uint256-
+:ERC721PresetMinterPauserAutoId: pass:normal[xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId[`ERC721PresetMinterPauserAutoId`]]
+:xref-ERC721PresetMinterPauserAutoId: xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId
+:ERC721PresetMinterPauserAutoId-MINTER_ROLE: pass:normal[xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-MINTER_ROLE-bytes32[`ERC721PresetMinterPauserAutoId.MINTER_ROLE`]]
+:xref-ERC721PresetMinterPauserAutoId-MINTER_ROLE-bytes32: xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-MINTER_ROLE-bytes32
+:ERC721PresetMinterPauserAutoId-PAUSER_ROLE: pass:normal[xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-PAUSER_ROLE-bytes32[`ERC721PresetMinterPauserAutoId.PAUSER_ROLE`]]
+:xref-ERC721PresetMinterPauserAutoId-PAUSER_ROLE-bytes32: xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-PAUSER_ROLE-bytes32
+:ERC721PresetMinterPauserAutoId-constructor: pass:normal[xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-constructor-string-string-string-[`ERC721PresetMinterPauserAutoId.constructor`]]
+:xref-ERC721PresetMinterPauserAutoId-constructor-string-string-string-: xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-constructor-string-string-string-
+:ERC721PresetMinterPauserAutoId-_baseURI: pass:normal[xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-_baseURI--[`ERC721PresetMinterPauserAutoId._baseURI`]]
+:xref-ERC721PresetMinterPauserAutoId-_baseURI--: xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-_baseURI--
+:ERC721PresetMinterPauserAutoId-mint: pass:normal[xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-mint-address-[`ERC721PresetMinterPauserAutoId.mint`]]
+:xref-ERC721PresetMinterPauserAutoId-mint-address-: xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-mint-address-
+:ERC721PresetMinterPauserAutoId-pause: pass:normal[xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-pause--[`ERC721PresetMinterPauserAutoId.pause`]]
+:xref-ERC721PresetMinterPauserAutoId-pause--: xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-pause--
+:ERC721PresetMinterPauserAutoId-unpause: pass:normal[xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-unpause--[`ERC721PresetMinterPauserAutoId.unpause`]]
+:xref-ERC721PresetMinterPauserAutoId-unpause--: xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-unpause--
+:ERC721PresetMinterPauserAutoId-_beforeTokenTransfer: pass:normal[xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-_beforeTokenTransfer-address-address-uint256-[`ERC721PresetMinterPauserAutoId._beforeTokenTransfer`]]
+:xref-ERC721PresetMinterPauserAutoId-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-_beforeTokenTransfer-address-address-uint256-
+:ERC721PresetMinterPauserAutoId-supportsInterface: pass:normal[xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-supportsInterface-bytes4-[`ERC721PresetMinterPauserAutoId.supportsInterface`]]
+:xref-ERC721PresetMinterPauserAutoId-supportsInterface-bytes4-: xref:token/ERC721/presets.md#ERC721PresetMinterPauserAutoId-supportsInterface-bytes4-
 = ERC 721
 
 [.readme-notice]
@@ -1775,17 +1911,28 @@ This set of interfaces, contracts, and utilities are all related to the https://
 
 TIP: For a walk through on how to create an ERC721 token read our xref:ROOT:erc721.adoc[ERC721 guide].
 
-The EIP consists of three interfaces, found here as {IERC721}, {IERC721Metadata}, and {IERC721Enumerable}. Only the first one is required in a contract to be ERC721 compliant. The core interface and the metadata extension are both implemented in {ERC721}. The enumerable extension is provided separately in {ERC721Enumerable}.
+The EIP specifies four interfaces:
 
-Additionally, {IERC721Receiver} can be used to prevent tokens from becoming forever locked in contracts. Imagine sending an in-game item to an exchange address that can't send it back!. When using <<IERC721-safeTransferFrom,`safeTransferFrom`>>, the token contract checks to see that the receiver is an {IERC721Receiver}, which implies that it knows how to handle {ERC721} tokens. If you're writing a contract that needs to receive {ERC721} tokens, you'll want to include this interface.
+* {IERC721}: Core functionality required in all compliant implementation.
+* {IERC721Metadata}: Optional extension that adds name, symbol, and token URI, almost always included.
+* {IERC721Enumerable}: Optional extension that allows enumerating the tokens on chain, often not included since it requires large gas overhead.
+* {IERC721Receiver}: An interface that must be implemented by contracts if they want to accept tokens through `safeTransferFrom`.
 
-Additionally there are multiple custom extensions, including:
+OpenZeppelin Contracts provides implementations of all four interfaces:
 
-* designation of addresses that can pause token transfers for all users ({ERC721Pausable}).
-* destruction of own tokens ({ERC721Burnable}).
+* {ERC721}: The core and metadata extensions, with a base URI mechanism.
+* {ERC721Enumerable}: The enumerable extension.
+* {ERC721Holder}: A bare bones implementation of the receiver interface.
+
+Additionally there are a few of other extensions:
+
+* {ERC721URIStorage}: A more flexible but more expensive way of storing metadata.
+* {ERC721Votes}: Support for voting and vote delegation.
+* {ERC721Royalty}: A way to signal royalty information following ERC2981.
+* {ERC721Pausable}: A primitive to pause contract operation.
+* {ERC721Burnable}: A way for token holders to burn their own tokens.
 
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC721 (such as <<ERC721-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc721.adoc#Presets[ERC721 Presets] (such as {ERC721PresetMinterPauserAutoId}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
-
 
 == Core
 
@@ -1805,7 +1952,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 [.contract]
 [[IERC721]]
-=== `++IERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.4.2/contracts/token/ERC721/IERC721.sol[{github-icon},role=heading-link]
+=== `++IERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/IERC721.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1988,7 +2135,7 @@ Emitted when `owner` enables or disables (`approved`) `operator` to manage all o
 
 [.contract]
 [[IERC721Metadata]]
-=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.4.2/contracts/token/ERC721/extensions/IERC721Metadata.sol[{github-icon},role=heading-link]
+=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/extensions/IERC721Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2067,7 +2214,7 @@ Returns the Uniform Resource Identifier (URI) for `tokenId` token.
 
 [.contract]
 [[IERC721Enumerable]]
-=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.4.2/contracts/token/ERC721/extensions/IERC721Enumerable.sol[{github-icon},role=heading-link]
+=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/extensions/IERC721Enumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2126,7 +2273,7 @@ Returns the total amount of tokens stored by the contract.
 
 [.contract-item]
 [[IERC721Enumerable-tokenOfOwnerByIndex-address-uint256-]]
-==== `[.contract-item-name]#++tokenOfOwnerByIndex++#++(address owner, uint256 index) → uint256 tokenId++` [.item-kind]#external#
+==== `[.contract-item-name]#++tokenOfOwnerByIndex++#++(address owner, uint256 index) → uint256++` [.item-kind]#external#
 
 Returns a token ID owned by `owner` at a given `index` of its token list.
 Use along with {balanceOf} to enumerate all of ``owner``'s tokens.
@@ -2168,10 +2315,11 @@ Use along with {totalSupply} to enumerate all tokens.
 :_approve: pass:normal[xref:#ERC721-_approve-address-uint256-[`++_approve++`]]
 :_setApprovalForAll: pass:normal[xref:#ERC721-_setApprovalForAll-address-address-bool-[`++_setApprovalForAll++`]]
 :_beforeTokenTransfer: pass:normal[xref:#ERC721-_beforeTokenTransfer-address-address-uint256-[`++_beforeTokenTransfer++`]]
+:_afterTokenTransfer: pass:normal[xref:#ERC721-_afterTokenTransfer-address-address-uint256-[`++_afterTokenTransfer++`]]
 
 [.contract]
 [[ERC721]]
-=== `++ERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.4.2/contracts/token/ERC721/ERC721.sol[{github-icon},role=heading-link]
+=== `++ERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/ERC721.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2212,6 +2360,7 @@ the Metadata extension, but not including the Enumerable extension, which is ava
 * {xref-ERC721-_approve-address-uint256-}[`++_approve(to, tokenId)++`]
 * {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
 * {xref-ERC721-_beforeTokenTransfer-address-address-uint256-}[`++_beforeTokenTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, tokenId)++`]
 
 [.contract-subindex-inherited]
 .IERC721Metadata
@@ -2481,6 +2630,20 @@ transferred to `to`.
 
 To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
 
+[.contract-item]
+[[ERC721-_afterTokenTransfer-address-address-uint256-]]
+==== `[.contract-item-name]#++_afterTokenTransfer++#++(address from, address to, uint256 tokenId)++` [.item-kind]#internal#
+
+Hook that is called after any transfer of tokens. This includes
+minting and burning.
+
+Calling conditions:
+
+- when `from` and `to` are both non-zero.
+- `from` and `to` are never both zero.
+
+To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+
 
 
 
@@ -2493,7 +2656,7 @@ To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hook
 
 [.contract]
 [[ERC721Enumerable]]
-=== `++ERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.4.2/contracts/token/ERC721/extensions/ERC721Enumerable.sol[{github-icon},role=heading-link]
+=== `++ERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/extensions/ERC721Enumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2543,6 +2706,7 @@ account.
 * {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
 * {xref-ERC721-_approve-address-uint256-}[`++_approve(to, tokenId)++`]
 * {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, tokenId)++`]
 
 [.contract-subindex-inherited]
 .IERC721Metadata
@@ -2639,7 +2803,7 @@ To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hook
 
 [.contract]
 [[IERC721Receiver]]
-=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.4.2/contracts/token/ERC721/IERC721Receiver.sol[{github-icon},role=heading-link]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/IERC721Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2681,7 +2845,7 @@ The selector can be obtained in Solidity with `IERC721.onERC721Received.selector
 
 [.contract]
 [[ERC721Pausable]]
-=== `++ERC721Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.4.2/contracts/token/ERC721/extensions/ERC721Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC721Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/extensions/ERC721Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2733,6 +2897,7 @@ event of a large bug.
 * {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
 * {xref-ERC721-_approve-address-uint256-}[`++_approve(to, tokenId)++`]
 * {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, tokenId)++`]
 
 [.contract-subindex-inherited]
 .IERC721Metadata
@@ -2799,7 +2964,7 @@ Requirements:
 
 [.contract]
 [[ERC721Burnable]]
-=== `++ERC721Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.4.2/contracts/token/ERC721/extensions/ERC721Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC721Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/extensions/ERC721Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2842,6 +3007,7 @@ ERC721 Token that can be irreversibly burned (destroyed).
 * {xref-ERC721-_approve-address-uint256-}[`++_approve(to, tokenId)++`]
 * {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
 * {xref-ERC721-_beforeTokenTransfer-address-address-uint256-}[`++_beforeTokenTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, tokenId)++`]
 
 [.contract-subindex-inherited]
 .IERC721Metadata
@@ -2905,7 +3071,7 @@ Requirements:
 
 [.contract]
 [[ERC721URIStorage]]
-=== `++ERC721URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.4.2/contracts/token/ERC721/extensions/ERC721URIStorage.sol[{github-icon},role=heading-link]
+=== `++ERC721URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/extensions/ERC721URIStorage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2948,6 +3114,7 @@ ERC721 token with storage based token URI management.
 * {xref-ERC721-_approve-address-uint256-}[`++_approve(to, tokenId)++`]
 * {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
 * {xref-ERC721-_beforeTokenTransfer-address-address-uint256-}[`++_beforeTokenTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, tokenId)++`]
 
 [.contract-subindex-inherited]
 .IERC721Metadata
@@ -3023,85 +3190,65 @@ Emits a {Transfer} event.
 
 
 
-== Presets
-
-These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
-
-:ERC721PresetMinterPauserAutoId: pass:normal[xref:#ERC721PresetMinterPauserAutoId[`++ERC721PresetMinterPauserAutoId++`]]
-:MINTER_ROLE: pass:normal[xref:#ERC721PresetMinterPauserAutoId-MINTER_ROLE-bytes32[`++MINTER_ROLE++`]]
-:PAUSER_ROLE: pass:normal[xref:#ERC721PresetMinterPauserAutoId-PAUSER_ROLE-bytes32[`++PAUSER_ROLE++`]]
-:constructor: pass:normal[xref:#ERC721PresetMinterPauserAutoId-constructor-string-string-string-[`++constructor++`]]
-:_baseURI: pass:normal[xref:#ERC721PresetMinterPauserAutoId-_baseURI--[`++_baseURI++`]]
-:mint: pass:normal[xref:#ERC721PresetMinterPauserAutoId-mint-address-[`++mint++`]]
-:pause: pass:normal[xref:#ERC721PresetMinterPauserAutoId-pause--[`++pause++`]]
-:unpause: pass:normal[xref:#ERC721PresetMinterPauserAutoId-unpause--[`++unpause++`]]
-:_beforeTokenTransfer: pass:normal[xref:#ERC721PresetMinterPauserAutoId-_beforeTokenTransfer-address-address-uint256-[`++_beforeTokenTransfer++`]]
-:supportsInterface: pass:normal[xref:#ERC721PresetMinterPauserAutoId-supportsInterface-bytes4-[`++supportsInterface++`]]
+:ERC721Votes: pass:normal[xref:#ERC721Votes[`++ERC721Votes++`]]
+:_afterTokenTransfer: pass:normal[xref:#ERC721Votes-_afterTokenTransfer-address-address-uint256-[`++_afterTokenTransfer++`]]
+:_getVotingUnits: pass:normal[xref:#ERC721Votes-_getVotingUnits-address-[`++_getVotingUnits++`]]
 
 [.contract]
-[[ERC721PresetMinterPauserAutoId]]
-=== `++ERC721PresetMinterPauserAutoId++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.4.2/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol[{github-icon},role=heading-link]
+[[ERC721Votes]]
+=== `++ERC721Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/extensions/draft-ERC721Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
 ```
 
-{ERC721} token, including:
+Extension of ERC721 to support voting and delegation as implemented by {Votes}, where each individual NFT counts
+as 1 vote unit.
 
- - ability for holders to burn (destroy) their tokens
- - a minter role that allows for token minting (creation)
- - a pauser role that allows to stop all token transfers
- - token ID and URI autogeneration
+Tokens do not count as votes until they are delegated, because votes must be tracked which incurs an additional cost
+on every transfer. Token holders can either delegate to a trusted representative who will decide how to make use of
+the votes in governance decisions, or they can delegate to themselves to be their own representative.
 
-This contract uses {AccessControl} to lock permissioned functions using the
-different roles - head to its documentation for details.
-
-The account that deploys the contract will be granted the minter and pauser
-roles, as well as the default admin role, which will let it grant both minter
-and pauser roles to other accounts.
+_Available since v4.5._
 
 
 [.contract-index]
 .Functions
 --
-* {xref-ERC721PresetMinterPauserAutoId-constructor-string-string-string-}[`++constructor(name, symbol, baseTokenURI)++`]
-* {xref-ERC721PresetMinterPauserAutoId-_baseURI--}[`++_baseURI()++`]
-* {xref-ERC721PresetMinterPauserAutoId-mint-address-}[`++mint(to)++`]
-* {xref-ERC721PresetMinterPauserAutoId-pause--}[`++pause()++`]
-* {xref-ERC721PresetMinterPauserAutoId-unpause--}[`++unpause()++`]
-* {xref-ERC721PresetMinterPauserAutoId-_beforeTokenTransfer-address-address-uint256-}[`++_beforeTokenTransfer(from, to, tokenId)++`]
-* {xref-ERC721PresetMinterPauserAutoId-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC721Votes-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, tokenId)++`]
+* {xref-ERC721Votes-_getVotingUnits-address-}[`++_getVotingUnits(account)++`]
 
 [.contract-subindex-inherited]
-.ERC721Pausable
+.Votes
+* {xref-Votes-getVotes-address-}[`++getVotes(account)++`]
+* {xref-Votes-getPastVotes-address-uint256-}[`++getPastVotes(account, blockNumber)++`]
+* {xref-Votes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(blockNumber)++`]
+* {xref-Votes-_getTotalSupply--}[`++_getTotalSupply()++`]
+* {xref-Votes-delegates-address-}[`++delegates(account)++`]
+* {xref-Votes-delegate-address-}[`++delegate(delegatee)++`]
+* {xref-Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-}[`++delegateBySig(delegatee, nonce, expiry, v, r, s)++`]
+* {xref-Votes-_delegate-address-address-}[`++_delegate(account, delegatee)++`]
+* {xref-Votes-_transferVotingUnits-address-address-uint256-}[`++_transferVotingUnits(from, to, amount)++`]
+* {xref-Votes-_useNonce-address-}[`++_useNonce(owner)++`]
+* {xref-Votes-nonces-address-}[`++nonces(owner)++`]
+* {xref-Votes-DOMAIN_SEPARATOR--}[`++DOMAIN_SEPARATOR()++`]
 
 [.contract-subindex-inherited]
-.Pausable
-* {xref-Pausable-paused--}[`++paused()++`]
-* {xref-Pausable-_pause--}[`++_pause()++`]
-* {xref-Pausable-_unpause--}[`++_unpause()++`]
-
-[.contract-subindex-inherited]
-.ERC721Burnable
-* {xref-ERC721Burnable-burn-uint256-}[`++burn(tokenId)++`]
-
-[.contract-subindex-inherited]
-.ERC721Enumerable
-* {xref-ERC721Enumerable-tokenOfOwnerByIndex-address-uint256-}[`++tokenOfOwnerByIndex(owner, index)++`]
-* {xref-ERC721Enumerable-totalSupply--}[`++totalSupply()++`]
-* {xref-ERC721Enumerable-tokenByIndex-uint256-}[`++tokenByIndex(index)++`]
-
-[.contract-subindex-inherited]
-.IERC721Enumerable
+.EIP712
+* {xref-EIP712-constructor-string-string-}[`++constructor(name, version)++`]
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
 
 [.contract-subindex-inherited]
 .ERC721
+* {xref-ERC721-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
 * {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
 * {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
 * {xref-ERC721-name--}[`++name()++`]
 * {xref-ERC721-symbol--}[`++symbol()++`]
 * {xref-ERC721-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
 * {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
 * {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
 * {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
@@ -3119,6 +3266,7 @@ and pauser roles to other accounts.
 * {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
 * {xref-ERC721-_approve-address-uint256-}[`++_approve(to, tokenId)++`]
 * {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_beforeTokenTransfer-address-address-uint256-}[`++_beforeTokenTransfer(from, to, tokenId)++`]
 
 [.contract-subindex-inherited]
 .IERC721Metadata
@@ -3127,34 +3275,13 @@ and pauser roles to other accounts.
 .IERC721
 
 [.contract-subindex-inherited]
-.AccessControlEnumerable
-* {xref-AccessControlEnumerable-getRoleMember-bytes32-uint256-}[`++getRoleMember(role, index)++`]
-* {xref-AccessControlEnumerable-getRoleMemberCount-bytes32-}[`++getRoleMemberCount(role)++`]
-* {xref-AccessControlEnumerable-_grantRole-bytes32-address-}[`++_grantRole(role, account)++`]
-* {xref-AccessControlEnumerable-_revokeRole-bytes32-address-}[`++_revokeRole(role, account)++`]
-
-[.contract-subindex-inherited]
-.AccessControl
-* {xref-AccessControl-hasRole-bytes32-address-}[`++hasRole(role, account)++`]
-* {xref-AccessControl-_checkRole-bytes32-address-}[`++_checkRole(role, account)++`]
-* {xref-AccessControl-getRoleAdmin-bytes32-}[`++getRoleAdmin(role)++`]
-* {xref-AccessControl-grantRole-bytes32-address-}[`++grantRole(role, account)++`]
-* {xref-AccessControl-revokeRole-bytes32-address-}[`++revokeRole(role, account)++`]
-* {xref-AccessControl-renounceRole-bytes32-address-}[`++renounceRole(role, account)++`]
-* {xref-AccessControl-_setupRole-bytes32-address-}[`++_setupRole(role, account)++`]
-* {xref-AccessControl-_setRoleAdmin-bytes32-bytes32-}[`++_setRoleAdmin(role, adminRole)++`]
-
-[.contract-subindex-inherited]
 .ERC165
 
 [.contract-subindex-inherited]
 .IERC165
 
 [.contract-subindex-inherited]
-.IAccessControlEnumerable
-
-[.contract-subindex-inherited]
-.IAccessControl
+.IVotes
 
 --
 
@@ -3163,21 +3290,10 @@ and pauser roles to other accounts.
 --
 
 [.contract-subindex-inherited]
-.ERC721Pausable
+.Votes
 
 [.contract-subindex-inherited]
-.Pausable
-* {xref-Pausable-Paused-address-}[`++Paused(account)++`]
-* {xref-Pausable-Unpaused-address-}[`++Unpaused(account)++`]
-
-[.contract-subindex-inherited]
-.ERC721Burnable
-
-[.contract-subindex-inherited]
-.ERC721Enumerable
-
-[.contract-subindex-inherited]
-.IERC721Enumerable
+.EIP712
 
 [.contract-subindex-inherited]
 .ERC721
@@ -3192,25 +3308,152 @@ and pauser roles to other accounts.
 * {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
 
 [.contract-subindex-inherited]
-.AccessControlEnumerable
-
-[.contract-subindex-inherited]
-.AccessControl
-
-[.contract-subindex-inherited]
 .ERC165
 
 [.contract-subindex-inherited]
 .IERC165
 
 [.contract-subindex-inherited]
-.IAccessControlEnumerable
+.Context
 
 [.contract-subindex-inherited]
-.IAccessControl
-* {xref-IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-}[`++RoleAdminChanged(role, previousAdminRole, newAdminRole)++`]
-* {xref-IAccessControl-RoleGranted-bytes32-address-address-}[`++RoleGranted(role, account, sender)++`]
-* {xref-IAccessControl-RoleRevoked-bytes32-address-address-}[`++RoleRevoked(role, account, sender)++`]
+.IVotes
+* {xref-IVotes-DelegateChanged-address-address-address-}[`++DelegateChanged(delegator, fromDelegate, toDelegate)++`]
+* {xref-IVotes-DelegateVotesChanged-address-uint256-uint256-}[`++DelegateVotesChanged(delegate, previousBalance, newBalance)++`]
+
+--
+
+
+[.contract-item]
+[[ERC721Votes-_afterTokenTransfer-address-address-uint256-]]
+==== `[.contract-item-name]#++_afterTokenTransfer++#++(address from, address to, uint256 tokenId)++` [.item-kind]#internal#
+
+Adjusts votes when tokens are transferred.
+
+Emits a {Votes-DelegateVotesChanged} event.
+
+[.contract-item]
+[[ERC721Votes-_getVotingUnits-address-]]
+==== `[.contract-item-name]#++_getVotingUnits++#++(address account) → uint256++` [.item-kind]#internal#
+
+Returns the balance of `account`.
+
+
+
+
+:ERC721Royalty: pass:normal[xref:#ERC721Royalty[`++ERC721Royalty++`]]
+:supportsInterface: pass:normal[xref:#ERC721Royalty-supportsInterface-bytes4-[`++supportsInterface++`]]
+:_burn: pass:normal[xref:#ERC721Royalty-_burn-uint256-[`++_burn++`]]
+
+[.contract]
+[[ERC721Royalty]]
+=== `++ERC721Royalty++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/extensions/ERC721Royalty.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
+```
+
+Extension of ERC721 with the ERC2981 NFT Royalty Standard, a standardized way to retrieve royalty payment
+information.
+
+Royalty information can be specified globally for all token ids via {_setDefaultRoyalty}, and/or individually for
+specific token ids via {_setTokenRoyalty}. The latter takes precedence over the first.
+
+IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
+https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
+voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
+
+_Available since v4.5._
+
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721Royalty-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC721Royalty-_burn-uint256-}[`++_burn(tokenId)++`]
+
+[.contract-subindex-inherited]
+.ERC721
+* {xref-ERC721-constructor-string-string-}[`++constructor(name_, symbol_)++`]
+* {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-ERC721-name--}[`++name()++`]
+* {xref-ERC721-symbol--}[`++symbol()++`]
+* {xref-ERC721-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
+* {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+* {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, _data)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, _data)++`]
+* {xref-ERC721-_exists-uint256-}[`++_exists(tokenId)++`]
+* {xref-ERC721-_isApprovedOrOwner-address-uint256-}[`++_isApprovedOrOwner(spender, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, _data)++`]
+* {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
+* {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
+* {xref-ERC721-_approve-address-uint256-}[`++_approve(to, tokenId)++`]
+* {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_beforeTokenTransfer-address-address-uint256-}[`++_beforeTokenTransfer(from, to, tokenId)++`]
+* {xref-ERC721-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, tokenId)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC2981
+* {xref-ERC2981-royaltyInfo-uint256-uint256-}[`++royaltyInfo(_tokenId, _salePrice)++`]
+* {xref-ERC2981-_feeDenominator--}[`++_feeDenominator()++`]
+* {xref-ERC2981-_setDefaultRoyalty-address-uint96-}[`++_setDefaultRoyalty(receiver, feeNumerator)++`]
+* {xref-ERC2981-_deleteDefaultRoyalty--}[`++_deleteDefaultRoyalty()++`]
+* {xref-ERC2981-_setTokenRoyalty-uint256-address-uint96-}[`++_setTokenRoyalty(tokenId, receiver, feeNumerator)++`]
+* {xref-ERC2981-_resetTokenRoyalty-uint256-}[`++_resetTokenRoyalty(tokenId)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC2981
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.ERC2981
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC2981
+
+[.contract-subindex-inherited]
+.IERC165
 
 [.contract-subindex-inherited]
 .Context
@@ -3219,71 +3462,23 @@ and pauser roles to other accounts.
 
 
 [.contract-item]
-[[ERC721PresetMinterPauserAutoId-constructor-string-string-string-]]
-==== `[.contract-item-name]#++constructor++#++(string name, string symbol, string baseTokenURI)++` [.item-kind]#public#
-
-Grants `DEFAULT_ADMIN_ROLE`, `MINTER_ROLE` and `PAUSER_ROLE` to the
-account that deploys the contract.
-
-Token URIs will be autogenerated based on `baseURI` and their token IDs.
-See {ERC721-tokenURI}.
-
-[.contract-item]
-[[ERC721PresetMinterPauserAutoId-_baseURI--]]
-==== `[.contract-item-name]#++_baseURI++#++() → string++` [.item-kind]#internal#
-
-
-
-[.contract-item]
-[[ERC721PresetMinterPauserAutoId-mint-address-]]
-==== `[.contract-item-name]#++mint++#++(address to)++` [.item-kind]#public#
-
-Creates a new token for `to`. Its token ID will be automatically
-assigned (and available on the emitted {IERC721-Transfer} event), and the token
-URI autogenerated based on the base URI passed at construction.
-
-See {ERC721-_mint}.
-
-Requirements:
-
-- the caller must have the `MINTER_ROLE`.
-
-[.contract-item]
-[[ERC721PresetMinterPauserAutoId-pause--]]
-==== `[.contract-item-name]#++pause++#++()++` [.item-kind]#public#
-
-Pauses all token transfers.
-
-See {ERC721Pausable} and {Pausable-_pause}.
-
-Requirements:
-
-- the caller must have the `PAUSER_ROLE`.
-
-[.contract-item]
-[[ERC721PresetMinterPauserAutoId-unpause--]]
-==== `[.contract-item-name]#++unpause++#++()++` [.item-kind]#public#
-
-Unpauses all token transfers.
-
-See {ERC721Pausable} and {Pausable-_unpause}.
-
-Requirements:
-
-- the caller must have the `PAUSER_ROLE`.
-
-[.contract-item]
-[[ERC721PresetMinterPauserAutoId-_beforeTokenTransfer-address-address-uint256-]]
-==== `[.contract-item-name]#++_beforeTokenTransfer++#++(address from, address to, uint256 tokenId)++` [.item-kind]#internal#
-
-
-
-[.contract-item]
-[[ERC721PresetMinterPauserAutoId-supportsInterface-bytes4-]]
+[[ERC721Royalty-supportsInterface-bytes4-]]
 ==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
 
 See {IERC165-supportsInterface}.
 
+[.contract-item]
+[[ERC721Royalty-_burn-uint256-]]
+==== `[.contract-item-name]#++_burn++#++(uint256 tokenId)++` [.item-kind]#internal#
+
+See {ERC721-_burn}. This override additionally clears the royalty information for the token.
+
+
+
+
+== Presets
+
+These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
 
 
 
@@ -3294,7 +3489,7 @@ See {IERC165-supportsInterface}.
 
 [.contract]
 [[ERC721Holder]]
-=== `++ERC721Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.4.2/contracts/token/ERC721/utils/ERC721Holder.sol[{github-icon},role=heading-link]
+=== `++ERC721Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC721/utils/ERC721Holder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

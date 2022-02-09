@@ -1,5 +1,6 @@
 .API
 * xref:access.adoc[Access]
+* xref:token/common.adoc[Common (Tokens)]
 * xref:token/ERC20.adoc[ERC 20]
 * xref:token/ERC721.adoc[ERC 721]
 * xref:token/ERC777.adoc[ERC 777]
@@ -8,6 +9,9 @@
 * xref:governance.adoc[Governance]
 * xref:interfaces.adoc[Interfaces]
 * xref:metatx.adoc[Meta Transactions]
+* xref:token/ERC1155/presets.md[Presets]
+* xref:token/ERC20/presets.md[Presets]
+* xref:token/ERC721/presets.md[Presets]
 * xref:proxy.adoc[Proxy]
 * xref:security.adoc[Security]
 * xref:utils.adoc[Utils]

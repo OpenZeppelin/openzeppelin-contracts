@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/ERC20VotesComp.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20VotesComp.sol)
 
 pragma solidity ^0.8.0;
 
@@ -26,14 +26,14 @@ abstract contract ERC20VotesComp is ERC20Votes {
     /**
      * @dev Comp version of the {getVotes} accessor, with `uint96` return type.
      */
-    function getCurrentVotes(address account) external view returns (uint96) {
+    function getCurrentVotes(address account) external view virtual returns (uint96) {
         return SafeCast.toUint96(getVotes(account));
     }
 
     /**
      * @dev Comp version of the {getPastVotes} accessor, with `uint96` return type.
      */
-    function getPriorVotes(address account, uint256 blockNumber) external view returns (uint96) {
+    function getPriorVotes(address account, uint256 blockNumber) external view virtual returns (uint96) {
         return SafeCast.toUint96(getPastVotes(account, blockNumber));
     }
 

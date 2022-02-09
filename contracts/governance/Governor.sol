@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -41,8 +41,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     mapping(uint256 => ProposalCore) private _proposals;
 
     /**
-     * @dev Restrict access to governor executing address. Some module might override the _executor function to make
-     * sure this modifier is consistant with the execution model.
+     * @dev Restrict access of functions to the governance executor, which may be the Governor itself or a timelock
+     * contract, as specified by {_executor}. This generally means that function with this modifier must be voted on and
+     * executed through the governance protocol.
      */
     modifier onlyGovernance() {
         require(_msgSender() == _executor(), "Governor: onlyGovernance");
@@ -110,23 +111,36 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * @dev See {IGovernor-state}.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
-        ProposalCore memory proposal = _proposals[proposalId];
+        ProposalCore storage proposal = _proposals[proposalId];
 
         if (proposal.executed) {
             return ProposalState.Executed;
-        } else if (proposal.canceled) {
+        }
+
+        if (proposal.canceled) {
             return ProposalState.Canceled;
-        } else if (proposal.voteStart.getDeadline() >= block.number) {
-            return ProposalState.Pending;
-        } else if (proposal.voteEnd.getDeadline() >= block.number) {
-            return ProposalState.Active;
-        } else if (proposal.voteEnd.isExpired()) {
-            return
-                _quorumReached(proposalId) && _voteSucceeded(proposalId)
-                    ? ProposalState.Succeeded
-                    : ProposalState.Defeated;
-        } else {
+        }
+
+        uint256 snapshot = proposalSnapshot(proposalId);
+
+        if (snapshot == 0) {
             revert("Governor: unknown proposal id");
+        }
+
+        if (snapshot >= block.number) {
+            return ProposalState.Pending;
+        }
+
+        uint256 deadline = proposalDeadline(proposalId);
+
+        if (deadline >= block.number) {
+            return ProposalState.Active;
+        }
+
+        if (_quorumReached(proposalId) && _voteSucceeded(proposalId)) {
+            return ProposalState.Succeeded;
+        } else {
+            return ProposalState.Defeated;
         }
     }
 
@@ -345,6 +359,20 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         emit VoteCast(account, proposalId, support, weight, reason);
 
         return weight;
+    }
+
+    /**
+     * @dev Relays a transaction or function call to an arbitrary target. In cases where the governance executor
+     * is some contract other than the governor itself, like when using a timelock, this function can be invoked
+     * in a governance proposal to recover tokens or Ether that was sent to the governor contract by mistake.
+     * Note that if the executor is simply the governor itself, use of `relay` is redundant.
+     */
+    function relay(
+        address target,
+        uint256 value,
+        bytes calldata data
+    ) external virtual onlyGovernance {
+        Address.functionCallWithValue(target, data, value);
     }
 
     /**

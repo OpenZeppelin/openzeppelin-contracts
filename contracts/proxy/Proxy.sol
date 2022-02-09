@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (proxy/Proxy.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (proxy/Proxy.sol)
 
 pragma solidity ^0.8.0;
 
@@ -17,7 +17,7 @@ abstract contract Proxy {
     /**
      * @dev Delegates the current call to `implementation`.
      *
-     * This function does not return to its internall call site, it will return directly to the external caller.
+     * This function does not return to its internal call site, it will return directly to the external caller.
      */
     function _delegate(address implementation) internal virtual {
         assembly {
