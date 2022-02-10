@@ -5,17 +5,17 @@ import "../CrossChainEnabled.sol";
 import "./LibOptimism.sol";
 
 abstract contract CrossChainEnabledOptimism is CrossChainEnabled {
-    address internal immutable bridge;
+    address private immutable _bridge;
 
-    constructor(address _bridge) {
-        bridge = _bridge;
+    constructor(address bridge) {
+        _bridge = bridge;
     }
 
     function _isCrossChain() internal view virtual override returns (bool) {
-        return LibOptimism.isCrossChain(bridge);
+        return LibOptimism.isCrossChain(_bridge);
     }
 
-    function _crossChainSender() internal view virtual override onlyCrossChain() returns (address) {
-        return LibOptimism.crossChainSender(bridge);
+    function _crossChainSender() internal view virtual override onlyCrossChain returns (address) {
+        return LibOptimism.crossChainSender(_bridge);
     }
 }

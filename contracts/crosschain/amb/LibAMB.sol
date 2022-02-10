@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { IAMB as AMB_Bridge } from "../../vendor/amb/IAMB.sol";
+import {IAMB as AMB_Bridge} from "../../vendor/amb/IAMB.sol";
 
 library LibAMB {
     function isCrossChain(address bridge) internal view returns (bool) {

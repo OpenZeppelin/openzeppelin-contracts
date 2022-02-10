@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { IBridge as ArbitrumL1_Bridge } from "../../vendor/arbitrum/IBridge.sol";
-import { IInbox  as ArbitrumL1_Inbox  } from "../../vendor/arbitrum/IInbox.sol";
-import { IOutbox as ArbitrumL1_Outbox } from "../../vendor/arbitrum/IOutbox.sol";
+import {IBridge as ArbitrumL1_Bridge} from "../../vendor/arbitrum/IBridge.sol";
+import {IInbox as ArbitrumL1_Inbox} from "../../vendor/arbitrum/IInbox.sol";
+import {IOutbox as ArbitrumL1_Outbox} from "../../vendor/arbitrum/IOutbox.sol";
 
 library LibArbitrumL1 {
     function isCrossChain(address inbox) internal view returns (bool) {

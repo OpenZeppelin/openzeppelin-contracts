@@ -5,17 +5,17 @@ import "../CrossChainEnabled.sol";
 import "./LibAMB.sol";
 
 contract CrossChainEnabledAMB is CrossChainEnabled {
-    address internal immutable bridge;
+    address private immutable _bridge;
 
-    constructor(address _bridge) {
-        bridge = _bridge;
+    constructor(address bridge) {
+        _bridge = bridge;
     }
 
     function _isCrossChain() internal view virtual override returns (bool) {
-        return LibAMB.isCrossChain(bridge);
+        return LibAMB.isCrossChain(_bridge);
     }
 
-    function _crossChainSender() internal view virtual override onlyCrossChain() returns (address) {
-        return LibAMB.crossChainSender(bridge);
+    function _crossChainSender() internal view virtual override onlyCrossChain returns (address) {
+        return LibAMB.crossChainSender(_bridge);
     }
 }
