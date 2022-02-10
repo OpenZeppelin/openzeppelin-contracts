@@ -7,6 +7,17 @@
  * `ERC1155`: Add a `_afterTokenTransfer` hook for improved extensibility. ([#3166](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3166))
  * `DoubleEndedQueue`: a new data structure that supports efficient push and pop to both front and back, useful for FIFO and LIFO queues. ([#3153](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3153))
  * `Governor`: improved security of `onlyGovernance` modifier when using an external executor contract (e.g. a timelock) that can operate without necessarily going through the governance protocol. ([#3147](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3147))
+ * `IGovernor`: Add two new methods to the interface, `castVoteWithReasonAndParams` and `castVoteWithReasonAndParamsBySig`, allowing voting extensions to include more data about how the vote is to be interpreted. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
+ * `IGovernor`: Add a new event `VoteCastWithParams` that is emitted when a vote is cast that includes non-empty params data. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
+ * `Governor`: Add internal `_defaultParams` method and default implementation. The return value is passed as params data when `castVote` methods without params are called. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
+ * `Governor`: Add default `getVotes` implementation which calls virtual internal `_getVotes` method. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
+ * `Governor`: Add `EXTENDED_BALLOT_TYPEHASH` used for signature validation in `castVoteWithReasonAndParamsBySig`. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
+
+### Breaking changes
+
+* `Governor`: Adds internal virtual `_getVotes` method that must be implemented; this is a breaking change for existing concrete extensions to `Governor`. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
+* `Governor`: Adds `params` parameter to internal virtual `_countVote ` method that; this is a breaking change for existing concrete extensions to `Governor`. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
+* `Governor`: Does not emit `VoteCast` event when params data is non-empty; instead emits `VoteCastWithParams` event. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
 
 ## 4.5.0 (2022-02-09)
 
