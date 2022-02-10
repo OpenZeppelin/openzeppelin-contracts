@@ -43,6 +43,8 @@ const argv = require('yargs/yargs')()
   .argv;
 
 require('@nomiclabs/hardhat-truffle5');
+require('@nomiclabs/hardhat-waffle');
+require('@nomiclabs/hardhat-ethers');
 
 if (argv.enableGasReport) {
   require('hardhat-gas-reporter');
