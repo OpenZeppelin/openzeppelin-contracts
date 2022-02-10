@@ -2,15 +2,15 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/structs/Vector.sol";
+import "../utils/structs/DoubleEndedQueue.sol";
 
 // Bytes32Vector
 contract Bytes32VectorMock {
-    using Vector for Vector.Bytes32Vector;
+    using DoubleEndedQueue for DoubleEndedQueue.Bytes32Vector;
 
     event OperationResult(bytes32 value);
 
-    Vector.Bytes32Vector private _vector;
+    DoubleEndedQueue.Bytes32Vector private _vector;
 
     function pushBack(bytes32 value) public {
         _vector.pushBack(value);

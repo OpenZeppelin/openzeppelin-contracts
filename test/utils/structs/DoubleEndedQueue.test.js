@@ -12,7 +12,7 @@ async function getContent (vector) {
   return values;
 }
 
-contract('Vector', function (accounts) {
+contract('DoubleEndedQueue', function (accounts) {
   // Bytes32Vector
   describe('EnumerableVector', function () {
     const bytesA = '0xdeadbeef'.padEnd(66, '0');
