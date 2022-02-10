@@ -48,11 +48,26 @@ abstract contract IGovernor is IERC165 {
     event ProposalExecuted(uint256 proposalId);
 
     /**
-     * @dev Emitted when a vote is cast.
+     * @dev Emitted when a vote is cast without params.
      *
-     * Note: `support` values should be seen as buckets. There interpretation depends on the voting module used.
+     * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
      */
     event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason);
+
+    /**
+     * @dev Emitted when a vote is cast with params.
+     *
+     * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
+     * `params` are additional encoded parameters. Their intepepretation also depends on the voting module used.
+     */
+    event VoteCastWithParams(
+        address indexed voter,
+        uint256 proposalId,
+        uint8 support,
+        uint256 weight,
+        string reason,
+        bytes params
+    );
 
     /**
      * @notice module:core

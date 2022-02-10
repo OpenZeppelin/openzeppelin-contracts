@@ -141,12 +141,12 @@ contract('GovernorWithParams', function (accounts) {
       const tx = await this.mock.castVoteWithReasonAndParams(this.id, Enums.VoteType.For, '', params, { from: voter2 });
 
       expectEvent(tx, 'CountParams', { uintParam, strParam });
-      expectEvent(tx, 'VoteCast', { voter: voter2, weight: reducedWeight });
+      expectEvent(tx, 'VoteCastWithParams', { voter: voter2, weight: reducedWeight, params });
     });
     runGovernorWorkflow();
   });
 
-  describe('Voting with params by signature is propoerly supported', function () {
+  describe('Voting with params by signature is properly supported', function () {
     const voterBySig = Wallet.generate(); // generate voter by signature wallet
     const sigVoterWeight = web3.utils.toWei('1.0');
 
@@ -226,7 +226,7 @@ contract('GovernorWithParams', function (accounts) {
       const tx = await this.mock.castVoteWithReasonAndParamsBySig(this.id, Enums.VoteType.For, reason, params, v, r, s);
 
       expectEvent(tx, 'CountParams', { uintParam, strParam });
-      expectEvent(tx, 'VoteCast', { voter: this.voter, weight: reducedWeight });
+      expectEvent(tx, 'VoteCastWithParams', { voter: this.voter, weight: reducedWeight, params });
     });
     runGovernorWorkflow();
   });

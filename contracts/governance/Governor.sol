@@ -494,7 +494,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint256 weight = _getVotes(account, proposal.voteStart.getDeadline(), params);
         _countVote(proposalId, account, support, weight, params);
 
-        emit VoteCast(account, proposalId, support, weight, reason);
+        if (params.length == 0) {
+            emit VoteCast(account, proposalId, support, weight, reason);
+        } else {
+            emit VoteCastWithParams(account, proposalId, support, weight, reason, params);
+        }
 
         return weight;
     }
