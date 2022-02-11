@@ -1,14 +1,14 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const Bytes32VectorMock = artifacts.require('Bytes32VectorMock');
+const Bytes32DequeMock = artifacts.require('Bytes32DequeMock');
 
 /**
- * Rebuild the content of the vector as a JS array.
+ * Rebuild the content of the deque as a JS array.
  */
-async function getContent (vector) {
-  const length = await vector.length().then(bn => bn.toNumber());
-  const values = await Promise.all(Array(length).fill().map((_, i) => vector.at(i)));
+async function getContent (deque) {
+  const length = await deque.length().then(bn => bn.toNumber());
+  const values = await Promise.all(Array(length).fill().map((_, i) => deque.at(i)));
   return values;
 }
 
@@ -21,70 +21,70 @@ contract('DoubleEndedQueue', function (accounts) {
     const bytesD = '0x171717'.padEnd(66, '0');
 
     beforeEach(async function () {
-      this.vector = await Bytes32VectorMock.new();
+      this.deque = await Bytes32DequeMock.new();
     });
 
-    it('empty vector', async function () {
-      expect(await this.vector.empty()).to.be.equal(true);
-      expect(await getContent(this.vector)).to.have.ordered.members([]);
+    it('empty deque', async function () {
+      expect(await this.deque.empty()).to.be.equal(true);
+      expect(await getContent(this.deque)).to.have.ordered.members([]);
     });
 
     describe('with content', function () {
       beforeEach(async function () {
-        await this.vector.pushBack(bytesB);
-        await this.vector.pushFront(bytesA);
-        await this.vector.pushBack(bytesC);
+        await this.deque.pushBack(bytesB);
+        await this.deque.pushFront(bytesA);
+        await this.deque.pushBack(bytesC);
         this.content = [ bytesA, bytesB, bytesC ];
       });
 
       it('content is valid', async function () {
-        expect(await this.vector.empty()).to.be.equal(false);
-        expect(await this.vector.front()).to.be.equal(bytesA);
-        expect(await this.vector.back()).to.be.equal(bytesC);
-        expect(await getContent(this.vector)).to.have.ordered.members(this.content);
+        expect(await this.deque.empty()).to.be.equal(false);
+        expect(await this.deque.front()).to.be.equal(bytesA);
+        expect(await this.deque.back()).to.be.equal(bytesC);
+        expect(await getContent(this.deque)).to.have.ordered.members(this.content);
       });
 
       it('out of bound access', async function () {
-        await expectRevert.unspecified(this.vector.at(10));
+        await expectRevert.unspecified(this.deque.at(10));
       });
 
       describe('push', function () {
         it('front', async function () {
-          await this.vector.pushFront(bytesD);
+          await this.deque.pushFront(bytesD);
           this.content.unshift(bytesD); // add element at the begining
 
-          expect(await getContent(this.vector)).to.have.ordered.members(this.content);
+          expect(await getContent(this.deque)).to.have.ordered.members(this.content);
         });
 
         it('back', async function () {
-          await this.vector.pushBack(bytesD);
+          await this.deque.pushBack(bytesD);
           this.content.push(bytesD); // add element at the end
 
-          expect(await getContent(this.vector)).to.have.ordered.members(this.content);
+          expect(await getContent(this.deque)).to.have.ordered.members(this.content);
         });
       });
 
       describe('pop', function () {
         it('front', async function () {
-          expectEvent(await this.vector.popFront(), 'OperationResult', { value: bytesA });
+          expectEvent(await this.deque.popFront(), 'OperationResult', { value: bytesA });
           this.content.shift(); // remove first element
 
-          expect(await getContent(this.vector)).to.have.ordered.members(this.content);
+          expect(await getContent(this.deque)).to.have.ordered.members(this.content);
         });
 
         it('back', async function () {
-          expectEvent(await this.vector.popBack(), 'OperationResult', { value: bytesC });
+          expectEvent(await this.deque.popBack(), 'OperationResult', { value: bytesC });
           this.content.pop(); // remove last element
 
-          expect(await getContent(this.vector)).to.have.ordered.members(this.content);
+          expect(await getContent(this.deque)).to.have.ordered.members(this.content);
         });
       });
 
       it('clear', async function () {
-        await this.vector.clear();
+        await this.deque.clear();
 
-        expect(await this.vector.empty()).to.be.equal(true);
-        expect(await getContent(this.vector)).to.have.ordered.members([]);
+        expect(await this.deque.empty()).to.be.equal(true);
+        expect(await getContent(this.deque)).to.have.ordered.members([]);
       });
     });
   });

@@ -1,79 +1,90 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "../math/SafeCast.sol";
+
 library DoubleEndedQueue {
     error Empty();
     error OutOfBounds();
 
-    struct Bytes32Vector {
-        int128 begin;
-        int128 end;
+    struct Bytes32Deque {
+        int128 begin; // inclusive: the first item is at data[begin]
+        int128 end; // exclusive: the last item is at data[end-1]
         mapping(int128 => bytes32) data;
     }
 
-    function pushBack(Bytes32Vector storage vector, bytes32 value) internal {
+    function pushBack(Bytes32Deque storage deque, bytes32 value) internal {
+        int128 backIndex = deque.end;
+        deque.data[backIndex] = value;
         unchecked {
-            vector.data[vector.end++] = value;
+            deque.end = backIndex + 1;
         }
     }
 
-    function pushFront(Bytes32Vector storage vector, bytes32 value) internal {
+    function popBack(Bytes32Deque storage deque) internal returns (bytes32 value) {
+        if (empty(deque)) revert Empty();
+        int128 backIndex;
         unchecked {
-            vector.data[--vector.begin] = value;
+            backIndex = deque.end - 1;
+        }
+        value = deque.data[backIndex];
+        delete deque.data[backIndex];
+        deque.end = backIndex;
+    }
+
+    function pushFront(Bytes32Deque storage deque, bytes32 value) internal {
+        int128 frontIndex;
+        unchecked {
+            frontIndex = deque.begin - 1;
+        }
+        deque.data[frontIndex] = value;
+        deque.begin = frontIndex;
+    }
+
+    function popFront(Bytes32Deque storage deque) internal returns (bytes32 value) {
+        if (empty(deque)) revert Empty();
+        int128 frontIndex = deque.begin;
+        value = deque.data[frontIndex];
+        delete deque.data[frontIndex];
+        unchecked {
+            deque.begin = frontIndex + 1;
         }
     }
 
-    function popFront(Bytes32Vector storage vector) internal returns (bytes32 value) {
-        if (empty(vector)) revert Empty();
+    function front(Bytes32Deque storage deque) internal view returns (bytes32 value) {
+        if (empty(deque)) revert Empty();
+        int128 frontIndex = deque.begin;
+        return deque.data[frontIndex];
+    }
+
+    function back(Bytes32Deque storage deque) internal view returns (bytes32 value) {
+        if (empty(deque)) revert Empty();
+        int128 backIndex;
         unchecked {
-            int128 idx = vector.begin++;
-            value = vector.data[idx];
-            delete vector.data[idx];
+            backIndex = deque.end - 1;
+        }
+        return deque.data[backIndex];
+    }
+
+    function at(Bytes32Deque storage deque, uint256 i) internal view returns (bytes32 value) {
+        // int256(deque.begin) is a safe upcast
+        int128 idx = SafeCast.toInt128(int256(deque.begin) + SafeCast.toInt256(i));
+        if (idx >= deque.end) revert OutOfBounds();
+        return deque.data[idx];
+    }
+
+    function clear(Bytes32Deque storage deque) internal {
+        deque.begin = 0;
+        deque.end = 0;
+    }
+
+    function length(Bytes32Deque storage deque) internal view returns (uint256) {
+        unchecked {
+            return SafeCast.toUint256(int256(deque.end) - int256(deque.begin));
         }
     }
 
-    function popBack(Bytes32Vector storage vector) internal returns (bytes32 value) {
-        if (empty(vector)) revert Empty();
-        unchecked {
-            int128 idx = --vector.end;
-            value = vector.data[idx];
-            delete vector.data[idx];
-        }
-    }
-
-    function front(Bytes32Vector storage vector) internal view returns (bytes32 value) {
-        if (empty(vector)) revert Empty();
-        unchecked {
-            return vector.data[vector.begin];
-        }
-    }
-
-    function back(Bytes32Vector storage vector) internal view returns (bytes32 value) {
-        if (empty(vector)) revert Empty();
-        unchecked {
-            return vector.data[vector.end - 1];
-        }
-    }
-
-    function at(Bytes32Vector storage vector, uint256 i) internal view returns (bytes32 value) {
-        // leave check here: overflow could happen
-        int128 idx = vector.begin + int128(int256(i));
-        if (idx >= vector.end) revert OutOfBounds();
-        return vector.data[idx];
-    }
-
-    function clear(Bytes32Vector storage vector) internal {
-        vector.begin = 0;
-        vector.end = 0;
-    }
-
-    function length(Bytes32Vector storage vector) internal view returns (uint256) {
-        unchecked {
-            return uint256(int256(vector.end - vector.begin));
-        }
-    }
-
-    function empty(Bytes32Vector storage vector) internal view returns (bool) {
-        return length(vector) == 0;
+    function empty(Bytes32Deque storage deque) internal view returns (bool) {
+        return deque.end <= deque.begin;
     }
 }
