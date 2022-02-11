@@ -12,7 +12,7 @@ abstract contract ImplUpgradeable is Initializable {
     function version() public pure virtual returns (string memory);
 
     /**
-     * This empty reserved space is put in place to allow future versions to add new
+     * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
@@ -68,7 +68,7 @@ contract DummyImplementationUpgradeable is Initializable {
     }
 
     /**
-     * This empty reserved space is put in place to allow future versions to add new
+     * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
@@ -90,7 +90,7 @@ contract DummyImplementationV2Upgradeable is Initializable, DummyImplementationU
     }
 
     /**
-     * This empty reserved space is put in place to allow future versions to add new
+     * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */

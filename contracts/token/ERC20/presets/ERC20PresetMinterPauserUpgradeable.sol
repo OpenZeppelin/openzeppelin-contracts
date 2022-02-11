@@ -103,7 +103,7 @@ contract ERC20PresetMinterPauserUpgradeable is Initializable, ContextUpgradeable
     }
 
     /**
-     * This empty reserved space is put in place to allow future versions to add new
+     * @dev This empty reserved space is put in place to allow future versions to add new
      * variables without shifting down storage in the inheritance chain.
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
