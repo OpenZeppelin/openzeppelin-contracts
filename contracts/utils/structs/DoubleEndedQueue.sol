@@ -14,6 +14,8 @@ import "../math/SafeCast.sol";
  * ```
  * DoubleEndedQueue.Bytes32Deque queue;
  * ```
+ *
+ * _Available since v4.6._
  */
 library DoubleEndedQueue {
     /**
