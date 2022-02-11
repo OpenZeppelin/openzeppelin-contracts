@@ -24,6 +24,12 @@ contract('MerkleProof', function (accounts) {
       const proof = merkleTree.getHexProof(leaf);
 
       expect(await this.merkleProof.verify(proof, root, leaf)).to.equal(true);
+
+      // For demonstration, it is also possible to create valid proofs for certain 64-byte values *not* in elements:
+      const noSuchLeaf = keccak256(
+        Buffer.concat([keccak256(elements[0]), keccak256(elements[1])].sort(Buffer.compare)),
+      );
+      expect(await this.merkleProof.verify(proof.slice(1), root, noSuchLeaf)).to.equal(true);
     });
 
     it('returns false for an invalid Merkle proof', async function () {

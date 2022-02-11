@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.5.0) (utils/Base64.sol)
 
 pragma solidity ^0.8.0;
 
 /**
  * @dev Provides a set of functions to operate with Base64 strings.
+ *
+ * _Available since v4.5._
  */
 library Base64 {
     /**
