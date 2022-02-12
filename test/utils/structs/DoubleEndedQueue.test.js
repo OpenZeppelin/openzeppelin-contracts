@@ -11,10 +11,10 @@ async function getContent (deque) {
 }
 
 /** Revert handler that supports custom errors. */
-async function expectRevert(promise, reason) {
+async function expectRevert (promise, reason) {
   try {
     await promise;
-    expect.fail(`Expected promise to throw but it didn't`);
+    expect.fail('Expected promise to throw but it didn\'t');
   } catch (error) {
     if (reason) {
       expect(error.message).to.include(reason);
