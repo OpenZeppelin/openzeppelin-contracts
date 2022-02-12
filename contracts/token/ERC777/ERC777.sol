@@ -502,7 +502,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     }
 
     /**
-     * @dev Spend `amount` form the allowance of `owner` toward `spender`.
+     * @dev Updates `owner` s allowance for `spender` based on spent `amount`.
      *
      * Does not update the allowance amount in case of infinite allowance.
      * Revert if not enough allowance is available.
