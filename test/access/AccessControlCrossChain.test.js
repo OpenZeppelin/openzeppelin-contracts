@@ -1,11 +1,14 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectRevert } = require('@openzeppelin/test-helpers');
 const { withCrossChainMock } = require('../crosschain/utils.web3js');
 
 const {
   shouldBehaveLikeAccessControl,
 } = require('./AccessControl.behavior.js');
 
-const aliasRole = (role) => web3.utils.leftPad(web3.utils.toHex(web3.utils.toBN(role).xor(web3.utils.toBN(web3.utils.soliditySha3('CROSSCHAIN_ALIAS')))), 64);
+const aliasRole = (role) => web3.utils.leftPad(
+  web3.utils.toHex(web3.utils.toBN(role).xor(web3.utils.toBN(web3.utils.soliditySha3('CROSSCHAIN_ALIAS')))),
+  64,
+);
 
 const AccessControlCrossChainMock = artifacts.require('AccessControlCrossChainMock');
 
@@ -22,7 +25,7 @@ contract('AccessControl', function (accounts) {
 
   describe('CrossChain enabled', function () {
     beforeEach(async function () {
-      await this.accessControl.grantRole(          ROLE,  accounts[0], { from: accounts[0] });
+      await this.accessControl.grantRole(ROLE, accounts[0], { from: accounts[0] });
       await this.accessControl.grantRole(aliasRole(ROLE), accounts[1], { from: accounts[0] });
     });
 
@@ -37,7 +40,7 @@ contract('AccessControl', function (accounts) {
           this.accessControl.contract.methods.senderProtected(ROLE).encodeABI(),
           await accounts[0],
         ),
-        `AccessControl: account ${accounts[0].toLowerCase()} is missing role ${aliasRole(ROLE)}`
+        `AccessControl: account ${accounts[0].toLowerCase()} is missing role ${aliasRole(ROLE)}`,
       );
     });
 
