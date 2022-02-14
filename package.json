@@ -30,7 +30,7 @@
     "test": "hardhat test",
     "test:inheritance": "node scripts/inheritanceOrdering artifacts/build-info/*",
     "gas-report": "env ENABLE_GAS_REPORT=true npm run test",
-    "slither": "npm run clean && slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas"
+    "slither": "npm run clean && slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas --filter-paths contracts/mocks"
   },
   "repository": {
     "type": "git",
