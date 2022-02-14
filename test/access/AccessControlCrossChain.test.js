@@ -1,5 +1,5 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const { withCrossChainMock } = require('../crosschain/utils.web3js');
+const { CrossChainHelper } = require('../crosschain/helper.web3js');
 
 const {
   shouldBehaveLikeAccessControl,
@@ -15,7 +15,9 @@ const AccessControlCrossChainMock = artifacts.require('AccessControlCrossChainMo
 const ROLE = web3.utils.soliditySha3('ROLE');
 
 contract('AccessControl', function (accounts) {
-  withCrossChainMock('Arbitrum-L2');
+  const crosschain = new CrossChainHelper();
+
+  crosschain.before();
 
   beforeEach(async function () {
     this.accessControl = await AccessControlCrossChainMock.new({ from: accounts[0] });
@@ -35,20 +37,22 @@ contract('AccessControl', function (accounts) {
 
     it('Crosschain calls not authorized to non-aliased addresses', async function () {
       await expectRevert(
-        this.bridge.relayAs(
-          this.accessControl.address,
-          this.accessControl.contract.methods.senderProtected(ROLE).encodeABI(),
-          await accounts[0],
+        crosschain.call(
+          accounts[0],
+          this.accessControl,
+          'senderProtected',
+          [ ROLE ],
         ),
         `AccessControl: account ${accounts[0].toLowerCase()} is missing role ${aliasRole(ROLE)}`,
       );
     });
 
     it('Crosschain calls not authorized to non-aliased addresses', async function () {
-      await this.bridge.relayAs(
-        this.accessControl.address,
-        this.accessControl.contract.methods.senderProtected(ROLE).encodeABI(),
-        await accounts[1],
+      await crosschain.call(
+        accounts[1],
+        this.accessControl,
+        'senderProtected',
+        [ ROLE ],
       );
     });
   });

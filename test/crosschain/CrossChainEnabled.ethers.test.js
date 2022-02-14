@@ -1,12 +1,12 @@
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
-const { deploy, withCrossChainMock } = require('./utils.ethers');
+const { CrossChainHelper, deploy } = require('./helper.ethers');
 
 function randomAddress () {
   return ethers.utils.getAddress(ethers.utils.hexlify(ethers.utils.randomBytes(20)));
 }
 
-function shouldBehaveLikeReceiver (sender = randomAddress()) {
+function shouldBehaveLikeReceiver (crosschain, sender = randomAddress()) {
   it('should reject same-chain calls', async function () {
     await expect(this.receiver.crossChainRestricted())
       .to.be.revertedWith('NotCrossChainCall()');
@@ -15,10 +15,10 @@ function shouldBehaveLikeReceiver (sender = randomAddress()) {
   it('should restrict to cross-chain call from a invalid sender', async function () {
     const owner = await this.receiver.owner();
 
-    await expect(this.bridge.relayAs(
-      this.receiver.address,
-      this.receiver.interface.encodeFunctionData('crossChainOwnerRestricted()'),
+    await expect(crosschain.call(
       sender,
+      this.receiver,
+      'crossChainOwnerRestricted()',
     ))
       .to.be.revertedWith(`InvalidCrossChainSender("${sender}", "${owner}")`);
   });
@@ -26,55 +26,57 @@ function shouldBehaveLikeReceiver (sender = randomAddress()) {
   it('should grant access to cross-chain call from a the owner', async function () {
     const owner = await this.receiver.owner();
 
-    await expect(this.bridge.relayAs(
-      this.receiver.address,
-      this.receiver.interface.encodeFunctionData('crossChainOwnerRestricted()'),
+    await expect(crosschain.call(
       owner,
+      this.receiver,
+      'crossChainOwnerRestricted()',
     ))
       .to.be.not.reverted;
   });
 }
 
 contract('CrossChainEnabled', function () {
+  const crosschain = new CrossChainHelper();
+
   describe('AMB', function () {
-    withCrossChainMock('AMB');
+    crosschain.before('AMB');
 
     beforeEach(async function () {
-      this.receiver = await deploy('CrossChainEnabledAMBMock', [ this.bridge.address ]);
+      this.receiver = await deploy('CrossChainEnabledAMBMock', [ crosschain.bridge.address ]);
     });
 
-    shouldBehaveLikeReceiver();
+    shouldBehaveLikeReceiver(crosschain);
   });
 
   describe('Arbitrum', function () {
     describe('L1', function () {
-      withCrossChainMock('Arbitrum-L1');
+      crosschain.before('Arbitrum-L1');
 
       beforeEach(async function () {
-        this.receiver = await deploy('CrossChainEnabledArbitrumL1Mock', [ await this.bridge.inbox() ]);
+        this.receiver = await deploy('CrossChainEnabledArbitrumL1Mock', [ await crosschain.bridge.inbox() ]);
       });
 
-      shouldBehaveLikeReceiver();
+      shouldBehaveLikeReceiver(crosschain);
     });
 
     describe('L2', function () {
-      withCrossChainMock('Arbitrum-L2');
+      crosschain.before('Arbitrum-L2');
 
       beforeEach(async function () {
         this.receiver = await deploy('CrossChainEnabledArbitrumL2Mock');
       });
 
-      shouldBehaveLikeReceiver();
+      shouldBehaveLikeReceiver(crosschain);
     });
   });
 
   describe('Optimism', function () {
-    withCrossChainMock('Optimism');
+    crosschain.before('Optimism');
 
     beforeEach(async function () {
-      this.receiver = await deploy('CrossChainEnabledOptimismMock', [ this.bridge.address ]);
+      this.receiver = await deploy('CrossChainEnabledOptimismMock', [ crosschain.bridge.address ]);
     });
 
-    shouldBehaveLikeReceiver();
+    shouldBehaveLikeReceiver(crosschain);
   });
 });
