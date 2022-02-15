@@ -397,7 +397,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
         address voter = _msgSender();
-        return _castVote(proposalId, voter, support, "", _defaultParams());
+        return _castVote(proposalId, voter, support, "");
     }
 
     /**
@@ -408,7 +408,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint8 support,
         string calldata reason
     ) public virtual override returns (uint256) {
-        return castVoteWithReasonAndParams(proposalId, support, reason, _defaultParams());
+        address voter = _msgSender();
+        return _castVote(proposalId, voter, support, reason);
     }
 
     /**
@@ -440,7 +441,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
             r,
             s
         );
-        return _castVote(proposalId, voter, support, "", _defaultParams());
+        return _castVote(proposalId, voter, support, "");
     }
 
     /**
@@ -473,6 +474,20 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         );
 
         return _castVote(proposalId, voter, support, reason, params);
+    }
+    /**
+     * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
+     * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function. Uses the _defaultParams().
+     *
+     * Emits a {IGovernor-VoteCast} event.
+     */
+    function _castVote(
+        uint256 proposalId,
+        address account,
+        uint8 support,
+        string memory reason
+    ) internal virtual returns (uint256) {
+        return _castVote(proposalId, account, support, reason, _defaultParams());
     }
 
     /**
