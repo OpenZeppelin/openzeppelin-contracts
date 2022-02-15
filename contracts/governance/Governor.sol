@@ -19,7 +19,7 @@ import "./IGovernor.sol";
  * This contract is abstract and requires several function to be implemented in various modules:
  *
  * - A counting module must implement {quorum}, {_quorumReached}, {_voteSucceeded} and {_countVote}
- * - A voting module must implement {getVotes}
+ * - A voting module must implement {_getVotes}
  * - Additionanly, the {votingPeriod} must also be implemented
  *
  * _Available since v4.3._
@@ -204,7 +204,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
 
     /**
-     * @dev Check the voting weight of an account.
+     * @dev Get the voting weight of `account` at a specific `blockNumber`, for a vote as described by `params`.
      */
     function _getVotes(
         address account,
