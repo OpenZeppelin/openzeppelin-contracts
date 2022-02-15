@@ -475,6 +475,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
         return _castVote(proposalId, voter, support, reason, params);
     }
+
     /**
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
      * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function. Uses the _defaultParams().
