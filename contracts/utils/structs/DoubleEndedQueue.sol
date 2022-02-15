@@ -28,10 +28,18 @@ library DoubleEndedQueue {
      */
     error OutOfBounds();
 
-    // Since a queue is used by pushing and popping items one at a time, 128-bit indices are more than enough.
-    // Indices are in the range [begin, end) which means:
-    // - The first item is at data[begin]
-    // - The last item is at data[end - 1]
+    /**
+     * @dev Indices are signed integers because the queue can grow in any direction. They are 128 bits so begin and end
+     * are packed in a single storage slot for efficient access. Since the items are added one at a time we can safely
+     * assume that these 128-bit indices will not overflow, and use unchecked arithmetic.
+     *
+     * Struct members have an underscore prefix indicating that they are "private" and should not be read or written to
+     * directly. Use the functions provided below instead. Modifying the struct manually may violate assumptions and
+     * lead to unexpected behavior.
+     *
+     * Indices are in the range [begin, end) which means the first item is at data[begin] and the last item is at
+     * data[end - 1].
+     */
     struct Bytes32Deque {
         int128 _begin;
         int128 _end;
