@@ -122,13 +122,14 @@ library DoubleEndedQueue {
     }
 
     /**
-     * @dev Return the item at index `i`.
+     * @dev Return the item at a position in the queue given by `index`, with the first item at 0 and last item at
+     * `length(deque) - 1`.
      *
      * Reverts with `OutOfBounds` if the index is out of bounds.
      */
-    function at(Bytes32Deque storage deque, uint256 i) internal view returns (bytes32 value) {
+    function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32 value) {
         // int256(deque._begin) is a safe upcast
-        int128 idx = SafeCast.toInt128(int256(deque._begin) + SafeCast.toInt256(i));
+        int128 idx = SafeCast.toInt128(int256(deque._begin) + SafeCast.toInt256(index));
         if (idx >= deque._end) revert OutOfBounds();
         return deque._data[idx];
     }
