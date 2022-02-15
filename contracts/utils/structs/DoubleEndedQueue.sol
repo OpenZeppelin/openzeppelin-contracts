@@ -148,8 +148,10 @@ library DoubleEndedQueue {
      * @dev Returns the number of items in the queue.
      */
     function length(Bytes32Deque storage deque) internal view returns (uint256) {
+        // The interface preserves the invariant that begin <= end so we assume this will not overflow.
+        // We also assume there are at most int256.max items in the queue.
         unchecked {
-            return SafeCast.toUint256(int256(deque._end) - int256(deque._begin));
+            return uint256(int256(deque._end) - int256(deque._begin));
         }
     }
 
