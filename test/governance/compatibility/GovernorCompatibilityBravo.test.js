@@ -57,7 +57,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     helper.setGovernor(this.mock);
 
     // default proposal
-    this.details = await helper.setProposal([
+    this.details = helper.setProposal([
       [ this.receiver.address ],
       [ value ],
       [ 'mockFunction()' ],
@@ -163,7 +163,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
   });
 
   it('with function selector and arguments', async function () {
-    await helper.setProposal([
+    helper.setProposal([
       Array(4).fill(this.receiver.address),
       Array(4).fill(web3.utils.toWei('0')),
       [
