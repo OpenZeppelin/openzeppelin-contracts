@@ -42,10 +42,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
     mapping(uint256 => ProposalCore) private _proposals;
 
-    // This mapping keeps track of the governor operating on itself. Calls to functions protected by the
-    // {onlyGovernance} modifier needs to be whitelisted in this mapping. Whitelisting is set in {_beforeExecute},
-    // and reset in {_afterExecute}. This ensures that the execution of {onlyGovernance} protected calls can only
-    // be achieved through successful proposals.
+    // This queue keeps track of the governor operating on itself. Calls to functions protected by the
+    // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
+    // consummed by the {onlyGovernance} modifier and eventually reset in {_afterExecute}. This ensures that the
+    // execution of {onlyGovernance} protected calls can only be achieved through successful proposals.
     DoubleEndedQueue.Bytes32Deque private _governanceCall;
 
     /**
