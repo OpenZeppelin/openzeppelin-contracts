@@ -26,7 +26,7 @@ for (const artifact of artifacts) {
   graph.nodes().forEach((x, i, nodes) => nodes
     .slice(i + 1)
     .filter(y => graph.hasEdge(x, y) && graph.hasEdge(y, x))
-    .map(y => {
+    .forEach(y => {
       console.log(`Conflict between ${names[x]} and ${names[y]} detected in the following dependency chains:`);
       linearized
         .filter(chain => chain.includes(parseInt(x)) && chain.includes(parseInt(y)))
