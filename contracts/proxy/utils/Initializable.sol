@@ -33,7 +33,6 @@ import "../../utils/Address.sol";
  * ====
  */
 abstract contract Initializable {
-
     /**
      * @dev Triggered when the contract has been initialized.
      */
