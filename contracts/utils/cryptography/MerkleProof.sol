@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (utils/cryptography/MerkleProof.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (utils/cryptography/MerkleProof.sol)
 
 pragma solidity ^0.8.0;
 
@@ -11,6 +11,11 @@ pragma solidity ^0.8.0;
  * Note: the hashing algorithm should be keccak256 and pair sorting should be enabled.
  *
  * See `test/utils/cryptography/MerkleProof.test.js` for some examples.
+ *
+ * WARNING: You should avoid using leaf values that are 64 bytes long prior to
+ * hashing, or use a hash function other than keccak256 for hashing leaves.
+ * This is because the concatenation of a sorted pair of internal nodes in
+ * the merkle tree could be reinterpreted as a leaf value.
  */
 library MerkleProof {
     /**
@@ -28,7 +33,7 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns the rebuilt hash obtained by traversing a Merklee tree up
+     * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
      * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
      * hash matches the root of the tree. When processing the proof, the pairs
      * of leafs & pre-images are assumed to be sorted.
