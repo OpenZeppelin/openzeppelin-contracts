@@ -7,6 +7,7 @@ import "../utils/cryptography/ECDSA.sol";
 import "../utils/cryptography/draft-EIP712.sol";
 import "../utils/introspection/ERC165.sol";
 import "../utils/math/SafeCast.sol";
+import "../utils/structs/DoubleEndedQueue.sol";
 import "../utils/Address.sol";
 import "../utils/Context.sol";
 import "../utils/Counters.sol";
@@ -25,9 +26,10 @@ import "./IGovernor.sol";
  * _Available since v4.3._
  */
 abstract contract Governor is Context, ERC165, EIP712, IGovernor {
+    using Counters for Counters.Counter;
+    using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
     using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
-    using Counters for Counters.Counter;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
 
@@ -46,17 +48,17 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     // {onlyGovernance} modifier needs to be whitelisted in this mapping. Whitelisting is set in {_beforeExecute},
     // and reset in {_afterExecute}. This ensures that the execution of {onlyGovernance} protected calls can only
     // be achieved through successful proposals.
-    mapping(bytes => Counters.Counter) private _governanceCall;
+    DoubleEndedQueue.Bytes32Deque private _governanceCall;
 
     /**
-     * @dev Restrict access of functions to the governance executor, which may be the Governor itself or a timelock
-     * contract, as specified by {_executor}. This generally means that function with this modifier must be voted on and
-     * executed through the governance protocol.
+     * @dev Restrict access to governor executing address. Some module might override the _executor function to make
+     * sure this modifier is consistant with the execution model.
      */
     modifier onlyGovernance() {
         require(_msgSender() == _executor(), "Governor: onlyGovernance");
         if (_executor() != address(this)) {
-            _useCallPermission(msg.data);
+            // loop until poping the expected operation - throw if deque is empty (operation not authorized)
+            while (_governanceCall.popFront() != keccak256(msg.data)) {}
         }
         _;
     }
@@ -299,7 +301,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         if (_executor() != address(this)) {
             for (uint256 i = 0; i < targets.length; ++i) {
                 if (targets[i] == address(this)) {
-                    _addCallPermission(calldatas[i]);
+                    _governanceCall.pushBack(keccak256(calldatas[i]));
                 }
             }
         }
@@ -318,7 +320,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         if (_executor() != address(this)) {
             for (uint256 i = 0; i < targets.length; ++i) {
                 if (targets[i] == address(this)) {
-                    _clearCallPermission(calldatas[i]);
+                    _governanceCall.clear();
                 }
             }
         }
@@ -432,17 +434,5 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function _executor() internal view virtual returns (address) {
         return address(this);
-    }
-
-    function _addCallPermission(bytes memory call) private {
-        _governanceCall[call].increment();
-    }
-
-    function _useCallPermission(bytes memory call) private {
-        _governanceCall[call].decrement();
-    }
-
-    function _clearCallPermission(bytes memory call) private {
-        _governanceCall[call].reset();
     }
 }
