@@ -10,7 +10,6 @@ import "../utils/math/SafeCast.sol";
 import "../utils/structs/DoubleEndedQueue.sol";
 import "../utils/Address.sol";
 import "../utils/Context.sol";
-import "../utils/Counters.sol";
 import "../utils/Timers.sol";
 import "./IGovernor.sol";
 
