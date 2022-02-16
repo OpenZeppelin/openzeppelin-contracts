@@ -1,10 +1,10 @@
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
+const { fromRpcSig } = require('ethereumjs-util');
 const Enums = require('../helpers/enums');
 const { EIP712Domain } = require('../helpers/eip712');
-const { fromRpcSig } = require('ethereumjs-util');
-const GovernorHelper = require('./helper');
+const GovernorHelper = require('../helpers/governance');
 
 const {
   shouldSupportInterfaces,
@@ -14,9 +14,9 @@ const Token = artifacts.require('ERC20VotesMock');
 const Governor = artifacts.require('GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-const helper = new GovernorHelper();
-
 contract('Governor', function (accounts) {
+  const helper = new GovernorHelper();
+
   const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
   const empty = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
 
@@ -27,12 +27,16 @@ contract('Governor', function (accounts) {
   const tokenSupply = web3.utils.toWei('100');
   const votingDelay = new BN(4);
   const votingPeriod = new BN(16);
+  const value = web3.utils.toWei('1');
 
   beforeEach(async function () {
     this.chainId = await web3.eth.getChainId();
     this.token = await Token.new(tokenName, tokenSymbol);
     this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, 10);
     this.receiver = await CallReceiver.new();
+
+    await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
+
     await this.token.mint(owner, tokenSupply);
     await this.token.delegate(voter1, { from: voter1 });
     await this.token.delegate(voter2, { from: voter2 });
@@ -46,9 +50,9 @@ contract('Governor', function (accounts) {
     helper.setGovernor(this.mock);
 
     // default proposal
-    await helper.setProposal([
+    this.details = await helper.setProposal([
       [ this.receiver.address ],
-      [ 0 ],
+      [ value ],
       [ this.receiver.contract.methods.mockFunction().encodeABI() ],
       '<proposal description>',
     ]);
@@ -69,21 +73,9 @@ contract('Governor', function (accounts) {
   });
 
   it('nominal workflow', async function () {
-    const value = web3.utils.toWei('1');
-
-    await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
-
     // Before
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(value);
     expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
-
-    // Set Proposal
-    const { id, proposal, shortProposal } = await helper.setProposal([
-      [ this.receiver.address ],
-      [ value ],
-      [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-      '<proposal description>',
-    ]);
 
     // Run proposal
     const txPropose = await helper.propose({ from: proposer });
@@ -92,15 +84,15 @@ contract('Governor', function (accounts) {
       txPropose,
       'ProposalCreated',
       {
-        proposalId: id,
+        proposalId: this.details.id,
         proposer,
-        targets: shortProposal[0],
+        targets: this.details.shortProposal[0],
         // values: shortProposal[1],
-        signatures: shortProposal[2].map(() => ''),
-        calldatas: shortProposal[2],
+        signatures: this.details.shortProposal[2].map(() => ''),
+        calldatas: this.details.shortProposal[2],
         startBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay),
         endBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay).add(votingPeriod),
-        description: proposal.last(),
+        description: this.details.proposal.last(),
       },
     );
 
@@ -137,7 +129,7 @@ contract('Governor', function (accounts) {
     expectEvent(
       txExecute,
       'ProposalExecuted',
-      { proposalId: id },
+      { proposalId: this.details.id },
     );
 
     await expectEvent.inTransaction(
@@ -147,9 +139,9 @@ contract('Governor', function (accounts) {
     );
 
     // After
-    expect(await this.mock.hasVoted(id, owner)).to.be.equal(false);
-    expect(await this.mock.hasVoted(id, voter1)).to.be.equal(true);
-    expect(await this.mock.hasVoted(id, voter2)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(true);
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
     expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(value);
   });
@@ -180,14 +172,6 @@ contract('Governor', function (accounts) {
 
     await this.token.delegate(voterBySigAddress, { from: voter1 });
 
-    // Set Proposal
-    const { id } = await helper.setProposal([
-      [ this.receiver.address ],
-      [ web3.utils.toWei('0') ],
-      [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-      '<proposal description>',
-    ]);
-
     // Run proposal
     await helper.propose();
     await helper.waitForSnapshot();
@@ -200,28 +184,23 @@ contract('Governor', function (accounts) {
     await helper.execute();
 
     // After
-    expect(await this.mock.hasVoted(id, owner)).to.be.equal(false);
-    expect(await this.mock.hasVoted(id, voter1)).to.be.equal(false);
-    expect(await this.mock.hasVoted(id, voter2)).to.be.equal(false);
-    expect(await this.mock.hasVoted(id, voterBySigAddress)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.details.id, voterBySigAddress)).to.be.equal(true);
   });
 
   it('send ethers', async function () {
-    const value = web3.utils.toWei('1');
-
-    await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value: value });
-
-    // Before
-    expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(value);
-    expect(await web3.eth.getBalance(empty)).to.be.bignumber.equal('0');
-
-    // Set Proposal
     await helper.setProposal([
       [ empty ],
       [ value ],
       [ '0x' ],
       '<proposal description>',
     ]);
+
+    // Before
+    expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(value);
+    expect(await web3.eth.getBalance(empty)).to.be.bignumber.equal('0');
 
     // Run proposal
     await helper.propose();
@@ -347,10 +326,6 @@ contract('Governor', function (accounts) {
   });
 
   describe('state', function () {
-    beforeEach(async function () {
-      this.details = await helper.setProposal();
-    });
-
     it('Unset', async function () {
       await expectRevert(this.mock.state(this.details.id), 'Governor: unknown proposal id');
     });
@@ -393,10 +368,6 @@ contract('Governor', function (accounts) {
   });
 
   describe('cancel', function () {
-    beforeEach(async function () {
-      this.details = await helper.setProposal();
-    });
-
     it('before proposal', async function () {
       await expectRevert(helper.cancel(), 'Governor: unknown proposal id');
     });

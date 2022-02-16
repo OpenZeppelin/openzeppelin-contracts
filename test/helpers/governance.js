@@ -38,7 +38,7 @@ class GovernorHelper {
     return this.setProposal(proposal).then(details =>
       details.useCompatibilityInterface
         ? this.governor.methods['queue(uint256)'](...concatOpts(
-          details.id,
+          [ details.id ],
           opts,
         ))
         : this.governor.methods['queue(address[],uint256[],bytes[],bytes32)'](...concatOpts(
@@ -52,7 +52,7 @@ class GovernorHelper {
     return this.setProposal(proposal).then(details =>
       details.useCompatibilityInterface
         ? this.governor.methods['execute(uint256)'](...concatOpts(
-          details.id,
+          [ details.id ],
           opts,
         ))
         : this.governor.methods['execute(address[],uint256[],bytes[],bytes32)'](...concatOpts(
@@ -64,7 +64,15 @@ class GovernorHelper {
 
   cancel (opts = null, proposal = undefined) {
     return this.setProposal(proposal).then(details =>
-      this.governor.cancel(...concatOpts(details.shortProposal, opts)),
+      details.useCompatibilityInterface
+        ? this.governor.methods['cancel(uint256)'](...concatOpts(
+          [ details.id ],
+          opts,
+        ))
+        : this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](...concatOpts(
+          details.shortProposal,
+          opts,
+        ))
     );
   }
 
@@ -103,7 +111,7 @@ class GovernorHelper {
   waitForEta (offset = 0, proposal = undefined) {
     return this.setProposal(proposal)
       .then(({ id }) => this.governor.proposalEta(id))
-      .then(timestamp => time.increase(timestamp.addn(offset)));
+      .then(timestamp => time.increaseTo(timestamp.addn(offset)));
   }
 
   setProposal (proposal) {
