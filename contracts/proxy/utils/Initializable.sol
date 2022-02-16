@@ -33,6 +33,12 @@ import "../../utils/Address.sol";
  * ====
  */
 abstract contract Initializable {
+
+    /**
+     * @dev Triggered when the contract has been initialized.
+     */
+    event Initialized();
+
     /**
      * @dev Indicates that the contract has been initialized.
      */
@@ -62,6 +68,7 @@ abstract contract Initializable {
 
         if (isTopLevelCall) {
             _initializing = false;
+            emit Initialized();
         }
     }
 
