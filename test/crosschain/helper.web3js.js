@@ -4,6 +4,7 @@ const BridgeAMBMock = artifacts.require('BridgeAMBMock');
 const BridgeArbitrumL1Mock = artifacts.require('BridgeArbitrumL1Mock');
 const BridgeArbitrumL2Mock = artifacts.require('BridgeArbitrumL2Mock');
 const BridgeOptimismMock = artifacts.require('BridgeOptimismMock');
+const BridgePolygonChildMock = artifacts.require('BridgePolygonChildMock');
 
 class CrossChainHelper {
   before (type = 'Arbitrum-L2') {
@@ -39,6 +40,12 @@ class CrossChainHelper {
     case 'Optimism':
       before(async function () {
         that.bridge = await BridgeOptimismMock.new();
+      });
+      return;
+
+    case 'Polygon-Child':
+      before(async function () {
+        that.bridge = await BridgePolygonChildMock.new();
       });
       return;
 

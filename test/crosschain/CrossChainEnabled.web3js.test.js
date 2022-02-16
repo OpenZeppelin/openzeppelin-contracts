@@ -9,6 +9,7 @@ const CrossChainEnabledAMBMock = artifacts.require('CrossChainEnabledAMBMock');
 const CrossChainEnabledArbitrumL1Mock = artifacts.require('CrossChainEnabledArbitrumL1Mock');
 const CrossChainEnabledArbitrumL2Mock = artifacts.require('CrossChainEnabledArbitrumL2Mock');
 const CrossChainEnabledOptimismMock = artifacts.require('CrossChainEnabledOptimismMock');
+const CrossChainEnabledPolygonChildMock = artifacts.require('CrossChainEnabledPolygonChildMock');
 
 function shouldBehaveLikeReceiver (crosschain, sender = randomAddress()) {
   it('should reject same-chain calls', async function () {
@@ -72,6 +73,16 @@ contract('CrossChainEnabled', function () {
 
     beforeEach(async function () {
       this.receiver = await CrossChainEnabledOptimismMock.new(crosschain.bridge.address);
+    });
+
+    shouldBehaveLikeReceiver(crosschain);
+  });
+
+  describe('Polygon-Child', function () {
+    crosschain.before('Polygon-Child');
+
+    beforeEach(async function () {
+      this.receiver = await CrossChainEnabledPolygonChildMock.new(crosschain.bridge.address);
     });
 
     shouldBehaveLikeReceiver(crosschain);

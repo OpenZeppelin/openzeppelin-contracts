@@ -3,27 +3,28 @@
 pragma solidity ^0.8.0;
 
 import "../../utils/Address.sol";
+import "../../vendor/polygon/IFxMessageProcessor.sol";
 
 abstract contract BaseRelayMock {
     // needed to parse custom errors
     error NotCrossChainCall();
     error InvalidCrossChainSender(address sender, address expected);
 
-    address public currentSender;
+    address internal _currentSender;
 
     function relayAs(
         address target,
         bytes calldata data,
         address sender
-    ) external {
-        address previousSender = currentSender;
+    ) external virtual {
+        address previousSender = _currentSender;
 
-        currentSender = sender;
+        _currentSender = sender;
 
         (bool success, bytes memory returndata) = target.call(data);
         Address.verifyCallResult(success, returndata, "low-level call reverted");
 
-        currentSender = previousSender;
+        _currentSender = previousSender;
     }
 }
 
@@ -32,7 +33,7 @@ abstract contract BaseRelayMock {
  */
 contract BridgeAMBMock is BaseRelayMock {
     function messageSender() public view returns (address) {
-        return currentSender;
+        return _currentSender;
     }
 }
 
@@ -46,6 +47,10 @@ contract BridgeArbitrumL1Mock is BaseRelayMock {
     function activeOutbox() public view returns (address) {
         return outbox;
     }
+
+    function currentSender() public view returns (address) {
+        return _currentSender;
+    }
 }
 
 contract BridgeArbitrumL1Inbox {
@@ -56,13 +61,13 @@ contract BridgeArbitrumL1Outbox {
     address public immutable bridge = msg.sender;
 
     function l2ToL1Sender() public view returns (address) {
-        return BaseRelayMock(bridge).currentSender();
+        return BridgeArbitrumL1Mock(bridge).currentSender();
     }
 }
 
 contract BridgeArbitrumL2Mock is BaseRelayMock {
     function isTopLevelCall() public view returns (bool) {
-        return currentSender != address(0);
+        return _currentSender != address(0);
     }
 
     function wasMyCallersAddressAliased() public pure returns (bool) {
@@ -70,7 +75,7 @@ contract BridgeArbitrumL2Mock is BaseRelayMock {
     }
 
     function myCallersAddressWithoutAliasing() public view returns (address) {
-        return currentSender;
+        return _currentSender;
     }
 }
 
@@ -79,6 +84,19 @@ contract BridgeArbitrumL2Mock is BaseRelayMock {
  */
 contract BridgeOptimismMock is BaseRelayMock {
     function xDomainMessageSender() public view returns (address) {
-        return currentSender;
+        return _currentSender;
+    }
+}
+
+/**
+ * Polygon
+ */
+contract BridgePolygonChildMock is BaseRelayMock {
+    function relayAs(
+        address target,
+        bytes calldata data,
+        address sender
+    ) external override {
+        IFxMessageProcessor(target).processMessageFromRoot(0, sender, data);
     }
 }

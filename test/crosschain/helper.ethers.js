@@ -48,6 +48,12 @@ class CrossChainHelper {
       });
       return;
 
+    case 'Polygon-Child':
+      before(async function () {
+        that.bridge = await deploy('BridgePolygonChildMock');
+      });
+      return;
+
     default:
       throw new Error(`CrossChain: ${type} is not supported`);
     }

@@ -79,4 +79,14 @@ contract('CrossChainEnabled', function () {
 
     shouldBehaveLikeReceiver(crosschain);
   });
+
+  describe('Polygon-Child', function () {
+    crosschain.before('Polygon-Child');
+
+    beforeEach(async function () {
+      this.receiver = await deploy('CrossChainEnabledPolygonChildMock', [ crosschain.bridge.address ]);
+    });
+
+    shouldBehaveLikeReceiver(crosschain);
+  });
 });

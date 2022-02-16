@@ -7,6 +7,7 @@ import "../../crosschain/amb/CrossChainEnabledAMB.sol";
 import "../../crosschain/arbitrum/CrossChainEnabledArbitrumL1.sol";
 import "../../crosschain/arbitrum/CrossChainEnabledArbitrumL2.sol";
 import "../../crosschain/optimism/CrossChainEnabledOptimism.sol";
+import "../../crosschain/polygon/CrossChainEnabledPolygonChild.sol";
 
 abstract contract Receiver is Ownable, CrossChainEnabled {
     function crossChainRestricted() external onlyCrossChain {}
@@ -35,4 +36,11 @@ contract CrossChainEnabledArbitrumL2Mock is Receiver, CrossChainEnabledArbitrumL
  */
 contract CrossChainEnabledOptimismMock is Receiver, CrossChainEnabledOptimism {
     constructor(address bridge) CrossChainEnabledOptimism(bridge) {}
+}
+
+/**
+ * Polygon
+ */
+contract CrossChainEnabledPolygonChildMock is Receiver, CrossChainEnabledPolygonChild {
+    constructor(address bridge) CrossChainEnabledPolygonChild(bridge) {}
 }
