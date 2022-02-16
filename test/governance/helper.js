@@ -107,7 +107,7 @@ class GovernorHelper {
   }
 
   setProposal (proposal) {
-    if (proposal) {
+    if (!proposal) {
       return Promise.resolve(this.lastProposalDetails);
     } else {
       const useCompatibilityInterface = proposal.length === 5;
@@ -134,15 +134,17 @@ class GovernorHelper {
       //     {type: 'bytes32',   value: shortProposal[3] },
       // )
       /// So we have to revert to hashProposal call, which makes this function async :/
-      return this.governor.hashProposal(...shortProposal).then(id => {
-        this.lastProposalDetails = {
-          id,
-          proposal,
-          shortProposal,
-          useCompatibilityInterface,
-        };
-        return this.lastProposalDetails;
-      });
+      return this.governor.hashProposal(...shortProposal)
+        .then(id => ({
+            id,
+            proposal,
+            shortProposal,
+            useCompatibilityInterface,
+        }))
+        .then(details => {
+          this.lastProposalDetails = details;
+          return details;
+        });
     }
   }
 }
