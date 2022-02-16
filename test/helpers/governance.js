@@ -25,99 +25,97 @@ class GovernorHelper {
   }
 
   propose (opts = null, proposal = undefined) {
-    return this.setProposal(proposal).then(details =>
-      this.governor.methods[
-        details.useCompatibilityInterface
-          ? 'propose(address[],uint256[],string[],bytes[],string)'
-          : 'propose(address[],uint256[],bytes[],string)'
-      ](...concatOpts(details.proposal, opts)),
-    );
+    const details = this.setProposal(proposal);
+
+    return this.governor.methods[
+      details.useCompatibilityInterface
+        ? 'propose(address[],uint256[],string[],bytes[],string)'
+        : 'propose(address[],uint256[],bytes[],string)'
+    ](...concatOpts(details.proposal, opts));
   }
 
   queue (opts = null, proposal = undefined) {
-    return this.setProposal(proposal).then(details =>
-      details.useCompatibilityInterface
-        ? this.governor.methods['queue(uint256)'](...concatOpts(
-          [ details.id ],
-          opts,
-        ))
-        : this.governor.methods['queue(address[],uint256[],bytes[],bytes32)'](...concatOpts(
-          details.shortProposal,
-          opts,
-        )),
-    );
+    const details = this.setProposal(proposal);
+
+    return details.useCompatibilityInterface
+      ? this.governor.methods['queue(uint256)'](...concatOpts(
+        [ details.id ],
+        opts,
+      ))
+      : this.governor.methods['queue(address[],uint256[],bytes[],bytes32)'](...concatOpts(
+        details.shortProposal,
+        opts,
+      ));
   }
 
   execute (opts = null, proposal = undefined) {
-    return this.setProposal(proposal).then(details =>
-      details.useCompatibilityInterface
-        ? this.governor.methods['execute(uint256)'](...concatOpts(
-          [ details.id ],
-          opts,
-        ))
-        : this.governor.methods['execute(address[],uint256[],bytes[],bytes32)'](...concatOpts(
-          details.shortProposal,
-          opts,
-        )),
-    );
+    const details = this.setProposal(proposal);
+
+    return details.useCompatibilityInterface
+      ? this.governor.methods['execute(uint256)'](...concatOpts(
+        [ details.id ],
+        opts,
+      ))
+      : this.governor.methods['execute(address[],uint256[],bytes[],bytes32)'](...concatOpts(
+        details.shortProposal,
+        opts,
+      ));
   }
 
   cancel (opts = null, proposal = undefined) {
-    return this.setProposal(proposal).then(details =>
-      details.useCompatibilityInterface
-        ? this.governor.methods['cancel(uint256)'](...concatOpts(
-          [ details.id ],
-          opts,
-        ))
-        : this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](...concatOpts(
-          details.shortProposal,
-          opts,
-        ))
-    );
+    const details = this.setProposal(proposal);
+
+    return details.useCompatibilityInterface
+      ? this.governor.methods['cancel(uint256)'](...concatOpts(
+        [ details.id ],
+        opts,
+      ))
+      : this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](...concatOpts(
+        details.shortProposal,
+        opts,
+      ));
   }
 
   vote (vote = {}, opts = null, proposal = undefined) {
-    return this.setProposal(proposal).then(details =>
-      vote.signature
-        ? vote.signature({ proposalId: details.id, support: vote.support })
-          .then(({ v, r, s }) => this.governor.castVoteBySig(...concatOpts(
-            [ details.id, vote.support, v, r, s ],
-            opts,
-          )))
-        : vote.reason
-          ? this.governor.castVoteWithReason(...concatOpts(
-            [ details.id, vote.support, vote.reason ],
-            opts,
-          ))
-          : this.governor.castVote(...concatOpts(
-            [ details.id, vote.support ],
-            opts,
-          )),
-    );
+    const details = this.setProposal(proposal);
+
+    return vote.signature
+      ? vote.signature({ proposalId: details.id, support: vote.support })
+        .then(({ v, r, s }) => this.governor.castVoteBySig(...concatOpts(
+          [ details.id, vote.support, v, r, s ],
+          opts,
+        )))
+      : vote.reason
+        ? this.governor.castVoteWithReason(...concatOpts(
+          [ details.id, vote.support, vote.reason ],
+          opts,
+        ))
+        : this.governor.castVote(...concatOpts(
+          [ details.id, vote.support ],
+          opts,
+        ));
   }
 
   waitForSnapshot (offset = 0, proposal = undefined) {
-    return this.setProposal(proposal)
-      .then(({ id }) => this.governor.proposalSnapshot(id))
+    const details = this.setProposal(proposal);
+    return this.governor.proposalSnapshot(details.id)
       .then(blockNumber => time.advanceBlockTo(blockNumber.addn(offset)));
   }
 
   waitForDeadline (offset = 0, proposal = undefined) {
-    return this.setProposal(proposal)
-      .then(({ id }) => this.governor.proposalDeadline(id))
+    const details = this.setProposal(proposal);
+    return this.governor.proposalDeadline(details.id)
       .then(blockNumber => time.advanceBlockTo(blockNumber.addn(offset)));
   }
 
   waitForEta (offset = 0, proposal = undefined) {
-    return this.setProposal(proposal)
-      .then(({ id }) => this.governor.proposalEta(id))
+    const details = this.setProposal(proposal);
+    return this.governor.proposalEta(details.id)
       .then(timestamp => time.increaseTo(timestamp.addn(offset)));
   }
 
   setProposal (proposal) {
-    if (!proposal) {
-      return Promise.resolve(this.lastProposalDetails);
-    } else {
+    if (proposal) {
       const useCompatibilityInterface = proposal.length === 5;
       const shortProposal = [
         // targets
@@ -134,26 +132,19 @@ class GovernorHelper {
         // descriptionHash
         web3.utils.keccak256(proposal.last()),
       ];
-      /// Web3js doesn't support that for some reason
-      // const id = web3.utils.soliditySha3(
-      //     {type: 'address[]', value: shortProposal[0] },
-      //     {type: 'uint256[]', value: shortProposal[1] },
-      //     {type: 'bytes[]',   value: shortProposal[2] },
-      //     {type: 'bytes32',   value: shortProposal[3] },
-      // )
-      /// So we have to revert to hashProposal call, which makes this function async :/
-      return this.governor.hashProposal(...shortProposal)
-        .then(id => ({
-            id,
-            proposal,
-            shortProposal,
-            useCompatibilityInterface,
-        }))
-        .then(details => {
-          this.lastProposalDetails = details;
-          return details;
-        });
+      const id = web3.utils.toBN(web3.utils.keccak256(web3.eth.abi.encodeParameters(
+        [ 'address[]', 'uint256[]', 'bytes[]', 'bytes32' ],
+        shortProposal,
+      )));
+
+      this.lastProposalDetails = {
+        id,
+        proposal,
+        shortProposal,
+        useCompatibilityInterface,
+      };
     }
+    return this.lastProposalDetails;
   }
 }
 

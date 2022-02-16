@@ -50,7 +50,7 @@ contract('Governor', function (accounts) {
     helper.setGovernor(this.mock);
 
     // default proposal
-    this.details = await helper.setProposal([
+    this.details = helper.setProposal([
       [ this.receiver.address ],
       [ value ],
       [ this.receiver.contract.methods.mockFunction().encodeABI() ],
@@ -191,7 +191,7 @@ contract('Governor', function (accounts) {
   });
 
   it('send ethers', async function () {
-    await helper.setProposal([
+    this.details = helper.setProposal([
       [ empty ],
       [ value ],
       [ '0x' ],
@@ -285,7 +285,7 @@ contract('Governor', function (accounts) {
       });
 
       it('if receiver revert without reason', async function () {
-        await helper.setProposal([
+        this.details = helper.setProposal([
           [ this.receiver.address ],
           [ 0 ],
           [ this.receiver.contract.methods.mockFunctionRevertsNoReason().encodeABI() ],
@@ -300,7 +300,7 @@ contract('Governor', function (accounts) {
       });
 
       it('if receiver revert with reason', async function () {
-        await helper.setProposal([
+        this.details = helper.setProposal([
           [ this.receiver.address ],
           [ 0 ],
           [ this.receiver.contract.methods.mockFunctionRevertsReason().encodeABI() ],
@@ -422,7 +422,7 @@ contract('Governor', function (accounts) {
 
   describe('proposal length', function () {
     it('empty', async function () {
-      await helper.setProposal([
+      helper.setProposal([
         [],
         [],
         [],
@@ -432,7 +432,7 @@ contract('Governor', function (accounts) {
     });
 
     it('missmatch #1', async function () {
-      await helper.setProposal([
+      helper.setProposal([
         [ ],
         [ web3.utils.toWei('0') ],
         [ this.receiver.contract.methods.mockFunction().encodeABI() ],
@@ -442,7 +442,7 @@ contract('Governor', function (accounts) {
     });
 
     it('missmatch #2', async function () {
-      await helper.setProposal([
+      helper.setProposal([
         [ this.receiver.address ],
         [ ],
         [ this.receiver.contract.methods.mockFunction().encodeABI() ],
@@ -452,7 +452,7 @@ contract('Governor', function (accounts) {
     });
 
     it('missmatch #3', async function () {
-      await helper.setProposal([
+      helper.setProposal([
         [ this.receiver.address ],
         [ web3.utils.toWei('0') ],
         [ ],
@@ -476,7 +476,7 @@ contract('Governor', function (accounts) {
     });
 
     it('can setVotingDelay through governance', async function () {
-      await helper.setProposal([
+      helper.setProposal([
         [ this.mock.address ],
         [ web3.utils.toWei('0') ],
         [ this.mock.contract.methods.setVotingDelay('0').encodeABI() ],
@@ -498,7 +498,7 @@ contract('Governor', function (accounts) {
     });
 
     it('can setVotingPeriod through governance', async function () {
-      await helper.setProposal([
+      helper.setProposal([
         [ this.mock.address ],
         [ web3.utils.toWei('0') ],
         [ this.mock.contract.methods.setVotingPeriod('32').encodeABI() ],
@@ -520,7 +520,7 @@ contract('Governor', function (accounts) {
     });
 
     it('cannot setVotingPeriod to 0 through governance', async function () {
-      await helper.setProposal([
+      helper.setProposal([
         [ this.mock.address ],
         [ web3.utils.toWei('0') ],
         [ this.mock.contract.methods.setVotingPeriod('0').encodeABI() ],
@@ -536,7 +536,7 @@ contract('Governor', function (accounts) {
     });
 
     it('can setProposalThreshold to 0 through governance', async function () {
-      await helper.setProposal([
+      helper.setProposal([
         [ this.mock.address ],
         [ web3.utils.toWei('0') ],
         [ this.mock.contract.methods.setProposalThreshold('1000000000000000000').encodeABI() ],

@@ -107,7 +107,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     expect(proposal.startBlock).to.be.bignumber.equal(await this.mock.proposalSnapshot(this.details.id));
     expect(proposal.endBlock).to.be.bignumber.equal(await this.mock.proposalDeadline(this.details.id));
     expect(proposal.canceled).to.be.equal(false);
-    // expect(proposal.executed).to.be.equal(true);
+    expect(proposal.executed).to.be.equal(true);
 
     const action = await this.mock.getActions(this.details.id);
     expect(action.targets).to.be.deep.equal(this.details.proposal[0]);
