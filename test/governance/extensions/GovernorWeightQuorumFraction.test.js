@@ -8,8 +8,6 @@ const Governor = artifacts.require('GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 contract('GovernorVotesQuorumFraction', function (accounts) {
-  const helper = new GovernorHelper();
-
   const [ owner, voter1, voter2, voter3, voter4 ] = accounts;
 
   const name = 'OZ-Governor';
@@ -29,22 +27,19 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
     this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, ratio);
     this.receiver = await CallReceiver.new();
 
+    GovernorHelper.resert();
+    GovernorHelper.setup(this.mock);
+
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
     await this.token.mint(owner, tokenSupply);
-    await this.token.delegate(voter1, { from: voter1 });
-    await this.token.delegate(voter2, { from: voter2 });
-    await this.token.delegate(voter3, { from: voter3 });
-    await this.token.delegate(voter4, { from: voter4 });
-    await this.token.transfer(voter1, web3.utils.toWei('10'), { from: owner });
-    await this.token.transfer(voter2, web3.utils.toWei('7'), { from: owner });
-    await this.token.transfer(voter3, web3.utils.toWei('5'), { from: owner });
-    await this.token.transfer(voter4, web3.utils.toWei('2'), { from: owner });
-
-    helper.setGovernor(this.mock);
+    await GovernorHelper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
+    await GovernorHelper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
+    await GovernorHelper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
+    await GovernorHelper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.details = helper.setProposal([
+    this.details = GovernorHelper.setProposal([
       [ this.receiver.address ],
       [ value ],
       [ this.receiver.contract.methods.mockFunction().encodeABI() ],
@@ -65,19 +60,19 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
   });
 
   it('quroum reached', async function () {
-    await helper.propose();
-    await helper.waitForSnapshot();
-    await helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-    await helper.waitForDeadline();
-    await helper.execute();
+    await GovernorHelper.propose();
+    await GovernorHelper.waitForSnapshot();
+    await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+    await GovernorHelper.waitForDeadline();
+    await GovernorHelper.execute();
   });
 
   it('quroum not reached', async function () {
-    await helper.propose();
-    await helper.waitForSnapshot();
-    await helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
-    await helper.waitForDeadline();
-    await expectRevert(helper.execute(), 'Governor: proposal not successful');
+    await GovernorHelper.propose();
+    await GovernorHelper.waitForSnapshot();
+    await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter2 });
+    await GovernorHelper.waitForDeadline();
+    await expectRevert(GovernorHelper.execute(), 'Governor: proposal not successful');
   });
 
   describe('onlyGovernance updates', function () {
@@ -89,20 +84,20 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
     });
 
     it('can updateQuorumNumerator through governance', async function () {
-      helper.setProposal([
+      GovernorHelper.setProposal([
         [ this.mock.address ],
         [ web3.utils.toWei('0') ],
         [ this.mock.contract.methods.updateQuorumNumerator(newRatio).encodeABI() ],
         '<proposal description>',
       ]);
 
-      await helper.propose();
-      await helper.waitForSnapshot();
-      await helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-      await helper.waitForDeadline();
+      await GovernorHelper.propose();
+      await GovernorHelper.waitForSnapshot();
+      await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+      await GovernorHelper.waitForDeadline();
 
       expectEvent(
-        await helper.execute(),
+        await GovernorHelper.execute(),
         'QuorumNumeratorUpdated',
         { oldQuorumNumerator: ratio, newQuorumNumerator: newRatio },
       );
@@ -114,20 +109,20 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
     });
 
     it('cannot updateQuorumNumerator over the maximum', async function () {
-      helper.setProposal([
+      GovernorHelper.setProposal([
         [ this.mock.address ],
         [ web3.utils.toWei('0') ],
         [ this.mock.contract.methods.updateQuorumNumerator('101').encodeABI() ],
         '<proposal description>',
       ]);
 
-      await helper.propose();
-      await helper.waitForSnapshot();
-      await helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-      await helper.waitForDeadline();
+      await GovernorHelper.propose();
+      await GovernorHelper.waitForSnapshot();
+      await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+      await GovernorHelper.waitForDeadline();
 
       await expectRevert(
-        helper.execute(),
+        GovernorHelper.execute(),
         'GovernorVotesQuorumFraction: quorumNumerator over quorumDenominator',
       );
     });

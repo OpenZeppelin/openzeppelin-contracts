@@ -14,8 +14,6 @@ function makeContractAddress (creator, nonce) {
 }
 
 contract('GovernorCompatibilityBravo', function (accounts) {
-  const helper = new GovernorHelper();
-
   const [ owner, proposer, voter1, voter2, voter3, voter4, other ] = accounts;
 
   const name = 'OZ-Governor';
@@ -48,24 +46,20 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     );
     this.receiver = await CallReceiver.new();
 
+    GovernorHelper.resert();
+    GovernorHelper.setup(this.mock);
+
     await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
 
     await this.token.mint(owner, tokenSupply);
-    await this.token.delegate(proposer, { from: proposer });
-    await this.token.delegate(voter1, { from: voter1 });
-    await this.token.delegate(voter2, { from: voter2 });
-    await this.token.delegate(voter3, { from: voter3 });
-    await this.token.delegate(voter4, { from: voter4 });
-    await this.token.transfer(proposer, proposalThreshold, { from: owner });
-    await this.token.transfer(voter1, web3.utils.toWei('10'), { from: owner });
-    await this.token.transfer(voter2, web3.utils.toWei('7'), { from: owner });
-    await this.token.transfer(voter3, web3.utils.toWei('5'), { from: owner });
-    await this.token.transfer(voter4, web3.utils.toWei('2'), { from: owner });
-
-    helper.setGovernor(this.mock);
+    await GovernorHelper.delegate({ token: this.token, to: proposer, value: proposalThreshold }, { from: owner });
+    await GovernorHelper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
+    await GovernorHelper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
+    await GovernorHelper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
+    await GovernorHelper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.details = helper.setProposal([
+    this.details = GovernorHelper.setProposal([
       [ this.receiver.address ],
       [ value ],
       [ 'mockFunction()' ],
@@ -91,16 +85,16 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
 
     // Run proposal
-    const txPropose = await helper.propose({ from: proposer });
-    await helper.waitForSnapshot();
-    await helper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 });
-    await helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
-    await helper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
-    await helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
-    await helper.waitForDeadline();
-    await helper.queue();
-    await helper.waitForEta();
-    const txExecute = await helper.execute();
+    const txPropose = await GovernorHelper.propose({ from: proposer });
+    await GovernorHelper.waitForSnapshot();
+    await GovernorHelper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 });
+    await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter2 });
+    await GovernorHelper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
+    await GovernorHelper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
+    await GovernorHelper.waitForDeadline();
+    await GovernorHelper.queue();
+    await GovernorHelper.waitForEta();
+    const txExecute = await GovernorHelper.execute();
 
     // After
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
@@ -154,7 +148,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
         calldatas: this.details.shortProposal[2],
         startBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay),
         endBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay).add(votingPeriod),
-        description: this.details.proposal.last(),
+        description: this.details.description,
       },
     );
     expectEvent(
@@ -170,7 +164,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
   });
 
   it('with function selector and arguments', async function () {
-    helper.setProposal([
+    GovernorHelper.setProposal([
       Array(4).fill(this.receiver.address),
       Array(4).fill(web3.utils.toWei('0')),
       [
@@ -188,13 +182,13 @@ contract('GovernorCompatibilityBravo', function (accounts) {
       '<proposal description>', // description
     ]);
 
-    await helper.propose({ from: proposer });
-    await helper.waitForSnapshot();
-    await helper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 });
-    await helper.waitForDeadline();
-    await helper.queue();
-    await helper.waitForEta();
-    const txExecute = await helper.execute();
+    await GovernorHelper.propose({ from: proposer });
+    await GovernorHelper.waitForSnapshot();
+    await GovernorHelper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 });
+    await GovernorHelper.waitForDeadline();
+    await GovernorHelper.queue();
+    await GovernorHelper.waitForEta();
+    const txExecute = await GovernorHelper.execute();
 
     await expectEvent.inTransaction(
       txExecute.tx,
@@ -224,7 +218,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     describe('on propose', function () {
       it('if proposal doesnt meet proposalThreshold', async function () {
         await expectRevert(
-          helper.propose({ from: other }),
+          GovernorHelper.propose({ from: other }),
           'GovernorCompatibilityBravo: proposer votes below proposal threshold',
         );
       });
@@ -233,19 +227,19 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
   describe('cancel', function () {
     it('proposer can cancel', async function () {
-      await helper.propose({ from: proposer });
-      await helper.cancel({ from: proposer });
+      await GovernorHelper.propose({ from: proposer });
+      await GovernorHelper.cancel({ from: proposer });
     });
 
     it('anyone can cancel if proposer drop below threshold', async function () {
-      await helper.propose({ from: proposer });
+      await GovernorHelper.propose({ from: proposer });
       await this.token.transfer(voter1, web3.utils.toWei('1'), { from: proposer });
-      await helper.cancel();
+      await GovernorHelper.cancel();
     });
 
     it('cannot cancel is proposer is still above threshold', async function () {
-      await helper.propose({ from: proposer });
-      await expectRevert(helper.cancel(), 'GovernorBravo: proposer above threshold');
+      await GovernorHelper.propose({ from: proposer });
+      await expectRevert(GovernorHelper.cancel(), 'GovernorBravo: proposer above threshold');
     });
   });
 });

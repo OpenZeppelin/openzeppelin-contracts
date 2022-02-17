@@ -1,10 +1,5 @@
 const { time } = require('@openzeppelin/test-helpers');
 
-// eslint-disable-next-line no-extend-native
-Array.prototype.last = function () {
-  return this[this.length - 1];
-};
-
 function zip (...args) {
   return Array(Math.max(...args.map(array => array.length)))
     .fill()
@@ -20,8 +15,24 @@ function concatOpts (args, opts = null) {
 }
 
 class GovernorHelper {
-  setGovernor (governor) {
+  resert () {
+    Object.getOwnPropertyNames(this).forEach(property => delete this[property]);
+  }
+
+  setup (governor) {
     this.governor = governor;
+  }
+
+  delegate (delegation = {}, opts = null) {
+    return Promise.all([
+      delegation.token.delegate(delegation.to, { from: delegation.to }),
+      delegation.value &&
+        delegation.token.transfer(...concatOpts([ delegation.to, delegation.value ]), opts),
+      delegation.tokenId &&
+        delegation.token.ownerOf(delegation.tokenId).then(owner =>
+          delegation.token.transferFrom(...concatOpts([ owner, delegation.to, delegation.tokenId ], opts)),
+        ),
+    ]);
   }
 
   propose (opts = null, proposal = undefined) {
@@ -117,6 +128,7 @@ class GovernorHelper {
   setProposal (proposal) {
     if (proposal) {
       const useCompatibilityInterface = proposal.length === 5;
+      const description = proposal[proposal.length - 1];
       const shortProposal = [
         // targets
         proposal[0],
@@ -130,7 +142,7 @@ class GovernorHelper {
           ).map(hexs => concatHex(...hexs))
           : proposal[2],
         // descriptionHash
-        web3.utils.keccak256(proposal.last()),
+        web3.utils.keccak256(description),
       ];
       const id = web3.utils.toBN(web3.utils.keccak256(web3.eth.abi.encodeParameters(
         [ 'address[]', 'uint256[]', 'bytes[]', 'bytes32' ],
@@ -141,6 +153,7 @@ class GovernorHelper {
         id,
         proposal,
         shortProposal,
+        description,
         useCompatibilityInterface,
       };
     }
@@ -148,4 +161,4 @@ class GovernorHelper {
   }
 }
 
-module.exports = GovernorHelper;
+module.exports = new GovernorHelper();
