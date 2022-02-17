@@ -1,4 +1,5 @@
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expect } = require('chai');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { fromRpcSig } = require('ethereumjs-util');
@@ -101,25 +102,42 @@ contract('Governor', function (accounts) {
     expectEvent(
       await helper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 }),
       'VoteCast',
-      { voter: voter1, support: Enums.VoteType.For, reason: 'This is nice' },
+      {
+        voter: voter1,
+        support: Enums.VoteType.For,
+        reason: 'This is nice',
+        weight: web3.utils.toWei('10'),
+      },
     );
 
     expectEvent(
       await helper.vote({ support: Enums.VoteType.For }, { from: voter2 }),
       'VoteCast',
-      { voter: voter2, support: Enums.VoteType.For },
+      {
+        voter: voter2,
+        support: Enums.VoteType.For,
+        weight: web3.utils.toWei('7'),
+      },
     );
 
     expectEvent(
       await helper.vote({ support: Enums.VoteType.Against }, { from: voter3 }),
       'VoteCast',
-      { voter: voter3, support: Enums.VoteType.Against },
+      {
+        voter: voter3,
+        support: Enums.VoteType.Against,
+        weight: web3.utils.toWei('5'),
+      },
     );
 
     expectEvent(
       await helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 }),
       'VoteCast',
-      { voter: voter4, support: Enums.VoteType.Abstain },
+      {
+        voter: voter4,
+        support: Enums.VoteType.Abstain,
+        weight: web3.utils.toWei('2'),
+      },
     );
 
     await helper.waitForDeadline();
@@ -224,12 +242,18 @@ contract('Governor', function (accounts) {
 
     describe('on vote', function () {
       it('if proposal does not exist', async function () {
-        await expectRevert(helper.vote({ support: Enums.VoteType.For }, { from: voter1 }), 'Governor: unknown proposal id');
+        await expectRevert(
+          helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
+          'Governor: unknown proposal id',
+        );
       });
 
       it('if voting has not started', async function () {
         await helper.propose();
-        await expectRevert(helper.vote({ support: Enums.VoteType.For }, { from: voter1 }), 'Governor: vote not currently active');
+        await expectRevert(
+          helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
+          'Governor: vote not currently active',
+        );
       });
 
       it('if support value is invalid', async function () {
@@ -254,7 +278,10 @@ contract('Governor', function (accounts) {
       it('if voting is over', async function () {
         await helper.propose();
         await helper.waitForDeadline();
-        await expectRevert(helper.vote({ support: Enums.VoteType.For }, { from: voter1 }), 'Governor: vote not currently active');
+        await expectRevert(
+          helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
+          'Governor: vote not currently active',
+        );
       });
     });
 

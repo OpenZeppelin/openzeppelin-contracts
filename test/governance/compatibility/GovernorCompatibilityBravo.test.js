@@ -1,4 +1,5 @@
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expect } = require('chai');
 const RLP = require('rlp');
 const Enums = require('../../helpers/enums');
 const GovernorHelper = require('../../helpers/governance');
@@ -37,7 +38,14 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     const predictGovernor = makeContractAddress(deployer, nonce + 1);
 
     this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
-    this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, proposalThreshold, this.timelock.address);
+    this.mock = await Governor.new(
+      name,
+      this.token.address,
+      votingDelay,
+      votingPeriod,
+      proposalThreshold,
+      this.timelock.address,
+    );
     this.receiver = await CallReceiver.new();
 
     await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
@@ -76,7 +84,6 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     expect(await this.mock.COUNTING_MODE()).to.be.equal('support=bravo&quorum=bravo');
   });
 
-
   it('nominal workflow', async function () {
     // Before
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
@@ -86,10 +93,10 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     // Run proposal
     const txPropose = await helper.propose({ from: proposer });
     await helper.waitForSnapshot();
-    await helper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 }),
-    await helper.vote({ support: Enums.VoteType.For }, { from: voter2 }),
-    await helper.vote({ support: Enums.VoteType.Against }, { from: voter3 }),
-    await helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 }),
+    await helper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 });
+    await helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
+    await helper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
+    await helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
     await helper.waitForDeadline();
     await helper.queue();
     await helper.waitForEta();
@@ -115,22 +122,22 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     expect(action.signatures).to.be.deep.equal(this.details.proposal[2]);
     expect(action.calldatas).to.be.deep.equal(this.details.proposal[3]);
 
-    const voteReceipt1 = await this.mock.getReceipt(this.details.id, voter1)
+    const voteReceipt1 = await this.mock.getReceipt(this.details.id, voter1);
     expect(voteReceipt1.hasVoted).to.be.equal(true);
     expect(voteReceipt1.support).to.be.bignumber.equal(Enums.VoteType.For);
     expect(voteReceipt1.votes).to.be.bignumber.equal(web3.utils.toWei('10'));
 
-    const voteReceipt2 = await this.mock.getReceipt(this.details.id, voter2)
+    const voteReceipt2 = await this.mock.getReceipt(this.details.id, voter2);
     expect(voteReceipt2.hasVoted).to.be.equal(true);
     expect(voteReceipt2.support).to.be.bignumber.equal(Enums.VoteType.For);
     expect(voteReceipt2.votes).to.be.bignumber.equal(web3.utils.toWei('7'));
 
-    const voteReceipt3 = await this.mock.getReceipt(this.details.id, voter3)
+    const voteReceipt3 = await this.mock.getReceipt(this.details.id, voter3);
     expect(voteReceipt3.hasVoted).to.be.equal(true);
     expect(voteReceipt3.support).to.be.bignumber.equal(Enums.VoteType.Against);
     expect(voteReceipt3.votes).to.be.bignumber.equal(web3.utils.toWei('5'));
 
-    const voteReceipt4 = await this.mock.getReceipt(this.details.id, voter4)
+    const voteReceipt4 = await this.mock.getReceipt(this.details.id, voter4);
     expect(voteReceipt4.hasVoted).to.be.equal(true);
     expect(voteReceipt4.support).to.be.bignumber.equal(Enums.VoteType.Abstain);
     expect(voteReceipt4.votes).to.be.bignumber.equal(web3.utils.toWei('2'));
@@ -183,7 +190,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
     await helper.propose({ from: proposer });
     await helper.waitForSnapshot();
-    await helper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 }),
+    await helper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 });
     await helper.waitForDeadline();
     await helper.queue();
     await helper.waitForEta();
@@ -212,7 +219,6 @@ contract('GovernorCompatibilityBravo', function (accounts) {
       { a: '18', b: '43' },
     );
   });
-
 
   describe('should revert', function () {
     describe('on propose', function () {
