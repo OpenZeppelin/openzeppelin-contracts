@@ -6,6 +6,7 @@
  * `EnumerableMap`: add new `AddressToUintMap` map type. ([#3150](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3150))
  * `ERC1155`: Add a `_afterTokenTransfer` hook for improved extensibility. ([#3166](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3166))
  * `DoubleEndedQueue`: a new data structure that supports efficient push and pop to both front and back, useful for FIFO and LIFO queues. ([#3153](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3153))
+ * `draft-ERC20Permit`: replace `immutable` with `constant` for `_PERMIT_TYPEHASH` since the `keccak256` of string literals is treated specially and the hash is evaluated at compile time. ([#3196](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3196))
 
 ## 4.5.0 (2022-02-09)
 
