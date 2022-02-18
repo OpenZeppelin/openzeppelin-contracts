@@ -55,8 +55,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     modifier onlyGovernance() {
         require(_msgSender() == _executor(), "Governor: onlyGovernance");
         if (_executor() != address(this)) {
+            bytes32 msgDataHash = keccak256(_msgData());
             // loop until poping the expected operation - throw if deque is empty (operation not authorized)
-            while (_governanceCall.popFront() != keccak256(msg.data)) {}
+            while (_governanceCall.popFront() != msgDataHash) {}
         }
         _;
     }
