@@ -316,11 +316,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         bytes32 /*descriptionHash*/
     ) internal virtual {
         if (_executor() != address(this)) {
-            for (uint256 i = 0; i < targets.length; ++i) {
-                if (targets[i] == address(this)) {
-                    _governanceCall.clear();
-                }
-            }
+            _governanceCall.clear();
         }
     }
 
