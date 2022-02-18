@@ -348,32 +348,22 @@ contract('GovernorTimelockControl', function (accounts) {
     });
   });
 
-  describe('clear queue of pending governor calls', function () {
-    beforeEach(async function () {
-      this.settings = {
-        proposal: [
-          [ this.mock.address ],
-          [ web3.utils.toWei('0') ],
-          [ this.mock.contract.methods.nonGovernanceFunction().encodeABI() ],
-          '<proposal description>',
-        ],
-        voters: [
-          { voter: voter, support: Enums.VoteType.For },
-        ],
-        steps: {
-          queue: { delay: 3600 },
-        },
-      };
-    });
+  it('clear queue of pending governor calls', async function () {
+    GovernorHelper.setProposal([
+      [ this.mock.address ],
+      [ web3.utils.toWei('0') ],
+      [ this.mock.contract.methods.nonGovernanceFunction().encodeABI() ],
+      '<proposal description>',
+    ]);
 
-    afterEach(async function () {
-      expectEvent(
-        this.receipts.execute,
-        'ProposalExecuted',
-        { proposalId: this.id },
-      );
-    });
+    await GovernorHelper.propose();
+    await GovernorHelper.waitForSnapshot();
+    await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+    await GovernorHelper.waitForDeadline();
+    await GovernorHelper.queue();
+    await GovernorHelper.waitForEta();
+    await GovernorHelper.execute();
 
-    runGovernorWorkflow();
+    // TODO: check that _governanceCall is empty.
   });
 });
