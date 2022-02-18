@@ -487,4 +487,33 @@ contract('GovernorTimelockControl', function (accounts) {
       runGovernorWorkflow();
     });
   });
+
+  describe('clear queue of pending governor calls', function () {
+    beforeEach(async function () {
+      this.settings = {
+        proposal: [
+          [ this.mock.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.mock.contract.methods.nonGovernanceFunction().encodeABI() ],
+          '<proposal description>',
+        ],
+        voters: [
+          { voter: voter, support: Enums.VoteType.For },
+        ],
+        steps: {
+          queue: { delay: 3600 },
+        },
+      };
+    });
+
+    afterEach(async function () {
+      expectEvent(
+        this.receipts.execute,
+        'ProposalExecuted',
+        { proposalId: this.id },
+      );
+    });
+
+    runGovernorWorkflow();
+  });
 });

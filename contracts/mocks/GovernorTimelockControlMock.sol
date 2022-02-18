@@ -105,4 +105,7 @@ contract GovernorTimelockControlMock is
     function _executor() internal view virtual override(Governor, GovernorTimelockControl) returns (address) {
         return super._executor();
     }
+
+    function nonGovernanceFunction() external {
+    }
 }
