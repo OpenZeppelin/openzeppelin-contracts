@@ -44,7 +44,7 @@ contract('GovernorTimelockControl', function (accounts) {
 
     await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
 
-    // normal setup: governor is proposer, everyone is executor, timelock is its own admin
+    // normal setup: governor and admin are proposers, everyone is executor, timelock is its own admin
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), this.mock.address);
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), owner);
     await this.timelock.grantRole(await this.timelock.EXECUTOR_ROLE(), constants.ZERO_ADDRESS);
@@ -281,6 +281,32 @@ contract('GovernorTimelockControl', function (accounts) {
           { from: this.mock.address, to: other, value: '1' },
         );
       });
+
+      it('protected against other proposers', async function () {
+        await this.timelock.schedule(
+          this.mock.address,
+          web3.utils.toWei('0'),
+          this.mock.contract.methods.relay(...this.call).encodeABI(),
+          constants.ZERO_BYTES32,
+          constants.ZERO_BYTES32,
+          3600,
+          { from: admin },
+        );
+
+        await time.increase(3600);
+
+        await expectRevert(
+          this.timelock.execute(
+            this.mock.address,
+            web3.utils.toWei('0'),
+            this.mock.contract.methods.relay(...this.call).encodeABI(),
+            constants.ZERO_BYTES32,
+            constants.ZERO_BYTES32,
+            { from: admin },
+          ),
+          'TimelockController: underlying transaction reverted',
+        );
+      });
     });
 
     describe('updateTimelock', function () {
@@ -320,5 +346,34 @@ contract('GovernorTimelockControl', function (accounts) {
         expect(await this.mock.timelock()).to.be.bignumber.equal(this.newTimelock.address);
       });
     });
+  });
+
+  describe('clear queue of pending governor calls', function () {
+    beforeEach(async function () {
+      this.settings = {
+        proposal: [
+          [ this.mock.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.mock.contract.methods.nonGovernanceFunction().encodeABI() ],
+          '<proposal description>',
+        ],
+        voters: [
+          { voter: voter, support: Enums.VoteType.For },
+        ],
+        steps: {
+          queue: { delay: 3600 },
+        },
+      };
+    });
+
+    afterEach(async function () {
+      expectEvent(
+        this.receipts.execute,
+        'ProposalExecuted',
+        { proposalId: this.id },
+      );
+    });
+
+    runGovernorWorkflow();
   });
 });

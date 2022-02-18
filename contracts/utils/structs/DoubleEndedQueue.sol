@@ -102,6 +102,8 @@ library DoubleEndedQueue {
 
     /**
      * @dev Returns the item at the beginning of the queue.
+     *
+     * Reverts with `Empty` if the queue is empty.
      */
     function front(Bytes32Deque storage deque) internal view returns (bytes32 value) {
         if (empty(deque)) revert Empty();
@@ -111,6 +113,8 @@ library DoubleEndedQueue {
 
     /**
      * @dev Returns the item at the end of the queue.
+     *
+     * Reverts with `Empty` if the queue is empty.
      */
     function back(Bytes32Deque storage deque) internal view returns (bytes32 value) {
         if (empty(deque)) revert Empty();
