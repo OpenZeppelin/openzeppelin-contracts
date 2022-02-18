@@ -364,6 +364,8 @@ contract('GovernorTimelockControl', function (accounts) {
     await GovernorHelper.waitForEta();
     await GovernorHelper.execute();
 
-    // TODO: check that _governanceCall is empty.
+    // This path clears _governanceCall as part of the afterExecute call,
+    // but we have not way to check that the cleanup actually happened other
+    // then coverage reports.
   });
 });
