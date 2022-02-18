@@ -311,7 +311,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function _afterExecute(
         uint256, /* proposalId */
-        address[] memory targets,
+        address[] memory, /* targets */
         uint256[] memory, /* values */
         bytes[] memory, /* calldatas */
         bytes32 /*descriptionHash*/
