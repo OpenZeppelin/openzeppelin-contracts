@@ -114,13 +114,13 @@ abstract contract ERC4262 is ERC20, IERC4626 {
     }
 
     function _sharesToAssets(uint256 shares) internal view virtual returns (uint256) {
-        return totalAssets() == 0 && totalSupply() == 0
+        return totalAssets() == 0 || totalSupply() == 0
             ? shares * (10 ** _asset.decimals()) / (10 ** decimals())
             : shares * totalAssets() / totalSupply();
     }
 
     function _assetsToShares(uint256 assets) internal view virtual returns (uint256) {
-        return totalAssets() == 0 && totalSupply() == 0
+        return totalAssets() == 0 || totalSupply() == 0
             ? assets * (10 ** decimals()) / (10 ** _asset.decimals())
             : assets * totalSupply() / totalAssets();
     }
