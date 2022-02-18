@@ -25,7 +25,7 @@ library MerkleProof {
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      */
     function verify(
-        bytes32[] memory proof,
+        bytes32[] calldata proof,
         bytes32 root,
         bytes32 leaf
     ) internal pure returns (bool) {
@@ -40,7 +40,7 @@ library MerkleProof {
      *
      * _Available since v4.4._
      */
-    function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
+    function processProof(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
             bytes32 proofElement = proof[i];
