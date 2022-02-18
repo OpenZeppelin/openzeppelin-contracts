@@ -1,4 +1,4 @@
-const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
 const GovernorHelper = require('../../helpers/governance');
@@ -286,11 +286,11 @@ contract('GovernorTimelockControl', function (accounts) {
         await this.timelock.schedule(
           this.mock.address,
           web3.utils.toWei('0'),
-          this.mock.contract.methods.relay(...this.call).encodeABI(),
+          this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI(),
           constants.ZERO_BYTES32,
           constants.ZERO_BYTES32,
           3600,
-          { from: admin },
+          { from: owner },
         );
 
         await time.increase(3600);
@@ -299,10 +299,10 @@ contract('GovernorTimelockControl', function (accounts) {
           this.timelock.execute(
             this.mock.address,
             web3.utils.toWei('0'),
-            this.mock.contract.methods.relay(...this.call).encodeABI(),
+            this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI(),
             constants.ZERO_BYTES32,
             constants.ZERO_BYTES32,
-            { from: admin },
+            { from: owner },
           ),
           'TimelockController: underlying transaction reverted',
         );
