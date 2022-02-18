@@ -106,6 +106,5 @@ contract GovernorTimelockControlMock is
         return super._executor();
     }
 
-    function nonGovernanceFunction() external {
-    }
+    function nonGovernanceFunction() external {}
 }
