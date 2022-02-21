@@ -43,7 +43,7 @@ function genOperationBatch (targets, values, datas, predecessor, salt) {
 }
 
 contract('TimelockController', function (accounts) {
-  const [ admin, proposer, cancellor, executor, other ] = accounts;
+  const [ admin, proposer, canceller, executor, other ] = accounts;
 
   const TIMELOCK_ADMIN_ROLE = web3.utils.soliditySha3('TIMELOCK_ADMIN_ROLE');
   const PROPOSER_ROLE = web3.utils.soliditySha3('PROPOSER_ROLE');
@@ -61,7 +61,7 @@ contract('TimelockController', function (accounts) {
 
     expect(await this.timelock.hasRole(CANCELLER_ROLE, proposer)).to.be.equal(true);
     await this.timelock.revokeRole(CANCELLER_ROLE, proposer, { from: admin });
-    await this.timelock.grantRole(CANCELLER_ROLE, cancellor, { from: admin });
+    await this.timelock.grantRole(CANCELLER_ROLE, canceller, { from: admin });
 
     // Mocks
     this.callreceivermock = await CallReceiverMock.new({ from: admin });
@@ -81,7 +81,7 @@ contract('TimelockController', function (accounts) {
     ))).to.be.deep.equal([ true, false, false ]);
 
     expect(await Promise.all([ PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE ].map(role =>
-      this.timelock.hasRole(role, cancellor),
+      this.timelock.hasRole(role, canceller),
     ))).to.be.deep.equal([ false, true, false ]);
 
     expect(await Promise.all([ PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE ].map(role =>
@@ -675,14 +675,14 @@ contract('TimelockController', function (accounts) {
         ));
       });
 
-      it('cancellor can cancel', async function () {
-        const receipt = await this.timelock.cancel(this.operation.id, { from: cancellor });
+      it('canceller can cancel', async function () {
+        const receipt = await this.timelock.cancel(this.operation.id, { from: canceller });
         expectEvent(receipt, 'Cancelled', { id: this.operation.id });
       });
 
       it('cannot cancel invalid operation', async function () {
         await expectRevert(
-          this.timelock.cancel(constants.ZERO_BYTES32, { from: cancellor }),
+          this.timelock.cancel(constants.ZERO_BYTES32, { from: canceller }),
           'TimelockController: operation cannot be cancelled',
         );
       });
