@@ -49,7 +49,7 @@ contract('GovernorTimelockControl', function (accounts) {
     await this.timelock.grantRole(CANCELLER_ROLE, admin);
     await this.timelock.grantRole(EXECUTOR_ROLE, constants.ZERO_ADDRESS);
     await this.timelock.revokeRole(TIMELOCK_ADMIN_ROLE, deployer);
-    
+
     await this.token.mint(voter, tokenSupply);
     await this.token.delegate(voter, { from: voter });
   });
