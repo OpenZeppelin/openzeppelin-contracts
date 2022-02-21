@@ -85,8 +85,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
         address caller = _msgSender();
         uint256 shares = previewDeposit(assets);
-        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
         _mint(receiver, shares);
+        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
 
         emit Deposit(caller, receiver, assets, shares);
 
@@ -99,8 +99,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
         address caller = _msgSender();
         uint256 assets = previewMint(shares);
-        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
         _mint(receiver, shares);
+        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
 
         emit Deposit(caller, receiver, assets, shares);
 
