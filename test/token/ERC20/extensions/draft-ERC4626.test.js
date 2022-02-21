@@ -29,8 +29,6 @@ contract('ERC4626', function (accounts) {
   describe('empty vault: no asserts & no shares', function () {
     it('status', async function () {
       expect(await this.vault.totalAssets()).to.be.bignumber.equal('0');
-      expect(await this.vault.assetsPerShare()).to.be.bignumber.equal(oneToken);
-      expect(await this.vault.assetsOf(holder)).to.be.bignumber.equal('0');
     });
 
     it('deposit', async function () {
@@ -76,9 +74,7 @@ contract('ERC4626', function (accounts) {
     });
 
     it('status', async function () {
-      await expect(await this.vault.totalAssets()).to.be.bignumber.equal(oneToken);
-      await expect(await this.vault.assetsPerShare()).to.be.bignumber.equal(oneToken);
-      await expect(await this.vault.assetsOf(holder)).to.be.bignumber.equal('0');
+      expect(await this.vault.totalAssets()).to.be.bignumber.equal(oneToken);
     });
 
     it('deposit', async function () {
@@ -118,22 +114,22 @@ contract('ERC4626', function (accounts) {
     });
   });
 
-  describe.only('partially empty vault: shares & no assets', function () {
+  describe('partially empty vault: shares & no assets', function () {
     beforeEach(async function () {
-      await this.vault.__mint(holder, oneShare); // 1 share
+      await this.vault.mockMint(holder, oneShare); // 1 share
     });
 
     it('status', async function () {
-      await expect(await this.vault.totalAssets()).to.be.bignumber.equal('0');
-      await expect(await this.vault.assetsPerShare()).to.be.bignumber.equal('0'); // shares are worth 0
-      await expect(await this.vault.assetsOf(holder)).to.be.bignumber.equal('0');
+      expect(await this.vault.totalAssets()).to.be.bignumber.equal('0');
     });
 
     it('deposit', async function () {
       expect(await this.vault.maxDeposit(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
-      await expectRevert.unspecified(this.vault.previewDeposit(oneToken));
+      expect(await this.vault.previewDeposit(oneToken)).to.be.bignumber.equal(constants.MAX_UINT256);
 
-      await expectRevert.unspecified(this.vault.deposit(oneToken, recipient, { from: holder }));
+      const { tx } = await this.vault.deposit(oneToken, recipient, { from: holder });
+      await expectEvent.inTransaction(tx, this.token, 'Transfer');
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer');
     });
 
     it('mint', async function () {
@@ -147,9 +143,11 @@ contract('ERC4626', function (accounts) {
 
     it('withdraw', async function () {
       expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal('0');
-      await expectRevert.unspecified(this.vault.previewWithdraw('0'));
+      expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal(constants.MAX_UINT256);
 
-      await expectRevert.unspecified(this.vault.withdraw('0', recipient, holder, { from: spender }));
+      // const { tx } = await this.vault.withdraw('0', recipient, holder, { from: spender });
+      // await expectEvent.inTransaction(tx, this.token, 'Transfer');
+      // await expectEvent.inTransaction(tx, this.vault, 'Transfer');
     });
 
     it('redeem', async function () {
@@ -165,13 +163,11 @@ contract('ERC4626', function (accounts) {
   describe('full vault: assets & shares', function () {
     beforeEach(async function () {
       await this.token.mint(this.vault.address, oneToken); // 1 tokens
-      await this.vault.__mint(holder, oneShare.muln(100)); // 100 share
+      await this.vault.mockMint(holder, oneShare.muln(100)); // 100 share
     });
 
     it('status', async function () {
-      await expect(await this.vault.totalAssets()).to.be.bignumber.equal(oneToken);
-      await expect(await this.vault.assetsPerShare()).to.be.bignumber.equal(oneToken.divn(100));
-      await expect(await this.vault.assetsOf(holder)).to.be.bignumber.equal(oneToken);
+      expect(await this.vault.totalAssets()).to.be.bignumber.equal(oneToken);
     });
 
     it('deposit', async function () {

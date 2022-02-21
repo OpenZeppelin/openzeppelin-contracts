@@ -9,110 +9,147 @@ import "../../../interfaces/draft-IERC4626.sol";
 abstract contract ERC4626 is ERC20, IERC4626 {
     IERC20Metadata private immutable _asset;
 
-    constructor (IERC20Metadata __asset) {
+    constructor(IERC20Metadata __asset) {
         _asset = __asset;
     }
 
+    /** @dev See {IERC4262-asset} */
     function asset() public view virtual override returns (address) {
         return address(_asset);
     }
 
+    /** @dev See {IERC4262-totalAssets} */
     function totalAssets() public view virtual override returns (uint256) {
         return _asset.balanceOf(address(this));
     }
 
-    function assetsPerShare() public view virtual override returns (uint256) {
-        return _sharesToAssets(10 ** decimals());
+    /** @dev See {IERC4262-convertToShares} */
+    function convertToShares(uint256 assets) public view virtual override returns (uint256 shares) {
+        return
+            totalSupply() == 0 ? (assets * (10**decimals())) / (10**_asset.decimals()) : totalAssets() == 0
+                ? type(uint256).max
+                : (assets * totalSupply()) / totalAssets();
     }
 
-    function assetsOf(address depositor) public view virtual override returns (uint256) {
-        return _sharesToAssets(balanceOf(depositor));
+    /** @dev See {IERC4262-convertToAssets} */
+    function convertToAssets(uint256 shares) public view virtual override returns (uint256 assets) {
+        return
+            totalSupply() == 0
+                ? (shares * (10**_asset.decimals())) / (10**decimals())
+                : (shares * totalAssets()) / totalSupply();
     }
 
-    function maxDeposit(address /*caller*/) public view virtual override returns (uint256) {
+    /** @dev See {IERC4262-maxDeposit} */
+    function maxDeposit(address) public view virtual override returns (uint256) {
         return type(uint256).max;
     }
 
-    function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
-        return _assetsToShares(assets);
+    /** @dev See {IERC4262-maxMint} */
+    function maxMint(address) public view virtual override returns (uint256) {
+        return type(uint256).max;
     }
 
+    /** @dev See {IERC4262-maxWithdraw} */
+    function maxWithdraw(address owner) public view virtual override returns (uint256) {
+        return convertToAssets(balanceOf(owner));
+    }
+
+    /** @dev See {IERC4262-maxRedeem} */
+    function maxRedeem(address owner) public view virtual override returns (uint256) {
+        return balanceOf(owner);
+    }
+
+    /** @dev See {IERC4262-previewDeposit} */
+    function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
+        return convertToShares(assets); // TODO: apply fees?
+    }
+
+    /** @dev See {IERC4262-previewMint} */
+    function previewMint(uint256 shares) public view virtual override returns (uint256) {
+        return convertToAssets(shares); // TODO: apply fees?
+    }
+
+    /** @dev See {IERC4262-previewWithdraw} */
+    function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
+        return convertToShares(assets); // TODO: apply fees?
+    }
+
+    /** @dev See {IERC4262-previewRedeem} */
+    function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
+        return convertToAssets(shares); // TODO: apply fees?
+    }
+
+    /** @dev See {IERC4262-deposit} */
     function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
+        require(assets <= maxDeposit(receiver), "ERC4626: deposit more then max");
+
+        address caller = _msgSender();
         uint256 shares = previewDeposit(assets);
-        SafeERC20.safeTransferFrom(_asset, _msgSender(), address(this), assets);
+        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
         _mint(receiver, shares);
+
+        emit Deposit(caller, receiver, assets, shares);
+
         return shares;
     }
 
-    function maxMint(address /*caller*/) public view virtual override returns (uint256) {
-        return type(uint256).max;
-    }
-
-    function previewMint(uint256 shares) public view virtual override returns (uint256) {
-        return _sharesToAssets(shares);
-    }
-
+    /** @dev See {IERC4262-mint} */
     function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
-        uint256 assets = _sharesToAssets(shares);
-        SafeERC20.safeTransferFrom(_asset, _msgSender(), address(this), assets);
+        require(shares <= maxMint(receiver), "ERC4626: mint more then max");
+
+        address caller = _msgSender();
+        uint256 assets = previewMint(shares);
+        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
         _mint(receiver, shares);
+
+        emit Deposit(caller, receiver, assets, shares);
+
         return assets;
     }
 
-    function maxWithdraw(address caller) public view virtual override returns (uint256) {
-        return assetsOf(caller);
-    }
+    /** @dev See {IERC4262-withdraw} */
+    function withdraw(
+        uint256 assets,
+        address receiver,
+        address owner
+    ) public virtual override returns (uint256) {
+        require(assets <= maxWithdraw(owner), "ERC4626: withdraw more then max");
 
-    function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
-        return _assetsToShares(assets);
-    }
-
-    function withdraw(uint256 assets, address receiver, address owner) public virtual override returns (uint256) {
-        address sender = _msgSender();
+        address caller = _msgSender();
         uint256 shares = previewWithdraw(assets);
 
-        if (sender != owner) {
-            _spendAllowance(owner, sender, shares);
+        if (caller != owner) {
+            _spendAllowance(owner, caller, shares);
         }
 
         _burn(owner, shares);
         SafeERC20.safeTransfer(_asset, receiver, assets);
+
+        emit Withdraw(caller, receiver, owner, assets, shares);
+
         return shares;
     }
 
-    function maxRedeem(address caller) public view virtual override returns (uint256) {
-        return balanceOf(caller);
-    }
+    /** @dev See {IERC4262-redeem} */
+    function redeem(
+        uint256 shares,
+        address receiver,
+        address owner
+    ) public virtual override returns (uint256) {
+        require(shares <= maxRedeem(owner), "ERC4626: redeem more then max");
 
-    function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
-        return _sharesToAssets(shares);
-    }
-
-    function redeem(uint256 shares, address receiver, address owner) public virtual override returns (uint256) {
-        address sender = _msgSender();
+        address caller = _msgSender();
         uint256 assets = previewRedeem(shares);
 
-        if (sender != owner) {
-            _spendAllowance(owner, sender, shares);
+        if (caller != owner) {
+            _spendAllowance(owner, caller, shares);
         }
 
         _burn(owner, shares);
         SafeERC20.safeTransfer(_asset, receiver, assets);
+
+        emit Withdraw(caller, receiver, owner, assets, shares);
+
         return assets;
-    }
-
-    function _sharesToAssets(uint256 shares) internal view virtual returns (uint256) {
-        return totalSupply() == 0
-            ? shares * (10 ** _asset.decimals()) / (10 ** decimals())
-            : shares * totalAssets() / totalSupply();
-    }
-
-    // This is ok as long as `totalSupply() == 0` implies `totalAssets() == 0`. This is the case if
-    // the price of shares nevers goes down to 0. It can "simply" be enforced by never removing any
-    // assets without burning an equivalent number of shares.
-    function _assetsToShares(uint256 assets) internal view virtual returns (uint256) {
-        return totalSupply() == 0
-            ? assets * (10 ** decimals()) / (10 ** _asset.decimals())
-            : assets * totalSupply() / totalAssets();
     }
 }
