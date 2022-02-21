@@ -15,7 +15,7 @@ contract('ERC4626', function (accounts) {
 
   beforeEach(async function () {
     this.token = await ERC20DecimalsMock.new(name, symbol, 12);
-    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol+'V');
+    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol + 'V');
 
     await this.token.mint(holder, web3.utils.toWei('100'));
     await this.token.approve(this.vault.address, constants.MAX_UINT256, { from: holder });
@@ -23,6 +23,8 @@ contract('ERC4626', function (accounts) {
   });
 
   it('metadata', async function () {
+    expect(await this.vault.name()).to.be.equal(name + ' Vault');
+    expect(await this.vault.symbol()).to.be.equal(symbol + 'V');
     expect(await this.vault.asset()).to.be.equal(this.token.address);
   });
 
@@ -36,8 +38,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewDeposit(oneToken)).to.be.bignumber.equal(oneShare);
 
       const { tx } = await this.vault.deposit(oneToken, recipient, { from: holder });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: holder, to: this.vault.address, value: oneToken });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: constants.ZERO_ADDRESS, to: recipient, value: oneShare });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.vault.address,
+        value: oneToken,
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: constants.ZERO_ADDRESS,
+        to: recipient,
+        value: oneShare,
+      });
     });
 
     it('mint', async function () {
@@ -45,8 +57,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewMint(oneShare)).to.be.bignumber.equal(oneToken);
 
       const { tx } = await this.vault.mint(oneShare, recipient, { from: holder });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: holder, to: this.vault.address, value: oneToken });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: constants.ZERO_ADDRESS, to: recipient, value: oneShare });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.vault.address,
+        value: oneToken,
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: constants.ZERO_ADDRESS,
+        to: recipient,
+        value: oneShare,
+      });
     });
 
     it('withdraw', async function () {
@@ -54,8 +76,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal('0');
 
       const { tx } = await this.vault.withdraw('0', recipient, holder, { from: spender });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: this.vault.address, to: recipient, value: '0' });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: holder, to: constants.ZERO_ADDRESS, value: '0' });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: this.vault.address,
+        to: recipient,
+        value: '0',
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: holder,
+        to: constants.ZERO_ADDRESS,
+        value: '0',
+      });
     });
 
     it('redeem', async function () {
@@ -63,8 +95,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewRedeem('0')).to.be.bignumber.equal('0');
 
       const { tx } = await this.vault.redeem('0', recipient, holder, { from: spender });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: this.vault.address, to: recipient, value: '0' });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: holder, to: constants.ZERO_ADDRESS, value: '0' });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: this.vault.address,
+        to: recipient,
+        value: '0',
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: holder,
+        to: constants.ZERO_ADDRESS,
+        value: '0',
+      });
     });
   });
 
@@ -82,8 +124,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewDeposit(oneToken)).to.be.bignumber.equal(oneShare);
 
       const { tx } = await this.vault.deposit(oneToken, recipient, { from: holder });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: holder, to: this.vault.address, value: oneToken });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: constants.ZERO_ADDRESS, to: recipient, value: oneShare });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.vault.address,
+        value: oneToken,
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: constants.ZERO_ADDRESS,
+        to: recipient,
+        value: oneShare,
+      });
     });
 
     it('mint', async function () {
@@ -91,8 +143,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewMint(oneShare)).to.be.bignumber.equal(oneToken);
 
       const { tx } = await this.vault.mint(oneShare, recipient, { from: holder });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: holder, to: this.vault.address, value: oneToken });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: constants.ZERO_ADDRESS, to: recipient, value: oneShare });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.vault.address,
+        value: oneToken,
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: constants.ZERO_ADDRESS,
+        to: recipient,
+        value: oneShare,
+      });
     });
 
     it('withdraw', async function () {
@@ -100,8 +162,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal('0');
 
       const { tx } = await this.vault.withdraw('0', recipient, holder, { from: spender });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: this.vault.address, to: recipient, value: '0' });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: holder, to: constants.ZERO_ADDRESS, value: '0' });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: this.vault.address,
+        to: recipient,
+        value: '0',
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: holder,
+        to: constants.ZERO_ADDRESS,
+        value: '0',
+      });
     });
 
     it('redeem', async function () {
@@ -109,8 +181,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewRedeem('0')).to.be.bignumber.equal('0');
 
       const { tx } = await this.vault.redeem('0', recipient, holder, { from: spender });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: this.vault.address, to: recipient, value: '0' });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: holder, to: constants.ZERO_ADDRESS, value: '0' });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: this.vault.address,
+        to: recipient,
+        value: '0',
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: holder,
+        to: constants.ZERO_ADDRESS,
+        value: '0',
+      });
     });
   });
 
@@ -127,9 +209,8 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.maxDeposit(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
       expect(await this.vault.previewDeposit(oneToken)).to.be.bignumber.equal(constants.MAX_UINT256);
 
-      const { tx } = await this.vault.deposit(oneToken, recipient, { from: holder });
-      await expectEvent.inTransaction(tx, this.token, 'Transfer');
-      await expectEvent.inTransaction(tx, this.vault, 'Transfer');
+      // try to mint `MAX_UINT256` shares → revert with "arithmetic operation overflow"
+      await expectRevert.unspecified(this.vault.deposit(oneToken, recipient, { from: holder }));
     });
 
     it('mint', async function () {
@@ -137,17 +218,29 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewMint(oneShare)).to.be.bignumber.equal('0');
 
       const { tx } = await this.vault.mint(oneShare, recipient, { from: holder });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: holder, to: this.vault.address, value: '0' });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: constants.ZERO_ADDRESS, to: recipient, value: oneShare });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.vault.address,
+        value: '0',
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: constants.ZERO_ADDRESS,
+        to: recipient,
+        value: oneShare,
+      });
     });
 
     it('withdraw', async function () {
       expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal('0');
       expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal(constants.MAX_UINT256);
 
-      // const { tx } = await this.vault.withdraw('0', recipient, holder, { from: spender });
-      // await expectEvent.inTransaction(tx, this.token, 'Transfer');
-      // await expectEvent.inTransaction(tx, this.vault, 'Transfer');
+      // try to burn `MAX_UINT256` shares → revert with "ERC20: burn amount exceeds balance"
+      await expectRevert(
+        this.vault.withdraw('0', recipient, holder, { from: spender }),
+        'ERC20: burn amount exceeds balance',
+      );
     });
 
     it('redeem', async function () {
@@ -155,8 +248,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewRedeem(oneShare)).to.be.bignumber.equal('0');
 
       const { tx } = await this.vault.redeem(oneShare, recipient, holder, { from: spender });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: this.vault.address, to: recipient, value: '0' });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: holder, to: constants.ZERO_ADDRESS, value: oneShare });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: this.vault.address,
+        to: recipient,
+        value: '0',
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: holder,
+        to: constants.ZERO_ADDRESS,
+        value: oneShare,
+      });
     });
   });
 
@@ -175,8 +278,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewDeposit(oneToken)).to.be.bignumber.equal(oneShare.muln(100));
 
       const { tx } = await this.vault.deposit(oneToken, recipient, { from: holder });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: holder, to: this.vault.address, value: oneToken });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: constants.ZERO_ADDRESS, to: recipient, value: oneShare.muln(100) });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.vault.address,
+        value: oneToken,
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: constants.ZERO_ADDRESS,
+        to: recipient,
+        value: oneShare.muln(100),
+      });
     });
 
     it('mint', async function () {
@@ -184,8 +297,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewMint(oneShare)).to.be.bignumber.equal(oneToken.divn(100));
 
       const { tx } = await this.vault.mint(oneShare, recipient, { from: holder });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: holder, to: this.vault.address, value: oneToken.divn(100) });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: constants.ZERO_ADDRESS, to: recipient, value: oneShare });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.vault.address,
+        value: oneToken.divn(100),
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: constants.ZERO_ADDRESS,
+        to: recipient,
+        value: oneShare,
+      });
     });
 
     it('withdraw', async function () {
@@ -193,8 +316,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewWithdraw(oneToken)).to.be.bignumber.equal(oneShare.muln(100));
 
       const { tx } = await this.vault.withdraw(oneToken, recipient, holder, { from: spender });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: this.vault.address, to: recipient, value: oneToken });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: holder, to: constants.ZERO_ADDRESS, value: oneShare.muln(100) });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: this.vault.address,
+        to: recipient,
+        value: oneToken,
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: holder,
+        to: constants.ZERO_ADDRESS,
+        value: oneShare.muln(100),
+      });
     });
 
     it('redeem', async function () {
@@ -202,8 +335,18 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.previewRedeem(oneShare.muln(100))).to.be.bignumber.equal(oneToken);
 
       const { tx } = await this.vault.redeem(oneShare.muln(100), recipient, holder, { from: spender });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', { from: this.vault.address, to: recipient, value: oneToken });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', { from: holder, to: constants.ZERO_ADDRESS, value: oneShare.muln(100) });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: this.vault.address,
+        to: recipient,
+        value: oneToken,
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: holder,
+        to: constants.ZERO_ADDRESS,
+        value: oneShare.muln(100),
+      });
     });
   });
 });
