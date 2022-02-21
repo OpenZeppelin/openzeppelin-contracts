@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -7,6 +7,7 @@ import "../utils/cryptography/ECDSA.sol";
 import "../utils/cryptography/draft-EIP712.sol";
 import "../utils/introspection/ERC165.sol";
 import "../utils/math/SafeCast.sol";
+import "../utils/structs/DoubleEndedQueue.sol";
 import "../utils/Address.sol";
 import "../utils/Context.sol";
 import "../utils/Timers.sol";
@@ -24,6 +25,7 @@ import "./IGovernor.sol";
  * _Available since v4.3._
  */
 abstract contract Governor is Context, ERC165, EIP712, IGovernor {
+    using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
     using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
 
@@ -40,13 +42,29 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
     mapping(uint256 => ProposalCore) private _proposals;
 
+    // This queue keeps track of the governor operating on itself. Calls to functions protected by the
+    // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
+    // consummed by the {onlyGovernance} modifier and eventually reset in {_afterExecute}. This ensures that the
+    // execution of {onlyGovernance} protected calls can only be achieved through successful proposals.
+    DoubleEndedQueue.Bytes32Deque private _governanceCall;
+
     /**
-     * @dev Restrict access of functions to the governance executor, which may be the Governor itself or a timelock
-     * contract, as specified by {_executor}. This generally means that function with this modifier must be voted on and
-     * executed through the governance protocol.
+     * @dev Restricts a function so it can only be executed through governance proposals. For example, governance
+     * parameter setters in {GovernorSettings} are protected using this modifier.
+     *
+     * The governance executing address may be different from the Governor's own address, for example it could be a
+     * timelock. This can be customized by modules by overriding {_executor}. The executor is only able to invoke these
+     * functions during the execution of the governor's {execute} function, and not under any other circumstances. Thus,
+     * for example, additional timelock proposers are not able to change governance parameters without going through the
+     * governance protocol (since v4.6).
      */
     modifier onlyGovernance() {
         require(_msgSender() == _executor(), "Governor: onlyGovernance");
+        if (_executor() != address(this)) {
+            bytes32 msgDataHash = keccak256(_msgData());
+            // loop until poping the expected operation - throw if deque is empty (operation not authorized)
+            while (_governanceCall.popFront() != msgDataHash) {}
+        }
         _;
     }
 
@@ -197,7 +215,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         string memory description
     ) public virtual override returns (uint256) {
         require(
-            getVotes(msg.sender, block.number - 1) >= proposalThreshold(),
+            getVotes(_msgSender(), block.number - 1) >= proposalThreshold(),
             "GovernorCompatibilityBravo: proposer votes below proposal threshold"
         );
 
@@ -251,7 +269,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
         emit ProposalExecuted(proposalId);
 
+        _beforeExecute(proposalId, targets, values, calldatas, descriptionHash);
         _execute(proposalId, targets, values, calldatas, descriptionHash);
+        _afterExecute(proposalId, targets, values, calldatas, descriptionHash);
 
         return proposalId;
     }
@@ -270,6 +290,42 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
             Address.verifyCallResult(success, returndata, errorMessage);
+        }
+    }
+
+    /**
+     * @dev Hook before execution is trigerred.
+     */
+    function _beforeExecute(
+        uint256, /* proposalId */
+        address[] memory targets,
+        uint256[] memory, /* values */
+        bytes[] memory calldatas,
+        bytes32 /*descriptionHash*/
+    ) internal virtual {
+        if (_executor() != address(this)) {
+            for (uint256 i = 0; i < targets.length; ++i) {
+                if (targets[i] == address(this)) {
+                    _governanceCall.pushBack(keccak256(calldatas[i]));
+                }
+            }
+        }
+    }
+
+    /**
+     * @dev Hook after execution is trigerred.
+     */
+    function _afterExecute(
+        uint256, /* proposalId */
+        address[] memory, /* targets */
+        uint256[] memory, /* values */
+        bytes[] memory, /* calldatas */
+        bytes32 /*descriptionHash*/
+    ) internal virtual {
+        if (_executor() != address(this)) {
+            if (!_governanceCall.empty()) {
+                _governanceCall.clear();
+            }
         }
     }
 
