@@ -49,5 +49,6 @@ abstract contract ERC1155URIStorage is ERC1155Supply {
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         require(exists(tokenId), "ERC1155URIStorage: URI set of nonexistent token");
         _tokenURIs[tokenId] = _tokenURI;
+        emit URI(tokenURI(tokenId), tokenId);
     }
 }

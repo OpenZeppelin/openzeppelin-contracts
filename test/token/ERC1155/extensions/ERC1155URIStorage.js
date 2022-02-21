@@ -1,4 +1,4 @@
-const { BN } = require('@openzeppelin/test-helpers');
+const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 const { artifacts } = require('hardhat');
@@ -28,11 +28,13 @@ contract(['ERC1155URIStorage'], function (accounts) {
 
     it('can request the token uri, returning the concatenated uri if a token uri was set', async function () {
       const tokenUri = '1234/';
-      await this.token.setTokenURI(tokenId, tokenUri);
+      const receipt = await this.token.setTokenURI(tokenId, tokenUri);
 
       const receivedTokenUri = await this.token.tokenURI(tokenId);
 
-      expect(receivedTokenUri).to.be.equal(`${uri}${tokenUri}`);
+      const expectedUri = `${uri}${tokenUri}`;
+      expect(receivedTokenUri).to.be.equal(expectedUri);
+      expectEvent(receipt, 'URI', { value: expectedUri, id: tokenId });
     });
   });
 
@@ -51,11 +53,12 @@ contract(['ERC1155URIStorage'], function (accounts) {
 
     it('can request the token uri, returning the token uri if a token uri was set', async function () {
       const tokenUri = 'ipfs://1234/';
-      await this.token.setTokenURI(tokenId, tokenUri);
+      const receipt = await this.token.setTokenURI(tokenId, tokenUri);
 
       const receivedTokenUri = await this.token.tokenURI(tokenId);
 
       expect(receivedTokenUri).to.be.equal(tokenUri);
+      expectEvent(receipt, 'URI', { value: tokenUri, id: tokenId });
     });
   });
 });
