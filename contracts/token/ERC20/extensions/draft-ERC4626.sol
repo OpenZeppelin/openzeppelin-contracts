@@ -6,7 +6,7 @@ import "../ERC20.sol";
 import "../utils/SafeERC20.sol";
 import "../../../interfaces/draft-IERC4626.sol";
 
-abstract contract ERC4262 is ERC20, IERC4626 {
+abstract contract ERC4626 is ERC20, IERC4626 {
     IERC20Metadata private immutable _asset;
 
     constructor (IERC20Metadata __asset) {
@@ -26,7 +26,7 @@ abstract contract ERC4262 is ERC20, IERC4626 {
     }
 
     function assetsOf(address depositor) public view virtual override returns (uint256) {
-        return totalAssets() * balanceOf(depositor) / totalSupply();
+        return _sharesToAssets(balanceOf(depositor));
     }
 
     function maxDeposit(address /*caller*/) public view virtual override returns (uint256) {
@@ -72,13 +72,7 @@ abstract contract ERC4262 is ERC20, IERC4626 {
         uint256 shares = previewWithdraw(assets);
 
         if (sender != owner) {
-            uint256 currentAllowance = allowance(owner, sender);
-            if (currentAllowance != type(uint256).max) {
-                require(currentAllowance >= shares, "ERC20: transfer amount exceeds allowance");
-                unchecked {
-                    _approve(owner, sender, currentAllowance - shares);
-                }
-            }
+            _spendAllowance(owner, sender, shares);
         }
 
         _burn(owner, shares);
@@ -99,13 +93,7 @@ abstract contract ERC4262 is ERC20, IERC4626 {
         uint256 assets = previewRedeem(shares);
 
         if (sender != owner) {
-            uint256 currentAllowance = allowance(owner, sender);
-            if (currentAllowance != type(uint256).max) {
-                require(currentAllowance >= shares, "ERC20: transfer amount exceeds allowance");
-                unchecked {
-                    _approve(owner, sender, currentAllowance - shares);
-                }
-            }
+            _spendAllowance(owner, sender, shares);
         }
 
         _burn(owner, shares);
@@ -114,13 +102,16 @@ abstract contract ERC4262 is ERC20, IERC4626 {
     }
 
     function _sharesToAssets(uint256 shares) internal view virtual returns (uint256) {
-        return totalAssets() == 0 || totalSupply() == 0
+        return totalSupply() == 0
             ? shares * (10 ** _asset.decimals()) / (10 ** decimals())
             : shares * totalAssets() / totalSupply();
     }
 
+    // This is ok as long as `totalSupply() == 0` implies `totalAssets() == 0`. This is the case if
+    // the price of shares nevers goes down to 0. It can "simply" be enforced by never removing any
+    // assets without burning an equivalent number of shares.
     function _assetsToShares(uint256 assets) internal view virtual returns (uint256) {
-        return totalAssets() == 0 || totalSupply() == 0
+        return totalSupply() == 0
             ? assets * (10 ** decimals()) / (10 ** _asset.decimals())
             : assets * totalSupply() / totalAssets();
     }
