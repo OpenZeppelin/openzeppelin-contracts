@@ -5,7 +5,7 @@ const ERC20DecimalsMock = artifacts.require('ERC20DecimalsMock');
 const ERC4626Mock = artifacts.require('ERC4626Mock');
 
 contract('ERC4626', function (accounts) {
-  const [ holder, recipient, spender ] = accounts;
+  const [ holder, recipient, spender, other ] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -75,7 +75,7 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal('0');
       expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal('0');
 
-      const { tx } = await this.vault.withdraw('0', recipient, holder, { from: spender });
+      const { tx } = await this.vault.withdraw('0', recipient, holder, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -94,7 +94,7 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal('0');
       expect(await this.vault.previewRedeem('0')).to.be.bignumber.equal('0');
 
-      const { tx } = await this.vault.redeem('0', recipient, holder, { from: spender });
+      const { tx } = await this.vault.redeem('0', recipient, holder, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -161,7 +161,7 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal('0');
       expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal('0');
 
-      const { tx } = await this.vault.withdraw('0', recipient, holder, { from: spender });
+      const { tx } = await this.vault.withdraw('0', recipient, holder, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -180,7 +180,7 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal('0');
       expect(await this.vault.previewRedeem('0')).to.be.bignumber.equal('0');
 
-      const { tx } = await this.vault.redeem('0', recipient, holder, { from: spender });
+      const { tx } = await this.vault.redeem('0', recipient, holder, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -238,7 +238,7 @@ contract('ERC4626', function (accounts) {
 
       // try to burn `MAX_UINT256` shares → revert with "ERC20: burn amount exceeds balance"
       await expectRevert(
-        this.vault.withdraw('0', recipient, holder, { from: spender }),
+        this.vault.withdraw('0', recipient, holder, { from: holder }),
         'ERC20: burn amount exceeds balance',
       );
     });
@@ -247,7 +247,7 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal(oneShare);
       expect(await this.vault.previewRedeem(oneShare)).to.be.bignumber.equal('0');
 
-      const { tx } = await this.vault.redeem(oneShare, recipient, holder, { from: spender });
+      const { tx } = await this.vault.redeem(oneShare, recipient, holder, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -315,7 +315,7 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal(oneToken);
       expect(await this.vault.previewWithdraw(oneToken)).to.be.bignumber.equal(oneShare.muln(100));
 
-      const { tx } = await this.vault.withdraw(oneToken, recipient, holder, { from: spender });
+      const { tx } = await this.vault.withdraw(oneToken, recipient, holder, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -330,11 +330,20 @@ contract('ERC4626', function (accounts) {
       });
     });
 
+    it('withdraw with approval', async function () {
+      await expectRevert(
+        this.vault.withdraw(oneToken, recipient, holder, { from: other }),
+        'ERC20: insufficient allowance',
+      );
+
+      await this.vault.withdraw(oneToken, recipient, holder, { from: spender });
+    });
+
     it('redeem', async function () {
       expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal(oneShare.muln(100));
       expect(await this.vault.previewRedeem(oneShare.muln(100))).to.be.bignumber.equal(oneToken);
 
-      const { tx } = await this.vault.redeem(oneShare.muln(100), recipient, holder, { from: spender });
+      const { tx } = await this.vault.redeem(oneShare.muln(100), recipient, holder, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -347,6 +356,15 @@ contract('ERC4626', function (accounts) {
         to: constants.ZERO_ADDRESS,
         value: oneShare.muln(100),
       });
+    });
+
+    it('redeem with approval', async function () {
+      await expectRevert(
+        this.vault.redeem(oneShare.muln(100), recipient, holder, { from: other }),
+        'ERC20: insufficient allowance',
+      );
+
+      await this.vault.redeem(oneShare.muln(100), recipient, holder, { from: spender });
     });
   });
 });
