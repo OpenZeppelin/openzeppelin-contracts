@@ -43,7 +43,12 @@ function genOperationBatch (targets, values, datas, predecessor, salt) {
 }
 
 contract('TimelockController', function (accounts) {
-  const [ admin, proposer, executor, other ] = accounts;
+  const [ admin, proposer, cancellor, executor, other ] = accounts;
+
+  const TIMELOCK_ADMIN_ROLE = web3.utils.soliditySha3('TIMELOCK_ADMIN_ROLE');
+  const PROPOSER_ROLE = web3.utils.soliditySha3('PROPOSER_ROLE');
+  const EXECUTOR_ROLE = web3.utils.soliditySha3('EXECUTOR_ROLE');
+  const CANCELLER_ROLE = web3.utils.soliditySha3('CANCELLER_ROLE');
 
   beforeEach(async function () {
     // Deploy new timelock
@@ -53,10 +58,11 @@ contract('TimelockController', function (accounts) {
       [ executor ],
       { from: admin },
     );
-    this.TIMELOCK_ADMIN_ROLE = await this.timelock.TIMELOCK_ADMIN_ROLE();
-    this.PROPOSER_ROLE = await this.timelock.PROPOSER_ROLE();
-    this.EXECUTOR_ROLE = await this.timelock.EXECUTOR_ROLE();
-    this.CANCELLER_ROLE = await this.timelock.CANCELLER_ROLE();
+
+    expect(await this.timelock.hasRole(CANCELLER_ROLE, proposer)).to.be.equal(true);
+    await this.timelock.revokeRole(CANCELLER_ROLE, proposer, { from: admin });
+    await this.timelock.grantRole(CANCELLER_ROLE, cancellor, { from: admin });
+
     // Mocks
     this.callreceivermock = await CallReceiverMock.new({ from: admin });
     this.implementation2 = await Implementation2.new({ from: admin });
@@ -65,13 +71,22 @@ contract('TimelockController', function (accounts) {
   it('initial state', async function () {
     expect(await this.timelock.getMinDelay()).to.be.bignumber.equal(MINDELAY);
 
-    expect(await this.timelock.hasRole(this.PROPOSER_ROLE, proposer)).to.be.equal(true);
-    expect(await this.timelock.hasRole(this.EXECUTOR_ROLE, proposer)).to.be.equal(false);
-    expect(await this.timelock.hasRole(this.CANCELLER_ROLE, proposer)).to.be.equal(true);
+    expect(await this.timelock.TIMELOCK_ADMIN_ROLE()).to.be.equal(TIMELOCK_ADMIN_ROLE);
+    expect(await this.timelock.PROPOSER_ROLE()).to.be.equal(PROPOSER_ROLE);
+    expect(await this.timelock.EXECUTOR_ROLE()).to.be.equal(EXECUTOR_ROLE);
+    expect(await this.timelock.CANCELLER_ROLE()).to.be.equal(CANCELLER_ROLE);
 
-    expect(await this.timelock.hasRole(this.PROPOSER_ROLE, executor)).to.be.equal(false);
-    expect(await this.timelock.hasRole(this.EXECUTOR_ROLE, executor)).to.be.equal(true);
-    expect(await this.timelock.hasRole(this.CANCELLER_ROLE, executor)).to.be.equal(false);
+    expect(await Promise.all([ PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE ].map(role =>
+      this.timelock.hasRole(role, proposer),
+    ))).to.be.deep.equal([ true, false, false ]);
+
+    expect(await Promise.all([ PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE ].map(role =>
+      this.timelock.hasRole(role, cancellor),
+    ))).to.be.deep.equal([ false, true, false ]);
+
+    expect(await Promise.all([ PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE ].map(role =>
+      this.timelock.hasRole(role, executor),
+    ))).to.be.deep.equal([ false, false, true ]);
   });
 
   describe('methods', function () {
@@ -184,7 +199,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: other },
             ),
-            `AccessControl: account ${other.toLowerCase()} is missing role ${this.PROPOSER_ROLE}`,
+            `AccessControl: account ${other.toLowerCase()} is missing role ${PROPOSER_ROLE}`,
           );
         });
 
@@ -307,7 +322,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: other },
                 ),
-                `AccessControl: account ${other.toLowerCase()} is missing role ${this.EXECUTOR_ROLE}`,
+                `AccessControl: account ${other.toLowerCase()} is missing role ${EXECUTOR_ROLE}`,
               );
             });
           });
@@ -421,7 +436,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: other },
             ),
-            `AccessControl: account ${other.toLowerCase()} is missing role ${this.PROPOSER_ROLE}`,
+            `AccessControl: account ${other.toLowerCase()} is missing role ${PROPOSER_ROLE}`,
           );
         });
 
@@ -546,7 +561,7 @@ contract('TimelockController', function (accounts) {
                   this.operation.salt,
                   { from: other },
                 ),
-                `AccessControl: account ${other.toLowerCase()} is missing role ${this.EXECUTOR_ROLE}`,
+                `AccessControl: account ${other.toLowerCase()} is missing role ${EXECUTOR_ROLE}`,
               );
             });
 
@@ -660,14 +675,14 @@ contract('TimelockController', function (accounts) {
         ));
       });
 
-      it('proposer can cancel', async function () {
-        const receipt = await this.timelock.cancel(this.operation.id, { from: proposer });
+      it('cancellor can cancel', async function () {
+        const receipt = await this.timelock.cancel(this.operation.id, { from: cancellor });
         expectEvent(receipt, 'Cancelled', { id: this.operation.id });
       });
 
       it('cannot cancel invalid operation', async function () {
         await expectRevert(
-          this.timelock.cancel(constants.ZERO_BYTES32, { from: proposer }),
+          this.timelock.cancel(constants.ZERO_BYTES32, { from: cancellor }),
           'TimelockController: operation cannot be cancelled',
         );
       });
@@ -675,7 +690,7 @@ contract('TimelockController', function (accounts) {
       it('prevent non-canceller from canceling', async function () {
         await expectRevert(
           this.timelock.cancel(this.operation.id, { from: other }),
-          `AccessControl: account ${other.toLowerCase()} is missing role ${this.CANCELLER_ROLE}`,
+          `AccessControl: account ${other.toLowerCase()} is missing role ${CANCELLER_ROLE}`,
         );
       });
     });
