@@ -514,7 +514,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         address spender,
         uint256 amount
     ) internal virtual {
-        uint256 currentAllowance = allowance(owner, spender);
+        uint256 currentAllowance = _allowances[owner][spender];
         if (currentAllowance != type(uint256).max) {
             require(currentAllowance >= amount, "ERC777: insufficient allowance");
             unchecked {
