@@ -5,13 +5,12 @@ pragma solidity ^0.8.0;
 
 import "../../../utils/Strings.sol";
 import "../ERC1155.sol";
-import "./ERC1155Supply.sol";
 
 /**
  * @dev ERC1155 token with storage based token URI management.
  * Inspired by the ERC721URIStorage extension
  */
-abstract contract ERC1155URIStorage is ERC1155Supply {
+abstract contract ERC1155URIStorage is ERC1155 {
     using Strings for uint256;
 
     // Optional mapping for token URIs
@@ -21,7 +20,6 @@ abstract contract ERC1155URIStorage is ERC1155Supply {
      * @dev {IERC721Metadata-tokenURI} token URIs for ERC1155 tokens.
      */
     function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
-        require(exists(tokenId), "ERC1155URIStorage: URI query for nonexistent token");
 
         string memory _tokenURI = _tokenURIs[tokenId];
         string memory base = uri(0);
@@ -47,7 +45,6 @@ abstract contract ERC1155URIStorage is ERC1155Supply {
      * - `tokenId` must exist.
      */
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
-        require(exists(tokenId), "ERC1155URIStorage: URI set of nonexistent token");
         _tokenURIs[tokenId] = _tokenURI;
         emit URI(tokenURI(tokenId), tokenId);
     }
