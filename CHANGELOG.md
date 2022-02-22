@@ -7,6 +7,8 @@
  * `ERC1155`: Add a `_afterTokenTransfer` hook for improved extensibility. ([#3166](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3166))
  * `DoubleEndedQueue`: a new data structure that supports efficient push and pop to both front and back, useful for FIFO and LIFO queues. ([#3153](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3153))
  * `Governor`: improved security of `onlyGovernance` modifier when using an external executor contract (e.g. a timelock) that can operate without necessarily going through the governance protocol. ([#3147](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3147))
+ * `ERC20`: Replace call `allowance` function during call to `transferFrom` with direct access of `_allowances` variable to prevent undeterministic behaviour caused by concrete overrides. ([#3212](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3212))
+  * `ERC777`: Replace call `allowance` function during call to `transferFrom` with direct access of `_allowances` variable to prevent undeterministic behaviour caused by concrete overrides. ([#3212](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3212))
 
 ## 4.5.0 (2022-02-09)
 
