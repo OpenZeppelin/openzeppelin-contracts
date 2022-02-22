@@ -17,11 +17,24 @@ abstract contract ERC1155URIStorage is ERC1155 {
     mapping(uint256 => string) private _tokenURIs;
 
     /**
-     * @dev {IERC721Metadata-tokenURI} token URIs for ERC1155 tokens.
+     * @dev See {IERC1155MetadataURI-uri}.
+     *
+     * This implementation returns the concatenation of the `ERC1155._uri`
+     * and the token-specific uri.
+     * This allowes for the following behavior:
+     *
+     * both `ERC1155._uri` and `ERC1155URIStorage._tokenURIs[tokenId]` are empty:
+     *   → the result is empty
+     * `ERC1155._uri` is not empty and `ERC1155URIStorage._tokenURIs[tokenId]` is empty:
+     *   → the result is `ERC1155._uri`
+     * `ERC1155._uri` is empty and `ERC1155URIStorage._tokenURIs[tokenId]` is not empty:
+     *   → the result is `ERC1155URIStorage._tokenURIs[tokenId]`
+     * both `ERC1155._uri` and `ERC1155URIStorage._tokenURIs[tokenId]` are not empty:
+     *   → the result is the concatenation of both
      */
-    function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
+    function uri(uint256 tokenId) public view virtual override returns (string memory) {
         string memory _tokenURI = _tokenURIs[tokenId];
-        string memory base = uri(0);
+        string memory base = super.uri(tokenId);
 
         // If there is no base URI, return the token URI.
         if (bytes(base).length == 0) {
@@ -45,6 +58,6 @@ abstract contract ERC1155URIStorage is ERC1155 {
      */
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         _tokenURIs[tokenId] = _tokenURI;
-        emit URI(tokenURI(tokenId), tokenId);
+        emit URI(uri(tokenId), tokenId);
     }
 }
