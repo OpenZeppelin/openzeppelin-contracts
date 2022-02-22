@@ -21,7 +21,7 @@ contract(['ERC1155URIStorage'], function (accounts) {
     });
 
     it('can request the token uri, returning the base uri if no token uri was set', async function () {
-      const receivedTokenUri = await this.token.tokenURI(tokenId);
+      const receivedTokenUri = await this.token.uri(tokenId);
 
       expect(receivedTokenUri).to.be.equal(uri);
     });
@@ -30,7 +30,7 @@ contract(['ERC1155URIStorage'], function (accounts) {
       const tokenUri = '1234/';
       const receipt = await this.token.setTokenURI(tokenId, tokenUri);
 
-      const receivedTokenUri = await this.token.tokenURI(tokenId);
+      const receivedTokenUri = await this.token.uri(tokenId);
 
       const expectedUri = `${uri}${tokenUri}`;
       expect(receivedTokenUri).to.be.equal(expectedUri);
@@ -46,7 +46,7 @@ contract(['ERC1155URIStorage'], function (accounts) {
     });
 
     it('can request the token uri, returning an empty string if no token uri was set', async function () {
-      const receivedTokenUri = await this.token.tokenURI(tokenId);
+      const receivedTokenUri = await this.token.uri(tokenId);
 
       expect(receivedTokenUri).to.be.equal('');
     });
@@ -55,7 +55,7 @@ contract(['ERC1155URIStorage'], function (accounts) {
       const tokenUri = 'ipfs://1234/';
       const receipt = await this.token.setTokenURI(tokenId, tokenUri);
 
-      const receivedTokenUri = await this.token.tokenURI(tokenId);
+      const receivedTokenUri = await this.token.uri(tokenId);
 
       expect(receivedTokenUri).to.be.equal(tokenUri);
       expectEvent(receipt, 'URI', { value: tokenUri, id: tokenId });
