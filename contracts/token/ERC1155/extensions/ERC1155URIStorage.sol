@@ -20,7 +20,6 @@ abstract contract ERC1155URIStorage is ERC1155 {
      * @dev {IERC721Metadata-tokenURI} token URIs for ERC1155 tokens.
      */
     function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
-
         string memory _tokenURI = _tokenURIs[tokenId];
         string memory base = uri(0);
 
