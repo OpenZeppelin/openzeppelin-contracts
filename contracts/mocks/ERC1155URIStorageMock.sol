@@ -12,7 +12,7 @@ contract ERC1155URIStorageMock is ERC1155Mock, ERC1155URIStorage {
         return ERC1155URIStorage.uri(tokenId);
     }
 
-    function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
-        _setTokenURI(tokenId, _tokenURI);
+    function setURI(uint256 tokenId, string memory _tokenURI) public {
+        _setURI(tokenId, _tokenURI);
     }
 }

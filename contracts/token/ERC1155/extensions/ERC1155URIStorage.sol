@@ -56,7 +56,7 @@ abstract contract ERC1155URIStorage is ERC1155 {
      *
      * - `tokenId` must exist.
      */
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
+    function _setURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         _tokenURIs[tokenId] = _tokenURI;
         emit URI(uri(tokenId), tokenId);
     }
