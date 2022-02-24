@@ -49,7 +49,7 @@ contract('GovernorTimelockCompound', function (accounts) {
     );
     this.receiver = await CallReceiver.new();
 
-    GovernorHelper.resert();
+    GovernorHelper.reset();
     GovernorHelper.setup(this.mock);
 
     await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });

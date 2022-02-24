@@ -25,7 +25,7 @@ contract('GovernorComp', function (accounts) {
     this.mock = await Governor.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
 
-    GovernorHelper.resert();
+    GovernorHelper.reset();
     GovernorHelper.setup(this.mock);
 
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });

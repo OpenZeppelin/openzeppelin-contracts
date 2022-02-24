@@ -15,7 +15,7 @@ function concatOpts (args, opts = null) {
 }
 
 class GovernorHelper {
-  resert () {
+  reset () {
     Object.getOwnPropertyNames(this).forEach(property => delete this[property]);
   }
 
