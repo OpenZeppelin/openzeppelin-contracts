@@ -65,6 +65,4 @@ class CrossChainHelper {
   }
 }
 
-module.exports = {
-  CrossChainHelper,
-};
+module.exports = new CrossChainHelper();
