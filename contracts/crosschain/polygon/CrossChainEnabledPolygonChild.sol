@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.0;
 
 import "../CrossChainEnabled.sol";
@@ -8,6 +9,19 @@ import "../../vendor/polygon/IFxMessageProcessor.sol";
 
 address constant DEFAULT_SENDER = 0x000000000000000000000000000000000000dEaD;
 
+/**
+ * @dev [Polygon](https://polygon.technology/) specialization or the
+ * {CrossChainEnabled} abstraction the child side (polygon/mumbai).
+ *
+ * This version should only be deployed on child chain to process cross-chain
+ * messages originating from the parent chain.
+ *
+ * The fxChild contract is provided and maintained by the polygon team. You can
+ * find the address of this contract polygon and mumbai in
+ * [Polygon's Fx-Portal documentation](https://docs.polygon.technology/docs/develop/l1-l2-communication/fx-portal/#contract-addresses).
+ *
+ * _Available since v4.6._
+ */
 abstract contract CrossChainEnabledPolygonChild is IFxMessageProcessor, CrossChainEnabled, ReentrancyGuard {
     address private immutable _fxChild;
     address private _sender = DEFAULT_SENDER;
@@ -16,16 +30,25 @@ abstract contract CrossChainEnabledPolygonChild is IFxMessageProcessor, CrossCha
         _fxChild = fxChild;
     }
 
+    /**
+     * @dev see {CrossChainEnabled-_isCrossChain}
+     */
     function _isCrossChain() internal view virtual override returns (bool) {
         return msg.sender == _fxChild;
     }
 
+    /**
+     * @dev see {CrossChainEnabled-_crossChainSender}
+     */
     function _crossChainSender() internal view virtual override onlyCrossChain returns (address) {
         return _sender;
     }
 
     /**
-     * @dev Non reentrancy is crutial to avoid a cross-chain call being able
+     * @dev External entry point to receive and relay messages originating
+     * from the fxChild.
+     *
+     * Non reentrancy is crutial to avoid a cross-chain call being able
      * to impersonnate anyone by just looping through this with user defined
      * arguments.
      *
