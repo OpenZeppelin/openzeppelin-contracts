@@ -1,4 +1,4 @@
-const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
 
@@ -31,7 +31,7 @@ contract('GovernorTimelockControl', function (accounts) {
     this.timelock = await Timelock.new(3600, [], []);
     this.mock = await Governor.new(name, this.token.address, 4, 16, this.timelock.address, 0);
     this.receiver = await CallReceiver.new();
-    // normal setup: governor is proposer, everyone is executor, timelock is its own admin
+    // normal setup: governor and admin are proposers, everyone is executor, timelock is its own admin
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), this.mock.address);
     await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), admin);
     await this.timelock.grantRole(await this.timelock.EXECUTOR_ROLE(), constants.ZERO_ADDRESS);
@@ -338,6 +338,32 @@ contract('GovernorTimelockControl', function (accounts) {
       );
     });
 
+    it('protected against other proposers', async function () {
+      await this.timelock.schedule(
+        this.mock.address,
+        web3.utils.toWei('0'),
+        this.mock.contract.methods.relay(...this.call).encodeABI(),
+        constants.ZERO_BYTES32,
+        constants.ZERO_BYTES32,
+        3600,
+        { from: admin },
+      );
+
+      await time.increase(3600);
+
+      await expectRevert(
+        this.timelock.execute(
+          this.mock.address,
+          web3.utils.toWei('0'),
+          this.mock.contract.methods.relay(...this.call).encodeABI(),
+          constants.ZERO_BYTES32,
+          constants.ZERO_BYTES32,
+          { from: admin },
+        ),
+        'TimelockController: underlying transaction reverted',
+      );
+    });
+
     describe('using workflow', function () {
       beforeEach(async function () {
         this.settings = {
@@ -460,5 +486,34 @@ contract('GovernorTimelockControl', function (accounts) {
       });
       runGovernorWorkflow();
     });
+  });
+
+  describe('clear queue of pending governor calls', function () {
+    beforeEach(async function () {
+      this.settings = {
+        proposal: [
+          [ this.mock.address ],
+          [ web3.utils.toWei('0') ],
+          [ this.mock.contract.methods.nonGovernanceFunction().encodeABI() ],
+          '<proposal description>',
+        ],
+        voters: [
+          { voter: voter, support: Enums.VoteType.For },
+        ],
+        steps: {
+          queue: { delay: 3600 },
+        },
+      };
+    });
+
+    afterEach(async function () {
+      expectEvent(
+        this.receipts.execute,
+        'ProposalExecuted',
+        { proposalId: this.id },
+      );
+    });
+
+    runGovernorWorkflow();
   });
 });
