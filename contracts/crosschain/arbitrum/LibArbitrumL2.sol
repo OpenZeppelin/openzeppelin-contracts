@@ -13,7 +13,7 @@ import {IArbSys as ArbitrumL2_Bridge} from "../../vendor/arbitrum/IArbSys.sol";
  */
 library LibArbitrumL2 {
     /**
-     * @dev Returns weither the current function call is the result of a
+     * @dev Returns whether the current function call is the result of a
      * cross-chain message relayed by `bridge`.
      */
     ArbitrumL2_Bridge public constant ARBSYS = ArbitrumL2_Bridge(0x0000000000000000000000000000000000000064);

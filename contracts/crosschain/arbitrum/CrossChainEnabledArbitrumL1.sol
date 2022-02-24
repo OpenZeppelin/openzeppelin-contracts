@@ -14,7 +14,7 @@ import "./LibArbitrumL1.sol";
  *
  * The inbox contract is provided and maintained by the arbitrum team. You can
  * find the address of this contract on the rinkeby testnet in
- * [Arbitrum's developper documentation](https://developer.offchainlabs.com/docs/public_testnet#l1).
+ * [Arbitrum's developer documentation](https://developer.offchainlabs.com/docs/public_testnet#l1).
  *
  * _Available since v4.6._
  */

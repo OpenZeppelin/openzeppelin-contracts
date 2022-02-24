@@ -10,7 +10,7 @@ import {ICrossDomainMessenger as Optimism_Bridge} from "../../vendor/optimism/IC
  */
 library LibOptimism {
     /**
-     * @dev Returns weither the current function call is the result of a
+     * @dev Returns whether the current function call is the result of a
      * cross-chain message relayed by `bridge`.
      */
     function isCrossChain(address bridge) internal view returns (bool) {

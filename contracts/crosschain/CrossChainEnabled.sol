@@ -9,7 +9,7 @@ pragma solidity ^0.8.0;
  *
  * Actual implementations of cross-chain aware contracts, which are based on
  * this abstraction, will  have to inherit from a bridge-specific
- * specialisation. Such specializations are provided under
+ * specialization. Such specializations are provided under
  * `crosschain/<chain>/CrossChainEnabled<chain>.sol`.
  *
  * _Available since v4.6._
@@ -38,7 +38,7 @@ abstract contract CrossChainEnabled {
     }
 
     /**
-     * @dev Returns weither the current function call is the result of a
+     * @dev Returns whether the current function call is the result of a
      * cross-chain message.
      */
     function _isCrossChain() internal view virtual returns (bool);

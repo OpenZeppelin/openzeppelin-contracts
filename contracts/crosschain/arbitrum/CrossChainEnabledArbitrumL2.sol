@@ -12,7 +12,7 @@ import "./LibArbitrumL2.sol";
  * This version should only be deployed on L2 to process cross-chain messages
  * originating from L1. For the other side, use {CrossChainEnabledArbitrumL1}.
  *
- * Arbitrum L2 includes the `ArbSys` contract at a fix address. Therefore,
+ * Arbitrum L2 includes the `ArbSys` contract at a fixed address. Therefore,
  * this specialization of {CrossChainEnabled} does not include a constructor.
  *
  * _Available since v4.6._

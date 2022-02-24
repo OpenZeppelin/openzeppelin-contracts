@@ -15,7 +15,7 @@ import {IOutbox as ArbitrumL1_Outbox} from "../../vendor/arbitrum/IOutbox.sol";
  */
 library LibArbitrumL1 {
     /**
-     * @dev Returns weither the current function call is the result of a
+     * @dev Returns whether the current function call is the result of a
      * cross-chain message relayed by `bridge`.
      */
     function isCrossChain(address inbox) internal view returns (bool) {

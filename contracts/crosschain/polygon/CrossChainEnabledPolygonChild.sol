@@ -48,11 +48,11 @@ abstract contract CrossChainEnabledPolygonChild is IFxMessageProcessor, CrossCha
      * @dev External entry point to receive and relay messages originating
      * from the fxChild.
      *
-     * Non reentrancy is crutial to avoid a cross-chain call being able
-     * to impersonnate anyone by just looping through this with user defined
+     * Non-reentrancy is crucial to avoid a cross-chain call being able
+     * to impersonate anyone by just looping through this with user-defined
      * arguments.
      *
-     * Note: if _fxChild calls anyother function that does a delegate-call,
+     * Note: if _fxChild calls any other function that does a delegate-call,
      * then security could be compromised.
      */
     function processMessageFromRoot(

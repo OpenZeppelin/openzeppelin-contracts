@@ -11,7 +11,7 @@ import {IAMB as AMB_Bridge} from "../../vendor/amb/IAMB.sol";
  */
 library LibAMB {
     /**
-     * @dev Returns weither the current function call is the result of a
+     * @dev Returns whether the current function call is the result of a
      * cross-chain message relayed by `bridge`.
      */
     function isCrossChain(address bridge) internal view returns (bool) {

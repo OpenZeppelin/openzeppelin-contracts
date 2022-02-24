@@ -6,17 +6,17 @@ import "./AccessControl.sol";
 import "../crosschain/CrossChainEnabled.sol";
 
 /**
- * @dev An extension to {AccessControl} with support for crosschain access management.
+ * @dev An extension to {AccessControl} with support for cross-chain access management.
  * For each role, is extension implements an equivalent "aliased" role that is used for
  * restricting calls originating from other chains.
  *
  * For example, if a function `myFunction` is protected by `onlyRole(SOME_ROLE)`, and
- * if an address `x` has role `SOME_ROLE`, it would be able to call `myFunction`directly.
+ * if an address `x` has role `SOME_ROLE`, it would be able to call `myFunction` directly.
  * A wallet or contract at the same address on another chain would however not be able
  * to call this function. In order to do so, it would require to have the role
  * `_aliasRole(SOME_ROLE)`.
  *
- * This aliassing is requied to protect against multiple contract living at the same
+ * This aliasing is required to protect against multiple contracts living at the same
  * address on different chains but controlled by conflicting entities.
  *
  * _Available since v4.6._
