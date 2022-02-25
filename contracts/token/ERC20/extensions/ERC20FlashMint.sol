@@ -3,7 +3,8 @@
 
 pragma solidity ^0.8.0;
 
-import "../../../utils/introspection/IERC3156.sol";
+import "../../../interfaces/IERC3156FlashBorrower.sol";
+import "../../../interfaces/IERC3156FlashLender.sol";
 import "../ERC20.sol";
 
 /**
