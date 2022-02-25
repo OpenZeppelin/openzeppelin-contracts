@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./IERC165Upgradeable.sol";
+import "../utils/introspection/IERC165Upgradeable.sol";
 
 /**
  * @dev Interface for the NFT Royalty Standard.
