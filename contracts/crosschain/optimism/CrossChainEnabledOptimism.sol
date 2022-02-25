@@ -10,7 +10,8 @@ import "./LibOptimism.sol";
  * {CrossChainEnabled} abstraction.
  *
  * The bridge (`CrossDomainMessenger`) contract is provided and maintained by
- * the optimism team.
+ * the optimism team. You can find the address of this contract on mainnet and
+ * kovan in the [deployments section of Optimism monorepo](https://github.com/ethereum-optimism/optimism/tree/develop/packages/contracts/deployments).
  *
  * _Available since v4.6._
  */
