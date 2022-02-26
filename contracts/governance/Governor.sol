@@ -94,7 +94,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
             interfaceId ==
             (type(IGovernor).interfaceId ^
                 this.castVoteWithReasonAndParams.selector ^
-                this.castVoteWithReasonAndParamsBySig.selector) ||
+                this.castVoteWithReasonAndParamsBySig.selector ^
+                this.getVotesWithParams.selector) ||
             interfaceId == type(IGovernor).interfaceId ||
             super.supportsInterface(interfaceId);
     }
@@ -390,6 +391,17 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         return _getVotes(account, blockNumber, _defaultParams());
+    }
+
+    /**
+     * @dev See {IGovernor-getVotesWithParams}.
+     */
+    function getVotesWithParams(
+        address account,
+        uint256 blockNumber,
+        bytes memory params
+    ) public view virtual override returns (uint256) {
+        return _getVotes(account, blockNumber, params);
     }
 
     /**

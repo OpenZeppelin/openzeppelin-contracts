@@ -81,6 +81,7 @@ const INTERFACES = {
     'votingPeriod()',
     'quorum(uint256)',
     'getVotes(address,uint256)',
+    'getVotesWithParams(address,uint256,bytes)',
     'hasVoted(uint256,address)',
     'propose(address[],uint256[],bytes[],string)',
     'execute(address[],uint256[],bytes[],bytes32)',

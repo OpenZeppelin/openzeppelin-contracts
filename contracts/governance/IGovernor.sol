@@ -167,6 +167,16 @@ abstract contract IGovernor is IERC165 {
     function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256);
 
     /**
+     * @notice module:reputation
+     * @dev Voting power of an `account` at a specific `blockNumber` given additional encoded parameters.
+     */
+    function getVotesWithParams(
+        address account,
+        uint256 blockNumber,
+        bytes memory params
+    ) public view virtual returns (uint256);
+
+    /**
      * @notice module:voting
      * @dev Returns weither `account` has cast a vote on `proposalId`.
      */
