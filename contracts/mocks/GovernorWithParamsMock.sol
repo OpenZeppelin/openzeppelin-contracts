@@ -33,7 +33,7 @@ contract GovernorWithParamsMock is GovernorVotes, GovernorCountingSimple {
             (reduction, ) = abi.decode(params, (uint256, string));
         }
         // reverts on overflow
-        return GovernorVotes._getVotes(account, blockNumber, params) - reduction;
+        return super._getVotes(account, blockNumber, params) - reduction;
     }
 
     function _countVote(
@@ -47,7 +47,7 @@ contract GovernorWithParamsMock is GovernorVotes, GovernorCountingSimple {
             (uint256 _uintParam, string memory _strParam) = abi.decode(params, (uint256, string));
             emit CountParams(_uintParam, _strParam);
         }
-        return GovernorCountingSimple._countVote(proposalId, account, support, weight, params);
+        return super._countVote(proposalId, account, support, weight, params);
     }
 
     function cancel(
