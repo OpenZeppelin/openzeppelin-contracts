@@ -40,10 +40,17 @@ abstract contract Ownable is Context {
      * @dev Throws if called by any account other than the owner.
      */
     modifier onlyOwner() {
-        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+        _onlyOwner();
         _;
     }
 
+    /**
+     * @dev Putting the requre in an internal function decreases contract size when onlyOwner modifier is used multiple times.
+     */
+    function _onlyOwner() internal view {
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+    }
+    
     /**
      * @dev Leaves the contract without owner. It will not be possible to call
      * `onlyOwner` functions anymore. Can only be called by the current owner.
