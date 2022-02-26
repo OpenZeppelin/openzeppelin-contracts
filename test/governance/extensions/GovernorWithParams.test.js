@@ -7,6 +7,7 @@ const { EIP712Domain } = require('../../helpers/eip712');
 const { fromRpcSig } = require('ethereumjs-util');
 
 const { runGovernorWorkflow } = require('../GovernorWorkflow.behavior');
+const { expect } = require('chai');
 
 const Token = artifacts.require('ERC20VotesCompMock');
 const Governor = artifacts.require('GovernorWithParamsMock');
@@ -142,6 +143,8 @@ contract('GovernorWithParams', function (accounts) {
 
       expectEvent(tx, 'CountParams', { uintParam, strParam });
       expectEvent(tx, 'VoteCastWithParams', { voter: voter2, weight: reducedWeight, params });
+      const votes = await this.mock.proposalVotes(this.id);
+      expect(votes.forVotes).to.be.bignumber.equal(reducedWeight);
     });
     runGovernorWorkflow();
   });
@@ -227,6 +230,8 @@ contract('GovernorWithParams', function (accounts) {
 
       expectEvent(tx, 'CountParams', { uintParam, strParam });
       expectEvent(tx, 'VoteCastWithParams', { voter: this.voter, weight: reducedWeight, params });
+      const votes = await this.mock.proposalVotes(this.id);
+      expect(votes.forVotes).to.be.bignumber.equal(reducedWeight);
     });
     runGovernorWorkflow();
   });
