@@ -16,9 +16,9 @@ contract GovernorCompatibilityBravoMock is
     constructor(
         string memory name_,
         ERC20VotesComp token_,
-        uint256 votingDelay_,
-        uint256 votingPeriod_,
-        uint256 proposalThreshold_,
+        uint64 votingDelay_,
+        uint64 votingPeriod_,
+        uint64 proposalThreshold_,
         ICompoundTimelock timelock_
     )
         Governor(name_)
