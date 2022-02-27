@@ -122,7 +122,7 @@ abstract contract IGovernor is IERC165 {
      * @dev Delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
      * leave time for users to buy voting power, of delegate it, before the voting of a proposal starts.
      */
-    function votingDelay() public view virtual returns (uint256);
+    function votingDelay() public view virtual returns (uint64);
 
     /**
      * @notice module:user-config
@@ -131,7 +131,7 @@ abstract contract IGovernor is IERC165 {
      * NOTE: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
      */
-    function votingPeriod() public view virtual returns (uint256);
+    function votingPeriod() public view virtual returns (uint64);
 
     /**
      * @notice module:user-config
