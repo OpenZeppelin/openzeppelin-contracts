@@ -16,8 +16,8 @@ contract GovernorMock is
     constructor(
         string memory name_,
         IVotes token_,
-        uint256 votingDelay_,
-        uint256 votingPeriod_,
+        uint64 votingDelay_,
+        uint64 votingPeriod_,
         uint256 quorumNumerator_
     )
         Governor(name_)
