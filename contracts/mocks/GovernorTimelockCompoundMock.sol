@@ -16,8 +16,8 @@ contract GovernorTimelockCompoundMock is
     constructor(
         string memory name_,
         IVotes token_,
-        uint256 votingDelay_,
-        uint256 votingPeriod_,
+        uint64 votingDelay_,
+        uint64 votingPeriod_,
         ICompoundTimelock timelock_,
         uint256 quorumNumerator_
     )
