@@ -229,7 +229,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         require(proposal.voteStart.isUnset(), "Governor: proposal already exists");
 
         uint64 snapshot = block.number.toUint64() + votingDelay();
-        uint64 deadline = snapshot + votingPeriod().toUint64();
+        uint64 deadline = snapshot + votingPeriod();
 
         proposal.voteStart.setDeadline(snapshot);
         proposal.voteEnd.setDeadline(deadline);
