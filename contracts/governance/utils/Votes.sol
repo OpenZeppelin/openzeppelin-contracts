@@ -207,5 +207,5 @@ abstract contract Votes is IVotes, Context, EIP712 {
     /**
      * @dev Must return the voting units held by an account.
      */
-    function _getVotingUnits(address) internal virtual returns (uint256);
+    function _getVotingUnits(address) internal view virtual returns (uint256);
 }
