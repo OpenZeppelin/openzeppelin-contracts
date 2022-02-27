@@ -11,8 +11,8 @@ import "../Governor.sol";
  * _Available since v4.4._
  */
 abstract contract GovernorSettings is Governor {
-    uint256 private _votingDelay;
-    uint256 private _votingPeriod;
+    uint64 private _votingDelay;
+    uint64 private _votingPeriod;
     uint256 private _proposalThreshold;
 
     event VotingDelaySet(uint256 oldVotingDelay, uint256 newVotingDelay);
@@ -58,7 +58,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingDelaySet} event.
      */
-    function setVotingDelay(uint256 newVotingDelay) public virtual onlyGovernance {
+    function setVotingDelay(uint64 newVotingDelay) public virtual onlyGovernance {
         _setVotingDelay(newVotingDelay);
     }
 
@@ -67,7 +67,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingPeriodSet} event.
      */
-    function setVotingPeriod(uint256 newVotingPeriod) public virtual onlyGovernance {
+    function setVotingPeriod(uint64 newVotingPeriod) public virtual onlyGovernance {
         _setVotingPeriod(newVotingPeriod);
     }
 
@@ -85,7 +85,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingDelaySet} event.
      */
-    function _setVotingDelay(uint256 newVotingDelay) internal virtual {
+    function _setVotingDelay(uint64 newVotingDelay) internal virtual {
         emit VotingDelaySet(_votingDelay, newVotingDelay);
         _votingDelay = newVotingDelay;
     }
@@ -95,7 +95,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingPeriodSet} event.
      */
-    function _setVotingPeriod(uint256 newVotingPeriod) internal virtual {
+    function _setVotingPeriod(uint64 newVotingPeriod) internal virtual {
         // voting period must be at least one block long
         require(newVotingPeriod > 0, "GovernorSettings: voting period too low");
         emit VotingPeriodSet(_votingPeriod, newVotingPeriod);
