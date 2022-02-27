@@ -23,11 +23,11 @@ contract MyGovernor2 is
         GovernorTimelockControl(_timelock)
     {}
 
-    function votingDelay() public pure override returns (uint256) {
+    function votingDelay() public pure override returns (uint64) {
         return 1; // 1 block
     }
 
-    function votingPeriod() public pure override returns (uint256) {
+    function votingPeriod() public pure override returns (uint64) {
         return 45818; // 1 week
     }
 

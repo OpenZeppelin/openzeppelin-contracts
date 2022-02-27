@@ -228,7 +228,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         ProposalCore storage proposal = _proposals[proposalId];
         require(proposal.voteStart.isUnset(), "Governor: proposal already exists");
 
-        uint64 snapshot = block.number.toUint64() + votingDelay().toUint64();
+        uint64 snapshot = block.number.toUint64() + votingDelay();
         uint64 deadline = snapshot + votingPeriod().toUint64();
 
         proposal.voteStart.setDeadline(snapshot);

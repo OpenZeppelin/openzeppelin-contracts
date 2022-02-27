@@ -35,14 +35,14 @@ abstract contract GovernorSettings is Governor {
     /**
      * @dev See {IGovernor-votingDelay}.
      */
-    function votingDelay() public view virtual override returns (uint256) {
+    function votingDelay() public view virtual override returns (uint64) {
         return _votingDelay;
     }
 
     /**
      * @dev See {IGovernor-votingPeriod}.
      */
-    function votingPeriod() public view virtual override returns (uint256) {
+    function votingPeriod() public view virtual override returns (uint64) {
         return _votingPeriod;
     }
 
