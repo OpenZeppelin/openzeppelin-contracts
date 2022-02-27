@@ -12,11 +12,11 @@ contract GovernorVoteMocks is GovernorVotes, GovernorCountingSimple {
         return 0;
     }
 
-    function votingDelay() public pure override returns (uint256) {
+    function votingDelay() public pure override returns (uint64) {
         return 4;
     }
 
-    function votingPeriod() public pure override returns (uint256) {
+    function votingPeriod() public pure override returns (uint64) {
         return 16;
     }
 
