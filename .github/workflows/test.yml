@@ -71,7 +71,7 @@ jobs:
       - run: npm ci
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
 
       - name: Install dependencies
         run: pip3 install slither-analyzer
