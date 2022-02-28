@@ -50,7 +50,7 @@ abstract contract Ownable is Context {
     function _onlyOwner() internal view {
         require(owner() == _msgSender(), "Ownable: caller is not the owner");
     }
-    
+
     /**
      * @dev Leaves the contract without owner. It will not be possible to call
      * `onlyOwner` functions anymore. Can only be called by the current owner.
