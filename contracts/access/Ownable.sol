@@ -45,7 +45,8 @@ abstract contract Ownable is Context {
     }
 
     /**
-     * @dev Putting the requre in an internal function decreases contract size when onlyOwner modifier is used multiple times.
+     * @dev Putting the require in an internal function decreases contract size
+     * when onlyOwner modifier is used multiple times.
      */
     function _onlyOwner() internal view {
         require(owner() == _msgSender(), "Ownable: caller is not the owner");
