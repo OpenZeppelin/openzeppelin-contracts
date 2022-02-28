@@ -72,9 +72,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
             receiver.onFlashLoan(msg.sender, token, amount, fee, data) == _RETURN_VALUE,
             "ERC20FlashMint: invalid return value"
         );
-        uint256 currentAllowance = allowance(address(receiver), address(this));
-        require(currentAllowance >= amount + fee, "ERC20FlashMint: allowance does not allow refund");
-        _approve(address(receiver), address(this), currentAllowance - amount - fee);
+        _spendAllowance(address(receiver), address(this), amount + fee);
         _burn(address(receiver), amount + fee);
         return true;
     }
