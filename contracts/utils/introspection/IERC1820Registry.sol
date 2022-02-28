@@ -18,11 +18,10 @@ pragma solidity ^0.8.0;
  * For an in-depth explanation and source code analysis, see the EIP text.
  */
 interface IERC1820Registry {
-    
     event InterfaceImplementerSet(address indexed account, bytes32 indexed interfaceHash, address indexed implementer);
 
     event ManagerChanged(address indexed account, address indexed newManager);
-    
+
     /**
      * @dev Sets `newManager` as the manager for `account`. A manager of an
      * account is able to set interface implementers for it.

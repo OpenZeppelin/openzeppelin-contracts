@@ -13,7 +13,6 @@ pragma solidity ^0.8.0;
  * {ERC1820Implementer}.
  */
 interface IERC777 {
-    
     /**
      * @dev Emitted when `amount` tokens are created by `operator` and assigned to `to`.
      *
@@ -30,7 +29,7 @@ interface IERC777 {
 
     /**
      * @dev Emitted when `operator` is made operator for `tokenHolder`
-     */    
+     */
     event AuthorizedOperator(address indexed operator, address indexed tokenHolder);
 
     /**
