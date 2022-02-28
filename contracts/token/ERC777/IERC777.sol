@@ -13,6 +13,15 @@ pragma solidity ^0.8.0;
  * {ERC1820Implementer}.
  */
 interface IERC777 {
+    
+    event Minted(address indexed operator, address indexed to, uint256 amount, bytes data, bytes operatorData);
+
+    event Burned(address indexed operator, address indexed from, uint256 amount, bytes data, bytes operatorData);
+
+    event AuthorizedOperator(address indexed operator, address indexed tokenHolder);
+
+    event RevokedOperator(address indexed operator, address indexed tokenHolder);
+
     /**
      * @dev Returns the name of the token.
      */
@@ -182,12 +191,4 @@ interface IERC777 {
         bytes data,
         bytes operatorData
     );
-
-    event Minted(address indexed operator, address indexed to, uint256 amount, bytes data, bytes operatorData);
-
-    event Burned(address indexed operator, address indexed from, uint256 amount, bytes data, bytes operatorData);
-
-    event AuthorizedOperator(address indexed operator, address indexed tokenHolder);
-
-    event RevokedOperator(address indexed operator, address indexed tokenHolder);
 }
