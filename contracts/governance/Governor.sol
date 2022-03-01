@@ -438,4 +438,59 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     function _executor() internal view virtual returns (address) {
         return address(this);
     }
+
+
+    // Hooks
+    // IMPORTANT: When inheriting this contract, you must include a way to use the received tokens, otherwise they will be stuck.
+ 
+     /**
+     * @dev See {IERC721Receiver-onERC721Received}.
+     *
+     * Always returns `onERC721Received.selector`.
+     * The reason for adding this hook here is to enable Governor contract to accept ERC-721 tokens if required after
+     * proposal has been executed.
+     */
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public virtual returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+    
+    /**
+     * @dev See {IERC1155Receiver-onERC1155Received}.
+     *
+     * Always returns `onERC1155Received.selector`.
+     * The reason for adding this hook here is to enable Governor contract to accept ERC-1155 tokens if required after
+     * proposal has been executed.
+     */
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes memory
+    ) public virtual returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    /**
+     * @dev See {IERC1155Receiver-onERC1155BatchReceived}.
+     *
+     * Always returns `onERC1155BatchReceived.selector`.
+     * The reason for adding this hook here is to enable Governor contract to accept batch ERC-1155 tokens if required after
+     * proposal has been executed.
+     */
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        bytes memory
+    ) public virtual returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
+    }
+
 }

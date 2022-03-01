@@ -2,11 +2,13 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { EIP712Domain } = require('../helpers/eip712');
 
-const { expectRevert, constants } = require('@openzeppelin/test-helpers');
+const { BN, expectRevert, constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const MinimalForwarder = artifacts.require('MinimalForwarder');
 const CallReceiverMock = artifacts.require('CallReceiverMock');
+const ERC721Mock = artifacts.require('ERC721Mock');
+const ERC1155Mock = artifacts.require('ERC1155Mock');
 
 const name = 'MinimalForwarder';
 const version = '0.0.1';
@@ -179,6 +181,79 @@ contract('MinimalForwarder', function (accounts) {
 
         expect(gasUsed).to.be.equal(gasAvailable);
       });
+    });
+  });
+
+  describe('onERC721Received', function () {
+    const owner = accounts[0];
+    const name = 'Non Fungible Token';
+    const symbol = 'NFT';
+
+    it('receives an ERC721 token', async function () {
+      const token = await ERC721Mock.new(name, symbol);
+      const tokenId = new BN(1);
+      await token.mint(owner, tokenId);
+
+      await token.safeTransferFrom(owner, this.forwarder.address, tokenId, { from: owner });
+
+      expect(await token.ownerOf(tokenId)).to.be.equal(this.forwarder.address);
+    });
+  });
+
+  describe('onERC1155Received', function () {
+    const owner = accounts[0];
+    const uri = 'https://token-cdn-domain/{id}.json';
+    const multiTokenIds = [new BN(1), new BN(2), new BN(3)];
+    const multiTokenAmounts = [new BN(1000), new BN(2000), new BN(3000)];
+    const transferData = '0x12345678';
+
+    beforeEach(async function () {
+      this.multiToken = await ERC1155Mock.new(uri, { from: owner });
+      await this.multiToken.mintBatch(owner, multiTokenIds, multiTokenAmounts, '0x', { from: owner });
+    });
+
+    it('receives ERC1155 tokens from a single ID', async function () {
+      await this.multiToken.safeTransferFrom(
+        owner,
+        this.forwarder.address,
+        multiTokenIds[0],
+        multiTokenAmounts[0],
+        transferData,
+        { from: owner },
+      );
+
+      expect(await this.multiToken.balanceOf(this.forwarder.address, multiTokenIds[0])).to.be.bignumber.equal(
+        multiTokenAmounts[0],
+      );
+
+      for (let i = 1; i < multiTokenIds.length; i++) {
+        expect(await this.multiToken.balanceOf(this.forwarder.address, multiTokenIds[i])).to.be.bignumber.equal(
+          new BN(0),
+        );
+      }
+    });
+
+    it('receives ERC1155 tokens from a multiple IDs', async function () {
+      for (let i = 0; i < multiTokenIds.length; i++) {
+        expect(await this.multiToken.balanceOf(this.forwarder.address, multiTokenIds[i])).to.be.bignumber.equal(
+          new BN(0),
+        );
+      }
+
+      await this.multiToken.safeBatchTransferFrom(
+        owner,
+        this.forwarder.address,
+        multiTokenIds,
+        multiTokenAmounts,
+        transferData,
+        { from: owner },
+      );
+
+      for (let i = 0; i < multiTokenIds.length; i++) {
+        expect(await this.multiToken.balanceOf(this.forwarder.address, multiTokenIds[i])).to.be.bignumber.equal(
+          multiTokenAmounts[i],
+        );
+      }
     });
   });
 });

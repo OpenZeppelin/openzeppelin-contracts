@@ -1,4 +1,4 @@
-const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { ZERO_BYTES32 } = constants;
 
 const { expect } = require('chai');
@@ -6,6 +6,9 @@ const { expect } = require('chai');
 const TimelockController = artifacts.require('TimelockController');
 const CallReceiverMock = artifacts.require('CallReceiverMock');
 const Implementation2 = artifacts.require('Implementation2');
+const ERC721Mock = artifacts.require('ERC721Mock');
+const ERC1155Mock = artifacts.require('ERC1155Mock');
+
 const MINDELAY = time.duration.days(1);
 
 function genOperation (target, value, data, predecessor, salt) {
@@ -1027,6 +1030,77 @@ contract('TimelockController', function (accounts) {
 
       expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+    });
+  });
+
+  describe('onERC721Received', function () {
+    const name = 'Non Fungible Token';
+    const symbol = 'NFT';
+
+    it('receives an ERC721 token', async function () {
+      const token = await ERC721Mock.new(name, symbol);
+      const tokenId = new BN(1);
+      await token.mint(other, tokenId);
+
+      await token.safeTransferFrom(other, this.timelock.address, tokenId, { from: other });
+
+      expect(await token.ownerOf(tokenId)).to.be.equal(this.timelock.address);
+    });
+  });
+
+  describe('onERC1155Received', function () {
+    const uri = 'https://token-cdn-domain/{id}.json';
+    const multiTokenIds = [new BN(1), new BN(2), new BN(3)];
+    const multiTokenAmounts = [new BN(1000), new BN(2000), new BN(3000)];
+    const transferData = '0x12345678';
+
+    beforeEach(async function () {
+      this.multiToken = await ERC1155Mock.new(uri, { from: other });
+      await this.multiToken.mintBatch(other, multiTokenIds, multiTokenAmounts, '0x', { from: other });
+    });
+
+    it('receives ERC1155 tokens from a single ID', async function () {
+      await this.multiToken.safeTransferFrom(
+        other,
+        this.timelock.address,
+        multiTokenIds[0],
+        multiTokenAmounts[0],
+        transferData,
+        { from: other },
+      );
+
+      expect(await this.multiToken.balanceOf(this.timelock.address, multiTokenIds[0])).to.be.bignumber.equal(
+        multiTokenAmounts[0],
+      );
+
+      for (let i = 1; i < multiTokenIds.length; i++) {
+        expect(await this.multiToken.balanceOf(this.timelock.address, multiTokenIds[i])).to.be.bignumber.equal(
+          new BN(0),
+        );
+      }
+    });
+
+    it('receives ERC1155 tokens from a multiple IDs', async function () {
+      for (let i = 0; i < multiTokenIds.length; i++) {
+        expect(await this.multiToken.balanceOf(this.timelock.address, multiTokenIds[i])).to.be.bignumber.equal(
+          new BN(0),
+        );
+      }
+
+      await this.multiToken.safeBatchTransferFrom(
+        other,
+        this.timelock.address,
+        multiTokenIds,
+        multiTokenAmounts,
+        transferData,
+        { from: other },
+      );
+
+      for (let i = 0; i < multiTokenIds.length; i++) {
+        expect(await this.multiToken.balanceOf(this.timelock.address, multiTokenIds[i])).to.be.bignumber.equal(
+          multiTokenAmounts[i],
+        );
+      }
     });
   });
 });
