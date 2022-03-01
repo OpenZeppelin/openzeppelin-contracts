@@ -63,17 +63,15 @@ contract('ERC20', function (accounts) {
           const approvedAmount = amount;
 
           beforeEach(async function () {
-            ({ logs: this.logs } = await this.token.approve(spender, approvedAmount, { from: initialHolder }));
+            await this.token.approve(spender, approvedAmount, { from: initialHolder });
           });
 
           it('emits an approval event', async function () {
-            const { logs } = await this.token.decreaseAllowance(spender, approvedAmount, { from: initialHolder });
-
-            expectEvent.inLogs(logs, 'Approval', {
-              owner: initialHolder,
-              spender: spender,
-              value: new BN(0),
-            });
+            expectEvent(
+              await this.token.decreaseAllowance(spender, approvedAmount, { from: initialHolder }),
+              'Approval',
+              { owner: initialHolder, spender: spender, value: new BN(0) },
+            );
           });
 
           it('decreases the spender allowance subtracting the requested amount', async function () {
@@ -129,13 +127,11 @@ contract('ERC20', function (accounts) {
 
       describe('when the sender has enough balance', function () {
         it('emits an approval event', async function () {
-          const { logs } = await this.token.increaseAllowance(spender, amount, { from: initialHolder });
-
-          expectEvent.inLogs(logs, 'Approval', {
-            owner: initialHolder,
-            spender: spender,
-            value: amount,
-          });
+          expectEvent(
+            await this.token.increaseAllowance(spender, amount, { from: initialHolder }),
+            'Approval',
+            { owner: initialHolder, spender: spender, value: amount },
+          );
         });
 
         describe('when there was no approved amount before', function () {
@@ -163,13 +159,11 @@ contract('ERC20', function (accounts) {
         const amount = initialSupply.addn(1);
 
         it('emits an approval event', async function () {
-          const { logs } = await this.token.increaseAllowance(spender, amount, { from: initialHolder });
-
-          expectEvent.inLogs(logs, 'Approval', {
-            owner: initialHolder,
-            spender: spender,
-            value: amount,
-          });
+          expectEvent(
+            await this.token.increaseAllowance(spender, amount, { from: initialHolder }),
+            'Approval',
+            { owner: initialHolder, spender: spender, value: amount },
+          );
         });
 
         describe('when there was no approved amount before', function () {
@@ -215,8 +209,7 @@ contract('ERC20', function (accounts) {
 
     describe('for a non zero account', function () {
       beforeEach('minting', async function () {
-        const { logs } = await this.token.mint(recipient, amount);
-        this.logs = logs;
+        this.receipt = await this.token.mint(recipient, amount);
       });
 
       it('increments totalSupply', async function () {
@@ -229,10 +222,11 @@ contract('ERC20', function (accounts) {
       });
 
       it('emits Transfer event', async function () {
-        const event = expectEvent.inLogs(this.logs, 'Transfer', {
-          from: ZERO_ADDRESS,
-          to: recipient,
-        });
+        const event = expectEvent(
+          this.receipt,
+          'Transfer',
+          { from: ZERO_ADDRESS, to: recipient },
+        );
 
         expect(event.args.value).to.be.bignumber.equal(amount);
       });
@@ -255,8 +249,7 @@ contract('ERC20', function (accounts) {
       const describeBurn = function (description, amount) {
         describe(description, function () {
           beforeEach('burning', async function () {
-            const { logs } = await this.token.burn(initialHolder, amount);
-            this.logs = logs;
+            this.receipt = await this.token.burn(initialHolder, amount);
           });
 
           it('decrements totalSupply', async function () {
@@ -270,10 +263,11 @@ contract('ERC20', function (accounts) {
           });
 
           it('emits Transfer event', async function () {
-            const event = expectEvent.inLogs(this.logs, 'Transfer', {
-              from: initialHolder,
-              to: ZERO_ADDRESS,
-            });
+            const event = expectEvent(
+              this.receipt,
+              'Transfer',
+              { from: initialHolder, to: ZERO_ADDRESS },
+            );
 
             expect(event.args.value).to.be.bignumber.equal(amount);
           });

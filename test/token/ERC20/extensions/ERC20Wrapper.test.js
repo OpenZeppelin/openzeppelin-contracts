@@ -59,7 +59,7 @@ contract('ERC20', function (accounts) {
     it('missing approval', async function () {
       await expectRevert(
         this.token.depositFor(initialHolder, initialSupply, { from: initialHolder }),
-        'ERC20: transfer amount exceeds allowance',
+        'ERC20: insufficient allowance',
       );
     });
 

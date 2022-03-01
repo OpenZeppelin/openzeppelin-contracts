@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (governance/extensions/GovernorTimelockControl.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (governance/extensions/GovernorTimelockControl.sol)
 
 pragma solidity ^0.8.0;
 
@@ -10,11 +10,16 @@ import "../TimelockController.sol";
 /**
  * @dev Extension of {Governor} that binds the execution process to an instance of {TimelockController}. This adds a
  * delay, enforced by the {TimelockController} to all successful proposal (in addition to the voting duration). The
- * {Governor} needs the proposer (an ideally the executor) roles for the {Governor} to work properly.
+ * {Governor} needs the proposer (and ideally the executor) roles for the {Governor} to work properly.
  *
  * Using this model means the proposal will be operated by the {TimelockController} and not by the {Governor}. Thus,
  * the assets and permissions must be attached to the {TimelockController}. Any asset sent to the {Governor} will be
  * inaccessible.
+ *
+ * WARNING: Setting up the TimelockController to have additional proposers besides the governor is very risky, as it
+ * grants them powers that they must be trusted or known not to use: 1) {onlyGovernance} functions like {relay} are
+ * available to them through the timelock, and 2) approved governance proposals can be blocked by them, effectively
+ * executing a Denial of Service attack. This risk will be mitigated in a future release.
  *
  * _Available since v4.3._
  */
@@ -118,6 +123,9 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
      * @dev Overriden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
      * been queued.
      */
+    // This function can reenter through the external call to the timelock, but we assume the timelock is trusted and
+    // well behaved (according to TimelockController) and this will not happen.
+    // slither-disable-next-line reentrancy-no-eth
     function _cancel(
         address[] memory targets,
         uint256[] memory values,
@@ -143,7 +151,9 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
 
     /**
      * @dev Public endpoint to update the underlying timelock instance. Restricted to the timelock itself, so updates
-     * must be proposed, scheduled and executed using the {Governor} workflow.
+     * must be proposed, scheduled, and executed through governance proposals.
+     *
+     * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
     function updateTimelock(TimelockController newTimelock) external virtual onlyGovernance {
         _updateTimelock(newTimelock);

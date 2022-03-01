@@ -99,6 +99,53 @@ Want to check if an address is a contract? Use xref:api:utils.adoc#Address[`Addr
 
 Want to keep track of some numbers that increment by 1 every time you want another one? Check out xref:api:utils.adoc#Counters[`Counters`]. This is useful for lots of things, like creating incremental identifiers, as shown on the xref:erc721.adoc[ERC721 guide].
 
+=== Base64
+
+xref:api:utils.adoc#Base64[`Base64`] util allows you to transform `bytes32` data into its Base64 `string` representation. 
+
+This is specially useful to build URL-safe tokenURIs for both xref:api:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-[`ERC721`] or xref:api:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`ERC1155`]. This library provides a clever way to serve URL-safe https://developer.mozilla.org/docs/Web/HTTP/Basics_of_HTTP/Data_URIs/[Data URI] compliant strings to serve on-chain data structures.
+
+Consider this is an example to send JSON Metadata through a Base64 Data URI using an ERC721:
+
+[source, solidity]
+----
+// contracts/My721Token.sol
+// SPDX-License-Identifier: MIT
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Base64.sol";
+
+contract My721Token is ERC721 {
+    using Strings for uint256;
+
+    constructor() ERC721("My721Token", "MTK") {}
+    
+    ...
+
+    function tokenURI(uint256 tokenId)
+        public
+        pure
+        override
+        returns (string memory)
+    {
+        bytes memory dataURI = abi.encodePacked(
+            '{',
+                '"name": "My721Token #', tokenId.toString(), '"',
+                // Replace with extra ERC721 Metadata properties
+            '}'
+        );
+
+        return string(
+            abi.encodePacked(
+                "data:application/json;base64,", 
+                Base64.encode(dataURI)
+            )
+        );
+    }
+}
+----
+
 === Multicall
 
 The `Multicall` abstract contract comes with a `multicall` function that bundles together multiple calls in a single external call. With it, external accounts may perform atomic operations comprising several function calls. This is not only useful for EOAs to make multiple calls in a single transaction, it's also a way to revert a previous call if a later one fails.

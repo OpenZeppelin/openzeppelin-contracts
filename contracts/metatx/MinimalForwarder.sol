@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (metatx/MinimalForwarder.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (metatx/MinimalForwarder.sol)
 
 pragma solidity ^0.8.0;
 
@@ -50,9 +50,17 @@ contract MinimalForwarder is EIP712 {
         (bool success, bytes memory returndata) = req.to.call{gas: req.gas, value: req.value}(
             abi.encodePacked(req.data, req.from)
         );
+
         // Validate that the relayer has sent enough gas for the call.
         // See https://ronan.eth.link/blog/ethereum-gas-dangers/
-        assert(gasleft() > req.gas / 63);
+        if (gasleft() <= req.gas / 63) {
+            // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
+            // neither revert or assert consume all gas since Solidity 0.8.0
+            // https://docs.soliditylang.org/en/v0.8.0/control-structures.html#panic-via-assert-and-error-via-require
+            assembly {
+                invalid()
+            }
+        }
 
         return (success, returndata);
     }

@@ -1,6 +1,6 @@
 = ERC721
 
-We've discussed how you can make a _fungible_ token using xref:erc20.adoc[ERC20], but what if not all tokens are alike? This comes up in situations like *real estate* or *collectibles*, where some items are valued more than others, due to their usefulness, rarity, etc. ERC721 is a standard for representing ownership of xref:tokens.adoc#different-kinds-of-tokens[_non-fungible_ tokens], that is, where each token is unique.
+We've discussed how you can make a _fungible_ token using xref:erc20.adoc[ERC20], but what if not all tokens are alike? This comes up in situations like *real estate*, *voting rights*, or *collectibles*, where some items are valued more than others, due to their usefulness, rarity, etc. ERC721 is a standard for representing ownership of xref:tokens.adoc#different-kinds-of-tokens[_non-fungible_ tokens], that is, where each token is unique.
 
 ERC721 is a more complex standard than ERC20, with multiple optional extensions, and is split across a number of contracts. The OpenZeppelin Contracts provide flexibility regarding how these are combined, along with custom useful extensions. Check out the xref:api:token/ERC721.adoc[API Reference] to learn more about these.
 
@@ -29,12 +29,11 @@ contract GameItem is ERC721URIStorage {
         public
         returns (uint256)
     {
-        _tokenIds.increment();
-
         uint256 newItemId = _tokenIds.current();
         _mint(player, newItemId);
         _setTokenURI(newItemId, tokenURI);
 
+        _tokenIds.increment();
         return newItemId;
     }
 }
@@ -78,7 +77,9 @@ This `tokenURI` should resolve to a JSON document that might look something like
 
 For more information about the `tokenURI` metadata JSON Schema, check out the https://eips.ethereum.org/EIPS/eip-721[ERC721 specification].
 
-NOTE: you'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly). You could also leverage IPFS to store the tokenURI information, but these techniques are out of the scope of this overview guide.
+NOTE: You'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! 
+
+TIP: If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly) by providing a xref:utilities.adoc#base64[`Base64`] Data URI with the JSON schema encoded. You could also leverage IPFS to store the tokenURI information, but these techniques are out of the scope of this overview guide.
 
 [[Presets]]
 == Preset ERC721 contract
