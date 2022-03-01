@@ -39,7 +39,6 @@ abstract contract ERC1155URIStorage is ERC1155 {
      */
     function uri(uint256 tokenId) public view virtual override returns (string memory) {
         string memory _tokenURI = _tokenURIs[tokenId];
-        string memory defaultURI = super.uri(tokenId);
 
         // If token URI is set, concatenate base URI and tokenURI (via abi.encodePacked).
         if (bytes(_tokenURI).length > 0) {
@@ -47,7 +46,7 @@ abstract contract ERC1155URIStorage is ERC1155 {
         }
 
         // If there is no tokenURI, return the ERC1155.uri
-        return defaultURI;
+        return super.uri(tokenId);
     }
 
     /**
