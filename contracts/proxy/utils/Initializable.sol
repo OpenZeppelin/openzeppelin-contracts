@@ -75,7 +75,7 @@ abstract contract Initializable {
         require(!_initializing && _initialized < version, "Initializable: contract is already initialized");
 
         _initializing = true;
-        _initialized  = version;
+        _initialized = version;
 
         _;
 
