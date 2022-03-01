@@ -48,19 +48,8 @@ abstract contract Initializable {
      * @dev Modifier to protect an initializer function from being invoked twice.
      */
     modifier initializer() {
-        // If the contract is initializing we ignore whether _initialized is set in order to support multiple
-        // inheritance patterns, but we only do this in the context of a constructor, because in other contexts the
-        // contract may have been reentered.
-        require(_initializing ? _isConstructor() : _initialized == 0, "Initializable: contract is already initialized");
-
-        bool isTopLevelCall = !_initializing;
-        if (isTopLevelCall) {
-            _initializing = true;
-            _initialized = 1;
-        }
-
+        bool isTopLevelCall = _setInitializeStep(1);
         _;
-
         if (isTopLevelCall) {
             _initializing = false;
         }
@@ -72,14 +61,11 @@ abstract contract Initializable {
      * upgrades and that require an initialization step.
      */
     modifier reinitializer(uint8 version) {
-        require(!_initializing && _initialized < version, "Initializable: contract is already initialized");
-
-        _initializing = true;
-        _initialized = version;
-
+        bool isTopLevelCall = _setInitializeStep(version);
         _;
-
-        _initializing = false;
+        if (isTopLevelCall) {
+            _initializing = false;
+        }
     }
 
     /**
@@ -91,7 +77,15 @@ abstract contract Initializable {
         _;
     }
 
-    function _isConstructor() private view returns (bool) {
-        return !Address.isContract(address(this));
+    function _setInitializeStep(uint8 version) private returns (bool) {
+        if (_initializing) {
+            require(version == 1 && !Address.isContract(address(this)), "Initializable: contract is already initialized");
+            return false;
+        } else {
+            require(_initialized < version, "Initializable: contract is already initialized");
+            _initializing = true;
+            _initialized = version;
+            return true;
+        }
     }
 }
