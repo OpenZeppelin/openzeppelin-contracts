@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (token/ERC20/extensions/ERC20Votes.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20Votes.sol)
 
 pragma solidity ^0.8.0;
 
 import "./draft-ERC20Permit.sol";
 import "../../../utils/math/Math.sol";
+import "../../../governance/utils/IVotes.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 
@@ -20,12 +21,10 @@ import "../../../utils/cryptography/ECDSA.sol";
  *
  * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it
  * requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
- * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
- * will significantly increase the base gas cost of transfers.
  *
  * _Available since v4.2._
  */
-abstract contract ERC20Votes is ERC20Permit {
+abstract contract ERC20Votes is IVotes, ERC20Permit {
     struct Checkpoint {
         uint32 fromBlock;
         uint224 votes;
@@ -37,16 +36,6 @@ abstract contract ERC20Votes is ERC20Permit {
     mapping(address => address) private _delegates;
     mapping(address => Checkpoint[]) private _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
-
-    /**
-     * @dev Emitted when an account changes their delegate.
-     */
-    event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);
-
-    /**
-     * @dev Emitted when a token transfer or delegate change results in changes to an account's voting power.
-     */
-    event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
 
     /**
      * @dev Get the `pos`-th checkpoint for `account`.
@@ -65,14 +54,14 @@ abstract contract ERC20Votes is ERC20Permit {
     /**
      * @dev Get the address `account` is currently delegating to.
      */
-    function delegates(address account) public view virtual returns (address) {
+    function delegates(address account) public view virtual override returns (address) {
         return _delegates[account];
     }
 
     /**
      * @dev Gets the current votes balance for `account`
      */
-    function getVotes(address account) public view returns (uint256) {
+    function getVotes(address account) public view virtual override returns (uint256) {
         uint256 pos = _checkpoints[account].length;
         return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
     }
@@ -84,7 +73,7 @@ abstract contract ERC20Votes is ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastVotes(address account, uint256 blockNumber) public view returns (uint256) {
+    function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
@@ -97,7 +86,7 @@ abstract contract ERC20Votes is ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber) public view returns (uint256) {
+    function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }
@@ -134,7 +123,7 @@ abstract contract ERC20Votes is ERC20Permit {
     /**
      * @dev Delegate votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee) public virtual {
+    function delegate(address delegatee) public virtual override {
         _delegate(_msgSender(), delegatee);
     }
 
@@ -148,7 +137,7 @@ abstract contract ERC20Votes is ERC20Permit {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual {
+    ) public virtual override {
         require(block.timestamp <= expiry, "ERC20Votes: signature expired");
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),

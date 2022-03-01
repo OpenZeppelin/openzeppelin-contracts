@@ -15,7 +15,7 @@ contract GovernorTimelockControlMock is
 {
     constructor(
         string memory name_,
-        ERC20Votes token_,
+        IVotes token_,
         uint256 votingDelay_,
         uint256 votingPeriod_,
         TimelockController timelock_,
@@ -105,4 +105,6 @@ contract GovernorTimelockControlMock is
     function _executor() internal view virtual override(Governor, GovernorTimelockControl) returns (address) {
         return super._executor();
     }
+
+    function nonGovernanceFunction() external {}
 }

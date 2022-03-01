@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (token/ERC20/extensions/ERC20Wrapper.sol)
+// OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/ERC20Wrapper.sol)
 
 pragma solidity ^0.8.0;
 
@@ -41,7 +41,7 @@ abstract contract ERC20Wrapper is ERC20 {
     }
 
     /**
-     * @dev Mint wrapped token to cover any underlyingTokens that would have been transfered by mistake. Internal
+     * @dev Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake. Internal
      * function that can be exposed with access control if desired.
      */
     function _recover(address account) internal virtual returns (uint256) {
