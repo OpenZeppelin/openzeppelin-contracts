@@ -13,40 +13,41 @@ import "../ERC1155.sol";
 abstract contract ERC1155URIStorage is ERC1155 {
     using Strings for uint256;
 
+    // optional base URI
+    string private _baseURI = "";
+
     // Optional mapping for token URIs
     mapping(uint256 => string) private _tokenURIs;
 
     /**
      * @dev See {IERC1155MetadataURI-uri}.
      *
-     * This implementation returns the concatenation of the `ERC1155._uri`
-     * and the token-specific uri.
+     * This implementation returns the concatenation of the `_baseURI`
+     * and the token-specific uri if the latter is set
+     *
      * This allowes for the following behavior:
      *
-     * both `ERC1155._uri` and `ERC1155URIStorage._tokenURIs[tokenId]` are empty:
-     *   → the result is empty
-     * `ERC1155._uri` is not empty and `ERC1155URIStorage._tokenURIs[tokenId]` is empty:
-     *   → the result is `ERC1155._uri`
-     * `ERC1155._uri` is empty and `ERC1155URIStorage._tokenURIs[tokenId]` is not empty:
-     *   → the result is `ERC1155URIStorage._tokenURIs[tokenId]`
-     * both `ERC1155._uri` and `ERC1155URIStorage._tokenURIs[tokenId]` are not empty:
-     *   → the result is the concatenation of both
+     * the `ERC1155URIStorage._tokenURIs[tokenId]` is set
+     * → the result is the concatenation of `_baseURI` and `ERC1155URIStorage._tokenURIs[tokenId]`
+     *   (keep in mind that `_baseURI` is empty per default)
+     *
+     * the `ERC1155URIStorage._tokenURIs[tokenId]` is NOT set
+     * → the result is `ERC1155._uri`
+     *
+     * neither `ERC1155URIStorage._tokenURIs[tokenId]` nor `ERC1155._uri` are set
+     * → the result is empty
      */
     function uri(uint256 tokenId) public view virtual override returns (string memory) {
         string memory _tokenURI = _tokenURIs[tokenId];
-        string memory base = super.uri(tokenId);
+        string memory defaultURI = super.uri(tokenId);
 
-        // If there is no base URI, return the token URI.
-        if (bytes(base).length == 0) {
-            return _tokenURI;
-        }
-        // If both are set, concatenate the base URI and tokenURI (via abi.encodePacked).
+        // If token URI is set, concatenate base URI and tokenURI (via abi.encodePacked).
         if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(base, _tokenURI));
+            return string(abi.encodePacked(_baseURI, _tokenURI));
         }
 
-        // If there is a base URI set but no tokenURI, return the base URI.
-        return base;
+        // If there is no tokenURI, return the ERC1155.uri
+        return defaultURI;
     }
 
     /**
@@ -59,5 +60,12 @@ abstract contract ERC1155URIStorage is ERC1155 {
     function _setURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         _tokenURIs[tokenId] = _tokenURI;
         emit URI(uri(tokenId), tokenId);
+    }
+
+    /**
+     * @dev Sets `baseURI` as the `_baseURI` for all tokens
+     */
+    function _setBaseURI(string memory baseURI) internal virtual {
+        _baseURI = baseURI;
     }
 }

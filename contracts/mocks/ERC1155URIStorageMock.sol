@@ -15,4 +15,8 @@ contract ERC1155URIStorageMock is ERC1155Mock, ERC1155URIStorage {
     function setURI(uint256 tokenId, string memory _tokenURI) public {
         _setURI(tokenId, _tokenURI);
     }
+
+    function setBaseURI(string memory baseURI) public {
+        _setBaseURI(baseURI);
+    }
 }
