@@ -35,8 +35,9 @@ import "../../utils/Address.sol";
 abstract contract Initializable {
     /**
      * @dev Indicates that the contract has been initialized.
+     * @custom:oz-upgrades-retyped-from bool
      */
-    bool private _initialized;
+    uint8 private _initialized;
 
     /**
      * @dev Indicates that the contract is in the process of being initialized.
@@ -50,12 +51,12 @@ abstract contract Initializable {
         // If the contract is initializing we ignore whether _initialized is set in order to support multiple
         // inheritance patterns, but we only do this in the context of a constructor, because in other contexts the
         // contract may have been reentered.
-        require(_initializing ? _isConstructor() : !_initialized, "Initializable: contract is already initialized");
+        require(_initializing ? _isConstructor() : _initialized == 0, "Initializable: contract is already initialized");
 
         bool isTopLevelCall = !_initializing;
         if (isTopLevelCall) {
             _initializing = true;
-            _initialized = true;
+            _initialized = 1;
         }
 
         _;
@@ -63,6 +64,22 @@ abstract contract Initializable {
         if (isTopLevelCall) {
             _initializing = false;
         }
+    }
+
+    /**
+     * @dev Modifier to allow the execution of `onlyInitializing`-protected methods, after the original initialization
+     * step, through "reinitializer". These "reinitializer" are essential to configure modules that are added through
+     * upgrades and that require an initialization step.
+     */
+    modifier reinitializer(uint8 version) {
+        require(!_initializing && _initialized < version, "Initializable: contract is already initialized");
+
+        _initializing = true;
+        _initialized  = version;
+
+        _;
+
+        _initializing = false;
     }
 
     /**
