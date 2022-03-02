@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.5.2 (2022-03-02)
+
+ * Rearrange imports to fix errors in `@openzeppelin/truffle-upgrades`.
+
+## 4.5.1 (2022-02-11)
+
+ * Fix `DocstringParsingError` in Solidity <0.8.4.
+
 ## 4.5.0 (2022-02-09)
 
  * `ERC2981`: add implementation of the royalty standard, and the respective extensions for `ERC721` and `ERC1155`. ([#3012](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3012))
