@@ -355,8 +355,8 @@ contract TimelockController is AccessControl {
     }
 
     // Hooks
-    
-     /**
+
+    /**
      * @dev See {IERC721Receiver-onERC721Received}.
      *
      * Always returns `onERC721Received.selector`.
@@ -405,5 +405,4 @@ contract TimelockController is AccessControl {
     ) public virtual returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
     }
-
 }

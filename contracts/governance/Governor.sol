@@ -439,11 +439,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         return address(this);
     }
 
-
     // Hooks
     // IMPORTANT: When inheriting this contract, you must include a way to use the received tokens, otherwise they will be stuck.
- 
-     /**
+
+    /**
      * @dev See {IERC721Receiver-onERC721Received}.
      *
      * Always returns `onERC721Received.selector`.
@@ -458,7 +457,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     ) public virtual returns (bytes4) {
         return this.onERC721Received.selector;
     }
-    
+
     /**
      * @dev See {IERC1155Receiver-onERC1155Received}.
      *
@@ -492,5 +491,4 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     ) public virtual returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
     }
-
 }
