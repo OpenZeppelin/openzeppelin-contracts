@@ -35,7 +35,7 @@ import "../../utils/Address.sol";
 abstract contract Initializable {
     /**
      * @dev Indicates that the contract has been initialized.
-     * @custom:oz-upgrades-retyped-from bool
+     * @custom:oz-retyped-from bool
      */
     uint8 private _initialized;
 
