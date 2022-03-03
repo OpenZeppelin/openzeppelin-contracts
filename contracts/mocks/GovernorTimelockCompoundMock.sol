@@ -92,16 +92,6 @@ contract GovernorTimelockCompoundMock is
         return super._cancel(targets, values, calldatas, salt);
     }
 
-    function getVotes(address account, uint256 blockNumber)
-        public
-        view
-        virtual
-        override(IGovernor, GovernorVotes)
-        returns (uint256)
-    {
-        return super.getVotes(account, blockNumber);
-    }
-
     function _executor() internal view virtual override(Governor, GovernorTimelockCompound) returns (address) {
         return super._executor();
     }
