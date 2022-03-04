@@ -1,7 +1,7 @@
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
-const GovernorHelper = require('../../helpers/governance');
+const { GovernorHelper } = require('../../helpers/governance');
 
 const Token = artifacts.require('ERC20VotesCompMock');
 const Governor = artifacts.require('GovernorPreventLateQuorumMock');
@@ -34,19 +34,18 @@ contract('GovernorPreventLateQuorum', function (accounts) {
     );
     this.receiver = await CallReceiver.new();
 
-    GovernorHelper.reset();
-    GovernorHelper.setup(this.mock);
+    this.helper = new GovernorHelper(this.mock);
 
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
     await this.token.mint(owner, tokenSupply);
-    await GovernorHelper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.details = GovernorHelper.setProposal([
+    this.details = this.helper.setProposal([
       [ this.receiver.address ],
       [ value ],
       [ this.receiver.contract.methods.mockFunction().encodeABI() ],
@@ -64,14 +63,14 @@ contract('GovernorPreventLateQuorum', function (accounts) {
   });
 
   it('nominal workflow unaffected', async function () {
-    const txPropose = await GovernorHelper.propose({ from: proposer });
-    await GovernorHelper.waitForSnapshot();
-    await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-    await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter2 });
-    await GovernorHelper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
-    await GovernorHelper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
-    await GovernorHelper.waitForDeadline();
-    await GovernorHelper.execute();
+    const txPropose = await this.helper.propose({ from: proposer });
+    await this.helper.waitForSnapshot();
+    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
+    await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
+    await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
+    await this.helper.waitForDeadline();
+    await this.helper.execute();
 
     expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
     expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(true);
@@ -108,7 +107,7 @@ contract('GovernorPreventLateQuorum', function (accounts) {
   });
 
   it('Delay is extended to prevent last minute take-over', async function () {
-    const txPropose = await GovernorHelper.propose({ from: proposer });
+    const txPropose = await this.helper.propose({ from: proposer });
 
     // compute original schedule
     const startBlock = new BN(txPropose.receipt.blockNumber).add(votingDelay);
@@ -117,8 +116,8 @@ contract('GovernorPreventLateQuorum', function (accounts) {
     expect(await this.mock.proposalDeadline(this.details.id)).to.be.bignumber.equal(endBlock);
 
     // wait for the last minute to vote
-    await GovernorHelper.waitForDeadline(-1);
-    const txVote = await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter2 });
+    await this.helper.waitForDeadline(-1);
+    const txVote = await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
 
     // cannot execute yet
     expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
@@ -129,11 +128,11 @@ contract('GovernorPreventLateQuorum', function (accounts) {
     expect(await this.mock.proposalDeadline(this.details.id)).to.be.bignumber.equal(extendedDeadline);
 
     // still possible to vote
-    await GovernorHelper.vote({ support: Enums.VoteType.Against }, { from: voter1 });
+    await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter1 });
 
-    await GovernorHelper.waitForDeadline();
+    await this.helper.waitForDeadline();
     expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
-    await GovernorHelper.waitForDeadline(+1);
+    await this.helper.waitForDeadline(+1);
     expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Defeated);
 
     // check extension event
@@ -153,20 +152,20 @@ contract('GovernorPreventLateQuorum', function (accounts) {
     });
 
     it('can setLateQuorumVoteExtension through governance', async function () {
-      GovernorHelper.setProposal([
+      this.helper.setProposal([
         [ this.mock.address ],
         [ web3.utils.toWei('0') ],
         [ this.mock.contract.methods.setLateQuorumVoteExtension('0').encodeABI() ],
         '<proposal description>',
       ]);
 
-      await GovernorHelper.propose();
-      await GovernorHelper.waitForSnapshot();
-      await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-      await GovernorHelper.waitForDeadline();
+      await this.helper.propose();
+      await this.helper.waitForSnapshot();
+      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+      await this.helper.waitForDeadline();
 
       expectEvent(
-        await GovernorHelper.execute(),
+        await this.helper.execute(),
         'LateQuorumVoteExtensionSet',
         { oldVoteExtension: lateQuorumVoteExtension, newVoteExtension: '0' },
       );

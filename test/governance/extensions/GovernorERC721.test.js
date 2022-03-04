@@ -1,7 +1,7 @@
 const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
-const GovernorHelper = require('../../helpers/governance');
+const { GovernorHelper } = require('../../helpers/governance');
 
 const Token = artifacts.require('ERC721VotesMock');
 const Governor = artifacts.require('GovernorVoteMocks');
@@ -29,20 +29,19 @@ contract('GovernorERC721Mock', function (accounts) {
     this.mock = await Governor.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
 
-    GovernorHelper.reset();
-    GovernorHelper.setup(this.mock);
+    this.helper = new GovernorHelper(this.mock);
 
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
     await Promise.all([ NFT0, NFT1, NFT2, NFT3, NFT4 ].map(tokenId => this.token.mint(owner, tokenId)));
-    await GovernorHelper.delegate({ token: this.token, to: voter1, tokenId: NFT0 }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter2, tokenId: NFT1 }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter2, tokenId: NFT2 }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter3, tokenId: NFT3 }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter4, tokenId: NFT4 }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter1, tokenId: NFT0 }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter2, tokenId: NFT1 }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter2, tokenId: NFT2 }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter3, tokenId: NFT3 }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter4, tokenId: NFT4 }, { from: owner });
 
     // default proposal
-    this.details = GovernorHelper.setProposal([
+    this.details = this.helper.setProposal([
       [ this.receiver.address ],
       [ value ],
       [ this.receiver.contract.methods.mockFunction().encodeABI() ],
@@ -59,35 +58,35 @@ contract('GovernorERC721Mock', function (accounts) {
   });
 
   it('voting with ERC721 token', async function () {
-    await GovernorHelper.propose();
-    await GovernorHelper.waitForSnapshot();
+    await this.helper.propose();
+    await this.helper.waitForSnapshot();
 
     expectEvent(
-      await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
+      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
       'VoteCast',
       { voter: voter1, support: Enums.VoteType.For, weight: '1' },
     );
 
     expectEvent(
-      await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter2 }),
+      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 }),
       'VoteCast',
       { voter: voter2, support: Enums.VoteType.For, weight: '2' },
     );
 
     expectEvent(
-      await GovernorHelper.vote({ support: Enums.VoteType.Against }, { from: voter3 }),
+      await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 }),
       'VoteCast',
       { voter: voter3, support: Enums.VoteType.Against, weight: '1' },
     );
 
     expectEvent(
-      await GovernorHelper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 }),
+      await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 }),
       'VoteCast',
       { voter: voter4, support: Enums.VoteType.Abstain, weight: '1' },
     );
 
-    await GovernorHelper.waitForDeadline();
-    await GovernorHelper.execute();
+    await this.helper.waitForDeadline();
+    await this.helper.execute();
 
     expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
     expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(true);

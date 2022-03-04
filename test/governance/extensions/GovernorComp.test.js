@@ -1,7 +1,7 @@
 const { BN } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
-const GovernorHelper = require('../../helpers/governance');
+const { GovernorHelper } = require('../../helpers/governance');
 
 const Token = artifacts.require('ERC20VotesCompMock');
 const Governor = artifacts.require('GovernorCompMock');
@@ -25,19 +25,18 @@ contract('GovernorComp', function (accounts) {
     this.mock = await Governor.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
 
-    GovernorHelper.reset();
-    GovernorHelper.setup(this.mock);
+    this.helper = new GovernorHelper(this.mock);
 
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
     await this.token.mint(owner, tokenSupply);
-    await GovernorHelper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.details = GovernorHelper.setProposal([
+    this.details = this.helper.setProposal([
       [ this.receiver.address ],
       [ value ],
       [ this.receiver.contract.methods.mockFunction().encodeABI() ],
@@ -54,14 +53,14 @@ contract('GovernorComp', function (accounts) {
   });
 
   it('voting with comp token', async function () {
-    await GovernorHelper.propose();
-    await GovernorHelper.waitForSnapshot();
-    await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-    await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter2 });
-    await GovernorHelper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
-    await GovernorHelper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
-    await GovernorHelper.waitForDeadline();
-    await GovernorHelper.execute();
+    await this.helper.propose();
+    await this.helper.waitForSnapshot();
+    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
+    await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
+    await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
+    await this.helper.waitForDeadline();
+    await this.helper.execute();
 
     expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
     expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(true);

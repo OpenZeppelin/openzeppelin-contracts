@@ -15,11 +15,7 @@ function concatOpts (args, opts = null) {
 }
 
 class GovernorHelper {
-  reset () {
-    Object.getOwnPropertyNames(this).forEach(property => delete this[property]);
-  }
-
-  setup (governor) {
+  constructor (governor) {
     this.governor = governor;
   }
 
@@ -161,4 +157,6 @@ class GovernorHelper {
   }
 }
 
-module.exports = new GovernorHelper();
+module.exports = {
+  GovernorHelper,
+};

@@ -1,7 +1,7 @@
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
-const GovernorHelper = require('../../helpers/governance');
+const { GovernorHelper } = require('../../helpers/governance');
 
 const {
   shouldSupportInterfaces,
@@ -39,8 +39,7 @@ contract('GovernorTimelockControl', function (accounts) {
     );
     this.receiver = await CallReceiver.new();
 
-    GovernorHelper.reset();
-    GovernorHelper.setup(this.mock);
+    this.helper = new GovernorHelper(this.mock);
 
     await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
 
@@ -51,13 +50,13 @@ contract('GovernorTimelockControl', function (accounts) {
     await this.timelock.revokeRole(await this.timelock.TIMELOCK_ADMIN_ROLE(), deployer);
 
     await this.token.mint(owner, tokenSupply);
-    await GovernorHelper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-    await GovernorHelper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.details = GovernorHelper.setProposal([
+    this.details = this.helper.setProposal([
       [ this.receiver.address ],
       [ value ],
       [ this.receiver.contract.methods.mockFunction().encodeABI() ],
@@ -91,16 +90,16 @@ contract('GovernorTimelockControl', function (accounts) {
   });
 
   it('nominal', async function () {
-    await GovernorHelper.propose();
-    await GovernorHelper.waitForSnapshot();
-    await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-    await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter2 });
-    await GovernorHelper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
-    await GovernorHelper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
-    await GovernorHelper.waitForDeadline();
-    const txQueue = await GovernorHelper.queue();
-    await GovernorHelper.waitForEta();
-    const txExecute = await GovernorHelper.execute();
+    await this.helper.propose();
+    await this.helper.waitForSnapshot();
+    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
+    await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
+    await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
+    await this.helper.waitForDeadline();
+    const txQueue = await this.helper.queue();
+    await this.helper.waitForEta();
+    const txExecute = await this.helper.execute();
 
     expectEvent(txQueue, 'ProposalQueued', { proposalId: this.details.id });
     await expectEvent.inTransaction(txQueue.tx, this.timelock, 'CallScheduled', { id: this.details.timelockid });
@@ -113,57 +112,57 @@ contract('GovernorTimelockControl', function (accounts) {
   describe('should revert', function () {
     describe('on queue', function () {
       it('if already queued', async function () {
-        await GovernorHelper.propose();
-        await GovernorHelper.waitForSnapshot();
-        await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await GovernorHelper.waitForDeadline();
-        await GovernorHelper.queue();
-        await expectRevert(GovernorHelper.queue(), 'Governor: proposal not successful');
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.waitForDeadline();
+        await this.helper.queue();
+        await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
       });
     });
 
     describe('on execute', function () {
       it('if not queued', async function () {
-        await GovernorHelper.propose();
-        await GovernorHelper.waitForSnapshot();
-        await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await GovernorHelper.waitForDeadline(+1);
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.waitForDeadline(+1);
 
         expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
-        await expectRevert(GovernorHelper.execute(), 'TimelockController: operation is not ready');
+        await expectRevert(this.helper.execute(), 'TimelockController: operation is not ready');
       });
 
       it('if too early', async function () {
-        await GovernorHelper.propose();
-        await GovernorHelper.waitForSnapshot();
-        await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await GovernorHelper.waitForDeadline();
-        await GovernorHelper.queue();
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.waitForDeadline();
+        await this.helper.queue();
 
         expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
 
-        await expectRevert(GovernorHelper.execute(), 'TimelockController: operation is not ready');
+        await expectRevert(this.helper.execute(), 'TimelockController: operation is not ready');
       });
 
       it('if already executed', async function () {
-        await GovernorHelper.propose();
-        await GovernorHelper.waitForSnapshot();
-        await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await GovernorHelper.waitForDeadline();
-        await GovernorHelper.queue();
-        await GovernorHelper.waitForEta();
-        await GovernorHelper.execute();
-        await expectRevert(GovernorHelper.execute(), 'Governor: proposal not successful');
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.waitForDeadline();
+        await this.helper.queue();
+        await this.helper.waitForEta();
+        await this.helper.execute();
+        await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
       });
 
       it('if already executed by another proposer', async function () {
-        await GovernorHelper.propose();
-        await GovernorHelper.waitForSnapshot();
-        await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await GovernorHelper.waitForDeadline();
-        await GovernorHelper.queue();
-        await GovernorHelper.waitForEta();
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.waitForDeadline();
+        await this.helper.queue();
+        await this.helper.waitForEta();
 
         await this.timelock.executeBatch(
           ...this.details.shortProposal.slice(0, 3),
@@ -171,51 +170,51 @@ contract('GovernorTimelockControl', function (accounts) {
           this.details.shortProposal[3],
         );
 
-        await expectRevert(GovernorHelper.execute(), 'Governor: proposal not successful');
+        await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
       });
     });
   });
 
   describe('cancel', function () {
     it('cancel before queue prevents scheduling', async function () {
-      await GovernorHelper.propose();
-      await GovernorHelper.waitForSnapshot();
-      await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-      await GovernorHelper.waitForDeadline();
+      await this.helper.propose();
+      await this.helper.waitForSnapshot();
+      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+      await this.helper.waitForDeadline();
 
       expectEvent(
-        await GovernorHelper.cancel(),
+        await this.helper.cancel(),
         'ProposalCanceled',
         { proposalId: this.details.id },
       );
 
       expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-      await expectRevert(GovernorHelper.queue(), 'Governor: proposal not successful');
+      await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
     });
 
     it('cancel after queue prevents executing', async function () {
-      await GovernorHelper.propose();
-      await GovernorHelper.waitForSnapshot();
-      await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-      await GovernorHelper.waitForDeadline();
-      await GovernorHelper.queue();
+      await this.helper.propose();
+      await this.helper.waitForSnapshot();
+      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+      await this.helper.waitForDeadline();
+      await this.helper.queue();
 
       expectEvent(
-        await GovernorHelper.cancel(),
+        await this.helper.cancel(),
         'ProposalCanceled',
         { proposalId: this.details.id },
       );
 
       expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-      await expectRevert(GovernorHelper.execute(), 'Governor: proposal not successful');
+      await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
     });
 
     it('cancel on timelock is reflected on governor', async function () {
-      await GovernorHelper.propose();
-      await GovernorHelper.waitForSnapshot();
-      await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-      await GovernorHelper.waitForDeadline();
-      await GovernorHelper.queue();
+      await this.helper.propose();
+      await this.helper.waitForSnapshot();
+      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+      await this.helper.waitForDeadline();
+      await this.helper.queue();
 
       expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
 
@@ -247,7 +246,7 @@ contract('GovernorTimelockControl', function (accounts) {
       });
 
       it('can be executed through governance', async function () {
-        GovernorHelper.setProposal([
+        this.helper.setProposal([
           [ this.mock.address ],
           [ web3.utils.toWei('0') ],
           [
@@ -263,13 +262,13 @@ contract('GovernorTimelockControl', function (accounts) {
         expect(await this.token.balanceOf(this.mock.address), 1);
         expect(await this.token.balanceOf(other), 0);
 
-        await GovernorHelper.propose();
-        await GovernorHelper.waitForSnapshot();
-        await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await GovernorHelper.waitForDeadline();
-        await GovernorHelper.queue();
-        await GovernorHelper.waitForEta();
-        const txExecute = await GovernorHelper.execute();
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.waitForDeadline();
+        await this.helper.queue();
+        await this.helper.waitForEta();
+        const txExecute = await this.helper.execute();
 
         expect(await this.token.balanceOf(this.mock.address), 0);
         expect(await this.token.balanceOf(other), 1);
@@ -322,20 +321,20 @@ contract('GovernorTimelockControl', function (accounts) {
       });
 
       it('can be executed through governance to', async function () {
-        GovernorHelper.setProposal([
+        this.helper.setProposal([
           [ this.mock.address ],
           [ web3.utils.toWei('0') ],
           [ this.mock.contract.methods.updateTimelock(this.newTimelock.address).encodeABI() ],
           '<proposal description>',
         ]);
 
-        await GovernorHelper.propose();
-        await GovernorHelper.waitForSnapshot();
-        await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await GovernorHelper.waitForDeadline();
-        await GovernorHelper.queue();
-        await GovernorHelper.waitForEta();
-        const txExecute = await GovernorHelper.execute();
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.waitForDeadline();
+        await this.helper.queue();
+        await this.helper.waitForEta();
+        const txExecute = await this.helper.execute();
 
         expectEvent(
           txExecute,
@@ -349,20 +348,20 @@ contract('GovernorTimelockControl', function (accounts) {
   });
 
   it('clear queue of pending governor calls', async function () {
-    GovernorHelper.setProposal([
+    this.helper.setProposal([
       [ this.mock.address ],
       [ web3.utils.toWei('0') ],
       [ this.mock.contract.methods.nonGovernanceFunction().encodeABI() ],
       '<proposal description>',
     ]);
 
-    await GovernorHelper.propose();
-    await GovernorHelper.waitForSnapshot();
-    await GovernorHelper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-    await GovernorHelper.waitForDeadline();
-    await GovernorHelper.queue();
-    await GovernorHelper.waitForEta();
-    await GovernorHelper.execute();
+    await this.helper.propose();
+    await this.helper.waitForSnapshot();
+    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+    await this.helper.waitForDeadline();
+    await this.helper.queue();
+    await this.helper.waitForEta();
+    await this.helper.execute();
 
     // This path clears _governanceCall as part of the afterExecute call,
     // but we have not way to check that the cleanup actually happened other
