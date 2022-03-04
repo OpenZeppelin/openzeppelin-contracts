@@ -76,6 +76,9 @@ abstract contract GovernorCountingSimple is Governor {
     function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalVote storage proposalvote = _proposalVotes[proposalId];
 
+        if (proposalvote.againstVotes == 0) {
+            return true;
+        }
         return proposalvote.forVotes > proposalvote.againstVotes;
     }
 
