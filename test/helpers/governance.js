@@ -87,20 +87,40 @@ class GovernorHelper {
     const details = this.setProposal(proposal);
 
     return vote.signature
-      ? vote.signature({ proposalId: details.id, support: vote.support })
-        .then(({ v, r, s }) => this.governor.castVoteBySig(...concatOpts(
+      // if signature, and either params or reason →
+      ? vote.params || vote.reason
+        ? vote.signature({
+          proposalId: details.id,
+          support: vote.support,
+          reason: vote.reason || '',
+          params: vote.params || '',
+        }).then(({ v, r, s }) => this.governor.castVoteWithReasonAndParamsBySig(...concatOpts(
+          [ details.id, vote.support, vote.reason || '', vote.params || '', v, r, s ],
+          opts,
+        )))
+        : vote.signature({
+          proposalId: details.id,
+          support: vote.support,
+        }).then(({ v, r, s }) => this.governor.castVoteBySig(...concatOpts(
           [ details.id, vote.support, v, r, s ],
           opts,
         )))
-      : vote.reason
-        ? this.governor.castVoteWithReason(...concatOpts(
-          [ details.id, vote.support, vote.reason ],
+      : vote.params
+        // otherwize if params
+        ? this.governor.castVoteWithReasonAndParams(...concatOpts(
+          [ details.id, vote.support, vote.reason || '', vote.params ],
           opts,
         ))
-        : this.governor.castVote(...concatOpts(
-          [ details.id, vote.support ],
-          opts,
-        ));
+        : vote.reason
+          // otherwize if reason
+          ? this.governor.castVoteWithReason(...concatOpts(
+            [ details.id, vote.support, vote.reason ],
+            opts,
+          ))
+          : this.governor.castVote(...concatOpts(
+            [ details.id, vote.support ],
+            opts,
+          ));
   }
 
   waitForSnapshot (offset = 0, proposal = undefined) {
