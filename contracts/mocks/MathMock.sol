@@ -20,4 +20,8 @@ contract MathMock {
     function ceilDiv(uint256 a, uint256 b) public pure returns (uint256) {
         return Math.ceilDiv(a, b);
     }
+
+    function sqrt(uint256 a) public pure returns (uint256) {
+        return Math.sqrt(a);
+    }
 }

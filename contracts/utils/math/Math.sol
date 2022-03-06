@@ -40,4 +40,23 @@ library Math {
         // (a + b - 1) / b can overflow on addition, so we distribute.
         return a / b + (a % b == 0 ? 0 : 1);
     }
+
+    /**
+      * @dev Returns the computing square roots.
+     *
+     * Methods of computing square roots
+     * 
+     */
+    function sqrt(uint y) internal pure returns (uint z) {
+        if (y > 3) {
+            z = y;
+            uint x = y / 2 + 1;
+            while (x < z) {
+                z = x;
+                x = (y / x + x) / 2;
+            }
+        } else if (y != 0) {
+            z = 1;
+        }
+    }
 }

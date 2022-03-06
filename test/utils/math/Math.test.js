@@ -85,4 +85,24 @@ contract('Math', function (accounts) {
       expect(await this.math.ceilDiv(MAX_UINT256, b)).to.be.bignumber.equal(MAX_UINT256);
     });
   });
+
+  describe('sqrt', function () {
+    it('Value less than 3', async function () {
+      const a = new BN('0');
+      const b = new BN('1');
+      const c = new BN('2');
+      expect(await this.math.sqrt(a)).to.be.bignumber.equal('0');
+      expect(await this.math.sqrt(b)).to.be.bignumber.equal('1');
+      expect(await this.math.sqrt(c)).to.be.bignumber.equal('1');
+    });
+
+    it('Value greater than 3', async function () {
+      const a = new BN('3');
+      const b = new BN('144');
+      const c = new BN('1000000');
+      expect(await this.math.sqrt(a)).to.be.bignumber.equal('1');
+      expect(await this.math.sqrt(b)).to.be.bignumber.equal('12');
+      expect(await this.math.sqrt(c)).to.be.bignumber.equal('1000');
+    });
+  });
 });
