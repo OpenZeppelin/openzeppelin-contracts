@@ -12,6 +12,7 @@ import "../../utils/Context.sol";
  *
  * This implementation is agnostic to the way tokens are created. This means
  * that a supply mechanism has to be added in a derived contract using {_mint}.
+ * You also need to set the name and symbol of this token.
  * For a generic mechanism see {ERC20PresetMinterPauser}.
  *
  * TIP: For a detailed writeup see our guide
@@ -39,22 +40,17 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     uint256 private _totalSupply;
 
-    string private _name;
-    string private _symbol;
-
     /**
-     * @dev Sets the values for {name} and {symbol}.
+     * @dev Modify the string value to set {name} and {symbol}.
      *
      * The default value of {decimals} is 18. To select a different value for
      * {decimals} you should overload it.
      *
-     * All two of these values are immutable: they can only be set once during
-     * construction.
+     * All two of these values are constant: they can not be changed after initialization.
      */
-    constructor(string memory name_, string memory symbol_) {
-        _name = name_;
-        _symbol = symbol_;
-    }
+
+    string private constant _name = "";
+    string private constant _symbol = "";
 
     /**
      * @dev Returns the name of the token.
