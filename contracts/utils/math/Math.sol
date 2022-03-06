@@ -42,15 +42,15 @@ library Math {
     }
 
     /**
-      * @dev Returns the computing square roots.
+     * @dev Returns the computing square roots.
      *
      * Methods of computing square roots
-     * 
+     *
      */
-    function sqrt(uint y) internal pure returns (uint z) {
+    function sqrt(uint256 y) internal pure returns (uint256 z) {
         if (y > 3) {
             z = y;
-            uint x = y / 2 + 1;
+            uint256 x = y / 2 + 1;
             while (x < z) {
                 z = x;
                 x = (y / x + x) / 2;
