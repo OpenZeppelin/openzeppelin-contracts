@@ -100,9 +100,15 @@ contract('Math', function (accounts) {
       const a = new BN('3');
       const b = new BN('144');
       const c = new BN('1000000');
+      const d = new BN('1000001');
+      const e = new BN('1002000');
+      const f = new BN('1002001');
       expect(await this.math.sqrt(a)).to.be.bignumber.equal('1');
       expect(await this.math.sqrt(b)).to.be.bignumber.equal('12');
       expect(await this.math.sqrt(c)).to.be.bignumber.equal('1000');
+      expect(await this.math.sqrt(d)).to.be.bignumber.equal('1000');
+      expect(await this.math.sqrt(e)).to.be.bignumber.equal('1000');
+      expect(await this.math.sqrt(f)).to.be.bignumber.equal('1001');
     });
   });
 });
