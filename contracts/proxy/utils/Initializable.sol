@@ -78,6 +78,9 @@ abstract contract Initializable {
     }
 
     function _setInitializeStep(uint8 version) private returns (bool) {
+        // If the contract is initializing we ignore whether _initialized is set in order to support multiple
+        // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
+        // of initializers, because in other contexts the contract may have been reentered.
         if (_initializing) {
             require(version == 1 && !Address.isContract(address(this)), "Initializable: contract is already initialized");
             return false;
