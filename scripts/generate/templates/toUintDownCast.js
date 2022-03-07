@@ -1,0 +1,16 @@
+module.exports = length => [
+    `    /**`,
+    `     * @dev Returns the downcasted uint${length} from uint256, reverting on`,
+    `     * overflow (when the input is greater than largest uint${length}).`,
+    `     *`,
+    `     * Counterpart to Solidity's \`uint${length}\` operator.`,
+    `     *`,
+    `     * Requirements:`,
+    `     *`,
+    `     * - input must fit into ${length} bits`,
+    `     */`,
+    `    function toUint${length}(uint256 value) internal pure returns (uint${length}) {`,
+    `        require(value <= type(uint${length}).max, "SafeCast: value doesn't fit in ${length} bits");`,
+    `        return uint${length}(value);`,
+    `    }`,
+].join('\n');
