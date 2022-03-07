@@ -24,7 +24,6 @@ jobs:
           restore-keys: npm-v2-
       - run: npm ci
         if: steps.cache.outputs.cache-hit != 'true'
-      - run: npm run prepare
       - run: npm run lint
       - run: npm run test
         env:
@@ -51,7 +50,6 @@ jobs:
           restore-keys: npm-v2-
       - run: npm ci
         if: steps.cache.outputs.cache-hit != 'true'
-      - run: npm run prepare
       - run: npm run coverage
         env:
           NODE_OPTIONS: --max_old_space_size=4096
@@ -72,9 +70,9 @@ jobs:
           restore-keys: npm-v2-
       - run: npm ci
         if: steps.cache.outputs.cache-hit != 'true'
-      - run: npm run prepare
       - name: Set up Python
         uses: actions/setup-python@v2
+
       - name: Install dependencies
         run: pip3 install slither-analyzer
       - name: Summary of static analysis
