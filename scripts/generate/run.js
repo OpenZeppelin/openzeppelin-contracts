@@ -15,6 +15,7 @@ function genSafeCast (path) {
   // Header
   content.push([
     '// SPDX-License-Identifier: MIT',
+    '',
     'pragma solidity ^0.8.0;',
     '',
     '/**',
@@ -48,6 +49,7 @@ function genSafeCast (path) {
   }
   content.push(toInt(256));
   content.push('}');
+  content.push('');
 
   fs.writeFileSync(path, content.join('\n'));
 }
