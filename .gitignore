@@ -62,6 +62,3 @@ artifacts
 .certora*
 .last_confs
 certora_*
-
-# code generation
-contracts/utils/math/SafeCast.sol
