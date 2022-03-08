@@ -5,7 +5,8 @@ How it works:
     - If there is a non-reverting execution path, we reach the false assertion, and the sanity fails.
     - If all execution paths are reverting, we never call the assertion, and the method will pass this rule vacuously.
 */
-	
+
+
 rule sanity(method f) {
     env e;
     calldataarg arg;
