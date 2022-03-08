@@ -163,7 +163,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         super._mint(account, amount);
         require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
 
-        _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
+        _writeCheckpointAdd(_totalSupplyCheckpoints, amount);           // HARNESS: new version without pointer
     }
 
     /**
@@ -172,7 +172,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     function _burn(address account, uint256 amount) internal virtual override {
         super._burn(account, amount);
 
-        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
+        _writeCheckpointSub(_totalSupplyCheckpoints, amount);           // HARNESS: new version without pointer
     }
 
     /**
@@ -187,7 +187,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     ) internal virtual override {
         super._afterTokenTransfer(from, to, amount);
 
-        _moveVotingPower(delegates(from), delegates(to), amount);
+        _moveVotingPower(delegates(from), delegates(to), amount);       
     }
 
     /**
@@ -212,25 +212,25 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     ) private {
         if (src != dst && amount > 0) {
             if (src != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpointSub(_checkpoints[src], amount);        // HARNESS: new version without pointer
                 emit DelegateVotesChanged(src, oldWeight, newWeight);
             }
 
             if (dst != address(0)) {
-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpointAdd(_checkpoints[dst], amount);        // HARNESS: new version without pointer
                 emit DelegateVotesChanged(dst, oldWeight, newWeight);
             }
         }
     }
 
-    function _writeCheckpoint(
+    // HARNESS: split _writeCheckpoint() to two functions as a workaround for function pointers that cannot be managed by the tool
+    function _writeCheckpointAdd(
         Checkpoint[] storage ckpts,
-        function(uint256, uint256) view returns (uint256) op,
         uint256 delta
     ) private returns (uint256 oldWeight, uint256 newWeight) {
         uint256 pos = ckpts.length;
         oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
-        newWeight = op(oldWeight, delta);
+        newWeight = _add(oldWeight, delta);
 
         if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
             ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
@@ -238,6 +238,39 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
             ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
         }
     }
+
+    function _writeCheckpointSub(
+        Checkpoint[] storage ckpts,
+        uint256 delta
+    ) private returns (uint256 oldWeight, uint256 newWeight) {
+        uint256 pos = ckpts.length;
+        oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
+        newWeight = _subtract(oldWeight, delta);
+
+        if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
+            ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
+        } else {
+            ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
+        }
+    }
+
+    // backup of original function
+    //
+    // function _writeCheckpoint(
+    //     Checkpoint[] storage ckpts,
+    //     function(uint256, uint256) view returns (uint256) op,
+    //     uint256 delta
+    // ) private returns (uint256 oldWeight, uint256 newWeight) {
+    //     uint256 pos = ckpts.length;
+    //     oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
+    //     newWeight = op(oldWeight, delta);
+    //
+    //     if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
+    //         ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
+    //     } else {
+    //         ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
+    //     }
+    // }
 
     function _add(uint256 a, uint256 b) private pure returns (uint256) {
         return a + b;

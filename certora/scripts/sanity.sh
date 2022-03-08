@@ -14,22 +14,22 @@
 # done
 
 # TimelockController
-# certoraRun \
-#     certora/harnesses/TimelockControllerHarness.sol \
-#     --verify TimelockControllerHarness:certora/specs/sanity.spec \
-#     --solc solc8.2 \
-#     --optimistic_loop \
-#     --cloud \
-#     --msg "sanity"
-
-
-# Votes
 certoraRun \
-    certora/harnesses/VotesHarness.sol \
-    --verify VotesHarness:certora/specs/sanity.spec \
+    certora/harnesses/TimelockControllerHarness.sol \
+    --verify TimelockControllerHarness:certora/specs/sanity.spec \
     --solc solc8.2 \
     --optimistic_loop \
     --cloud \
-    --settings -strictDecompiler=false,-assumeUnwindCond \
-    --msg "sanityVotes"
+    --msg "sanity and keccak check"
+
+
+# Votes
+# certoraRun \
+#     certora/harnesses/VotesHarness.sol \
+#     --verify VotesHarness:certora/specs/sanity.spec \
+#     --solc solc8.2 \
+#     --optimistic_loop \
+#     --cloud \
+#     --settings -strictDecompiler=false,-assumeUnwindCond \
+#     --msg "sanityVotes"
 
