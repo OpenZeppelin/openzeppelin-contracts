@@ -48,7 +48,7 @@ abstract contract Initializable {
      * @dev Modifier to protect an initializer function from being invoked twice.
      */
     modifier initializer() {
-        bool isTopLevelCall = _setInitializeStep(1);
+        bool isTopLevelCall = _setInitializeVestion(1);
         _;
         if (isTopLevelCall) {
             _initializing = false;
@@ -61,7 +61,7 @@ abstract contract Initializable {
      * upgrades and that require an initialization step.
      */
     modifier reinitializer(uint8 version) {
-        bool isTopLevelCall = _setInitializeStep(version);
+        bool isTopLevelCall = _setInitializeVestion(version);
         _;
         if (isTopLevelCall) {
             _initializing = false;
@@ -77,7 +77,7 @@ abstract contract Initializable {
         _;
     }
 
-    function _setInitializeStep(uint8 version) private returns (bool) {
+    function _setInitializeVestion(uint8 version) private returns (bool) {
         // If the contract is initializing we ignore whether _initialized is set in order to support multiple
         // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
         // of initializers, because in other contexts the contract may have been reentered.
