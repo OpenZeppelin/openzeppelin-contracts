@@ -16,6 +16,7 @@
 * `Governor`: Adds internal virtual `_getVotes` method that must be implemented; this is a breaking change for existing concrete extensions to `Governor`. To fix this on an existing voting module extension, rename `getVotes` to `_getVotes` and add a `bytes memory` argument. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
 * `Governor`: Adds `params` parameter to internal virtual `_countVote ` method; this is a breaking change for existing concrete extensions to `Governor`. To fix this on an existing counting module extension, add a `bytes memory` argument to `_countVote`. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
 * `Governor`: Does not emit `VoteCast` event when params data is non-empty; instead emits `VoteCastWithParams` event. To fix this on an integration that consumes the `VoteCast` event, also fetch/monitor `VoteCastWithParams` events. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
+* `Votes`: The internal virtual function `_getVotingUnits` was made `view` (which was accidentally missing). Any overrides should now be updated so they are `view` as well.
 
 ## 4.5.0 (2022-02-09)
 
