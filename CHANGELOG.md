@@ -9,6 +9,7 @@
  * `Governor`: improved security of `onlyGovernance` modifier when using an external executor contract (e.g. a timelock) that can operate without necessarily going through the governance protocol. ([#3147](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3147))
  * `ERC20FlashMint`: support infinite allowance when paying back a flash loan. ([#3226](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3226))
  * `Governor`: Add a way to parameterize votes. This can be used to implement voting systems such as fractionalized voting, ERC721 based voting, or any number of other systems. The `params` argument added to `_countVote` method, and included in the newly added `_getVotes` method, can be used by counting and voting modules respectively for such purposes.
+ * `TimelockController`: Add a separate canceller role for the ability to cancel. ([#3165](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3165))
 
 ### Breaking changes
 

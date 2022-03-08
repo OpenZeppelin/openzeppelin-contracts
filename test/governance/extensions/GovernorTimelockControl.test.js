@@ -18,6 +18,11 @@ const CallReceiver = artifacts.require('CallReceiverMock');
 contract('GovernorTimelockControl', function (accounts) {
   const [ admin, voter, other ] = accounts;
 
+  const TIMELOCK_ADMIN_ROLE = web3.utils.soliditySha3('TIMELOCK_ADMIN_ROLE');
+  const PROPOSER_ROLE = web3.utils.soliditySha3('PROPOSER_ROLE');
+  const EXECUTOR_ROLE = web3.utils.soliditySha3('EXECUTOR_ROLE');
+  const CANCELLER_ROLE = web3.utils.soliditySha3('CANCELLER_ROLE');
+
   const name = 'OZ-Governor';
   // const version = '1';
   const tokenName = 'MockToken';
@@ -31,11 +36,20 @@ contract('GovernorTimelockControl', function (accounts) {
     this.timelock = await Timelock.new(3600, [], []);
     this.mock = await Governor.new(name, this.token.address, 4, 16, this.timelock.address, 0);
     this.receiver = await CallReceiver.new();
-    // normal setup: governor and admin are proposers, everyone is executor, timelock is its own admin
-    await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), this.mock.address);
-    await this.timelock.grantRole(await this.timelock.PROPOSER_ROLE(), admin);
-    await this.timelock.grantRole(await this.timelock.EXECUTOR_ROLE(), constants.ZERO_ADDRESS);
-    await this.timelock.revokeRole(await this.timelock.TIMELOCK_ADMIN_ROLE(), deployer);
+
+    this.TIMELOCK_ADMIN_ROLE = await this.timelock.TIMELOCK_ADMIN_ROLE();
+    this.PROPOSER_ROLE = await this.timelock.PROPOSER_ROLE();
+    this.EXECUTOR_ROLE = await this.timelock.EXECUTOR_ROLE();
+    this.CANCELLER_ROLE = await this.timelock.CANCELLER_ROLE();
+
+    // normal setup: governor is proposer, everyone is executor, timelock is its own admin
+    await this.timelock.grantRole(PROPOSER_ROLE, this.mock.address);
+    await this.timelock.grantRole(PROPOSER_ROLE, admin);
+    await this.timelock.grantRole(CANCELLER_ROLE, this.mock.address);
+    await this.timelock.grantRole(CANCELLER_ROLE, admin);
+    await this.timelock.grantRole(EXECUTOR_ROLE, constants.ZERO_ADDRESS);
+    await this.timelock.revokeRole(TIMELOCK_ADMIN_ROLE, deployer);
+
     await this.token.mint(voter, tokenSupply);
     await this.token.delegate(voter, { from: voter });
   });
