@@ -4,5 +4,4 @@ certoraRun \
     --solc solc8.2 \
     --optimistic_loop \
     --cloud \
-    --settings -strictDecompiler=false,-assumeUnwindCond \
     --msg "sanityVotes"
