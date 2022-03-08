@@ -48,11 +48,26 @@ abstract contract IGovernor is IERC165 {
     event ProposalExecuted(uint256 proposalId);
 
     /**
-     * @dev Emitted when a vote is cast.
+     * @dev Emitted when a vote is cast without params.
      *
-     * Note: `support` values should be seen as buckets. There interpretation depends on the voting module used.
+     * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
      */
     event VoteCast(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason);
+
+    /**
+     * @dev Emitted when a vote is cast with params.
+     *
+     * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
+     * `params` are additional encoded parameters. Their intepepretation also depends on the voting module used.
+     */
+    event VoteCastWithParams(
+        address indexed voter,
+        uint256 proposalId,
+        uint8 support,
+        uint256 weight,
+        string reason,
+        bytes params
+    );
 
     /**
      * @notice module:core
@@ -77,6 +92,12 @@ abstract contract IGovernor is IERC165 {
      * - `support=bravo` refers to the vote options 0 = Against, 1 = For, 2 = Abstain, as in `GovernorBravo`.
      * - `quorum=bravo` means that only For votes are counted towards quorum.
      * - `quorum=for,abstain` means that both For and Abstain votes are counted towards quorum.
+     *
+     * If a counting module makes use of encoded `params`, it should  include this under a `params` key with a unique
+     * name that describes the behavior. For example:
+     *
+     * - `params=fractional` might refer to a scheme where votes are divided fractionally between for/against/abstain.
+     * - `params=erc721` might refer to a scheme where specific NFTs are delegated to vote.
      *
      * NOTE: The string can be decoded by the standard
      * https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams[`URLSearchParams`]
@@ -152,6 +173,16 @@ abstract contract IGovernor is IERC165 {
     function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256);
 
     /**
+     * @notice module:reputation
+     * @dev Voting power of an `account` at a specific `blockNumber` given additional encoded parameters.
+     */
+    function getVotesWithParams(
+        address account,
+        uint256 blockNumber,
+        bytes memory params
+    ) public view virtual returns (uint256);
+
+    /**
      * @notice module:voting
      * @dev Returns weither `account` has cast a vote on `proposalId`.
      */
@@ -204,13 +235,40 @@ abstract contract IGovernor is IERC165 {
     ) public virtual returns (uint256 balance);
 
     /**
-     * @dev Cast a vote using the user cryptographic signature.
+     * @dev Cast a vote with a reason and additional encoded parameters
+     *
+     * Emits a {VoteCast} event.
+     */
+    function castVoteWithReasonAndParams(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason,
+        bytes memory params
+    ) public virtual returns (uint256 balance);
+
+    /**
+     * @dev Cast a vote using the user's cryptographic signature.
      *
      * Emits a {VoteCast} event.
      */
     function castVoteBySig(
         uint256 proposalId,
         uint8 support,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual returns (uint256 balance);
+
+    /**
+     * @dev Cast a vote with a reason and additional encoded parameters using the user's cryptographic signature.
+     *
+     * Emits a {VoteCast} event.
+     */
+    function castVoteWithReasonAndParamsBySig(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason,
+        bytes memory params,
         uint8 v,
         bytes32 r,
         bytes32 s
