@@ -1,7 +1,5 @@
 import "GovernorBase.spec"
 
-using ERC20VotesHarness as erc20votes
-
 methods {
     ghost_sum_vote_power_by_id(uint256) returns uint256 envfree
 
@@ -10,8 +8,6 @@ methods {
 
     quorumNumerator() returns uint256
     _executor() returns address
-
-    erc20votes._getPastVotes(address, uint256) returns uint256
 
     getExecutor() returns address
 
