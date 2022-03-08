@@ -28,14 +28,4 @@ contract GovernorCompMock is GovernorVotesComp, GovernorCountingSimple {
     ) public returns (uint256 proposalId) {
         return _cancel(targets, values, calldatas, salt);
     }
-
-    function getVotes(address account, uint256 blockNumber)
-        public
-        view
-        virtual
-        override(IGovernor, GovernorVotesComp)
-        returns (uint256)
-    {
-        return super.getVotes(account, blockNumber);
-    }
 }

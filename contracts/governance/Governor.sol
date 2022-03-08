@@ -19,7 +19,7 @@ import "./IGovernor.sol";
  * This contract is abstract and requires several function to be implemented in various modules:
  *
  * - A counting module must implement {quorum}, {_quorumReached}, {_voteSucceeded} and {_countVote}
- * - A voting module must implement {getVotes}
+ * - A voting module must implement {_getVotes}
  * - Additionanly, the {votingPeriod} must also be implemented
  *
  * _Available since v4.3._
@@ -30,6 +30,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     using Timers for Timers.BlockNumber;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
+    bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
+        keccak256("ExtendedBallot(uint256 proposalId,uint8 support,string reason,bytes params)");
 
     struct ProposalCore {
         Timers.BlockNumber voteStart;
@@ -86,7 +88,16 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
-        return interfaceId == type(IGovernor).interfaceId || super.supportsInterface(interfaceId);
+        // In addition to the current interfaceId, also support previous version of the interfaceId that did not
+        // include the castVoteWithReasonAndParams() function as standard
+        return
+            interfaceId ==
+            (type(IGovernor).interfaceId ^
+                this.castVoteWithReasonAndParams.selector ^
+                this.castVoteWithReasonAndParamsBySig.selector ^
+                this.getVotesWithParams.selector) ||
+            interfaceId == type(IGovernor).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     /**
@@ -194,6 +205,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
 
     /**
+     * @dev Get the voting weight of `account` at a specific `blockNumber`, for a vote as described by `params`.
+     */
+    function _getVotes(
+        address account,
+        uint256 blockNumber,
+        bytes memory params
+    ) internal view virtual returns (uint256);
+
+    /**
      * @dev Register a vote with a given support and voting weight.
      *
      * Note: Support is generic and can represent various things depending on the voting system used.
@@ -202,8 +222,19 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint256 proposalId,
         address account,
         uint8 support,
-        uint256 weight
+        uint256 weight,
+        bytes memory params
     ) internal virtual;
+
+    /**
+     * @dev Default additional encoded parameters used by castVote methods that don't include them
+     *
+     * Note: Should be overriden by specific implementations to use an appropriate value, the
+     * meaning of the additional params, in the context of that implementation
+     */
+    function _defaultParams() internal view virtual returns (bytes memory) {
+        return "";
+    }
 
     /**
      * @dev See {IGovernor-propose}.
@@ -356,6 +387,24 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
+     * @dev See {IGovernor-getVotes}.
+     */
+    function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
+        return _getVotes(account, blockNumber, _defaultParams());
+    }
+
+    /**
+     * @dev See {IGovernor-getVotesWithParams}.
+     */
+    function getVotesWithParams(
+        address account,
+        uint256 blockNumber,
+        bytes memory params
+    ) public view virtual override returns (uint256) {
+        return _getVotes(account, blockNumber, params);
+    }
+
+    /**
      * @dev See {IGovernor-castVote}.
      */
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
@@ -373,6 +422,19 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     ) public virtual override returns (uint256) {
         address voter = _msgSender();
         return _castVote(proposalId, voter, support, reason);
+    }
+
+    /**
+     * @dev See {IGovernor-castVoteWithReasonAndParams}.
+     */
+    function castVoteWithReasonAndParams(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason,
+        bytes memory params
+    ) public virtual override returns (uint256) {
+        address voter = _msgSender();
+        return _castVote(proposalId, voter, support, reason, params);
     }
 
     /**
@@ -395,8 +457,40 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
+     * @dev See {IGovernor-castVoteWithReasonAndParamsBySig}.
+     */
+    function castVoteWithReasonAndParamsBySig(
+        uint256 proposalId,
+        uint8 support,
+        string calldata reason,
+        bytes memory params,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual override returns (uint256) {
+        address voter = ECDSA.recover(
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        EXTENDED_BALLOT_TYPEHASH,
+                        proposalId,
+                        support,
+                        keccak256(bytes(reason)),
+                        keccak256(params)
+                    )
+                )
+            ),
+            v,
+            r,
+            s
+        );
+
+        return _castVote(proposalId, voter, support, reason, params);
+    }
+
+    /**
      * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
-     * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function.
+     * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function. Uses the _defaultParams().
      *
      * Emits a {IGovernor-VoteCast} event.
      */
@@ -406,13 +500,33 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint8 support,
         string memory reason
     ) internal virtual returns (uint256) {
+        return _castVote(proposalId, account, support, reason, _defaultParams());
+    }
+
+    /**
+     * @dev Internal vote casting mechanism: Check that the vote is pending, that it has not been cast yet, retrieve
+     * voting weight using {IGovernor-getVotes} and call the {_countVote} internal function.
+     *
+     * Emits a {IGovernor-VoteCast} event.
+     */
+    function _castVote(
+        uint256 proposalId,
+        address account,
+        uint8 support,
+        string memory reason,
+        bytes memory params
+    ) internal virtual returns (uint256) {
         ProposalCore storage proposal = _proposals[proposalId];
         require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
 
-        uint256 weight = getVotes(account, proposal.voteStart.getDeadline());
-        _countVote(proposalId, account, support, weight);
+        uint256 weight = _getVotes(account, proposal.voteStart.getDeadline(), params);
+        _countVote(proposalId, account, support, weight, params);
 
-        emit VoteCast(account, proposalId, support, weight, reason);
+        if (params.length == 0) {
+            emit VoteCast(account, proposalId, support, weight, reason);
+        } else {
+            emit VoteCastWithParams(account, proposalId, support, weight, reason, params);
+        }
 
         return weight;
     }
