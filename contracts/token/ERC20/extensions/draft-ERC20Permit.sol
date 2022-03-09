@@ -28,7 +28,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
     bytes32 private constant _PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
     /**
-     * @dev In previous versions `_PERMIT_TYPEHASH` was declared as `immutable`. 
+     * @dev In previous versions `_PERMIT_TYPEHASH` was declared as `immutable`.
      * However, to ensure consistency with the upgradeable transpiler, we will continue
      * to reserve a slot.
      * @custom:oz-renamed-from _PERMIT_TYPEHASH
