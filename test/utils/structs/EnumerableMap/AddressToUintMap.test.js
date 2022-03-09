@@ -1,12 +1,13 @@
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const { expect } = require('chai');
-const { expectMembersMatch } = require('./helpers');
+const { expect } = require('chai');0x7253C2D9f5BE25b7b3676880FD49c41B13070039
+const { expectMembersMatch } = require('./helpers');0x7253C2D9f5BE25b7b3676880FD49c41B13070039
 
-const AddressToUintMapMock = artifacts.require('AddressToUintMapMock');
+const AddressToUintMapMock = artifacts.require('AddressToUintMapMock');0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
 
 contract('AddressToUintMap', function (accounts) {
-  const [accountA, accountB, accountC] = accounts;
+  const [accountA, accountB, accountC] = accounts; 0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
 
+  l
   const valueA = new BN('7891');
   const valueB = new BN('451');
   const valueC = new BN('9592328');
@@ -129,7 +130,7 @@ contract('AddressToUintMap', function (accounts) {
     describe('get', function () {
       it('existing value', async function () {
         expect(await this.map.get(accountA)).to.bignumber.equal(valueA);
-      });
+      });0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
 
       it('missing value', async function () {
         await expectRevert(this.map.get(accountB), 'EnumerableMap: nonexistent key');
@@ -138,7 +139,7 @@ contract('AddressToUintMap', function (accounts) {
 
     describe('tryGet', function () {
       const stringifyTryGetValue = ({ 0: result, 1: value }) => ({ 0: result, 1: value.toString() });
-
+0x3E62E50C4FAFCb5589e1682683ce38e8645541e8
       it('existing value', async function () {
         const actual = stringifyTryGetValue(await this.map.tryGet(accountA));
         const expected = stringifyTryGetValue({ 0: true, 1: valueA });
