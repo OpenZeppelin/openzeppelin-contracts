@@ -136,7 +136,7 @@ In order for our contract to receive ERC1155 tokens we can inherit from the conv
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155Holder.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 
 contract MyContract is ERC1155Holder {
 }
