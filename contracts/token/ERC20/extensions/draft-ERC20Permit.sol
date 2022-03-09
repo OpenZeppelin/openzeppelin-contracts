@@ -33,6 +33,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
      * to reserve a slot.
      * @custom:oz-renamed-from _PERMIT_TYPEHASH
      */
+    // solhint-disable-next-line var-name-mixedcase
     bytes32 private _PERMIT_TYPEHASH_DEPRECATED_SLOT;
 
     /**
