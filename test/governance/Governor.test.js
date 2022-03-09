@@ -70,6 +70,9 @@ contract('Governor', function (accounts) {
 
   it('nominal workflow', async function () {
     // Before
+    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(false);
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(value);
     expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
 

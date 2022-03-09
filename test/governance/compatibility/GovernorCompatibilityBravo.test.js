@@ -79,6 +79,9 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
   it('nominal workflow', async function () {
     // Before
+    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(false);
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
     expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(value);
     expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
@@ -96,6 +99,9 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     const txExecute = await this.helper.execute();
 
     // After
+    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(true);
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
     expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal('0');
     expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(value);
@@ -219,6 +225,17 @@ contract('GovernorCompatibilityBravo', function (accounts) {
         await expectRevert(
           this.helper.propose({ from: other }),
           'GovernorCompatibilityBravo: proposer votes below proposal threshold',
+        );
+      });
+    });
+
+    describe('on vote', function () {
+      it('if vote type is invalide', async function () {
+        await this.helper.propose({ from: proposer });
+        await this.helper.waitForSnapshot();
+        await expectRevert(
+          this.helper.vote({ support: 5 }, { from: voter1 }),
+          'GovernorCompatibilityBravo: invalid vote type',
         );
       });
     });
