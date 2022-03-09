@@ -101,7 +101,7 @@ Want to keep track of some numbers that increment by 1 every time you want anoth
 
 === Base64
 
-xref:api:utils.adoc#Base64[`Base64`] util allows you to transform `bytes32` data into its Base64 `string` representation. 
+xref:api:utils.adoc#Base64[`Base64`] util allows you to transform `bytes32` data into its Base64 `string` representation.
 
 This is specially useful to build URL-safe tokenURIs for both xref:api:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-[`ERC721`] or xref:api:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`ERC1155`]. This library provides a clever way to serve URL-safe https://developer.mozilla.org/docs/Web/HTTP/Basics_of_HTTP/Data_URIs/[Data URI] compliant strings to serve on-chain data structures.
 
@@ -120,7 +120,7 @@ contract My721Token is ERC721 {
     using Strings for uint256;
 
     constructor() ERC721("My721Token", "MTK") {}
-    
+
     ...
 
     function tokenURI(uint256 tokenId)
@@ -138,7 +138,7 @@ contract My721Token is ERC721 {
 
         return string(
             abi.encodePacked(
-                "data:application/json;base64,", 
+                "data:application/json;base64,",
                 Base64.encode(dataURI)
             )
         );
@@ -183,4 +183,29 @@ await instance.multicall([
     instance.contract.methods.foo().encodeABI(),
     instance.contract.methods.bar().encodeABI()
 ]);
+----
+
+=== Datetime
+
+xref:api:utils.adoc#Datetime[`Datetime`] util allows you to convert human readable dates and times into unix time.
+
+Consider this example demonstrating datetime:
+[source, solidity]
+----
+// contracts/Widget.sol
+// SPDX-License-Identifier: MIT
+
+import "@openzeppelin/contracts/utils/Datetime.sol";
+
+contract Widget {
+    int256 _birthday;
+
+    function setBirthday(
+        int32 _year,
+        uint8 _month,
+        uint8 _day
+    ) public {
+        _birthday = Datetime.date(_year, _month, _day);
+    }
+}
 ----
