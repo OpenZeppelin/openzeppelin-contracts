@@ -293,7 +293,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstAmount, '0x', {
                 from: proxy,
               }),
-              'ERC1155: caller is not owner nor approved',
+              'ERC1155: caller is not token owner nor approved',
             );
           });
         });

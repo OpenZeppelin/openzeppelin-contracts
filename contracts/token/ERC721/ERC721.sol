@@ -115,7 +115,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         require(
             _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
-            "ERC721: approve caller is not owner nor approved for all"
+            "ERC721: approve caller is not token owner nor approved for all"
         );
 
         _approve(to, tokenId);
