@@ -192,7 +192,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           it('reverts', async function () {
             await expectRevert(
               transferFunction.call(this, owner, other, tokenId, { from: other }),
-              'ERC721: transfer caller is not owner nor approved',
+              'ERC721: caller is not token owner nor approved',
             );
           });
         });
