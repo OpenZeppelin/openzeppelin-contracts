@@ -11,6 +11,26 @@ import "../../utils/Address.sol";
  * external initializer function, usually called `initialize`. It then becomes necessary to protect this initializer
  * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.
  *
+ * The initialization functions use a version number. Once a version number is used, it is consumed and cannot be
+ * reused. This mechanism prevents re-execution of each "step" but allows the creation of new initialization steps in
+ * case an upgrade adds a module that needs to be initialized.
+ *
+ * For example:
+ *
+ * [.hljs-theme-light.nopadding]
+ * ```
+ * contract MyToken is ERC20Upgradeable {
+ *     function initialize() initializer public {
+ *         __ERC20_init("MyToken", "MTK");
+ *     }
+ * }
+ * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {
+ *     function initializeV2() reinitializer(2) public {
+ *         __ERC20Permit_init("MyToken");
+ *     }
+ * }
+ * ```
+ *
  * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as
  * possible by providing the encoded function call as the `_data` argument to {ERC1967Proxy-constructor}.
  *
@@ -22,13 +42,15 @@ import "../../utils/Address.sol";
  * Avoid leaving a contract uninitialized.
  *
  * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation
- * contract, which may impact the proxy. To initialize the implementation contract, you can either invoke the
- * initializer manually, or you can include a constructor to automatically mark it as initialized when it is deployed:
+ * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke
+ * the {_preventInitialize} function in the constructor to automatically lock it when it is deployed:
  *
  * [.hljs-theme-light.nopadding]
  * ```
  * /// @custom:oz-upgrades-unsafe-allow constructor
- * constructor() initializer {}
+ * constructor() {
+ *     _preventInitialize();
+ * }
  * ```
  * ====
  */
@@ -48,7 +70,7 @@ abstract contract Initializable {
      * @dev Modifier to protect an initializer function from being invoked twice.
      */
     modifier initializer() {
-        bool isTopLevelCall = _setInitializeVestion(1);
+        bool isTopLevelCall = _setInitializedVersion(1);
         _;
         if (isTopLevelCall) {
             _initializing = false;
@@ -61,7 +83,7 @@ abstract contract Initializable {
      * upgrades and that require an initialization step.
      */
     modifier reinitializer(uint8 version) {
-        bool isTopLevelCall = _setInitializeVestion(version);
+        bool isTopLevelCall = _setInitializedVersion(version);
         _;
         if (isTopLevelCall) {
             _initializing = false;
@@ -77,7 +99,18 @@ abstract contract Initializable {
         _;
     }
 
-    function _setInitializeVestion(uint8 version) private returns (bool) {
+    /**
+     * @dev Locks the contract, preventing any futur re-initialization. This cannot be part of an initializer call.
+     * Calling this in the constructor of an contract will prevent any direct initialization & re-initialization.
+     * It is recommended to use that to lock "implementation" contract that are designed to be called through proxies.
+     */
+    function _preventInitialize() internal virtual {
+        if (_setInitializedVersion(type(uint8).max)) {
+            _initializing = false;
+        }
+    }
+
+    function _setInitializedVersion(uint8 version) private returns (bool) {
         // If the contract is initializing we ignore whether _initialized is set in order to support multiple
         // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
         // of initializers, because in other contexts the contract may have been reentered.
