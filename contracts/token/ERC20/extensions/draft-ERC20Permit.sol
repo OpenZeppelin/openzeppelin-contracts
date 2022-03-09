@@ -18,6 +18,8 @@ import "../../../utils/Counters.sol";
  * need to send a transaction, and thus is not required to hold Ether at all.
  *
  * _Available since v3.4._
+ *
+ * @custom:storage-size 51
  */
 abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
     using Counters for Counters.Counter;
