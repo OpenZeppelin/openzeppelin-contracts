@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../ERC20.sol";
 import "../utils/SafeERC20.sol";
-import "../../../interfaces/draft-IERC4626.sol";
+import "../../../interfaces/IERC4626.sol";
 
 abstract contract ERC4626 is ERC20, IERC4626 {
     IERC20Metadata private immutable _asset;
@@ -23,20 +23,26 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return _asset.balanceOf(address(this));
     }
 
-    /** @dev See {IERC4262-convertToShares} */
+    /**
+     * @dev See {IERC4262-convertToShares}
+     *
+     * Will revert if asserts > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
+     * would represent an infinite amout of shares.
+     */
     function convertToShares(uint256 assets) public view virtual override returns (uint256 shares) {
+        uint256 supply = totalSupply();
+
         return
-            totalSupply() == 0 ? (assets * (10**decimals())) / (10**_asset.decimals()) : totalAssets() == 0
-                ? type(uint256).max
-                : (assets * totalSupply()) / totalAssets();
+            (assets == 0 || supply == 0)
+                ? (assets * 10**decimals()) / 10**_asset.decimals()
+                : (assets * supply) / totalAssets();
     }
 
     /** @dev See {IERC4262-convertToAssets} */
     function convertToAssets(uint256 shares) public view virtual override returns (uint256 assets) {
-        return
-            totalSupply() == 0
-                ? (shares * (10**_asset.decimals())) / (10**decimals())
-                : (shares * totalAssets()) / totalSupply();
+        uint256 supply = totalSupply();
+
+        return (supply == 0) ? (shares * 10**_asset.decimals()) / 10**decimals() : (shares * totalAssets()) / supply;
     }
 
     /** @dev See {IERC4262-maxDeposit} */
@@ -61,22 +67,24 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4262-previewDeposit} */
     function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
-        return convertToShares(assets); // TODO: apply fees?
+        return convertToShares(assets);
     }
 
     /** @dev See {IERC4262-previewMint} */
     function previewMint(uint256 shares) public view virtual override returns (uint256) {
-        return convertToAssets(shares); // TODO: apply fees?
+        uint256 assets = convertToAssets(shares);
+        return assets + (convertToShares(assets) < shares ? 1 : 0);
     }
 
     /** @dev See {IERC4262-previewWithdraw} */
     function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
-        return convertToShares(assets); // TODO: apply fees?
+        uint256 shares = convertToShares(assets);
+        return shares + (convertToAssets(shares) < assets ? 1 : 0);
     }
 
     /** @dev See {IERC4262-previewRedeem} */
     function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
-        return convertToAssets(shares); // TODO: apply fees?
+        return convertToAssets(shares);
     }
 
     /** @dev See {IERC4262-deposit} */

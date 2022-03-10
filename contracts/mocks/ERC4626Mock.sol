@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "../token/ERC20/extensions/draft-ERC4626.sol";
+import "../token/ERC20/extensions/ERC4626.sol";
 
 // mock class using ERC20
 contract ERC4626Mock is ERC4626 {
