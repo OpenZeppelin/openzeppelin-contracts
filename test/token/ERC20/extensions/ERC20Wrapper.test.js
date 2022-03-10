@@ -40,9 +40,9 @@ contract('ERC20', function (accounts) {
   });
 
   it('decimals default back to 18 if token has no metadata', async function () {
-    this.nodecimals = await NotAnERC20.new();
-    this.othertoken = await ERC20WrapperMock.new(this.nodecimals.address, `Wrapped ${name}`, `W${symbol}`);
-    expect(await this.othertoken.decimals()).to.be.bignumber.equal('18');
+    const noDecimals = await NotAnERC20.new();
+    const otherToken = await ERC20WrapperMock.new(noDecimals.address, `Wrapped ${name}`, `W${symbol}`);
+    expect(await otherToken.decimals()).to.be.bignumber.equal('18');
   });
 
   it('has underlying', async function () {
