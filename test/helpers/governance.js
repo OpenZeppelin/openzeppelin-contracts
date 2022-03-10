@@ -160,20 +160,15 @@ class GovernorHelper {
       ({ targets, values, signatures = [], data } = actions);
     }
 
-    const proposal = {
-      targets,
-      values,
-      signatures,
-      data,
-      description,
-    };
+    const fulldata = zip(signatures.map(s => s && web3.eth.abi.encodeFunctionSignature(s)), data).map(hexs => concatHex(...hexs));
+    const descriptionHash = web3.utils.keccak256(description);
 
     // condensed version for queing end executing
     const shortProposal = [
       targets,
       values,
-      zip(signatures.map(s => s && web3.eth.abi.encodeFunctionSignature(s)), data).map(hexs => concatHex(...hexs)),
-      web3.utils.keccak256(description),
+      fulldata,
+      descriptionHash,
     ];
 
     // full version for proposing
@@ -193,7 +188,13 @@ class GovernorHelper {
 
     this.currentProposal = {
       id,
-      proposal,
+      targets,
+      values,
+      signatures,
+      data,
+      fulldata,
+      description,
+      descriptionHash,
       shortProposal,
       fullProposal,
       useCompatibilityInterface,

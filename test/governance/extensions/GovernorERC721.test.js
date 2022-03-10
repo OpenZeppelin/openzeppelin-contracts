@@ -41,7 +41,7 @@ contract('GovernorERC721Mock', function (accounts) {
     await this.helper.delegate({ token: this.token, to: voter4, tokenId: NFT4 }, { from: owner });
 
     // default proposal
-    this.details = this.helper.setProposal([
+    this.proposal = this.helper.setProposal([
       {
         target: this.receiver.address,
         value,
@@ -89,13 +89,13 @@ contract('GovernorERC721Mock', function (accounts) {
     await this.helper.waitForDeadline();
     await this.helper.execute();
 
-    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
-    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(true);
-    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(true);
-    expect(await this.mock.hasVoted(this.details.id, voter3)).to.be.equal(true);
-    expect(await this.mock.hasVoted(this.details.id, voter4)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, voter3)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, voter4)).to.be.equal(true);
 
-    await this.mock.proposalVotes(this.details.id).then(results => {
+    await this.mock.proposalVotes(this.proposal.id).then(results => {
       expect(results.forVotes).to.be.bignumber.equal('3');
       expect(results.againstVotes).to.be.bignumber.equal('1');
       expect(results.abstainVotes).to.be.bignumber.equal('1');

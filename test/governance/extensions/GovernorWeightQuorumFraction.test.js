@@ -38,7 +38,7 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
     await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.details = this.helper.setProposal([
+    this.proposal = this.helper.setProposal([
       {
         target: this.receiver.address,
         value,

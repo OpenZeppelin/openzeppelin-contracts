@@ -58,7 +58,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.details = this.helper.setProposal([
+    this.proposal = this.helper.setProposal([
       {
         target: this.receiver.address,
         value,
@@ -79,9 +79,9 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
   it('nominal workflow', async function () {
     // Before
-    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
-    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(false);
-    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(false);
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
     expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(value);
     expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
@@ -99,44 +99,44 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     const txExecute = await this.helper.execute();
 
     // After
-    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
-    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(true);
-    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(true);
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
     expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal('0');
     expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(value);
 
-    const proposal = await this.mock.proposals(this.details.id);
-    expect(proposal.id).to.be.bignumber.equal(this.details.id);
+    const proposal = await this.mock.proposals(this.proposal.id);
+    expect(proposal.id).to.be.bignumber.equal(this.proposal.id);
     expect(proposal.proposer).to.be.equal(proposer);
-    expect(proposal.eta).to.be.bignumber.equal(await this.mock.proposalEta(this.details.id));
-    expect(proposal.startBlock).to.be.bignumber.equal(await this.mock.proposalSnapshot(this.details.id));
-    expect(proposal.endBlock).to.be.bignumber.equal(await this.mock.proposalDeadline(this.details.id));
+    expect(proposal.eta).to.be.bignumber.equal(await this.mock.proposalEta(this.proposal.id));
+    expect(proposal.startBlock).to.be.bignumber.equal(await this.mock.proposalSnapshot(this.proposal.id));
+    expect(proposal.endBlock).to.be.bignumber.equal(await this.mock.proposalDeadline(this.proposal.id));
     expect(proposal.canceled).to.be.equal(false);
     expect(proposal.executed).to.be.equal(true);
 
-    const action = await this.mock.getActions(this.details.id);
-    expect(action.targets).to.be.deep.equal(this.details.proposal.targets);
-    // expect(action.values).to.be.deep.equal(this.details.proposal.values);
-    expect(action.signatures).to.be.deep.equal(this.details.proposal.signatures);
-    expect(action.calldatas).to.be.deep.equal(this.details.proposal.data);
+    const action = await this.mock.getActions(this.proposal.id);
+    expect(action.targets).to.be.deep.equal(this.proposal.targets);
+    // expect(action.values).to.be.deep.equal(this.proposal.values);
+    expect(action.signatures).to.be.deep.equal(this.proposal.signatures);
+    expect(action.calldatas).to.be.deep.equal(this.proposal.data);
 
-    const voteReceipt1 = await this.mock.getReceipt(this.details.id, voter1);
+    const voteReceipt1 = await this.mock.getReceipt(this.proposal.id, voter1);
     expect(voteReceipt1.hasVoted).to.be.equal(true);
     expect(voteReceipt1.support).to.be.bignumber.equal(Enums.VoteType.For);
     expect(voteReceipt1.votes).to.be.bignumber.equal(web3.utils.toWei('10'));
 
-    const voteReceipt2 = await this.mock.getReceipt(this.details.id, voter2);
+    const voteReceipt2 = await this.mock.getReceipt(this.proposal.id, voter2);
     expect(voteReceipt2.hasVoted).to.be.equal(true);
     expect(voteReceipt2.support).to.be.bignumber.equal(Enums.VoteType.For);
     expect(voteReceipt2.votes).to.be.bignumber.equal(web3.utils.toWei('7'));
 
-    const voteReceipt3 = await this.mock.getReceipt(this.details.id, voter3);
+    const voteReceipt3 = await this.mock.getReceipt(this.proposal.id, voter3);
     expect(voteReceipt3.hasVoted).to.be.equal(true);
     expect(voteReceipt3.support).to.be.bignumber.equal(Enums.VoteType.Against);
     expect(voteReceipt3.votes).to.be.bignumber.equal(web3.utils.toWei('5'));
 
-    const voteReceipt4 = await this.mock.getReceipt(this.details.id, voter4);
+    const voteReceipt4 = await this.mock.getReceipt(this.proposal.id, voter4);
     expect(voteReceipt4.hasVoted).to.be.equal(true);
     expect(voteReceipt4.support).to.be.bignumber.equal(Enums.VoteType.Abstain);
     expect(voteReceipt4.votes).to.be.bignumber.equal(web3.utils.toWei('2'));
@@ -145,21 +145,21 @@ contract('GovernorCompatibilityBravo', function (accounts) {
       txPropose,
       'ProposalCreated',
       {
-        proposalId: this.details.id,
+        proposalId: this.proposal.id,
         proposer,
-        targets: this.details.proposal.targets
-        // values: this.details.proposal.values,
-        signatures: this.details.proposal.signatures,
-        calldatas: this.details.proposal.data,
+        targets: this.proposal.targets,
+        // values: this.proposal.values,
+        signatures: this.proposal.signatures.map(() => ''), // this event doesn't contain the proposal detail
+        calldatas: this.proposal.fulldata,
         startBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay),
         endBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay).add(votingPeriod),
-        description: this.details.proposal.description,
+        description: this.proposal.description,
       },
     );
     expectEvent(
       txExecute,
       'ProposalExecuted',
-      { proposalId: this.details.id },
+      { proposalId: this.proposal.id },
     );
     await expectEvent.inTransaction(
       txExecute.tx,

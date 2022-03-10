@@ -50,7 +50,7 @@ contract('GovernorWithParams', function (accounts) {
     await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.details = this.helper.setProposal([
+    this.proposal = this.helper.setProposal([
       {
         target: this.receiver.address,
         value,
@@ -76,9 +76,9 @@ contract('GovernorWithParams', function (accounts) {
     await this.helper.waitForDeadline();
     await this.helper.execute();
 
-    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
-    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(true);
-    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(true);
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
     expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(value);
   });
@@ -98,14 +98,14 @@ contract('GovernorWithParams', function (accounts) {
     expectEvent(tx, 'CountParams', { ...rawParams });
     expectEvent(tx, 'VoteCastWithParams', {
       voter: voter2,
-      proposalId: this.details.id,
+      proposalId: this.proposal.id,
       support: Enums.VoteType.For,
       weight,
       reason: 'no particular reason',
       params: encodedParams,
     });
 
-    const votes = await this.mock.proposalVotes(this.details.id);
+    const votes = await this.mock.proposalVotes(this.proposal.id);
     expect(votes.forVotes).to.be.bignumber.equal(weight);
   });
 
@@ -153,14 +153,14 @@ contract('GovernorWithParams', function (accounts) {
     expectEvent(tx, 'CountParams', { ...rawParams });
     expectEvent(tx, 'VoteCastWithParams', {
       voter: voterBySigAddress,
-      proposalId: this.details.id,
+      proposalId: this.proposal.id,
       support: Enums.VoteType.For,
       weight,
       reason: 'no particular reason',
       params: encodedParams,
     });
 
-    const votes = await this.mock.proposalVotes(this.details.id);
+    const votes = await this.mock.proposalVotes(this.proposal.id);
     expect(votes.forVotes).to.be.bignumber.equal(weight);
   });
 });

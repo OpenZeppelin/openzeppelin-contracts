@@ -60,7 +60,7 @@ contract('GovernorTimelockCompound', function (accounts) {
     await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.details = this.helper.setProposal([
+    this.proposal = this.helper.setProposal([
       {
         target: this.receiver.address,
         value,
@@ -100,14 +100,14 @@ contract('GovernorTimelockCompound', function (accounts) {
     await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
     await this.helper.waitForDeadline();
     const txQueue = await this.helper.queue();
-    const eta = await this.mock.proposalEta(this.details.id);
+    const eta = await this.mock.proposalEta(this.proposal.id);
     await this.helper.waitForEta();
     const txExecute = await this.helper.execute();
 
-    expectEvent(txQueue, 'ProposalQueued', { proposalId: this.details.id });
+    expectEvent(txQueue, 'ProposalQueued', { proposalId: this.proposal.id });
     await expectEvent.inTransaction(txQueue.tx, this.timelock, 'QueueTransaction', { eta });
 
-    expectEvent(txExecute, 'ProposalExecuted', { proposalId: this.details.id });
+    expectEvent(txExecute, 'ProposalExecuted', { proposalId: this.proposal.id });
     await expectEvent.inTransaction(txExecute.tx, this.timelock, 'ExecuteTransaction', { eta });
     await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
   });
@@ -152,7 +152,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
         await this.helper.waitForDeadline(+1);
 
-        expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
+        expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
         await expectRevert(
           this.helper.execute(),
@@ -167,7 +167,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         await this.helper.waitForDeadline();
         await this.helper.queue();
 
-        expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
+        expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
 
         await expectRevert(
           this.helper.execute(),
@@ -183,7 +183,7 @@ contract('GovernorTimelockCompound', function (accounts) {
         await this.helper.queue();
         await this.helper.waitForEta(+30 * 86400);
 
-        expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Expired);
+        expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Expired);
 
         await expectRevert(
           this.helper.execute(),
@@ -217,10 +217,10 @@ contract('GovernorTimelockCompound', function (accounts) {
       expectEvent(
         await this.helper.cancel(),
         'ProposalCanceled',
-        { proposalId: this.details.id },
+        { proposalId: this.proposal.id },
       );
 
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
       await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
     });
 
@@ -234,10 +234,10 @@ contract('GovernorTimelockCompound', function (accounts) {
       expectEvent(
         await this.helper.cancel(),
         'ProposalCanceled',
-        { proposalId: this.details.id },
+        { proposalId: this.proposal.id },
       );
 
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
       await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
     });
   });

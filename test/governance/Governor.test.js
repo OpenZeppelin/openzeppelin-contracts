@@ -44,7 +44,7 @@ contract('Governor', function (accounts) {
     await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
-    this.details = this.helper.setProposal([
+    this.proposal = this.helper.setProposal([
       {
         target: this.receiver.address,
         data: this.receiver.contract.methods.mockFunction().encodeABI(),
@@ -70,9 +70,9 @@ contract('Governor', function (accounts) {
 
   it('nominal workflow', async function () {
     // Before
-    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
-    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(false);
-    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(false);
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(value);
     expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal('0');
 
@@ -83,15 +83,15 @@ contract('Governor', function (accounts) {
       txPropose,
       'ProposalCreated',
       {
-        proposalId: this.details.id,
+        proposalId: this.proposal.id,
         proposer,
-        targets: this.details.proposal.targets,
-        // values: this.details.proposal.values,
-        signatures: this.details.proposal.signatures,
-        calldatas: this.details.proposal.data,
+        targets: this.proposal.targets,
+        // values: this.proposal.values,
+        signatures: this.proposal.signatures,
+        calldatas: this.proposal.data,
         startBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay),
         endBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay).add(votingPeriod),
-        description: this.details.proposal.description,
+        description: this.proposal.description,
       },
     );
 
@@ -145,7 +145,7 @@ contract('Governor', function (accounts) {
     expectEvent(
       txExecute,
       'ProposalExecuted',
-      { proposalId: this.details.id },
+      { proposalId: this.proposal.id },
     );
 
     await expectEvent.inTransaction(
@@ -155,9 +155,9 @@ contract('Governor', function (accounts) {
     );
 
     // After
-    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
-    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(true);
-    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(true);
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal('0');
     expect(await web3.eth.getBalance(this.receiver.address)).to.be.bignumber.equal(value);
   });
@@ -200,14 +200,14 @@ contract('Governor', function (accounts) {
     await this.helper.execute();
 
     // After
-    expect(await this.mock.hasVoted(this.details.id, owner)).to.be.equal(false);
-    expect(await this.mock.hasVoted(this.details.id, voter1)).to.be.equal(false);
-    expect(await this.mock.hasVoted(this.details.id, voter2)).to.be.equal(false);
-    expect(await this.mock.hasVoted(this.details.id, voterBySigAddress)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voterBySigAddress)).to.be.equal(true);
   });
 
   it('send ethers', async function () {
-    this.details = this.helper.setProposal([
+    this.proposal = this.helper.setProposal([
       {
         target: empty,
         value,
@@ -310,7 +310,7 @@ contract('Governor', function (accounts) {
       });
 
       it('if receiver revert without reason', async function () {
-        this.details = this.helper.setProposal([
+        this.proposal = this.helper.setProposal([
           {
             target: this.receiver.address,
             data: this.receiver.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
@@ -325,7 +325,7 @@ contract('Governor', function (accounts) {
       });
 
       it('if receiver revert with reason', async function () {
-        this.details = this.helper.setProposal([
+        this.proposal = this.helper.setProposal([
           {
             target: this.receiver.address,
             data: this.receiver.contract.methods.mockFunctionRevertsReason().encodeABI(),
@@ -352,24 +352,24 @@ contract('Governor', function (accounts) {
 
   describe('state', function () {
     it('Unset', async function () {
-      await expectRevert(this.mock.state(this.details.id), 'Governor: unknown proposal id');
+      await expectRevert(this.mock.state(this.proposal.id), 'Governor: unknown proposal id');
     });
 
     it('Pending & Active', async function () {
       await this.helper.propose();
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Pending);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Pending);
       await this.helper.waitForSnapshot();
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Pending);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Pending);
       await this.helper.waitForSnapshot(+1);
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
     });
 
     it('Defeated', async function () {
       await this.helper.propose();
       await this.helper.waitForDeadline();
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
       await this.helper.waitForDeadline(+1);
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Defeated);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Defeated);
     });
 
     it('Succeeded', async function () {
@@ -377,9 +377,9 @@ contract('Governor', function (accounts) {
       await this.helper.waitForSnapshot();
       await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
       await this.helper.waitForDeadline();
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
       await this.helper.waitForDeadline(+1);
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
     });
 
     it('Executed', async function () {
@@ -388,7 +388,7 @@ contract('Governor', function (accounts) {
       await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
       await this.helper.waitForDeadline();
       await this.helper.execute();
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Executed);
     });
   });
 
@@ -401,7 +401,7 @@ contract('Governor', function (accounts) {
       await this.helper.propose();
 
       await this.helper.cancel();
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await this.helper.waitForSnapshot();
       await expectRevert(
@@ -416,7 +416,7 @@ contract('Governor', function (accounts) {
       await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
 
       await this.helper.cancel();
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await this.helper.waitForDeadline();
       await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
@@ -429,7 +429,7 @@ contract('Governor', function (accounts) {
       await this.helper.waitForDeadline();
 
       await this.helper.cancel();
-      expect(await this.mock.state(this.details.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
+      expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
       await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
     });
