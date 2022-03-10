@@ -42,7 +42,7 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
       {
         target: this.receiver.address,
         value,
-        data: this.receiver.contract.methods.mockFunction().encodeABI() ,
+        data: this.receiver.contract.methods.mockFunction().encodeABI(),
       },
     ], '<proposal description>');
   });

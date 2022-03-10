@@ -133,7 +133,6 @@ function shouldSupportInterfaces (interfaces = []) {
 
     it('all interface functions are in ABI', async function () {
       for (const k of interfaces) {
-        const interfaceId = INTERFACE_IDS[k];
         for (const fnName of INTERFACES[k]) {
           const fnSig = FN_SIGNATURES[fnName];
           expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1);

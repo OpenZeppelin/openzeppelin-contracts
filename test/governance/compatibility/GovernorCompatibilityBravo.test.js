@@ -175,7 +175,11 @@ contract('GovernorCompatibilityBravo', function (accounts) {
       { target, data: this.receiver.contract.methods.mockFunction().encodeABI() },
       { target, data: this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI() },
       { target, signature: 'mockFunctionNonPayable()', data: '0x' },
-      { target, signature: 'mockFunctionWithArgs(uint256,uint256)', data: web3.eth.abi.encodeParameters(['uint256', 'uint256'], [18, 43]) },
+      {
+        target,
+        signature: 'mockFunctionWithArgs(uint256,uint256)',
+        data: web3.eth.abi.encodeParameters(['uint256', 'uint256'], [18, 43]),
+      },
     ], '<proposal description>');
 
     await this.helper.propose({ from: proposer });

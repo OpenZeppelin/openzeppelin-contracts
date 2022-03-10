@@ -49,7 +49,7 @@ contract('Governor', function (accounts) {
         target: this.receiver.address,
         data: this.receiver.contract.methods.mockFunction().encodeABI(),
         value,
-      }
+      },
     ], '<proposal description>');
   });
 
