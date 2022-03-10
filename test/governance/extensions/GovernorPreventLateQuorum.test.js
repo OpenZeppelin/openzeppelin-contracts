@@ -96,13 +96,13 @@ contract('GovernorPreventLateQuorum', function (accounts) {
       {
         proposalId: this.details.id,
         proposer,
-        targets: this.details.proposal[0],
-        // values: this.details.proposal[1].map(value => new BN(value)),
-        signatures: this.details.proposal[2].map(() => ''),
-        calldatas: this.details.proposal[2],
+        targets: this.details.proposal.targets,
+        // values: this.details.proposal.values.map(value => new BN(value)),
+        signatures: this.details.proposal.signatures.map(() => ''),
+        calldatas: this.details.proposal.data,
         startBlock,
         endBlock,
-        description: this.details.proposal[3],
+        description: this.details.description,
       },
     );
   });

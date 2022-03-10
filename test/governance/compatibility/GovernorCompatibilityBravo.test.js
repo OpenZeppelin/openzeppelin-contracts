@@ -117,10 +117,10 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     expect(proposal.executed).to.be.equal(true);
 
     const action = await this.mock.getActions(this.details.id);
-    expect(action.targets).to.be.deep.equal(this.details.proposal[0]);
-    // expect(action.values).to.be.deep.equal(this.details.proposal[1]);
-    expect(action.signatures).to.be.deep.equal(this.details.proposal[2]);
-    expect(action.calldatas).to.be.deep.equal(this.details.proposal[3]);
+    expect(action.targets).to.be.deep.equal(this.details.proposal.targets);
+    // expect(action.values).to.be.deep.equal(this.details.proposal.values);
+    expect(action.signatures).to.be.deep.equal(this.details.proposal.signatures);
+    expect(action.calldatas).to.be.deep.equal(this.details.proposal.data);
 
     const voteReceipt1 = await this.mock.getReceipt(this.details.id, voter1);
     expect(voteReceipt1.hasVoted).to.be.equal(true);

@@ -38,7 +38,7 @@ class GovernorHelper {
       proposal.useCompatibilityInterface
         ? 'propose(address[],uint256[],string[],bytes[],string)'
         : 'propose(address[],uint256[],bytes[],string)'
-    ](...concatOpts(proposal.proposal, opts));
+    ](...concatOpts(proposal.proposeArgs, opts));
   }
 
   queue (opts = null) {
@@ -171,7 +171,14 @@ class GovernorHelper {
       descriptionHash,
     ];
 
-    const proposal = [
+    const proposal = {
+      targets,
+      values,
+      signatures,
+      data,
+    };
+
+    const proposeArgs = [
       targets,
       values,
       ...(useCompatibilityInterface ? [signatures] : []),
@@ -190,6 +197,7 @@ class GovernorHelper {
       shortProposal,
       description,
       useCompatibilityInterface,
+      proposeArgs,
     };
 
     return this.currentProposal;
