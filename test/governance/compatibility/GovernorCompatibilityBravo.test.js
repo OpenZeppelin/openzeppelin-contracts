@@ -63,7 +63,6 @@ contract('GovernorCompatibilityBravo', function (accounts) {
         target: this.receiver.address,
         value,
         signature: 'mockFunction()',
-        data: '0x',
       },
     ], '<proposal description>');
   });
@@ -174,7 +173,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     this.helper.setProposal([
       { target, data: this.receiver.contract.methods.mockFunction().encodeABI() },
       { target, data: this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI() },
-      { target, signature: 'mockFunctionNonPayable()', data: '0x' },
+      { target, signature: 'mockFunctionNonPayable()' },
       {
         target,
         signature: 'mockFunctionWithArgs(uint256,uint256)',

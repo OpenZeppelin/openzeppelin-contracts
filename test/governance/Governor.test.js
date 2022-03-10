@@ -211,7 +211,6 @@ contract('Governor', function (accounts) {
       {
         target: empty,
         value,
-        data: '0x',
       },
     ], '<proposal description>');
 
