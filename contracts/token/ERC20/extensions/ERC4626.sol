@@ -93,8 +93,11 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
         address caller = _msgSender();
         uint256 shares = previewDeposit(assets);
-        _mint(receiver, shares);
+
+        // if _asset is ERC777, transferFrom can call reenter BEFORE the transfer happens through
+        // the tokensToSend hook, so we need to transfer before we mint to keep the invariants.
         SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
+        _mint(receiver, shares);
 
         emit Deposit(caller, receiver, assets, shares);
 
@@ -107,8 +110,11 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
         address caller = _msgSender();
         uint256 assets = previewMint(shares);
-        _mint(receiver, shares);
+
+        // if _asset is ERC777, transferFrom can call reenter BEFORE the transfer happens through
+        // the tokensToSend hook, so we need to transfer before we mint to keep the invariants.
         SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
+        _mint(receiver, shares);
 
         emit Deposit(caller, receiver, assets, shares);
 
@@ -130,6 +136,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
             _spendAllowance(owner, caller, shares);
         }
 
+        // if _asset is ERC777, transfer can call reenter AFTER the transfer happens through
+        // the tokensReceived hook, so we need to transfer after we burn to keep the invariants.
         _burn(owner, shares);
         SafeERC20.safeTransfer(_asset, receiver, assets);
 
@@ -153,6 +161,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
             _spendAllowance(owner, caller, shares);
         }
 
+        // if _asset is ERC777, transfer can call reenter AFTER the transfer happens through
+        // the tokensReceived hook, so we need to transfer after we burn to keep the invariants.
         _burn(owner, shares);
         SafeERC20.safeTransfer(_asset, receiver, assets);
 
