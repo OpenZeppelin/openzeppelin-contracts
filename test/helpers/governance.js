@@ -160,7 +160,9 @@ class GovernorHelper {
       ({ targets, values, signatures = [], data } = actions);
     }
 
-    const fulldata = zip(signatures.map(s => s && web3.eth.abi.encodeFunctionSignature(s)), data).map(hexs => concatHex(...hexs));
+    const fulldata = zip(signatures.map(s => s && web3.eth.abi.encodeFunctionSignature(s)), data)
+      .map(hexs => concatHex(...hexs));
+
     const descriptionHash = web3.utils.keccak256(description);
 
     // condensed version for queing end executing
