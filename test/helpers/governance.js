@@ -38,7 +38,7 @@ class GovernorHelper {
       proposal.useCompatibilityInterface
         ? 'propose(address[],uint256[],string[],bytes[],string)'
         : 'propose(address[],uint256[],bytes[],string)'
-    ](...concatOpts(proposal.proposeArgs, opts));
+    ](...concatOpts(proposal.fullProposal, opts));
   }
 
   queue (opts = null) {
@@ -160,32 +160,32 @@ class GovernorHelper {
       ({ targets, values, signatures = [], data } = actions);
     }
 
-    const fullData = zip(signatures.map(s => s && web3.eth.abi.encodeFunctionSignature(s)), data)
-      .map(hexs => concatHex(...hexs));
-    const descriptionHash = web3.utils.keccak256(description);
-
-    const shortProposal = [
-      targets,
-      values,
-      fullData,
-      descriptionHash,
-    ];
-
     const proposal = {
       targets,
       values,
       signatures,
       data,
+      description,
     };
 
-    const proposeArgs = [
+    // condensed version for queing end executing
+    const shortProposal = [
       targets,
       values,
-      ...(useCompatibilityInterface ? [signatures] : []),
+      zip(signatures.map(s => s && web3.eth.abi.encodeFunctionSignature(s)), data).map(hexs => concatHex(...hexs)),
+      web3.utils.keccak256(description),
+    ];
+
+    // full version for proposing
+    const fullProposal = [
+      targets,
+      values,
+      ...(useCompatibilityInterface ? [ signatures ] : []),
       data,
       description,
     ];
 
+    // proposal id
     const id = web3.utils.toBN(web3.utils.keccak256(web3.eth.abi.encodeParameters(
       [ 'address[]', 'uint256[]', 'bytes[]', 'bytes32' ],
       shortProposal,
@@ -195,9 +195,8 @@ class GovernorHelper {
       id,
       proposal,
       shortProposal,
-      description,
+      fullProposal,
       useCompatibilityInterface,
-      proposeArgs,
     };
 
     return this.currentProposal;

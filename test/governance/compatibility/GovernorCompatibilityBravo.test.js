@@ -147,13 +147,13 @@ contract('GovernorCompatibilityBravo', function (accounts) {
       {
         proposalId: this.details.id,
         proposer,
-        targets: this.details.shortProposal[0],
-        // values: shortProposal[1],
-        signatures: this.details.shortProposal[2].map(() => ''),
-        calldatas: this.details.shortProposal[2],
+        targets: this.details.proposal.targets
+        // values: this.details.proposal.values,
+        signatures: this.details.proposal.signatures,
+        calldatas: this.details.proposal.data,
         startBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay),
         endBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay).add(votingPeriod),
-        description: this.details.description,
+        description: this.details.proposal.description,
       },
     );
     expectEvent(
