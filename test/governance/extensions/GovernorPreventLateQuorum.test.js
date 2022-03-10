@@ -46,11 +46,12 @@ contract('GovernorPreventLateQuorum', function (accounts) {
 
     // default proposal
     this.details = this.helper.setProposal([
-      [ this.receiver.address ],
-      [ value ],
-      [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-      '<proposal description>',
-    ]);
+      {
+        target: this.receiver.address,
+        value,
+        data: this.receiver.contract.methods.mockFunction().encodeABI(),
+      },
+    ], '<proposal description>');
   });
 
   it('deployment check', async function () {
@@ -153,11 +154,11 @@ contract('GovernorPreventLateQuorum', function (accounts) {
 
     it('can setLateQuorumVoteExtension through governance', async function () {
       this.helper.setProposal([
-        [ this.mock.address ],
-        [ web3.utils.toWei('0') ],
-        [ this.mock.contract.methods.setLateQuorumVoteExtension('0').encodeABI() ],
-        '<proposal description>',
-      ]);
+        {
+          target: this.mock.address,
+          data: this.mock.contract.methods.setLateQuorumVoteExtension('0').encodeABI(),
+        },
+      ], '<proposal description>');
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();

@@ -69,11 +69,12 @@ contract('GovernorTimelockControl', function (accounts) {
 
     // default proposal
     this.details = this.helper.setProposal([
-      [ this.receiver.address ],
-      [ value ],
-      [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-      '<proposal description>',
-    ]);
+      {
+        target: this.receiver.address,
+        value,
+        data: this.receiver.contract.methods.mockFunction().encodeABI(),
+      },
+    ], '<proposal description>');
     this.details.timelockid = await this.timelock.hashOperationBatch(
       ...this.details.shortProposal.slice(0, 3),
       '0x0',
@@ -260,17 +261,15 @@ contract('GovernorTimelockControl', function (accounts) {
 
       it('can be executed through governance', async function () {
         this.helper.setProposal([
-          [ this.mock.address ],
-          [ web3.utils.toWei('0') ],
-          [
-            this.mock.contract.methods.relay(
+          {
+            target: this.mock.address,
+            data: this.mock.contract.methods.relay(
               this.token.address,
               0,
               this.token.contract.methods.transfer(other, 1).encodeABI(),
             ).encodeABI(),
-          ],
-          '<proposal description>',
-        ]);
+          },
+        ], '<proposal description>');
 
         expect(await this.token.balanceOf(this.mock.address), 1);
         expect(await this.token.balanceOf(other), 0);
@@ -335,11 +334,11 @@ contract('GovernorTimelockControl', function (accounts) {
 
       it('can be executed through governance to', async function () {
         this.helper.setProposal([
-          [ this.mock.address ],
-          [ web3.utils.toWei('0') ],
-          [ this.mock.contract.methods.updateTimelock(this.newTimelock.address).encodeABI() ],
-          '<proposal description>',
-        ]);
+          {
+            target: this.mock.address,
+            data: this.mock.contract.methods.updateTimelock(this.newTimelock.address).encodeABI(),
+          },
+        ], '<proposal description>');
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
@@ -362,11 +361,11 @@ contract('GovernorTimelockControl', function (accounts) {
 
   it('clear queue of pending governor calls', async function () {
     this.helper.setProposal([
-      [ this.mock.address ],
-      [ web3.utils.toWei('0') ],
-      [ this.mock.contract.methods.nonGovernanceFunction().encodeABI() ],
-      '<proposal description>',
-    ]);
+      {
+        target: this.mock.address,
+        data: this.mock.contract.methods.nonGovernanceFunction().encodeABI(),
+      },
+    ], '<proposal description>');
 
     await this.helper.propose();
     await this.helper.waitForSnapshot();

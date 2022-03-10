@@ -141,24 +141,44 @@ class GovernorHelper {
       .then(timestamp => time.increaseTo(timestamp.addn(offset)));
   }
 
-  setProposal (proposal) {
-    const useCompatibilityInterface = proposal.length === 5;
-    const description = proposal[proposal.length - 1];
+  /**
+   * Specify a proposal either as
+   * 1) an array of objects [{ target, value, data, signature? }]
+   * 2) an object of arrays { targets: [], values: [], data: [], signatures?: [] }
+   */
+  setProposal (actions, description) {
+    let targets, values, signatures, data, useCompatibilityInterface;
+
+    if (Array.isArray(actions)) {
+      useCompatibilityInterface = actions.some(a => 'signature' in a);
+      targets = actions.map(a => a.target);
+      values = actions.map(a => a.value ?? '0');
+      signatures = actions.map(a => a.signature ?? '');
+      data = actions.map(a => a.data);
+    } else {
+      useCompatibilityInterface = actions.signatures != undefined;
+      ({ targets, values, signatures = [], data } = actions);
+    }
+
+    const fullData = zip(signatures.map(s => s && web3.eth.abi.encodeFunctionSignature(s)), data)
+      .map(hexs => concatHex(...hexs));
+    const descriptionHash = web3.utils.keccak256(description);
+
     const shortProposal = [
-      // targets
-      proposal[0],
-      // values
-      proposal[1],
-      // calldata (prefix selector if necessary)
-      useCompatibilityInterface
-        ? zip(
-          proposal[2].map(selector => selector && web3.eth.abi.encodeFunctionSignature(selector)),
-          proposal[3],
-        ).map(hexs => concatHex(...hexs))
-        : proposal[2],
-      // descriptionHash
-      web3.utils.keccak256(description),
+      targets,
+      values,
+      fullData,
+      descriptionHash,
     ];
+
+    const proposal = [
+      targets,
+      values,
+      ...(useCompatibilityInterface ? [signatures] : []),
+      data,
+      description,
+    ];
+
     const id = web3.utils.toBN(web3.utils.keccak256(web3.eth.abi.encodeParameters(
       [ 'address[]', 'uint256[]', 'bytes[]', 'bytes32' ],
       shortProposal,
@@ -171,6 +191,7 @@ class GovernorHelper {
       description,
       useCompatibilityInterface,
     };
+
     return this.currentProposal;
   }
 }

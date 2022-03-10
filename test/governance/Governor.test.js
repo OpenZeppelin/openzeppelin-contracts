@@ -44,13 +44,13 @@ contract('Governor', function (accounts) {
     await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
-    // default proposal
     this.details = this.helper.setProposal([
-      [ this.receiver.address ],
-      [ value ],
-      [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-      '<proposal description>',
-    ]);
+      {
+        target: this.receiver.address,
+        data: this.receiver.contract.methods.mockFunction().encodeABI(),
+        value,
+      }
+    ], '<proposal description>');
   });
 
   shouldSupportInterfaces([
@@ -208,11 +208,12 @@ contract('Governor', function (accounts) {
 
   it('send ethers', async function () {
     this.details = this.helper.setProposal([
-      [ empty ],
-      [ value ],
-      [ '0x' ],
-      '<proposal description>',
-    ]);
+      {
+        target: empty,
+        value,
+        data: '0x',
+      },
+    ], '<proposal description>');
 
     // Before
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(value);
@@ -311,11 +312,11 @@ contract('Governor', function (accounts) {
 
       it('if receiver revert without reason', async function () {
         this.details = this.helper.setProposal([
-          [ this.receiver.address ],
-          [ 0 ],
-          [ this.receiver.contract.methods.mockFunctionRevertsNoReason().encodeABI() ],
-          '<proposal description>',
-        ]);
+          {
+            target: this.receiver.address,
+            data: this.receiver.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
+          },
+        ], '<proposal description>');
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
@@ -326,11 +327,11 @@ contract('Governor', function (accounts) {
 
       it('if receiver revert with reason', async function () {
         this.details = this.helper.setProposal([
-          [ this.receiver.address ],
-          [ 0 ],
-          [ this.receiver.contract.methods.mockFunctionRevertsReason().encodeABI() ],
-          '<proposal description>',
-        ]);
+          {
+            target: this.receiver.address,
+            data: this.receiver.contract.methods.mockFunctionRevertsReason().encodeABI(),
+          },
+        ], '<proposal description>');
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
@@ -447,42 +448,34 @@ contract('Governor', function (accounts) {
 
   describe('proposal length', function () {
     it('empty', async function () {
-      this.helper.setProposal([
-        [],
-        [],
-        [],
-        '<proposal description>',
-      ]);
+      this.helper.setProposal([ ], '<proposal description>');
       await expectRevert(this.helper.propose(), 'Governor: empty proposal');
     });
 
     it('missmatch #1', async function () {
-      this.helper.setProposal([
-        [ ],
-        [ web3.utils.toWei('0') ],
-        [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-        '<proposal description>',
-      ]);
+      this.helper.setProposal({
+        targets: [ ],
+        values: [ web3.utils.toWei('0') ],
+        data: [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+      }, '<proposal description>');
       await expectRevert(this.helper.propose(), 'Governor: invalid proposal length');
     });
 
     it('missmatch #2', async function () {
-      this.helper.setProposal([
-        [ this.receiver.address ],
-        [ ],
-        [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-        '<proposal description>',
-      ]);
+      this.helper.setProposal({
+        targets: [ this.receiver.address ],
+        values: [ ],
+        data: [ this.receiver.contract.methods.mockFunction().encodeABI() ],
+      }, '<proposal description>');
       await expectRevert(this.helper.propose(), 'Governor: invalid proposal length');
     });
 
     it('missmatch #3', async function () {
-      this.helper.setProposal([
-        [ this.receiver.address ],
-        [ web3.utils.toWei('0') ],
-        [ ],
-        '<proposal description>',
-      ]);
+      this.helper.setProposal({
+        targets: [ this.receiver.address ],
+        values: [ web3.utils.toWei('0') ],
+        data: [ ],
+      }, '<proposal description>');
       await expectRevert(this.helper.propose(), 'Governor: invalid proposal length');
     });
   });
@@ -502,11 +495,11 @@ contract('Governor', function (accounts) {
 
     it('can setVotingDelay through governance', async function () {
       this.helper.setProposal([
-        [ this.mock.address ],
-        [ web3.utils.toWei('0') ],
-        [ this.mock.contract.methods.setVotingDelay('0').encodeABI() ],
-        '<proposal description>',
-      ]);
+        {
+          target: this.mock.address,
+          data: this.mock.contract.methods.setVotingDelay('0').encodeABI(),
+        },
+      ], '<proposal description>');
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();
@@ -524,11 +517,11 @@ contract('Governor', function (accounts) {
 
     it('can setVotingPeriod through governance', async function () {
       this.helper.setProposal([
-        [ this.mock.address ],
-        [ web3.utils.toWei('0') ],
-        [ this.mock.contract.methods.setVotingPeriod('32').encodeABI() ],
-        '<proposal description>',
-      ]);
+        {
+          target: this.mock.address,
+          data: this.mock.contract.methods.setVotingPeriod('32').encodeABI(),
+        },
+      ], '<proposal description>');
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();
@@ -546,11 +539,11 @@ contract('Governor', function (accounts) {
 
     it('cannot setVotingPeriod to 0 through governance', async function () {
       this.helper.setProposal([
-        [ this.mock.address ],
-        [ web3.utils.toWei('0') ],
-        [ this.mock.contract.methods.setVotingPeriod('0').encodeABI() ],
-        '<proposal description>',
-      ]);
+        {
+          target: this.mock.address,
+          data: this.mock.contract.methods.setVotingPeriod('0').encodeABI(),
+        },
+      ], '<proposal description>');
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();
@@ -562,11 +555,11 @@ contract('Governor', function (accounts) {
 
     it('can setProposalThreshold to 0 through governance', async function () {
       this.helper.setProposal([
-        [ this.mock.address ],
-        [ web3.utils.toWei('0') ],
-        [ this.mock.contract.methods.setProposalThreshold('1000000000000000000').encodeABI() ],
-        '<proposal description>',
-      ]);
+        {
+          target: this.mock.address,
+          data: this.mock.contract.methods.setProposalThreshold('1000000000000000000').encodeABI(),
+        },
+      ], '<proposal description>');
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();

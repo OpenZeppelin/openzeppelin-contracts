@@ -61,11 +61,12 @@ contract('GovernorTimelockCompound', function (accounts) {
 
     // default proposal
     this.details = this.helper.setProposal([
-      [ this.receiver.address ],
-      [ value ],
-      [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-      '<proposal description>',
-    ]);
+      {
+        target: this.receiver.address,
+        value,
+        data: this.receiver.contract.methods.mockFunction().encodeABI(),
+      },
+    ], '<proposal description>');
   });
 
   shouldSupportInterfaces([
@@ -123,12 +124,11 @@ contract('GovernorTimelockCompound', function (accounts) {
       });
 
       it('if proposal contains duplicate calls', async function () {
-        this.helper.setProposal([
-          Array(2).fill(this.token.address),
-          Array(2).fill(web3.utils.toWei('0')),
-          Array(2).fill(this.token.contract.methods.approve(this.receiver.address, constants.MAX_UINT256).encodeABI()),
-          '<proposal description>',
-        ]);
+        const action = {
+          target: this.token.address,
+          data: this.token.contract.methods.approve(this.receiver.address, constants.MAX_UINT256).encodeABI(),
+        };
+        this.helper.setProposal([ action, action ], '<proposal description>');
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
@@ -261,17 +261,15 @@ contract('GovernorTimelockCompound', function (accounts) {
 
       it('can be executed through governance', async function () {
         this.helper.setProposal([
-          [ this.mock.address ],
-          [ web3.utils.toWei('0') ],
-          [
-            this.mock.contract.methods.relay(
+          {
+            target: this.mock.address,
+            data: this.mock.contract.methods.relay(
               this.token.address,
               0,
               this.token.contract.methods.transfer(other, 1).encodeABI(),
             ).encodeABI(),
-          ],
-          '<proposal description>',
-        ]);
+          },
+        ], '<proposal description>');
 
         expect(await this.token.balanceOf(this.mock.address), 1);
         expect(await this.token.balanceOf(other), 0);
@@ -310,20 +308,15 @@ contract('GovernorTimelockCompound', function (accounts) {
 
       it('can be executed through governance to', async function () {
         this.helper.setProposal([
-          [
-            this.timelock.address,
-            this.mock.address,
-          ],
-          [
-            web3.utils.toWei('0'),
-            web3.utils.toWei('0'),
-          ],
-          [
-            this.timelock.contract.methods.setPendingAdmin(owner).encodeABI(),
-            this.mock.contract.methods.updateTimelock(this.newTimelock.address).encodeABI(),
-          ],
-          '<proposal description>',
-        ]);
+          {
+            target: this.timelock.address,
+            data: this.timelock.contract.methods.setPendingAdmin(owner).encodeABI(),
+          },
+          {
+            target: this.mock.address,
+            data: this.mock.contract.methods.updateTimelock(this.newTimelock.address).encodeABI(),
+          },
+        ], '<proposal description>');
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
@@ -347,11 +340,11 @@ contract('GovernorTimelockCompound', function (accounts) {
       const newGovernor = await Governor.new(name, this.token.address, 8, 32, this.timelock.address, 0);
 
       this.helper.setProposal([
-        [ this.timelock.address ],
-        [ web3.utils.toWei('0') ],
-        [ this.timelock.contract.methods.setPendingAdmin(newGovernor.address).encodeABI() ],
-        '<proposal description>',
-      ]);
+        {
+          target: this.timelock.address,
+          data: this.timelock.contract.methods.setPendingAdmin(newGovernor.address).encodeABI(),
+        },
+      ], '<proposal description>');
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();

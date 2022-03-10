@@ -59,12 +59,13 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
     // default proposal
     this.details = this.helper.setProposal([
-      [ this.receiver.address ],
-      [ value ],
-      [ 'mockFunction()' ],
-      [ '0x' ],
-      '<proposal description>',
-    ]);
+      {
+        target: this.receiver.address,
+        value,
+        signature: 'mockFunction()',
+        data: '0x',
+      },
+    ], '<proposal description>');
   });
 
   it('deployment check', async function () {
@@ -169,23 +170,13 @@ contract('GovernorCompatibilityBravo', function (accounts) {
   });
 
   it('with function selector and arguments', async function () {
+    const target = this.receiver.address;
     this.helper.setProposal([
-      Array(4).fill(this.receiver.address),
-      Array(4).fill(web3.utils.toWei('0')),
-      [
-        '',
-        '',
-        'mockFunctionNonPayable()',
-        'mockFunctionWithArgs(uint256,uint256)',
-      ],
-      [
-        this.receiver.contract.methods.mockFunction().encodeABI(),
-        this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI(),
-        '0x',
-        web3.eth.abi.encodeParameters(['uint256', 'uint256'], [18, 43]),
-      ],
-      '<proposal description>', // description
-    ]);
+      { target, data: this.receiver.contract.methods.mockFunction().encodeABI() },
+      { target, data: this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI() },
+      { target, signature: 'mockFunctionNonPayable()', data: '0x' },
+      { target, signature: 'mockFunctionWithArgs(uint256,uint256)', data: web3.eth.abi.encodeParameters(['uint256', 'uint256'], [18, 43]) },
+    ], '<proposal description>');
 
     await this.helper.propose({ from: proposer });
     await this.helper.waitForSnapshot();

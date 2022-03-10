@@ -39,11 +39,12 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
 
     // default proposal
     this.details = this.helper.setProposal([
-      [ this.receiver.address ],
-      [ value ],
-      [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-      '<proposal description>',
-    ]);
+      {
+        target: this.receiver.address,
+        value,
+        data: this.receiver.contract.methods.mockFunction().encodeABI() ,
+      },
+    ], '<proposal description>');
   });
 
   it('deployment check', async function () {
@@ -84,11 +85,11 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
 
     it('can updateQuorumNumerator through governance', async function () {
       this.helper.setProposal([
-        [ this.mock.address ],
-        [ web3.utils.toWei('0') ],
-        [ this.mock.contract.methods.updateQuorumNumerator(newRatio).encodeABI() ],
-        '<proposal description>',
-      ]);
+        {
+          target: this.mock.address,
+          data: this.mock.contract.methods.updateQuorumNumerator(newRatio).encodeABI(),
+        },
+      ], '<proposal description>');
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();
@@ -109,11 +110,11 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
 
     it('cannot updateQuorumNumerator over the maximum', async function () {
       this.helper.setProposal([
-        [ this.mock.address ],
-        [ web3.utils.toWei('0') ],
-        [ this.mock.contract.methods.updateQuorumNumerator('101').encodeABI() ],
-        '<proposal description>',
-      ]);
+        {
+          target: this.mock.address,
+          data: this.mock.contract.methods.updateQuorumNumerator('101').encodeABI(),
+        },
+      ], '<proposal description>');
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();

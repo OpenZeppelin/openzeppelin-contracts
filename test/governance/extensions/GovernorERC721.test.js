@@ -42,11 +42,12 @@ contract('GovernorERC721Mock', function (accounts) {
 
     // default proposal
     this.details = this.helper.setProposal([
-      [ this.receiver.address ],
-      [ value ],
-      [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-      '<proposal description>',
-    ]);
+      {
+        target: this.receiver.address,
+        value,
+        data: this.receiver.contract.methods.mockFunction().encodeABI(),
+      },
+    ], '<proposal description>');
   });
 
   it('deployment check', async function () {
