@@ -24,10 +24,10 @@ contract TimelockController is AccessControl {
     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
-    uint256 internal constant _DONE_TIMESTAMP = uint256(1);
+    uint256 public constant _DONE_TIMESTAMP = uint256(1);                           // HARNESS: internal -> public
 
     mapping(bytes32 => uint256) private _timestamps;
-    uint256 private _minDelay;
+    uint256 public _minDelay;                                                       // HARNESS: private -> public
 
     /**
      * @dev Emitted when a call is scheduled as part of operation `id`.
