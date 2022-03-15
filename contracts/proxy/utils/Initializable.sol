@@ -105,9 +105,8 @@ abstract contract Initializable {
      * It is recommended to use that to lock "implementation" contract that are designed to be called through proxies.
      */
     function _preventInitialize() internal virtual {
-        if (_setInitializedVersion(type(uint8).max)) {
-            _initializing = false;
-        }
+        _setInitializedVersion(type(uint8).max);
+        _initializing = false;
     }
 
     function _setInitializedVersion(uint8 version) private returns (bool) {
