@@ -22,7 +22,7 @@ contract ERC721Holder is IERC721Receiver {
         address,
         uint256,
         bytes memory
-    ) public virtual override returns (bytes4) {
+    ) external virtual override returns (bytes4) {
         return this.onERC721Received.selector;
     }
 }
