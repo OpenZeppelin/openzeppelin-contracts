@@ -62,4 +62,44 @@ library MerkleProof {
             value := keccak256(0x00, 0x40)
         }
     }
+
+    // MultiProofVerify
+    
+    function multiProofVerify(
+        bytes32 root,
+        bytes32[] memory leafs,
+        bytes32[] memory proofs,
+        bool[] memory proofFlag
+    ) internal pure returns (bool) {
+        return processMultiProof(leafs, proofs, proofFlag) == root;
+    }
+
+    function processMultiProof(
+        bytes32[] memory leafs,
+        bytes32[] memory proofs,
+        bool[] memory proofFlag
+    ) internal pure returns (bytes32 merkleRoot) {
+        uint256 leafsLen = leafs.length;
+        uint256 totalHashes = proofFlag.length;
+        bytes32[] memory hashes = new bytes32[](totalHashes);
+        uint leafPos = 0;
+        uint hashPos = 0;
+        uint proofPos = 0;
+        for(uint256 i = 0; i < totalHashes; i++){
+            hashes[i] = _hashPair(
+                proofFlag[i] ? (leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++]) : proofs[proofPos++],
+                leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++]
+            );
+        }
+
+        return hashes[totalHashes-1];
+    }
+
+    function _hashPair(bytes32 a, bytes32 b) private pure returns(bytes32) {
+        return a < b ? _efficientHash(a, b) : _efficientHash(b, a);
+    }
+
 }
+
+
+
