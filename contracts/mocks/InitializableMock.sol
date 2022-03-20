@@ -59,3 +59,32 @@ contract ConstructorInitializableMock is Initializable {
         onlyInitializingRan = true;
     }
 }
+
+contract ReinitializerMock is Initializable {
+    uint256 public counter;
+
+    function initialize() public initializer {
+        doStuff();
+    }
+
+    function reinitialize(uint8 i) public reinitializer(i) {
+        doStuff();
+    }
+
+    function nestedReinitialize(uint8 i, uint8 j) public reinitializer(i) {
+        reinitialize(j);
+    }
+
+    function chainReinitialize(uint8 i, uint8 j) public {
+        reinitialize(i);
+        reinitialize(j);
+    }
+
+    function preventInitialize() public {
+        _preventInitialize();
+    }
+
+    function doStuff() public onlyInitializing {
+        counter++;
+    }
+}
