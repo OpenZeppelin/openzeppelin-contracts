@@ -353,4 +353,10 @@ contract TimelockController is AccessControl {
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
     }
+
+
+
+    function scheduleCheck1(bytes32 id) public virtual onlyRole(PROPOSER_ROLE) {
+        require(false);
+    }
 } 

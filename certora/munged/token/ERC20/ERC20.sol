@@ -277,7 +277,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `account` cannot be the zero address.
      * - `account` must have at least `amount` tokens.
      */
-    function _burn(address account, uint256 amount) internal virtual {
+    function _burn(address account, uint256 amount) public virtual returns (bool) {          // HARNESS: internal -> public
         require(account != address(0), "ERC20: burn from the zero address");
 
         _beforeTokenTransfer(account, address(0), amount);
@@ -292,6 +292,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         emit Transfer(account, address(0), amount);
 
         _afterTokenTransfer(account, address(0), amount);
+
+        return true;
     }
 
     /**

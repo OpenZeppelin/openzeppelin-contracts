@@ -40,7 +40,7 @@ definition done(bytes32 id) returns bool =
 
 
 function hashIdCorrelation(bytes32 id, address target, uint256 value, bytes data, bytes32 predecessor, bytes32 salt){
-    require data.length < 3;
+    require data.length < 7;
     require hashOperation(target, value, data, predecessor, salt) == id;
 }
 
@@ -241,16 +241,20 @@ rule cannotCallExecute(method f, env e){
 }
 
 
-// STATUS - in progress (need working hash)
+// STATUS - in progress
 // in unset() execute() reverts
-rule executeRevertFromUnset(method f, env e){
+rule executeRevertFromUnset(method f, env e, env e2){
     address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
     bytes32 id;
 
-    hashIdCorrelation(id, target, value, data, predecessor, salt);
+    // hashIdCorrelation(id, target, value, data, predecessor, salt);
+    require data.length < 4;
+    require hashOperation(target, value, data, predecessor, salt) == id;
     require unset(id);
 
-    execute@withrevert(e, target, value, data, predecessor, salt);
+    scheduleCheck1@withrevert(e, id);
+
+    // execute@withrevert(e, target, value, data, predecessor, salt);
 
     assert lastReverted, "you go against execution nature";
 }
@@ -266,6 +270,7 @@ rule executeRevertEffectCheck(method f, env e){
     require pending(id) && !ready(id, e);
 
     execute@withrevert(e, target, value, data, predecessor, salt);
+    bool reverted = lastReverted;
 
     assert lastReverted => pending(id) && !ready(id, e), "you go against execution nature";
 }
@@ -286,7 +291,7 @@ rule cancelledNotExecuted(method f, env e){
 }
 
 
-// STATUS - in progress (need working hash)
+// STATUS - in progress
 // Only proposers can schedule an operation
 rule onlyProposer(method f, env e){
     bytes32 id;

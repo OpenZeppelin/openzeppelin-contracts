@@ -6,5 +6,12 @@ contract ERC20WrapperHarness is ERC20Wrapper {
         ERC20Wrapper(underlyingToken)
         ERC20(_name, _symbol)
     {}
-}
 
+    function underlyingTotalSupply() public view returns (uint256) {
+        return underlying.totalSupply();
+    }
+
+    function underlyingBalanceOf(address account) public view returns (uint256) {
+        return underlying.balanceOf(account);
+    }
+}
