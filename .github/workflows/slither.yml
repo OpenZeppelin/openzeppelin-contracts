@@ -1,0 +1,19 @@
+name: Slither Analysis
+on:
+  push:
+    branches:
+      - master
+      - release-v*
+  pull_request: {}
+  workflow_dispatch: {}
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean project 
+        run: npm run clean
+      - uses: actions/checkout@v2
+      - uses: crytic/slither-action@v0.1.0
+
+      

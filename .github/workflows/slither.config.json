@@ -1,0 +1,3 @@
+{
+    "detectors_to_run": "reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas"
+}
