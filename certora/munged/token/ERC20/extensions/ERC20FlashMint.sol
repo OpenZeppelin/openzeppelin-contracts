@@ -40,8 +40,10 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         require(token == address(this), "ERC20FlashMint: wrong token");
         // silence warning about unused variable without the addition of bytecode.
         amount;
-        return 0;
+        return fee;                 // HARNESS: made "return" nonzero
     }
+
+    uint256 public fee;             // HARNESS: added it to simulate random fee amount
 
     /**
      * @dev Performs a flash loan. New tokens are minted and sent to the
@@ -70,7 +72,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         uint256 fee = flashFee(token, amount);
         _mint(address(receiver), amount);
         require(
-            receiver.onFlashLoan(msg.sender, token, amount, fee, data) == _RETURN_VALUE,
+            receiver.onFlashLoan(msg.sender, token, amount, fee, data) == _RETURN_VALUE,        // HAVOC_ALL
             "ERC20FlashMint: invalid return value"
         );
         uint256 currentAllowance = allowance(address(receiver), address(this));

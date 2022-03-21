@@ -93,7 +93,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * _Available since v4.6._
      */
-    function _checkRole(bytes32 role) internal view virtual {
+    function _checkRole(bytes32 role) public view virtual {         // HARNESS: internal -> public
         _checkRole(role, _msgSender());
     }
 
