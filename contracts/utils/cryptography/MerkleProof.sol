@@ -63,7 +63,12 @@ library MerkleProof {
         }
     }
 
-    // MultiProofVerify
+    /**
+     * @dev Returns true if a `leafs` can be proved to be a part of a Merkle tree
+     * defined by `root`. For this, `proofs` for each leaf must be provided, containing
+     * sibling hashes on the branch from the leaf to the root of the tree. Then
+     * 'proofFlag' designates the nodes needed for the multi proof.
+     */
     
     function multiProofVerify(
         bytes32 root,
@@ -73,6 +78,12 @@ library MerkleProof {
     ) internal pure returns (bool) {
         return processMultiProof(leafs, proofs, proofFlag) == root;
     }
+
+    /**
+     * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
+     * from `leaf` using the multi proof as `proofFlag`. A multi proof is
+     * valid if the final hash matches the root of the tree.
+     */
 
     function processMultiProof(
         bytes32[] memory leafs,

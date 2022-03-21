@@ -66,40 +66,31 @@ contract('MerkleProof', function (accounts) {
   });
 
   describe('multiProofVerify', function () {
-    it('should verify for valid merkle multiproof (example)', async () => {
+    it('returns true for a valid Merkle multi proof', async function () {
       const leaves = ['a', 'b', 'c', 'd', 'e', 'f'].map(keccak256).sort(Buffer.compare)
-      const tree = new MerkleTree(leaves, keccak256, { sort: true })
+      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true })
 
-      const root = tree.getRoot()
+      const root = merkleTree.getRoot()
       const proofLeaves = ['b', 'f', 'd'].map(keccak256).sort(Buffer.compare)
-      const proof = tree.getMultiProof(proofLeaves)
-      const proofFlags = tree.getProofFlags(proofLeaves, proof)
+      const proof = merkleTree.getMultiProof(proofLeaves)
+      const proofFlags = merkleTree.getProofFlags(proofLeaves, proof)
 
-      const verified = await contract.multiProofVerify.call(root, proofLeaves, proof, proofFlags)
-      assert.equal(verified, true)
-
-      expect(await this.merkleMultiProof.verify(root, proofLeafs, proof, proofFlags)).to.equal(true);
+      expect(await this.merkleMultiProof.multiProofVerify(root, proofLeaves, proof, proofFlags)).to.equal(true);
 
     });
 
-    it('should not verify for invalid merkle multiproof', async () => {
+    it('returns false for an invalid Merkle multi proof', async function() {
       const leaves = ['a', 'b', 'c', 'd', 'e', 'f'].map(keccak256).sort(Buffer.compare)
-      const tree = new MerkleTree(leaves, keccak256, { sort: true })
+      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true })
 
-      const root = tree.getRoot()
-      const proofLeaves = ['b', 'f', 'd'].map(keccak256).sort(Buffer.compare)
-      const proof = tree.getMultiProof(proofLeaves)
-      const proofFlags = tree.getProofFlags(proofLeaves, proof)
-      proofFlags[proofFlags.length - 1] = !proofFlags[proofFlags.length - 1]
+      const root = merkleTree.getRoot()
+      const badProofLeaves = ['g', 'h', 'i'].map(keccak256).sort(Buffer.compare)
+      const badMerkleTree = new MerkleTree(badProofLeaves);
+      const badProof = badMerkleTree.getMultiProof(badProofLeaves)
+      const badProofFlags = badMerkleTree.getProofFlags(badProofLeaves, badProof)
 
-      let errMessage = ''
-      try {
-        await contract.multiProofVerify.call(root, proofLeaves, proof, proofFlags)
-      } catch (err) {
-        errMessage = err.message
-      }
+      expect(await this.merkleMultiProof.multiProofVerify(root, badProofLeaves, badProof, badProofFlags)).to.equal(false);
 
-      assert.equal(errMessage, 'Returned error: VM Exception while processing transaction: invalid opcode')
     });
   });
 });
