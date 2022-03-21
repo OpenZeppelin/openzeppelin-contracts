@@ -3,6 +3,8 @@
 
 pragma solidity ^0.8.0;
 
+import "../token/ERC721/IERC721Receiver.sol";
+import "../token/ERC1155/IERC1155Receiver.sol";
 import "../utils/cryptography/ECDSA.sol";
 import "../utils/cryptography/draft-EIP712.sol";
 import "../utils/introspection/ERC165.sol";
@@ -24,7 +26,7 @@ import "./IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract Governor is Context, ERC165, EIP712, IGovernor {
+abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
     using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
@@ -86,7 +88,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
-        return interfaceId == type(IGovernor).interfaceId || super.supportsInterface(interfaceId);
+        return
+            interfaceId == type(IGovernor).interfaceId ||
+            interfaceId == type(IERC1155Receiver).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     /**
@@ -439,31 +444,20 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         return address(this);
     }
 
-    // Hooks
-    // IMPORTANT: When inheriting this contract, you must include a way to use the received tokens, otherwise they will be stuck.
-
     /**
      * @dev See {IERC721Receiver-onERC721Received}.
-     *
-     * Always returns `onERC721Received.selector`.
-     * The reason for adding this hook here is to enable Governor contract to accept ERC-721 tokens if required after
-     * proposal has been executed.
      */
     function onERC721Received(
         address,
         address,
         uint256,
         bytes memory
-    ) public virtual returns (bytes4) {
+    ) public virtual override returns (bytes4) {
         return this.onERC721Received.selector;
     }
 
     /**
      * @dev See {IERC1155Receiver-onERC1155Received}.
-     *
-     * Always returns `onERC1155Received.selector`.
-     * The reason for adding this hook here is to enable Governor contract to accept ERC-1155 tokens if required after
-     * proposal has been executed.
      */
     function onERC1155Received(
         address,
@@ -471,16 +465,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint256,
         uint256,
         bytes memory
-    ) public virtual returns (bytes4) {
+    ) public virtual override returns (bytes4) {
         return this.onERC1155Received.selector;
     }
 
     /**
      * @dev See {IERC1155Receiver-onERC1155BatchReceived}.
-     *
-     * Always returns `onERC1155BatchReceived.selector`.
-     * The reason for adding this hook here is to enable Governor contract to accept batch ERC-1155 tokens if required after
-     * proposal has been executed.
      */
     function onERC1155BatchReceived(
         address,
@@ -488,7 +478,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         uint256[] memory,
         uint256[] memory,
         bytes memory
-    ) public virtual returns (bytes4) {
+    ) public virtual override returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
     }
 }

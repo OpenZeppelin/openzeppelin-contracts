@@ -4,6 +4,8 @@
 pragma solidity ^0.8.0;
 
 import "../access/AccessControl.sol";
+import "../token/ERC721/IERC721Receiver.sol";
+import "../token/ERC1155/IERC1155Receiver.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -20,7 +22,7 @@ import "../access/AccessControl.sol";
  *
  * _Available since v3.3._
  */
-contract TimelockController is AccessControl {
+contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver {
     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
@@ -104,6 +106,13 @@ contract TimelockController is AccessControl {
      * @dev Contract might receive/hold ETH as part of the maintenance process.
      */
     receive() external payable {}
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, AccessControl) returns (bool) {
+        return interfaceId == type(IERC1155Receiver).interfaceId || super.supportsInterface(interfaceId);
+    }
 
     /**
      * @dev Returns whether an id correspond to a registered operation. This
@@ -354,30 +363,20 @@ contract TimelockController is AccessControl {
         _minDelay = newDelay;
     }
 
-    // Hooks
-
     /**
      * @dev See {IERC721Receiver-onERC721Received}.
-     *
-     * Always returns `onERC721Received.selector`.
-     * The reason for adding this hook here is to enable Timelock contract to accept ERC-721 tokens if required after
-     * proposal has been executed.
      */
     function onERC721Received(
         address,
         address,
         uint256,
         bytes memory
-    ) public virtual returns (bytes4) {
+    ) public virtual override returns (bytes4) {
         return this.onERC721Received.selector;
     }
 
     /**
      * @dev See {IERC1155Receiver-onERC1155Received}.
-     *
-     * Always returns `onERC1155Received.selector`.
-     * The reason for adding this hook here is to enable Timelock contract to accept ERC-1155 tokens if required after
-     * proposal has been executed.
      */
     function onERC1155Received(
         address,
@@ -385,16 +384,12 @@ contract TimelockController is AccessControl {
         uint256,
         uint256,
         bytes memory
-    ) public virtual returns (bytes4) {
+    ) public virtual override returns (bytes4) {
         return this.onERC1155Received.selector;
     }
 
     /**
      * @dev See {IERC1155Receiver-onERC1155BatchReceived}.
-     *
-     * Always returns `onERC1155BatchReceived.selector`.
-     * The reason for adding this hook here is to enable Timelock contract to accept batch ERC-1155 tokens if required after
-     * proposal has been executed.
      */
     function onERC1155BatchReceived(
         address,
@@ -402,7 +397,7 @@ contract TimelockController is AccessControl {
         uint256[] memory,
         uint256[] memory,
         bytes memory
-    ) public virtual returns (bytes4) {
+    ) public virtual override returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
     }
 }
