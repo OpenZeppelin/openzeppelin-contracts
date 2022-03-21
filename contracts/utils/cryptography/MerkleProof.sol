@@ -55,21 +55,14 @@ library MerkleProof {
         return computedHash;
     }
 
-    function _efficientHash(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
-        assembly {
-            mstore(0x00, a)
-            mstore(0x20, b)
-            value := keccak256(0x00, 0x40)
-        }
-    }
-
     /**
      * @dev Returns true if a `leafs` can be proved to be a part of a Merkle tree
      * defined by `root`. For this, `proofs` for each leaf must be provided, containing
      * sibling hashes on the branch from the leaf to the root of the tree. Then
      * 'proofFlag' designates the nodes needed for the multi proof.
+     *
+     * _Available since v4.7._
      */
-    
     function multiProofVerify(
         bytes32 root,
         bytes32[] memory leafs,
@@ -83,8 +76,9 @@ library MerkleProof {
      * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
      * from `leaf` using the multi proof as `proofFlag`. A multi proof is
      * valid if the final hash matches the root of the tree.
+     *
+     * _Available since v4.7._
      */
-
     function processMultiProof(
         bytes32[] memory leafs,
         bytes32[] memory proofs,
@@ -93,24 +87,28 @@ library MerkleProof {
         uint256 leafsLen = leafs.length;
         uint256 totalHashes = proofFlag.length;
         bytes32[] memory hashes = new bytes32[](totalHashes);
-        uint leafPos = 0;
-        uint hashPos = 0;
-        uint proofPos = 0;
-        for(uint256 i = 0; i < totalHashes; i++){
+        uint256 leafPos = 0;
+        uint256 hashPos = 0;
+        uint256 proofPos = 0;
+        for (uint256 i = 0; i < totalHashes; i++) {
             hashes[i] = _hashPair(
-                proofFlag[i] ? (leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++]) : proofs[proofPos++],
+                proofFlag[i] ? leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++] : proofs[proofPos++],
                 leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++]
             );
         }
 
-        return hashes[totalHashes-1];
+        return hashes[totalHashes - 1];
     }
 
-    function _hashPair(bytes32 a, bytes32 b) private pure returns(bytes32) {
+    function _hashPair(bytes32 a, bytes32 b) private pure returns (bytes32) {
         return a < b ? _efficientHash(a, b) : _efficientHash(b, a);
     }
 
+    function _efficientHash(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
+        assembly {
+            mstore(0x00, a)
+            mstore(0x20, b)
+            value := keccak256(0x00, 0x40)
+        }
+    }
 }
-
-
-

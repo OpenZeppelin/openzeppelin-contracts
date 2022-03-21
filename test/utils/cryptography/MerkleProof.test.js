@@ -6,12 +6,10 @@ const keccak256 = require('keccak256');
 const { expect } = require('chai');
 
 const MerkleProofWrapper = artifacts.require('MerkleProofWrapper');
-const MerkleMultiProofWrapper = artifacts.require('MerkleMultiProofWrapper');
 
 contract('MerkleProof', function (accounts) {
   beforeEach(async function () {
     this.merkleProof = await MerkleProofWrapper.new();
-    this.merkleMultiProof = await MerkleMultiProofWrapper.new();
   });
 
   describe('verify', function () {
@@ -67,30 +65,28 @@ contract('MerkleProof', function (accounts) {
 
   describe('multiProofVerify', function () {
     it('returns true for a valid Merkle multi proof', async function () {
-      const leaves = ['a', 'b', 'c', 'd', 'e', 'f'].map(keccak256).sort(Buffer.compare)
-      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true })
+      const leaves = ['a', 'b', 'c', 'd', 'e', 'f'].map(keccak256).sort(Buffer.compare);
+      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
 
-      const root = merkleTree.getRoot()
-      const proofLeaves = ['b', 'f', 'd'].map(keccak256).sort(Buffer.compare)
-      const proof = merkleTree.getMultiProof(proofLeaves)
-      const proofFlags = merkleTree.getProofFlags(proofLeaves, proof)
+      const root = merkleTree.getRoot();
+      const proofLeaves = ['b', 'f', 'd'].map(keccak256).sort(Buffer.compare);
+      const proof = merkleTree.getMultiProof(proofLeaves);
+      const proofFlags = merkleTree.getProofFlags(proofLeaves, proof);
 
-      expect(await this.merkleMultiProof.multiProofVerify(root, proofLeaves, proof, proofFlags)).to.equal(true);
-
+      expect(await this.merkleProof.multiProofVerify(root, proofLeaves, proof, proofFlags)).to.equal(true);
     });
 
-    it('returns false for an invalid Merkle multi proof', async function() {
-      const leaves = ['a', 'b', 'c', 'd', 'e', 'f'].map(keccak256).sort(Buffer.compare)
-      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true })
+    it('returns false for an invalid Merkle multi proof', async function () {
+      const leaves = ['a', 'b', 'c', 'd', 'e', 'f'].map(keccak256).sort(Buffer.compare);
+      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
 
-      const root = merkleTree.getRoot()
-      const badProofLeaves = ['g', 'h', 'i'].map(keccak256).sort(Buffer.compare)
+      const root = merkleTree.getRoot();
+      const badProofLeaves = ['g', 'h', 'i'].map(keccak256).sort(Buffer.compare);
       const badMerkleTree = new MerkleTree(badProofLeaves);
-      const badProof = badMerkleTree.getMultiProof(badProofLeaves)
-      const badProofFlags = badMerkleTree.getProofFlags(badProofLeaves, badProof)
+      const badProof = badMerkleTree.getMultiProof(badProofLeaves);
+      const badProofFlags = badMerkleTree.getProofFlags(badProofLeaves, badProof);
 
-      expect(await this.merkleMultiProof.multiProofVerify(root, badProofLeaves, badProof, badProofFlags)).to.equal(false);
-
+      expect(await this.merkleProof.multiProofVerify(root, badProofLeaves, badProof, badProofFlags)).to.equal(false);
     });
   });
 });
