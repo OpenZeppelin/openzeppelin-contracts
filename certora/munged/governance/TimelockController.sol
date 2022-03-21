@@ -357,6 +357,7 @@ contract TimelockController is AccessControl {
 
 
     function scheduleCheck1(bytes32 id) public virtual onlyRole(PROPOSER_ROLE) {
-        require(false);
+        bool tmp = false;
+        require(tmp);
     }
 } 

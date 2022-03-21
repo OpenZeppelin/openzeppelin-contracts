@@ -249,7 +249,7 @@ rule executeRevertFromUnset(method f, env e, env e2){
 
     // hashIdCorrelation(id, target, value, data, predecessor, salt);
     require data.length < 4;
-    require hashOperation(target, value, data, predecessor, salt) == id;
+    // require hashOperation(target, value, data, predecessor, salt) == id;
     require unset(id);
 
     scheduleCheck1@withrevert(e, id);
