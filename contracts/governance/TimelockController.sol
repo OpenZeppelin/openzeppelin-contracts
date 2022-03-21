@@ -26,6 +26,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
+    bytes32 public constant CANCELLER_ROLE = keccak256("CANCELLER_ROLE");
     uint256 internal constant _DONE_TIMESTAMP = uint256(1);
 
     mapping(bytes32 => uint256) private _timestamps;
@@ -60,7 +61,16 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     event MinDelayChange(uint256 oldDuration, uint256 newDuration);
 
     /**
-     * @dev Initializes the contract with a given `minDelay`.
+     * @dev Initializes the contract with a given `minDelay`, and a list of
+     * initial proposers and executors. The proposers receive both the
+     * proposer and the canceller role (for backward compatibility). The
+     * executors receive the executor role.
+     *
+     * NOTE: At construction, both the deployer and the timelock itself are
+     * administrators. This helps further configuration of the timelock by the
+     * deployer. After configuration is done, it is recommended that the
+     * deployer renounces its admin position and relies on timelocked
+     * operations to perform future maintenance.
      */
     constructor(
         uint256 minDelay,
@@ -70,14 +80,16 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
+        _setRoleAdmin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE);
 
         // deployer + self administration
         _setupRole(TIMELOCK_ADMIN_ROLE, _msgSender());
         _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
 
-        // register proposers
+        // register proposers and cancellers
         for (uint256 i = 0; i < proposers.length; ++i) {
             _setupRole(PROPOSER_ROLE, proposers[i]);
+            _setupRole(CANCELLER_ROLE, proposers[i]);
         }
 
         // register executors
@@ -252,9 +264,9 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      *
      * Requirements:
      *
-     * - the caller must have the 'proposer' role.
+     * - the caller must have the 'canceller' role.
      */
-    function cancel(bytes32 id) public virtual onlyRole(PROPOSER_ROLE) {
+    function cancel(bytes32 id) public virtual onlyRole(CANCELLER_ROLE) {
         require(isOperationPending(id), "TimelockController: operation cannot be cancelled");
         delete _timestamps[id];
 
