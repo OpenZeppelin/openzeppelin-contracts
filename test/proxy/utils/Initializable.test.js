@@ -80,6 +80,7 @@ contract('Initializable', function (accounts) {
     it('cannot nest reinitializers', async function () {
       expect(await this.contract.counter()).to.be.bignumber.equal('0');
       await expectRevert(this.contract.nestedReinitialize(2, 3), 'Initializable: contract is already initialized');
+      await expectRevert(this.contract.nestedReinitialize(3, 2), 'Initializable: contract is already initialized');
     });
 
     it('can chain reinitializers', async function () {
