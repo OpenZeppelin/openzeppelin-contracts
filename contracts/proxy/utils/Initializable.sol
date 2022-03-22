@@ -67,7 +67,7 @@ abstract contract Initializable {
     bool private _initializing;
 
     /**
-     * @dev Modifier to protect an initializer function from being invoked twice.
+     * @dev Modifier to protect an initializer function from being invoked twice. Equivalent to `reinitializer(1)`.
      */
     modifier initializer() {
         bool isTopLevelCall = _setInitializedVersion(1);
