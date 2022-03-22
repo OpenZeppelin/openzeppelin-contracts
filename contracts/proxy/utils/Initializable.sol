@@ -71,6 +71,9 @@ abstract contract Initializable {
      */
     modifier initializer() {
         bool isTopLevelCall = _setInitializedVersion(1);
+        if (isTopLevelCall) {
+            _initializing = true;
+        }
         _;
         if (isTopLevelCall) {
             _initializing = false;
@@ -84,6 +87,9 @@ abstract contract Initializable {
      */
     modifier reinitializer(uint8 version) {
         bool isTopLevelCall = _setInitializedVersion(version);
+        if (isTopLevelCall) {
+            _initializing = true;
+        }
         _;
         if (isTopLevelCall) {
             _initializing = false;
@@ -122,7 +128,6 @@ abstract contract Initializable {
             return false;
         } else {
             require(_initialized < version, "Initializable: contract is already initialized");
-            _initializing = true;
             _initialized = version;
             return true;
         }
