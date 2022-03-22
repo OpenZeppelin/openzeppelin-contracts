@@ -90,18 +90,18 @@ contract('Initializable', function (accounts) {
 
     describe('contract locking', function () {
       it('prevents initialization', async function () {
-        await this.contract.preventInitialize();
+        await this.contract.disableInitializers();
         await expectRevert(this.contract.initialize(), 'Initializable: contract is already initialized');
       });
 
       it('prevents re-initialization', async function () {
-        await this.contract.preventInitialize();
+        await this.contract.disableInitializers();
         await expectRevert(this.contract.reinitialize(255), 'Initializable: contract is already initialized');
       });
 
       it('can lock contract after initialization', async function () {
         await this.contract.initialize();
-        await this.contract.preventInitialize();
+        await this.contract.disableInitializers();
         await expectRevert(this.contract.reinitialize(255), 'Initializable: contract is already initialized');
       });
     });

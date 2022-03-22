@@ -80,7 +80,7 @@ contract ReinitializerMock is Initializable {
         reinitialize(j);
     }
 
-    function preventInitialize() public {
+    function disableInitializers() public {
         _disableInitializers();
     }
 
