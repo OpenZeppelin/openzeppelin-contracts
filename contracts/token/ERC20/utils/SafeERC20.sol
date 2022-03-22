@@ -4,6 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "../IERC20.sol";
+import "../extensions/draft-IERC20Permit.sol";
 import "../../../utils/Address.sol";
 
 /**
@@ -23,7 +24,7 @@ library SafeERC20 {
         address to,
         uint256 value
     ) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
+        _callOptionalReturn(token, abi.encodeWithSelector(IERC20.transfer.selector, to, value));
     }
 
     function safeTransferFrom(
@@ -32,7 +33,7 @@ library SafeERC20 {
         address to,
         uint256 value
     ) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, from, to, value));
+        _callOptionalReturn(token, abi.encodeWithSelector(IERC20.transferFrom.selector, from, to, value));
     }
 
     /**
@@ -54,7 +55,7 @@ library SafeERC20 {
             (value == 0) || (token.allowance(address(this), spender) == 0),
             "SafeERC20: approve from non-zero to non-zero allowance"
         );
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, value));
+        _callOptionalReturn(token, abi.encodeWithSelector(IERC20.approve.selector, spender, value));
     }
 
     function safeIncreaseAllowance(
@@ -63,7 +64,7 @@ library SafeERC20 {
         uint256 value
     ) internal {
         uint256 newAllowance = token.allowance(address(this), spender) + value;
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+        _callOptionalReturn(token, abi.encodeWithSelector(IERC20.approve.selector, spender, newAllowance));
     }
 
     function safeDecreaseAllowance(
@@ -75,8 +76,22 @@ library SafeERC20 {
             uint256 oldAllowance = token.allowance(address(this), spender);
             require(oldAllowance >= value, "SafeERC20: decreased allowance below zero");
             uint256 newAllowance = oldAllowance - value;
-            _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+            _callOptionalReturn(token, abi.encodeWithSelector(IERC20.approve.selector, spender, newAllowance));
         }
+    }
+
+    function safePermit(
+        IERC20 token,
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal {
+        _callOptionalReturn(token, abi.encodeWithSelector(IERC20Permit.permit.selector, owner, spender, value, deadline, v, r, s));
+        require(token.allowance(owner, spender) == value, "SafeERC20: permit did not set allowance");
     }
 
     /**
