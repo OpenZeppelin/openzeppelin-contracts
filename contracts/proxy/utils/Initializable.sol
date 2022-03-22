@@ -113,7 +113,6 @@ abstract contract Initializable {
      */
     function _preventInitialize() internal virtual {
         _setInitializedVersion(type(uint8).max);
-        _initializing = false;
     }
 
     function _setInitializedVersion(uint8 version) private returns (bool) {
