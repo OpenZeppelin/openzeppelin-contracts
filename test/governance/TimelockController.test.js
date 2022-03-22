@@ -25,7 +25,7 @@ function genOperation (target, value, data, predecessor, salt) {
   return { id, target, value, data, predecessor, salt };
 }
 
-function genOperationBatch (targets, values, data, predecessor, salt) {
+function genOperationBatch (targets, values, payloads, predecessor, salt) {
   const id = web3.utils.keccak256(web3.eth.abi.encodeParameters([
     'address[]',
     'uint256[]',
@@ -39,7 +39,7 @@ function genOperationBatch (targets, values, data, predecessor, salt) {
     predecessor,
     salt,
   ]));
-  return { id, targets, values, data, predecessor, salt };
+  return { id, targets, values, payloads, predecessor, salt };
 }
 
 contract('TimelockController', function (accounts) {
@@ -119,7 +119,7 @@ contract('TimelockController', function (accounts) {
         expect(await this.timelock.hashOperationBatch(
           this.operation.targets,
           this.operation.values,
-          this.operation.data,
+          this.operation.payloads,
           this.operation.predecessor,
           this.operation.salt,
         )).to.be.equal(this.operation.id);
@@ -346,7 +346,7 @@ contract('TimelockController', function (accounts) {
           const receipt = await this.timelock.scheduleBatch(
             this.operation.targets,
             this.operation.values,
-            this.operation.data,
+            this.operation.payloads,
             this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
@@ -358,7 +358,7 @@ contract('TimelockController', function (accounts) {
               index: web3.utils.toBN(i),
               target: this.operation.targets[i],
               value: web3.utils.toBN(this.operation.values[i]),
-              data: this.operation.data[i],
+              data: this.operation.payloads[i],
               predecessor: this.operation.predecessor,
               delay: MINDELAY,
             });
@@ -374,7 +374,7 @@ contract('TimelockController', function (accounts) {
           await this.timelock.scheduleBatch(
             this.operation.targets,
             this.operation.values,
-            this.operation.data,
+            this.operation.payloads,
             this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
@@ -385,7 +385,7 @@ contract('TimelockController', function (accounts) {
             this.timelock.scheduleBatch(
               this.operation.targets,
               this.operation.values,
-              this.operation.data,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
@@ -400,7 +400,7 @@ contract('TimelockController', function (accounts) {
             this.timelock.scheduleBatch(
               this.operation.targets,
               [],
-              this.operation.data,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
@@ -430,7 +430,7 @@ contract('TimelockController', function (accounts) {
             this.timelock.scheduleBatch(
               this.operation.targets,
               this.operation.values,
-              this.operation.data,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
@@ -445,7 +445,7 @@ contract('TimelockController', function (accounts) {
             this.timelock.scheduleBatch(
               this.operation.targets,
               this.operation.values,
-              this.operation.data,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY - 1,
@@ -472,7 +472,7 @@ contract('TimelockController', function (accounts) {
             this.timelock.executeBatch(
               this.operation.targets,
               this.operation.values,
-              this.operation.data,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               { from: executor },
@@ -486,7 +486,7 @@ contract('TimelockController', function (accounts) {
             ({ receipt: this.receipt, logs: this.logs } = await this.timelock.scheduleBatch(
               this.operation.targets,
               this.operation.values,
-              this.operation.data,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
@@ -499,7 +499,7 @@ contract('TimelockController', function (accounts) {
               this.timelock.executeBatch(
                 this.operation.targets,
                 this.operation.values,
-                this.operation.data,
+                this.operation.payloads,
                 this.operation.predecessor,
                 this.operation.salt,
                 { from: executor },
@@ -516,7 +516,7 @@ contract('TimelockController', function (accounts) {
               this.timelock.executeBatch(
                 this.operation.targets,
                 this.operation.values,
-                this.operation.data,
+                this.operation.payloads,
                 this.operation.predecessor,
                 this.operation.salt,
                 { from: executor },
@@ -535,7 +535,7 @@ contract('TimelockController', function (accounts) {
               const receipt = await this.timelock.executeBatch(
                 this.operation.targets,
                 this.operation.values,
-                this.operation.data,
+                this.operation.payloads,
                 this.operation.predecessor,
                 this.operation.salt,
                 { from: executor },
@@ -546,7 +546,7 @@ contract('TimelockController', function (accounts) {
                   index: web3.utils.toBN(i),
                   target: this.operation.targets[i],
                   value: web3.utils.toBN(this.operation.values[i]),
-                  data: this.operation.data[i],
+                  data: this.operation.payloads[i],
                 });
               }
             });
@@ -556,7 +556,7 @@ contract('TimelockController', function (accounts) {
                 this.timelock.executeBatch(
                   this.operation.targets,
                   this.operation.values,
-                  this.operation.data,
+                  this.operation.payloads,
                   this.operation.predecessor,
                   this.operation.salt,
                   { from: other },
@@ -570,7 +570,7 @@ contract('TimelockController', function (accounts) {
                 this.timelock.executeBatch(
                   [],
                   this.operation.values,
-                  this.operation.data,
+                  this.operation.payloads,
                   this.operation.predecessor,
                   this.operation.salt,
                   { from: executor },
@@ -584,7 +584,7 @@ contract('TimelockController', function (accounts) {
                 this.timelock.executeBatch(
                   this.operation.targets,
                   [],
-                  this.operation.data,
+                  this.operation.payloads,
                   this.operation.predecessor,
                   this.operation.salt,
                   { from: executor },
@@ -633,7 +633,7 @@ contract('TimelockController', function (accounts) {
           await this.timelock.scheduleBatch(
             operation.targets,
             operation.values,
-            operation.data,
+            operation.payloads,
             operation.predecessor,
             operation.salt,
             MINDELAY,
@@ -644,7 +644,7 @@ contract('TimelockController', function (accounts) {
             this.timelock.executeBatch(
               operation.targets,
               operation.values,
-              operation.data,
+              operation.payloads,
               operation.predecessor,
               operation.salt,
               { from: executor },
