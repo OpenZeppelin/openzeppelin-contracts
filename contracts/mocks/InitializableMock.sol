@@ -81,7 +81,7 @@ contract ReinitializerMock is Initializable {
     }
 
     function preventInitialize() public {
-        _preventInitialize();
+        _disableInitializers();
     }
 
     function doStuff() public onlyInitializing {

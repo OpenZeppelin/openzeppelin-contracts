@@ -43,13 +43,13 @@ import "../../utils/Address.sol";
  *
  * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation
  * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke
- * the {_preventInitialize} function in the constructor to automatically lock it when it is deployed:
+ * the {_disableInitializers} function in the constructor to automatically lock it when it is deployed:
  *
  * [.hljs-theme-light.nopadding]
  * ```
  * /// @custom:oz-upgrades-unsafe-allow constructor
  * constructor() {
- *     _preventInitialize();
+ *     _disableInitializers();
  * }
  * ```
  * ====
@@ -111,7 +111,7 @@ abstract contract Initializable {
      * to any version. It is recommended to use this to lock implementation contracts that are designed to be called
      * through proxies.
      */
-    function _preventInitialize() internal virtual {
+    function _disableInitializers() internal virtual {
         _setInitializedVersion(type(uint8).max);
     }
 
