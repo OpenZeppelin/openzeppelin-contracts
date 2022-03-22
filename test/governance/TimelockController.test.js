@@ -35,7 +35,7 @@ function genOperationBatch (targets, values, payloads, predecessor, salt) {
   ], [
     targets,
     values,
-    data,
+    payloads,
     predecessor,
     salt,
   ]));
