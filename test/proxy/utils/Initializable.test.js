@@ -14,7 +14,7 @@ contract('Initializable', function (accounts) {
 
     context('before initialize', function () {
       it('initializer has not run', async function () {
-        expect(await this.contract.initializerRan()).to.be.false;
+        expect(await this.contract.initializerRan()).to.equal(false);
       });
     });
 
@@ -24,7 +24,7 @@ contract('Initializable', function (accounts) {
       });
 
       it('initializer has run', async function () {
-        expect(await this.contract.initializerRan()).to.be.true;
+        expect(await this.contract.initializerRan()).to.equal(true);
       });
 
       it('initializer does not run again', async function () {
@@ -39,7 +39,7 @@ contract('Initializable', function (accounts) {
 
       it('onlyInitializing modifier succeeds', async function () {
         await this.contract.onlyInitializingNested();
-        expect(await this.contract.onlyInitializingRan()).to.be.true;
+        expect(await this.contract.onlyInitializingRan()).to.equal(true);
       });
     });
 
@@ -50,8 +50,8 @@ contract('Initializable', function (accounts) {
 
   it('nested initializer can run during construction', async function () {
     const contract2 = await ConstructorInitializableMock.new();
-    expect(await contract2.initializerRan()).to.be.true;
-    expect(await contract2.onlyInitializingRan()).to.be.true;
+    expect(await contract2.initializerRan()).to.equal(true);
+    expect(await contract2.onlyInitializingRan()).to.equal(true);
   });
 
   describe('reinitialization', function () {
