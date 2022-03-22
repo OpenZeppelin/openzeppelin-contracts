@@ -81,9 +81,9 @@ abstract contract Initializable {
     }
 
     /**
-     * @dev Modifier to allow the execution of `onlyInitializing`-protected methods, after the original initialization
-     * step, through "reinitializer". These "reinitializer" are essential to configure modules that are added through
-     * upgrades and that require an initialization step.
+     * @dev Modifier to allow the execution of `onlyInitializing`-protected methods after the initial initialization
+     * step, through "reinitializer" functions. These reinitializers are essential to configure modules that are added
+     * through upgrades and that require an initialization step.
      */
     modifier reinitializer(uint8 version) {
         bool isTopLevelCall = _setInitializedVersion(version);
