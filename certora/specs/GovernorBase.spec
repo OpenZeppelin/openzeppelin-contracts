@@ -173,11 +173,11 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
 /*
  * A user cannot vote twice
  */
- // Checked for castVote only. all 3 castVote functions call _castVote, so the completness of the verification is counted on
- // the fact that the 3 functions themselves makes no chages, but rather call an internal function to execute.
+ // Checked for castVote only. all 3 castVote functions call _castVote, so the completeness of the verification is counted on
+ // the fact that the 3 functions themselves makes no changes, but rather call an internal function to execute.
  // That means that we do not check those 3 functions directly, however for castVote & castVoteWithReason it is quite trivial
  // to understand why this is ok. For castVoteBySig we basically assume that the signature referendum is correct without checking it.
- // We could check each function seperately and pass the rule, but that would have uglyfied the code with no concrete 
+ // We could check each function separately and pass the rule, but that would have uglyfied the code with no concrete 
  // benefit, as it is evident that nothing is happening in the first 2 functions (calling a view function), and we do not desire to check the signature verification.
 rule doubleVoting(uint256 pId, uint8 sup, method f) {
     env e;

@@ -4,6 +4,7 @@
 
  * `AccessControl`: add a virtual `_checkRole(bytes32)` function that can be overridden to alter the `onlyRole` modifier behavior. ([#3137](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3137))
  * `EnumerableMap`: add new `AddressToUintMap` map type. ([#3150](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3150))
+ * `EnumerableMap`: add new `Bytes32ToBytes32Map` map type. ([#3192](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3192))
  * `ERC1155`: Add a `_afterTokenTransfer` hook for improved extensibility. ([#3166](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3166))
  * `DoubleEndedQueue`: a new data structure that supports efficient push and pop to both front and back, useful for FIFO and LIFO queues. ([#3153](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3153))
  * `Governor`: improved security of `onlyGovernance` modifier when using an external executor contract (e.g. a timelock) that can operate without necessarily going through the governance protocol. ([#3147](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3147))
@@ -11,6 +12,7 @@
  * `Governor`: Add a way to parameterize votes. This can be used to implement voting systems such as fractionalized voting, ERC721 based voting, or any number of other systems. The `params` argument added to `_countVote` method, and included in the newly added `_getVotes` method, can be used by counting and voting modules respectively for such purposes.
  * `TimelockController`: Add a separate canceller role for the ability to cancel. ([#3165](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3165))
  * `draft-ERC20Permit`: replace `immutable` with `constant` for `_PERMIT_TYPEHASH` since the `keccak256` of string literals is treated specially and the hash is evaluated at compile time. ([#3196](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3196))
+ * `ERC20Wrapper`: the `decimals()` function now tries to fetch the value from the underlying token instance. If that calls revert, then the default value is used. ([#3259](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3259))
  * `MerkleProof`: added `multiProofVerify` to open new airdrop mechanisms and `_hashPair` to process proofs.
 
 ### Breaking changes
@@ -457,7 +459,7 @@ Refer to the table below to adjust your inheritance list.
  * `SignedSafeMath`: added overflow-safe operations for signed integers (`int256`). ([#1559](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1559), [#1588](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1588))
 
 ### Improvements
- * The compiler version required by `Array` was behind the rest of the libray so it was updated to `v0.4.24`. ([#1553](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1553))
+ * The compiler version required by `Array` was behind the rest of the library so it was updated to `v0.4.24`. ([#1553](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1553))
  * Now conforming to a 4-space indentation code style. ([1508](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1508))
  * `ERC20`: more gas efficient due to removed redundant `require`s. ([#1409](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1409))
  * `ERC721`: fixed a bug that prevented internal data structures from being properly cleaned, missing potential gas refunds. ([#1539](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1539) and [#1549](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1549))
