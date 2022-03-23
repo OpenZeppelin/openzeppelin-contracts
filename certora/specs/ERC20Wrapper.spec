@@ -12,7 +12,7 @@ methods {
 
 
 // STATUS - verified
-// totalsupply of wrapped should be less than or equal to underlying (assuming no transfer they should be equal) - solvency
+// totalsupply of wrapped should be less than or equal to underlying (assuming no external transfer) - solvency
 invariant whatAboutTotal(env e)
     totalSupply(e) <= underlyingTotalSupply()
     filtered { f -> f.selector != certorafallback_0().selector }
@@ -24,6 +24,18 @@ invariant whatAboutTotal(env e)
         preserved depositFor(address account, uint256 amount) with (env e2){
             require underlyingBalanceOf(currentContract) <= underlyingTotalSupply();
             require totalSupply(e) + amount <= underlyingTotalSupply();
+            require underlying() != currentContract;
+        }
+    }
+
+
+// STATUS - in progress
+// https://vaas-stg.certora.com/output/3106/a5f4943cd2987dccab94/?anonymousKey=9428fb1588845c0222c2abe5b00dedd59c925870
+// totalsupply of wrapped should be less than or equal to the underlying balanceOf contract (assuming no external transfer) - solvency
+invariant underTotalAndContractBalanceOfCorrelation(env e)
+    totalSupply(e) <= underlyingBalanceOf(currentContract)
+    {
+        preserved {
             require underlying() != currentContract;
         }
     }
