@@ -14,7 +14,7 @@ import "../crosschain/CrossChainEnabled.sol";
  * if an address `x` has role `SOME_ROLE`, it would be able to call `myFunction` directly.
  * A wallet or contract at the same address on another chain would however not be able
  * to call this function. In order to do so, it would require to have the role
- * `_aliasRole(SOME_ROLE)`.
+ * `_crossChainRoleAlias(SOME_ROLE)`.
  *
  * This aliasing is required to protect against multiple contracts living at the same
  * address on different chains but controlled by conflicting entities.
@@ -29,7 +29,7 @@ abstract contract AccessControlCrossChain is AccessControl, CrossChainEnabled {
      */
     function _checkRole(bytes32 role) internal view virtual override {
         if (_isCrossChain()) {
-            _checkRole(_aliasRole(role), _crossChainSender());
+            _checkRole(_crossChainRoleAlias(role), _crossChainSender());
         } else {
             super._checkRole(role);
         }
@@ -38,7 +38,7 @@ abstract contract AccessControlCrossChain is AccessControl, CrossChainEnabled {
     /**
      * @dev Returns the aliased role corresponding to `role`.
      */
-    function _aliasRole(bytes32 role) internal pure virtual returns (bytes32) {
+    function _crossChainRoleAlias(bytes32 role) internal pure virtual returns (bytes32) {
         return role ^ CROSSCHAIN_ALIAS;
     }
 }

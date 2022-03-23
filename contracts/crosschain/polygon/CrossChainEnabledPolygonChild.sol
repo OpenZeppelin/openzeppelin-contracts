@@ -23,9 +23,11 @@ address constant DEFAULT_SENDER = 0x000000000000000000000000000000000000dEaD;
  * _Available since v4.6._
  */
 abstract contract CrossChainEnabledPolygonChild is IFxMessageProcessor, CrossChainEnabled, ReentrancyGuard {
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     address private immutable _fxChild;
     address private _sender = DEFAULT_SENDER;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(address fxChild) {
         _fxChild = fxChild;
     }

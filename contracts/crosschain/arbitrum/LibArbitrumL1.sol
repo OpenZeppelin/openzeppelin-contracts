@@ -16,7 +16,7 @@ import {IOutbox as ArbitrumL1_Outbox} from "../../vendor/arbitrum/IOutbox.sol";
 library LibArbitrumL1 {
     /**
      * @dev Returns whether the current function call is the result of a
-     * cross-chain message relayed by `bridge`.
+     * cross-chain message relayed by the bridge attached to `inbox`.
      */
     function isCrossChain(address inbox) internal view returns (bool) {
         return msg.sender == ArbitrumL1_Inbox(inbox).bridge();
@@ -24,12 +24,14 @@ library LibArbitrumL1 {
 
     /**
      * @dev Returns the address of the sender that triggered the current
-     * cross-chain message through `bridge`.
+     * cross-chain message through the bridge attached to `inbox`.
      *
      * NOTE: {isCrossChain} should be checked before trying to recover the
      * sender.
      */
     function crossChainSender(address inbox) internal view returns (address) {
-        return ArbitrumL1_Outbox(ArbitrumL1_Bridge(ArbitrumL1_Inbox(inbox).bridge()).activeOutbox()).l2ToL1Sender();
+        address sender = ArbitrumL1_Outbox(ArbitrumL1_Bridge(ArbitrumL1_Inbox(inbox).bridge()).activeOutbox()).l2ToL1Sender();
+        require(sender != address(0), "LibArbitrumL1: system messages without sender");
+        return sender;
     }
 }

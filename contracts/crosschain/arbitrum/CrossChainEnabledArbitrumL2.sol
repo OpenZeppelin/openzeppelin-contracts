@@ -22,13 +22,13 @@ abstract contract CrossChainEnabledArbitrumL2 is CrossChainEnabled {
      * @dev see {CrossChainEnabled-_isCrossChain}
      */
     function _isCrossChain() internal view virtual override returns (bool) {
-        return LibArbitrumL2.isCrossChain(address(LibArbitrumL2.ARBSYS));
+        return LibArbitrumL2.isCrossChain(LibArbitrumL2.ARBSYS);
     }
 
     /**
      * @dev see {CrossChainEnabled-_crossChainSender}
      */
     function _crossChainSender() internal view virtual override onlyCrossChain returns (address) {
-        return LibArbitrumL2.crossChainSender(address(LibArbitrumL2.ARBSYS));
+        return LibArbitrumL2.crossChainSender(LibArbitrumL2.ARBSYS);
     }
 }

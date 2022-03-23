@@ -23,8 +23,10 @@ import "./LibAMB.sol";
  * _Available since v4.6._
  */
 contract CrossChainEnabledAMB is CrossChainEnabled {
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     address private immutable _bridge;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(address bridge) {
         _bridge = bridge;
     }

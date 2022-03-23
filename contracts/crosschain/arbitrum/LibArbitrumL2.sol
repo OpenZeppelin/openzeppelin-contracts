@@ -14,25 +14,25 @@ import {IArbSys as ArbitrumL2_Bridge} from "../../vendor/arbitrum/IArbSys.sol";
 library LibArbitrumL2 {
     /**
      * @dev Returns whether the current function call is the result of a
-     * cross-chain message relayed by `bridge`.
+     * cross-chain message relayed by `arbsys`.
      */
-    ArbitrumL2_Bridge public constant ARBSYS = ArbitrumL2_Bridge(0x0000000000000000000000000000000000000064);
+    address public constant ARBSYS = ArbitrumL2_Bridge(0x0000000000000000000000000000000000000064);
 
-    function isCrossChain(address bridge) internal view returns (bool) {
-        return ArbitrumL2_Bridge(bridge).isTopLevelCall();
+    function isCrossChain(address arbsys) internal view returns (bool) {
+        return ArbitrumL2_Bridge(arbsys).isTopLevelCall();
     }
 
     /**
      * @dev Returns the address of the sender that triggered the current
-     * cross-chain message through `bridge`.
+     * cross-chain message through `arbsys`.
      *
      * NOTE: {isCrossChain} should be checked before trying to recover the
      * sender.
      */
-    function crossChainSender(address bridge) internal view returns (address) {
+    function crossChainSender(address arbsys) internal view returns (address) {
         return
-            ArbitrumL2_Bridge(bridge).wasMyCallersAddressAliased()
-                ? ArbitrumL2_Bridge(bridge).myCallersAddressWithoutAliasing()
+            ArbitrumL2_Bridge(arbsys).wasMyCallersAddressAliased()
+                ? ArbitrumL2_Bridge(arbsys).myCallersAddressWithoutAliasing()
                 : msg.sender;
     }
 }

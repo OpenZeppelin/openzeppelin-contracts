@@ -11,20 +11,20 @@ import {ICrossDomainMessenger as Optimism_Bridge} from "../../vendor/optimism/IC
 library LibOptimism {
     /**
      * @dev Returns whether the current function call is the result of a
-     * cross-chain message relayed by `bridge`.
+     * cross-chain message relayed by `messenger`.
      */
-    function isCrossChain(address bridge) internal view returns (bool) {
-        return msg.sender == bridge;
+    function isCrossChain(address messenger) internal view returns (bool) {
+        return msg.sender == messenger;
     }
 
     /**
      * @dev Returns the address of the sender that triggered the current
-     * cross-chain message through `bridge`.
+     * cross-chain message through `messenger`.
      *
      * NOTE: {isCrossChain} should be checked before trying to recover the
      * sender.
      */
-    function crossChainSender(address bridge) internal view returns (address) {
-        return Optimism_Bridge(bridge).xDomainMessageSender();
+    function crossChainSender(address messenger) internal view returns (address) {
+        return Optimism_Bridge(messenger).xDomainMessageSender();
     }
 }

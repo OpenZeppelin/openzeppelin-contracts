@@ -19,8 +19,10 @@ import "./LibArbitrumL1.sol";
  * _Available since v4.6._
  */
 abstract contract CrossChainEnabledArbitrumL1 is CrossChainEnabled {
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
     address private immutable _inbox;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(address inbox) {
         _inbox = inbox;
     }

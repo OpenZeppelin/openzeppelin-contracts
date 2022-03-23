@@ -9,30 +9,32 @@ import "./LibOptimism.sol";
  * @dev [Optimism](https://www.optimism.io/) specialization or the
  * {CrossChainEnabled} abstraction.
  *
- * The bridge (`CrossDomainMessenger`) contract is provided and maintained by
+ * The messenger (`CrossDomainMessenger`) contract is provided and maintained by
  * the optimism team. You can find the address of this contract on mainnet and
  * kovan in the [deployments section of Optimism monorepo](https://github.com/ethereum-optimism/optimism/tree/develop/packages/contracts/deployments).
  *
  * _Available since v4.6._
  */
 abstract contract CrossChainEnabledOptimism is CrossChainEnabled {
-    address private immutable _bridge;
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable
+    address private immutable _messenger;
 
-    constructor(address bridge) {
-        _bridge = bridge;
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor(address messenger) {
+        _messenger = messenger;
     }
 
     /**
      * @dev see {CrossChainEnabled-_isCrossChain}
      */
     function _isCrossChain() internal view virtual override returns (bool) {
-        return LibOptimism.isCrossChain(_bridge);
+        return LibOptimism.isCrossChain(_messenger);
     }
 
     /**
      * @dev see {CrossChainEnabled-_crossChainSender}
      */
     function _crossChainSender() internal view virtual override onlyCrossChain returns (address) {
-        return LibOptimism.crossChainSender(_bridge);
+        return LibOptimism.crossChainSender(_messenger);
     }
 }
