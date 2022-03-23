@@ -16,7 +16,7 @@ pragma solidity ^0.8.0;
  */
 abstract contract CrossChainEnabled {
     error NotCrossChainCall();
-    error InvalidCrossChainSender(address sender, address expected);
+    error InvalidCrossChainSender(address actual, address expected);
 
     /**
      * @dev Throws if the current function call is not the result of a
@@ -31,9 +31,9 @@ abstract contract CrossChainEnabled {
      * @dev Throws if the current function call is not the result of a
      * cross-chain execution initiated by `account`.
      */
-    modifier onlyCrossChainSender(address account) {
-        address sender = _crossChainSender();
-        if (account != sender) revert InvalidCrossChainSender(sender, account);
+    modifier onlyCrossChainSender(address expected) {
+        address actual = _crossChainSender();
+        if (expected != actual) revert InvalidCrossChainSender(actual, expected);
         _;
     }
 
@@ -47,8 +47,8 @@ abstract contract CrossChainEnabled {
      * @dev Returns the address of the sender of the cross-chain message that
      * triggered the current function call.
      *
-     * NOTE: Should revert if the current function call is not the result of a
-     * cross-chain message.
+     * IMPORTANT: Should revert with `NotCrossChainCall` if the current function
+     * call is not the result of a cross-chain message.
      */
     function _crossChainSender() internal view virtual returns (address);
 }
