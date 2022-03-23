@@ -30,7 +30,8 @@ library LibArbitrumL1 {
      * sender.
      */
     function crossChainSender(address inbox) internal view returns (address) {
-        address sender = ArbitrumL1_Outbox(ArbitrumL1_Bridge(ArbitrumL1_Inbox(inbox).bridge()).activeOutbox()).l2ToL1Sender();
+        address sender = ArbitrumL1_Outbox(ArbitrumL1_Bridge(ArbitrumL1_Inbox(inbox).bridge()).activeOutbox())
+            .l2ToL1Sender();
         require(sender != address(0), "LibArbitrumL1: system messages without sender");
         return sender;
     }
