@@ -26,7 +26,7 @@ function shouldBehaveLikeReceiver (sender = randomAddress()) {
     )); // TODO: check custom error
   });
 
-  it('should grant access to cross-chain call from a the owner', async function () {
+  it('should grant access to cross-chain call from the owner', async function () {
     await CrossChainHelper.call(
       await this.receiver.owner(),
       this.receiver,
