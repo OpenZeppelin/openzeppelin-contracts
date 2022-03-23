@@ -16,7 +16,7 @@ contract AccessControlCrossChainMock is AccessControlCrossChain, CrossChainEnabl
 
     function senderProtected(bytes32 roleId) public onlyRole(roleId) {}
 
-    function aliasRole(bytes32 role) public pure virtual returns (bytes32) {
-        return _aliasRole(role);
+    function crossChainRoleAlias(bytes32 role) public pure virtual returns (bytes32) {
+        return _crossChainRoleAlias(role);
     }
 }

@@ -16,7 +16,7 @@ library LibArbitrumL2 {
      * @dev Returns whether the current function call is the result of a
      * cross-chain message relayed by `arbsys`.
      */
-    address public constant ARBSYS = ArbitrumL2_Bridge(0x0000000000000000000000000000000000000064);
+    address public constant ARBSYS = 0x0000000000000000000000000000000000000064;
 
     function isCrossChain(address arbsys) internal view returns (bool) {
         return ArbitrumL2_Bridge(arbsys).isTopLevelCall();

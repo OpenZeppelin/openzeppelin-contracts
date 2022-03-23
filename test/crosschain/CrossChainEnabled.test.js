@@ -1,5 +1,17 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
+const { expect } = require('chai');
 const CrossChainHelper = require('../helpers/crosschain');
+
+/** Revert handler that supports custom errors. */
+async function expectRevert (promise, reason) {
+  try {
+    await promise;
+    expect.fail('Expected promise to throw but it didn\'t');
+  } catch (error) {
+    if (reason) {
+      expect(error.message).to.include(reason);
+    }
+  }
+}
 
 function randomAddress () {
   return web3.utils.toChecksumAddress(web3.utils.randomHex(20));
@@ -13,17 +25,18 @@ const CrossChainEnabledPolygonChildMock = artifacts.require('CrossChainEnabledPo
 
 function shouldBehaveLikeReceiver (sender = randomAddress()) {
   it('should reject same-chain calls', async function () {
-    await expectRevert.unspecified(
+    await expectRevert(
       this.receiver.crossChainRestricted(),
-    ); // TODO: check custom error
+      'NotCrossChainCall()',
+    );
   });
 
   it('should restrict to cross-chain call from a invalid sender', async function () {
-    await expectRevert.unspecified(CrossChainHelper.call(
+    await expectRevert(CrossChainHelper.call(
       sender,
       this.receiver,
       'crossChainOwnerRestricted()',
-    )); // TODO: check custom error
+    ));
   });
 
   it('should grant access to cross-chain call from the owner', async function () {
