@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import {IBridge as ArbitrumL1_Bridge} from "../../vendor/arbitrum/IBridge.sol";
 import {IInbox as ArbitrumL1_Inbox} from "../../vendor/arbitrum/IInbox.sol";
