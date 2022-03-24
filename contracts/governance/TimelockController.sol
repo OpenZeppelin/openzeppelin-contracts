@@ -194,11 +194,11 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     function hashOperationBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt
     ) public pure virtual returns (bytes32 hash) {
-        return keccak256(abi.encode(targets, values, datas, predecessor, salt));
+        return keccak256(abi.encode(targets, values, payloads, predecessor, salt));
     }
 
     /**
@@ -235,18 +235,18 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     function scheduleBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt,
         uint256 delay
     ) public virtual onlyRole(PROPOSER_ROLE) {
         require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == datas.length, "TimelockController: length mismatch");
+        require(targets.length == payloads.length, "TimelockController: length mismatch");
 
-        bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
+        bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
         _schedule(id, delay);
         for (uint256 i = 0; i < targets.length; ++i) {
-            emit CallScheduled(id, i, targets[i], values[i], datas[i], predecessor, delay);
+            emit CallScheduled(id, i, targets[i], values[i], payloads[i], predecessor, delay);
         }
     }
 
@@ -310,17 +310,17 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     function executeBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
         require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == datas.length, "TimelockController: length mismatch");
+        require(targets.length == payloads.length, "TimelockController: length mismatch");
 
-        bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
+        bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
         _beforeCall(id, predecessor);
         for (uint256 i = 0; i < targets.length; ++i) {
-            _call(id, i, targets[i], values[i], datas[i]);
+            _call(id, i, targets[i], values[i], payloads[i]);
         }
         _afterCall(id);
     }

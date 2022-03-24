@@ -32,7 +32,7 @@ function genOperation (target, value, data, predecessor, salt) {
   return { id, target, value, data, predecessor, salt };
 }
 
-function genOperationBatch (targets, values, datas, predecessor, salt) {
+function genOperationBatch (targets, values, payloads, predecessor, salt) {
   const id = web3.utils.keccak256(web3.eth.abi.encodeParameters([
     'address[]',
     'uint256[]',
@@ -42,11 +42,11 @@ function genOperationBatch (targets, values, datas, predecessor, salt) {
   ], [
     targets,
     values,
-    datas,
+    payloads,
     predecessor,
     salt,
   ]));
-  return { id, targets, values, datas, predecessor, salt };
+  return { id, targets, values, payloads, predecessor, salt };
 }
 
 contract('TimelockController', function (accounts) {
@@ -130,7 +130,7 @@ contract('TimelockController', function (accounts) {
         expect(await this.mock.hashOperationBatch(
           this.operation.targets,
           this.operation.values,
-          this.operation.datas,
+          this.operation.payloads,
           this.operation.predecessor,
           this.operation.salt,
         )).to.be.equal(this.operation.id);
@@ -174,7 +174,7 @@ contract('TimelockController', function (accounts) {
             .to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
         });
 
-        it('prevent overwritting active operation', async function () {
+        it('prevent overwriting active operation', async function () {
           await this.mock.schedule(
             this.operation.target,
             this.operation.value,
@@ -357,7 +357,7 @@ contract('TimelockController', function (accounts) {
           const receipt = await this.mock.scheduleBatch(
             this.operation.targets,
             this.operation.values,
-            this.operation.datas,
+            this.operation.payloads,
             this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
@@ -369,7 +369,7 @@ contract('TimelockController', function (accounts) {
               index: web3.utils.toBN(i),
               target: this.operation.targets[i],
               value: web3.utils.toBN(this.operation.values[i]),
-              data: this.operation.datas[i],
+              data: this.operation.payloads[i],
               predecessor: this.operation.predecessor,
               delay: MINDELAY,
             });
@@ -381,11 +381,11 @@ contract('TimelockController', function (accounts) {
             .to.be.bignumber.equal(web3.utils.toBN(block.timestamp).add(MINDELAY));
         });
 
-        it('prevent overwritting active operation', async function () {
+        it('prevent overwriting active operation', async function () {
           await this.mock.scheduleBatch(
             this.operation.targets,
             this.operation.values,
-            this.operation.datas,
+            this.operation.payloads,
             this.operation.predecessor,
             this.operation.salt,
             MINDELAY,
@@ -396,7 +396,7 @@ contract('TimelockController', function (accounts) {
             this.mock.scheduleBatch(
               this.operation.targets,
               this.operation.values,
-              this.operation.datas,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
@@ -411,7 +411,7 @@ contract('TimelockController', function (accounts) {
             this.mock.scheduleBatch(
               this.operation.targets,
               [],
-              this.operation.datas,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
@@ -441,7 +441,7 @@ contract('TimelockController', function (accounts) {
             this.mock.scheduleBatch(
               this.operation.targets,
               this.operation.values,
-              this.operation.datas,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
@@ -456,7 +456,7 @@ contract('TimelockController', function (accounts) {
             this.mock.scheduleBatch(
               this.operation.targets,
               this.operation.values,
-              this.operation.datas,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY - 1,
@@ -483,7 +483,7 @@ contract('TimelockController', function (accounts) {
             this.mock.executeBatch(
               this.operation.targets,
               this.operation.values,
-              this.operation.datas,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               { from: executor },
@@ -497,7 +497,7 @@ contract('TimelockController', function (accounts) {
             ({ receipt: this.receipt, logs: this.logs } = await this.mock.scheduleBatch(
               this.operation.targets,
               this.operation.values,
-              this.operation.datas,
+              this.operation.payloads,
               this.operation.predecessor,
               this.operation.salt,
               MINDELAY,
@@ -510,7 +510,7 @@ contract('TimelockController', function (accounts) {
               this.mock.executeBatch(
                 this.operation.targets,
                 this.operation.values,
-                this.operation.datas,
+                this.operation.payloads,
                 this.operation.predecessor,
                 this.operation.salt,
                 { from: executor },
@@ -527,7 +527,7 @@ contract('TimelockController', function (accounts) {
               this.mock.executeBatch(
                 this.operation.targets,
                 this.operation.values,
-                this.operation.datas,
+                this.operation.payloads,
                 this.operation.predecessor,
                 this.operation.salt,
                 { from: executor },
@@ -546,7 +546,7 @@ contract('TimelockController', function (accounts) {
               const receipt = await this.mock.executeBatch(
                 this.operation.targets,
                 this.operation.values,
-                this.operation.datas,
+                this.operation.payloads,
                 this.operation.predecessor,
                 this.operation.salt,
                 { from: executor },
@@ -557,7 +557,7 @@ contract('TimelockController', function (accounts) {
                   index: web3.utils.toBN(i),
                   target: this.operation.targets[i],
                   value: web3.utils.toBN(this.operation.values[i]),
-                  data: this.operation.datas[i],
+                  data: this.operation.payloads[i],
                 });
               }
             });
@@ -567,7 +567,7 @@ contract('TimelockController', function (accounts) {
                 this.mock.executeBatch(
                   this.operation.targets,
                   this.operation.values,
-                  this.operation.datas,
+                  this.operation.payloads,
                   this.operation.predecessor,
                   this.operation.salt,
                   { from: other },
@@ -581,7 +581,7 @@ contract('TimelockController', function (accounts) {
                 this.mock.executeBatch(
                   [],
                   this.operation.values,
-                  this.operation.datas,
+                  this.operation.payloads,
                   this.operation.predecessor,
                   this.operation.salt,
                   { from: executor },
@@ -595,7 +595,7 @@ contract('TimelockController', function (accounts) {
                 this.mock.executeBatch(
                   this.operation.targets,
                   [],
-                  this.operation.datas,
+                  this.operation.payloads,
                   this.operation.predecessor,
                   this.operation.salt,
                   { from: executor },
@@ -644,7 +644,7 @@ contract('TimelockController', function (accounts) {
           await this.mock.scheduleBatch(
             operation.targets,
             operation.values,
-            operation.datas,
+            operation.payloads,
             operation.predecessor,
             operation.salt,
             MINDELAY,
@@ -655,7 +655,7 @@ contract('TimelockController', function (accounts) {
             this.mock.executeBatch(
               operation.targets,
               operation.values,
-              operation.datas,
+              operation.payloads,
               operation.predecessor,
               operation.salt,
               { from: executor },

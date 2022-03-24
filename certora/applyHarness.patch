@@ -71,7 +71,7 @@ diff -ruN governance/Governor.sol governance/Governor.sol
 + 
      /**
       * @dev Restrict access to governor executing address. Some module might override the _executor function to make
-      * sure this modifier is consistant with the execution model.
+      * sure this modifier is consistent with the execution model.
 @@ -167,12 +167,12 @@
      /**
       * @dev Amount of votes already cast passes the threshold limit.
