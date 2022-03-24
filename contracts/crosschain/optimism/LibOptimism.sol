@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import {ICrossDomainMessenger as Optimism_Bridge} from "../../vendor/optimism/ICrossDomainMessenger.sol";
+import "../errors.sol";
 
 /**
  * @dev Primitives for cross-chain aware contracts for [Optimism](https://www.optimism.io/).
@@ -23,9 +24,12 @@ library LibOptimism {
      * cross-chain message through `messenger`.
      *
      * NOTE: {isCrossChain} should be checked before trying to recover the
-     * sender.
+     * sender, as it will revert with `NotCrossChainCall` if the current
+     * function call is not the result of a cross-chain message.
      */
     function crossChainSender(address messenger) internal view returns (address) {
+        if (!isCrossChain(messenger)) revert NotCrossChainCall();
+
         return Optimism_Bridge(messenger).xDomainMessageSender();
     }
 }

@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.0;
 
+import "./errors.sol";
+
 /**
  * @dev Provides information for building cross-chain aware contracts. This
  * abstract contract provides accessors and modifiers to control the execution
@@ -15,9 +17,6 @@ pragma solidity ^0.8.0;
  * _Available since v4.6._
  */
 abstract contract CrossChainEnabled {
-    error NotCrossChainCall();
-    error InvalidCrossChainSender(address actual, address expected);
-
     /**
      * @dev Throws if the current function call is not the result of a
      * cross-chain execution.

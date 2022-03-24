@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import {IArbSys as ArbitrumL2_Bridge} from "../../vendor/arbitrum/IArbSys.sol";
+import "../errors.sol";
 
 /**
  * @dev Primitives for cross-chain aware contracts for
@@ -27,9 +28,12 @@ library LibArbitrumL2 {
      * cross-chain message through `arbsys`.
      *
      * NOTE: {isCrossChain} should be checked before trying to recover the
-     * sender.
+     * sender, as it will revert with `NotCrossChainCall` if the current
+     * function call is not the result of a cross-chain message.
      */
     function crossChainSender(address arbsys) internal view returns (address) {
+        if (!isCrossChain(arbsys)) revert NotCrossChainCall();
+
         return
             ArbitrumL2_Bridge(arbsys).wasMyCallersAddressAliased()
                 ? ArbitrumL2_Bridge(arbsys).myCallersAddressWithoutAliasing()

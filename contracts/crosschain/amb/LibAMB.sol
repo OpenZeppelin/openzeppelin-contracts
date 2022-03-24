@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import {IAMB as AMB_Bridge} from "../../vendor/amb/IAMB.sol";
+import "../errors.sol";
 
 /**
  * @dev Primitives for cross-chain aware contracts using the
@@ -23,9 +24,11 @@ library LibAMB {
      * cross-chain message through `bridge`.
      *
      * NOTE: {isCrossChain} should be checked before trying to recover the
-     * sender.
+     * sender, as it will revert with `NotCrossChainCall` if the current
+     * function call is not the result of a cross-chain message.
      */
     function crossChainSender(address bridge) internal view returns (address) {
+        if (!isCrossChain(bridge)) revert NotCrossChainCall();
         return AMB_Bridge(bridge).messageSender();
     }
 }

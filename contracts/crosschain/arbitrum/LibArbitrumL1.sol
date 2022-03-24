@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import {IBridge as ArbitrumL1_Bridge} from "../../vendor/arbitrum/IBridge.sol";
 import {IInbox as ArbitrumL1_Inbox} from "../../vendor/arbitrum/IInbox.sol";
 import {IOutbox as ArbitrumL1_Outbox} from "../../vendor/arbitrum/IOutbox.sol";
+import "../errors.sol";
 
 /**
  * @dev Primitives for cross-chain aware contracts for
@@ -27,12 +28,16 @@ library LibArbitrumL1 {
      * cross-chain message through the bridge attached to `inbox`.
      *
      * NOTE: {isCrossChain} should be checked before trying to recover the
-     * sender.
+     * sender, as it will revert with `NotCrossChainCall` if the current
+     * function call is not the result of a cross-chain message.
      */
     function crossChainSender(address inbox) internal view returns (address) {
+        if (!isCrossChain(inbox)) revert NotCrossChainCall();
+
         address sender = ArbitrumL1_Outbox(ArbitrumL1_Bridge(ArbitrumL1_Inbox(inbox).bridge()).activeOutbox())
             .l2ToL1Sender();
         require(sender != address(0), "LibArbitrumL1: system messages without sender");
+
         return sender;
     }
 }
