@@ -1,5 +1,4 @@
-const { expectEvent } = require('@openzeppelin/test-helpers');
-const { expect } = require('chai');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const Bytes32DequeMock = artifacts.require('Bytes32DequeMock');
 
@@ -11,7 +10,7 @@ async function getContent (deque) {
 }
 
 /** Revert handler that supports custom errors. */
-async function expectRevert (promise, reason) {
+expectRevert.customError = async function (promise, reason) {
   try {
     await promise;
     expect.fail('Expected promise to throw but it didn\'t');
@@ -20,7 +19,7 @@ async function expectRevert (promise, reason) {
       expect(error.message).to.include(reason);
     }
   }
-}
+};
 
 contract('DoubleEndedQueue', function (accounts) {
   const bytesA = '0xdeadbeef'.padEnd(66, '0');
@@ -39,10 +38,10 @@ contract('DoubleEndedQueue', function (accounts) {
     });
 
     it('reverts on accesses', async function () {
-      await expectRevert(this.deque.popBack(), 'Empty()');
-      await expectRevert(this.deque.popFront(), 'Empty()');
-      await expectRevert(this.deque.back(), 'Empty()');
-      await expectRevert(this.deque.front(), 'Empty()');
+      await expectRevert.customError(this.deque.popBack(), 'Empty()');
+      await expectRevert.customError(this.deque.popFront(), 'Empty()');
+      await expectRevert.customError(this.deque.back(), 'Empty()');
+      await expectRevert.customError(this.deque.front(), 'Empty()');
     });
   });
 
@@ -63,7 +62,7 @@ contract('DoubleEndedQueue', function (accounts) {
     });
 
     it('out of bounds access', async function () {
-      await expectRevert(this.deque.at(this.content.length), 'OutOfBounds()');
+      await expectRevert.customError(this.deque.at(this.content.length), 'OutOfBounds()');
     });
 
     describe('push', function () {
