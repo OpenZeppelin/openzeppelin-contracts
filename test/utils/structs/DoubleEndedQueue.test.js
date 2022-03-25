@@ -16,9 +16,7 @@ expectRevert.customError = async function (promise, reason) {
     expect.fail('Expected promise to throw but it didn\'t');
   } catch (error) {
     if (reason) {
-      const lookup = error.message.match(/reverted with custom error '(?<error>.*)'$/);
-      expect(lookup, 'revert does not include custom error').to.not.be.equal(null);
-      expect(lookup.groups.error, 'revert caused by wrong custom error').to.be.equal(reason);
+      expect(error.message).to.include(reason);
     }
   }
 };
