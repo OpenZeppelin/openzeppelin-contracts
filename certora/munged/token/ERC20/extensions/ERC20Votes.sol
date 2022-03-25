@@ -33,8 +33,8 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
-    mapping(address => address) private _delegates;
-    mapping(address => Checkpoint[]) private _checkpoints;
+    mapping(address => address) public _delegates;
+    mapping(address => Checkpoint[]) public _checkpoints;
     Checkpoint[] private _totalSupplyCheckpoints;
 
     /**
@@ -152,7 +152,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     /**
      * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
      */
-    function _maxSupply() internal view virtual returns (uint224) {
+    function _maxSupply() public view virtual returns (uint224) { //harnessed to public
         return type(uint224).max;
     }
 
@@ -169,10 +169,11 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     /**
      * @dev Snapshots the totalSupply after it has been decreased.
      */
-    function _burn(address account, uint256 amount) internal virtual override {
+    function _burn(address account, uint256 amount) public virtual override returns (bool){ // HARNESS: internal -> public (to comply with the ERC20 harness)
         super._burn(account, amount);
 
         _writeCheckpointSub(_totalSupplyCheckpoints, amount);           // HARNESS: new version without pointer
+        return true;
     }
 
     /**
@@ -195,7 +196,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      *
      * Emits events {DelegateChanged} and {DelegateVotesChanged}.
      */
-    function _delegate(address delegator, address delegatee) internal virtual {
+    function _delegate(address delegator, address delegatee) public virtual { // HARNESSED TO MAKE PUBLIC
         address currentDelegate = delegates(delegator);
         uint256 delegatorBalance = balanceOf(delegator);
         _delegates[delegator] = delegatee;
