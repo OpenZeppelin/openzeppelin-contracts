@@ -120,7 +120,7 @@ contract VestingWallet is Context {
     }
 
     /**
-     * @dev Virtual implementation of the vesting formula. This returns the amout vested, as a function of time, for
+     * @dev Virtual implementation of the vesting formula. This returns the amount vested, as a function of time, for
      * an asset given its total historical allocation.
      */
     function _vestingSchedule(uint256 totalAllocation, uint64 timestamp) internal view virtual returns (uint256) {
