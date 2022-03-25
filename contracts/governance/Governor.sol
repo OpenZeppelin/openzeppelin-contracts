@@ -250,7 +250,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     ) public virtual override returns (uint256) {
         require(
             getVotes(_msgSender(), block.number - 1) >= proposalThreshold(),
-            "GovernorCompatibilityBravo: proposer votes below proposal threshold"
+            "Governor: proposer votes below proposal threshold"
         );
 
         uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
