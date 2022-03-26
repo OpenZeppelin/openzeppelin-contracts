@@ -762,7 +762,7 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
       describe('when the given address is the zero address', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.tokenOfOwnerByIndex(ZERO_ADDRESS, 0), "ERC721Enumerable: owner can't be the zero address",
+            this.token.tokenOfOwnerByIndex(ZERO_ADDRESS, 0), 'ERC721Enumerable: owner can\'t be the zero address',
           );
         });
       });
