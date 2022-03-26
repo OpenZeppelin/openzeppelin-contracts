@@ -35,8 +35,8 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
      */
     function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual override returns (uint256) {
-        require(index < ERC721.balanceOf(owner), "ERC721Enumerable: owner index out of bounds");
         require(owner != address(0), "ERC721Enumerable: owner can't be the zero address");
+        require(index < ERC721.balanceOf(owner), "ERC721Enumerable: owner index out of bounds");
         return _ownedTokens[owner][index];
     }
 

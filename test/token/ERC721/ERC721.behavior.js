@@ -759,6 +759,14 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
         });
       });
 
+      describe('when the given address is the zero address', function () {
+        it('reverts', async function () {
+          await expectRevert(
+            this.token.tokenOfOwnerByIndex(ZERO_ADDRESS, 0), "ERC721Enumerable: owner can't be the zero address",
+          );
+        });
+      });
+
       describe('after transferring all tokens to another user', function () {
         beforeEach(async function () {
           await this.token.transferFrom(owner, other, firstTokenId, { from: owner });
