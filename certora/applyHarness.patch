@@ -1,101 +1,242 @@
-diff -ruN .gitignore .gitignore
---- .gitignore	1969-12-31 19:00:00.000000000 -0500
-+++ .gitignore	2021-12-09 14:46:33.923637220 -0500
-@@ -0,0 +1,2 @@
-+*
-+!.gitignore
-diff -ruN governance/compatibility/GovernorCompatibilityBravo.sol governance/compatibility/GovernorCompatibilityBravo.sol
---- governance/compatibility/GovernorCompatibilityBravo.sol	2021-12-03 15:24:56.523654357 -0500
-+++ governance/compatibility/GovernorCompatibilityBravo.sol	2021-12-09 14:46:33.923637220 -0500
-@@ -245,7 +245,7 @@
-     /**
-      * @dev See {Governor-_quorumReached}. In this module, only forVotes count toward the quorum.
-      */
--    function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
-+    function _quorumReached(uint256 proposalId) public view virtual override returns (bool) { // HARNESS: changed to public from internal
-         ProposalDetails storage details = _proposalDetails[proposalId];
-         return quorum(proposalSnapshot(proposalId)) <= details.forVotes;
-     }
-@@ -253,7 +253,7 @@
-     /**
-      * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
-      */
--    function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
-+    function _voteSucceeded(uint256 proposalId) public view virtual override returns (bool) { // HARNESS: changed to public from internal
-         ProposalDetails storage details = _proposalDetails[proposalId];
-         return details.forVotes > details.againstVotes;
-     }
-diff -ruN governance/extensions/GovernorCountingSimple.sol governance/extensions/GovernorCountingSimple.sol
---- governance/extensions/GovernorCountingSimple.sol	2021-12-03 15:24:56.523654357 -0500
-+++ governance/extensions/GovernorCountingSimple.sol	2021-12-09 14:46:33.923637220 -0500
-@@ -64,7 +64,7 @@
-     /**
-      * @dev See {Governor-_quorumReached}.
-      */
--    function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
-+    function _quorumReached(uint256 proposalId) public view virtual override returns (bool) {
-         ProposalVote storage proposalvote = _proposalVotes[proposalId];
- 
-         return quorum(proposalSnapshot(proposalId)) <= proposalvote.forVotes + proposalvote.abstainVotes;
-@@ -73,7 +73,7 @@
-     /**
-      * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be strictly over the againstVotes.
-      */
--    function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
-+    function _voteSucceeded(uint256 proposalId) public view virtual override returns (bool) {
-         ProposalVote storage proposalvote = _proposalVotes[proposalId];
- 
-         return proposalvote.forVotes > proposalvote.againstVotes;
-diff -ruN governance/extensions/GovernorTimelockControl.sol governance/extensions/GovernorTimelockControl.sol
---- governance/extensions/GovernorTimelockControl.sol	2021-12-03 15:24:56.523654357 -0500
-+++ governance/extensions/GovernorTimelockControl.sol	2021-12-09 14:46:33.923637220 -0500
-@@ -111,7 +111,7 @@
-         bytes[] memory calldatas,
-         bytes32 descriptionHash
-     ) internal virtual override {
--        _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
-+         _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
-     }
- 
-     /**
-diff -ruN governance/Governor.sol governance/Governor.sol
---- governance/Governor.sol	2021-12-03 15:24:56.523654357 -0500
-+++ governance/Governor.sol	2021-12-09 14:46:56.411503587 -0500
-@@ -38,8 +38,8 @@
- 
-     string private _name;
- 
--    mapping(uint256 => ProposalCore) private _proposals;
--
-+    mapping(uint256 => ProposalCore) public _proposals;
-+ 
-     /**
-      * @dev Restrict access to governor executing address. Some module might override the _executor function to make
-      * sure this modifier is consistant with the execution model.
-@@ -167,12 +167,12 @@
-     /**
-      * @dev Amount of votes already cast passes the threshold limit.
-      */
--    function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
-+    function _quorumReached(uint256 proposalId) public view virtual returns (bool); // HARNESS: changed to public from internal
- 
-     /**
-      * @dev Is the proposal successful or not.
-      */
--    function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
-+    function _voteSucceeded(uint256 proposalId) public view virtual returns (bool); // HARNESS: changed to public from internal
- 
-     /**
-      * @dev Register a vote with a given support and voting weight.
-diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Votes.sol
---- token/ERC20/extensions/ERC20Votes.sol	2021-12-03 15:24:56.527654330 -0500
-+++ token/ERC20/extensions/ERC20Votes.sol	2021-12-09 14:46:33.927637196 -0500
-@@ -84,7 +84,7 @@
+diff -ruN access/AccessControl.sol access/AccessControl.sol
+--- access/AccessControl.sol	2022-03-02 09:14:55.000000000 -0800
++++ access/AccessControl.sol	2022-03-24 16:41:46.000000000 -0700
+@@ -93,7 +93,7 @@
       *
-      * - `blockNumber` must have been already mined
+      * _Available since v4.6._
       */
--    function getPastVotes(address account, uint256 blockNumber) public view returns (uint256) {
-+    function getPastVotes(address account, uint256 blockNumber) public view virtual returns (uint256) {
-         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
-         return _checkpointsLookup(_checkpoints[account], blockNumber);
+-    function _checkRole(bytes32 role) internal view virtual {
++    function _checkRole(bytes32 role) public view virtual {         // HARNESS: internal -> public
+         _checkRole(role, _msgSender());
      }
+ 
+diff -ruN governance/TimelockController.sol governance/TimelockController.sol
+--- governance/TimelockController.sol	2022-03-02 09:14:55.000000000 -0800
++++ governance/TimelockController.sol	2022-03-24 16:41:46.000000000 -0700
+@@ -24,10 +24,10 @@
+     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
+     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
+     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
+-    uint256 internal constant _DONE_TIMESTAMP = uint256(1);
++    uint256 public constant _DONE_TIMESTAMP = uint256(1);                           // HARNESS: internal -> public
+ 
+     mapping(bytes32 => uint256) private _timestamps;
+-    uint256 private _minDelay;
++    uint256 public _minDelay;                                                       // HARNESS: private -> public
+ 
+     /**
+      * @dev Emitted when a call is scheduled as part of operation `id`.
+@@ -353,4 +353,11 @@
+         emit MinDelayChange(_minDelay, newDelay);
+         _minDelay = newDelay;
+     }
+-}
++
++
++
++    function scheduleCheck1(bytes32 id) public virtual onlyRole(PROPOSER_ROLE) {
++        bool tmp = false;
++        require(tmp);
++    }
++} 
+diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
+--- governance/utils/Votes.sol	2022-03-02 09:14:55.000000000 -0800
++++ governance/utils/Votes.sol	2022-03-24 16:41:46.000000000 -0700
+@@ -207,5 +207,5 @@
+     /**
+      * @dev Must return the voting units held by an account.
+      */
+-    function _getVotingUnits(address) internal virtual returns (uint256);
++    function _getVotingUnits(address) public virtual returns (uint256); // HARNESS: internal -> public
+ }
+diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
+--- token/ERC20/ERC20.sol	2022-03-02 09:14:55.000000000 -0800
++++ token/ERC20/ERC20.sol	2022-03-24 16:41:46.000000000 -0700
+@@ -277,7 +277,7 @@
+      * - `account` cannot be the zero address.
+      * - `account` must have at least `amount` tokens.
+      */
+-    function _burn(address account, uint256 amount) internal virtual {
++    function _burn(address account, uint256 amount) public virtual returns (bool) {          // HARNESS: internal -> public
+         require(account != address(0), "ERC20: burn from the zero address");
+ 
+         _beforeTokenTransfer(account, address(0), amount);
+@@ -292,6 +292,8 @@
+         emit Transfer(account, address(0), amount);
+ 
+         _afterTokenTransfer(account, address(0), amount);
++
++        return true;
+     }
+ 
+     /**
+diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20FlashMint.sol
+--- token/ERC20/extensions/ERC20FlashMint.sol	2022-03-02 09:14:55.000000000 -0800
++++ token/ERC20/extensions/ERC20FlashMint.sol	2022-03-24 16:41:46.000000000 -0700
+@@ -40,9 +40,11 @@
+         require(token == address(this), "ERC20FlashMint: wrong token");
+         // silence warning about unused variable without the addition of bytecode.
+         amount;
+-        return 0;
++        return fee;                 // HARNESS: made "return" nonzero
+     }
+ 
++    uint256 public fee;             // HARNESS: added it to simulate random fee amount
++
+     /**
+      * @dev Performs a flash loan. New tokens are minted and sent to the
+      * `receiver`, who is required to implement the {IERC3156FlashBorrower}
+@@ -70,7 +72,7 @@
+         uint256 fee = flashFee(token, amount);
+         _mint(address(receiver), amount);
+         require(
+-            receiver.onFlashLoan(msg.sender, token, amount, fee, data) == _RETURN_VALUE,
++            receiver.onFlashLoan(msg.sender, token, amount, fee, data) == _RETURN_VALUE,        // HAVOC_ALL
+             "ERC20FlashMint: invalid return value"
+         );
+         uint256 currentAllowance = allowance(address(receiver), address(this));
+diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Votes.sol
+--- token/ERC20/extensions/ERC20Votes.sol	2022-03-02 09:14:55.000000000 -0800
++++ token/ERC20/extensions/ERC20Votes.sol	2022-03-24 17:15:51.000000000 -0700
+@@ -33,8 +33,8 @@
+     bytes32 private constant _DELEGATION_TYPEHASH =
+         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
+ 
+-    mapping(address => address) private _delegates;
+-    mapping(address => Checkpoint[]) private _checkpoints;
++    mapping(address => address) public _delegates;
++    mapping(address => Checkpoint[]) public _checkpoints;
+     Checkpoint[] private _totalSupplyCheckpoints;
+ 
+     /**
+@@ -152,7 +152,7 @@
+     /**
+      * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
+      */
+-    function _maxSupply() internal view virtual returns (uint224) {
++    function _maxSupply() public view virtual returns (uint224) { //harnessed to public
+         return type(uint224).max;
+     }
+ 
+@@ -163,16 +163,17 @@
+         super._mint(account, amount);
+         require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
+ 
+-        _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
++        _writeCheckpointAdd(_totalSupplyCheckpoints, amount);           // HARNESS: new version without pointer
+     }
+ 
+     /**
+      * @dev Snapshots the totalSupply after it has been decreased.
+      */
+-    function _burn(address account, uint256 amount) internal virtual override {
++    function _burn(address account, uint256 amount) public virtual override returns (bool){ // HARNESS: internal -> public (to comply with the ERC20 harness)
+         super._burn(account, amount);
+ 
+-        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
++        _writeCheckpointSub(_totalSupplyCheckpoints, amount);           // HARNESS: new version without pointer
++        return true;
+     }
+ 
+     /**
+@@ -187,7 +188,7 @@
+     ) internal virtual override {
+         super._afterTokenTransfer(from, to, amount);
+ 
+-        _moveVotingPower(delegates(from), delegates(to), amount);
++        _moveVotingPower(delegates(from), delegates(to), amount);       
+     }
+ 
+     /**
+@@ -195,7 +196,7 @@
+      *
+      * Emits events {DelegateChanged} and {DelegateVotesChanged}.
+      */
+-    function _delegate(address delegator, address delegatee) internal virtual {
++    function _delegate(address delegator, address delegatee) public virtual { // HARNESSED TO MAKE PUBLIC
+         address currentDelegate = delegates(delegator);
+         uint256 delegatorBalance = balanceOf(delegator);
+         _delegates[delegator] = delegatee;
+@@ -212,25 +213,25 @@
+     ) private {
+         if (src != dst && amount > 0) {
+             if (src != address(0)) {
+-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
++                (uint256 oldWeight, uint256 newWeight) = _writeCheckpointSub(_checkpoints[src], amount);        // HARNESS: new version without pointer
+                 emit DelegateVotesChanged(src, oldWeight, newWeight);
+             }
+ 
+             if (dst != address(0)) {
+-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
++                (uint256 oldWeight, uint256 newWeight) = _writeCheckpointAdd(_checkpoints[dst], amount);        // HARNESS: new version without pointer
+                 emit DelegateVotesChanged(dst, oldWeight, newWeight);
+             }
+         }
+     }
+ 
+-    function _writeCheckpoint(
++    // HARNESS: split _writeCheckpoint() to two functions as a workaround for function pointers that cannot be managed by the tool
++    function _writeCheckpointAdd(
+         Checkpoint[] storage ckpts,
+-        function(uint256, uint256) view returns (uint256) op,
+         uint256 delta
+     ) private returns (uint256 oldWeight, uint256 newWeight) {
+         uint256 pos = ckpts.length;
+         oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
+-        newWeight = op(oldWeight, delta);
++        newWeight = _add(oldWeight, delta);
+ 
+         if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
+             ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
+@@ -239,6 +240,39 @@
+         }
+     }
+ 
++    function _writeCheckpointSub(
++        Checkpoint[] storage ckpts,
++        uint256 delta
++    ) private returns (uint256 oldWeight, uint256 newWeight) {
++        uint256 pos = ckpts.length;
++        oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
++        newWeight = _subtract(oldWeight, delta);
++
++        if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
++            ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
++        } else {
++            ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
++        }
++    }
++
++    // backup of original function
++    //
++    // function _writeCheckpoint(
++    //     Checkpoint[] storage ckpts,
++    //     function(uint256, uint256) view returns (uint256) op,
++    //     uint256 delta
++    // ) private returns (uint256 oldWeight, uint256 newWeight) {
++    //     uint256 pos = ckpts.length;
++    //     oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
++    //     newWeight = op(oldWeight, delta);
++    //
++    //     if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
++    //         ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
++    //     } else {
++    //         ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
++    //     }
++    // }
++
+     function _add(uint256 a, uint256 b) private pure returns (uint256) {
+         return a + b;
+     }
+diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wrapper.sol
+--- token/ERC20/extensions/ERC20Wrapper.sol	2022-03-02 09:14:55.000000000 -0800
++++ token/ERC20/extensions/ERC20Wrapper.sol	2022-03-24 16:41:46.000000000 -0700
+@@ -44,7 +44,7 @@
+      * @dev Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake. Internal
+      * function that can be exposed with access control if desired.
+      */
+-    function _recover(address account) internal virtual returns (uint256) {
++    function _recover(address account) public virtual returns (uint256) {           // HARNESS: internal -> public
+         uint256 value = underlying.balanceOf(address(this)) - totalSupply();
+         _mint(account, value);
+         return value;
