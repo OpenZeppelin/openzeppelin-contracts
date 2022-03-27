@@ -1,8 +1,11 @@
 pragma solidity ^0.8.0;
 
 library ModularExponentiation {
-
-    function modExp(uint256 b, uint256 e, uint256 m) internal returns (uint256) {        
+    function modExp(
+        uint256 b,
+        uint256 e,
+        uint256 m
+    ) internal returns (uint256) {
         require(m != 0, "ModularExponentiation: Can't calculate for modulus equal to zero");
 
         uint256 result;
