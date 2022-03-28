@@ -10,7 +10,7 @@ methods {
     getPastTotalSupply(uint256) returns (uint256)
     delegate(address)
     _delegate(address, address)
-    delegateBySig(address, uint256, uint256, uint8, bytes32, bytes32)
+    // delegateBySig(address, uint256, uint256, uint8, bytes32, bytes32)
     totalSupply() returns (uint256) envfree
     _maxSupply() returns (uint224) envfree
 
@@ -32,9 +32,13 @@ ghost userVotes(address) returns uint224;
 
 // sums the total votes for all users
 ghost totalVotes() returns mathint {
-    axiom totalVotes() > 0;
+    axiom totalVotes() >= 0;
 }
 
+// helper
+
+invariant totalVotes_gte_accounts(address a, address b)
+    totalVotes() >= getVotes(a) + getVotes(b)
 
 
 hook Sstore _checkpoints[KEY address account][INDEX uint32 index].votes uint224 newVotes (uint224 oldVotes) STORAGE {
@@ -95,32 +99,45 @@ invariant maxInt_constrains_numBlocks(address account)
 invariant fromBlock_constrains_numBlocks(address account)
     numCheckpoints(account) <= lastFromBlock(account)
 
+// this fails, which makes sense because there is no require about the previous fromBlock
 invariant unique_checkpoints(address account)
     !doubleFromBlock(account)
 
+// if an account has been delegated too, then both accounts must have a checkpoint
+invariant delegated_implies_checkpoints(address delegator, address delegatee)
+    delegates(delegator) == delegatee => numCheckpoints(delegator) > 0 && numCheckpoints(delegatee) > 0
+{ preserved with (env e) {
+    require delegatee != 0;
+    require balanceOf(e, delegator) > 0;
+}}
+
+// assumes neither account has delegated
 rule transfer_safe() {
     env e;
     uint256 amount;
     address a; address b;
     require a != b;
+    // requireInvariant totalVotes_gte_accounts(a, b);
 
-    uint256 votesA_pre = getVotes(a);
-    uint256 votesB_pre = getVotes(b);
+    address delegateA = delegates(a);
+    address delegateB = delegates(b);
 
-    require votesA_pre == erc20votes.balanceOf(e, a);
-    require votesB_pre == erc20votes.balanceOf(e, b);
+    uint256 votesA_pre = getVotes(delegateA);
+    uint256 votesB_pre = getVotes(delegateB);
 
     mathint totalVotes_pre = totalVotes();
 
     erc20votes.transferFrom(e, a, b, amount);
     
     mathint totalVotes_post = totalVotes();
-    uint256 votesA_post = getVotes(a);
-    uint256 votesB_post = getVotes(b);
+    uint256 votesA_post = getVotes(delegateA);
+    uint256 votesB_post = getVotes(delegateB);
 
+    // if an account that has not delegated transfers balance to an account that has, it will increase the total supply of votes
     assert totalVotes_pre == totalVotes_post, "transfer changed total supply";
-    assert votesA_pre - votesA_post == amount, "a lost the proper amount of votes";
-    assert votesB_post - votesB_pre == amount, "b lost the proper amount of votes";
+    assert delegateA == delegates(a) && delegateB == delegates(b), "delegates changed by transfer";
+    assert delegateA != 0 => votesA_pre - votesA_post == amount, "a lost the proper amount of votes";
+    assert delegateB != 0 => votesB_post - votesB_pre == amount, "b lost the proper amount of votes";
 }
 
 
@@ -144,7 +161,9 @@ rule delegator_votes_removed() {
 rule delegatee_receives_votes() {
     env e; 
     address delegator; address delegatee;
+
     require delegator != delegatee;
+    require delegates(delegator) != delegatee;
 
     uint256 delegator_bal = balanceOf(e, delegator);
     uint256 votes_= getVotes(delegatee);
@@ -156,13 +175,14 @@ rule delegatee_receives_votes() {
     assert _votes == votes_ + delegator_bal, "delegatee did not receive votes";
 }
 
-rule previous_delegatee_zerod() {
+rule previous_delegatee_zeroed() {
     env e;
     address delegator; address delegatee; address third;
 
-    require delegator != delegatee;
     require third != delegatee;
     require third != delegator;
+    require delegates(delegator) == third;
+    // for third to have been delegated to, it must have a checkpoint
 
     uint256 delegator_bal = balanceOf(e, delegator);
     uint256 votes_ = getVotes(third);
@@ -171,16 +191,14 @@ rule previous_delegatee_zerod() {
 
     uint256 _votes = getVotes(third);
 
-    assert votes_ == votes_ - delegator_bal, "votes not removed from the previous delegatee";
+    assert _votes == votes_ - delegator_bal, "votes not removed from the previous delegatee";
 }
 
-// passes
+// passes with rule sanity
 rule delegate_contained() {
     env e;
     address delegator; address delegatee; address other;
 
-    require delegator != delegatee;
-    require other != delegator;
     require other != delegatee;
     require other != delegates(delegator); 
 
