@@ -6,5 +6,5 @@ certoraRun \
     --optimistic_loop \
     --staging \
     --rule_sanity \
-    --msg "letsWatchItBurns"
+    --msg "flashMint"
     

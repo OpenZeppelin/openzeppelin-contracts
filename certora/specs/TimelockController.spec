@@ -177,20 +177,6 @@ rule minDealyOnlyChange(method f, env e){
 }
 
 
-// STATUS - verified
-// Only proposers can schedule an operation
-rule scheduleOnlyWay(method f, env e){
-    uint256 delayBefore = _minDelay();    
-
-    calldataarg args;
-    f(e, args);
-
-    uint256 delayAfter = _minDelay();
-
-    assert delayBefore != delayAfter => e.msg.sender == currentContract, "You cannot change your destiny! Only I can!";
-}
-
-
 // STATUS - in progress (need working hash)
 // execute() is the only way to set timestamp to 1
 rule getTimestampOnlyChange(method f, env e){
@@ -291,7 +277,7 @@ rule cancelledNotExecuted(method f, env e){
 }
 
 
-// STATUS - in progress
+// STATUS - in progress (add schedule batch)
 // Only proposers can schedule an operation
 rule onlyProposer(method f, env e){
     bytes32 id;

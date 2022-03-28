@@ -19,24 +19,22 @@ invariant whatAboutTotal(env e)
     {
         preserved {
             require underlyingBalanceOf(currentContract) <= underlyingTotalSupply();
-            require underlying() != currentContract;
         }
         preserved depositFor(address account, uint256 amount) with (env e2){
-            require underlyingBalanceOf(currentContract) <= underlyingTotalSupply();
             require totalSupply(e) + amount <= underlyingTotalSupply();
-            require underlying() != currentContract;
         }
     }
 
 
-// STATUS - in progress
-// https://vaas-stg.certora.com/output/3106/a5f4943cd2987dccab94/?anonymousKey=9428fb1588845c0222c2abe5b00dedd59c925870
+// STATUS - verified
 // totalsupply of wrapped should be less than or equal to the underlying balanceOf contract (assuming no external transfer) - solvency
 invariant underTotalAndContractBalanceOfCorrelation(env e)
     totalSupply(e) <= underlyingBalanceOf(currentContract)
     {
-        preserved {
+        preserved with (env e2) {
             require underlying() != currentContract;
+            require e.msg.sender != currentContract;
+            require e.msg.sender == e2.msg.sender;
         }
     }
 
@@ -65,10 +63,12 @@ rule depositForSpecBasic(env e){
 }
 
 
+// STATUS - verified
+// check correct values update by depositFor()
 rule depositForSpecWrapper(env e){
     address account; uint256 amount;
 
-    require e.msg.sender != currentContract;
+    // require e.msg.sender != currentContract;
     require underlying() != currentContract;
 
     uint256 wrapperUserBalanceBefore = balanceOf(e, account);
@@ -87,6 +87,8 @@ rule depositForSpecWrapper(env e){
 }
 
 
+// STATUS - verified
+// check correct values update by depositFor()
 rule depositForSpecUnderlying(env e){
     address account; uint256 amount;
 
@@ -118,7 +120,6 @@ rule depositForSpecUnderlying(env e){
 rule withdrawToSpecBasic(env e){
     address account; uint256 amount;
 
-    require e.msg.sender != currentContract;
     require underlying() != currentContract;
 
     uint256 wrapperTotalBefore = totalSupply(e);
@@ -134,10 +135,11 @@ rule withdrawToSpecBasic(env e){
 }
 
 
+// STATUS - verified
+// check correct values update by withdrawTo()
 rule withdrawToSpecWrapper(env e){
     address account; uint256 amount;
 
-    require e.msg.sender != currentContract;
     require underlying() != currentContract;
 
     uint256 wrapperUserBalanceBefore = balanceOf(e, account);
@@ -156,6 +158,8 @@ rule withdrawToSpecWrapper(env e){
 }
 
 
+// STATUS - verified
+// check correct values update by withdrawTo()
 rule withdrawToSpecUnderlying(env e){
     address account; uint256 amount;
 
@@ -187,15 +191,11 @@ rule withdrawToSpecUnderlying(env e){
 // STATUS - verified
 // check correct values update by _recover()
 rule recoverSpec(env e){
-    address account; uint256 amount; // e.msg.sender
-    require underlying() != currentContract;
-
-    require e.msg.sender != currentContract;
+    address account; uint256 amount;
 
     uint256 wrapperTotalBefore = totalSupply(e);
     uint256 wrapperUserBalanceBefore = balanceOf(e, account);
     uint256 wrapperSenderBalanceBefore = balanceOf(e, e.msg.sender);
-
     uint256 underlyingThisBalanceBefore = underlyingBalanceOf(currentContract);   
 
     mathint value = underlyingThisBalanceBefore - wrapperTotalBefore;
