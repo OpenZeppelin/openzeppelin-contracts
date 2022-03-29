@@ -5,9 +5,14 @@ expectRevert.customError = async function (promise, reason) {
   try {
     await promise;
     expect.fail('Expected promise to throw but it didn\'t');
-  } catch (error) {
+  } catch (revert) {
     if (reason) {
-      expect(error.message).to.include(reason);
+      try {
+        expect(revert.message).to.include(reason);
+      } catch (err) {
+        console.error({ expected: reason, received: revert.message });
+        throw err;
+      }
     }
   }
 };
