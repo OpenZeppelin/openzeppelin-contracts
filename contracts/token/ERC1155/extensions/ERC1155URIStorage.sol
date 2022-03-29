@@ -14,7 +14,7 @@ import "../ERC1155.sol";
 abstract contract ERC1155URIStorage is ERC1155 {
     using Strings for uint256;
 
-    // optional base URI
+    // Optional base URI
     string private _baseURI = "";
 
     // Optional mapping for token URIs
@@ -26,36 +26,27 @@ abstract contract ERC1155URIStorage is ERC1155 {
      * This implementation returns the concatenation of the `_baseURI`
      * and the token-specific uri if the latter is set
      *
-     * This allowes for the following behavior:
+     * This enables the following behaviors:
      *
-     * the `ERC1155URIStorage._tokenURIs[tokenId]` is set
-     * → the result is the concatenation of `_baseURI` and `ERC1155URIStorage._tokenURIs[tokenId]`
-     *   (keep in mind that `_baseURI` is empty per default)
+     * - if `_tokenURIs[tokenId]` is set, then the result is the concatenation
+     *   of `_baseURI` and `_tokenURIs[tokenId]` (keep in mind that `_baseURI`
+     *   is empty per default);
      *
-     * the `ERC1155URIStorage._tokenURIs[tokenId]` is NOT set
-     * → the result is `ERC1155._uri`
+     * - if `_tokenURIs[tokenId]` is NOT set then we fallback to `super.uri()`
+     *   which in most cases will contain `ERC1155._uri`;
      *
-     * neither `ERC1155URIStorage._tokenURIs[tokenId]` nor `ERC1155._uri` are set
-     * → the result is empty
+     * - if `_tokenURIs[tokenId]` is NOT set, and if the parents do not have a
+     *   uri value set, then result is empty.
      */
     function uri(uint256 tokenId) public view virtual override returns (string memory) {
         string memory _tokenURI = _tokenURIs[tokenId];
 
         // If token URI is set, concatenate base URI and tokenURI (via abi.encodePacked).
-        if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(_baseURI, _tokenURI));
-        }
-
-        // If there is no tokenURI, return the ERC1155.uri
-        return super.uri(tokenId);
+        return bytes(_tokenURI).length > 0 ? string(abi.encodePacked(_baseURI, _tokenURI)) : super.uri(tokenId);
     }
 
     /**
      * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
      */
     function _setURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         _tokenURIs[tokenId] = _tokenURI;
