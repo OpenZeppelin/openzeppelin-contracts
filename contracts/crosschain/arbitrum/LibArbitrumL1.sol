@@ -17,25 +17,24 @@ import "../errors.sol";
 library LibArbitrumL1 {
     /**
      * @dev Returns whether the current function call is the result of a
-     * cross-chain message relayed by the bridge attached to `inbox`.
+     * cross-chain message relayed by the `bridge`.
      */
-    function isCrossChain(address inbox) internal view returns (bool) {
-        return msg.sender == ArbitrumL1_Inbox(inbox).bridge();
+    function isCrossChain(address bridge) internal view returns (bool) {
+        return msg.sender == bridge;
     }
 
     /**
      * @dev Returns the address of the sender that triggered the current
-     * cross-chain message through the bridge attached to `inbox`.
+     * cross-chain message through the `bridge`.
      *
      * NOTE: {isCrossChain} should be checked before trying to recover the
      * sender, as it will revert with `NotCrossChainCall` if the current
      * function call is not the result of a cross-chain message.
      */
-    function crossChainSender(address inbox) internal view returns (address) {
-        if (!isCrossChain(inbox)) revert NotCrossChainCall();
+    function crossChainSender(address bridge) internal view returns (address) {
+        if (!isCrossChain(bridge)) revert NotCrossChainCall();
 
-        address sender = ArbitrumL1_Outbox(ArbitrumL1_Bridge(ArbitrumL1_Inbox(inbox).bridge()).activeOutbox())
-            .l2ToL1Sender();
+        address sender = ArbitrumL1_Outbox(ArbitrumL1_Bridge(bridge).activeOutbox()).l2ToL1Sender();
         require(sender != address(0), "LibArbitrumL1: system messages without sender");
 
         return sender;

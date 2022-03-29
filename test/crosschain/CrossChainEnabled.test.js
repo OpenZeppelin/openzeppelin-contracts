@@ -53,7 +53,7 @@ contract('CrossChainEnabled', function () {
     CrossChainHelper.before('Arbitrum-L1');
 
     beforeEach(async function () {
-      this.receiver = await CrossChainEnabledArbitrumL1Mock.new(await CrossChainHelper.bridge.inbox());
+      this.receiver = await CrossChainEnabledArbitrumL1Mock.new(CrossChainHelper.bridge.address);
     });
 
     shouldBehaveLikeReceiver();
