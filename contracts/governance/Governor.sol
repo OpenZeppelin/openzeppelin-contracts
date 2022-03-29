@@ -3,6 +3,8 @@
 
 pragma solidity ^0.8.0;
 
+import "../token/ERC721/IERC721Receiver.sol";
+import "../token/ERC1155/IERC1155Receiver.sol";
 import "../utils/cryptography/ECDSA.sol";
 import "../utils/cryptography/draft-EIP712.sol";
 import "../utils/introspection/ERC165.sol";
@@ -24,7 +26,7 @@ import "./IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract Governor is Context, ERC165, EIP712, IGovernor {
+abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
     using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
@@ -46,7 +48,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
 
     // This queue keeps track of the governor operating on itself. Calls to functions protected by the
     // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
-    // consummed by the {onlyGovernance} modifier and eventually reset in {_afterExecute}. This ensures that the
+    // consumed by the {onlyGovernance} modifier and eventually reset in {_afterExecute}. This ensures that the
     // execution of {onlyGovernance} protected calls can only be achieved through successful proposals.
     DoubleEndedQueue.Bytes32Deque private _governanceCall;
 
@@ -64,7 +66,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
         require(_msgSender() == _executor(), "Governor: onlyGovernance");
         if (_executor() != address(this)) {
             bytes32 msgDataHash = keccak256(_msgData());
-            // loop until poping the expected operation - throw if deque is empty (operation not authorized)
+            // loop until popping the expected operation - throw if deque is empty (operation not authorized)
             while (_governanceCall.popFront() != msgDataHash) {}
         }
         _;
@@ -97,6 +99,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
                 this.castVoteWithReasonAndParamsBySig.selector ^
                 this.getVotesWithParams.selector) ||
             interfaceId == type(IGovernor).interfaceId ||
+            interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
@@ -124,7 +127,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      *
      * Note that the chainId and the governor address are not part of the proposal id computation. Consequently, the
      * same proposal (with same operation and same description) will have the same id if submitted on multiple governors
-     * accross multiple networks. This also means that in order to execute the same operation twice (on the same
+     * across multiple networks. This also means that in order to execute the same operation twice (on the same
      * governor) the proposer will have to change the description in order to avoid proposal id conflicts.
      */
     function hashProposal(
@@ -229,7 +232,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     /**
      * @dev Default additional encoded parameters used by castVote methods that don't include them
      *
-     * Note: Should be overriden by specific implementations to use an appropriate value, the
+     * Note: Should be overridden by specific implementations to use an appropriate value, the
      * meaning of the additional params, in the context of that implementation
      */
     function _defaultParams() internal view virtual returns (bytes memory) {
@@ -247,7 +250,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     ) public virtual override returns (uint256) {
         require(
             getVotes(_msgSender(), block.number - 1) >= proposalThreshold(),
-            "GovernorCompatibilityBravo: proposer votes below proposal threshold"
+            "Governor: proposer votes below proposal threshold"
         );
 
         uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
@@ -308,7 +311,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @dev Internal execution mechanism. Can be overriden to implement different execution mechanism
+     * @dev Internal execution mechanism. Can be overridden to implement different execution mechanism
      */
     function _execute(
         uint256, /* proposalId */
@@ -325,7 +328,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @dev Hook before execution is trigerred.
+     * @dev Hook before execution is triggered.
      */
     function _beforeExecute(
         uint256, /* proposalId */
@@ -344,7 +347,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
     }
 
     /**
-     * @dev Hook after execution is trigerred.
+     * @dev Hook after execution is triggered.
      */
     function _afterExecute(
         uint256, /* proposalId */
@@ -551,5 +554,43 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor {
      */
     function _executor() internal view virtual returns (address) {
         return address(this);
+    }
+
+    /**
+     * @dev See {IERC721Receiver-onERC721Received}.
+     */
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+
+    /**
+     * @dev See {IERC1155Receiver-onERC1155Received}.
+     */
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    /**
+     * @dev See {IERC1155Receiver-onERC1155BatchReceived}.
+     */
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
     }
 }

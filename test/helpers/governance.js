@@ -106,13 +106,13 @@ class GovernorHelper {
           opts,
         )))
       : vote.params
-        // otherwize if params
+        // otherwise if params
         ? this.governor.castVoteWithReasonAndParams(...concatOpts(
           [ proposal.id, vote.support, vote.reason || '', vote.params ],
           opts,
         ))
         : vote.reason
-          // otherwize if reason
+          // otherwise if reason
           ? this.governor.castVoteWithReason(...concatOpts(
             [ proposal.id, vote.support, vote.reason ],
             opts,
@@ -165,7 +165,7 @@ class GovernorHelper {
 
     const descriptionHash = web3.utils.keccak256(description);
 
-    // condensed version for queing end executing
+    // condensed version for queueing end executing
     const shortProposal = [
       targets,
       values,

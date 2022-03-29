@@ -52,7 +52,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden version of the {Governor-state} function with added support for the `Queued` and `Expired` status.
+     * @dev Overridden version of the {Governor-state} function with added support for the `Queued` and `Expired` status.
      */
     function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
         ProposalState status = super.state(proposalId);
@@ -114,7 +114,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden execute function that run the already queued proposal through the timelock.
+     * @dev Overridden execute function that run the already queued proposal through the timelock.
      */
     function _execute(
         uint256 proposalId,
@@ -132,7 +132,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
+     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
      * been queued.
      */
     function _cancel(

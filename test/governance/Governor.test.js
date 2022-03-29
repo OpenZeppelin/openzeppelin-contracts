@@ -14,6 +14,8 @@ const {
 const Token = artifacts.require('ERC20VotesMock');
 const Governor = artifacts.require('GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
+const ERC721Mock = artifacts.require('ERC721Mock');
+const ERC1155Mock = artifacts.require('ERC1155Mock');
 
 contract('Governor', function (accounts) {
   const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
@@ -55,6 +57,7 @@ contract('Governor', function (accounts) {
 
   shouldSupportInterfaces([
     'ERC165',
+    'ERC1155Receiver',
     'Governor',
     'GovernorWithParams',
   ]);
@@ -572,6 +575,58 @@ contract('Governor', function (accounts) {
       );
 
       expect(await this.mock.proposalThreshold()).to.be.bignumber.equal('1000000000000000000');
+    });
+  });
+
+  describe('safe receive', function () {
+    describe('ERC721', function () {
+      const name = 'Non Fungible Token';
+      const symbol = 'NFT';
+      const tokenId = new BN(1);
+
+      beforeEach(async function () {
+        this.token = await ERC721Mock.new(name, symbol);
+        await this.token.mint(owner, tokenId);
+      });
+
+      it('can receive an ERC721 safeTransfer', async function () {
+        await this.token.safeTransferFrom(owner, this.mock.address, tokenId, { from: owner });
+      });
+    });
+
+    describe('ERC1155', function () {
+      const uri = 'https://token-cdn-domain/{id}.json';
+      const tokenIds = {
+        1: new BN(1000),
+        2: new BN(2000),
+        3: new BN(3000),
+      };
+
+      beforeEach(async function () {
+        this.token = await ERC1155Mock.new(uri);
+        await this.token.mintBatch(owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
+      });
+
+      it('can receive ERC1155 safeTransfer', async function () {
+        await this.token.safeTransferFrom(
+          owner,
+          this.mock.address,
+          ...Object.entries(tokenIds)[0], // id + amount
+          '0x',
+          { from: owner },
+        );
+      });
+
+      it('can receive ERC1155 safeBatchTransfer', async function () {
+        await this.token.safeBatchTransferFrom(
+          owner,
+          this.mock.address,
+          Object.keys(tokenIds),
+          Object.values(tokenIds),
+          '0x',
+          { from: owner },
+        );
+      });
     });
   });
 });
