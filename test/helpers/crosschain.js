@@ -6,52 +6,14 @@ const BridgeArbitrumL2Mock = artifacts.require('BridgeArbitrumL2Mock');
 const BridgeOptimismMock = artifacts.require('BridgeOptimismMock');
 const BridgePolygonChildMock = artifacts.require('BridgePolygonChildMock');
 
-class CrossChainHelper {
-  before (type = 'Arbitrum-L2') {
-    const that = this;
-    switch (type) {
-    case 'AMB':
-      before(async function () {
-        that.bridge = await BridgeAMBMock.new();
-      });
-      return;
+class BridgeHelper {
+  static async deploy (type) {
+    return new BridgeHelper(await deployBridge(type));
+  }
 
-    case 'Arbitrum-L1':
-      before(async function () {
-        that.bridge = await BridgeArbitrumL1Mock.new();
-      });
-      return;
-
-    case 'Arbitrum-L2':
-      before(async function () {
-        await BridgeArbitrumL2Mock.new()
-          .then(instance => web3.eth.getCode(instance.address))
-          .then(code => promisify(web3.currentProvider.send.bind(web3.currentProvider))({
-            jsonrpc: '2.0',
-            method: 'hardhat_setCode',
-            params: [ '0x0000000000000000000000000000000000000064', code ],
-            id: new Date().getTime(),
-          }));
-
-        that.bridge = await BridgeArbitrumL2Mock.at('0x0000000000000000000000000000000000000064');
-      });
-      return;
-
-    case 'Optimism':
-      before(async function () {
-        that.bridge = await BridgeOptimismMock.new();
-      });
-      return;
-
-    case 'Polygon-Child':
-      before(async function () {
-        that.bridge = await BridgePolygonChildMock.new();
-      });
-      return;
-
-    default:
-      throw new Error(`CrossChain: ${type} is not supported`);
-    }
+  constructor (bridge) {
+    this.bridge = bridge;
+    this.address = bridge.address;
   }
 
   call (from, target, selector = undefined, args = []) {
@@ -65,4 +27,37 @@ class CrossChainHelper {
   }
 }
 
-module.exports = new CrossChainHelper();
+async function deployBridge (type = 'Arbitrum-L2') {
+  switch (type) {
+  case 'AMB':
+    return BridgeAMBMock.new();
+
+  case 'Arbitrum-L1':
+    return BridgeArbitrumL1Mock.new();
+
+  case 'Arbitrum-L2': {
+    const instance = await BridgeArbitrumL2Mock.new();
+    const code = await web3.eth.getCode(instance.address);
+    await promisify(web3.currentProvider.send.bind(web3.currentProvider))({
+      jsonrpc: '2.0',
+      method: 'hardhat_setCode',
+      params: [ '0x0000000000000000000000000000000000000064', code ],
+      id: new Date().getTime(),
+    });
+    return BridgeArbitrumL2Mock.at('0x0000000000000000000000000000000000000064');
+  }
+
+  case 'Optimism':
+    return BridgeOptimismMock.new();
+
+  case 'Polygon-Child':
+    return BridgePolygonChildMock.new();
+
+  default:
+    throw new Error(`CrossChain: ${type} is not supported`);
+  }
+}
+
+module.exports = {
+  BridgeHelper,
+};

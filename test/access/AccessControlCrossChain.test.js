@@ -1,5 +1,5 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const CrossChainHelper = require('../helpers/crosschain');
+const { BridgeHelper } = require('../helpers/crosschain');
 
 const {
   shouldBehaveLikeAccessControl,
@@ -15,7 +15,9 @@ const AccessControlCrossChainMock = artifacts.require('AccessControlCrossChainMo
 const ROLE = web3.utils.soliditySha3('ROLE');
 
 contract('AccessControl', function (accounts) {
-  CrossChainHelper.before();
+  before(async function () {
+    this.bridge = await BridgeHelper.deploy();
+  });
 
   beforeEach(async function () {
     this.accessControl = await AccessControlCrossChainMock.new({ from: accounts[0] });
@@ -35,7 +37,7 @@ contract('AccessControl', function (accounts) {
 
     it('Crosschain calls not authorized to non-aliased addresses', async function () {
       await expectRevert(
-        CrossChainHelper.call(
+        this.bridge.call(
           accounts[0],
           this.accessControl,
           'senderProtected',
@@ -46,7 +48,7 @@ contract('AccessControl', function (accounts) {
     });
 
     it('Crosschain calls not authorized to non-aliased addresses', async function () {
-      await CrossChainHelper.call(
+      await this.bridge.call(
         accounts[1],
         this.accessControl,
         'senderProtected',
