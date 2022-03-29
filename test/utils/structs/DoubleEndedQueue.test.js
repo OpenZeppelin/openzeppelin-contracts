@@ -69,7 +69,7 @@ contract('DoubleEndedQueue', function (accounts) {
     describe('push', function () {
       it('front', async function () {
         await this.deque.pushFront(bytesD);
-        this.content.unshift(bytesD); // add element at the begining
+        this.content.unshift(bytesD); // add element at the beginning
 
         expect(await getContent(this.deque)).to.have.ordered.members(this.content);
       });
