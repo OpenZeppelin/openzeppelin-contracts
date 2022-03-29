@@ -1,5 +1,8 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
+// load custom errors support
+require('../../helpers/customError');
+
 const Bytes32DequeMock = artifacts.require('Bytes32DequeMock');
 
 /** Rebuild the content of the deque as a JS array. */
@@ -8,18 +11,6 @@ async function getContent (deque) {
   const values = await Promise.all(Array(length).fill().map((_, i) => deque.at(i)));
   return values;
 }
-
-/** Revert handler that supports custom errors. */
-expectRevert.customError = async function (promise, reason) {
-  try {
-    await promise;
-    expect.fail('Expected promise to throw but it didn\'t');
-  } catch (error) {
-    if (reason) {
-      expect(error.message).to.include(reason);
-    }
-  }
-};
 
 contract('DoubleEndedQueue', function (accounts) {
   const bytesA = '0xdeadbeef'.padEnd(66, '0');
