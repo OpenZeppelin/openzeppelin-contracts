@@ -36,20 +36,20 @@ abstract contract ERC1155URIStorage is ERC1155 {
      *   which in most cases will contain `ERC1155._uri`;
      *
      * - if `_tokenURIs[tokenId]` is NOT set, and if the parents do not have a
-     *   uri value set, then result is empty.
+     *   uri value set, then the result is empty.
      */
     function uri(uint256 tokenId) public view virtual override returns (string memory) {
-        string memory _tokenURI = _tokenURIs[tokenId];
+        string memory tokenURI = _tokenURIs[tokenId];
 
         // If token URI is set, concatenate base URI and tokenURI (via abi.encodePacked).
-        return bytes(_tokenURI).length > 0 ? string(abi.encodePacked(_baseURI, _tokenURI)) : super.uri(tokenId);
+        return bytes(tokenURI).length > 0 ? string(abi.encodePacked(_baseURI, tokenURI)) : super.uri(tokenId);
     }
 
     /**
-     * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
+     * @dev Sets `tokenURI` as the tokenURI of `tokenId`.
      */
-    function _setURI(uint256 tokenId, string memory _tokenURI) internal virtual {
-        _tokenURIs[tokenId] = _tokenURI;
+    function _setURI(uint256 tokenId, string memory tokenURI) internal virtual {
+        _tokenURIs[tokenId] = tokenURI;
         emit URI(uri(tokenId), tokenId);
     }
 
