@@ -1,7 +1,5 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
-
 /** Revert handler that supports custom errors. */
-expectRevert.customError = async function (promise, reason) {
+async function expectRevertCustomError(promise, reason) {
   try {
     await promise;
     expect.fail('Expected promise to throw but it didn\'t');
@@ -13,5 +11,5 @@ expectRevert.customError = async function (promise, reason) {
 };
 
 module.exports = {
-  expectRevert,
+  expectRevertCustomError,
 };
