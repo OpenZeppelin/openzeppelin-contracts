@@ -1,3 +1,4 @@
 {
-    "detectors_to_run": "reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas"
+    "detectors_to_run": "reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas",
+    "filter_paths": "contracts/mocks"
 }
