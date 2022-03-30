@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ * `crosschain`: Add a new set of contracts for cross-chain applications. `CrossChainEnabled` is a base contract with instantiations for several chains and bridges, and `AccessControlCrossChain` is an extension of access control that allows cross-chain operation. ([#3183](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3183))
  * `AccessControl`: add a virtual `_checkRole(bytes32)` function that can be overridden to alter the `onlyRole` modifier behavior. ([#3137](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3137))
  * `EnumerableMap`: add new `AddressToUintMap` map type. ([#3150](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3150))
  * `EnumerableMap`: add new `Bytes32ToBytes32Map` map type. ([#3192](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3192))
