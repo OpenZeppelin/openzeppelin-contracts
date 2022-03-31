@@ -25,4 +25,4 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Clean project         
         run: npm run clean
-      - uses: crytic/slither-action@v0.1.0
+      - uses: crytic/slither-action@v0.1.1
