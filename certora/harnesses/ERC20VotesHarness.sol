@@ -19,6 +19,10 @@ contract ERC20VotesHarness is ERC20Votes {
         _burn(account, amount);
     }
 
+    function unsafeNumCheckpoints(address account) public view returns (uint256) {
+        return _checkpoints[account].length;
+    }
+
     function delegateBySig(
         address delegatee,
         uint256 nonce,

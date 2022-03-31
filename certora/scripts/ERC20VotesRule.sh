@@ -19,4 +19,5 @@ certoraRun \
     --optimistic_loop \
     --rule ${rule} \
     --msg "${msg}" \
+    --staging "Eyal/SanityWithoutCallTrace" \
     # --rule_sanity \
