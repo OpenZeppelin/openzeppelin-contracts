@@ -19,6 +19,7 @@ abstract contract Receiver is Ownable, CrossChainEnabled {
  * AMB
  */
 contract CrossChainEnabledAMBMock is Receiver, CrossChainEnabledAMB {
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(address bridge) CrossChainEnabledAMB(bridge) {}
 }
 
@@ -26,6 +27,7 @@ contract CrossChainEnabledAMBMock is Receiver, CrossChainEnabledAMB {
  * Arbitrum
  */
 contract CrossChainEnabledArbitrumL1Mock is Receiver, CrossChainEnabledArbitrumL1 {
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(address bridge) CrossChainEnabledArbitrumL1(bridge) {}
 }
 
@@ -35,6 +37,7 @@ contract CrossChainEnabledArbitrumL2Mock is Receiver, CrossChainEnabledArbitrumL
  * Optimism
  */
 contract CrossChainEnabledOptimismMock is Receiver, CrossChainEnabledOptimism {
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(address bridge) CrossChainEnabledOptimism(bridge) {}
 }
 
@@ -42,5 +45,6 @@ contract CrossChainEnabledOptimismMock is Receiver, CrossChainEnabledOptimism {
  * Polygon
  */
 contract CrossChainEnabledPolygonChildMock is Receiver, CrossChainEnabledPolygonChild {
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(address bridge) CrossChainEnabledPolygonChild(bridge) {}
 }
