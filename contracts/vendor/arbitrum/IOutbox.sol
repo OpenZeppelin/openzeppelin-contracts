@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+// OpenZeppelin Contracts (last updated v4.6.0-rc.0) (vendor/arbitrum/IOutbox.sol)
 
 /*
  * Copyright 2021, Offchain Labs, Inc.
