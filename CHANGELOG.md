@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
- * `ERC2981`: make `royaltiInfo` public to allow super call in overrides.
+ * `ERC2981`: make `royaltiInfo` public to allow super call in overrides. ([#3305](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3305))
 
 ## Unreleased
 
