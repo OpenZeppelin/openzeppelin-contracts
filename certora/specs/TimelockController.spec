@@ -5,15 +5,12 @@ methods {
     _DONE_TIMESTAMP() returns(uint256) envfree
     _minDelay() returns(uint256) envfree
     getMinDelay() returns(uint256) envfree
+    hashOperation(address target, uint256 value, bytes data, bytes32 predecessor, bytes32 salt) returns(bytes32) envfree
     
     cancel(bytes32)
-    schedule(address, uint256, bytes, bytes32, bytes32, uint256)
+    schedule(address, uint256, bytes32, bytes32, bytes32, uint256)
     execute(address, uint256, bytes, bytes32, bytes32)
-
-    hashOperation(address target, uint256 value, bytes data, bytes32 predecessor, bytes32 salt) returns(bytes32) envfree // => uniqueHashGhost(target, value, data, predecessor, salt)
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////
 //                       Definitions                                      //
@@ -45,6 +42,19 @@ function hashIdCorrelation(bytes32 id, address target, uint256 value, bytes data
 }
 
 
+function executionsCall(method f, env e, address target, uint256 value, bytes data, 
+                                    bytes32 predecessor, bytes32 salt, uint256 delay, 
+                                    address[] targets, uint256[] values, bytes[] datas) {
+    if  (f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector) {
+        execute(e, target, value, data, predecessor, salt);
+	} else if (f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
+        executeBatch(e, targets, values, datas, predecessor, salt);
+	} else {
+        calldataarg args;
+        f(e, args);
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////
 //                           Ghosts                                       //
 ////////////////////////////////////////////////////////////////////////////
@@ -63,20 +73,22 @@ function hashIdCorrelation(bytes32 id, address target, uint256 value, bytes data
 
 
 rule keccakCheck(method f, env e){
-    address target;
-    uint256 value;
-    bytes data;
-    bytes32 predecessor;
-    bytes32 salt;
+    address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
+    address targetRand; uint256 valueRand; bytes dataRand; bytes32 predecessorRand; bytes32 saltRand;
 
-    require data.length < 3;
+    require data.length < 4;
+    // uint256 freshIndex;
+    // require freshIndex <= data.length
+
+    // require target != targetRand || value != valueRand || data[freshIndex] != dataRand[freshIndex] || predecessor != predecessorRand || salt != saltRand;
 
     bytes32 a = hashOperation(target, value, data, predecessor, salt);
     bytes32 b = hashOperation(target, value, data, predecessor, salt);
+    // bytes32 c = hashOperation(targetRand, valueRand, dataRand, predecessorRand, saltRand);
 
     assert a == b, "hashes are different";
+    // assert a != c, "hashes are the same";
 }
-
 
 
 /////////////////////////////////////////////////////////////
@@ -99,7 +111,7 @@ rule unsetPendingTransitionGeneral(method f, env e){
 }
 
 
-// STATUS - verified
+// STATUS - 
 // unset() -> pending() via schedule() and scheduleBatch() only
 rule unsetPendingTransitionMethods(method f, env e){
     bytes32 id;
@@ -109,8 +121,10 @@ rule unsetPendingTransitionMethods(method f, env e){
     calldataarg args;
     f(e, args);
 
-    assert pending(id) => f.selector == schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector 
-                                || f.selector == scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector , "Why do we need to follow the schedule?";
+    bool tmp = pending(id);
+
+    assert pending(id) => (f.selector == schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector 
+                                || f.selector == scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector), "Why do we need to follow the schedule?";
 }
 
 
@@ -181,17 +195,19 @@ rule minDealyOnlyChange(method f, env e){
 // execute() is the only way to set timestamp to 1
 rule getTimestampOnlyChange(method f, env e){
     bytes32 id;
-    address target; uint256 value; bytes data ;bytes32 predecessor; bytes32 salt; uint256 delay;
+    address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt; uint256 delay;
+    address[] targets; uint256[] values; bytes[] datas;
 
-    require getTimestamp(id) != 1;
+    require (targets[0] == target && values[0] == value && datas[0] == data)
+                || (targets[1] == target && values[1] == value && datas[1] == data)
+                || (targets[2] == target && values[2] == value && datas[2] == data);
+
     hashIdCorrelation(id, target, value, data, predecessor, salt);
 
-    calldataarg args;
-    // write helper function with values from hashOperation() call;
-    f(e, args);
+    executionsCall(f, e, target, value, data, predecessor, salt, delay, targets, values, datas);
 
     assert getTimestamp(id) == 1 => f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector  
-                                        || f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector , "Did you find a way to break the system?";
+                                        || f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector, "Did you find a way to break the system?";
 }
 
 
@@ -233,20 +249,16 @@ rule executeRevertFromUnset(method f, env e, env e2){
     address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
     bytes32 id;
 
-    // hashIdCorrelation(id, target, value, data, predecessor, salt);
-    require data.length < 4;
-    // require hashOperation(target, value, data, predecessor, salt) == id;
+    hashIdCorrelation(id, target, value, data, predecessor, salt);
     require unset(id);
 
-    scheduleCheck1@withrevert(e, id);
-
-    // execute@withrevert(e, target, value, data, predecessor, salt);
+    execute@withrevert(e, target, value, data, predecessor, salt);
 
     assert lastReverted, "you go against execution nature";
 }
 
 
-// STATUS - verified
+// STATUS - 
 // Execute reverts => state returns to pending
 rule executeRevertEffectCheck(method f, env e){
     address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
