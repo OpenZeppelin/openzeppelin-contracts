@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+ * `ERC2981`: make `royaltiInfo` public to allow super call in overrides.
+
+## Unreleased
 
  * `AccessControl`: add a virtual `_checkRole(bytes32)` function that can be overridden to alter the `onlyRole` modifier behavior. ([#3137](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3137))
  * `EnumerableMap`: add new `AddressToUintMap` map type. ([#3150](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3150))
