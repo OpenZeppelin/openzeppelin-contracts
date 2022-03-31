@@ -38,7 +38,7 @@ push_release_branch_and_tag() {
 publish() {
   dist_tag="$1"
 
-  log "Publishing openzeppelin-solidity on npm"
+  log "Publishing @openzeppelin/contracts on npm"
   npm publish --tag "$dist_tag" --otp "$(prompt_otp)"
 
   log "Publishing @openzeppelin/contracts on npm"
@@ -49,8 +49,10 @@ publish() {
 
   if [[ "$dist_tag" == "latest" ]]; then
     otp="$(prompt_otp)"
-    npm dist-tag rm --otp "$otp" openzeppelin-solidity next
     npm dist-tag rm --otp "$otp" @openzeppelin/contracts next
+
+    # No longer updated!
+    # npm dist-tag rm --otp "$otp" openzeppelin-solidity next
   fi
 }
 
@@ -143,7 +145,7 @@ elif [[ "$*" == "final" ]]; then
 
   push_and_publish latest
 
-  npm deprecate 'openzeppelin-solidity@>=4.0.0' "This package is now published as @openzeppelin/contracts. Please change your dependency."
+  # npm deprecate 'openzeppelin-solidity@>=4.0.0' "This package is now published as @openzeppelin/contracts. Please change your dependency."
 
   log "Remember to merge the release branch into master and push upstream"
 
