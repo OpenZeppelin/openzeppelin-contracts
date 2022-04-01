@@ -57,7 +57,7 @@ contract('CrossChainEnabled', function () {
   describe('Arbitrum-L2', function () {
     beforeEach(async function () {
       this.bridge = await BridgeHelper.deploy('Arbitrum-L2');
-      this.receiver = await CrossChainEnabledArbitrumL2Mock.new(this.bridge.address);
+      this.receiver = await CrossChainEnabledArbitrumL2Mock.new();
     });
 
     shouldBehaveLikeReceiver();
