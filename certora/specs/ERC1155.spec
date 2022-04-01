@@ -17,7 +17,7 @@ methods {
 
 
 /////////////////////////////////////////////////
-// Approval
+// Approval (4/4)
 /////////////////////////////////////////////////
 
 
@@ -60,8 +60,8 @@ rule approvalRevertCases(env e){
 }
 
 
-// STATUS - verified 
-// Set approval changes only one approval
+// STATUS - verified
+// setApproval changes only one approval
 rule onlyOneAllowanceChange(method f, env e) {
     address owner; address operator; address user; 
     bool approved;
@@ -78,7 +78,7 @@ rule onlyOneAllowanceChange(method f, env e) {
 
 
 /////////////////////////////////////////////////
-// Balance
+// Balance (3/3)
 /////////////////////////////////////////////////
 
 
@@ -131,11 +131,97 @@ rule balanceOfBatchRevertCases(env e){
 
 
 /////////////////////////////////////////////////
-// Transfer
+// Transfer (14/14)
 /////////////////////////////////////////////////
 
 
-// STATUS - 
+// STATUS - verified
+// transfer additivity
+rule transferAdditivity(env e){
+    address from; address to; uint256 id; bytes data;
+    uint256 amount; uint256 amount1; uint256 amount2;
+    require amount == amount1 + amount2;
+
+    storage initialStorage = lastStorage;
+
+    safeTransferFrom(e, from, to, id, amount, data);
+
+    uint256 balanceAfterSingleTransaction = balanceOf(to, id);
+
+    safeTransferFrom(e, from, to, id, amount1, data) at initialStorage;
+    safeTransferFrom(e, from, to, id, amount2, data);
+
+    uint256 balanceAfterDoubleTransaction = balanceOf(to, id);
+
+    assert balanceAfterSingleTransaction == balanceAfterDoubleTransaction, "Not additive";
+}
+
+
+// STATUS - verified
+// safeTransferFrom updates `from` and `to` balances
+rule transferCorrectness(env e){
+    address from; address to; uint256 id; uint256 amount; bytes data;
+
+    require to != from;
+
+    uint256 fromBalanceBefore = balanceOf(from, id);
+    uint256 toBalanceBefore = balanceOf(to, id);
+
+    safeTransferFrom(e, from, to, id, amount, data);
+
+    uint256 fromBalanceAfter = balanceOf(from, id);
+    uint256 toBalanceAfter = balanceOf(to, id);
+
+    assert fromBalanceBefore == fromBalanceAfter + amount, "Something wet wrong";
+    assert toBalanceBefore == toBalanceAfter - amount, "Something wet wrong";
+}
+
+
+// STATUS - verified
+// cannot transfer more than allowed (safeBatchTransferFrom version)
+rule transferBatchCorrectness(env e){
+    address from; address to; uint256[] ids; uint256[] amounts; bytes data;
+    uint256 idToCheck1; uint256 amountToCheck1;
+    uint256 idToCheck2; uint256 amountToCheck2;
+    uint256 idToCheck3; uint256 amountToCheck3;
+
+    require to != from;
+    require idToCheck1 != idToCheck2 && idToCheck3 != idToCheck2 && idToCheck1 != idToCheck3;
+    
+    require ids.length == 3;        
+    require amounts.length == 3;    
+    require ids[0] == idToCheck1; require amounts[0] == amountToCheck1;
+    require ids[1] == idToCheck2; require amounts[1] == amountToCheck2;
+    require ids[2] == idToCheck3; require amounts[2] == amountToCheck3;
+
+    uint256 fromBalanceBefore1 = balanceOf(from, idToCheck1);
+    uint256 fromBalanceBefore2 = balanceOf(from, idToCheck2);
+    uint256 fromBalanceBefore3 = balanceOf(from, idToCheck3);
+
+    uint256 toBalanceBefore1 = balanceOf(to, idToCheck1);
+    uint256 toBalanceBefore2 = balanceOf(to, idToCheck2);
+    uint256 toBalanceBefore3 = balanceOf(to, idToCheck3);
+
+    safeBatchTransferFrom(e, from, to, ids, amounts, data);
+
+    uint256 fromBalanceAfter1 = balanceOf(from, idToCheck1);
+    uint256 fromBalanceAfter2 = balanceOf(from, idToCheck2);
+    uint256 fromBalanceAfter3 = balanceOf(from, idToCheck3);
+
+    uint256 toBalanceAfter1 = balanceOf(to, idToCheck1);
+    uint256 toBalanceAfter2 = balanceOf(to, idToCheck2);
+    uint256 toBalanceAfter3 = balanceOf(to, idToCheck3);
+
+    assert (fromBalanceBefore1 == fromBalanceAfter1 + amountToCheck1)
+                && (fromBalanceBefore2 == fromBalanceAfter2 + amountToCheck2)
+                && (fromBalanceBefore3 == fromBalanceAfter3 + amountToCheck3), "Something wet wrong";
+    assert (toBalanceBefore1 == toBalanceAfter1 - amountToCheck1)
+                && (toBalanceBefore2 == toBalanceAfter2 - amountToCheck2)
+                && (toBalanceBefore3 == toBalanceAfter3 - amountToCheck3), "Something wet wrong";
+}
+
+
+// STATUS - verified
 // cannot transfer more than `from` balance (safeTransferFrom version)
 rule cannotTransferMoreSingle(env e){
     address from; address to; uint256 id; uint256 amount; bytes data;
@@ -148,7 +234,7 @@ rule cannotTransferMoreSingle(env e){
 }
 
 
-// STATUS - 
+// STATUS - verified
 // cannot transfer more than allowed (safeBatchTransferFrom version)
 rule cannotTransferMoreBatch(env e){
     address from; address to; uint256[] ids; uint256[] amounts; bytes data;
@@ -164,7 +250,7 @@ rule cannotTransferMoreBatch(env e){
     require amounts.length == 3;    
     require ids[0] == idToCheck1; require amounts[0] == amountToCheck1;
     require ids[1] == idToCheck2; require amounts[1] == amountToCheck2;
-    require ids[2] == idToCheck3; require amounts[2] == amountToCheck3;
+    // require ids[2] == idToCheck3; require amounts[2] == amountToCheck3;
 
     safeBatchTransferFrom@withrevert(e, from, to, ids, amounts, data);
 
@@ -172,10 +258,13 @@ rule cannotTransferMoreBatch(env e){
 }
 
 
-// STATUS - (added debug vars)
+// STATUS - verified
 // safeBatchTransferFrom should revert if `to` is 0 address or if arrays length is different
 rule revertOfTransferBatch(env e){
     address from; address to; uint256[] ids; uint256[] amounts; bytes data;
+
+    require ids.length < 100000000;
+    require amounts.length < 100000000;
 
     uint256 idTMP = ids.length;
     uint256 amountsTMP = amounts.length;
@@ -195,7 +284,6 @@ rule transferBalanceReduceEffect(env e){
     bytes data;
 
     require other != to;
-    require amount > 0;
 
     uint256 otherBalanceBefore = balanceOf(other, id);
 
@@ -207,7 +295,7 @@ rule transferBalanceReduceEffect(env e){
 }
 
 
-// STATUS - 
+// STATUS - verified
 // Sender calling safeTransferFrom should only reduce 'to' balance and not other's if sending amount is greater than 0
 rule transferBalanceIncreaseEffect(env e){
     address from; address to; address other;
@@ -226,7 +314,7 @@ rule transferBalanceIncreaseEffect(env e){
 }
 
 
-// STATUS - 
+// STATUS - verified
 // Sender calling safeTransferFrom should only reduce 'from' balance and not other's if sending amount is greater than 0
 rule transferBatchBalanceFromEffect(env e){
     address from; address to; address other;
@@ -259,7 +347,7 @@ rule transferBatchBalanceFromEffect(env e){
 }
 
 
-// STATUS - 
+// STATUS - verified
 // Sender calling safeBatchTransferFrom should only reduce 'to' balance and not other's if sending amount is greater than 0
 rule transferBatchBalanceToEffect(env e){
     address from; address to; address other;
@@ -308,7 +396,7 @@ rule noTransferForNotApproved(env e) {
 }   
 
 
-// STATUS - 
+// STATUS - verified
 // cannot transfer without approval (safeBatchTransferFrom version)
 rule noTransferBatchForNotApproved(env e) {
     address from; address operator; address to; 
@@ -325,7 +413,7 @@ rule noTransferBatchForNotApproved(env e) {
 }   
 
 
-// STATUS - 
+// STATUS - verified
 // safeTransferFrom doesn't affect any approval
 rule noTransferEffectOnApproval(env e){
     address from; address to;
@@ -343,7 +431,7 @@ rule noTransferEffectOnApproval(env e){
 }
 
 
-// STATUS - 
+// STATUS - verified
 // safeTransferFrom doesn't affect any approval
 rule noTransferBatchEffectOnApproval(env e){
     address from; address to;
@@ -361,9 +449,105 @@ rule noTransferBatchEffectOnApproval(env e){
 }
 
 
+
 /////////////////////////////////////////////////
-// Mint
+// Mint (9/9)
 /////////////////////////////////////////////////
+
+
+// STATUS - verified
+// mint additivity
+rule mintAdditivity(env e){
+    address to; uint256 id; uint256 amount; uint256 amount1; uint256 amount2; bytes data;
+    require amount == amount1 + amount2;
+
+    storage initialStorage = lastStorage;
+
+    _mint(e, to, id, amount, data);
+
+    uint256 balanceAfterSingleTransaction = balanceOf(to, id);
+
+    _mint(e, to, id, amount1, data) at initialStorage;
+    _mint(e, to, id, amount2, data);
+
+    uint256 balanceAfterDoubleTransaction = balanceOf(to, id);
+
+    assert balanceAfterSingleTransaction == balanceAfterDoubleTransaction, "Not additive";
+}
+
+
+// STATUS - verified
+// mint should revert if `from` is 0
+rule mintRevertCases(env e){
+    address to; uint256 id; uint256 amount; bytes data;
+
+    _mint@withrevert(e, to, id, amount, data);
+
+    assert to == 0 => lastReverted, "Should revert";
+}
+
+
+// STATUS - verified
+// mintBatch should revert if `from` is 0 or arrays have different length
+rule mintBatchRevertCases(env e){
+    address to; uint256[] ids; uint256[] amounts; bytes data;
+
+    require ids.length < 100000000;
+    require amounts.length < 100000000;
+
+    _mintBatch@withrevert(e, to, ids, amounts, data);
+
+    assert to == 0 => lastReverted, "Should revert";
+    assert ids.length != amounts.length => lastReverted, "Should revert";
+}
+
+
+// STATUS - verified
+// check that mint updates `to` balance correctly
+rule mintCorrectWork(env e){
+    address to; uint256 id; uint256 amount; bytes data;
+
+    uint256 otherBalanceBefore = balanceOf(to, id);
+
+     _mint(e, to, id, amount, data);
+
+    uint256 otherBalanceAfter = balanceOf(to, id);
+    
+    assert otherBalanceBefore == otherBalanceAfter - amount, "Something is wrong";
+}
+
+
+// STATUS - verified
+// check that mintBatch updates `bootcamp participantsfrom` balance correctly
+rule mintBatchCorrectWork(env e){
+    address to;
+    uint256 id1; uint256 id2; uint256 id3; 
+    uint256 amount1; uint256 amount2; uint256 amount3;
+    uint256[] ids; uint256[] amounts;
+    bytes data;
+
+    require ids.length == 3; 
+    require amounts.length == 3; 
+
+    require id1 != id2 && id2 != id3 && id3 != id1;
+    require ids[0] == id1; require ids[1] == id2; require ids[2] == id3;
+    require amounts[0] == amount1; require amounts[1] == amount2; require amounts[2] == amount3;
+
+    uint256 otherBalanceBefore1 = balanceOf(to, id1);
+    uint256 otherBalanceBefore2 = balanceOf(to, id2);
+    uint256 otherBalanceBefore3 = balanceOf(to, id3);
+
+    _mintBatch(e, to, ids, amounts, data);
+
+    uint256 otherBalanceAfter1 = balanceOf(to, id1);
+    uint256 otherBalanceAfter2 = balanceOf(to, id2);
+    uint256 otherBalanceAfter3 = balanceOf(to, id3);
+    
+    assert otherBalanceBefore1 == otherBalanceAfter1 - amount1
+            && otherBalanceBefore2 == otherBalanceAfter2 - amount2
+            && otherBalanceBefore3 == otherBalanceAfter3 - amount3
+            , "Something is wrong";
+}
 
 
 // STATUS - verified
@@ -403,6 +587,51 @@ rule cantMintMoreBatch(env e){
 }
 
 
+// STATUS - verified
+// mint changes only `to` balance
+rule cantMintOtherBalances(env e){
+    address to; uint256 id; uint256 amount; bytes data;
+    address other;
+
+    uint256 otherBalanceBefore = balanceOf(other, id);
+
+    _mint(e, to, id, amount, data);
+
+    uint256 otherBalanceAfter = balanceOf(other, id);
+    
+    assert other != to => otherBalanceBefore == otherBalanceAfter, "I like to see your money disappearing";
+}
+
+
+// STATUS - verified
+// mintBatch changes only `to` balance
+rule cantMintBatchOtherBalances(env e){
+    address to;
+    uint256 id1; uint256 id2; uint256 id3; 
+    uint256[] ids; uint256[] amounts;
+    address other;
+    bytes data;
+
+    uint256 otherBalanceBefore1 = balanceOf(other, id1);
+    uint256 otherBalanceBefore2 = balanceOf(other, id2);
+    uint256 otherBalanceBefore3 = balanceOf(other, id3);
+
+    _mintBatch(e, to, ids, amounts, data);
+
+    uint256 otherBalanceAfter1 = balanceOf(other, id1);
+    uint256 otherBalanceAfter2 = balanceOf(other, id2);
+    uint256 otherBalanceAfter3 = balanceOf(other, id3);
+    
+    assert other != to => (otherBalanceBefore1 == otherBalanceAfter1 
+                                || otherBalanceBefore2 == otherBalanceAfter2 
+                                || otherBalanceBefore3 == otherBalanceAfter3)
+                                , "I like to see your money disappearing";
+}
+
+
+
+
+
 // rule mintRevert(env e){
 //     address operator;
 //     address from;
@@ -428,11 +657,57 @@ rule cantMintMoreBatch(env e){
 
 
 /////////////////////////////////////////////////
-// Burn
+// Burn (9/9)
 /////////////////////////////////////////////////
 
 
-// STATUS - 
+// STATUS - verified
+// burn additivity
+rule burnAdditivity(env e){
+    address from; uint256 id; uint256 amount; uint256 amount1; uint256 amount2;
+    require amount == amount1 + amount2;
+
+    storage initialStorage = lastStorage;
+
+    _burn(e, from, id, amount);
+
+    uint256 balanceAfterSingleTransaction = balanceOf(from, id);
+
+    _burn(e, from, id, amount1) at initialStorage;
+    _burn(e, from, id, amount2);
+
+    uint256 balanceAfterDoubleTransaction = balanceOf(from, id);
+
+    assert balanceAfterSingleTransaction == balanceAfterDoubleTransaction, "Not additive";
+}
+
+
+// STATUS - verified
+// burn should revert if `from` is 0
+rule burnRevertCases(env e){
+    address from; uint256 id; uint256 amount;
+
+    _burn@withrevert(e, from, id, amount);
+
+    assert from == 0 => lastReverted, "Should revert";
+}
+
+
+// STATUS - verified
+// burnBatch should revert if `from` is 0 or arrays have different length
+rule burnBatchRevertCases(env e){
+    address from; uint256[] ids; uint256[] amounts;
+
+    require ids.length < 100000000;
+
+    _burnBatch@withrevert(e, from, ids, amounts);
+
+    assert from == 0 => lastReverted, "Should revert";
+    assert ids.length != amounts.length => lastReverted, "Should revert";
+}
+
+
+// STATUS - verified
 // check that burn updates `from` balance correctly
 rule burnCorrectWork(env e){
     address from; uint256 id; uint256 amount;
@@ -447,7 +722,7 @@ rule burnCorrectWork(env e){
 }
 
 
-// STATUS - 
+// STATUS - verified
 // check that burnBatch updates `from` balance correctly
 rule burnBatchCorrectWork(env e){
     address from;
@@ -456,7 +731,6 @@ rule burnBatchCorrectWork(env e){
     uint256[] ids; uint256[] amounts;
 
     require ids.length == 3; 
-    require amounts.length == 3;
 
     require id1 != id2 && id2 != id3 && id3 != id1;
     require ids[0] == id1; require ids[1] == id2; require ids[2] == id3;
@@ -480,7 +754,7 @@ rule burnBatchCorrectWork(env e){
 
 
 // STATUS - verified
-// the user cannot mint more than max_uint256
+// the user cannot burn more than they have
 rule cantBurnMoreSingle(env e){
     address from; uint256 id; uint256 amount;
 
@@ -492,24 +766,8 @@ rule cantBurnMoreSingle(env e){
 }
 
 
-// STATUS - 
-// burn changes only `from` balance
-rule cantBurnOtherBalances(env e){
-    address from; uint256 id; uint256 amount;
-    address other;
-
-    uint256 otherBalanceBefore = balanceOf(other, id);
-
-    _burn(e, from, id, amount);
-
-    uint256 otherBalanceAfter = balanceOf(other, id);
-    
-    assert other != from => otherBalanceBefore == otherBalanceAfter, "I like to see your money disappearing";
-}
-
-
 // STATUS - verified
-// the user cannot mint more than max_uint256 (batch version)
+// the user cannot burn more than they have (batch version)
 rule cantBurnMoreBatch(env e){
     address from;
     uint256 id1; uint256 id2; uint256 id3; 
@@ -531,20 +789,36 @@ rule cantBurnMoreBatch(env e){
 }
 
 
-// STATUS - 
+// STATUS - verified
+// burn changes only `from` balance
+rule cantBurnOtherBalances(env e){
+    address from; uint256 id; uint256 amount;
+    address other;
+
+    uint256 otherBalanceBefore = balanceOf(other, id);
+
+    _burn(e, from, id, amount);
+
+    uint256 otherBalanceAfter = balanceOf(other, id);
+    
+    assert other != from => otherBalanceBefore == otherBalanceAfter, "I like to see your money disappearing";
+}
+
+
+// STATUS - verified
 // burnBatch changes only `from` balance
-rule cantBurnbatchOtherBalances(env e){
+rule cantBurnBatchOtherBalances(env e){
     address from;
     uint256 id1; uint256 id2; uint256 id3; 
     uint256 amount1; uint256 amount2; uint256 amount3;
     uint256[] ids; uint256[] amounts;
     address other;
 
-    require ids.length == 3; 
-    require amounts.length == 3;
+    // require ids.length == 3; 
+    // require amounts.length == 3;
 
-    require ids[0] == id1; require ids[1] == id2; require ids[2] == id3;
-    require amounts[0] == amount1; require amounts[1] == amount2; require amounts[2] == amount3;
+    // require ids[0] == id1; require ids[1] == id2; require ids[2] == id3;
+    // require amounts[0] == amount1; require amounts[1] == amount2; require amounts[2] == amount3;
 
     uint256 otherBalanceBefore1 = balanceOf(other, id1);
     uint256 otherBalanceBefore2 = balanceOf(other, id2);
