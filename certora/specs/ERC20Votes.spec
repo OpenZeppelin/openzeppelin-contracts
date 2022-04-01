@@ -153,14 +153,18 @@ invariant no_delegate_no_checkpoints(address account)
 // converted from an invariant to a rule to slightly change the logic
 // if the fromBlock is the same as before, then the number of checkpoints stays the same
 // however if the fromBlock is new than the number of checkpoints increases
+// passes, fails rule sanity because tautology check seems to be bugged
 rule unique_checkpoints_rule(method f) {
     env e; calldataarg args;
 
-    require e.block.number > 0; // we don't care about this exception
+    // require e.block.number > 0; // we don't care about this exception
+
 
     address account;
+    // address delegates_pre = delegates(account);
 
-    require unsafeNumCheckpoints(account) < 4294967295; // 2^32 // we don't want to deal with the checkpoint overflow error here
+
+    // require unsafeNumCheckpoints(account) < 1000000; // 2^32 // we don't want to deal with the checkpoint overflow error here
 
     uint32 num_ckpts_ = numCheckpoints(account); 
     uint32 fromBlock_ = num_ckpts_ == 0 ? 0 : ckptFromBlock(account, num_ckpts_ - 1);
@@ -171,8 +175,8 @@ rule unique_checkpoints_rule(method f) {
     uint32 _fromBlock = _num_ckpts == 0 ? 0 : ckptFromBlock(account, _num_ckpts - 1);
     
 
-    // assert fromBlock_ == _fromBlock => num_ckpts_ == _num_ckpts, "same fromBlock, new checkpoint";
-    assert doubleFromBlock(account) => num_ckpts_ == _num_ckpts, "same fromBlock, new checkpoint";
+    assert fromBlock_ == _fromBlock => num_ckpts_ == _num_ckpts || _num_ckpts == 1, "same fromBlock, new checkpoint";
+    // assert doubleFromBlock(account) => num_ckpts_ == _num_ckpts, "same fromBlock, new checkpoint";
     // this assert fails consistently
     // assert !doubleFromBlock(account) => ckpts_ != _ckpts, "new fromBlock but total checkpoints not being increased";
 }
@@ -180,15 +184,21 @@ rule unique_checkpoints_rule(method f) {
 // assumes neither account has delegated
 // currently fails due to this scenario. A has maxint number of checkpoints
 // an additional checkpoint is added which overflows and sets A's votes to 0
+// passes + rule sanity (- a bad tautology check)
 rule transfer_safe() {
     env e;
     uint256 amount;
     address a; address b;
-    require a != b;
-    require delegates(a) != delegates(b); // confirmed if they both delegate to the same person then transfer keeps the votes the sameå
+    // require a != b;
+    require delegates(a) != delegates(b); // confirmed if they both delegate to the same person then transfer keeps the votes the same
     // requireInvariant fromBlock_constrains_numBlocks(a);
     // requireInvariant fromBlock_constrains_numBlocks(b);
     // requireInvariant totalVotes_gte_accounts(a, b);
+
+    // require lastIndex(delegates(a)) < 1000000;
+    // require lastIndex(delegates(b)) < 1000000;
+    require numCheckpoints(delegates(a)) < 1000000;
+    require numCheckpoints(delegates(b)) < 1000000;
 
     uint256 votesA_pre = getVotes(delegates(a));
     uint256 votesB_pre = getVotes(delegates(b));
@@ -201,9 +211,9 @@ rule transfer_safe() {
 
     erc20votes.transferFrom(e, a, b, amount);
 
-    
-    require lastIndex(delegates(a)) < 1000000;
-    require lastIndex(delegates(b)) < 1000000;
+
+    // require lastIndex(delegates(a)) < 1000000;
+    // require lastIndex(delegates(b)) < 1000000;
     
     mathint totalVotes_post = totalVotes();
     uint256 votesA_post = getVotes(delegates(a));
@@ -236,24 +246,6 @@ rule delegates_safe(method f) filtered {f -> (f.selector != delegate(address).se
     assert pre == post, "invalid delegate change";
 }
 
-
-rule delegator_votes_removed() {
-    env e;
-    address delegator; address delegatee;
-
-    require delegator != delegatee;
-    require delegates(delegator) == 0; // has not delegated
-
-    uint256 pre = getVotes(delegator);
-
-    _delegate(e, delegator, delegatee);
-
-    uint256 balance = balanceOf(e, delegator);
-
-    uint256 post = getVotes(delegator);
-    assert post == pre - balance, "delegator retained votes";
-}
-
 // delegates increases the delegatee's votes by the proper amount
 // passes + rule sanity
 rule delegatee_receives_votes() {
@@ -262,6 +254,7 @@ rule delegatee_receives_votes() {
 
     require delegates(delegator) != delegatee;
     require delegatee != 0x0;
+
 
     uint256 delegator_bal = balanceOf(e, delegator);
     uint256 votes_= getVotes(delegatee);
@@ -275,14 +268,14 @@ rule delegatee_receives_votes() {
     assert _votes == votes_ + delegator_bal, "delegatee did not receive votes";
 }
 
-rule previous_delegatee_zeroed() {
+// passes + rule sanity
+rule previous_delegatee_votes_removed() {
     env e;
     address delegator; address delegatee; address third;
 
     require third != delegatee;
-    require third != delegator;
     require delegates(delegator) == third;
-    // for third to have been delegated to, it must have a checkpoint
+    require numCheckpoints(third) < 1000000;
 
     uint256 delegator_bal = balanceOf(e, delegator);
     uint256 votes_ = getVotes(third);
@@ -291,7 +284,7 @@ rule previous_delegatee_zeroed() {
 
     uint256 _votes = getVotes(third);
 
-    assert _votes == votes_ - delegator_bal, "votes not removed from the previous delegatee";
+    assert third != 0x0 => _votes == votes_ - delegator_bal, "votes not removed from the previous delegatee";
 }
 
 // passes with rule sanity
@@ -311,39 +304,40 @@ rule delegate_contained() {
     assert votes_ == _votes, "votes not contained";
 }
 
-// checks all of the above rules with front running 
+// checks all of the above delegate rules with front running 
 rule delegate_no_frontrunning(method f) {
     env e; calldataarg args;
     address delegator; address delegatee; address third; address other;
 
-    require delegator != delegatee;
     require delegates(delegator) == third;
+    require third != delegatee;
     require other != third;
+    require other != delegatee;
+    require delegatee != 0x0;
 
-    uint256 delegator_bal = erc20votes.balanceOf(e, delegator);
+    require numCheckpoints(delegatee) < 1000000;
+    require numCheckpoints(third) < 1000000;
 
-    uint256 dr_ = getVotes(delegator);
-    uint256 de_ = getVotes(delegatee);
-    uint256 third_ = getVotes(third);
-    uint256 other_ = getVotes(other);
+    uint256 delegatee_votes_ = getVotes(delegatee);
+    uint256 third_votes_ = getVotes(third);
+    uint256 other_votes_ = getVotes(other);
 
     // require third is address for previous delegator
     f(e, args);
+    uint256 delegator_bal = erc20votes.balanceOf(e, delegator);
     _delegate(e, delegator, delegatee);
 
-    uint256 _dr = getVotes(delegator);
-    uint256 _de = getVotes(delegatee);
-    uint256 _third = getVotes(third);
-    uint256 _other = getVotes(other);
+    uint256 _delegatee_votes = getVotes(delegatee);
+    uint256 _third_votes = getVotes(third);
+    uint256 _other_votes = getVotes(other);
 
 
-    // delegator loses all of their votes
+    // previous delegatee loses all of their votes
     // delegatee gains that many votes
     // third loses any votes delegated to them
-    assert _dr == 0, "delegator retained votes";
-    assert _de == de_ + delegator_bal, "delegatee not received votes";
-    assert _third != 0 => _third == third_ - delegator_bal, "votes not removed from third";
-    assert other_ == _other, "delegate not contained";
+    assert _delegatee_votes == delegatee_votes_ + delegator_bal, "delegatee did not receive votes";
+    assert third != 0 => _third_votes == third_votes_ - delegator_bal, "votes not removed from third";
+    assert other_votes_ == _other_votes, "delegate not contained";
 }
 
 

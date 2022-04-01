@@ -19,5 +19,5 @@ certoraRun \
     --optimistic_loop \
     --rule ${rule} \
     --msg "${msg}" \
-    --staging "Eyal/SanityWithoutCallTrace" \
-    # --rule_sanity \
+    --staging "alex/new-dt-hashing-alpha" \
+    --rule_sanity \
