@@ -41,7 +41,9 @@ contract BridgeAMBMock is BaseRelayMock {
  * Arbitrum
  */
 contract BridgeArbitrumL1Mock is BaseRelayMock {
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address public immutable inbox = address(new BridgeArbitrumL1Inbox());
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address public immutable outbox = address(new BridgeArbitrumL1Outbox());
 
     function activeOutbox() public view returns (address) {
@@ -54,10 +56,12 @@ contract BridgeArbitrumL1Mock is BaseRelayMock {
 }
 
 contract BridgeArbitrumL1Inbox {
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address public immutable bridge = msg.sender;
 }
 
 contract BridgeArbitrumL1Outbox {
+    /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address public immutable bridge = msg.sender;
 
     function l2ToL1Sender() public view returns (address) {
