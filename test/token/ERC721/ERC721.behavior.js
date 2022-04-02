@@ -46,7 +46,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
       context('when querying the zero address', function () {
         it('throws', async function () {
           await expectRevert(
-            this.token.balanceOf(ZERO_ADDRESS), 'ERC721: balance query for the zero address',
+            this.token.balanceOf(ZERO_ADDRESS), 'ERC721: address zero is not a valid owner',
           );
         });
       });
