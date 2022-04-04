@@ -22,6 +22,7 @@
  * `Governor`: Implement `IERC721Receiver` and `IERC1155Receiver` to improve token custody by governors. ([#3230](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3230))
  * `TimelockController`: Implement `IERC721Receiver` and `IERC1155Receiver` to improve token custody by timelocks. ([#3230](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3230))
  * `TimelockController`: Add a separate canceller role for the ability to cancel. ([#3165](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3165))
+ * `TimelockController`: Migrate `_call` to `_execute` and allow inheritance similar to `Governor`. ([#3317](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3317))
  * `Initializable`: add a reinitializer modifier that enables the initialization of new modules, added to already initialized contracts through upgradeability. ([#3232](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3232))
  * `Initializable`: add an Initialized event that tracks initialized version numbers. ([#3294](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3294))
 
