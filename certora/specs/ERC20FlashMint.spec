@@ -14,7 +14,7 @@ function specBurn(address account, uint256 amount) returns bool {   // retuns ne
 
 
 // STATUS - verified
-// fee + flashLoan amount is burned
+// Check that if flashLoan() call is successful, then proper amount of tokens was burnt(fee + flashLoan amount)
 rule letsWatchItBurns(env e){
     address receiver; address token; uint256 amount; bytes data;
 
