@@ -352,7 +352,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         address target,
         uint256 value,
         bytes calldata data
-    ) private {
+    ) internal virtual {
         (bool success, ) = target.call{value: value}(data);
         require(success, "TimelockController: underlying transaction reverted");
 
