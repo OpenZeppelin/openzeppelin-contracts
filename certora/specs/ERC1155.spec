@@ -250,11 +250,11 @@ rule cannotTransferMoreBatch(env e){
     require amounts.length == 3;    
     require ids[0] == idToCheck1; require amounts[0] == amountToCheck1;
     require ids[1] == idToCheck2; require amounts[1] == amountToCheck2;
-    // require ids[2] == idToCheck3; require amounts[2] == amountToCheck3;
+    require ids[2] == idToCheck3; require amounts[2] == amountToCheck3;
 
     safeBatchTransferFrom@withrevert(e, from, to, ids, amounts, data);
 
-    assert (amountToCheck1 > balanceBefore1 || amountToCheck2 > balanceBefore2 || amountToCheck2 > balanceBefore2) => lastReverted, "Achtung! Scammer!";
+    assert (amountToCheck1 > balanceBefore1 || amountToCheck2 > balanceBefore2 || amountToCheck3 > balanceBefore3) => lastReverted, "Achtung! Scammer!";
 }
 
 
@@ -265,9 +265,6 @@ rule revertOfTransferBatch(env e){
 
     require ids.length < 100000000;
     require amounts.length < 100000000;
-
-    uint256 idTMP = ids.length;
-    uint256 amountsTMP = amounts.length;
 
     safeBatchTransferFrom@withrevert(e, from, to, ids, amounts, data);
 
@@ -324,13 +321,6 @@ rule transferBatchBalanceFromEffect(env e){
 
     require other != to;
 
-    // require ids.length == 3; 
-    // require amounts.length == 3;
- 
-    // require ids[0] == id1; require ids[1] == id2; require ids[2] == id3;
-    // require amounts[0] == amount1; require amounts[1] == amount2; require amounts[2] == amount3;
-    // require amount1 > 0; require amount2 > 0; require amount3 > 0;
-
     uint256 otherBalanceBefore1 = balanceOf(other, id1);
     uint256 otherBalanceBefore2 = balanceOf(other, id2);
     uint256 otherBalanceBefore3 = balanceOf(other, id3);
@@ -356,13 +346,6 @@ rule transferBatchBalanceToEffect(env e){
     bytes data;
 
     require other != from;
-
-    // require ids.length == 3; 
-    // require amounts.length == 3;
- 
-    // require ids[0] == id1; require ids[1] == id2; require ids[2] == id3;
-    // require amounts[0] == amount1; require amounts[1] == amount2; require amounts[2] == amount3;
-    // require amount1 > 0; require amount2 > 0; require amount3 > 0;
 
     uint256 otherBalanceBefore1 = balanceOf(other, id1);
     uint256 otherBalanceBefore2 = balanceOf(other, id2);
@@ -623,37 +606,10 @@ rule cantMintBatchOtherBalances(env e){
     uint256 otherBalanceAfter3 = balanceOf(other, id3);
     
     assert other != to => (otherBalanceBefore1 == otherBalanceAfter1 
-                                || otherBalanceBefore2 == otherBalanceAfter2 
-                                || otherBalanceBefore3 == otherBalanceAfter3)
+                                && otherBalanceBefore2 == otherBalanceAfter2 
+                                && otherBalanceBefore3 == otherBalanceAfter3)
                                 , "I like to see your money disappearing";
 }
-
-
-
-
-
-// rule mintRevert(env e){
-//     address operator;
-//     address from;
-//     address to;
-//     uint256 id;
-//     uint256 amount;
-//     bytes data;
-// 
-//     require operator == e.msg.sender;
-//     require from == 0;
-// 
-//     _doSafeTransferAcceptanceCheck@withrevert(operator, from, to, id, amount, data);
-// 
-//     bool acceptanceCheck = lastReverted;
-// 
-//     _mint@withrevert(e, to, id, amount, data);
-// 
-//     bool mintRevert = lastReverted;
-// 
-//     assert acceptanceCheck => mintRevert, "reverts are wrong";
-// }
-
 
 
 /////////////////////////////////////////////////
@@ -814,12 +770,6 @@ rule cantBurnBatchOtherBalances(env e){
     uint256[] ids; uint256[] amounts;
     address other;
 
-    // require ids.length == 3; 
-    // require amounts.length == 3;
-
-    // require ids[0] == id1; require ids[1] == id2; require ids[2] == id3;
-    // require amounts[0] == amount1; require amounts[1] == amount2; require amounts[2] == amount3;
-
     uint256 otherBalanceBefore1 = balanceOf(other, id1);
     uint256 otherBalanceBefore2 = balanceOf(other, id2);
     uint256 otherBalanceBefore3 = balanceOf(other, id3);
@@ -831,7 +781,7 @@ rule cantBurnBatchOtherBalances(env e){
     uint256 otherBalanceAfter3 = balanceOf(other, id3);
     
     assert other != from => (otherBalanceBefore1 == otherBalanceAfter1 
-                                || otherBalanceBefore2 == otherBalanceAfter2 
-                                || otherBalanceBefore3 == otherBalanceAfter3)
+                                && otherBalanceBefore2 == otherBalanceAfter2 
+                                && otherBalanceBefore3 == otherBalanceAfter3)
                                 , "I like to see your money disappearing";
 }
