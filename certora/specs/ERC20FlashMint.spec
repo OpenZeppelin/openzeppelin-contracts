@@ -1,9 +1,8 @@
 import "erc20.spec"
 
 methods {
-    onFlashLoan(address, address, uint256, uint256, bytes) => HAVOC_ALL
-
-    _burn(address account, uint256 amount) returns(bool) => specBurn(account, amount);
+    maxFlashLoan(address) returns(uint256) envfree
+    _burn(address account, uint256 amount) returns(bool) => specBurn(account, amount)
 }
 
 ghost mapping(address => uint256) trackedBurnAmount;
