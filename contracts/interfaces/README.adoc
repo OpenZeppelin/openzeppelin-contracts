@@ -5,7 +5,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 
 == List of standardized interfaces
 These interfaces are available as `.sol` files, and also as compiler `.json` ABI files (through the npm package). These
-are usefull to interract with third party contracts that implement them.
+are useful to interact with third party contracts that implement them.
 
 - {IERC20}
 - {IERC20Metadata}

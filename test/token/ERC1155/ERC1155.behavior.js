@@ -23,7 +23,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       it('reverts when queried about the zero address', async function () {
         await expectRevert(
           this.token.balanceOf(ZERO_ADDRESS, firstTokenId),
-          'ERC1155: balance query for the zero address',
+          'ERC1155: address zero is not a valid owner',
         );
       });
 
@@ -106,7 +106,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstTokenHolder, secondTokenHolder, ZERO_ADDRESS],
             [firstTokenId, secondTokenId, unknownTokenId],
           ),
-          'ERC1155: balance query for the zero address',
+          'ERC1155: address zero is not a valid owner',
         );
       });
 

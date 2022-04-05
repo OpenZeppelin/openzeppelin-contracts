@@ -1,9 +1,7 @@
-const { BN, expectEvent } = require('@openzeppelin/test-helpers');
+const { BN } = require('@openzeppelin/test-helpers');
+const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
-
-const {
-  runGovernorWorkflow,
-} = require('./../GovernorWorkflow.behavior');
+const { GovernorHelper } = require('../../helpers/governance');
 
 const Token = artifacts.require('ERC20VotesCompMock');
 const Governor = artifacts.require('GovernorCompMock');
@@ -17,71 +15,64 @@ contract('GovernorComp', function (accounts) {
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
+  const votingDelay = new BN(4);
+  const votingPeriod = new BN(16);
+  const value = web3.utils.toWei('1');
 
   beforeEach(async function () {
     this.owner = owner;
     this.token = await Token.new(tokenName, tokenSymbol);
     this.mock = await Governor.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
+
+    this.helper = new GovernorHelper(this.mock);
+
+    await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
+
     await this.token.mint(owner, tokenSupply);
-    await this.token.delegate(voter1, { from: voter1 });
-    await this.token.delegate(voter2, { from: voter2 });
-    await this.token.delegate(voter3, { from: voter3 });
-    await this.token.delegate(voter4, { from: voter4 });
+    await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
+
+    // default proposal
+    this.proposal = this.helper.setProposal([
+      {
+        target: this.receiver.address,
+        value,
+        data: this.receiver.contract.methods.mockFunction().encodeABI(),
+      },
+    ], '<proposal description>');
   });
 
   it('deployment check', async function () {
     expect(await this.mock.name()).to.be.equal(name);
     expect(await this.mock.token()).to.be.equal(this.token.address);
-    expect(await this.mock.votingDelay()).to.be.bignumber.equal('4');
-    expect(await this.mock.votingPeriod()).to.be.bignumber.equal('16');
+    expect(await this.mock.votingDelay()).to.be.bignumber.equal(votingDelay);
+    expect(await this.mock.votingPeriod()).to.be.bignumber.equal(votingPeriod);
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
   });
 
-  describe('voting with comp token', function () {
-    beforeEach(async function () {
-      this.settings = {
-        proposal: [
-          [ this.receiver.address ],
-          [ web3.utils.toWei('0') ],
-          [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-          '<proposal description>',
-        ],
-        tokenHolder: owner,
-        voters: [
-          { voter: voter1, weight: web3.utils.toWei('1'), support: Enums.VoteType.For },
-          { voter: voter2, weight: web3.utils.toWei('10'), support: Enums.VoteType.For },
-          { voter: voter3, weight: web3.utils.toWei('5'), support: Enums.VoteType.Against },
-          { voter: voter4, weight: web3.utils.toWei('2'), support: Enums.VoteType.Abstain },
-        ],
-      };
-    });
-    afterEach(async function () {
-      expect(await this.mock.hasVoted(this.id, owner)).to.be.equal(false);
-      expect(await this.mock.hasVoted(this.id, voter1)).to.be.equal(true);
-      expect(await this.mock.hasVoted(this.id, voter2)).to.be.equal(true);
-      expect(await this.mock.hasVoted(this.id, voter3)).to.be.equal(true);
-      expect(await this.mock.hasVoted(this.id, voter4)).to.be.equal(true);
+  it('voting with comp token', async function () {
+    await this.helper.propose();
+    await this.helper.waitForSnapshot();
+    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
+    await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
+    await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
+    await this.helper.waitForDeadline();
+    await this.helper.execute();
 
-      this.receipts.castVote.filter(Boolean).forEach(vote => {
-        const { voter } = vote.logs.find(Boolean).args;
-        expectEvent(
-          vote,
-          'VoteCast',
-          this.settings.voters.find(({ address }) => address === voter),
-        );
-      });
-      await this.mock.proposalVotes(this.id).then(result => {
-        for (const [key, value] of Object.entries(Enums.VoteType)) {
-          expect(result[`${key.toLowerCase()}Votes`]).to.be.bignumber.equal(
-            Object.values(this.settings.voters).filter(({ support }) => support === value).reduce(
-              (acc, { weight }) => acc.add(new BN(weight)),
-              new BN('0'),
-            ),
-          );
-        }
-      });
+    expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
+    expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, voter3)).to.be.equal(true);
+    expect(await this.mock.hasVoted(this.proposal.id, voter4)).to.be.equal(true);
+
+    await this.mock.proposalVotes(this.proposal.id).then(results => {
+      expect(results.forVotes).to.be.bignumber.equal(web3.utils.toWei('17'));
+      expect(results.againstVotes).to.be.bignumber.equal(web3.utils.toWei('5'));
+      expect(results.abstainVotes).to.be.bignumber.equal(web3.utils.toWei('2'));
     });
-    runGovernorWorkflow();
   });
 });

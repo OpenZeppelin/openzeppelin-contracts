@@ -1,0 +1,101 @@
+diff -ruN .gitignore .gitignore
+--- .gitignore	1969-12-31 19:00:00.000000000 -0500
++++ .gitignore	2021-12-09 14:46:33.923637220 -0500
+@@ -0,0 +1,2 @@
++*
++!.gitignore
+diff -ruN governance/compatibility/GovernorCompatibilityBravo.sol governance/compatibility/GovernorCompatibilityBravo.sol
+--- governance/compatibility/GovernorCompatibilityBravo.sol	2021-12-03 15:24:56.523654357 -0500
++++ governance/compatibility/GovernorCompatibilityBravo.sol	2021-12-09 14:46:33.923637220 -0500
+@@ -245,7 +245,7 @@
+     /**
+      * @dev See {Governor-_quorumReached}. In this module, only forVotes count toward the quorum.
+      */
+-    function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
++    function _quorumReached(uint256 proposalId) public view virtual override returns (bool) { // HARNESS: changed to public from internal
+         ProposalDetails storage details = _proposalDetails[proposalId];
+         return quorum(proposalSnapshot(proposalId)) <= details.forVotes;
+     }
+@@ -253,7 +253,7 @@
+     /**
+      * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
+      */
+-    function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
++    function _voteSucceeded(uint256 proposalId) public view virtual override returns (bool) { // HARNESS: changed to public from internal
+         ProposalDetails storage details = _proposalDetails[proposalId];
+         return details.forVotes > details.againstVotes;
+     }
+diff -ruN governance/extensions/GovernorCountingSimple.sol governance/extensions/GovernorCountingSimple.sol
+--- governance/extensions/GovernorCountingSimple.sol	2021-12-03 15:24:56.523654357 -0500
++++ governance/extensions/GovernorCountingSimple.sol	2021-12-09 14:46:33.923637220 -0500
+@@ -64,7 +64,7 @@
+     /**
+      * @dev See {Governor-_quorumReached}.
+      */
+-    function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
++    function _quorumReached(uint256 proposalId) public view virtual override returns (bool) {
+         ProposalVote storage proposalvote = _proposalVotes[proposalId];
+ 
+         return quorum(proposalSnapshot(proposalId)) <= proposalvote.forVotes + proposalvote.abstainVotes;
+@@ -73,7 +73,7 @@
+     /**
+      * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be strictly over the againstVotes.
+      */
+-    function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
++    function _voteSucceeded(uint256 proposalId) public view virtual override returns (bool) {
+         ProposalVote storage proposalvote = _proposalVotes[proposalId];
+ 
+         return proposalvote.forVotes > proposalvote.againstVotes;
+diff -ruN governance/extensions/GovernorTimelockControl.sol governance/extensions/GovernorTimelockControl.sol
+--- governance/extensions/GovernorTimelockControl.sol	2021-12-03 15:24:56.523654357 -0500
++++ governance/extensions/GovernorTimelockControl.sol	2021-12-09 14:46:33.923637220 -0500
+@@ -111,7 +111,7 @@
+         bytes[] memory calldatas,
+         bytes32 descriptionHash
+     ) internal virtual override {
+-        _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
++         _timelock.executeBatch{value: msg.value}(targets, values, calldatas, 0, descriptionHash);
+     }
+ 
+     /**
+diff -ruN governance/Governor.sol governance/Governor.sol
+--- governance/Governor.sol	2021-12-03 15:24:56.523654357 -0500
++++ governance/Governor.sol	2021-12-09 14:46:56.411503587 -0500
+@@ -38,8 +38,8 @@
+ 
+     string private _name;
+ 
+-    mapping(uint256 => ProposalCore) private _proposals;
+-
++    mapping(uint256 => ProposalCore) public _proposals;
++ 
+     /**
+      * @dev Restrict access to governor executing address. Some module might override the _executor function to make
+      * sure this modifier is consistent with the execution model.
+@@ -167,12 +167,12 @@
+     /**
+      * @dev Amount of votes already cast passes the threshold limit.
+      */
+-    function _quorumReached(uint256 proposalId) internal view virtual returns (bool);
++    function _quorumReached(uint256 proposalId) public view virtual returns (bool); // HARNESS: changed to public from internal
+ 
+     /**
+      * @dev Is the proposal successful or not.
+      */
+-    function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
++    function _voteSucceeded(uint256 proposalId) public view virtual returns (bool); // HARNESS: changed to public from internal
+ 
+     /**
+      * @dev Register a vote with a given support and voting weight.
+diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Votes.sol
+--- token/ERC20/extensions/ERC20Votes.sol	2021-12-03 15:24:56.527654330 -0500
++++ token/ERC20/extensions/ERC20Votes.sol	2021-12-09 14:46:33.927637196 -0500
+@@ -84,7 +84,7 @@
+      *
+      * - `blockNumber` must have been already mined
+      */
+-    function getPastVotes(address account, uint256 blockNumber) public view returns (uint256) {
++    function getPastVotes(address account, uint256 blockNumber) public view virtual returns (uint256) {
+         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
+         return _checkpointsLookup(_checkpoints[account], blockNumber);
+     }

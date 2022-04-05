@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (access/AccessControlEnumerable.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (access/AccessControlEnumerable.sol)
 
 pragma solidity ^0.8.0;
 
@@ -34,7 +34,7 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
      * https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
      * for more information.
      */
-    function getRoleMember(bytes32 role, uint256 index) public view override returns (address) {
+    function getRoleMember(bytes32 role, uint256 index) public view virtual override returns (address) {
         return _roleMembers[role].at(index);
     }
 
@@ -42,7 +42,7 @@ abstract contract AccessControlEnumerable is IAccessControlEnumerable, AccessCon
      * @dev Returns the number of accounts that have `role`. Can be used
      * together with {getRoleMember} to enumerate all bearers of a role.
      */
-    function getRoleMemberCount(bytes32 role) public view override returns (uint256) {
+    function getRoleMemberCount(bytes32 role) public view virtual override returns (uint256) {
         return _roleMembers[role].length();
     }
 
