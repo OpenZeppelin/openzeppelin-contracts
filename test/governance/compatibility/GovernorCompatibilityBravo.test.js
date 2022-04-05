@@ -215,10 +215,10 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
   describe('should revert', function () {
     describe('on propose', function () {
-      it('if proposal doesnt meet proposalThreshold', async function () {
+      it('if proposal does not meet proposalThreshold', async function () {
         await expectRevert(
           this.helper.propose({ from: other }),
-          'GovernorCompatibilityBravo: proposer votes below proposal threshold',
+          'Governor: proposer votes below proposal threshold',
         );
       });
     });

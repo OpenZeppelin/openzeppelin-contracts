@@ -40,7 +40,7 @@ Other extensions can customize the behavior or interface in multiple ways.
 
 * {GovernorCompatibilityBravo}: Extends the interface to be fully `GovernorBravo`-compatible. Note that events are compatible regardless of whether this extension is included or not.
 
-* {GovernorSettings}: Manages some of the settings (voting delay, voting period duration, and proposal threshold) in a way that can be updated through a governance proposal, without requiering an upgrade.
+* {GovernorSettings}: Manages some of the settings (voting delay, voting period duration, and proposal threshold) in a way that can be updated through a governance proposal, without requiring an upgrade.
 
 * {GovernorPreventLateQuorum}: Ensures there is a minimum voting period after quorum is reached as a security protection against large voters.
 
