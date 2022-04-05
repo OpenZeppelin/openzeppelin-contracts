@@ -15,7 +15,7 @@ TimelockCompound
 
 contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockCompound {
     constructor(ERC20Votes _token, ICompoundTimelock _timelock, string memory name, uint256 quorumFraction)
-        Governor(name)
+        Governor(name, quorumFraction);
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(quorumFraction)
         GovernorTimelockCompound(_timelock)
