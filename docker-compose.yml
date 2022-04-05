@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  openzeppelincontracts:
+    image: openzeppelincontracts
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8000:8000
