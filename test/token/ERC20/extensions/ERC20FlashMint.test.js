@@ -40,6 +40,12 @@ contract('ERC20FlashMint', function (accounts) {
     });
   });
 
+  describe('mockFlashFeeReceiver', function () {
+    it('default receiver', async function () {
+      expect(await this.token.mockFlashFeeReceiver(this.token.address)).to.be.eq(ZERO_ADDRESS);
+    });
+  });
+
   describe('flashLoan', function () {
     it('success', async function () {
       const receiver = await ERC3156FlashBorrowerMock.new(true, true);
