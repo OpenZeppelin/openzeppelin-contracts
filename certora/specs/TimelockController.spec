@@ -1,8 +1,7 @@
-using AccessControlHarness as AC
-
 methods {
     getTimestamp(bytes32) returns(uint256) envfree
     _DONE_TIMESTAMP() returns(uint256) envfree
+    PROPOSER_ROLE() returns(bytes32) envfree
     _minDelay() returns(uint256) envfree
     getMinDelay() returns(uint256) envfree
     hashOperation(address target, uint256 value, bytes data, bytes32 predecessor, bytes32 salt) returns(bytes32) envfree
@@ -10,6 +9,8 @@ methods {
     cancel(bytes32)
     schedule(address, uint256, bytes32, bytes32, bytes32, uint256)
     execute(address, uint256, bytes, bytes32, bytes32)
+    executeBatch(address[], uint256[], bytes[], bytes32, bytes32)
+    _checkRole(bytes32) => DISPATCHER(true)
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -76,7 +77,7 @@ rule keccakCheck(method f, env e){
     address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
     address targetRand; uint256 valueRand; bytes dataRand; bytes32 predecessorRand; bytes32 saltRand;
 
-    require data.length < 4;
+    require data.length < 7;
     // uint256 freshIndex;
     // require freshIndex <= data.length
 
@@ -111,7 +112,7 @@ rule unsetPendingTransitionGeneral(method f, env e){
 }
 
 
-// STATUS - 
+// STATUS - verified
 // unset() -> pending() via schedule() and scheduleBatch() only
 rule unsetPendingTransitionMethods(method f, env e){
     bytes32 id;
@@ -178,8 +179,8 @@ rule doneToNothingTransition(method f, env e){
 
 
 // STATUS - verified
-// only TimelockController contract can change minDealy
-rule minDealyOnlyChange(method f, env e){
+// only TimelockController contract can change minDelay
+rule minDelayOnlyChange(method f, env e){
     uint256 delayBefore = _minDelay();    
 
     calldataarg args;
@@ -191,7 +192,7 @@ rule minDealyOnlyChange(method f, env e){
 }
 
 
-// STATUS - in progress (need working hash)
+// STATUS - in progress 
 // execute() is the only way to set timestamp to 1
 rule getTimestampOnlyChange(method f, env e){
     bytes32 id;
@@ -211,7 +212,7 @@ rule getTimestampOnlyChange(method f, env e){
 }
 
 
-// STATUS - in progress (need working hash)
+// STATUS - verified
 // scheduled operation timestamp == block.timestamp + delay (kind of unit test)
 rule scheduleCheck(method f, env e){
     bytes32 id;
@@ -219,16 +220,15 @@ rule scheduleCheck(method f, env e){
     address target; uint256 value; bytes data ;bytes32 predecessor; bytes32 salt; uint256 delay;
 
     require getTimestamp(id) < e.block.timestamp;
-    // require getMinDelay() > 0;  
     hashIdCorrelation(id, target, value, data, predecessor, salt);
 
     schedule(e, target, value, data, predecessor, salt, delay);
 
-    assert getTimestamp(id) == to_uint256(e.block.timestamp + getMinDelay()), "Time doesn't obey to mortal souls";
+    assert getTimestamp(id) == to_uint256(e.block.timestamp + delay), "Time doesn't obey to mortal souls";
 }
 
 
-// STATUS - in progress (need working hash)
+// STATUS - verified
 // Cannot call execute on a pending (not ready) operation
 rule cannotCallExecute(method f, env e){
     address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
@@ -243,9 +243,9 @@ rule cannotCallExecute(method f, env e){
 }
 
 
-// STATUS - in progress
+// STATUS - verified
 // in unset() execute() reverts
-rule executeRevertFromUnset(method f, env e, env e2){
+rule executeRevertsFromUnset(method f, env e, env e2){
     address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
     bytes32 id;
 
@@ -258,9 +258,9 @@ rule executeRevertFromUnset(method f, env e, env e2){
 }
 
 
-// STATUS - 
+// STATUS - verified
 // Execute reverts => state returns to pending
-rule executeRevertEffectCheck(method f, env e){
+rule executeRevertsEffectCheck(method f, env e){
     address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
     bytes32 id;
 
@@ -289,21 +289,47 @@ rule cancelledNotExecuted(method f, env e){
 }
 
 
-// STATUS - in progress (add schedule batch)
+// STATUS - broken
 // Only proposers can schedule an operation
-rule onlyProposer(method f, env e){
+rule onlyProposerCertorafallbackFail(method f, env e) filtered { f -> f.selector == schedule(address, uint256, bytes32, bytes32, bytes32, uint256).selector
+                                                    || f.selector == scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector } {
     bytes32 id;
     bytes32 role;
     address target; uint256 value; bytes data ;bytes32 predecessor; bytes32 salt; uint256 delay;
 
-    require unset(id);
-    hashIdCorrelation(id, target, value, data, predecessor, salt);
+    // hashIdCorrelation(id, target, value, data, predecessor, salt);
 
-    AC._checkRole@withrevert(e, role);
+    _checkRole@withrevert(e, PROPOSER_ROLE());
 
     bool isCheckRoleReverted = lastReverted;
     
-    schedule@withrevert(e, target, value, data, predecessor, salt, delay);
+    // schedule@withrevert(e, target, value, data, predecessor, salt, delay);
+
+    calldataarg args;
+    f@withrevert(e, args);
+
+    bool isScheduleReverted = lastReverted;
+
+    assert isCheckRoleReverted => isScheduleReverted, "Enemy was detected";
+}
+
+
+// STATUS - verified
+// Only proposers can schedule an operation
+rule onlyProposer1(method f, env e){
+    bytes32 id;
+    bytes32 role;
+    // address target; uint256 value; bytes data ;bytes32 predecessor; bytes32 salt; uint256 delay;
+    address[] targets; uint256[] values; bytes[] datas; bytes32 predecessor;  bytes32 salt; uint256 delay;
+
+    // hashIdCorrelation(id, target, value, data, predecessor, salt);
+
+    _checkRole@withrevert(e, PROPOSER_ROLE());
+
+    bool isCheckRoleReverted = lastReverted;
+    
+    // schedule@withrevert(e, target, value, data, predecessor, salt, delay);
+    scheduleBatch@withrevert(e, targets, values, datas, predecessor, salt, delay);
 
     bool isScheduleReverted = lastReverted;
 

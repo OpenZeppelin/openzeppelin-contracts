@@ -1,9 +1,8 @@
 import "erc20.spec"
 
 methods {
-    onFlashLoan(address, address, uint256, uint256, bytes) => HAVOC_ALL
-
-    _burn(address account, uint256 amount) returns(bool) => specBurn(account, amount);
+    maxFlashLoan(address) returns(uint256) envfree
+    _burn(address account, uint256 amount) returns(bool) => specBurn(account, amount)
 }
 
 ghost mapping(address => uint256) trackedBurnAmount;
@@ -15,7 +14,7 @@ function specBurn(address account, uint256 amount) returns bool {   // retuns ne
 
 
 // STATUS - verified
-// fee + flashLoan amount is burned
+// Check that if flashLoan() call is successful, then proper amount of tokens was burnt(fee + flashLoan amount)
 rule letsWatchItBurns(env e){
     address receiver; address token; uint256 amount; bytes data;
 
