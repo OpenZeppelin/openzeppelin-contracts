@@ -1,0 +1,177 @@
+= Adding cross-chain support to contracts
+
+If your contract is targetting to be used in the context of multichain operations, you may need specific tools to identify and process these cross-chain operations.
+
+OpenZeppelin provides the xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] abstract contract, that includes internal function
+
+In this guide, we will go through an example use case: _how to build an upgradeable & mintable ERC20 token controlled by a governor present on a foreign chain_.
+
+== Starting point, our ERC20 contract
+
+Let's start with a small ERC20 contract, built using the https://wizard.openzeppelin.com/[OpenZeppelin Contracts Wizard].
+
+[source,solidity]
+----
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
+contract MyToken is Initializable, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
+
+    function initialize(address initialOwner) initializer public {
+        __ERC20_init("MyToken", "MTK");
+        __Ownable_init();
+        __UUPSUpgradeable_init();
+        _transferOwnership(initialOwner); // initialOwner will be on a remote chain
+    }
+
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
+    }
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
+    }
+}
+----
+
+This token is mintable and upgradeable by anyone the owner of the contract, following the xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern.
+
+== Preparing our contract for cross-chain operations.
+
+Let's now imagine that this contract is going to live on one chain, but we want the minting and the upgrading to be performed by a xref:governance.adoc[`governor`] contract on another chain.
+
+For example, we could have our token on xDai, with our governor on mainnet, our we could have our token on mainnet, with our governor on optimism
+
+In order to do that, we will start by adding xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] to our contract.
+
+```diff
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
++import "@openzeppelin/contracts-upgradeable/crosschain/CrossChainEnabled.sol";
+
+-contract MyToken is Initializable, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
++abstract contract MyTokenCrossChain is Initializable, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgradeable, CrossChainEnabled {
+```
+
+Once that is done, we can use the `onlyCrossChainSender` modifier, provided by `CrossChainEnabled` in order to protect the minting and upgrading operations.
+
+```diff
+-    function mint(address to, uint256 amount) public onlyOwner {
++    function mint(address to, uint256 amount) public onlyCrossChainSender(owner()) {
+
+-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
++    function _authorizeUpgrade(address newImplementation) internal override onlyCrossChainSender(owner()) {
+```
+
+This change will effectively restrict the mint and upgrade operations the the `owner()` on the remote chain. This however causes an issue: if the `owner()` is on a different chain, this would break the `onlyOwner` modifier and the functions that use it (including `transferOwnership` and `renounceOwnership`).
+
+This is fixed by overriding the concerned function to also enforce the cross-chain restriction.
+
+```diff
++    function transferOwnership(address newOwner) public override onlyCrossChainSender(owner()) {
++        require(newOwner != address(0), "Ownable: new owner is the zero address");
++        _transferOwnership(newOwner);
++    }
++
++    function renounceOwnership() public override onlyCrossChainSender(owner()) {
++        _transferOwnership(address(0));
++    }
+```
+
+== Specializing for a specific chain
+
+Once the abstract cross-chain version of our token is ready we can easily specialize it for the chain we want, or more precisely for the bridge system that we want to rely on.
+
+This is done using one of the many `CrossChainEnabled` implementations.
+
+For example, if our token on xDai, and our governor on mainnet, we can use the https://docs.tokenbridge.net/amb-bridge/about-amb-bridge[AMB] bridge available on xDai at https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59[0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59]
+
+[source,solidity]
+----
+[...]
+
+import "@openzeppelin/contracts-upgradeable/crosschain/amb/CrossChainEnabledAMB.sol";
+
+contract MyTokenXDAI is
+    MyTokenCrossChain,
+    CrossChainEnabledAMB(0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59)
+{}
+----
+
+If token on mainnet, and our governor on optimism, we use the optimism https://community.optimism.io/docs/protocol/protocol-2.0/#l1crossdomainmessenger[CrossDomainMessenger] available on mainnet at https://etherscan.io/address/0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1[0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1]
+
+[source,solidity]
+----
+[...]
+
+import "@openzeppelin/contracts-upgradeable/crosschain/optimismCrossChainEnabledOptimism.sol";
+
+contract MyTokenOptimism is
+    MyTokenCrossChain,
+    CrossChainEnabledOptimism(0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1)
+{}
+----
+
+== Going further with access control
+
+The previous example showed the limitations of using xref:access-control.adoc#ownership-and-ownable[`Ownable`] in a cross-chain context that it was not designed for. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectivelly be used to build cross-chain-aware contracts.
+
+[source,solidity]
+----
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlCrossChainUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
+abstract contract MyTokenCrossChain_2 is Initializable, ERC20Upgradeable, AccessControlCrossChainUpgradeable, UUPSUpgradeable {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() initializer {}
+
+    function initialize(address initialOwner) initializer public {
+        __ERC20_init("MyToken", "MTK");
+        __AccessControl_init();
+        __UUPSUpgradeable_init();
+
+        _grantRole(_crossChainRoleAlias(DEFAULT_ADMIN_ROLE), initialOwner); // initialOwner is on a remote chain
+    }
+
+    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
+        _mint(to, amount);
+    }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyRole(UPGRADER_ROLE)
+        override
+    {}
+}
+
+import "@openzeppelin/contracts-upgradeable/crosschain/amb/CrossChainEnabledAMB.sol";
+
+contract MyTokenXDAI_2 is
+    MyTokenCrossChain_2,
+    CrossChainEnabledAMB(0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59)
+{}
+
+import "@openzeppelin/contracts-upgradeable/crosschain/optimismCrossChainEnabledOptimism.sol";
+
+contract MyTokenOptimism_2 is
+    MyTokenCrossChain_2,
+    CrossChainEnabledOptimism(0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1)
+{}
+----
+
+Using xref:api:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`] includes both the xref:api:access.adoc#AccessControl[`AccessControl`] core and the xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] abstraction. It also include some binding to make role management compatible with cross-chain operations.
+
+In the case of the `mint` function, the caller must have the `MINTER_ROLE` when the call originates from the same chain. If the caller is on a remote chain, then the caller should not have the `MINTER_ROLE`, but the "aliased" version (`MINTER_ROLE ^ CROSSCHAIN_ALIAS`). See the xref:api:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`] documentation for more details.

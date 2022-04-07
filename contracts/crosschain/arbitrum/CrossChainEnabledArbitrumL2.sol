@@ -6,7 +6,7 @@ import "../CrossChainEnabled.sol";
 import "./LibArbitrumL2.sol";
 
 /**
- * @dev [Arbitrum](https://arbitrum.io/) specialization or the
+ * @dev https://arbitrum.io/[Arbitrum] specialization or the
  * {CrossChainEnabled} abstraction the L2 side (arbitrum).
  *
  * This version should only be deployed on L2 to process cross-chain messages
