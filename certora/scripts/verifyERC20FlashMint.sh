@@ -4,7 +4,6 @@ certoraRun \
     --verify ERC20FlashMintHarness:certora/specs/ERC20FlashMint.spec \
     --solc solc8.2 \
     --optimistic_loop \
-    --staging \
-    --rule_sanity \
-    --msg "flashMint"
+    --cloud \
+    --msg "ERC20FlashMint verification"
     

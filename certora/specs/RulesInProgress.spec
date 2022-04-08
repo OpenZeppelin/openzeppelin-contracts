@@ -137,3 +137,27 @@ rule possibleTotalVotes(uint256 pId, uint8 sup, env e, method f) {
 
     assert tracked_weight(pId) <= erc20votes.getPastTotalSupply(e, proposalSnapshot(pId)), "bla bla bla";
 }
+
+
+
+/////////////////// 2nd iteration with OZ ////////////////////////// 
+
+// STATUS - in progress
+// execute() is the only way to set timestamp to 1
+rule getTimestampOnlyChange(method f, env e){
+    bytes32 id;
+    address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt; uint256 delay;
+    address[] targets; uint256[] values; bytes[] datas;
+
+    require (targets[0] == target && values[0] == value && datas[0] == data)
+                || (targets[1] == target && values[1] == value && datas[1] == data)
+                || (targets[2] == target && values[2] == value && datas[2] == data);
+
+    hashIdCorrelation(id, target, value, data, predecessor, salt);
+
+    executionsCall(f, e, target, value, data, predecessor, salt, delay, targets, values, datas);
+
+    assert getTimestamp(id) == 1 => f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector  
+                                        || f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector, "Did you find a way to break the system?";
+}
+

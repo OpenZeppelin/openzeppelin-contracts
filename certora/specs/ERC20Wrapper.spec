@@ -195,6 +195,7 @@ rule recoverSpec(env e){
     uint256 wrapperTotalBefore = totalSupply(e);
     uint256 wrapperUserBalanceBefore = balanceOf(e, account);
     uint256 wrapperSenderBalanceBefore = balanceOf(e, e.msg.sender);
+    uint256 underlyingThisBalanceBefore = underlyingBalanceOf(currentContract);
 
     mathint value = underlyingThisBalanceBefore - wrapperTotalBefore;
 
