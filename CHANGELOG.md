@@ -2,6 +2,7 @@
 
 ## Unreleased
  * `ERC2981`: make `royaltiInfo` public to allow super call in overrides. ([#3305](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3305))
+ * `Clones`: optimize clone creation ([#3329](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3329))
 
 ## Unreleased
 
