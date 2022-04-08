@@ -634,7 +634,7 @@ contract('TimelockController', function (accounts) {
             ],
             [
               this.callreceivermock.contract.methods.mockFunction().encodeABI(),
-              this.callreceivermock.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
+              this.callreceivermock.contract.methods.mockFunctionThrows().encodeABI(),
               this.callreceivermock.contract.methods.mockFunction().encodeABI(),
             ],
             ZERO_BYTES32,
@@ -886,13 +886,13 @@ contract('TimelockController', function (accounts) {
       );
     });
 
-    it('call reverting with message', async function () {
+    it('call throw', async function () {
       const operation = genOperation(
         this.callreceivermock.address,
         0,
-        this.callreceivermock.contract.methods.mockFunctionRevertsReason().encodeABI(),
+        this.callreceivermock.contract.methods.mockFunctionThrows().encodeABI(),
         ZERO_BYTES32,
-        '0xb1b1b276fdf1a28d1e00537ea73b04d56639128b08063c1a2f70a52e38cba693',
+        '0xe5ca79f295fc8327ee8a765fe19afb58f4a0cbc5053642bfdd7e73bc68e0fc67',
       );
 
       await this.mock.schedule(
@@ -914,38 +914,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor },
         ),
-        'CallReceiverMock: reverting',
-      );
-    });
-
-    it('call throw', async function () {
-      const operation = genOperation(
-        this.callreceivermock.address,
-        0,
-        this.callreceivermock.contract.methods.mockFunctionThrows().encodeABI(),
-        ZERO_BYTES32,
-        '0xe5ca79f295fc8327ee8a765fe19afb58f4a0cbc5053642bfdd7e73bc68e0fc67',
-      );
-
-      await this.mock.schedule(
-        operation.target,
-        operation.value,
-        operation.data,
-        operation.predecessor,
-        operation.salt,
-        MINDELAY,
-        { from: proposer },
-      );
-      await time.increase(MINDELAY);
-      await expectRevert.unspecified(
-        this.mock.execute(
-          operation.target,
-          operation.value,
-          operation.data,
-          operation.predecessor,
-          operation.salt,
-          { from: executor },
-        ),
+        'TimelockController: underlying transaction reverted',
       );
     });
 
@@ -968,7 +937,7 @@ contract('TimelockController', function (accounts) {
         { from: proposer },
       );
       await time.increase(MINDELAY);
-      await expectRevert.outOfGas(
+      await expectRevert(
         this.mock.execute(
           operation.target,
           operation.value,
@@ -977,6 +946,7 @@ contract('TimelockController', function (accounts) {
           operation.salt,
           { from: executor, gas: '70000' },
         ),
+        'TimelockController: underlying transaction reverted',
       );
     });
 
