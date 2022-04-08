@@ -20,4 +20,4 @@ certoraRun \
     --rule ${rule} \
     --msg "${msg}" \
     --staging "alex/new-dt-hashing-alpha" \
-    --rule_sanity \
+    # --rule_sanity \

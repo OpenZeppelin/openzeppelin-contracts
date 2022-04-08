@@ -41,11 +41,6 @@ ghost lastIndex(address) returns uint32;
 
 // helper
 
-// blocked by tool error
-invariant totalVotes_gte_accounts()
-    forall address a. forall address b. a != b => totalVotes() >= getVotes(a) + getVotes(b)
-
-
 hook Sstore _checkpoints[KEY address account][INDEX uint32 index].votes uint224 newVotes (uint224 oldVotes) STORAGE {
     havoc userVotes assuming
         userVotes@new(account) == newVotes;
@@ -90,14 +85,18 @@ invariant sanity_invariant()
 // blocked by tool error
 invariant votes_solvency()
     to_mathint(totalSupply()) >= totalVotes()
-{ preserved {
-    require forall address account. unsafeNumCheckpoints(account) < 4294967295;
-    requireInvariant totalVotes_gte_accounts();
-}}
+{ preserved with(env e) {
+    require forall address account. numCheckpoints(account) < 1000000;
+    requireInvariant totalVotes_sums_accounts();
+} }
+
+invariant totalVotes_sums_accounts()
+   forall address a. forall address b. (a != b && a != 0x0 && b != 0x0) => totalVotes() >= getVotes(delegates(a)) + getVotes(delegates(b))
+
+
 
 // for some checkpoint, the fromBlock is less than the current block number
-// passes but fails rule sanity from hash on delegate by sig
-invariant timestamp_constrains_fromBlock(address account, uint32 index, env e)
+invariant blockNum_constrains_fromBlock(address account, uint32 index, env e)
     ckptFromBlock(account, index) < e.block.number
 {
     preserved {
@@ -120,10 +119,6 @@ invariant timestamp_constrains_fromBlock(address account, uint32 index, env e)
 invariant fromBlock_constrains_numBlocks(address account)
     numCheckpoints(account) <= ckptFromBlock(account, numCheckpoints(account) - 1)
 { preserved with(env e) {
-    uint32 pos;
-    uint32 pos2;
-    requireInvariant fromBlock_greaterThanEq_pos(account, pos);
-    requireInvariant fromBlock_increasing(account, pos, pos2);
     require e.block.number >= ckptFromBlock(account, numCheckpoints(account) - 1); // this should be true from the invariant above!!
 }}
 
@@ -142,30 +137,13 @@ invariant fromBlock_increasing(address account, uint32 pos, uint32 pos2)
     pos > pos2 => ckptFromBlock(account, pos) > ckptFromBlock(account, pos2)
 
 
-invariant no_delegate_no_checkpoints(address account)
-    delegates(account) == 0x0 => numCheckpoints(account) == 0
-{ preserved delegate(address delegatee) with(env e) {
-    require delegatee != 0;
-} preserved _delegate(address delegator, address delegatee) with(env e) {
-    require delegatee != 0;
-}}
-
 // converted from an invariant to a rule to slightly change the logic
 // if the fromBlock is the same as before, then the number of checkpoints stays the same
 // however if the fromBlock is new than the number of checkpoints increases
 // passes, fails rule sanity because tautology check seems to be bugged
 rule unique_checkpoints_rule(method f) {
     env e; calldataarg args;
-
-    // require e.block.number > 0; // we don't care about this exception
-
-
     address account;
-    // address delegates_pre = delegates(account);
-
-
-    // require unsafeNumCheckpoints(account) < 1000000; // 2^32 // we don't want to deal with the checkpoint overflow error here
-
     uint32 num_ckpts_ = numCheckpoints(account); 
     uint32 fromBlock_ = num_ckpts_ == 0 ? 0 : ckptFromBlock(account, num_ckpts_ - 1);
 
@@ -176,9 +154,6 @@ rule unique_checkpoints_rule(method f) {
     
 
     assert fromBlock_ == _fromBlock => num_ckpts_ == _num_ckpts || _num_ckpts == 1, "same fromBlock, new checkpoint";
-    // assert doubleFromBlock(account) => num_ckpts_ == _num_ckpts, "same fromBlock, new checkpoint";
-    // this assert fails consistently
-    // assert !doubleFromBlock(account) => ckpts_ != _ckpts, "new fromBlock but total checkpoints not being increased";
 }
 
 // assumes neither account has delegated
@@ -203,25 +178,13 @@ rule transfer_safe() {
     uint256 votesA_pre = getVotes(delegates(a));
     uint256 votesB_pre = getVotes(delegates(b));
 
-    // for debugging
-    uint256 balA_ = balanceOf(e, a);
-    uint256 balB_ = balanceOf(e, b);
-
     mathint totalVotes_pre = totalVotes();
 
     erc20votes.transferFrom(e, a, b, amount);
-
-
-    // require lastIndex(delegates(a)) < 1000000;
-    // require lastIndex(delegates(b)) < 1000000;
     
     mathint totalVotes_post = totalVotes();
     uint256 votesA_post = getVotes(delegates(a));
     uint256 votesB_post = getVotes(delegates(b));
-
-    // for debugging
-    uint256 _balA = balanceOf(e, a);
-    uint256 _balB = balanceOf(e, b);
 
     // if an account that has not delegated transfers balance to an account that has, it will increase the total supply of votes
     assert totalVotes_pre == totalVotes_post, "transfer changed total supply";
@@ -304,27 +267,28 @@ rule delegate_contained() {
     assert votes_ == _votes, "votes not contained";
 }
 
-// checks all of the above delegate rules with front running 
 rule delegate_no_frontrunning(method f) {
     env e; calldataarg args;
     address delegator; address delegatee; address third; address other;
 
+
+
+    require numCheckpoints(delegatee) < 1000000;
+    require numCheckpoints(third) < 1000000;
+
+
+    f(e, args);
+
+    uint256 delegator_bal = balanceOf(e, delegator);
+    uint256 delegatee_votes_ = getVotes(delegatee);
+    uint256 third_votes_ = getVotes(third);
+    uint256 other_votes_ = getVotes(other);
     require delegates(delegator) == third;
     require third != delegatee;
     require other != third;
     require other != delegatee;
     require delegatee != 0x0;
 
-    require numCheckpoints(delegatee) < 1000000;
-    require numCheckpoints(third) < 1000000;
-
-    uint256 delegatee_votes_ = getVotes(delegatee);
-    uint256 third_votes_ = getVotes(third);
-    uint256 other_votes_ = getVotes(other);
-
-    // require third is address for previous delegator
-    f(e, args);
-    uint256 delegator_bal = erc20votes.balanceOf(e, delegator);
     _delegate(e, delegator, delegatee);
 
     uint256 _delegatee_votes = getVotes(delegatee);
@@ -367,12 +331,10 @@ rule burn_decreases_totalSupply() {
 
     uint256 fromBlock = e.block.number;
     uint256 totalSupply_ = totalSupply();
-    require totalSupply_ > balanceOf(e, account);
 
     burn(e, account, amount);
 
     uint256 _totalSupply = totalSupply();
-    require _totalSupply < _maxSupply();
 
     assert _totalSupply == totalSupply_ - amount, "totalSupply not decreased properly";
     assert getPastTotalSupply(e, fromBlock) == totalSupply_ , "previous total supply not saved properly";

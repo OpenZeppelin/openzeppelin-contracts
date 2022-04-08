@@ -19,5 +19,6 @@ certoraRun \
     --solc solc8.2 \
     --optimistic_loop \
     --loop_iter 4 \
-    --staging "Eyal/SanityWithoutCallTrace" \
-    --msg "${msg}"
+    --staging "alex/new-dt-hashing-alpha" \
+    --msg "${msg}" \
+    --rule_sanity
