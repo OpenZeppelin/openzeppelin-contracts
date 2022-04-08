@@ -142,6 +142,19 @@ rule possibleTotalVotes(uint256 pId, uint8 sup, env e, method f) {
 
 /////////////////// 2nd iteration with OZ ////////////////////////// 
 
+function executionsCall(method f, env e, address target, uint256 value, bytes data, 
+                                    bytes32 predecessor, bytes32 salt, uint256 delay, 
+                                    address[] targets, uint256[] values, bytes[] datas) {
+    if  (f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector) {
+        execute(e, target, value, data, predecessor, salt);
+	} else if (f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
+        executeBatch(e, targets, values, datas, predecessor, salt);
+	} else {
+        calldataarg args;
+        f(e, args);
+    }
+}
+
 // STATUS - in progress
 // execute() is the only way to set timestamp to 1
 rule getTimestampOnlyChange(method f, env e){

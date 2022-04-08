@@ -30,20 +30,6 @@ function hashIdCorrelation(bytes32 id, address target, uint256 value, bytes data
 }
 
 
-function executionsCall(method f, env e, address target, uint256 value, bytes data, 
-                                    bytes32 predecessor, bytes32 salt, uint256 delay, 
-                                    address[] targets, uint256[] values, bytes[] datas) {
-    if  (f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector) {
-        execute(e, target, value, data, predecessor, salt);
-	} else if (f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
-        executeBatch(e, targets, values, datas, predecessor, salt);
-	} else {
-        calldataarg args;
-        f(e, args);
-    }
-}
-
-
 
 ////////////////////////////////////////////////////////////////////////////
 //                         Invariants                                     //
