@@ -6,6 +6,7 @@ certoraRun \
     --loop_iter 3 \
     --staging alex/new-dt-hashing-alpha \
     --rule_sanity \
+    --settings -byteMapHashingPrecision=32 \
     --rule "$1" \
     --msg "$1"
       

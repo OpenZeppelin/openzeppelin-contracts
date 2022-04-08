@@ -6,5 +6,5 @@ certoraRun \
     --optimistic_loop \
     --staging \
     --rule_sanity \
-    --msg "wrapper spec sanity check fixes"
+    --msg "ERC20wrapper spec"
     

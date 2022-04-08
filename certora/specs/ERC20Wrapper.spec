@@ -40,7 +40,7 @@ invariant underTotalAndContractBalanceOfCorrelation(env e)
 
 
 // STATUS - verified
-// check correct values update by depositFor()
+// Check that values are updated correctly by `depositFor()`
 rule depositForSpecBasic(env e){
     address account; uint256 amount;
 
@@ -64,11 +64,10 @@ rule depositForSpecBasic(env e){
 
 
 // STATUS - verified
-// check correct values update by depositFor()
+// Check that values are updated correctly by `depositFor()`
 rule depositForSpecWrapper(env e){
     address account; uint256 amount;
 
-    // require e.msg.sender != currentContract;
     require underlying() != currentContract;
 
     uint256 wrapperUserBalanceBefore = balanceOf(e, account);
@@ -88,7 +87,7 @@ rule depositForSpecWrapper(env e){
 
 
 // STATUS - verified
-// check correct values update by depositFor()
+// Check that values are updated correctly by `depositFor()`
 rule depositForSpecUnderlying(env e){
     address account; uint256 amount;
 
@@ -116,7 +115,7 @@ rule depositForSpecUnderlying(env e){
 
 
 // STATUS - verified
-// check correct values update by withdrawTo()
+// Check that values are updated correctly by `withdrawTo()`
 rule withdrawToSpecBasic(env e){
     address account; uint256 amount;
 
@@ -136,7 +135,7 @@ rule withdrawToSpecBasic(env e){
 
 
 // STATUS - verified
-// check correct values update by withdrawTo()
+// Check that values are updated correctly by `withdrawTo()`
 rule withdrawToSpecWrapper(env e){
     address account; uint256 amount;
 
@@ -159,7 +158,7 @@ rule withdrawToSpecWrapper(env e){
 
 
 // STATUS - verified
-// check correct values update by withdrawTo()
+// cCheck that values are updated correctly by `withdrawTo()`
 rule withdrawToSpecUnderlying(env e){
     address account; uint256 amount;
 
@@ -189,14 +188,13 @@ rule withdrawToSpecUnderlying(env e){
 
 
 // STATUS - verified
-// check correct values update by _recover()
+// Check that values are updated correctly by `_recover()`
 rule recoverSpec(env e){
     address account; uint256 amount;
 
     uint256 wrapperTotalBefore = totalSupply(e);
     uint256 wrapperUserBalanceBefore = balanceOf(e, account);
     uint256 wrapperSenderBalanceBefore = balanceOf(e, e.msg.sender);
-    uint256 underlyingThisBalanceBefore = underlyingBalanceOf(currentContract);   
 
     mathint value = underlyingThisBalanceBefore - wrapperTotalBefore;
 
