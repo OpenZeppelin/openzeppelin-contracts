@@ -44,15 +44,12 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     }
 
     /**
-     * @dev Returns the reciever address of the flash fee. By default this
+     * @dev Returns the receiver address of the flash fee. By default this
      * implementation returns the address(0) which means the fee amount will be burnt.
-     * This function can be overloaded to change the fee reciever.
-     * @param token The token to be flash loaned.
+     * This function can be overloaded to change the fee receiver.
      * @return The address for which the flash fee will be sent to.
      */
-    function _flashFeeReceiver(address token) internal view virtual returns (address) {
-        // silence warning about unused variable without the addition of bytecode.
-        token;
+    function _flashFeeReceiver() internal view virtual returns (address) {
         return address(0);
     }
 
@@ -86,7 +83,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
             receiver.onFlashLoan(msg.sender, token, amount, fee, data) == _RETURN_VALUE,
             "ERC20FlashMint: invalid return value"
         );
-        address flashFeeReceiver = _flashFeeReceiver(token);
+        address flashFeeReceiver = _flashFeeReceiver();
         _spendAllowance(address(receiver), address(this), amount + fee);
         if (fee == 0 || flashFeeReceiver == address(0)) {
             _burn(address(receiver), amount + fee);
