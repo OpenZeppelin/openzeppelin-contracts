@@ -1,4 +1,4 @@
-const { BN, constants } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { MAX_UINT256 } = constants;
 
@@ -83,6 +83,26 @@ contract('Math', function (accounts) {
     it('correctly computes max uint256 divided by 1', async function () {
       const b = new BN('1');
       expect(await this.math.ceilDiv(MAX_UINT256, b)).to.be.bignumber.equal(MAX_UINT256);
+    });
+  });
+
+  describe('modExp', function () {
+    it('is correctly calculating modulus', async function () {
+      const base = new BN('3');
+      const exponent = new BN('200');
+      const modulus = new BN('50');
+      const result = new BN('1');
+      expect(await this.math.modExp.call(base, exponent, modulus)).to.be.bignumber.equal(result);
+    });
+
+    it('is correctly reverting when modulus is zero', async function () {
+      const base = new BN('3');
+      const exponent = new BN('200');
+      const modulus = new BN('0');
+      await expectRevert(
+        this.math.modExp.call(base, exponent, modulus),
+        'ModularExponentiation: Can\'t calculate for modulus equal to zero',
+      );
     });
   });
 });

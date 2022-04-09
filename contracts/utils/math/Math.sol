@@ -40,4 +40,27 @@ library Math {
         // (a + b - 1) / b can overflow on addition, so we distribute.
         return a / b + (a % b == 0 ? 0 : 1);
     }
+
+    /**
+     * @dev Returns the modular exponentiation of the specified base,
+     * exponent and modulus (b^e % m)
+     *
+     * Requirements:
+     *
+     * - modulus can't be zero
+     * - result should be obtained succesfully
+     */
+    function modExp(
+        uint256 b,
+        uint256 e,
+        uint256 m
+    ) internal view returns (uint256) {
+        require(m != 0, "ModularExponentiation: Can't calculate for modulus equal to zero");
+        bool success;
+        bytes memory result;
+
+        (success, result) = (address(5).staticcall(abi.encode(32, 32, 32, b, e, m)));
+        require(success, "ModularExponentiation: Failed at calculating the result");
+        return abi.decode(result, (uint256));
+    }
 }

@@ -20,4 +20,12 @@ contract MathMock {
     function ceilDiv(uint256 a, uint256 b) public pure returns (uint256) {
         return Math.ceilDiv(a, b);
     }
+
+    function modExp(
+        uint256 b,
+        uint256 e,
+        uint256 m
+    ) public view returns (uint256) {
+        return Math.modExp(b, e, m);
+    }
 }
