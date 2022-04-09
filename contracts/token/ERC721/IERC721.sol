@@ -108,6 +108,7 @@ interface IERC721 is IERC165 {
      *
      * - The caller must own the token or be an approved operator.
      * - `tokenId` must exist.
+     * - `to` must not be the current owner of the `tokenId`.
      *
      * Emits an {Approval} event.
      */
