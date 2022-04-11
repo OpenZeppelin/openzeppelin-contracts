@@ -27,7 +27,9 @@ methods {
 
 }
 // gets the most recent votes for a user
-ghost userVotes(address) returns uint224;
+ghost userVotes(address) returns uint224 {
+    init_state axiom forall address a. userVotes(a) == 0;
+}
 
 // sums the total votes for all users
 ghost totalVotes() returns mathint {
@@ -80,17 +82,22 @@ invariant sanity_invariant()
     totalSupply() >= 0
 
 // sum of user balances is >= total amount of delegated votes
-// blocked by tool error
+// fails on burn. This is because burn does not remove votes from the users
 invariant votes_solvency()
     to_mathint(totalSupply()) >= totalVotes()
 { preserved with(env e) {
     require forall address account. numCheckpoints(account) < 1000000;
-    requireInvariant totalVotes_sums_accounts();
+    // requireInvariant totalVotes_sums_accounts();
 } }
 
-invariant totalVotes_sums_accounts()
-   forall address a. forall address b. (a != b && a != 0x0 && b != 0x0) => totalVotes() >= getVotes(delegates(a)) + getVotes(delegates(b))
+// invariant totalVotes_sums_accounts()
+//    forall address a. forall address b. (a != b && a != 0x0 && b != 0x0) => totalVotes() >= getVotes(delegates(a)) + getVotes(delegates(b))
 
+// invariant totalVotes_sums_accounts()
+//     forall address a. forall address b. (a != b) => totalVotes() >= userVotes(a) + userVotes(b)
+// { preserved {
+//         require forall address account. numCheckpoints(account) < 1000000;
+// }}
 
 
 // for some checkpoint, the fromBlock is less than the current block number

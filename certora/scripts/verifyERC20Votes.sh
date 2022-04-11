@@ -17,8 +17,9 @@ certoraRun \
     certora/harnesses/ERC20VotesHarness.sol \
     --verify ERC20VotesHarness:certora/specs/ERC20Votes.spec \
     --solc solc8.2 \
+    --disableLocalTypeChecking \
     --optimistic_loop \
-    --loop_iter 4 \
+    --settings -copyLoopUnroll=4 \
+    --send_only \
     --staging "alex/new-dt-hashing-alpha" \
     --msg "${msg}" \
-    --rule_sanity
