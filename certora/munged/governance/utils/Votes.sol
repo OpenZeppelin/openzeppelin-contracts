@@ -35,7 +35,25 @@ abstract contract Votes is IVotes, Context, EIP712 {
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
-    mapping(address => address) private _delegation;
+    // HARNESS : Hooks cannot access any information from Checkpoints yet, so I am also updating votes and fromBlock in this struct
+    struct Ckpt {
+        uint32 fromBlock;
+        uint224 votes;
+    }
+    mapping(address => Ckpt) public _checkpoints;
+
+    // HARNESSED getters
+    function numCheckpoints(address account) public view returns (uint32) {
+        return SafeCast.toUint32(_delegateCheckpoints[account]._checkpoints.length);
+    }
+    function ckptFromBlock(address account, uint32 pos) public view returns (uint32) {
+        return _delegateCheckpoints[account]._checkpoints[pos]._blockNumber;
+    }
+    function ckptVotes(address account, uint32 pos) public view returns (uint224) {
+        return _delegateCheckpoints[account]._checkpoints[pos]._value;
+    }
+
+    mapping(address => address) public _delegation;    
     mapping(address => Checkpoints.History) private _delegateCheckpoints;
     Checkpoints.History private _totalCheckpoints;
 
@@ -124,7 +142,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
      *
      * Emits events {DelegateChanged} and {DelegateVotesChanged}.
      */
-    function _delegate(address account, address delegatee) internal virtual {
+    function _delegate(address account, address delegatee) public virtual {
         address oldDelegate = delegates(account);
         _delegation[account] = delegatee;
 
@@ -142,10 +160,10 @@ abstract contract Votes is IVotes, Context, EIP712 {
         uint256 amount
     ) internal virtual {
         if (from == address(0)) {
-            _totalCheckpoints.push(_add, amount);
+            _totalCheckpoints.push(_totalCheckpoints.latest() + amount); // Harnessed to remove function pointers
         }
         if (to == address(0)) {
-            _totalCheckpoints.push(_subtract, amount);
+            _totalCheckpoints.push(_totalCheckpoints.latest() - amount); // Harnessed to remove function pointers
         }
         _moveDelegateVotes(delegates(from), delegates(to), amount);
     }
@@ -160,11 +178,13 @@ abstract contract Votes is IVotes, Context, EIP712 {
     ) private {
         if (from != to && amount > 0) {
             if (from != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(_subtract, amount);
+                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(_delegateCheckpoints[from].latest() - amount); // HARNESSED TO REMOVE FUNCTION POINTERS
+                _checkpoints[from] = Ckpt({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newValue)}); // HARNESS
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
             if (to != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(_add, amount);
+                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(_delegateCheckpoints[to].latest() + amount); // HARNESSED TO REMOVE FUNCTION POINTERS
+                _checkpoints[to] = Ckpt({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newValue)}); // HARNESS
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
         }

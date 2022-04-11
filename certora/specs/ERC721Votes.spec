@@ -1,14 +1,17 @@
+using Checkpoints as Checkpoints
+
 methods {
     // functions
     checkpoints(address, uint32) envfree
     numCheckpoints(address) returns (uint32) envfree
-    delegates(address) returns (address) envfree
     getVotes(address) returns (uint256) envfree
     getPastVotes(address, uint256) returns (uint256)
     getPastTotalSupply(uint256) returns (uint256)
+    delegates(address) returns (address) envfree
     delegate(address)
     _delegate(address, address)
-    // delegateBySig(address, uint256, uint256, uint8, bytes32, bytes32)
+    delegateBySig(address, uint256, uint256, uint8, bytes32, bytes32)
+    nonces(address) returns (uint256)
     totalSupply() returns (uint256) envfree
     _maxSupply() returns (uint224) envfree
 
@@ -16,16 +19,17 @@ methods {
     ckptFromBlock(address, uint32) returns (uint32) envfree
     ckptVotes(address, uint32) returns (uint224) envfree
     mint(address, uint256)
-    burn(address, uint256)
+    burn(uint256)
     unsafeNumCheckpoints(address) returns (uint256) envfree
 
     // solidity generated getters
-    _delegates(address) returns (address) envfree
+    _delegation(address) returns (address) envfree
 
     // external functions
 
 
 }
+
 // gets the most recent votes for a user
 ghost userVotes(address) returns uint224;
 
@@ -35,19 +39,12 @@ ghost totalVotes() returns mathint {
     axiom totalVotes() >= 0;
 }
 
-ghost lastIndex(address) returns uint32;
-
-// helper
-
-hook Sstore _checkpoints[KEY address account][INDEX uint32 index].votes uint224 newVotes (uint224 oldVotes) STORAGE {
+hook Sstore _checkpoints[KEY address account].votes uint224 newVotes (uint224 oldVotes) STORAGE {
     havoc userVotes assuming
         userVotes@new(account) == newVotes;
 
     havoc totalVotes assuming
         totalVotes@new() == totalVotes@old() + to_mathint(newVotes) - to_mathint(userVotes(account));
-
-    havoc lastIndex assuming
-        lastIndex@new(account) == index;
 }
 
 
@@ -60,7 +57,7 @@ ghost doubleFromBlock(address) returns bool {
 
 
 
-hook Sstore _checkpoints[KEY address account][INDEX uint32 index].fromBlock uint32 newBlock (uint32 oldBlock) STORAGE {
+hook Sstore _checkpoints[KEY address account].fromBlock uint32 newBlock (uint32 oldBlock) STORAGE {
     havoc lastFromBlock assuming
         lastFromBlock@new(account) == newBlock;
     
@@ -92,9 +89,9 @@ invariant totalVotes_sums_accounts()
    forall address a. forall address b. (a != b && a != 0x0 && b != 0x0) => totalVotes() >= getVotes(delegates(a)) + getVotes(delegates(b))
 
 
-
 // for some checkpoint, the fromBlock is less than the current block number
-invariant blockNum_constrains_fromBlock(address account, uint32 index, env e)
+// passes but fails rule sanity from hash on delegate by sig
+invariant timestamp_constrains_fromBlock(address account, uint32 index, env e)
     ckptFromBlock(account, index) < e.block.number
 {
     preserved {
@@ -152,6 +149,8 @@ rule unique_checkpoints_rule(method f) {
     
 
     assert fromBlock_ == _fromBlock => num_ckpts_ == _num_ckpts || _num_ckpts == 1, "same fromBlock, new checkpoint";
+    // this assert fails consistently
+    // assert !doubleFromBlock(account) => ckpts_ != _ckpts, "new fromBlock but total checkpoints not being increased";
 }
 
 // assumes neither account has delegated
@@ -160,10 +159,10 @@ rule unique_checkpoints_rule(method f) {
 // passes + rule sanity (- a bad tautology check)
 rule transfer_safe() {
     env e;
-    uint256 amount;
+    uint256 ID;
     address a; address b;
-    require delegates(a) != delegates(b); // confirmed if they both delegate to the same person then transfer keeps the votes the same
 
+    require delegates(a) != delegates(b); // confirmed if they both delegate to the same person then transfer keeps the votes the same
     require numCheckpoints(delegates(a)) < 1000000;
     require numCheckpoints(delegates(b)) < 1000000;
 
@@ -172,7 +171,7 @@ rule transfer_safe() {
 
     mathint totalVotes_pre = totalVotes();
 
-    transferFrom(e, a, b, amount);
+    transferFrom(e, a, b, ID);
     
     mathint totalVotes_post = totalVotes();
     uint256 votesA_post = getVotes(delegates(a));
@@ -180,8 +179,8 @@ rule transfer_safe() {
 
     // if an account that has not delegated transfers balance to an account that has, it will increase the total supply of votes
     assert totalVotes_pre == totalVotes_post, "transfer changed total supply";
-    assert delegates(a) != 0 => votesA_pre - votesA_post == amount, "A lost the wrong amount of votes";
-    assert delegates(b) != 0 => votesB_post - votesB_pre == amount, "B lost the wrong amount of votes";
+    assert delegates(a) != 0 => votesA_pre - 1 == votesA_post, "A lost the wrong amount of votes";
+    assert delegates(b) != 0 => votesB_pre + 1 == votesB_post, "B gained the wrong amount of votes";
 }
 
 // for any given function f, if the delegate is changed the function must be delegate or delegateBySig
@@ -207,6 +206,7 @@ rule delegatee_receives_votes() {
     env e; 
     address delegator; address delegatee;
 
+    require numCheckpoints(delegatee) < 1000000;
     require delegates(delegator) != delegatee;
     require delegatee != 0x0;
 
@@ -216,10 +216,7 @@ rule delegatee_receives_votes() {
 
     _delegate(e, delegator, delegatee);
 
-    require lastIndex(delegatee) < 1000000;
-
     uint256 _votes = getVotes(delegatee);
-
     assert _votes == votes_ + delegator_bal, "delegatee did not receive votes";
 }
 
@@ -297,68 +294,41 @@ rule delegate_no_frontrunning(method f) {
 }
 
 
+// mint and burn need to be handled differently for ERC721
 
-// passes
-rule mint_increases_totalSupply() {
+// rule mint_increases_totalSupply() {
 
-    env e;
-    uint256 amount; address account;
+//     env e;
+//     uint256 amount; address account;
+//     uint256 fromBlock = e.block.number;
+//     uint256 totalSupply_ = totalSupply();
 
-    uint256 fromBlock = e.block.number;
-    uint256 totalSupply_ = totalSupply();
+//     mint(e, account, amount);
 
-    mint(e, account, amount);
+//     uint256 _totalSupply = totalSupply();
+//     require _totalSupply < _maxSupply();
 
-    uint256 _totalSupply = totalSupply();
-    require _totalSupply < _maxSupply();
+//     assert _totalSupply == totalSupply_ + amount, "totalSupply not increased properly";
+//     assert getPastTotalSupply(e, fromBlock) == totalSupply_ , "previous total supply not saved properly";
+// }
 
-    assert _totalSupply == totalSupply_ + amount, "totalSupply not increased properly";
-    assert getPastTotalSupply(e, fromBlock) == totalSupply_ , "previous total supply not saved properly";
-}
+// rule burn_decreases_totalSupply() {
+//     env e;
+//     uint256 amount; address account;
 
-// passes
-rule burn_decreases_totalSupply() {
-    env e;
-    uint256 amount; address account;
+//     uint256 fromBlock = e.block.number;
+//     uint256 totalSupply_ = totalSupply();
 
-    uint256 fromBlock = e.block.number;
-    uint256 totalSupply_ = totalSupply();
+//     burn(e, account, amount);
 
-    burn(e, account, amount);
+//     uint256 _totalSupply = totalSupply();
 
-    uint256 _totalSupply = totalSupply();
-
-    assert _totalSupply == totalSupply_ - amount, "totalSupply not decreased properly";
-    assert getPastTotalSupply(e, fromBlock) == totalSupply_ , "previous total supply not saved properly";
-}
+//     assert _totalSupply == totalSupply_ - amount, "totalSupply not decreased properly";
+//     assert getPastTotalSupply(e, fromBlock) == totalSupply_ , "previous total supply not saved properly";
+// }
 
 
-
-// passes
-rule mint_doesnt_increase_totalVotes() {
-    env e;
-    uint256 amount; address account;
-
-    mathint totalVotes_ = totalVotes();
-
-    mint(e, account, amount);
-
-    assert totalVotes() == totalVotes_, "totalVotes increased";
-}
-// passes
-rule burn_doesnt_decrease_totalVotes() {
-    env e;
-    uint256 amount; address account;
-
-    mathint totalVotes_ = totalVotes();
-
-    burn(e, account, amount);
-
-    assert totalVotes() == totalVotes_, "totalVotes decreased";
-}
-
-// // fails
-// rule mint_increases_totalVotes() {
+// rule mint_doesnt_increase_totalVotes() {
 //     env e;
 //     uint256 amount; address account;
 
@@ -366,11 +336,10 @@ rule burn_doesnt_decrease_totalVotes() {
 
 //     mint(e, account, amount);
 
-//     assert totalVotes() == totalVotes_ + to_mathint(amount), "totalVotes not increased";
+//     assert totalVotes() == totalVotes_, "totalVotes increased";
 // }
 
-// // fails
-// rule burn_decreases_totalVotes() {
+// rule burn_doesnt_decrease_totalVotes() {
 //     env e;
 //     uint256 amount; address account;
 
@@ -378,5 +347,5 @@ rule burn_doesnt_decrease_totalVotes() {
 
 //     burn(e, account, amount);
 
-//     assert totalVotes() == totalVotes_ - to_mathint(amount), "totalVotes not decreased";
+//     assert totalVotes() == totalVotes_, "totalVotes decreased";
 // }
