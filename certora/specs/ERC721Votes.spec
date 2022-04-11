@@ -67,17 +67,6 @@ hook Sstore _checkpoints[KEY address account].fromBlock uint32 newBlock (uint32 
         doubleFromBlock@new(account) == (newBlock == lastFromBlock(account));
 }
 
-rule sanity(method f) {
-    env e;
-    calldataarg arg;
-    f(e, arg);
-    assert false;
-}
-
-// something stupid just to see 
-invariant sanity_invariant()
-    totalSupply() >= 0
-
 // sum of user balances is >= total amount of delegated votes
 // blocked by tool error
 invariant votes_solvency()

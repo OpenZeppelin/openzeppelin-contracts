@@ -70,34 +70,13 @@ hook Sstore _checkpoints[KEY address account][INDEX uint32 index].fromBlock uint
         doubleFromBlock@new(account) == (newBlock == lastFromBlock(account));
 }
 
-rule sanity(method f) {
-    env e;
-    calldataarg arg;
-    f(e, arg);
-    assert false;
-}
-
-// something stupid just to see 
-invariant sanity_invariant()
-    totalSupply() >= 0
-
 // sum of user balances is >= total amount of delegated votes
 // fails on burn. This is because burn does not remove votes from the users
 invariant votes_solvency()
     to_mathint(totalSupply()) >= totalVotes()
 { preserved with(env e) {
     require forall address account. numCheckpoints(account) < 1000000;
-    // requireInvariant totalVotes_sums_accounts();
 } }
-
-// invariant totalVotes_sums_accounts()
-//    forall address a. forall address b. (a != b && a != 0x0 && b != 0x0) => totalVotes() >= getVotes(delegates(a)) + getVotes(delegates(b))
-
-// invariant totalVotes_sums_accounts()
-//     forall address a. forall address b. (a != b) => totalVotes() >= userVotes(a) + userVotes(b)
-// { preserved {
-//         require forall address account. numCheckpoints(account) < 1000000;
-// }}
 
 
 // for some checkpoint, the fromBlock is less than the current block number
@@ -109,15 +88,10 @@ invariant blockNum_constrains_fromBlock(address account, uint32 index, env e)
     }
 }
 
-// TODO add a note about this in the report
-// // numCheckpoints are less than maxInt
-// // passes because numCheckpoints does a safeCast
+// numCheckpoints are less than maxInt
+// passes because numCheckpoints does a safeCast
 // invariant maxInt_constrains_numBlocks(address account)
 //     numCheckpoints(account) < 4294967295 // 2^32
-
-// // fails because there are no checks to stop it 
-// invariant maxInt_constrains_ckptsLength(address account)
-//     unsafeNumCheckpoints(account) < 4294967295 // 2^32
 
 // can't have more checkpoints for a given account than the last from block
 // passes
@@ -363,27 +337,3 @@ rule burn_doesnt_decrease_totalVotes() {
 
     assert totalVotes() == totalVotes_, "totalVotes decreased";
 }
-
-// // fails
-// rule mint_increases_totalVotes() {
-//     env e;
-//     uint256 amount; address account;
-
-//     mathint totalVotes_ = totalVotes();
-
-//     mint(e, account, amount);
-
-//     assert totalVotes() == totalVotes_ + to_mathint(amount), "totalVotes not increased";
-// }
-
-// // fails
-// rule burn_decreases_totalVotes() {
-//     env e;
-//     uint256 amount; address account;
-
-//     mathint totalVotes_ = totalVotes();
-
-//     burn(e, account, amount);
-
-//     assert totalVotes() == totalVotes_ - to_mathint(amount), "totalVotes not decreased";
-// }
