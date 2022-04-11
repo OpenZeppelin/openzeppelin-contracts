@@ -84,11 +84,7 @@ invariant votes_solvency()
     to_mathint(totalSupply()) >= totalVotes()
 { preserved with(env e) {
     require forall address account. numCheckpoints(account) < 1000000;
-    // requireInvariant totalVotes_sums_accounts();
 } }
-
-// invariant totalVotes_sums_accounts()
-//    forall address a. forall address b. (a != b && a != 0x0 && b != 0x0) => totalVotes() >= getVotes(delegates(a)) + getVotes(delegates(b))
 
 
 // for some checkpoint, the fromBlock is less than the current block number
@@ -101,15 +97,10 @@ invariant timestamp_constrains_fromBlock(address account, uint32 index, env e)
     }
 }
 
-// TODO add a note about this in the report
-// // numCheckpoints are less than maxInt
-// // passes because numCheckpoints does a safeCast
+// numCheckpoints are less than maxInt
+// passes because numCheckpoints does a safeCast
 // invariant maxInt_constrains_numBlocks(address account)
 //     numCheckpoints(account) < 4294967295 // 2^32
-
-// // fails because there are no checks to stop it 
-// invariant maxInt_constrains_ckptsLength(address account)
-//     unsafeNumCheckpoints(account) < 4294967295 // 2^32
 
 // can't have more checkpoints for a given account than the last from block
 // passes
@@ -294,60 +285,3 @@ rule delegate_no_frontrunning(method f) {
     assert third != 0 => _third_votes == third_votes_ - delegator_bal, "votes not removed from third";
     assert other_votes_ == _other_votes, "delegate not contained";
 }
-
-
-// mint and burn need to be handled differently for ERC721
-
-// rule mint_increases_totalSupply() {
-
-//     env e;
-//     uint256 amount; address account;
-//     uint256 fromBlock = e.block.number;
-//     uint256 totalSupply_ = totalSupply();
-
-//     mint(e, account, amount);
-
-//     uint256 _totalSupply = totalSupply();
-//     require _totalSupply < _maxSupply();
-
-//     assert _totalSupply == totalSupply_ + amount, "totalSupply not increased properly";
-//     assert getPastTotalSupply(e, fromBlock) == totalSupply_ , "previous total supply not saved properly";
-// }
-
-// rule burn_decreases_totalSupply() {
-//     env e;
-//     uint256 amount; address account;
-
-//     uint256 fromBlock = e.block.number;
-//     uint256 totalSupply_ = totalSupply();
-
-//     burn(e, account, amount);
-
-//     uint256 _totalSupply = totalSupply();
-
-//     assert _totalSupply == totalSupply_ - amount, "totalSupply not decreased properly";
-//     assert getPastTotalSupply(e, fromBlock) == totalSupply_ , "previous total supply not saved properly";
-// }
-
-
-// rule mint_doesnt_increase_totalVotes() {
-//     env e;
-//     uint256 amount; address account;
-
-//     mathint totalVotes_ = totalVotes();
-
-//     mint(e, account, amount);
-
-//     assert totalVotes() == totalVotes_, "totalVotes increased";
-// }
-
-// rule burn_doesnt_decrease_totalVotes() {
-//     env e;
-//     uint256 amount; address account;
-
-//     mathint totalVotes_ = totalVotes();
-
-//     burn(e, account, amount);
-
-//     assert totalVotes() == totalVotes_, "totalVotes decreased";
-// }
