@@ -8,7 +8,7 @@ const ERC20FlashMintMock = artifacts.require('ERC20FlashMintMock');
 const ERC3156FlashBorrowerMock = artifacts.require('ERC3156FlashBorrowerMock');
 
 contract('ERC20FlashMint', function (accounts) {
-  const [ initialHolder, other ] = accounts;
+  const [ initialHolder, other, anotherAccount ] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -121,7 +121,7 @@ contract('ERC20FlashMint', function (accounts) {
       });
 
       it('custom flash fee receiver', async function () {
-        const flashFeeReceiverAddress = this.token.address;
+        const flashFeeReceiverAddress = anotherAccount;
         await this.token.setFlashFeeReceiver(flashFeeReceiverAddress);
         expect(await this.token.flashFeeReceiver()).to.be.eq(flashFeeReceiverAddress);
         
