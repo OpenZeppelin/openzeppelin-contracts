@@ -23,4 +23,4 @@ certoraRun \
     --settings -copyLoopUnroll=4 \
     --send_only \
     --staging "alex/new-dt-hashing-alpha" \
-    --msg "${msg}" \
+    --msg "${msg}"
