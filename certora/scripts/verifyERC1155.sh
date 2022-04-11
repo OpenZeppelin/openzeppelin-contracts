@@ -4,8 +4,6 @@ certoraRun \
     --solc solc8.2 \
     --optimistic_loop \
     --loop_iter 3 \
-    --staging \
-    --rule_sanity \
-    --rule "$1" \
-    --msg "$1 check"
+    --cloud \
+    --msg "ERC1155 verification"
     

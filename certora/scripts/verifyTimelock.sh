@@ -5,7 +5,6 @@ certoraRun \
     --optimistic_loop \
     --loop_iter 3 \
     --staging alex/new-dt-hashing-alpha \
-    --rule_sanity \
-    --rule "$1" \
-    --msg "$1"
+    --settings -byteMapHashingPrecision=32 \
+    --msg "TimelockController verification"
       

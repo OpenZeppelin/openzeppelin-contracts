@@ -11,7 +11,7 @@ methods {
 
 
 // STATUS - verified
-// check onlyRole modifier for grantRole()
+// If `onlyRole` modifier reverts then `grantRole()` reverts
 rule onlyRoleModifierCheckGrant(env e){
     bytes32 role; address account;
 
@@ -58,7 +58,7 @@ rule grantRoleEffect(env e){
 
 
 // STATUS - verified
-// grantRole() does not affect another accounts 
+// revokeRole() does not affect another accounts 
 rule revokeRoleEffect(env e){
     bytes32 role; address account; 
     bytes32 anotherRole; address nonEffectedAcc;

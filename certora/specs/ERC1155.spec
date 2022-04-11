@@ -52,7 +52,7 @@ rule onlyOwnerCanApprove(env e){
 
 
 // STATUS - verified
-// chech in which scenarios (if any) isApprovedForAll() revertes
+// Chech that isApprovedForAll() revertes in planned scenarios and no more. 
 rule approvalRevertCases(env e){
     address account; address operator;
     isApprovedForAll@withrevert(account, operator);
@@ -104,7 +104,7 @@ rule unexpectedBalanceChange(method f, env e)
 
 
 // STATUS - verified
-// chech in which scenarios balanceOf() revertes
+// Chech that `balanceOf()` revertes in planned scenarios and no more (only if `account` is 0)
 rule balanceOfRevertCases(env e){
     address account; uint256 id;
     balanceOf@withrevert(account, id);
@@ -113,7 +113,7 @@ rule balanceOfRevertCases(env e){
 
 
 // STATUS - verified
-// chech in which scenarios balanceOfBatch() revertes
+// Chech that `balanceOfBatch()` revertes in planned scenarios and no more (only if at least one of `account`s is 0)
 rule balanceOfBatchRevertCases(env e){
     address[] accounts; uint256[] ids;
     address account1; address account2; address account3;
@@ -131,7 +131,7 @@ rule balanceOfBatchRevertCases(env e){
 
 
 /////////////////////////////////////////////////
-// Transfer (14/14)
+// Transfer (13/13)
 /////////////////////////////////////////////////
 
 
@@ -178,7 +178,7 @@ rule transferCorrectness(env e){
 
 
 // STATUS - verified
-// cannot transfer more than allowed (safeBatchTransferFrom version)
+// safeBatchTransferFrom updates `from` and `to` balances)
 rule transferBatchCorrectness(env e){
     address from; address to; uint256[] ids; uint256[] amounts; bytes data;
     uint256 idToCheck1; uint256 amountToCheck1;
@@ -230,7 +230,6 @@ rule cannotTransferMoreSingle(env e){
     safeTransferFrom@withrevert(e, from, to, id, amount, data);
 
     assert amount > balanceBefore => lastReverted, "Achtung! Scammer!";
-    assert to == 0 => lastReverted, "Achtung! Scammer!";
 }
 
 
@@ -259,21 +258,6 @@ rule cannotTransferMoreBatch(env e){
 
 
 // STATUS - verified
-// safeBatchTransferFrom should revert if `to` is 0 address or if arrays length is different
-rule revertOfTransferBatch(env e){
-    address from; address to; uint256[] ids; uint256[] amounts; bytes data;
-
-    require ids.length < 100000000;
-    require amounts.length < 100000000;
-
-    safeBatchTransferFrom@withrevert(e, from, to, ids, amounts, data);
-
-    assert ids.length != amounts.length => lastReverted, "Achtung! Scammer!";
-    assert to == 0 => lastReverted, "Achtung! Scammer!";
-}
-
-
-// STATUS - verified
 // Sender calling safeTransferFrom should only reduce 'from' balance and not other's if sending amount is greater than 0
 rule transferBalanceReduceEffect(env e){
     address from; address to; address other;
@@ -293,7 +277,7 @@ rule transferBalanceReduceEffect(env e){
 
 
 // STATUS - verified
-// Sender calling safeTransferFrom should only reduce 'to' balance and not other's if sending amount is greater than 0
+// Sender calling safeTransferFrom should only increase 'to' balance and not other's if sending amount is greater than 0
 rule transferBalanceIncreaseEffect(env e){
     address from; address to; address other;
     uint256 id; uint256 amount; 
@@ -338,7 +322,7 @@ rule transferBatchBalanceFromEffect(env e){
 
 
 // STATUS - verified
-// Sender calling safeBatchTransferFrom should only reduce 'to' balance and not other's if sending amount is greater than 0
+// Sender calling safeBatchTransferFrom should only increase 'to' balance and not other's if sending amount is greater than 0
 rule transferBatchBalanceToEffect(env e){
     address from; address to; address other;
     uint256[] ids; uint256[] amounts;
@@ -434,12 +418,12 @@ rule noTransferBatchEffectOnApproval(env e){
 
 
 /////////////////////////////////////////////////
-// Mint (9/9)
+// Mint (7/9)
 /////////////////////////////////////////////////
 
 
 // STATUS - verified
-// mint additivity
+// Additivity of _mint: _mint(a); _mint(b) has same effect as _mint(a+b)
 rule mintAdditivity(env e){
     address to; uint256 id; uint256 amount; uint256 amount1; uint256 amount2; bytes data;
     require amount == amount1 + amount2;
@@ -459,8 +443,8 @@ rule mintAdditivity(env e){
 }
 
 
-// STATUS - verified
-// mint should revert if `from` is 0
+// STATUS - verified    
+// Chech that `_mint()` revertes in planned scenario(s) (only if `to` is 0)
 rule mintRevertCases(env e){
     address to; uint256 id; uint256 amount; bytes data;
 
@@ -471,28 +455,27 @@ rule mintRevertCases(env e){
 
 
 // STATUS - verified
-// mintBatch should revert if `from` is 0 or arrays have different length
+// Chech that `_mintBatch()` revertes in planned scenario(s) (only if `to` is 0 or arrays have different length)
 rule mintBatchRevertCases(env e){
     address to; uint256[] ids; uint256[] amounts; bytes data;
 
-    require ids.length < 100000000;
-    require amounts.length < 100000000;
+    require ids.length < 1000000000;
+    require amounts.length < 1000000000;
 
     _mintBatch@withrevert(e, to, ids, amounts, data);
 
-    assert to == 0 => lastReverted, "Should revert";
-    assert ids.length != amounts.length => lastReverted, "Should revert";
+    assert (ids.length != amounts.length || to == 0) => lastReverted, "Should revert";
 }
 
 
 // STATUS - verified
-// check that mint updates `to` balance correctly
+// Check that mint updates `to` balance correctly
 rule mintCorrectWork(env e){
     address to; uint256 id; uint256 amount; bytes data;
 
     uint256 otherBalanceBefore = balanceOf(to, id);
 
-     _mint(e, to, id, amount, data);
+    _mint(e, to, id, amount, data);
 
     uint256 otherBalanceAfter = balanceOf(to, id);
     
@@ -534,7 +517,7 @@ rule mintBatchCorrectWork(env e){
 
 
 // STATUS - verified
-// the user cannot mint more than max_uint256
+// The user cannot mint more than max_uint256
 rule cantMintMoreSingle(env e){
     address to; uint256 id; uint256 amount; bytes data;
 
@@ -571,7 +554,7 @@ rule cantMintMoreBatch(env e){
 
 
 // STATUS - verified
-// mint changes only `to` balance
+// `_mint()` changes only `to` balance
 rule cantMintOtherBalances(env e){
     address to; uint256 id; uint256 amount; bytes data;
     address other;
@@ -618,7 +601,7 @@ rule cantMintBatchOtherBalances(env e){
 
 
 // STATUS - verified
-// burn additivity
+// Additivity of _burn: _burn(a); _burn(b) has same effect as _burn(a+b)
 rule burnAdditivity(env e){
     address from; uint256 id; uint256 amount; uint256 amount1; uint256 amount2;
     require amount == amount1 + amount2;
@@ -639,7 +622,7 @@ rule burnAdditivity(env e){
 
 
 // STATUS - verified
-// burn should revert if `from` is 0
+// Chech that `_burn()` revertes in planned scenario(s) (if `from` is 0) 
 rule burnRevertCases(env e){
     address from; uint256 id; uint256 amount;
 
@@ -650,16 +633,16 @@ rule burnRevertCases(env e){
 
 
 // STATUS - verified
-// burnBatch should revert if `from` is 0 or arrays have different length
+// Chech that `balanceOf()` revertes in planned scenario(s) (if `from` is 0 or arrays have different length)
 rule burnBatchRevertCases(env e){
     address from; uint256[] ids; uint256[] amounts;
 
-    require ids.length < 100000000;
+    require ids.length < 1000000000;
+    require amounts.length < 1000000000;
 
     _burnBatch@withrevert(e, from, ids, amounts);
 
-    assert from == 0 => lastReverted, "Should revert";
-    assert ids.length != amounts.length => lastReverted, "Should revert";
+    assert (from == 0 || ids.length != amounts.length) => lastReverted, "Should revert";
 }
 
 
