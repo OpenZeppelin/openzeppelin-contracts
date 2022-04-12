@@ -1,5 +1,6 @@
 const { BN, constants } = require('@openzeppelin/test-helpers');
 
+const UintToUintMapMock = artifacts.require('UintToUintMapMock');
 const AddressToUintMapMock = artifacts.require('AddressToUintMapMock');
 const UintToAddressMapMock = artifacts.require('UintToAddressMapMock');
 const Bytes32ToBytes32MapMock = artifacts.require('Bytes32ToBytes32MapMock');
@@ -16,6 +17,19 @@ contract('EnumerableMap', function (accounts) {
   const bytesA = '0xdeadbeef'.padEnd(66, '0');
   const bytesB = '0x0123456789'.padEnd(66, '0');
   const bytesC = '0x42424242'.padEnd(66, '0');
+
+  // UintToUintMap
+  describe('UintToUintMap', function () {
+    beforeEach(async function () {
+      this.map = await UintToUintMapMock.new();
+    });
+
+    shouldBehaveLikeMap(
+      [keyA, keyB, keyC],
+      [keyA, keyB, keyC].map(k => k.add(new BN('1332'))),
+      new BN('0'),
+    );
+  });
 
   // AddressToUintMap
   describe('AddressToUintMap', function () {
