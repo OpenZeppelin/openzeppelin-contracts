@@ -88,7 +88,6 @@ abstract contract ERC2981 is IERC2981, ERC165 {
      *
      * Requirements:
      *
-     * - `tokenId` must be already minted.
      * - `receiver` cannot be the zero address.
      * - `feeNumerator` cannot be greater than the fee denominator.
      */
