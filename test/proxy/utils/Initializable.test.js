@@ -3,6 +3,7 @@ const { expect } = require('chai');
 
 const InitializableMock = artifacts.require('InitializableMock');
 const ConstructorInitializableMock = artifacts.require('ConstructorInitializableMock');
+const ChildConstructorInitializableMock = artifacts.require('ChildConstructorInitializableMock');
 const ReinitializerMock = artifacts.require('ReinitializerMock');
 const SampleChild = artifacts.require('SampleChild');
 
@@ -51,6 +52,13 @@ contract('Initializable', function (accounts) {
   it('nested initializer can run during construction', async function () {
     const contract2 = await ConstructorInitializableMock.new();
     expect(await contract2.initializerRan()).to.equal(true);
+    expect(await contract2.onlyInitializingRan()).to.equal(true);
+  });
+
+  it('multiple constructor levels can be initializers', async function () {
+    const contract2 = await ChildConstructorInitializableMock.new();
+    expect(await contract2.initializerRan()).to.equal(true);
+    expect(await contract2.childInitializerRan()).to.equal(true);
     expect(await contract2.onlyInitializingRan()).to.equal(true);
   });
 

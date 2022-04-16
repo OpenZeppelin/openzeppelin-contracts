@@ -141,7 +141,7 @@ abstract contract Initializable {
             );
             return false;
         } else {
-            require(_initialized < version, "Initializable: contract is already initialized");
+            require(_initialized < version || (version == 1 && !Address.isContract(address(this))), "Initializable: contract is already initialized");
             _initialized = version;
             return true;
         }
