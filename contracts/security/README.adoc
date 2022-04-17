@@ -7,6 +7,7 @@ These contracts aim to cover common security practices.
 
 * {PullPayment}: A pattern that can be used to avoid reentrancy attacks.
 * {ReentrancyGuard}: A modifier that can prevent reentrancy during certain functions.
+* {FlashLoanGuard}: A modifier that can prevents subsequent critical actions whithin the same block.
 * {Pausable}: A common emergency response mechanism that can pause functionality while a remediation is pending.
 
 TIP: For an overview on reentrancy and the possible mechanisms to prevent it, read our article https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
@@ -16,5 +17,7 @@ TIP: For an overview on reentrancy and the possible mechanisms to prevent it, re
 {{PullPayment}}
 
 {{ReentrancyGuard}}
+
+{{FlashLoanGuard}}
 
 {{Pausable}}
