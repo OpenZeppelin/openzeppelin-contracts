@@ -121,14 +121,33 @@ contract PaymentSplitter is Context {
     }
 
     /**
+     * @dev Getter for the amount of payee's unclaimed Ether.
+     */
+    function unclaimed(address account) public view returns (uint256) {
+        uint256 totalReceived = address(this).balance + totalReleased();
+        return _pendingPayment(account, totalReceived, released(account));
+    }
+
+    /**
+     * @dev Getter for the amount of payee's unclaimed `token` tokens. `token` should be the address of an
+     * IERC20 contract.
+     */
+    function unclaimed(IERC20 token, address account) public view returns (uint256)
+    {
+        uint256 totalReceived = token.balanceOf(address(this)) +
+            totalReleased(token);
+        return
+            _pendingPayment(account, totalReceived, released(token, account));
+    }
+
+    /**
      * @dev Triggers a transfer to `account` of the amount of Ether they are owed, according to their percentage of the
      * total shares and their previous withdrawals.
      */
     function release(address payable account) public virtual {
         require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
-        uint256 totalReceived = address(this).balance + totalReleased();
-        uint256 payment = _pendingPayment(account, totalReceived, released(account));
+        uint256 payment = unclaimed(account);
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
@@ -147,8 +166,7 @@ contract PaymentSplitter is Context {
     function release(IERC20 token, address account) public virtual {
         require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
-        uint256 totalReceived = token.balanceOf(address(this)) + totalReleased(token);
-        uint256 payment = _pendingPayment(account, totalReceived, released(token, account));
+        uint256 payment = unclaimed(token, account);
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
