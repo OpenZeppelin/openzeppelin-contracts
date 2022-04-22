@@ -27,7 +27,11 @@ import "../utils/Context.sol";
 contract PaymentSplitter is Context {
     event PayeeAdded(address account, uint256 shares);
     event PaymentReleased(address to, uint256 amount);
-    event ERC20PaymentReleased(IERC20 indexed token, address to, uint256 amount);
+    event ERC20PaymentReleased(
+        IERC20 indexed token,
+        address to,
+        uint256 amount
+    );
     event PaymentReceived(address from, uint256 amount);
 
     uint256 private _totalShares;
@@ -48,7 +52,10 @@ contract PaymentSplitter is Context {
      * duplicates in `payees`.
      */
     constructor(address[] memory payees, uint256[] memory shares_) payable {
-        require(payees.length == shares_.length, "PaymentSplitter: payees and shares length mismatch");
+        require(
+            payees.length == shares_.length,
+            "PaymentSplitter: payees and shares length mismatch"
+        );
         require(payees.length > 0, "PaymentSplitter: no payees");
 
         for (uint256 i = 0; i < payees.length; i++) {
@@ -109,7 +116,11 @@ contract PaymentSplitter is Context {
      * @dev Getter for the amount of `token` tokens already released to a payee. `token` should be the address of an
      * IERC20 contract.
      */
-    function released(IERC20 token, address account) public view returns (uint256) {
+    function released(IERC20 token, address account)
+        public
+        view
+        returns (uint256)
+    {
         return _erc20Released[token][account];
     }
 
@@ -121,14 +132,36 @@ contract PaymentSplitter is Context {
     }
 
     /**
+     * @dev Getter for the amount of payee's unclaimed Ether.
+     */
+    function unclaimed(address account) public view returns (uint256) {
+        uint256 totalReceived = address(this).balance + totalReleased();
+        return _pendingPayment(account, totalReceived, released(account));
+    }
+
+    /**
+     * @dev Getter for the amount of payee's unclaimed `token` tokens. `token` should be the address of an
+     * IERC20 contract.
+     */
+    function unclaimed(IERC20 token, address account)
+        public
+        view
+        returns (uint256)
+    {
+        uint256 totalReceived = token.balanceOf(address(this)) +
+            totalReleased(token);
+        return
+            _pendingPayment(account, totalReceived, released(token, account));
+    }
+
+    /**
      * @dev Triggers a transfer to `account` of the amount of Ether they are owed, according to their percentage of the
      * total shares and their previous withdrawals.
      */
     function release(address payable account) public virtual {
         require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
-        uint256 totalReceived = address(this).balance + totalReleased();
-        uint256 payment = _pendingPayment(account, totalReceived, released(account));
+        uint256 payment = unclaimed(account);
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
@@ -147,8 +180,7 @@ contract PaymentSplitter is Context {
     function release(IERC20 token, address account) public virtual {
         require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
-        uint256 totalReceived = token.balanceOf(address(this)) + totalReleased(token);
-        uint256 payment = _pendingPayment(account, totalReceived, released(token, account));
+        uint256 payment = unclaimed(token, account);
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
@@ -168,7 +200,8 @@ contract PaymentSplitter is Context {
         uint256 totalReceived,
         uint256 alreadyReleased
     ) private view returns (uint256) {
-        return (totalReceived * _shares[account]) / _totalShares - alreadyReleased;
+        return
+            (totalReceived * _shares[account]) / _totalShares - alreadyReleased;
     }
 
     /**
@@ -177,9 +210,15 @@ contract PaymentSplitter is Context {
      * @param shares_ The number of shares owned by the payee.
      */
     function _addPayee(address account, uint256 shares_) private {
-        require(account != address(0), "PaymentSplitter: account is the zero address");
+        require(
+            account != address(0),
+            "PaymentSplitter: account is the zero address"
+        );
         require(shares_ > 0, "PaymentSplitter: shares are 0");
-        require(_shares[account] == 0, "PaymentSplitter: account already has shares");
+        require(
+            _shares[account] == 0,
+            "PaymentSplitter: account already has shares"
+        );
 
         _payees.push(account);
         _shares[account] = shares_;
