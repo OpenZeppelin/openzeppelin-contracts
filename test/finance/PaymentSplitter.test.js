@@ -130,22 +130,22 @@ contract('PaymentSplitter', function (accounts) {
         // distribute to payees
 
         const tracker1 = await balance.tracker(payee1);
-        const { logs: logs1 } = await this.contract.release(payee1);
+        const receipt1 = await this.contract.release(payee1);
         const profit1 = await tracker1.delta();
         expect(profit1).to.be.bignumber.equal(ether('0.20'));
-        expectEvent.inLogs(logs1, 'PaymentReleased', { to: payee1, amount: profit1 });
+        expectEvent(receipt1, 'PaymentReleased', { to: payee1, amount: profit1 });
 
         const tracker2 = await balance.tracker(payee2);
-        const { logs: logs2 } = await this.contract.release(payee2);
+        const receipt2 = await this.contract.release(payee2);
         const profit2 = await tracker2.delta();
         expect(profit2).to.be.bignumber.equal(ether('0.10'));
-        expectEvent.inLogs(logs2, 'PaymentReleased', { to: payee2, amount: profit2 });
+        expectEvent(receipt2, 'PaymentReleased', { to: payee2, amount: profit2 });
 
         const tracker3 = await balance.tracker(payee3);
-        const { logs: logs3 } = await this.contract.release(payee3);
+        const receipt3 = await this.contract.release(payee3);
         const profit3 = await tracker3.delta();
         expect(profit3).to.be.bignumber.equal(ether('0.70'));
-        expectEvent.inLogs(logs3, 'PaymentReleased', { to: payee3, amount: profit3 });
+        expectEvent(receipt3, 'PaymentReleased', { to: payee3, amount: profit3 });
 
         // end balance should be zero
         expect(await balance.current(this.contract.address)).to.be.bignumber.equal('0');
