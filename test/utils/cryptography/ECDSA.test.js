@@ -47,7 +47,7 @@ function split (signature) {
       web3.utils.bytesToHex(raw.slice(32, 64)), // s
     ];
   default:
-    expect.fail('Invalid siganture length, cannot split');
+    expect.fail('Invalid signature length, cannot split');
   }
 }
 

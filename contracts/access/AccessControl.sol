@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (access/AccessControl.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (access/AccessControl.sol)
 
 pragma solidity ^0.8.0;
 
@@ -67,7 +67,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * _Available since v4.1._
      */
     modifier onlyRole(bytes32 role) {
-        _checkRole(role, _msgSender());
+        _checkRole(role);
         _;
     }
 
@@ -83,6 +83,18 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      */
     function hasRole(bytes32 role, address account) public view virtual override returns (bool) {
         return _roles[role].members[account];
+    }
+
+    /**
+     * @dev Revert with a standard message if `_msgSender()` is missing `role`.
+     * Overriding this function changes the behavior of the {onlyRole} modifier.
+     *
+     * Format of the revert message is described in {_checkRole}.
+     *
+     * _Available since v4.6._
+     */
+    function _checkRole(bytes32 role) internal view virtual {
+        _checkRole(role, _msgSender());
     }
 
     /**

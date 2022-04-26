@@ -1,6 +1,7 @@
 .API
 * xref:access.adoc[Access]
 * xref:token/common.adoc[Common (Tokens)]
+* xref:crosschain.adoc[Crosschain]
 * xref:token/ERC20.adoc[ERC 20]
 * xref:token/ERC721.adoc[ERC 721]
 * xref:token/ERC777.adoc[ERC 777]

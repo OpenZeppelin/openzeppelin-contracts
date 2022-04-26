@@ -10,6 +10,8 @@
 :xref-AccessControl-supportsInterface-bytes4-: xref:access.adoc#AccessControl-supportsInterface-bytes4-
 :AccessControl-hasRole: pass:normal[xref:access.adoc#AccessControl-hasRole-bytes32-address-[`AccessControl.hasRole`]]
 :xref-AccessControl-hasRole-bytes32-address-: xref:access.adoc#AccessControl-hasRole-bytes32-address-
+:AccessControl-_checkRole: pass:normal[xref:access.adoc#AccessControl-_checkRole-bytes32-[`AccessControl._checkRole`]]
+:xref-AccessControl-_checkRole-bytes32-: xref:access.adoc#AccessControl-_checkRole-bytes32-
 :AccessControl-_checkRole: pass:normal[xref:access.adoc#AccessControl-_checkRole-bytes32-address-[`AccessControl._checkRole`]]
 :xref-AccessControl-_checkRole-bytes32-address-: xref:access.adoc#AccessControl-_checkRole-bytes32-address-
 :AccessControl-getRoleAdmin: pass:normal[xref:access.adoc#AccessControl-getRoleAdmin-bytes32-[`AccessControl.getRoleAdmin`]]
@@ -30,6 +32,14 @@
 :xref-AccessControl-_revokeRole-bytes32-address-: xref:access.adoc#AccessControl-_revokeRole-bytes32-address-
 :AccessControl-RoleData: pass:normal[xref:access.adoc#AccessControl-RoleData[`AccessControl.RoleData`]]
 :xref-AccessControl-RoleData: xref:access.adoc#AccessControl-RoleData
+:AccessControlCrossChain: pass:normal[xref:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`]]
+:xref-AccessControlCrossChain: xref:access.adoc#AccessControlCrossChain
+:AccessControlCrossChain-CROSSCHAIN_ALIAS: pass:normal[xref:access.adoc#AccessControlCrossChain-CROSSCHAIN_ALIAS-bytes32[`AccessControlCrossChain.CROSSCHAIN_ALIAS`]]
+:xref-AccessControlCrossChain-CROSSCHAIN_ALIAS-bytes32: xref:access.adoc#AccessControlCrossChain-CROSSCHAIN_ALIAS-bytes32
+:AccessControlCrossChain-_checkRole: pass:normal[xref:access.adoc#AccessControlCrossChain-_checkRole-bytes32-[`AccessControlCrossChain._checkRole`]]
+:xref-AccessControlCrossChain-_checkRole-bytes32-: xref:access.adoc#AccessControlCrossChain-_checkRole-bytes32-
+:AccessControlCrossChain-_crossChainRoleAlias: pass:normal[xref:access.adoc#AccessControlCrossChain-_crossChainRoleAlias-bytes32-[`AccessControlCrossChain._crossChainRoleAlias`]]
+:xref-AccessControlCrossChain-_crossChainRoleAlias-bytes32-: xref:access.adoc#AccessControlCrossChain-_crossChainRoleAlias-bytes32-
 :AccessControlEnumerable: pass:normal[xref:access.adoc#AccessControlEnumerable[`AccessControlEnumerable`]]
 :xref-AccessControlEnumerable: xref:access.adoc#AccessControlEnumerable
 :AccessControlEnumerable-supportsInterface: pass:normal[xref:access.adoc#AccessControlEnumerable-supportsInterface-bytes4-[`AccessControlEnumerable.supportsInterface`]]
@@ -82,6 +92,82 @@
 :xref-Ownable-_transferOwnership-address-: xref:access.adoc#Ownable-_transferOwnership-address-
 :Ownable-OwnershipTransferred: pass:normal[xref:access.adoc#Ownable-OwnershipTransferred-address-address-[`Ownable.OwnershipTransferred`]]
 :xref-Ownable-OwnershipTransferred-address-address-: xref:access.adoc#Ownable-OwnershipTransferred-address-address-
+:CrossChainEnabled: pass:normal[xref:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`]]
+:xref-CrossChainEnabled: xref:crosschain.adoc#CrossChainEnabled
+:CrossChainEnabled-onlyCrossChain: pass:normal[xref:crosschain.adoc#CrossChainEnabled-onlyCrossChain--[`CrossChainEnabled.onlyCrossChain`]]
+:xref-CrossChainEnabled-onlyCrossChain--: xref:crosschain.adoc#CrossChainEnabled-onlyCrossChain--
+:CrossChainEnabled-onlyCrossChainSender: pass:normal[xref:crosschain.adoc#CrossChainEnabled-onlyCrossChainSender-address-[`CrossChainEnabled.onlyCrossChainSender`]]
+:xref-CrossChainEnabled-onlyCrossChainSender-address-: xref:crosschain.adoc#CrossChainEnabled-onlyCrossChainSender-address-
+:CrossChainEnabled-_isCrossChain: pass:normal[xref:crosschain.adoc#CrossChainEnabled-_isCrossChain--[`CrossChainEnabled._isCrossChain`]]
+:xref-CrossChainEnabled-_isCrossChain--: xref:crosschain.adoc#CrossChainEnabled-_isCrossChain--
+:CrossChainEnabled-_crossChainSender: pass:normal[xref:crosschain.adoc#CrossChainEnabled-_crossChainSender--[`CrossChainEnabled._crossChainSender`]]
+:xref-CrossChainEnabled-_crossChainSender--: xref:crosschain.adoc#CrossChainEnabled-_crossChainSender--
+:CrossChainEnabledAMB: pass:normal[xref:crosschain.adoc#CrossChainEnabledAMB[`CrossChainEnabledAMB`]]
+:xref-CrossChainEnabledAMB: xref:crosschain.adoc#CrossChainEnabledAMB
+:CrossChainEnabledAMB-constructor: pass:normal[xref:crosschain.adoc#CrossChainEnabledAMB-constructor-address-[`CrossChainEnabledAMB.constructor`]]
+:xref-CrossChainEnabledAMB-constructor-address-: xref:crosschain.adoc#CrossChainEnabledAMB-constructor-address-
+:CrossChainEnabledAMB-_isCrossChain: pass:normal[xref:crosschain.adoc#CrossChainEnabledAMB-_isCrossChain--[`CrossChainEnabledAMB._isCrossChain`]]
+:xref-CrossChainEnabledAMB-_isCrossChain--: xref:crosschain.adoc#CrossChainEnabledAMB-_isCrossChain--
+:CrossChainEnabledAMB-_crossChainSender: pass:normal[xref:crosschain.adoc#CrossChainEnabledAMB-_crossChainSender--[`CrossChainEnabledAMB._crossChainSender`]]
+:xref-CrossChainEnabledAMB-_crossChainSender--: xref:crosschain.adoc#CrossChainEnabledAMB-_crossChainSender--
+:LibAMB: pass:normal[xref:crosschain.adoc#LibAMB[`LibAMB`]]
+:xref-LibAMB: xref:crosschain.adoc#LibAMB
+:LibAMB-isCrossChain: pass:normal[xref:crosschain.adoc#LibAMB-isCrossChain-address-[`LibAMB.isCrossChain`]]
+:xref-LibAMB-isCrossChain-address-: xref:crosschain.adoc#LibAMB-isCrossChain-address-
+:LibAMB-crossChainSender: pass:normal[xref:crosschain.adoc#LibAMB-crossChainSender-address-[`LibAMB.crossChainSender`]]
+:xref-LibAMB-crossChainSender-address-: xref:crosschain.adoc#LibAMB-crossChainSender-address-
+:CrossChainEnabledArbitrumL1: pass:normal[xref:crosschain.adoc#CrossChainEnabledArbitrumL1[`CrossChainEnabledArbitrumL1`]]
+:xref-CrossChainEnabledArbitrumL1: xref:crosschain.adoc#CrossChainEnabledArbitrumL1
+:CrossChainEnabledArbitrumL1-constructor: pass:normal[xref:crosschain.adoc#CrossChainEnabledArbitrumL1-constructor-address-[`CrossChainEnabledArbitrumL1.constructor`]]
+:xref-CrossChainEnabledArbitrumL1-constructor-address-: xref:crosschain.adoc#CrossChainEnabledArbitrumL1-constructor-address-
+:CrossChainEnabledArbitrumL1-_isCrossChain: pass:normal[xref:crosschain.adoc#CrossChainEnabledArbitrumL1-_isCrossChain--[`CrossChainEnabledArbitrumL1._isCrossChain`]]
+:xref-CrossChainEnabledArbitrumL1-_isCrossChain--: xref:crosschain.adoc#CrossChainEnabledArbitrumL1-_isCrossChain--
+:CrossChainEnabledArbitrumL1-_crossChainSender: pass:normal[xref:crosschain.adoc#CrossChainEnabledArbitrumL1-_crossChainSender--[`CrossChainEnabledArbitrumL1._crossChainSender`]]
+:xref-CrossChainEnabledArbitrumL1-_crossChainSender--: xref:crosschain.adoc#CrossChainEnabledArbitrumL1-_crossChainSender--
+:CrossChainEnabledArbitrumL2: pass:normal[xref:crosschain.adoc#CrossChainEnabledArbitrumL2[`CrossChainEnabledArbitrumL2`]]
+:xref-CrossChainEnabledArbitrumL2: xref:crosschain.adoc#CrossChainEnabledArbitrumL2
+:CrossChainEnabledArbitrumL2-_isCrossChain: pass:normal[xref:crosschain.adoc#CrossChainEnabledArbitrumL2-_isCrossChain--[`CrossChainEnabledArbitrumL2._isCrossChain`]]
+:xref-CrossChainEnabledArbitrumL2-_isCrossChain--: xref:crosschain.adoc#CrossChainEnabledArbitrumL2-_isCrossChain--
+:CrossChainEnabledArbitrumL2-_crossChainSender: pass:normal[xref:crosschain.adoc#CrossChainEnabledArbitrumL2-_crossChainSender--[`CrossChainEnabledArbitrumL2._crossChainSender`]]
+:xref-CrossChainEnabledArbitrumL2-_crossChainSender--: xref:crosschain.adoc#CrossChainEnabledArbitrumL2-_crossChainSender--
+:LibArbitrumL1: pass:normal[xref:crosschain.adoc#LibArbitrumL1[`LibArbitrumL1`]]
+:xref-LibArbitrumL1: xref:crosschain.adoc#LibArbitrumL1
+:LibArbitrumL1-isCrossChain: pass:normal[xref:crosschain.adoc#LibArbitrumL1-isCrossChain-address-[`LibArbitrumL1.isCrossChain`]]
+:xref-LibArbitrumL1-isCrossChain-address-: xref:crosschain.adoc#LibArbitrumL1-isCrossChain-address-
+:LibArbitrumL1-crossChainSender: pass:normal[xref:crosschain.adoc#LibArbitrumL1-crossChainSender-address-[`LibArbitrumL1.crossChainSender`]]
+:xref-LibArbitrumL1-crossChainSender-address-: xref:crosschain.adoc#LibArbitrumL1-crossChainSender-address-
+:LibArbitrumL2: pass:normal[xref:crosschain.adoc#LibArbitrumL2[`LibArbitrumL2`]]
+:xref-LibArbitrumL2: xref:crosschain.adoc#LibArbitrumL2
+:LibArbitrumL2-ARBSYS: pass:normal[xref:crosschain.adoc#LibArbitrumL2-ARBSYS-address[`LibArbitrumL2.ARBSYS`]]
+:xref-LibArbitrumL2-ARBSYS-address: xref:crosschain.adoc#LibArbitrumL2-ARBSYS-address
+:LibArbitrumL2-isCrossChain: pass:normal[xref:crosschain.adoc#LibArbitrumL2-isCrossChain-address-[`LibArbitrumL2.isCrossChain`]]
+:xref-LibArbitrumL2-isCrossChain-address-: xref:crosschain.adoc#LibArbitrumL2-isCrossChain-address-
+:LibArbitrumL2-crossChainSender: pass:normal[xref:crosschain.adoc#LibArbitrumL2-crossChainSender-address-[`LibArbitrumL2.crossChainSender`]]
+:xref-LibArbitrumL2-crossChainSender-address-: xref:crosschain.adoc#LibArbitrumL2-crossChainSender-address-
+:CrossChainEnabledOptimism: pass:normal[xref:crosschain.adoc#CrossChainEnabledOptimism[`CrossChainEnabledOptimism`]]
+:xref-CrossChainEnabledOptimism: xref:crosschain.adoc#CrossChainEnabledOptimism
+:CrossChainEnabledOptimism-constructor: pass:normal[xref:crosschain.adoc#CrossChainEnabledOptimism-constructor-address-[`CrossChainEnabledOptimism.constructor`]]
+:xref-CrossChainEnabledOptimism-constructor-address-: xref:crosschain.adoc#CrossChainEnabledOptimism-constructor-address-
+:CrossChainEnabledOptimism-_isCrossChain: pass:normal[xref:crosschain.adoc#CrossChainEnabledOptimism-_isCrossChain--[`CrossChainEnabledOptimism._isCrossChain`]]
+:xref-CrossChainEnabledOptimism-_isCrossChain--: xref:crosschain.adoc#CrossChainEnabledOptimism-_isCrossChain--
+:CrossChainEnabledOptimism-_crossChainSender: pass:normal[xref:crosschain.adoc#CrossChainEnabledOptimism-_crossChainSender--[`CrossChainEnabledOptimism._crossChainSender`]]
+:xref-CrossChainEnabledOptimism-_crossChainSender--: xref:crosschain.adoc#CrossChainEnabledOptimism-_crossChainSender--
+:LibOptimism: pass:normal[xref:crosschain.adoc#LibOptimism[`LibOptimism`]]
+:xref-LibOptimism: xref:crosschain.adoc#LibOptimism
+:LibOptimism-isCrossChain: pass:normal[xref:crosschain.adoc#LibOptimism-isCrossChain-address-[`LibOptimism.isCrossChain`]]
+:xref-LibOptimism-isCrossChain-address-: xref:crosschain.adoc#LibOptimism-isCrossChain-address-
+:LibOptimism-crossChainSender: pass:normal[xref:crosschain.adoc#LibOptimism-crossChainSender-address-[`LibOptimism.crossChainSender`]]
+:xref-LibOptimism-crossChainSender-address-: xref:crosschain.adoc#LibOptimism-crossChainSender-address-
+:CrossChainEnabledPolygonChild: pass:normal[xref:crosschain.adoc#CrossChainEnabledPolygonChild[`CrossChainEnabledPolygonChild`]]
+:xref-CrossChainEnabledPolygonChild: xref:crosschain.adoc#CrossChainEnabledPolygonChild
+:CrossChainEnabledPolygonChild-constructor: pass:normal[xref:crosschain.adoc#CrossChainEnabledPolygonChild-constructor-address-[`CrossChainEnabledPolygonChild.constructor`]]
+:xref-CrossChainEnabledPolygonChild-constructor-address-: xref:crosschain.adoc#CrossChainEnabledPolygonChild-constructor-address-
+:CrossChainEnabledPolygonChild-_isCrossChain: pass:normal[xref:crosschain.adoc#CrossChainEnabledPolygonChild-_isCrossChain--[`CrossChainEnabledPolygonChild._isCrossChain`]]
+:xref-CrossChainEnabledPolygonChild-_isCrossChain--: xref:crosschain.adoc#CrossChainEnabledPolygonChild-_isCrossChain--
+:CrossChainEnabledPolygonChild-_crossChainSender: pass:normal[xref:crosschain.adoc#CrossChainEnabledPolygonChild-_crossChainSender--[`CrossChainEnabledPolygonChild._crossChainSender`]]
+:xref-CrossChainEnabledPolygonChild-_crossChainSender--: xref:crosschain.adoc#CrossChainEnabledPolygonChild-_crossChainSender--
+:CrossChainEnabledPolygonChild-processMessageFromRoot: pass:normal[xref:crosschain.adoc#CrossChainEnabledPolygonChild-processMessageFromRoot-uint256-address-bytes-[`CrossChainEnabledPolygonChild.processMessageFromRoot`]]
+:xref-CrossChainEnabledPolygonChild-processMessageFromRoot-uint256-address-bytes-: xref:crosschain.adoc#CrossChainEnabledPolygonChild-processMessageFromRoot-uint256-address-bytes-
 :PaymentSplitter: pass:normal[xref:finance.adoc#PaymentSplitter[`PaymentSplitter`]]
 :xref-PaymentSplitter: xref:finance.adoc#PaymentSplitter
 :PaymentSplitter-constructor: pass:normal[xref:finance.adoc#PaymentSplitter-constructor-address---uint256---[`PaymentSplitter.constructor`]]
@@ -150,6 +236,8 @@
 :xref-Governor-onlyGovernance--: xref:governance.adoc#Governor-onlyGovernance--
 :Governor-BALLOT_TYPEHASH: pass:normal[xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32[`Governor.BALLOT_TYPEHASH`]]
 :xref-Governor-BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-BALLOT_TYPEHASH-bytes32
+:Governor-EXTENDED_BALLOT_TYPEHASH: pass:normal[xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32[`Governor.EXTENDED_BALLOT_TYPEHASH`]]
+:xref-Governor-EXTENDED_BALLOT_TYPEHASH-bytes32: xref:governance.adoc#Governor-EXTENDED_BALLOT_TYPEHASH-bytes32
 :Governor-constructor: pass:normal[xref:governance.adoc#Governor-constructor-string-[`Governor.constructor`]]
 :xref-Governor-constructor-string-: xref:governance.adoc#Governor-constructor-string-
 :Governor-receive: pass:normal[xref:governance.adoc#Governor-receive--[`Governor.receive`]]
@@ -174,28 +262,52 @@
 :xref-Governor-_quorumReached-uint256-: xref:governance.adoc#Governor-_quorumReached-uint256-
 :Governor-_voteSucceeded: pass:normal[xref:governance.adoc#Governor-_voteSucceeded-uint256-[`Governor._voteSucceeded`]]
 :xref-Governor-_voteSucceeded-uint256-: xref:governance.adoc#Governor-_voteSucceeded-uint256-
-:Governor-_countVote: pass:normal[xref:governance.adoc#Governor-_countVote-uint256-address-uint8-uint256-[`Governor._countVote`]]
-:xref-Governor-_countVote-uint256-address-uint8-uint256-: xref:governance.adoc#Governor-_countVote-uint256-address-uint8-uint256-
+:Governor-_getVotes: pass:normal[xref:governance.adoc#Governor-_getVotes-address-uint256-bytes-[`Governor._getVotes`]]
+:xref-Governor-_getVotes-address-uint256-bytes-: xref:governance.adoc#Governor-_getVotes-address-uint256-bytes-
+:Governor-_countVote: pass:normal[xref:governance.adoc#Governor-_countVote-uint256-address-uint8-uint256-bytes-[`Governor._countVote`]]
+:xref-Governor-_countVote-uint256-address-uint8-uint256-bytes-: xref:governance.adoc#Governor-_countVote-uint256-address-uint8-uint256-bytes-
+:Governor-_defaultParams: pass:normal[xref:governance.adoc#Governor-_defaultParams--[`Governor._defaultParams`]]
+:xref-Governor-_defaultParams--: xref:governance.adoc#Governor-_defaultParams--
 :Governor-propose: pass:normal[xref:governance.adoc#Governor-propose-address---uint256---bytes---string-[`Governor.propose`]]
 :xref-Governor-propose-address---uint256---bytes---string-: xref:governance.adoc#Governor-propose-address---uint256---bytes---string-
 :Governor-execute: pass:normal[xref:governance.adoc#Governor-execute-address---uint256---bytes---bytes32-[`Governor.execute`]]
 :xref-Governor-execute-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-execute-address---uint256---bytes---bytes32-
 :Governor-_execute: pass:normal[xref:governance.adoc#Governor-_execute-uint256-address---uint256---bytes---bytes32-[`Governor._execute`]]
 :xref-Governor-_execute-uint256-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-_execute-uint256-address---uint256---bytes---bytes32-
+:Governor-_beforeExecute: pass:normal[xref:governance.adoc#Governor-_beforeExecute-uint256-address---uint256---bytes---bytes32-[`Governor._beforeExecute`]]
+:xref-Governor-_beforeExecute-uint256-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-_beforeExecute-uint256-address---uint256---bytes---bytes32-
+:Governor-_afterExecute: pass:normal[xref:governance.adoc#Governor-_afterExecute-uint256-address---uint256---bytes---bytes32-[`Governor._afterExecute`]]
+:xref-Governor-_afterExecute-uint256-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-_afterExecute-uint256-address---uint256---bytes---bytes32-
 :Governor-_cancel: pass:normal[xref:governance.adoc#Governor-_cancel-address---uint256---bytes---bytes32-[`Governor._cancel`]]
 :xref-Governor-_cancel-address---uint256---bytes---bytes32-: xref:governance.adoc#Governor-_cancel-address---uint256---bytes---bytes32-
+:Governor-getVotes: pass:normal[xref:governance.adoc#Governor-getVotes-address-uint256-[`Governor.getVotes`]]
+:xref-Governor-getVotes-address-uint256-: xref:governance.adoc#Governor-getVotes-address-uint256-
+:Governor-getVotesWithParams: pass:normal[xref:governance.adoc#Governor-getVotesWithParams-address-uint256-bytes-[`Governor.getVotesWithParams`]]
+:xref-Governor-getVotesWithParams-address-uint256-bytes-: xref:governance.adoc#Governor-getVotesWithParams-address-uint256-bytes-
 :Governor-castVote: pass:normal[xref:governance.adoc#Governor-castVote-uint256-uint8-[`Governor.castVote`]]
 :xref-Governor-castVote-uint256-uint8-: xref:governance.adoc#Governor-castVote-uint256-uint8-
 :Governor-castVoteWithReason: pass:normal[xref:governance.adoc#Governor-castVoteWithReason-uint256-uint8-string-[`Governor.castVoteWithReason`]]
 :xref-Governor-castVoteWithReason-uint256-uint8-string-: xref:governance.adoc#Governor-castVoteWithReason-uint256-uint8-string-
+:Governor-castVoteWithReasonAndParams: pass:normal[xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-[`Governor.castVoteWithReasonAndParams`]]
+:xref-Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#Governor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :Governor-castVoteBySig: pass:normal[xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-uint8-bytes32-bytes32-[`Governor.castVoteBySig`]]
 :xref-Governor-castVoteBySig-uint256-uint8-uint8-bytes32-bytes32-: xref:governance.adoc#Governor-castVoteBySig-uint256-uint8-uint8-bytes32-bytes32-
+:Governor-castVoteWithReasonAndParamsBySig: pass:normal[xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-string-bytes-uint8-bytes32-bytes32-[`Governor.castVoteWithReasonAndParamsBySig`]]
+:xref-Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-string-bytes-uint8-bytes32-bytes32-: xref:governance.adoc#Governor-castVoteWithReasonAndParamsBySig-uint256-uint8-string-bytes-uint8-bytes32-bytes32-
 :Governor-_castVote: pass:normal[xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-[`Governor._castVote`]]
 :xref-Governor-_castVote-uint256-address-uint8-string-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-
+:Governor-_castVote: pass:normal[xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-[`Governor._castVote`]]
+:xref-Governor-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#Governor-_castVote-uint256-address-uint8-string-bytes-
 :Governor-relay: pass:normal[xref:governance.adoc#Governor-relay-address-uint256-bytes-[`Governor.relay`]]
 :xref-Governor-relay-address-uint256-bytes-: xref:governance.adoc#Governor-relay-address-uint256-bytes-
 :Governor-_executor: pass:normal[xref:governance.adoc#Governor-_executor--[`Governor._executor`]]
 :xref-Governor-_executor--: xref:governance.adoc#Governor-_executor--
+:Governor-onERC721Received: pass:normal[xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-[`Governor.onERC721Received`]]
+:xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
+:Governor-onERC1155Received: pass:normal[xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-[`Governor.onERC1155Received`]]
+:xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
+:Governor-onERC1155BatchReceived: pass:normal[xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`Governor.onERC1155BatchReceived`]]
+:xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
 :Governor-ProposalCore: pass:normal[xref:governance.adoc#Governor-ProposalCore[`Governor.ProposalCore`]]
 :xref-Governor-ProposalCore: xref:governance.adoc#Governor-ProposalCore
 :IGovernor: pass:normal[xref:governance.adoc#IGovernor[`IGovernor`]]
@@ -222,6 +334,8 @@
 :xref-IGovernor-quorum-uint256-: xref:governance.adoc#IGovernor-quorum-uint256-
 :IGovernor-getVotes: pass:normal[xref:governance.adoc#IGovernor-getVotes-address-uint256-[`IGovernor.getVotes`]]
 :xref-IGovernor-getVotes-address-uint256-: xref:governance.adoc#IGovernor-getVotes-address-uint256-
+:IGovernor-getVotesWithParams: pass:normal[xref:governance.adoc#IGovernor-getVotesWithParams-address-uint256-bytes-[`IGovernor.getVotesWithParams`]]
+:xref-IGovernor-getVotesWithParams-address-uint256-bytes-: xref:governance.adoc#IGovernor-getVotesWithParams-address-uint256-bytes-
 :IGovernor-hasVoted: pass:normal[xref:governance.adoc#IGovernor-hasVoted-uint256-address-[`IGovernor.hasVoted`]]
 :xref-IGovernor-hasVoted-uint256-address-: xref:governance.adoc#IGovernor-hasVoted-uint256-address-
 :IGovernor-propose: pass:normal[xref:governance.adoc#IGovernor-propose-address---uint256---bytes---string-[`IGovernor.propose`]]
@@ -232,8 +346,12 @@
 :xref-IGovernor-castVote-uint256-uint8-: xref:governance.adoc#IGovernor-castVote-uint256-uint8-
 :IGovernor-castVoteWithReason: pass:normal[xref:governance.adoc#IGovernor-castVoteWithReason-uint256-uint8-string-[`IGovernor.castVoteWithReason`]]
 :xref-IGovernor-castVoteWithReason-uint256-uint8-string-: xref:governance.adoc#IGovernor-castVoteWithReason-uint256-uint8-string-
+:IGovernor-castVoteWithReasonAndParams: pass:normal[xref:governance.adoc#IGovernor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-[`IGovernor.castVoteWithReasonAndParams`]]
+:xref-IGovernor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-: xref:governance.adoc#IGovernor-castVoteWithReasonAndParams-uint256-uint8-string-bytes-
 :IGovernor-castVoteBySig: pass:normal[xref:governance.adoc#IGovernor-castVoteBySig-uint256-uint8-uint8-bytes32-bytes32-[`IGovernor.castVoteBySig`]]
 :xref-IGovernor-castVoteBySig-uint256-uint8-uint8-bytes32-bytes32-: xref:governance.adoc#IGovernor-castVoteBySig-uint256-uint8-uint8-bytes32-bytes32-
+:IGovernor-castVoteWithReasonAndParamsBySig: pass:normal[xref:governance.adoc#IGovernor-castVoteWithReasonAndParamsBySig-uint256-uint8-string-bytes-uint8-bytes32-bytes32-[`IGovernor.castVoteWithReasonAndParamsBySig`]]
+:xref-IGovernor-castVoteWithReasonAndParamsBySig-uint256-uint8-string-bytes-uint8-bytes32-bytes32-: xref:governance.adoc#IGovernor-castVoteWithReasonAndParamsBySig-uint256-uint8-string-bytes-uint8-bytes32-bytes32-
 :IGovernor-ProposalCreated: pass:normal[xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-[`IGovernor.ProposalCreated`]]
 :xref-IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-: xref:governance.adoc#IGovernor-ProposalCreated-uint256-address-address---uint256---string---bytes---uint256-uint256-string-
 :IGovernor-ProposalCanceled: pass:normal[xref:governance.adoc#IGovernor-ProposalCanceled-uint256-[`IGovernor.ProposalCanceled`]]
@@ -242,6 +360,8 @@
 :xref-IGovernor-ProposalExecuted-uint256-: xref:governance.adoc#IGovernor-ProposalExecuted-uint256-
 :IGovernor-VoteCast: pass:normal[xref:governance.adoc#IGovernor-VoteCast-address-uint256-uint8-uint256-string-[`IGovernor.VoteCast`]]
 :xref-IGovernor-VoteCast-address-uint256-uint8-uint256-string-: xref:governance.adoc#IGovernor-VoteCast-address-uint256-uint8-uint256-string-
+:IGovernor-VoteCastWithParams: pass:normal[xref:governance.adoc#IGovernor-VoteCastWithParams-address-uint256-uint8-uint256-string-bytes-[`IGovernor.VoteCastWithParams`]]
+:xref-IGovernor-VoteCastWithParams-address-uint256-uint8-uint256-string-bytes-: xref:governance.adoc#IGovernor-VoteCastWithParams-address-uint256-uint8-uint256-string-bytes-
 :IGovernor-ProposalState: pass:normal[xref:governance.adoc#IGovernor-ProposalState[`IGovernor.ProposalState`]]
 :xref-IGovernor-ProposalState: xref:governance.adoc#IGovernor-ProposalState
 :TimelockController: pass:normal[xref:governance.adoc#TimelockController[`TimelockController`]]
@@ -254,12 +374,16 @@
 :xref-TimelockController-PROPOSER_ROLE-bytes32: xref:governance.adoc#TimelockController-PROPOSER_ROLE-bytes32
 :TimelockController-EXECUTOR_ROLE: pass:normal[xref:governance.adoc#TimelockController-EXECUTOR_ROLE-bytes32[`TimelockController.EXECUTOR_ROLE`]]
 :xref-TimelockController-EXECUTOR_ROLE-bytes32: xref:governance.adoc#TimelockController-EXECUTOR_ROLE-bytes32
+:TimelockController-CANCELLER_ROLE: pass:normal[xref:governance.adoc#TimelockController-CANCELLER_ROLE-bytes32[`TimelockController.CANCELLER_ROLE`]]
+:xref-TimelockController-CANCELLER_ROLE-bytes32: xref:governance.adoc#TimelockController-CANCELLER_ROLE-bytes32
 :TimelockController-_DONE_TIMESTAMP: pass:normal[xref:governance.adoc#TimelockController-_DONE_TIMESTAMP-uint256[`TimelockController._DONE_TIMESTAMP`]]
 :xref-TimelockController-_DONE_TIMESTAMP-uint256: xref:governance.adoc#TimelockController-_DONE_TIMESTAMP-uint256
 :TimelockController-constructor: pass:normal[xref:governance.adoc#TimelockController-constructor-uint256-address---address---[`TimelockController.constructor`]]
 :xref-TimelockController-constructor-uint256-address---address---: xref:governance.adoc#TimelockController-constructor-uint256-address---address---
 :TimelockController-receive: pass:normal[xref:governance.adoc#TimelockController-receive--[`TimelockController.receive`]]
 :xref-TimelockController-receive--: xref:governance.adoc#TimelockController-receive--
+:TimelockController-supportsInterface: pass:normal[xref:governance.adoc#TimelockController-supportsInterface-bytes4-[`TimelockController.supportsInterface`]]
+:xref-TimelockController-supportsInterface-bytes4-: xref:governance.adoc#TimelockController-supportsInterface-bytes4-
 :TimelockController-isOperation: pass:normal[xref:governance.adoc#TimelockController-isOperation-bytes32-[`TimelockController.isOperation`]]
 :xref-TimelockController-isOperation-bytes32-: xref:governance.adoc#TimelockController-isOperation-bytes32-
 :TimelockController-isOperationPending: pass:normal[xref:governance.adoc#TimelockController-isOperationPending-bytes32-[`TimelockController.isOperationPending`]]
@@ -288,6 +412,12 @@
 :xref-TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-: xref:governance.adoc#TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-
 :TimelockController-updateDelay: pass:normal[xref:governance.adoc#TimelockController-updateDelay-uint256-[`TimelockController.updateDelay`]]
 :xref-TimelockController-updateDelay-uint256-: xref:governance.adoc#TimelockController-updateDelay-uint256-
+:TimelockController-onERC721Received: pass:normal[xref:governance.adoc#TimelockController-onERC721Received-address-address-uint256-bytes-[`TimelockController.onERC721Received`]]
+:xref-TimelockController-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#TimelockController-onERC721Received-address-address-uint256-bytes-
+:TimelockController-onERC1155Received: pass:normal[xref:governance.adoc#TimelockController-onERC1155Received-address-address-uint256-uint256-bytes-[`TimelockController.onERC1155Received`]]
+:xref-TimelockController-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#TimelockController-onERC1155Received-address-address-uint256-uint256-bytes-
+:TimelockController-onERC1155BatchReceived: pass:normal[xref:governance.adoc#TimelockController-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`TimelockController.onERC1155BatchReceived`]]
+:xref-TimelockController-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#TimelockController-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
 :TimelockController-CallScheduled: pass:normal[xref:governance.adoc#TimelockController-CallScheduled-bytes32-uint256-address-uint256-bytes-bytes32-uint256-[`TimelockController.CallScheduled`]]
 :xref-TimelockController-CallScheduled-bytes32-uint256-address-uint256-bytes-bytes32-uint256-: xref:governance.adoc#TimelockController-CallScheduled-bytes32-uint256-address-uint256-bytes-bytes32-uint256-
 :TimelockController-CallExecuted: pass:normal[xref:governance.adoc#TimelockController-CallExecuted-bytes32-uint256-address-uint256-bytes-[`TimelockController.CallExecuted`]]
@@ -324,8 +454,8 @@
 :xref-GovernorCompatibilityBravo-_quorumReached-uint256-: xref:governance.adoc#GovernorCompatibilityBravo-_quorumReached-uint256-
 :GovernorCompatibilityBravo-_voteSucceeded: pass:normal[xref:governance.adoc#GovernorCompatibilityBravo-_voteSucceeded-uint256-[`GovernorCompatibilityBravo._voteSucceeded`]]
 :xref-GovernorCompatibilityBravo-_voteSucceeded-uint256-: xref:governance.adoc#GovernorCompatibilityBravo-_voteSucceeded-uint256-
-:GovernorCompatibilityBravo-_countVote: pass:normal[xref:governance.adoc#GovernorCompatibilityBravo-_countVote-uint256-address-uint8-uint256-[`GovernorCompatibilityBravo._countVote`]]
-:xref-GovernorCompatibilityBravo-_countVote-uint256-address-uint8-uint256-: xref:governance.adoc#GovernorCompatibilityBravo-_countVote-uint256-address-uint8-uint256-
+:GovernorCompatibilityBravo-_countVote: pass:normal[xref:governance.adoc#GovernorCompatibilityBravo-_countVote-uint256-address-uint8-uint256-bytes-[`GovernorCompatibilityBravo._countVote`]]
+:xref-GovernorCompatibilityBravo-_countVote-uint256-address-uint8-uint256-bytes-: xref:governance.adoc#GovernorCompatibilityBravo-_countVote-uint256-address-uint8-uint256-bytes-
 :GovernorCompatibilityBravo-ProposalDetails: pass:normal[xref:governance.adoc#GovernorCompatibilityBravo-ProposalDetails[`GovernorCompatibilityBravo.ProposalDetails`]]
 :xref-GovernorCompatibilityBravo-ProposalDetails: xref:governance.adoc#GovernorCompatibilityBravo-ProposalDetails
 :GovernorCompatibilityBravo-VoteType: pass:normal[xref:governance.adoc#GovernorCompatibilityBravo-VoteType[`GovernorCompatibilityBravo.VoteType`]]
@@ -364,8 +494,8 @@
 :xref-GovernorCountingSimple-_quorumReached-uint256-: xref:governance.adoc#GovernorCountingSimple-_quorumReached-uint256-
 :GovernorCountingSimple-_voteSucceeded: pass:normal[xref:governance.adoc#GovernorCountingSimple-_voteSucceeded-uint256-[`GovernorCountingSimple._voteSucceeded`]]
 :xref-GovernorCountingSimple-_voteSucceeded-uint256-: xref:governance.adoc#GovernorCountingSimple-_voteSucceeded-uint256-
-:GovernorCountingSimple-_countVote: pass:normal[xref:governance.adoc#GovernorCountingSimple-_countVote-uint256-address-uint8-uint256-[`GovernorCountingSimple._countVote`]]
-:xref-GovernorCountingSimple-_countVote-uint256-address-uint8-uint256-: xref:governance.adoc#GovernorCountingSimple-_countVote-uint256-address-uint8-uint256-
+:GovernorCountingSimple-_countVote: pass:normal[xref:governance.adoc#GovernorCountingSimple-_countVote-uint256-address-uint8-uint256-bytes-[`GovernorCountingSimple._countVote`]]
+:xref-GovernorCountingSimple-_countVote-uint256-address-uint8-uint256-bytes-: xref:governance.adoc#GovernorCountingSimple-_countVote-uint256-address-uint8-uint256-bytes-
 :GovernorCountingSimple-ProposalVote: pass:normal[xref:governance.adoc#GovernorCountingSimple-ProposalVote[`GovernorCountingSimple.ProposalVote`]]
 :xref-GovernorCountingSimple-ProposalVote: xref:governance.adoc#GovernorCountingSimple-ProposalVote
 :GovernorCountingSimple-VoteType: pass:normal[xref:governance.adoc#GovernorCountingSimple-VoteType[`GovernorCountingSimple.VoteType`]]
@@ -376,8 +506,8 @@
 :xref-GovernorPreventLateQuorum-constructor-uint64-: xref:governance.adoc#GovernorPreventLateQuorum-constructor-uint64-
 :GovernorPreventLateQuorum-proposalDeadline: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-proposalDeadline-uint256-[`GovernorPreventLateQuorum.proposalDeadline`]]
 :xref-GovernorPreventLateQuorum-proposalDeadline-uint256-: xref:governance.adoc#GovernorPreventLateQuorum-proposalDeadline-uint256-
-:GovernorPreventLateQuorum-_castVote: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-_castVote-uint256-address-uint8-string-[`GovernorPreventLateQuorum._castVote`]]
-:xref-GovernorPreventLateQuorum-_castVote-uint256-address-uint8-string-: xref:governance.adoc#GovernorPreventLateQuorum-_castVote-uint256-address-uint8-string-
+:GovernorPreventLateQuorum-_castVote: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-_castVote-uint256-address-uint8-string-bytes-[`GovernorPreventLateQuorum._castVote`]]
+:xref-GovernorPreventLateQuorum-_castVote-uint256-address-uint8-string-bytes-: xref:governance.adoc#GovernorPreventLateQuorum-_castVote-uint256-address-uint8-string-bytes-
 :GovernorPreventLateQuorum-lateQuorumVoteExtension: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-lateQuorumVoteExtension--[`GovernorPreventLateQuorum.lateQuorumVoteExtension`]]
 :xref-GovernorPreventLateQuorum-lateQuorumVoteExtension--: xref:governance.adoc#GovernorPreventLateQuorum-lateQuorumVoteExtension--
 :GovernorPreventLateQuorum-setLateQuorumVoteExtension: pass:normal[xref:governance.adoc#GovernorPreventLateQuorum-setLateQuorumVoteExtension-uint64-[`GovernorPreventLateQuorum.setLateQuorumVoteExtension`]]
@@ -420,36 +550,6 @@
 :xref-GovernorSettings-VotingPeriodSet-uint256-uint256-: xref:governance.adoc#GovernorSettings-VotingPeriodSet-uint256-uint256-
 :GovernorSettings-ProposalThresholdSet: pass:normal[xref:governance.adoc#GovernorSettings-ProposalThresholdSet-uint256-uint256-[`GovernorSettings.ProposalThresholdSet`]]
 :xref-GovernorSettings-ProposalThresholdSet-uint256-uint256-: xref:governance.adoc#GovernorSettings-ProposalThresholdSet-uint256-uint256-
-:ICompoundTimelock: pass:normal[xref:governance.adoc#ICompoundTimelock[`ICompoundTimelock`]]
-:xref-ICompoundTimelock: xref:governance.adoc#ICompoundTimelock
-:ICompoundTimelock-receive: pass:normal[xref:governance.adoc#ICompoundTimelock-receive--[`ICompoundTimelock.receive`]]
-:xref-ICompoundTimelock-receive--: xref:governance.adoc#ICompoundTimelock-receive--
-:ICompoundTimelock-GRACE_PERIOD: pass:normal[xref:governance.adoc#ICompoundTimelock-GRACE_PERIOD--[`ICompoundTimelock.GRACE_PERIOD`]]
-:xref-ICompoundTimelock-GRACE_PERIOD--: xref:governance.adoc#ICompoundTimelock-GRACE_PERIOD--
-:ICompoundTimelock-MINIMUM_DELAY: pass:normal[xref:governance.adoc#ICompoundTimelock-MINIMUM_DELAY--[`ICompoundTimelock.MINIMUM_DELAY`]]
-:xref-ICompoundTimelock-MINIMUM_DELAY--: xref:governance.adoc#ICompoundTimelock-MINIMUM_DELAY--
-:ICompoundTimelock-MAXIMUM_DELAY: pass:normal[xref:governance.adoc#ICompoundTimelock-MAXIMUM_DELAY--[`ICompoundTimelock.MAXIMUM_DELAY`]]
-:xref-ICompoundTimelock-MAXIMUM_DELAY--: xref:governance.adoc#ICompoundTimelock-MAXIMUM_DELAY--
-:ICompoundTimelock-admin: pass:normal[xref:governance.adoc#ICompoundTimelock-admin--[`ICompoundTimelock.admin`]]
-:xref-ICompoundTimelock-admin--: xref:governance.adoc#ICompoundTimelock-admin--
-:ICompoundTimelock-pendingAdmin: pass:normal[xref:governance.adoc#ICompoundTimelock-pendingAdmin--[`ICompoundTimelock.pendingAdmin`]]
-:xref-ICompoundTimelock-pendingAdmin--: xref:governance.adoc#ICompoundTimelock-pendingAdmin--
-:ICompoundTimelock-delay: pass:normal[xref:governance.adoc#ICompoundTimelock-delay--[`ICompoundTimelock.delay`]]
-:xref-ICompoundTimelock-delay--: xref:governance.adoc#ICompoundTimelock-delay--
-:ICompoundTimelock-queuedTransactions: pass:normal[xref:governance.adoc#ICompoundTimelock-queuedTransactions-bytes32-[`ICompoundTimelock.queuedTransactions`]]
-:xref-ICompoundTimelock-queuedTransactions-bytes32-: xref:governance.adoc#ICompoundTimelock-queuedTransactions-bytes32-
-:ICompoundTimelock-setDelay: pass:normal[xref:governance.adoc#ICompoundTimelock-setDelay-uint256-[`ICompoundTimelock.setDelay`]]
-:xref-ICompoundTimelock-setDelay-uint256-: xref:governance.adoc#ICompoundTimelock-setDelay-uint256-
-:ICompoundTimelock-acceptAdmin: pass:normal[xref:governance.adoc#ICompoundTimelock-acceptAdmin--[`ICompoundTimelock.acceptAdmin`]]
-:xref-ICompoundTimelock-acceptAdmin--: xref:governance.adoc#ICompoundTimelock-acceptAdmin--
-:ICompoundTimelock-setPendingAdmin: pass:normal[xref:governance.adoc#ICompoundTimelock-setPendingAdmin-address-[`ICompoundTimelock.setPendingAdmin`]]
-:xref-ICompoundTimelock-setPendingAdmin-address-: xref:governance.adoc#ICompoundTimelock-setPendingAdmin-address-
-:ICompoundTimelock-queueTransaction: pass:normal[xref:governance.adoc#ICompoundTimelock-queueTransaction-address-uint256-string-bytes-uint256-[`ICompoundTimelock.queueTransaction`]]
-:xref-ICompoundTimelock-queueTransaction-address-uint256-string-bytes-uint256-: xref:governance.adoc#ICompoundTimelock-queueTransaction-address-uint256-string-bytes-uint256-
-:ICompoundTimelock-cancelTransaction: pass:normal[xref:governance.adoc#ICompoundTimelock-cancelTransaction-address-uint256-string-bytes-uint256-[`ICompoundTimelock.cancelTransaction`]]
-:xref-ICompoundTimelock-cancelTransaction-address-uint256-string-bytes-uint256-: xref:governance.adoc#ICompoundTimelock-cancelTransaction-address-uint256-string-bytes-uint256-
-:ICompoundTimelock-executeTransaction: pass:normal[xref:governance.adoc#ICompoundTimelock-executeTransaction-address-uint256-string-bytes-uint256-[`ICompoundTimelock.executeTransaction`]]
-:xref-ICompoundTimelock-executeTransaction-address-uint256-string-bytes-uint256-: xref:governance.adoc#ICompoundTimelock-executeTransaction-address-uint256-string-bytes-uint256-
 :GovernorTimelockCompound: pass:normal[xref:governance.adoc#GovernorTimelockCompound[`GovernorTimelockCompound`]]
 :xref-GovernorTimelockCompound: xref:governance.adoc#GovernorTimelockCompound
 :GovernorTimelockCompound-constructor: pass:normal[xref:governance.adoc#GovernorTimelockCompound-constructor-contract-ICompoundTimelock-[`GovernorTimelockCompound.constructor`]]
@@ -508,16 +608,16 @@
 :xref-GovernorVotes-token-contract-IVotes: xref:governance.adoc#GovernorVotes-token-contract-IVotes
 :GovernorVotes-constructor: pass:normal[xref:governance.adoc#GovernorVotes-constructor-contract-IVotes-[`GovernorVotes.constructor`]]
 :xref-GovernorVotes-constructor-contract-IVotes-: xref:governance.adoc#GovernorVotes-constructor-contract-IVotes-
-:GovernorVotes-getVotes: pass:normal[xref:governance.adoc#GovernorVotes-getVotes-address-uint256-[`GovernorVotes.getVotes`]]
-:xref-GovernorVotes-getVotes-address-uint256-: xref:governance.adoc#GovernorVotes-getVotes-address-uint256-
+:GovernorVotes-_getVotes: pass:normal[xref:governance.adoc#GovernorVotes-_getVotes-address-uint256-bytes-[`GovernorVotes._getVotes`]]
+:xref-GovernorVotes-_getVotes-address-uint256-bytes-: xref:governance.adoc#GovernorVotes-_getVotes-address-uint256-bytes-
 :GovernorVotesComp: pass:normal[xref:governance.adoc#GovernorVotesComp[`GovernorVotesComp`]]
 :xref-GovernorVotesComp: xref:governance.adoc#GovernorVotesComp
 :GovernorVotesComp-token: pass:normal[xref:governance.adoc#GovernorVotesComp-token-contract-ERC20VotesComp[`GovernorVotesComp.token`]]
 :xref-GovernorVotesComp-token-contract-ERC20VotesComp: xref:governance.adoc#GovernorVotesComp-token-contract-ERC20VotesComp
 :GovernorVotesComp-constructor: pass:normal[xref:governance.adoc#GovernorVotesComp-constructor-contract-ERC20VotesComp-[`GovernorVotesComp.constructor`]]
 :xref-GovernorVotesComp-constructor-contract-ERC20VotesComp-: xref:governance.adoc#GovernorVotesComp-constructor-contract-ERC20VotesComp-
-:GovernorVotesComp-getVotes: pass:normal[xref:governance.adoc#GovernorVotesComp-getVotes-address-uint256-[`GovernorVotesComp.getVotes`]]
-:xref-GovernorVotesComp-getVotes-address-uint256-: xref:governance.adoc#GovernorVotesComp-getVotes-address-uint256-
+:GovernorVotesComp-_getVotes: pass:normal[xref:governance.adoc#GovernorVotesComp-_getVotes-address-uint256-bytes-[`GovernorVotesComp._getVotes`]]
+:xref-GovernorVotesComp-_getVotes-address-uint256-bytes-: xref:governance.adoc#GovernorVotesComp-_getVotes-address-uint256-bytes-
 :GovernorVotesQuorumFraction: pass:normal[xref:governance.adoc#GovernorVotesQuorumFraction[`GovernorVotesQuorumFraction`]]
 :xref-GovernorVotesQuorumFraction: xref:governance.adoc#GovernorVotesQuorumFraction
 :GovernorVotesQuorumFraction-constructor: pass:normal[xref:governance.adoc#GovernorVotesQuorumFraction-constructor-uint256-[`GovernorVotesQuorumFraction.constructor`]]
@@ -778,8 +878,14 @@
 :xref-Initializable: xref:proxy.adoc#Initializable
 :Initializable-initializer: pass:normal[xref:proxy.adoc#Initializable-initializer--[`Initializable.initializer`]]
 :xref-Initializable-initializer--: xref:proxy.adoc#Initializable-initializer--
+:Initializable-reinitializer: pass:normal[xref:proxy.adoc#Initializable-reinitializer-uint8-[`Initializable.reinitializer`]]
+:xref-Initializable-reinitializer-uint8-: xref:proxy.adoc#Initializable-reinitializer-uint8-
 :Initializable-onlyInitializing: pass:normal[xref:proxy.adoc#Initializable-onlyInitializing--[`Initializable.onlyInitializing`]]
 :xref-Initializable-onlyInitializing--: xref:proxy.adoc#Initializable-onlyInitializing--
+:Initializable-_disableInitializers: pass:normal[xref:proxy.adoc#Initializable-_disableInitializers--[`Initializable._disableInitializers`]]
+:xref-Initializable-_disableInitializers--: xref:proxy.adoc#Initializable-_disableInitializers--
+:Initializable-Initialized: pass:normal[xref:proxy.adoc#Initializable-Initialized-uint8-[`Initializable.Initialized`]]
+:xref-Initializable-Initialized-uint8-: xref:proxy.adoc#Initializable-Initialized-uint8-
 :UUPSUpgradeable: pass:normal[xref:proxy.adoc#UUPSUpgradeable[`UUPSUpgradeable`]]
 :xref-UUPSUpgradeable: xref:proxy.adoc#UUPSUpgradeable
 :UUPSUpgradeable-onlyProxy: pass:normal[xref:proxy.adoc#UUPSUpgradeable-onlyProxy--[`UUPSUpgradeable.onlyProxy`]]
@@ -1204,8 +1310,48 @@
 :xref-BitMaps-unset-struct-BitMaps-BitMap-uint256-: xref:utils.adoc#BitMaps-unset-struct-BitMaps-BitMap-uint256-
 :BitMaps-BitMap: pass:normal[xref:utils.adoc#BitMaps-BitMap[`BitMaps.BitMap`]]
 :xref-BitMaps-BitMap: xref:utils.adoc#BitMaps-BitMap
+:DoubleEndedQueue: pass:normal[xref:utils.adoc#DoubleEndedQueue[`DoubleEndedQueue`]]
+:xref-DoubleEndedQueue: xref:utils.adoc#DoubleEndedQueue
+:DoubleEndedQueue-pushBack: pass:normal[xref:utils.adoc#DoubleEndedQueue-pushBack-struct-DoubleEndedQueue-Bytes32Deque-bytes32-[`DoubleEndedQueue.pushBack`]]
+:xref-DoubleEndedQueue-pushBack-struct-DoubleEndedQueue-Bytes32Deque-bytes32-: xref:utils.adoc#DoubleEndedQueue-pushBack-struct-DoubleEndedQueue-Bytes32Deque-bytes32-
+:DoubleEndedQueue-popBack: pass:normal[xref:utils.adoc#DoubleEndedQueue-popBack-struct-DoubleEndedQueue-Bytes32Deque-[`DoubleEndedQueue.popBack`]]
+:xref-DoubleEndedQueue-popBack-struct-DoubleEndedQueue-Bytes32Deque-: xref:utils.adoc#DoubleEndedQueue-popBack-struct-DoubleEndedQueue-Bytes32Deque-
+:DoubleEndedQueue-pushFront: pass:normal[xref:utils.adoc#DoubleEndedQueue-pushFront-struct-DoubleEndedQueue-Bytes32Deque-bytes32-[`DoubleEndedQueue.pushFront`]]
+:xref-DoubleEndedQueue-pushFront-struct-DoubleEndedQueue-Bytes32Deque-bytes32-: xref:utils.adoc#DoubleEndedQueue-pushFront-struct-DoubleEndedQueue-Bytes32Deque-bytes32-
+:DoubleEndedQueue-popFront: pass:normal[xref:utils.adoc#DoubleEndedQueue-popFront-struct-DoubleEndedQueue-Bytes32Deque-[`DoubleEndedQueue.popFront`]]
+:xref-DoubleEndedQueue-popFront-struct-DoubleEndedQueue-Bytes32Deque-: xref:utils.adoc#DoubleEndedQueue-popFront-struct-DoubleEndedQueue-Bytes32Deque-
+:DoubleEndedQueue-front: pass:normal[xref:utils.adoc#DoubleEndedQueue-front-struct-DoubleEndedQueue-Bytes32Deque-[`DoubleEndedQueue.front`]]
+:xref-DoubleEndedQueue-front-struct-DoubleEndedQueue-Bytes32Deque-: xref:utils.adoc#DoubleEndedQueue-front-struct-DoubleEndedQueue-Bytes32Deque-
+:DoubleEndedQueue-back: pass:normal[xref:utils.adoc#DoubleEndedQueue-back-struct-DoubleEndedQueue-Bytes32Deque-[`DoubleEndedQueue.back`]]
+:xref-DoubleEndedQueue-back-struct-DoubleEndedQueue-Bytes32Deque-: xref:utils.adoc#DoubleEndedQueue-back-struct-DoubleEndedQueue-Bytes32Deque-
+:DoubleEndedQueue-at: pass:normal[xref:utils.adoc#DoubleEndedQueue-at-struct-DoubleEndedQueue-Bytes32Deque-uint256-[`DoubleEndedQueue.at`]]
+:xref-DoubleEndedQueue-at-struct-DoubleEndedQueue-Bytes32Deque-uint256-: xref:utils.adoc#DoubleEndedQueue-at-struct-DoubleEndedQueue-Bytes32Deque-uint256-
+:DoubleEndedQueue-clear: pass:normal[xref:utils.adoc#DoubleEndedQueue-clear-struct-DoubleEndedQueue-Bytes32Deque-[`DoubleEndedQueue.clear`]]
+:xref-DoubleEndedQueue-clear-struct-DoubleEndedQueue-Bytes32Deque-: xref:utils.adoc#DoubleEndedQueue-clear-struct-DoubleEndedQueue-Bytes32Deque-
+:DoubleEndedQueue-length: pass:normal[xref:utils.adoc#DoubleEndedQueue-length-struct-DoubleEndedQueue-Bytes32Deque-[`DoubleEndedQueue.length`]]
+:xref-DoubleEndedQueue-length-struct-DoubleEndedQueue-Bytes32Deque-: xref:utils.adoc#DoubleEndedQueue-length-struct-DoubleEndedQueue-Bytes32Deque-
+:DoubleEndedQueue-empty: pass:normal[xref:utils.adoc#DoubleEndedQueue-empty-struct-DoubleEndedQueue-Bytes32Deque-[`DoubleEndedQueue.empty`]]
+:xref-DoubleEndedQueue-empty-struct-DoubleEndedQueue-Bytes32Deque-: xref:utils.adoc#DoubleEndedQueue-empty-struct-DoubleEndedQueue-Bytes32Deque-
+:DoubleEndedQueue-Bytes32Deque: pass:normal[xref:utils.adoc#DoubleEndedQueue-Bytes32Deque[`DoubleEndedQueue.Bytes32Deque`]]
+:xref-DoubleEndedQueue-Bytes32Deque: xref:utils.adoc#DoubleEndedQueue-Bytes32Deque
 :EnumerableMap: pass:normal[xref:utils.adoc#EnumerableMap[`EnumerableMap`]]
 :xref-EnumerableMap: xref:utils.adoc#EnumerableMap
+:EnumerableMap-set: pass:normal[xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-bytes32-[`EnumerableMap.set`]]
+:xref-EnumerableMap-set-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-bytes32-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-bytes32-
+:EnumerableMap-remove: pass:normal[xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-[`EnumerableMap.remove`]]
+:xref-EnumerableMap-remove-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-: xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-
+:EnumerableMap-contains: pass:normal[xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-[`EnumerableMap.contains`]]
+:xref-EnumerableMap-contains-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-: xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-
+:EnumerableMap-length: pass:normal[xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-Bytes32ToBytes32Map-[`EnumerableMap.length`]]
+:xref-EnumerableMap-length-struct-EnumerableMap-Bytes32ToBytes32Map-: xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-Bytes32ToBytes32Map-
+:EnumerableMap-at: pass:normal[xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-Bytes32ToBytes32Map-uint256-[`EnumerableMap.at`]]
+:xref-EnumerableMap-at-struct-EnumerableMap-Bytes32ToBytes32Map-uint256-: xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-Bytes32ToBytes32Map-uint256-
+:EnumerableMap-tryGet: pass:normal[xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-[`EnumerableMap.tryGet`]]
+:xref-EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-: xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-
 :EnumerableMap-set: pass:normal[xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-[`EnumerableMap.set`]]
 :xref-EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-
 :EnumerableMap-remove: pass:normal[xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-UintToAddressMap-uint256-[`EnumerableMap.remove`]]
@@ -1222,10 +1368,28 @@
 :xref-EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-
 :EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-string-[`EnumerableMap.get`]]
 :xref-EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-string-
-:EnumerableMap-Map: pass:normal[xref:utils.adoc#EnumerableMap-Map[`EnumerableMap.Map`]]
-:xref-EnumerableMap-Map: xref:utils.adoc#EnumerableMap-Map
+:EnumerableMap-set: pass:normal[xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-AddressToUintMap-address-uint256-[`EnumerableMap.set`]]
+:xref-EnumerableMap-set-struct-EnumerableMap-AddressToUintMap-address-uint256-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-AddressToUintMap-address-uint256-
+:EnumerableMap-remove: pass:normal[xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-AddressToUintMap-address-[`EnumerableMap.remove`]]
+:xref-EnumerableMap-remove-struct-EnumerableMap-AddressToUintMap-address-: xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-AddressToUintMap-address-
+:EnumerableMap-contains: pass:normal[xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-AddressToUintMap-address-[`EnumerableMap.contains`]]
+:xref-EnumerableMap-contains-struct-EnumerableMap-AddressToUintMap-address-: xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-AddressToUintMap-address-
+:EnumerableMap-length: pass:normal[xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-AddressToUintMap-[`EnumerableMap.length`]]
+:xref-EnumerableMap-length-struct-EnumerableMap-AddressToUintMap-: xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-AddressToUintMap-
+:EnumerableMap-at: pass:normal[xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-AddressToUintMap-uint256-[`EnumerableMap.at`]]
+:xref-EnumerableMap-at-struct-EnumerableMap-AddressToUintMap-uint256-: xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-AddressToUintMap-uint256-
+:EnumerableMap-tryGet: pass:normal[xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-AddressToUintMap-address-[`EnumerableMap.tryGet`]]
+:xref-EnumerableMap-tryGet-struct-EnumerableMap-AddressToUintMap-address-: xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-AddressToUintMap-address-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-
+:EnumerableMap-Bytes32ToBytes32Map: pass:normal[xref:utils.adoc#EnumerableMap-Bytes32ToBytes32Map[`EnumerableMap.Bytes32ToBytes32Map`]]
+:xref-EnumerableMap-Bytes32ToBytes32Map: xref:utils.adoc#EnumerableMap-Bytes32ToBytes32Map
 :EnumerableMap-UintToAddressMap: pass:normal[xref:utils.adoc#EnumerableMap-UintToAddressMap[`EnumerableMap.UintToAddressMap`]]
 :xref-EnumerableMap-UintToAddressMap: xref:utils.adoc#EnumerableMap-UintToAddressMap
+:EnumerableMap-AddressToUintMap: pass:normal[xref:utils.adoc#EnumerableMap-AddressToUintMap[`EnumerableMap.AddressToUintMap`]]
+:xref-EnumerableMap-AddressToUintMap: xref:utils.adoc#EnumerableMap-AddressToUintMap
 :EnumerableSet: pass:normal[xref:utils.adoc#EnumerableSet[`EnumerableSet`]]
 :xref-EnumerableSet: xref:utils.adoc#EnumerableSet
 :EnumerableSet-add: pass:normal[xref:utils.adoc#EnumerableSet-add-struct-EnumerableSet-Bytes32Set-bytes32-[`EnumerableSet.add`]]
@@ -1310,6 +1474,8 @@
 :xref-ERC1155-_setApprovalForAll-address-address-bool-: xref:token/ERC1155.adoc#ERC1155-_setApprovalForAll-address-address-bool-
 :ERC1155-_beforeTokenTransfer: pass:normal[xref:token/ERC1155.adoc#ERC1155-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-[`ERC1155._beforeTokenTransfer`]]
 :xref-ERC1155-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-: xref:token/ERC1155.adoc#ERC1155-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-
+:ERC1155-_afterTokenTransfer: pass:normal[xref:token/ERC1155.adoc#ERC1155-_afterTokenTransfer-address-address-address-uint256---uint256---bytes-[`ERC1155._afterTokenTransfer`]]
+:xref-ERC1155-_afterTokenTransfer-address-address-address-uint256---uint256---bytes-: xref:token/ERC1155.adoc#ERC1155-_afterTokenTransfer-address-address-address-uint256---uint256---bytes-
 :IERC1155: pass:normal[xref:token/ERC1155.adoc#IERC1155[`IERC1155`]]
 :xref-IERC1155: xref:token/ERC1155.adoc#IERC1155
 :IERC1155-balanceOf: pass:normal[xref:token/ERC1155.adoc#IERC1155-balanceOf-address-uint256-[`IERC1155.balanceOf`]]
@@ -1356,6 +1522,14 @@
 :xref-ERC1155Supply-exists-uint256-: xref:token/ERC1155.adoc#ERC1155Supply-exists-uint256-
 :ERC1155Supply-_beforeTokenTransfer: pass:normal[xref:token/ERC1155.adoc#ERC1155Supply-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-[`ERC1155Supply._beforeTokenTransfer`]]
 :xref-ERC1155Supply-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-: xref:token/ERC1155.adoc#ERC1155Supply-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-
+:ERC1155URIStorage: pass:normal[xref:token/ERC1155.adoc#ERC1155URIStorage[`ERC1155URIStorage`]]
+:xref-ERC1155URIStorage: xref:token/ERC1155.adoc#ERC1155URIStorage
+:ERC1155URIStorage-uri: pass:normal[xref:token/ERC1155.adoc#ERC1155URIStorage-uri-uint256-[`ERC1155URIStorage.uri`]]
+:xref-ERC1155URIStorage-uri-uint256-: xref:token/ERC1155.adoc#ERC1155URIStorage-uri-uint256-
+:ERC1155URIStorage-_setURI: pass:normal[xref:token/ERC1155.adoc#ERC1155URIStorage-_setURI-uint256-string-[`ERC1155URIStorage._setURI`]]
+:xref-ERC1155URIStorage-_setURI-uint256-string-: xref:token/ERC1155.adoc#ERC1155URIStorage-_setURI-uint256-string-
+:ERC1155URIStorage-_setBaseURI: pass:normal[xref:token/ERC1155.adoc#ERC1155URIStorage-_setBaseURI-string-[`ERC1155URIStorage._setBaseURI`]]
+:xref-ERC1155URIStorage-_setBaseURI-string-: xref:token/ERC1155.adoc#ERC1155URIStorage-_setBaseURI-string-
 :IERC1155MetadataURI: pass:normal[xref:token/ERC1155.adoc#IERC1155MetadataURI[`IERC1155MetadataURI`]]
 :xref-IERC1155MetadataURI: xref:token/ERC1155.adoc#IERC1155MetadataURI
 :IERC1155MetadataURI-uri: pass:normal[xref:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`IERC1155MetadataURI.uri`]]
@@ -1514,6 +1688,8 @@
 :xref-ERC20Wrapper-underlying-contract-IERC20: xref:token/ERC20.adoc#ERC20Wrapper-underlying-contract-IERC20
 :ERC20Wrapper-constructor: pass:normal[xref:token/ERC20.adoc#ERC20Wrapper-constructor-contract-IERC20-[`ERC20Wrapper.constructor`]]
 :xref-ERC20Wrapper-constructor-contract-IERC20-: xref:token/ERC20.adoc#ERC20Wrapper-constructor-contract-IERC20-
+:ERC20Wrapper-decimals: pass:normal[xref:token/ERC20.adoc#ERC20Wrapper-decimals--[`ERC20Wrapper.decimals`]]
+:xref-ERC20Wrapper-decimals--: xref:token/ERC20.adoc#ERC20Wrapper-decimals--
 :ERC20Wrapper-depositFor: pass:normal[xref:token/ERC20.adoc#ERC20Wrapper-depositFor-address-uint256-[`ERC20Wrapper.depositFor`]]
 :xref-ERC20Wrapper-depositFor-address-uint256-: xref:token/ERC20.adoc#ERC20Wrapper-depositFor-address-uint256-
 :ERC20Wrapper-withdrawTo: pass:normal[xref:token/ERC20.adoc#ERC20Wrapper-withdrawTo-address-uint256-[`ERC20Wrapper.withdrawTo`]]
@@ -1634,20 +1810,20 @@
 :xref-IERC721-balanceOf-address-: xref:token/ERC721.adoc#IERC721-balanceOf-address-
 :IERC721-ownerOf: pass:normal[xref:token/ERC721.adoc#IERC721-ownerOf-uint256-[`IERC721.ownerOf`]]
 :xref-IERC721-ownerOf-uint256-: xref:token/ERC721.adoc#IERC721-ownerOf-uint256-
+:IERC721-safeTransferFrom: pass:normal[xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-bytes-[`IERC721.safeTransferFrom`]]
+:xref-IERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-bytes-
 :IERC721-safeTransferFrom: pass:normal[xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-[`IERC721.safeTransferFrom`]]
 :xref-IERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-
 :IERC721-transferFrom: pass:normal[xref:token/ERC721.adoc#IERC721-transferFrom-address-address-uint256-[`IERC721.transferFrom`]]
 :xref-IERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#IERC721-transferFrom-address-address-uint256-
 :IERC721-approve: pass:normal[xref:token/ERC721.adoc#IERC721-approve-address-uint256-[`IERC721.approve`]]
 :xref-IERC721-approve-address-uint256-: xref:token/ERC721.adoc#IERC721-approve-address-uint256-
-:IERC721-getApproved: pass:normal[xref:token/ERC721.adoc#IERC721-getApproved-uint256-[`IERC721.getApproved`]]
-:xref-IERC721-getApproved-uint256-: xref:token/ERC721.adoc#IERC721-getApproved-uint256-
 :IERC721-setApprovalForAll: pass:normal[xref:token/ERC721.adoc#IERC721-setApprovalForAll-address-bool-[`IERC721.setApprovalForAll`]]
 :xref-IERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#IERC721-setApprovalForAll-address-bool-
+:IERC721-getApproved: pass:normal[xref:token/ERC721.adoc#IERC721-getApproved-uint256-[`IERC721.getApproved`]]
+:xref-IERC721-getApproved-uint256-: xref:token/ERC721.adoc#IERC721-getApproved-uint256-
 :IERC721-isApprovedForAll: pass:normal[xref:token/ERC721.adoc#IERC721-isApprovedForAll-address-address-[`IERC721.isApprovedForAll`]]
 :xref-IERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#IERC721-isApprovedForAll-address-address-
-:IERC721-safeTransferFrom: pass:normal[xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-bytes-[`IERC721.safeTransferFrom`]]
-:xref-IERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#IERC721-safeTransferFrom-address-address-uint256-bytes-
 :IERC721-Transfer: pass:normal[xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-[`IERC721.Transfer`]]
 :xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
 :IERC721-Approval: pass:normal[xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-[`IERC721.Approval`]]
@@ -1802,8 +1978,6 @@
 :xref-IERC777-operatorSend-address-address-uint256-bytes-bytes-: xref:token/ERC777.adoc#IERC777-operatorSend-address-address-uint256-bytes-bytes-
 :IERC777-operatorBurn: pass:normal[xref:token/ERC777.adoc#IERC777-operatorBurn-address-uint256-bytes-bytes-[`IERC777.operatorBurn`]]
 :xref-IERC777-operatorBurn-address-uint256-bytes-bytes-: xref:token/ERC777.adoc#IERC777-operatorBurn-address-uint256-bytes-bytes-
-:IERC777-Sent: pass:normal[xref:token/ERC777.adoc#IERC777-Sent-address-address-address-uint256-bytes-bytes-[`IERC777.Sent`]]
-:xref-IERC777-Sent-address-address-address-uint256-bytes-bytes-: xref:token/ERC777.adoc#IERC777-Sent-address-address-address-uint256-bytes-bytes-
 :IERC777-Minted: pass:normal[xref:token/ERC777.adoc#IERC777-Minted-address-address-uint256-bytes-bytes-[`IERC777.Minted`]]
 :xref-IERC777-Minted-address-address-uint256-bytes-bytes-: xref:token/ERC777.adoc#IERC777-Minted-address-address-uint256-bytes-bytes-
 :IERC777-Burned: pass:normal[xref:token/ERC777.adoc#IERC777-Burned-address-address-uint256-bytes-bytes-[`IERC777.Burned`]]
@@ -1812,6 +1986,8 @@
 :xref-IERC777-AuthorizedOperator-address-address-: xref:token/ERC777.adoc#IERC777-AuthorizedOperator-address-address-
 :IERC777-RevokedOperator: pass:normal[xref:token/ERC777.adoc#IERC777-RevokedOperator-address-address-[`IERC777.RevokedOperator`]]
 :xref-IERC777-RevokedOperator-address-address-: xref:token/ERC777.adoc#IERC777-RevokedOperator-address-address-
+:IERC777-Sent: pass:normal[xref:token/ERC777.adoc#IERC777-Sent-address-address-address-uint256-bytes-bytes-[`IERC777.Sent`]]
+:xref-IERC777-Sent-address-address-address-uint256-bytes-bytes-: xref:token/ERC777.adoc#IERC777-Sent-address-address-address-uint256-bytes-bytes-
 :IERC777Recipient: pass:normal[xref:token/ERC777.adoc#IERC777Recipient[`IERC777Recipient`]]
 :xref-IERC777Recipient: xref:token/ERC777.adoc#IERC777Recipient
 :IERC777Recipient-tokensReceived: pass:normal[xref:token/ERC777.adoc#IERC777Recipient-tokensReceived-address-address-address-uint256-bytes-bytes-[`IERC777Recipient.tokensReceived`]]
@@ -1936,7 +2112,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 [.contract]
 [[IERC1155]]
-=== `++IERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC1155/IERC1155.sol[{github-icon},role=heading-link]
+=== `++IERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/token/ERC1155/IERC1155.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2087,7 +2263,7 @@ returned by {IERC1155MetadataURI-uri}.
 
 [.contract]
 [[IERC1155MetadataURI]]
-=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol[{github-icon},role=heading-link]
+=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2168,10 +2344,11 @@ clients with the actual token type ID.
 :_burnBatch: pass:normal[xref:#ERC1155-_burnBatch-address-uint256---uint256---[`++_burnBatch++`]]
 :_setApprovalForAll: pass:normal[xref:#ERC1155-_setApprovalForAll-address-address-bool-[`++_setApprovalForAll++`]]
 :_beforeTokenTransfer: pass:normal[xref:#ERC1155-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-[`++_beforeTokenTransfer++`]]
+:_afterTokenTransfer: pass:normal[xref:#ERC1155-_afterTokenTransfer-address-address-address-uint256---uint256---bytes-[`++_afterTokenTransfer++`]]
 
 [.contract]
 [[ERC1155]]
-=== `++ERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC1155/ERC1155.sol[{github-icon},role=heading-link]
+=== `++ERC1155++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/token/ERC1155/ERC1155.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2206,6 +2383,7 @@ _Available since v3.1._
 * {xref-ERC1155-_burnBatch-address-uint256---uint256---}[`++_burnBatch(from, ids, amounts)++`]
 * {xref-ERC1155-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
 * {xref-ERC1155-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-}[`++_beforeTokenTransfer(operator, from, to, ids, amounts, data)++`]
+* {xref-ERC1155-_afterTokenTransfer-address-address-address-uint256---uint256---bytes-}[`++_afterTokenTransfer(operator, from, to, ids, amounts, data)++`]
 
 [.contract-subindex-inherited]
 .IERC1155MetadataURI
@@ -2444,6 +2622,29 @@ will be burned.
 
 To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
 
+[.contract-item]
+[[ERC1155-_afterTokenTransfer-address-address-address-uint256---uint256---bytes-]]
+==== `[.contract-item-name]#++_afterTokenTransfer++#++(address operator, address from, address to, uint256[] ids, uint256[] amounts, bytes data)++` [.item-kind]#internal#
+
+Hook that is called after any token transfer. This includes minting
+and burning, as well as batched variants.
+
+The same hook is called on both single and batched variants. For single
+transfers, the length of the `id` and `amount` arrays will be 1.
+
+Calling conditions (for each `id` and `amount` pair):
+
+- When `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+of token type `id` will be  transferred to `to`.
+- When `from` is zero, `amount` tokens of token type `id` will be minted
+for `to`.
+- when `to` is zero, `amount` of ``from``'s tokens of token type `id`
+will be burned.
+- `from` and `to` are never both zero.
+- `ids` and `amounts` have the same, non-zero length.
+
+To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+
 
 
 
@@ -2453,7 +2654,7 @@ To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hook
 
 [.contract]
 [[IERC1155Receiver]]
-=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC1155/IERC1155Receiver.sol[{github-icon},role=heading-link]
+=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/token/ERC1155/IERC1155Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2512,7 +2713,7 @@ NOTE: To accept the transfer(s), this must return
 
 [.contract]
 [[ERC1155Receiver]]
-=== `++ERC1155Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC1155/utils/ERC1155Receiver.sol[{github-icon},role=heading-link]
+=== `++ERC1155Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/token/ERC1155/utils/ERC1155Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2558,7 +2759,7 @@ See {IERC165-supportsInterface}.
 
 [.contract]
 [[ERC1155Pausable]]
-=== `++ERC1155Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC1155/extensions/ERC1155Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC1155Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/token/ERC1155/extensions/ERC1155Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2604,6 +2805,7 @@ _Available since v3.1._
 * {xref-ERC1155-_burn-address-uint256-uint256-}[`++_burn(from, id, amount)++`]
 * {xref-ERC1155-_burnBatch-address-uint256---uint256---}[`++_burnBatch(from, ids, amounts)++`]
 * {xref-ERC1155-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC1155-_afterTokenTransfer-address-address-address-uint256---uint256---bytes-}[`++_afterTokenTransfer(operator, from, to, ids, amounts, data)++`]
 
 [.contract-subindex-inherited]
 .IERC1155MetadataURI
@@ -2672,7 +2874,7 @@ Requirements:
 
 [.contract]
 [[ERC1155Burnable]]
-=== `++ERC1155Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC1155/extensions/ERC1155Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC1155Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/token/ERC1155/extensions/ERC1155Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2711,6 +2913,7 @@ _Available since v3.1._
 * {xref-ERC1155-_burnBatch-address-uint256---uint256---}[`++_burnBatch(from, ids, amounts)++`]
 * {xref-ERC1155-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
 * {xref-ERC1155-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-}[`++_beforeTokenTransfer(operator, from, to, ids, amounts, data)++`]
+* {xref-ERC1155-_afterTokenTransfer-address-address-address-uint256---uint256---bytes-}[`++_afterTokenTransfer(operator, from, to, ids, amounts, data)++`]
 
 [.contract-subindex-inherited]
 .IERC1155MetadataURI
@@ -2777,7 +2980,7 @@ _Available since v3.1._
 
 [.contract]
 [[ERC1155Supply]]
-=== `++ERC1155Supply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC1155/extensions/ERC1155Supply.sol[{github-icon},role=heading-link]
+=== `++ERC1155Supply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/token/ERC1155/extensions/ERC1155Supply.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2818,6 +3021,7 @@ same id are not going to be minted.
 * {xref-ERC1155-_burn-address-uint256-uint256-}[`++_burn(from, id, amount)++`]
 * {xref-ERC1155-_burnBatch-address-uint256---uint256---}[`++_burnBatch(from, ids, amounts)++`]
 * {xref-ERC1155-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC1155-_afterTokenTransfer-address-address-address-uint256---uint256---bytes-}[`++_afterTokenTransfer(operator, from, to, ids, amounts, data)++`]
 
 [.contract-subindex-inherited]
 .IERC1155MetadataURI
@@ -2883,6 +3087,133 @@ See {ERC1155-_beforeTokenTransfer}.
 
 
 
+:ERC1155URIStorage: pass:normal[xref:#ERC1155URIStorage[`++ERC1155URIStorage++`]]
+:uri: pass:normal[xref:#ERC1155URIStorage-uri-uint256-[`++uri++`]]
+:_setURI: pass:normal[xref:#ERC1155URIStorage-_setURI-uint256-string-[`++_setURI++`]]
+:_setBaseURI: pass:normal[xref:#ERC1155URIStorage-_setBaseURI-string-[`++_setBaseURI++`]]
+
+[.contract]
+[[ERC1155URIStorage]]
+=== `++ERC1155URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
+```
+
+ERC1155 token with storage based token URI management.
+Inspired by the ERC721URIStorage extension
+
+_Available since v4.6._
+
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC1155URIStorage-uri-uint256-}[`++uri(tokenId)++`]
+* {xref-ERC1155URIStorage-_setURI-uint256-string-}[`++_setURI(tokenId, tokenURI)++`]
+* {xref-ERC1155URIStorage-_setBaseURI-string-}[`++_setBaseURI(baseURI)++`]
+
+[.contract-subindex-inherited]
+.ERC1155
+* {xref-ERC1155-constructor-string-}[`++constructor(uri_)++`]
+* {xref-ERC1155-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC1155-balanceOf-address-uint256-}[`++balanceOf(account, id)++`]
+* {xref-ERC1155-balanceOfBatch-address---uint256---}[`++balanceOfBatch(accounts, ids)++`]
+* {xref-ERC1155-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC1155-isApprovedForAll-address-address-}[`++isApprovedForAll(account, operator)++`]
+* {xref-ERC1155-safeTransferFrom-address-address-uint256-uint256-bytes-}[`++safeTransferFrom(from, to, id, amount, data)++`]
+* {xref-ERC1155-safeBatchTransferFrom-address-address-uint256---uint256---bytes-}[`++safeBatchTransferFrom(from, to, ids, amounts, data)++`]
+* {xref-ERC1155-_safeTransferFrom-address-address-uint256-uint256-bytes-}[`++_safeTransferFrom(from, to, id, amount, data)++`]
+* {xref-ERC1155-_safeBatchTransferFrom-address-address-uint256---uint256---bytes-}[`++_safeBatchTransferFrom(from, to, ids, amounts, data)++`]
+* {xref-ERC1155-_setURI-string-}[`++_setURI(newuri)++`]
+* {xref-ERC1155-_mint-address-uint256-uint256-bytes-}[`++_mint(to, id, amount, data)++`]
+* {xref-ERC1155-_mintBatch-address-uint256---uint256---bytes-}[`++_mintBatch(to, ids, amounts, data)++`]
+* {xref-ERC1155-_burn-address-uint256-uint256-}[`++_burn(from, id, amount)++`]
+* {xref-ERC1155-_burnBatch-address-uint256---uint256---}[`++_burnBatch(from, ids, amounts)++`]
+* {xref-ERC1155-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC1155-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-}[`++_beforeTokenTransfer(operator, from, to, ids, amounts, data)++`]
+* {xref-ERC1155-_afterTokenTransfer-address-address-address-uint256---uint256---bytes-}[`++_afterTokenTransfer(operator, from, to, ids, amounts, data)++`]
+
+[.contract-subindex-inherited]
+.IERC1155MetadataURI
+
+[.contract-subindex-inherited]
+.IERC1155
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.ERC1155
+
+[.contract-subindex-inherited]
+.IERC1155MetadataURI
+
+[.contract-subindex-inherited]
+.IERC1155
+* {xref-IERC1155-TransferSingle-address-address-address-uint256-uint256-}[`++TransferSingle(operator, from, to, id, value)++`]
+* {xref-IERC1155-TransferBatch-address-address-address-uint256---uint256---}[`++TransferBatch(operator, from, to, ids, values)++`]
+* {xref-IERC1155-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(account, operator, approved)++`]
+* {xref-IERC1155-URI-string-uint256-}[`++URI(value, id)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+[.contract-subindex-inherited]
+.Context
+
+--
+
+
+[.contract-item]
+[[ERC1155URIStorage-uri-uint256-]]
+==== `[.contract-item-name]#++uri++#++(uint256 tokenId) → string++` [.item-kind]#public#
+
+See {IERC1155MetadataURI-uri}.
+
+This implementation returns the concatenation of the `_baseURI`
+and the token-specific uri if the latter is set
+
+This enables the following behaviors:
+
+- if `_tokenURIs[tokenId]` is set, then the result is the concatenation
+  of `_baseURI` and `_tokenURIs[tokenId]` (keep in mind that `_baseURI`
+  is empty per default);
+
+- if `_tokenURIs[tokenId]` is NOT set then we fallback to `super.uri()`
+  which in most cases will contain `ERC1155._uri`;
+
+- if `_tokenURIs[tokenId]` is NOT set, and if the parents do not have a
+  uri value set, then the result is empty.
+
+[.contract-item]
+[[ERC1155URIStorage-_setURI-uint256-string-]]
+==== `[.contract-item-name]#++_setURI++#++(uint256 tokenId, string tokenURI)++` [.item-kind]#internal#
+
+Sets `tokenURI` as the tokenURI of `tokenId`.
+
+[.contract-item]
+[[ERC1155URIStorage-_setBaseURI-string-]]
+==== `[.contract-item-name]#++_setBaseURI++#++(string baseURI)++` [.item-kind]#internal#
+
+Sets `baseURI` as the `_baseURI` for all tokens
+
+
+
+
 == Presets
 
 These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
@@ -2897,7 +3228,7 @@ These contracts are preconfigured combinations of the above features. They can b
 
 [.contract]
 [[ERC1155Holder]]
-=== `++ERC1155Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.5.0/contracts/token/ERC1155/utils/ERC1155Holder.sol[{github-icon},role=heading-link]
+=== `++ERC1155Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/token/ERC1155/utils/ERC1155Holder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
