@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0-rc.0) (vendor/amb/IAMB.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (vendor/amb/IAMB.sol)
 pragma solidity ^0.8.0;
 
 interface IAMB {
