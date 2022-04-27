@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
- * `ERC2981`: make `royaltyInfo` public to allow super call in overrides. ([#3305](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3305))
+
  * `Clones`: optimize clone creation ([#3329](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3329))
  * `TimelockController`: Migrate `_call` to `_execute` and allow inheritance and overriding similar to `Governor`. ([#3317](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3317))
 
@@ -26,7 +26,7 @@
  * `TimelockController`: Add a separate canceller role for the ability to cancel. ([#3165](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3165))
  * `Initializable`: add a reinitializer modifier that enables the initialization of new modules, added to already initialized contracts through upgradeability. ([#3232](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3232))
  * `Initializable`: add an Initialized event that tracks initialized version numbers. ([#3294](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3294))
- * `ERC2981`: make `royaltiInfo` public to allow super call in overrides. ([#3305](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3305))
+ * `ERC2981`: make `royaltyInfo` public to allow super call in overrides. ([#3305](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3305))
 
 ### Breaking changes
 
