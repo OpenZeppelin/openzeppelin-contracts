@@ -309,8 +309,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         // Clear approvals
         _approve(address(0), tokenId);
 
-        _balances[owner] -= 1;
         delete _owners[tokenId];
+        _balances[owner] -= 1;
 
         emit Transfer(owner, address(0), tokenId);
 
