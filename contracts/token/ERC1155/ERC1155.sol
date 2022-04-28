@@ -405,7 +405,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * and burning, as well as batched variants.
      *
      * The same hook is called on both single and batched variants. For single
-     * transfers, the length of the `id` and `amount` arrays will be 1.
+     * transfers, the length of the `ids` and `amounts` arrays will be 1.
      *
      * Calling conditions (for each `id` and `amount` pair):
      *
