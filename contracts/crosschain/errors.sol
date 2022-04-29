@@ -5,3 +5,4 @@ pragma solidity ^0.8.4;
 
 error NotCrossChainCall();
 error InvalidCrossChainSender(address actual, address expected);
+error UnauthorizedCrossChainRelayer(address actual, address expected);

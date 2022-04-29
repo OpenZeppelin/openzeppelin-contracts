@@ -9,6 +9,7 @@ abstract contract BaseRelayMock {
     // needed to parse custom errors
     error NotCrossChainCall();
     error InvalidCrossChainSender(address sender, address expected);
+    error UnauthorizedCrossChainRelayer(address actual, address expected);
 
     address internal _currentSender;
 
