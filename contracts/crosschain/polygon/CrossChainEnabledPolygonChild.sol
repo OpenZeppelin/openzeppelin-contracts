@@ -63,10 +63,10 @@ abstract contract CrossChainEnabledPolygonChild is IFxMessageProcessor, CrossCha
         address rootMessageSender,
         bytes calldata data
     ) external override nonReentrant {
-        require(msg.sender == _fxChild, "unauthorized cross-chain relay");
+        if (!_isCrossChain()) revert NotCrossChainCall();
 
         _sender = rootMessageSender;
-        Address.functionDelegateCall(address(this), data, "crosschain execution failled");
+        Address.functionDelegateCall(address(this), data, "cross-chain execution failed");
         _sender = DEFAULT_SENDER;
     }
 }
