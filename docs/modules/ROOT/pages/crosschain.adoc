@@ -2,13 +2,13 @@
 
 If your contract is targetting to be used in the context of multichain operations, you may need specific tools to identify and process these cross-chain operations.
 
-OpenZeppelin provides the xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] abstract contract, that includes internal function
+OpenZeppelin provides the xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] abstract contract, that includes dedicated internal functions.
 
 In this guide, we will go through an example use case: _how to build an upgradeable & mintable ERC20 token controlled by a governor present on a foreign chain_.
 
 == Starting point, our ERC20 contract
 
-Let's start with a small ERC20 contract, built using the https://wizard.openzeppelin.com/[OpenZeppelin Contracts Wizard].
+Let's start with a small ERC20 contract, that we bootstrapped using the https://wizard.openzeppelin.com/[OpenZeppelin Contracts Wizard].
 
 [source,solidity]
 ----
@@ -16,19 +16,25 @@ Let's start with a small ERC20 contract, built using the https://wizard.openzepp
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-contract MyToken is Initializable, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
+contract MyToken is Initializable, ERC20Upgradeable, UUPSUpgradeable {
+    address public owner;
+
+    modifier onlyOwner() {
+        require(owner == _msgSender(), "Not authorized");
+        _;
+    }
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
     function initialize(address initialOwner) initializer public {
         __ERC20_init("MyToken", "MTK");
-        __Ownable_init();
         __UUPSUpgradeable_init();
-        _transferOwnership(initialOwner); // initialOwner will be on a remote chain
+
+        owner = initialOwner;
     }
 
     function mint(address to, uint256 amount) public onlyOwner {
@@ -40,13 +46,13 @@ contract MyToken is Initializable, ERC20Upgradeable, OwnableUpgradeable, UUPSUpg
 }
 ----
 
-This token is mintable and upgradeable by anyone the owner of the contract, following the xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern.
+This token is mintable and upgradeable by the owner of the contract.
 
 == Preparing our contract for cross-chain operations.
 
 Let's now imagine that this contract is going to live on one chain, but we want the minting and the upgrading to be performed by a xref:governance.adoc[`governor`] contract on another chain.
 
-For example, we could have our token on xDai, with our governor on mainnet, our we could have our token on mainnet, with our governor on optimism
+For example, we could have our token on xDai, with our governor on mainnet, or we could have our token on mainnet, with our governor on optimism
 
 In order to do that, we will start by adding xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] to our contract.
 
@@ -54,34 +60,26 @@ In order to do that, we will start by adding xref:api:crosschain.adoc#CrossChain
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 +import "@openzeppelin/contracts-upgradeable/crosschain/CrossChainEnabled.sol";
 
--contract MyToken is Initializable, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
-+abstract contract MyTokenCrossChain is Initializable, ERC20Upgradeable, OwnableUpgradeable, UUPSUpgradeable, CrossChainEnabled {
+-contract MyToken is Initializable, ERC20Upgradeable, UUPSUpgradeable {
++abstract contract MyTokenCrossChain is Initializable, ERC20Upgradeable, UUPSUpgradeable, CrossChainEnabled {
 ```
 
 Once that is done, we can use the `onlyCrossChainSender` modifier, provided by `CrossChainEnabled` in order to protect the minting and upgrading operations.
 
 ```diff
+-    modifier onlyOwner() {
+-        require(owner == _msgSender(), "Not authorized");
+-        _;
+-    }
+
 -    function mint(address to, uint256 amount) public onlyOwner {
-+    function mint(address to, uint256 amount) public onlyCrossChainSender(owner()) {
++    function mint(address to, uint256 amount) public onlyCrossChainSender(owner) {
 
 -    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
-+    function _authorizeUpgrade(address newImplementation) internal override onlyCrossChainSender(owner()) {
++    function _authorizeUpgrade(address newImplementation) internal override onlyCrossChainSender(owner) {
 ```
 
-This change will effectively restrict the mint and upgrade operations the the `owner()` on the remote chain. This however causes an issue: if the `owner()` is on a different chain, this would break the `onlyOwner` modifier and the functions that use it (including `transferOwnership` and `renounceOwnership`).
-
-This is fixed by overriding the concerned function to also enforce the cross-chain restriction.
-
-```diff
-+    function transferOwnership(address newOwner) public override onlyCrossChainSender(owner()) {
-+        require(newOwner != address(0), "Ownable: new owner is the zero address");
-+        _transferOwnership(newOwner);
-+    }
-+
-+    function renounceOwnership() public override onlyCrossChainSender(owner()) {
-+        _transferOwnership(address(0));
-+    }
-```
+This change will effectively restrict the mint and upgrade operations to the `owner` on the remote chain.
 
 == Specializing for a specific chain
 
@@ -119,7 +117,7 @@ contract MyTokenOptimism is
 
 == Going further with access control
 
-The previous example showed the limitations of using xref:access-control.adoc#ownership-and-ownable[`Ownable`] in a cross-chain context that it was not designed for. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectivelly be used to build cross-chain-aware contracts.
+In previous example, we didn't use the using xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern because it is not out of the box compatible with a cross-chain context that it was not designed for. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectivelly be used to build cross-chain-aware contracts.
 
 [source,solidity]
 ----
