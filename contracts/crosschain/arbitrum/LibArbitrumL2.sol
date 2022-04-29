@@ -33,7 +33,7 @@ library LibArbitrumL2 {
      * function call is not the result of a cross-chain message.
      */
     function crossChainSender(address arbsys) internal view returns (address) {
-        if (!isCrossChain(arbsys)) revert NotCrossChainCall();
+        if (!isCrossChain(arbsys)) revert NotCrossChainCall(address(this));
 
         return
             ArbitrumL2_Bridge(arbsys).wasMyCallersAddressAliased()

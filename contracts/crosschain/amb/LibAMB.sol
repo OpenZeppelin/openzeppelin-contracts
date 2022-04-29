@@ -29,7 +29,7 @@ library LibAMB {
      * function call is not the result of a cross-chain message.
      */
     function crossChainSender(address bridge) internal view returns (address) {
-        if (!isCrossChain(bridge)) revert NotCrossChainCall();
+        if (!isCrossChain(bridge)) revert NotCrossChainCall(address(this));
         return AMB_Bridge(bridge).messageSender();
     }
 }

@@ -7,8 +7,8 @@ import "../../vendor/polygon/IFxMessageProcessor.sol";
 
 abstract contract BaseRelayMock {
     // needed to parse custom errors
-    error NotCrossChainCall();
-    error InvalidCrossChainSender(address sender, address expected);
+    error NotCrossChainCall(address emitter);
+    error InvalidCrossChainSender(address emitter, address actual, address expected);
 
     address internal _currentSender;
 

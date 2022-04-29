@@ -23,7 +23,7 @@ abstract contract CrossChainEnabled {
      * cross-chain execution.
      */
     modifier onlyCrossChain() {
-        if (!_isCrossChain()) revert NotCrossChainCall();
+        if (!_isCrossChain()) revert NotCrossChainCall(address(this));
         _;
     }
 
@@ -33,7 +33,7 @@ abstract contract CrossChainEnabled {
      */
     modifier onlyCrossChainSender(address expected) {
         address actual = _crossChainSender();
-        if (expected != actual) revert InvalidCrossChainSender(actual, expected);
+        if (expected != actual) revert InvalidCrossChainSender(address(this), actual, expected);
         _;
     }
 

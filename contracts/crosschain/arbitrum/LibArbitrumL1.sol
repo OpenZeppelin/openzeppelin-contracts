@@ -33,7 +33,7 @@ library LibArbitrumL1 {
      * function call is not the result of a cross-chain message.
      */
     function crossChainSender(address bridge) internal view returns (address) {
-        if (!isCrossChain(bridge)) revert NotCrossChainCall();
+        if (!isCrossChain(bridge)) revert NotCrossChainCall(address(this));
 
         address sender = ArbitrumL1_Outbox(ArbitrumL1_Bridge(bridge).activeOutbox()).l2ToL1Sender();
         require(sender != address(0), "LibArbitrumL1: system messages without sender");
