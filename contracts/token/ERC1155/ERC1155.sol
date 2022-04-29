@@ -288,6 +288,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_mint}.
      *
+     * Emits a {TransferBatch} event.
+     *
      * Requirements:
      *
      * - `ids` and `amounts` must have the same length.
@@ -321,6 +323,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev Destroys `amount` tokens of token type `id` from `from`
      *
+     * Emits a {TransferSingle} event.
+     *
      * Requirements:
      *
      * - `from` cannot be the zero address.
@@ -352,6 +356,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
     /**
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_burn}.
+     *
+     * Emits a {TransferBatch} event.
      *
      * Requirements:
      *
