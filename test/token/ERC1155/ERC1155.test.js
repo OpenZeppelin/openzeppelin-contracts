@@ -38,11 +38,11 @@ contract('ERC1155', function (accounts) {
 
       context('with minted tokens', function () {
         beforeEach(async function () {
-          ({ logs: this.logs } = await this.token.mint(tokenHolder, tokenId, mintAmount, data, { from: operator }));
+          (this.receipt = await this.token.mint(tokenHolder, tokenId, mintAmount, data, { from: operator }));
         });
 
         it('emits a TransferSingle event', function () {
-          expectEvent.inLogs(this.logs, 'TransferSingle', {
+          expectEvent(this.receipt, 'TransferSingle', {
             operator,
             from: ZERO_ADDRESS,
             to: tokenHolder,
@@ -79,7 +79,7 @@ contract('ERC1155', function (accounts) {
 
       context('with minted batch of tokens', function () {
         beforeEach(async function () {
-          ({ logs: this.logs } = await this.token.mintBatch(
+          (this.receipt = await this.token.mintBatch(
             tokenBatchHolder,
             tokenBatchIds,
             mintAmounts,
@@ -89,7 +89,7 @@ contract('ERC1155', function (accounts) {
         });
 
         it('emits a TransferBatch event', function () {
-          expectEvent.inLogs(this.logs, 'TransferBatch', {
+          expectEvent(this.receipt, 'TransferBatch', {
             operator,
             from: ZERO_ADDRESS,
             to: tokenBatchHolder,
@@ -142,7 +142,7 @@ contract('ERC1155', function (accounts) {
       context('with minted-then-burnt tokens', function () {
         beforeEach(async function () {
           await this.token.mint(tokenHolder, tokenId, mintAmount, data);
-          ({ logs: this.logs } = await this.token.burn(
+          (this.receipt = await this.token.burn(
             tokenHolder,
             tokenId,
             burnAmount,
@@ -151,7 +151,7 @@ contract('ERC1155', function (accounts) {
         });
 
         it('emits a TransferSingle event', function () {
-          expectEvent.inLogs(this.logs, 'TransferSingle', {
+          expectEvent(this.receipt, 'TransferSingle', {
             operator,
             from: tokenHolder,
             to: ZERO_ADDRESS,
@@ -199,7 +199,7 @@ contract('ERC1155', function (accounts) {
       context('with minted-then-burnt tokens', function () {
         beforeEach(async function () {
           await this.token.mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts, data);
-          ({ logs: this.logs } = await this.token.burnBatch(
+          (this.receipt = await this.token.burnBatch(
             tokenBatchHolder,
             tokenBatchIds,
             burnAmounts,
@@ -208,7 +208,7 @@ contract('ERC1155', function (accounts) {
         });
 
         it('emits a TransferBatch event', function () {
-          expectEvent.inLogs(this.logs, 'TransferBatch', {
+          expectEvent(this.receipt, 'TransferBatch', {
             operator,
             from: tokenBatchHolder,
             to: ZERO_ADDRESS,
