@@ -8,7 +8,7 @@ import "../errors.sol";
 
 /**
  * @dev Primitives for cross-chain aware contracts using the
- * [AMB](https://docs.tokenbridge.net/amb-bridge/about-amb-bridge)
+ * https://docs.tokenbridge.net/amb-bridge/about-amb-bridge[AMB]
  * family of bridges.
  */
 library LibAMB {
