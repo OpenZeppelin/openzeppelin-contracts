@@ -8,7 +8,7 @@ In this guide, we will go through an example use case: _how to build an upgradea
 
 == Starting point, our ERC20 contract
 
-Let's start with a small ERC20 contract, that we bootstrapped using the https://wizard.openzeppelin.com/[OpenZeppelin Contracts Wizard].
+Let's start with a small ERC20 contract, that we bootstrapped using the https://wizard.openzeppelin.com/[OpenZeppelin Contracts Wizard], and extended with an owner that has the ability to mint. Note that for demonstration purposes we have not used the built-in `Ownable` contract.
 
 [source,solidity]
 ----
@@ -57,7 +57,7 @@ For example, we could have our token on xDai, with our governor on mainnet, or w
 In order to do that, we will start by adding xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] to our contract.
 
 ```diff
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 +import "@openzeppelin/contracts-upgradeable/crosschain/CrossChainEnabled.sol";
 
 -contract MyToken is Initializable, ERC20Upgradeable, UUPSUpgradeable {
@@ -67,11 +67,6 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 Once that is done, we can use the `onlyCrossChainSender` modifier, provided by `CrossChainEnabled` in order to protect the minting and upgrading operations.
 
 ```diff
--    modifier onlyOwner() {
--        require(owner == _msgSender(), "Not authorized");
--        _;
--    }
-
 -    function mint(address to, uint256 amount) public onlyOwner {
 +    function mint(address to, uint256 amount) public onlyCrossChainSender(owner) {
 
@@ -101,7 +96,7 @@ contract MyTokenXDAI is
 {}
 ----
 
-If token on mainnet, and our governor on optimism, we use the optimism https://community.optimism.io/docs/protocol/protocol-2.0/#l1crossdomainmessenger[CrossDomainMessenger] available on mainnet at https://etherscan.io/address/0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1[0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1]
+If the token is on Ethereum mainnet, and our governor on Optimism, we use the Optimism https://community.optimism.io/docs/protocol/protocol-2.0/#l1crossdomainmessenger[CrossDomainMessenger] available on mainnet at https://etherscan.io/address/0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1[0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1].
 
 [source,solidity]
 ----
