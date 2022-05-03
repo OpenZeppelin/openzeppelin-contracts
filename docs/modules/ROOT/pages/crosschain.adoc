@@ -54,7 +54,7 @@ Let's now imagine that this contract is going to live on one chain, but we want 
 
 For example, we could have our token on xDai, with our governor on mainnet, or we could have our token on mainnet, with our governor on optimism
 
-In order to do that, we will start by adding xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] to our contract.
+In order to do that, we will start by adding xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] to our contract. This makes the contract abstract, as the cross-chain awareness functions are not fully implemented. That is enough for now, but we will have to specialize them later by inheriting from a specific implementation of this abstraction.
 
 ```diff
  import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -110,9 +110,47 @@ contract MyTokenOptimism is
 {}
 ----
 
+== Mixing cross domain addresses is dangerous
+
+TODO
+
 == Going further with access control
 
 In previous example, we didn't use the using xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern because it is not out of the box compatible with a cross-chain context that it was not designed for. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectivelly be used to build cross-chain-aware contracts.
+
+```diff
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
++import "@openzeppelin/contracts-upgradeable/access/AccessControlCrossChainUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
+-abstract contract MyTokenCrossChain is Initializable, ERC20Upgradeable, UUPSUpgradeable, CrossChainEnabled {
++abstract contract MyTokenCrossChain_2 is Initializable, ERC20Upgradeable, AccessControlCrossChainUpgradeable, UUPSUpgradeable {
+-    address public owner;
++    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
++    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+
+
+-    modifier onlyOwner() {
+-        require(owner == _msgSender(), "Not authorized");
+-        _;
+-    }
+
+        __ERC20_init("MyToken", "MTK");
++        __AccessControl_init();
+        __UUPSUpgradeable_init();
+
+-        owner = initialOwner;
++        _grantRole(_crossChainRoleAlias(DEFAULT_ADMIN_ROLE), initialOwner); // initialOwner is on a remote chain
+
+
+-    function mint(address to, uint256 amount) public onlyCrossChainSender(owner) {
++    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
+
+-    function _authorizeUpgrade(address newImplementation) internal override onlyCrossChainSender(owner) {
+-    function _authorizeUpgrade(address newImplementation) internal onlyRole(UPGRADER_ROLE) override {
+```
+
+This results in the following, final, code:
 
 [source,solidity]
 ----
@@ -143,11 +181,8 @@ abstract contract MyTokenCrossChain_2 is Initializable, ERC20Upgradeable, Access
         _mint(to, amount);
     }
 
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyRole(UPGRADER_ROLE)
-        override
-    {}
+    function _authorizeUpgrade(address newImplementation) internal onlyRole(UPGRADER_ROLE) override {
+    }
 }
 
 import "@openzeppelin/contracts-upgradeable/crosschain/amb/CrossChainEnabledAMB.sol";
