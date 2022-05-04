@@ -16,4 +16,6 @@
 
 * xref:governance.adoc[Governance]
 
+* xref:crosschain.adoc[Crosschain]
+
 * xref:utilities.adoc[Utilities]
