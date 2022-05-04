@@ -12,15 +12,15 @@ import "./LibAMB.sol";
  *
  * As of february 2020, AMB bridges are available between the following chains:
  *
- * - https://docs.tokenbridge.net/eth-xdai-amb-bridge/about-the-eth-xdai-amb[ETH <> xDai]
- * - https://docs.tokenbridge.net/eth-qdai-bridge/about-the-eth-qdai-amb[ETH <> qDai]
- * - https://docs.tokenbridge.net/eth-etc-amb-bridge/about-the-eth-etc-amb[ETH <> ETC]
- * - https://docs.tokenbridge.net/eth-bsc-amb/about-the-eth-bsc-amb[ETH <> BSC]
- * - https://docs.tokenbridge.net/eth-poa-amb-bridge/about-the-eth-poa-amb[ETH <> POA]
- * - https://docs.tokenbridge.net/bsc-xdai-amb/about-the-bsc-xdai-amb[BSC <> xDai]
- * - https://docs.tokenbridge.net/poa-xdai-amb/about-the-poa-xdai-amb[POA <> xDai]
- * - https://docs.tokenbridge.net/rinkeby-xdai-amb-bridge/about-the-rinkeby-xdai-amb[Rinkeby <> xDai]
- * - https://docs.tokenbridge.net/kovan-sokol-amb-bridge/about-the-kovan-sokol-amb[Kovan <> Sokol]
+ * - https://docs.tokenbridge.net/eth-xdai-amb-bridge/about-the-eth-xdai-amb[ETH ⇌ xDai]
+ * - https://docs.tokenbridge.net/eth-qdai-bridge/about-the-eth-qdai-amb[ETH ⇌ qDai]
+ * - https://docs.tokenbridge.net/eth-etc-amb-bridge/about-the-eth-etc-amb[ETH ⇌ ETC]
+ * - https://docs.tokenbridge.net/eth-bsc-amb/about-the-eth-bsc-amb[ETH ⇌ BSC]
+ * - https://docs.tokenbridge.net/eth-poa-amb-bridge/about-the-eth-poa-amb[ETH ⇌ POA]
+ * - https://docs.tokenbridge.net/bsc-xdai-amb/about-the-bsc-xdai-amb[BSC ⇌ xDai]
+ * - https://docs.tokenbridge.net/poa-xdai-amb/about-the-poa-xdai-amb[POA ⇌ xDai]
+ * - https://docs.tokenbridge.net/rinkeby-xdai-amb-bridge/about-the-rinkeby-xdai-amb[Rinkeby ⇌ xDai]
+ * - https://docs.tokenbridge.net/kovan-sokol-amb-bridge/about-the-kovan-sokol-amb[Kovan ⇌ Sokol]
  *
  * _Available since v4.6._
  */
