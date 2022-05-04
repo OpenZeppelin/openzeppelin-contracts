@@ -54,7 +54,7 @@ Let's now imagine that this contract is going to live on one chain, but we want 
 
 For example, we could have our token on xDai, with our governor on mainnet, or we could have our token on mainnet, with our governor on optimism
 
-In order to do that, we will start by adding xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] to our contract. This makes the contract abstract, as the cross-chain awareness functions are not fully implemented. That is enough for now, but we will have to specialize them later by inheriting from a specific implementation of this abstraction.
+In order to do that, we will start by adding xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] to our contract. You will notice that the contract is now abstract. This is because `CrossChainEnabled` is an abstract contract: it is not tied to any particular chain and it deals with cross-chain interactions in an abstract way. This is what enables us to easily reuse the code for different chains. We will specialize it later by inheriting from a chain-specific implementation of the abstraction.
 
 ```diff
  import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
