@@ -122,6 +122,11 @@ Due to the way smart contract addresses are computed, and the fact that smart co
 
 In previous example, we have both a `onlyOwner()` modifier and the `onlyCrossChainSender(owner)` mechanism. We didn't use the xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern because the ownership transfer mechanism in includes is not designed to work with the owner being a cross-chain entity. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectivelly be used to build cross-chain-aware contracts.
 
+Using xref:api:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`] includes both the xref:api:access.adoc#AccessControl[`AccessControl`] core and the xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] abstraction. It also includes some binding to make role management compatible with cross-chain operations.
+
+In the case of the `mint` function, the caller must have the `MINTER_ROLE` when the call originates from the same chain. If the caller is on a remote chain, then the caller should not have the `MINTER_ROLE`, but the "aliased" version (`MINTER_ROLE ^ CROSSCHAIN_ALIAS`). See the xref:api:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`] documentation for more details.
+
+
 ```diff
  import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
  import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -203,7 +208,3 @@ contract MyTokenOptimism is
     CrossChainEnabledOptimism(0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1)
 {}
 ----
-
-Using xref:api:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`] includes both the xref:api:access.adoc#AccessControl[`AccessControl`] core and the xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] abstraction. It also include some binding to make role management compatible with cross-chain operations.
-
-In the case of the `mint` function, the caller must have the `MINTER_ROLE` when the call originates from the same chain. If the caller is on a remote chain, then the caller should not have the `MINTER_ROLE`, but the "aliased" version (`MINTER_ROLE ^ CROSSCHAIN_ALIAS`). See the xref:api:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`] documentation for more details.
