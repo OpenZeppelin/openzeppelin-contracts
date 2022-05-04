@@ -112,11 +112,15 @@ contract MyTokenOptimism is
 
 == Mixing cross domain addresses is dangerous
 
-TODO
+When designing a contract with cross-chain support, it is essential to understand possible fallbacks and the security assumption that are being made.
+
+In this guide, we are particularly focusing on restricting access to a specific caller. This is usually done (as shown above) using `msg.sender` or `_msgSender()`. However, when going cross-chain, it is not just that simple. Even without considering possible bridge issues, it is important to keep in mind that the same address can correspond to very different entities when considering a multi-chain space. EOA wallets can only execute operations if the wallet's private-key signs the transaction. To our knowledge this is the case in all EVM chains, so a cross-chain message coming from such a wallet is arguably equivalent to a non-cross-chain message by the same wallet. The situation is however very different for smart contracts.
+
+Due to the way smart contract addresses are computed, and the fact that smart contracts on different chains live independent lives, you could have two very different contracts live at the same address on different chains. You could imagine two multisig wallets with different signers use the same address on different chains. You could also see a very basic smart wallet live on one chain at the same address as a full-fledge governor on another chain. Therefore, you should be careful that whenever you give permissions to a specific address, you control with chain this address can act from.
 
 == Going further with access control
 
-In previous example, we didn't use the using xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern because it is not out of the box compatible with a cross-chain context that it was not designed for. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectivelly be used to build cross-chain-aware contracts.
+In previous example, we have both a `onlyOwner()` modifier and the `onlyCrossChainSender(owner)` mechanism. We didn't use the xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern because the ownership transfer mechanism in includes is not designed to work with the owner being a cross-chain entity. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectivelly be used to build cross-chain-aware contracts.
 
 ```diff
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
@@ -124,7 +128,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 -abstract contract MyTokenCrossChain is Initializable, ERC20Upgradeable, UUPSUpgradeable, CrossChainEnabled {
-+abstract contract MyTokenCrossChain_2 is Initializable, ERC20Upgradeable, AccessControlCrossChainUpgradeable, UUPSUpgradeable {
++abstract contract MyTokenCrossChain is Initializable, ERC20Upgradeable, AccessControlCrossChainUpgradeable, UUPSUpgradeable {
 -    address public owner;
 +    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 +    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
@@ -162,7 +166,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlCrossChainUpgrad
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-abstract contract MyTokenCrossChain_2 is Initializable, ERC20Upgradeable, AccessControlCrossChainUpgradeable, UUPSUpgradeable {
+abstract contract MyTokenCrossChain is Initializable, ERC20Upgradeable, AccessControlCrossChainUpgradeable, UUPSUpgradeable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
 
@@ -187,15 +191,15 @@ abstract contract MyTokenCrossChain_2 is Initializable, ERC20Upgradeable, Access
 
 import "@openzeppelin/contracts-upgradeable/crosschain/amb/CrossChainEnabledAMB.sol";
 
-contract MyTokenXDAI_2 is
-    MyTokenCrossChain_2,
+contract MyTokenXDAI is
+    MyTokenCrossChain,
     CrossChainEnabledAMB(0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59)
 {}
 
 import "@openzeppelin/contracts-upgradeable/crosschain/optimismCrossChainEnabledOptimism.sol";
 
-contract MyTokenOptimism_2 is
-    MyTokenCrossChain_2,
+contract MyTokenOptimism is
+    MyTokenCrossChain,
     CrossChainEnabledOptimism(0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1)
 {}
 ----
