@@ -237,7 +237,7 @@ abstract contract IGovernor is IERC165 {
     /**
      * @dev Cast a vote with a reason and additional encoded parameters
      *
-     * Emits a {VoteCast} event.
+     * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
      */
     function castVoteWithReasonAndParams(
         uint256 proposalId,
@@ -262,7 +262,7 @@ abstract contract IGovernor is IERC165 {
     /**
      * @dev Cast a vote with a reason and additional encoded parameters using the user's cryptographic signature.
      *
-     * Emits a {VoteCast} event.
+     * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
      */
     function castVoteWithReasonAndParamsBySig(
         uint256 proposalId,
