@@ -288,7 +288,8 @@ contract ERC777 is Context, IERC777, IERC20 {
      * the total supply.
      *
      * If a send hook is registered for `account`, the corresponding function
-     * will be called with `operator`, `data` and `operatorData`.
+     * will be called with the caller address as the `operator` and with
+     * `userData` and `operatorData`.
      *
      * See {IERC777Sender} and {IERC777Recipient}.
      *
