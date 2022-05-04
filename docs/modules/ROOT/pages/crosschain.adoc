@@ -123,35 +123,35 @@ Due to the way smart contract addresses are computed, and the fact that smart co
 In previous example, we have both a `onlyOwner()` modifier and the `onlyCrossChainSender(owner)` mechanism. We didn't use the xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern because the ownership transfer mechanism in includes is not designed to work with the owner being a cross-chain entity. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectivelly be used to build cross-chain-aware contracts.
 
 ```diff
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+ import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 +import "@openzeppelin/contracts-upgradeable/access/AccessControlCrossChainUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 -abstract contract MyTokenCrossChain is Initializable, ERC20Upgradeable, UUPSUpgradeable, CrossChainEnabled {
-+abstract contract MyTokenCrossChain is Initializable, ERC20Upgradeable, AccessControlCrossChainUpgradeable, UUPSUpgradeable {
++abstract contract MyTokenCrossChain is Initializable, ERC20Upgradeable, UUPSUpgradeable, AccessControlCrossChainUpgradeable {
+
 -    address public owner;
-+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-+    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-
-
 -    modifier onlyOwner() {
 -        require(owner == _msgSender(), "Not authorized");
 -        _;
 -    }
 
-        __ERC20_init("MyToken", "MTK");
++    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
++    bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
+
+     function initialize(address initialOwner) initializer public {
+         __ERC20_init("MyToken", "MTK");
+         __UUPSUpgradeable_init();
 +        __AccessControl_init();
-        __UUPSUpgradeable_init();
-
--        owner = initialOwner;
 +        _grantRole(_crossChainRoleAlias(DEFAULT_ADMIN_ROLE), initialOwner); // initialOwner is on a remote chain
-
+-        owner = initialOwner;
+     }
 
 -    function mint(address to, uint256 amount) public onlyCrossChainSender(owner) {
 +    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
 
 -    function _authorizeUpgrade(address newImplementation) internal override onlyCrossChainSender(owner) {
-+    function _authorizeUpgrade(address newImplementation) internal onlyRole(UPGRADER_ROLE) override {
++    function _authorizeUpgrade(address newImplementation) internal override onlyRole(UPGRADER_ROLE) {
 ```
 
 This results in the following, final, code:
