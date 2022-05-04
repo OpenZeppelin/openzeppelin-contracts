@@ -124,7 +124,7 @@ In previous example, we have both a `onlyOwner()` modifier and the `onlyCrossCha
 
 Using xref:api:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`] includes both the xref:api:access.adoc#AccessControl[`AccessControl`] core and the xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] abstraction. It also includes some binding to make role management compatible with cross-chain operations.
 
-In the case of the `mint` function, the caller must have the `MINTER_ROLE` when the call originates from the same chain. If the caller is on a remote chain, then the caller should not have the `MINTER_ROLE`, but the "aliased" version (`MINTER_ROLE ^ CROSSCHAIN_ALIAS`). See the xref:api:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`] documentation for more details.
+In the case of the `mint` function, the caller must have the `MINTER_ROLE` when the call originates from the same chain. If the caller is on a remote chain, then the caller should not have the `MINTER_ROLE`, but the "aliased" version (`MINTER_ROLE ^ CROSSCHAIN_ALIAS`). This mitigates the danger described in the previous section by strictly separating local accounts from remote accounts from a different chain. See the xref:api:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`] documentation for more details.
 
 
 ```diff
