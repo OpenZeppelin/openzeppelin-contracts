@@ -7,6 +7,12 @@ pragma solidity ^0.8.0;
  * @dev Standard math utilities missing in the Solidity language.
  */
 library Math {
+    enum Rounding {
+        Down, // Toward negative infinity
+        Up, // Toward infinity
+        Zero // Toward zero
+    }
+
     /**
      * @dev Returns the largest of two numbers.
      */
@@ -39,5 +45,16 @@ library Math {
     function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
         // (a + b - 1) / b can overflow on addition, so we distribute.
         return a / b + (a % b == 0 ? 0 : 1);
+    }
+
+    /**
+     * @dev Returns the result of the muldiv operation with support for rounding directions.
+     * WARNING: THIS CAN OVERFLOW
+     */
+    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding direction) internal pure returns (uint256) {
+        uint256 z = x * y;
+        return direction == Rounding.Up
+            ? z == 0 ? 0 : (z - 1) / denominator + 1
+            : z / denominator;
     }
 }

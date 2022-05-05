@@ -214,14 +214,14 @@ contract('ERC4626', function (accounts) {
 
     it('mint', async function () {
       expect(await this.vault.maxMint(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
-      expect(await this.vault.previewMint(parseShare(1))).to.be.bignumber.equal('1');
+      expect(await this.vault.previewMint(parseShare(1))).to.be.bignumber.equal('0');
 
       const { tx } = await this.vault.mint(parseShare(1), recipient, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
         to: this.vault.address,
-        value: '1',
+        value: '0',
       });
 
       expectEvent.inTransaction(tx, this.vault, 'Transfer', {

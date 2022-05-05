@@ -5,12 +5,15 @@ pragma solidity ^0.8.0;
 import "../ERC20.sol";
 import "../utils/SafeERC20.sol";
 import "../../../interfaces/IERC4626.sol";
+import "../../../utils/math/Math.sol";
 
 abstract contract ERC4626 is ERC20, IERC4626 {
+    using Math for uint256;
+
     IERC20Metadata private immutable _asset;
 
-    constructor(IERC20Metadata __asset) {
-        _asset = __asset;
+    constructor(IERC20Metadata asset_) {
+        _asset = asset_;
     }
 
     /** @dev See {IERC4262-asset} */
@@ -23,26 +26,14 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return _asset.balanceOf(address(this));
     }
 
-    /**
-     * @dev See {IERC4262-convertToShares}
-     *
-     * Will revert if asserts > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
-     * would represent an infinite amout of shares.
-     */
+    /** @dev See {IERC4262-convertToShares} */
     function convertToShares(uint256 assets) public view virtual override returns (uint256 shares) {
-        uint256 supply = totalSupply();
-
-        return
-            (assets == 0 || supply == 0)
-                ? (assets * 10**decimals()) / 10**_asset.decimals()
-                : (assets * supply) / totalAssets();
+        return _convertToShares(assets, Math.Rounding.Down);
     }
 
     /** @dev See {IERC4262-convertToAssets} */
     function convertToAssets(uint256 shares) public view virtual override returns (uint256 assets) {
-        uint256 supply = totalSupply();
-
-        return (supply == 0) ? (shares * 10**_asset.decimals()) / 10**decimals() : (shares * totalAssets()) / supply;
+        return _convertToAssets(shares, Math.Rounding.Down);
     }
 
     /** @dev See {IERC4262-maxDeposit} */
@@ -57,7 +48,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4262-maxWithdraw} */
     function maxWithdraw(address owner) public view virtual override returns (uint256) {
-        return convertToAssets(balanceOf(owner));
+        return _convertToAssets(balanceOf(owner), Math.Rounding.Down);
     }
 
     /** @dev See {IERC4262-maxRedeem} */
@@ -67,24 +58,22 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4262-previewDeposit} */
     function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
-        return convertToShares(assets);
+        return _convertToShares(assets, Math.Rounding.Down);
     }
 
     /** @dev See {IERC4262-previewMint} */
     function previewMint(uint256 shares) public view virtual override returns (uint256) {
-        uint256 assets = convertToAssets(shares);
-        return assets + (convertToShares(assets) < shares ? 1 : 0);
+        return _convertToAssets(shares, Math.Rounding.Up);
     }
 
     /** @dev See {IERC4262-previewWithdraw} */
     function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
-        uint256 shares = convertToShares(assets);
-        return shares + (convertToAssets(shares) < assets ? 1 : 0);
+        return _convertToShares(assets, Math.Rounding.Up);
     }
 
     /** @dev See {IERC4262-previewRedeem} */
     function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
-        return convertToAssets(shares);
+        return _convertToAssets(shares, Math.Rounding.Down);
     }
 
     /** @dev See {IERC4262-deposit} */
@@ -169,5 +158,28 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         emit Withdraw(caller, receiver, owner, assets, shares);
 
         return assets;
+    }
+
+    /**
+     * @dev Internal convertion function (from assets to shares) with support for rounding direction
+     *
+     * Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
+     * would represent an infinite amout of shares.
+     */
+    function _convertToShares(uint256 assets, Math.Rounding direction) internal view virtual returns (uint256 shares) {
+        uint256 supply = totalSupply();
+        return (assets == 0 || supply == 0)
+            ? assets.mulDiv(10 ** decimals(), 10 ** _asset.decimals(), direction)
+            : assets.mulDiv(supply, totalAssets(), direction);
+    }
+
+    /**
+     * @dev Internal convertion function (from shares to assets) with support for rounding direction
+     */
+    function _convertToAssets(uint256 shares, Math.Rounding direction) internal view virtual returns (uint256 assets) {
+        uint256 supply = totalSupply();
+        return (supply == 0)
+            ? shares.mulDiv(10 ** _asset.decimals(), 10 ** decimals(), direction)
+            : shares.mulDiv(totalAssets(), supply, direction);
     }
 }
