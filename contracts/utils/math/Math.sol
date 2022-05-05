@@ -147,8 +147,7 @@ library Math {
     ) internal pure returns (uint256) {
         uint256 result = mulDiv(x, y, denominator);
         if (direction == Rounding.Up && mulmod(x, y, denominator) > 0) {
-            require(result < type(uint256).max);
-            result++;
+            result += 1;
         }
         return result;
     }
