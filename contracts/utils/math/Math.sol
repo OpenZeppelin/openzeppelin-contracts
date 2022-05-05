@@ -116,7 +116,7 @@ library Math {
             // Invert denominator mod 2^256. Now that denominator is an odd number, it has an inverse modulo 2^256 such
             // that denominator * inv = 1 mod 2^256. Compute the inverse by starting with a seed that is correct for
             // four bits. That is, denominator * inv = 1 mod 2^4.
-            uint256 inverse = denominator ** 3;
+            uint256 inverse = denominator**3;
 
             // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also works
             // in modular arithmetic, doubling the correct bits in each step.

@@ -376,7 +376,8 @@ contract('ERC4626', function (accounts) {
     });
   });
 
-  // Scenario inspired by solmate ERC4626 tests: https://github.com/Rari-Capital/solmate/blob/main/src/test/ERC4626.t.sol
+  /// Scenario inspired by solmate ERC4626 tests:
+  /// https://github.com/Rari-Capital/solmate/blob/main/src/test/ERC4626.t.sol
   it('multiple mint, deposit, redeem & withdrawal', async function () {
     // test designed with both asset using similar decimals
     this.token = await ERC20DecimalsMock.new(name, symbol, 18);
@@ -434,16 +435,14 @@ contract('ERC4626', function (accounts) {
     }
 
     // 3. Vault mutates by +3000 tokens (simulated yield returned from strategy)
-    {
-      await this.token.mint(this.vault.address, 3000);
+    await this.token.mint(this.vault.address, 3000);
 
-      expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('2000');
-      expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4000');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('3000');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('6000');
-      expect(await this.vault.totalSupply()).to.be.bignumber.equal('6000');
-      expect(await this.vault.totalAssets()).to.be.bignumber.equal('9000');
-    }
+    expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('2000');
+    expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4000');
+    expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('3000');
+    expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('6000');
+    expect(await this.vault.totalSupply()).to.be.bignumber.equal('6000');
+    expect(await this.vault.totalAssets()).to.be.bignumber.equal('9000');
 
     // 4. Alice deposits 2000 tokens (mints 1333 shares)
     {
@@ -493,16 +492,14 @@ contract('ERC4626', function (accounts) {
 
     // 6. Vault mutates by +3000 tokens
     // NOTE: Vault holds 17001 tokens, but sum of assetsOf() is 17000.
-    {
-      await this.token.mint(this.vault.address, 3000);
+    await this.token.mint(this.vault.address, 3000);
 
-      expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('3333');
-      expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('6000');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('6071');
-      expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('10929');
-      expect(await this.vault.totalSupply()).to.be.bignumber.equal('9333');
-      expect(await this.vault.totalAssets()).to.be.bignumber.equal('17001');
-    }
+    expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('3333');
+    expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('6000');
+    expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('6071');
+    expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('10929');
+    expect(await this.vault.totalSupply()).to.be.bignumber.equal('9333');
+    expect(await this.vault.totalAssets()).to.be.bignumber.equal('17001');
 
     // 7. Alice redeem 1333 shares (2428 assets)
     {

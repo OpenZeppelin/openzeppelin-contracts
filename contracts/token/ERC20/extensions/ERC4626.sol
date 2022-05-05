@@ -168,9 +168,10 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      */
     function _convertToShares(uint256 assets, Math.Rounding direction) internal view virtual returns (uint256 shares) {
         uint256 supply = totalSupply();
-        return (assets == 0 || supply == 0)
-            ? assets.mulDiv(10 ** decimals(), 10 ** _asset.decimals(), direction)
-            : assets.mulDiv(supply, totalAssets(), direction);
+        return
+            (assets == 0 || supply == 0)
+                ? assets.mulDiv(10**decimals(), 10**_asset.decimals(), direction)
+                : assets.mulDiv(supply, totalAssets(), direction);
     }
 
     /**
@@ -178,8 +179,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      */
     function _convertToAssets(uint256 shares, Math.Rounding direction) internal view virtual returns (uint256 assets) {
         uint256 supply = totalSupply();
-        return (supply == 0)
-            ? shares.mulDiv(10 ** _asset.decimals(), 10 ** decimals(), direction)
-            : shares.mulDiv(totalAssets(), supply, direction);
+        return
+            (supply == 0)
+                ? shares.mulDiv(10**_asset.decimals(), 10**decimals(), direction)
+                : shares.mulDiv(totalAssets(), supply, direction);
     }
 }

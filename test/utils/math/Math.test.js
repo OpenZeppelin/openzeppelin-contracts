@@ -89,34 +89,92 @@ contract('Math', function (accounts) {
   });
 
   describe('muldiv', function () {
-      describe('does round down', async function () {
-        it('small values', async function () {
-          expect(await this.math.mulDiv('3', '4', '5', 0)).to.be.bignumber.equal('2');
-          expect(await this.math.mulDiv('3', '5', '5', 0)).to.be.bignumber.equal('3');
-        });
+    describe('does round down', async function () {
+      it('small values', async function () {
+        expect(await this.math.mulDiv('3', '4', '5', 0)).to.be.bignumber.equal('2');
+        expect(await this.math.mulDiv('3', '5', '5', 0)).to.be.bignumber.equal('3');
       });
+    });
 
-      describe('does round up', async function () {
-        it('small values', async function () {
-          expect(await this.math.mulDiv('3', '4', '5', 1)).to.be.bignumber.equal('3');
-          expect(await this.math.mulDiv('3', '5', '5', 1)).to.be.bignumber.equal('3');
-        });
+    describe('does round up', async function () {
+      it('small values', async function () {
+        expect(await this.math.mulDiv('3', '4', '5', 1)).to.be.bignumber.equal('3');
+        expect(await this.math.mulDiv('3', '5', '5', 1)).to.be.bignumber.equal('3');
       });
+    });
 
-      describe('does round down', async function () {
-        expect(await this.math.mulDiv(new BN('42'),     MAX_UINT256_SUB1, MAX_UINT256, 0)).to.be.bignumber.equal(new BN('41'));
-        expect(await this.math.mulDiv(new BN('17'),     MAX_UINT256,      MAX_UINT256, 0)).to.be.bignumber.equal(new BN('17'));
-        expect(await this.math.mulDiv(MAX_UINT256_SUB1, MAX_UINT256_SUB1, MAX_UINT256, 0)).to.be.bignumber.equal(MAX_UINT256_SUB2);
-        expect(await this.math.mulDiv(MAX_UINT256,      MAX_UINT256_SUB1, MAX_UINT256, 0)).to.be.bignumber.equal(MAX_UINT256_SUB1);
-        expect(await this.math.mulDiv(MAX_UINT256,      MAX_UINT256,      MAX_UINT256, 0)).to.be.bignumber.equal(MAX_UINT256);
-      });
+    describe('does round down', async function () {
+      expect(await this.math.mulDiv(
+        new BN('42'),
+        MAX_UINT256_SUB1,
+        MAX_UINT256,
+        0,
+      )).to.be.bignumber.equal(new BN('41'));
 
-      describe('does round up', async function () {
-        expect(await this.math.mulDiv(new BN('42'),     MAX_UINT256_SUB1, MAX_UINT256, 1)).to.be.bignumber.equal(new BN('42'));
-        expect(await this.math.mulDiv(new BN('17'),     MAX_UINT256,      MAX_UINT256, 1)).to.be.bignumber.equal(new BN('17'));
-        expect(await this.math.mulDiv(MAX_UINT256_SUB1, MAX_UINT256_SUB1, MAX_UINT256, 1)).to.be.bignumber.equal(MAX_UINT256_SUB1);
-        expect(await this.math.mulDiv(MAX_UINT256,      MAX_UINT256_SUB1, MAX_UINT256, 1)).to.be.bignumber.equal(MAX_UINT256_SUB1);
-        expect(await this.math.mulDiv(MAX_UINT256,      MAX_UINT256,      MAX_UINT256, 1)).to.be.bignumber.equal(MAX_UINT256);
-      });
+      expect(await this.math.mulDiv(
+        new BN('17'),
+        MAX_UINT256,
+        MAX_UINT256,
+        0,
+      )).to.be.bignumber.equal(new BN('17'));
+
+      expect(await this.math.mulDiv(
+        MAX_UINT256_SUB1,
+        MAX_UINT256_SUB1,
+        MAX_UINT256,
+        0,
+      )).to.be.bignumber.equal(MAX_UINT256_SUB2);
+
+      expect(await this.math.mulDiv(
+        MAX_UINT256,
+        MAX_UINT256_SUB1,
+        MAX_UINT256,
+        0,
+      )).to.be.bignumber.equal(MAX_UINT256_SUB1);
+
+      expect(await this.math.mulDiv(
+        MAX_UINT256,
+        MAX_UINT256,
+        MAX_UINT256,
+        0,
+      )).to.be.bignumber.equal(MAX_UINT256);
+    });
+
+    describe('does round up', async function () {
+      expect(await this.math.mulDiv(
+        new BN('42'),
+        MAX_UINT256_SUB1,
+        MAX_UINT256,
+        1,
+      )).to.be.bignumber.equal(new BN('42'));
+
+      expect(await this.math.mulDiv(
+        new BN('17'),
+        MAX_UINT256,
+        MAX_UINT256,
+        1,
+      )).to.be.bignumber.equal(new BN('17'));
+
+      expect(await this.math.mulDiv(
+        MAX_UINT256_SUB1,
+        MAX_UINT256_SUB1,
+        MAX_UINT256,
+        1,
+      )).to.be.bignumber.equal(MAX_UINT256_SUB1);
+
+      expect(await this.math.mulDiv(
+        MAX_UINT256,
+        MAX_UINT256_SUB1,
+        MAX_UINT256,
+        1,
+      )).to.be.bignumber.equal(MAX_UINT256_SUB1);
+
+      expect(await this.math.mulDiv(
+        MAX_UINT256,
+        MAX_UINT256,
+        MAX_UINT256,
+        1,
+      )).to.be.bignumber.equal(MAX_UINT256);
+    });
   });
 });
