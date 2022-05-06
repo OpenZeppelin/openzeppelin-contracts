@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.6.0) (crosschain/polygon/CrossChainEnabledPolygonChild.sol)
 
 pragma solidity ^0.8.4;
 
@@ -10,7 +11,7 @@ import "../../vendor/polygon/IFxMessageProcessor.sol";
 address constant DEFAULT_SENDER = 0x000000000000000000000000000000000000dEaD;
 
 /**
- * @dev [Polygon](https://polygon.technology/) specialization or the
+ * @dev https://polygon.technology/[Polygon] specialization or the
  * {CrossChainEnabled} abstraction the child side (polygon/mumbai).
  *
  * This version should only be deployed on child chain to process cross-chain
@@ -18,7 +19,7 @@ address constant DEFAULT_SENDER = 0x000000000000000000000000000000000000dEaD;
  *
  * The fxChild contract is provided and maintained by the polygon team. You can
  * find the address of this contract polygon and mumbai in
- * [Polygon's Fx-Portal documentation](https://docs.polygon.technology/docs/develop/l1-l2-communication/fx-portal/#contract-addresses).
+ * https://docs.polygon.technology/docs/develop/l1-l2-communication/fx-portal/#contract-addresses[Polygon's Fx-Portal documentation].
  *
  * _Available since v4.6._
  */
@@ -62,10 +63,10 @@ abstract contract CrossChainEnabledPolygonChild is IFxMessageProcessor, CrossCha
         address rootMessageSender,
         bytes calldata data
     ) external override nonReentrant {
-        require(msg.sender == _fxChild, "unauthorized cross-chain relay");
+        if (!_isCrossChain()) revert NotCrossChainCall();
 
         _sender = rootMessageSender;
-        Address.functionDelegateCall(address(this), data, "crosschain execution failled");
+        Address.functionDelegateCall(address(this), data, "cross-chain execution failed");
         _sender = DEFAULT_SENDER;
     }
 }

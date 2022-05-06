@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.6.0) (crosschain/arbitrum/CrossChainEnabledArbitrumL1.sol)
 
 pragma solidity ^0.8.4;
 
@@ -6,7 +7,7 @@ import "../CrossChainEnabled.sol";
 import "./LibArbitrumL1.sol";
 
 /**
- * @dev [Arbitrum](https://arbitrum.io/) specialization or the
+ * @dev https://arbitrum.io/[Arbitrum] specialization or the
  * {CrossChainEnabled} abstraction the L1 side (mainnet).
  *
  * This version should only be deployed on L1 to process cross-chain messages
@@ -14,7 +15,7 @@ import "./LibArbitrumL1.sol";
  *
  * The bridge contract is provided and maintained by the arbitrum team. You can
  * find the address of this contract on the rinkeby testnet in
- * [Arbitrum's developer documentation](https://developer.offchainlabs.com/docs/useful_addresses).
+ * https://developer.offchainlabs.com/docs/useful_addresses[Arbitrum's developer documentation].
  *
  * _Available since v4.6._
  */

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.6.0) (crosschain/optimism/CrossChainEnabledOptimism.sol)
 
 pragma solidity ^0.8.4;
 
@@ -6,12 +7,12 @@ import "../CrossChainEnabled.sol";
 import "./LibOptimism.sol";
 
 /**
- * @dev [Optimism](https://www.optimism.io/) specialization or the
+ * @dev https://www.optimism.io/[Optimism] specialization or the
  * {CrossChainEnabled} abstraction.
  *
  * The messenger (`CrossDomainMessenger`) contract is provided and maintained by
  * the optimism team. You can find the address of this contract on mainnet and
- * kovan in the [deployments section of Optimism monorepo](https://github.com/ethereum-optimism/optimism/tree/develop/packages/contracts/deployments).
+ * kovan in the https://github.com/ethereum-optimism/optimism/tree/develop/packages/contracts/deployments[deployments section of Optimism monorepo].
  *
  * _Available since v4.6._
  */
