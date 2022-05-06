@@ -5,6 +5,8 @@
  * `Clones`: optimize clone creation ([#3329](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3329))
  * `TimelockController`: Migrate `_call` to `_execute` and allow inheritance and overriding similar to `Governor`. ([#3317](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3317))
  * `CrossChainEnabledPolygonChild`: replace the `require` statement with the custom error `NotCrossChainCall`. ([#3380](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3380))
+ * `ERC5626`: add an extension of `ERC20` that implements the `ERC4626` "tokenized vault standard". ([#3171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3171))
+ * `Math`: add a `mulDiv` function that can be request to round the result either up or down. ([#3171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3171))
 
 ## 4.6.0 (2022-04-26)
 
