@@ -18,7 +18,6 @@ interface IERC721Enumerable is IERC721 {
     /**
      * @dev Returns a token ID owned by `owner` at a given `index` of its token list.
      * Use along with {balanceOf} to enumerate all of ``owner``'s tokens.
-     * _tokensOfOwner should not be exposed as an external function because it has cost proportional to the length of the array and can stop working when the array is too large
      */
     function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256);
 
