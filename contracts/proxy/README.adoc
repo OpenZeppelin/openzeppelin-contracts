@@ -23,7 +23,7 @@ CAUTION: Using upgradeable proxies correctly and securely is a difficult task th
 
 A different family of proxies are beacon proxies. This pattern, popularized by Dharma, allows multiple proxies to be upgraded to a different implementation in a single transaction.
 
-- {BeaconProxy}: A proxy that retreives its implementation from a beacon contract.
+- {BeaconProxy}: A proxy that retrieves its implementation from a beacon contract.
 - {UpgradeableBeacon}: A beacon contract with a built in admin that can upgrade the {BeaconProxy} pointing to it.
 
 In this pattern, the proxy contract doesn't hold the implementation address in storage like an ERC1967 proxy, instead the address is stored in a separate beacon contract. The `upgrade` operations that are sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.

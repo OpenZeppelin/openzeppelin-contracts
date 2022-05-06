@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (finance/VestingWallet.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (finance/VestingWallet.sol)
 pragma solidity ^0.8.0;
 
 import "../token/ERC20/utils/SafeERC20.sol";
@@ -120,7 +120,7 @@ contract VestingWallet is Context {
     }
 
     /**
-     * @dev Virtual implementation of the vesting formula. This returns the amout vested, as a function of time, for
+     * @dev Virtual implementation of the vesting formula. This returns the amount vested, as a function of time, for
      * an asset given its total historical allocation.
      */
     function _vestingSchedule(uint256 totalAllocation, uint64 timestamp) internal view virtual returns (uint256) {

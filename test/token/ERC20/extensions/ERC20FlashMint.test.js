@@ -67,7 +67,7 @@ contract('ERC20FlashMint', function (accounts) {
       const receiver = await ERC3156FlashBorrowerMock.new(true, false);
       await expectRevert(
         this.token.flashLoan(receiver.address, this.token.address, loanAmount, '0x'),
-        'ERC20FlashMint: allowance does not allow refund',
+        'ERC20: insufficient allowance',
       );
     });
 
