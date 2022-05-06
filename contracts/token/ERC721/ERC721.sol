@@ -15,6 +15,7 @@ import "../../utils/introspection/ERC165.sol";
  * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
  * the Metadata extension, but not including the Enumerable extension, which is available separately as
  * {ERC721Enumerable}.
+ * _tokensOfOwner should not be exposed as an external function because it has cost proportional to the length of the array and can stop working when the array is too large.
  */
 contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     using Address for address;
