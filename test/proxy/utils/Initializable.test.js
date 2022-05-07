@@ -85,13 +85,9 @@ contract('Initializable', function (accounts) {
       expect(await this.contract.counter()).to.be.bignumber.equal('2');
     });
 
-    it('can nest reinitializers with same version', async function () {
+    it('cannot nest reinitializers', async function () {
       expect(await this.contract.counter()).to.be.bignumber.equal('0');
       await expectRevert(this.contract.nestedReinitialize(2, 2), 'Initializable: contract is already initialized');
-    });
-
-    it('cannot nest reinitializers with different versions', async function () {
-      expect(await this.contract.counter()).to.be.bignumber.equal('0');
       await expectRevert(this.contract.nestedReinitialize(2, 3), 'Initializable: contract is already initialized');
       await expectRevert(this.contract.nestedReinitialize(3, 2), 'Initializable: contract is already initialized');
     });
