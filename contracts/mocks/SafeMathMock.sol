@@ -73,14 +73,12 @@ contract SafeMathMock {
 
     function addMemoryCheck() public pure returns (uint256 mem) {
         uint256 length = 32;
-        /// @solidity memory-safe-assembly
         assembly {
             mem := mload(0x40)
         }
         for (uint256 i = 0; i < length; ++i) {
             SafeMath.add(1, 1);
         }
-        /// @solidity memory-safe-assembly
         assembly {
             mem := sub(mload(0x40), mem)
         }
@@ -88,14 +86,12 @@ contract SafeMathMock {
 
     function subMemoryCheck() public pure returns (uint256 mem) {
         uint256 length = 32;
-        /// @solidity memory-safe-assembly
         assembly {
             mem := mload(0x40)
         }
         for (uint256 i = 0; i < length; ++i) {
             SafeMath.sub(1, 1);
         }
-        /// @solidity memory-safe-assembly
         assembly {
             mem := sub(mload(0x40), mem)
         }
@@ -103,14 +99,12 @@ contract SafeMathMock {
 
     function mulMemoryCheck() public pure returns (uint256 mem) {
         uint256 length = 32;
-        /// @solidity memory-safe-assembly
         assembly {
             mem := mload(0x40)
         }
         for (uint256 i = 0; i < length; ++i) {
             SafeMath.mul(1, 1);
         }
-        /// @solidity memory-safe-assembly
         assembly {
             mem := sub(mload(0x40), mem)
         }
@@ -118,14 +112,12 @@ contract SafeMathMock {
 
     function divMemoryCheck() public pure returns (uint256 mem) {
         uint256 length = 32;
-        /// @solidity memory-safe-assembly
         assembly {
             mem := mload(0x40)
         }
         for (uint256 i = 0; i < length; ++i) {
             SafeMath.div(1, 1);
         }
-        /// @solidity memory-safe-assembly
         assembly {
             mem := sub(mload(0x40), mem)
         }
@@ -133,14 +125,12 @@ contract SafeMathMock {
 
     function modMemoryCheck() public pure returns (uint256 mem) {
         uint256 length = 32;
-        /// @solidity memory-safe-assembly
         assembly {
             mem := mload(0x40)
         }
         for (uint256 i = 0; i < length; ++i) {
             SafeMath.mod(1, 1);
         }
-        /// @solidity memory-safe-assembly
         assembly {
             mem := sub(mload(0x40), mem)
         }
