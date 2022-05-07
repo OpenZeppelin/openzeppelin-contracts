@@ -34,7 +34,7 @@ contract('Initializable', function (accounts) {
     });
 
     describe('nested under an initializer', function () {
-      it('initializer modifier can be nested', async function () {
+      it('initializer modifier reverts', async function () {
         await expectRevert(this.contract.initializerNested(), 'Initializable: contract is already initialized');
       });
 
