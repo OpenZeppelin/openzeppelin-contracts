@@ -35,7 +35,7 @@ contract('Initializable', function (accounts) {
 
     describe('nested under an initializer', function () {
       it('initializer modifier can be nested', async function () {
-        await this.contract.initializerNested();
+        await expectRevert(this.contract.initializerNested(), 'Initializable: contract is already initialized');
       });
 
       it('onlyInitializing modifier succeeds', async function () {
@@ -87,8 +87,7 @@ contract('Initializable', function (accounts) {
 
     it('can nest reinitializers with same version', async function () {
       expect(await this.contract.counter()).to.be.bignumber.equal('0');
-      await this.contract.nestedReinitialize(2, 2);
-      expect(await this.contract.counter()).to.be.bignumber.equal('1');
+      await expectRevert(this.contract.nestedReinitialize(2, 2), 'Initializable: contract is already initialized');
     });
 
     it('cannot nest reinitializers with different versions', async function () {

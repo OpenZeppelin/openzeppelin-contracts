@@ -140,7 +140,6 @@ abstract contract Initializable {
 
         require(
             (isTopLevelCall && version > currentVersion) || // not nested with increasing version or
-                (!isTopLevelCall && version == currentVersion) || // nested with same version or
                 (!Address.isContract(address(this)) && version == 1), // contract being constructed
             "Initializable: contract is already initialized"
         );
