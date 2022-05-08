@@ -3,8 +3,6 @@
 
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
-
 /**
  * @dev Standard math utilities missing in the Solidity language.
  */
