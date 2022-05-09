@@ -56,4 +56,11 @@ contract('Strings', function (accounts) {
         .to.equal(web3.utils.toHex(constants.MAX_UINT256));
     });
   });
+
+  describe('from address - hex format', function () {
+    it('converts an address', async function () {
+      expect(web3.utils.toChecksumAddress(await this.strings.fromAddressHex(this.strings.address)))
+        .to.equal(this.strings.address.toString());
+    });
+  });
 });

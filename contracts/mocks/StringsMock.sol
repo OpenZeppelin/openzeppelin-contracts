@@ -16,4 +16,8 @@ contract StringsMock {
     function fromUint256HexFixed(uint256 value, uint256 length) public pure returns (string memory) {
         return Strings.toHexString(value, length);
     }
+
+    function fromAddressHex(address addr) public pure returns (string memory) {
+        return Strings.addressToHexString(addr);
+    }
 }

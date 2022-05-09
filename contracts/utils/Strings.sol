@@ -64,4 +64,11 @@ library Strings {
         require(value == 0, "Strings: hex length insufficient");
         return string(buffer);
     }
+
+    /**
+     * @dev Converts an `address` to its ASCII `string` hexadecimal representation.
+     */
+    function addressToHexString(address addr) internal pure returns (string memory) {
+        return toHexString(uint256(uint160(addr)));
+    }
 }
