@@ -129,7 +129,7 @@ For 1) we will use the GovernorVotes module, which hooks to an IVotes instance t
 
 For 2) we will use GovernorVotesQuorumFraction which works together with ERC20Votes to define quorum as a percentage of the total supply at the block a proposal’s voting power is retrieved. This requires a constructor parameter to set the percentage. Most Governors nowadays use 4%, so we will initialize the module with parameter 4 (this indicates the percentage, resulting in 4%).
 
-For 3) we will use GovernorCountingSimple, a module that offers 3 options to voters: For, Against, and Abstain, and where only For and Abstain votes are counted towards quorum.
+For 3) we will use GovernorCountingSimple, a module that offers 3 options to voters: For, Against, and Abstain, and where only For and Against votes are counted towards quorum.
 
 Besides these modules, Governor itself has some parameters we must set.
 
