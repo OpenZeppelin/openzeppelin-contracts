@@ -2,7 +2,7 @@
 ///////////////////// Governor.sol base definitions //////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-using ERC721VotesHarness as erc20votes
+using ERC721VotesHarness as erc721votes
 
 methods {
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
@@ -60,9 +60,9 @@ rule deadlineChangeEffects(method f) filtered {f -> !f.isView /* bottleneck, res
     require (latestCastVoteCall() < e.block.number);
     require (quorumNumerator() <= quorumDenominator());
     require deadlineCanBeExtended(id);
-    require (proposalDeadline(id) < e.block.number 
+    require (proposalDeadline(id) > e.block.number 
     && proposalDeadline(id) >= proposalSnapshot(id) + votingPeriod() 
-    && proposalSnapshot(id) > e.block.number); 
+    && proposalSnapshot(id) < e.block.number); 
     
     uint256 deadlineBefore = proposalDeadline(id);
     f(e, args);
@@ -85,9 +85,9 @@ rule canExtendDeadlineOnce(method f) filtered {f -> !f.isView /* && f.selector !
     env e; calldataarg args;
     uint256 id;
     require(deadlineHasBeenExtended(id)); // stays true
-    require (proposalDeadline(id) < e.block.number 
+    require (proposalDeadline(id) > e.block.number 
     && proposalDeadline(id) >= proposalSnapshot(id) + votingPeriod() 
-    && proposalSnapshot(id) > e.block.number); 
+    && proposalSnapshot(id) < e.block.number); 
     uint256 deadlineBefore = proposalDeadline(id);
     f(e, args);
     uint256 deadlineAfter = proposalDeadline(id);
