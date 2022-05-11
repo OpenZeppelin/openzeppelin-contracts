@@ -21,8 +21,8 @@ abstract contract GovernorPreventLateQuorum is Governor {
     using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
 
-    uint64 private _voteExtension;
-    mapping(uint256 => Timers.BlockNumber) private _extendedDeadlines;
+    uint64 internal _voteExtension;
+    mapping(uint256 => Timers.BlockNumber) internal _extendedDeadlines;
 
     /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
     event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
