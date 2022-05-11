@@ -353,7 +353,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev Approve `to` to operate on `tokenId`
      *
-     * Emits a {Approval} event.
+     * Emits an {Approval} event.
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
@@ -363,7 +363,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev Approve `operator` to operate on all of `owner` tokens
      *
-     * Emits a {ApprovalForAll} event.
+     * Emits an {ApprovalForAll} event.
      */
     function _setApprovalForAll(
         address owner,
