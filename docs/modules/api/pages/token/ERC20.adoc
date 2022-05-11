@@ -2553,7 +2553,7 @@ Requirements:
 [[ERC20-_transfer-address-address-uint256-]]
 ==== `[.contract-item-name]#++_transfer++#++(address from, address to, uint256 amount)++` [.item-kind]#internal#
 
-Moves `amount` of tokens from `sender` to `recipient`.
+Moves `amount` of tokens from `from` to `to`.
 
 This internal function is equivalent to {transfer}, and can be used to
 e.g. implement automatic token fees, slashing mechanisms, etc.

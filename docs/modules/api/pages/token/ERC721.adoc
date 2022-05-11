@@ -2524,12 +2524,12 @@ the Metadata extension, but not including the Enumerable extension, which is ava
 * {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
 * {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
 * {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
-* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, _data)++`]
-* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, _data)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
 * {xref-ERC721-_exists-uint256-}[`++_exists(tokenId)++`]
 * {xref-ERC721-_isApprovedOrOwner-address-uint256-}[`++_isApprovedOrOwner(spender, tokenId)++`]
 * {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
-* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, _data)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
 * {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
 * {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
 * {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
@@ -2665,18 +2665,18 @@ See {IERC721-safeTransferFrom}.
 
 [.contract-item]
 [[ERC721-safeTransferFrom-address-address-uint256-bytes-]]
-==== `[.contract-item-name]#++safeTransferFrom++#++(address from, address to, uint256 tokenId, bytes _data)++` [.item-kind]#public#
+==== `[.contract-item-name]#++safeTransferFrom++#++(address from, address to, uint256 tokenId, bytes data)++` [.item-kind]#public#
 
 See {IERC721-safeTransferFrom}.
 
 [.contract-item]
 [[ERC721-_safeTransfer-address-address-uint256-bytes-]]
-==== `[.contract-item-name]#++_safeTransfer++#++(address from, address to, uint256 tokenId, bytes _data)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_safeTransfer++#++(address from, address to, uint256 tokenId, bytes data)++` [.item-kind]#internal#
 
 Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
 are aware of the ERC721 protocol to prevent tokens from being forever locked.
 
-`_data` is additional data, it has no specified format and it is sent in call to `to`.
+`data` is additional data, it has no specified format and it is sent in call to `to`.
 
 This internal function is equivalent to {safeTransferFrom}, and can be used to e.g.
 implement alternative mechanisms to perform token transfer, such as signature-based.
@@ -2726,7 +2726,7 @@ Emits a {Transfer} event.
 
 [.contract-item]
 [[ERC721-_safeMint-address-uint256-bytes-]]
-==== `[.contract-item-name]#++_safeMint++#++(address to, uint256 tokenId, bytes _data)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_safeMint++#++(address to, uint256 tokenId, bytes data)++` [.item-kind]#internal#
 
 Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
 forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
@@ -2779,7 +2779,7 @@ Emits a {Transfer} event.
 
 Approve `to` to operate on `tokenId`
 
-Emits a {Approval} event.
+Emits an {Approval} event.
 
 [.contract-item]
 [[ERC721-_setApprovalForAll-address-address-bool-]]
@@ -2787,7 +2787,7 @@ Emits a {Approval} event.
 
 Approve `operator` to operate on all of `owner` tokens
 
-Emits a {ApprovalForAll} event.
+Emits an {ApprovalForAll} event.
 
 [.contract-item]
 [[ERC721-_beforeTokenTransfer-address-address-uint256-]]
@@ -2871,12 +2871,12 @@ account.
 * {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
 * {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
 * {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
-* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, _data)++`]
-* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, _data)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
 * {xref-ERC721-_exists-uint256-}[`++_exists(tokenId)++`]
 * {xref-ERC721-_isApprovedOrOwner-address-uint256-}[`++_isApprovedOrOwner(spender, tokenId)++`]
 * {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
-* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, _data)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
 * {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
 * {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
 * {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
@@ -3062,12 +3062,12 @@ event of a large bug.
 * {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
 * {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
 * {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
-* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, _data)++`]
-* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, _data)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
 * {xref-ERC721-_exists-uint256-}[`++_exists(tokenId)++`]
 * {xref-ERC721-_isApprovedOrOwner-address-uint256-}[`++_isApprovedOrOwner(spender, tokenId)++`]
 * {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
-* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, _data)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
 * {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
 * {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
 * {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
@@ -3171,12 +3171,12 @@ ERC721 Token that can be irreversibly burned (destroyed).
 * {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
 * {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
 * {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
-* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, _data)++`]
-* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, _data)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
 * {xref-ERC721-_exists-uint256-}[`++_exists(tokenId)++`]
 * {xref-ERC721-_isApprovedOrOwner-address-uint256-}[`++_isApprovedOrOwner(spender, tokenId)++`]
 * {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
-* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, _data)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
 * {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
 * {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
 * {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
@@ -3279,12 +3279,12 @@ ERC721 token with storage based token URI management.
 * {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
 * {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
 * {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
-* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, _data)++`]
-* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, _data)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
 * {xref-ERC721-_exists-uint256-}[`++_exists(tokenId)++`]
 * {xref-ERC721-_isApprovedOrOwner-address-uint256-}[`++_isApprovedOrOwner(spender, tokenId)++`]
 * {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
-* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, _data)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
 * {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
 * {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
 * {xref-ERC721-_approve-address-uint256-}[`++_approve(to, tokenId)++`]
@@ -3431,12 +3431,12 @@ _Available since v4.5._
 * {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
 * {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
 * {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
-* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, _data)++`]
-* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, _data)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
 * {xref-ERC721-_exists-uint256-}[`++_exists(tokenId)++`]
 * {xref-ERC721-_isApprovedOrOwner-address-uint256-}[`++_isApprovedOrOwner(spender, tokenId)++`]
 * {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
-* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, _data)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
 * {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
 * {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
 * {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
@@ -3564,12 +3564,12 @@ _Available since v4.5._
 * {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
 * {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
 * {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
-* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, _data)++`]
-* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, _data)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
 * {xref-ERC721-_exists-uint256-}[`++_exists(tokenId)++`]
 * {xref-ERC721-_isApprovedOrOwner-address-uint256-}[`++_isApprovedOrOwner(spender, tokenId)++`]
 * {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
-* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, _data)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
 * {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
 * {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
 * {xref-ERC721-_approve-address-uint256-}[`++_approve(to, tokenId)++`]

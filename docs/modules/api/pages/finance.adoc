@@ -2388,7 +2388,7 @@ Amount of token already released
 
 Release the native token (ether) that have already vested.
 
-Emits a {TokensReleased} event.
+Emits a {EtherReleased} event.
 
 [.contract-item]
 [[VestingWallet-release-address-]]
@@ -2396,7 +2396,7 @@ Emits a {TokensReleased} event.
 
 Release the tokens that have already vested.
 
-Emits a {TokensReleased} event.
+Emits a {ERC20Released} event.
 
 [.contract-item]
 [[VestingWallet-vestedAmount-uint64-]]

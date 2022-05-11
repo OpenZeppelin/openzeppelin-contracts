@@ -2564,6 +2564,8 @@ acceptance magic value.
 
 xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_mint}.
 
+Emits a {TransferBatch} event.
+
 Requirements:
 
 - `ids` and `amounts` must have the same length.
@@ -2576,6 +2578,8 @@ acceptance magic value.
 
 Destroys `amount` tokens of token type `id` from `from`
 
+Emits a {TransferSingle} event.
+
 Requirements:
 
 - `from` cannot be the zero address.
@@ -2587,6 +2591,8 @@ Requirements:
 
 xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_burn}.
 
+Emits a {TransferBatch} event.
+
 Requirements:
 
 - `ids` and `amounts` must have the same length.
@@ -2597,7 +2603,7 @@ Requirements:
 
 Approve `operator` to operate on all of `owner` tokens
 
-Emits a {ApprovalForAll} event.
+Emits an {ApprovalForAll} event.
 
 [.contract-item]
 [[ERC1155-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-]]
@@ -2607,7 +2613,7 @@ Hook that is called before any token transfer. This includes minting
 and burning, as well as batched variants.
 
 The same hook is called on both single and batched variants. For single
-transfers, the length of the `id` and `amount` arrays will be 1.
+transfers, the length of the `ids` and `amounts` arrays will be 1.
 
 Calling conditions (for each `id` and `amount` pair):
 
