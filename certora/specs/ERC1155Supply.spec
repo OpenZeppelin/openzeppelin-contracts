@@ -1,6 +1,7 @@
 
 methods {
     totalSupply(uint256) returns uint256 envfree
+    balanceOf(address, uint256) returns uint256 envfree
 }
 
 /// given two different token ids, if totalSupply for one changes, then
@@ -28,6 +29,14 @@ filtered {
         "methods must not change the total supply of more than one token";
 }
 
+invariant sum_user_token_balances_vs_totalSupply(uint256 id, address user1, address user2)
+    balanceOf(user1, id) + balanceOf(user2, id) <= totalSupply(id) 
+{ preserved {
+    require user1 != user2;
+    //for every address not user1 or user2, balance is < user1 and < user2
+    require forall address user3. (user3 != user1 && user3 != user2) => balanceOf(user3, id) < balanceOf(user1, id) && balanceOf(user3, id) < balanceOf(user2, id);
+    }
+}
 
 rule sanity {
     method f; env e; calldataarg args;
