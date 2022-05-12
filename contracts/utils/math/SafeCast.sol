@@ -19,6 +19,36 @@ pragma solidity ^0.8.0;
  */
 library SafeCast {
     /**
+     * @dev Returns the downcasted uint240 from uint256, reverting on
+     * overflow (when the input is greater than largest uint240).
+     *
+     * Counterpart to Solidity's `uint240` operator.
+     *
+     * Requirements:
+     *
+     * - input must fit into 240 bits
+     */
+    function toUint240(uint256 value) internal pure returns (uint240) {
+        require(value <= type(uint240).max, "SafeCast: value doesn't fit in 240 bits");
+        return uint240(value);
+    }
+
+    /**
+     * @dev Returns the downcasted uint232 from uint256, reverting on
+     * overflow (when the input is greater than largest uint232).
+     *
+     * Counterpart to Solidity's `uint232` operator.
+     *
+     * Requirements:
+     *
+     * - input must fit into 232 bits
+     */
+    function toUint232(uint256 value) internal pure returns (uint232) {
+        require(value <= type(uint232).max, "SafeCast: value doesn't fit in 232 bits");
+        return uint232(value);
+    }
+
+    /**
      * @dev Returns the downcasted uint224 from uint256, reverting on
      * overflow (when the input is greater than largest uint224).
      *
@@ -448,6 +478,42 @@ library SafeCast {
     function toUint256(int256 value) internal pure returns (uint256) {
         require(value >= 0, "SafeCast: value must be positive");
         return uint256(value);
+    }
+
+    /**
+     * @dev Returns the downcasted int240 from int256, reverting on
+     * overflow (when the input is less than smallest int240 or
+     * greater than largest int240).
+     *
+     * Counterpart to Solidity's `int240` operator.
+     *
+     * Requirements:
+     *
+     * - input must fit into 240 bits
+     *
+     * _Available since v3.1._
+     */
+    function toInt240(int256 value) internal pure returns (int240) {
+        require(value >= type(int240).min && value <= type(int240).max, "SafeCast: value doesn't fit in 240 bits");
+        return int240(value);
+    }
+
+    /**
+     * @dev Returns the downcasted int232 from int256, reverting on
+     * overflow (when the input is less than smallest int232 or
+     * greater than largest int232).
+     *
+     * Counterpart to Solidity's `int232` operator.
+     *
+     * Requirements:
+     *
+     * - input must fit into 232 bits
+     *
+     * _Available since v3.1._
+     */
+    function toInt232(int256 value) internal pure returns (int232) {
+        require(value >= type(int232).min && value <= type(int232).max, "SafeCast: value doesn't fit in 232 bits");
+        return int232(value);
     }
 
     /**
