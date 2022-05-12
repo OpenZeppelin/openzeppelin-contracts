@@ -78,7 +78,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4262-deposit} */
     function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
-        require(assets <= maxDeposit(receiver), "ERC4626: deposit more then max");
+        require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
 
         address caller = _msgSender();
         uint256 shares = previewDeposit(assets);
@@ -95,7 +95,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4262-mint} */
     function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
-        require(shares <= maxMint(receiver), "ERC4626: mint more then max");
+        require(shares <= maxMint(receiver), "ERC4626: mint more than max");
 
         address caller = _msgSender();
         uint256 assets = previewMint(shares);
@@ -116,7 +116,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         address receiver,
         address owner
     ) public virtual override returns (uint256) {
-        require(assets <= maxWithdraw(owner), "ERC4626: withdraw more then max");
+        require(assets <= maxWithdraw(owner), "ERC4626: withdraw more than max");
 
         address caller = _msgSender();
         uint256 shares = previewWithdraw(assets);
@@ -141,7 +141,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         address receiver,
         address owner
     ) public virtual override returns (uint256) {
-        require(shares <= maxRedeem(owner), "ERC4626: redeem more then max");
+        require(shares <= maxRedeem(owner), "ERC4626: redeem more than max");
 
         address caller = _msgSender();
         uint256 assets = previewRedeem(shares);
