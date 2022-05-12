@@ -19,7 +19,8 @@ pragma solidity ^0.8.0;
  *
  * Can be combined with {SafeMath} and {SignedSafeMath} to extend it to smaller types, by performing
  * all math on \`uint256\` and \`int256\` and then downcasting.
- */`;
+ */
+`;
 
 const toInt = length => `\
 /**
@@ -91,7 +92,7 @@ function toUint${length}(uint256 value) internal pure returns (uint${length}) {
 const LENGTHS = Array(30).fill().map((_, i) => (i + 1) * 8).reverse(); // 224 → 8 (in steps of 8)
 
 module.exports = format(
-  header,
+  header.trimEnd(),
   'library SafeCast {',
   [
     ...LENGTHS.map(size => toUintDownCast(size)),
