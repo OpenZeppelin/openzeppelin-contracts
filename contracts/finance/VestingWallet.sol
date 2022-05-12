@@ -84,7 +84,7 @@ contract VestingWallet is Context {
     /**
      * @dev Release the native token (ether) that have already vested.
      *
-     * Emits a {TokensReleased} event.
+     * Emits a {EtherReleased} event.
      */
     function release() public virtual {
         uint256 releasable = vestedAmount(uint64(block.timestamp)) - released();
@@ -96,7 +96,7 @@ contract VestingWallet is Context {
     /**
      * @dev Release the tokens that have already vested.
      *
-     * Emits a {TokensReleased} event.
+     * Emits a {ERC20Released} event.
      */
     function release(address token) public virtual {
         uint256 releasable = vestedAmount(token, uint64(block.timestamp)) - released(token);
