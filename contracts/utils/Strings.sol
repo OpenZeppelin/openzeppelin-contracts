@@ -8,6 +8,7 @@ pragma solidity ^0.8.0;
  */
 library Strings {
     bytes16 private constant _HEX_SYMBOLS = "0123456789abcdef";
+    uint8 private constant _ADDRESS_LENGTH = 20;
 
     /**
      * @dev Converts a `uint256` to its ASCII `string` decimal representation.
@@ -66,9 +67,9 @@ library Strings {
     }
 
     /**
-     * @dev Converts an `address` to its ASCII `string` hexadecimal representation.
+     * @dev Converts an `address` to its ASCII `string` hexadecimal representation with fixed length of 20 bytes.
      */
     function addressToHexString(address addr) internal pure returns (string memory) {
-        return toHexString(uint256(uint160(addr)));
+        return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);
     }
 }

@@ -57,10 +57,14 @@ contract('Strings', function (accounts) {
     });
   });
 
-  describe('from address - hex format', function () {
-    it('converts an address', async function () {
+  describe('from address - fixed 20 bytes hex format', function () {
+    it('converts a random address', async function () {
       expect(web3.utils.toChecksumAddress(await this.strings.fromAddressHex(this.strings.address)))
         .to.equal(this.strings.address.toString());
+    });
+    it('converts an address with leading zeros', async function () {
+      const addr = '0x0000E0Ca771e21bD00057F54A68C30D400000000';
+      expect(web3.utils.toChecksumAddress(await this.strings.fromAddressHex(addr))).to.equal(addr);
     });
   });
 });
