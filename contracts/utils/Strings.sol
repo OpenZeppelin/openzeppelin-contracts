@@ -67,7 +67,7 @@ library Strings {
     }
 
     /**
-     * @dev Converts an `address` to its ASCII `string` hexadecimal representation with fixed length of 20 bytes.
+     * @dev Converts an `address` with fixed length of 20 bytes to its ASCII `string` hexadecimal representation.
      */
     function addressToHexString(address addr) internal pure returns (string memory) {
         return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);

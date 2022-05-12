@@ -57,7 +57,7 @@ contract('Strings', function (accounts) {
     });
   });
 
-  describe('from address - fixed 20 bytes hex format', function () {
+  describe('from address - hex format', function () {
     it('converts a random address', async function () {
       expect(web3.utils.toChecksumAddress(await this.strings.fromAddressHex(this.strings.address)))
         .to.equal(this.strings.address.toString());
