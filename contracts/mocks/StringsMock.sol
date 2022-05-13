@@ -17,7 +17,7 @@ contract StringsMock {
         return Strings.toHexString(value, length);
     }
 
-    function fromAddressHex(address addr) public pure returns (string memory) {
-        return Strings.addressToHexString(addr);
+    function fromAddressHexFixed(address addr) public pure returns (string memory) {
+        return Strings.toHexString(addr);
     }
 }
