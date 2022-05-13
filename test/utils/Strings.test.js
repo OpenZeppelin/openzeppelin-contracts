@@ -63,8 +63,8 @@ contract('Strings', function (accounts) {
       expect(await this.strings.fromAddressHexFixed(addr)).to.equal(addr);
     });
     it('converts an address with leading zeros', async function () {
-      const addr = '0x0000E0Ca771e21bD00057F54A68C30D400000000';
-      expect(web3.utils.toChecksumAddress(await this.strings.fromAddressHexFixed(addr))).to.equal(addr);
+      const addr = '0x0000e0ca771e21bd00057f54a68c30d400000000';
+      expect(await this.strings.fromAddressHexFixed(addr)).to.equal(addr);
     });
   });
 });
