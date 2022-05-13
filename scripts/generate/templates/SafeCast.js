@@ -91,7 +91,7 @@ function toUint${length}(uint256 value) internal pure returns (uint${length}) {
 `;
 
 // GENERATE
-const LENGTHS = Array(30).fill().map((_, i) => (i + 1) * 8).reverse(); // 224 → 8 (in steps of 8)
+const LENGTHS = Array(31).fill().map((_, i) => (i + 1) * 8).reverse(); // 248 → 8 (in steps of 8)
 
 module.exports = format(
   header.trimEnd(),

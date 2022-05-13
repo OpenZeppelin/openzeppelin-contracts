@@ -41,7 +41,7 @@ contract('SafeCast', async (accounts) => {
     });
   }
 
-  Array(30).fill().map((_, i) => (i + 1) * 8).forEach(bits => testToUint(bits));
+  Array(31).fill().map((_, i) => (i + 1) * 8).forEach(bits => testToUint(bits));
 
   describe('toUint256', () => {
     const maxInt256 = new BN('2').pow(new BN(255)).subn(1);
@@ -129,7 +129,7 @@ contract('SafeCast', async (accounts) => {
     });
   }
 
-  Array(30).fill().map((_, i) => (i + 1) * 8).forEach(bits => testToInt(bits));
+  Array(31).fill().map((_, i) => (i + 1) * 8).forEach(bits => testToInt(bits));
 
   describe('toInt256', () => {
     const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
