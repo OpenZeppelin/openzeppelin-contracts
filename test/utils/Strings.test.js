@@ -59,8 +59,8 @@ contract('Strings', function (accounts) {
 
   describe('from address - fixed hex format', function () {
     it('converts a random address', async function () {
-      expect(web3.utils.toChecksumAddress(await this.strings.fromAddressHexFixed(this.strings.address)))
-        .to.equal(this.strings.address.toString());
+      const addr = '0xa9036907dccae6a1e0033479b12e837e5cf5a02f';
+      expect(await this.strings.fromAddressHexFixed(addr)).to.equal(addr);
     });
     it('converts an address with leading zeros', async function () {
       const addr = '0x0000E0Ca771e21bD00057F54A68C30D400000000';
