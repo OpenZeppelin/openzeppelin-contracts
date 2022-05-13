@@ -255,5 +255,4 @@ contract SafeCastMock {
     function toInt8(int256 a) public pure returns (int8) {
         return a.toInt8();
     }
-
 }

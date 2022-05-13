@@ -101,6 +101,6 @@ module.exports = format(
     toUint(256),
     ...LENGTHS.map(size => toIntDownCast(size)),
     toInt(256).trimEnd(),
-  ].map(fn => fn.split('\n')),
+  ].flatMap(fn => fn.split('\n')),
   '}',
 );

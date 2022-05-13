@@ -9,7 +9,7 @@ function *indentEach (indent, lines) {
     } else if (Array.isArray(line)) {
       yield * indentEach(indent + 1, line);
     } else {
-      yield '  '.repeat(indent) + line;
+      yield '    '.repeat(indent) + line;
     }
   }
 }
