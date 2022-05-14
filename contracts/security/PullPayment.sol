@@ -44,7 +44,7 @@ abstract contract PullPayment {
      *
      * @param payee Whose payments will be withdrawn.
      *
-     * Causes the `escrow` to emits a {Withdrawn} event.
+     * Causes the `escrow` to emit a {Withdrawn} event.
      */
     function withdrawPayments(address payable payee) public virtual {
         _escrow.withdraw(payee);
@@ -66,7 +66,7 @@ abstract contract PullPayment {
      * @param dest The destination address of the funds.
      * @param amount The amount to transfer.
      *
-     * Causes the `escrow` to emits a {Deposited} event.
+     * Causes the `escrow` to emit a {Deposited} event.
      */
     function _asyncTransfer(address dest, uint256 amount) internal virtual {
         _escrow.deposit{value: amount}(dest);

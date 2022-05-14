@@ -56,4 +56,16 @@ contract('Strings', function (accounts) {
         .to.equal(web3.utils.toHex(constants.MAX_UINT256));
     });
   });
+
+  describe('from address - fixed hex format', function () {
+    it('converts a random address', async function () {
+      const addr = '0xa9036907dccae6a1e0033479b12e837e5cf5a02f';
+      expect(await this.strings.fromAddressHexFixed(addr)).to.equal(addr);
+    });
+
+    it('converts an address with leading zeros', async function () {
+      const addr = '0x0000e0ca771e21bd00057f54a68c30d400000000';
+      expect(await this.strings.fromAddressHexFixed(addr)).to.equal(addr);
+    });
+  });
 });
