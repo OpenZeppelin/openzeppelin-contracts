@@ -95,6 +95,10 @@ library EnumerableSet {
             set._values.pop();
 
             // Delete the index for the deleted slot
+            // WARNING!
+            // delete function should not be used. It will corrupt the data structure,
+            // clear function should be used instead.
+            // ref https://github.com/ethereum/solidity/pull/11843
             delete set._indexes[value];
 
             return true;
