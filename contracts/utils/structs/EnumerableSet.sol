@@ -46,7 +46,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Add a value to a set. O(1).
+     * @dev Add a value to a set. O(1) amortized.
      *
      * Returns true if the value was added to the set, that is if it was not
      * already present.
@@ -150,7 +150,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Add a value to a set. O(1).
+     * @dev Add a value to a set. O(1) amortized.
      *
      * Returns true if the value was added to the set, that is if it was not
      * already present.
@@ -216,7 +216,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Add a value to a set. O(1).
+     * @dev Add a value to a set. O(1) amortized.
      *
      * Returns true if the value was added to the set, that is if it was not
      * already present.
@@ -289,7 +289,7 @@ library EnumerableSet {
     }
 
     /**
-     * @dev Add a value to a set. O(1).
+     * @dev Add a value to a set. O(1) amortized.
      *
      * Returns true if the value was added to the set, that is if it was not
      * already present.
