@@ -21,7 +21,7 @@ Because Solidity does not support generic types, {EnumerableMap} and {Enumerable
 As of v3.0, {EnumerableMap} supports `uint256 -> address` (`UintToAddressMap`), and {EnumerableSet} supports `address` and `uint256` (`AddressSet` and `UintSet`).
 ====
 
-Finally, {Create2} contains all necessary utilities to safely use the https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2` EVM opcode], without having to deal with low-level assembly.
+Finally, {Create} and {Create2} contain all necessary utilities to safely use the `CREATE` and https://blog.openzeppelin.com/getting-the-most-out-of-create2/[`CREATE2`] EVM opcodes, without having to deal with low-level assembly.
 
 == Math
 
@@ -93,6 +93,8 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 {{Checkpoints}}
 
 == Libraries
+
+{{Create}}
 
 {{Create2}}
 
