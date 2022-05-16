@@ -44,7 +44,12 @@ library Create {
      * refer to p. 19 of the Ethereum Yellow Paper (https://ethereum.github.io/yellowpaper/paper.pdf)
      * and the Ethereum Wiki (https://eth.wiki/fundamentals/rlp). For further insights also, see the
      * following issue: https://github.com/Rari-Capital/solmate/issues/207.
+     *
+     * Based on the EIP-161 (https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md) specification, 
+     * all contract accounts on the Ethereum mainnet are initiated with `nonce = 1`.
+     * Thus, the first contract address created by another contract is calculated with a non-zero nonce.
      */
+    // prettier-ignore
     function computeAddress(address addr, uint256 nonce) internal pure returns (address) {
         bytes memory data;
         bytes1 len = bytes1(0x94);
@@ -56,6 +61,13 @@ library Create {
             data = abi.encodePacked(bytes1(0xd8), len, addr, bytes1(0x82), uint16(nonce));
         else if (nonce <= type(uint24).max)
             data = abi.encodePacked(bytes1(0xd9), len, addr, bytes1(0x83), uint24(nonce));
+
+        /**
+         * @dev In the case of `nonce > type(uint24).max`, we have the following encoding scheme:
+         * 0xda = 0xc0 (short RLP prefix) + 0x16 (length of: 0x94 ++ proxy ++ 0x84 ++ nonce)
+         * 0x94 = 0x80 + 0x14 (0x14 = the length of an address, 20 bytes, in hex)
+         * 0x84 = 0x80 + 0x04 (0x04 = the bytes length of the nonce, 4 bytes, in hex)
+         */
         else data = abi.encodePacked(bytes1(0xda), len, addr, bytes1(0x84), uint32(nonce));
 
         return address(uint160(uint256(keccak256(data))));
