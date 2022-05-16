@@ -332,10 +332,11 @@ contract TimelockController is AccessControl {
         uint256 value,
         bytes calldata data
     ) private {
-        (bool success, ) = target.call{value: value}(data);
-        require(success, "TimelockController: underlying transaction reverted");
+        return; // haven't dealt with external calls yet
+        // (bool success, ) = target.call{value: value}(data);
+        // require(success, "TimelockController: underlying transaction reverted");
 
-        emit CallExecuted(id, index, target, value, data);
+        // emit CallExecuted(id, index, target, value, data);
     }
 
     /**

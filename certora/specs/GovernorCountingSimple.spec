@@ -7,7 +7,6 @@ methods {
     proposalVotes(uint256) returns (uint256, uint256, uint256) envfree
 
     quorumNumerator() returns uint256
-    _executor() returns address
 
     getExecutor() returns address
 
@@ -184,7 +183,7 @@ rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) {
     
     bool hasVotedAfter = hasVoted(e, pId, acc);
 
-    assert (!hasVotedBefore && hasVotedAfter) => againstBefore <= againstAfter || forBefore <= forAfter || abstainBefore <= abstainAfter, "no correlation";
+    assert (!hasVotedBefore && hasVotedAfter) => againstBefore <= againstAfter && forBefore <= forAfter && abstainBefore <= abstainAfter, "no correlation";
 }
 
 

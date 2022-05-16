@@ -1,9 +1,14 @@
 certoraRun \
-    certora/harnesses/ERC721VotesHarness.sol certora/harnesses/GovernorPreventLateQuorumHarness.sol \
-    --verify GovernorPreventLateQuorumHarness:certora/specs/GovernorPreventLateQuorum.spec \
+    certora/harnesses/ERC721VotesHarness.sol certora/munged/governance/TimelockController.sol certora/harnesses/GovernorPreventLateQuorumHarness.sol \
+    --verify GovernorPreventLateQuorumHarness:certora/specs/GovernorCountingSimple.spec \
     --solc solc \
     --optimistic_loop \
-    --loop_iter 3 \
-    --cloud \
+    --loop_iter 1 \
+    --staging \
+    --rule_sanity advanced \
+    --send_only \
     --rule $1 \
-    --msg "GovernorPreventLateQuorum $1"
+    --msg "$1" \
+
+
+

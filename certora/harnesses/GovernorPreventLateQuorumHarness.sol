@@ -20,6 +20,8 @@ contract GovernorPreventLateQuorumHarness is Governor, GovernorCountingSimple, G
         GovernorPreventLateQuorum(initialVoteExtension)
     {}
 
+    mapping(uint256 => uint256) public ghost_sum_vote_power_by_id;
+
     // variable added to check when _castVote is called
     uint256 public latestCastVoteCall;
 
@@ -39,11 +41,28 @@ contract GovernorPreventLateQuorumHarness is Governor, GovernorCountingSimple, G
 
     // Harness from GovernorCountingSimple // 
     
-    function  quorumReached(uint256 proposalId) public view returns(bool) {
+    function quorumReached(uint256 proposalId) public view returns(bool) {
         return _quorumReached(proposalId);
     }
 
+    function voteSucceeded(uint256 proposalId) public view returns(bool) {
+        return _voteSucceeded(proposalId);
+    }
+
+    function countVote(uint256 proposalId,
+        address account,
+        uint8 support,
+        uint256 weight,
+        bytes memory // params
+        ) public view {
+        return _countVote(proposalId,account,support,weight,"");
+    }
+
     // Harness from Governor //
+
+    function getExecutor() public view returns (address){
+        return _executor();
+    }
 
     function isExecuted(uint256 proposalId) public view returns (bool) {
         return _proposals[proposalId].executed;
@@ -66,10 +85,16 @@ contract GovernorPreventLateQuorumHarness is Governor, GovernorCountingSimple, G
         string memory reason,
         bytes memory params
     ) internal virtual override(Governor, GovernorPreventLateQuorum) returns (uint256) {
+        // flag for when _castVote is called
         latestCastVoteCall = block.number;
-        return super._castVote(proposalId, account, support, reason, params);
-    }
 
+        // added to run GovernorCountingSimple.spec
+        uint256 deltaWeight = super._castVote(proposalId, account, support, reason, params);
+        ghost_sum_vote_power_by_id[proposalId] += deltaWeight; 
+
+        return deltaWeight;
+    }
+    /*
     function castVote(
         uint256 proposalId,
         address account,
@@ -79,6 +104,7 @@ contract GovernorPreventLateQuorumHarness is Governor, GovernorCountingSimple, G
     ) public returns(uint256) {
         return _castVote(proposalId, account, support, reason, params);
     }
+    */
 
     function lateQuorumVoteExtension() public view virtual override returns (uint64) {
         return super.lateQuorumVoteExtension();

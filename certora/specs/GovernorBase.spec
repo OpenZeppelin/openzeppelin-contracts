@@ -17,16 +17,16 @@ methods {
     queue(address[], uint256[], bytes[], bytes32) returns uint256
 
     // internal functions made public in harness:
-    _quorumReached(uint256) returns bool
-    _voteSucceeded(uint256) returns bool envfree
+    quorumReached(uint256) returns bool
+    voteSucceeded(uint256) returns bool envfree
 
     // function summarization
     proposalThreshold() returns uint256 envfree
 
     getVotes(address, uint256) returns uint256 => DISPATCHER(true)
 
-    getPastTotalSupply(uint256 t) returns uint256      => PER_CALLEE_CONSTANT
-    getPastVotes(address a, uint256 t) returns uint256 => PER_CALLEE_CONSTANT
+    getPastTotalSupply(uint256) returns uint256 => DISPATCHER(true)
+    getPastVotes(address, uint256) returns uint256 => DISPATCHER(true)
 
     //scheduleBatch(address[],uint256[],bytes[],bytes32,bytes32,uint256) => DISPATCHER(true)
     //executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => DISPATCHER(true)
@@ -47,7 +47,7 @@ definition proposalCreated(uint256 pId) returns bool = proposalSnapshot(pId) > 0
 
 function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
     address[] targets; uint256[] values; bytes[] calldatas; string reason; bytes32 descriptionHash;
-    uint8 support; uint8 v; bytes32 r; bytes32 s;
+    uint8 support; uint8 v; bytes32 r; bytes32 s; bytes params;
 	if (f.selector == propose(address[], uint256[], bytes[], string).selector) {
 		uint256 result = propose@withrevert(e, targets, values, calldatas, reason);
         require(result == proposalId);
@@ -62,10 +62,15 @@ function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
 		castVoteBySig@withrevert(e, proposalId, support, v, r, s);
     } else if (f.selector == queue(address[], uint256[], bytes[], bytes32).selector) {
         queue@withrevert(e, targets, values, calldatas, descriptionHash);
-	} else {
+	} else if (f.selector == castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32).selector) {
+        castVoteWithReasonAndParamsBySig@withrevert(e, proposalId, support, reason, params, v, r, s);
+    } else if (f.selector == castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector) {
+        castVoteWithReasonAndParams@withrevert(e, proposalId, support, reason, params);
+    } else {
         calldataarg args;
         f@withrevert(e, args);
     }
+   
 }
 
 /*
@@ -152,8 +157,8 @@ invariant noBothExecutedAndCanceled(uint256 pId)
  */
 rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
     bool isExecutedBefore = isExecuted(pId);
-    bool quorumReachedBefore = _quorumReached(e, pId);
-    bool voteSucceededBefore = _voteSucceeded(pId);
+    bool quorumReachedBefore = quorumReached(e, pId);
+    bool voteSucceededBefore = voteSucceeded(pId);
     
     calldataarg args;
     f(e, args);
@@ -283,6 +288,7 @@ rule allFunctionsRevertIfExecuted(method f) filtered { f ->
       && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
       && f.selector != relay(address,uint256,bytes).selector
       && f.selector != 0xb9a61961 // __acceptAdmin()
+      && f.selector != setLateQuorumVoteExtension(uint64).selector
 } {
     env e; calldataarg args;
     uint256 pId;
@@ -305,6 +311,7 @@ rule allFunctionsRevertIfCanceled(method f) filtered {
       && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
       && f.selector != relay(address,uint256,bytes).selector
       && f.selector != 0xb9a61961 // __acceptAdmin()
+      && f.selector != setLateQuorumVoteExtension(uint64).selector
 } {
     env e; calldataarg args;
     uint256 pId;

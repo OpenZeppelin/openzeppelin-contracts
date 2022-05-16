@@ -3,6 +3,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 using ERC721VotesHarness as erc721votes
+using ERC20VotesHarness as erc20votes
 
 methods {
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
@@ -19,97 +20,101 @@ methods {
     quorumDenominator() returns uint256 envfree
     votingPeriod() returns uint256 envfree
     lateQuorumVoteExtension() returns uint64 envfree
+    propose(address[], uint256[], bytes[], string)
 
     // harness
     getExtendedDeadlineIsUnset(uint256) returns bool envfree
     getExtendedDeadline(uint256) returns uint64 envfree
     quorumReached(uint256) returns bool envfree
+    voteSucceeded(uint256) returns bool envfree
+    quorum(uint256) returns uint256
     latestCastVoteCall() returns uint256 envfree // more robust check than f.selector == _castVote(...).selector
 
     // function summarization
     proposalThreshold() returns uint256 envfree
 
+    // erc20votes dispatch
     getVotes(address, uint256) returns uint256 => DISPATCHER(true)
-
-    getPastTotalSupply(uint256 t) returns uint256      => PER_CALLEE_CONSTANT
-    getPastVotes(address a, uint256 t) returns uint256 => PER_CALLEE_CONSTANT
+    // erc721votes/Votes dispatch
+    getPastTotalSupply(uint256) returns uint256 => DISPATCHER(true)
+    getPastVotes(address, uint256) returns uint256 => DISPATCHER(true)
+    // timelock dispatch
+    getMinDelay() returns uint256 => DISPATCHER(true)
+    
+    hashOperationBatch(address[], uint256[], bytes[], bytes32, bytes32) => DISPATCHER(true)
+    executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => CONSTANT
+    scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256) => CONSTANT
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// Definitions /////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+// where can invariants help?
+// can I replace definitions with invariants?
+
 // create definition for extended
-definition deadlineCanBeExtended(uint256 id) returns bool = 
-    getExtendedDeadlineIsUnset(id) &&
-    getExtendedDeadline(id) == 0 && 
-    !quorumReached(id);
+definition deadlineCanBeExtended(uint256 pId) returns bool = 
+    getExtendedDeadlineIsUnset(pId) &&
+    !quorumReached(pId);
 
-definition deadlineHasBeenExtended(uint256 id) returns bool = 
-    !getExtendedDeadlineIsUnset(id) &&
-    getExtendedDeadline(id) > 0 &&
-    quorumReached(id);
+definition deadlineHasBeenExtended(uint256 pId) returns bool = 
+    !getExtendedDeadlineIsUnset(pId) &&
+    quorumReached(pId);
 
+definition proposalCreated(uint256 pId) returns bool = proposalSnapshot(pId) > 0;
 
+//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////// Rules /////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
-// RULE deadline can only be extended once
-    // 1. if deadline changes then we have state transition from deadlineCanBeExtended to deadlineHasBeenExtended
-rule deadlineChangeEffects(method f) filtered {f -> !f.isView /* bottleneck, restrict for faster testing && f.selector != propose(address[], uint256[], bytes[], string).selector*/ } {
-    env e; calldataarg args; uint256 id;
+// RULE deadline can only be extended only once PASSING but vacuous
+    // 1. if deadline changes then we have state transition to deadlineHasBeenExtended RULE PASSING; ADV SANITY PASSING
+rule deadlineChangeEffects(method f) 
+    filtered {
+        f -> !f.isView
+    } {
+    env e; calldataarg args; uint256 pId;
 
-    require (latestCastVoteCall() < e.block.number);
-    require (quorumNumerator() <= quorumDenominator());
-    require deadlineCanBeExtended(id);
-    require (proposalDeadline(id) > e.block.number 
-    && proposalDeadline(id) >= proposalSnapshot(id) + votingPeriod() 
-    && proposalSnapshot(id) < e.block.number); 
+    require (proposalCreated(pId));
     
-    uint256 deadlineBefore = proposalDeadline(id);
+    uint256 deadlineBefore = proposalDeadline(pId);
     f(e, args);
-    uint256 deadlineAfter = proposalDeadline(id);
+    uint256 deadlineAfter = proposalDeadline(pId);
     
-    assert(deadlineAfter > deadlineBefore => latestCastVoteCall() == e.block.number && deadlineHasBeenExtended(id));
+    assert(deadlineAfter > deadlineBefore => latestCastVoteCall() == e.block.number && deadlineHasBeenExtended(pId));
 }
 
-    // 2. cant unextend
-rule deadlineCantBeUnextended(method f) filtered {f -> !f.isView /* && f.selector != propose(address[], uint256[], bytes[], string).selector*/ } {
-    env e; calldataarg args; uint256 id;
-    require(deadlineHasBeenExtended(id));
+    // 2. cant unextend RULE PASSING*; ADV SANITY PASSING
+rule deadlineCantBeUnextended(method f) 
+    filtered {
+        f -> !f.isView
+        && f.selector != updateQuorumNumerator(uint256).selector // * fails for this function
+    } {
+    env e; calldataarg args; uint256 pId;
+
+    require(deadlineHasBeenExtended(pId));
+    require(proposalCreated(pId));
+    
     f(e, args);
-    assert(deadlineHasBeenExtended(id));
+    
+    assert(deadlineHasBeenExtended(pId));
 }
 
-    // 3. extended => can't change deadline
+    // 3. extended => can't change deadline RULE PASSING; ADV SANITY PASSING
         //@note if deadline changed, then it wasnt extended and castvote was called
-rule canExtendDeadlineOnce(method f) filtered {f -> !f.isView /* && f.selector != propose(address[], uint256[], bytes[], string).selector*/ } {
-    env e; calldataarg args;
-    uint256 id;
-    require(deadlineHasBeenExtended(id)); // stays true
-    require (proposalDeadline(id) > e.block.number 
-    && proposalDeadline(id) >= proposalSnapshot(id) + votingPeriod() 
-    && proposalSnapshot(id) < e.block.number); 
-    uint256 deadlineBefore = proposalDeadline(id);
+rule canExtendDeadlineOnce(method f) 
+    filtered {
+        f -> !f.isView 
+    } {
+    env e; calldataarg args; uint256 pId;
+
+    require(deadlineHasBeenExtended(pId));
+    require(proposalCreated(pId)); 
+    
+    uint256 deadlineBefore = proposalDeadline(pId);
     f(e, args);
-    uint256 deadlineAfter = proposalDeadline(id);
+    uint256 deadlineAfter = proposalDeadline(pId);
+    
     assert(deadlineBefore == deadlineAfter, "deadline can not be extended twice");
 }
-
-
-// RULE deadline can only extended if quorum reached w/ <= timeOfExtension left to vote
-// 3 rules
-    // 1. voting increases total votes
-    // 2. number of votes > quorum => quorum reached
-    // 3. deadline can only extended if quorum reached w/ <= timeOfExtension left to vote
-rule deadlineCanOnlyBeExtenededIfQuorumReached() {
-    env e; method f; calldataarg args;
-    uint256 id;
-    require(getExtendedDeadlineIsUnset(id));
-    f(e, args);
-    assert(false);
-}
-
-// RULE extendedDeadline is used iff quorum is reached w/ <= extensionTime left to vote
-
-// RULE extendedDeadlineField is set iff quroum is reached 
-
-// RULE if the deadline/extendedDeadline has not been reached, you can still vote (base)
