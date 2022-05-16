@@ -6,10 +6,7 @@ import "../utils/Create.sol";
 import "../utils/introspection/ERC1820Implementer.sol";
 
 contract CreateImpl {
-    function deploy(
-        uint256 value,
-        bytes memory code
-    ) public {
+    function deploy(uint256 value, bytes memory code) public {
         Create.deploy(value, code);
     }
 

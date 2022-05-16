@@ -45,7 +45,7 @@ library Create {
      * and the Ethereum Wiki (https://eth.wiki/fundamentals/rlp). For further insights also, see the
      * following issue: https://github.com/Rari-Capital/solmate/issues/207.
      *
-     * Based on the EIP-161 (https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md) specification, 
+     * Based on the EIP-161 (https://github.com/ethereum/EIPs/blob/master/EIPS/eip-161.md) specification,
      * all contract accounts on the Ethereum mainnet are initiated with `nonce = 1`.
      * Thus, the first contract address created by another contract is calculated with a non-zero nonce.
      */
