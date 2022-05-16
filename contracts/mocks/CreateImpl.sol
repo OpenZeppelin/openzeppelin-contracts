@@ -6,12 +6,12 @@ import "../utils/Create.sol";
 import "../utils/introspection/ERC1820Implementer.sol";
 
 contract CreateImpl {
-    function deploy(uint256 value, bytes memory code) public {
-        Create.deploy(value, code);
+    function deploy(uint256 value, bytes memory code) public returns (address) {
+        return Create.deploy(value, code);
     }
 
-    function deployERC1820Implementer(uint256 value) public {
-        Create.deploy(value, type(ERC1820Implementer).creationCode);
+    function deployERC1820Implementer(uint256 value) public returns (address) {
+        return Create.deploy(value, type(ERC1820Implementer).creationCode);
     }
 
     function computeAddress(address addr, uint256 nonce) public pure returns (address) {
