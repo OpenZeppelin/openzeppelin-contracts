@@ -31,6 +31,11 @@ import "./EnumerableSet.sol";
  * - `uint256 -> address` (`UintToAddressMap`) since v3.0.0
  * - `address -> uint256` (`AddressToUintMap`) since v4.6.0
  * - `bytes32 -> bytes32` (`Bytes32ToBytes32`) since v4.6.0
+ *
+ *    // WARNING!
+ *       // delete function should not be used. It will corrupt the data structure,
+ *       // clear function should be used instead.
+ *       // ref https://github.com/ethereum/solidity/pull/11843
  */
 library EnumerableMap {
     using EnumerableSet for EnumerableSet.Bytes32Set;
@@ -72,10 +77,6 @@ library EnumerableMap {
      * Returns true if the key was removed from the map, that is if it was present.
      */
     function remove(Bytes32ToBytes32Map storage map, bytes32 key) internal returns (bool) {
-        // WARNING!
-        // delete function should not be used. It will corrupt the data structure,
-        // clear function should be used instead.
-        // ref https://github.com/ethereum/solidity/pull/11843
         delete map._values[key];
         return map._keys.remove(key);
     }

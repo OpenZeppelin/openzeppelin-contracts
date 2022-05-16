@@ -26,6 +26,11 @@ pragma solidity ^0.8.0;
  *
  * As of v3.3.0, sets of type `bytes32` (`Bytes32Set`), `address` (`AddressSet`)
  * and `uint256` (`UintSet`) are supported.
+ *
+ *    // WARNING!
+ *       // delete function should not be used. It will corrupt the data structure,
+ *       // clear function should be used instead.
+ *       // ref https://github.com/ethereum/solidity/pull/11843
  */
 library EnumerableSet {
     // To implement this library for multiple types with as little code
@@ -95,10 +100,6 @@ library EnumerableSet {
             set._values.pop();
 
             // Delete the index for the deleted slot
-            // WARNING!
-            // delete function should not be used. It will corrupt the data structure,
-            // clear function should be used instead.
-            // ref https://github.com/ethereum/solidity/pull/11843
             delete set._indexes[value];
 
             return true;
