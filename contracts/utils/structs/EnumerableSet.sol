@@ -27,10 +27,13 @@ pragma solidity ^0.8.0;
  * As of v3.3.0, sets of type `bytes32` (`Bytes32Set`), `address` (`AddressSet`)
  * and `uint256` (`UintSet`) are supported.
  *
- *    // WARNING!
- *       // delete function should not be used. It will corrupt the data structure,
- *       // clear function should be used instead.
- *       // ref https://github.com/ethereum/solidity/pull/11843
+ * [WARNING]
+ * ====
+ *  Trying to delete such a structure from storage will likely result in data corruption, rendering the structure unusable.
+ *  See ethereum/solidity#11843 for more info
+ *
+ *  In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an array of EnumerableSet.
+ * ====
  */
 library EnumerableSet {
     // To implement this library for multiple types with as little code
