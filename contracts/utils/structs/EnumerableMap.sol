@@ -429,5 +429,4 @@ library EnumerableMap {
     ) internal view returns (uint256) {
         return uint256(get(map._inner, key, errorMessage));
     }
-
 }
