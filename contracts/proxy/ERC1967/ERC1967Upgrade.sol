@@ -43,7 +43,7 @@ abstract contract ERC1967Upgrade {
      * @dev Stores a new address in the EIP1967 implementation slot.
      */
     function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
+        require(Address.hasCode(newImplementation), "ERC1967: new implementation is not a contract");
         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
@@ -157,11 +157,8 @@ abstract contract ERC1967Upgrade {
      * @dev Stores a new beacon in the EIP1967 beacon slot.
      */
     function _setBeacon(address newBeacon) private {
-        require(Address.isContract(newBeacon), "ERC1967: new beacon is not a contract");
-        require(
-            Address.isContract(IBeacon(newBeacon).implementation()),
-            "ERC1967: beacon implementation is not a contract"
-        );
+        require(Address.hasCode(newBeacon), "ERC1967: new beacon has no code");
+        require(Address.hasCode(IBeacon(newBeacon).implementation()), "ERC1967: beacon implementation has no code");
         StorageSlot.getAddressSlot(_BEACON_SLOT).value = newBeacon;
     }
 

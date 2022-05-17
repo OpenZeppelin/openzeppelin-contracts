@@ -17,7 +17,7 @@ contract('BeaconProxy', function (accounts) {
     it('non-contract beacon', async function () {
       await expectRevert(
         BeaconProxy.new(anotherAccount, '0x'),
-        'ERC1967: new beacon is not a contract',
+        'ERC1967: new beacon has no code',
       );
     });
 
@@ -32,7 +32,7 @@ contract('BeaconProxy', function (accounts) {
       const beacon = await BadBeaconNotContract.new();
       await expectRevert(
         BeaconProxy.new(beacon.address, '0x'),
-        'ERC1967: beacon implementation is not a contract',
+        'ERC1967: beacon implementation has no code',
       );
     });
   });

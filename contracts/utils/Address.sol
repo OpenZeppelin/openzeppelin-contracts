@@ -15,7 +15,7 @@ library Address {
      * It is unsafe to assume that an address for which this function returns
      * false is an externally-owned account (EOA) and not a contract.
      *
-     * Among others, `isContract` will return false for the following
+     * Among others, `hasCode` will return false for the following
      * types of addresses:
      *
      *  - an externally-owned account
@@ -26,14 +26,14 @@ library Address {
      *
      * [IMPORTANT]
      * ====
-     * You shouldn't rely on `isContract` to protect against flash loan attacks!
+     * You shouldn't rely on `hasCode` to protect against flash loan attacks!
      *
      * Preventing calls from contracts is highly discouraged. It breaks composability, breaks support for smart wallets
      * like Gnosis Safe, and does not provide security since it can be circumvented by calling from a contract
      * constructor.
      * ====
      */
-    function isContract(address account) internal view returns (bool) {
+    function hasCode(address account) internal view returns (bool) {
         // This method relies on extcodesize/address.code.length, which returns 0
         // for contracts in construction, since the code is only stored at the end
         // of the constructor execution.
@@ -132,7 +132,7 @@ library Address {
         string memory errorMessage
     ) internal returns (bytes memory) {
         require(address(this).balance >= value, "Address: insufficient balance for call");
-        require(isContract(target), "Address: call to non-contract");
+        require(hasCode(target), "Address: call to non-contract");
 
         (bool success, bytes memory returndata) = target.call{value: value}(data);
         return verifyCallResult(success, returndata, errorMessage);
@@ -159,7 +159,7 @@ library Address {
         bytes memory data,
         string memory errorMessage
     ) internal view returns (bytes memory) {
-        require(isContract(target), "Address: static call to non-contract");
+        require(hasCode(target), "Address: static call to non-contract");
 
         (bool success, bytes memory returndata) = target.staticcall(data);
         return verifyCallResult(success, returndata, errorMessage);
@@ -186,7 +186,7 @@ library Address {
         bytes memory data,
         string memory errorMessage
     ) internal returns (bytes memory) {
-        require(isContract(target), "Address: delegate call to non-contract");
+        require(hasCode(target), "Address: delegate call to non-contract");
 
         (bool success, bytes memory returndata) = target.delegatecall(data);
         return verifyCallResult(success, returndata, errorMessage);

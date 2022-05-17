@@ -12,14 +12,14 @@ contract('Address', function (accounts) {
     this.mock = await AddressImpl.new();
   });
 
-  describe('isContract', function () {
+  describe('hasCode', function () {
     it('returns false for account address', async function () {
-      expect(await this.mock.isContract(other)).to.equal(false);
+      expect(await this.mock.hasCode(other)).to.equal(false);
     });
 
     it('returns true for contract address', async function () {
       const contract = await AddressImpl.new();
-      expect(await this.mock.isContract(contract.address)).to.equal(true);
+      expect(await this.mock.hasCode(contract.address)).to.equal(true);
     });
   });
 

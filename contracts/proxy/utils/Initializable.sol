@@ -135,10 +135,7 @@ abstract contract Initializable {
         // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
         // of initializers, because in other contexts the contract may have been reentered.
         if (_initializing) {
-            require(
-                version == 1 && !Address.isContract(address(this)),
-                "Initializable: contract is already initialized"
-            );
+            require(version == 1 && !Address.hasCode(address(this)), "Initializable: contract is already initialized");
             return false;
         } else {
             require(_initialized < version, "Initializable: contract is already initialized");

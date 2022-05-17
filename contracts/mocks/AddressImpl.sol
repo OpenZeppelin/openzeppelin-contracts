@@ -9,8 +9,8 @@ contract AddressImpl {
 
     event CallReturnValue(string data);
 
-    function isContract(address account) external view returns (bool) {
-        return Address.isContract(account);
+    function hasCode(address account) external view returns (bool) {
+        return Address.hasCode(account);
     }
 
     function sendValue(address payable receiver, uint256 amount) external {
