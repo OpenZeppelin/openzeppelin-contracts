@@ -23,6 +23,7 @@ library Clones {
      * This function uses the create opcode, which should never revert.
      */
     function clone(address implementation) internal returns (address instance) {
+        /// @solidity memory-safe-assembly
         assembly {
             let ptr := mload(0x40)
             mstore(ptr, 0x602d8060093d393df3363d3d373d3d3d363d7300000000000000000000000000)
@@ -41,6 +42,7 @@ library Clones {
      * the clones cannot be deployed twice at the same address.
      */
     function cloneDeterministic(address implementation, bytes32 salt) internal returns (address instance) {
+        /// @solidity memory-safe-assembly
         assembly {
             let ptr := mload(0x40)
             mstore(ptr, 0x602d8060093d393df3363d3d373d3d3d363d7300000000000000000000000000)
@@ -59,6 +61,7 @@ library Clones {
         bytes32 salt,
         address deployer
     ) internal pure returns (address predicted) {
+        /// @solidity memory-safe-assembly
         assembly {
             let ptr := mload(0x40)
             mstore(ptr, 0x602d8060093d393df3363d3d373d3d3d363d7300000000000000000000000000)
