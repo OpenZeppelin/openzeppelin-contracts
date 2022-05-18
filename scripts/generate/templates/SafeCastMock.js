@@ -1,8 +1,6 @@
 const format = require('../format-lines');
 
 const header = `\
-// SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
 
 import "../utils/math/SafeCast.sol";

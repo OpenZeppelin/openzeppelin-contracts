@@ -58,8 +58,6 @@ const version = (selector, length) => {
 };
 
 const header = `\
-// SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
 
 /**
