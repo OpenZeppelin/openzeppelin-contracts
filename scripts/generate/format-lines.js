@@ -4,12 +4,11 @@ function formatLines (...lines) {
 
 function *indentEach (indent, lines) {
   for (const line of lines) {
-    if (line === '') {
-      yield '';
-    } else if (Array.isArray(line)) {
+    if (Array.isArray(line)) {
       yield * indentEach(indent + 1, line);
     } else {
-      yield '    '.repeat(indent) + line;
+      const padding = '    '.repeat(indent);
+      yield * line.split('\n').map(subline => subline === '' ? '' : padding + subline);
     }
   }
 }

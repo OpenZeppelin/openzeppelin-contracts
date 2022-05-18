@@ -1,4 +1,61 @@
+const { assert } = require('chai');
 const format = require('../format-lines');
+
+const LENGTHS = Array(31).fill().map((_, i) => (i + 1) * 8).reverse(); // 248 → 8 (in steps of 8)
+
+const version = (selector, length) => {
+  switch (selector) {
+  case 'toUint(uint)': {
+    switch (length) {
+    case 8:
+    case 16:
+    case 32:
+    case 64:
+    case 128:
+      return '2.5';
+    case 96:
+    case 224:
+      return '4.2';
+    default:
+      assert(LENGTHS.includes(length));
+      return '4.7';
+    }
+  }
+  case 'toInt(int)': {
+    switch (length) {
+    case 8:
+    case 16:
+    case 32:
+    case 64:
+    case 128:
+      return '3.1';
+    default:
+      assert(LENGTHS.includes(length));
+      return '4.7';
+    }
+  }
+  case 'toUint(int)': {
+    switch (length) {
+    case 256:
+      return '3.0';
+    default:
+      assert(false);
+      return;
+    }
+  }
+  case 'toInt(uint)': {
+    switch (length) {
+    case 256:
+      return '3.0';
+    default:
+      assert(false);
+      return;
+    }
+  }
+  default:
+    assert(false);
+  }
+};
 
 const header = `\
 // SPDX-License-Identifier: MIT
@@ -22,31 +79,21 @@ pragma solidity ^0.8.0;
  */
 `;
 
-const toInt = length => `\
+const toUintDownCast = length => `\
 /**
- * @dev Converts an unsigned uint${length} into a signed int${length}.
+ * @dev Returns the downcasted uint${length} from uint256, reverting on
+ * overflow (when the input is greater than largest uint${length}).
+ *
+ * Counterpart to Solidity's \`uint${length}\` operator.
  *
  * Requirements:
  *
- * - input must be less than or equal to maxInt${length}.
- */
-function toInt${length}(uint${length} value) internal pure returns (int${length}) {
-    // Note: Unsafe cast below is okay because \`type(int${length}).max\` is guaranteed to be positive
-    require(value <= uint${length}(type(int${length}).max), "SafeCast: value doesn't fit in an int${length}");
-    return int${length}(value);
-}
-`;
-
-const toUint = length => `\
-/**
- * @dev Converts a signed int${length} into an unsigned uint${length}.
+ * - input must fit into ${length} bits
  *
- * Requirements:
- *
- * - input must be greater than or equal to 0.
+ * _Available since v${version('toUint(uint)', length)}._
  */
-function toUint${length}(int${length} value) internal pure returns (uint${length}) {
-    require(value >= 0, "SafeCast: value must be positive");
+function toUint${length}(uint256 value) internal pure returns (uint${length}) {
+    require(value <= type(uint${length}).max, "SafeCast: value doesn't fit in ${length} bits");
     return uint${length}(value);
 }
 `;
@@ -64,7 +111,7 @@ const toIntDownCast = length => `\
  *
  * - input must fit into ${length} bits
  *
- * _Available since v3.1._
+ * _Available since v${version('toInt(int)', length)}._
  */
 function toInt${length}(int256 value) internal pure returns (int${length}) {
     require(value >= type(int${length}).min && value <= type(int${length}).max, "SafeCast: value doesn't fit in ${length} bits");
@@ -73,26 +120,40 @@ function toInt${length}(int256 value) internal pure returns (int${length}) {
 `;
 /* eslint-enable max-len */
 
-const toUintDownCast = length => `\
+const toInt = length => `\
 /**
- * @dev Returns the downcasted uint${length} from uint256, reverting on
- * overflow (when the input is greater than largest uint${length}).
- *
- * Counterpart to Solidity's \`uint${length}\` operator.
+ * @dev Converts an unsigned uint${length} into a signed int${length}.
  *
  * Requirements:
  *
- * - input must fit into ${length} bits
+ * - input must be less than or equal to maxInt${length}.
+ *
+ * _Available since v${version('toInt(uint)', length)}._
  */
-function toUint${length}(uint256 value) internal pure returns (uint${length}) {
-    require(value <= type(uint${length}).max, "SafeCast: value doesn't fit in ${length} bits");
+function toInt${length}(uint${length} value) internal pure returns (int${length}) {
+    // Note: Unsafe cast below is okay because \`type(int${length}).max\` is guaranteed to be positive
+    require(value <= uint${length}(type(int${length}).max), "SafeCast: value doesn't fit in an int${length}");
+    return int${length}(value);
+}
+`;
+
+const toUint = length => `\
+/**
+ * @dev Converts a signed int${length} into an unsigned uint${length}.
+ *
+ * Requirements:
+ *
+ * - input must be greater than or equal to 0.
+ *
+ * _Available since v${version('toUint(int)', length)}._
+ */
+function toUint${length}(int${length} value) internal pure returns (uint${length}) {
+    require(value >= 0, "SafeCast: value must be positive");
     return uint${length}(value);
 }
 `;
 
 // GENERATE
-const LENGTHS = Array(31).fill().map((_, i) => (i + 1) * 8).reverse(); // 248 → 8 (in steps of 8)
-
 module.exports = format(
   header.trimEnd(),
   'library SafeCast {',
@@ -101,6 +162,6 @@ module.exports = format(
     toUint(256),
     ...LENGTHS.map(size => toIntDownCast(size)),
     toInt(256).trimEnd(),
-  ].flatMap(fn => fn.split('\n')),
+  ],
   '}',
 );
