@@ -26,7 +26,7 @@ contract MathMock {
         uint256 b,
         uint256 denominator,
         Math.Rounding direction
-    ) public view returns (uint256) {
+    ) public pure returns (uint256) {
         return Math.mulDiv(a, b, denominator, direction);
     }
 }
