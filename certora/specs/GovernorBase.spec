@@ -70,7 +70,6 @@ function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
         calldataarg args;
         f@withrevert(e, args);
     }
-   
 }
 
 /*

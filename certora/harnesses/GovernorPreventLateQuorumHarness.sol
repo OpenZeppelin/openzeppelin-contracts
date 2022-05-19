@@ -35,6 +35,10 @@ contract GovernorPreventLateQuorumHarness is Governor, GovernorCountingSimple, G
         return _extendedDeadlines[id].isUnset();
     }
 
+    function getExtendedDeadlineIsStarted(uint256 id) public view returns(bool) {
+        return _extendedDeadlines[id].isStarted();
+    }
+
     function getExtendedDeadline(uint256 id) public view returns(uint64) {
         return _extendedDeadlines[id].getDeadline();
     }
@@ -47,15 +51,6 @@ contract GovernorPreventLateQuorumHarness is Governor, GovernorCountingSimple, G
 
     function voteSucceeded(uint256 proposalId) public view returns(bool) {
         return _voteSucceeded(proposalId);
-    }
-
-    function countVote(uint256 proposalId,
-        address account,
-        uint8 support,
-        uint256 weight,
-        bytes memory // params
-        ) public view {
-        return _countVote(proposalId,account,support,weight,"");
     }
 
     // Harness from Governor //

@@ -183,7 +183,8 @@ rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) {
     
     bool hasVotedAfter = hasVoted(e, pId, acc);
 
-    assert (!hasVotedBefore && hasVotedAfter) => againstBefore <= againstAfter && forBefore <= forAfter && abstainBefore <= abstainAfter, "no correlation";
+    // want all vote categories to not decrease and at least one category to increase
+    assert (!hasVotedBefore && hasVotedAfter) => (againstBefore <= againstAfter && forBefore <= forAfter && abstainBefore <= abstainAfter), "no correlation: some category decreased";
 }
 
 

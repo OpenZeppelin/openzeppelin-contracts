@@ -24,7 +24,7 @@ diff -ruN governance/Governor.sol governance/Governor.sol
      // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
 diff -ruN governance/TimelockController.sol governance/TimelockController.sol
 --- governance/TimelockController.sol	2022-05-06 13:44:28.000000000 -0700
-+++ governance/TimelockController.sol	2022-05-12 19:13:19.000000000 -0700
++++ governance/TimelockController.sol	2022-05-15 14:10:49.000000000 -0700
 @@ -24,10 +24,10 @@
      bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
      bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
@@ -44,7 +44,7 @@ diff -ruN governance/TimelockController.sol governance/TimelockController.sol
      ) private {
 -        (bool success, ) = target.call{value: value}(data);
 -        require(success, "TimelockController: underlying transaction reverted");
-+        return; // can't deal with external calls
++        return; // haven't dealt with external calls yet
 +        // (bool success, ) = target.call{value: value}(data);
 +        // require(success, "TimelockController: underlying transaction reverted");
  
@@ -401,12 +401,12 @@ diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/
  }
 diff -ruN utils/Address.sol utils/Address.sol
 --- utils/Address.sol	2022-05-06 13:43:21.000000000 -0700
-+++ utils/Address.sol	2022-05-15 10:58:38.000000000 -0700
++++ utils/Address.sol	2022-05-16 14:24:44.000000000 -0700
 @@ -131,6 +131,7 @@
          uint256 value,
          string memory errorMessage
      ) internal returns (bytes memory) {
-+        return "";
++        return ""; // external calls havoc
          require(address(this).balance >= value, "Address: insufficient balance for call");
          require(isContract(target), "Address: call to non-contract");
  
