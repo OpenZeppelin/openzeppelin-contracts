@@ -1,7 +1,7 @@
 {
   "name": "openzeppelin-solidity",
   "description": "Secure Smart Contract library for Solidity",
-  "version": "4.5.0",
+  "version": "4.6.0",
   "files": [
     "/contracts/**/*.sol",
     "/build/contracts/*.json",
@@ -53,7 +53,7 @@
   },
   "homepage": "https://openzeppelin.com/contracts/",
   "devDependencies": {
-    "@nomiclabs/hardhat-truffle5": "^2.0.0",
+    "@nomiclabs/hardhat-truffle5": "^2.0.5",
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/docs-utils": "^0.1.0",
     "@openzeppelin/test-helpers": "^0.5.13",
@@ -68,7 +68,7 @@
     "ethereumjs-util": "^7.0.7",
     "ethereumjs-wallet": "^1.0.1",
     "graphlib": "^2.1.8",
-    "hardhat": "^2.0.6",
+    "hardhat": "^2.9.1",
     "hardhat-gas-reporter": "^1.0.4",
     "keccak256": "^1.0.2",
     "lodash.startcase": "^4.4.0",

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (governance/extensions/GovernorTimelockControl.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/extensions/GovernorTimelockControl.sol)
 
 pragma solidity ^0.8.0;
 
@@ -47,7 +47,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden version of the {Governor-state} function with added support for the `Queued` status.
+     * @dev Overridden version of the {Governor-state} function with added support for the `Queued` status.
      */
     function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
         ProposalState status = super.state(proposalId);
@@ -107,7 +107,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden execute function that run the already queued proposal through the timelock.
+     * @dev Overridden execute function that run the already queued proposal through the timelock.
      */
     function _execute(
         uint256, /* proposalId */
@@ -120,7 +120,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
+     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
      * been queued.
      */
     // This function can reenter through the external call to the timelock, but we assume the timelock is trusted and

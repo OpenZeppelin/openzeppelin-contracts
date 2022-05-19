@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (governance/utils/Votes.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/utils/Votes.sol)
 pragma solidity ^0.8.0;
 
 import "../../utils/Context.sol";
@@ -207,5 +207,5 @@ abstract contract Votes is IVotes, Context, EIP712 {
     /**
      * @dev Must return the voting units held by an account.
      */
-    function _getVotingUnits(address) internal virtual returns (uint256);
+    function _getVotingUnits(address) internal view virtual returns (uint256);
 }

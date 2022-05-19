@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (utils/cryptography/MerkleProof.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (utils/cryptography/MerkleProof.sol)
 
 pragma solidity ^0.8.0;
 
@@ -56,6 +56,7 @@ library MerkleProof {
     }
 
     function _efficientHash(bytes32 a, bytes32 b) private pure returns (bytes32 value) {
+        /// @solidity memory-safe-assembly
         assembly {
             mstore(0x00, a)
             mstore(0x20, b)

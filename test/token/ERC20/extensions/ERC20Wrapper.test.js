@@ -4,7 +4,8 @@ const { ZERO_ADDRESS, MAX_UINT256 } = constants;
 
 const { shouldBehaveLikeERC20 } = require('../ERC20.behavior');
 
-const ERC20Mock = artifacts.require('ERC20Mock');
+const NotAnERC20 = artifacts.require('CallReceiverMock');
+const ERC20Mock = artifacts.require('ERC20DecimalsMock');
 const ERC20WrapperMock = artifacts.require('ERC20WrapperMock');
 
 contract('ERC20', function (accounts) {
@@ -16,8 +17,10 @@ contract('ERC20', function (accounts) {
   const initialSupply = new BN(100);
 
   beforeEach(async function () {
-    this.underlying = await ERC20Mock.new(name, symbol, initialHolder, initialSupply);
+    this.underlying = await ERC20Mock.new(name, symbol, 9);
     this.token = await ERC20WrapperMock.new(this.underlying.address, `Wrapped ${name}`, `W${symbol}`);
+
+    await this.underlying.mint(initialHolder, initialSupply);
   });
 
   afterEach(async function () {
@@ -32,8 +35,14 @@ contract('ERC20', function (accounts) {
     expect(await this.token.symbol()).to.equal(`W${symbol}`);
   });
 
-  it('has 18 decimals', async function () {
-    expect(await this.token.decimals()).to.be.bignumber.equal('18');
+  it('has the same decimals as the underlying token', async function () {
+    expect(await this.token.decimals()).to.be.bignumber.equal('9');
+  });
+
+  it('decimals default back to 18 if token has no metadata', async function () {
+    const noDecimals = await NotAnERC20.new();
+    const otherToken = await ERC20WrapperMock.new(noDecimals.address, `Wrapped ${name}`, `W${symbol}`);
+    expect(await otherToken.decimals()).to.be.bignumber.equal('18');
   });
 
   it('has underlying', async function () {
