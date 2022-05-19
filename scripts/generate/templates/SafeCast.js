@@ -1,8 +1,10 @@
-const { assert } = require('chai');
+const assert = require('assert');
 const format = require('../format-lines');
 
 const LENGTHS = Array(31).fill().map((_, i) => (i + 1) * 8).reverse(); // 248 → 8 (in steps of 8)
 
+// Returns the version of OpenZeppelin Contracts in which a particular function was introduced.
+// This is used in the docs for each function.
 const version = (selector, length) => {
   switch (selector) {
   case 'toUint(uint)': {
