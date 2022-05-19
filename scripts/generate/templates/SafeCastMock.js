@@ -1,4 +1,7 @@
 const format = require('../format-lines');
+const { range } = require('../../helpers');
+
+const LENGTHS = range(8, 256, 8).reverse(); // 248 → 8 (in steps of 8)
 
 const header = `\
 pragma solidity ^0.8.0;
@@ -31,8 +34,6 @@ function toUint${length}(uint256 a) public pure returns (uint${length}) {
 `;
 
 // GENERATE
-const LENGTHS = Array(31).fill().map((_, i) => (i + 1) * 8).reverse(); // 248 → 8 (in steps of 8)
-
 module.exports = format(
   header,
   'contract SafeCastMock {',
