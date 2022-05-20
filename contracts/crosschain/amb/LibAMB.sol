@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.6.0) (crosschain/amb/LibAMB.sol)
 
 pragma solidity ^0.8.4;
 
@@ -7,7 +8,7 @@ import "../errors.sol";
 
 /**
  * @dev Primitives for cross-chain aware contracts using the
- * [AMB](https://docs.tokenbridge.net/amb-bridge/about-amb-bridge)
+ * https://docs.tokenbridge.net/amb-bridge/about-amb-bridge[AMB]
  * family of bridges.
  */
 library LibAMB {

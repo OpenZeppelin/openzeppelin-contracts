@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (token/ERC1155/ERC1155.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC1155/ERC1155.sol)
 
 pragma solidity ^0.8.0;
 
@@ -288,6 +288,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_mint}.
      *
+     * Emits a {TransferBatch} event.
+     *
      * Requirements:
      *
      * - `ids` and `amounts` must have the same length.
@@ -321,6 +323,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev Destroys `amount` tokens of token type `id` from `from`
      *
+     * Emits a {TransferSingle} event.
+     *
      * Requirements:
      *
      * - `from` cannot be the zero address.
@@ -352,6 +356,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
     /**
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_burn}.
+     *
+     * Emits a {TransferBatch} event.
      *
      * Requirements:
      *
@@ -388,7 +394,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev Approve `operator` to operate on all of `owner` tokens
      *
-     * Emits a {ApprovalForAll} event.
+     * Emits an {ApprovalForAll} event.
      */
     function _setApprovalForAll(
         address owner,
@@ -405,7 +411,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * and burning, as well as batched variants.
      *
      * The same hook is called on both single and batched variants. For single
-     * transfers, the length of the `id` and `amount` arrays will be 1.
+     * transfers, the length of the `ids` and `amounts` arrays will be 1.
      *
      * Calling conditions (for each `id` and `amount` pair):
      *

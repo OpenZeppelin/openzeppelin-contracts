@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -217,7 +217,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     ) internal view virtual returns (uint256);
 
     /**
-     * @dev Register a vote with a given support and voting weight.
+     * @dev Register a vote for `proposalId` by `account` with a given `support`, voting `weight` and voting `params`.
      *
      * Note: Support is generic and can represent various things depending on the voting system used.
      */

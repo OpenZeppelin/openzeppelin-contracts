@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.6.0) (crosschain/arbitrum/LibArbitrumL2.sol)
 
 pragma solidity ^0.8.4;
 
@@ -7,7 +8,7 @@ import "../errors.sol";
 
 /**
  * @dev Primitives for cross-chain aware contracts for
- * [Arbitrum](https://arbitrum.io/).
+ * https://arbitrum.io/[Arbitrum].
  *
  * This version should only be used on L2 to process cross-chain messages
  * originating from L1. For the other side, use {LibArbitrumL1}.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (utils/structs/EnumerableMap.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (utils/structs/EnumerableMap.sol)
 
 pragma solidity ^0.8.0;
 
@@ -32,6 +32,14 @@ import "./EnumerableSet.sol";
  * - `address -> uint256` (`AddressToUintMap`) since v4.6.0
  * - `bytes32 -> bytes32` (`Bytes32ToBytes32`) since v4.6.0
  * - `uint256 -> uint256` (`UintToUintMap`) since v4.7.0
+ *
+ * [WARNING]
+ * ====
+ *  Trying to delete such a structure from storage will likely result in data corruption, rendering the structure unusable.
+ *  See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
+ *
+ *  In order to clean an EnumerableMap, you can either remove all elements one by one or create a fresh instance using an array of EnumerableMap.
+ * ====
  */
 library EnumerableMap {
     using EnumerableSet for EnumerableSet.Bytes32Set;
