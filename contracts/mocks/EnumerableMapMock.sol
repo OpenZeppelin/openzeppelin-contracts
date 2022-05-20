@@ -171,7 +171,7 @@ contract UintToUintMapMock {
     }
 
     function getWithMessage(uint256 key, string calldata errorMessage) public view returns (uint256) {
-            return _map.get(key, errorMessage);
+        return _map.get(key, errorMessage);
     }
 }
 
@@ -214,6 +214,6 @@ contract Bytes32ToUintMapMock {
     }
 
     function getWithMessage(bytes32 key, string calldata errorMessage) public view returns (uint256) {
-            return _map.get(key, errorMessage);
+        return _map.get(key, errorMessage);
     }
 }
