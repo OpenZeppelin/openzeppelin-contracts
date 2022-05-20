@@ -51,7 +51,7 @@ contract('EnumerableMap', function (accounts) {
     });
 
     shouldBehaveLikeMap(
-      [ keyA, keyB, keyC ].map(k => ('0x' + k.toString(16)).padEnd(66, '0')),
+      [ keyA, keyB, keyC ].map(k => '0x' + k.toString(16).padEnd(64, '0')),
       [ bytesA, bytesB, bytesC ],
       constants.ZERO_BYTES32,
     );
