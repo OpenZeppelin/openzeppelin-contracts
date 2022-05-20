@@ -4,12 +4,12 @@
  * `ERC2981`: make `royaltiInfo` public to allow super call in overrides. ([#3305](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3305))
  * `Clones`: optimize clone creation ([#3329](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3329))
  * `TimelockController`: Migrate `_call` to `_execute` and allow inheritance and overriding similar to `Governor`. ([#3317](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3317))
+ * `EnumerableMap`: add new `UintToUintMap` map type. ([#3338](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3338))
 
 ## Unreleased
 
  * `crosschain`: Add a new set of contracts for cross-chain applications. `CrossChainEnabled` is a base contract with instantiations for several chains and bridges, and `AccessControlCrossChain` is an extension of access control that allows cross-chain operation. ([#3183](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3183))
  * `AccessControl`: add a virtual `_checkRole(bytes32)` function that can be overridden to alter the `onlyRole` modifier behavior. ([#3137](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3137))
- * `EnumerableMap`: add new `UintToUintMap` map type. ([#3338](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3338))
  * `EnumerableMap`: add new `AddressToUintMap` map type. ([#3150](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3150))
  * `EnumerableMap`: add new `Bytes32ToBytes32Map` map type. ([#3192](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3192))
  * `ERC20FlashMint`: support infinite allowance when paying back a flash loan. ([#3226](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3226))
