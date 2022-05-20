@@ -31,7 +31,15 @@ import "./EnumerableSet.sol";
  * - `uint256 -> address` (`UintToAddressMap`) since v3.0.0
  * - `address -> uint256` (`AddressToUintMap`) since v4.6.0
  * - `bytes32 -> bytes32` (`Bytes32ToBytes32`) since v4.6.0
- * - `bytes32 -> uint256` (`Bytes32ToUintMap`) since v4.x.x
+ * - `bytes32 -> uint256` (`Bytes32ToUintMap`) since v4.7.0
+ *
+ * [WARNING]
+ * ====
+ *  Trying to delete such a structure from storage will likely result in data corruption, rendering the structure unusable.
+ *  See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
+ *
+ *  In order to clean an EnumerableMap, you can either remove all elements one by one or create a fresh instance using an array of EnumerableMap.
+ * ====
  */
 library EnumerableMap {
     using EnumerableSet for EnumerableSet.Bytes32Set;
