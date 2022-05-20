@@ -25,8 +25,8 @@ contract('EnumerableMap', function (accounts) {
     });
 
     shouldBehaveLikeMap(
-      [ accountA, accountB, accountC ], 
-      [ keyA, keyB, keyC ], 
+      [ accountA, accountB, accountC ],
+      [ keyA, keyB, keyC ],
       new BN('0'),
     );
   });
@@ -38,8 +38,8 @@ contract('EnumerableMap', function (accounts) {
     });
 
     shouldBehaveLikeMap(
-      [ keyA, keyB, keyC ], 
-      [ accountA, accountB, accountC ], 
+      [ keyA, keyB, keyC ],
+      [ accountA, accountB, accountC ],
       constants.ZERO_ADDRESS,
     );
   });
@@ -64,8 +64,8 @@ contract('EnumerableMap', function (accounts) {
     });
 
     shouldBehaveLikeMap(
-      [ bytesA, bytesB, bytesC ], 
-      [ keyA, keyB, keyC ], 
+      [ bytesA, bytesB, bytesC ],
+      [ keyA, keyB, keyC ],
       new BN('0'),
     );
   });
