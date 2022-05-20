@@ -80,20 +80,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
         require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
 
-        address caller = _msgSender();
         uint256 shares = previewDeposit(assets);
-
-        // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
-        // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
-        // calls the vault, which is assumed not malicious.
-        //
-        // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
-        // assets are transfered and before the shares are minted, which is a valid state.
-        // slither-disable-next-line reentrancy-no-eth
-        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
-        _mint(receiver, shares);
-
-        emit Deposit(caller, receiver, assets, shares);
+        _deposit(_msgSender(), receiver, assets, shares);
 
         return shares;
     }
@@ -102,20 +90,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
         require(shares <= maxMint(receiver), "ERC4626: mint more than max");
 
-        address caller = _msgSender();
         uint256 assets = previewMint(shares);
-
-        // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
-        // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
-        // calls the vault, which is assumed not malicious.
-        //
-        // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
-        // assets are transfered and before the shares are minted, which is a valid state.
-        // slither-disable-next-line reentrancy-no-eth
-        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
-        _mint(receiver, shares);
-
-        emit Deposit(caller, receiver, assets, shares);
+        _deposit(_msgSender(), receiver, assets, shares);
 
         return assets;
     }
@@ -128,23 +104,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     ) public virtual override returns (uint256) {
         require(assets <= maxWithdraw(owner), "ERC4626: withdraw more than max");
 
-        address caller = _msgSender();
         uint256 shares = previewWithdraw(assets);
-
-        if (caller != owner) {
-            _spendAllowance(owner, caller, shares);
-        }
-
-        // If _asset is ERC777, `transfer` can trigger trigger a reentrancy AFTER the transfer happens through the
-        // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
-        // calls the vault, which is assumed not malicious.
-        //
-        // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
-        // shares are burned and after the assets are transfered, which is a valid state.
-        _burn(owner, shares);
-        SafeERC20.safeTransfer(_asset, receiver, assets);
-
-        emit Withdraw(caller, receiver, owner, assets, shares);
+        _withdraw(_msgSender(), receiver, owner, assets, shares);
 
         return shares;
     }
@@ -157,23 +118,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     ) public virtual override returns (uint256) {
         require(shares <= maxRedeem(owner), "ERC4626: redeem more than max");
 
-        address caller = _msgSender();
         uint256 assets = previewRedeem(shares);
-
-        if (caller != owner) {
-            _spendAllowance(owner, caller, shares);
-        }
-
-        // If _asset is ERC777, `transfer` can trigger trigger a reentrancy AFTER the transfer happens through the
-        // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
-        // calls the vault, which is assumed not malicious.
-        //
-        // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
-        // shares are burned and after the assets are transfered, which is a valid state.
-        _burn(owner, shares);
-        SafeERC20.safeTransfer(_asset, receiver, assets);
-
-        emit Withdraw(caller, receiver, owner, assets, shares);
+        _withdraw(_msgSender(), receiver, owner, assets, shares);
 
         return assets;
     }
@@ -201,5 +147,42 @@ abstract contract ERC4626 is ERC20, IERC4626 {
             (supply == 0)
                 ? shares.mulDiv(10**_asset.decimals(), 10**decimals(), direction)
                 : shares.mulDiv(totalAssets(), supply, direction);
+    }
+
+    /**
+     * @dev Deposit workflow
+     */
+    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) private {
+        // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
+        // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
+        // calls the vault, which is assumed not malicious.
+        //
+        // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
+        // assets are transfered and before the shares are minted, which is a valid state.
+        // slither-disable-next-line reentrancy-no-eth
+        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
+        _mint(receiver, shares);
+
+        emit Deposit(caller, receiver, assets, shares);
+    }
+
+    /**
+     * @dev Withdraw workflow
+     */
+    function _withdraw(address caller, address receiver, address owner, uint256 assets, uint256 shares) private {
+        if (caller != owner) {
+            _spendAllowance(owner, caller, shares);
+        }
+
+        // If _asset is ERC777, `transfer` can trigger trigger a reentrancy AFTER the transfer happens through the
+        // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
+        // calls the vault, which is assumed not malicious.
+        //
+        // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
+        // shares are burned and after the assets are transfered, which is a valid state.
+        _burn(owner, shares);
+        SafeERC20.safeTransfer(_asset, receiver, assets);
+
+        emit Withdraw(caller, receiver, owner, assets, shares);
     }
 }
