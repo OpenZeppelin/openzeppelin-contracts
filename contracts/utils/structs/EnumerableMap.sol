@@ -117,6 +117,8 @@ library EnumerableMap {
     /**
      * @dev Tries to returns the value associated with `key`.  O(1).
      * Does not revert if `key` is not in the map.
+     *
+     * _Available since v3.4._
      */
     function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool, bytes32) {
         bytes32 value = map._values[key];
@@ -401,8 +403,6 @@ library EnumerableMap {
     /**
      * @dev Tries to returns the value associated with `key`.  O(1).
      * Does not revert if `key` is not in the map.
-     *
-     * _Available since v3.4._
      */
     function tryGet(UintToUintMap storage map, uint256 key) internal view returns (bool, uint256) {
         (bool success, bytes32 value) = tryGet(map._inner, bytes32(key));
