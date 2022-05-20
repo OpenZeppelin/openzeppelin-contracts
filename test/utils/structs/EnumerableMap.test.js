@@ -56,7 +56,7 @@ contract('EnumerableMap', function (accounts) {
       constants.ZERO_BYTES32,
     );
   });
- 
+
   // UintToUintMap
   describe('UintToUintMap', function () {
     beforeEach(async function () {
