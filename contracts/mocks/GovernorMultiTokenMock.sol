@@ -6,9 +6,5 @@ import "../governance/extensions/GovernorMultiToken.sol";
 import "../governance/extensions/IGovernorMultiToken.sol";
 
 contract GovernorMultiTokenMock is GovernorMultiToken {
-    constructor(
-        IGovernorMultiToken[] memory assets
-    )
-        GovernorMultiToken(assets)
-    {}
+    constructor(IGovernorMultiToken[] memory assets) GovernorMultiToken(assets) {}
 }

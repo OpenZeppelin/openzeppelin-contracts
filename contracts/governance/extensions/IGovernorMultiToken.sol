@@ -14,12 +14,12 @@ interface IGovernorMultiToken is IERC20, IVotes {
     /**
      * @dev Returns the current amount of votes that `account` has.
      */
-    function getVotes(address account) external override view returns (uint256);
+    function getVotes(address account) external view override returns (uint256);
 
     /**
      * @dev Returns the amount of votes that `account` had at the end of a past block (`blockNumber`).
      */
-    function getPastVotes(address account, uint256 blockNumber) external override view returns (uint256);
+    function getPastVotes(address account, uint256 blockNumber) external view override returns (uint256);
 
     /**
      * @dev Returns the total supply of votes available at the end of a past block (`blockNumber`).
@@ -28,5 +28,5 @@ interface IGovernorMultiToken is IERC20, IVotes {
      * Votes that have not been delegated are still part of total supply, even though they would not participate in a
      * vote.
      */
-    function getPastTotalSupply(uint256 blockNumber) external override view returns (uint256);
+    function getPastTotalSupply(uint256 blockNumber) external view override returns (uint256);
 }
