@@ -36,7 +36,7 @@ contract('Governor', function (accounts) {
   beforeEach(async function () {
     this.chainId = await web3.eth.getChainId();
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.tokenTwo = await Token.new(tokenName, tokenSymbol);
+    this.tokenTwo = await Token.new(secondTokenName, secondTokenSymbol);
     this.vault = await GovernorMultiToken.new([this.token.address, this.tokenTwo.address]);
     this.mock = await Governor.new(name, this.vault.address, votingDelay, votingPeriod, 10);
     this.receiver = await CallReceiver.new();
