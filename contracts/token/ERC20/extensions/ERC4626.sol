@@ -81,7 +81,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
 
         uint256 shares = previewDeposit(assets);
-        _deposit(_msgSender(), receiver, assets, shares);
+        _buy(_msgSender(), receiver, assets, shares);
 
         return shares;
     }
@@ -91,7 +91,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         require(shares <= maxMint(receiver), "ERC4626: mint more than max");
 
         uint256 assets = previewMint(shares);
-        _deposit(_msgSender(), receiver, assets, shares);
+        _buy(_msgSender(), receiver, assets, shares);
 
         return assets;
     }
@@ -105,7 +105,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         require(assets <= maxWithdraw(owner), "ERC4626: withdraw more than max");
 
         uint256 shares = previewWithdraw(assets);
-        _withdraw(_msgSender(), receiver, owner, assets, shares);
+        _sell(_msgSender(), receiver, owner, assets, shares);
 
         return shares;
     }
@@ -119,7 +119,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         require(shares <= maxRedeem(owner), "ERC4626: redeem more than max");
 
         uint256 assets = previewRedeem(shares);
-        _withdraw(_msgSender(), receiver, owner, assets, shares);
+        _sell(_msgSender(), receiver, owner, assets, shares);
 
         return assets;
     }
@@ -150,9 +150,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /**
-     * @dev Deposit workflow
+     * @dev Deposit/mint common workflow
      */
-    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) private {
+    function _buy(address caller, address receiver, uint256 assets, uint256 shares) private {
         // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
         // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
         // calls the vault, which is assumed not malicious.
@@ -167,9 +167,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /**
-     * @dev Withdraw workflow
+     * @dev Withdraw/redeem common workflow
      */
-    function _withdraw(address caller, address receiver, address owner, uint256 assets, uint256 shares) private {
+    function _sell(address caller, address receiver, address owner, uint256 assets, uint256 shares) private {
         if (caller != owner) {
             _spendAllowance(owner, caller, shares);
         }
