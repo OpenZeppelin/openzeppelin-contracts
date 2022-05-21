@@ -25,11 +25,14 @@
     "clean": "hardhat clean && rimraf build contracts/build",
     "prepare": "npm run clean && env COMPILE_MODE=production npm run compile",
     "prepack": "scripts/prepack.sh",
+    "generate": "scripts/generate/run.js",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
-    "test:inheritance": "node scripts/inheritanceOrdering artifacts/build-info/*",
-    "gas-report": "env ENABLE_GAS_REPORT=true npm run test"
+    "test:inheritance": "scripts/checks/inheritanceOrdering.js artifacts/build-info/*",
+    "test:generation": "scripts/checks/generation.sh",
+    "gas-report": "env ENABLE_GAS_REPORT=true npm run test",
+    "slither": "npm run clean && slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas"
   },
   "repository": {
     "type": "git",
