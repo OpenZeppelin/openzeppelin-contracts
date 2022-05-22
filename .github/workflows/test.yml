@@ -30,6 +30,7 @@ jobs:
           FORCE_COLOR: 1
           ENABLE_GAS_REPORT: true
       - run: npm run test:inheritance
+      - run: npm run test:generation
       - name: Print gas report
         run: cat gas-report.txt
 
