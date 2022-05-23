@@ -42,7 +42,9 @@ library MerkleProof {
      */
     function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
-        for (uint256 i = 0; i < proof.length; i++) {
+        uint256 proofLength = proof.length;
+
+        for (uint256 i = 0; i < proofLength;) {
             bytes32 proofElement = proof[i];
             if (computedHash <= proofElement) {
                 // Hash(current computed hash + current element of the proof)
@@ -50,6 +52,10 @@ library MerkleProof {
             } else {
                 // Hash(current element of the proof + current computed hash)
                 computedHash = _efficientHash(proofElement, computedHash);
+            }
+
+            unchecked {
+                ++i;
             }
         }
         return computedHash;

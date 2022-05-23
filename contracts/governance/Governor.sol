@@ -321,9 +321,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes32 /*descriptionHash*/
     ) internal virtual {
         string memory errorMessage = "Governor: call reverted without message";
-        for (uint256 i = 0; i < targets.length; ++i) {
+        uint256 targetsLength = targets.length;
+
+        for (uint256 i = 0; i < targetsLength;) {
             (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
             Address.verifyCallResult(success, returndata, errorMessage);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -338,9 +344,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes32 /*descriptionHash*/
     ) internal virtual {
         if (_executor() != address(this)) {
-            for (uint256 i = 0; i < targets.length; ++i) {
+            uint256 targetsLength = targets.length;
+
+            for (uint256 i = 0; i < targetsLength;) {
                 if (targets[i] == address(this)) {
                     _governanceCall.pushBack(keccak256(calldatas[i]));
+                }
+
+                unchecked {
+                    ++i;
                 }
             }
         }

@@ -127,12 +127,20 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         pure
         returns (bytes[] memory)
     {
-        bytes[] memory fullcalldatas = new bytes[](calldatas.length);
+        uint256 signaturesLength = signatures.length;
+        bytes[] memory fullcalldatas = new bytes[](signaturesLength);
 
-        for (uint256 i = 0; i < signatures.length; ++i) {
-            fullcalldatas[i] = bytes(signatures[i]).length == 0
-                ? calldatas[i]
-                : abi.encodePacked(bytes4(keccak256(bytes(signatures[i]))), calldatas[i]);
+        for (uint256 i = 0; i < signaturesLength;) {
+            bytes memory signature = bytes(signatures[i]);
+            bytes memory signatureCalldata = calldatas[i];
+
+            fullcalldatas[i] = signature.length == 0
+                ? signatureCalldata
+                : abi.encodePacked(bytes4(keccak256(signature)), signatureCalldata);
+
+            unchecked {
+                ++i;
+            }
         }
 
         return fullcalldatas;

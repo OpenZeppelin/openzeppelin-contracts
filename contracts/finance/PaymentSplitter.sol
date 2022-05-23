@@ -48,11 +48,16 @@ contract PaymentSplitter is Context {
      * duplicates in `payees`.
      */
     constructor(address[] memory payees, uint256[] memory shares_) payable {
-        require(payees.length == shares_.length, "PaymentSplitter: payees and shares length mismatch");
-        require(payees.length > 0, "PaymentSplitter: no payees");
+        uint256 payeesLength = payees.length;
+        require(payeesLength == shares_.length, "PaymentSplitter: payees and shares length mismatch");
+        require(payeesLength > 0, "PaymentSplitter: no payees");
 
-        for (uint256 i = 0; i < payees.length; i++) {
+        for (uint256 i = 0; i < payeesLength;) {
             _addPayee(payees[i], shares_[i]);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 

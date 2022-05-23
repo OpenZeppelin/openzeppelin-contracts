@@ -42,21 +42,26 @@ abstract contract ERC1155Supply is ERC1155 {
         bytes memory data
     ) internal virtual override {
         super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+        uint256 idsLength = ids.length;
 
         if (from == address(0)) {
-            for (uint256 i = 0; i < ids.length; ++i) {
+            for (uint256 i = 0; i < idsLength;) {
                 _totalSupply[ids[i]] += amounts[i];
+                unchecked {
+                    ++i;
+                }
             }
         }
 
         if (to == address(0)) {
-            for (uint256 i = 0; i < ids.length; ++i) {
+            for (uint256 i = 0; i < idsLength;) {
                 uint256 id = ids[i];
                 uint256 amount = amounts[i];
                 uint256 supply = _totalSupply[id];
                 require(supply >= amount, "ERC1155: burn amount exceeds totalSupply");
                 unchecked {
                     _totalSupply[id] = supply - amount;
+                    ++i;
                 }
             }
         }

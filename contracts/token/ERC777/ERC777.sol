@@ -66,8 +66,12 @@ contract ERC777 is Context, IERC777, IERC20 {
         _symbol = symbol_;
 
         _defaultOperatorsArray = defaultOperators_;
-        for (uint256 i = 0; i < defaultOperators_.length; i++) {
+        uint256 defaultOperators_Length = defaultOperators_.length;
+        for (uint256 i = 0; i < defaultOperators_Length;) {
             _defaultOperators[defaultOperators_[i]] = true;
+            unchecked {
+                ++i;
+            }
         }
 
         // register interfaces

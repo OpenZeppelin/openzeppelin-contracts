@@ -88,14 +88,27 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
 
         // register proposers and cancellers
-        for (uint256 i = 0; i < proposers.length; ++i) {
-            _setupRole(PROPOSER_ROLE, proposers[i]);
-            _setupRole(CANCELLER_ROLE, proposers[i]);
+        uint256 proposersLength = proposers.length;
+
+        for (uint256 i = 0; i < proposersLength;) {
+            address proposer = proposers[i];
+            _setupRole(PROPOSER_ROLE, proposer);
+            _setupRole(CANCELLER_ROLE, proposer);
+
+            unchecked {
+                ++i;
+            }
         }
 
         // register executors
-        for (uint256 i = 0; i < executors.length; ++i) {
+        uint256 executorsLength = executors.length;
+
+        for (uint256 i = 0; i < executorsLength;) {
             _setupRole(EXECUTOR_ROLE, executors[i]);
+
+            unchecked {
+                ++i;
+            }
         }
 
         _minDelay = minDelay;
@@ -241,13 +254,18 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes32 salt,
         uint256 delay
     ) public virtual onlyRole(PROPOSER_ROLE) {
-        require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == payloads.length, "TimelockController: length mismatch");
+        uint256 targetsLength = targets.length;
+        require(targetsLength == values.length, "TimelockController: length mismatch");
+        require(targetsLength == payloads.length, "TimelockController: length mismatch");
 
         bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
         _schedule(id, delay);
-        for (uint256 i = 0; i < targets.length; ++i) {
+        for (uint256 i = 0; i < targetsLength;) {
             emit CallScheduled(id, i, targets[i], values[i], payloads[i], predecessor, delay);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -317,18 +335,23 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
-        require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == payloads.length, "TimelockController: length mismatch");
+        uint256 targetsLength = targets.length;
+        require(targetsLength == values.length, "TimelockController: length mismatch");
+        require(targetsLength == payloads.length, "TimelockController: length mismatch");
 
         bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
 
         _beforeCall(id, predecessor);
-        for (uint256 i = 0; i < targets.length; ++i) {
+        for (uint256 i = 0; i < targetsLength;) {
             address target = targets[i];
             uint256 value = values[i];
             bytes calldata payload = payloads[i];
             _execute(target, value, payload);
             emit CallExecuted(id, i, target, value, payload);
+
+            unchecked {
+                ++i;
+            }
         }
         _afterCall(id);
     }

@@ -58,9 +58,13 @@ library Strings {
         bytes memory buffer = new bytes(2 * length + 2);
         buffer[0] = "0";
         buffer[1] = "x";
-        for (uint256 i = 2 * length + 1; i > 1; --i) {
+        for (uint256 i = 2 * length + 1; i > 1;) {
             buffer[i] = _HEX_SYMBOLS[value & 0xf];
             value >>= 4;
+
+            unchecked {
+                --i;
+            }
         }
         require(value == 0, "Strings: hex length insufficient");
         return string(buffer);
