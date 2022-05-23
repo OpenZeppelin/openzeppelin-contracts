@@ -19,8 +19,10 @@ for (const [ file, template ] of Object.entries({
   'mocks/SafeCastMock.sol': './templates/SafeCastMock',
   // EnumerableSet
   'utils/structs/EnumerableSet.sol': './templates/EnumerableSet',
+  'mocks/EnumerableSetMock.sol': './templates/EnumerableSetMock',
   // EnumerableMap
   'utils/structs/EnumerableMap.sol': './templates/EnumerableMap',
+  'mocks/EnumerableMapMock.sol': './templates/EnumerableMapMock',
 })) {
   const path = `./contracts/${file}`;
   const version = getVersion(path);
