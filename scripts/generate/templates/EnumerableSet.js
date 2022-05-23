@@ -1,13 +1,13 @@
-const assert = require('assert');
 const format = require('../format-lines');
 const { fromBytes32, toBytes32 } = require('./conversion');
 
 const TYPES = [
-    { name: 'Bytes32Set', type: 'bytes32' },
-    { name: 'AddressSet', type: 'address' },
-    { name: 'UintSet', type: 'uint256' },
+  { name: 'Bytes32Set', type: 'bytes32' },
+  { name: 'AddressSet', type: 'address' },
+  { name: 'UintSet', type: 'uint256' },
 ];
 
+/* eslint-disable max-len */
 const header = `\
 pragma solidity ^0.8.0;
 
@@ -44,6 +44,7 @@ pragma solidity ^0.8.0;
  * ====
  */
 `;
+/* eslint-enable max-len */
 
 const defaultSet = () => `\
 // To implement this library for multiple types with as little code

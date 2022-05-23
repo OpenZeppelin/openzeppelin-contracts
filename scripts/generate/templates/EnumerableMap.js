@@ -1,14 +1,14 @@
-const assert = require('assert');
 const format = require('../format-lines');
 const { fromBytes32, toBytes32 } = require('./conversion');
 
 const TYPES = [
-    { name: "UintToUintMap",       keyType: "uint256", valueType: "uint256" },
-    { name: "UintToAddressMap",    keyType: "uint256", valueType: "address" },
-    { name: "AddressToUintMap",    keyType: "address", valueType: "uint256" },
-    { name: "Bytes32ToUintMap",    keyType: "bytes32", valueType: "uint256" },
+  { name: 'UintToUintMap', keyType: 'uint256', valueType: 'uint256' },
+  { name: 'UintToAddressMap', keyType: 'uint256', valueType: 'address' },
+  { name: 'AddressToUintMap', keyType: 'address', valueType: 'uint256' },
+  { name: 'Bytes32ToUintMap', keyType: 'bytes32', valueType: 'uint256' },
 ];
 
+/* eslint-disable max-len */
 const header = `\
 pragma solidity ^0.8.0;
 
@@ -52,6 +52,7 @@ import "./EnumerableSet.sol";
  * ====
  */
 `;
+/* eslint-enable max-len */
 
 const defaultMap = () => `\
 // To implement this library for multiple types with as little code
