@@ -1,12 +1,12 @@
 const format = require('../format-lines');
 
 const TYPES = [
-    { name: 'UintToAddressMap', keyType: 'uint256', valueType: 'address' },
-    { name: 'AddressToUintMap', keyType: 'address', valueType: 'uint256' },
-    { name: 'Bytes32ToBytes32Map', keyType: 'bytes32', valueType: 'bytes32' },
-    { name: 'UintToUintMap', keyType: 'uint256', valueType: 'uint256' },
-    { name: 'Bytes32ToUintMap', keyType: 'bytes32', valueType: 'uint256' },
-  ];
+  { name: 'UintToAddressMap', keyType: 'uint256', valueType: 'address' },
+  { name: 'AddressToUintMap', keyType: 'address', valueType: 'uint256' },
+  { name: 'Bytes32ToBytes32Map', keyType: 'bytes32', valueType: 'bytes32' },
+  { name: 'UintToUintMap', keyType: 'uint256', valueType: 'uint256' },
+  { name: 'Bytes32ToUintMap', keyType: 'bytes32', valueType: 'uint256' },
+];
 
 const header = `\
 pragma solidity ^0.8.0;
