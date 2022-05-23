@@ -7,11 +7,25 @@ import "../utils/SafeERC20.sol";
 import "../../../interfaces/IERC4626.sol";
 import "../../../utils/math/Math.sol";
 
+/**
+ * @dev Implementation of the ERC4626 "Tokenized Vault Standard" as defined in
+ * https://eips.ethereum.org/EIPS/eip-4626[EIP-4626].
+ *
+ * This extension allows the minting and burning of "shares" (represented using the ERC20 inheritance) in exchange for
+ * underlying "assets" through standardized {deposit}, {mint}, {redeem} and {burn} workflows. This contract extends
+ * the ERC20 standard. Any additional extensions included along it would affect the "shares" token represented by this
+ * contract and not the "assets" token which is an independent contract.
+ *
+ * _Available since v4.7._
+ */
 abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
 
     IERC20Metadata private immutable _asset;
 
+    /**
+     * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
+     */
     constructor(IERC20Metadata asset_) {
         _asset = asset_;
     }
