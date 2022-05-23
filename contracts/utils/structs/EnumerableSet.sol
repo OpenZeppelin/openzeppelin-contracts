@@ -283,6 +283,7 @@ library EnumerableSet {
         bytes32[] memory store = _values(set._inner);
         address[] memory result;
 
+        /// @solidity memory-safe-assembly
         assembly {
             result := store
         }
@@ -356,6 +357,7 @@ library EnumerableSet {
         bytes32[] memory store = _values(set._inner);
         uint256[] memory result;
 
+        /// @solidity memory-safe-assembly
         assembly {
             result := store
         }
