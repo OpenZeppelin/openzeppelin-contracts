@@ -2,12 +2,12 @@ const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test
 const { expect } = require('chai');
 
 const ERC20DecimalsMock = artifacts.require('ERC20DecimalsMock');
-const ERC4626Mock = artifacts.require('ERC4626Mock');
+const ERC20TokenizedVaultMock = artifacts.require('ERC20TokenizedVaultMock');
 
 const parseToken = (token) => (new BN(token)).mul(new BN('1000000000000'));
 const parseShare = (share) => (new BN(share)).mul(new BN('1000000000000000000'));
 
-contract('ERC4626', function (accounts) {
+contract('ERC20TokenizedVault', function (accounts) {
   const [ holder, recipient, spender, other, user1, user2 ] = accounts;
 
   const name = 'My Token';
@@ -15,7 +15,7 @@ contract('ERC4626', function (accounts) {
 
   beforeEach(async function () {
     this.token = await ERC20DecimalsMock.new(name, symbol, 12);
-    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol + 'V');
+    this.vault = await ERC20TokenizedVaultMock.new(this.token.address, name + ' Vault', symbol + 'V');
 
     await this.token.mint(holder, web3.utils.toWei('100'));
     await this.token.approve(this.vault.address, constants.MAX_UINT256, { from: holder });
@@ -381,7 +381,7 @@ contract('ERC4626', function (accounts) {
   it('multiple mint, deposit, redeem & withdrawal', async function () {
     // test designed with both asset using similar decimals
     this.token = await ERC20DecimalsMock.new(name, symbol, 18);
-    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol + 'V');
+    this.vault = await ERC20TokenizedVaultMock.new(this.token.address, name + ' Vault', symbol + 'V');
 
     await this.token.mint(user1, 4000);
     await this.token.mint(user2, 7001);
