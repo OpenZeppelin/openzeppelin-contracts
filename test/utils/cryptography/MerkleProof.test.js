@@ -90,7 +90,7 @@ contract('MerkleProof', function (accounts) {
       expect(await this.merkleProof.multiProofVerify(root, badProofLeaves, badProof, badProofFlags)).to.equal(false);
     });
 
-    it('revert with invalid multi proof', async function () {
+    it('revert with invalid multi proof #3', async function () {
       const fill = Buffer.alloc(32); // This could be anything, we are reconstructing a fake branch
       const leaves = ['a', 'b', 'c', 'd'].map(keccak256).sort(Buffer.compare);
       const badLeave = keccak256('e');
@@ -106,6 +106,25 @@ contract('MerkleProof', function (accounts) {
           [ false, false, false ],
         ),
         'MerkleProof: invalid multiproof',
+      );
+    });
+
+    it('revert with invalid multi proof #2', async function () {
+      const fill = Buffer.alloc(32); // This could be anything, we are reconstructing a fake branch
+      const leaves = ['a', 'b', 'c', 'd'].map(keccak256).sort(Buffer.compare);
+      const badLeave = keccak256('e');
+      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
+
+      const root = merkleTree.getRoot();
+
+      await expectRevert(
+        this.merkleProof.multiProofVerify(
+          root,
+          [ badLeave, leaves[0] ], // A, E
+          [ leaves[1], fill, merkleTree.layers[1][1] ],
+          [ false, false, false, false ],
+        ),
+        'reverted with panic code 0x32',
       );
     });
   });
