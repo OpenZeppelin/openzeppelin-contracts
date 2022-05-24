@@ -17,7 +17,6 @@
  * `TimelockController`: Implement `IERC721Receiver` and `IERC1155Receiver` to improve token custody by timelocks. ([#3230](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3230))
  * `MerkleProof`: add `multiProofVerify` to prove multiple values are part of a Merkle tree. ([#3276](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3276))
 
-
 ### Breaking changes
 
 * `Governor`: Adds internal virtual `_getVotes` method that must be implemented; this is a breaking change for existing concrete extensions to `Governor`. To fix this on an existing voting module extension, rename `getVotes` to `_getVotes` and add a `bytes memory` argument. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
