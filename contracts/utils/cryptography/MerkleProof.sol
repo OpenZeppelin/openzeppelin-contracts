@@ -100,10 +100,9 @@ library MerkleProof {
         // - depending on the flag, either another value for the "main queue" (merging branches) or an element from the
         //   `proofs` array.
         for (uint256 i = 0; i < totalHashes; i++) {
-            hashes[i] = _hashPair(
-                leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++],
-                proofFlag[i] ? leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++] : proofs[proofPos++]
-            );
+            bytes32 a = leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++];
+            bytes32 b = proofFlag[i] ? leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++] : proofs[proofPos++];
+            hashes[i] = _hashPair(a, b);
         }
 
         return hashes[totalHashes - 1];
