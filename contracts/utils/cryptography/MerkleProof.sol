@@ -77,6 +77,8 @@ library MerkleProof {
         bytes32[] memory proofs,
         bool[] memory proofFlag
     ) internal pure returns (bytes32 merkleRoot) {
+        require(leafs.length + proofs.length - 1 == proofFlag.length, "MerkleProof: invalid multiproof");
+
         // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leafs` array, then goes onto the
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
@@ -100,8 +102,6 @@ library MerkleProof {
                 proofFlag[i] ? leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++] : proofs[proofPos++]
             );
         }
-
-        require(leafPos == leafsLen && hashPos == totalHashes - 1, "MerkleProof: invalid multiproof");
 
         return hashes[totalHashes - 1];
     }

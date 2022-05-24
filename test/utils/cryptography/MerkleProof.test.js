@@ -1,5 +1,6 @@
 require('@openzeppelin/test-helpers');
 
+const { expectRevert } = require('@openzeppelin/test-helpers');
 const { MerkleTree } = require('merkletreejs');
 const keccak256 = require('keccak256');
 
@@ -87,6 +88,25 @@ contract('MerkleProof', function (accounts) {
       const badProofFlags = badMerkleTree.getProofFlags(badProofLeaves, badProof);
 
       expect(await this.merkleProof.multiProofVerify(root, badProofLeaves, badProof, badProofFlags)).to.equal(false);
+    });
+
+    it('revert with invalid multi proof', async function () {
+      const fill = Buffer.alloc(32); // This could be anything, we are reconstructing a fake branch
+      const leaves = ['a', 'b', 'c', 'd'].map(keccak256).sort(Buffer.compare);
+      const badLeave = keccak256('e');
+      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
+
+      const root = merkleTree.getRoot();
+
+      await expectRevert(
+        this.merkleProof.multiProofVerify(
+          root,
+          [ leaves[0], badLeave ], // A, E
+          [ leaves[1], fill, merkleTree.layers[1][1] ],
+          [ false, false, false ]
+        ),
+        'MerkleProof: invalid multiproof'
+      );
     });
   });
 });
