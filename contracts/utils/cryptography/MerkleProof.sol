@@ -77,22 +77,22 @@ library MerkleProof {
         bytes32[] memory proofs,
         bool[] memory proofFlag
     ) internal pure returns (bytes32 merkleRoot) {
-        // This function rebuild the root hash by traversing the tree up from the leafs. The root is rebuilt by
-        // consuming and producing values on a simulated queue. The stack start with the `leafs` array, then goes onto
+        // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
+        // consuming and producing values on a simulated queue. The stack starts with the `leafs` array, then goes onto
         // the `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root
         // of the merkle tree.
         uint256 leafsLen = leafs.length;
         uint256 totalHashes = proofFlag.length;
         bytes32[] memory hashes = new bytes32[](totalHashes);
-        // The xxxPos values are "pointer" to that mark the next value to consume in each array. All accesses are done
-        // using `xxx[xxxPos++]`, which return the current value and increment the pointer.
+        // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
+        // `xxx[xxxPos++]`, which return the current value and increment the pointer.
         uint256 leafPos = 0;
         uint256 hashPos = 0;
         uint256 proofPos = 0;
         // At each step, we compute the next hash using two values:
-        // - a value from the "main queue". If not all leafs have been consumed, we get the next leafs, otherwize we
+        // - a value from the "main queue". If not all leaves have been consumed, we get the next leaf, otherwise we
         //   get the next hash.
-        // - depending on the flag, either another value for the "main queue" (merging branches) or a element from the
+        // - depending on the flag, either another value for the "main queue" (merging branches) or an element from the
         //   `proofs` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             hashes[i] = _hashPair(
