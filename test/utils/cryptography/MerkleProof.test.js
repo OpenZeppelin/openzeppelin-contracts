@@ -103,9 +103,9 @@ contract('MerkleProof', function (accounts) {
           root,
           [ leaves[0], badLeave ], // A, E
           [ leaves[1], fill, merkleTree.layers[1][1] ],
-          [ false, false, false ]
+          [ false, false, false ],
         ),
-        'MerkleProof: invalid multiproof'
+        'MerkleProof: invalid multiproof',
       );
     });
   });
