@@ -78,14 +78,14 @@ library MerkleProof {
         bool[] memory proofFlag
     ) internal pure returns (bytes32 merkleRoot) {
         // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
-        // consuming and producing values on a simulated queue. The stack starts with the `leafs` array, then goes onto
-        // the `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root
-        // of the merkle tree.
+        // consuming and producing values on a queue. The queue starts with the `leafs` array, then goes onto the
+        // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
+        // the merkle tree.
         uint256 leafsLen = leafs.length;
         uint256 totalHashes = proofFlag.length;
         bytes32[] memory hashes = new bytes32[](totalHashes);
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
-        // `xxx[xxxPos++]`, which return the current value and increment the pointer.
+        // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
         uint256 leafPos = 0;
         uint256 hashPos = 0;
         uint256 proofPos = 0;
