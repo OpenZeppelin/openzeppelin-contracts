@@ -137,7 +137,7 @@ library EnumerableMap {
      */
     function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bytes32) {
         bytes32 value = map._values[key];
-        require(value != 0 || contains(map, key), "EnumerableMap: nonexistent key");
+        require(value > 0 || contains(map, key), "EnumerableMap: nonexistent key");
         return value;
     }
 
@@ -153,7 +153,7 @@ library EnumerableMap {
         string memory errorMessage
     ) internal view returns (bytes32) {
         bytes32 value = map._values[key];
-        require(value != 0 || contains(map, key), errorMessage);
+        require(value > 0 || contains(map, key), errorMessage);
         return value;
     }
 

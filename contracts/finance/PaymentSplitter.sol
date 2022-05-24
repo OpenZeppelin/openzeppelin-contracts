@@ -130,7 +130,7 @@ contract PaymentSplitter is Context {
         uint256 totalReceived = address(this).balance + totalReleased();
         uint256 payment = _pendingPayment(account, totalReceived, released(account));
 
-        require(payment != 0, "PaymentSplitter: account is not due payment");
+        require(payment > 0, "PaymentSplitter: account is not due payment");
 
         _released[account] += payment;
         _totalReleased += payment;
@@ -150,7 +150,7 @@ contract PaymentSplitter is Context {
         uint256 totalReceived = token.balanceOf(address(this)) + totalReleased(token);
         uint256 payment = _pendingPayment(account, totalReceived, released(token, account));
 
-        require(payment != 0, "PaymentSplitter: account is not due payment");
+        require(payment > 0, "PaymentSplitter: account is not due payment");
 
         _erc20Released[token][account] += payment;
         _erc20TotalReleased[token] += payment;
