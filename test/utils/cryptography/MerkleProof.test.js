@@ -90,7 +90,7 @@ contract('MerkleProof', function (accounts) {
       expect(await this.merkleProof.multiProofVerify(root, badProofLeaves, badProof, badProofFlags)).to.equal(false);
     });
 
-    it('revert with invalid multi proof #3', async function () {
+    it('revert with invalid multi proof #1', async function () {
       const fill = Buffer.alloc(32); // This could be anything, we are reconstructing a fake branch
       const leaves = ['a', 'b', 'c', 'd'].map(keccak256).sort(Buffer.compare);
       const badLeave = keccak256('e');
