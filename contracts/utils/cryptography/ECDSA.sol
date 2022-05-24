@@ -64,6 +64,7 @@ library ECDSA {
             uint8 v;
             // ecrecover takes the signature parameters, and the only way to get them
             // currently is to use assembly.
+            /// @solidity memory-safe-assembly
             assembly {
                 r := mload(add(signature, 0x20))
                 s := mload(add(signature, 0x40))
@@ -75,6 +76,7 @@ library ECDSA {
             bytes32 vs;
             // ecrecover takes the signature parameters, and the only way to get them
             // currently is to use assembly.
+            /// @solidity memory-safe-assembly
             assembly {
                 r := mload(add(signature, 0x20))
                 vs := mload(add(signature, 0x40))

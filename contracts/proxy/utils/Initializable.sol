@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (proxy/utils/Initializable.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (proxy/utils/Initializable.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.2;
 
 import "../../utils/Address.sol";
 
@@ -67,6 +67,11 @@ abstract contract Initializable {
     bool private _initializing;
 
     /**
+     * @dev Triggered when the contract has been initialized or reinitialized.
+     */
+    event Initialized(uint8 version);
+
+    /**
      * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,
      * `onlyInitializing` functions can be used to initialize parent contracts. Equivalent to `reinitializer(1)`.
      */
@@ -78,6 +83,7 @@ abstract contract Initializable {
         _;
         if (isTopLevelCall) {
             _initializing = false;
+            emit Initialized(1);
         }
     }
 
@@ -101,6 +107,7 @@ abstract contract Initializable {
         _;
         if (isTopLevelCall) {
             _initializing = false;
+            emit Initialized(version);
         }
     }
 
