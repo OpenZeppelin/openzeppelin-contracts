@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/IGovernor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -111,9 +111,9 @@ abstract contract IGovernor is IERC165 {
      * @dev Hashing function used to (re)build the proposal id from the proposal details..
      */
     function hashProposal(
-        address[] calldata targets,
-        uint256[] calldata values,
-        bytes[] calldata calldatas,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public pure virtual returns (uint256);
 
@@ -237,7 +237,7 @@ abstract contract IGovernor is IERC165 {
     /**
      * @dev Cast a vote with a reason and additional encoded parameters
      *
-     * Emits a {VoteCast} event.
+     * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
      */
     function castVoteWithReasonAndParams(
         uint256 proposalId,
@@ -262,7 +262,7 @@ abstract contract IGovernor is IERC165 {
     /**
      * @dev Cast a vote with a reason and additional encoded parameters using the user's cryptographic signature.
      *
-     * Emits a {VoteCast} event.
+     * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
      */
     function castVoteWithReasonAndParamsBySig(
         uint256 proposalId,
