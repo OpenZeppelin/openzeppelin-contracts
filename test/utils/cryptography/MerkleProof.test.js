@@ -100,7 +100,7 @@ contract('MerkleProof', function (accounts) {
     it('revert with invalid multi proof #1', async function () {
       const fill = Buffer.alloc(32); // This could be anything, we are reconstructing a fake branch
       const leaves = ['a', 'b', 'c', 'd'].map(keccak256).sort(Buffer.compare);
-      const badLeave = keccak256('e');
+      const badLeaf = keccak256('e');
       const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
 
       const root = merkleTree.getRoot();
@@ -108,7 +108,7 @@ contract('MerkleProof', function (accounts) {
       await expectRevert(
         this.merkleProof.multiProofVerify(
           root,
-          [ leaves[0], badLeave ], // A, E
+          [ leaves[0], badLeaf ], // A, E
           [ leaves[1], fill, merkleTree.layers[1][1] ],
           [ false, false, false ],
         ),
@@ -118,7 +118,7 @@ contract('MerkleProof', function (accounts) {
       await expectRevert(
         this.merkleProof.multiProofVerifyCall(
           root,
-          [ leaves[0], badLeave ], // A, E
+          [ leaves[0], badLeaf ], // A, E
           [ leaves[1], fill, merkleTree.layers[1][1] ],
           [ false, false, false ],
         ),
@@ -129,7 +129,7 @@ contract('MerkleProof', function (accounts) {
     it('revert with invalid multi proof #2', async function () {
       const fill = Buffer.alloc(32); // This could be anything, we are reconstructing a fake branch
       const leaves = ['a', 'b', 'c', 'd'].map(keccak256).sort(Buffer.compare);
-      const badLeave = keccak256('e');
+      const badLeaf = keccak256('e');
       const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
 
       const root = merkleTree.getRoot();
@@ -137,7 +137,7 @@ contract('MerkleProof', function (accounts) {
       await expectRevert(
         this.merkleProof.multiProofVerify(
           root,
-          [ badLeave, leaves[0] ], // A, E
+          [ badLeaf, leaves[0] ], // A, E
           [ leaves[1], fill, merkleTree.layers[1][1] ],
           [ false, false, false, false ],
         ),
@@ -147,7 +147,7 @@ contract('MerkleProof', function (accounts) {
       await expectRevert(
         this.merkleProof.multiProofVerifyCall(
           root,
-          [ badLeave, leaves[0] ], // A, E
+          [ badLeaf, leaves[0] ], // A, E
           [ leaves[1], fill, merkleTree.layers[1][1] ],
           [ false, false, false, false ],
         ),
