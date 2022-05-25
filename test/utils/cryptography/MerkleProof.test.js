@@ -93,7 +93,8 @@ contract('MerkleProof', function (accounts) {
       const badProofFlags = badMerkleTree.getProofFlags(badProofLeaves, badProof);
 
       expect(await this.merkleProof.multiProofVerify(root, badProofLeaves, badProof, badProofFlags)).to.equal(false);
-      expect(await this.merkleProof.multiProofVerifyCall(root, badProofLeaves, badProof, badProofFlags)).to.equal(false);
+      expect(await this.merkleProof.multiProofVerifyCall(root, badProofLeaves, badProof, badProofFlags))
+        .to.equal(false);
     });
 
     it('revert with invalid multi proof #1', async function () {
