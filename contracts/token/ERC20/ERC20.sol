@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/ERC20.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/ERC20.sol)
 
 pragma solidity ^0.8.0;
 
@@ -180,7 +180,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      */
     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
         address owner = _msgSender();
-        _approve(owner, spender, _allowances[owner][spender] + addedValue);
+        _approve(owner, spender, allowance(owner, spender) + addedValue);
         return true;
     }
 
@@ -200,7 +200,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      */
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
         address owner = _msgSender();
-        uint256 currentAllowance = _allowances[owner][spender];
+        uint256 currentAllowance = allowance(owner, spender);
         require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
         unchecked {
             _approve(owner, spender, currentAllowance - subtractedValue);
@@ -210,7 +210,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
 
     /**
-     * @dev Moves `amount` of tokens from `sender` to `recipient`.
+     * @dev Moves `amount` of tokens from `from` to `to`.
      *
      * This internal function is equivalent to {transfer}, and can be used to
      * e.g. implement automatic token fees, slashing mechanisms, etc.

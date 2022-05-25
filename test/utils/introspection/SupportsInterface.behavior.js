@@ -69,6 +69,28 @@ const INTERFACES = {
     'castVoteWithReason(uint256,uint8,string)',
     'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
   ],
+  GovernorWithParams: [
+    'name()',
+    'version()',
+    'COUNTING_MODE()',
+    'hashProposal(address[],uint256[],bytes[],bytes32)',
+    'state(uint256)',
+    'proposalSnapshot(uint256)',
+    'proposalDeadline(uint256)',
+    'votingDelay()',
+    'votingPeriod()',
+    'quorum(uint256)',
+    'getVotes(address,uint256)',
+    'getVotesWithParams(address,uint256,bytes)',
+    'hasVoted(uint256,address)',
+    'propose(address[],uint256[],bytes[],string)',
+    'execute(address[],uint256[],bytes[],bytes32)',
+    'castVote(uint256,uint8)',
+    'castVoteWithReason(uint256,uint8,string)',
+    'castVoteWithReasonAndParams(uint256,uint8,string,bytes)',
+    'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
+    'castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)',
+  ],
   GovernorTimelock: [
     'timelock()',
     'proposalEta(uint256)',
@@ -90,34 +112,33 @@ for (const k of Object.getOwnPropertyNames(INTERFACES)) {
 }
 
 function shouldSupportInterfaces (interfaces = []) {
-  describe('Contract interface', function () {
+  describe('ERC165', function () {
     beforeEach(function () {
       this.contractUnderTest = this.mock || this.token || this.holder || this.accessControl;
     });
 
-    for (const k of interfaces) {
-      const interfaceId = INTERFACE_IDS[k];
-      describe(k, function () {
-        describe('ERC165\'s supportsInterface(bytes4)', function () {
-          it('uses less than 30k gas', async function () {
-            expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
-          });
+    it('supportsInterface uses less than 30k gas', async function () {
+      for (const k of interfaces) {
+        const interfaceId = INTERFACE_IDS[k];
+        expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
+      }
+    });
 
-          it('claims support', async function () {
-            expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true);
-          });
-        });
+    it('all interfaces are reported as supported', async function () {
+      for (const k of interfaces) {
+        const interfaceId = INTERFACE_IDS[k];
+        expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true);
+      }
+    });
 
+    it('all interface functions are in ABI', async function () {
+      for (const k of interfaces) {
         for (const fnName of INTERFACES[k]) {
           const fnSig = FN_SIGNATURES[fnName];
-          describe(fnName, function () {
-            it('has to be implemented', function () {
-              expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1);
-            });
-          });
+          expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1);
         }
-      });
-    }
+      }
+    });
   });
 }
 

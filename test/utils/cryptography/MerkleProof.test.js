@@ -1,5 +1,6 @@
 require('@openzeppelin/test-helpers');
 
+const { expectRevert } = require('@openzeppelin/test-helpers');
 const { MerkleTree } = require('merkletreejs');
 const keccak256 = require('keccak256');
 
@@ -60,6 +61,71 @@ contract('MerkleProof', function (accounts) {
       const badProof = proof.slice(0, proof.length - 5);
 
       expect(await this.merkleProof.verify(badProof, root, leaf)).to.equal(false);
+    });
+  });
+
+  describe('multiProofVerify', function () {
+    it('returns true for a valid Merkle multi proof', async function () {
+      const leaves = ['a', 'b', 'c', 'd', 'e', 'f'].map(keccak256).sort(Buffer.compare);
+      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
+
+      const root = merkleTree.getRoot();
+      const proofLeaves = ['b', 'f', 'd'].map(keccak256).sort(Buffer.compare);
+      const proof = merkleTree.getMultiProof(proofLeaves);
+      const proofFlags = merkleTree.getProofFlags(proofLeaves, proof);
+
+      expect(await this.merkleProof.multiProofVerify(root, proofLeaves, proof, proofFlags)).to.equal(true);
+    });
+
+    it('returns false for an invalid Merkle multi proof', async function () {
+      const leaves = ['a', 'b', 'c', 'd', 'e', 'f'].map(keccak256).sort(Buffer.compare);
+      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
+
+      const root = merkleTree.getRoot();
+      const badProofLeaves = ['g', 'h', 'i'].map(keccak256).sort(Buffer.compare);
+      const badMerkleTree = new MerkleTree(badProofLeaves);
+      const badProof = badMerkleTree.getMultiProof(badProofLeaves);
+      const badProofFlags = badMerkleTree.getProofFlags(badProofLeaves, badProof);
+
+      expect(await this.merkleProof.multiProofVerify(root, badProofLeaves, badProof, badProofFlags)).to.equal(false);
+    });
+
+    it('revert with invalid multi proof #1', async function () {
+      const fill = Buffer.alloc(32); // This could be anything, we are reconstructing a fake branch
+      const leaves = ['a', 'b', 'c', 'd'].map(keccak256).sort(Buffer.compare);
+      const badLeave = keccak256('e');
+      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
+
+      const root = merkleTree.getRoot();
+
+      await expectRevert(
+        this.merkleProof.multiProofVerify(
+          root,
+          [ leaves[0], badLeave ], // A, E
+          [ leaves[1], fill, merkleTree.layers[1][1] ],
+          [ false, false, false ],
+        ),
+        'MerkleProof: invalid multiproof',
+      );
+    });
+
+    it('revert with invalid multi proof #2', async function () {
+      const fill = Buffer.alloc(32); // This could be anything, we are reconstructing a fake branch
+      const leaves = ['a', 'b', 'c', 'd'].map(keccak256).sort(Buffer.compare);
+      const badLeave = keccak256('e');
+      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
+
+      const root = merkleTree.getRoot();
+
+      await expectRevert(
+        this.merkleProof.multiProofVerify(
+          root,
+          [ badLeave, leaves[0] ], // A, E
+          [ leaves[1], fill, merkleTree.layers[1][1] ],
+          [ false, false, false, false ],
+        ),
+        'reverted with panic code 0x32',
+      );
     });
   });
 });

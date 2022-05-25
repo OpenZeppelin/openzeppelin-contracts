@@ -1,10 +1,12 @@
+#!/usr/bin/env node
+
 const path = require('path');
 const graphlib = require('graphlib');
 const { findAll } = require('solidity-ast/utils');
 const { _: artifacts } = require('yargs').argv;
 
 for (const artifact of artifacts) {
-  const { output: solcOutput } = require(path.resolve(__dirname, '..', artifact));
+  const { output: solcOutput } = require(path.resolve(__dirname, '../..', artifact));
 
   const graph = new graphlib.Graph({ directed: true });
   const names = {};

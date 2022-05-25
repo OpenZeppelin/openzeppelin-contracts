@@ -35,6 +35,7 @@ library Base64 {
         // - `4 *`              -> 4 characters for each chunk
         string memory result = new string(4 * ((data.length + 2) / 3));
 
+        /// @solidity memory-safe-assembly
         assembly {
             // Prepare the lookup table (skip the first "length" byte)
             let tablePtr := add(table, 1)

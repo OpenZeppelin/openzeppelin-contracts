@@ -12,11 +12,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 12.x
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: cache
         with:
           path: '**/node_modules'
@@ -30,19 +30,20 @@ jobs:
           FORCE_COLOR: 1
           ENABLE_GAS_REPORT: true
       - run: npm run test:inheritance
+      - run: npm run test:generation
       - name: Print gas report
         run: cat gas-report.txt
 
   coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: 12.x
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         id: cache
         with:
           path: '**/node_modules'
@@ -53,27 +54,4 @@ jobs:
       - run: npm run coverage
         env:
           NODE_OPTIONS: --max_old_space_size=4096
-      - uses: codecov/codecov-action@v2
-
-  slither:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 12.x
-      - uses: actions/cache@v2
-        id: cache
-        with:
-          path: '**/node_modules'
-          key: npm-v2-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: npm-v2-
-      - run: npm ci
-        if: steps.cache.outputs.cache-hit != 'true'
-      - name: Set up Python
-        uses: actions/setup-python@v2
-
-      - name: Install dependencies
-        run: pip3 install slither-analyzer
-      - name: Summary of static analysis
-        run: npm run slither
+      - uses: codecov/codecov-action@v3

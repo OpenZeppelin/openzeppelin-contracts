@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (governance/compatibility/GovernorCompatibilityBravo.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/compatibility/GovernorCompatibilityBravo.sol)
 
 pragma solidity ^0.8.0;
 
@@ -265,7 +265,8 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         uint256 proposalId,
         address account,
         uint8 support,
-        uint256 weight
+        uint256 weight,
+        bytes memory // params
     ) internal virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
         Receipt storage receipt = details.receipts[account];
