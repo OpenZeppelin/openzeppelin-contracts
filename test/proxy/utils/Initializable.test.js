@@ -3,6 +3,7 @@ const { expect } = require('chai');
 
 const InitializableMock = artifacts.require('InitializableMock');
 const ConstructorInitializableMock = artifacts.require('ConstructorInitializableMock');
+const ChildConstructorInitializableMock = artifacts.require('ChildConstructorInitializableMock');
 const ReinitializerMock = artifacts.require('ReinitializerMock');
 const SampleChild = artifacts.require('SampleChild');
 
@@ -54,6 +55,13 @@ contract('Initializable', function (accounts) {
     expect(await contract2.onlyInitializingRan()).to.equal(true);
   });
 
+  it('multiple constructor levels can be initializers', async function () {
+    const contract2 = await ChildConstructorInitializableMock.new();
+    expect(await contract2.initializerRan()).to.equal(true);
+    expect(await contract2.childInitializerRan()).to.equal(true);
+    expect(await contract2.onlyInitializingRan()).to.equal(true);
+  });
+
   describe('reinitialization', function () {
     beforeEach('deploying', async function () {
       this.contract = await ReinitializerMock.new();
@@ -79,6 +87,7 @@ contract('Initializable', function (accounts) {
 
     it('cannot nest reinitializers', async function () {
       expect(await this.contract.counter()).to.be.bignumber.equal('0');
+      await expectRevert(this.contract.nestedReinitialize(2, 2), 'Initializable: contract is already initialized');
       await expectRevert(this.contract.nestedReinitialize(2, 3), 'Initializable: contract is already initialized');
       await expectRevert(this.contract.nestedReinitialize(3, 2), 'Initializable: contract is already initialized');
     });
