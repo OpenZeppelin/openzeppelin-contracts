@@ -480,7 +480,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+                revert("ERC1155: transfer to non-ERC1155Receiver implementer");
             }
         }
     }
@@ -503,7 +503,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+                revert("ERC1155: transfer to non-ERC1155Receiver implementer");
             }
         }
     }
