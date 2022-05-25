@@ -201,7 +201,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           it('reverts', async function () {
             await expectRevert(
               transferFunction.call(this, owner, other, nonExistentTokenId, { from: owner }),
-              'ERC721: operator query for nonexistent token',
+              'ERC721: owner query for nonexistent token',
             );
           });
         });
@@ -276,7 +276,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
                     nonExistentTokenId,
                     { from: owner },
                   ),
-                  'ERC721: operator query for nonexistent token',
+                  'ERC721: owner query for nonexistent token',
                 );
               });
             });
