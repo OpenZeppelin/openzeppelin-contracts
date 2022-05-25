@@ -1,6 +1,6 @@
 diff -ruN access/AccessControl.sol access/AccessControl.sol
 --- access/AccessControl.sol	2022-05-25 15:36:58.849363940 -0400
-+++ access/AccessControl.sol	2022-05-25 16:04:57.725255723 -0400
++++ access/AccessControl.sol	2022-05-25 16:06:40.279512790 -0400
 @@ -93,7 +93,7 @@
       *
       * _Available since v4.6._
@@ -10,9 +10,15 @@ diff -ruN access/AccessControl.sol access/AccessControl.sol
          _checkRole(role, _msgSender());
      }
  
+diff -ruN .gitignore .gitignore
+--- .gitignore	1969-12-31 19:00:00.000000000 -0500
++++ .gitignore	2022-05-25 16:07:01.911145854 -0400
+@@ -0,0 +1,2 @@
++*
++!.gitignore
 diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensions/GovernorPreventLateQuorum.sol
 --- governance/extensions/GovernorPreventLateQuorum.sol	2022-05-25 15:36:58.849363940 -0400
-+++ governance/extensions/GovernorPreventLateQuorum.sol	2022-05-25 16:04:57.725255723 -0400
++++ governance/extensions/GovernorPreventLateQuorum.sol	2022-05-25 16:06:40.279512790 -0400
 @@ -21,8 +21,8 @@
      using SafeCast for uint256;
      using Timers for Timers.BlockNumber;
@@ -26,7 +32,7 @@ diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensi
      event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
 diff -ruN governance/Governor.sol governance/Governor.sol
 --- governance/Governor.sol	2022-05-25 15:36:58.849363940 -0400
-+++ governance/Governor.sol	2022-05-25 16:04:57.725255723 -0400
++++ governance/Governor.sol	2022-05-25 16:06:40.279512790 -0400
 @@ -44,7 +44,7 @@
  
      string private _name;
@@ -38,7 +44,7 @@ diff -ruN governance/Governor.sol governance/Governor.sol
      // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
 diff -ruN governance/TimelockController.sol governance/TimelockController.sol
 --- governance/TimelockController.sol	2022-05-25 15:36:58.849363940 -0400
-+++ governance/TimelockController.sol	2022-05-25 16:04:57.725255723 -0400
++++ governance/TimelockController.sol	2022-05-25 16:06:40.279512790 -0400
 @@ -28,10 +28,10 @@
      bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
      bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
@@ -54,7 +60,7 @@ diff -ruN governance/TimelockController.sol governance/TimelockController.sol
       * @dev Emitted when a call is scheduled as part of operation `id`.
 diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
 --- governance/utils/Votes.sol	2022-05-25 15:36:58.849363940 -0400
-+++ governance/utils/Votes.sol	2022-05-25 16:04:57.725255723 -0400
++++ governance/utils/Votes.sol	2022-05-25 16:06:40.279512790 -0400
 @@ -35,7 +35,25 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -129,7 +135,7 @@ diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
  }
 diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
 --- token/ERC1155/ERC1155.sol	2022-05-25 15:36:58.853363841 -0400
-+++ token/ERC1155/ERC1155.sol	2022-05-25 16:04:57.725255723 -0400
++++ token/ERC1155/ERC1155.sol	2022-05-25 16:06:40.279512790 -0400
 @@ -268,7 +268,7 @@
          uint256 id,
          uint256 amount,
@@ -186,7 +192,7 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
                  bytes4 response
 diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
 --- token/ERC20/ERC20.sol	2022-05-25 15:36:58.853363841 -0400
-+++ token/ERC20/ERC20.sol	2022-05-25 16:04:57.725255723 -0400
++++ token/ERC20/ERC20.sol	2022-05-25 16:06:40.279512790 -0400
 @@ -277,7 +277,7 @@
       * - `account` cannot be the zero address.
       * - `account` must have at least `amount` tokens.
@@ -207,7 +213,7 @@ diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
      /**
 diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20FlashMint.sol
 --- token/ERC20/extensions/ERC20FlashMint.sol	2022-05-25 15:36:58.853363841 -0400
-+++ token/ERC20/extensions/ERC20FlashMint.sol	2022-05-25 16:04:57.725255723 -0400
++++ token/ERC20/extensions/ERC20FlashMint.sol	2022-05-25 16:06:40.279512790 -0400
 @@ -40,9 +40,11 @@
          require(token == address(this), "ERC20FlashMint: wrong token");
          // silence warning about unused variable without the addition of bytecode.
@@ -223,7 +229,7 @@ diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20
       * implementation returns the address(0) which means the fee amount will be burnt.
 diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Votes.sol
 --- token/ERC20/extensions/ERC20Votes.sol	2022-03-02 13:56:14.831535075 -0500
-+++ token/ERC20/extensions/ERC20Votes.sol	2022-05-25 16:04:57.725255723 -0400
++++ token/ERC20/extensions/ERC20Votes.sol	2022-05-25 16:06:40.279512790 -0400
 @@ -33,8 +33,8 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -237,7 +243,7 @@ diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Vote
      /**
 diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wrapper.sol
 --- token/ERC20/extensions/ERC20Wrapper.sol	2022-05-25 15:36:58.853363841 -0400
-+++ token/ERC20/extensions/ERC20Wrapper.sol	2022-05-25 16:04:57.733255587 -0400
++++ token/ERC20/extensions/ERC20Wrapper.sol	2022-05-25 16:06:40.311512247 -0400
 @@ -55,7 +55,7 @@
       * @dev Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake. Internal
       * function that can be exposed with access control if desired.
@@ -249,7 +255,7 @@ diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wr
          return value;
 diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/draft-ERC721Votes.sol
 --- token/ERC721/extensions/draft-ERC721Votes.sol	2022-05-25 15:36:58.853363841 -0400
-+++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-05-25 16:04:57.733255587 -0400
++++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-05-25 16:06:40.311512247 -0400
 @@ -34,7 +34,7 @@
      /**
       * @dev Returns the balance of `account`.
@@ -261,7 +267,7 @@ diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/
  }
 diff -ruN utils/Address.sol utils/Address.sol
 --- utils/Address.sol	2022-05-25 15:36:58.853363841 -0400
-+++ utils/Address.sol	2022-05-25 16:04:57.733255587 -0400
++++ utils/Address.sol	2022-05-25 16:06:40.311512247 -0400
 @@ -131,6 +131,7 @@
          uint256 value,
          string memory errorMessage
