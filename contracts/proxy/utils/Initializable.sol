@@ -139,9 +139,8 @@ abstract contract Initializable {
         uint8 currentVersion = _initialized; // cache sload
 
         require(
-            // not nested with increasing version or
-            // contract being constructed and initializing version 1
-            (isTopLevelCall && version > currentVersion) || (!Address.isContract(address(this)) && version == 1),
+            (isTopLevelCall && version > currentVersion) || // not nested with increasing version or
+                (!Address.isContract(address(this)) && (version == 1 || version == type(uint8).max)), // contract being constructed
             "Initializable: contract is already initialized"
         );
 
