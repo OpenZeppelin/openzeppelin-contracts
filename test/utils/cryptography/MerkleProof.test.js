@@ -25,12 +25,14 @@ contract('MerkleProof', function (accounts) {
       const proof = merkleTree.getHexProof(leaf);
 
       expect(await this.merkleProof.verify(proof, root, leaf)).to.equal(true);
+      expect(await this.merkleProof.verifyCall(proof, root, leaf)).to.equal(true);
 
       // For demonstration, it is also possible to create valid proofs for certain 64-byte values *not* in elements:
       const noSuchLeaf = keccak256(
         Buffer.concat([keccak256(elements[0]), keccak256(elements[1])].sort(Buffer.compare)),
       );
       expect(await this.merkleProof.verify(proof.slice(1), root, noSuchLeaf)).to.equal(true);
+      expect(await this.merkleProof.verifyCall(proof.slice(1), root, noSuchLeaf)).to.equal(true);
     });
 
     it('returns false for an invalid Merkle proof', async function () {
@@ -47,6 +49,7 @@ contract('MerkleProof', function (accounts) {
       const badProof = badMerkleTree.getHexProof(badElements[0]);
 
       expect(await this.merkleProof.verify(badProof, correctRoot, correctLeaf)).to.equal(false);
+      expect(await this.merkleProof.verifyCall(badProof, correctRoot, correctLeaf)).to.equal(false);
     });
 
     it('returns false for a Merkle proof of invalid length', async function () {
@@ -61,6 +64,7 @@ contract('MerkleProof', function (accounts) {
       const badProof = proof.slice(0, proof.length - 5);
 
       expect(await this.merkleProof.verify(badProof, root, leaf)).to.equal(false);
+      expect(await this.merkleProof.verifyCall(badProof, root, leaf)).to.equal(false);
     });
   });
 
@@ -75,6 +79,7 @@ contract('MerkleProof', function (accounts) {
       const proofFlags = merkleTree.getProofFlags(proofLeaves, proof);
 
       expect(await this.merkleProof.multiProofVerify(root, proofLeaves, proof, proofFlags)).to.equal(true);
+      expect(await this.merkleProof.multiProofVerifyCall(root, proofLeaves, proof, proofFlags)).to.equal(true);
     });
 
     it('returns false for an invalid Merkle multi proof', async function () {
@@ -88,6 +93,7 @@ contract('MerkleProof', function (accounts) {
       const badProofFlags = badMerkleTree.getProofFlags(badProofLeaves, badProof);
 
       expect(await this.merkleProof.multiProofVerify(root, badProofLeaves, badProof, badProofFlags)).to.equal(false);
+      expect(await this.merkleProof.multiProofVerifyCall(root, badProofLeaves, badProof, badProofFlags)).to.equal(false);
     });
 
     it('revert with invalid multi proof #1', async function () {
@@ -107,6 +113,16 @@ contract('MerkleProof', function (accounts) {
         ),
         'MerkleProof: invalid multiproof',
       );
+
+      await expectRevert(
+        this.merkleProof.multiProofVerifyCall(
+          root,
+          [ leaves[0], badLeave ], // A, E
+          [ leaves[1], fill, merkleTree.layers[1][1] ],
+          [ false, false, false ],
+        ),
+        'MerkleProof: invalid multiproof',
+      );
     });
 
     it('revert with invalid multi proof #2', async function () {
@@ -119,6 +135,16 @@ contract('MerkleProof', function (accounts) {
 
       await expectRevert(
         this.merkleProof.multiProofVerify(
+          root,
+          [ badLeave, leaves[0] ], // A, E
+          [ leaves[1], fill, merkleTree.layers[1][1] ],
+          [ false, false, false, false ],
+        ),
+        'reverted with panic code 0x32',
+      );
+
+      await expectRevert(
+        this.merkleProof.multiProofVerifyCall(
           root,
           [ badLeave, leaves[0] ], // A, E
           [ leaves[1], fill, merkleTree.layers[1][1] ],

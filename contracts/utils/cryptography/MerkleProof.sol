@@ -122,11 +122,10 @@ library MerkleProof {
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
         uint256 leafsLen = leafs.length;
-        uint256 proofsLen = proofs.length;
         uint256 totalHashes = proofFlag.length;
 
         // Check proof validity.
-        require(leafsLen + proofsLen - 1 == totalHashes, "MerkleProof: invalid multiproof");
+        require(leafsLen + proofs.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
@@ -163,11 +162,10 @@ library MerkleProof {
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
         uint256 leafsLen = leafs.length;
-        uint256 proofsLen = proofs.length;
         uint256 totalHashes = proofFlag.length;
 
         // Check proof validity.
-        require(leafsLen + proofsLen - 1 == totalHashes, "MerkleProof: invalid multiproof");
+        require(leafsLen + proofs.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
