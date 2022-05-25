@@ -108,8 +108,8 @@ function shouldBehaveLikeVotes () {
           }),
         ));
 
-        const { logs } = await this.votes.delegateBySig(this.account1Delegatee, nonce, MAX_UINT256, v, r, s);
-        const { args } = logs.find(({ event }) => event === 'DelegateChanged');
+        const receipt = await this.votes.delegateBySig(this.account1Delegatee, nonce, MAX_UINT256, v, r, s);
+        const { args } = receipt.logs.find(({ event }) => event === 'DelegateChanged');
         expect(args.delegator).to.not.be.equal(delegatorAddress);
         expect(args.fromDelegate).to.be.equal(ZERO_ADDRESS);
         expect(args.toDelegate).to.be.equal(this.account1Delegatee);

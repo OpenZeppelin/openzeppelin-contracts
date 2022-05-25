@@ -5,8 +5,8 @@ const ContextMock = artifacts.require('ContextMock');
 function shouldBehaveLikeRegularContext (sender) {
   describe('msgSender', function () {
     it('returns the transaction sender when called from an EOA', async function () {
-      const { logs } = await this.context.msgSender({ from: sender });
-      expectEvent.inLogs(logs, 'Sender', { sender });
+      const receipt = await this.context.msgSender({ from: sender });
+      expectEvent(receipt, 'Sender', { sender });
     });
 
     it('returns the transaction sender when from another contract', async function () {
@@ -26,8 +26,8 @@ function shouldBehaveLikeRegularContext (sender) {
     });
 
     it('returns the transaction data when called from an EOA', async function () {
-      const { logs } = await this.context.msgData(integerValue, stringValue);
-      expectEvent.inLogs(logs, 'Data', { data: callData, integerValue, stringValue });
+      const receipt = await this.context.msgData(integerValue, stringValue);
+      expectEvent(receipt, 'Data', { data: callData, integerValue, stringValue });
     });
 
     it('returns the transaction sender when from another contract', async function () {

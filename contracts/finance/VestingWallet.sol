@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (finance/VestingWallet.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (finance/VestingWallet.sol)
 pragma solidity ^0.8.0;
 
 import "../token/ERC20/utils/SafeERC20.sol";
@@ -84,7 +84,7 @@ contract VestingWallet is Context {
     /**
      * @dev Release the native token (ether) that have already vested.
      *
-     * Emits a {TokensReleased} event.
+     * Emits a {EtherReleased} event.
      */
     function release() public virtual {
         uint256 releasable = vestedAmount(uint64(block.timestamp)) - released();
@@ -96,7 +96,7 @@ contract VestingWallet is Context {
     /**
      * @dev Release the tokens that have already vested.
      *
-     * Emits a {TokensReleased} event.
+     * Emits a {ERC20Released} event.
      */
     function release(address token) public virtual {
         uint256 releasable = vestedAmount(token, uint64(block.timestamp)) - released(token);
@@ -120,7 +120,7 @@ contract VestingWallet is Context {
     }
 
     /**
-     * @dev Virtual implementation of the vesting formula. This returns the amout vested, as a function of time, for
+     * @dev Virtual implementation of the vesting formula. This returns the amount vested, as a function of time, for
      * an asset given its total historical allocation.
      */
     function _vestingSchedule(uint256 totalAllocation, uint64 timestamp) internal view virtual returns (uint256) {
