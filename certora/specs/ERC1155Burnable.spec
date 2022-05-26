@@ -3,9 +3,9 @@ methods {
     isApprovedForAll(address,address) returns bool envfree
 }
 
-/// If a method call reduces account balances, the caller should be either the 
-/// owner of the account or approved by the owner to act on its behalf.
-rule onlyApprovedCanReduceBalance {
+/// If a method call reduces account balances, the caller must be either the 
+/// owner of the account or approved by the owner to act on the owner's behalf.
+rule onlyHolderOrApprovedCanReduceBalance {
     address holder; uint256 token; uint256 amount;
     uint256 balanceBefore = balanceOf(holder, token);
 
@@ -14,7 +14,8 @@ rule onlyApprovedCanReduceBalance {
 
     uint256 balanceAfter = balanceOf(holder, token);
 
-    assert balanceAfter < balanceBefore => e.msg.sender == holder || isApprovedForAll(holder, e.msg.sender); // TODO add assert message
+    assert balanceAfter < balanceBefore => e.msg.sender == holder || isApprovedForAll(holder, e.msg.sender), 
+        "An account balance may only be reduced by the holder or a holder-approved agent";
 }
 
 /// This rule should always fail.
