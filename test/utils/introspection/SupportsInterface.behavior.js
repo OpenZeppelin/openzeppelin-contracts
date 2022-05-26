@@ -112,34 +112,33 @@ for (const k of Object.getOwnPropertyNames(INTERFACES)) {
 }
 
 function shouldSupportInterfaces (interfaces = []) {
-  describe('Contract interface', function () {
+  describe('ERC165', function () {
     beforeEach(function () {
       this.contractUnderTest = this.mock || this.token || this.holder || this.accessControl;
     });
 
-    for (const k of interfaces) {
-      const interfaceId = INTERFACE_IDS[k];
-      describe(k, function () {
-        describe('ERC165\'s supportsInterface(bytes4)', function () {
-          it('uses less than 30k gas', async function () {
-            expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
-          });
+    it('supportsInterface uses less than 30k gas', async function () {
+      for (const k of interfaces) {
+        const interfaceId = INTERFACE_IDS[k];
+        expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
+      }
+    });
 
-          it('claims support', async function () {
-            expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true);
-          });
-        });
+    it('all interfaces are reported as supported', async function () {
+      for (const k of interfaces) {
+        const interfaceId = INTERFACE_IDS[k];
+        expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true);
+      }
+    });
 
+    it('all interface functions are in ABI', async function () {
+      for (const k of interfaces) {
         for (const fnName of INTERFACES[k]) {
           const fnSig = FN_SIGNATURES[fnName];
-          describe(fnName, function () {
-            it('has to be implemented', function () {
-              expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1);
-            });
-          });
+          expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1);
         }
-      });
-    }
+      }
+    });
   });
 }
 

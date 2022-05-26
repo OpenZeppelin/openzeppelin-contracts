@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/IGovernor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -111,9 +111,9 @@ abstract contract IGovernor is IERC165 {
      * @dev Hashing function used to (re)build the proposal id from the proposal details..
      */
     function hashProposal(
-        address[] calldata targets,
-        uint256[] calldata values,
-        bytes[] calldata calldatas,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public pure virtual returns (uint256);
 
@@ -158,8 +158,8 @@ abstract contract IGovernor is IERC165 {
      * @notice module:user-config
      * @dev Minimum number of cast voted required for a proposal to be successful.
      *
-     * Note: The `blockNumber` parameter corresponds to the snaphot used for counting vote. This allows to scale the
-     * quroum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
+     * Note: The `blockNumber` parameter corresponds to the snapshot used for counting vote. This allows to scale the
+     * quorum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
      */
     function quorum(uint256 blockNumber) public view virtual returns (uint256);
 
@@ -237,7 +237,7 @@ abstract contract IGovernor is IERC165 {
     /**
      * @dev Cast a vote with a reason and additional encoded parameters
      *
-     * Emits a {VoteCast} event.
+     * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
      */
     function castVoteWithReasonAndParams(
         uint256 proposalId,
@@ -262,7 +262,7 @@ abstract contract IGovernor is IERC165 {
     /**
      * @dev Cast a vote with a reason and additional encoded parameters using the user's cryptographic signature.
      *
-     * Emits a {VoteCast} event.
+     * Emits a {VoteCast} or {VoteCastWithParams} event depending on the length of params.
      */
     function castVoteWithReasonAndParamsBySig(
         uint256 proposalId,

@@ -1,6 +1,6 @@
 diff -ruN access/AccessControl.sol access/AccessControl.sol
---- access/AccessControl.sol	2022-05-06 13:44:28.000000000 -0700
-+++ access/AccessControl.sol	2022-05-11 11:17:20.000000000 -0700
+--- access/AccessControl.sol	2022-05-25 15:36:58.849363940 -0400
++++ access/AccessControl.sol	2022-05-25 16:07:31.897814961 -0400
 @@ -93,7 +93,7 @@
       *
       * _Available since v4.6._
@@ -10,58 +10,15 @@ diff -ruN access/AccessControl.sol access/AccessControl.sol
          _checkRole(role, _msgSender());
      }
  
-diff -ruN governance/Governor.sol governance/Governor.sol
---- governance/Governor.sol	2022-05-09 09:11:10.000000000 -0700
-+++ governance/Governor.sol	2022-05-11 11:17:20.000000000 -0700
-@@ -42,7 +42,7 @@
- 
-     string private _name;
- 
--    mapping(uint256 => ProposalCore) private _proposals;
-+    mapping(uint256 => ProposalCore) internal _proposals;
- 
-     // This queue keeps track of the governor operating on itself. Calls to functions protected by the
-     // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
-diff -ruN governance/TimelockController.sol governance/TimelockController.sol
---- governance/TimelockController.sol	2022-05-06 13:44:28.000000000 -0700
-+++ governance/TimelockController.sol	2022-05-15 14:10:49.000000000 -0700
-@@ -24,10 +24,10 @@
-     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
-     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
-     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
--    uint256 internal constant _DONE_TIMESTAMP = uint256(1);
-+    uint256 public constant _DONE_TIMESTAMP = uint256(1);                           // HARNESS: internal -> public
- 
-     mapping(bytes32 => uint256) private _timestamps;
--    uint256 private _minDelay;
-+    uint256 public _minDelay;                                                       // HARNESS: private -> public
- 
-     /**
-      * @dev Emitted when a call is scheduled as part of operation `id`.
-@@ -332,10 +332,11 @@
-         uint256 value,
-         bytes calldata data
-     ) private {
--        (bool success, ) = target.call{value: value}(data);
--        require(success, "TimelockController: underlying transaction reverted");
-+        return; // haven't dealt with external calls yet
-+        // (bool success, ) = target.call{value: value}(data);
-+        // require(success, "TimelockController: underlying transaction reverted");
- 
--        emit CallExecuted(id, index, target, value, data);
-+        // emit CallExecuted(id, index, target, value, data);
-     }
- 
-     /**
-@@ -353,4 +354,4 @@
-         emit MinDelayChange(_minDelay, newDelay);
-         _minDelay = newDelay;
-     }
--}
-+} 
+diff -ruN .gitignore .gitignore
+--- .gitignore	1969-12-31 19:00:00.000000000 -0500
++++ .gitignore	2022-05-25 16:07:31.901816357 -0400
+@@ -0,0 +1,2 @@
++*
++!.gitignore
 diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensions/GovernorPreventLateQuorum.sol
---- governance/extensions/GovernorPreventLateQuorum.sol	2022-05-09 09:11:01.000000000 -0700
-+++ governance/extensions/GovernorPreventLateQuorum.sol	2022-05-11 11:17:20.000000000 -0700
+--- governance/extensions/GovernorPreventLateQuorum.sol	2022-05-25 15:36:58.849363940 -0400
++++ governance/extensions/GovernorPreventLateQuorum.sol	2022-05-25 16:07:31.901816357 -0400
 @@ -21,8 +21,8 @@
      using SafeCast for uint256;
      using Timers for Timers.BlockNumber;
@@ -73,9 +30,37 @@ diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensi
  
      /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
      event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
+diff -ruN governance/Governor.sol governance/Governor.sol
+--- governance/Governor.sol	2022-05-25 15:36:58.849363940 -0400
++++ governance/Governor.sol	2022-05-25 16:07:31.901816357 -0400
+@@ -44,7 +44,7 @@
+ 
+     string private _name;
+ 
+-    mapping(uint256 => ProposalCore) private _proposals;
++    mapping(uint256 => ProposalCore) internal _proposals;
+ 
+     // This queue keeps track of the governor operating on itself. Calls to functions protected by the
+     // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
+diff -ruN governance/TimelockController.sol governance/TimelockController.sol
+--- governance/TimelockController.sol	2022-05-25 15:36:58.849363940 -0400
++++ governance/TimelockController.sol	2022-05-25 16:07:31.901816357 -0400
+@@ -28,10 +28,10 @@
+     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
+     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
+     bytes32 public constant CANCELLER_ROLE = keccak256("CANCELLER_ROLE");
+-    uint256 internal constant _DONE_TIMESTAMP = uint256(1);
++    uint256 public constant _DONE_TIMESTAMP = uint256(1);
+ 
+     mapping(bytes32 => uint256) private _timestamps;
+-    uint256 private _minDelay;
++    uint256 public _minDelay;
+ 
+     /**
+      * @dev Emitted when a call is scheduled as part of operation `id`.
 diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
---- governance/utils/Votes.sol	2022-05-06 13:44:28.000000000 -0700
-+++ governance/utils/Votes.sol	2022-05-11 11:17:20.000000000 -0700
+--- governance/utils/Votes.sol	2022-05-25 15:36:58.849363940 -0400
++++ governance/utils/Votes.sol	2022-05-25 16:07:31.901816357 -0400
 @@ -35,7 +35,25 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -99,7 +84,7 @@ diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
 +        return _delegateCheckpoints[account]._checkpoints[pos]._value;
 +    }
 +
-+    mapping(address => address) public _delegation;    
++    mapping(address => address) public _delegation;
      mapping(address => Checkpoints.History) private _delegateCheckpoints;
      Checkpoints.History private _totalCheckpoints;
  
@@ -145,12 +130,12 @@ diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
      /**
       * @dev Must return the voting units held by an account.
       */
--    function _getVotingUnits(address) internal virtual returns (uint256);
+-    function _getVotingUnits(address) internal view virtual returns (uint256);
 +    function _getVotingUnits(address) public virtual returns (uint256); // HARNESS: internal -> public
  }
 diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
---- token/ERC1155/ERC1155.sol	2022-05-06 13:44:28.000000000 -0700
-+++ token/ERC1155/ERC1155.sol	2022-05-11 11:17:20.000000000 -0700
+--- token/ERC1155/ERC1155.sol	2022-05-25 15:36:58.853363841 -0400
++++ token/ERC1155/ERC1155.sol	2022-05-25 16:07:31.901816357 -0400
 @@ -268,7 +268,7 @@
          uint256 id,
          uint256 amount,
@@ -160,7 +145,7 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
          require(to != address(0), "ERC1155: mint to the zero address");
  
          address operator = _msgSender();
-@@ -299,7 +299,7 @@
+@@ -301,7 +301,7 @@
          uint256[] memory ids,
          uint256[] memory amounts,
          bytes memory data
@@ -169,7 +154,7 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
          require(to != address(0), "ERC1155: mint to the zero address");
          require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
  
-@@ -330,7 +330,7 @@
+@@ -334,7 +334,7 @@
          address from,
          uint256 id,
          uint256 amount
@@ -178,7 +163,7 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
          require(from != address(0), "ERC1155: burn from the zero address");
  
          address operator = _msgSender();
-@@ -361,7 +361,7 @@
+@@ -367,7 +367,7 @@
          address from,
          uint256[] memory ids,
          uint256[] memory amounts
@@ -187,7 +172,7 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
          require(from != address(0), "ERC1155: burn from the zero address");
          require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
  
-@@ -465,7 +465,7 @@
+@@ -471,7 +471,7 @@
          uint256 id,
          uint256 amount,
          bytes memory data
@@ -196,7 +181,7 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
          if (to.isContract()) {
              try IERC1155Receiver(to).onERC1155Received(operator, from, id, amount, data) returns (bytes4 response) {
                  if (response != IERC1155Receiver.onERC1155Received.selector) {
-@@ -486,7 +486,7 @@
+@@ -492,7 +492,7 @@
          uint256[] memory ids,
          uint256[] memory amounts,
          bytes memory data
@@ -206,29 +191,20 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
              try IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, amounts, data) returns (
                  bytes4 response
 diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
---- token/ERC20/ERC20.sol	2022-05-06 13:44:28.000000000 -0700
-+++ token/ERC20/ERC20.sol	2022-05-11 11:17:20.000000000 -0700
+--- token/ERC20/ERC20.sol	2022-05-25 15:36:58.853363841 -0400
++++ token/ERC20/ERC20.sol	2022-05-25 16:19:02.895813907 -0400
 @@ -277,7 +277,7 @@
       * - `account` cannot be the zero address.
       * - `account` must have at least `amount` tokens.
       */
 -    function _burn(address account, uint256 amount) internal virtual {
-+    function _burn(address account, uint256 amount) public virtual returns (bool) {          // HARNESS: internal -> public
++    function _burn(address account, uint256 amount) public virtual {          // HARNESS: internal -> public
          require(account != address(0), "ERC20: burn from the zero address");
  
          _beforeTokenTransfer(account, address(0), amount);
-@@ -292,6 +292,8 @@
-         emit Transfer(account, address(0), amount);
- 
-         _afterTokenTransfer(account, address(0), amount);
-+
-+        return true;
-     }
- 
-     /**
 diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20FlashMint.sol
---- token/ERC20/extensions/ERC20FlashMint.sol	2022-05-06 13:44:28.000000000 -0700
-+++ token/ERC20/extensions/ERC20FlashMint.sol	2022-05-11 11:17:20.000000000 -0700
+--- token/ERC20/extensions/ERC20FlashMint.sol	2022-05-25 15:36:58.853363841 -0400
++++ token/ERC20/extensions/ERC20FlashMint.sol	2022-05-25 16:07:31.901816357 -0400
 @@ -40,9 +40,11 @@
          require(token == address(this), "ERC20FlashMint: wrong token");
          // silence warning about unused variable without the addition of bytecode.
@@ -240,11 +216,11 @@ diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20
 +    uint256 public fee;             // HARNESS: added it to simulate random fee amount
 +
      /**
-      * @dev Performs a flash loan. New tokens are minted and sent to the
-      * `receiver`, who is required to implement the {IERC3156FlashBorrower}
+      * @dev Returns the receiver address of the flash fee. By default this
+      * implementation returns the address(0) which means the fee amount will be burnt.
 diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Votes.sol
---- token/ERC20/extensions/ERC20Votes.sol	2022-05-06 13:43:21.000000000 -0700
-+++ token/ERC20/extensions/ERC20Votes.sol	2022-05-11 11:17:20.000000000 -0700
+--- token/ERC20/extensions/ERC20Votes.sol	2022-03-02 13:56:14.831535075 -0500
++++ token/ERC20/extensions/ERC20Votes.sol	2022-05-25 16:14:01.137717224 -0400
 @@ -33,8 +33,8 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -256,129 +232,19 @@ diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Vote
      Checkpoint[] private _totalSupplyCheckpoints;
  
      /**
-@@ -152,7 +152,7 @@
-     /**
-      * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
-      */
--    function _maxSupply() internal view virtual returns (uint224) {
-+    function _maxSupply() public view virtual returns (uint224) { //harnessed to public
-         return type(uint224).max;
-     }
- 
-@@ -163,16 +163,17 @@
-         super._mint(account, amount);
-         require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
- 
--        _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
-+        _writeCheckpointAdd(_totalSupplyCheckpoints, amount);           // HARNESS: new version without pointer
-     }
- 
+@@ -169,7 +169,7 @@
      /**
       * @dev Snapshots the totalSupply after it has been decreased.
       */
 -    function _burn(address account, uint256 amount) internal virtual override {
-+    function _burn(address account, uint256 amount) public virtual override returns (bool){ // HARNESS: internal -> public (to comply with the ERC20 harness)
++    function _burn(address account, uint256 amount) public virtual override {
          super._burn(account, amount);
  
--        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
-+        _writeCheckpointSub(_totalSupplyCheckpoints, amount);           // HARNESS: new version without pointer
-+        return true;
-     }
- 
-     /**
-@@ -187,7 +188,7 @@
-     ) internal virtual override {
-         super._afterTokenTransfer(from, to, amount);
- 
--        _moveVotingPower(delegates(from), delegates(to), amount);
-+        _moveVotingPower(delegates(from), delegates(to), amount);       
-     }
- 
-     /**
-@@ -195,7 +196,7 @@
-      *
-      * Emits events {DelegateChanged} and {DelegateVotesChanged}.
-      */
--    function _delegate(address delegator, address delegatee) internal virtual {
-+    function _delegate(address delegator, address delegatee) public virtual { // HARNESSED TO MAKE PUBLIC
-         address currentDelegate = delegates(delegator);
-         uint256 delegatorBalance = balanceOf(delegator);
-         _delegates[delegator] = delegatee;
-@@ -212,25 +213,25 @@
-     ) private {
-         if (src != dst && amount > 0) {
-             if (src != address(0)) {
--                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
-+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpointSub(_checkpoints[src], amount);        // HARNESS: new version without pointer
-                 emit DelegateVotesChanged(src, oldWeight, newWeight);
-             }
- 
-             if (dst != address(0)) {
--                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
-+                (uint256 oldWeight, uint256 newWeight) = _writeCheckpointAdd(_checkpoints[dst], amount);        // HARNESS: new version without pointer
-                 emit DelegateVotesChanged(dst, oldWeight, newWeight);
-             }
-         }
-     }
- 
--    function _writeCheckpoint(
-+    // HARNESS: split _writeCheckpoint() to two functions as a workaround for function pointers that cannot be managed by the tool
-+    function _writeCheckpointAdd(
-         Checkpoint[] storage ckpts,
--        function(uint256, uint256) view returns (uint256) op,
-         uint256 delta
-     ) private returns (uint256 oldWeight, uint256 newWeight) {
-         uint256 pos = ckpts.length;
-         oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
--        newWeight = op(oldWeight, delta);
-+        newWeight = _add(oldWeight, delta);
- 
-         if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
-             ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
-@@ -239,6 +240,39 @@
-         }
-     }
- 
-+    function _writeCheckpointSub(
-+        Checkpoint[] storage ckpts,
-+        uint256 delta
-+    ) private returns (uint256 oldWeight, uint256 newWeight) {
-+        uint256 pos = ckpts.length;
-+        oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
-+        newWeight = _subtract(oldWeight, delta);
-+
-+        if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
-+            ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
-+        } else {
-+            ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
-+        }
-+    }
-+
-+    // backup of original function
-+    //
-+    // function _writeCheckpoint(
-+    //     Checkpoint[] storage ckpts,
-+    //     function(uint256, uint256) view returns (uint256) op,
-+    //     uint256 delta
-+    // ) private returns (uint256 oldWeight, uint256 newWeight) {
-+    //     uint256 pos = ckpts.length;
-+    //     oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
-+    //     newWeight = op(oldWeight, delta);
-+    //
-+    //     if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
-+    //         ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
-+    //     } else {
-+    //         ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
-+    //     }
-+    // }
-+
-     function _add(uint256 a, uint256 b) private pure returns (uint256) {
-         return a + b;
-     }
+         _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
 diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wrapper.sol
---- token/ERC20/extensions/ERC20Wrapper.sol	2022-05-06 13:44:28.000000000 -0700
-+++ token/ERC20/extensions/ERC20Wrapper.sol	2022-05-11 11:17:20.000000000 -0700
-@@ -44,7 +44,7 @@
+--- token/ERC20/extensions/ERC20Wrapper.sol	2022-05-25 15:36:58.853363841 -0400
++++ token/ERC20/extensions/ERC20Wrapper.sol	2022-05-25 16:07:31.909819153 -0400
+@@ -55,7 +55,7 @@
       * @dev Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake. Internal
       * function that can be exposed with access control if desired.
       */
@@ -388,20 +254,20 @@ diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wr
          _mint(account, value);
          return value;
 diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/draft-ERC721Votes.sol
---- token/ERC721/extensions/draft-ERC721Votes.sol	2022-05-06 13:44:28.000000000 -0700
-+++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-05-11 11:17:20.000000000 -0700
+--- token/ERC721/extensions/draft-ERC721Votes.sol	2022-05-25 15:36:58.853363841 -0400
++++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-05-25 16:07:31.909819153 -0400
 @@ -34,7 +34,7 @@
      /**
       * @dev Returns the balance of `account`.
       */
--    function _getVotingUnits(address account) internal virtual override returns (uint256) {
-+    function _getVotingUnits(address account) public virtual override returns (uint256) {
+-    function _getVotingUnits(address account) internal view virtual override returns (uint256) {
++    function _getVotingUnits(address account) public view virtual override returns (uint256) {
          return balanceOf(account);
      }
  }
 diff -ruN utils/Address.sol utils/Address.sol
---- utils/Address.sol	2022-05-06 13:43:21.000000000 -0700
-+++ utils/Address.sol	2022-05-16 14:24:44.000000000 -0700
+--- utils/Address.sol	2022-05-25 15:36:58.853363841 -0400
++++ utils/Address.sol	2022-05-25 16:07:31.909819153 -0400
 @@ -131,6 +131,7 @@
          uint256 value,
          string memory errorMessage
