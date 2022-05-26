@@ -9,8 +9,8 @@ rule onlyApprovedCanReduceBalance {
     address holder; uint256 token; uint256 amount;
     uint256 balanceBefore = balanceOf(holder, token);
 
-    env e;
-    burn(e, holder, token, amount); // TODO Replace burn with appropriate general function
+    method f; env e; calldataarg args;
+    f(e, args);
 
     uint256 balanceAfter = balanceOf(holder, token);
 
