@@ -14,7 +14,7 @@ rule onlyApprovedCanReduceBalance {
 
     uint256 balanceAfter = balanceOf(holder, token);
 
-    assert balanceAfter < balanceBefore => e.msg.sender == holder || isApprovedForAll(holder, e.msg.sender);
+    assert balanceAfter < balanceBefore => e.msg.sender == holder || isApprovedForAll(holder, e.msg.sender); // TODO add assert message
 }
 
 /// This rule should always fail.

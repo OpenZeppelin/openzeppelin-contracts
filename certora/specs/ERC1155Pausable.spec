@@ -36,8 +36,6 @@ filtered {
         "Transfer methods must revert in a paused contract";
 }
 
-
-/// Calling pause must pause an unpaused contract.
 /// When a contract is in an unpaused state, calling pause() must pause.
 rule pauseMethodPausesContract {
     require !paused();
