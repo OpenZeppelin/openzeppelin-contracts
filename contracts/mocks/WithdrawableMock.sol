@@ -6,9 +6,8 @@ import "../access/Ownable.sol";
 import "../finance/Withdrawable.sol";
 
 contract WithdrawableMock is Ownable, Withdrawable {
+    event Received(address, uint256);
 
-    event Received(address, uint);
-    
     receive() external payable {
         emit Received(msg.sender, msg.value);
     }

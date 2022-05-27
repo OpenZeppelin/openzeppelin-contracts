@@ -6,7 +6,6 @@ import "../access/Ownable.sol";
 import "../token/ERC20/IERC20.sol";
 
 abstract contract Withdrawable is Ownable {
-
     event WithdrawalCompleted(uint256 amount);
     event TokenWithdrawalCompleted(address tokenAddress, uint256 amount);
 
