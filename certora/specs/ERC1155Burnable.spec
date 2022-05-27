@@ -4,8 +4,7 @@ methods {
 }
 
 /// If a method call reduces account balances, the caller must be either the 
-/// holder of the account or approved by the holder to act on the holder's 
-/// behalf.
+/// holder of the account or approved to act on the holder's behalf.
 rule onlyHolderOrApprovedCanReduceBalance {
     address holder; uint256 token; uint256 amount;
     uint256 balanceBefore = balanceOf(holder, token);
