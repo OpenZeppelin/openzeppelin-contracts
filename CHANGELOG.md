@@ -11,7 +11,7 @@
  * `EnumerableMap`: add new `Bytes32ToUintMap` map type. ([#3416](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3416))
  * `SafeCast`: add support for many more types, using procedural code generation. ([#3245](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3245))
  * `MerkleProof`: add `multiProofVerify` to prove multiple values are part of a Merkle tree. ([#3276](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3276))
- * `ERC721`, `ERC1155`: simplified revert reasons. ([#3254](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3254))
+ * `ERC721`, `ERC1155`: simplified revert reasons. ([#3254](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3254), ([#3438](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3438)))
 
 ## 4.6.0 (2022-04-26)
 
