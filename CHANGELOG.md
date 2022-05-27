@@ -13,7 +13,7 @@
  * `MerkleProof`: add `multiProofVerify` to prove multiple values are part of a Merkle tree. ([#3276](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3276))
  * `ERC721`, `ERC1155`: simplified revert reasons. ([#3254](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3254))
  * `ERC721`: removed redundant require statement. ([#3434](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3434))
- * `Withdrawable`: add new `Withdrawable` abstract contract.
+ * `Withdrawable`: add new `Withdrawable` abstract contract. ([#3440](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3440))
 
 ## 4.6.0 (2022-04-26)
 
