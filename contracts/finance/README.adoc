@@ -13,8 +13,13 @@ This directory includes primitives for financial systems:
   be given to this contract, which will release the token to the beneficiary following a given, customizable, vesting
   schedule.
 
+- {Withdrawable} allows the owner of the contract to withdraw Ether or Tokens from te contract. Any ERC20 token can be 
+  used to withdraw funds from the contract.
+
 == Contracts
 
 {{PaymentSplitter}}
 
 {{VestingWallet}}
+
+{{Withdrawable}}
