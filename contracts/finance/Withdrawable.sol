@@ -12,7 +12,7 @@ abstract contract Withdrawable is Ownable {
     function withdraw(uint256 amount) public payable onlyOwner {
         require(amount > 0, "Withdrawable: Invalid amount");
         require(address(this).balance >= amount, "Withdrawable: Insuficient balance");
-        payable(msg.sender).transfer(address(this).balance);
+        payable(msg.sender).transfer(amount);
         emit WithdrawalCompleted(amount);
     }
 
