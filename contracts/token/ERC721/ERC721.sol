@@ -69,7 +69,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
         address owner = _owners[tokenId];
-        require(owner != address(0), "ERC721: owner query for nonexistent token");
+        require(owner != address(0), "ERC721: token ID not minted");
         return owner;
     }
 
@@ -91,7 +91,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev See {IERC721Metadata-tokenURI}.
      */
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
+        require(_exists(tokenId), "ERC721: token ID not minted");
 
         string memory baseURI = _baseURI();
         return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
@@ -125,7 +125,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev See {IERC721-getApproved}.
      */
     function getApproved(uint256 tokenId) public view virtual override returns (address) {
-        require(_exists(tokenId), "ERC721: approved query for nonexistent token");
+        require(_exists(tokenId), "ERC721: token ID not minted");
 
         return _tokenApprovals[tokenId];
     }
@@ -230,7 +230,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * - `tokenId` must exist.
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
-        require(_exists(tokenId), "ERC721: operator query for nonexistent token");
+        require(_exists(tokenId), "ERC721: token ID not minted");
         address owner = ERC721.ownerOf(tokenId);
         return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
     }
