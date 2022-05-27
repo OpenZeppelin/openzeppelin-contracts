@@ -2,14 +2,42 @@
 
 ## Unreleased
 
+ * `Clones`: optimize clone creation ([#3329](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3329))
+ * `TimelockController`: Migrate `_call` to `_execute` and allow inheritance and overriding similar to `Governor`. ([#3317](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3317))
+ * `CrossChainEnabledPolygonChild`: replace the `require` statement with the custom error `NotCrossChainCall`. ([#3380](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3380))
+ * `ERC20FlashMint`: Add customizable flash fee receiver. ([#3327](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3327))
+ * `Strings`: add a new overloaded function `toHexString` that converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal representation. ([#3403](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3403))
+ * `EnumerableMap`: add new `UintToUintMap` map type. ([#3338](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3338))
+ * `EnumerableMap`: add new `Bytes32ToUintMap` map type. ([#3416](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3416))
+ * `SafeCast`: add support for many more types, using procedural code generation. ([#3245](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3245))
+ * `MerkleProof`: add `multiProofVerify` to prove multiple values are part of a Merkle tree. ([#3276](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3276))
+
+## 4.6.0 (2022-04-26)
+
+ * `crosschain`: Add a new set of contracts for cross-chain applications. `CrossChainEnabled` is a base contract with instantiations for several chains and bridges, and `AccessControlCrossChain` is an extension of access control that allows cross-chain operation. ([#3183](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3183))
  * `AccessControl`: add a virtual `_checkRole(bytes32)` function that can be overridden to alter the `onlyRole` modifier behavior. ([#3137](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3137))
  * `EnumerableMap`: add new `AddressToUintMap` map type. ([#3150](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3150))
+ * `EnumerableMap`: add new `Bytes32ToBytes32Map` map type. ([#3192](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3192))
+ * `ERC20FlashMint`: support infinite allowance when paying back a flash loan. ([#3226](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3226))
+ * `ERC20Wrapper`: the `decimals()` function now tries to fetch the value from the underlying token instance. If that calls revert, then the default value is used. ([#3259](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3259))
+ * `draft-ERC20Permit`: replace `immutable` with `constant` for `_PERMIT_TYPEHASH` since the `keccak256` of string literals is treated specially and the hash is evaluated at compile time. ([#3196](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3196))
  * `ERC1155`: Add a `_afterTokenTransfer` hook for improved extensibility. ([#3166](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3166))
+ * `ERC1155URIStorage`: add a new extension that implements a `_setURI` behavior similar to ERC721's `_setTokenURI`. ([#3210](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3210))
  * `DoubleEndedQueue`: a new data structure that supports efficient push and pop to both front and back, useful for FIFO and LIFO queues. ([#3153](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3153))
  * `Governor`: improved security of `onlyGovernance` modifier when using an external executor contract (e.g. a timelock) that can operate without necessarily going through the governance protocol. ([#3147](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3147))
- * `ERC20FlashMint`: support infinite allowance when paying back a flash loan. ([#3226](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3226))
- * `Governor`: Add a way to parameterize votes. This can be used to implement voting systems such as fractionalized voting, ERC721 based voting, or any number of other systems. The `params` argument added to `_countVote` method, and included in the newly added `_getVotes` method, can be used by counting and voting modules respectively for such purposes.
+ * `Governor`: Add a way to parameterize votes. This can be used to implement voting systems such as fractionalized voting, ERC721 based voting, or any number of other systems. The `params` argument added to `_countVote` method, and included in the newly added `_getVotes` method, can be used by counting and voting modules respectively for such purposes. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
+ * `Governor`: rewording of revert reason for consistency. ([#3275](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3275))
+ * `Governor`: fix an inconsistency in data locations that could lead to invalid bytecode being produced. ([#3295](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3295))
+ * `Governor`: Implement `IERC721Receiver` and `IERC1155Receiver` to improve token custody by governors. ([#3230](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3230))
+ * `TimelockController`: Implement `IERC721Receiver` and `IERC1155Receiver` to improve token custody by timelocks. ([#3230](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3230))
  * `TimelockController`: Add a separate canceller role for the ability to cancel. ([#3165](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3165))
+ * `Initializable`: add a reinitializer modifier that enables the initialization of new modules, added to already initialized contracts through upgradeability. ([#3232](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3232))
+ * `Initializable`: add an Initialized event that tracks initialized version numbers. ([#3294](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3294))
+ * `ERC2981`: make `royaltyInfo` public to allow super call in overrides. ([#3305](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3305))
+
+### Upgradeability notice
+
+* `TimelockController`: **(Action needed)** The upgrade from <4.6 to >=4.6 introduces a new `CANCELLER_ROLE` that requires set up to be assignable. After the upgrade, only addresses with this role will have the ability to cancel. Proposers will no longer be able to cancel. Assigning cancellers can be done by an admin (including the timelock itself) once the role admin is set up. To do this, we recommend upgrading to the `TimelockControllerWith46MigrationUpgradeable` contract and then calling the `migrateTo46` function.
 
 ### Breaking changes
 
@@ -455,7 +483,7 @@ Refer to the table below to adjust your inheritance list.
  * `SignedSafeMath`: added overflow-safe operations for signed integers (`int256`). ([#1559](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1559), [#1588](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1588))
 
 ### Improvements
- * The compiler version required by `Array` was behind the rest of the libray so it was updated to `v0.4.24`. ([#1553](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1553))
+ * The compiler version required by `Array` was behind the rest of the library so it was updated to `v0.4.24`. ([#1553](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1553))
  * Now conforming to a 4-space indentation code style. ([1508](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1508))
  * `ERC20`: more gas efficient due to removed redundant `require`s. ([#1409](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1409))
  * `ERC721`: fixed a bug that prevented internal data structures from being properly cleaned, missing potential gas refunds. ([#1539](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1539) and [#1549](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1549))

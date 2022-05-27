@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/TimelockController.sol)
 
 pragma solidity ^0.8.0;
 
 import "../access/AccessControl.sol";
+import "../token/ERC721/IERC721Receiver.sol";
+import "../token/ERC1155/IERC1155Receiver.sol";
+import "../utils/Address.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -20,7 +23,7 @@ import "../access/AccessControl.sol";
  *
  * _Available since v3.3._
  */
-contract TimelockController is AccessControl {
+contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver {
     bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
@@ -118,10 +121,17 @@ contract TimelockController is AccessControl {
     receive() external payable {}
 
     /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, AccessControl) returns (bool) {
+        return interfaceId == type(IERC1155Receiver).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
      * @dev Returns whether an id correspond to a registered operation. This
      * includes both Pending, Ready and Done operations.
      */
-    function isOperation(bytes32 id) public view virtual returns (bool pending) {
+    function isOperation(bytes32 id) public view virtual returns (bool registered) {
         return getTimestamp(id) > 0;
     }
 
@@ -185,11 +195,11 @@ contract TimelockController is AccessControl {
     function hashOperationBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt
     ) public pure virtual returns (bytes32 hash) {
-        return keccak256(abi.encode(targets, values, datas, predecessor, salt));
+        return keccak256(abi.encode(targets, values, payloads, predecessor, salt));
     }
 
     /**
@@ -226,18 +236,18 @@ contract TimelockController is AccessControl {
     function scheduleBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt,
         uint256 delay
     ) public virtual onlyRole(PROPOSER_ROLE) {
         require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == datas.length, "TimelockController: length mismatch");
+        require(targets.length == payloads.length, "TimelockController: length mismatch");
 
-        bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
+        bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
         _schedule(id, delay);
         for (uint256 i = 0; i < targets.length; ++i) {
-            emit CallScheduled(id, i, targets[i], values[i], datas[i], predecessor, delay);
+            emit CallScheduled(id, i, targets[i], values[i], payloads[i], predecessor, delay);
         }
     }
 
@@ -279,13 +289,15 @@ contract TimelockController is AccessControl {
     function execute(
         address target,
         uint256 value,
-        bytes calldata data,
+        bytes calldata payload,
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
-        bytes32 id = hashOperation(target, value, data, predecessor, salt);
+        bytes32 id = hashOperation(target, value, payload, predecessor, salt);
+
         _beforeCall(id, predecessor);
-        _call(id, 0, target, value, data);
+        _execute(target, value, payload);
+        emit CallExecuted(id, 0, target, value, payload);
         _afterCall(id);
     }
 
@@ -301,19 +313,36 @@ contract TimelockController is AccessControl {
     function executeBatch(
         address[] calldata targets,
         uint256[] calldata values,
-        bytes[] calldata datas,
+        bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
         require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == datas.length, "TimelockController: length mismatch");
+        require(targets.length == payloads.length, "TimelockController: length mismatch");
 
-        bytes32 id = hashOperationBatch(targets, values, datas, predecessor, salt);
+        bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
+
         _beforeCall(id, predecessor);
         for (uint256 i = 0; i < targets.length; ++i) {
-            _call(id, i, targets[i], values[i], datas[i]);
+            address target = targets[i];
+            uint256 value = values[i];
+            bytes calldata payload = payloads[i];
+            _execute(target, value, payload);
+            emit CallExecuted(id, i, target, value, payload);
         }
         _afterCall(id);
+    }
+
+    /**
+     * @dev Execute an operation's call.
+     */
+    function _execute(
+        address target,
+        uint256 value,
+        bytes calldata data
+    ) internal virtual {
+        (bool success, ) = target.call{value: value}(data);
+        require(success, "TimelockController: underlying transaction reverted");
     }
 
     /**
@@ -333,24 +362,6 @@ contract TimelockController is AccessControl {
     }
 
     /**
-     * @dev Execute an operation's call.
-     *
-     * Emits a {CallExecuted} event.
-     */
-    function _call(
-        bytes32 id,
-        uint256 index,
-        address target,
-        uint256 value,
-        bytes calldata data
-    ) private {
-        (bool success, ) = target.call{value: value}(data);
-        require(success, "TimelockController: underlying transaction reverted");
-
-        emit CallExecuted(id, index, target, value, data);
-    }
-
-    /**
      * @dev Changes the minimum timelock duration for future operations.
      *
      * Emits a {MinDelayChange} event.
@@ -364,5 +375,43 @@ contract TimelockController is AccessControl {
         require(msg.sender == address(this), "TimelockController: caller must be timelock");
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
+    }
+
+    /**
+     * @dev See {IERC721Receiver-onERC721Received}.
+     */
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+
+    /**
+     * @dev See {IERC1155Receiver-onERC1155Received}.
+     */
+    function onERC1155Received(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    /**
+     * @dev See {IERC1155Receiver-onERC1155BatchReceived}.
+     */
+    function onERC1155BatchReceived(
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onERC1155BatchReceived.selector;
     }
 }
