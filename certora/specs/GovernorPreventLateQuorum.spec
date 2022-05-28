@@ -12,6 +12,9 @@ methods {
     getExtendedDeadlineIsUnset(uint256) returns bool envfree
     getExtendedDeadlineIsStarted(uint256) returns bool envfree
     getExtendedDeadline(uint256) returns uint64 envfree
+    getAgainstVotes(uint256) returns uint256 envfree
+    getAbstainVotes(uint256) returns uint256 envfree
+    getForVotes(uint256) returns uint256 envfree
     
     // more robust check than f.selector == _castVote(...).selector
     latestCastVoteCall() returns uint256 envfree 
@@ -22,6 +25,8 @@ methods {
     hashOperationBatch(address[], uint256[], bytes[], bytes32, bytes32) => DISPATCHER(true)
     executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => CONSTANT
     scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256) => CONSTANT
+    // checkpoint length ERC721
+    numCheckpoints(address) returns uint32
 }
 
 
@@ -54,13 +59,22 @@ function helperFunctionsWithRevertOnlyCastVote(uint256 proposalId, method f, env
 
 // proposal deadline can be extended (but isn't)
 definition deadlineExtendable(env e, uint256 pId) returns bool = 
-    getExtendedDeadlineIsUnset(pId)
+    getExtendedDeadlineIsUnset(pId) // deadline == 0
     && !quorumReached(e, pId);
 
 // proposal deadline has been extended
 definition deadlineExtended(env e, uint256 pId) returns bool = 
-    getExtendedDeadlineIsStarted(pId)
+    getExtendedDeadlineIsStarted(pId) // deadline > 0
     && quorumReached(e, pId);
+
+definition proposalNotCreated(env e, uint256 pId) returns bool = 
+    proposalSnapshot(pId) == 0
+    && proposalDeadline(pId) == 0
+    && getExtendedDeadlineIsUnset(pId)
+    && getAgainstVotes(pId) == 0
+    && getAbstainVotes(pId) == 0
+    && getForVotes(pId) == 0
+    && !quorumReached(e, pId);
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -68,13 +82,32 @@ definition deadlineExtended(env e, uint256 pId) returns bool =
 //////////////////////////////////////////////////////////////////////////////
 
 /*
- * I1: A propsal must be in state deadlineExtendable or deadlineExtended.
- * --INVARIANT PASSING // fails for updateQuorumNumerator
- * --ADVANCED SANITY PASSING // can't sanity test failing rules, not sure how it works for invariants
+ * I1: If a proposal has reached quorum then the proposal snapshot (start block.number) must be non-zero
+ * INVARIANT NOT PASSING // fails for updateQuorumNumerator and in the initial state when voting token total supply is 0 (causes quoromReached to return true)
+ * ADVANCED SANITY NOT RAN
+ */ 
+invariant quorumReachedEffect(env e, uint256 pId)
+    quorumReached(e, pId) => proposalCreated(pId) // bug: 0 supply 0 votes => quorumReached
+    // filtered { f -> f.selector != updateQuorumNumerator(uint256).selector } // * fails for this function
+
+/*
+ * I2: A non-existant proposal must meet the definition of one.
+ * INVARIANT NOT PASSING // fails for updateQuorumNumerator and in the initial state when voting token total supply is 0 (causes quoromReached to return true)
+ * ADVANCED SANITY NOT RAN
  */
-invariant proposalInOneState(env e, uint256 pId)
-    deadlineExtendable(e, pId) || deadlineExtended(e, pId)
-    { preserved { require proposalCreated(pId); } }
+invariant proposalNotCreatedEffects(env e, uint256 pId)
+    !proposalCreated(pId) => proposalNotCreated(e, pId)
+    // filtered { f -> f.selector != updateQuorumNumerator(uint256).selector } // * fails for this function
+
+/*
+ * I3: A created propsal must be in state deadlineExtendable or deadlineExtended.
+ * INVARIANT NOT PASSING // fails for updateQuorumNumerator and in the initial state when voting token total supply is 0 (causes quoromReached to return true)
+ * ADVANCED SANITY NOT RAN 
+ */
+invariant proposalInOneState(env e, uint256 pId) 
+    proposalNotCreated(e, pId) || deadlineExtendable(e, pId) || deadlineExtended(e, pId)
+    // filtered { f -> f.selector != updateQuorumNumerator(uint256).selector } // * fails for this function
+    { preserved { requireInvariant proposalNotCreatedEffects(e, pId); }}
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -92,7 +125,7 @@ invariant proposalInOneState(env e, uint256 pId)
 rule deadlineChangeEffects(method f) filtered {f -> !f.isView} {
     env e; calldataarg args; uint256 pId;
 
-    require (proposalCreated(pId));
+    requireInvariant quorumReachedEffect(e, pId);
     
     uint256 deadlineBefore = proposalDeadline(pId);
     f(e, args);
@@ -110,12 +143,12 @@ rule deadlineChangeEffects(method f) filtered {f -> !f.isView} {
 rule deadlineCantBeUnextended(method f) 
     filtered {
         f -> !f.isView
-        && f.selector != updateQuorumNumerator(uint256).selector // * fails for this function
+        // && f.selector != updateQuorumNumerator(uint256).selector // * fails for this function
     } {
     env e; calldataarg args; uint256 pId;
 
     require(deadlineExtended(e, pId));
-    require(proposalCreated(pId));
+    requireInvariant quorumReachedEffect(e, pId);
     
     f(e, args);
     
@@ -125,14 +158,14 @@ rule deadlineCantBeUnextended(method f)
 
 /*
  * R3: A proposal's deadline can't change in deadlineExtended state.
- * RULE PASSING*
+ * RULE PASSING
  * ADVANCED SANITY PASSING 
  */ 
 rule canExtendDeadlineOnce(method f) filtered {f -> !f.isView} {
     env e; calldataarg args; uint256 pId;
 
     require(deadlineExtended(e, pId));
-    require(proposalCreated(pId)); 
+    requireInvariant quorumReachedEffect(e, pId); 
     
     uint256 deadlineBefore = proposalDeadline(pId);
     f(e, args);
@@ -145,7 +178,7 @@ rule canExtendDeadlineOnce(method f) filtered {f -> !f.isView} {
 //////////////////////////// second set of rules ////////////////////////////
 
 // HIGH LEVEL RULE R6: deadline can only extended if quorum reached w/ <= timeOfExtension left to vote
-// I1, R4 and R5 are assumed in R6 so we prove them first
+// I3, R4 and R5 are assumed in R6 so we prove them first
 
 /*
  * R4: A change in hasVoted must be correlated with an increasing of the vote supports, i.e. casting a vote increases the total number of votes.
@@ -163,7 +196,7 @@ rule hasVotedCorrelationNonzero(uint256 pId, method f, env e) filtered {f -> !f.
 
     bool hasVotedBefore = hasVoted(e, pId, acc);
 
-    helperFunctionsWithRevertOnlyCastVote(pId, f, e);
+    helperFunctionsWithRevertOnlyCastVote(pId, f, e); // should be f(e, args)
 
     uint256 againstAfter = votesAgainst();
     uint256 forAfter = votesFor();
@@ -175,11 +208,11 @@ rule hasVotedCorrelationNonzero(uint256 pId, method f, env e) filtered {f -> !f.
     assert 
         (!hasVotedBefore && hasVotedAfter) => 
         (againstBefore <= againstAfter && forBefore <= forAfter && abstainBefore <= abstainAfter), 
-        "no correlation: some category decreased"; // currently vacous but keeping for CI tests
+        "after a vote is cast, the number of votes for each category must not decrease"; // currently vacous but keeping for CI tests
     assert 
         (!hasVotedBefore && hasVotedAfter) => 
         (againstBefore < againstAfter || forBefore < forAfter || abstainBefore < abstainAfter),
-        "no correlation: no category increased";
+        "after a vote is cast, the number of votes of at least one category must increase";
 }
 
 
@@ -200,7 +233,7 @@ rule againstVotesDontCount(method f) filtered {f -> !f.isView} {
     bool quorumAfter = quorumReached(e, pId);
     uint256 againstAfter = votesAgainst();
 
-    assert (againstBefore < againstAfter) => quorumBefore == quorumAfter, "quorum reached with against vote"; 
+    assert (againstBefore < againstAfter) => quorumBefore == quorumAfter, "quorum must not be reached with an against vote"; 
 }
 
 /*
@@ -211,9 +244,9 @@ rule againstVotesDontCount(method f) filtered {f -> !f.isView} {
 rule deadlineExtenededIfQuorumReached(method f) filtered {f -> !f.isView} {
     env e; calldataarg args; uint256 pId;
 
-    // need invariant that proves that a propsal must be in state deadlineExtendable or deadlineExtended
-    require(deadlineExtended(e, pId) || deadlineExtendable(e, pId));
-    require(proposalCreated(pId));
+    requireInvariant proposalInOneState(e, pId);
+    requireInvariant quorumReachedEffect(e, pId); 
+    requireInvariant proposalNotCreatedEffects(e, pId);
 
     bool wasDeadlineExtendable = deadlineExtendable(e, pId);
     uint64 extension = lateQuorumVoteExtension();
@@ -221,8 +254,8 @@ rule deadlineExtenededIfQuorumReached(method f) filtered {f -> !f.isView} {
     f(e, args);
     uint256 deadlineAfter = proposalDeadline(pId);
     
-    assert(deadlineAfter > deadlineBefore => wasDeadlineExtendable, "deadline was not extendable");
-    assert(deadlineAfter > deadlineBefore => deadlineBefore - e.block.number <= extension, "deadline extension should not be used");
+    assert deadlineAfter > deadlineBefore => wasDeadlineExtendable, "deadline must have been extendable for the deadline to be extended";
+    assert deadlineAfter > deadlineBefore => deadlineBefore - e.block.number <= extension, "deadline extension should not be used";
 }
 
 /*
@@ -232,7 +265,8 @@ rule deadlineExtenededIfQuorumReached(method f) filtered {f -> !f.isView} {
  */
 rule extendedDeadlineValueSetIfQuorumReached(method f) filtered {f -> !f.isView} {
     env e; calldataarg args; uint256 pId;
-    require(deadlineExtended(e, pId) || deadlineExtendable(e, pId));
+
+    requireInvariant proposalInOneState(e, pId);
     
     bool extendedBefore = deadlineExtended(e, pId);
     f(e, args);
@@ -247,33 +281,15 @@ rule extendedDeadlineValueSetIfQuorumReached(method f) filtered {f -> !f.isView}
 }
 
 /*
-* R8: If the deadline for a proposal has not been reached, users can still vote.
-* --RULE PASSING
-* --ADVANCED SANITY PASSING
-*/
-rule canVote(method f) filtered {f -> !f.isView} {
-    env e; calldataarg args; uint256 pId;
-    address acc = e.msg.sender;
-    uint256 deadline = proposalDeadline(pId);
-    bool votedBefore = hasVoted(e, pId, acc);
-    
-    require(proposalCreated(pId));
-    require(deadline >= e.block.number);
-    // last error? 
-    helperFunctionsWithRevertOnlyCastVote(pId, f, e);
-    bool votedAfter = hasVoted(e, pId, acc);
-    
-    assert !votedBefore && votedAfter => deadline >= e.block.number;
-}
-
-/*
- * R9: Deadline can never be reduced.
+ * R8: Deadline can never be reduced.
  * RULE PASSING
  * ADVANCED SANITY PASSING
  */
 rule deadlineNeverReduced(method f) filtered {f -> !f.isView} {
     env e; calldataarg args; uint256 pId;
-    require(proposalCreated(pId));
+
+    requireInvariant quorumReachedEffect(e, pId);
+    requireInvariant proposalNotCreatedEffects(e, pId);
 
     uint256 deadlineBefore = proposalDeadline(pId);
     f(e, args);

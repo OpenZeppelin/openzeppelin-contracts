@@ -31,19 +31,34 @@ contract GovernorPreventLateQuorumHarness is Governor, GovernorCountingSimple, G
         return _voteExtension;
     }
 
-    function getExtendedDeadlineIsUnset(uint256 id) public view returns(bool) {
-        return _extendedDeadlines[id].isUnset();
+    function getExtendedDeadlineIsUnset(uint256 proposalId) public view returns(bool) {
+        return _extendedDeadlines[proposalId].isUnset();
     }
 
-    function getExtendedDeadlineIsStarted(uint256 id) public view returns(bool) {
-        return _extendedDeadlines[id].isStarted();
+    function getExtendedDeadlineIsStarted(uint256 proposalId) public view returns(bool) {
+        return _extendedDeadlines[proposalId].isStarted();
     }
 
-    function getExtendedDeadline(uint256 id) public view returns(uint64) {
-        return _extendedDeadlines[id].getDeadline();
+    function getExtendedDeadline(uint256 proposalId) public view returns(uint64) {
+        return _extendedDeadlines[proposalId].getDeadline();
     }
 
     // Harness from GovernorCountingSimple // 
+
+    function getAgainstVotes(uint256 proposalId) public view returns(uint256) {
+        ProposalVote storage proposalvote = _proposalVotes[proposalId];
+        return proposalvote.againstVotes;
+    }
+
+    function getAbstainVotes(uint256 proposalId) public view returns(uint256) {
+        ProposalVote storage proposalvote = _proposalVotes[proposalId];
+        return proposalvote.abstainVotes;
+    }
+
+    function getForVotes(uint256 proposalId) public view returns(uint256) {
+        ProposalVote storage proposalvote = _proposalVotes[proposalId];
+        return proposalvote.forVotes;
+    }
     
     function quorumReached(uint256 proposalId) public view returns(bool) {
         return _quorumReached(proposalId);

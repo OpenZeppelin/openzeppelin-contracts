@@ -38,7 +38,9 @@ methods {
 
 
 // proposal was created - relation proved in noStartBeforeCreation
-definition proposalCreated(uint256 pId) returns bool = proposalSnapshot(pId) > 0;
+definition proposalCreated(uint256 pId) returns bool = 
+    proposalSnapshot(pId) > 0
+    && proposalDeadline(pId) > 0;
 
 
 //////////////////////////////////////////////////////////////////////////////
