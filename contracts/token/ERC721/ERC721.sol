@@ -378,7 +378,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev Reverts if the `tokenId` has not been minted yet.
      */
-    function _requireMinted(uint256 tokenId) internal virtual {
+    function _requireMinted(uint256 tokenId) internal view virtual {
         require(_exists(tokenId), "ERC721: token ID not minted");
     }
 
