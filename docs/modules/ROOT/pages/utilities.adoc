@@ -7,7 +7,7 @@ The OpenZeppelin Contracts provide a ton of useful utilities that you can use in
 
 === Checking Signatures On-Chain
 
-xref:api:cryptography.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.2.4/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
+xref:api:cryptography.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
 
 The data signer can be recovered with xref:api:cryptography.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix '\x19Ethereum Signed Message:\n', so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:cryptography.adoc#ECDSA-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
 
@@ -26,7 +26,11 @@ WARNING: Getting signature verification right is not trivial: make sure you full
 
 === Verifying Merkle Proofs
 
-xref:api:cryptography.adoc#MerkleProof[`MerkleProof`] provides xref:api:cryptography.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-[`verify`], which can prove that some value is part of a https://en.wikipedia.org/wiki/Merkle_tree[Merkle tree].
+xref:api:cryptography.adoc#MerkleProof[`MerkleProof`] provides:
+
+* xref:api:cryptography.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-[`verify`] - can prove that some value is part of a https://en.wikipedia.org/wiki/Merkle_tree[Merkle tree].
+
+* xref:api:cryptography.adoc#MerkleProof-multiProofVerify-bytes32-bytes32---bytes32---bool---[`multiProofVerify`] - can prove multiple values are part of a Merkle tree.
 
 [[introspection]]
 == Introspection

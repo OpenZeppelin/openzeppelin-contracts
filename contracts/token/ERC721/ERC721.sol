@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC721/ERC721.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/ERC721.sol)
 
 pragma solidity ^0.8.0;
 
@@ -60,7 +60,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev See {IERC721-balanceOf}.
      */
     function balanceOf(address owner) public view virtual override returns (uint256) {
-        require(owner != address(0), "ERC721: balance query for the zero address");
+        require(owner != address(0), "ERC721: address zero is not a valid owner");
         return _balances[owner];
     }
 
@@ -115,7 +115,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         require(
             _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
-            "ERC721: approve caller is not owner nor approved for all"
+            "ERC721: approve caller is not token owner nor approved for all"
         );
 
         _approve(to, tokenId);
@@ -153,7 +153,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId
     ) public virtual override {
         //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner nor approved");
 
         _transfer(from, to, tokenId);
     }
@@ -176,17 +176,17 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address from,
         address to,
         uint256 tokenId,
-        bytes memory _data
+        bytes memory data
     ) public virtual override {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
-        _safeTransfer(from, to, tokenId, _data);
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner nor approved");
+        _safeTransfer(from, to, tokenId, data);
     }
 
     /**
      * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
      * are aware of the ERC721 protocol to prevent tokens from being forever locked.
      *
-     * `_data` is additional data, it has no specified format and it is sent in call to `to`.
+     * `data` is additional data, it has no specified format and it is sent in call to `to`.
      *
      * This internal function is equivalent to {safeTransferFrom}, and can be used to e.g.
      * implement alternative mechanisms to perform token transfer, such as signature-based.
@@ -204,10 +204,10 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address from,
         address to,
         uint256 tokenId,
-        bytes memory _data
+        bytes memory data
     ) internal virtual {
         _transfer(from, to, tokenId);
-        require(_checkOnERC721Received(from, to, tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
+        require(_checkOnERC721Received(from, to, tokenId, data), "ERC721: transfer to non ERC721Receiver implementer");
     }
 
     /**
@@ -230,9 +230,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * - `tokenId` must exist.
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
-        require(_exists(tokenId), "ERC721: operator query for nonexistent token");
         address owner = ERC721.ownerOf(tokenId);
-        return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
+        return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
     }
 
     /**
@@ -256,11 +255,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _safeMint(
         address to,
         uint256 tokenId,
-        bytes memory _data
+        bytes memory data
     ) internal virtual {
         _mint(to, tokenId);
         require(
-            _checkOnERC721Received(address(0), to, tokenId, _data),
+            _checkOnERC721Received(address(0), to, tokenId, data),
             "ERC721: transfer to non ERC721Receiver implementer"
         );
     }
@@ -353,7 +352,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev Approve `to` to operate on `tokenId`
      *
-     * Emits a {Approval} event.
+     * Emits an {Approval} event.
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
@@ -363,7 +362,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev Approve `operator` to operate on all of `owner` tokens
      *
-     * Emits a {ApprovalForAll} event.
+     * Emits an {ApprovalForAll} event.
      */
     function _setApprovalForAll(
         address owner,
@@ -382,22 +381,23 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @param from address representing the previous owner of the given token ID
      * @param to target address that will receive the tokens
      * @param tokenId uint256 ID of the token to be transferred
-     * @param _data bytes optional data to send along with the call
+     * @param data bytes optional data to send along with the call
      * @return bool whether the call correctly returned the expected magic value
      */
     function _checkOnERC721Received(
         address from,
         address to,
         uint256 tokenId,
-        bytes memory _data
+        bytes memory data
     ) private returns (bool) {
         if (to.isContract()) {
-            try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data) returns (bytes4 retval) {
+            try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, data) returns (bytes4 retval) {
                 return retval == IERC721Receiver.onERC721Received.selector;
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
                     revert("ERC721: transfer to non ERC721Receiver implementer");
                 } else {
+                    /// @solidity memory-safe-assembly
                     assembly {
                         revert(add(32, reason), mload(reason))
                     }
