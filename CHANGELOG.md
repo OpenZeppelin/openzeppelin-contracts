@@ -8,7 +8,8 @@
  * `DoubleEndedQueue`: a new data structure that supports efficient push and pop to both front and back, useful for FIFO and LIFO queues. ([#3153](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3153))
  * `Governor`: improved security of `onlyGovernance` modifier when using an external executor contract (e.g. a timelock) that can operate without necessarily going through the governance protocol. ([#3147](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3147))
  * `Governor`: Add a way to parameterize votes. This can be used to implement voting systems such as fractionalized voting, ERC721 based voting, or any number of other systems. The `params` argument added to `_countVote` method, and included in the newly added `_getVotes` method, can be used by counting and voting modules respectively for such purposes.
-
+ * `Math`: Add a `sqrt` function. ([#3242](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3242))
+ 
 ### Breaking changes
 
 * `Governor`: Adds internal virtual `_getVotes` method that must be implemented; this is a breaking change for existing concrete extensions to `Governor`. To fix this on an existing voting module extension, rename `getVotes` to `_getVotes` and add a `bytes memory` argument. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
