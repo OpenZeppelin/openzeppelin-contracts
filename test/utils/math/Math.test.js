@@ -87,28 +87,18 @@ contract('Math', function (accounts) {
   });
 
   describe('sqrt', function () {
-    it('Value less than 3', async function () {
-      const a = new BN('0');
-      const b = new BN('1');
-      const c = new BN('2');
-      expect(await this.math.sqrt(a)).to.be.bignumber.equal('0');
-      expect(await this.math.sqrt(b)).to.be.bignumber.equal('1');
-      expect(await this.math.sqrt(c)).to.be.bignumber.equal('1');
-    });
-
-    it('Value greater than 3', async function () {
-      const a = new BN('3');
-      const b = new BN('144');
-      const c = new BN('1000000');
-      const d = new BN('1000001');
-      const e = new BN('1002000');
-      const f = new BN('1002001');
-      expect(await this.math.sqrt(a)).to.be.bignumber.equal('1');
-      expect(await this.math.sqrt(b)).to.be.bignumber.equal('12');
-      expect(await this.math.sqrt(c)).to.be.bignumber.equal('1000');
-      expect(await this.math.sqrt(d)).to.be.bignumber.equal('1000');
-      expect(await this.math.sqrt(e)).to.be.bignumber.equal('1000');
-      expect(await this.math.sqrt(f)).to.be.bignumber.equal('1001');
+    it('rounds down', async function () {
+      expect(await this.math.sqrt(new BN('0'))).to.be.bignumber.equal('0');
+      expect(await this.math.sqrt(new BN('1'))).to.be.bignumber.equal('1');
+      expect(await this.math.sqrt(new BN('2'))).to.be.bignumber.equal('1');
+      expect(await this.math.sqrt(new BN('3'))).to.be.bignumber.equal('1');
+      expect(await this.math.sqrt(new BN('4'))).to.be.bignumber.equal('2');
+      expect(await this.math.sqrt(new BN('144'))).to.be.bignumber.equal('12');
+      expect(await this.math.sqrt(new BN('1000000'))).to.be.bignumber.equal('1000');
+      expect(await this.math.sqrt(new BN('1000001'))).to.be.bignumber.equal('1000');
+      expect(await this.math.sqrt(new BN('1002000'))).to.be.bignumber.equal('1000');
+      expect(await this.math.sqrt(new BN('1002001'))).to.be.bignumber.equal('1001');
+      expect(await this.math.sqrt(MAX_UINT256)).to.be.bignumber.equal('340282366920938463463374607431768211455');
     });
   });
 });
