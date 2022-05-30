@@ -46,7 +46,7 @@ library Math {
      */
     function sqrt(uint256 a) internal pure returns (uint256) {
         uint256 x = a;
-        uint256 y = a / 2 + a % 2;
+        uint256 y = a / 2 + (a % 2);
         while (y < x) {
             x = y;
             y = (a / y + y) / 2;
