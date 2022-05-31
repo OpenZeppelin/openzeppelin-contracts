@@ -6,8 +6,8 @@
  * `TimelockController`: Migrate `_call` to `_execute` and allow inheritance and overriding similar to `Governor`. ([#3317](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3317))
  * `CrossChainEnabledPolygonChild`: replace the `require` statement with the custom error `NotCrossChainCall`. ([#3380](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3380))
  * `ERC20FlashMint`: Add customizable flash fee receiver. ([#3327](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3327))
- * `ERC4626`: add an extension of `ERC20` that implements the `ERC4626` "tokenized vault standard". ([#3171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3171))
- * `Math`: add a `mulDiv` function that can be request to round the result either up or down. ([#3171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3171))
+ * `ERC20TokenizedVault`: add an extension of `ERC20` that implements the ERC4626 Tokenized Vault Standard. ([#3171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3171))
+ * `Math`: add a `mulDiv` function that can round the result either up or down. ([#3171](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3171))
  * `Strings`: add a new overloaded function `toHexString` that converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal representation. ([#3403](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3403))
 
 ## 4.6.0 (2022-04-26)

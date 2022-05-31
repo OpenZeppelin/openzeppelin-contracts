@@ -49,7 +49,8 @@ library Math {
 
     /**
      * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or denominator == 0
-     * @dev Credit to Remco Bloemen under MIT license https://xn--2-umb.com/21/muldiv
+     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv)
+     * with further edits by Uniswap Labs also under MIT license.
      */
     function mulDiv(
         uint256 x,
