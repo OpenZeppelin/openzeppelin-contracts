@@ -41,6 +41,12 @@ rule burnAmountProportionalToBalanceReduction {
         "A larger burn must lead to a larger decrease in balance";
 }
 
+/// Unimplemented rule to verify monotonicity of burnBatch.
+rule burnBatchAmountProportionalToBalanceReduction {
+    assert true, 
+        "just a placeholder that should never show up";
+}
+
 /// This rule should always fail.
 rule sanity {
     method f; env e; calldataarg args;
