@@ -62,6 +62,7 @@ contract('PaymentSplitter', function (accounts) {
       await Promise.all(this.payees.map(async (payee, index) => {
         expect(await this.contract.payee(index)).to.equal(payee);
         expect(await this.contract.released(payee)).to.be.bignumber.equal('0');
+        expect(await this.contract.releasable(payee)).to.be.bignumber.equal('0');
       }));
     });
 
@@ -116,6 +117,26 @@ contract('PaymentSplitter', function (accounts) {
             'PaymentSplitter: account has no shares',
           );
         });
+      });
+    });
+
+    describe('tracks releasable and released', function () {
+      it('Ether', async function () {
+        await send.ether(payer1, this.contract.address, amount);
+        const payment = amount.divn(10);
+        expect(await this.contract.releasable(payee2)).to.be.bignumber.equal(payment);
+        await this.contract.release(payee2);
+        expect(await this.contract.releasable(payee2)).to.be.bignumber.equal('0');
+        expect(await this.contract.released(payee2)).to.be.bignumber.equal(payment);
+      });
+
+      it('Token', async function () {
+        await this.token.transfer(this.contract.address, amount, { from: owner });
+        const payment = amount.divn(10);
+        expect(await this.contract.releasable(this.token.address, payee2, {})).to.be.bignumber.equal(payment);
+        await this.contract.release(this.token.address, payee2);
+        expect(await this.contract.releasable(this.token.address, payee2, {})).to.be.bignumber.equal('0');
+        expect(await this.contract.released(this.token.address, payee2)).to.be.bignumber.equal(payment);
       });
     });
 
