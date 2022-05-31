@@ -65,7 +65,7 @@ contract('PaymentSplitter', function (accounts) {
       }));
     });
 
-    describe('accepts payments', async function () {
+    describe('accepts payments', function () {
       it('Ether', async function () {
         await send.ether(owner, this.contract.address, amount);
 
@@ -79,7 +79,7 @@ contract('PaymentSplitter', function (accounts) {
       });
     });
 
-    describe('shares', async function () {
+    describe('shares', function () {
       it('stores shares if address is payee', async function () {
         expect(await this.contract.shares(payee1)).to.be.bignumber.not.equal('0');
       });
@@ -89,8 +89,8 @@ contract('PaymentSplitter', function (accounts) {
       });
     });
 
-    describe('release', async function () {
-      describe('Ether', async function () {
+    describe('release', function () {
+      describe('Ether', function () {
         it('reverts if no funds to claim', async function () {
           await expectRevert(this.contract.release(payee1),
             'PaymentSplitter: account is not due payment',
@@ -104,7 +104,7 @@ contract('PaymentSplitter', function (accounts) {
         });
       });
 
-      describe('Token', async function () {
+      describe('Token', function () {
         it('reverts if no funds to claim', async function () {
           await expectRevert(this.contract.release(this.token.address, payee1),
             'PaymentSplitter: account is not due payment',
@@ -119,7 +119,7 @@ contract('PaymentSplitter', function (accounts) {
       });
     });
 
-    describe('distributes funds to payees', async function () {
+    describe('distributes funds to payees', function () {
       it('Ether', async function () {
         await send.ether(payer1, this.contract.address, amount);
 
