@@ -71,7 +71,6 @@ library Math {
 
             // Handle non-overflow cases, 256 by 256 division.
             if (prod1 == 0) {
-                require(denominator > 0);
                 return prod0 / denominator;
             }
 
@@ -97,20 +96,20 @@ library Math {
             // See https://cs.stackexchange.com/q/138556/92363.
 
             // Does not overflow because the denominator cannot be zero at this stage in the function.
-            uint256 lpotdod = denominator & (~denominator + 1);
+            uint256 twos = denominator & (~denominator + 1);
             assembly {
-                // Divide denominator by lpotdod.
-                denominator := div(denominator, lpotdod)
+                // Divide denominator by twos.
+                denominator := div(denominator, twos)
 
-                // Divide [prod1 prod0] by lpotdod.
-                prod0 := div(prod0, lpotdod)
+                // Divide [prod1 prod0] by twos.
+                prod0 := div(prod0, twos)
 
-                // Flip lpotdod such that it is 2^256 / lpotdod. If lpotdod is zero, then it becomes one.
-                lpotdod := add(div(sub(0, lpotdod), lpotdod), 1)
+                // Flip twos such that it is 2^256 / twos. If twos is zero, then it becomes one.
+                twos := add(div(sub(0, twos), twos), 1)
             }
 
             // Shift in bits from prod1 into prod0.
-            prod0 |= prod1 * lpotdod;
+            prod0 |= prod1 * twos;
 
             // Invert denominator mod 2^256. Now that denominator is an odd number, it has an inverse modulo 2^256 such
             // that denominator * inv = 1 mod 2^256. Compute the inverse by starting with a seed that is correct for
@@ -142,10 +141,10 @@ library Math {
         uint256 x,
         uint256 y,
         uint256 denominator,
-        Rounding direction
+        Rounding rounding
     ) internal pure returns (uint256) {
         uint256 result = mulDiv(x, y, denominator);
-        if (direction == Rounding.Up && mulmod(x, y, denominator) > 0) {
+        if (rounding == Rounding.Up && mulmod(x, y, denominator) > 0) {
             result += 1;
         }
         return result;

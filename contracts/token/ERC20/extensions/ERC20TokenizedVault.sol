@@ -95,7 +95,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         require(assets <= maxDeposit(receiver), "ERC20TokenizedVault: deposit more than max");
 
         uint256 shares = previewDeposit(assets);
-        _buy(_msgSender(), receiver, assets, shares);
+        _deposit(_msgSender(), receiver, assets, shares);
 
         return shares;
     }
@@ -105,7 +105,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         require(shares <= maxMint(receiver), "ERC20TokenizedVault: mint more than max");
 
         uint256 assets = previewMint(shares);
-        _buy(_msgSender(), receiver, assets, shares);
+        _deposit(_msgSender(), receiver, assets, shares);
 
         return assets;
     }
@@ -119,7 +119,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         require(assets <= maxWithdraw(owner), "ERC20TokenizedVault: withdraw more than max");
 
         uint256 shares = previewWithdraw(assets);
-        _sell(_msgSender(), receiver, owner, assets, shares);
+        _withdraw(_msgSender(), receiver, owner, assets, shares);
 
         return shares;
     }
@@ -133,7 +133,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         require(shares <= maxRedeem(owner), "ERC20TokenizedVault: redeem more than max");
 
         uint256 assets = previewRedeem(shares);
-        _sell(_msgSender(), receiver, owner, assets, shares);
+        _withdraw(_msgSender(), receiver, owner, assets, shares);
 
         return assets;
     }
@@ -144,29 +144,29 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
      * Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
      * would represent an infinite amout of shares.
      */
-    function _convertToShares(uint256 assets, Math.Rounding direction) internal view virtual returns (uint256 shares) {
+    function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256 shares) {
         uint256 supply = totalSupply();
         return
             (assets == 0 || supply == 0)
-                ? assets.mulDiv(10**decimals(), 10**_asset.decimals(), direction)
-                : assets.mulDiv(supply, totalAssets(), direction);
+                ? assets.mulDiv(10**decimals(), 10**_asset.decimals(), rounding)
+                : assets.mulDiv(supply, totalAssets(), rounding);
     }
 
     /**
      * @dev Internal convertion function (from shares to assets) with support for rounding direction
      */
-    function _convertToAssets(uint256 shares, Math.Rounding direction) internal view virtual returns (uint256 assets) {
+    function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256 assets) {
         uint256 supply = totalSupply();
         return
             (supply == 0)
-                ? shares.mulDiv(10**_asset.decimals(), 10**decimals(), direction)
-                : shares.mulDiv(totalAssets(), supply, direction);
+                ? shares.mulDiv(10**_asset.decimals(), 10**decimals(), rounding)
+                : shares.mulDiv(totalAssets(), supply, rounding);
     }
 
     /**
      * @dev Deposit/mint common workflow
      */
-    function _buy(
+    function _deposit(
         address caller,
         address receiver,
         uint256 assets,
@@ -188,7 +188,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
     /**
      * @dev Withdraw/redeem common workflow
      */
-    function _sell(
+    function _withdraw(
         address caller,
         address receiver,
         address owner,

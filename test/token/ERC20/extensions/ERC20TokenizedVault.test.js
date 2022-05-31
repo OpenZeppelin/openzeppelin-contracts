@@ -28,7 +28,7 @@ contract('ERC20TokenizedVault', function (accounts) {
     expect(await this.vault.asset()).to.be.equal(this.token.address);
   });
 
-  describe('empty vault: no asserts & no shares', function () {
+  describe('empty vault: no assets & no shares', function () {
     it('status', async function () {
       expect(await this.vault.totalAssets()).to.be.bignumber.equal('0');
     });
@@ -274,7 +274,7 @@ contract('ERC20TokenizedVault', function (accounts) {
   describe('full vault: assets & shares', function () {
     beforeEach(async function () {
       await this.token.mint(this.vault.address, parseToken(1)); // 1 tokens
-      await this.vault.mockMint(holder, parseShare(1).muln(100)); // 100 share
+      await this.vault.mockMint(holder, parseShare(100)); // 100 share
     });
 
     it('status', async function () {
@@ -283,7 +283,7 @@ contract('ERC20TokenizedVault', function (accounts) {
 
     it('deposit', async function () {
       expect(await this.vault.maxDeposit(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
-      expect(await this.vault.previewDeposit(parseToken(1))).to.be.bignumber.equal(parseShare(1).muln(100));
+      expect(await this.vault.previewDeposit(parseToken(1))).to.be.bignumber.equal(parseShare(100));
 
       const { tx } = await this.vault.deposit(parseToken(1), recipient, { from: holder });
 
@@ -296,7 +296,7 @@ contract('ERC20TokenizedVault', function (accounts) {
       expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: recipient,
-        value: parseShare(1).muln(100),
+        value: parseShare(100),
       });
     });
 
@@ -321,7 +321,7 @@ contract('ERC20TokenizedVault', function (accounts) {
 
     it('withdraw', async function () {
       expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal(parseToken(1));
-      expect(await this.vault.previewWithdraw(parseToken(1))).to.be.bignumber.equal(parseShare(1).muln(100));
+      expect(await this.vault.previewWithdraw(parseToken(1))).to.be.bignumber.equal(parseShare(100));
 
       const { tx } = await this.vault.withdraw(parseToken(1), recipient, holder, { from: holder });
 
@@ -334,7 +334,7 @@ contract('ERC20TokenizedVault', function (accounts) {
       expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: holder,
         to: constants.ZERO_ADDRESS,
-        value: parseShare(1).muln(100),
+        value: parseShare(100),
       });
     });
 
@@ -348,10 +348,10 @@ contract('ERC20TokenizedVault', function (accounts) {
     });
 
     it('redeem', async function () {
-      expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal(parseShare(1).muln(100));
-      expect(await this.vault.previewRedeem(parseShare(1).muln(100))).to.be.bignumber.equal(parseToken(1));
+      expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal(parseShare(100));
+      expect(await this.vault.previewRedeem(parseShare(100))).to.be.bignumber.equal(parseToken(1));
 
-      const { tx } = await this.vault.redeem(parseShare(1).muln(100), recipient, holder, { from: holder });
+      const { tx } = await this.vault.redeem(parseShare(100), recipient, holder, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -362,17 +362,17 @@ contract('ERC20TokenizedVault', function (accounts) {
       expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: holder,
         to: constants.ZERO_ADDRESS,
-        value: parseShare(1).muln(100),
+        value: parseShare(100),
       });
     });
 
     it('redeem with approval', async function () {
       await expectRevert(
-        this.vault.redeem(parseShare(1).muln(100), recipient, holder, { from: other }),
+        this.vault.redeem(parseShare(100), recipient, holder, { from: other }),
         'ERC20: insufficient allowance',
       );
 
-      await this.vault.redeem(parseShare(1).muln(100), recipient, holder, { from: spender });
+      await this.vault.redeem(parseShare(100), recipient, holder, { from: spender });
     });
   });
 
