@@ -18,6 +18,29 @@ rule onlyHolderOrApprovedCanReduceBalance {
         "An account balance may only be reduced by the holder or a holder-approved agent";
 }
 
+/// Burning a larger amount of a token must reduce that token's balance more 
+/// than burning a smaller amount.
+rule burnAmountProportionalToBalanceReduction {
+    storage beforeBurn = lastStorage;
+    env e;
+    
+    address holder; uint256 token;
+    mathint startingBalance = balanceOf(holder, token); // 10
+    uint256 smallBurn; uint256 largeBurn; // 4, 7
+    require smallBurn < largeBurn;
+
+    // smaller burn amount
+    burn(e, holder, token, smallBurn) at beforeBurn;
+    mathint smallBurnBalanceChange = startingBalance - balanceOf(holder, token); // 4
+
+    // larger burn amount
+    burn(e, holder, token, largeBurn) at beforeBurn;
+    mathint largeBurnBalanceChange = startingBalance - balanceOf(holder, token); // 7
+
+    assert smallBurnBalanceChange < largeBurnBalanceChange, 
+        "A larger burn must lead to a larger decrease in balance";
+}
+
 /// This rule should always fail.
 rule sanity {
     method f; env e; calldataarg args;
