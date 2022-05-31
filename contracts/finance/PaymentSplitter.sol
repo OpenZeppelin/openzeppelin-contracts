@@ -121,7 +121,7 @@ contract PaymentSplitter is Context {
     }
 
     /**
-     * @dev Getter for the amount of payee's unclaimed Ether.
+     * @dev Getter for the amount of payee's releasable Ether.
      */
     function releasable(address account) public view returns (uint256) {
         uint256 totalReceived = address(this).balance + totalReleased();
@@ -129,7 +129,7 @@ contract PaymentSplitter is Context {
     }
 
     /**
-     * @dev Getter for the amount of payee's unclaimed `token` tokens. `token` should be the address of an
+     * @dev Getter for the amount of payee's releasable `token` tokens. `token` should be the address of an
      * IERC20 contract.
      */
     function releasable(IERC20 token, address account) public view returns (uint256) {
