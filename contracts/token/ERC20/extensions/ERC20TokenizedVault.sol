@@ -52,22 +52,22 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
 
     /** @dev See {IERC4262-maxDeposit} */
     function maxDeposit(address) public view virtual override returns (uint256) {
-        return type(uint256).max;
+        return _sanity() ? type(uint256).max : 0;
     }
 
     /** @dev See {IERC4262-maxMint} */
     function maxMint(address) public view virtual override returns (uint256) {
-        return type(uint256).max;
+        return _sanity() ? type(uint256).max : 0;
     }
 
     /** @dev See {IERC4262-maxWithdraw} */
     function maxWithdraw(address owner) public view virtual override returns (uint256) {
-        return _convertToAssets(balanceOf(owner), Math.Rounding.Down);
+        return _sanity() ? _convertToAssets(balanceOf(owner), Math.Rounding.Down) : 0;
     }
 
     /** @dev See {IERC4262-maxRedeem} */
     function maxRedeem(address owner) public view virtual override returns (uint256) {
-        return balanceOf(owner);
+        return _sanity() ? balanceOf(owner) : 0;
     }
 
     /** @dev See {IERC4262-previewDeposit} */
@@ -146,10 +146,12 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
      */
     function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256 shares) {
         uint256 supply = totalSupply();
+        uint256 locked = totalAssets();
+        require(assets == 0 || supply == 0 || locked > 0, "ERC20TokenizedVault: undefined rate");
         return
             (assets == 0 || supply == 0)
                 ? assets.mulDiv(10**decimals(), 10**_asset.decimals(), rounding)
-                : assets.mulDiv(supply, totalAssets(), rounding);
+                : assets.mulDiv(supply, locked, rounding);
     }
 
     /**
@@ -157,10 +159,12 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
      */
     function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256 assets) {
         uint256 supply = totalSupply();
+        uint256 locked = totalAssets();
+        require(shares == 0 || supply == 0 || locked > 0, "ERC20TokenizedVault: undefined rate");
         return
             (supply == 0)
                 ? shares.mulDiv(10**_asset.decimals(), 10**decimals(), rounding)
-                : shares.mulDiv(totalAssets(), supply, rounding);
+                : shares.mulDiv(locked, supply, rounding);
     }
 
     /**
@@ -209,5 +213,9 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         SafeERC20.safeTransfer(_asset, receiver, assets);
 
         emit Withdraw(caller, receiver, owner, assets, shares);
+    }
+
+    function _sanity() private view returns (bool) {
+        return totalSupply() == 0 || totalAssets() > 0;
     }
 }
