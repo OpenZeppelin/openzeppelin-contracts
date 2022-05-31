@@ -77,6 +77,32 @@ rule sequentialBatchBurnsEquivalentToSingleBurnBatchOfSum { // TODO implement ru
         "just a placeholder that should never show up";
 }
 
+/// The result of burning a single token must be equivalent whether done via
+/// burn or burnBatch.
+rule singleTokenBurnBurnBatchEquivalence {
+    storage beforeBurn = lastStorage;
+    env e;
+
+    address holder;
+    uint256 token; uint256 burnAmount;
+    uint256[] tokens; uint256[] burnAmounts;
+    mathint startingBalance = balanceOf(holder, token);
+
+    require tokens.length == 1; require burnAmounts.length == 1;
+    require tokens[0] == token; require burnAmounts[0] == burnAmount;
+
+    // burning via burn
+    burn(e, holder, token, burnAmount) at beforeBurn;
+    mathint burnBalanceChange = startingBalance - balanceOf(holder, token);
+
+    // burning via burnBatch
+    burnBatch(e, holder, tokens, burnAmounts) at beforeBurn;
+    mathint burnBatchBalanceChange = startingBalance - balanceOf(holder, token);
+
+    assert burnBalanceChange == burnBatchBalanceChange, 
+        "Burning a single token via burn or burnBatch must be equivalent";
+}
+
 /// This rule should always fail.
 rule sanity {
     method f; env e; calldataarg args;
