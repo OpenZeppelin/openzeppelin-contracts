@@ -7,4 +7,6 @@ certoraRun \
     --optimistic_loop \
     --loop_iter 3 \
     --cloud \
-    --msg "ERC1155 Burnable verification"
+    --rule $1 \
+    --msg "ERC1155 Burnable verification specific rule $1"
+    
