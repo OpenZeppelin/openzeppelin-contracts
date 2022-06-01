@@ -208,53 +208,82 @@ contract('ERC20TokenizedVault', function (accounts) {
     it('deposit', async function () {
       expect(await this.vault.maxDeposit(holder)).to.be.bignumber.equal('0');
 
-      await expectRevert(
-        this.vault.previewDeposit(parseToken(1)),
-        'ERC20TokenizedVault: undefined rate',
-      );
-      await expectRevert(
-        this.vault.deposit(parseToken(1), recipient, { from: holder }),
-        'ERC20TokenizedVault: deposit more than max',
-      );
+      // Can deposit 0 (max deposit)
+      const { tx } = await this.vault.deposit(0, recipient, { from: holder });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.vault.address,
+        value: 0,
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: constants.ZERO_ADDRESS,
+        to: recipient,
+        value: 0,
+      });
+
+      // Cannot deposit more than 0
+      await expectRevert.unspecified(this.vault.previewDeposit(parseToken(1)));
+      await expectRevert(this.vault.deposit(parseToken(1), recipient, { from: holder }), 'ERC20TokenizedVault: deposit more than max');
     });
 
     it('mint', async function () {
-      expect(await this.vault.maxMint(holder)).to.be.bignumber.equal('0');
+      expect(await this.vault.maxMint(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
+      expect(await this.vault.previewMint(parseShare(1))).to.be.bignumber.equal('0');
 
-      await expectRevert(
-        this.vault.previewMint(parseToken(1)),
-        'ERC20TokenizedVault: undefined rate',
-      );
-      await expectRevert(
-        this.vault.mint(parseToken(1), recipient, { from: holder }),
-        'ERC20TokenizedVault: mint more than max',
-      );
+      const { tx } = await this.vault.mint(parseShare(1), recipient, { from: holder });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: holder,
+        to: this.vault.address,
+        value: '0',
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: constants.ZERO_ADDRESS,
+        to: recipient,
+        value: parseShare(1),
+      });
     });
 
     it('withdraw', async function () {
       expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal('0');
+      expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal('0');
+      await expectRevert.unspecified(this.vault.previewWithdraw('1'));
 
-      await expectRevert(
-        this.vault.previewWithdraw(parseToken(1)),
-        'ERC20TokenizedVault: undefined rate',
-      );
-      await expectRevert(
-        this.vault.withdraw(parseToken(1), recipient, holder, { from: holder }),
-        'ERC20TokenizedVault: withdraw more than max',
-      );
+      const { tx } = await this.vault.withdraw('0', recipient, holder, { from: holder });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: this.vault.address,
+        to: recipient,
+        value: '0',
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: holder,
+        to: constants.ZERO_ADDRESS,
+        value: '0',
+      });
     });
 
     it('redeem', async function () {
-      expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal('0');
+      expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal(parseShare(1));
+      expect(await this.vault.previewRedeem(parseShare(1))).to.be.bignumber.equal('0');
 
-      await expectRevert(
-        this.vault.previewRedeem(parseToken(1)),
-        'ERC20TokenizedVault: undefined rate',
-      );
-      await expectRevert(
-        this.vault.redeem(parseToken(1), recipient, holder, { from: holder }),
-        'ERC20TokenizedVault: redeem more than max',
-      );
+      const { tx } = await this.vault.redeem(parseShare(1), recipient, holder, { from: holder });
+
+      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: this.vault.address,
+        to: recipient,
+        value: '0',
+      });
+
+      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+        from: holder,
+        to: constants.ZERO_ADDRESS,
+        value: parseShare(1),
+      });
     });
   });
 
