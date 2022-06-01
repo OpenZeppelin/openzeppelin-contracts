@@ -69,7 +69,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
         address owner = _owners[tokenId];
-        require(owner != address(0), "ERC721: token ID not minted");
+        require(owner != address(0), "ERC721: invalid token ID");
         return owner;
     }
 
@@ -378,7 +378,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev Reverts if the `tokenId` has not been minted yet.
      */
     function _requireMinted(uint256 tokenId) internal view virtual {
-        require(_exists(tokenId), "ERC721: token ID not minted");
+        require(_exists(tokenId), "ERC721: invalid token ID");
     }
 
     /**

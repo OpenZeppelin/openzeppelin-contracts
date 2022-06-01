@@ -37,7 +37,7 @@ contract('ERC721Burnable', function (accounts) {
         it('burns the given token ID and adjusts the balance of the owner', async function () {
           await expectRevert(
             this.token.ownerOf(tokenId),
-            'ERC721: token ID not minted',
+            'ERC721: invalid token ID',
           );
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('1');
         });
@@ -60,7 +60,7 @@ contract('ERC721Burnable', function (accounts) {
         context('getApproved', function () {
           it('reverts', async function () {
             await expectRevert(
-              this.token.getApproved(tokenId), 'ERC721: token ID not minted',
+              this.token.getApproved(tokenId), 'ERC721: invalid token ID',
             );
           });
         });
@@ -69,7 +69,7 @@ contract('ERC721Burnable', function (accounts) {
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
           await expectRevert(
-            this.token.burn(unknownTokenId, { from: owner }), 'ERC721: token ID not minted',
+            this.token.burn(unknownTokenId, { from: owner }), 'ERC721: invalid token ID',
           );
         });
       });

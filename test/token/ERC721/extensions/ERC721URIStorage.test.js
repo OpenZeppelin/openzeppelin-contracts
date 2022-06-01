@@ -31,7 +31,7 @@ contract('ERC721URIStorage', function (accounts) {
 
     it('reverts when queried for non existent token id', async function () {
       await expectRevert(
-        this.token.tokenURI(nonExistentTokenId), 'ERC721: token ID not minted',
+        this.token.tokenURI(nonExistentTokenId), 'ERC721: invalid token ID',
       );
     });
 
@@ -78,7 +78,7 @@ contract('ERC721URIStorage', function (accounts) {
 
       expect(await this.token.exists(firstTokenId)).to.equal(false);
       await expectRevert(
-        this.token.tokenURI(firstTokenId), 'ERC721: token ID not minted',
+        this.token.tokenURI(firstTokenId), 'ERC721: invalid token ID',
       );
     });
 
@@ -89,7 +89,7 @@ contract('ERC721URIStorage', function (accounts) {
 
       expect(await this.token.exists(firstTokenId)).to.equal(false);
       await expectRevert(
-        this.token.tokenURI(firstTokenId), 'ERC721: token ID not minted',
+        this.token.tokenURI(firstTokenId), 'ERC721: invalid token ID',
       );
     });
   });
