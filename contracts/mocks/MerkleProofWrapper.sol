@@ -30,19 +30,19 @@ contract MerkleProofWrapper {
     }
 
     function multiProofVerify(
+        bytes32[] calldata proofs,
         bytes32 root,
         bytes32[] calldata leafs,
-        bytes32[] calldata proofs,
         bool[] calldata proofFlag
     ) public pure returns (bool) {
-        return MerkleProof.multiProofVerify(root, leafs, proofs, proofFlag);
+        return MerkleProof.multiProofVerify(proofs, root, leafs, proofFlag);
     }
 
     function processMultiProof(
-        bytes32[] calldata leafs,
         bytes32[] calldata proofs,
+        bytes32[] calldata leafs,
         bool[] calldata proofFlag
     ) public pure returns (bytes32) {
-        return MerkleProof.processMultiProof(leafs, proofs, proofFlag);
+        return MerkleProof.processMultiProof(proofs, leafs, proofFlag);
     }
 }

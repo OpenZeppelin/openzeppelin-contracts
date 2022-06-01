@@ -83,12 +83,12 @@ library MerkleProof {
      * _Available since v4.7._
      */
     function multiProofVerify(
+        bytes32[] calldata proofs,
         bytes32 root,
         bytes32[] calldata leaves,
-        bytes32[] calldata proofs,
         bool[] calldata proofFlag
     ) internal pure returns (bool) {
-        return processMultiProof(leaves, proofs, proofFlag) == root;
+        return processMultiProof(proofs, leaves, proofFlag) == root;
     }
 
     /**
@@ -99,8 +99,8 @@ library MerkleProof {
      * _Available since v4.7._
      */
     function processMultiProof(
-        bytes32[] calldata leaves,
         bytes32[] calldata proofs,
+        bytes32[] calldata leaves,
         bool[] calldata proofFlag
     ) internal pure returns (bytes32 merkleRoot) {
         // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
