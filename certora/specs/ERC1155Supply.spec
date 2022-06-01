@@ -4,7 +4,7 @@ methods {
     balanceOf(address, uint256) returns uint256 envfree
     exists_wrapper(uint256) returns bool envfree
 }
-
+ 
 /// given two different token ids, if totalSupply for one changes, then
 /// totalSupply for other should not
 rule token_totalSupply_independence(method f)
@@ -59,6 +59,10 @@ rule total_supply_is_sum_of_balances_as_rule {
 }
 
 /******************************************************************************/
+
+/// The balance of a token for the zero address must be zero.
+invariant balanceOfZeroAddressIsZero(uint256 token)
+    balanceOf(0, token) == 0
 
 // if a user has a token, then the token should exist
 
