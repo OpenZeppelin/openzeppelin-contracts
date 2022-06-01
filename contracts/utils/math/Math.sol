@@ -85,7 +85,7 @@ library Math {
 
         // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
         // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at
-        // every iterration). We thus need at most 7 iterration to turn our partial result with one bit of precision
+        // every iteration). We thus need at most 7 iteration to turn our partial result with one bit of precision
         // into the expected uint128 result.
         unchecked {
             result = (result + a / result) >> 1;
