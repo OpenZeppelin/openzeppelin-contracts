@@ -226,9 +226,9 @@ contract('ERC20TokenizedVault', function (accounts) {
       // Cannot deposit more than 0
       await expectRevert.unspecified(this.vault.previewDeposit(parseToken(1)));
       await expectRevert(
-				this.vault.deposit(parseToken(1), recipient, { from: holder }),
-				'ERC20TokenizedVault: deposit more than max',
-			);
+        this.vault.deposit(parseToken(1), recipient, { from: holder }),
+        'ERC20TokenizedVault: deposit more than max',
+      );
     });
 
     it('mint', async function () {
