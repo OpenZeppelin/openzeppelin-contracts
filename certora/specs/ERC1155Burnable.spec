@@ -86,6 +86,7 @@ rule singleTokenBurnBurnBatchEquivalence {
     address holder;
     uint256 token; uint256 burnAmount;
     uint256[] tokens; uint256[] burnAmounts;
+
     mathint startingBalance = balanceOf(holder, token);
 
     require tokens.length == 1; require burnAmounts.length == 1;
@@ -101,6 +102,48 @@ rule singleTokenBurnBurnBatchEquivalence {
 
     assert burnBalanceChange == burnBatchBalanceChange, 
         "Burning a single token via burn or burnBatch must be equivalent";
+}
+
+/// The results of burning multiple tokens must be equivalent whether done 
+/// separately via burn or together via burnBatch.
+rule multipleTokenBurnBurnBatchEquivalence {
+    storage beforeBurns = lastStorage;
+    env e;
+
+    address holder;
+    uint256 tokenA; uint256 tokenB; uint256 tokenC;
+    uint256 burnAmountA; uint256 burnAmountB; uint256 burnAmountC;
+    uint256[] tokens; uint256[] burnAmounts;
+
+    require tokenA != tokenB; require tokenB != tokenC; require tokenC != tokenA;
+
+    mathint startingBalanceA = balanceOf(holder, tokenA);
+    mathint startingBalanceB = balanceOf(holder, tokenB);
+    mathint startingBalanceC = balanceOf(holder, tokenC);
+
+    require tokens.length == 3; require burnAmounts.length == 3;
+    require tokens[0] == tokenA; require burnAmounts[0] == burnAmountA;
+    require tokens[1] == tokenB; require burnAmounts[1] == burnAmountB;
+    require tokens[2] == tokenC; require burnAmounts[2] == burnAmountC;
+
+    // burning via burn
+    burn(e, holder, tokenA, burnAmountA) at beforeBurns;
+    mathint burnBalanceChangeA = startingBalanceA - balanceOf(holder, tokenA);
+    burn(e, holder, tokenB, burnAmountB) at beforeBurns;
+    mathint burnBalanceChangeB = startingBalanceB - balanceOf(holder, tokenB);
+    burn(e, holder, tokenC, burnAmountC) at beforeBurns;
+    mathint burnBalanceChangeC = startingBalanceC - balanceOf(holder, tokenC);
+
+    // burning via burnBatch
+    burnBatch(e, holder, tokens, burnAmounts) at beforeBurns;
+    mathint burnBatchBalanceChangeA = startingBalanceA - balanceOf(holder, tokenA);
+    mathint burnBatchBalanceChangeB = startingBalanceB - balanceOf(holder, tokenB);
+    mathint burnBatchBalanceChangeC = startingBalanceC - balanceOf(holder, tokenC);
+
+    assert burnBalanceChangeA == burnBatchBalanceChangeA
+        && burnBalanceChangeB == burnBatchBalanceChangeB
+        && burnBalanceChangeC == burnBatchBalanceChangeC, 
+        "Burning multiple tokens via burn or burnBatch must be equivalent";
 }
 
 /// This rule should always fail.
