@@ -1,0 +1,33 @@
+name: Bug report
+description: Report a bug in OpenZeppelin Contracts
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check if the bug has been previously reported to the issue tracker.
+
+        **Remember**, this is not a place to ask for help debugging code. For that, we welcome you in the [OpenZeppelin Community Forum](https://forum.openzeppelin.com/)
+  - type: dropdown
+    attributes:
+      label: Development Environment
+      description: What component is the bug in?
+      multiple: true
+      options:
+        - Hardhat
+        - Truffle
+        - Foundry
+        - Brownie
+        - Other
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: What version of OpenZeppelin contracts are you using?
+      placeholder: "E.g. 4.4.0"
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: Tell us what you were trying to do and what happened instead. Include as much information as you think is relevant. Keep in mind that transactions can fail for many reasons; context is key here.
+    validations:
+      required: true
