@@ -9,7 +9,7 @@ This directory provides building blocks to improve cross-chain awareness of smar
 
 == CrossChainEnabled specializations
 
-The following specializations of {CrossChainEnabled} provide implementations of the {CrossChainEnabled} abstraction for specific bridges. This can be used to complexe cross-chain aware components such as {AccessControlCrossChain}.
+The following specializations of {CrossChainEnabled} provide implementations of the {CrossChainEnabled} abstraction for specific bridges. This can be used to complex cross-chain aware components such as {AccessControlCrossChain}.
 
 {{CrossChainEnabledAMB}}
 
@@ -23,7 +23,7 @@ The following specializations of {CrossChainEnabled} provide implementations of 
 
 == Libraries for cross-chain
 
-In addition to the {CrossChainEnable} abstraction, cross-chain awareness is also available through libraries. These libraries can be used to build complex designs such as contracts with the ability to interact with multiple bridges.
+In addition to the {CrossChainEnabled} abstraction, cross-chain awareness is also available through libraries. These libraries can be used to build complex designs such as contracts with the ability to interact with multiple bridges.
 
 {{LibAMB}}
 
