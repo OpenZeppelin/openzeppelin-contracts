@@ -43,14 +43,60 @@ library Math {
 
     /**
      * @dev Returns the square root of a number.
+     *
+     * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
      */
     function sqrt(uint256 a) internal pure returns (uint256) {
-        uint256 x = a;
-        uint256 y = a / 2 + (a % 2);
-        while (y < x) {
-            x = y;
-            y = (a / y + y) / 2;
+        if (a == 0) {
+            return 0;
         }
-        return x;
+
+        // For our first guess, we use the log2 of the square root. We do that by shifting `a` and only counting half
+        // of the bits. the partial result produced is a power of two that verifies `result <= sqrt(a) < 2 * result`
+        uint256 result = 1;
+        uint256 x = a;
+        if (x > 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) {
+            x >>= 128;
+            result <<= 64;
+        }
+        if (x > 0xFFFFFFFFFFFFFFFF) {
+            x >>= 64;
+            result <<= 32;
+        }
+        if (x > 0xFFFFFFFF) {
+            x >>= 32;
+            result <<= 16;
+        }
+        if (x > 0xFFFF) {
+            x >>= 16;
+            result <<= 8;
+        }
+        if (x > 0xFF) {
+            x >>= 8;
+            result <<= 4;
+        }
+        if (x > 0xF) {
+            x >>= 4;
+            result <<= 2;
+        }
+        if (x > 0x3) {
+            result <<= 1;
+        }
+
+        // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
+        // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at
+        // every iterration). We thus need at most 7 iterration to turn our partial result with one bit of precision
+        // into the expected uint128 result.
+        unchecked {
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            uint256 r0 = a / result;
+            return result < r0 ? result : r0;
+        }
     }
 }
