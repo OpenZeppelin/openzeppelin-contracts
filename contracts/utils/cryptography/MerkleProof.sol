@@ -33,6 +33,19 @@ library MerkleProof {
     }
 
     /**
+     * @dev Calldata version of {verify}
+     *
+     * _Available since v4.7._
+     */
+    function verifyCalldata(
+        bytes32[] calldata proof,
+        bytes32 root,
+        bytes32 leaf
+    ) internal pure returns (bool) {
+        return processProofCalldata(proof, leaf) == root;
+    }
+
+    /**
      * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
      * from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
      * hash matches the root of the tree. When processing the proof, the pairs
@@ -41,6 +54,19 @@ library MerkleProof {
      * _Available since v4.4._
      */
     function processProof(bytes32[] memory proof, bytes32 leaf) internal pure returns (bytes32) {
+        bytes32 computedHash = leaf;
+        for (uint256 i = 0; i < proof.length; i++) {
+            computedHash = _hashPair(computedHash, proof[i]);
+        }
+        return computedHash;
+    }
+
+    /**
+     * @dev Calldata version of {processProof}
+     *
+     * _Available since v4.7._
+     */
+    function processProofCalldata(bytes32[] calldata proof, bytes32 leaf) internal pure returns (bytes32) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
             computedHash = _hashPair(computedHash, proof[i]);
@@ -58,11 +84,11 @@ library MerkleProof {
      */
     function multiProofVerify(
         bytes32 root,
-        bytes32[] memory leafs,
-        bytes32[] memory proofs,
-        bool[] memory proofFlag
+        bytes32[] calldata leaves,
+        bytes32[] calldata proofs,
+        bool[] calldata proofFlag
     ) internal pure returns (bool) {
-        return processMultiProof(leafs, proofs, proofFlag) == root;
+        return processMultiProof(leaves, proofs, proofFlag) == root;
     }
 
     /**
@@ -73,20 +99,19 @@ library MerkleProof {
      * _Available since v4.7._
      */
     function processMultiProof(
-        bytes32[] memory leafs,
-        bytes32[] memory proofs,
-        bool[] memory proofFlag
+        bytes32[] calldata leaves,
+        bytes32[] calldata proofs,
+        bool[] calldata proofFlag
     ) internal pure returns (bytes32 merkleRoot) {
         // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
-        // consuming and producing values on a queue. The queue starts with the `leafs` array, then goes onto the
+        // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
-        uint256 leafsLen = leafs.length;
-        uint256 proofsLen = proofs.length;
+        uint256 leavesLen = leaves.length;
         uint256 totalHashes = proofFlag.length;
 
         // Check proof validity.
-        require(leafsLen + proofsLen - 1 == totalHashes, "MerkleProof: invalid multiproof");
+        require(leavesLen + proofs.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
@@ -100,15 +125,15 @@ library MerkleProof {
         // - depending on the flag, either another value for the "main queue" (merging branches) or an element from the
         //   `proofs` array.
         for (uint256 i = 0; i < totalHashes; i++) {
-            bytes32 a = leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++];
-            bytes32 b = proofFlag[i] ? leafPos < leafsLen ? leafs[leafPos++] : hashes[hashPos++] : proofs[proofPos++];
+            bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
+            bytes32 b = proofFlag[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proofs[proofPos++];
             hashes[i] = _hashPair(a, b);
         }
 
         if (totalHashes > 0) {
             return hashes[totalHashes - 1];
-        } else if (leafsLen > 0) {
-            return leafs[0];
+        } else if (leavesLen > 0) {
+            return leaves[0];
         } else {
             return proofs[0];
         }
