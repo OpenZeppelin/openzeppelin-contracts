@@ -105,7 +105,13 @@ library MerkleProof {
             hashes[i] = _hashPair(a, b);
         }
 
-        return totalHashes > 0 ? hashes[totalHashes - 1] : leafsLen > 0 ? leafs[0] : proofs[0];
+        if (totalHashes > 0) {
+            return hashes[totalHashes - 1];
+        } else if (leafsLen > 0) {
+            return leafs[0];
+        } else {
+            return proofs[0];
+        }
     }
 
     function _hashPair(bytes32 a, bytes32 b) private pure returns (bytes32) {
