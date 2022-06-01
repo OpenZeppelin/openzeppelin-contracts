@@ -128,7 +128,7 @@ contract('MerkleProof', function (accounts) {
       );
     });
 
-    it('works for tree containing a single leaf', async function () {
+    it('limit case: works for tree containing a single leaf', async function () {
       const leaves = ['a'].map(keccak256).sort(Buffer.compare);
       const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
 
@@ -138,6 +138,14 @@ contract('MerkleProof', function (accounts) {
       const proofFlags = merkleTree.getProofFlags(proofLeaves, proof);
 
       expect(await this.merkleProof.multiProofVerify(root, proofLeaves, proof, proofFlags)).to.equal(true);
+    });
+
+    it('limit case: can prove empty leaves', async function () {
+      const leaves = ['a', 'b', 'c', 'd'].map(keccak256).sort(Buffer.compare);
+      const merkleTree = new MerkleTree(leaves, keccak256, { sort: true });
+
+      const root = merkleTree.getRoot();
+      expect(await this.merkleProof.multiProofVerify(root, [], [ root ], [])).to.equal(true);
     });
   });
 });
