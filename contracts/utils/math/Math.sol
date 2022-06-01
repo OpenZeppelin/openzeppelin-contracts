@@ -95,8 +95,7 @@ library Math {
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
             result = (result + a / result) >> 1;
-            uint256 r0 = a / result;
-            return result < r0 ? result : r0;
+            return min(result, a / result);
         }
     }
 }
