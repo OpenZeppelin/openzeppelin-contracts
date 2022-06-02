@@ -1,4 +1,5 @@
 name: Setup
+description: Set up Node and dependencies
 
 runs:
   using: composite
