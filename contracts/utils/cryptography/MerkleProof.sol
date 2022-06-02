@@ -81,12 +81,12 @@ library MerkleProof {
      * _Available since v4.7._
      */
     function multiProofVerify(
-        bytes32[] calldata proofs,
+        bytes32[] calldata proof,
         bytes32 root,
         bytes32[] calldata leaves,
         bool[] calldata proofFlags
     ) internal pure returns (bool) {
-        return processMultiProof(proofs, leaves, proofFlags) == root;
+        return processMultiProof(proof, leaves, proofFlags) == root;
     }
 
     /**
@@ -97,7 +97,7 @@ library MerkleProof {
      * _Available since v4.7._
      */
     function processMultiProof(
-        bytes32[] calldata proofs,
+        bytes32[] calldata proof,
         bytes32[] calldata leaves,
         bool[] calldata proofFlags
     ) internal pure returns (bytes32 merkleRoot) {
@@ -109,7 +109,7 @@ library MerkleProof {
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        require(leavesLen + proofs.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
+        require(leavesLen + proof.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
@@ -121,10 +121,10 @@ library MerkleProof {
         // - a value from the "main queue". If not all leaves have been consumed, we get the next leaf, otherwise we
         //   get the next hash.
         // - depending on the flag, either another value for the "main queue" (merging branches) or an element from the
-        //   `proofs` array.
+        //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-            bytes32 b = proofFlags[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proofs[proofPos++];
+            bytes32 b = proofFlags[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proof[proofPos++];
             hashes[i] = _hashPair(a, b);
         }
 
@@ -133,7 +133,7 @@ library MerkleProof {
         } else if (leavesLen > 0) {
             return leaves[0];
         } else {
-            return proofs[0];
+            return proof[0];
         }
     }
 
