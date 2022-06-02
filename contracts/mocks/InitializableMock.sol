@@ -100,3 +100,22 @@ contract ReinitializerMock is Initializable {
         counter++;
     }
 }
+
+contract Disable1 is Initializable {
+    constructor() {
+        _disableInitializers();
+    }
+}
+
+contract Disable2 is Initializable {
+    constructor() initializer {}
+}
+
+contract Disable3 is Disable1, Disable2 {}
+
+contract Disable4 is Initializable {
+    constructor() initializer {
+        _disableInitializers();
+    }
+}
+

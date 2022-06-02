@@ -6,6 +6,8 @@ const ConstructorInitializableMock = artifacts.require('ConstructorInitializable
 const ChildConstructorInitializableMock = artifacts.require('ChildConstructorInitializableMock');
 const ReinitializerMock = artifacts.require('ReinitializerMock');
 const SampleChild = artifacts.require('SampleChild');
+const Disable3 = artifacts.require('Disable3');
+const Disable4 = artifacts.require('Disable4');
 
 contract('Initializable', function (accounts) {
   describe('basic testing without inheritance', function () {
@@ -182,6 +184,13 @@ contract('Initializable', function (accounts) {
 
     it('initializes child', async function () {
       expect(await this.contract.child()).to.be.bignumber.equal(child);
+    });
+  });
+
+  describe('disabling initialization', function () {
+    it('old and new patterns dont interfere', async function () {
+      await expectRevert(Disable3.new(), 'Initializable: contract is already initialized');
+      await expectRevert(Disable4.new(), 'Initializable: contract is initializing');
     });
   });
 });
