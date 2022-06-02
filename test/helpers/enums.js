@@ -21,4 +21,9 @@ module.exports = {
     'For',
     'Abstain',
   ),
+  Rounding: Enum(
+    'Down',
+    'Up',
+    'Zero',
+  ),
 };
