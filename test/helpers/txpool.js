@@ -1,10 +1,11 @@
+const { network } = require('hardhat');
 const { promisify } = require('util');
 
 const queue = promisify(setImmediate);
 
-async function countPendingTransactions() {
+async function countPendingTransactions () {
   return parseInt(
-    await network.provider.send('eth_getBlockTransactionCountByNumber', ['pending'])
+    await network.provider.send('eth_getBlockTransactionCountByNumber', ['pending']),
   );
 }
 
