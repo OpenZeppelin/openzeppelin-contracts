@@ -196,5 +196,6 @@ contract('Math', function (accounts) {
       expect(await this.math.sqrt(new BN('1002000'))).to.be.bignumber.equal('1000');
       expect(await this.math.sqrt(new BN('1002001'))).to.be.bignumber.equal('1001');
       expect(await this.math.sqrt(MAX_UINT256)).to.be.bignumber.equal('340282366920938463463374607431768211455');
+    });
   });
 });
