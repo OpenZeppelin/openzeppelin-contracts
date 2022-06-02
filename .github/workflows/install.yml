@@ -21,7 +21,7 @@ jobs:
         id: cache
         with:
           path: '**/node_modules'
-          key: f1ed3e7c75-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: f1ed3e7c75-
-      - run: npm ci
+          key: 9e9213d747-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: 9e9213d747-
+      - run: npm install
         if: steps.cache.outputs.cache-hit != 'true'
