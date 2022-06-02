@@ -15,6 +15,7 @@ runs:
         restore-keys: d6de5cbdc8-
     - name: Install dependencies
       run: npm ci --prefer-offline
+      shell: bash
       if: steps.cache.outputs.cache-hit != 'true'
       env:
         SKIP_COMPILE: true
