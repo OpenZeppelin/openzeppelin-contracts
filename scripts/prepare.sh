@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [ "$SKIP_COMPILE" == true ]; then
+if [ "${SKIP_COMPILE:-}" == true ]; then
   exit
 fi
 
