@@ -4,7 +4,7 @@
 pragma solidity ^0.8.0;
 
 /**
- * @dev These functions deal with verification of Merkle Trees proofs.
+ * @dev These functions deal with verification of Merkle Tree proofs.
  *
  * The proofs can be generated using the JavaScript library
  * https://github.com/miguelmota/merkletreejs[merkletreejs].
