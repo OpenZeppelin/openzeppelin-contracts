@@ -30,6 +30,9 @@ filtered {
         "methods must not change the total supply of more than one token";
 }
 
+/// TODO possibly show equivalence between batch and non-batch methods
+/// in order to leverage non-batch rules wrt batch rules
+
 /******************************************************************************/
 
 ghost mapping(uint256 => mathint) sumOfBalances {
