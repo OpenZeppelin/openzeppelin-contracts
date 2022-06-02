@@ -8,7 +8,7 @@ contract MerkleProofWrapper {
     function verify(
         bytes32[] memory proof,
         bytes32 root,
-        bytes32 leaf
+        bytes32 leaves
     ) public pure returns (bool) {
         return MerkleProof.verify(proof, root, leaf);
     }
@@ -32,17 +32,17 @@ contract MerkleProofWrapper {
     function multiProofVerify(
         bytes32[] calldata proofs,
         bytes32 root,
-        bytes32[] calldata leafs,
+        bytes32[] calldata leaves,
         bool[] calldata proofFlag
     ) public pure returns (bool) {
-        return MerkleProof.multiProofVerify(proofs, root, leafs, proofFlag);
+        return MerkleProof.multiProofVerify(proofs, root, leaves, proofFlag);
     }
 
     function processMultiProof(
         bytes32[] calldata proofs,
-        bytes32[] calldata leafs,
+        bytes32[] calldata leaves,
         bool[] calldata proofFlag
     ) public pure returns (bytes32) {
-        return MerkleProof.processMultiProof(proofs, leafs, proofFlag);
+        return MerkleProof.processMultiProof(proofs, leaves, proofFlag);
     }
 }
