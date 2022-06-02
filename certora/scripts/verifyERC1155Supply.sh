@@ -7,4 +7,5 @@ certoraRun \
     --optimistic_loop \
     --loop_iter 3 \
     --cloud \
+    --send_only \
     --msg "ERC1155 Supply verification"
