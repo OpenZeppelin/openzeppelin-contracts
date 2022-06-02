@@ -20,4 +20,8 @@ contract CheckpointsImpl {
     function push(uint256 value) public returns (uint256, uint256) {
         return _totalCheckpoints.push(value);
     }
+
+    function length() public view returns (uint256) {
+        return _totalCheckpoints._checkpoints.length;
+    }
 }
