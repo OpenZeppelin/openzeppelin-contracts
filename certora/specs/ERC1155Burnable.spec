@@ -41,11 +41,12 @@ rule burnAmountProportionalToBalanceReduction {
         "A larger burn must lead to a larger decrease in balance";
 }
 
+/// This rule not needed (because multipleTokenBurnBurnBatchEquivalence)
 /// Unimplemented rule to verify monotonicity of burnBatch.
 /// Using only burnBatch, possible approach:
 /// Token with smaller and larger burn amounts
 /// Round one smaller burn
-/// Round larger burn
+/// Round two larger burn
 rule burnBatchAmountProportionalToBalanceReduction { // TODO implement rule or remove
     storage beforeBurn = lastStorage;
     env e;
@@ -60,10 +61,14 @@ rule burnBatchAmountProportionalToBalanceReduction { // TODO implement rule or r
 
     // smaller burn amount
     burnBatch(e, holder, tokens, smallBurnAmounts) at beforeBurn;
-    mathint smallBurnBalanceChange = 
+    mathint smallBurnBalanceChange = startingBalance - balanceOf(holder, token);
 
-    assert true, 
-        "just a placeholder that should never show up";
+    // larger burn amount
+    burnBatch(e, holder, tokens, largeBurnAmounts) at beforeBurn;
+    mathint largeBurnBalanceChange = startingBalance - balanceOf(holder, token);
+
+    assert smallBurnBalanceChange < largeBurnBalanceChange, 
+        "A larger burn must lead to a larger decrease in balance";
 }
 
 /// Two sequential burns must be equivalent to a single burn of the sum of their
@@ -90,6 +95,7 @@ rule sequentialBurnsEquivalentToSingleBurnOfSum {
         "Sequential burns must be equivalent to a burn of their sum";
 }
 
+/// This rule not needed (because multipleTokenBurnBurnBatchEquivalence)
 /// Unimplemented rule to verify additivty of burnBatch.
 /// Using only burnBatch, possible approach:
 /// Token with first and second burn amounts
@@ -97,8 +103,8 @@ rule sequentialBurnsEquivalentToSingleBurnOfSum {
 /// Round two two sequential burns in the same transaction
 /// Round three one burn of sum
 rule sequentialBatchBurnsEquivalentToSingleBurnBatchOfSum { // TODO implement rule or remove
-    assert true, 
-        "just a placeholder that should never show up";
+    assert false, 
+        "TODO just a placeholder that should always show up until rule is implemented";
 }
 
 /// The result of burning a single token must be equivalent whether done via
@@ -139,7 +145,7 @@ rule multipleTokenBurnBurnBatchEquivalence {
     uint256 burnAmountA; uint256 burnAmountB; uint256 burnAmountC;
     uint256[] tokens; uint256[] burnAmounts;
 
-    require tokenA != tokenB; require tokenB != tokenC; require tokenC != tokenA;
+//    require tokenA != tokenB; require tokenB != tokenC; require tokenC != tokenA;
 
     mathint startingBalanceA = balanceOf(holder, tokenA);
     mathint startingBalanceB = balanceOf(holder, tokenB);
@@ -152,10 +158,10 @@ rule multipleTokenBurnBurnBatchEquivalence {
 
     // burning via burn
     burn(e, holder, tokenA, burnAmountA) at beforeBurns;
+    burn(e, holder, tokenB, burnAmountB);
+    burn(e, holder, tokenC, burnAmountC);
     mathint burnBalanceChangeA = startingBalanceA - balanceOf(holder, tokenA);
-    burn(e, holder, tokenB, burnAmountB) at beforeBurns;
     mathint burnBalanceChangeB = startingBalanceB - balanceOf(holder, tokenB);
-    burn(e, holder, tokenC, burnAmountC) at beforeBurns;
     mathint burnBalanceChangeC = startingBalanceC - balanceOf(holder, tokenC);
 
     // burning via burnBatch
@@ -169,6 +175,14 @@ rule multipleTokenBurnBurnBatchEquivalence {
         && burnBalanceChangeC == burnBatchBalanceChangeC, 
         "Burning multiple tokens via burn or burnBatch must be equivalent";
 }
+
+/// possible rule:
+/// like singleTokenBurnBurnBatchEquivalence but for no operation
+/// i.e. burnBatch on empty arrays does nothing
+
+/// skip frontrunning because
+/// (1) needing to filter a ton of rules for f
+/// (2) frontrunning before burning isn't a likely issue
 
 /// This rule should always fail.
 rule sanity {
