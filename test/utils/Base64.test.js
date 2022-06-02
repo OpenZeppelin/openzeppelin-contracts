@@ -25,5 +25,9 @@ contract('Strings', function () {
       const input = web3.utils.asciiToHex(TEST_MESSAGE);
       expect(await this.base64.encode(input)).to.equal('dGVzdDEy');
     });
+
+    it('empty bytes', async function () {
+      expect(await this.base64.encode([])).to.equal('');
+    });
   });
 });
