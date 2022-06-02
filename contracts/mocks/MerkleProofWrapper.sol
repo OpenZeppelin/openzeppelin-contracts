@@ -31,18 +31,18 @@ contract MerkleProofWrapper {
 
     function multiProofVerify(
         bytes32[] calldata proofs,
+        bool[] calldata proofFlag,
         bytes32 root,
-        bytes32[] calldata leafs,
-        bool[] calldata proofFlag
+        bytes32[] calldata leafs
     ) public pure returns (bool) {
-        return MerkleProof.multiProofVerify(proofs, root, leafs, proofFlag);
+        return MerkleProof.multiProofVerify(proofs, proofFlag, root, leafs);
     }
 
     function processMultiProof(
         bytes32[] calldata proofs,
-        bytes32[] calldata leafs,
-        bool[] calldata proofFlag
+        bool[] calldata proofFlag,
+        bytes32[] calldata leafs
     ) public pure returns (bytes32) {
-        return MerkleProof.processMultiProof(proofs, leafs, proofFlag);
+        return MerkleProof.processMultiProof(proofs, proofFlag, leafs);
     }
 }
