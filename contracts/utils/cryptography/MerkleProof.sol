@@ -78,7 +78,7 @@ library MerkleProof {
      * @dev Returns true if a `leafs` can be proved to be a part of a Merkle tree
      * defined by `root`. For this, `proofs` for each leaf must be provided, containing
      * sibling hashes on the branch from the leaf to the root of the tree. Then
-     * 'proofFlag' designates the nodes needed for the multi proof.
+     * 'proofFlags' designates the nodes needed for the multi proof.
      *
      * _Available since v4.7._
      */
@@ -86,14 +86,14 @@ library MerkleProof {
         bytes32[] calldata proofs,
         bytes32 root,
         bytes32[] calldata leaves,
-        bool[] calldata proofFlag
+        bool[] calldata proofFlags
     ) internal pure returns (bool) {
-        return processMultiProof(proofs, leaves, proofFlag) == root;
+        return processMultiProof(proofs, leaves, proofFlags) == root;
     }
 
     /**
      * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
-     * from `leaf` using the multi proof as `proofFlag`. A multi proof is
+     * from `leaf` using the multi proof as `proofFlags`. A multi proof is
      * valid if the final hash matches the root of the tree.
      *
      * _Available since v4.7._
@@ -101,14 +101,14 @@ library MerkleProof {
     function processMultiProof(
         bytes32[] calldata proofs,
         bytes32[] calldata leaves,
-        bool[] calldata proofFlag
+        bool[] calldata proofFlags
     ) internal pure returns (bytes32 merkleRoot) {
         // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
         uint256 leavesLen = leaves.length;
-        uint256 totalHashes = proofFlag.length;
+        uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
         require(leavesLen + proofs.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
@@ -126,7 +126,7 @@ library MerkleProof {
         //   `proofs` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-            bytes32 b = proofFlag[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proofs[proofPos++];
+            bytes32 b = proofFlags[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proofs[proofPos++];
             hashes[i] = _hashPair(a, b);
         }
 
