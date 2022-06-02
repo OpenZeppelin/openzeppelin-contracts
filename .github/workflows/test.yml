@@ -14,5 +14,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up environment
-        uses: .github/actions/setup
+        uses: ./.github/actions/setup
       - run: npm run lint
