@@ -41,8 +41,13 @@ hook Sstore _balances[KEY uint256 token][KEY address user] uint256 newValue (uin
 // status: not passing, because mint and burn are the same as transferring to/from
 //         the 0 address.
 invariant total_supply_is_sum_of_balances(uint256 token)
-    sumOfBalances[token] == totalSupply(token) + balanceOf(0, token)
-
+    sumOfBalances[token] == totalSupply(token)
+    {
+        preserved {
+            requireInvariant balanceOfZeroAddressIsZero(token);
+        }
+    }
+/*
 rule total_supply_is_sum_of_balances_as_rule {
     uint256 token;
 
@@ -57,7 +62,7 @@ rule total_supply_is_sum_of_balances_as_rule {
 
     assert sumOfBalances[token] == totalSupply(token) + balanceOf(0, token);
 }
-
+*/
 /******************************************************************************/
 
 /// The balance of a token for the zero address must be zero.
@@ -74,6 +79,8 @@ hook Sload _balances[...] {
 
 rule held_tokens_should_exist {
     address user; uint256 token;
+
+    requireInvariant balanceOfZeroAddressIsZero(token);
 
     // This assumption is safe because of total_supply_is_sum_of_balances
     require balanceOf(user, token) <= totalSupply(token);
