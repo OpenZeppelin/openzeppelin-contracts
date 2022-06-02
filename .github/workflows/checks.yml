@@ -44,3 +44,11 @@ jobs:
         env:
           NODE_OPTIONS: --max_old_space_size=4096
       - uses: codecov/codecov-action@v3
+
+  slither:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - uses: crytic/slither-action@v0.1.1
