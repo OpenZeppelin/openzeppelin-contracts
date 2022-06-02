@@ -11,8 +11,7 @@ runs:
       id: cache
       with:
         path: '**/node_modules'
-        key: d6de5cbdc8-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: d6de5cbdc8-
+        key: npm-v3-${{ hashFiles('**/package-lock.json') }}
     - name: Install dependencies
       run: npm ci --prefer-offline
       shell: bash
