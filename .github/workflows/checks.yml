@@ -1,4 +1,4 @@
-name: Test
+name: Checks
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/setup
       - run: npm run lint
 
-  test:
+  tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
