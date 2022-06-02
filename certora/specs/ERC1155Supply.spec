@@ -32,7 +32,9 @@ filtered {
 
 /******************************************************************************/
 
-ghost mapping(uint256 => mathint) sumOfBalances;
+ghost mapping(uint256 => mathint) sumOfBalances {
+    init_state axiom forall uint256 token . sumOfBalances[token] == 0;
+}
 
 hook Sstore _balances[KEY uint256 token][KEY address user] uint256 newValue (uint256 oldValue) STORAGE {
     sumOfBalances[token] = sumOfBalances[token] + newValue - oldValue;
