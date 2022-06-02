@@ -33,16 +33,16 @@ contract MerkleProofWrapper {
         bytes32[] calldata proofs,
         bool[] calldata proofFlag,
         bytes32 root,
-        bytes32[] calldata leafs
+        bytes32[] calldata leaves
     ) public pure returns (bool) {
-        return MerkleProof.multiProofVerify(proofs, proofFlag, root, leafs);
+        return MerkleProof.multiProofVerify(proofs, proofFlag, root, leaves);
     }
 
     function processMultiProof(
         bytes32[] calldata proofs,
         bool[] calldata proofFlag,
-        bytes32[] calldata leafs
+        bytes32[] calldata leaves
     ) public pure returns (bytes32) {
-        return MerkleProof.processMultiProof(proofs, proofFlag, leafs);
+        return MerkleProof.processMultiProof(proofs, proofFlag, leaves);
     }
 }
