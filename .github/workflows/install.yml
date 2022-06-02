@@ -23,5 +23,5 @@ jobs:
           path: '**/node_modules'
           key: 4ccabf82bf-${{ hashFiles('**/package-lock.json') }}
           restore-keys: 4ccabf82bf-
-      - run: npm ci
+      - run: npm ci --prefer-offline
         if: steps.cache.outputs.cache-hit != 'true'
