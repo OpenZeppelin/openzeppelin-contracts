@@ -76,10 +76,14 @@ abstract contract Initializable {
      * `onlyInitializing` functions can be used to initialize parent contracts. Equivalent to `reinitializer(1)`.
      */
     modifier initializer() {
-        bool isTopLevelCall = _setInitializedVersion(1);
-        if (isTopLevelCall) {
-            _initializing = true;
-        }
+        bool isTopLevelCall = !_initializing;
+        require(
+            (isTopLevelCall && _initialized < 1)
+            || (!Address.isContract(address(this)) && _initialized == 1),
+            "Initializable: contract is already initialized"
+        );
+        _initialized = 1;
+        _initializing = true;
         _;
         if (isTopLevelCall) {
             _initializing = false;
@@ -100,15 +104,15 @@ abstract contract Initializable {
      * a contract, executing them in the right order is up to the developer or operator.
      */
     modifier reinitializer(uint8 version) {
-        bool isTopLevelCall = _setInitializedVersion(version);
-        if (isTopLevelCall) {
-            _initializing = true;
-        }
+        require(
+            !_initializing && _initialized < version,
+            "Initializable: contract is already initialized"
+        );
+        _initialized = version;
+        _initializing = true;
         _;
-        if (isTopLevelCall) {
-            _initializing = false;
-            emit Initialized(version);
-        }
+        _initializing = false;
+        emit Initialized(version);
     }
 
     /**
@@ -127,27 +131,8 @@ abstract contract Initializable {
      * through proxies.
      */
     function _disableInitializers() internal virtual {
-        _setInitializedVersion(type(uint8).max);
-    }
-
-    function _setInitializedVersion(uint8 version) private returns (bool) {
-        // If the contract is initializing we ignore whether _initialized is set in order to support multiple
-        // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
-        // of initializers, because in other contexts the contract may have been reentered.
-
-        bool isTopLevelCall = !_initializing; // cache sload
-        uint8 currentVersion = _initialized; // cache sload
-
-        require(
-            (isTopLevelCall && version > currentVersion) || // not nested with increasing version or
-                (!Address.isContract(address(this)) && (version == 1 || version == type(uint8).max)), // contract being constructed
-            "Initializable: contract is already initialized"
-        );
-
-        if (isTopLevelCall) {
-            _initialized = version;
-        }
-
-        return isTopLevelCall;
+        require(!_initializing, "Initializable: contract is initializing");
+        _initialized = type(uint8).max;
+        emit Initialized(type(uint8).max);
     }
 }
