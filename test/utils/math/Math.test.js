@@ -1,12 +1,15 @@
-const { BN, constants } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { MAX_UINT256 } = constants;
+const { Rounding } = require('../../helpers/enums.js');
 
 const MathMock = artifacts.require('MathMock');
 
 contract('Math', function (accounts) {
   const min = new BN('1234');
   const max = new BN('5678');
+  const MAX_UINT256_SUB1 = MAX_UINT256.sub(new BN('1'));
+  const MAX_UINT256_SUB2 = MAX_UINT256.sub(new BN('2'));
 
   beforeEach(async function () {
     this.math = await MathMock.new();
@@ -86,6 +89,100 @@ contract('Math', function (accounts) {
     });
   });
 
+  describe('muldiv', function () {
+    it('divide by 0', async function () {
+      await expectRevert.unspecified(this.math.mulDiv(1, 1, 0, Rounding.Down));
+    });
+
+    describe('does round down', async function () {
+      it('small values', async function () {
+        expect(await this.math.mulDiv('3', '4', '5', Rounding.Down)).to.be.bignumber.equal('2');
+        expect(await this.math.mulDiv('3', '5', '5', Rounding.Down)).to.be.bignumber.equal('3');
+      });
+
+      it('large values', async function () {
+        expect(await this.math.mulDiv(
+          new BN('42'),
+          MAX_UINT256_SUB1,
+          MAX_UINT256,
+          Rounding.Down,
+        )).to.be.bignumber.equal(new BN('41'));
+
+        expect(await this.math.mulDiv(
+          new BN('17'),
+          MAX_UINT256,
+          MAX_UINT256,
+          Rounding.Down,
+        )).to.be.bignumber.equal(new BN('17'));
+
+        expect(await this.math.mulDiv(
+          MAX_UINT256_SUB1,
+          MAX_UINT256_SUB1,
+          MAX_UINT256,
+          Rounding.Down,
+        )).to.be.bignumber.equal(MAX_UINT256_SUB2);
+
+        expect(await this.math.mulDiv(
+          MAX_UINT256,
+          MAX_UINT256_SUB1,
+          MAX_UINT256,
+          Rounding.Down,
+        )).to.be.bignumber.equal(MAX_UINT256_SUB1);
+
+        expect(await this.math.mulDiv(
+          MAX_UINT256,
+          MAX_UINT256,
+          MAX_UINT256,
+          Rounding.Down,
+        )).to.be.bignumber.equal(MAX_UINT256);
+      });
+    });
+
+    describe('does round up', async function () {
+      it('small values', async function () {
+        expect(await this.math.mulDiv('3', '4', '5', Rounding.Up)).to.be.bignumber.equal('3');
+        expect(await this.math.mulDiv('3', '5', '5', Rounding.Up)).to.be.bignumber.equal('3');
+      });
+
+      it('large values', async function () {
+        expect(await this.math.mulDiv(
+          new BN('42'),
+          MAX_UINT256_SUB1,
+          MAX_UINT256,
+          Rounding.Up,
+        )).to.be.bignumber.equal(new BN('42'));
+
+        expect(await this.math.mulDiv(
+          new BN('17'),
+          MAX_UINT256,
+          MAX_UINT256,
+          Rounding.Up,
+        )).to.be.bignumber.equal(new BN('17'));
+
+        expect(await this.math.mulDiv(
+          MAX_UINT256_SUB1,
+          MAX_UINT256_SUB1,
+          MAX_UINT256,
+          Rounding.Up,
+        )).to.be.bignumber.equal(MAX_UINT256_SUB1);
+
+        expect(await this.math.mulDiv(
+          MAX_UINT256,
+          MAX_UINT256_SUB1,
+          MAX_UINT256,
+          Rounding.Up,
+        )).to.be.bignumber.equal(MAX_UINT256_SUB1);
+
+        expect(await this.math.mulDiv(
+          MAX_UINT256,
+          MAX_UINT256,
+          MAX_UINT256,
+          Rounding.Up,
+        )).to.be.bignumber.equal(MAX_UINT256);
+      });
+    });
+  });
+
   describe('sqrt', function () {
     it('rounds down', async function () {
       expect(await this.math.sqrt(new BN('0'))).to.be.bignumber.equal('0');
@@ -99,6 +196,5 @@ contract('Math', function (accounts) {
       expect(await this.math.sqrt(new BN('1002000'))).to.be.bignumber.equal('1000');
       expect(await this.math.sqrt(new BN('1002001'))).to.be.bignumber.equal('1001');
       expect(await this.math.sqrt(MAX_UINT256)).to.be.bignumber.equal('340282366920938463463374607431768211455');
-    });
   });
 });
