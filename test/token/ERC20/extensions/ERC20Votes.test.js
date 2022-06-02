@@ -8,9 +8,6 @@ const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
-const { promisify } = require('util');
-const queue = promisify(setImmediate);
-
 const ERC20VotesMock = artifacts.require('ERC20VotesMock');
 
 const { batchInBlock } = require('../../../helpers/txpool');
