@@ -75,10 +75,8 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns true if a `leafs` can be proved to be a part of a Merkle tree
-     * defined by `root`. For this, `proofs` for each leaf must be provided, containing
-     * sibling hashes on the branch from the leaf to the root of the tree. Then
-     * 'proofFlags' designates the nodes needed for the multi proof.
+     * @dev Returns true if the `leaves` can be proved to be a part of a Merkle tree defined by
+     * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
      *
      * _Available since v4.7._
      */
@@ -92,9 +90,9 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns the rebuilt hash obtained by traversing a Merkle tree up
-     * from `leaf` using the multi proof as `proofFlags`. A multi proof is
-     * valid if the final hash matches the root of the tree.
+     * @dev Returns the root of a tree reconstructed from `leaves` and the sibling nodes in `proof`,
+     * consuming from one or the other at each step according to the instructions given by
+     * `proofFlags`.
      *
      * _Available since v4.7._
      */
