@@ -17,6 +17,7 @@
  * `ERC721`, `ERC1155`: simplified revert reasons. ([#3254](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3254), ([#3438](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3438)))
  * `ERC721`: removed redundant require statement. ([#3434](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3434))
  * `PaymentSplitter`: add `releasable` getters. ([#3350](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3350))
+ * `Initializable`: refactored implementation of modifiers for ease of understanding. ([#3450](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3450))
 
 ## 4.6.0 (2022-04-26)
 
