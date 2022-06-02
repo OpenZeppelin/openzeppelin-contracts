@@ -1,15 +1,9 @@
-name: Test
+name: Setup
 
-on:
-  push:
-    branches:
-      - master
-      - release-v*
-  pull_request: {}
-  workflow_dispatch: {}
+on: [workflow_call]
 
 jobs:
-  test:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
