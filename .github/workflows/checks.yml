@@ -1,3 +1,5 @@
+name: checks
+
 on:
   push:
     branches:
