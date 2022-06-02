@@ -23,5 +23,8 @@ jobs:
           path: '**/node_modules'
           key: b2f9316218-${{ hashFiles('**/package-lock.json') }}
           restore-keys: b2f9316218-
-      - run: npm ci --prefer-offline
+      - name: Install dependencies
+        run: npm ci --prefer-offline
         if: steps.cache.outputs.cache-hit != 'true'
+        env:
+          SKIP_COMPILE: true
