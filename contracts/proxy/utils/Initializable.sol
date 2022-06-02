@@ -82,7 +82,9 @@ abstract contract Initializable {
             "Initializable: contract is already initialized"
         );
         _initialized = 1;
-        _initializing = true;
+        if (isTopLevelCall) {
+            _initializing = true;
+        }
         _;
         if (isTopLevelCall) {
             _initializing = false;
