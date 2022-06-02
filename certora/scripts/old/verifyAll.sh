@@ -18,7 +18,7 @@ do
                 certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
                 --link ${contractFile%.*}:token=ERC20VotesHarness \
                 --verify ${contractFile%.*}:certora/specs/$specFile "$@" \
-                --solc solc8.2 \
+                --solc solc \
                 --staging shelly/forSasha \
                 --disableLocalTypeChecking \
                 --optimistic_loop \
@@ -28,7 +28,7 @@ do
             else
                 certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
                 --verify ${contractFile%.*}:certora/specs/$specFile "$@" \
-                --solc solc8.2 \
+                --solc solc \
                 --staging shelly/forSasha \
                 --disableLocalTypeChecking \
                 --optimistic_loop \
