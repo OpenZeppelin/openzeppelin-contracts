@@ -42,7 +42,26 @@ rule burnAmountProportionalToBalanceReduction {
 }
 
 /// Unimplemented rule to verify monotonicity of burnBatch.
+/// Using only burnBatch, possible approach:
+/// Token with smaller and larger burn amounts
+/// Round one smaller burn
+/// Round larger burn
 rule burnBatchAmountProportionalToBalanceReduction { // TODO implement rule or remove
+    storage beforeBurn = lastStorage;
+    env e;
+
+    address holder; uint256 token;
+    mathint startingBalance = balanceOf(holder, token);
+    uint256 smallBurn; uint256 largeBurn;
+    require smallBurn < largeBurn;
+    uint256[] tokens; uint256[] smallBurnAmounts; uint256[] largeBurnAmounts;
+    require tokens.length == 1; require smallBurnAmounts.length == 1; require largeBurnAmounts.length == 1;
+    require tokens[0] == token; require smallBurnAmounts[0] == smallBurn; require largeBurnAmounts[0] == largeBurn;
+
+    // smaller burn amount
+    burnBatch(e, holder, tokens, smallBurnAmounts) at beforeBurn;
+    mathint smallBurnBalanceChange = 
+
     assert true, 
         "just a placeholder that should never show up";
 }
@@ -72,6 +91,11 @@ rule sequentialBurnsEquivalentToSingleBurnOfSum {
 }
 
 /// Unimplemented rule to verify additivty of burnBatch.
+/// Using only burnBatch, possible approach:
+/// Token with first and second burn amounts
+/// Round one two sequential burns in separate transactions
+/// Round two two sequential burns in the same transaction
+/// Round three one burn of sum
 rule sequentialBatchBurnsEquivalentToSingleBurnBatchOfSum { // TODO implement rule or remove
     assert true, 
         "just a placeholder that should never show up";
@@ -102,7 +126,7 @@ rule singleTokenBurnBurnBatchEquivalence {
 
     assert burnBalanceChange == burnBatchBalanceChange, 
         "Burning a single token via burn or burnBatch must be equivalent";
-}
+}   
 
 /// The results of burning multiple tokens must be equivalent whether done 
 /// separately via burn or together via burnBatch.
