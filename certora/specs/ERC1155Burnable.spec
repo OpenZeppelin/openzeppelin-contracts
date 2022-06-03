@@ -46,36 +46,6 @@ rule burnAmountProportionalToBalanceReduction {
         "A larger burn must lead to a larger decrease in balance";
 }
 
-/// This rule not needed (because multipleTokenBurnBurnBatchEquivalence)
-/// Unimplemented rule to verify monotonicity of burnBatch.
-/// Using only burnBatch, possible approach:
-/// Token with smaller and larger burn amounts
-/// Round one smaller burn
-/// Round two larger burn
-rule burnBatchAmountProportionalToBalanceReduction { // TODO implement rule or remove
-    storage beforeBurn = lastStorage;
-    env e;
-
-    address holder; uint256 token;
-    mathint startingBalance = balanceOf(holder, token);
-    uint256 smallBurn; uint256 largeBurn;
-    require smallBurn < largeBurn;
-    uint256[] tokens; uint256[] smallBurnAmounts; uint256[] largeBurnAmounts;
-    require tokens.length == 1; require smallBurnAmounts.length == 1; require largeBurnAmounts.length == 1;
-    require tokens[0] == token; require smallBurnAmounts[0] == smallBurn; require largeBurnAmounts[0] == largeBurn;
-
-    // smaller burn amount
-    burnBatch(e, holder, tokens, smallBurnAmounts) at beforeBurn;
-    mathint smallBurnBalanceChange = startingBalance - balanceOf(holder, token);
-
-    // larger burn amount
-    burnBatch(e, holder, tokens, largeBurnAmounts) at beforeBurn;
-    mathint largeBurnBalanceChange = startingBalance - balanceOf(holder, token);
-
-    assert smallBurnBalanceChange < largeBurnBalanceChange, 
-        "A larger burn must lead to a larger decrease in balance";
-}
-
 /// Two sequential burns must be equivalent to a single burn of the sum of their
 /// amounts.
 /// n.b. This rule holds for `burnBatch` as well due to rules establishing 
