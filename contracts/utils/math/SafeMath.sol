@@ -224,4 +224,34 @@ library SafeMath {
             return a % b;
         }
     }
+
+
+
+    /*
+    * @dev
+    *
+    * Returns a number's percentage of another number to a specified decimal place.
+    * The result is to the decimal place of the third parameter passed to the function.
+    * 
+    *
+    * @param:
+    *
+    * uint256 a, uint256 b, uint8 c, string memory errorMessage.
+    * It returns tha `a`% of `b` to `c` decimal places.
+    */
+    function perc(uint256 a, uint256 b, uint8 c, string memory errorMessage) internal pure returns(uint256)
+    {
+        // Require that b is greater than 0 to avoid zero division.
+        require(b > 0, errorMessage);
+        // Check for overflows.
+        require((a * b * (10 ** c)) < type(uint256).max, errorMessage);
+        // Require that the product of all numerators is greater than 100
+        // This will allow division
+        // Low value percentages can be easily done by increasing the decimal place.
+        require((a * b * (10 ** c)) >= 100, errorMessage);
+        // Evaluate calculations to c decimal places.
+        uint percVal = (a * b * (10 ** c)) / 100;
+        // Return answer.
+        return percVal;
+    }
 }
