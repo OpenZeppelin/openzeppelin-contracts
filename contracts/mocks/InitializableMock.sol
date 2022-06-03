@@ -101,20 +101,22 @@ contract ReinitializerMock is Initializable {
     }
 }
 
-contract Disable1 is Initializable {
+contract DisableNew is Initializable {
     constructor() {
         _disableInitializers();
     }
 }
 
-contract Disable2 is Initializable {
+contract DisableOld is Initializable {
     constructor() initializer {}
 }
 
-contract Disable3 is Disable1, Disable2 {}
+contract DisableBad1 is DisableNew, DisableOld {}
 
-contract Disable4 is Initializable {
+contract DisableBad2 is Initializable {
     constructor() initializer {
         _disableInitializers();
     }
 }
+
+contract DisableOk is DisableOld, DisableNew {}
