@@ -90,7 +90,9 @@ rule unexpectedBalanceChange(method f, env e)
                         && f.selector != _mint(address, uint256, uint256, bytes).selector 
                         && f.selector != _mintBatch(address, uint256[], uint256[], bytes).selector  
                         && f.selector != _burn(address, uint256, uint256).selector 
-                        && f.selector != _burnBatch(address, uint256[], uint256[]).selector } {
+                        && f.selector != _burnBatch(address, uint256[], uint256[]).selector 
+                        && f.selector != burn(address, uint256, uint256).selector 
+                        && f.selector != burnBatch(address, uint256[], uint256[]).selector } {
     address from; uint256 id;
     uint256 balanceBefore = balanceOf(from, id);
 
