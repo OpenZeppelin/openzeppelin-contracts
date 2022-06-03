@@ -95,18 +95,6 @@ rule sequentialBurnsEquivalentToSingleBurnOfSum {
         "Sequential burns must be equivalent to a burn of their sum";
 }
 
-/// This rule not needed (because multipleTokenBurnBurnBatchEquivalence)
-/// Unimplemented rule to verify additivty of burnBatch.
-/// Using only burnBatch, possible approach:
-/// Token with first and second burn amounts
-/// Round one two sequential burns in separate transactions
-/// Round two two sequential burns in the same transaction
-/// Round three one burn of sum
-rule sequentialBatchBurnsEquivalentToSingleBurnBatchOfSum { // TODO implement rule or remove
-    assert false, 
-        "TODO just a placeholder that should always show up until rule is implemented";
-}
-
 /// The result of burning a single token must be equivalent whether done via
 /// burn or burnBatch.
 rule singleTokenBurnBurnBatchEquivalence {
@@ -145,8 +133,6 @@ rule multipleTokenBurnBurnBatchEquivalence {
     uint256 burnAmountA; uint256 burnAmountB; uint256 burnAmountC;
     uint256[] tokens; uint256[] burnAmounts;
 
-//    require tokenA != tokenB; require tokenB != tokenC; require tokenC != tokenA;
-
     mathint startingBalanceA = balanceOf(holder, tokenA);
     mathint startingBalanceB = balanceOf(holder, tokenB);
     mathint startingBalanceC = balanceOf(holder, tokenC);
@@ -176,13 +162,30 @@ rule multipleTokenBurnBurnBatchEquivalence {
         "Burning multiple tokens via burn or burnBatch must be equivalent";
 }
 
-/// possible rule:
-/// like singleTokenBurnBurnBatchEquivalence but for no operation
-/// i.e. burnBatch on empty arrays does nothing
+/// If passed empty token and burn amount arrays, burnBatch must not change 
+/// token balances or address permissions.
+rule burnBatchOnEmptyArraysChangesNothing {
+    env e;
 
-/// skip frontrunning because
-/// (1) needing to filter a ton of rules for f
-/// (2) frontrunning before burning isn't a likely issue
+    address holder; uint256 token;
+    address nonHolderA; address nonHolderB;
+    uint256 startingBalance = balanceOf(holder, token);
+    bool startingPermissionNonHolderA = isApprovedForAll(holder, nonHolderA);
+    bool startingPermissionNonHolderB = isApprovedForAll(holder, nonHolderB);
+    uint256[] noTokens; uint256[] noBurnAmounts;
+    require noTokens.length == 0; require noBurnAmounts.length == 0;
+
+    burnBatch(e, holder, noTokens, noBurnAmounts);
+    uint256 endingBalance = balanceOf(holder, token);
+    bool endingPermissionNonHolderA = isApprovedForAll(holder, nonHolderA);
+    bool endingPermissionNonHolderB = isApprovedForAll(holder, nonHolderB);
+
+    assert startingBalance == endingBalance, 
+        "burnBatch must not change token balances if passed empty arrays";
+    assert startingPermissionNonHolderA == endingPermissionNonHolderA 
+        && startingPermissionNonHolderB == endingPermissionNonHolderB, 
+        "burnBatch must not change account permissions if passed empty arrays";
+}
 
 /// This rule should always fail.
 rule sanity {
