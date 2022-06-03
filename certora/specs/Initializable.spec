@@ -16,6 +16,11 @@ methods {
     val() returns uint256 envfree
 }
 
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// Definitions /////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
 definition isUninitialized() returns bool = initialized() == 0;
 
 definition isInitialized() returns bool = initialized() > 0;
@@ -26,89 +31,49 @@ definition isReinitialized() returns bool = initialized() > 1;
 
 definition isDisabled() returns bool = initialized() == 255;
 
-/*
-idea : need extensive harness to test upgrading with reinitialize 
 
-Setup:
+//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////// Invariants /////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
-contracts A, B, C
+/// @description A contract must only ever be in an initializing state while in the middle of a transaction execution.
+invariant notInitializing()
+    !initializing(), "contract must not be initializing"
 
-Scenario where B extends A and both are being initialized
 
-Potentially need to summarize ‘isContract’
+//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////// Rules /////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
-Multiple Versioning within one contract
-
- 
-
-Test Cases: 
-
-Simple
-
-1 contract with initialize and reinitialize methods (v 1-3)
-
-Multiple Inheritance 
-
-Contracts A, B, C
-
-C Inherits from B, which Inherits from A
-
-Properties
-
-/// You can only initialize once  
-/// two rules prove initialize is equivalent to reinitialize(1) property (?) -- what other effects from these calls?
-// if reinitialize(1) is called successfully, _initialized is set to 1
-// if initialize is called successfully, _initialized is set to 1
-/// disabled stays disabled
-// invariant
-// or rule?
-/// n increase iff reinitialize succeeds 
-// n only increases
-// reinitialize called => n increases 
-/// You can reinitialize(n) iff n > _initialized && initialized < 256 (maxuint8) 
-// <=
-// =>
-/// can only cal v1 function in v1
-
-Question: can we handle reentrancy?
-*/
-
-// You can only initialize once  
+/// @description An initializeable contract with a function that inherits the initializer modifier must be initializable only once"
 rule initOnce() {
     uint256 val; uint256 a; uint256 b;
 
     require isInitialized();
     initialize@withrevert(val, a, b);
-    assert lastReverted;
+    assert lastReverted, "contract must only be initialized once";
 }
 
-/// two rules prove initialize is equivalent to reinitialize(1) property (?) -- what other effects from these calls?
-
-// if reinitialize(1) is called successfully, _initialized is set to 1
-rule basicReinitializeEffects() {
+/// @description Successfully calling reinitialize() with a version value of 1 must result in _initialized being set to 1.
+rule reinitializeEffects {
     uint256 val; uint256 a; uint256 b;
 
     reinitialize(val, a, b, 1);
 
-    assert isInitializedOnce();
+    assert isInitializedOnce(), "reinitialize(1) must set _initialized to 1";
 }
 
-// if initialize is called successfully, _initialized is set to 1
-rule initalizeEffects(method f) {
-    env e; calldataarg args;
+/// @description Successfully calling initalize() must result in _initialized being set to 1.
+/// @note We assume initialize() and reinitialize(1) are equivalent if this rule and the above rule, reinitalizeEffects, both pass.
+rule initalizeEffects {
+    uint256 val; uint256 a; uint256 b;
 
-    f(e, args);
+    initialize(val, a, b);
 
-    assert f.selector == initialize(uint256, uint256, uint256).selector => isInitializedOnce();
+    assert isInitializedOnce(), "initialize() must set _initialized to 1";
 }
 
-/// disabled stays disabled
-
-// invariant
-invariant disabledStaysDisabledInv()
-    isDisabled() => isDisabled()
-
-// or rule?
+/// @description A disabled initializable contract must always stay disabled.
 rule disabledStaysDisabled(method f) {
     env e; calldataarg args; 
 
@@ -116,96 +81,79 @@ rule disabledStaysDisabled(method f) {
     f(e, args);
     bool disabledAfter = isDisabled();
 
-    assert disabledBefore => disabledAfter;
+    assert disabledBefore => disabledAfter, "a disabled initializer must stay disabled";
 }
 
-/// n increase iff reinitialize succeeds 
-
-// n only increases
+/// @description The variable _initialized must not decrease.
 rule increasingInitialized(method f) {
     env e; calldataarg args;
 
     uint8 initBefore = initialized();
     f(e, args);
     uint8 initAfter = initialized();
-    assert initBefore <= initAfter;
+    assert initBefore <= initAfter, "_initialized must only increase";
 }
 
-// reinitialize called => n increases 
-rule reinitializeIncreasesInit() {
+/// @description If reinitialize(...) was called successfuly, then the variable _initialized must increases.
+rule reinitializeIncreasesInit {
     uint256 val; uint8 n; uint256 a; uint256 b;
 
     uint8 initBefore = initialized();
     reinitialize(val, a, b, n);
     uint8 initAfter = initialized();
 
-    assert initAfter > initBefore;
+    assert initAfter > initBefore, "calling reinitialize must increase _initialized";
 }
 
-/// You can reinitialize(n) iff n > _initialized && initialized < 256 (maxuint8) 
+/// @description Reinitialize(n) must be callable if the contract is not in an _initializing state and n is greater than _initialized and less than 255
+rule reinitializeLiveness {
+    uint256 val; uint8 n; uint256 a; uint256 b;
 
-// <=
-rule reinitializeLiveness() {
-    env e; uint256 val; uint8 n; uint256 a; uint256 b;
-
-    require !initializing();
+    requireInvariant notInitializing();
     uint8 initVal = initialized();
     reinitialize@withrevert(val, a, b, n);
 
-    assert n > initVal && initVal < 255 => !lastReverted;
+    assert n > initVal => !lastReverted, "reinitialize(n) call must succeed if n was greater than _initialized";
 }
 
-// =>
-rule reinitializeRule() {
-    env e; calldataarg args; uint256 val; uint8 n; uint256 a; uint256 b;
+/// @description If reinitialize(n) was called successfully then n was greater than _initialized.
+rule reinitializeRule {
+    uint256 val; uint8 n; uint256 a; uint256 b;
 
     uint8 initBefore = initialized();
     reinitialize(val, a, b, n);
-    uint8 initAfter = initialized();
 
-    assert initAfter > initBefore => n > initBefore;
+    assert n > initBefore;
 }
 
-// can only call v1 functions in v1
-rule initVersionCheck() {
-    env e; calldataarg args; uint256 val; uint256 a; uint256 b; uint8 n; 
+/// @description Functions implemented in the parent contract that require _initialized to be a certain value are only callable when it is that value. 
+rule reinitVersionCheckParent {
+    uint8 n;
 
-    require n != 1;
-
-    initialize(val, a, b);
-    assert returnsV1() == val / 2;
-    assert returnsAV1() == a / 2;
-    assert returnsBV1() == b / 2;
-    returnsVN@withrevert(n);
-    assert lastReverted;
-    returnsAVN@withrevert(n);
-    assert lastReverted;
-    returnsBVN@withrevert(n);
-    assert lastReverted;
+    returnsVN(n);
+    assert initialized() == n, "parent contract's version n functions must only be callable in version n";
 }
 
-// can only call V_n functions in V_n
-rule reinitVersionCheck() {
-    env e; calldataarg args; uint256 val; uint256 a; uint256 b; uint8 n; uint8 m;
+/// @description Functions implemented in the child contract that require _initialized to be a certain value are only callable when it is that value.
+rule reinitVersionCheckChild {
+    uint8 n;
 
-    require n != m;
+    returnsAVN(n);
+    assert initialized() == n, "child contract's version n functions must only be callable in version n";
+}
+
+/// @description Functions implemented in the grandchild contract that require _initialized to be a certain value are only callable when it is that value.
+rule reinitVersionCheckGrandchild {
+    uint8 n;
+
+    returnsBVN(n);
+    assert initialized() == n, "gransdchild contract's version n functions must only be callable in version n";
+}
+
+// @description Calling parent initalizer function must initialize all child contracts.
+rule inheritanceCheck {
+    uint256 val; uint8 n; uint256 a; uint256 b;
 
     reinitialize(val, a, b, n);
-    assert returnsVN(n) == val / (n + 1);
-    assert returnsAVN(n) == a / (n + 1);
-    assert returnsBVN(n) == b / (n + 1);
-
-    returnsVN@withrevert(m);
-    assert lastReverted;
-    returnsAVN@withrevert(m);
-    assert lastReverted;
-    returnsBVN@withrevert(m);
-    assert lastReverted;
-}
-
-rule inheritanceCheck() {
-    env e; calldataarg args; uint256 val; uint8 n; uint256 a; uint256 b;
-
-    initialize(val, a, b);
-    assert val() == val && a() == a && b() == b;
+    assert val() == val && a() == a && b() == b, "all child contract values must be initialized";
 }

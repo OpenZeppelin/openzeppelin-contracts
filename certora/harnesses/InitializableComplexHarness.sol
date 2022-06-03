@@ -20,11 +20,11 @@ contract InitializableA is Initializable {
     }
     
     function returnsAV1() public view version1 returns(uint256) {
-        return a/2;
+        return a;
     }
 
     function returnsAVN(uint8 n) public view versionN(n) returns(uint256) {
-        return a/(n+1);
+        return a;
     }
 }
 
@@ -35,11 +35,11 @@ contract InitializableB is Initializable, InitializableA {
     }
 
     function returnsBV1() public view version1 returns(uint256) {
-        return b/2;
+        return b;
     }
 
     function returnsBVN(uint8 n) public view versionN(n) returns(uint256) {
-        return b/(n+1);
+        return b;
     }
 }
 
@@ -59,11 +59,11 @@ contract InitializableComplexHarness is Initializable, InitializableB {
     }
 
     function returnsV1() public view version1 returns(uint256) {
-        return val/2;
+        return val;
     }
 
     function returnsVN(uint8 n) public view versionN(n) returns(uint256) {
-        return val/(n+1);
+        return val;
     }
 
     // Harness //

@@ -31,30 +31,30 @@ contract InitializableBasicHarness is Initializable {
         val = _val;
     }
 
-    // Versionede return functions for testing
+    // Versioned return functions for testing
 
     function returnsV1() public view version1 returns(uint256) {
-        return val/2;
+        return val;
     }
 
     function returnsVN(uint8 n) public view versionN(n) returns(uint256) {
-        return val/(n+1);
+        return val;
     }
     
     function returnsAV1() public view version1 returns(uint256) {
-        return a/2;
+        return a;
     }
 
     function returnsAVN(uint8 n) public view versionN(n) returns(uint256) {
-        return a/(n+1);
+        return a;
     }
 
     function returnsBV1() public view version1 returns(uint256) {
-        return b/2;
+        return b;
     }
 
     function returnsBVN(uint8 n) public view versionN(n) returns(uint256) {
-        return b/(n+1);
+        return b;
     }
 
     // Harness //
