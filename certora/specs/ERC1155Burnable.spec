@@ -5,6 +5,9 @@ methods {
 
 /// If a method call reduces account balances, the caller must be either the 
 /// holder of the account or approved to act on the holder's behalf.
+/// n.b. This rule is passing for all methods except `_burn` and `_burnBatch`, 
+/// ordinarily internal methods that are callable by our tool only because they 
+/// were changed to public for the purposes of verification.
 rule onlyHolderOrApprovedCanReduceBalance {
     address holder; uint256 token; uint256 amount;
     uint256 balanceBefore = balanceOf(holder, token);
@@ -20,6 +23,8 @@ rule onlyHolderOrApprovedCanReduceBalance {
 
 /// Burning a larger amount of a token must reduce that token's balance more 
 /// than burning a smaller amount.
+/// n.b. This rule holds for `burnBatch` as well due to rules establishing 
+/// appropriate equivance between `burn` and `burnBatch` methods.
 rule burnAmountProportionalToBalanceReduction {
     storage beforeBurn = lastStorage;
     env e;
@@ -73,6 +78,8 @@ rule burnBatchAmountProportionalToBalanceReduction { // TODO implement rule or r
 
 /// Two sequential burns must be equivalent to a single burn of the sum of their
 /// amounts.
+/// n.b. This rule holds for `burnBatch` as well due to rules establishing 
+/// appropriate equivance between `burn` and `burnBatch` methods.
 rule sequentialBurnsEquivalentToSingleBurnOfSum {
     storage beforeBurns = lastStorage;
     env e;
