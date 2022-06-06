@@ -151,7 +151,7 @@ library Math {
     }
 
     /**
-     * @dev Returns the square root of a number.
+     * @dev Returns the square root of a number. It the number is not a perfect square, the value is rounded down.
      *
      * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
      */
@@ -160,8 +160,13 @@ library Math {
             return 0;
         }
 
-        // For our first guess, we use the log2 of the square root. We do that by shifting `a` and only counting half
-        // of the bits. the partial result produced is a power of two that verifies `result <= sqrt(a) < 2 * result`
+        // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.
+        // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have 
+        // `msb(a) <= a < 2*msb(a)`. 
+        // We also know that `k`, the position of the most significant bit, is such that `msb(a) = 2**k`.
+        // This gives `2**k < a <= 2**(k+1)` → `2**(k/2) <= sqrt(a) <= 2**((k+1)/2) < 2 ** (k/2+1)`.
+        // Using an algorithm similar to the msb conmputation, we are able to compute `result = 2**(k/2)` which is a 
+        // good first aproximation of `sqrt(a)` with at least 1 correct bit.
         uint256 result = 1;
         uint256 x = a;
         if (x > 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF) {
