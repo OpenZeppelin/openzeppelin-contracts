@@ -196,7 +196,8 @@ contract('Math', function (accounts) {
       expect(await this.math.sqrt(new BN('1000001'), Rounding.Down)).to.be.bignumber.equal('1000');
       expect(await this.math.sqrt(new BN('1002000'), Rounding.Down)).to.be.bignumber.equal('1000');
       expect(await this.math.sqrt(new BN('1002001'), Rounding.Down)).to.be.bignumber.equal('1001');
-      expect(await this.math.sqrt(MAX_UINT256, Rounding.Down)).to.be.bignumber.equal('340282366920938463463374607431768211455');
+      expect(await this.math.sqrt(MAX_UINT256, Rounding.Down))
+        .to.be.bignumber.equal('340282366920938463463374607431768211455');
     });
 
     it('rounds up', async function () {
@@ -211,7 +212,8 @@ contract('Math', function (accounts) {
       expect(await this.math.sqrt(new BN('1000001'), Rounding.Up)).to.be.bignumber.equal('1001');
       expect(await this.math.sqrt(new BN('1002000'), Rounding.Up)).to.be.bignumber.equal('1001');
       expect(await this.math.sqrt(new BN('1002001'), Rounding.Up)).to.be.bignumber.equal('1001');
-      expect(await this.math.sqrt(MAX_UINT256, Rounding.Up)).to.be.bignumber.equal('340282366920938463463374607431768211456');
+      expect(await this.math.sqrt(MAX_UINT256, Rounding.Up))
+        .to.be.bignumber.equal('340282366920938463463374607431768211456');
     });
   });
 });
