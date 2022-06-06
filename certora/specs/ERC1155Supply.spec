@@ -77,6 +77,9 @@ rule multipleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
     mathint holderStartingBalanceA = balanceOf(holder, tokenA);
     mathint holderStartingBalanceB = balanceOf(holder, tokenB);
     mathint holderStartingBalanceC = balanceOf(holder, tokenC);
+    mathint recipientStartingBalanceA = balanceOf(recipient, tokenA);
+    mathint recipientStartingBalanceB = balanceOf(recipient, tokenB);
+    mathint recipientStartingBalanceC = balanceOf(recipient, tokenC);
 
     require tokens.length == 3; require transferAmounts.length == 3;
     require tokens[0] == tokenA; require transferAmounts[0] == transferAmountA;
@@ -87,19 +90,28 @@ rule multipleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
     safeTransferFrom(e, holder, recipient, tokenA, transferAmountA, data) at beforeTransfers;
     safeTransferFrom(e, holder, recipient, tokenB, transferAmountB, data);
     safeTransferFrom(e, holder, recipient, tokenC, transferAmountC, data);
-    mathint holderSafeTransferFromChangeA = holderStartingBalanceA - balanceOf(holder, tokenA);
-    mathint holderSafeTransferFromChangeB = holderStartingBalanceB - balanceOf(holder, tokenB);
-    mathint holderSafeTransferFromChangeC = holderStartingBalanceC - balanceOf(holder, tokenC);
+    mathint holderSafeTransferFromBalanceChangeA = holderStartingBalanceA - balanceOf(holder, tokenA);
+    mathint holderSafeTransferFromBalanceChangeB = holderStartingBalanceB - balanceOf(holder, tokenB);
+    mathint holderSafeTransferFromBalanceChangeC = holderStartingBalanceC - balanceOf(holder, tokenC);
+    mathint recipientSafeTransferFromBalanceChangeA = balanceOf(recipient, tokenA) - recipientStartingBalanceA;
+    mathint recipientSafeTransferFromBalanceChangeB = balanceOf(recipient, tokenB) - recipientStartingBalanceB;
+    mathint recipientSafeTransferFromBalanceChangeC = balanceOf(recipient, tokenC) - recipientStartingBalanceC;
 
     // transferring via safeBatchTransferFrom
     safeBatchTransferFrom(e, holder, recipient, tokens, transferAmounts, data) at beforeTransfers;
     mathint holderSafeBatchTransferFromBalanceChangeA = holderStartingBalanceA - balanceOf(holder, tokenA);
     mathint holderSafeBatchTransferFromBalanceChangeB = holderStartingBalanceB - balanceOf(holder, tokenB);
     mathint holderSafeBatchTransferFromBalanceChangeC = holderStartingBalanceC - balanceOf(holder, tokenC);
+    mathint recipientSafeBatchTransferFromBalanceChangeA = balanceOf(recipient, tokenA) - recipientStartingBalanceA;
+    mathint recipientSafeBatchTransferFromBalanceChangeB = balanceOf(recipient, tokenB) - recipientStartingBalanceB;
+    mathint recipientSafeBatchTransferFromBalanceChangeC = balanceOf(recipient, tokenC) - recipientStartingBalanceC;
 
-    assert holderSafeTransferFromChangeA == holderSafeBatchTransferFromBalanceChangeA
-        && holderSafeTransferFromChangeB == holderSafeBatchTransferFromBalanceChangeB
-        && holderSafeTransferFromChangeC == holderSafeBatchTransferFromBalanceChangeC, 
+    assert holderSafeTransferFromBalanceChangeA == holderSafeBatchTransferFromBalanceChangeA
+        && holderSafeTransferFromBalanceChangeB == holderSafeBatchTransferFromBalanceChangeB
+        && holderSafeTransferFromBalanceChangeC == holderSafeBatchTransferFromBalanceChangeC
+        && recipientSafeTransferFromBalanceChangeA == recipientSafeBatchTransferFromBalanceChangeA
+        && recipientSafeTransferFromBalanceChangeB == recipientSafeBatchTransferFromBalanceChangeB
+        && recipientSafeTransferFromBalanceChangeC == recipientSafeBatchTransferFromBalanceChangeC, 
         "Transferring multiple tokens via safeTransferFrom or safeBatchTransferFrom must be equivalent";
 }
 
