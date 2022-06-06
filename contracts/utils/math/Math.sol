@@ -161,11 +161,11 @@ library Math {
         }
 
         // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.
-        // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have 
-        // `msb(a) <= a < 2*msb(a)`. 
+        // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have
+        // `msb(a) <= a < 2*msb(a)`.
         // We also know that `k`, the position of the most significant bit, is such that `msb(a) = 2**k`.
         // This gives `2**k < a <= 2**(k+1)` → `2**(k/2) <= sqrt(a) < 2 ** (k/2+1)`.
-        // Using an algorithm similar to the msb conmputation, we are able to compute `result = 2**(k/2)` which is a 
+        // Using an algorithm similar to the msb conmputation, we are able to compute `result = 2**(k/2)` which is a
         // good first aproximation of `sqrt(a)` with at least 1 correct bit.
         uint256 result = 1;
         uint256 x = a;
@@ -193,7 +193,7 @@ library Math {
             x >>= 4;
             result <<= 2;
         }
-        if (x >= (1 << 2) {
+        if (x >= (1 << 2)) {
             result <<= 1;
         }
 
@@ -211,5 +211,16 @@ library Math {
             result = (result + a / result) >> 1;
             return min(result, a / result);
         }
+    }
+
+    /**
+     * @notice Calculates sqrt(a), following the selected rounding direction.
+     */
+    function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
+        uint256 result = sqrt(a);
+        if (rounding == Rounding.Up && result * result < a) {
+            result += 1;
+        }
+        return result;
     }
 }
