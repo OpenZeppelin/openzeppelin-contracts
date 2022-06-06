@@ -1,65 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (governance/extensions/GovernorTimelockCompound.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/extensions/GovernorTimelockCompound.sol)
 
 pragma solidity ^0.8.0;
 
 import "./IGovernorTimelock.sol";
 import "../Governor.sol";
 import "../../utils/math/SafeCast.sol";
-
-/**
- * https://github.com/compound-finance/compound-protocol/blob/master/contracts/Timelock.sol[Compound's timelock] interface
- */
-interface ICompoundTimelock {
-    receive() external payable;
-
-    // solhint-disable-next-line func-name-mixedcase
-    function GRACE_PERIOD() external view returns (uint256);
-
-    // solhint-disable-next-line func-name-mixedcase
-    function MINIMUM_DELAY() external view returns (uint256);
-
-    // solhint-disable-next-line func-name-mixedcase
-    function MAXIMUM_DELAY() external view returns (uint256);
-
-    function admin() external view returns (address);
-
-    function pendingAdmin() external view returns (address);
-
-    function delay() external view returns (uint256);
-
-    function queuedTransactions(bytes32) external view returns (bool);
-
-    function setDelay(uint256) external;
-
-    function acceptAdmin() external;
-
-    function setPendingAdmin(address) external;
-
-    function queueTransaction(
-        address target,
-        uint256 value,
-        string memory signature,
-        bytes memory data,
-        uint256 eta
-    ) external returns (bytes32);
-
-    function cancelTransaction(
-        address target,
-        uint256 value,
-        string memory signature,
-        bytes memory data,
-        uint256 eta
-    ) external;
-
-    function executeTransaction(
-        address target,
-        uint256 value,
-        string memory signature,
-        bytes memory data,
-        uint256 eta
-    ) external payable returns (bytes memory);
-}
+import "../../vendor/compound/ICompoundTimelock.sol";
 
 /**
  * @dev Extension of {Governor} that binds the execution process to a Compound Timelock. This adds a delay, enforced by
@@ -105,7 +52,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden version of the {Governor-state} function with added support for the `Queued` and `Expired` status.
+     * @dev Overridden version of the {Governor-state} function with added support for the `Queued` and `Expired` status.
      */
     function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
         ProposalState status = super.state(proposalId);
@@ -167,7 +114,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden execute function that run the already queued proposal through the timelock.
+     * @dev Overridden execute function that run the already queued proposal through the timelock.
      */
     function _execute(
         uint256 proposalId,
@@ -185,7 +132,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overriden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
+     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
      * been queued.
      */
     function _cancel(

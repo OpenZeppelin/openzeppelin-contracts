@@ -1,0 +1,20 @@
+name: Setup
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 14.x
+        cache: npm
+    - uses: actions/cache@v3
+      id: cache
+      with:
+        path: '**/node_modules'
+        key: npm-v3-${{ hashFiles('**/package-lock.json') }}
+    - name: Install dependencies
+      run: npm ci --prefer-offline
+      shell: bash
+      if: steps.cache.outputs.cache-hit != 'true'
+      env:
+        SKIP_COMPILE: true

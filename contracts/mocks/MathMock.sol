@@ -20,4 +20,13 @@ contract MathMock {
     function ceilDiv(uint256 a, uint256 b) public pure returns (uint256) {
         return Math.ceilDiv(a, b);
     }
+
+    function mulDiv(
+        uint256 a,
+        uint256 b,
+        uint256 denominator,
+        Math.Rounding direction
+    ) public pure returns (uint256) {
+        return Math.mulDiv(a, b, denominator, direction);
+    }
 }
