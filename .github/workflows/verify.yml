@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - certora/erc20
+      - certora/erc1155ext
 
 jobs:
   verify:
