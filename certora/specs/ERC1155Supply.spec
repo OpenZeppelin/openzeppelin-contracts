@@ -115,6 +115,22 @@ rule multipleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
         "Transferring multiple tokens via safeTransferFrom or safeBatchTransferFrom must be equivalent";
 }
 
+/// If transfer methods do not revert, the input arrays must be the same length.
+rule transfersHaveSameLengthInputArrays {
+    env e;
+
+    address holder; address recipient; bytes data;
+    uint256[] tokens; uint256[] transferAmounts;
+
+    safeBatchTransferFrom(e, holder, recipient, tokens, transferAmounts, data);
+
+    uint256 tokensLength = tokens.length;
+    uint256 transferAmountsLength = transferAmounts.length;
+
+    assert tokens.length == transferAmounts.length, 
+        "If transfer methods do not revert, the input arrays must be the same length";
+}
+
 /*
 
 /// If passed empty token and burn amount arrays, burnBatch must not change 
@@ -143,6 +159,8 @@ rule burnBatchOnEmptyArraysChangesNothing {
 }
 
 */
+
+/// TODO
 
 /******************************************************************************/
 
