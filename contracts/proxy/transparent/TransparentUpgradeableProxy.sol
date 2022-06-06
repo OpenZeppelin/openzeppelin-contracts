@@ -36,7 +36,6 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
         address admin_,
         bytes memory _data
     ) payable ERC1967Proxy(_logic, _data) {
-        assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
         _changeAdmin(admin_);
     }
 
