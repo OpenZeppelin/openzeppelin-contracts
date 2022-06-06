@@ -56,7 +56,7 @@ jobs:
           - Round3/verifyERC1155Burnable.sh
           - Round3/verifyERC1155Supply.sh
           - Round3/verifyERC1155Pausable.sh
-          - Round3/verifyERC1155Initializable.sh
+          - Round3/verifyInitializable.sh
           - Round3/verifyERC1155GovernorPreventLateQuorum.sh
 
 
