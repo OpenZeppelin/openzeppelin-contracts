@@ -47,9 +47,15 @@ contract('Clones', function (accounts) {
       const factory = await ClonesMock.new();
       const predicted = await factory.predictDeterministicAddress(implementation, salt);
 
+      const creationCode = [
+        '0x3d602d80600a3d3981f3363d3d373d3d3d363d73',
+        implementation.replace(/0x/, '').toLowerCase(),
+        '5af43d82803e903d91602b57fd5bf3',
+      ];
+
       expect(computeCreate2Address(
         salt,
-        `0x3d602d80600a3d3981f3363d3d373d3d3d363d73${implementation.replace(/0x/, '').toLowerCase()}5af43d82803e903d91602b57fd5bf3`,
+        creationCode,
         factory.address,
       )).to.be.equal(predicted);
 
