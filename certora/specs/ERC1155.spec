@@ -8,10 +8,10 @@ methods {
     setApprovalForAll(address, bool)
     safeTransferFrom(address, address, uint256, uint256, bytes)
     safeBatchTransferFrom(address, address, uint256[], uint256[], bytes)
-    _mint(address, uint256, uint256, bytes)
-    _mintBatch(address, uint256[], uint256[], bytes)
-    _burn(address, uint256, uint256)
-    _burnBatch(address, uint256[], uint256[])
+    mint(address, uint256, uint256, bytes)
+    mintBatch(address, uint256[], uint256[], bytes)
+    burn(address, uint256, uint256)
+    burnBatch(address, uint256[], uint256[])
 }
 
 
@@ -87,10 +87,8 @@ rule onlyOneAllowanceChange(method f, env e) {
 rule unexpectedBalanceChange(method f, env e) 
     filtered { f -> f.selector != safeTransferFrom(address, address, uint256, uint256, bytes).selector
                         && f.selector != safeBatchTransferFrom(address, address, uint256[], uint256[], bytes).selector 
-                        && f.selector != _mint(address, uint256, uint256, bytes).selector 
-                        && f.selector != _mintBatch(address, uint256[], uint256[], bytes).selector  
-                        && f.selector != _burn(address, uint256, uint256).selector 
-                        && f.selector != _burnBatch(address, uint256[], uint256[]).selector 
+                        && f.selector != mint(address, uint256, uint256, bytes).selector 
+                        && f.selector != mintBatch(address, uint256[], uint256[], bytes).selector  
                         && f.selector != burn(address, uint256, uint256).selector 
                         && f.selector != burnBatch(address, uint256[], uint256[]).selector } {
     address from; uint256 id;
@@ -425,19 +423,19 @@ rule noTransferBatchEffectOnApproval(env e){
 
 
 // STATUS - verified
-// Additivity of _mint: _mint(a); _mint(b) has same effect as _mint(a+b)
+// Additivity of mint: mint(a); mint(b) has same effect as mint(a+b)
 rule mintAdditivity(env e){
     address to; uint256 id; uint256 amount; uint256 amount1; uint256 amount2; bytes data;
     require amount == amount1 + amount2;
 
     storage initialStorage = lastStorage;
 
-    _mint(e, to, id, amount, data);
+    mint(e, to, id, amount, data);
 
     uint256 balanceAfterSingleTransaction = balanceOf(to, id);
 
-    _mint(e, to, id, amount1, data) at initialStorage;
-    _mint(e, to, id, amount2, data);
+    mint(e, to, id, amount1, data) at initialStorage;
+    mint(e, to, id, amount2, data);
 
     uint256 balanceAfterDoubleTransaction = balanceOf(to, id);
 
@@ -446,25 +444,25 @@ rule mintAdditivity(env e){
 
 
 // STATUS - verified    
-// Chech that `_mint()` revertes in planned scenario(s) (only if `to` is 0)
+// Chech that `mint()` revertes in planned scenario(s) (only if `to` is 0)
 rule mintRevertCases(env e){
     address to; uint256 id; uint256 amount; bytes data;
 
-    _mint@withrevert(e, to, id, amount, data);
+    mint@withrevert(e, to, id, amount, data);
 
     assert to == 0 => lastReverted, "Should revert";
 }
 
 
 // STATUS - verified
-// Chech that `_mintBatch()` revertes in planned scenario(s) (only if `to` is 0 or arrays have different length)
+// Chech that `mintBatch()` revertes in planned scenario(s) (only if `to` is 0 or arrays have different length)
 rule mintBatchRevertCases(env e){
     address to; uint256[] ids; uint256[] amounts; bytes data;
 
     require ids.length < 1000000000;
     require amounts.length < 1000000000;
 
-    _mintBatch@withrevert(e, to, ids, amounts, data);
+    mintBatch@withrevert(e, to, ids, amounts, data);
 
     assert (ids.length != amounts.length || to == 0) => lastReverted, "Should revert";
 }
@@ -477,7 +475,7 @@ rule mintCorrectWork(env e){
 
     uint256 otherBalanceBefore = balanceOf(to, id);
 
-    _mint(e, to, id, amount, data);
+    mint(e, to, id, amount, data);
 
     uint256 otherBalanceAfter = balanceOf(to, id);
     
@@ -505,7 +503,7 @@ rule mintBatchCorrectWork(env e){
     uint256 otherBalanceBefore2 = balanceOf(to, id2);
     uint256 otherBalanceBefore3 = balanceOf(to, id3);
 
-    _mintBatch(e, to, ids, amounts, data);
+    mintBatch(e, to, ids, amounts, data);
 
     uint256 otherBalanceAfter1 = balanceOf(to, id1);
     uint256 otherBalanceAfter2 = balanceOf(to, id2);
@@ -525,7 +523,7 @@ rule cantMintMoreSingle(env e){
 
     require to_mathint(balanceOf(to, id) + amount) > max_uint256;
 
-    _mint@withrevert(e, to, id, amount, data);
+    mint@withrevert(e, to, id, amount, data);
     
     assert lastReverted, "Don't be too greedy!";
 }
@@ -549,21 +547,21 @@ rule cantMintMoreBatch(env e){
                 || to_mathint(balanceOf(to, id2) + amount2) > max_uint256
                 || to_mathint(balanceOf(to, id3) + amount3) > max_uint256;
 
-    _mintBatch@withrevert(e, to, ids, amounts, data);
+    mintBatch@withrevert(e, to, ids, amounts, data);
     
     assert lastReverted, "Don't be too greedy!";
 }
 
 
 // STATUS - verified
-// `_mint()` changes only `to` balance
+// `mint()` changes only `to` balance
 rule cantMintOtherBalances(env e){
     address to; uint256 id; uint256 amount; bytes data;
     address other;
 
     uint256 otherBalanceBefore = balanceOf(other, id);
 
-    _mint(e, to, id, amount, data);
+    mint(e, to, id, amount, data);
 
     uint256 otherBalanceAfter = balanceOf(other, id);
     
@@ -584,7 +582,7 @@ rule cantMintBatchOtherBalances(env e){
     uint256 otherBalanceBefore2 = balanceOf(other, id2);
     uint256 otherBalanceBefore3 = balanceOf(other, id3);
 
-    _mintBatch(e, to, ids, amounts, data);
+    mintBatch(e, to, ids, amounts, data);
 
     uint256 otherBalanceAfter1 = balanceOf(other, id1);
     uint256 otherBalanceAfter2 = balanceOf(other, id2);
@@ -603,19 +601,19 @@ rule cantMintBatchOtherBalances(env e){
 
 
 // STATUS - verified
-// Additivity of _burn: _burn(a); _burn(b) has same effect as _burn(a+b)
+// Additivity of burn: burn(a); burn(b) has same effect as burn(a+b)
 rule burnAdditivity(env e){
     address from; uint256 id; uint256 amount; uint256 amount1; uint256 amount2;
     require amount == amount1 + amount2;
 
     storage initialStorage = lastStorage;
 
-    _burn(e, from, id, amount);
+    burn(e, from, id, amount);
 
     uint256 balanceAfterSingleTransaction = balanceOf(from, id);
 
-    _burn(e, from, id, amount1) at initialStorage;
-    _burn(e, from, id, amount2);
+    burn(e, from, id, amount1) at initialStorage;
+    burn(e, from, id, amount2);
 
     uint256 balanceAfterDoubleTransaction = balanceOf(from, id);
 
@@ -624,11 +622,11 @@ rule burnAdditivity(env e){
 
 
 // STATUS - verified
-// Chech that `_burn()` revertes in planned scenario(s) (if `from` is 0) 
+// Chech that `burn()` revertes in planned scenario(s) (if `from` is 0) 
 rule burnRevertCases(env e){
     address from; uint256 id; uint256 amount;
 
-    _burn@withrevert(e, from, id, amount);
+    burn@withrevert(e, from, id, amount);
 
     assert from == 0 => lastReverted, "Should revert";
 }
@@ -642,7 +640,7 @@ rule burnBatchRevertCases(env e){
     require ids.length < 1000000000;
     require amounts.length < 1000000000;
 
-    _burnBatch@withrevert(e, from, ids, amounts);
+    burnBatch@withrevert(e, from, ids, amounts);
 
     assert (from == 0 || ids.length != amounts.length) => lastReverted, "Should revert";
 }
@@ -655,7 +653,7 @@ rule burnCorrectWork(env e){
 
     uint256 otherBalanceBefore = balanceOf(from, id);
 
-    _burn(e, from, id, amount);
+    burn(e, from, id, amount);
 
     uint256 otherBalanceAfter = balanceOf(from, id);
     
@@ -681,7 +679,7 @@ rule burnBatchCorrectWork(env e){
     uint256 otherBalanceBefore2 = balanceOf(from, id2);
     uint256 otherBalanceBefore3 = balanceOf(from, id3);
 
-    _burnBatch(e, from, ids, amounts);
+    burnBatch(e, from, ids, amounts);
 
     uint256 otherBalanceAfter1 = balanceOf(from, id1);
     uint256 otherBalanceAfter2 = balanceOf(from, id2);
@@ -701,7 +699,7 @@ rule cantBurnMoreSingle(env e){
 
     require to_mathint(balanceOf(from, id) - amount) < 0;
 
-    _burn@withrevert(e, from, id, amount);
+    burn@withrevert(e, from, id, amount);
     
     assert lastReverted, "Don't be too greedy!";
 }
@@ -724,7 +722,7 @@ rule cantBurnMoreBatch(env e){
                 || to_mathint(balanceOf(from, id2) - amount2) < 0 
                 || to_mathint(balanceOf(from, id3) - amount3) < 0 ;
 
-    _burnBatch@withrevert(e, from, ids, amounts);
+    burnBatch@withrevert(e, from, ids, amounts);
     
     assert lastReverted, "Don't be too greedy!";
 }
@@ -738,7 +736,7 @@ rule cantBurnOtherBalances(env e){
 
     uint256 otherBalanceBefore = balanceOf(other, id);
 
-    _burn(e, from, id, amount);
+    burn(e, from, id, amount);
 
     uint256 otherBalanceAfter = balanceOf(other, id);
     
@@ -759,7 +757,7 @@ rule cantBurnBatchOtherBalances(env e){
     uint256 otherBalanceBefore2 = balanceOf(other, id2);
     uint256 otherBalanceBefore3 = balanceOf(other, id3);
 
-    _burnBatch(e, from, ids, amounts);
+    burnBatch(e, from, ids, amounts);
 
     uint256 otherBalanceAfter1 = balanceOf(other, id1);
     uint256 otherBalanceAfter2 = balanceOf(other, id2);

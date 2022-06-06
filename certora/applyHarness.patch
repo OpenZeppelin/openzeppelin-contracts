@@ -1,12 +1,12 @@
 diff -ruN .gitignore .gitignore
 --- .gitignore	1969-12-31 16:00:00.000000000 -0800
-+++ .gitignore	2022-06-01 15:28:29.000000000 -0700
++++ .gitignore	2022-06-06 11:21:40.000000000 -0700
 @@ -0,0 +1,2 @@
 +*
 +!.gitignore
 diff -ruN access/AccessControl.sol access/AccessControl.sol
---- access/AccessControl.sol	2022-05-25 09:38:35.000000000 -0700
-+++ access/AccessControl.sol	2022-06-01 15:28:29.000000000 -0700
+--- access/AccessControl.sol	2022-06-06 10:42:37.000000000 -0700
++++ access/AccessControl.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -93,7 +93,7 @@
       *
       * _Available since v4.6._
@@ -17,8 +17,8 @@ diff -ruN access/AccessControl.sol access/AccessControl.sol
      }
  
 diff -ruN governance/Governor.sol governance/Governor.sol
---- governance/Governor.sol	2022-05-25 09:38:35.000000000 -0700
-+++ governance/Governor.sol	2022-06-01 15:28:29.000000000 -0700
+--- governance/Governor.sol	2022-06-06 10:42:37.000000000 -0700
++++ governance/Governor.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -44,7 +44,7 @@
  
      string private _name;
@@ -29,8 +29,8 @@ diff -ruN governance/Governor.sol governance/Governor.sol
      // This queue keeps track of the governor operating on itself. Calls to functions protected by the
      // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
 diff -ruN governance/TimelockController.sol governance/TimelockController.sol
---- governance/TimelockController.sol	2022-05-25 09:38:35.000000000 -0700
-+++ governance/TimelockController.sol	2022-06-01 15:28:29.000000000 -0700
+--- governance/TimelockController.sol	2022-06-06 10:42:37.000000000 -0700
++++ governance/TimelockController.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -28,10 +28,10 @@
      bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
      bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
@@ -45,8 +45,8 @@ diff -ruN governance/TimelockController.sol governance/TimelockController.sol
      /**
       * @dev Emitted when a call is scheduled as part of operation `id`.
 diff -ruN governance/extensions/GovernorCountingSimple.sol governance/extensions/GovernorCountingSimple.sol
---- governance/extensions/GovernorCountingSimple.sol	2022-05-25 09:38:35.000000000 -0700
-+++ governance/extensions/GovernorCountingSimple.sol	2022-06-01 15:28:29.000000000 -0700
+--- governance/extensions/GovernorCountingSimple.sol	2022-06-06 10:42:37.000000000 -0700
++++ governance/extensions/GovernorCountingSimple.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -27,7 +27,7 @@
          mapping(address => bool) hasVoted;
      }
@@ -57,8 +57,8 @@ diff -ruN governance/extensions/GovernorCountingSimple.sol governance/extensions
      /**
       * @dev See {IGovernor-COUNTING_MODE}.
 diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensions/GovernorPreventLateQuorum.sol
---- governance/extensions/GovernorPreventLateQuorum.sol	2022-05-25 09:38:35.000000000 -0700
-+++ governance/extensions/GovernorPreventLateQuorum.sol	2022-06-01 15:28:29.000000000 -0700
+--- governance/extensions/GovernorPreventLateQuorum.sol	2022-06-06 10:42:37.000000000 -0700
++++ governance/extensions/GovernorPreventLateQuorum.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -21,8 +21,8 @@
      using SafeCast for uint256;
      using Timers for Timers.BlockNumber;
@@ -71,8 +71,8 @@ diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensi
      /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
      event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
 diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
---- governance/utils/Votes.sol	2022-05-25 09:38:35.000000000 -0700
-+++ governance/utils/Votes.sol	2022-06-01 15:28:29.000000000 -0700
+--- governance/utils/Votes.sol	2022-06-06 10:42:37.000000000 -0700
++++ governance/utils/Votes.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -35,7 +35,25 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -146,8 +146,8 @@ diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
 +    function _getVotingUnits(address) public virtual returns (uint256); // HARNESS: internal -> public
  }
 diff -ruN proxy/utils/Initializable.sol proxy/utils/Initializable.sol
---- proxy/utils/Initializable.sol	2022-05-25 14:01:12.000000000 -0700
-+++ proxy/utils/Initializable.sol	2022-06-01 17:10:12.000000000 -0700
+--- proxy/utils/Initializable.sol	2022-06-06 10:42:37.000000000 -0700
++++ proxy/utils/Initializable.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -59,12 +59,12 @@
       * @dev Indicates that the contract has been initialized.
       * @custom:oz-retyped-from bool
@@ -163,54 +163,172 @@ diff -ruN proxy/utils/Initializable.sol proxy/utils/Initializable.sol
  
      /**
       * @dev Triggered when the contract has been initialized or reinitialized.
-@@ -130,7 +130,7 @@
-         _setInitializedVersion(type(uint8).max);
-     }
- 
--    function _setInitializedVersion(uint8 version) private returns (bool) {
-+    function _setInitializedVersion(uint8 version) internal returns (bool) {
-         // If the contract is initializing we ignore whether _initialized is set in order to support multiple
-         // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
-         // of initializers, because in other contexts the contract may have been reentered.
+diff -ruN proxy/utils/Initializable.sol.orig proxy/utils/Initializable.sol.orig
+--- proxy/utils/Initializable.sol.orig	1969-12-31 16:00:00.000000000 -0800
++++ proxy/utils/Initializable.sol.orig	2022-06-06 11:21:40.000000000 -0700
+@@ -0,0 +1,138 @@
++// SPDX-License-Identifier: MIT
++// OpenZeppelin Contracts (last updated v4.6.0) (proxy/utils/Initializable.sol)
++
++pragma solidity ^0.8.2;
++
++import "../../utils/Address.sol";
++
++/**
++ * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
++ * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an
++ * external initializer function, usually called `initialize`. It then becomes necessary to protect this initializer
++ * function so it can only be called once. The {initializer} modifier provided by this contract will have this effect.
++ *
++ * The initialization functions use a version number. Once a version number is used, it is consumed and cannot be
++ * reused. This mechanism prevents re-execution of each "step" but allows the creation of new initialization steps in
++ * case an upgrade adds a module that needs to be initialized.
++ *
++ * For example:
++ *
++ * [.hljs-theme-light.nopadding]
++ * ```
++ * contract MyToken is ERC20Upgradeable {
++ *     function initialize() initializer public {
++ *         __ERC20_init("MyToken", "MTK");
++ *     }
++ * }
++ * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {
++ *     function initializeV2() reinitializer(2) public {
++ *         __ERC20Permit_init("MyToken");
++ *     }
++ * }
++ * ```
++ *
++ * TIP: To avoid leaving the proxy in an uninitialized state, the initializer function should be called as early as
++ * possible by providing the encoded function call as the `_data` argument to {ERC1967Proxy-constructor}.
++ *
++ * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure
++ * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.
++ *
++ * [CAUTION]
++ * ====
++ * Avoid leaving a contract uninitialized.
++ *
++ * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation
++ * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke
++ * the {_disableInitializers} function in the constructor to automatically lock it when it is deployed:
++ *
++ * [.hljs-theme-light.nopadding]
++ * ```
++ * /// @custom:oz-upgrades-unsafe-allow constructor
++ * constructor() {
++ *     _disableInitializers();
++ * }
++ * ```
++ * ====
++ */
++abstract contract Initializable {
++    /**
++     * @dev Indicates that the contract has been initialized.
++     * @custom:oz-retyped-from bool
++     */
++    uint8 private _initialized;
++
++    /**
++     * @dev Indicates that the contract is in the process of being initialized.
++     */
++    bool private _initializing;
++
++    /**
++     * @dev Triggered when the contract has been initialized or reinitialized.
++     */
++    event Initialized(uint8 version);
++
++    /**
++     * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,
++     * `onlyInitializing` functions can be used to initialize parent contracts. Equivalent to `reinitializer(1)`.
++     */
++    modifier initializer() {
++        bool isTopLevelCall = !_initializing;
++        require(
++            (isTopLevelCall && _initialized < 1) || (!Address.isContract(address(this)) && _initialized == 1),
++            "Initializable: contract is already initialized"
++        );
++        _initialized = 1;
++        if (isTopLevelCall) {
++            _initializing = true;
++        }
++        _;
++        if (isTopLevelCall) {
++            _initializing = false;
++            emit Initialized(1);
++        }
++    }
++
++    /**
++     * @dev A modifier that defines a protected reinitializer function that can be invoked at most once, and only if the
++     * contract hasn't been initialized to a greater version before. In its scope, `onlyInitializing` functions can be
++     * used to initialize parent contracts.
++     *
++     * `initializer` is equivalent to `reinitializer(1)`, so a reinitializer may be used after the original
++     * initialization step. This is essential to configure modules that are added through upgrades and that require
++     * initialization.
++     *
++     * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in
++     * a contract, executing them in the right order is up to the developer or operator.
++     */
++    modifier reinitializer(uint8 version) {
++        require(!_initializing && _initialized < version, "Initializable: contract is already initialized");
++        _initialized = version;
++        _initializing = true;
++        _;
++        _initializing = false;
++        emit Initialized(version);
++    }
++
++    /**
++     * @dev Modifier to protect an initialization function so that it can only be invoked by functions with the
++     * {initializer} and {reinitializer} modifiers, directly or indirectly.
++     */
++    modifier onlyInitializing() {
++        require(_initializing, "Initializable: contract is not initializing");
++        _;
++    }
++
++    /**
++     * @dev Locks the contract, preventing any future reinitialization. This cannot be part of an initializer call.
++     * Calling this in the constructor of a contract will prevent that contract from being initialized or reinitialized
++     * to any version. It is recommended to use this to lock implementation contracts that are designed to be called
++     * through proxies.
++     */
++    function _disableInitializers() internal virtual {
++        require(!_initializing, "Initializable: contract is initializing");
++        if (_initialized < type(uint8).max) {
++            _initialized = type(uint8).max;
++            emit Initialized(type(uint8).max);
++        }
++    }
++}
+diff -ruN proxy/utils/Initializable.sol.rej proxy/utils/Initializable.sol.rej
+--- proxy/utils/Initializable.sol.rej	1969-12-31 16:00:00.000000000 -0800
++++ proxy/utils/Initializable.sol.rej	2022-06-06 11:21:40.000000000 -0700
+@@ -0,0 +1,17 @@
++***************
++*** 130,136 ****
++          _setInitializedVersion(type(uint8).max);
++      }
++  
++-     function _setInitializedVersion(uint8 version) private returns (bool) {
++          // If the contract is initializing we ignore whether _initialized is set in order to support multiple
++          // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
++          // of initializers, because in other contexts the contract may have been reentered.
++--- 130,136 ----
++          _setInitializedVersion(type(uint8).max);
++      }
++  
+++     function _setInitializedVersion(uint8 version) internal returns (bool) {
++          // If the contract is initializing we ignore whether _initialized is set in order to support multiple
++          // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
++          // of initializers, because in other contexts the contract may have been reentered.
 diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
---- token/ERC1155/ERC1155.sol	2022-05-25 09:38:35.000000000 -0700
-+++ token/ERC1155/ERC1155.sol	2022-06-01 15:28:29.000000000 -0700
-@@ -268,7 +268,7 @@
-         uint256 id,
-         uint256 amount,
-         bytes memory data
--    ) internal virtual {
-+    ) public virtual {              // HARNESS: internal -> public
-         require(to != address(0), "ERC1155: mint to the zero address");
- 
-         address operator = _msgSender();
-@@ -301,7 +301,7 @@
-         uint256[] memory ids,
-         uint256[] memory amounts,
-         bytes memory data
--    ) internal virtual {
-+    ) public virtual {                    // HARNESS: internal -> public
-         require(to != address(0), "ERC1155: mint to the zero address");
-         require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
- 
-@@ -334,7 +334,7 @@
-         address from,
-         uint256 id,
-         uint256 amount
--    ) internal virtual {
-+    ) public virtual {                // HARNESS: internal -> public
-         require(from != address(0), "ERC1155: burn from the zero address");
- 
-         address operator = _msgSender();
-@@ -367,7 +367,7 @@
-         address from,
-         uint256[] memory ids,
-         uint256[] memory amounts
--    ) internal virtual {
-+    ) public virtual {                    // HARNESS: internal -> public
-         require(from != address(0), "ERC1155: burn from the zero address");
-         require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
- 
+--- token/ERC1155/ERC1155.sol	2022-06-06 10:42:37.000000000 -0700
++++ token/ERC1155/ERC1155.sol	2022-06-06 11:23:46.000000000 -0700
 @@ -471,7 +471,7 @@
          uint256 id,
          uint256 amount,
@@ -230,8 +348,8 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
              try IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, amounts, data) returns (
                  bytes4 response
 diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
---- token/ERC20/ERC20.sol	2022-05-25 09:38:35.000000000 -0700
-+++ token/ERC20/ERC20.sol	2022-06-01 15:28:29.000000000 -0700
+--- token/ERC20/ERC20.sol	2022-06-06 10:42:37.000000000 -0700
++++ token/ERC20/ERC20.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -277,7 +277,7 @@
       * - `account` cannot be the zero address.
       * - `account` must have at least `amount` tokens.
@@ -242,8 +360,8 @@ diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
  
          _beforeTokenTransfer(account, address(0), amount);
 diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20FlashMint.sol
---- token/ERC20/extensions/ERC20FlashMint.sol	2022-05-25 09:38:35.000000000 -0700
-+++ token/ERC20/extensions/ERC20FlashMint.sol	2022-06-01 15:28:29.000000000 -0700
+--- token/ERC20/extensions/ERC20FlashMint.sol	2022-06-06 10:42:37.000000000 -0700
++++ token/ERC20/extensions/ERC20FlashMint.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -40,9 +40,11 @@
          require(token == address(this), "ERC20FlashMint: wrong token");
          // silence warning about unused variable without the addition of bytecode.
@@ -258,8 +376,8 @@ diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20
       * @dev Returns the receiver address of the flash fee. By default this
       * implementation returns the address(0) which means the fee amount will be burnt.
 diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Votes.sol
---- token/ERC20/extensions/ERC20Votes.sol	2022-05-06 13:43:21.000000000 -0700
-+++ token/ERC20/extensions/ERC20Votes.sol	2022-06-01 15:28:29.000000000 -0700
+--- token/ERC20/extensions/ERC20Votes.sol	2022-06-06 10:42:37.000000000 -0700
++++ token/ERC20/extensions/ERC20Votes.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -33,8 +33,8 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -281,8 +399,8 @@ diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Vote
  
          _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
 diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wrapper.sol
---- token/ERC20/extensions/ERC20Wrapper.sol	2022-05-25 09:38:35.000000000 -0700
-+++ token/ERC20/extensions/ERC20Wrapper.sol	2022-06-01 15:28:29.000000000 -0700
+--- token/ERC20/extensions/ERC20Wrapper.sol	2022-06-06 10:42:37.000000000 -0700
++++ token/ERC20/extensions/ERC20Wrapper.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -55,7 +55,7 @@
       * @dev Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake. Internal
       * function that can be exposed with access control if desired.
@@ -293,8 +411,8 @@ diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wr
          _mint(account, value);
          return value;
 diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/draft-ERC721Votes.sol
---- token/ERC721/extensions/draft-ERC721Votes.sol	2022-05-25 09:38:35.000000000 -0700
-+++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-06-01 15:28:29.000000000 -0700
+--- token/ERC721/extensions/draft-ERC721Votes.sol	2022-06-06 10:42:37.000000000 -0700
++++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -34,7 +34,7 @@
      /**
       * @dev Returns the balance of `account`.
@@ -305,8 +423,8 @@ diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/
      }
  }
 diff -ruN utils/Address.sol utils/Address.sol
---- utils/Address.sol	2022-05-25 09:38:35.000000000 -0700
-+++ utils/Address.sol	2022-06-01 15:28:29.000000000 -0700
+--- utils/Address.sol	2022-06-06 10:42:37.000000000 -0700
++++ utils/Address.sol	2022-06-06 11:21:40.000000000 -0700
 @@ -131,6 +131,7 @@
          uint256 value,
          string memory errorMessage
