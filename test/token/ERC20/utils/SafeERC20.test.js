@@ -6,7 +6,7 @@ const ERC20NoReturnMock = artifacts.require('ERC20NoReturnMock');
 const ERC20PermitNoRevertMock = artifacts.require('ERC20PermitNoRevertMock');
 const SafeERC20Wrapper = artifacts.require('SafeERC20Wrapper');
 
-const { EIP712Domain } = require('../../../helpers/eip712');
+const { EIP712Domain, Permit } = require('../../../helpers/eip712');
 
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
@@ -48,14 +48,6 @@ contract('SafeERC20', function (accounts) {
   });
 
   describe('with token that doesn\'t revert on invalid permit', function () {
-    const Permit = [
-      { name: 'owner', type: 'address' },
-      { name: 'spender', type: 'address' },
-      { name: 'value', type: 'uint256' },
-      { name: 'nonce', type: 'uint256' },
-      { name: 'deadline', type: 'uint256' },
-    ];
-
     const wallet = Wallet.generate();
     const owner = wallet.getAddressString();
     const spender = hasNoCode;
