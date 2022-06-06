@@ -30,7 +30,7 @@ filtered {
 
 /// TODO possibly show equivalence between batch and non-batch methods
 /// in order to leverage non-batch rules wrt batch rules
-/*
+
 /// The result of transferring a single token must be equivalent whether done 
 /// via safeTransferFrom or safeBatchTransferFrom.
 rule singleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
@@ -41,9 +41,6 @@ rule singleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
     uint256 token; uint256 transferAmount; bytes data;
     uint256[] tokens; uint256[] transferAmounts;
 
-/// safeTransferFrom(address,address,uint256,uint256,bytes)
-/// safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)
-
     mathint holderStartingBalance = balanceOf(holder, token);
     mathint recipientStartingBalance = balanceOf(recipient, token);
 
@@ -52,62 +49,61 @@ rule singleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
 
     // transferring via safeTransferFrom
     safeTransferFrom(e, holder, recipient, token, transferAmount, data) at beforeTransfer;
-    mathint safeTransferFromBalanceChange = holderStartingBalance - balanceOf(holder, token);
+    mathint holderSafeTransferFromBalanceChange = holderStartingBalance - balanceOf(holder, token);
+    mathint recipientSafeTransferFromBalanceChange = balanceOf(recipient, token) - recipientStartingBalance;
+
 
     // transferring via safeBatchTransferFrom
     safeBatchTransferFrom(e, holder, recipient, tokens, transferAmounts, data) at beforeTransfer;
-    mathint safeBatchTransferFromBalanceChange = holderStartingBalance - balanceOf(holder, token);
+    mathint holderSafeBatchTransferFromBalanceChange = holderStartingBalance - balanceOf(holder, token);
+    mathint recipientSafeBatchTransferFromBalanceChange = balanceOf(recipient, token) - recipientStartingBalance;
 
-    assert safeTransferFromBalanceChange == safeBatchTransferFromBalanceChange, 
+    assert holderSafeTransferFromBalanceChange == holderSafeBatchTransferFromBalanceChange
+        && recipientSafeTransferFromBalanceChange == recipientSafeBatchTransferFromBalanceChange, 
         "Transferring a single token via safeTransferFrom or safeBatchTransferFrom must be equivalent";
 }   
 
+/// The results of transferring multiple tokens must be equivalent whether done 
+/// separately via safeTransferFrom or together via safeBatchTransferFrom.
 rule multipleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
-    assert false, 
-    "TODO implement this rule using burn version as structural model";
+    storage beforeTransfers = lastStorage;
+    env e;
+
+    address holder; address recipient; bytes data;
+    uint256 tokenA; uint256 tokenB; uint256 tokenC;
+    uint256 transferAmountA; uint256 transferAmountB; uint256 transferAmountC;
+    uint256[] tokens; uint256[] transferAmounts;
+
+    mathint holderStartingBalanceA = balanceOf(holder, tokenA);
+    mathint holderStartingBalanceB = balanceOf(holder, tokenB);
+    mathint holderStartingBalanceC = balanceOf(holder, tokenC);
+
+    require tokens.length == 3; require transferAmounts.length == 3;
+    require tokens[0] == tokenA; require transferAmounts[0] == transferAmountA;
+    require tokens[1] == tokenB; require transferAmounts[1] == transferAmountB;
+    require tokens[2] == tokenC; require transferAmounts[2] == transferAmountC;
+
+    // transferring via safeTransferFrom
+    safeTransferFrom(e, holder, recipient, tokenA, transferAmountA, data) at beforeTransfers;
+    safeTransferFrom(e, holder, recipient, tokenB, transferAmountB, data);
+    safeTransferFrom(e, holder, recipient, tokenC, transferAmountC, data);
+    mathint holderSafeTransferFromChangeA = holderStartingBalanceA - balanceOf(holder, tokenA);
+    mathint holderSafeTransferFromChangeB = holderStartingBalanceB - balanceOf(holder, tokenB);
+    mathint holderSafeTransferFromChangeC = holderStartingBalanceC - balanceOf(holder, tokenC);
+
+    // transferring via safeBatchTransferFrom
+    safeBatchTransferFrom(e, holder, recipient, tokens, transferAmounts, data) at beforeTransfers;
+    mathint holderSafeBatchTransferFromBalanceChangeA = holderStartingBalanceA - balanceOf(holder, tokenA);
+    mathint holderSafeBatchTransferFromBalanceChangeB = holderStartingBalanceB - balanceOf(holder, tokenB);
+    mathint holderSafeBatchTransferFromBalanceChangeC = holderStartingBalanceC - balanceOf(holder, tokenC);
+
+    assert holderSafeTransferFromChangeA == holderSafeBatchTransferFromBalanceChangeA
+        && holderSafeTransferFromChangeB == holderSafeBatchTransferFromBalanceChangeB
+        && holderSafeTransferFromChangeC == holderSafeBatchTransferFromBalanceChangeC, 
+        "Transferring multiple tokens via safeTransferFrom or safeBatchTransferFrom must be equivalent";
 }
 
 /*
-
-/// The results of burning multiple tokens must be equivalent whether done 
-/// separately via burn or together via burnBatch.
-rule multipleTokenBurnBurnBatchEquivalence {
-    storage beforeBurns = lastStorage;
-    env e;
-
-    address holder;
-    uint256 tokenA; uint256 tokenB; uint256 tokenC;
-    uint256 burnAmountA; uint256 burnAmountB; uint256 burnAmountC;
-    uint256[] tokens; uint256[] burnAmounts;
-
-    mathint startingBalanceA = balanceOf(holder, tokenA);
-    mathint startingBalanceB = balanceOf(holder, tokenB);
-    mathint startingBalanceC = balanceOf(holder, tokenC);
-
-    require tokens.length == 3; require burnAmounts.length == 3;
-    require tokens[0] == tokenA; require burnAmounts[0] == burnAmountA;
-    require tokens[1] == tokenB; require burnAmounts[1] == burnAmountB;
-    require tokens[2] == tokenC; require burnAmounts[2] == burnAmountC;
-
-    // burning via burn
-    burn(e, holder, tokenA, burnAmountA) at beforeBurns;
-    burn(e, holder, tokenB, burnAmountB);
-    burn(e, holder, tokenC, burnAmountC);
-    mathint burnBalanceChangeA = startingBalanceA - balanceOf(holder, tokenA);
-    mathint burnBalanceChangeB = startingBalanceB - balanceOf(holder, tokenB);
-    mathint burnBalanceChangeC = startingBalanceC - balanceOf(holder, tokenC);
-
-    // burning via burnBatch
-    burnBatch(e, holder, tokens, burnAmounts) at beforeBurns;
-    mathint burnBatchBalanceChangeA = startingBalanceA - balanceOf(holder, tokenA);
-    mathint burnBatchBalanceChangeB = startingBalanceB - balanceOf(holder, tokenB);
-    mathint burnBatchBalanceChangeC = startingBalanceC - balanceOf(holder, tokenC);
-
-    assert burnBalanceChangeA == burnBatchBalanceChangeA
-        && burnBalanceChangeB == burnBatchBalanceChangeB
-        && burnBalanceChangeC == burnBatchBalanceChangeC, 
-        "Burning multiple tokens via burn or burnBatch must be equivalent";
-}
 
 /// If passed empty token and burn amount arrays, burnBatch must not change 
 /// token balances or address permissions.
