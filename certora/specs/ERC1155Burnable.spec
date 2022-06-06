@@ -5,15 +5,7 @@ methods {
 
 /// If a method call reduces account balances, the caller must be either the 
 /// holder of the account or approved to act on the holder's behalf.
-/// n.b. This rule was passing for all methods except `_burn` and `_burnBatch`, 
-/// ordinarily internal methods that are callable by our tool only because they 
-/// were changed to public for the purposes of prior verification. Filtered here
-/// since they are not generally callable.
 rule onlyHolderOrApprovedCanReduceBalance(method f) 
-filtered {
-    f -> f.selector != _burn(address,uint256,uint256).selector
-      && f.selector != _burnBatch(address,uint256[],uint256[]).selector
-}
 {
     address holder; uint256 token; uint256 amount;
     uint256 balanceBefore = balanceOf(holder, token);
@@ -52,10 +44,9 @@ rule burnAmountProportionalToBalanceReduction {
         "A larger burn must lead to a larger decrease in balance";
 }
 
-/// @decription Two sequential burns must be equivalent to a single burn of the sum of their
+/// Two sequential burns must be equivalent to a single burn of the sum of their
 /// amounts.
-/// @formula <pseudocode math description 
-/// @nota_bene This rule holds for `burnBatch` as well due to rules establishing 
+/// This rule holds for `burnBatch` as well due to rules establishing 
 /// appropriate equivance between `burn` and `burnBatch` methods.
 rule sequentialBurnsEquivalentToSingleBurnOfSum {
     storage beforeBurns = lastStorage;
@@ -106,7 +97,7 @@ rule singleTokenBurnBurnBatchEquivalence {
         "Burning a single token via burn or burnBatch must be equivalent";
 }   
 
-/// @description The results of burning multiple tokens must be equivalent whether done 
+/// The results of burning multiple tokens must be equivalent whether done 
 /// separately via burn or together via burnBatch.
 rule multipleTokenBurnBurnBatchEquivalence {
     storage beforeBurns = lastStorage;
