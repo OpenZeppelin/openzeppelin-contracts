@@ -33,6 +33,16 @@ filtered {
 /// TODO possibly show equivalence between batch and non-batch methods
 /// in order to leverage non-batch rules wrt batch rules
 
+rule singleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
+    assert false, 
+    "TODO implement this rule using burn version as structural model"
+}
+
+rule multipleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
+    assert false, 
+    "TODO implement this rule using burn version as structural model"
+}
+
 /******************************************************************************/
 
 ghost mapping(uint256 => mathint) sumOfBalances {
