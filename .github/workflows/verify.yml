@@ -53,6 +53,12 @@ jobs:
           - old/verifyAccessControl.sh
           - old/verifyERC20Votes.sh "checking ERC20Votes.spec on ERC20Votes.sol"
           - old/verifyERC721Votes.sh "checking ERC721Votes.spec on draft-ERC721Votes.sol and Votes.sol"
+          - Round3/verifyERC1155Burnable.sh
+          - Round3/verifyERC1155Supply.sh
+          - Round3/verifyERC1155Pausable.sh
+          - Round3/verifyERC1155Initializable.sh
+          - Round3/verifyERC1155GovernorPreventLateQuorum.sh
+
 
 
 
