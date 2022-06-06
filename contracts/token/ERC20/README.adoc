@@ -24,6 +24,7 @@ Additionally there are multiple custom extensions, including:
 * {ERC20Votes}: support for voting and vote delegation.
 * {ERC20VotesComp}: support for voting and vote delegation (compatible with Compound's token, with uint96 restrictions).
 * {ERC20Wrapper}: wrapper to create an ERC20 backed by another ERC20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
+* {ERC20TokenizedVault}: tokenized vault that manages shares (represented as ERC20) that are backed by assets (another ERC20).
 
 Finally, there are some utilities to interact with ERC20 contracts in various ways.
 
@@ -61,6 +62,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC20Wrapper}}
 
 {{ERC20FlashMint}}
+
+{{ERC20TokenizedVault}}
 
 == Draft EIPs
 

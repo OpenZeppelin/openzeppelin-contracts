@@ -13,6 +13,10 @@ for (const artifact of artifacts) {
   const linearized = [];
 
   for (const source in solcOutput.contracts) {
+    if (source.includes('/mocks/')) {
+      continue;
+    }
+
     for (const contractDef of findAll('ContractDefinition', solcOutput.sources[source].ast)) {
       names[contractDef.id] = contractDef.name;
       linearized.push(contractDef.linearizedBaseContracts);

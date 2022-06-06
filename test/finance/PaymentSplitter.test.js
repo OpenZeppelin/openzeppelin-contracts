@@ -62,10 +62,11 @@ contract('PaymentSplitter', function (accounts) {
       await Promise.all(this.payees.map(async (payee, index) => {
         expect(await this.contract.payee(index)).to.equal(payee);
         expect(await this.contract.released(payee)).to.be.bignumber.equal('0');
+        expect(await this.contract.releasable(payee)).to.be.bignumber.equal('0');
       }));
     });
 
-    describe('accepts payments', async function () {
+    describe('accepts payments', function () {
       it('Ether', async function () {
         await send.ether(owner, this.contract.address, amount);
 
@@ -79,7 +80,7 @@ contract('PaymentSplitter', function (accounts) {
       });
     });
 
-    describe('shares', async function () {
+    describe('shares', function () {
       it('stores shares if address is payee', async function () {
         expect(await this.contract.shares(payee1)).to.be.bignumber.not.equal('0');
       });
@@ -89,8 +90,8 @@ contract('PaymentSplitter', function (accounts) {
       });
     });
 
-    describe('release', async function () {
-      describe('Ether', async function () {
+    describe('release', function () {
+      describe('Ether', function () {
         it('reverts if no funds to claim', async function () {
           await expectRevert(this.contract.release(payee1),
             'PaymentSplitter: account is not due payment',
@@ -104,7 +105,7 @@ contract('PaymentSplitter', function (accounts) {
         });
       });
 
-      describe('Token', async function () {
+      describe('Token', function () {
         it('reverts if no funds to claim', async function () {
           await expectRevert(this.contract.release(this.token.address, payee1),
             'PaymentSplitter: account is not due payment',
@@ -119,7 +120,27 @@ contract('PaymentSplitter', function (accounts) {
       });
     });
 
-    describe('distributes funds to payees', async function () {
+    describe('tracks releasable and released', function () {
+      it('Ether', async function () {
+        await send.ether(payer1, this.contract.address, amount);
+        const payment = amount.divn(10);
+        expect(await this.contract.releasable(payee2)).to.be.bignumber.equal(payment);
+        await this.contract.release(payee2);
+        expect(await this.contract.releasable(payee2)).to.be.bignumber.equal('0');
+        expect(await this.contract.released(payee2)).to.be.bignumber.equal(payment);
+      });
+
+      it('Token', async function () {
+        await this.token.transfer(this.contract.address, amount, { from: owner });
+        const payment = amount.divn(10);
+        expect(await this.contract.releasable(this.token.address, payee2, {})).to.be.bignumber.equal(payment);
+        await this.contract.release(this.token.address, payee2);
+        expect(await this.contract.releasable(this.token.address, payee2, {})).to.be.bignumber.equal('0');
+        expect(await this.contract.released(this.token.address, payee2)).to.be.bignumber.equal(payment);
+      });
+    });
+
+    describe('distributes funds to payees', function () {
       it('Ether', async function () {
         await send.ether(payer1, this.contract.address, amount);
 

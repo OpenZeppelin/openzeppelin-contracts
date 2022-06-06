@@ -168,6 +168,16 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     );
   });
 
+  it('double voting is forbiden', async function () {
+    await this.helper.propose({ from: proposer });
+    await this.helper.waitForSnapshot();
+    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+    await expectRevert(
+      this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
+      'GovernorCompatibilityBravo: vote already cast',
+    );
+  });
+
   it('with function selector and arguments', async function () {
     const target = this.receiver.address;
     this.helper.setProposal([
