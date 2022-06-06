@@ -48,8 +48,8 @@ jobs:
         script:
           - old/verifyTimelock.sh
           - old/verifyERC1155.sh
-          - old/verifyERC20FlashMint.sh
-          - old/verifyERC20Wrapper.sh
+#          - old/verifyERC20FlashMint.sh
+#          - old/verifyERC20Wrapper.sh
           - old/verifyAccessControl.sh
           - old/verifyERC20Votes.sh "checking ERC20Votes.spec on ERC20Votes.sol"
           - old/verifyERC721Votes.sh "checking ERC721Votes.spec on draft-ERC721Votes.sol and Votes.sol"
