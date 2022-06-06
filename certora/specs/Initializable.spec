@@ -38,7 +38,7 @@ definition isDisabled() returns bool = initialized() == 255;
 
 /// @description A contract must only ever be in an initializing state while in the middle of a transaction execution.
 invariant notInitializing()
-    !initializing(), "contract must not be initializing"
+    !initializing()
 
 
 //////////////////////////////////////////////////////////////////////////////
