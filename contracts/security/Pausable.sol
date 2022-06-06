@@ -42,7 +42,7 @@ abstract contract Pausable is Context {
      * - The contract must not be paused.
      */
     modifier whenNotPaused() {
-        _whenNotPaused();
+        _requireNotPaused();
         _;
     }
 
@@ -54,7 +54,7 @@ abstract contract Pausable is Context {
      * - The contract must be paused.
      */
     modifier whenPaused() {
-        _whenPaused();
+        _requirePaused();
         _;
     }
 
@@ -68,14 +68,14 @@ abstract contract Pausable is Context {
     /**
      * @dev Throws if the contract is paused.
      */
-    function _whenNotPaused() internal virtual {
+    function _requireNotPaused() internal virtual {
         require(!paused(), "Pausable: paused");
     }
 
     /**
      * @dev Throws if the contract is not paused.
      */
-    function _whenPaused() internal virtual {
+    function _requirePaused() internal virtual {
         require(paused(), "Pausable: not paused");
     }
 
