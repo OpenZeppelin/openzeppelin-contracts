@@ -8,4 +8,4 @@ certoraRun \
     --loop_iter 3 \
     --send_only \
     --cloud \
-    --msg "ERC1155 Pausable verification"
+    --msg "ERC1155 Pausable verification all rules"

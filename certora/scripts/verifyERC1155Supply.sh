@@ -8,4 +8,4 @@ certoraRun \
     --loop_iter 3 \
     --cloud \
     --send_only \
-    --msg "ERC1155 Supply verification"
+    --msg "ERC1155 Supply verification all rules"

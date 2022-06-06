@@ -35,12 +35,12 @@ filtered {
 
 rule singleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
     assert false, 
-    "TODO implement this rule using burn version as structural model"
+    "TODO implement this rule using burn version as structural model";
 }
 
 rule multipleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
     assert false, 
-    "TODO implement this rule using burn version as structural model"
+    "TODO implement this rule using burn version as structural model";
 }
 
 /******************************************************************************/
