@@ -13,7 +13,7 @@ import "../IERC20.sol";
  * presenting a message signed by the account. By not relying on {IERC20-approve}, the token holder account doesn't
  * need to send a transaction, and thus is not required to hold Ether at all.
  */
-interface IERC20Permit is IERC20 {
+interface IERC20Permit {
     /**
      * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
      * given ``owner``'s signed approval.

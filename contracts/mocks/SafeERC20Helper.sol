@@ -114,7 +114,7 @@ contract ERC20PermitNoRevertMock is
         return block.chainid;
     }
 
-    function permitRevert(
+    function permitThatMayRevert(
         address owner,
         address spender,
         uint256 value,
@@ -135,7 +135,7 @@ contract ERC20PermitNoRevertMock is
         bytes32 r,
         bytes32 s
     ) public virtual override {
-        try this.permitRevert(owner, spender, value, deadline, v, r, s) {
+        try this.permitThatMayRevert(owner, spender, value, deadline, v, r, s) {
             // do nothing
         } catch {
             // do nothing
@@ -144,11 +144,11 @@ contract ERC20PermitNoRevertMock is
 }
 
 contract SafeERC20Wrapper is Context {
-    using SafeERC20 for IERC20Permit;
+    using SafeERC20 for IERC20;
 
-    IERC20Permit private _token;
+    IERC20 private _token;
 
-    constructor(IERC20Permit token) {
+    constructor(IERC20 token) {
         _token = token;
     }
 
@@ -181,7 +181,7 @@ contract SafeERC20Wrapper is Context {
         bytes32 r,
         bytes32 s
     ) public {
-        _token.safePermit(owner, spender, value, deadline, v, r, s);
+        SafeERC20.safePermit(IERC20Permit(address(_token)), owner, spender, value, deadline, v, r, s);
     }
 
     function setAllowance(uint256 allowance_) public {

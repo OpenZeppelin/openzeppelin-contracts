@@ -91,10 +91,7 @@ library SafeERC20 {
         bytes32 s
     ) internal {
         uint256 nonceBefore = token.nonces(owner);
-        _callOptionalReturn(
-            token,
-            abi.encodeWithSelector(token.permit.selector, owner, spender, value, deadline, v, r, s)
-        );
+        token.permit(owner, spender, value, deadline, v, r, s);
         uint256 nonceAfter = token.nonces(owner);
         require(nonceAfter == nonceBefore + 1, "SafeERC20: permit did not succeed");
     }
