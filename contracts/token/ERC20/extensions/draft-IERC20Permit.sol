@@ -3,8 +3,6 @@
 
 pragma solidity ^0.8.0;
 
-import "../IERC20.sol";
-
 /**
  * @dev Interface of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
  * https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
