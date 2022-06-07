@@ -6,7 +6,7 @@ methods {
 }
  
 /// given two different token ids, if totalSupply for one changes, then
-/// totalSupply for other should not
+/// totalSupply for other must not
 rule token_totalSupply_independence(method f)
 filtered {
     f -> f.selector != safeBatchTransferFrom(address,address,uint256[],uint256[],bytes).selector
@@ -28,9 +28,6 @@ filtered {
         "methods must not change the total supply of more than one token";
 }
 
-/// TODO possibly show equivalence between batch and non-batch methods
-/// in order to leverage non-batch rules wrt batch rules
-
 /// The result of transferring a single token must be equivalent whether done 
 /// via safeTransferFrom or safeBatchTransferFrom.
 rule singleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
@@ -51,7 +48,6 @@ rule singleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
     safeTransferFrom(e, holder, recipient, token, transferAmount, data) at beforeTransfer;
     mathint holderSafeTransferFromBalanceChange = holderStartingBalance - balanceOf(holder, token);
     mathint recipientSafeTransferFromBalanceChange = balanceOf(recipient, token) - recipientStartingBalance;
-
 
     // transferring via safeBatchTransferFrom
     safeBatchTransferFrom(e, holder, recipient, tokens, transferAmounts, data) at beforeTransfer;
@@ -131,37 +127,6 @@ rule transfersHaveSameLengthInputArrays {
         "If transfer methods do not revert, the input arrays must be the same length";
 }
 
-/*
-
-/// If passed empty token and burn amount arrays, burnBatch must not change 
-/// token balances or address permissions.
-rule burnBatchOnEmptyArraysChangesNothing {
-    env e;
-
-    address holder; uint256 token;
-    address nonHolderA; address nonHolderB;
-    uint256 startingBalance = balanceOf(holder, token);
-    bool startingPermissionNonHolderA = isApprovedForAll(holder, nonHolderA);
-    bool startingPermissionNonHolderB = isApprovedForAll(holder, nonHolderB);
-    uint256[] noTokens; uint256[] noBurnAmounts;
-    require noTokens.length == 0; require noBurnAmounts.length == 0;
-
-    burnBatch(e, holder, noTokens, noBurnAmounts);
-    uint256 endingBalance = balanceOf(holder, token);
-    bool endingPermissionNonHolderA = isApprovedForAll(holder, nonHolderA);
-    bool endingPermissionNonHolderB = isApprovedForAll(holder, nonHolderB);
-
-    assert startingBalance == endingBalance, 
-        "burnBatch must not change token balances if passed empty arrays";
-    assert startingPermissionNonHolderA == endingPermissionNonHolderA 
-        && startingPermissionNonHolderB == endingPermissionNonHolderB, 
-        "burnBatch must not change account permissions if passed empty arrays";
-}
-
-*/
-
-/// TODO
-
 /******************************************************************************/
 
 ghost mapping(uint256 => mathint) sumOfBalances {
@@ -172,8 +137,8 @@ hook Sstore _balances[KEY uint256 token][KEY address user] uint256 newValue (uin
     sumOfBalances[token] = sumOfBalances[token] + newValue - oldValue;
 }
 
-// status: not passing, because mint and burn are the same as transferring to/from
-//         the 0 address.
+/// The sum of the balances over all users must equal the total supply for a 
+/// given token.
 invariant total_supply_is_sum_of_balances(uint256 token)
     sumOfBalances[token] == totalSupply(token)
     {
@@ -181,36 +146,14 @@ invariant total_supply_is_sum_of_balances(uint256 token)
             requireInvariant balanceOfZeroAddressIsZero(token);
         }
     }
-/*
-rule total_supply_is_sum_of_balances_as_rule {
-    uint256 token;
 
-    require sumOfBalances[token] == totalSupply(token) + balanceOf(0, token);
-
-    mathint sum_before = sumOfBalances[token];
-
-    method f; calldataarg arg; env e;
-    f(e, arg);
-
-    mathint sum_after = sumOfBalances[token];
-
-    assert sumOfBalances[token] == totalSupply(token) + balanceOf(0, token);
-}
-*/
 /******************************************************************************/
 
 /// The balance of a token for the zero address must be zero.
 invariant balanceOfZeroAddressIsZero(uint256 token)
     balanceOf(0, token) == 0
 
-// if a user has a token, then the token should exist
-
-/*
-hook Sload _balances[...] {
-    require balance <= totalSupply
-}
-*/
-
+/// If a user has a token, then the token should exist.
 rule held_tokens_should_exist {
     address user; uint256 token;
 
@@ -219,12 +162,13 @@ rule held_tokens_should_exist {
     // This assumption is safe because of total_supply_is_sum_of_balances
     require balanceOf(user, token) <= totalSupply(token);
 
+    // note: `exists_wrapper` just calls `exists`
     assert balanceOf(user, token) > 0 => exists_wrapper(token),
         "if a user's balance for a token is positive, the token must exist";
 }
 
 /******************************************************************************/
-
+/*
 rule sanity {
     method f; env e; calldataarg args;
 
@@ -232,3 +176,4 @@ rule sanity {
 
     assert false;
 }
+*/

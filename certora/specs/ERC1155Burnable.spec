@@ -140,28 +140,26 @@ rule multipleTokenBurnBurnBatchEquivalence {
 /// If passed empty token and burn amount arrays, burnBatch must not change 
 /// token balances or address permissions.
 rule burnBatchOnEmptyArraysChangesNothing {
-    env e;
+    uint256 token; address nonHolderA; address nonHolderB;
 
-    address holder; uint256 token;
-    address nonHolderA; address nonHolderB;
-    uint256 startingBalance = balanceOf(holder, token);
-    bool startingPermissionNonHolderA = isApprovedForAll(holder, nonHolderA);
-    bool startingPermissionNonHolderB = isApprovedForAll(holder, nonHolderB);
-    uint256[] noTokens; uint256[] noBurnAmounts;
+    uint256 startingBalance = balanceOf(nonHolderA, token);
+    bool startingPermission = isApprovedForAll(nonHolderA, nonHolderB);
+
+    env e; address holder; uint256[] noTokens; uint256[] noBurnAmounts;
     require noTokens.length == 0; require noBurnAmounts.length == 0;
 
     burnBatch(e, holder, noTokens, noBurnAmounts);
-    uint256 endingBalance = balanceOf(holder, token);
-    bool endingPermissionNonHolderA = isApprovedForAll(holder, nonHolderA);
-    bool endingPermissionNonHolderB = isApprovedForAll(holder, nonHolderB);
+    
+    uint256 endingBalance = balanceOf(nonHolderA, token);
+    bool endingPermission = isApprovedForAll(nonHolderA, nonHolderB);
 
     assert startingBalance == endingBalance, 
         "burnBatch must not change token balances if passed empty arrays";
-    assert startingPermissionNonHolderA == endingPermissionNonHolderA 
-        && startingPermissionNonHolderB == endingPermissionNonHolderB, 
+    assert startingPermission == endingPermission, 
         "burnBatch must not change account permissions if passed empty arrays";
 }
 
+/*
 /// This rule should always fail.
 rule sanity {
     method f; env e; calldataarg args;
@@ -171,3 +169,4 @@ rule sanity {
     assert false, 
         "This rule should always fail";
 }
+*/

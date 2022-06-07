@@ -103,7 +103,7 @@ rule whenPausedModifierCausesRevertIfUnpaused {
     assert lastReverted, 
         "Functions with the whenPaused modifier must revert if the contract is not paused";
 }
-
+/*
 /// This rule should always fail.
 rule sanity {
     method f; env e; calldataarg args;
@@ -113,3 +113,4 @@ rule sanity {
     assert false, 
         "This rule should always fail";
 }
+*/
