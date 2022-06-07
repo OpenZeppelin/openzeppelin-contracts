@@ -127,7 +127,7 @@ contract('SafeERC20', function (accounts) {
 
     it('revert on invalid signature', async function () {
       // signature that is not valid for owner
-      this.signature = {
+      const invalidSignature = {
         v: 27,
         r: '0x71753dc5ecb5b4bfc0e3bc530d79ce5988760ed3f3a234c86a5546491f540775',
         s: '0x0049cedee5aed990aabed5ad6a9f6e3c565b63379894b5fa8b512eb2b79e485d',
@@ -139,9 +139,9 @@ contract('SafeERC20', function (accounts) {
         this.data.message.spender,
         this.data.message.value,
         this.data.message.deadline,
-        this.signature.v,
-        this.signature.r,
-        this.signature.s,
+        invalidSignature.v,
+        invalidSignature.r,
+        invalidSignature.s,
       );
 
       // invalid call revert when called through the SafeERC20 library
@@ -151,9 +151,9 @@ contract('SafeERC20', function (accounts) {
           this.data.message.spender,
           this.data.message.value,
           this.data.message.deadline,
-          this.signature.v,
-          this.signature.r,
-          this.signature.s,
+          invalidSignature.v,
+          invalidSignature.r,
+          invalidSignature.s,
         ),
         'SafeERC20: permit did not succeed',
       );
