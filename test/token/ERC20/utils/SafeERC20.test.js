@@ -87,7 +87,7 @@ contract('SafeERC20', function (accounts) {
 
     it('revert on reused signature', async function () {
       expect(await this.token.nonces(owner)).to.be.bignumber.equal('0');
-
+      // use valid signature and consume nounce
       await this.wrapper.permit(
         this.data.message.owner,
         this.data.message.spender,
@@ -97,9 +97,19 @@ contract('SafeERC20', function (accounts) {
         this.signature.r,
         this.signature.s,
       );
-
       expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
-
+      // invalid call does not revert for this token implementation
+      await this.token.permit(
+        this.data.message.owner,
+        this.data.message.spender,
+        this.data.message.value,
+        this.data.message.deadline,
+        this.signature.v,
+        this.signature.r,
+        this.signature.s,
+      );
+      expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
+      // invalid call revert when called through the SafeERC20 library
       await expectRevert(
         this.wrapper.permit(
           this.data.message.owner,
@@ -116,47 +126,36 @@ contract('SafeERC20', function (accounts) {
     });
 
     it('revert on invalid signature', async function () {
+      // signature that is not valid for owner
+      this.signature = {
+        v: 27,
+        r: '0x71753dc5ecb5b4bfc0e3bc530d79ce5988760ed3f3a234c86a5546491f540775',
+        s: '0x0049cedee5aed990aabed5ad6a9f6e3c565b63379894b5fa8b512eb2b79e485d',
+      };
+
+      // invalid call does not revert for this token implementation
+      await this.token.permit(
+        this.data.message.owner,
+        this.data.message.spender,
+        this.data.message.value,
+        this.data.message.deadline,
+        this.signature.v,
+        this.signature.r,
+        this.signature.s,
+      );
+
+      // invalid call revert when called through the SafeERC20 library
       await expectRevert(
         this.wrapper.permit(
           this.data.message.owner,
           this.data.message.spender,
           this.data.message.value,
           this.data.message.deadline,
-          27,
-          '0x71753dc5ecb5b4bfc0e3bc530d79ce5988760ed3f3a234c86a5546491f540775',
-          '0x0049cedee5aed990aabed5ad6a9f6e3c565b63379894b5fa8b512eb2b79e485d',
+          this.signature.v,
+          this.signature.r,
+          this.signature.s,
         ),
         'SafeERC20: permit did not succeed',
-      );
-    });
-
-    it('underlying token does not revert on reused or invalid signature', async function () {
-      await this.token.permit(
-        this.data.message.owner,
-        this.data.message.spender,
-        this.data.message.value,
-        this.data.message.deadline,
-        this.signature.v,
-        this.signature.r,
-        this.signature.s,
-      );
-      await this.token.permit(
-        this.data.message.owner,
-        this.data.message.spender,
-        this.data.message.value,
-        this.data.message.deadline,
-        this.signature.v,
-        this.signature.r,
-        this.signature.s,
-      );
-      await this.token.permit(
-        this.data.message.owner,
-        this.data.message.spender,
-        this.data.message.value,
-        this.data.message.deadline,
-        27,
-        '0x71753dc5ecb5b4bfc0e3bc530d79ce5988760ed3f3a234c86a5546491f540775',
-        '0x0049cedee5aed990aabed5ad6a9f6e3c565b63379894b5fa8b512eb2b79e485d',
       );
     });
   });
