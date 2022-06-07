@@ -68,14 +68,14 @@ abstract contract Pausable is Context {
     /**
      * @dev Throws if the contract is paused.
      */
-    function _requireNotPaused() internal virtual {
+    function _requireNotPaused() internal view virtual {
         require(!paused(), "Pausable: paused");
     }
 
     /**
      * @dev Throws if the contract is not paused.
      */
-    function _requirePaused() internal virtual {
+    function _requirePaused() internal view virtual {
         require(paused(), "Pausable: not paused");
     }
 
