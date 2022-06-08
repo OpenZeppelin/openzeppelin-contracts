@@ -861,14 +861,14 @@ rule multipleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
 rule transfersHaveSameLengthInputArrays {
     env e;
 
-    address holder; address recipient; bytes data;
+    address recipient; bytes data;
     uint256[] tokens; uint256[] transferAmounts;
     uint max_int = 0xffffffffffffffffffffffffffffffff;
 
     require tokens.length >= 0 && tokens.length <= max_int;
     require transferAmounts.length >= 0 && transferAmounts.length <= max_int;
 
-    safeBatchTransferFrom(e, holder, recipient, tokens, transferAmounts, data);
+    safeBatchTransferFrom(e, _, recipient, tokens, transferAmounts, data);
 
     uint256 tokensLength = tokens.length;
     uint256 transferAmountsLength = transferAmounts.length;
