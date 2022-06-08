@@ -10,15 +10,7 @@ const Wallet = require('ethereumjs-wallet').default;
 
 const ERC20PermitMock = artifacts.require('ERC20PermitMock');
 
-const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
-
-const Permit = [
-  { name: 'owner', type: 'address' },
-  { name: 'spender', type: 'address' },
-  { name: 'value', type: 'uint256' },
-  { name: 'nonce', type: 'uint256' },
-  { name: 'deadline', type: 'uint256' },
-];
+const { EIP712Domain, Permit, domainSeparator } = require('../../../helpers/eip712');
 
 contract('ERC20Permit', function (accounts) {
   const [ initialHolder, spender, recipient, other ] = accounts;
