@@ -25,8 +25,6 @@ methods {
     hashOperationBatch(address[], uint256[], bytes[], bytes32, bytes32) => DISPATCHER(true)
     executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => CONSTANT
     scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256) => CONSTANT
-    // checkpoint length ERC721
-    numCheckpoints(address) returns uint32
 }
 
 
