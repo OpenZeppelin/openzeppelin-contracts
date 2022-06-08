@@ -117,6 +117,11 @@ rule transfersHaveSameLengthInputArrays {
 
     address holder; address recipient; bytes data;
     uint256[] tokens; uint256[] transferAmounts;
+//    uint max_int = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+    uint max_int = 0xffffffffffffffffffffffffffffffff;
+//    require tokens.length >= 0 && tokens.length <= type(uint128).max
+    require tokens.length >= 0 && tokens.length <= max_int;
+    require transferAmounts.length >= 0 && transferAmounts.length <= max_int;
 
     safeBatchTransferFrom(e, holder, recipient, tokens, transferAmounts, data);
 
