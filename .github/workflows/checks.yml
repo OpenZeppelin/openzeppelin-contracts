@@ -35,6 +35,7 @@ jobs:
       - run: npm run test:generation
 
   coverage:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
