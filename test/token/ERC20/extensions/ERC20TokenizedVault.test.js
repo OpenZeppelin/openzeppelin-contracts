@@ -37,7 +37,7 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxDeposit(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
       expect(await this.vault.previewDeposit(parseToken(1))).to.be.bignumber.equal(parseShare(1));
 
-      const { tx } = await this.vault.deposit(parseToken(1), recipient, { from: holder });
+      const { tx } = await this.vault.methods['deposit(uint256,address)'](parseToken(1), recipient, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
@@ -56,7 +56,7 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxMint(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
       expect(await this.vault.previewMint(parseShare(1))).to.be.bignumber.equal(parseToken(1));
 
-      const { tx } = await this.vault.mint(parseShare(1), recipient, { from: holder });
+      const { tx } = await this.vault.methods['mint(uint256,address)'](parseShare(1), recipient, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
@@ -75,7 +75,12 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal('0');
       expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal('0');
 
-      const { tx } = await this.vault.withdraw('0', recipient, holder, { from: holder });
+      const { tx } = await this.vault.methods['withdraw(uint256,address,address)'](
+        '0',
+        recipient,
+        holder,
+        { from: holder },
+      );
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -94,7 +99,12 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal('0');
       expect(await this.vault.previewRedeem('0')).to.be.bignumber.equal('0');
 
-      const { tx } = await this.vault.redeem('0', recipient, holder, { from: holder });
+      const { tx } = await this.vault.methods['redeem(uint256,address,address)'](
+        '0',
+        recipient,
+        holder,
+        { from: holder },
+      );
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -123,7 +133,7 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxDeposit(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
       expect(await this.vault.previewDeposit(parseToken(1))).to.be.bignumber.equal(parseShare(1));
 
-      const { tx } = await this.vault.deposit(parseToken(1), recipient, { from: holder });
+      const { tx } = await this.vault.methods['deposit(uint256,address)'](parseToken(1), recipient, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
@@ -142,7 +152,7 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxMint(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
       expect(await this.vault.previewMint(parseShare(1))).to.be.bignumber.equal(parseToken(1));
 
-      const { tx } = await this.vault.mint(parseShare(1), recipient, { from: holder });
+      const { tx } = await this.vault.methods['mint(uint256,address)'](parseShare(1), recipient, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
@@ -161,7 +171,12 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal('0');
       expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal('0');
 
-      const { tx } = await this.vault.withdraw('0', recipient, holder, { from: holder });
+      const { tx } = await this.vault.methods['withdraw(uint256,address,address)'](
+        '0',
+        recipient,
+        holder,
+        { from: holder },
+      );
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -180,7 +195,12 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal('0');
       expect(await this.vault.previewRedeem('0')).to.be.bignumber.equal('0');
 
-      const { tx } = await this.vault.redeem('0', recipient, holder, { from: holder });
+      const { tx } = await this.vault.methods['redeem(uint256,address,address)'](
+        '0',
+        recipient,
+        holder,
+        { from: holder },
+      );
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -209,7 +229,7 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxDeposit(holder)).to.be.bignumber.equal('0');
 
       // Can deposit 0 (max deposit)
-      const { tx } = await this.vault.deposit(0, recipient, { from: holder });
+      const { tx } = await this.vault.methods['deposit(uint256,address)'](0, recipient, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
@@ -226,7 +246,7 @@ contract('ERC20TokenizedVault', function (accounts) {
       // Cannot deposit more than 0
       await expectRevert.unspecified(this.vault.previewDeposit(parseToken(1)));
       await expectRevert(
-        this.vault.deposit(parseToken(1), recipient, { from: holder }),
+        this.vault.methods['deposit(uint256,address)'](parseToken(1), recipient, { from: holder }),
         'ERC20TokenizedVault: deposit more than max',
       );
     });
@@ -235,7 +255,7 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxMint(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
       expect(await this.vault.previewMint(parseShare(1))).to.be.bignumber.equal('0');
 
-      const { tx } = await this.vault.mint(parseShare(1), recipient, { from: holder });
+      const { tx } = await this.vault.methods['mint(uint256,address)'](parseShare(1), recipient, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
@@ -255,7 +275,12 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.previewWithdraw('0')).to.be.bignumber.equal('0');
       await expectRevert.unspecified(this.vault.previewWithdraw('1'));
 
-      const { tx } = await this.vault.withdraw('0', recipient, holder, { from: holder });
+      const { tx } = await this.vault.methods['withdraw(uint256,address,address)'](
+        '0',
+        recipient,
+        holder,
+        { from: holder },
+      );
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -274,7 +299,12 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal(parseShare(1));
       expect(await this.vault.previewRedeem(parseShare(1))).to.be.bignumber.equal('0');
 
-      const { tx } = await this.vault.redeem(parseShare(1), recipient, holder, { from: holder });
+      const { tx } = await this.vault.methods['redeem(uint256,address,address)'](
+        parseShare(1),
+        recipient,
+        holder,
+        { from: holder },
+      );
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -304,7 +334,7 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxDeposit(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
       expect(await this.vault.previewDeposit(parseToken(1))).to.be.bignumber.equal(parseShare(100));
 
-      const { tx } = await this.vault.deposit(parseToken(1), recipient, { from: holder });
+      const { tx } = await this.vault.methods['deposit(uint256,address)'](parseToken(1), recipient, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
@@ -323,7 +353,7 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxMint(holder)).to.be.bignumber.equal(constants.MAX_UINT256);
       expect(await this.vault.previewMint(parseShare(1))).to.be.bignumber.equal(parseToken(1).divn(100));
 
-      const { tx } = await this.vault.mint(parseShare(1), recipient, { from: holder });
+      const { tx } = await this.vault.methods['mint(uint256,address)'](parseShare(1), recipient, { from: holder });
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
@@ -342,7 +372,12 @@ contract('ERC20TokenizedVault', function (accounts) {
       expect(await this.vault.maxWithdraw(holder)).to.be.bignumber.equal(parseToken(1));
       expect(await this.vault.previewWithdraw(parseToken(1))).to.be.bignumber.equal(parseShare(100));
 
-      const { tx } = await this.vault.withdraw(parseToken(1), recipient, holder, { from: holder });
+      const { tx } = await this.vault.methods['withdraw(uint256,address,address)'](
+        parseToken(1),
+        recipient,
+        holder,
+        { from: holder },
+      );
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -359,18 +394,28 @@ contract('ERC20TokenizedVault', function (accounts) {
 
     it('withdraw with approval', async function () {
       await expectRevert(
-        this.vault.withdraw(parseToken(1), recipient, holder, { from: other }),
+        this.vault.methods['withdraw(uint256,address,address)'](parseToken(1), recipient, holder, { from: other }),
         'ERC20: insufficient allowance',
       );
 
-      await this.vault.withdraw(parseToken(1), recipient, holder, { from: spender });
+      await this.vault.methods['withdraw(uint256,address,address)'](
+        parseToken(1),
+        recipient,
+        holder,
+        { from: spender },
+      );
     });
 
     it('redeem', async function () {
       expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal(parseShare(100));
       expect(await this.vault.previewRedeem(parseShare(100))).to.be.bignumber.equal(parseToken(1));
 
-      const { tx } = await this.vault.redeem(parseShare(100), recipient, holder, { from: holder });
+      const { tx } = await this.vault.methods['redeem(uint256,address,address)'](
+        parseShare(100),
+        recipient,
+        holder,
+        { from: holder },
+      );
 
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
@@ -387,11 +432,112 @@ contract('ERC20TokenizedVault', function (accounts) {
 
     it('redeem with approval', async function () {
       await expectRevert(
-        this.vault.redeem(parseShare(100), recipient, holder, { from: other }),
+        this.vault.methods['redeem(uint256,address,address)'](parseShare(100), recipient, holder, { from: other }),
         'ERC20: insufficient allowance',
       );
 
-      await this.vault.redeem(parseShare(100), recipient, holder, { from: spender });
+      await this.vault.methods['redeem(uint256,address,address)'](
+        parseShare(100),
+        recipient,
+        holder,
+        { from: spender },
+      );
+    });
+  });
+
+  describe('slippage protection', function () {
+    beforeEach(async function () {
+      // fill the vault
+      await this.vault.methods['deposit(uint256,address)'](parseToken(10), recipient, { from: holder });
+    });
+
+    // Exploiting deposit slipage is realistic attack scenario!
+    // ---
+    // The "mint" can be replaced by a transfer. An attacker can try to frontrun
+    // a deposit, and steal the depositors assets by rounding down its share allocation.
+    // This is particularly true for vault with low liquidity.
+    it('deposit', async function () {
+      const value = parseToken(1);
+      const expected = await this.vault.previewDeposit(value);
+
+      // Create slippage (increase share price by adding assets to the vault)
+      await this.token.mint(this.vault.address, parseToken(1));
+
+      expect(await this.vault.previewDeposit(value)).to.be.bignumber.lt(expected);
+      expect(await this.vault.previewDeposit(value)).to.be.bignumber.gt('0');
+
+      await expectRevert(
+        this.vault.methods['deposit(uint256,address,uint256)'](
+          value,
+          recipient,
+          expected,
+          { from: holder },
+        ),
+        'ERC20TokenizedVault: deposit slippage protection',
+      );
+    });
+
+    it('mint', async function () {
+      const value = parseShare(1);
+      const expected = await this.vault.previewMint(value);
+
+      // Create slippage (increase share price by adding assets to the vault)
+      await this.token.mint(this.vault.address, parseToken(1));
+
+      expect(await this.vault.previewMint(value)).to.be.bignumber.gt(expected);
+
+      await expectRevert(
+        this.vault.methods['mint(uint256,address,uint256)'](
+          value,
+          recipient,
+          expected,
+          { from: holder },
+        ),
+        'ERC20TokenizedVault: mint slippage protection',
+      );
+    });
+
+    it('withdraw', async function () {
+      const value = parseToken(1);
+      const expected = await this.vault.previewWithdraw(value);
+
+      // Create slippage (dillute shares value by minting new unbacked shares)
+      await this.vault.mockMint(holder, parseShare(1));
+
+      expect(await this.vault.previewWithdraw(value)).to.be.bignumber.gt(expected);
+
+      await expectRevert(
+        this.vault.methods['withdraw(uint256,address,address,uint256)'](
+          value,
+          recipient,
+          recipient,
+          expected,
+          { from: recipient },
+        ),
+        'ERC20TokenizedVault: withdraw slippage protection',
+      );
+    });
+
+    it('redeem', async function () {
+      const value = parseShare(1);
+      const expected = await this.vault.previewRedeem(value);
+
+      // Create slippage (dillute shares value by minting new unbacked shares)
+      await this.vault.mockMint(holder, parseShare(1));
+
+      expect(await this.vault.previewRedeem(value)).to.be.bignumber.lt(expected);
+      expect(await this.vault.previewRedeem(value)).to.be.bignumber.gt('0');
+
+      await expectRevert(
+        this.vault.methods['redeem(uint256,address,address,uint256)'](
+          value,
+          recipient,
+          recipient,
+          expected,
+          { from: recipient },
+        ),
+        'ERC20TokenizedVault: redeem slippage protection',
+      );
     });
   });
 
@@ -409,7 +555,7 @@ contract('ERC20TokenizedVault', function (accounts) {
 
     // 1. Alice mints 2000 shares (costs 2000 tokens)
     {
-      const { tx } = await this.vault.mint(2000, user1, { from: user1 });
+      const { tx } = await this.vault.methods['mint(uint256,address)'](2000, user1, { from: user1 });
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: user1,
         to: this.vault.address,
@@ -432,7 +578,7 @@ contract('ERC20TokenizedVault', function (accounts) {
 
     // 2. Bob deposits 4000 tokens (mints 4000 shares)
     {
-      const { tx } = await this.vault.mint(4000, user2, { from: user2 });
+      const { tx } = await this.vault.methods['mint(uint256,address)'](4000, user2, { from: user2 });
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: user2,
         to: this.vault.address,
@@ -465,7 +611,7 @@ contract('ERC20TokenizedVault', function (accounts) {
 
     // 4. Alice deposits 2000 tokens (mints 1333 shares)
     {
-      const { tx } = await this.vault.deposit(2000, user1, { from: user1 });
+      const { tx } = await this.vault.methods['deposit(uint256,address)'](2000, user1, { from: user1 });
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: user1,
         to: this.vault.address,
@@ -489,7 +635,7 @@ contract('ERC20TokenizedVault', function (accounts) {
     // NOTE: Bob's assets spent got rounded up
     // NOTE: Alices's vault assets got rounded up
     {
-      const { tx } = await this.vault.mint(2000, user2, { from: user2 });
+      const { tx } = await this.vault.methods['mint(uint256,address)'](2000, user2, { from: user2 });
       expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: user2,
         to: this.vault.address,
@@ -522,7 +668,7 @@ contract('ERC20TokenizedVault', function (accounts) {
 
     // 7. Alice redeem 1333 shares (2428 assets)
     {
-      const { tx } = await this.vault.redeem(1333, user1, user1, { from: user1 });
+      const { tx } = await this.vault.methods['redeem(uint256,address,address)'](1333, user1, user1, { from: user1 });
       expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: user1,
         to: constants.ZERO_ADDRESS,
@@ -544,7 +690,7 @@ contract('ERC20TokenizedVault', function (accounts) {
 
     // 8. Bob withdraws 2929 assets (1608 shares)
     {
-      const { tx } = await this.vault.withdraw(2929, user2, user2, { from: user2 });
+      const { tx } = await this.vault.methods['withdraw(uint256,address,address)'](2929, user2, user2, { from: user2 });
       expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: user2,
         to: constants.ZERO_ADDRESS,
@@ -567,7 +713,7 @@ contract('ERC20TokenizedVault', function (accounts) {
     // 9. Alice withdraws 3643 assets (2000 shares)
     // NOTE: Bob's assets have been rounded back up
     {
-      const { tx } = await this.vault.withdraw(3643, user1, user1, { from: user1 });
+      const { tx } = await this.vault.methods['withdraw(uint256,address,address)'](3643, user1, user1, { from: user1 });
       expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: user1,
         to: constants.ZERO_ADDRESS,
@@ -589,7 +735,7 @@ contract('ERC20TokenizedVault', function (accounts) {
 
     // 10. Bob redeem 4392 shares (8001 tokens)
     {
-      const { tx } = await this.vault.redeem(4392, user2, user2, { from: user2 });
+      const { tx } = await this.vault.methods['redeem(uint256,address,address)'](4392, user2, user2, { from: user2 });
       expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: user2,
         to: constants.ZERO_ADDRESS,

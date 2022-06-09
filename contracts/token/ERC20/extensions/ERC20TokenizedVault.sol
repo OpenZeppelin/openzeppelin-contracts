@@ -100,6 +100,19 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         return shares;
     }
 
+    /**
+     * @dev Additional, non standard, version of {deposit} with EOA protection against slippage.
+     */
+    function deposit(
+        uint256 assets,
+        address receiver,
+        uint256 minShares
+    ) public virtual returns (uint256) {
+        uint256 shares = deposit(assets, receiver);
+        require(shares >= minShares, "ERC20TokenizedVault: deposit slippage protection");
+        return shares;
+    }
+
     /** @dev See {IERC4262-mint} */
     function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
         require(shares <= maxMint(receiver), "ERC20TokenizedVault: mint more than max");
@@ -107,6 +120,19 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         uint256 assets = previewMint(shares);
         _deposit(_msgSender(), receiver, assets, shares);
 
+        return assets;
+    }
+
+    /**
+     * @dev Additional, non standard, version of {mint} with EOA protection against slippage.
+     */
+    function mint(
+        uint256 shares,
+        address receiver,
+        uint256 maxAssets
+    ) public virtual returns (uint256) {
+        uint256 assets = mint(shares, receiver);
+        require(assets <= maxAssets, "ERC20TokenizedVault: mint slippage protection");
         return assets;
     }
 
@@ -124,6 +150,20 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         return shares;
     }
 
+    /**
+     * @dev Additional, non standard, version of {withdraw} with EOA protection against slippage.
+     */
+    function withdraw(
+        uint256 assets,
+        address receiver,
+        address owner,
+        uint256 maxShares
+    ) public virtual returns (uint256) {
+        uint256 shares = withdraw(assets, receiver, owner);
+        require(shares <= maxShares, "ERC20TokenizedVault: withdraw slippage protection");
+        return shares;
+    }
+
     /** @dev See {IERC4262-redeem} */
     function redeem(
         uint256 shares,
@@ -135,6 +175,20 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         uint256 assets = previewRedeem(shares);
         _withdraw(_msgSender(), receiver, owner, assets, shares);
 
+        return assets;
+    }
+
+    /**
+     * @dev Additional, non standard, version of {redeem} with EOA protection against slippage.
+     */
+    function redeem(
+        uint256 shares,
+        address receiver,
+        address owner,
+        uint256 minAssets
+    ) public virtual returns (uint256) {
+        uint256 assets = redeem(shares, receiver, owner);
+        require(assets >= minAssets, "ERC20TokenizedVault: redeem slippage protection");
         return assets;
     }
 
