@@ -81,3 +81,22 @@ transfer(recipient, 5 * (10 ** 18));
 A preset ERC20 is available, xref:api:presets#ERC20PresetMinterPauser[`ERC20PresetMinterPauser`]. It is preset to allow for token minting (create), stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
 
 This contract is ready to deploy without having to write any Solidity code.  It can be used as-is for quick prototyping and testing, but is also suitable for production environments.
+
+[[Recommendations]]
+== Recommendations
+
+* If your contract does not need to hold any tokens, consider adding to the `_transfer` function a check that prevents token from being sent to the contract address. It is extremely common for users to send tokens to the contract by mistake, and then they cannot be retrieved (see, for example, https://optimistic.etherscan.io/address/0x4200000000000000000000000000000000000042#tokentxns).
+
+  ```solidity
+      function _transfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {
+        require(from != address(0), "ERC20: transfer from the zero address");
+        require(to != address(0), "ERC20: transfer to the zero address");
+        require(to != address(this), "ERC20: transfer to the contract address");
+     .
+     .
+     .
+  ```
