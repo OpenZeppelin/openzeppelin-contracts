@@ -30,6 +30,11 @@ const argv = require('yargs/yargs')()
       choices: [ 'production', 'development' ],
       default: 'development',
     },
+    ir: {
+      alias: 'enableIR',
+      type: 'boolean',
+      default: false,
+    },
     compiler: {
       alias: 'compileVersion',
       type: 'string',
@@ -65,7 +70,7 @@ module.exports = {
         enabled: withOptimizations,
         runs: 200,
       },
-      viaIR: withOptimizations,
+      viaIR: withOptimizations && argv.ir,
     },
   },
   networks: {
