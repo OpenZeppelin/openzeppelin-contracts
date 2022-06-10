@@ -14,6 +14,7 @@ concurrency:
 
 jobs:
   lint:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -47,6 +48,7 @@ jobs:
       - uses: codecov/codecov-action@v3
 
   slither:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
