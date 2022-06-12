@@ -45,4 +45,18 @@ library Arrays {
             return low;
         }
     }
+
+    /**
+     * @dev Returns the index of element from an array
+     * it's search from the whole array and returns the index of the element in the given array
+     */
+
+    function indexOf(uint256[] storage array, uint256 element) public view returns (uint256, bool) {
+        for (uint256 i = 0; i < array.length; i++) {
+            if (array[i] == element) {
+                return (i, true);
+            }
+        }
+        return (0, false);
+    }
 }
