@@ -30,10 +30,15 @@ const argv = require('yargs/yargs')()
       choices: [ 'production', 'development' ],
       default: 'development',
     },
+    ir: {
+      alias: 'enableIR',
+      type: 'boolean',
+      default: false,
+    },
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.14',
+      default: '0.8.13',
     },
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
@@ -65,6 +70,7 @@ module.exports = {
         enabled: withOptimizations,
         runs: 200,
       },
+      viaIR: withOptimizations && argv.ir,
     },
   },
   networks: {
