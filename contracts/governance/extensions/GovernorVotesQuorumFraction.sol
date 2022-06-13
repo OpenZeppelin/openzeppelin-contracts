@@ -35,7 +35,9 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the current quorum numerator. See {quorumDenominator}.
      */
     function quorumNumerator() public view virtual returns (uint256) {
-        return quorumNumerator(block.number - 1);
+        return _quorumNumeratorHistory._checkpoints.length == 0
+            ? _quorumNumerator
+            : _quorumNumeratorHistory.latest();
     }
 
     /**
