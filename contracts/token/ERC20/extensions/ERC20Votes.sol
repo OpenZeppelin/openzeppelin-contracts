@@ -22,6 +22,7 @@ import "../../../governance/utils/Votes.sol";
  * _Available since v4.2._
  */
 abstract contract ERC20Votes is Votes, ERC20Permit {
+    // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() public view virtual override(ERC20Permit, EIP712) returns (bytes32) {
         return super.DOMAIN_SEPARATOR();
     }
