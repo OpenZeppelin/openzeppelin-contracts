@@ -4,6 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "./GovernorVotes.sol";
+import "../../utils/Checkpoints.sol";
 
 /**
  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token and a quorum expressed as a
@@ -12,7 +13,10 @@ import "./GovernorVotes.sol";
  * _Available since v4.3._
  */
 abstract contract GovernorVotesQuorumFraction is GovernorVotes {
-    uint256 private _quorumNumerator;
+    using Checkpoints for Checkpoints.History;
+
+    uint256 private _quorumNumerator; // DEPRECATED
+    Checkpoints.History private _quorumNumeratorHistory;
 
     event QuorumNumeratorUpdated(uint256 oldQuorumNumerator, uint256 newQuorumNumerator);
 
@@ -31,7 +35,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the current quorum numerator. See {quorumDenominator}.
      */
     function quorumNumerator() public view virtual returns (uint256) {
-        return _quorumNumerator;
+        return _quorumNumeratorHistory.latest();
     }
 
     /**
@@ -45,7 +49,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the quorum for a block number, in terms of number of votes: `supply * numerator / denominator`.
      */
     function quorum(uint256 blockNumber) public view virtual override returns (uint256) {
-        return (token.getPastTotalSupply(blockNumber) * quorumNumerator()) / quorumDenominator();
+        return (token.getPastTotalSupply(blockNumber) * _quorumNumeratorHistory.getAtBlock(blockNumber)) / quorumDenominator();
     }
 
     /**
@@ -77,8 +81,8 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
             "GovernorVotesQuorumFraction: quorumNumerator over quorumDenominator"
         );
 
-        uint256 oldQuorumNumerator = _quorumNumerator;
-        _quorumNumerator = newQuorumNumerator;
+        uint256 oldQuorumNumerator = _quorumNumeratorHistory.latest();
+        _quorumNumeratorHistory.push(newQuorumNumerator);
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
     }
