@@ -90,7 +90,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
             "GovernorVotesQuorumFraction: quorumNumerator over quorumDenominator"
         );
 
-        uint256 oldQuorumNumerator = _quorumNumeratorHistory.latest();
+        uint256 oldQuorumNumerator = quorumNumerator();
         _quorumNumeratorHistory.push(newQuorumNumerator);
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
