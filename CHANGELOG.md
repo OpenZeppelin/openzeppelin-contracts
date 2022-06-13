@@ -1,5 +1,9 @@
 # Changelog
 
+## Next 5.0.0
+
+* Remove presets in favor of the OZ Wizard.
+
 ## Unreleased
 
  * `TimelockController`: Migrate `_call` to `_execute` and allow inheritance and overriding similar to `Governor`. ([#3317](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3317))
