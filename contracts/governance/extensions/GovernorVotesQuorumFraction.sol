@@ -35,7 +35,16 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the current quorum numerator. See {quorumDenominator}.
      */
     function quorumNumerator() public view virtual returns (uint256) {
-        return _quorumNumeratorHistory.latest();
+        return quorumNumerator(block.number - 1);
+    }
+
+    /**
+     * @dev Returns the quorum numerator at a specific block number. See {quorumDenominator}.
+     */
+    function quorumNumerator(uint256 blockNumber) public view virtual returns (uint256) {
+        return _quorumNumeratorHistory._checkpoints.length == 0
+            ? _quorumNumerator
+            : _quorumNumeratorHistory.getAtBlock(blockNumber);
     }
 
     /**
@@ -49,7 +58,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the quorum for a block number, in terms of number of votes: `supply * numerator / denominator`.
      */
     function quorum(uint256 blockNumber) public view virtual override returns (uint256) {
-        return (token.getPastTotalSupply(blockNumber) * _quorumNumeratorHistory.getAtBlock(blockNumber)) / quorumDenominator();
+        return (token.getPastTotalSupply(blockNumber) * quorumNumerator(blockNumber)) / quorumDenominator();
     }
 
     /**
