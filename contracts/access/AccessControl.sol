@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (access/AccessControl.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (access/AccessControl.sol)
 
 pragma solidity ^0.8.0;
 
@@ -67,7 +67,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * _Available since v4.1._
      */
     modifier onlyRole(bytes32 role) {
-        _checkRole(role, _msgSender());
+        _checkRole(role);
         _;
     }
 
@@ -81,8 +81,20 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     /**
      * @dev Returns `true` if `account` has been granted `role`.
      */
-    function hasRole(bytes32 role, address account) public view override returns (bool) {
+    function hasRole(bytes32 role, address account) public view virtual override returns (bool) {
         return _roles[role].members[account];
+    }
+
+    /**
+     * @dev Revert with a standard message if `_msgSender()` is missing `role`.
+     * Overriding this function changes the behavior of the {onlyRole} modifier.
+     *
+     * Format of the revert message is described in {_checkRole}.
+     *
+     * _Available since v4.6._
+     */
+    function _checkRole(bytes32 role) internal view virtual {
+        _checkRole(role, _msgSender());
     }
 
     /**
@@ -92,7 +104,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      *  /^AccessControl: account (0x[0-9a-f]{40}) is missing role (0x[0-9a-f]{64})$/
      */
-    function _checkRole(bytes32 role, address account) internal view {
+    function _checkRole(bytes32 role, address account) internal view virtual {
         if (!hasRole(role, account)) {
             revert(
                 string(
@@ -113,7 +125,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * To change a role's admin, use {_setRoleAdmin}.
      */
-    function getRoleAdmin(bytes32 role) public view override returns (bytes32) {
+    function getRoleAdmin(bytes32 role) public view virtual override returns (bytes32) {
         return _roles[role].adminRole;
     }
 
@@ -126,6 +138,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Requirements:
      *
      * - the caller must have ``role``'s admin role.
+     *
+     * May emit a {RoleGranted} event.
      */
     function grantRole(bytes32 role, address account) public virtual override onlyRole(getRoleAdmin(role)) {
         _grantRole(role, account);
@@ -139,6 +153,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Requirements:
      *
      * - the caller must have ``role``'s admin role.
+     *
+     * May emit a {RoleRevoked} event.
      */
     function revokeRole(bytes32 role, address account) public virtual override onlyRole(getRoleAdmin(role)) {
         _revokeRole(role, account);
@@ -157,6 +173,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Requirements:
      *
      * - the caller must be `account`.
+     *
+     * May emit a {RoleRevoked} event.
      */
     function renounceRole(bytes32 role, address account) public virtual override {
         require(account == _msgSender(), "AccessControl: can only renounce roles for self");
@@ -170,6 +188,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * If `account` had not been already granted `role`, emits a {RoleGranted}
      * event. Note that unlike {grantRole}, this function doesn't perform any
      * checks on the calling account.
+     *
+     * May emit a {RoleGranted} event.
      *
      * [WARNING]
      * ====
@@ -201,6 +221,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * @dev Grants `role` to `account`.
      *
      * Internal function without access restriction.
+     *
+     * May emit a {RoleGranted} event.
      */
     function _grantRole(bytes32 role, address account) internal virtual {
         if (!hasRole(role, account)) {
@@ -213,6 +235,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * @dev Revokes `role` from `account`.
      *
      * Internal function without access restriction.
+     *
+     * May emit a {RoleRevoked} event.
      */
     function _revokeRole(bytes32 role, address account) internal virtual {
         if (hasRole(role, account)) {

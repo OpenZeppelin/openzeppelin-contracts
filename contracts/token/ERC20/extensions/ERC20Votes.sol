@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (token/ERC20/extensions/ERC20Votes.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20Votes.sol)
 
 pragma solidity ^0.8.0;
 
@@ -21,8 +21,6 @@ import "../../../utils/cryptography/ECDSA.sol";
  *
  * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it
  * requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
- * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
- * will significantly increase the base gas cost of transfers.
  *
  * _Available since v4.2._
  */
@@ -63,7 +61,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     /**
      * @dev Gets the current votes balance for `account`
      */
-    function getVotes(address account) public view override returns (uint256) {
+    function getVotes(address account) public view virtual override returns (uint256) {
         uint256 pos = _checkpoints[account].length;
         return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
     }
@@ -75,7 +73,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastVotes(address account, uint256 blockNumber) public view override returns (uint256) {
+    function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
@@ -88,7 +86,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber) public view override returns (uint256) {
+    function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
         return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }

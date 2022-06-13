@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (utils/Address.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (utils/Address.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.1;
 
 /**
  * @dev Collection of functions related to the address type
@@ -34,15 +34,11 @@ library Address {
      * ====
      */
     function isContract(address account) internal view returns (bool) {
-        // This method relies on extcodesize, which returns 0 for contracts in
-        // construction, since the code is only stored at the end of the
-        // constructor execution.
+        // This method relies on extcodesize/address.code.length, which returns 0
+        // for contracts in construction, since the code is only stored at the end
+        // of the constructor execution.
 
-        uint256 size;
-        assembly {
-            size := extcodesize(account)
-        }
-        return size > 0;
+        return account.code.length > 0;
     }
 
     /**
@@ -213,7 +209,7 @@ library Address {
             // Look for revert reason and bubble it up if present
             if (returndata.length > 0) {
                 // The easiest way to bubble the revert reason is using memory via assembly
-
+                /// @solidity memory-safe-assembly
                 assembly {
                     let returndata_size := mload(returndata)
                     revert(add(32, returndata), returndata_size)

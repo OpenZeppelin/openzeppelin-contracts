@@ -7,7 +7,7 @@ This set of interfaces, contracts, and utilities are all related to the https://
 
 TIP: For an overview of ERC20 tokens and a walk through on how to create a token contract read our xref:ROOT:erc20.adoc[ERC20 guide].
 
-There a few core contracts that implement the behavior specified in the EIP:
+There are a few core contracts that implement the behavior specified in the EIP:
 
 * {IERC20}: the interface all ERC20 implementations should conform to.
 * {IERC20Metadata}: the extended ERC20 interface including the <<ERC20-name,`name`>>, <<ERC20-symbol,`symbol`>> and <<ERC20-decimals,`decimals`>> functions.
@@ -24,6 +24,7 @@ Additionally there are multiple custom extensions, including:
 * {ERC20Votes}: support for voting and vote delegation.
 * {ERC20VotesComp}: support for voting and vote delegation (compatible with Compound's token, with uint96 restrictions).
 * {ERC20Wrapper}: wrapper to create an ERC20 backed by another ERC20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
+* {ERC20TokenizedVault}: tokenized vault that manages shares (represented as ERC20) that are backed by assets (another ERC20).
 
 Finally, there are some utilities to interact with ERC20 contracts in various ways.
 
@@ -61,6 +62,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC20Wrapper}}
 
 {{ERC20FlashMint}}
+
+{{ERC20TokenizedVault}}
 
 == Draft EIPs
 

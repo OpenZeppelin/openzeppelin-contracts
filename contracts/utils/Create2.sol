@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (utils/Create2.sol)
+// OpenZeppelin Contracts v4.4.1 (utils/Create2.sol)
 
 pragma solidity ^0.8.0;
 
@@ -35,6 +35,7 @@ library Create2 {
         address addr;
         require(address(this).balance >= amount, "Create2: insufficient balance");
         require(bytecode.length != 0, "Create2: bytecode length is zero");
+        /// @solidity memory-safe-assembly
         assembly {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
         }

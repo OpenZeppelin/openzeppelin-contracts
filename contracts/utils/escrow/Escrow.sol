@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (utils/escrow/Escrow.sol)
+// OpenZeppelin Contracts v4.4.1 (utils/escrow/Escrow.sol)
 
 pragma solidity ^0.8.0;
 
@@ -34,6 +34,8 @@ contract Escrow is Ownable {
     /**
      * @dev Stores the sent amount as credit to be withdrawn.
      * @param payee The destination address of the funds.
+     *
+     * Emits a {Deposited} event.
      */
     function deposit(address payee) public payable virtual onlyOwner {
         uint256 amount = msg.value;
@@ -50,6 +52,8 @@ contract Escrow is Ownable {
      * checks-effects-interactions pattern or using {ReentrancyGuard}.
      *
      * @param payee The address whose funds will be withdrawn and transferred to.
+     *
+     * Emits a {Withdrawn} event.
      */
     function withdraw(address payable payee) public virtual onlyOwner {
         uint256 payment = _deposits[payee];

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (token/ERC20/extensions/ERC20Snapshot.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/extensions/ERC20Snapshot.sol)
 
 pragma solidity ^0.8.0;
 
@@ -22,7 +22,7 @@ import "../../../utils/Counters.sol";
  * and the account address.
  *
  * NOTE: Snapshot policy can be customized by overriding the {_getCurrentSnapshotId} method. For example, having it
- * return `block.number` will trigger the creation of snapshot at the begining of each new block. When overridding this
+ * return `block.number` will trigger the creation of snapshot at the beginning of each new block. When overriding this
  * function, be careful about the monotonicity of its result. Non-monotonic snapshot ids will break the contract.
  *
  * Implementing snapshots for every block using this method will incur significant gas costs. For a gas-efficient
@@ -41,7 +41,7 @@ import "../../../utils/Counters.sol";
 
 abstract contract ERC20Snapshot is ERC20 {
     // Inspired by Jordi Baylina's MiniMeToken to record historical balances:
-    // https://github.com/Giveth/minimd/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
+    // https://github.com/Giveth/minime/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
 
     using Arrays for uint256[];
     using Counters for Counters.Counter;

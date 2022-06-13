@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (token/ERC20/utils/SafeERC20.sol)
+// OpenZeppelin Contracts v4.4.1 (token/ERC20/utils/SafeERC20.sol)
 
 pragma solidity ^0.8.0;
 
 import "../IERC20.sol";
+import "../extensions/draft-IERC20Permit.sol";
 import "../../../utils/Address.sol";
 
 /**
@@ -77,6 +78,22 @@ library SafeERC20 {
             uint256 newAllowance = oldAllowance - value;
             _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
         }
+    }
+
+    function safePermit(
+        IERC20Permit token,
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal {
+        uint256 nonceBefore = token.nonces(owner);
+        token.permit(owner, spender, value, deadline, v, r, s);
+        uint256 nonceAfter = token.nonces(owner);
+        require(nonceAfter == nonceBefore + 1, "SafeERC20: permit did not succeed");
     }
 
     /**

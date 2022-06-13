@@ -13,9 +13,12 @@ const files = proc.execFileSync(
 console.log('.API');
 
 function getPageTitle (directory) {
-  if (directory === 'metatx') {
+  switch (directory) {
+  case 'metatx':
     return 'Meta Transactions';
-  } else {
+  case 'common':
+    return 'Common (Tokens)';
+  default:
     return startCase(directory);
   }
 }

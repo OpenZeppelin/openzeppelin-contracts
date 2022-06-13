@@ -7,7 +7,7 @@ The OpenZeppelin Contracts provide a ton of useful utilities that you can use in
 
 === Checking Signatures On-Chain
 
-xref:api:cryptography.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.2.4/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
+xref:api:cryptography.adoc#ECDSA[`ECDSA`] provides functions for recovering and managing Ethereum account ECDSA signatures. These are often generated via https://web3js.readthedocs.io/en/v1.7.3/web3-eth.html#sign[`web3.eth.sign`], and are a 65 byte array (of type `bytes` in Solidity) arranged the following way: `[[v (1)], [r (32)], [s (32)]]`.
 
 The data signer can be recovered with xref:api:cryptography.adoc#ECDSA-recover-bytes32-bytes-[`ECDSA.recover`], and its address compared to verify the signature. Most wallets will hash the data to sign and add the prefix '\x19Ethereum Signed Message:\n', so when attempting to recover the signer of an Ethereum signed message hash, you'll want to use xref:api:cryptography.adoc#ECDSA-toEthSignedMessageHash-bytes32-[`toEthSignedMessageHash`].
 
@@ -26,7 +26,11 @@ WARNING: Getting signature verification right is not trivial: make sure you full
 
 === Verifying Merkle Proofs
 
-xref:api:cryptography.adoc#MerkleProof[`MerkleProof`] provides xref:api:cryptography.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-[`verify`], which can prove that some value is part of a https://en.wikipedia.org/wiki/Merkle_tree[Merkle tree].
+xref:api:cryptography.adoc#MerkleProof[`MerkleProof`] provides:
+
+* xref:api:cryptography.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-[`verify`] - can prove that some value is part of a https://en.wikipedia.org/wiki/Merkle_tree[Merkle tree].
+
+* xref:api:cryptography.adoc#MerkleProof-multiProofVerify-bytes32-bytes32---bytes32---bool---[`multiProofVerify`] - can prove multiple values are part of a Merkle tree.
 
 [[introspection]]
 == Introspection
@@ -98,6 +102,53 @@ If you need support for more powerful collections than Solidity's native arrays 
 Want to check if an address is a contract? Use xref:api:utils.adoc#Address[`Address`] and xref:api:utils.adoc#Address-isContract-address-[`Address.isContract()`].
 
 Want to keep track of some numbers that increment by 1 every time you want another one? Check out xref:api:utils.adoc#Counters[`Counters`]. This is useful for lots of things, like creating incremental identifiers, as shown on the xref:erc721.adoc[ERC721 guide].
+
+=== Base64
+
+xref:api:utils.adoc#Base64[`Base64`] util allows you to transform `bytes32` data into its Base64 `string` representation. 
+
+This is specially useful to build URL-safe tokenURIs for both xref:api:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-[`ERC721`] or xref:api:token/ERC1155.adoc#IERC1155MetadataURI-uri-uint256-[`ERC1155`]. This library provides a clever way to serve URL-safe https://developer.mozilla.org/docs/Web/HTTP/Basics_of_HTTP/Data_URIs/[Data URI] compliant strings to serve on-chain data structures.
+
+Consider this is an example to send JSON Metadata through a Base64 Data URI using an ERC721:
+
+[source, solidity]
+----
+// contracts/My721Token.sol
+// SPDX-License-Identifier: MIT
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Base64.sol";
+
+contract My721Token is ERC721 {
+    using Strings for uint256;
+
+    constructor() ERC721("My721Token", "MTK") {}
+    
+    ...
+
+    function tokenURI(uint256 tokenId)
+        public
+        pure
+        override
+        returns (string memory)
+    {
+        bytes memory dataURI = abi.encodePacked(
+            '{',
+                '"name": "My721Token #', tokenId.toString(), '"',
+                // Replace with extra ERC721 Metadata properties
+            '}'
+        );
+
+        return string(
+            abi.encodePacked(
+                "data:application/json;base64,", 
+                Base64.encode(dataURI)
+            )
+        );
+    }
+}
+----
 
 === Multicall
 

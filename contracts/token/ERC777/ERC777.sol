@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (token/ERC777/ERC777.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC777/ERC777.sol)
 
 pragma solidity ^0.8.0;
 
@@ -144,16 +144,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Also emits a {Sent} event.
      */
     function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-        require(recipient != address(0), "ERC777: transfer to the zero address");
-
-        address from = _msgSender();
-
-        _callTokensToSend(from, from, recipient, amount, "", "");
-
-        _move(from, from, recipient, amount, "", "");
-
-        _callTokensReceived(from, from, recipient, amount, "", "", false);
-
+        _send(_msgSender(), recipient, amount, "", "", false);
         return true;
     }
 
@@ -258,6 +249,9 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev See {IERC20-approve}.
      *
+     * NOTE: If `value` is the maximum `uint256`, the allowance is not updated on
+     * `transferFrom`. This is semantically equivalent to an infinite approval.
+     *
      * Note that accounts cannot have allowance issued by their operators.
      */
     function approve(address spender, uint256 value) public virtual override returns (bool) {
@@ -268,6 +262,9 @@ contract ERC777 is Context, IERC777, IERC20 {
 
     /**
      * @dev See {IERC20-transferFrom}.
+     *
+     * NOTE: Does not update the allowance if the current allowance
+     * is the maximum `uint256`.
      *
      * Note that operator and allowance concepts are orthogonal: operators cannot
      * call `transferFrom` (unless they have allowance), and accounts with
@@ -280,21 +277,9 @@ contract ERC777 is Context, IERC777, IERC20 {
         address recipient,
         uint256 amount
     ) public virtual override returns (bool) {
-        require(recipient != address(0), "ERC777: transfer to the zero address");
-        require(holder != address(0), "ERC777: transfer from the zero address");
-
         address spender = _msgSender();
-
-        _callTokensToSend(spender, holder, recipient, amount, "", "");
-
-        _move(spender, holder, recipient, amount, "", "");
-
-        uint256 currentAllowance = _allowances[holder][spender];
-        require(currentAllowance >= amount, "ERC777: transfer amount exceeds allowance");
-        _approve(holder, spender, currentAllowance - amount);
-
-        _callTokensReceived(spender, holder, recipient, amount, "", "", false);
-
+        _spendAllowance(holder, spender, amount);
+        _send(holder, recipient, amount, "", "", false);
         return true;
     }
 
@@ -303,7 +288,8 @@ contract ERC777 is Context, IERC777, IERC20 {
      * the total supply.
      *
      * If a send hook is registered for `account`, the corresponding function
-     * will be called with `operator`, `data` and `operatorData`.
+     * will be called with the caller address as the `operator` and with
+     * `userData` and `operatorData`.
      *
      * See {IERC777Sender} and {IERC777Recipient}.
      *
@@ -382,8 +368,8 @@ contract ERC777 is Context, IERC777, IERC20 {
         bytes memory operatorData,
         bool requireReceptionAck
     ) internal virtual {
-        require(from != address(0), "ERC777: send from the zero address");
-        require(to != address(0), "ERC777: send to the zero address");
+        require(from != address(0), "ERC777: transfer from the zero address");
+        require(to != address(0), "ERC777: transfer to the zero address");
 
         address operator = _msgSender();
 
@@ -457,7 +443,7 @@ contract ERC777 is Context, IERC777, IERC20 {
         address holder,
         address spender,
         uint256 value
-    ) internal {
+    ) internal virtual {
         require(holder != address(0), "ERC777: approve from the zero address");
         require(spender != address(0), "ERC777: approve to the zero address");
 
@@ -513,6 +499,28 @@ contract ERC777 is Context, IERC777, IERC20 {
             IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
         } else if (requireReceptionAck) {
             require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
+        }
+    }
+
+    /**
+     * @dev Updates `owner` s allowance for `spender` based on spent `amount`.
+     *
+     * Does not update the allowance amount in case of infinite allowance.
+     * Revert if not enough allowance is available.
+     *
+     * Might emit an {Approval} event.
+     */
+    function _spendAllowance(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal virtual {
+        uint256 currentAllowance = allowance(owner, spender);
+        if (currentAllowance != type(uint256).max) {
+            require(currentAllowance >= amount, "ERC777: insufficient allowance");
+            unchecked {
+                _approve(owner, spender, currentAllowance - amount);
+            }
         }
     }
 

@@ -1,9 +1,11 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { web3 } = require('@openzeppelin/test-helpers/src/setup');
+const { getSlot, ImplementationSlot } = require('../../helpers/erc1967');
 
 const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
 const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock');
-const UUPSUpgradeableBrokenMock = artifacts.require('UUPSUpgradeableBrokenMock');
+const UUPSUpgradeableLegacyMock = artifacts.require('UUPSUpgradeableLegacyMock');
 const CountersImpl = artifacts.require('CountersImpl');
 
 contract('UUPSUpgradeable', function (accounts) {
@@ -11,7 +13,6 @@ contract('UUPSUpgradeable', function (accounts) {
     this.implInitial = await UUPSUpgradeableMock.new();
     this.implUpgradeOk = await UUPSUpgradeableMock.new();
     this.implUpgradeUnsafe = await UUPSUpgradeableUnsafeMock.new();
-    this.implUpgradeBroken = await UUPSUpgradeableBrokenMock.new();
     this.implUpgradeNonUUPS = await CountersImpl.new();
   });
 
@@ -44,18 +45,11 @@ contract('UUPSUpgradeable', function (accounts) {
     expectEvent(receipt, 'Upgraded', { implementation: this.implUpgradeUnsafe.address });
   });
 
-  it('reject upgrade to broken upgradeable implementation', async function () {
-    await expectRevert(
-      this.instance.upgradeTo(this.implUpgradeBroken.address),
-      'ERC1967Upgrade: upgrade breaks further upgrades',
-    );
-  });
-
   // delegate to a non existing upgradeTo function causes a low level revert
   it('reject upgrade to non uups implementation', async function () {
     await expectRevert(
       this.instance.upgradeTo(this.implUpgradeNonUUPS.address),
-      'Address: low-level delegate call failed',
+      'ERC1967Upgrade: new implementation is not UUPS',
     );
   });
 
@@ -63,10 +57,29 @@ contract('UUPSUpgradeable', function (accounts) {
     const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
     const otherInstance = await UUPSUpgradeableMock.at(address);
 
-    // infinite loop reverts when a nested call is out-of-gas
     await expectRevert(
       this.instance.upgradeTo(otherInstance.address),
-      'Address: low-level delegate call failed',
+      'ERC1967Upgrade: new implementation is not UUPS',
     );
+  });
+
+  it('can upgrade from legacy implementations', async function () {
+    const legacyImpl = await UUPSUpgradeableLegacyMock.new();
+    const legacyInstance = await ERC1967Proxy.new(legacyImpl.address, '0x')
+      .then(({ address }) => UUPSUpgradeableLegacyMock.at(address));
+
+    const receipt = await legacyInstance.upgradeTo(this.implInitial.address);
+
+    const UpgradedEvents = receipt.logs.filter(({ address, event }) =>
+      address === legacyInstance.address &&
+      event === 'Upgraded',
+    );
+    expect(UpgradedEvents.length).to.be.equal(1);
+
+    expectEvent(receipt, 'Upgraded', { implementation: this.implInitial.address });
+
+    const implementationSlot = await getSlot(legacyInstance, ImplementationSlot);
+    const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+    expect(implementationAddress).to.be.equal(this.implInitial.address);
   });
 });

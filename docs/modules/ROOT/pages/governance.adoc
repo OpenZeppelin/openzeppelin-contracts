@@ -28,7 +28,7 @@ When using a timelock with your Governor contract, you can use either OpenZeppel
 
 === Tally
 
-https://www.withtally.com[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
+https://www.tally.xyz[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
 
 For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use Defender Admin as an alternative interface.
 
@@ -248,7 +248,7 @@ contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, Gove
 
 It is good practice to add a timelock to governance decisions. This allows users to exit the system if they disagree with a decision before it is executed. We will use OpenZeppelin’s TimelockController in combination with the GovernorTimelockControl module.
 
-IMPORTANT: When using a timelock, it is the timelock that will execute proposals and thus the timelock that should hold any funds, ownership, and access control roles. Funds in the Governor contract are not currently retrievable when using a timelock! (As of version 4.3 there is a caveat when using the Compound Timelock: ETH in the timelock is not easily usable, so it is recommended to manage ERC20 funds only in this combination until a future version resolves the issue.)
+IMPORTANT: When using a timelock, it is the timelock that will execute proposals and thus the timelock that should hold any funds, ownership, and access control roles. Before version 4.5 there was no way to recover funds in the Governor contract when using a timelock! Before version 4.3, when using the Compound Timelock, ETH in the timelock was not easily accessible.
 
 TimelockController uses an AccessControl setup that we need to understand in order to set up roles.
 
@@ -294,7 +294,9 @@ This will create a new proposal, with a proposal id that is obtained by hashing 
 
 === Cast a Vote
 
-Once a proposal is active, stakeholders can cast their vote. This is done through a function in the Governor contract that users can invoke directly from a governance UI such as Tally.
+Once a proposal is active, delegates can cast their vote. Note that it is delegates who carry voting power: if a token holder wants to participate, they can set a trusted representative as their delegate, or they can become a delegate themselves by self-delegating their voting power.
+
+Votes are cast by interacting with the Governor contract through the `castVote` family of functions. Voters would generally invoke this from a governance UI such as Tally.
 
 image::tally-vote.png[Voting in Tally]
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.0 (utils/cryptography/ECDSA.sol)
+// OpenZeppelin Contracts (last updated v4.5.0) (utils/cryptography/ECDSA.sol)
 
 pragma solidity ^0.8.0;
 
@@ -64,6 +64,7 @@ library ECDSA {
             uint8 v;
             // ecrecover takes the signature parameters, and the only way to get them
             // currently is to use assembly.
+            /// @solidity memory-safe-assembly
             assembly {
                 r := mload(add(signature, 0x20))
                 s := mload(add(signature, 0x40))
@@ -75,6 +76,7 @@ library ECDSA {
             bytes32 vs;
             // ecrecover takes the signature parameters, and the only way to get them
             // currently is to use assembly.
+            /// @solidity memory-safe-assembly
             assembly {
                 r := mload(add(signature, 0x20))
                 vs := mload(add(signature, 0x40))
@@ -117,12 +119,8 @@ library ECDSA {
         bytes32 r,
         bytes32 vs
     ) internal pure returns (address, RecoverError) {
-        bytes32 s;
-        uint8 v;
-        assembly {
-            s := and(vs, 0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff)
-            v := add(shr(255, vs), 27)
-        }
+        bytes32 s = vs & bytes32(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+        uint8 v = uint8((uint256(vs) >> 255) + 27);
         return tryRecover(hash, v, r, s);
     }
 
