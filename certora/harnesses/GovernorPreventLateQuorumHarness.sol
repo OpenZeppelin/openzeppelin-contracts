@@ -104,17 +104,6 @@ contract GovernorPreventLateQuorumHarness is Governor, GovernorCountingSimple, G
 
         return deltaWeight;
     }
-    /*
-    function castVote(
-        uint256 proposalId,
-        address account,
-        uint8 support,
-        string memory reason,
-        bytes memory params
-    ) public returns(uint256) {
-        return _castVote(proposalId, account, support, reason, params);
-    }
-    */
 
     function lateQuorumVoteExtension() public view virtual override returns (uint64) {
         return super.lateQuorumVoteExtension();

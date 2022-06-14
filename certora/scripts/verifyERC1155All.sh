@@ -8,4 +8,4 @@ certoraRun \
     --loop_iter 3 \
     --cloud \
     --send_only \
-    --msg "ERC1155 Burnable verification all rules"
+    --msg "ERC1155 verification all rules "

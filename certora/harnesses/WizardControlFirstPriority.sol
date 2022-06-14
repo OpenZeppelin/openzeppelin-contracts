@@ -7,6 +7,7 @@ import "../munged/governance/extensions/GovernorVotes.sol";
 import "../munged/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "../munged/governance/extensions/GovernorTimelockControl.sol";
 import "../munged/governance/extensions/GovernorProposalThreshold.sol";
+import "../munged/token/ERC20/extensions/ERC20Votes.sol";
 
 /* 
 Wizard options:
