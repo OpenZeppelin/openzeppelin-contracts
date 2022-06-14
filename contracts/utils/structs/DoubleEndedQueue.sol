@@ -38,8 +38,8 @@ library DoubleEndedQueue {
      * directly. Use the functions provided below instead. Modifying the struct manually may violate assumptions and
      * lead to unexpected behavior.
      *
-     * Indices are in the range [begin, end) which means the first item is at data[begin] and the last item is at
-     * data[end - 1].
+     * Indices are in the range [begin, end) which means the first item is at data[begin] and the last item (if not
+     * empty) is at data[end - 1].
      */
     struct Bytes32Deque {
         int128 _begin;
