@@ -3,4 +3,4 @@
 set -euo pipefail
 
 npm run generate
-git diff --quiet --exit-code
+git diff --exit-code
