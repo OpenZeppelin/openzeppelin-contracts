@@ -14,6 +14,7 @@ concurrency:
 
 jobs:
   lint:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -33,8 +34,10 @@ jobs:
           ENABLE_GAS_REPORT: true
       - run: npm run test:inheritance
       - run: npm run test:generation
+        if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
 
   coverage:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -46,6 +49,7 @@ jobs:
       - uses: codecov/codecov-action@v3
 
   slither:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

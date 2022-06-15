@@ -18,7 +18,7 @@ import "../../../utils/math/Math.sol";
  *
  * _Available since v4.7._
  */
-abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
+abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
 
     IERC20Metadata private immutable _asset;
@@ -92,7 +92,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
 
     /** @dev See {IERC4262-deposit} */
     function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
-        require(assets <= maxDeposit(receiver), "ERC20TokenizedVault: deposit more than max");
+        require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
 
         uint256 shares = previewDeposit(assets);
         _deposit(_msgSender(), receiver, assets, shares);
@@ -102,7 +102,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
 
     /** @dev See {IERC4262-mint} */
     function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
-        require(shares <= maxMint(receiver), "ERC20TokenizedVault: mint more than max");
+        require(shares <= maxMint(receiver), "ERC4626: mint more than max");
 
         uint256 assets = previewMint(shares);
         _deposit(_msgSender(), receiver, assets, shares);
@@ -116,7 +116,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         address receiver,
         address owner
     ) public virtual override returns (uint256) {
-        require(assets <= maxWithdraw(owner), "ERC20TokenizedVault: withdraw more than max");
+        require(assets <= maxWithdraw(owner), "ERC4626: withdraw more than max");
 
         uint256 shares = previewWithdraw(assets);
         _withdraw(_msgSender(), receiver, owner, assets, shares);
@@ -130,7 +130,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         address receiver,
         address owner
     ) public virtual override returns (uint256) {
-        require(shares <= maxRedeem(owner), "ERC20TokenizedVault: redeem more than max");
+        require(shares <= maxRedeem(owner), "ERC4626: redeem more than max");
 
         uint256 assets = previewRedeem(shares);
         _withdraw(_msgSender(), receiver, owner, assets, shares);
