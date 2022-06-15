@@ -283,7 +283,7 @@ library Arrays {
             len--;
         }
 
-        // Return the array formed.
+        // Return the new array formed.
         return new_array;
     }
 }
