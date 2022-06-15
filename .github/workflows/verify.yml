@@ -3,6 +3,7 @@ name: Certora
 on:
   push:
     branches:
+      - master
       - main
       - certora/erc20
       - certora/erc1155ext
