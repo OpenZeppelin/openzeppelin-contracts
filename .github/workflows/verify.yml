@@ -1,0 +1,64 @@
+name: Certora
+
+on:
+  push:
+    branches:
+      - main
+      - certora/erc20
+      - certora/erc1155ext
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install python
+        uses: actions/setup-python@v2
+        with: { python-version: 3.6, cache: 'pip' }
+
+      - name: Install java
+        uses: actions/setup-java@v1
+        with: { java-version: "11", java-package: jre }
+
+      - name: Install certora
+        run: pip install certora-cli
+
+      - name: Install solc
+        run: |
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.2/solc-static-linux
+          chmod +x solc-static-linux
+          sudo mv solc-static-linux /usr/local/bin/solc8.2
+
+      - name: Verify rule ${{ matrix.script }}
+        run: |
+          touch certora/applyHarness.patch
+          make -C certora munged
+          echo "key length" ${#CERTORAKEY}
+          sh certora/scripts/${{ matrix.script }}
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+
+      matrix:
+        script:
+#          - old/verifyTimelock.sh
+#          - old/verifyERC1155.sh
+#          - old/verifyERC20FlashMint.sh
+#          - old/verifyERC20Wrapper.sh
+#          - old/verifyAccessControl.sh
+#          - old/verifyERC20Votes.sh "checking ERC20Votes.spec on ERC20Votes.sol"
+#          - old/verifyERC721Votes.sh "checking ERC721Votes.spec on draft-ERC721Votes.sol and Votes.sol"
+          - Round3/verifyERC1155Burnable.sh
+          - Round3/verifyERC1155Supply.sh
+          - Round3/verifyERC1155Pausable.sh
+          - Round3/verifyInitializable.sh
+          - Round3/verifyGovernorPreventLateQuorum.sh
+
+
+
+
