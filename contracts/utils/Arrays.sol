@@ -89,7 +89,7 @@ library Arrays {
 
     /*
     * @dev
-    * [Ref line 24] :: Arranges the function from lowest to highest.
+    * [Ref line 65] :: Arranges the function from lowest to highest.
     *
     * @param:
     * uint256[] _array -> Array to be sorted, passed from sortAsc().
@@ -99,7 +99,7 @@ library Arrays {
     */
     function _sortAsc(uint256[] storage _array) private returns(uint256[] memory)
     {
-        // In this function block, the length of the array is >= 2 [ref line 40].
+        // In this function block, the length of the array is >= 2 [ref line 81].
         /*
         * @notice
         * The first element of the array is taken and assigned to the min variable.
@@ -204,7 +204,7 @@ library Arrays {
 
     /*
     * @dev
-    * [Ref line 139] :: Arranges the function from highest to lowest.
+    * [Ref line 180] :: Arranges the function from highest to lowest.
     *
     * @param:
     * uint256[] _array -> Array to be sorted, passed from sortDesc().
@@ -214,7 +214,7 @@ library Arrays {
     */
     function _sortDesc(uint256[] storage _array) private returns(uint256[] memory)
     {
-        // In this function block, the length of the array is >= 2 [ref line 155].
+        // In this function block, the length of the array is >= 2 [ref line 196].
         /*
         * @notice
         * The first element of the array is taken and assigned to the max variable.
