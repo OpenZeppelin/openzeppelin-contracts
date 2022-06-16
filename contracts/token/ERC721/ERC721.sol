@@ -338,9 +338,10 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         _beforeTokenTransfer(from, to, tokenId);
 
         // Clear approvals from the previous owner
-        _approve(address(0), tokenId);
+        delete _tokenApprovals[tokenId];
 
-        _balances[from] -= 1;
+
+    _balances[from] -= 1;
         _balances[to] += 1;
         _owners[tokenId] = to;
 
