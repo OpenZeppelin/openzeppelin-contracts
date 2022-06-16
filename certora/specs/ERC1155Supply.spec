@@ -3,6 +3,7 @@ methods {
     totalSupply(uint256) returns uint256 envfree
     balanceOf(address, uint256) returns uint256 envfree
     exists_wrapper(uint256) returns bool envfree
+    owner() returns address envfree
 }
  
 /// given two different token ids, if totalSupply for one changes, then
@@ -19,6 +20,7 @@ filtered {
     uint256 token2_before = totalSupply(token2);
 
     env e; calldataarg args;
+    require e.msg.sender != owner(); // owner can call mintBatch and burnBatch in our harness
     f(e, args);
 
     uint256 token1_after = totalSupply(token1);

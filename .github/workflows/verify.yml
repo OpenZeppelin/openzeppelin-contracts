@@ -3,6 +3,7 @@ name: Certora
 on:
   push:
     branches:
+      - master
       - main
       - certora/erc20
       - certora/erc1155ext
@@ -27,9 +28,9 @@ jobs:
 
       - name: Install solc
         run: |
-          wget https://github.com/ethereum/solidity/releases/download/v0.8.2/solc-static-linux
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.4/solc-static-linux
           chmod +x solc-static-linux
-          sudo mv solc-static-linux /usr/local/bin/solc8.2
+          sudo mv solc-static-linux /usr/local/bin/solc8.4
 
       - name: Verify rule ${{ matrix.script }}
         run: |
