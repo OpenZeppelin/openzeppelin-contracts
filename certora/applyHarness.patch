@@ -1,12 +1,12 @@
 diff -ruN .gitignore .gitignore
 --- .gitignore	1969-12-31 16:00:00.000000000 -0800
-+++ .gitignore	2022-06-06 11:21:40.000000000 -0700
++++ .gitignore	2022-06-06 12:25:10.000000000 -0700
 @@ -0,0 +1,2 @@
 +*
 +!.gitignore
 diff -ruN access/AccessControl.sol access/AccessControl.sol
 --- access/AccessControl.sol	2022-06-06 10:42:37.000000000 -0700
-+++ access/AccessControl.sol	2022-06-06 11:21:40.000000000 -0700
++++ access/AccessControl.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -93,7 +93,7 @@
       *
       * _Available since v4.6._
@@ -16,9 +16,41 @@ diff -ruN access/AccessControl.sol access/AccessControl.sol
          _checkRole(role, _msgSender());
      }
  
+diff -ruN access/Ownable.sol access/Ownable.sol
+--- access/Ownable.sol	2022-06-14 06:30:55.000000000 -0700
++++ access/Ownable.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -30,14 +30,6 @@
+     }
+ 
+     /**
+-     * @dev Throws if called by any account other than the owner.
+-     */
+-    modifier onlyOwner() {
+-        _checkOwner();
+-        _;
+-    }
+-
+-    /**
+      * @dev Returns the address of the current owner.
+      */
+     function owner() public view virtual returns (address) {
+@@ -45,10 +37,11 @@
+     }
+ 
+     /**
+-     * @dev Throws if the sender is not the owner.
++     * @dev Throws if called by any account other than the owner.
+      */
+-    function _checkOwner() internal view virtual {
++    modifier onlyOwner() {
+         require(owner() == _msgSender(), "Ownable: caller is not the owner");
++        _;
+     }
+ 
+     /**
 diff -ruN governance/Governor.sol governance/Governor.sol
 --- governance/Governor.sol	2022-06-06 10:42:37.000000000 -0700
-+++ governance/Governor.sol	2022-06-06 11:21:40.000000000 -0700
++++ governance/Governor.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -44,7 +44,7 @@
  
      string private _name;
@@ -30,7 +62,7 @@ diff -ruN governance/Governor.sol governance/Governor.sol
      // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
 diff -ruN governance/TimelockController.sol governance/TimelockController.sol
 --- governance/TimelockController.sol	2022-06-06 10:42:37.000000000 -0700
-+++ governance/TimelockController.sol	2022-06-06 11:21:40.000000000 -0700
++++ governance/TimelockController.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -28,10 +28,10 @@
      bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
      bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
@@ -45,8 +77,8 @@ diff -ruN governance/TimelockController.sol governance/TimelockController.sol
      /**
       * @dev Emitted when a call is scheduled as part of operation `id`.
 diff -ruN governance/extensions/GovernorCountingSimple.sol governance/extensions/GovernorCountingSimple.sol
---- governance/extensions/GovernorCountingSimple.sol	2022-06-06 10:42:37.000000000 -0700
-+++ governance/extensions/GovernorCountingSimple.sol	2022-06-06 11:21:40.000000000 -0700
+--- governance/extensions/GovernorCountingSimple.sol	2022-06-14 16:49:50.000000000 -0700
++++ governance/extensions/GovernorCountingSimple.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -27,7 +27,7 @@
          mapping(address => bool) hasVoted;
      }
@@ -58,21 +90,21 @@ diff -ruN governance/extensions/GovernorCountingSimple.sol governance/extensions
       * @dev See {IGovernor-COUNTING_MODE}.
 diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensions/GovernorPreventLateQuorum.sol
 --- governance/extensions/GovernorPreventLateQuorum.sol	2022-06-06 10:42:37.000000000 -0700
-+++ governance/extensions/GovernorPreventLateQuorum.sol	2022-06-06 11:21:40.000000000 -0700
++++ governance/extensions/GovernorPreventLateQuorum.sol	2022-06-15 17:00:30.000000000 -0700
 @@ -21,8 +21,8 @@
      using SafeCast for uint256;
      using Timers for Timers.BlockNumber;
  
 -    uint64 private _voteExtension;
 -    mapping(uint256 => Timers.BlockNumber) private _extendedDeadlines;
-+    uint64 internal _voteExtension;
-+    mapping(uint256 => Timers.BlockNumber) internal _extendedDeadlines;
++    uint64 internal _voteExtension;                                         // PRIVATE => INTERNAL
++    mapping(uint256 => Timers.BlockNumber) internal _extendedDeadlines;     // PRIVATE => INTERNAL
  
      /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
      event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
 diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
 --- governance/utils/Votes.sol	2022-06-06 10:42:37.000000000 -0700
-+++ governance/utils/Votes.sol	2022-06-06 11:21:40.000000000 -0700
++++ governance/utils/Votes.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -35,7 +35,25 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -145,9 +177,249 @@ diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
 -    function _getVotingUnits(address) internal view virtual returns (uint256);
 +    function _getVotingUnits(address) public virtual returns (uint256); // HARNESS: internal -> public
  }
+diff -ruN metatx/MinimalForwarder.sol metatx/MinimalForwarder.sol
+--- metatx/MinimalForwarder.sol	2022-06-14 06:30:55.000000000 -0700
++++ metatx/MinimalForwarder.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -8,11 +8,6 @@
+ 
+ /**
+  * @dev Simple minimal forwarder to be used together with an ERC2771 compatible contract. See {ERC2771Context}.
+- *
+- * MinimalForwarder is mainly meant for testing, as it is missing features to be a good production-ready forwarder. This
+- * contract does not intend to have all the properties that are needed for a sound forwarding system. A fully
+- * functioning forwarding system with good properties requires more complexity. We suggest you look at other projects
+- * such as the GSN which do have the goal of building a system like that.
+  */
+ contract MinimalForwarder is EIP712 {
+     using ECDSA for bytes32;
+diff -ruN mocks/ERC20TokenizedVaultMock.sol mocks/ERC20TokenizedVaultMock.sol
+--- mocks/ERC20TokenizedVaultMock.sol	1969-12-31 16:00:00.000000000 -0800
++++ mocks/ERC20TokenizedVaultMock.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -0,0 +1,22 @@
++// SPDX-License-Identifier: MIT
++
++pragma solidity ^0.8.0;
++
++import "../token/ERC20/extensions/ERC20TokenizedVault.sol";
++
++// mock class using ERC20
++contract ERC20TokenizedVaultMock is ERC20TokenizedVault {
++    constructor(
++        IERC20Metadata asset,
++        string memory name,
++        string memory symbol
++    ) ERC20(name, symbol) ERC20TokenizedVault(asset) {}
++
++    function mockMint(address account, uint256 amount) public {
++        _mint(account, amount);
++    }
++
++    function mockBurn(address account, uint256 amount) public {
++        _burn(account, amount);
++    }
++}
+diff -ruN mocks/ERC4626Mock.sol mocks/ERC4626Mock.sol
+--- mocks/ERC4626Mock.sol	2022-06-15 14:13:43.000000000 -0700
++++ mocks/ERC4626Mock.sol	1969-12-31 16:00:00.000000000 -0800
+@@ -1,22 +0,0 @@
+-// SPDX-License-Identifier: MIT
+-
+-pragma solidity ^0.8.0;
+-
+-import "../token/ERC20/extensions/ERC4626.sol";
+-
+-// mock class using ERC20
+-contract ERC4626Mock is ERC4626 {
+-    constructor(
+-        IERC20Metadata asset,
+-        string memory name,
+-        string memory symbol
+-    ) ERC20(name, symbol) ERC4626(asset) {}
+-
+-    function mockMint(address account, uint256 amount) public {
+-        _mint(account, amount);
+-    }
+-
+-    function mockBurn(address account, uint256 amount) public {
+-        _burn(account, amount);
+-    }
+-}
+diff -ruN mocks/MathMock.sol mocks/MathMock.sol
+--- mocks/MathMock.sol	2022-06-14 06:30:55.000000000 -0700
++++ mocks/MathMock.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -29,8 +29,4 @@
+     ) public pure returns (uint256) {
+         return Math.mulDiv(a, b, denominator, direction);
+     }
+-
+-    function sqrt(uint256 a, Math.Rounding direction) public pure returns (uint256) {
+-        return Math.sqrt(a, direction);
+-    }
+ }
+diff -ruN mocks/SafeERC20Helper.sol mocks/SafeERC20Helper.sol
+--- mocks/SafeERC20Helper.sol	2022-06-14 06:30:55.000000000 -0700
++++ mocks/SafeERC20Helper.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -4,7 +4,6 @@
+ 
+ import "../utils/Context.sol";
+ import "../token/ERC20/IERC20.sol";
+-import "../token/ERC20/extensions/draft-ERC20Permit.sol";
+ import "../token/ERC20/utils/SafeERC20.sol";
+ 
+ contract ERC20ReturnFalseMock is Context {
+@@ -106,43 +105,6 @@
+     }
+ }
+ 
+-contract ERC20PermitNoRevertMock is
+-    ERC20("ERC20PermitNoRevertMock", "ERC20PermitNoRevertMock"),
+-    ERC20Permit("ERC20PermitNoRevertMock")
+-{
+-    function getChainId() external view returns (uint256) {
+-        return block.chainid;
+-    }
+-
+-    function permitThatMayRevert(
+-        address owner,
+-        address spender,
+-        uint256 value,
+-        uint256 deadline,
+-        uint8 v,
+-        bytes32 r,
+-        bytes32 s
+-    ) public virtual {
+-        super.permit(owner, spender, value, deadline, v, r, s);
+-    }
+-
+-    function permit(
+-        address owner,
+-        address spender,
+-        uint256 value,
+-        uint256 deadline,
+-        uint8 v,
+-        bytes32 r,
+-        bytes32 s
+-    ) public virtual override {
+-        try this.permitThatMayRevert(owner, spender, value, deadline, v, r, s) {
+-            // do nothing
+-        } catch {
+-            // do nothing
+-        }
+-    }
+-}
+-
+ contract SafeERC20Wrapper is Context {
+     using SafeERC20 for IERC20;
+ 
+@@ -172,18 +134,6 @@
+         _token.safeDecreaseAllowance(address(0), amount);
+     }
+ 
+-    function permit(
+-        address owner,
+-        address spender,
+-        uint256 value,
+-        uint256 deadline,
+-        uint8 v,
+-        bytes32 r,
+-        bytes32 s
+-    ) public {
+-        SafeERC20.safePermit(IERC20Permit(address(_token)), owner, spender, value, deadline, v, r, s);
+-    }
+-
+     function setAllowance(uint256 allowance_) public {
+         ERC20ReturnTrueMock(address(_token)).setAllowance(allowance_);
+     }
+diff -ruN proxy/Clones.sol proxy/Clones.sol
+--- proxy/Clones.sol	2022-06-14 06:30:55.000000000 -0700
++++ proxy/Clones.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -26,10 +26,10 @@
+         /// @solidity memory-safe-assembly
+         assembly {
+             let ptr := mload(0x40)
+-            mstore(ptr, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
+-            mstore(add(ptr, 0x14), shl(0x60, implementation))
+-            mstore(add(ptr, 0x28), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
+-            instance := create(0, ptr, 0x37)
++            mstore(ptr, 0x602d8060093d393df3363d3d373d3d3d363d7300000000000000000000000000)
++            mstore(add(ptr, 0x13), shl(0x60, implementation))
++            mstore(add(ptr, 0x27), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
++            instance := create(0, ptr, 0x36)
+         }
+         require(instance != address(0), "ERC1167: create failed");
+     }
+@@ -45,10 +45,10 @@
+         /// @solidity memory-safe-assembly
+         assembly {
+             let ptr := mload(0x40)
+-            mstore(ptr, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
+-            mstore(add(ptr, 0x14), shl(0x60, implementation))
+-            mstore(add(ptr, 0x28), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
+-            instance := create2(0, ptr, 0x37, salt)
++            mstore(ptr, 0x602d8060093d393df3363d3d373d3d3d363d7300000000000000000000000000)
++            mstore(add(ptr, 0x13), shl(0x60, implementation))
++            mstore(add(ptr, 0x27), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
++            instance := create2(0, ptr, 0x36, salt)
+         }
+         require(instance != address(0), "ERC1167: create2 failed");
+     }
+@@ -64,13 +64,13 @@
+         /// @solidity memory-safe-assembly
+         assembly {
+             let ptr := mload(0x40)
+-            mstore(ptr, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
+-            mstore(add(ptr, 0x14), shl(0x60, implementation))
+-            mstore(add(ptr, 0x28), 0x5af43d82803e903d91602b57fd5bf3ff00000000000000000000000000000000)
+-            mstore(add(ptr, 0x38), shl(0x60, deployer))
+-            mstore(add(ptr, 0x4c), salt)
+-            mstore(add(ptr, 0x6c), keccak256(ptr, 0x37))
+-            predicted := keccak256(add(ptr, 0x37), 0x55)
++            mstore(ptr, 0x602d8060093d393df3363d3d373d3d3d363d7300000000000000000000000000)
++            mstore(add(ptr, 0x13), shl(0x60, implementation))
++            mstore(add(ptr, 0x27), 0x5af43d82803e903d91602b57fd5bf3ff00000000000000000000000000000000)
++            mstore(add(ptr, 0x37), shl(0x60, deployer))
++            mstore(add(ptr, 0x4b), salt)
++            mstore(add(ptr, 0x6b), keccak256(ptr, 0x36))
++            predicted := keccak256(add(ptr, 0x36), 0x55)
+         }
+     }
+ 
+diff -ruN proxy/ERC1967/ERC1967Proxy.sol proxy/ERC1967/ERC1967Proxy.sol
+--- proxy/ERC1967/ERC1967Proxy.sol	2022-06-14 06:30:55.000000000 -0700
++++ proxy/ERC1967/ERC1967Proxy.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -20,6 +20,7 @@
+      * function call, and allows initializing the storage of the proxy like a Solidity constructor.
+      */
+     constructor(address _logic, bytes memory _data) payable {
++        assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
+         _upgradeToAndCall(_logic, _data, false);
+     }
+ 
+diff -ruN proxy/beacon/BeaconProxy.sol proxy/beacon/BeaconProxy.sol
+--- proxy/beacon/BeaconProxy.sol	2022-06-14 06:30:55.000000000 -0700
++++ proxy/beacon/BeaconProxy.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -28,6 +28,7 @@
+      * - `beacon` must be a contract with the interface {IBeacon}.
+      */
+     constructor(address beacon, bytes memory data) payable {
++        assert(_BEACON_SLOT == bytes32(uint256(keccak256("eip1967.proxy.beacon")) - 1));
+         _upgradeBeaconToAndCall(beacon, data, false);
+     }
+ 
+diff -ruN proxy/transparent/TransparentUpgradeableProxy.sol proxy/transparent/TransparentUpgradeableProxy.sol
+--- proxy/transparent/TransparentUpgradeableProxy.sol	2022-06-14 06:30:55.000000000 -0700
++++ proxy/transparent/TransparentUpgradeableProxy.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -36,6 +36,7 @@
+         address admin_,
+         bytes memory _data
+     ) payable ERC1967Proxy(_logic, _data) {
++        assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
+         _changeAdmin(admin_);
+     }
+ 
 diff -ruN proxy/utils/Initializable.sol proxy/utils/Initializable.sol
 --- proxy/utils/Initializable.sol	2022-06-06 10:42:37.000000000 -0700
-+++ proxy/utils/Initializable.sol	2022-06-06 11:21:40.000000000 -0700
++++ proxy/utils/Initializable.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -59,12 +59,12 @@
       * @dev Indicates that the contract has been initialized.
       * @custom:oz-retyped-from bool
@@ -165,7 +437,7 @@ diff -ruN proxy/utils/Initializable.sol proxy/utils/Initializable.sol
       * @dev Triggered when the contract has been initialized or reinitialized.
 diff -ruN proxy/utils/Initializable.sol.orig proxy/utils/Initializable.sol.orig
 --- proxy/utils/Initializable.sol.orig	1969-12-31 16:00:00.000000000 -0800
-+++ proxy/utils/Initializable.sol.orig	2022-06-06 11:21:40.000000000 -0700
++++ proxy/utils/Initializable.sol.orig	2022-06-06 12:25:10.000000000 -0700
 @@ -0,0 +1,138 @@
 +// SPDX-License-Identifier: MIT
 +// OpenZeppelin Contracts (last updated v4.6.0) (proxy/utils/Initializable.sol)
@@ -307,7 +579,7 @@ diff -ruN proxy/utils/Initializable.sol.orig proxy/utils/Initializable.sol.orig
 +}
 diff -ruN proxy/utils/Initializable.sol.rej proxy/utils/Initializable.sol.rej
 --- proxy/utils/Initializable.sol.rej	1969-12-31 16:00:00.000000000 -0800
-+++ proxy/utils/Initializable.sol.rej	2022-06-06 11:21:40.000000000 -0700
++++ proxy/utils/Initializable.sol.rej	2022-06-06 12:25:10.000000000 -0700
 @@ -0,0 +1,17 @@
 +***************
 +*** 130,136 ****
@@ -326,9 +598,75 @@ diff -ruN proxy/utils/Initializable.sol.rej proxy/utils/Initializable.sol.rej
 +          // If the contract is initializing we ignore whether _initialized is set in order to support multiple
 +          // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
 +          // of initializers, because in other contexts the contract may have been reentered.
+diff -ruN security/Pausable.sol security/Pausable.sol
+--- security/Pausable.sol	2022-06-14 06:30:55.000000000 -0700
++++ security/Pausable.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -35,6 +35,13 @@
+     }
+ 
+     /**
++     * @dev Returns true if the contract is paused, and false otherwise.
++     */
++    function paused() public view virtual returns (bool) {
++        return _paused;
++    }
++
++    /**
+      * @dev Modifier to make a function callable only when the contract is not paused.
+      *
+      * Requirements:
+@@ -42,7 +49,7 @@
+      * - The contract must not be paused.
+      */
+     modifier whenNotPaused() {
+-        _requireNotPaused();
++        require(!paused(), "Pausable: paused");
+         _;
+     }
+ 
+@@ -54,29 +61,8 @@
+      * - The contract must be paused.
+      */
+     modifier whenPaused() {
+-        _requirePaused();
+-        _;
+-    }
+-
+-    /**
+-     * @dev Returns true if the contract is paused, and false otherwise.
+-     */
+-    function paused() public view virtual returns (bool) {
+-        return _paused;
+-    }
+-
+-    /**
+-     * @dev Throws if the contract is paused.
+-     */
+-    function _requireNotPaused() internal view virtual {
+-        require(!paused(), "Pausable: paused");
+-    }
+-
+-    /**
+-     * @dev Throws if the contract is not paused.
+-     */
+-    function _requirePaused() internal view virtual {
+         require(paused(), "Pausable: not paused");
++        _;
+     }
+ 
+     /**
 diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
 --- token/ERC1155/ERC1155.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC1155/ERC1155.sol	2022-06-06 11:23:46.000000000 -0700
++++ token/ERC1155/ERC1155.sol	2022-06-15 16:37:15.000000000 -0700
+@@ -21,7 +21,7 @@
+     using Address for address;
+ 
+     // Mapping from token ID to account balances
+-    mapping(uint256 => mapping(address => uint256)) private _balances;
++    mapping(uint256 => mapping(address => uint256)) internal _balances; // MUNGED private => internal
+ 
+     // Mapping from account to operator approvals
+     mapping(address => mapping(address => bool)) private _operatorApprovals;
 @@ -471,7 +471,7 @@
          uint256 id,
          uint256 amount,
@@ -349,7 +687,7 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
                  bytes4 response
 diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
 --- token/ERC20/ERC20.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC20/ERC20.sol	2022-06-06 11:21:40.000000000 -0700
++++ token/ERC20/ERC20.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -277,7 +277,7 @@
       * - `account` cannot be the zero address.
       * - `account` must have at least `amount` tokens.
@@ -359,9 +697,30 @@ diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
          require(account != address(0), "ERC20: burn from the zero address");
  
          _beforeTokenTransfer(account, address(0), amount);
+diff -ruN token/ERC20/README.adoc token/ERC20/README.adoc
+--- token/ERC20/README.adoc	2022-06-15 14:13:43.000000000 -0700
++++ token/ERC20/README.adoc	2022-06-06 12:25:10.000000000 -0700
+@@ -24,7 +24,7 @@
+ * {ERC20Votes}: support for voting and vote delegation.
+ * {ERC20VotesComp}: support for voting and vote delegation (compatible with Compound's token, with uint96 restrictions).
+ * {ERC20Wrapper}: wrapper to create an ERC20 backed by another ERC20, with deposit and withdraw methods. Useful in conjunction with {ERC20Votes}.
+-* {ERC4626}: tokenized vault that manages shares (represented as ERC20) that are backed by assets (another ERC20).
++* {ERC20TokenizedVault}: tokenized vault that manages shares (represented as ERC20) that are backed by assets (another ERC20).
+ 
+ Finally, there are some utilities to interact with ERC20 contracts in various ways.
+ 
+@@ -63,7 +63,7 @@
+ 
+ {{ERC20FlashMint}}
+ 
+-{{ERC4626}}
++{{ERC20TokenizedVault}}
+ 
+ == Draft EIPs
+ 
 diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20FlashMint.sol
 --- token/ERC20/extensions/ERC20FlashMint.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC20/extensions/ERC20FlashMint.sol	2022-06-06 11:21:40.000000000 -0700
++++ token/ERC20/extensions/ERC20FlashMint.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -40,9 +40,11 @@
          require(token == address(this), "ERC20FlashMint: wrong token");
          // silence warning about unused variable without the addition of bytecode.
@@ -375,9 +734,230 @@ diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20
      /**
       * @dev Returns the receiver address of the flash fee. By default this
       * implementation returns the address(0) which means the fee amount will be burnt.
+diff -ruN token/ERC20/extensions/ERC20TokenizedVault.sol token/ERC20/extensions/ERC20TokenizedVault.sol
+--- token/ERC20/extensions/ERC20TokenizedVault.sol	1969-12-31 16:00:00.000000000 -0800
++++ token/ERC20/extensions/ERC20TokenizedVault.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -0,0 +1,217 @@
++// SPDX-License-Identifier: MIT
++
++pragma solidity ^0.8.0;
++
++import "../ERC20.sol";
++import "../utils/SafeERC20.sol";
++import "../../../interfaces/IERC4626.sol";
++import "../../../utils/math/Math.sol";
++
++/**
++ * @dev Implementation of the ERC4626 "Tokenized Vault Standard" as defined in
++ * https://eips.ethereum.org/EIPS/eip-4626[EIP-4626].
++ *
++ * This extension allows the minting and burning of "shares" (represented using the ERC20 inheritance) in exchange for
++ * underlying "assets" through standardized {deposit}, {mint}, {redeem} and {burn} workflows. This contract extends
++ * the ERC20 standard. Any additional extensions included along it would affect the "shares" token represented by this
++ * contract and not the "assets" token which is an independent contract.
++ *
++ * _Available since v4.7._
++ */
++abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
++    using Math for uint256;
++
++    IERC20Metadata private immutable _asset;
++
++    /**
++     * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
++     */
++    constructor(IERC20Metadata asset_) {
++        _asset = asset_;
++    }
++
++    /** @dev See {IERC4262-asset} */
++    function asset() public view virtual override returns (address) {
++        return address(_asset);
++    }
++
++    /** @dev See {IERC4262-totalAssets} */
++    function totalAssets() public view virtual override returns (uint256) {
++        return _asset.balanceOf(address(this));
++    }
++
++    /** @dev See {IERC4262-convertToShares} */
++    function convertToShares(uint256 assets) public view virtual override returns (uint256 shares) {
++        return _convertToShares(assets, Math.Rounding.Down);
++    }
++
++    /** @dev See {IERC4262-convertToAssets} */
++    function convertToAssets(uint256 shares) public view virtual override returns (uint256 assets) {
++        return _convertToAssets(shares, Math.Rounding.Down);
++    }
++
++    /** @dev See {IERC4262-maxDeposit} */
++    function maxDeposit(address) public view virtual override returns (uint256) {
++        return _isVaultCollateralized() ? type(uint256).max : 0;
++    }
++
++    /** @dev See {IERC4262-maxMint} */
++    function maxMint(address) public view virtual override returns (uint256) {
++        return type(uint256).max;
++    }
++
++    /** @dev See {IERC4262-maxWithdraw} */
++    function maxWithdraw(address owner) public view virtual override returns (uint256) {
++        return _convertToAssets(balanceOf(owner), Math.Rounding.Down);
++    }
++
++    /** @dev See {IERC4262-maxRedeem} */
++    function maxRedeem(address owner) public view virtual override returns (uint256) {
++        return balanceOf(owner);
++    }
++
++    /** @dev See {IERC4262-previewDeposit} */
++    function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
++        return _convertToShares(assets, Math.Rounding.Down);
++    }
++
++    /** @dev See {IERC4262-previewMint} */
++    function previewMint(uint256 shares) public view virtual override returns (uint256) {
++        return _convertToAssets(shares, Math.Rounding.Up);
++    }
++
++    /** @dev See {IERC4262-previewWithdraw} */
++    function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
++        return _convertToShares(assets, Math.Rounding.Up);
++    }
++
++    /** @dev See {IERC4262-previewRedeem} */
++    function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
++        return _convertToAssets(shares, Math.Rounding.Down);
++    }
++
++    /** @dev See {IERC4262-deposit} */
++    function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
++        require(assets <= maxDeposit(receiver), "ERC20TokenizedVault: deposit more than max");
++
++        uint256 shares = previewDeposit(assets);
++        _deposit(_msgSender(), receiver, assets, shares);
++
++        return shares;
++    }
++
++    /** @dev See {IERC4262-mint} */
++    function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
++        require(shares <= maxMint(receiver), "ERC20TokenizedVault: mint more than max");
++
++        uint256 assets = previewMint(shares);
++        _deposit(_msgSender(), receiver, assets, shares);
++
++        return assets;
++    }
++
++    /** @dev See {IERC4262-withdraw} */
++    function withdraw(
++        uint256 assets,
++        address receiver,
++        address owner
++    ) public virtual override returns (uint256) {
++        require(assets <= maxWithdraw(owner), "ERC20TokenizedVault: withdraw more than max");
++
++        uint256 shares = previewWithdraw(assets);
++        _withdraw(_msgSender(), receiver, owner, assets, shares);
++
++        return shares;
++    }
++
++    /** @dev See {IERC4262-redeem} */
++    function redeem(
++        uint256 shares,
++        address receiver,
++        address owner
++    ) public virtual override returns (uint256) {
++        require(shares <= maxRedeem(owner), "ERC20TokenizedVault: redeem more than max");
++
++        uint256 assets = previewRedeem(shares);
++        _withdraw(_msgSender(), receiver, owner, assets, shares);
++
++        return assets;
++    }
++
++    /**
++     * @dev Internal convertion function (from assets to shares) with support for rounding direction
++     *
++     * Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
++     * would represent an infinite amout of shares.
++     */
++    function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256 shares) {
++        uint256 supply = totalSupply();
++        return
++            (assets == 0 || supply == 0)
++                ? assets.mulDiv(10**decimals(), 10**_asset.decimals(), rounding)
++                : assets.mulDiv(supply, totalAssets(), rounding);
++    }
++
++    /**
++     * @dev Internal convertion function (from shares to assets) with support for rounding direction
++     */
++    function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256 assets) {
++        uint256 supply = totalSupply();
++        return
++            (supply == 0)
++                ? shares.mulDiv(10**_asset.decimals(), 10**decimals(), rounding)
++                : shares.mulDiv(totalAssets(), supply, rounding);
++    }
++
++    /**
++     * @dev Deposit/mint common workflow
++     */
++    function _deposit(
++        address caller,
++        address receiver,
++        uint256 assets,
++        uint256 shares
++    ) private {
++        // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
++        // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
++        // calls the vault, which is assumed not malicious.
++        //
++        // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
++        // assets are transfered and before the shares are minted, which is a valid state.
++        // slither-disable-next-line reentrancy-no-eth
++        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
++        _mint(receiver, shares);
++
++        emit Deposit(caller, receiver, assets, shares);
++    }
++
++    /**
++     * @dev Withdraw/redeem common workflow
++     */
++    function _withdraw(
++        address caller,
++        address receiver,
++        address owner,
++        uint256 assets,
++        uint256 shares
++    ) private {
++        if (caller != owner) {
++            _spendAllowance(owner, caller, shares);
++        }
++
++        // If _asset is ERC777, `transfer` can trigger trigger a reentrancy AFTER the transfer happens through the
++        // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
++        // calls the vault, which is assumed not malicious.
++        //
++        // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
++        // shares are burned and after the assets are transfered, which is a valid state.
++        _burn(owner, shares);
++        SafeERC20.safeTransfer(_asset, receiver, assets);
++
++        emit Withdraw(caller, receiver, owner, assets, shares);
++    }
++
++    function _isVaultCollateralized() private view returns (bool) {
++        return totalAssets() > 0 || totalSupply() == 0;
++    }
++}
 diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Votes.sol
 --- token/ERC20/extensions/ERC20Votes.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC20/extensions/ERC20Votes.sol	2022-06-06 11:21:40.000000000 -0700
++++ token/ERC20/extensions/ERC20Votes.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -33,8 +33,8 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -400,7 +980,7 @@ diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Vote
          _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
 diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wrapper.sol
 --- token/ERC20/extensions/ERC20Wrapper.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC20/extensions/ERC20Wrapper.sol	2022-06-06 11:21:40.000000000 -0700
++++ token/ERC20/extensions/ERC20Wrapper.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -55,7 +55,7 @@
       * @dev Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake. Internal
       * function that can be exposed with access control if desired.
@@ -410,9 +990,264 @@ diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wr
          uint256 value = underlying.balanceOf(address(this)) - totalSupply();
          _mint(account, value);
          return value;
+diff -ruN token/ERC20/extensions/ERC4626.sol token/ERC20/extensions/ERC4626.sol
+--- token/ERC20/extensions/ERC4626.sol	2022-06-15 14:13:43.000000000 -0700
++++ token/ERC20/extensions/ERC4626.sol	1969-12-31 16:00:00.000000000 -0800
+@@ -1,217 +0,0 @@
+-// SPDX-License-Identifier: MIT
+-
+-pragma solidity ^0.8.0;
+-
+-import "../ERC20.sol";
+-import "../utils/SafeERC20.sol";
+-import "../../../interfaces/IERC4626.sol";
+-import "../../../utils/math/Math.sol";
+-
+-/**
+- * @dev Implementation of the ERC4626 "Tokenized Vault Standard" as defined in
+- * https://eips.ethereum.org/EIPS/eip-4626[EIP-4626].
+- *
+- * This extension allows the minting and burning of "shares" (represented using the ERC20 inheritance) in exchange for
+- * underlying "assets" through standardized {deposit}, {mint}, {redeem} and {burn} workflows. This contract extends
+- * the ERC20 standard. Any additional extensions included along it would affect the "shares" token represented by this
+- * contract and not the "assets" token which is an independent contract.
+- *
+- * _Available since v4.7._
+- */
+-abstract contract ERC4626 is ERC20, IERC4626 {
+-    using Math for uint256;
+-
+-    IERC20Metadata private immutable _asset;
+-
+-    /**
+-     * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
+-     */
+-    constructor(IERC20Metadata asset_) {
+-        _asset = asset_;
+-    }
+-
+-    /** @dev See {IERC4262-asset} */
+-    function asset() public view virtual override returns (address) {
+-        return address(_asset);
+-    }
+-
+-    /** @dev See {IERC4262-totalAssets} */
+-    function totalAssets() public view virtual override returns (uint256) {
+-        return _asset.balanceOf(address(this));
+-    }
+-
+-    /** @dev See {IERC4262-convertToShares} */
+-    function convertToShares(uint256 assets) public view virtual override returns (uint256 shares) {
+-        return _convertToShares(assets, Math.Rounding.Down);
+-    }
+-
+-    /** @dev See {IERC4262-convertToAssets} */
+-    function convertToAssets(uint256 shares) public view virtual override returns (uint256 assets) {
+-        return _convertToAssets(shares, Math.Rounding.Down);
+-    }
+-
+-    /** @dev See {IERC4262-maxDeposit} */
+-    function maxDeposit(address) public view virtual override returns (uint256) {
+-        return _isVaultCollateralized() ? type(uint256).max : 0;
+-    }
+-
+-    /** @dev See {IERC4262-maxMint} */
+-    function maxMint(address) public view virtual override returns (uint256) {
+-        return type(uint256).max;
+-    }
+-
+-    /** @dev See {IERC4262-maxWithdraw} */
+-    function maxWithdraw(address owner) public view virtual override returns (uint256) {
+-        return _convertToAssets(balanceOf(owner), Math.Rounding.Down);
+-    }
+-
+-    /** @dev See {IERC4262-maxRedeem} */
+-    function maxRedeem(address owner) public view virtual override returns (uint256) {
+-        return balanceOf(owner);
+-    }
+-
+-    /** @dev See {IERC4262-previewDeposit} */
+-    function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
+-        return _convertToShares(assets, Math.Rounding.Down);
+-    }
+-
+-    /** @dev See {IERC4262-previewMint} */
+-    function previewMint(uint256 shares) public view virtual override returns (uint256) {
+-        return _convertToAssets(shares, Math.Rounding.Up);
+-    }
+-
+-    /** @dev See {IERC4262-previewWithdraw} */
+-    function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
+-        return _convertToShares(assets, Math.Rounding.Up);
+-    }
+-
+-    /** @dev See {IERC4262-previewRedeem} */
+-    function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
+-        return _convertToAssets(shares, Math.Rounding.Down);
+-    }
+-
+-    /** @dev See {IERC4262-deposit} */
+-    function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
+-        require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
+-
+-        uint256 shares = previewDeposit(assets);
+-        _deposit(_msgSender(), receiver, assets, shares);
+-
+-        return shares;
+-    }
+-
+-    /** @dev See {IERC4262-mint} */
+-    function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
+-        require(shares <= maxMint(receiver), "ERC4626: mint more than max");
+-
+-        uint256 assets = previewMint(shares);
+-        _deposit(_msgSender(), receiver, assets, shares);
+-
+-        return assets;
+-    }
+-
+-    /** @dev See {IERC4262-withdraw} */
+-    function withdraw(
+-        uint256 assets,
+-        address receiver,
+-        address owner
+-    ) public virtual override returns (uint256) {
+-        require(assets <= maxWithdraw(owner), "ERC4626: withdraw more than max");
+-
+-        uint256 shares = previewWithdraw(assets);
+-        _withdraw(_msgSender(), receiver, owner, assets, shares);
+-
+-        return shares;
+-    }
+-
+-    /** @dev See {IERC4262-redeem} */
+-    function redeem(
+-        uint256 shares,
+-        address receiver,
+-        address owner
+-    ) public virtual override returns (uint256) {
+-        require(shares <= maxRedeem(owner), "ERC4626: redeem more than max");
+-
+-        uint256 assets = previewRedeem(shares);
+-        _withdraw(_msgSender(), receiver, owner, assets, shares);
+-
+-        return assets;
+-    }
+-
+-    /**
+-     * @dev Internal convertion function (from assets to shares) with support for rounding direction
+-     *
+-     * Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
+-     * would represent an infinite amout of shares.
+-     */
+-    function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256 shares) {
+-        uint256 supply = totalSupply();
+-        return
+-            (assets == 0 || supply == 0)
+-                ? assets.mulDiv(10**decimals(), 10**_asset.decimals(), rounding)
+-                : assets.mulDiv(supply, totalAssets(), rounding);
+-    }
+-
+-    /**
+-     * @dev Internal convertion function (from shares to assets) with support for rounding direction
+-     */
+-    function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256 assets) {
+-        uint256 supply = totalSupply();
+-        return
+-            (supply == 0)
+-                ? shares.mulDiv(10**_asset.decimals(), 10**decimals(), rounding)
+-                : shares.mulDiv(totalAssets(), supply, rounding);
+-    }
+-
+-    /**
+-     * @dev Deposit/mint common workflow
+-     */
+-    function _deposit(
+-        address caller,
+-        address receiver,
+-        uint256 assets,
+-        uint256 shares
+-    ) private {
+-        // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
+-        // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
+-        // calls the vault, which is assumed not malicious.
+-        //
+-        // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
+-        // assets are transfered and before the shares are minted, which is a valid state.
+-        // slither-disable-next-line reentrancy-no-eth
+-        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
+-        _mint(receiver, shares);
+-
+-        emit Deposit(caller, receiver, assets, shares);
+-    }
+-
+-    /**
+-     * @dev Withdraw/redeem common workflow
+-     */
+-    function _withdraw(
+-        address caller,
+-        address receiver,
+-        address owner,
+-        uint256 assets,
+-        uint256 shares
+-    ) private {
+-        if (caller != owner) {
+-            _spendAllowance(owner, caller, shares);
+-        }
+-
+-        // If _asset is ERC777, `transfer` can trigger trigger a reentrancy AFTER the transfer happens through the
+-        // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
+-        // calls the vault, which is assumed not malicious.
+-        //
+-        // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
+-        // shares are burned and after the assets are transfered, which is a valid state.
+-        _burn(owner, shares);
+-        SafeERC20.safeTransfer(_asset, receiver, assets);
+-
+-        emit Withdraw(caller, receiver, owner, assets, shares);
+-    }
+-
+-    function _isVaultCollateralized() private view returns (bool) {
+-        return totalAssets() > 0 || totalSupply() == 0;
+-    }
+-}
+diff -ruN token/ERC20/utils/SafeERC20.sol token/ERC20/utils/SafeERC20.sol
+--- token/ERC20/utils/SafeERC20.sol	2022-06-14 06:30:55.000000000 -0700
++++ token/ERC20/utils/SafeERC20.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -4,7 +4,6 @@
+ pragma solidity ^0.8.0;
+ 
+ import "../IERC20.sol";
+-import "../extensions/draft-IERC20Permit.sol";
+ import "../../../utils/Address.sol";
+ 
+ /**
+@@ -80,22 +79,6 @@
+         }
+     }
+ 
+-    function safePermit(
+-        IERC20Permit token,
+-        address owner,
+-        address spender,
+-        uint256 value,
+-        uint256 deadline,
+-        uint8 v,
+-        bytes32 r,
+-        bytes32 s
+-    ) internal {
+-        uint256 nonceBefore = token.nonces(owner);
+-        token.permit(owner, spender, value, deadline, v, r, s);
+-        uint256 nonceAfter = token.nonces(owner);
+-        require(nonceAfter == nonceBefore + 1, "SafeERC20: permit did not succeed");
+-    }
+-
+     /**
+      * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement
+      * on the return value: the return value is optional (but if data is returned, it must not be false).
 diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/draft-ERC721Votes.sol
 --- token/ERC721/extensions/draft-ERC721Votes.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-06-06 11:21:40.000000000 -0700
++++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -34,7 +34,7 @@
      /**
       * @dev Returns the balance of `account`.
@@ -424,7 +1259,7 @@ diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/
  }
 diff -ruN utils/Address.sol utils/Address.sol
 --- utils/Address.sol	2022-06-06 10:42:37.000000000 -0700
-+++ utils/Address.sol	2022-06-06 11:21:40.000000000 -0700
++++ utils/Address.sol	2022-06-06 12:25:10.000000000 -0700
 @@ -131,6 +131,7 @@
          uint256 value,
          string memory errorMessage
@@ -433,3 +1268,85 @@ diff -ruN utils/Address.sol utils/Address.sol
          require(address(this).balance >= value, "Address: insufficient balance for call");
          require(isContract(target), "Address: call to non-contract");
  
+diff -ruN utils/math/Math.sol utils/math/Math.sol
+--- utils/math/Math.sol	2022-06-14 06:30:55.000000000 -0700
++++ utils/math/Math.sol	2022-06-06 12:25:10.000000000 -0700
+@@ -149,78 +149,4 @@
+         }
+         return result;
+     }
+-
+-    /**
+-     * @dev Returns the square root of a number. It the number is not a perfect square, the value is rounded down.
+-     *
+-     * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
+-     */
+-    function sqrt(uint256 a) internal pure returns (uint256) {
+-        if (a == 0) {
+-            return 0;
+-        }
+-
+-        // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.
+-        // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have
+-        // `msb(a) <= a < 2*msb(a)`.
+-        // We also know that `k`, the position of the most significant bit, is such that `msb(a) = 2**k`.
+-        // This gives `2**k < a <= 2**(k+1)` → `2**(k/2) <= sqrt(a) < 2 ** (k/2+1)`.
+-        // Using an algorithm similar to the msb conmputation, we are able to compute `result = 2**(k/2)` which is a
+-        // good first aproximation of `sqrt(a)` with at least 1 correct bit.
+-        uint256 result = 1;
+-        uint256 x = a;
+-        if (x >> 128 > 0) {
+-            x >>= 128;
+-            result <<= 64;
+-        }
+-        if (x >> 64 > 0) {
+-            x >>= 64;
+-            result <<= 32;
+-        }
+-        if (x >> 32 > 0) {
+-            x >>= 32;
+-            result <<= 16;
+-        }
+-        if (x >> 16 > 0) {
+-            x >>= 16;
+-            result <<= 8;
+-        }
+-        if (x >> 8 > 0) {
+-            x >>= 8;
+-            result <<= 4;
+-        }
+-        if (x >> 4 > 0) {
+-            x >>= 4;
+-            result <<= 2;
+-        }
+-        if (x >> 2 > 0) {
+-            result <<= 1;
+-        }
+-
+-        // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
+-        // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at
+-        // every iteration). We thus need at most 7 iteration to turn our partial result with one bit of precision
+-        // into the expected uint128 result.
+-        unchecked {
+-            result = (result + a / result) >> 1;
+-            result = (result + a / result) >> 1;
+-            result = (result + a / result) >> 1;
+-            result = (result + a / result) >> 1;
+-            result = (result + a / result) >> 1;
+-            result = (result + a / result) >> 1;
+-            result = (result + a / result) >> 1;
+-            return min(result, a / result);
+-        }
+-    }
+-
+-    /**
+-     * @notice Calculates sqrt(a), following the selected rounding direction.
+-     */
+-    function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
+-        uint256 result = sqrt(a);
+-        if (rounding == Rounding.Up && result * result < a) {
+-            result += 1;
+-        }
+-        return result;
+-    }
+ }
