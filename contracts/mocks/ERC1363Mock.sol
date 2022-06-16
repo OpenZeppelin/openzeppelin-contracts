@@ -36,7 +36,8 @@ contract ERC1363ReceiverMock is IERC1363Receiver, IERC1363Spender {
         if (data.length == 1) {
             if (data[0] == 0x00) return bytes4(0);
             if (data[0] == 0x01) revert("onTransferReceived revert");
-            if (data[0] == 0x02) assert(false);
+            if (data[0] == 0x02) revert();
+            if (data[0] == 0x03) assert(false);
         }
         emit TransferReceived(operator, from, value, data);
         return this.onTransferReceived.selector;
@@ -50,7 +51,8 @@ contract ERC1363ReceiverMock is IERC1363Receiver, IERC1363Spender {
         if (data.length == 1) {
             if (data[0] == 0x00) return bytes4(0);
             if (data[0] == 0x01) revert("onApprovalReceived revert");
-            if (data[0] == 0x02) assert(false);
+            if (data[0] == 0x02) revert();
+            if (data[0] == 0x03) assert(false);
         }
         emit ApprovalReceived(owner, value, data);
         return this.onApprovalReceived.selector;
