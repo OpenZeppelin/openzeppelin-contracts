@@ -22,6 +22,8 @@ are useful to interact with third party contracts that implement them.
 - {IERC1155MetadataURI}
 - {IERC1271}
 - {IERC1363}
+- {IERC1363Receiver}
+- {IERC1363Spender}
 - {IERC1820Implementer}
 - {IERC1820Registry}
 - {IERC2612}
@@ -36,6 +38,8 @@ are useful to interact with third party contracts that implement them.
 {{IERC1363}}
 
 {{IERC1363Receiver}}
+
+{{IERC1363Spender}}
 
 {{IERC1820Implementer}}
 
