@@ -25,12 +25,14 @@ contract('ERC1363', function (accounts) {
 
   describe('transferAndCall', function () {
     it('to EOA', async function () {
-      const { receipt } = await this.token.methods['transferAndCall(address,uint256)'](other, value, { from: holder });
-      expectEvent(receipt, 'Transfer', {
-        from: holder,
-        to: other,
-        value,
-      });
+      await expectRevert(
+        this.token.methods['transferAndCall(address,uint256)'](
+          other,
+          value,
+          { from: holder },
+        ),
+        'function call to a non-contract account',
+      );
     });
 
     describe('to receiver', function () {
@@ -107,17 +109,15 @@ contract('ERC1363', function (accounts) {
     });
 
     it('to EOA', async function () {
-      const { receipt } = await this.token.methods['transferFromAndCall(address,address,uint256)'](
-        holder,
-        other,
-        value,
-        { from: operator },
+      await expectRevert(
+        this.token.methods['transferFromAndCall(address,address,uint256)'](
+          holder,
+          other,
+          value,
+          { from: operator },
+        ),
+        'function call to a non-contract account',
       );
-      expectEvent(receipt, 'Transfer', {
-        from: holder,
-        to: other,
-        value,
-      });
     });
 
     describe('to receiver', function () {
@@ -197,12 +197,10 @@ contract('ERC1363', function (accounts) {
 
   describe('approveAndCall', function () {
     it('to EOA', async function () {
-      const { receipt } = await this.token.methods['approveAndCall(address,uint256)'](other, value, { from: holder });
-      expectEvent(receipt, 'Approval', {
-        owner: holder,
-        spender: other,
-        value,
-      });
+      await expectRevert(
+        this.token.methods['approveAndCall(address,uint256)'](other, value, { from: holder }),
+        'function call to a non-contract account',
+      );
     });
 
     describe('to receiver', function () {

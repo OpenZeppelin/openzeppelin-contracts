@@ -102,21 +102,17 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
         uint256 value,
         bytes memory data
     ) private returns (bool) {
-        if (to.isContract()) {
-            try IERC1363Receiver(to).onTransferReceived(_msgSender(), from, value, data) returns (bytes4 retval) {
-                return retval == IERC1363Receiver.onTransferReceived.selector;
-            } catch (bytes memory reason) {
-                if (reason.length == 0) {
-                    revert("ERC1363: transfer to non ERC1363Receiver implementer");
-                } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
-                        revert(add(32, reason), mload(reason))
-                    }
+        try IERC1363Receiver(to).onTransferReceived(_msgSender(), from, value, data) returns (bytes4 retval) {
+            return retval == IERC1363Receiver.onTransferReceived.selector;
+        } catch (bytes memory reason) {
+            if (reason.length == 0) {
+                revert("ERC1363: transfer to non ERC1363Receiver implementer");
+            } else {
+                /// @solidity memory-safe-assembly
+                assembly {
+                    revert(add(32, reason), mload(reason))
                 }
             }
-        } else {
-            return true;
         }
     }
 
@@ -130,21 +126,17 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
         uint256 value,
         bytes memory data
     ) private returns (bool) {
-        if (spender.isContract()) {
-            try IERC1363Spender(spender).onApprovalReceived(owner, value, data) returns (bytes4 retval) {
-                return retval == IERC1363Spender.onApprovalReceived.selector;
-            } catch (bytes memory reason) {
-                if (reason.length == 0) {
-                    revert("ERC1363: transfer to non ERC1363Spender implementer");
-                } else {
-                    /// @solidity memory-safe-assembly
-                    assembly {
-                        revert(add(32, reason), mload(reason))
-                    }
+        try IERC1363Spender(spender).onApprovalReceived(owner, value, data) returns (bytes4 retval) {
+            return retval == IERC1363Spender.onApprovalReceived.selector;
+        } catch (bytes memory reason) {
+            if (reason.length == 0) {
+                revert("ERC1363: transfer to non ERC1363Spender implementer");
+            } else {
+                /// @solidity memory-safe-assembly
+                assembly {
+                    revert(add(32, reason), mload(reason))
                 }
             }
-        } else {
-            return true;
         }
     }
 }
