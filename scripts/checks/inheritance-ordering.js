@@ -13,7 +13,7 @@ for (const artifact of artifacts) {
   const linearized = [];
 
   for (const source in solcOutput.contracts) {
-    if (source.includes('/mocks/')) {
+    if ([ '/mocks/', '/presets/' ].some(skip => source.includes(skip))) {
       continue;
     }
 

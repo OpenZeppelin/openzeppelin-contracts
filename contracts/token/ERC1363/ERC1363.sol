@@ -13,7 +13,7 @@ import "./IERC1363Spender.sol";
 /**
  * @dev Implementation of the {IERC1363} interface.
  */
-abstract contract ERC1363 is ERC20, IERC1363, ERC165 {
+abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
     using Address for address;
 
     /**
