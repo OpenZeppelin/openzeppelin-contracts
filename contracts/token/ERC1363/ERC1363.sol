@@ -107,7 +107,7 @@ abstract contract ERC1363 is ERC20, IERC1363, ERC165 {
             return false;
         }
         bytes4 retval = IERC1363Receiver(recipient).onTransferReceived(_msgSender(), sender, amount, data);
-        return (retval == IERC1363Receiver(recipient).onTransferReceived.selector);
+        return retval == IERC1363Receiver.onTransferReceived.selector;
     }
 
     /**
@@ -127,6 +127,6 @@ abstract contract ERC1363 is ERC20, IERC1363, ERC165 {
             return false;
         }
         bytes4 retval = IERC1363Spender(spender).onApprovalReceived(_msgSender(), amount, data);
-        return (retval == IERC1363Spender(spender).onApprovalReceived.selector);
+        return retval == IERC1363Spender.onApprovalReceived.selector;
     }
 }
