@@ -79,6 +79,7 @@ contract('MerkleProof', function (accounts) {
       const proofFlags = merkleTree.getProofFlags(proofLeaves, proof);
 
       expect(await this.merkleProof.multiProofVerify(proof, proofFlags, root, proofLeaves)).to.equal(true);
+      expect(await this.merkleProof.multiProofVerifyCalldata(proof, proofFlags, root, proofLeaves)).to.equal(true);
     });
 
     it('returns false for an invalid Merkle multi proof', async function () {
@@ -91,7 +92,10 @@ contract('MerkleProof', function (accounts) {
       const badProof = badMerkleTree.getMultiProof(badProofLeaves);
       const badProofFlags = badMerkleTree.getProofFlags(badProofLeaves, badProof);
 
-      expect(await this.merkleProof.multiProofVerify(badProof, badProofFlags, root, badProofLeaves)).to.equal(false);
+      expect(await this.merkleProof.multiProofVerify(badProof, badProofFlags, root, badProofLeaves))
+        .to.equal(false);
+      expect(await this.merkleProof.multiProofVerifyCalldata(badProof, badProofFlags, root, badProofLeaves))
+        .to.equal(false);
     });
 
     it('revert with invalid multi proof #1', async function () {
@@ -104,6 +108,15 @@ contract('MerkleProof', function (accounts) {
 
       await expectRevert(
         this.merkleProof.multiProofVerify(
+          [ leaves[1], fill, merkleTree.layers[1][1] ],
+          [ false, false, false ],
+          root,
+          [ leaves[0], badLeaf ], // A, E
+        ),
+        'MerkleProof: invalid multiproof',
+      );
+      await expectRevert(
+        this.merkleProof.multiProofVerifyCalldata(
           [ leaves[1], fill, merkleTree.layers[1][1] ],
           [ false, false, false ],
           root,
@@ -130,6 +143,15 @@ contract('MerkleProof', function (accounts) {
         ),
         'reverted with panic code 0x32',
       );
+      await expectRevert(
+        this.merkleProof.multiProofVerifyCalldata(
+          [ leaves[1], fill, merkleTree.layers[1][1] ],
+          [ false, false, false, false ],
+          root,
+          [ badLeaf, leaves[0] ], // A, E
+        ),
+        'reverted with panic code 0x32',
+      );
     });
 
     it('limit case: works for tree containing a single leaf', async function () {
@@ -142,6 +164,7 @@ contract('MerkleProof', function (accounts) {
       const proofFlags = merkleTree.getProofFlags(proofLeaves, proof);
 
       expect(await this.merkleProof.multiProofVerify(proof, proofFlags, root, proofLeaves)).to.equal(true);
+      expect(await this.merkleProof.multiProofVerifyCalldata(proof, proofFlags, root, proofLeaves)).to.equal(true);
     });
 
     it('limit case: can prove empty leaves', async function () {
@@ -150,6 +173,7 @@ contract('MerkleProof', function (accounts) {
 
       const root = merkleTree.getRoot();
       expect(await this.merkleProof.multiProofVerify([ root ], [], root, [])).to.equal(true);
+      expect(await this.merkleProof.multiProofVerifyCalldata([ root ], [], root, [])).to.equal(true);
     });
   });
 });
