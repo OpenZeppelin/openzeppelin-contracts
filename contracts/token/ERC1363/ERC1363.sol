@@ -47,24 +47,24 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
      * @dev See {IERC1363-transferFromAndCall}.
      */
     function transferFromAndCall(
-        address from,
+        address sender,
         address to,
         uint256 amount
     ) public virtual override returns (bool) {
-        return transferFromAndCall(from, to, amount, "");
+        return transferFromAndCall(sender, to, amount, "");
     }
 
     /**
      * @dev See {IERC1363-transferFromAndCall}.
      */
     function transferFromAndCall(
-        address from,
+        address sender,
         address to,
         uint256 amount,
         bytes memory data
     ) public virtual override returns (bool) {
-        transferFrom(from, to, amount);
-        require(_checkOnTransferReceived(from, to, amount, data), "ERC1363: _checkOnTransferReceived reverts");
+        transferFrom(sender, to, amount);
+        require(_checkOnTransferReceived(sender, to, amount, data), "ERC1363: _checkOnTransferReceived reverts");
         return true;
     }
 

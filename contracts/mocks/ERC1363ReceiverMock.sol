@@ -16,13 +16,13 @@ contract ERC1363ReceiverMock is IERC1363Receiver {
     }
 
     function onTransferReceived(
-        address operator,
+        address spender,
         address sender,
         uint256 amount,
         bytes memory data
     ) public override returns (bytes4) {
         require(!_reverts, "ERC1363ReceiverMock: throwing");
-        emit Received(operator, sender, amount, data, gasleft());
+        emit Received(spender, sender, amount, data, gasleft());
         return _retval;
     }
 }
