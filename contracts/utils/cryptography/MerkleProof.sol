@@ -100,7 +100,7 @@ library MerkleProof {
         bytes32 root,
         bytes32[] memory leaves
     ) internal pure returns (bool) {
-        return processMultiProof(proof, proofFlags, leaves) == root;
+        return processMultiProofCalldata(proof, proofFlags, leaves) == root;
     }
 
     /**
