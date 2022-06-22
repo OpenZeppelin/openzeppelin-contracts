@@ -609,4 +609,30 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.totalAssets()).to.be.bignumber.equal('0');
     }
   });
+
+  //Inspired by https://forum.openzeppelin.com/t/erc4626-vault-implementation-for-totalassets-in-base-contract/29474
+  describe('deposit, donation and redeem', function () {
+    beforeEach(async function () {
+      expect(await this.vault.totalAssets()).to.be.bignumber.equal('0');
+      await this.token.mint(user1, 100);
+      await this.token.mint(user2, 100);
+    });
+    it('donation to the vault, not tracked, profit to all', async function () {
+      await this.token.approve(this.vault.address, constants.MAX_UINT256, { from: user1 });
+      await this.vault.deposit(100, user1, { from: user1 });
+
+      await this.token.approve(this.vault.address, constants.MAX_UINT256, { from: user2 });
+      await this.vault.deposit(100, user2, { from: user2 });
+      //Donate to the Vault and do not mint shares
+      await this.token.transfer(this.vault.address, 100, { from: holder })
+
+      await this.vault.redeem(100000000, user1, user1, { from: user1 });
+      await this.vault.redeem(100000000, user2, user2, { from: user2 });
+
+      //Divide the donation among user1 and user2
+      expect(await this.token.balanceOf(user1)).to.be.bignumber.equal('150');
+      expect(await this.token.balanceOf(user2)).to.be.bignumber.equal('150');
+
+    });
+  });
 });
