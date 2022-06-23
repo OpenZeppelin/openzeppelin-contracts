@@ -16,6 +16,10 @@ import "../../../utils/math/Math.sol";
  * the ERC20 standard. Any additional extensions included along it would affect the "shares" token represented by this
  * contract and not the "assets" token which is an independent contract.
  *
+ * CAUTION: Deposits and withdrawals may incur unexpected slippage. Users should verify that the amount received of
+ * shares or assets is as expected. EOAs should operate through a wrapper that performs these checks such as
+ * https://github.com/fei-protocol/ERC4626#erc4626router-and-base[ERC4626Router].
+ *
  * _Available since v4.7._
  */
 abstract contract ERC4626 is ERC20, IERC4626 {
