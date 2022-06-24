@@ -75,16 +75,10 @@ contract ERC777 is Context, IERC777, IERC20 {
         _ERC1820_REGISTRY.setInterfaceImplementer(address(this), keccak256("ERC20Token"), address(this));
     }
 
-    /**
-     * @dev See {IERC777-name}.
-     */
     function name() public view virtual override returns (string memory) {
         return _name;
     }
 
-    /**
-     * @dev See {IERC777-symbol}.
-     */
     function symbol() public view virtual override returns (string memory) {
         return _symbol;
     }
@@ -108,9 +102,6 @@ contract ERC777 is Context, IERC777, IERC20 {
         return 1;
     }
 
-    /**
-     * @dev See {IERC777-totalSupply}.
-     */
     function totalSupply() public view virtual override(IERC20, IERC777) returns (uint256) {
         return _totalSupply;
     }
@@ -157,9 +148,6 @@ contract ERC777 is Context, IERC777, IERC20 {
         _burn(_msgSender(), amount, data, "");
     }
 
-    /**
-     * @dev See {IERC777-isOperatorFor}.
-     */
     function isOperatorFor(address operator, address tokenHolder) public view virtual override returns (bool) {
         return
             operator == tokenHolder ||
@@ -167,9 +155,6 @@ contract ERC777 is Context, IERC777, IERC20 {
             _operators[tokenHolder][operator];
     }
 
-    /**
-     * @dev See {IERC777-authorizeOperator}.
-     */
     function authorizeOperator(address operator) public virtual override {
         require(_msgSender() != operator, "ERC777: authorizing self as operator");
 
@@ -182,9 +167,6 @@ contract ERC777 is Context, IERC777, IERC20 {
         emit AuthorizedOperator(operator, _msgSender());
     }
 
-    /**
-     * @dev See {IERC777-revokeOperator}.
-     */
     function revokeOperator(address operator) public virtual override {
         require(operator != _msgSender(), "ERC777: revoking self as operator");
 
@@ -197,9 +179,6 @@ contract ERC777 is Context, IERC777, IERC20 {
         emit RevokedOperator(operator, _msgSender());
     }
 
-    /**
-     * @dev See {IERC777-defaultOperators}.
-     */
     function defaultOperators() public view virtual override returns (address[] memory) {
         return _defaultOperatorsArray;
     }

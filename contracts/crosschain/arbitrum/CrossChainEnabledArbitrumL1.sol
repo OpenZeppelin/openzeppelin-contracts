@@ -28,16 +28,10 @@ abstract contract CrossChainEnabledArbitrumL1 is CrossChainEnabled {
         _bridge = bridge;
     }
 
-    /**
-     * @dev see {CrossChainEnabled-_isCrossChain}
-     */
     function _isCrossChain() internal view virtual override returns (bool) {
         return LibArbitrumL1.isCrossChain(_bridge);
     }
 
-    /**
-     * @dev see {CrossChainEnabled-_crossChainSender}
-     */
     function _crossChainSender() internal view virtual override onlyCrossChain returns (address) {
         return LibArbitrumL1.crossChainSender(_bridge);
     }

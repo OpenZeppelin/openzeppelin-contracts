@@ -40,7 +40,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev See {IERC165-supportsInterface}.
+     * @inheritdoc IERC165 
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, Governor) returns (bool) {
         return interfaceId == type(IGovernorTimelock).interfaceId || super.supportsInterface(interfaceId);

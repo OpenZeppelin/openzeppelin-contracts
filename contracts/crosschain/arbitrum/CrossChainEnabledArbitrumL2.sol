@@ -19,16 +19,10 @@ import "./LibArbitrumL2.sol";
  * _Available since v4.6._
  */
 abstract contract CrossChainEnabledArbitrumL2 is CrossChainEnabled {
-    /**
-     * @dev see {CrossChainEnabled-_isCrossChain}
-     */
     function _isCrossChain() internal view virtual override returns (bool) {
         return LibArbitrumL2.isCrossChain(LibArbitrumL2.ARBSYS);
     }
 
-    /**
-     * @dev see {CrossChainEnabled-_crossChainSender}
-     */
     function _crossChainSender() internal view virtual override onlyCrossChain returns (address) {
         return LibArbitrumL2.crossChainSender(LibArbitrumL2.ARBSYS);
     }

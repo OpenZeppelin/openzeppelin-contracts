@@ -33,16 +33,10 @@ abstract contract CrossChainEnabledPolygonChild is IFxMessageProcessor, CrossCha
         _fxChild = fxChild;
     }
 
-    /**
-     * @dev see {CrossChainEnabled-_isCrossChain}
-     */
     function _isCrossChain() internal view virtual override returns (bool) {
         return msg.sender == _fxChild;
     }
 
-    /**
-     * @dev see {CrossChainEnabled-_crossChainSender}
-     */
     function _crossChainSender() internal view virtual override onlyCrossChain returns (address) {
         return _sender;
     }

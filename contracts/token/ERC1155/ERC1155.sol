@@ -36,9 +36,6 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         _setURI(uri_);
     }
 
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return
             interfaceId == type(IERC1155).interfaceId ||
@@ -98,21 +95,21 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     }
 
     /**
-     * @dev See {IERC1155-setApprovalForAll}.
+     * @inheritdoc IERC1155 
      */
     function setApprovalForAll(address operator, bool approved) public virtual override {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
     /**
-     * @dev See {IERC1155-isApprovedForAll}.
+     * @inheritdoc IERC1155 
      */
     function isApprovedForAll(address account, address operator) public view virtual override returns (bool) {
         return _operatorApprovals[account][operator];
     }
 
     /**
-     * @dev See {IERC1155-safeTransferFrom}.
+     * @inheritdoc IERC1155 
      */
     function safeTransferFrom(
         address from,
@@ -129,7 +126,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     }
 
     /**
-     * @dev See {IERC1155-safeBatchTransferFrom}.
+     * @inheritdoc IERC1155 
      */
     function safeBatchTransferFrom(
         address from,

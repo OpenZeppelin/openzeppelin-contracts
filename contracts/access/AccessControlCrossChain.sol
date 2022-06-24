@@ -25,9 +25,6 @@ import "../crosschain/CrossChainEnabled.sol";
 abstract contract AccessControlCrossChain is AccessControl, CrossChainEnabled {
     bytes32 public constant CROSSCHAIN_ALIAS = keccak256("CROSSCHAIN_ALIAS");
 
-    /**
-     * @dev See {AccessControl-_checkRole}.
-     */
     function _checkRole(bytes32 role) internal view virtual override {
         if (_isCrossChain()) {
             _checkRole(_crossChainRoleAlias(role), _crossChainSender());

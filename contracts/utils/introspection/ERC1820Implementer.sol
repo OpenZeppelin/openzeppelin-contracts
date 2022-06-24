@@ -18,9 +18,6 @@ contract ERC1820Implementer is IERC1820Implementer {
 
     mapping(bytes32 => mapping(address => bool)) private _supportedInterfaces;
 
-    /**
-     * @dev See {IERC1820Implementer-canImplementInterfaceForAddress}.
-     */
     function canImplementInterfaceForAddress(bytes32 interfaceHash, address account)
         public
         view

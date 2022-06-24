@@ -103,7 +103,7 @@ contract ERC1155PresetMinterPauser is Context, AccessControlEnumerable, ERC1155B
     }
 
     /**
-     * @dev See {IERC165-supportsInterface}.
+     * @inheritdoc IERC165 
      */
     function supportsInterface(bytes4 interfaceId)
         public

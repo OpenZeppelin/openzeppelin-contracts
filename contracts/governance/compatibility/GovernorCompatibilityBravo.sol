@@ -51,7 +51,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
     // ============================================== Proposal lifecycle ==============================================
     /**
-     * @dev See {IGovernor-propose}.
+     * @inheritdoc IGovernor 
      */
     function propose(
         address[] memory targets,
@@ -64,7 +64,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {IGovernorCompatibilityBravo-propose}.
+     * @inheritdoc IGovernorCompatibilityBravo 
      */
     function propose(
         address[] memory targets,
@@ -78,7 +78,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {IGovernorCompatibilityBravo-queue}.
+     * @inheritdoc IGovernorCompatibilityBravo 
      */
     function queue(uint256 proposalId) public virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
@@ -91,7 +91,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {IGovernorCompatibilityBravo-execute}.
+     * @inheritdoc IGovernorCompatibilityBravo 
      */
     function execute(uint256 proposalId) public payable virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
@@ -165,7 +165,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
     // ==================================================== Views =====================================================
     /**
-     * @dev See {IGovernorCompatibilityBravo-proposals}.
+     * @inheritdoc IGovernorCompatibilityBravo 
      */
     function proposals(uint256 proposalId)
         public
@@ -202,7 +202,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {IGovernorCompatibilityBravo-getActions}.
+     * @inheritdoc IGovernorCompatibilityBravo 
      */
     function getActions(uint256 proposalId)
         public
@@ -221,14 +221,14 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {IGovernorCompatibilityBravo-getReceipt}.
+     * @inheritdoc IGovernorCompatibilityBravo 
      */
     function getReceipt(uint256 proposalId, address voter) public view virtual override returns (Receipt memory) {
         return _proposalDetails[proposalId].receipts[voter];
     }
 
     /**
-     * @dev See {IGovernorCompatibilityBravo-quorumVotes}.
+     * @inheritdoc IGovernorCompatibilityBravo 
      */
     function quorumVotes() public view virtual override returns (uint256) {
         return quorum(block.number - 1);
@@ -236,7 +236,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
     // ==================================================== Voting ====================================================
     /**
-     * @dev See {IGovernor-hasVoted}.
+     * @inheritdoc IGovernor 
      */
     function hasVoted(uint256 proposalId, address account) public view virtual override returns (bool) {
         return _proposalDetails[proposalId].receipts[account].hasVoted;

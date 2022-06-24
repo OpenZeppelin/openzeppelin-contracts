@@ -31,7 +31,7 @@ abstract contract ERC1155Supply is ERC1155 {
     }
 
     /**
-     * @dev See {ERC1155-_beforeTokenTransfer}.
+     * @inheritdoc ERC1155 
      */
     function _beforeTokenTransfer(
         address operator,

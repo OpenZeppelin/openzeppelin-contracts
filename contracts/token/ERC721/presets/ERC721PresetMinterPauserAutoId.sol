@@ -124,9 +124,6 @@ contract ERC721PresetMinterPauserAutoId is
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
     function supportsInterface(bytes4 interfaceId)
         public
         view

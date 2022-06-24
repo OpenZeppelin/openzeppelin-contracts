@@ -27,9 +27,6 @@ abstract contract ERC20Capped is ERC20 {
         return _cap;
     }
 
-    /**
-     * @dev See {ERC20-_mint}.
-     */
     function _mint(address account, uint256 amount) internal virtual override {
         require(ERC20.totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
         super._mint(account, amount);

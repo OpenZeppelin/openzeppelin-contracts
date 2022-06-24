@@ -25,16 +25,10 @@ abstract contract CrossChainEnabledOptimism is CrossChainEnabled {
         _messenger = messenger;
     }
 
-    /**
-     * @dev see {CrossChainEnabled-_isCrossChain}
-     */
     function _isCrossChain() internal view virtual override returns (bool) {
         return LibOptimism.isCrossChain(_messenger);
     }
 
-    /**
-     * @dev see {CrossChainEnabled-_crossChainSender}
-     */
     function _crossChainSender() internal view virtual override onlyCrossChain returns (address) {
         return LibOptimism.crossChainSender(_messenger);
     }
