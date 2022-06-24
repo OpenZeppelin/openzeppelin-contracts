@@ -21,9 +21,6 @@ import "../../../utils/introspection/ERC165.sol";
  * _Available since v4.5._
  */
 abstract contract ERC721Royalty is ERC2981, ERC721 {
-    /**
-     * @inheritdoc IERC165 
-     */
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC2981) returns (bool) {
         return super.supportsInterface(interfaceId);
     }

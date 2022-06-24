@@ -94,23 +94,14 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         return batchBalances;
     }
 
-    /**
-     * @inheritdoc IERC1155 
-     */
     function setApprovalForAll(address operator, bool approved) public virtual override {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
-    /**
-     * @inheritdoc IERC1155 
-     */
     function isApprovedForAll(address account, address operator) public view virtual override returns (bool) {
         return _operatorApprovals[account][operator];
     }
 
-    /**
-     * @inheritdoc IERC1155 
-     */
     function safeTransferFrom(
         address from,
         address to,
@@ -125,9 +116,6 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         _safeTransferFrom(from, to, id, amount, data);
     }
 
-    /**
-     * @inheritdoc IERC1155 
-     */
     function safeBatchTransferFrom(
         address from,
         address to,

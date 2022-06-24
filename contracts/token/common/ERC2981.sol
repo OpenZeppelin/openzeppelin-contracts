@@ -34,9 +34,6 @@ abstract contract ERC2981 is IERC2981, ERC165 {
         return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
     }
 
-    /**
-     * @inheritdoc IERC2981
-     */
     function royaltyInfo(uint256 _tokenId, uint256 _salePrice) public view virtual override returns (address, uint256) {
         RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
 

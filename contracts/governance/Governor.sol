@@ -100,16 +100,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             super.supportsInterface(interfaceId);
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function name() public view virtual override returns (string memory) {
         return _name;
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function version() public view virtual override returns (string memory) {
         return "1";
     }
@@ -136,9 +130,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return uint256(keccak256(abi.encode(targets, values, calldatas, descriptionHash)));
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
         ProposalCore storage proposal = _proposals[proposalId];
 
@@ -173,16 +164,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         }
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposals[proposalId].voteStart.getDeadline();
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
         return _proposals[proposalId].voteEnd.getDeadline();
     }
@@ -236,9 +221,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return "";
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function propose(
         address[] memory targets,
         uint256[] memory values,
@@ -280,9 +262,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return proposalId;
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function execute(
         address[] memory targets,
         uint256[] memory values,
@@ -386,16 +365,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return proposalId;
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         return _getVotes(account, blockNumber, _defaultParams());
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function getVotesWithParams(
         address account,
         uint256 blockNumber,
@@ -404,17 +377,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return _getVotes(account, blockNumber, params);
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
         address voter = _msgSender();
         return _castVote(proposalId, voter, support, "");
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function castVoteWithReason(
         uint256 proposalId,
         uint8 support,
@@ -424,9 +391,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return _castVote(proposalId, voter, support, reason);
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function castVoteWithReasonAndParams(
         uint256 proposalId,
         uint8 support,
@@ -437,9 +401,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return _castVote(proposalId, voter, support, reason, params);
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function castVoteBySig(
         uint256 proposalId,
         uint8 support,
@@ -456,9 +417,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return _castVote(proposalId, voter, support, "");
     }
 
-    /**
-     * @inheritdoc IGovernor 
-     */
     function castVoteWithReasonAndParamsBySig(
         uint256 proposalId,
         uint8 support,
@@ -553,9 +511,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return address(this);
     }
 
-    /**
-     * @inheritdoc IERC721Receiver 
-     */
     function onERC721Received(
         address,
         address,
@@ -565,9 +520,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return this.onERC721Received.selector;
     }
 
-    /**
-     * @inheritdoc IERC1155Receiver 
-     */
     function onERC1155Received(
         address,
         address,
@@ -578,9 +530,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return this.onERC1155Received.selector;
     }
 
-    /**
-     * @inheritdoc IERC1155Receiver 
-     */
     function onERC1155BatchReceived(
         address,
         address,
