@@ -22,6 +22,7 @@ library Address {
      *  - a contract in construction
      *  - an address where a contract will be created
      *  - an address where a contract lived, but was destroyed
+     *  - an address of a contract with zero-length bytecode
      * ====
      *
      * [IMPORTANT]
