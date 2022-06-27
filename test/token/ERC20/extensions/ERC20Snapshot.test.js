@@ -17,14 +17,14 @@ contract('ERC20Snapshot', function (accounts) {
 
   describe('snapshot', function () {
     it('emits a snapshot event', async function () {
-      const { logs } = await this.token.snapshot();
-      expectEvent.inLogs(logs, 'Snapshot');
+      const receipt = await this.token.snapshot();
+      expectEvent(receipt, 'Snapshot');
     });
 
     it('creates increasing snapshots ids, starting from 1', async function () {
       for (const id of ['1', '2', '3', '4', '5']) {
-        const { logs } = await this.token.snapshot();
-        expectEvent.inLogs(logs, 'Snapshot', { id });
+        const receipt = await this.token.snapshot();
+        expectEvent(receipt, 'Snapshot', { id });
       }
     });
   });
@@ -42,8 +42,8 @@ contract('ERC20Snapshot', function (accounts) {
       beforeEach(async function () {
         this.initialSnapshotId = new BN('1');
 
-        const { logs } = await this.token.snapshot();
-        expectEvent.inLogs(logs, 'Snapshot', { id: this.initialSnapshotId });
+        const receipt = await this.token.snapshot();
+        expectEvent(receipt, 'Snapshot', { id: this.initialSnapshotId });
       });
 
       context('with no supply changes after the snapshot', function () {
@@ -66,8 +66,8 @@ contract('ERC20Snapshot', function (accounts) {
           beforeEach(async function () {
             this.secondSnapshotId = new BN('2');
 
-            const { logs } = await this.token.snapshot();
-            expectEvent.inLogs(logs, 'Snapshot', { id: this.secondSnapshotId });
+            const receipt = await this.token.snapshot();
+            expectEvent(receipt, 'Snapshot', { id: this.secondSnapshotId });
           });
 
           it('snapshots return the supply before and after the changes', async function () {
@@ -84,8 +84,8 @@ contract('ERC20Snapshot', function (accounts) {
             this.secondSnapshotIds = ['2', '3', '4'];
 
             for (const id of this.secondSnapshotIds) {
-              const { logs } = await this.token.snapshot();
-              expectEvent.inLogs(logs, 'Snapshot', { id });
+              const receipt = await this.token.snapshot();
+              expectEvent(receipt, 'Snapshot', { id });
             }
           });
 
@@ -116,8 +116,8 @@ contract('ERC20Snapshot', function (accounts) {
       beforeEach(async function () {
         this.initialSnapshotId = new BN('1');
 
-        const { logs } = await this.token.snapshot();
-        expectEvent.inLogs(logs, 'Snapshot', { id: this.initialSnapshotId });
+        const receipt = await this.token.snapshot();
+        expectEvent(receipt, 'Snapshot', { id: this.initialSnapshotId });
       });
 
       context('with no balance changes after the snapshot', function () {
@@ -147,8 +147,8 @@ contract('ERC20Snapshot', function (accounts) {
           beforeEach(async function () {
             this.secondSnapshotId = new BN('2');
 
-            const { logs } = await this.token.snapshot();
-            expectEvent.inLogs(logs, 'Snapshot', { id: this.secondSnapshotId });
+            const receipt = await this.token.snapshot();
+            expectEvent(receipt, 'Snapshot', { id: this.secondSnapshotId });
           });
 
           it('snapshots return the balances before and after the changes', async function () {
@@ -174,8 +174,8 @@ contract('ERC20Snapshot', function (accounts) {
             this.secondSnapshotIds = ['2', '3', '4'];
 
             for (const id of this.secondSnapshotIds) {
-              const { logs } = await this.token.snapshot();
-              expectEvent.inLogs(logs, 'Snapshot', { id });
+              const receipt = await this.token.snapshot();
+              expectEvent(receipt, 'Snapshot', { id });
             }
           });
 

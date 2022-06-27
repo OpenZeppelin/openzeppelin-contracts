@@ -1,0 +1,58 @@
+name: checks
+
+on:
+  push:
+    branches:
+      - master
+      - release-v*
+  pull_request: {}
+  workflow_dispatch: {}
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: npm run lint
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: npm run test
+        env:
+          FORCE_COLOR: 1
+          ENABLE_GAS_REPORT: true
+      - run: npm run test:inheritance
+      - run: npm run test:generation
+        if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+
+  coverage:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: npm run coverage
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+      - uses: codecov/codecov-action@v3
+
+  slither:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - uses: crytic/slither-action@v0.1.1

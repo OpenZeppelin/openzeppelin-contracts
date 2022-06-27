@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.6.0) (crosschain/optimism/LibOptimism.sol)
 
 pragma solidity ^0.8.4;
 
@@ -6,8 +7,8 @@ import {ICrossDomainMessenger as Optimism_Bridge} from "../../vendor/optimism/IC
 import "../errors.sol";
 
 /**
- * @dev Primitives for cross-chain aware contracts for [Optimism](https://www.optimism.io/).
- * See the [documentation](https://community.optimism.io/docs/developers/bridge/messaging/#accessing-msg-sender)
+ * @dev Primitives for cross-chain aware contracts for https://www.optimism.io/[Optimism].
+ * See the https://community.optimism.io/docs/developers/bridge/messaging/#accessing-msg-sender[documentation]
  * for the functionality used here.
  */
 library LibOptimism {

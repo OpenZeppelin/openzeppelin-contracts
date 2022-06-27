@@ -54,8 +54,8 @@ contract('RefundEscrow', function (accounts) {
         'Ownable: caller is not the owner',
       );
 
-      const { logs } = await this.escrow.close({ from: owner });
-      expectEvent.inLogs(logs, 'RefundsClosed');
+      const receipt = await this.escrow.close({ from: owner });
+      expectEvent(receipt, 'RefundsClosed');
     });
 
     context('closed state', function () {
@@ -101,8 +101,8 @@ contract('RefundEscrow', function (accounts) {
         'Ownable: caller is not the owner',
       );
 
-      const { logs } = await this.escrow.enableRefunds({ from: owner });
-      expectEvent.inLogs(logs, 'RefundsEnabled');
+      const receipt = await this.escrow.enableRefunds({ from: owner });
+      expectEvent(receipt, 'RefundsEnabled');
     });
 
     context('refund state', function () {

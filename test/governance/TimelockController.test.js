@@ -15,6 +15,8 @@ const ERC1155Mock = artifacts.require('ERC1155Mock');
 
 const MINDELAY = time.duration.days(1);
 
+const salt = '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726'; // a random value
+
 function genOperation (target, value, data, predecessor, salt) {
   const id = web3.utils.keccak256(web3.eth.abi.encodeParameters([
     'address',
@@ -144,7 +146,7 @@ contract('TimelockController', function (accounts) {
             0,
             '0x3bf92ccc',
             ZERO_BYTES32,
-            '0x025e7b0be353a74631ad648c667493c0e1cd31caa4cc2d3520fdc171ea0cc726',
+            salt,
           );
         });
 
@@ -199,7 +201,7 @@ contract('TimelockController', function (accounts) {
           );
         });
 
-        it('prevent non-proposer from commiting', async function () {
+        it('prevent non-proposer from committing', async function () {
           await expectRevert(
             this.mock.schedule(
               this.operation.target,
@@ -436,7 +438,7 @@ contract('TimelockController', function (accounts) {
           );
         });
 
-        it('prevent non-proposer from commiting', async function () {
+        it('prevent non-proposer from committing', async function () {
           await expectRevert(
             this.mock.scheduleBatch(
               this.operation.targets,

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/TimelockController.sol)
 
 pragma solidity ^0.8.0;
 
@@ -131,7 +131,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * @dev Returns whether an id correspond to a registered operation. This
      * includes both Pending, Ready and Done operations.
      */
-    function isOperation(bytes32 id) public view virtual returns (bool pending) {
+    function isOperation(bytes32 id) public view virtual returns (bool registered) {
         return getTimestamp(id) > 0;
     }
 

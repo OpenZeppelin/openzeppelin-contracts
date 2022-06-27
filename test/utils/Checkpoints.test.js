@@ -2,6 +2,8 @@ const { expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
+const { batchInBlock } = require('../helpers/txpool');
+
 const CheckpointsImpl = artifacts.require('CheckpointsImpl');
 
 contract('Checkpoints', function (accounts) {
@@ -54,6 +56,19 @@ contract('Checkpoints', function (accounts) {
         this.checkpoint.getAtBlock(await web3.eth.getBlockNumber() + 1),
         'Checkpoints: block not yet mined',
       );
+    });
+
+    it('multiple checkpoints in the same block', async function () {
+      const lengthBefore = await this.checkpoint.length();
+      await batchInBlock([
+        () => this.checkpoint.push(8, { gas: 100000 }),
+        () => this.checkpoint.push(9, { gas: 100000 }),
+        () => this.checkpoint.push(10, { gas: 100000 }),
+      ]);
+      const lengthAfter = await this.checkpoint.length();
+
+      expect(lengthAfter.toNumber()).to.be.equal(lengthBefore.toNumber() + 1);
+      expect(await this.checkpoint.latest()).to.be.bignumber.equal('10');
     });
   });
 });

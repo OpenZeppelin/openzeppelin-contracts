@@ -1,16 +1,22 @@
+#!/usr/bin/env node
+
 const path = require('path');
 const graphlib = require('graphlib');
 const { findAll } = require('solidity-ast/utils');
 const { _: artifacts } = require('yargs').argv;
 
 for (const artifact of artifacts) {
-  const { output: solcOutput } = require(path.resolve(__dirname, '..', artifact));
+  const { output: solcOutput } = require(path.resolve(__dirname, '../..', artifact));
 
   const graph = new graphlib.Graph({ directed: true });
   const names = {};
   const linearized = [];
 
   for (const source in solcOutput.contracts) {
+    if (source.includes('/mocks/')) {
+      continue;
+    }
+
     for (const contractDef of findAll('ContractDefinition', solcOutput.sources[source].ast)) {
       names[contractDef.id] = contractDef.name;
       linearized.push(contractDef.linearizedBaseContracts);
