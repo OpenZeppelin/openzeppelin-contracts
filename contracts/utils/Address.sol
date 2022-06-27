@@ -187,10 +187,10 @@ library Address {
     }
 
     /**
-     * @dev Tool to verifies that a low level call was successful, and revert if it wasn't, either by bubbling the
-     * revert reason using the provided one.
+     * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling 
+     * the revert reason or using the provided one) in case of unsuccessful call or if target was not a contract.
      *
-     * _Available since v4.3._
+     * _Available since v4.8._
      */
     function verifyCallResultFromTarget(
         address target,
@@ -210,6 +210,12 @@ library Address {
         }
     }
 
+    /**
+     * @dev Tool to verify that a low level call was successful, and revert if it wasn't, either by bubbling the
+     * revert reason or using the provided one.
+     *
+     * _Available since v4.3._
+     */
     function verifyCallResult(
         bool success,
         bytes memory returndata,
