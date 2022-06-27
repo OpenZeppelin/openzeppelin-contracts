@@ -143,7 +143,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /**
-     * @dev Internal convertion function (from assets to shares) with support for rounding direction
+     * @dev Internal conversion function (from assets to shares) with support for rounding direction
      *
      * Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
      * would represent an infinite amout of shares.
@@ -157,7 +157,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /**
-     * @dev Internal convertion function (from shares to assets) with support for rounding direction
+     * @dev Internal conversion function (from shares to assets) with support for rounding direction
      */
     function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256 assets) {
         uint256 supply = totalSupply();
