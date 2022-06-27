@@ -110,7 +110,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
                 string(
                     abi.encodePacked(
                         "AccessControl: account ",
-                        Strings.toHexString(uint160(account), 20),
+                        Strings.toHexString(account),
                         " is missing role ",
                         Strings.toHexString(uint256(role), 32)
                     )
