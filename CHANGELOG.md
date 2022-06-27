@@ -20,7 +20,6 @@
  * `PaymentSplitter`: add `releasable` getters. ([#3350](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3350))
  * `Initializable`: refactored implementation of modifiers for easier understanding. ([#3450](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3450))
  * `Proxies`: remove runtime check of ERC1967 storage slots. ([#3455](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3455))
- * `AccessControl`: refactor address-to-hex-string conversion in `_checkRole` function. ([#3509](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3509))
 
 ### Breaking changes
 
