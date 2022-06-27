@@ -20,6 +20,7 @@
  * `PaymentSplitter`: add `releasable` getters. ([#3350](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3350))
  * `Initializable`: refactored implementation of modifiers for easier understanding. ([#3450](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3450))
  * `Proxies`: remove runtime check of ERC1967 storage slots. ([#3455](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3455))
+ * `ERC165Checker`: rename `_supportsERC165Interface` to `supportsERC165InterfaceUnchecked` and change its visibility to `internal`. ([#3339](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3339))
 
 ### Breaking changes
 
