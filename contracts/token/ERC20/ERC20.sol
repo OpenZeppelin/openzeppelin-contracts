@@ -237,8 +237,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
         unchecked {
             _balances[from] = fromBalance - amount;
+            _balances[to] += amount;
         }
-        _balances[to] += amount;
 
         emit Transfer(from, to, amount);
 
@@ -260,7 +260,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         _beforeTokenTransfer(address(0), account, amount);
 
         _totalSupply += amount;
-        _balances[account] += amount;
+        unchecked {
+            _balances[account] += amount;
+        }
         emit Transfer(address(0), account, amount);
 
         _afterTokenTransfer(address(0), account, amount);
