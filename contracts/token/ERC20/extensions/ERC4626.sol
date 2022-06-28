@@ -203,7 +203,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
             _spendAllowance(owner, caller, shares);
         }
 
-        // If _asset is ERC777, `transfer` can trigger trigger a reentrancy AFTER the transfer happens through the
+        // If _asset is ERC777, `transfer` can trigger a reentrancy AFTER the transfer happens through the
         // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
         // calls the vault, which is assumed not malicious.
         //
