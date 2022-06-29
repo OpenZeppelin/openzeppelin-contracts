@@ -43,7 +43,7 @@ library Address {
 
     /**
      * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
-     * `recipient`, forwarding all available gas and reverting on errors.
+     * `recipient`, forwarding all but 1/64th gas and reverting on errors.
      *
      * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost
      * of certain opcodes, possibly making contracts go over the 2300 gas limit
