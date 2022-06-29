@@ -17,6 +17,11 @@ function shouldBehaveLikeReceiver (sender = randomAddress()) {
       this.receiver.crossChainRestricted(),
       'NotCrossChainCall()',
     );
+
+    await expectRevertCustomError(
+      this.receiver.crossChainOwnerRestricted(),
+      'NotCrossChainCall()',
+    );
   });
 
   it('should restrict to cross-chain call from a invalid sender', async function () {

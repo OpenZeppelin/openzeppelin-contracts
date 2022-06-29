@@ -84,6 +84,8 @@
 :xref-Ownable-constructor--: xref:access.adoc#Ownable-constructor--
 :Ownable-owner: pass:normal[xref:access.adoc#Ownable-owner--[`Ownable.owner`]]
 :xref-Ownable-owner--: xref:access.adoc#Ownable-owner--
+:Ownable-_checkOwner: pass:normal[xref:access.adoc#Ownable-_checkOwner--[`Ownable._checkOwner`]]
+:xref-Ownable-_checkOwner--: xref:access.adoc#Ownable-_checkOwner--
 :Ownable-renounceOwnership: pass:normal[xref:access.adoc#Ownable-renounceOwnership--[`Ownable.renounceOwnership`]]
 :xref-Ownable-renounceOwnership--: xref:access.adoc#Ownable-renounceOwnership--
 :Ownable-transferOwnership: pass:normal[xref:access.adoc#Ownable-transferOwnership-address-[`Ownable.transferOwnership`]]
@@ -188,6 +190,10 @@
 :xref-PaymentSplitter-released-contract-IERC20-address-: xref:finance.adoc#PaymentSplitter-released-contract-IERC20-address-
 :PaymentSplitter-payee: pass:normal[xref:finance.adoc#PaymentSplitter-payee-uint256-[`PaymentSplitter.payee`]]
 :xref-PaymentSplitter-payee-uint256-: xref:finance.adoc#PaymentSplitter-payee-uint256-
+:PaymentSplitter-releasable: pass:normal[xref:finance.adoc#PaymentSplitter-releasable-address-[`PaymentSplitter.releasable`]]
+:xref-PaymentSplitter-releasable-address-: xref:finance.adoc#PaymentSplitter-releasable-address-
+:PaymentSplitter-releasable: pass:normal[xref:finance.adoc#PaymentSplitter-releasable-contract-IERC20-address-[`PaymentSplitter.releasable`]]
+:xref-PaymentSplitter-releasable-contract-IERC20-address-: xref:finance.adoc#PaymentSplitter-releasable-contract-IERC20-address-
 :PaymentSplitter-release: pass:normal[xref:finance.adoc#PaymentSplitter-release-address-payable-[`PaymentSplitter.release`]]
 :xref-PaymentSplitter-release-address-payable-: xref:finance.adoc#PaymentSplitter-release-address-payable-
 :PaymentSplitter-release: pass:normal[xref:finance.adoc#PaymentSplitter-release-contract-IERC20-address-[`PaymentSplitter.release`]]
@@ -410,6 +416,8 @@
 :xref-TimelockController-execute-address-uint256-bytes-bytes32-bytes32-: xref:governance.adoc#TimelockController-execute-address-uint256-bytes-bytes32-bytes32-
 :TimelockController-executeBatch: pass:normal[xref:governance.adoc#TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-[`TimelockController.executeBatch`]]
 :xref-TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-: xref:governance.adoc#TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-
+:TimelockController-_execute: pass:normal[xref:governance.adoc#TimelockController-_execute-address-uint256-bytes-[`TimelockController._execute`]]
+:xref-TimelockController-_execute-address-uint256-bytes-: xref:governance.adoc#TimelockController-_execute-address-uint256-bytes-
 :TimelockController-updateDelay: pass:normal[xref:governance.adoc#TimelockController-updateDelay-uint256-[`TimelockController.updateDelay`]]
 :xref-TimelockController-updateDelay-uint256-: xref:governance.adoc#TimelockController-updateDelay-uint256-
 :TimelockController-onERC721Received: pass:normal[xref:governance.adoc#TimelockController-onERC721Received-address-address-uint256-bytes-[`TimelockController.onERC721Received`]]
@@ -732,6 +740,44 @@
 :xref-IERC3156FlashLender-flashFee-address-uint256-: xref:interfaces.adoc#IERC3156FlashLender-flashFee-address-uint256-
 :IERC3156FlashLender-flashLoan: pass:normal[xref:interfaces.adoc#IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-[`IERC3156FlashLender.flashLoan`]]
 :xref-IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-: xref:interfaces.adoc#IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-
+:IERC4626: pass:normal[xref:interfaces.adoc#IERC4626[`IERC4626`]]
+:xref-IERC4626: xref:interfaces.adoc#IERC4626
+:IERC4626-asset: pass:normal[xref:interfaces.adoc#IERC4626-asset--[`IERC4626.asset`]]
+:xref-IERC4626-asset--: xref:interfaces.adoc#IERC4626-asset--
+:IERC4626-totalAssets: pass:normal[xref:interfaces.adoc#IERC4626-totalAssets--[`IERC4626.totalAssets`]]
+:xref-IERC4626-totalAssets--: xref:interfaces.adoc#IERC4626-totalAssets--
+:IERC4626-convertToShares: pass:normal[xref:interfaces.adoc#IERC4626-convertToShares-uint256-[`IERC4626.convertToShares`]]
+:xref-IERC4626-convertToShares-uint256-: xref:interfaces.adoc#IERC4626-convertToShares-uint256-
+:IERC4626-convertToAssets: pass:normal[xref:interfaces.adoc#IERC4626-convertToAssets-uint256-[`IERC4626.convertToAssets`]]
+:xref-IERC4626-convertToAssets-uint256-: xref:interfaces.adoc#IERC4626-convertToAssets-uint256-
+:IERC4626-maxDeposit: pass:normal[xref:interfaces.adoc#IERC4626-maxDeposit-address-[`IERC4626.maxDeposit`]]
+:xref-IERC4626-maxDeposit-address-: xref:interfaces.adoc#IERC4626-maxDeposit-address-
+:IERC4626-previewDeposit: pass:normal[xref:interfaces.adoc#IERC4626-previewDeposit-uint256-[`IERC4626.previewDeposit`]]
+:xref-IERC4626-previewDeposit-uint256-: xref:interfaces.adoc#IERC4626-previewDeposit-uint256-
+:IERC4626-deposit: pass:normal[xref:interfaces.adoc#IERC4626-deposit-uint256-address-[`IERC4626.deposit`]]
+:xref-IERC4626-deposit-uint256-address-: xref:interfaces.adoc#IERC4626-deposit-uint256-address-
+:IERC4626-maxMint: pass:normal[xref:interfaces.adoc#IERC4626-maxMint-address-[`IERC4626.maxMint`]]
+:xref-IERC4626-maxMint-address-: xref:interfaces.adoc#IERC4626-maxMint-address-
+:IERC4626-previewMint: pass:normal[xref:interfaces.adoc#IERC4626-previewMint-uint256-[`IERC4626.previewMint`]]
+:xref-IERC4626-previewMint-uint256-: xref:interfaces.adoc#IERC4626-previewMint-uint256-
+:IERC4626-mint: pass:normal[xref:interfaces.adoc#IERC4626-mint-uint256-address-[`IERC4626.mint`]]
+:xref-IERC4626-mint-uint256-address-: xref:interfaces.adoc#IERC4626-mint-uint256-address-
+:IERC4626-maxWithdraw: pass:normal[xref:interfaces.adoc#IERC4626-maxWithdraw-address-[`IERC4626.maxWithdraw`]]
+:xref-IERC4626-maxWithdraw-address-: xref:interfaces.adoc#IERC4626-maxWithdraw-address-
+:IERC4626-previewWithdraw: pass:normal[xref:interfaces.adoc#IERC4626-previewWithdraw-uint256-[`IERC4626.previewWithdraw`]]
+:xref-IERC4626-previewWithdraw-uint256-: xref:interfaces.adoc#IERC4626-previewWithdraw-uint256-
+:IERC4626-withdraw: pass:normal[xref:interfaces.adoc#IERC4626-withdraw-uint256-address-address-[`IERC4626.withdraw`]]
+:xref-IERC4626-withdraw-uint256-address-address-: xref:interfaces.adoc#IERC4626-withdraw-uint256-address-address-
+:IERC4626-maxRedeem: pass:normal[xref:interfaces.adoc#IERC4626-maxRedeem-address-[`IERC4626.maxRedeem`]]
+:xref-IERC4626-maxRedeem-address-: xref:interfaces.adoc#IERC4626-maxRedeem-address-
+:IERC4626-previewRedeem: pass:normal[xref:interfaces.adoc#IERC4626-previewRedeem-uint256-[`IERC4626.previewRedeem`]]
+:xref-IERC4626-previewRedeem-uint256-: xref:interfaces.adoc#IERC4626-previewRedeem-uint256-
+:IERC4626-redeem: pass:normal[xref:interfaces.adoc#IERC4626-redeem-uint256-address-address-[`IERC4626.redeem`]]
+:xref-IERC4626-redeem-uint256-address-address-: xref:interfaces.adoc#IERC4626-redeem-uint256-address-address-
+:IERC4626-Deposit: pass:normal[xref:interfaces.adoc#IERC4626-Deposit-address-address-uint256-uint256-[`IERC4626.Deposit`]]
+:xref-IERC4626-Deposit-address-address-uint256-uint256-: xref:interfaces.adoc#IERC4626-Deposit-address-address-uint256-uint256-
+:IERC4626-Withdraw: pass:normal[xref:interfaces.adoc#IERC4626-Withdraw-address-address-address-uint256-uint256-[`IERC4626.Withdraw`]]
+:xref-IERC4626-Withdraw-address-address-address-uint256-uint256-: xref:interfaces.adoc#IERC4626-Withdraw-address-address-address-uint256-uint256-
 :IERC1822Proxiable: pass:normal[xref:interfaces.adoc#IERC1822Proxiable[`IERC1822Proxiable`]]
 :xref-IERC1822Proxiable: xref:interfaces.adoc#IERC1822Proxiable
 :IERC1822Proxiable-proxiableUUID: pass:normal[xref:interfaces.adoc#IERC1822Proxiable-proxiableUUID--[`IERC1822Proxiable.proxiableUUID`]]
@@ -910,6 +956,10 @@
 :xref-Pausable-constructor--: xref:security.adoc#Pausable-constructor--
 :Pausable-paused: pass:normal[xref:security.adoc#Pausable-paused--[`Pausable.paused`]]
 :xref-Pausable-paused--: xref:security.adoc#Pausable-paused--
+:Pausable-_requireNotPaused: pass:normal[xref:security.adoc#Pausable-_requireNotPaused--[`Pausable._requireNotPaused`]]
+:xref-Pausable-_requireNotPaused--: xref:security.adoc#Pausable-_requireNotPaused--
+:Pausable-_requirePaused: pass:normal[xref:security.adoc#Pausable-_requirePaused--[`Pausable._requirePaused`]]
+:xref-Pausable-_requirePaused--: xref:security.adoc#Pausable-_requirePaused--
 :Pausable-_pause: pass:normal[xref:security.adoc#Pausable-_pause--[`Pausable._pause`]]
 :xref-Pausable-_pause--: xref:security.adoc#Pausable-_pause--
 :Pausable-_unpause: pass:normal[xref:security.adoc#Pausable-_unpause--[`Pausable._unpause`]]
@@ -1038,6 +1088,8 @@
 :xref-Strings-toHexString-uint256-: xref:utils.adoc#Strings-toHexString-uint256-
 :Strings-toHexString: pass:normal[xref:utils.adoc#Strings-toHexString-uint256-uint256-[`Strings.toHexString`]]
 :xref-Strings-toHexString-uint256-uint256-: xref:utils.adoc#Strings-toHexString-uint256-uint256-
+:Strings-toHexString: pass:normal[xref:utils.adoc#Strings-toHexString-address-[`Strings.toHexString`]]
+:xref-Strings-toHexString-address-: xref:utils.adoc#Strings-toHexString-address-
 :Timers: pass:normal[xref:utils.adoc#Timers[`Timers`]]
 :xref-Timers: xref:utils.adoc#Timers
 :Timers-getDeadline: pass:normal[xref:utils.adoc#Timers-getDeadline-struct-Timers-Timestamp-[`Timers.getDeadline`]]
@@ -1098,8 +1150,20 @@
 :xref-MerkleProof: xref:utils.adoc#MerkleProof
 :MerkleProof-verify: pass:normal[xref:utils.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-[`MerkleProof.verify`]]
 :xref-MerkleProof-verify-bytes32---bytes32-bytes32-: xref:utils.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-
+:MerkleProof-verifyCalldata: pass:normal[xref:utils.adoc#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-[`MerkleProof.verifyCalldata`]]
+:xref-MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-: xref:utils.adoc#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-
 :MerkleProof-processProof: pass:normal[xref:utils.adoc#MerkleProof-processProof-bytes32---bytes32-[`MerkleProof.processProof`]]
 :xref-MerkleProof-processProof-bytes32---bytes32-: xref:utils.adoc#MerkleProof-processProof-bytes32---bytes32-
+:MerkleProof-processProofCalldata: pass:normal[xref:utils.adoc#MerkleProof-processProofCalldata-bytes32---bytes32-[`MerkleProof.processProofCalldata`]]
+:xref-MerkleProof-processProofCalldata-bytes32---bytes32-: xref:utils.adoc#MerkleProof-processProofCalldata-bytes32---bytes32-
+:MerkleProof-multiProofVerify: pass:normal[xref:utils.adoc#MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---[`MerkleProof.multiProofVerify`]]
+:xref-MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---: xref:utils.adoc#MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---
+:MerkleProof-multiProofVerifyCalldata: pass:normal[xref:utils.adoc#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---[`MerkleProof.multiProofVerifyCalldata`]]
+:xref-MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---: xref:utils.adoc#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---
+:MerkleProof-processMultiProof: pass:normal[xref:utils.adoc#MerkleProof-processMultiProof-bytes32---bool---bytes32---[`MerkleProof.processMultiProof`]]
+:xref-MerkleProof-processMultiProof-bytes32---bool---bytes32---: xref:utils.adoc#MerkleProof-processMultiProof-bytes32---bool---bytes32---
+:MerkleProof-processMultiProofCalldata: pass:normal[xref:utils.adoc#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---[`MerkleProof.processMultiProofCalldata`]]
+:xref-MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---: xref:utils.adoc#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---
 :SignatureChecker: pass:normal[xref:utils.adoc#SignatureChecker[`SignatureChecker`]]
 :xref-SignatureChecker: xref:utils.adoc#SignatureChecker
 :SignatureChecker-isValidSignatureNow: pass:normal[xref:utils.adoc#SignatureChecker-isValidSignatureNow-address-bytes32-bytes-[`SignatureChecker.isValidSignatureNow`]]
@@ -1220,30 +1284,140 @@
 :xref-Math-average-uint256-uint256-: xref:utils.adoc#Math-average-uint256-uint256-
 :Math-ceilDiv: pass:normal[xref:utils.adoc#Math-ceilDiv-uint256-uint256-[`Math.ceilDiv`]]
 :xref-Math-ceilDiv-uint256-uint256-: xref:utils.adoc#Math-ceilDiv-uint256-uint256-
+:Math-mulDiv: pass:normal[xref:utils.adoc#Math-mulDiv-uint256-uint256-uint256-[`Math.mulDiv`]]
+:xref-Math-mulDiv-uint256-uint256-uint256-: xref:utils.adoc#Math-mulDiv-uint256-uint256-uint256-
+:Math-mulDiv: pass:normal[xref:utils.adoc#Math-mulDiv-uint256-uint256-uint256-enum-Math-Rounding-[`Math.mulDiv`]]
+:xref-Math-mulDiv-uint256-uint256-uint256-enum-Math-Rounding-: xref:utils.adoc#Math-mulDiv-uint256-uint256-uint256-enum-Math-Rounding-
+:Math-sqrt: pass:normal[xref:utils.adoc#Math-sqrt-uint256-[`Math.sqrt`]]
+:xref-Math-sqrt-uint256-: xref:utils.adoc#Math-sqrt-uint256-
+:Math-sqrt: pass:normal[xref:utils.adoc#Math-sqrt-uint256-enum-Math-Rounding-[`Math.sqrt`]]
+:xref-Math-sqrt-uint256-enum-Math-Rounding-: xref:utils.adoc#Math-sqrt-uint256-enum-Math-Rounding-
+:Math-Rounding: pass:normal[xref:utils.adoc#Math-Rounding[`Math.Rounding`]]
+:xref-Math-Rounding: xref:utils.adoc#Math-Rounding
 :SafeCast: pass:normal[xref:utils.adoc#SafeCast[`SafeCast`]]
 :xref-SafeCast: xref:utils.adoc#SafeCast
+:SafeCast-toUint248: pass:normal[xref:utils.adoc#SafeCast-toUint248-uint256-[`SafeCast.toUint248`]]
+:xref-SafeCast-toUint248-uint256-: xref:utils.adoc#SafeCast-toUint248-uint256-
+:SafeCast-toUint240: pass:normal[xref:utils.adoc#SafeCast-toUint240-uint256-[`SafeCast.toUint240`]]
+:xref-SafeCast-toUint240-uint256-: xref:utils.adoc#SafeCast-toUint240-uint256-
+:SafeCast-toUint232: pass:normal[xref:utils.adoc#SafeCast-toUint232-uint256-[`SafeCast.toUint232`]]
+:xref-SafeCast-toUint232-uint256-: xref:utils.adoc#SafeCast-toUint232-uint256-
 :SafeCast-toUint224: pass:normal[xref:utils.adoc#SafeCast-toUint224-uint256-[`SafeCast.toUint224`]]
 :xref-SafeCast-toUint224-uint256-: xref:utils.adoc#SafeCast-toUint224-uint256-
+:SafeCast-toUint216: pass:normal[xref:utils.adoc#SafeCast-toUint216-uint256-[`SafeCast.toUint216`]]
+:xref-SafeCast-toUint216-uint256-: xref:utils.adoc#SafeCast-toUint216-uint256-
+:SafeCast-toUint208: pass:normal[xref:utils.adoc#SafeCast-toUint208-uint256-[`SafeCast.toUint208`]]
+:xref-SafeCast-toUint208-uint256-: xref:utils.adoc#SafeCast-toUint208-uint256-
+:SafeCast-toUint200: pass:normal[xref:utils.adoc#SafeCast-toUint200-uint256-[`SafeCast.toUint200`]]
+:xref-SafeCast-toUint200-uint256-: xref:utils.adoc#SafeCast-toUint200-uint256-
+:SafeCast-toUint192: pass:normal[xref:utils.adoc#SafeCast-toUint192-uint256-[`SafeCast.toUint192`]]
+:xref-SafeCast-toUint192-uint256-: xref:utils.adoc#SafeCast-toUint192-uint256-
+:SafeCast-toUint184: pass:normal[xref:utils.adoc#SafeCast-toUint184-uint256-[`SafeCast.toUint184`]]
+:xref-SafeCast-toUint184-uint256-: xref:utils.adoc#SafeCast-toUint184-uint256-
+:SafeCast-toUint176: pass:normal[xref:utils.adoc#SafeCast-toUint176-uint256-[`SafeCast.toUint176`]]
+:xref-SafeCast-toUint176-uint256-: xref:utils.adoc#SafeCast-toUint176-uint256-
+:SafeCast-toUint168: pass:normal[xref:utils.adoc#SafeCast-toUint168-uint256-[`SafeCast.toUint168`]]
+:xref-SafeCast-toUint168-uint256-: xref:utils.adoc#SafeCast-toUint168-uint256-
+:SafeCast-toUint160: pass:normal[xref:utils.adoc#SafeCast-toUint160-uint256-[`SafeCast.toUint160`]]
+:xref-SafeCast-toUint160-uint256-: xref:utils.adoc#SafeCast-toUint160-uint256-
+:SafeCast-toUint152: pass:normal[xref:utils.adoc#SafeCast-toUint152-uint256-[`SafeCast.toUint152`]]
+:xref-SafeCast-toUint152-uint256-: xref:utils.adoc#SafeCast-toUint152-uint256-
+:SafeCast-toUint144: pass:normal[xref:utils.adoc#SafeCast-toUint144-uint256-[`SafeCast.toUint144`]]
+:xref-SafeCast-toUint144-uint256-: xref:utils.adoc#SafeCast-toUint144-uint256-
+:SafeCast-toUint136: pass:normal[xref:utils.adoc#SafeCast-toUint136-uint256-[`SafeCast.toUint136`]]
+:xref-SafeCast-toUint136-uint256-: xref:utils.adoc#SafeCast-toUint136-uint256-
 :SafeCast-toUint128: pass:normal[xref:utils.adoc#SafeCast-toUint128-uint256-[`SafeCast.toUint128`]]
 :xref-SafeCast-toUint128-uint256-: xref:utils.adoc#SafeCast-toUint128-uint256-
+:SafeCast-toUint120: pass:normal[xref:utils.adoc#SafeCast-toUint120-uint256-[`SafeCast.toUint120`]]
+:xref-SafeCast-toUint120-uint256-: xref:utils.adoc#SafeCast-toUint120-uint256-
+:SafeCast-toUint112: pass:normal[xref:utils.adoc#SafeCast-toUint112-uint256-[`SafeCast.toUint112`]]
+:xref-SafeCast-toUint112-uint256-: xref:utils.adoc#SafeCast-toUint112-uint256-
+:SafeCast-toUint104: pass:normal[xref:utils.adoc#SafeCast-toUint104-uint256-[`SafeCast.toUint104`]]
+:xref-SafeCast-toUint104-uint256-: xref:utils.adoc#SafeCast-toUint104-uint256-
 :SafeCast-toUint96: pass:normal[xref:utils.adoc#SafeCast-toUint96-uint256-[`SafeCast.toUint96`]]
 :xref-SafeCast-toUint96-uint256-: xref:utils.adoc#SafeCast-toUint96-uint256-
+:SafeCast-toUint88: pass:normal[xref:utils.adoc#SafeCast-toUint88-uint256-[`SafeCast.toUint88`]]
+:xref-SafeCast-toUint88-uint256-: xref:utils.adoc#SafeCast-toUint88-uint256-
+:SafeCast-toUint80: pass:normal[xref:utils.adoc#SafeCast-toUint80-uint256-[`SafeCast.toUint80`]]
+:xref-SafeCast-toUint80-uint256-: xref:utils.adoc#SafeCast-toUint80-uint256-
+:SafeCast-toUint72: pass:normal[xref:utils.adoc#SafeCast-toUint72-uint256-[`SafeCast.toUint72`]]
+:xref-SafeCast-toUint72-uint256-: xref:utils.adoc#SafeCast-toUint72-uint256-
 :SafeCast-toUint64: pass:normal[xref:utils.adoc#SafeCast-toUint64-uint256-[`SafeCast.toUint64`]]
 :xref-SafeCast-toUint64-uint256-: xref:utils.adoc#SafeCast-toUint64-uint256-
+:SafeCast-toUint56: pass:normal[xref:utils.adoc#SafeCast-toUint56-uint256-[`SafeCast.toUint56`]]
+:xref-SafeCast-toUint56-uint256-: xref:utils.adoc#SafeCast-toUint56-uint256-
+:SafeCast-toUint48: pass:normal[xref:utils.adoc#SafeCast-toUint48-uint256-[`SafeCast.toUint48`]]
+:xref-SafeCast-toUint48-uint256-: xref:utils.adoc#SafeCast-toUint48-uint256-
+:SafeCast-toUint40: pass:normal[xref:utils.adoc#SafeCast-toUint40-uint256-[`SafeCast.toUint40`]]
+:xref-SafeCast-toUint40-uint256-: xref:utils.adoc#SafeCast-toUint40-uint256-
 :SafeCast-toUint32: pass:normal[xref:utils.adoc#SafeCast-toUint32-uint256-[`SafeCast.toUint32`]]
 :xref-SafeCast-toUint32-uint256-: xref:utils.adoc#SafeCast-toUint32-uint256-
+:SafeCast-toUint24: pass:normal[xref:utils.adoc#SafeCast-toUint24-uint256-[`SafeCast.toUint24`]]
+:xref-SafeCast-toUint24-uint256-: xref:utils.adoc#SafeCast-toUint24-uint256-
 :SafeCast-toUint16: pass:normal[xref:utils.adoc#SafeCast-toUint16-uint256-[`SafeCast.toUint16`]]
 :xref-SafeCast-toUint16-uint256-: xref:utils.adoc#SafeCast-toUint16-uint256-
 :SafeCast-toUint8: pass:normal[xref:utils.adoc#SafeCast-toUint8-uint256-[`SafeCast.toUint8`]]
 :xref-SafeCast-toUint8-uint256-: xref:utils.adoc#SafeCast-toUint8-uint256-
 :SafeCast-toUint256: pass:normal[xref:utils.adoc#SafeCast-toUint256-int256-[`SafeCast.toUint256`]]
 :xref-SafeCast-toUint256-int256-: xref:utils.adoc#SafeCast-toUint256-int256-
+:SafeCast-toInt248: pass:normal[xref:utils.adoc#SafeCast-toInt248-int256-[`SafeCast.toInt248`]]
+:xref-SafeCast-toInt248-int256-: xref:utils.adoc#SafeCast-toInt248-int256-
+:SafeCast-toInt240: pass:normal[xref:utils.adoc#SafeCast-toInt240-int256-[`SafeCast.toInt240`]]
+:xref-SafeCast-toInt240-int256-: xref:utils.adoc#SafeCast-toInt240-int256-
+:SafeCast-toInt232: pass:normal[xref:utils.adoc#SafeCast-toInt232-int256-[`SafeCast.toInt232`]]
+:xref-SafeCast-toInt232-int256-: xref:utils.adoc#SafeCast-toInt232-int256-
+:SafeCast-toInt224: pass:normal[xref:utils.adoc#SafeCast-toInt224-int256-[`SafeCast.toInt224`]]
+:xref-SafeCast-toInt224-int256-: xref:utils.adoc#SafeCast-toInt224-int256-
+:SafeCast-toInt216: pass:normal[xref:utils.adoc#SafeCast-toInt216-int256-[`SafeCast.toInt216`]]
+:xref-SafeCast-toInt216-int256-: xref:utils.adoc#SafeCast-toInt216-int256-
+:SafeCast-toInt208: pass:normal[xref:utils.adoc#SafeCast-toInt208-int256-[`SafeCast.toInt208`]]
+:xref-SafeCast-toInt208-int256-: xref:utils.adoc#SafeCast-toInt208-int256-
+:SafeCast-toInt200: pass:normal[xref:utils.adoc#SafeCast-toInt200-int256-[`SafeCast.toInt200`]]
+:xref-SafeCast-toInt200-int256-: xref:utils.adoc#SafeCast-toInt200-int256-
+:SafeCast-toInt192: pass:normal[xref:utils.adoc#SafeCast-toInt192-int256-[`SafeCast.toInt192`]]
+:xref-SafeCast-toInt192-int256-: xref:utils.adoc#SafeCast-toInt192-int256-
+:SafeCast-toInt184: pass:normal[xref:utils.adoc#SafeCast-toInt184-int256-[`SafeCast.toInt184`]]
+:xref-SafeCast-toInt184-int256-: xref:utils.adoc#SafeCast-toInt184-int256-
+:SafeCast-toInt176: pass:normal[xref:utils.adoc#SafeCast-toInt176-int256-[`SafeCast.toInt176`]]
+:xref-SafeCast-toInt176-int256-: xref:utils.adoc#SafeCast-toInt176-int256-
+:SafeCast-toInt168: pass:normal[xref:utils.adoc#SafeCast-toInt168-int256-[`SafeCast.toInt168`]]
+:xref-SafeCast-toInt168-int256-: xref:utils.adoc#SafeCast-toInt168-int256-
+:SafeCast-toInt160: pass:normal[xref:utils.adoc#SafeCast-toInt160-int256-[`SafeCast.toInt160`]]
+:xref-SafeCast-toInt160-int256-: xref:utils.adoc#SafeCast-toInt160-int256-
+:SafeCast-toInt152: pass:normal[xref:utils.adoc#SafeCast-toInt152-int256-[`SafeCast.toInt152`]]
+:xref-SafeCast-toInt152-int256-: xref:utils.adoc#SafeCast-toInt152-int256-
+:SafeCast-toInt144: pass:normal[xref:utils.adoc#SafeCast-toInt144-int256-[`SafeCast.toInt144`]]
+:xref-SafeCast-toInt144-int256-: xref:utils.adoc#SafeCast-toInt144-int256-
+:SafeCast-toInt136: pass:normal[xref:utils.adoc#SafeCast-toInt136-int256-[`SafeCast.toInt136`]]
+:xref-SafeCast-toInt136-int256-: xref:utils.adoc#SafeCast-toInt136-int256-
 :SafeCast-toInt128: pass:normal[xref:utils.adoc#SafeCast-toInt128-int256-[`SafeCast.toInt128`]]
 :xref-SafeCast-toInt128-int256-: xref:utils.adoc#SafeCast-toInt128-int256-
+:SafeCast-toInt120: pass:normal[xref:utils.adoc#SafeCast-toInt120-int256-[`SafeCast.toInt120`]]
+:xref-SafeCast-toInt120-int256-: xref:utils.adoc#SafeCast-toInt120-int256-
+:SafeCast-toInt112: pass:normal[xref:utils.adoc#SafeCast-toInt112-int256-[`SafeCast.toInt112`]]
+:xref-SafeCast-toInt112-int256-: xref:utils.adoc#SafeCast-toInt112-int256-
+:SafeCast-toInt104: pass:normal[xref:utils.adoc#SafeCast-toInt104-int256-[`SafeCast.toInt104`]]
+:xref-SafeCast-toInt104-int256-: xref:utils.adoc#SafeCast-toInt104-int256-
+:SafeCast-toInt96: pass:normal[xref:utils.adoc#SafeCast-toInt96-int256-[`SafeCast.toInt96`]]
+:xref-SafeCast-toInt96-int256-: xref:utils.adoc#SafeCast-toInt96-int256-
+:SafeCast-toInt88: pass:normal[xref:utils.adoc#SafeCast-toInt88-int256-[`SafeCast.toInt88`]]
+:xref-SafeCast-toInt88-int256-: xref:utils.adoc#SafeCast-toInt88-int256-
+:SafeCast-toInt80: pass:normal[xref:utils.adoc#SafeCast-toInt80-int256-[`SafeCast.toInt80`]]
+:xref-SafeCast-toInt80-int256-: xref:utils.adoc#SafeCast-toInt80-int256-
+:SafeCast-toInt72: pass:normal[xref:utils.adoc#SafeCast-toInt72-int256-[`SafeCast.toInt72`]]
+:xref-SafeCast-toInt72-int256-: xref:utils.adoc#SafeCast-toInt72-int256-
 :SafeCast-toInt64: pass:normal[xref:utils.adoc#SafeCast-toInt64-int256-[`SafeCast.toInt64`]]
 :xref-SafeCast-toInt64-int256-: xref:utils.adoc#SafeCast-toInt64-int256-
+:SafeCast-toInt56: pass:normal[xref:utils.adoc#SafeCast-toInt56-int256-[`SafeCast.toInt56`]]
+:xref-SafeCast-toInt56-int256-: xref:utils.adoc#SafeCast-toInt56-int256-
+:SafeCast-toInt48: pass:normal[xref:utils.adoc#SafeCast-toInt48-int256-[`SafeCast.toInt48`]]
+:xref-SafeCast-toInt48-int256-: xref:utils.adoc#SafeCast-toInt48-int256-
+:SafeCast-toInt40: pass:normal[xref:utils.adoc#SafeCast-toInt40-int256-[`SafeCast.toInt40`]]
+:xref-SafeCast-toInt40-int256-: xref:utils.adoc#SafeCast-toInt40-int256-
 :SafeCast-toInt32: pass:normal[xref:utils.adoc#SafeCast-toInt32-int256-[`SafeCast.toInt32`]]
 :xref-SafeCast-toInt32-int256-: xref:utils.adoc#SafeCast-toInt32-int256-
+:SafeCast-toInt24: pass:normal[xref:utils.adoc#SafeCast-toInt24-int256-[`SafeCast.toInt24`]]
+:xref-SafeCast-toInt24-int256-: xref:utils.adoc#SafeCast-toInt24-int256-
 :SafeCast-toInt16: pass:normal[xref:utils.adoc#SafeCast-toInt16-int256-[`SafeCast.toInt16`]]
 :xref-SafeCast-toInt16-int256-: xref:utils.adoc#SafeCast-toInt16-int256-
 :SafeCast-toInt8: pass:normal[xref:utils.adoc#SafeCast-toInt8-int256-[`SafeCast.toInt8`]]
@@ -1352,6 +1526,22 @@
 :xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-
 :EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-[`EnumerableMap.get`]]
 :xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-
+:EnumerableMap-set: pass:normal[xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-[`EnumerableMap.set`]]
+:xref-EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-
+:EnumerableMap-remove: pass:normal[xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-[`EnumerableMap.remove`]]
+:xref-EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-
+:EnumerableMap-contains: pass:normal[xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-[`EnumerableMap.contains`]]
+:xref-EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-
+:EnumerableMap-length: pass:normal[xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-UintToUintMap-[`EnumerableMap.length`]]
+:xref-EnumerableMap-length-struct-EnumerableMap-UintToUintMap-: xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-UintToUintMap-
+:EnumerableMap-at: pass:normal[xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-UintToUintMap-uint256-[`EnumerableMap.at`]]
+:xref-EnumerableMap-at-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-UintToUintMap-uint256-
+:EnumerableMap-tryGet: pass:normal[xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-[`EnumerableMap.tryGet`]]
+:xref-EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-
 :EnumerableMap-set: pass:normal[xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-[`EnumerableMap.set`]]
 :xref-EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-
 :EnumerableMap-remove: pass:normal[xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-UintToAddressMap-uint256-[`EnumerableMap.remove`]]
@@ -1384,12 +1574,32 @@
 :xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-
 :EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-[`EnumerableMap.get`]]
 :xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-
+:EnumerableMap-set: pass:normal[xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-[`EnumerableMap.set`]]
+:xref-EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-
+:EnumerableMap-remove: pass:normal[xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`EnumerableMap.remove`]]
+:xref-EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
+:EnumerableMap-contains: pass:normal[xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`EnumerableMap.contains`]]
+:xref-EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
+:EnumerableMap-length: pass:normal[xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-Bytes32ToUintMap-[`EnumerableMap.length`]]
+:xref-EnumerableMap-length-struct-EnumerableMap-Bytes32ToUintMap-: xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-Bytes32ToUintMap-
+:EnumerableMap-at: pass:normal[xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-Bytes32ToUintMap-uint256-[`EnumerableMap.at`]]
+:xref-EnumerableMap-at-struct-EnumerableMap-Bytes32ToUintMap-uint256-: xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-Bytes32ToUintMap-uint256-
+:EnumerableMap-tryGet: pass:normal[xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`EnumerableMap.tryGet`]]
+:xref-EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-
 :EnumerableMap-Bytes32ToBytes32Map: pass:normal[xref:utils.adoc#EnumerableMap-Bytes32ToBytes32Map[`EnumerableMap.Bytes32ToBytes32Map`]]
 :xref-EnumerableMap-Bytes32ToBytes32Map: xref:utils.adoc#EnumerableMap-Bytes32ToBytes32Map
+:EnumerableMap-UintToUintMap: pass:normal[xref:utils.adoc#EnumerableMap-UintToUintMap[`EnumerableMap.UintToUintMap`]]
+:xref-EnumerableMap-UintToUintMap: xref:utils.adoc#EnumerableMap-UintToUintMap
 :EnumerableMap-UintToAddressMap: pass:normal[xref:utils.adoc#EnumerableMap-UintToAddressMap[`EnumerableMap.UintToAddressMap`]]
 :xref-EnumerableMap-UintToAddressMap: xref:utils.adoc#EnumerableMap-UintToAddressMap
 :EnumerableMap-AddressToUintMap: pass:normal[xref:utils.adoc#EnumerableMap-AddressToUintMap[`EnumerableMap.AddressToUintMap`]]
 :xref-EnumerableMap-AddressToUintMap: xref:utils.adoc#EnumerableMap-AddressToUintMap
+:EnumerableMap-Bytes32ToUintMap: pass:normal[xref:utils.adoc#EnumerableMap-Bytes32ToUintMap[`EnumerableMap.Bytes32ToUintMap`]]
+:xref-EnumerableMap-Bytes32ToUintMap: xref:utils.adoc#EnumerableMap-Bytes32ToUintMap
 :EnumerableSet: pass:normal[xref:utils.adoc#EnumerableSet[`EnumerableSet`]]
 :xref-EnumerableSet: xref:utils.adoc#EnumerableSet
 :EnumerableSet-add: pass:normal[xref:utils.adoc#EnumerableSet-add-struct-EnumerableSet-Bytes32Set-bytes32-[`EnumerableSet.add`]]
@@ -1622,6 +1832,8 @@
 :xref-ERC20FlashMint-maxFlashLoan-address-: xref:token/ERC20.adoc#ERC20FlashMint-maxFlashLoan-address-
 :ERC20FlashMint-flashFee: pass:normal[xref:token/ERC20.adoc#ERC20FlashMint-flashFee-address-uint256-[`ERC20FlashMint.flashFee`]]
 :xref-ERC20FlashMint-flashFee-address-uint256-: xref:token/ERC20.adoc#ERC20FlashMint-flashFee-address-uint256-
+:ERC20FlashMint-_flashFeeReceiver: pass:normal[xref:token/ERC20.adoc#ERC20FlashMint-_flashFeeReceiver--[`ERC20FlashMint._flashFeeReceiver`]]
+:xref-ERC20FlashMint-_flashFeeReceiver--: xref:token/ERC20.adoc#ERC20FlashMint-_flashFeeReceiver--
 :ERC20FlashMint-flashLoan: pass:normal[xref:token/ERC20.adoc#ERC20FlashMint-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-[`ERC20FlashMint.flashLoan`]]
 :xref-ERC20FlashMint-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-: xref:token/ERC20.adoc#ERC20FlashMint-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-
 :ERC20Pausable: pass:normal[xref:token/ERC20.adoc#ERC20Pausable[`ERC20Pausable`]]
@@ -1696,6 +1908,50 @@
 :xref-ERC20Wrapper-withdrawTo-address-uint256-: xref:token/ERC20.adoc#ERC20Wrapper-withdrawTo-address-uint256-
 :ERC20Wrapper-_recover: pass:normal[xref:token/ERC20.adoc#ERC20Wrapper-_recover-address-[`ERC20Wrapper._recover`]]
 :xref-ERC20Wrapper-_recover-address-: xref:token/ERC20.adoc#ERC20Wrapper-_recover-address-
+:ERC4626: pass:normal[xref:token/ERC20.adoc#ERC4626[`ERC4626`]]
+:xref-ERC4626: xref:token/ERC20.adoc#ERC4626
+:ERC4626-constructor: pass:normal[xref:token/ERC20.adoc#ERC4626-constructor-contract-IERC20Metadata-[`ERC4626.constructor`]]
+:xref-ERC4626-constructor-contract-IERC20Metadata-: xref:token/ERC20.adoc#ERC4626-constructor-contract-IERC20Metadata-
+:ERC4626-asset: pass:normal[xref:token/ERC20.adoc#ERC4626-asset--[`ERC4626.asset`]]
+:xref-ERC4626-asset--: xref:token/ERC20.adoc#ERC4626-asset--
+:ERC4626-totalAssets: pass:normal[xref:token/ERC20.adoc#ERC4626-totalAssets--[`ERC4626.totalAssets`]]
+:xref-ERC4626-totalAssets--: xref:token/ERC20.adoc#ERC4626-totalAssets--
+:ERC4626-convertToShares: pass:normal[xref:token/ERC20.adoc#ERC4626-convertToShares-uint256-[`ERC4626.convertToShares`]]
+:xref-ERC4626-convertToShares-uint256-: xref:token/ERC20.adoc#ERC4626-convertToShares-uint256-
+:ERC4626-convertToAssets: pass:normal[xref:token/ERC20.adoc#ERC4626-convertToAssets-uint256-[`ERC4626.convertToAssets`]]
+:xref-ERC4626-convertToAssets-uint256-: xref:token/ERC20.adoc#ERC4626-convertToAssets-uint256-
+:ERC4626-maxDeposit: pass:normal[xref:token/ERC20.adoc#ERC4626-maxDeposit-address-[`ERC4626.maxDeposit`]]
+:xref-ERC4626-maxDeposit-address-: xref:token/ERC20.adoc#ERC4626-maxDeposit-address-
+:ERC4626-maxMint: pass:normal[xref:token/ERC20.adoc#ERC4626-maxMint-address-[`ERC4626.maxMint`]]
+:xref-ERC4626-maxMint-address-: xref:token/ERC20.adoc#ERC4626-maxMint-address-
+:ERC4626-maxWithdraw: pass:normal[xref:token/ERC20.adoc#ERC4626-maxWithdraw-address-[`ERC4626.maxWithdraw`]]
+:xref-ERC4626-maxWithdraw-address-: xref:token/ERC20.adoc#ERC4626-maxWithdraw-address-
+:ERC4626-maxRedeem: pass:normal[xref:token/ERC20.adoc#ERC4626-maxRedeem-address-[`ERC4626.maxRedeem`]]
+:xref-ERC4626-maxRedeem-address-: xref:token/ERC20.adoc#ERC4626-maxRedeem-address-
+:ERC4626-previewDeposit: pass:normal[xref:token/ERC20.adoc#ERC4626-previewDeposit-uint256-[`ERC4626.previewDeposit`]]
+:xref-ERC4626-previewDeposit-uint256-: xref:token/ERC20.adoc#ERC4626-previewDeposit-uint256-
+:ERC4626-previewMint: pass:normal[xref:token/ERC20.adoc#ERC4626-previewMint-uint256-[`ERC4626.previewMint`]]
+:xref-ERC4626-previewMint-uint256-: xref:token/ERC20.adoc#ERC4626-previewMint-uint256-
+:ERC4626-previewWithdraw: pass:normal[xref:token/ERC20.adoc#ERC4626-previewWithdraw-uint256-[`ERC4626.previewWithdraw`]]
+:xref-ERC4626-previewWithdraw-uint256-: xref:token/ERC20.adoc#ERC4626-previewWithdraw-uint256-
+:ERC4626-previewRedeem: pass:normal[xref:token/ERC20.adoc#ERC4626-previewRedeem-uint256-[`ERC4626.previewRedeem`]]
+:xref-ERC4626-previewRedeem-uint256-: xref:token/ERC20.adoc#ERC4626-previewRedeem-uint256-
+:ERC4626-deposit: pass:normal[xref:token/ERC20.adoc#ERC4626-deposit-uint256-address-[`ERC4626.deposit`]]
+:xref-ERC4626-deposit-uint256-address-: xref:token/ERC20.adoc#ERC4626-deposit-uint256-address-
+:ERC4626-mint: pass:normal[xref:token/ERC20.adoc#ERC4626-mint-uint256-address-[`ERC4626.mint`]]
+:xref-ERC4626-mint-uint256-address-: xref:token/ERC20.adoc#ERC4626-mint-uint256-address-
+:ERC4626-withdraw: pass:normal[xref:token/ERC20.adoc#ERC4626-withdraw-uint256-address-address-[`ERC4626.withdraw`]]
+:xref-ERC4626-withdraw-uint256-address-address-: xref:token/ERC20.adoc#ERC4626-withdraw-uint256-address-address-
+:ERC4626-redeem: pass:normal[xref:token/ERC20.adoc#ERC4626-redeem-uint256-address-address-[`ERC4626.redeem`]]
+:xref-ERC4626-redeem-uint256-address-address-: xref:token/ERC20.adoc#ERC4626-redeem-uint256-address-address-
+:ERC4626-_convertToShares: pass:normal[xref:token/ERC20.adoc#ERC4626-_convertToShares-uint256-enum-Math-Rounding-[`ERC4626._convertToShares`]]
+:xref-ERC4626-_convertToShares-uint256-enum-Math-Rounding-: xref:token/ERC20.adoc#ERC4626-_convertToShares-uint256-enum-Math-Rounding-
+:ERC4626-_convertToAssets: pass:normal[xref:token/ERC20.adoc#ERC4626-_convertToAssets-uint256-enum-Math-Rounding-[`ERC4626._convertToAssets`]]
+:xref-ERC4626-_convertToAssets-uint256-enum-Math-Rounding-: xref:token/ERC20.adoc#ERC4626-_convertToAssets-uint256-enum-Math-Rounding-
+:ERC4626-_deposit: pass:normal[xref:token/ERC20.adoc#ERC4626-_deposit-address-address-uint256-uint256-[`ERC4626._deposit`]]
+:xref-ERC4626-_deposit-address-address-uint256-uint256-: xref:token/ERC20.adoc#ERC4626-_deposit-address-address-uint256-uint256-
+:ERC4626-_withdraw: pass:normal[xref:token/ERC20.adoc#ERC4626-_withdraw-address-address-address-uint256-uint256-[`ERC4626._withdraw`]]
+:xref-ERC4626-_withdraw-address-address-address-uint256-uint256-: xref:token/ERC20.adoc#ERC4626-_withdraw-address-address-address-uint256-uint256-
 :IERC20Metadata: pass:normal[xref:token/ERC20.adoc#IERC20Metadata[`IERC20Metadata`]]
 :xref-IERC20Metadata: xref:token/ERC20.adoc#IERC20Metadata
 :IERC20Metadata-name: pass:normal[xref:token/ERC20.adoc#IERC20Metadata-name--[`IERC20Metadata.name`]]
@@ -1736,6 +1992,8 @@
 :xref-SafeERC20-safeIncreaseAllowance-contract-IERC20-address-uint256-: xref:token/ERC20.adoc#SafeERC20-safeIncreaseAllowance-contract-IERC20-address-uint256-
 :SafeERC20-safeDecreaseAllowance: pass:normal[xref:token/ERC20.adoc#SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-[`SafeERC20.safeDecreaseAllowance`]]
 :xref-SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-: xref:token/ERC20.adoc#SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-
+:SafeERC20-safePermit: pass:normal[xref:token/ERC20.adoc#SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-[`SafeERC20.safePermit`]]
+:xref-SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-
 :TokenTimelock: pass:normal[xref:token/ERC20.adoc#TokenTimelock[`TokenTimelock`]]
 :xref-TokenTimelock: xref:token/ERC20.adoc#TokenTimelock
 :TokenTimelock-constructor: pass:normal[xref:token/ERC20.adoc#TokenTimelock-constructor-contract-IERC20-address-uint256-[`TokenTimelock.constructor`]]
@@ -1800,6 +2058,8 @@
 :xref-ERC721-_approve-address-uint256-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-
 :ERC721-_setApprovalForAll: pass:normal[xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-[`ERC721._setApprovalForAll`]]
 :xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:ERC721-_requireMinted: pass:normal[xref:token/ERC721.adoc#ERC721-_requireMinted-uint256-[`ERC721._requireMinted`]]
+:xref-ERC721-_requireMinted-uint256-: xref:token/ERC721.adoc#ERC721-_requireMinted-uint256-
 :ERC721-_beforeTokenTransfer: pass:normal[xref:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-[`ERC721._beforeTokenTransfer`]]
 :xref-ERC721-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-
 :ERC721-_afterTokenTransfer: pass:normal[xref:token/ERC721.adoc#ERC721-_afterTokenTransfer-address-address-uint256-[`ERC721._afterTokenTransfer`]]
@@ -2116,7 +2376,7 @@ are useful to interact with third party contracts that implement them.
 
 [.contract]
 [[IERC1271]]
-=== `++IERC1271++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/interfaces/IERC1271.sol[{github-icon},role=heading-link]
+=== `++IERC1271++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/interfaces/IERC1271.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2158,7 +2418,7 @@ Should return whether the signature provided is valid for the provided data
 
 [.contract]
 [[IERC1363]]
-=== `++IERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/interfaces/IERC1363.sol[{github-icon},role=heading-link]
+=== `++IERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/interfaces/IERC1363.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2260,7 +2520,7 @@ and then call `onApprovalReceived` on spender.
 
 [.contract]
 [[IERC1363Receiver]]
-=== `++IERC1363Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/interfaces/IERC1363Receiver.sol[{github-icon},role=heading-link]
+=== `++IERC1363Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/interfaces/IERC1363Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2301,7 +2561,7 @@ Note: the token contract address is always the message sender.
 
 [.contract]
 [[IERC2612]]
-=== `++IERC2612++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/interfaces/draft-IERC2612.sol[{github-icon},role=heading-link]
+=== `++IERC2612++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/interfaces/draft-IERC2612.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2333,7 +2593,7 @@ import "@openzeppelin/contracts/interfaces/draft-IERC2612.sol";
 
 [.contract]
 [[IERC2981]]
-=== `++IERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/interfaces/IERC2981.sol[{github-icon},role=heading-link]
+=== `++IERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/interfaces/IERC2981.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2378,7 +2638,7 @@ exchange. The royalty amount is denominated and should be paid in that same unit
 
 [.contract]
 [[IERC3156FlashLender]]
-=== `++IERC3156FlashLender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/interfaces/IERC3156FlashLender.sol[{github-icon},role=heading-link]
+=== `++IERC3156FlashLender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/interfaces/IERC3156FlashLender.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2431,7 +2691,7 @@ Initiate a flash loan.
 
 [.contract]
 [[IERC3156FlashBorrower]]
-=== `++IERC3156FlashBorrower++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/interfaces/IERC3156FlashBorrower.sol[{github-icon},role=heading-link]
+=== `++IERC3156FlashBorrower++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/interfaces/IERC3156FlashBorrower.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

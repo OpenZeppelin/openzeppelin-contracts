@@ -84,6 +84,8 @@
 :xref-Ownable-constructor--: xref:access.adoc#Ownable-constructor--
 :Ownable-owner: pass:normal[xref:access.adoc#Ownable-owner--[`Ownable.owner`]]
 :xref-Ownable-owner--: xref:access.adoc#Ownable-owner--
+:Ownable-_checkOwner: pass:normal[xref:access.adoc#Ownable-_checkOwner--[`Ownable._checkOwner`]]
+:xref-Ownable-_checkOwner--: xref:access.adoc#Ownable-_checkOwner--
 :Ownable-renounceOwnership: pass:normal[xref:access.adoc#Ownable-renounceOwnership--[`Ownable.renounceOwnership`]]
 :xref-Ownable-renounceOwnership--: xref:access.adoc#Ownable-renounceOwnership--
 :Ownable-transferOwnership: pass:normal[xref:access.adoc#Ownable-transferOwnership-address-[`Ownable.transferOwnership`]]
@@ -188,6 +190,10 @@
 :xref-PaymentSplitter-released-contract-IERC20-address-: xref:finance.adoc#PaymentSplitter-released-contract-IERC20-address-
 :PaymentSplitter-payee: pass:normal[xref:finance.adoc#PaymentSplitter-payee-uint256-[`PaymentSplitter.payee`]]
 :xref-PaymentSplitter-payee-uint256-: xref:finance.adoc#PaymentSplitter-payee-uint256-
+:PaymentSplitter-releasable: pass:normal[xref:finance.adoc#PaymentSplitter-releasable-address-[`PaymentSplitter.releasable`]]
+:xref-PaymentSplitter-releasable-address-: xref:finance.adoc#PaymentSplitter-releasable-address-
+:PaymentSplitter-releasable: pass:normal[xref:finance.adoc#PaymentSplitter-releasable-contract-IERC20-address-[`PaymentSplitter.releasable`]]
+:xref-PaymentSplitter-releasable-contract-IERC20-address-: xref:finance.adoc#PaymentSplitter-releasable-contract-IERC20-address-
 :PaymentSplitter-release: pass:normal[xref:finance.adoc#PaymentSplitter-release-address-payable-[`PaymentSplitter.release`]]
 :xref-PaymentSplitter-release-address-payable-: xref:finance.adoc#PaymentSplitter-release-address-payable-
 :PaymentSplitter-release: pass:normal[xref:finance.adoc#PaymentSplitter-release-contract-IERC20-address-[`PaymentSplitter.release`]]
@@ -410,6 +416,8 @@
 :xref-TimelockController-execute-address-uint256-bytes-bytes32-bytes32-: xref:governance.adoc#TimelockController-execute-address-uint256-bytes-bytes32-bytes32-
 :TimelockController-executeBatch: pass:normal[xref:governance.adoc#TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-[`TimelockController.executeBatch`]]
 :xref-TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-: xref:governance.adoc#TimelockController-executeBatch-address---uint256---bytes---bytes32-bytes32-
+:TimelockController-_execute: pass:normal[xref:governance.adoc#TimelockController-_execute-address-uint256-bytes-[`TimelockController._execute`]]
+:xref-TimelockController-_execute-address-uint256-bytes-: xref:governance.adoc#TimelockController-_execute-address-uint256-bytes-
 :TimelockController-updateDelay: pass:normal[xref:governance.adoc#TimelockController-updateDelay-uint256-[`TimelockController.updateDelay`]]
 :xref-TimelockController-updateDelay-uint256-: xref:governance.adoc#TimelockController-updateDelay-uint256-
 :TimelockController-onERC721Received: pass:normal[xref:governance.adoc#TimelockController-onERC721Received-address-address-uint256-bytes-[`TimelockController.onERC721Received`]]
@@ -732,6 +740,44 @@
 :xref-IERC3156FlashLender-flashFee-address-uint256-: xref:interfaces.adoc#IERC3156FlashLender-flashFee-address-uint256-
 :IERC3156FlashLender-flashLoan: pass:normal[xref:interfaces.adoc#IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-[`IERC3156FlashLender.flashLoan`]]
 :xref-IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-: xref:interfaces.adoc#IERC3156FlashLender-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-
+:IERC4626: pass:normal[xref:interfaces.adoc#IERC4626[`IERC4626`]]
+:xref-IERC4626: xref:interfaces.adoc#IERC4626
+:IERC4626-asset: pass:normal[xref:interfaces.adoc#IERC4626-asset--[`IERC4626.asset`]]
+:xref-IERC4626-asset--: xref:interfaces.adoc#IERC4626-asset--
+:IERC4626-totalAssets: pass:normal[xref:interfaces.adoc#IERC4626-totalAssets--[`IERC4626.totalAssets`]]
+:xref-IERC4626-totalAssets--: xref:interfaces.adoc#IERC4626-totalAssets--
+:IERC4626-convertToShares: pass:normal[xref:interfaces.adoc#IERC4626-convertToShares-uint256-[`IERC4626.convertToShares`]]
+:xref-IERC4626-convertToShares-uint256-: xref:interfaces.adoc#IERC4626-convertToShares-uint256-
+:IERC4626-convertToAssets: pass:normal[xref:interfaces.adoc#IERC4626-convertToAssets-uint256-[`IERC4626.convertToAssets`]]
+:xref-IERC4626-convertToAssets-uint256-: xref:interfaces.adoc#IERC4626-convertToAssets-uint256-
+:IERC4626-maxDeposit: pass:normal[xref:interfaces.adoc#IERC4626-maxDeposit-address-[`IERC4626.maxDeposit`]]
+:xref-IERC4626-maxDeposit-address-: xref:interfaces.adoc#IERC4626-maxDeposit-address-
+:IERC4626-previewDeposit: pass:normal[xref:interfaces.adoc#IERC4626-previewDeposit-uint256-[`IERC4626.previewDeposit`]]
+:xref-IERC4626-previewDeposit-uint256-: xref:interfaces.adoc#IERC4626-previewDeposit-uint256-
+:IERC4626-deposit: pass:normal[xref:interfaces.adoc#IERC4626-deposit-uint256-address-[`IERC4626.deposit`]]
+:xref-IERC4626-deposit-uint256-address-: xref:interfaces.adoc#IERC4626-deposit-uint256-address-
+:IERC4626-maxMint: pass:normal[xref:interfaces.adoc#IERC4626-maxMint-address-[`IERC4626.maxMint`]]
+:xref-IERC4626-maxMint-address-: xref:interfaces.adoc#IERC4626-maxMint-address-
+:IERC4626-previewMint: pass:normal[xref:interfaces.adoc#IERC4626-previewMint-uint256-[`IERC4626.previewMint`]]
+:xref-IERC4626-previewMint-uint256-: xref:interfaces.adoc#IERC4626-previewMint-uint256-
+:IERC4626-mint: pass:normal[xref:interfaces.adoc#IERC4626-mint-uint256-address-[`IERC4626.mint`]]
+:xref-IERC4626-mint-uint256-address-: xref:interfaces.adoc#IERC4626-mint-uint256-address-
+:IERC4626-maxWithdraw: pass:normal[xref:interfaces.adoc#IERC4626-maxWithdraw-address-[`IERC4626.maxWithdraw`]]
+:xref-IERC4626-maxWithdraw-address-: xref:interfaces.adoc#IERC4626-maxWithdraw-address-
+:IERC4626-previewWithdraw: pass:normal[xref:interfaces.adoc#IERC4626-previewWithdraw-uint256-[`IERC4626.previewWithdraw`]]
+:xref-IERC4626-previewWithdraw-uint256-: xref:interfaces.adoc#IERC4626-previewWithdraw-uint256-
+:IERC4626-withdraw: pass:normal[xref:interfaces.adoc#IERC4626-withdraw-uint256-address-address-[`IERC4626.withdraw`]]
+:xref-IERC4626-withdraw-uint256-address-address-: xref:interfaces.adoc#IERC4626-withdraw-uint256-address-address-
+:IERC4626-maxRedeem: pass:normal[xref:interfaces.adoc#IERC4626-maxRedeem-address-[`IERC4626.maxRedeem`]]
+:xref-IERC4626-maxRedeem-address-: xref:interfaces.adoc#IERC4626-maxRedeem-address-
+:IERC4626-previewRedeem: pass:normal[xref:interfaces.adoc#IERC4626-previewRedeem-uint256-[`IERC4626.previewRedeem`]]
+:xref-IERC4626-previewRedeem-uint256-: xref:interfaces.adoc#IERC4626-previewRedeem-uint256-
+:IERC4626-redeem: pass:normal[xref:interfaces.adoc#IERC4626-redeem-uint256-address-address-[`IERC4626.redeem`]]
+:xref-IERC4626-redeem-uint256-address-address-: xref:interfaces.adoc#IERC4626-redeem-uint256-address-address-
+:IERC4626-Deposit: pass:normal[xref:interfaces.adoc#IERC4626-Deposit-address-address-uint256-uint256-[`IERC4626.Deposit`]]
+:xref-IERC4626-Deposit-address-address-uint256-uint256-: xref:interfaces.adoc#IERC4626-Deposit-address-address-uint256-uint256-
+:IERC4626-Withdraw: pass:normal[xref:interfaces.adoc#IERC4626-Withdraw-address-address-address-uint256-uint256-[`IERC4626.Withdraw`]]
+:xref-IERC4626-Withdraw-address-address-address-uint256-uint256-: xref:interfaces.adoc#IERC4626-Withdraw-address-address-address-uint256-uint256-
 :IERC1822Proxiable: pass:normal[xref:interfaces.adoc#IERC1822Proxiable[`IERC1822Proxiable`]]
 :xref-IERC1822Proxiable: xref:interfaces.adoc#IERC1822Proxiable
 :IERC1822Proxiable-proxiableUUID: pass:normal[xref:interfaces.adoc#IERC1822Proxiable-proxiableUUID--[`IERC1822Proxiable.proxiableUUID`]]
@@ -910,6 +956,10 @@
 :xref-Pausable-constructor--: xref:security.adoc#Pausable-constructor--
 :Pausable-paused: pass:normal[xref:security.adoc#Pausable-paused--[`Pausable.paused`]]
 :xref-Pausable-paused--: xref:security.adoc#Pausable-paused--
+:Pausable-_requireNotPaused: pass:normal[xref:security.adoc#Pausable-_requireNotPaused--[`Pausable._requireNotPaused`]]
+:xref-Pausable-_requireNotPaused--: xref:security.adoc#Pausable-_requireNotPaused--
+:Pausable-_requirePaused: pass:normal[xref:security.adoc#Pausable-_requirePaused--[`Pausable._requirePaused`]]
+:xref-Pausable-_requirePaused--: xref:security.adoc#Pausable-_requirePaused--
 :Pausable-_pause: pass:normal[xref:security.adoc#Pausable-_pause--[`Pausable._pause`]]
 :xref-Pausable-_pause--: xref:security.adoc#Pausable-_pause--
 :Pausable-_unpause: pass:normal[xref:security.adoc#Pausable-_unpause--[`Pausable._unpause`]]
@@ -1038,6 +1088,8 @@
 :xref-Strings-toHexString-uint256-: xref:utils.adoc#Strings-toHexString-uint256-
 :Strings-toHexString: pass:normal[xref:utils.adoc#Strings-toHexString-uint256-uint256-[`Strings.toHexString`]]
 :xref-Strings-toHexString-uint256-uint256-: xref:utils.adoc#Strings-toHexString-uint256-uint256-
+:Strings-toHexString: pass:normal[xref:utils.adoc#Strings-toHexString-address-[`Strings.toHexString`]]
+:xref-Strings-toHexString-address-: xref:utils.adoc#Strings-toHexString-address-
 :Timers: pass:normal[xref:utils.adoc#Timers[`Timers`]]
 :xref-Timers: xref:utils.adoc#Timers
 :Timers-getDeadline: pass:normal[xref:utils.adoc#Timers-getDeadline-struct-Timers-Timestamp-[`Timers.getDeadline`]]
@@ -1098,8 +1150,20 @@
 :xref-MerkleProof: xref:utils.adoc#MerkleProof
 :MerkleProof-verify: pass:normal[xref:utils.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-[`MerkleProof.verify`]]
 :xref-MerkleProof-verify-bytes32---bytes32-bytes32-: xref:utils.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-
+:MerkleProof-verifyCalldata: pass:normal[xref:utils.adoc#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-[`MerkleProof.verifyCalldata`]]
+:xref-MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-: xref:utils.adoc#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-
 :MerkleProof-processProof: pass:normal[xref:utils.adoc#MerkleProof-processProof-bytes32---bytes32-[`MerkleProof.processProof`]]
 :xref-MerkleProof-processProof-bytes32---bytes32-: xref:utils.adoc#MerkleProof-processProof-bytes32---bytes32-
+:MerkleProof-processProofCalldata: pass:normal[xref:utils.adoc#MerkleProof-processProofCalldata-bytes32---bytes32-[`MerkleProof.processProofCalldata`]]
+:xref-MerkleProof-processProofCalldata-bytes32---bytes32-: xref:utils.adoc#MerkleProof-processProofCalldata-bytes32---bytes32-
+:MerkleProof-multiProofVerify: pass:normal[xref:utils.adoc#MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---[`MerkleProof.multiProofVerify`]]
+:xref-MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---: xref:utils.adoc#MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---
+:MerkleProof-multiProofVerifyCalldata: pass:normal[xref:utils.adoc#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---[`MerkleProof.multiProofVerifyCalldata`]]
+:xref-MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---: xref:utils.adoc#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---
+:MerkleProof-processMultiProof: pass:normal[xref:utils.adoc#MerkleProof-processMultiProof-bytes32---bool---bytes32---[`MerkleProof.processMultiProof`]]
+:xref-MerkleProof-processMultiProof-bytes32---bool---bytes32---: xref:utils.adoc#MerkleProof-processMultiProof-bytes32---bool---bytes32---
+:MerkleProof-processMultiProofCalldata: pass:normal[xref:utils.adoc#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---[`MerkleProof.processMultiProofCalldata`]]
+:xref-MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---: xref:utils.adoc#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---
 :SignatureChecker: pass:normal[xref:utils.adoc#SignatureChecker[`SignatureChecker`]]
 :xref-SignatureChecker: xref:utils.adoc#SignatureChecker
 :SignatureChecker-isValidSignatureNow: pass:normal[xref:utils.adoc#SignatureChecker-isValidSignatureNow-address-bytes32-bytes-[`SignatureChecker.isValidSignatureNow`]]
@@ -1220,30 +1284,140 @@
 :xref-Math-average-uint256-uint256-: xref:utils.adoc#Math-average-uint256-uint256-
 :Math-ceilDiv: pass:normal[xref:utils.adoc#Math-ceilDiv-uint256-uint256-[`Math.ceilDiv`]]
 :xref-Math-ceilDiv-uint256-uint256-: xref:utils.adoc#Math-ceilDiv-uint256-uint256-
+:Math-mulDiv: pass:normal[xref:utils.adoc#Math-mulDiv-uint256-uint256-uint256-[`Math.mulDiv`]]
+:xref-Math-mulDiv-uint256-uint256-uint256-: xref:utils.adoc#Math-mulDiv-uint256-uint256-uint256-
+:Math-mulDiv: pass:normal[xref:utils.adoc#Math-mulDiv-uint256-uint256-uint256-enum-Math-Rounding-[`Math.mulDiv`]]
+:xref-Math-mulDiv-uint256-uint256-uint256-enum-Math-Rounding-: xref:utils.adoc#Math-mulDiv-uint256-uint256-uint256-enum-Math-Rounding-
+:Math-sqrt: pass:normal[xref:utils.adoc#Math-sqrt-uint256-[`Math.sqrt`]]
+:xref-Math-sqrt-uint256-: xref:utils.adoc#Math-sqrt-uint256-
+:Math-sqrt: pass:normal[xref:utils.adoc#Math-sqrt-uint256-enum-Math-Rounding-[`Math.sqrt`]]
+:xref-Math-sqrt-uint256-enum-Math-Rounding-: xref:utils.adoc#Math-sqrt-uint256-enum-Math-Rounding-
+:Math-Rounding: pass:normal[xref:utils.adoc#Math-Rounding[`Math.Rounding`]]
+:xref-Math-Rounding: xref:utils.adoc#Math-Rounding
 :SafeCast: pass:normal[xref:utils.adoc#SafeCast[`SafeCast`]]
 :xref-SafeCast: xref:utils.adoc#SafeCast
+:SafeCast-toUint248: pass:normal[xref:utils.adoc#SafeCast-toUint248-uint256-[`SafeCast.toUint248`]]
+:xref-SafeCast-toUint248-uint256-: xref:utils.adoc#SafeCast-toUint248-uint256-
+:SafeCast-toUint240: pass:normal[xref:utils.adoc#SafeCast-toUint240-uint256-[`SafeCast.toUint240`]]
+:xref-SafeCast-toUint240-uint256-: xref:utils.adoc#SafeCast-toUint240-uint256-
+:SafeCast-toUint232: pass:normal[xref:utils.adoc#SafeCast-toUint232-uint256-[`SafeCast.toUint232`]]
+:xref-SafeCast-toUint232-uint256-: xref:utils.adoc#SafeCast-toUint232-uint256-
 :SafeCast-toUint224: pass:normal[xref:utils.adoc#SafeCast-toUint224-uint256-[`SafeCast.toUint224`]]
 :xref-SafeCast-toUint224-uint256-: xref:utils.adoc#SafeCast-toUint224-uint256-
+:SafeCast-toUint216: pass:normal[xref:utils.adoc#SafeCast-toUint216-uint256-[`SafeCast.toUint216`]]
+:xref-SafeCast-toUint216-uint256-: xref:utils.adoc#SafeCast-toUint216-uint256-
+:SafeCast-toUint208: pass:normal[xref:utils.adoc#SafeCast-toUint208-uint256-[`SafeCast.toUint208`]]
+:xref-SafeCast-toUint208-uint256-: xref:utils.adoc#SafeCast-toUint208-uint256-
+:SafeCast-toUint200: pass:normal[xref:utils.adoc#SafeCast-toUint200-uint256-[`SafeCast.toUint200`]]
+:xref-SafeCast-toUint200-uint256-: xref:utils.adoc#SafeCast-toUint200-uint256-
+:SafeCast-toUint192: pass:normal[xref:utils.adoc#SafeCast-toUint192-uint256-[`SafeCast.toUint192`]]
+:xref-SafeCast-toUint192-uint256-: xref:utils.adoc#SafeCast-toUint192-uint256-
+:SafeCast-toUint184: pass:normal[xref:utils.adoc#SafeCast-toUint184-uint256-[`SafeCast.toUint184`]]
+:xref-SafeCast-toUint184-uint256-: xref:utils.adoc#SafeCast-toUint184-uint256-
+:SafeCast-toUint176: pass:normal[xref:utils.adoc#SafeCast-toUint176-uint256-[`SafeCast.toUint176`]]
+:xref-SafeCast-toUint176-uint256-: xref:utils.adoc#SafeCast-toUint176-uint256-
+:SafeCast-toUint168: pass:normal[xref:utils.adoc#SafeCast-toUint168-uint256-[`SafeCast.toUint168`]]
+:xref-SafeCast-toUint168-uint256-: xref:utils.adoc#SafeCast-toUint168-uint256-
+:SafeCast-toUint160: pass:normal[xref:utils.adoc#SafeCast-toUint160-uint256-[`SafeCast.toUint160`]]
+:xref-SafeCast-toUint160-uint256-: xref:utils.adoc#SafeCast-toUint160-uint256-
+:SafeCast-toUint152: pass:normal[xref:utils.adoc#SafeCast-toUint152-uint256-[`SafeCast.toUint152`]]
+:xref-SafeCast-toUint152-uint256-: xref:utils.adoc#SafeCast-toUint152-uint256-
+:SafeCast-toUint144: pass:normal[xref:utils.adoc#SafeCast-toUint144-uint256-[`SafeCast.toUint144`]]
+:xref-SafeCast-toUint144-uint256-: xref:utils.adoc#SafeCast-toUint144-uint256-
+:SafeCast-toUint136: pass:normal[xref:utils.adoc#SafeCast-toUint136-uint256-[`SafeCast.toUint136`]]
+:xref-SafeCast-toUint136-uint256-: xref:utils.adoc#SafeCast-toUint136-uint256-
 :SafeCast-toUint128: pass:normal[xref:utils.adoc#SafeCast-toUint128-uint256-[`SafeCast.toUint128`]]
 :xref-SafeCast-toUint128-uint256-: xref:utils.adoc#SafeCast-toUint128-uint256-
+:SafeCast-toUint120: pass:normal[xref:utils.adoc#SafeCast-toUint120-uint256-[`SafeCast.toUint120`]]
+:xref-SafeCast-toUint120-uint256-: xref:utils.adoc#SafeCast-toUint120-uint256-
+:SafeCast-toUint112: pass:normal[xref:utils.adoc#SafeCast-toUint112-uint256-[`SafeCast.toUint112`]]
+:xref-SafeCast-toUint112-uint256-: xref:utils.adoc#SafeCast-toUint112-uint256-
+:SafeCast-toUint104: pass:normal[xref:utils.adoc#SafeCast-toUint104-uint256-[`SafeCast.toUint104`]]
+:xref-SafeCast-toUint104-uint256-: xref:utils.adoc#SafeCast-toUint104-uint256-
 :SafeCast-toUint96: pass:normal[xref:utils.adoc#SafeCast-toUint96-uint256-[`SafeCast.toUint96`]]
 :xref-SafeCast-toUint96-uint256-: xref:utils.adoc#SafeCast-toUint96-uint256-
+:SafeCast-toUint88: pass:normal[xref:utils.adoc#SafeCast-toUint88-uint256-[`SafeCast.toUint88`]]
+:xref-SafeCast-toUint88-uint256-: xref:utils.adoc#SafeCast-toUint88-uint256-
+:SafeCast-toUint80: pass:normal[xref:utils.adoc#SafeCast-toUint80-uint256-[`SafeCast.toUint80`]]
+:xref-SafeCast-toUint80-uint256-: xref:utils.adoc#SafeCast-toUint80-uint256-
+:SafeCast-toUint72: pass:normal[xref:utils.adoc#SafeCast-toUint72-uint256-[`SafeCast.toUint72`]]
+:xref-SafeCast-toUint72-uint256-: xref:utils.adoc#SafeCast-toUint72-uint256-
 :SafeCast-toUint64: pass:normal[xref:utils.adoc#SafeCast-toUint64-uint256-[`SafeCast.toUint64`]]
 :xref-SafeCast-toUint64-uint256-: xref:utils.adoc#SafeCast-toUint64-uint256-
+:SafeCast-toUint56: pass:normal[xref:utils.adoc#SafeCast-toUint56-uint256-[`SafeCast.toUint56`]]
+:xref-SafeCast-toUint56-uint256-: xref:utils.adoc#SafeCast-toUint56-uint256-
+:SafeCast-toUint48: pass:normal[xref:utils.adoc#SafeCast-toUint48-uint256-[`SafeCast.toUint48`]]
+:xref-SafeCast-toUint48-uint256-: xref:utils.adoc#SafeCast-toUint48-uint256-
+:SafeCast-toUint40: pass:normal[xref:utils.adoc#SafeCast-toUint40-uint256-[`SafeCast.toUint40`]]
+:xref-SafeCast-toUint40-uint256-: xref:utils.adoc#SafeCast-toUint40-uint256-
 :SafeCast-toUint32: pass:normal[xref:utils.adoc#SafeCast-toUint32-uint256-[`SafeCast.toUint32`]]
 :xref-SafeCast-toUint32-uint256-: xref:utils.adoc#SafeCast-toUint32-uint256-
+:SafeCast-toUint24: pass:normal[xref:utils.adoc#SafeCast-toUint24-uint256-[`SafeCast.toUint24`]]
+:xref-SafeCast-toUint24-uint256-: xref:utils.adoc#SafeCast-toUint24-uint256-
 :SafeCast-toUint16: pass:normal[xref:utils.adoc#SafeCast-toUint16-uint256-[`SafeCast.toUint16`]]
 :xref-SafeCast-toUint16-uint256-: xref:utils.adoc#SafeCast-toUint16-uint256-
 :SafeCast-toUint8: pass:normal[xref:utils.adoc#SafeCast-toUint8-uint256-[`SafeCast.toUint8`]]
 :xref-SafeCast-toUint8-uint256-: xref:utils.adoc#SafeCast-toUint8-uint256-
 :SafeCast-toUint256: pass:normal[xref:utils.adoc#SafeCast-toUint256-int256-[`SafeCast.toUint256`]]
 :xref-SafeCast-toUint256-int256-: xref:utils.adoc#SafeCast-toUint256-int256-
+:SafeCast-toInt248: pass:normal[xref:utils.adoc#SafeCast-toInt248-int256-[`SafeCast.toInt248`]]
+:xref-SafeCast-toInt248-int256-: xref:utils.adoc#SafeCast-toInt248-int256-
+:SafeCast-toInt240: pass:normal[xref:utils.adoc#SafeCast-toInt240-int256-[`SafeCast.toInt240`]]
+:xref-SafeCast-toInt240-int256-: xref:utils.adoc#SafeCast-toInt240-int256-
+:SafeCast-toInt232: pass:normal[xref:utils.adoc#SafeCast-toInt232-int256-[`SafeCast.toInt232`]]
+:xref-SafeCast-toInt232-int256-: xref:utils.adoc#SafeCast-toInt232-int256-
+:SafeCast-toInt224: pass:normal[xref:utils.adoc#SafeCast-toInt224-int256-[`SafeCast.toInt224`]]
+:xref-SafeCast-toInt224-int256-: xref:utils.adoc#SafeCast-toInt224-int256-
+:SafeCast-toInt216: pass:normal[xref:utils.adoc#SafeCast-toInt216-int256-[`SafeCast.toInt216`]]
+:xref-SafeCast-toInt216-int256-: xref:utils.adoc#SafeCast-toInt216-int256-
+:SafeCast-toInt208: pass:normal[xref:utils.adoc#SafeCast-toInt208-int256-[`SafeCast.toInt208`]]
+:xref-SafeCast-toInt208-int256-: xref:utils.adoc#SafeCast-toInt208-int256-
+:SafeCast-toInt200: pass:normal[xref:utils.adoc#SafeCast-toInt200-int256-[`SafeCast.toInt200`]]
+:xref-SafeCast-toInt200-int256-: xref:utils.adoc#SafeCast-toInt200-int256-
+:SafeCast-toInt192: pass:normal[xref:utils.adoc#SafeCast-toInt192-int256-[`SafeCast.toInt192`]]
+:xref-SafeCast-toInt192-int256-: xref:utils.adoc#SafeCast-toInt192-int256-
+:SafeCast-toInt184: pass:normal[xref:utils.adoc#SafeCast-toInt184-int256-[`SafeCast.toInt184`]]
+:xref-SafeCast-toInt184-int256-: xref:utils.adoc#SafeCast-toInt184-int256-
+:SafeCast-toInt176: pass:normal[xref:utils.adoc#SafeCast-toInt176-int256-[`SafeCast.toInt176`]]
+:xref-SafeCast-toInt176-int256-: xref:utils.adoc#SafeCast-toInt176-int256-
+:SafeCast-toInt168: pass:normal[xref:utils.adoc#SafeCast-toInt168-int256-[`SafeCast.toInt168`]]
+:xref-SafeCast-toInt168-int256-: xref:utils.adoc#SafeCast-toInt168-int256-
+:SafeCast-toInt160: pass:normal[xref:utils.adoc#SafeCast-toInt160-int256-[`SafeCast.toInt160`]]
+:xref-SafeCast-toInt160-int256-: xref:utils.adoc#SafeCast-toInt160-int256-
+:SafeCast-toInt152: pass:normal[xref:utils.adoc#SafeCast-toInt152-int256-[`SafeCast.toInt152`]]
+:xref-SafeCast-toInt152-int256-: xref:utils.adoc#SafeCast-toInt152-int256-
+:SafeCast-toInt144: pass:normal[xref:utils.adoc#SafeCast-toInt144-int256-[`SafeCast.toInt144`]]
+:xref-SafeCast-toInt144-int256-: xref:utils.adoc#SafeCast-toInt144-int256-
+:SafeCast-toInt136: pass:normal[xref:utils.adoc#SafeCast-toInt136-int256-[`SafeCast.toInt136`]]
+:xref-SafeCast-toInt136-int256-: xref:utils.adoc#SafeCast-toInt136-int256-
 :SafeCast-toInt128: pass:normal[xref:utils.adoc#SafeCast-toInt128-int256-[`SafeCast.toInt128`]]
 :xref-SafeCast-toInt128-int256-: xref:utils.adoc#SafeCast-toInt128-int256-
+:SafeCast-toInt120: pass:normal[xref:utils.adoc#SafeCast-toInt120-int256-[`SafeCast.toInt120`]]
+:xref-SafeCast-toInt120-int256-: xref:utils.adoc#SafeCast-toInt120-int256-
+:SafeCast-toInt112: pass:normal[xref:utils.adoc#SafeCast-toInt112-int256-[`SafeCast.toInt112`]]
+:xref-SafeCast-toInt112-int256-: xref:utils.adoc#SafeCast-toInt112-int256-
+:SafeCast-toInt104: pass:normal[xref:utils.adoc#SafeCast-toInt104-int256-[`SafeCast.toInt104`]]
+:xref-SafeCast-toInt104-int256-: xref:utils.adoc#SafeCast-toInt104-int256-
+:SafeCast-toInt96: pass:normal[xref:utils.adoc#SafeCast-toInt96-int256-[`SafeCast.toInt96`]]
+:xref-SafeCast-toInt96-int256-: xref:utils.adoc#SafeCast-toInt96-int256-
+:SafeCast-toInt88: pass:normal[xref:utils.adoc#SafeCast-toInt88-int256-[`SafeCast.toInt88`]]
+:xref-SafeCast-toInt88-int256-: xref:utils.adoc#SafeCast-toInt88-int256-
+:SafeCast-toInt80: pass:normal[xref:utils.adoc#SafeCast-toInt80-int256-[`SafeCast.toInt80`]]
+:xref-SafeCast-toInt80-int256-: xref:utils.adoc#SafeCast-toInt80-int256-
+:SafeCast-toInt72: pass:normal[xref:utils.adoc#SafeCast-toInt72-int256-[`SafeCast.toInt72`]]
+:xref-SafeCast-toInt72-int256-: xref:utils.adoc#SafeCast-toInt72-int256-
 :SafeCast-toInt64: pass:normal[xref:utils.adoc#SafeCast-toInt64-int256-[`SafeCast.toInt64`]]
 :xref-SafeCast-toInt64-int256-: xref:utils.adoc#SafeCast-toInt64-int256-
+:SafeCast-toInt56: pass:normal[xref:utils.adoc#SafeCast-toInt56-int256-[`SafeCast.toInt56`]]
+:xref-SafeCast-toInt56-int256-: xref:utils.adoc#SafeCast-toInt56-int256-
+:SafeCast-toInt48: pass:normal[xref:utils.adoc#SafeCast-toInt48-int256-[`SafeCast.toInt48`]]
+:xref-SafeCast-toInt48-int256-: xref:utils.adoc#SafeCast-toInt48-int256-
+:SafeCast-toInt40: pass:normal[xref:utils.adoc#SafeCast-toInt40-int256-[`SafeCast.toInt40`]]
+:xref-SafeCast-toInt40-int256-: xref:utils.adoc#SafeCast-toInt40-int256-
 :SafeCast-toInt32: pass:normal[xref:utils.adoc#SafeCast-toInt32-int256-[`SafeCast.toInt32`]]
 :xref-SafeCast-toInt32-int256-: xref:utils.adoc#SafeCast-toInt32-int256-
+:SafeCast-toInt24: pass:normal[xref:utils.adoc#SafeCast-toInt24-int256-[`SafeCast.toInt24`]]
+:xref-SafeCast-toInt24-int256-: xref:utils.adoc#SafeCast-toInt24-int256-
 :SafeCast-toInt16: pass:normal[xref:utils.adoc#SafeCast-toInt16-int256-[`SafeCast.toInt16`]]
 :xref-SafeCast-toInt16-int256-: xref:utils.adoc#SafeCast-toInt16-int256-
 :SafeCast-toInt8: pass:normal[xref:utils.adoc#SafeCast-toInt8-int256-[`SafeCast.toInt8`]]
@@ -1352,6 +1526,22 @@
 :xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-
 :EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-[`EnumerableMap.get`]]
 :xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-
+:EnumerableMap-set: pass:normal[xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-[`EnumerableMap.set`]]
+:xref-EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-
+:EnumerableMap-remove: pass:normal[xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-[`EnumerableMap.remove`]]
+:xref-EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-
+:EnumerableMap-contains: pass:normal[xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-[`EnumerableMap.contains`]]
+:xref-EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-
+:EnumerableMap-length: pass:normal[xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-UintToUintMap-[`EnumerableMap.length`]]
+:xref-EnumerableMap-length-struct-EnumerableMap-UintToUintMap-: xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-UintToUintMap-
+:EnumerableMap-at: pass:normal[xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-UintToUintMap-uint256-[`EnumerableMap.at`]]
+:xref-EnumerableMap-at-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-UintToUintMap-uint256-
+:EnumerableMap-tryGet: pass:normal[xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-[`EnumerableMap.tryGet`]]
+:xref-EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-
 :EnumerableMap-set: pass:normal[xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-[`EnumerableMap.set`]]
 :xref-EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-
 :EnumerableMap-remove: pass:normal[xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-UintToAddressMap-uint256-[`EnumerableMap.remove`]]
@@ -1384,12 +1574,32 @@
 :xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-
 :EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-[`EnumerableMap.get`]]
 :xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-
+:EnumerableMap-set: pass:normal[xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-[`EnumerableMap.set`]]
+:xref-EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-
+:EnumerableMap-remove: pass:normal[xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`EnumerableMap.remove`]]
+:xref-EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
+:EnumerableMap-contains: pass:normal[xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`EnumerableMap.contains`]]
+:xref-EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
+:EnumerableMap-length: pass:normal[xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-Bytes32ToUintMap-[`EnumerableMap.length`]]
+:xref-EnumerableMap-length-struct-EnumerableMap-Bytes32ToUintMap-: xref:utils.adoc#EnumerableMap-length-struct-EnumerableMap-Bytes32ToUintMap-
+:EnumerableMap-at: pass:normal[xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-Bytes32ToUintMap-uint256-[`EnumerableMap.at`]]
+:xref-EnumerableMap-at-struct-EnumerableMap-Bytes32ToUintMap-uint256-: xref:utils.adoc#EnumerableMap-at-struct-EnumerableMap-Bytes32ToUintMap-uint256-
+:EnumerableMap-tryGet: pass:normal[xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`EnumerableMap.tryGet`]]
+:xref-EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
+:EnumerableMap-get: pass:normal[xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-[`EnumerableMap.get`]]
+:xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-
 :EnumerableMap-Bytes32ToBytes32Map: pass:normal[xref:utils.adoc#EnumerableMap-Bytes32ToBytes32Map[`EnumerableMap.Bytes32ToBytes32Map`]]
 :xref-EnumerableMap-Bytes32ToBytes32Map: xref:utils.adoc#EnumerableMap-Bytes32ToBytes32Map
+:EnumerableMap-UintToUintMap: pass:normal[xref:utils.adoc#EnumerableMap-UintToUintMap[`EnumerableMap.UintToUintMap`]]
+:xref-EnumerableMap-UintToUintMap: xref:utils.adoc#EnumerableMap-UintToUintMap
 :EnumerableMap-UintToAddressMap: pass:normal[xref:utils.adoc#EnumerableMap-UintToAddressMap[`EnumerableMap.UintToAddressMap`]]
 :xref-EnumerableMap-UintToAddressMap: xref:utils.adoc#EnumerableMap-UintToAddressMap
 :EnumerableMap-AddressToUintMap: pass:normal[xref:utils.adoc#EnumerableMap-AddressToUintMap[`EnumerableMap.AddressToUintMap`]]
 :xref-EnumerableMap-AddressToUintMap: xref:utils.adoc#EnumerableMap-AddressToUintMap
+:EnumerableMap-Bytes32ToUintMap: pass:normal[xref:utils.adoc#EnumerableMap-Bytes32ToUintMap[`EnumerableMap.Bytes32ToUintMap`]]
+:xref-EnumerableMap-Bytes32ToUintMap: xref:utils.adoc#EnumerableMap-Bytes32ToUintMap
 :EnumerableSet: pass:normal[xref:utils.adoc#EnumerableSet[`EnumerableSet`]]
 :xref-EnumerableSet: xref:utils.adoc#EnumerableSet
 :EnumerableSet-add: pass:normal[xref:utils.adoc#EnumerableSet-add-struct-EnumerableSet-Bytes32Set-bytes32-[`EnumerableSet.add`]]
@@ -1622,6 +1832,8 @@
 :xref-ERC20FlashMint-maxFlashLoan-address-: xref:token/ERC20.adoc#ERC20FlashMint-maxFlashLoan-address-
 :ERC20FlashMint-flashFee: pass:normal[xref:token/ERC20.adoc#ERC20FlashMint-flashFee-address-uint256-[`ERC20FlashMint.flashFee`]]
 :xref-ERC20FlashMint-flashFee-address-uint256-: xref:token/ERC20.adoc#ERC20FlashMint-flashFee-address-uint256-
+:ERC20FlashMint-_flashFeeReceiver: pass:normal[xref:token/ERC20.adoc#ERC20FlashMint-_flashFeeReceiver--[`ERC20FlashMint._flashFeeReceiver`]]
+:xref-ERC20FlashMint-_flashFeeReceiver--: xref:token/ERC20.adoc#ERC20FlashMint-_flashFeeReceiver--
 :ERC20FlashMint-flashLoan: pass:normal[xref:token/ERC20.adoc#ERC20FlashMint-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-[`ERC20FlashMint.flashLoan`]]
 :xref-ERC20FlashMint-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-: xref:token/ERC20.adoc#ERC20FlashMint-flashLoan-contract-IERC3156FlashBorrower-address-uint256-bytes-
 :ERC20Pausable: pass:normal[xref:token/ERC20.adoc#ERC20Pausable[`ERC20Pausable`]]
@@ -1696,6 +1908,50 @@
 :xref-ERC20Wrapper-withdrawTo-address-uint256-: xref:token/ERC20.adoc#ERC20Wrapper-withdrawTo-address-uint256-
 :ERC20Wrapper-_recover: pass:normal[xref:token/ERC20.adoc#ERC20Wrapper-_recover-address-[`ERC20Wrapper._recover`]]
 :xref-ERC20Wrapper-_recover-address-: xref:token/ERC20.adoc#ERC20Wrapper-_recover-address-
+:ERC4626: pass:normal[xref:token/ERC20.adoc#ERC4626[`ERC4626`]]
+:xref-ERC4626: xref:token/ERC20.adoc#ERC4626
+:ERC4626-constructor: pass:normal[xref:token/ERC20.adoc#ERC4626-constructor-contract-IERC20Metadata-[`ERC4626.constructor`]]
+:xref-ERC4626-constructor-contract-IERC20Metadata-: xref:token/ERC20.adoc#ERC4626-constructor-contract-IERC20Metadata-
+:ERC4626-asset: pass:normal[xref:token/ERC20.adoc#ERC4626-asset--[`ERC4626.asset`]]
+:xref-ERC4626-asset--: xref:token/ERC20.adoc#ERC4626-asset--
+:ERC4626-totalAssets: pass:normal[xref:token/ERC20.adoc#ERC4626-totalAssets--[`ERC4626.totalAssets`]]
+:xref-ERC4626-totalAssets--: xref:token/ERC20.adoc#ERC4626-totalAssets--
+:ERC4626-convertToShares: pass:normal[xref:token/ERC20.adoc#ERC4626-convertToShares-uint256-[`ERC4626.convertToShares`]]
+:xref-ERC4626-convertToShares-uint256-: xref:token/ERC20.adoc#ERC4626-convertToShares-uint256-
+:ERC4626-convertToAssets: pass:normal[xref:token/ERC20.adoc#ERC4626-convertToAssets-uint256-[`ERC4626.convertToAssets`]]
+:xref-ERC4626-convertToAssets-uint256-: xref:token/ERC20.adoc#ERC4626-convertToAssets-uint256-
+:ERC4626-maxDeposit: pass:normal[xref:token/ERC20.adoc#ERC4626-maxDeposit-address-[`ERC4626.maxDeposit`]]
+:xref-ERC4626-maxDeposit-address-: xref:token/ERC20.adoc#ERC4626-maxDeposit-address-
+:ERC4626-maxMint: pass:normal[xref:token/ERC20.adoc#ERC4626-maxMint-address-[`ERC4626.maxMint`]]
+:xref-ERC4626-maxMint-address-: xref:token/ERC20.adoc#ERC4626-maxMint-address-
+:ERC4626-maxWithdraw: pass:normal[xref:token/ERC20.adoc#ERC4626-maxWithdraw-address-[`ERC4626.maxWithdraw`]]
+:xref-ERC4626-maxWithdraw-address-: xref:token/ERC20.adoc#ERC4626-maxWithdraw-address-
+:ERC4626-maxRedeem: pass:normal[xref:token/ERC20.adoc#ERC4626-maxRedeem-address-[`ERC4626.maxRedeem`]]
+:xref-ERC4626-maxRedeem-address-: xref:token/ERC20.adoc#ERC4626-maxRedeem-address-
+:ERC4626-previewDeposit: pass:normal[xref:token/ERC20.adoc#ERC4626-previewDeposit-uint256-[`ERC4626.previewDeposit`]]
+:xref-ERC4626-previewDeposit-uint256-: xref:token/ERC20.adoc#ERC4626-previewDeposit-uint256-
+:ERC4626-previewMint: pass:normal[xref:token/ERC20.adoc#ERC4626-previewMint-uint256-[`ERC4626.previewMint`]]
+:xref-ERC4626-previewMint-uint256-: xref:token/ERC20.adoc#ERC4626-previewMint-uint256-
+:ERC4626-previewWithdraw: pass:normal[xref:token/ERC20.adoc#ERC4626-previewWithdraw-uint256-[`ERC4626.previewWithdraw`]]
+:xref-ERC4626-previewWithdraw-uint256-: xref:token/ERC20.adoc#ERC4626-previewWithdraw-uint256-
+:ERC4626-previewRedeem: pass:normal[xref:token/ERC20.adoc#ERC4626-previewRedeem-uint256-[`ERC4626.previewRedeem`]]
+:xref-ERC4626-previewRedeem-uint256-: xref:token/ERC20.adoc#ERC4626-previewRedeem-uint256-
+:ERC4626-deposit: pass:normal[xref:token/ERC20.adoc#ERC4626-deposit-uint256-address-[`ERC4626.deposit`]]
+:xref-ERC4626-deposit-uint256-address-: xref:token/ERC20.adoc#ERC4626-deposit-uint256-address-
+:ERC4626-mint: pass:normal[xref:token/ERC20.adoc#ERC4626-mint-uint256-address-[`ERC4626.mint`]]
+:xref-ERC4626-mint-uint256-address-: xref:token/ERC20.adoc#ERC4626-mint-uint256-address-
+:ERC4626-withdraw: pass:normal[xref:token/ERC20.adoc#ERC4626-withdraw-uint256-address-address-[`ERC4626.withdraw`]]
+:xref-ERC4626-withdraw-uint256-address-address-: xref:token/ERC20.adoc#ERC4626-withdraw-uint256-address-address-
+:ERC4626-redeem: pass:normal[xref:token/ERC20.adoc#ERC4626-redeem-uint256-address-address-[`ERC4626.redeem`]]
+:xref-ERC4626-redeem-uint256-address-address-: xref:token/ERC20.adoc#ERC4626-redeem-uint256-address-address-
+:ERC4626-_convertToShares: pass:normal[xref:token/ERC20.adoc#ERC4626-_convertToShares-uint256-enum-Math-Rounding-[`ERC4626._convertToShares`]]
+:xref-ERC4626-_convertToShares-uint256-enum-Math-Rounding-: xref:token/ERC20.adoc#ERC4626-_convertToShares-uint256-enum-Math-Rounding-
+:ERC4626-_convertToAssets: pass:normal[xref:token/ERC20.adoc#ERC4626-_convertToAssets-uint256-enum-Math-Rounding-[`ERC4626._convertToAssets`]]
+:xref-ERC4626-_convertToAssets-uint256-enum-Math-Rounding-: xref:token/ERC20.adoc#ERC4626-_convertToAssets-uint256-enum-Math-Rounding-
+:ERC4626-_deposit: pass:normal[xref:token/ERC20.adoc#ERC4626-_deposit-address-address-uint256-uint256-[`ERC4626._deposit`]]
+:xref-ERC4626-_deposit-address-address-uint256-uint256-: xref:token/ERC20.adoc#ERC4626-_deposit-address-address-uint256-uint256-
+:ERC4626-_withdraw: pass:normal[xref:token/ERC20.adoc#ERC4626-_withdraw-address-address-address-uint256-uint256-[`ERC4626._withdraw`]]
+:xref-ERC4626-_withdraw-address-address-address-uint256-uint256-: xref:token/ERC20.adoc#ERC4626-_withdraw-address-address-address-uint256-uint256-
 :IERC20Metadata: pass:normal[xref:token/ERC20.adoc#IERC20Metadata[`IERC20Metadata`]]
 :xref-IERC20Metadata: xref:token/ERC20.adoc#IERC20Metadata
 :IERC20Metadata-name: pass:normal[xref:token/ERC20.adoc#IERC20Metadata-name--[`IERC20Metadata.name`]]
@@ -1736,6 +1992,8 @@
 :xref-SafeERC20-safeIncreaseAllowance-contract-IERC20-address-uint256-: xref:token/ERC20.adoc#SafeERC20-safeIncreaseAllowance-contract-IERC20-address-uint256-
 :SafeERC20-safeDecreaseAllowance: pass:normal[xref:token/ERC20.adoc#SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-[`SafeERC20.safeDecreaseAllowance`]]
 :xref-SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-: xref:token/ERC20.adoc#SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-
+:SafeERC20-safePermit: pass:normal[xref:token/ERC20.adoc#SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-[`SafeERC20.safePermit`]]
+:xref-SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-
 :TokenTimelock: pass:normal[xref:token/ERC20.adoc#TokenTimelock[`TokenTimelock`]]
 :xref-TokenTimelock: xref:token/ERC20.adoc#TokenTimelock
 :TokenTimelock-constructor: pass:normal[xref:token/ERC20.adoc#TokenTimelock-constructor-contract-IERC20-address-uint256-[`TokenTimelock.constructor`]]
@@ -1800,6 +2058,8 @@
 :xref-ERC721-_approve-address-uint256-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-
 :ERC721-_setApprovalForAll: pass:normal[xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-[`ERC721._setApprovalForAll`]]
 :xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:ERC721-_requireMinted: pass:normal[xref:token/ERC721.adoc#ERC721-_requireMinted-uint256-[`ERC721._requireMinted`]]
+:xref-ERC721-_requireMinted-uint256-: xref:token/ERC721.adoc#ERC721-_requireMinted-uint256-
 :ERC721-_beforeTokenTransfer: pass:normal[xref:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-[`ERC721._beforeTokenTransfer`]]
 :xref-ERC721-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-
 :ERC721-_afterTokenTransfer: pass:normal[xref:token/ERC721.adoc#ERC721-_afterTokenTransfer-address-address-uint256-[`ERC721._afterTokenTransfer`]]
@@ -2110,10 +2370,15 @@ Finally, {Create2} contains all necessary utilities to safely use the https://bl
 :min: pass:normal[xref:#Math-min-uint256-uint256-[`++min++`]]
 :average: pass:normal[xref:#Math-average-uint256-uint256-[`++average++`]]
 :ceilDiv: pass:normal[xref:#Math-ceilDiv-uint256-uint256-[`++ceilDiv++`]]
+:mulDiv: pass:normal[xref:#Math-mulDiv-uint256-uint256-uint256-[`++mulDiv++`]]
+:mulDiv: pass:normal[xref:#Math-mulDiv-uint256-uint256-uint256-enum-Math-Rounding-[`++mulDiv++`]]
+:sqrt: pass:normal[xref:#Math-sqrt-uint256-[`++sqrt++`]]
+:sqrt: pass:normal[xref:#Math-sqrt-uint256-enum-Math-Rounding-[`++sqrt++`]]
+:Rounding: pass:normal[xref:#Math-Rounding[`++Rounding++`]]
 
 [.contract]
 [[Math]]
-=== `++Math++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/math/Math.sol[{github-icon},role=heading-link]
+=== `++Math++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/math/Math.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2130,6 +2395,10 @@ Standard math utilities missing in the Solidity language.
 * {xref-Math-min-uint256-uint256-}[`++min(a, b)++`]
 * {xref-Math-average-uint256-uint256-}[`++average(a, b)++`]
 * {xref-Math-ceilDiv-uint256-uint256-}[`++ceilDiv(a, b)++`]
+* {xref-Math-mulDiv-uint256-uint256-uint256-}[`++mulDiv(x, y, denominator)++`]
+* {xref-Math-mulDiv-uint256-uint256-uint256-enum-Math-Rounding-}[`++mulDiv(x, y, denominator, rounding)++`]
+* {xref-Math-sqrt-uint256-}[`++sqrt(a)++`]
+* {xref-Math-sqrt-uint256-enum-Math-Rounding-}[`++sqrt(a, rounding)++`]
 
 --
 
@@ -2163,6 +2432,33 @@ Returns the ceiling of the division of two numbers.
 This differs from standard division with `/` in that it rounds up instead
 of rounding down.
 
+[.contract-item]
+[[Math-mulDiv-uint256-uint256-uint256-]]
+==== `[.contract-item-name]#++mulDiv++#++(uint256 x, uint256 y, uint256 denominator) → uint256 result++` [.item-kind]#internal#
+
+Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv)
+with further edits by Uniswap Labs also under MIT license.
+
+[.contract-item]
+[[Math-mulDiv-uint256-uint256-uint256-enum-Math-Rounding-]]
+==== `[.contract-item-name]#++mulDiv++#++(uint256 x, uint256 y, uint256 denominator, enum Math.Rounding rounding) → uint256++` [.item-kind]#internal#
+
+
+
+[.contract-item]
+[[Math-sqrt-uint256-]]
+==== `[.contract-item-name]#++sqrt++#++(uint256 a) → uint256++` [.item-kind]#internal#
+
+Returns the square root of a number. It the number is not a perfect square, the value is rounded down.
+
+Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
+
+[.contract-item]
+[[Math-sqrt-uint256-enum-Math-Rounding-]]
+==== `[.contract-item-name]#++sqrt++#++(uint256 a, enum Math.Rounding rounding) → uint256++` [.item-kind]#internal#
+
+
+
 
 
 
@@ -2174,7 +2470,7 @@ of rounding down.
 
 [.contract]
 [[SignedMath]]
-=== `++SignedMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/math/SignedMath.sol[{github-icon},role=heading-link]
+=== `++SignedMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/math/SignedMath.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2225,24 +2521,74 @@ Returns the absolute unsigned value of a signed value.
 
 
 :SafeCast: pass:normal[xref:#SafeCast[`++SafeCast++`]]
+:toUint248: pass:normal[xref:#SafeCast-toUint248-uint256-[`++toUint248++`]]
+:toUint240: pass:normal[xref:#SafeCast-toUint240-uint256-[`++toUint240++`]]
+:toUint232: pass:normal[xref:#SafeCast-toUint232-uint256-[`++toUint232++`]]
 :toUint224: pass:normal[xref:#SafeCast-toUint224-uint256-[`++toUint224++`]]
+:toUint216: pass:normal[xref:#SafeCast-toUint216-uint256-[`++toUint216++`]]
+:toUint208: pass:normal[xref:#SafeCast-toUint208-uint256-[`++toUint208++`]]
+:toUint200: pass:normal[xref:#SafeCast-toUint200-uint256-[`++toUint200++`]]
+:toUint192: pass:normal[xref:#SafeCast-toUint192-uint256-[`++toUint192++`]]
+:toUint184: pass:normal[xref:#SafeCast-toUint184-uint256-[`++toUint184++`]]
+:toUint176: pass:normal[xref:#SafeCast-toUint176-uint256-[`++toUint176++`]]
+:toUint168: pass:normal[xref:#SafeCast-toUint168-uint256-[`++toUint168++`]]
+:toUint160: pass:normal[xref:#SafeCast-toUint160-uint256-[`++toUint160++`]]
+:toUint152: pass:normal[xref:#SafeCast-toUint152-uint256-[`++toUint152++`]]
+:toUint144: pass:normal[xref:#SafeCast-toUint144-uint256-[`++toUint144++`]]
+:toUint136: pass:normal[xref:#SafeCast-toUint136-uint256-[`++toUint136++`]]
 :toUint128: pass:normal[xref:#SafeCast-toUint128-uint256-[`++toUint128++`]]
+:toUint120: pass:normal[xref:#SafeCast-toUint120-uint256-[`++toUint120++`]]
+:toUint112: pass:normal[xref:#SafeCast-toUint112-uint256-[`++toUint112++`]]
+:toUint104: pass:normal[xref:#SafeCast-toUint104-uint256-[`++toUint104++`]]
 :toUint96: pass:normal[xref:#SafeCast-toUint96-uint256-[`++toUint96++`]]
+:toUint88: pass:normal[xref:#SafeCast-toUint88-uint256-[`++toUint88++`]]
+:toUint80: pass:normal[xref:#SafeCast-toUint80-uint256-[`++toUint80++`]]
+:toUint72: pass:normal[xref:#SafeCast-toUint72-uint256-[`++toUint72++`]]
 :toUint64: pass:normal[xref:#SafeCast-toUint64-uint256-[`++toUint64++`]]
+:toUint56: pass:normal[xref:#SafeCast-toUint56-uint256-[`++toUint56++`]]
+:toUint48: pass:normal[xref:#SafeCast-toUint48-uint256-[`++toUint48++`]]
+:toUint40: pass:normal[xref:#SafeCast-toUint40-uint256-[`++toUint40++`]]
 :toUint32: pass:normal[xref:#SafeCast-toUint32-uint256-[`++toUint32++`]]
+:toUint24: pass:normal[xref:#SafeCast-toUint24-uint256-[`++toUint24++`]]
 :toUint16: pass:normal[xref:#SafeCast-toUint16-uint256-[`++toUint16++`]]
 :toUint8: pass:normal[xref:#SafeCast-toUint8-uint256-[`++toUint8++`]]
 :toUint256: pass:normal[xref:#SafeCast-toUint256-int256-[`++toUint256++`]]
+:toInt248: pass:normal[xref:#SafeCast-toInt248-int256-[`++toInt248++`]]
+:toInt240: pass:normal[xref:#SafeCast-toInt240-int256-[`++toInt240++`]]
+:toInt232: pass:normal[xref:#SafeCast-toInt232-int256-[`++toInt232++`]]
+:toInt224: pass:normal[xref:#SafeCast-toInt224-int256-[`++toInt224++`]]
+:toInt216: pass:normal[xref:#SafeCast-toInt216-int256-[`++toInt216++`]]
+:toInt208: pass:normal[xref:#SafeCast-toInt208-int256-[`++toInt208++`]]
+:toInt200: pass:normal[xref:#SafeCast-toInt200-int256-[`++toInt200++`]]
+:toInt192: pass:normal[xref:#SafeCast-toInt192-int256-[`++toInt192++`]]
+:toInt184: pass:normal[xref:#SafeCast-toInt184-int256-[`++toInt184++`]]
+:toInt176: pass:normal[xref:#SafeCast-toInt176-int256-[`++toInt176++`]]
+:toInt168: pass:normal[xref:#SafeCast-toInt168-int256-[`++toInt168++`]]
+:toInt160: pass:normal[xref:#SafeCast-toInt160-int256-[`++toInt160++`]]
+:toInt152: pass:normal[xref:#SafeCast-toInt152-int256-[`++toInt152++`]]
+:toInt144: pass:normal[xref:#SafeCast-toInt144-int256-[`++toInt144++`]]
+:toInt136: pass:normal[xref:#SafeCast-toInt136-int256-[`++toInt136++`]]
 :toInt128: pass:normal[xref:#SafeCast-toInt128-int256-[`++toInt128++`]]
+:toInt120: pass:normal[xref:#SafeCast-toInt120-int256-[`++toInt120++`]]
+:toInt112: pass:normal[xref:#SafeCast-toInt112-int256-[`++toInt112++`]]
+:toInt104: pass:normal[xref:#SafeCast-toInt104-int256-[`++toInt104++`]]
+:toInt96: pass:normal[xref:#SafeCast-toInt96-int256-[`++toInt96++`]]
+:toInt88: pass:normal[xref:#SafeCast-toInt88-int256-[`++toInt88++`]]
+:toInt80: pass:normal[xref:#SafeCast-toInt80-int256-[`++toInt80++`]]
+:toInt72: pass:normal[xref:#SafeCast-toInt72-int256-[`++toInt72++`]]
 :toInt64: pass:normal[xref:#SafeCast-toInt64-int256-[`++toInt64++`]]
+:toInt56: pass:normal[xref:#SafeCast-toInt56-int256-[`++toInt56++`]]
+:toInt48: pass:normal[xref:#SafeCast-toInt48-int256-[`++toInt48++`]]
+:toInt40: pass:normal[xref:#SafeCast-toInt40-int256-[`++toInt40++`]]
 :toInt32: pass:normal[xref:#SafeCast-toInt32-int256-[`++toInt32++`]]
+:toInt24: pass:normal[xref:#SafeCast-toInt24-int256-[`++toInt24++`]]
 :toInt16: pass:normal[xref:#SafeCast-toInt16-int256-[`++toInt16++`]]
 :toInt8: pass:normal[xref:#SafeCast-toInt8-int256-[`++toInt8++`]]
 :toInt256: pass:normal[xref:#SafeCast-toInt256-uint256-[`++toInt256++`]]
 
 [.contract]
 [[SafeCast]]
-=== `++SafeCast++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/math/SafeCast.sol[{github-icon},role=heading-link]
+=== `++SafeCast++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/math/SafeCast.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2267,17 +2613,67 @@ all math on `uint256` and `int256` and then downcasting.
 [.contract-index]
 .Functions
 --
+* {xref-SafeCast-toUint248-uint256-}[`++toUint248(value)++`]
+* {xref-SafeCast-toUint240-uint256-}[`++toUint240(value)++`]
+* {xref-SafeCast-toUint232-uint256-}[`++toUint232(value)++`]
 * {xref-SafeCast-toUint224-uint256-}[`++toUint224(value)++`]
+* {xref-SafeCast-toUint216-uint256-}[`++toUint216(value)++`]
+* {xref-SafeCast-toUint208-uint256-}[`++toUint208(value)++`]
+* {xref-SafeCast-toUint200-uint256-}[`++toUint200(value)++`]
+* {xref-SafeCast-toUint192-uint256-}[`++toUint192(value)++`]
+* {xref-SafeCast-toUint184-uint256-}[`++toUint184(value)++`]
+* {xref-SafeCast-toUint176-uint256-}[`++toUint176(value)++`]
+* {xref-SafeCast-toUint168-uint256-}[`++toUint168(value)++`]
+* {xref-SafeCast-toUint160-uint256-}[`++toUint160(value)++`]
+* {xref-SafeCast-toUint152-uint256-}[`++toUint152(value)++`]
+* {xref-SafeCast-toUint144-uint256-}[`++toUint144(value)++`]
+* {xref-SafeCast-toUint136-uint256-}[`++toUint136(value)++`]
 * {xref-SafeCast-toUint128-uint256-}[`++toUint128(value)++`]
+* {xref-SafeCast-toUint120-uint256-}[`++toUint120(value)++`]
+* {xref-SafeCast-toUint112-uint256-}[`++toUint112(value)++`]
+* {xref-SafeCast-toUint104-uint256-}[`++toUint104(value)++`]
 * {xref-SafeCast-toUint96-uint256-}[`++toUint96(value)++`]
+* {xref-SafeCast-toUint88-uint256-}[`++toUint88(value)++`]
+* {xref-SafeCast-toUint80-uint256-}[`++toUint80(value)++`]
+* {xref-SafeCast-toUint72-uint256-}[`++toUint72(value)++`]
 * {xref-SafeCast-toUint64-uint256-}[`++toUint64(value)++`]
+* {xref-SafeCast-toUint56-uint256-}[`++toUint56(value)++`]
+* {xref-SafeCast-toUint48-uint256-}[`++toUint48(value)++`]
+* {xref-SafeCast-toUint40-uint256-}[`++toUint40(value)++`]
 * {xref-SafeCast-toUint32-uint256-}[`++toUint32(value)++`]
+* {xref-SafeCast-toUint24-uint256-}[`++toUint24(value)++`]
 * {xref-SafeCast-toUint16-uint256-}[`++toUint16(value)++`]
 * {xref-SafeCast-toUint8-uint256-}[`++toUint8(value)++`]
 * {xref-SafeCast-toUint256-int256-}[`++toUint256(value)++`]
+* {xref-SafeCast-toInt248-int256-}[`++toInt248(value)++`]
+* {xref-SafeCast-toInt240-int256-}[`++toInt240(value)++`]
+* {xref-SafeCast-toInt232-int256-}[`++toInt232(value)++`]
+* {xref-SafeCast-toInt224-int256-}[`++toInt224(value)++`]
+* {xref-SafeCast-toInt216-int256-}[`++toInt216(value)++`]
+* {xref-SafeCast-toInt208-int256-}[`++toInt208(value)++`]
+* {xref-SafeCast-toInt200-int256-}[`++toInt200(value)++`]
+* {xref-SafeCast-toInt192-int256-}[`++toInt192(value)++`]
+* {xref-SafeCast-toInt184-int256-}[`++toInt184(value)++`]
+* {xref-SafeCast-toInt176-int256-}[`++toInt176(value)++`]
+* {xref-SafeCast-toInt168-int256-}[`++toInt168(value)++`]
+* {xref-SafeCast-toInt160-int256-}[`++toInt160(value)++`]
+* {xref-SafeCast-toInt152-int256-}[`++toInt152(value)++`]
+* {xref-SafeCast-toInt144-int256-}[`++toInt144(value)++`]
+* {xref-SafeCast-toInt136-int256-}[`++toInt136(value)++`]
 * {xref-SafeCast-toInt128-int256-}[`++toInt128(value)++`]
+* {xref-SafeCast-toInt120-int256-}[`++toInt120(value)++`]
+* {xref-SafeCast-toInt112-int256-}[`++toInt112(value)++`]
+* {xref-SafeCast-toInt104-int256-}[`++toInt104(value)++`]
+* {xref-SafeCast-toInt96-int256-}[`++toInt96(value)++`]
+* {xref-SafeCast-toInt88-int256-}[`++toInt88(value)++`]
+* {xref-SafeCast-toInt80-int256-}[`++toInt80(value)++`]
+* {xref-SafeCast-toInt72-int256-}[`++toInt72(value)++`]
 * {xref-SafeCast-toInt64-int256-}[`++toInt64(value)++`]
+* {xref-SafeCast-toInt56-int256-}[`++toInt56(value)++`]
+* {xref-SafeCast-toInt48-int256-}[`++toInt48(value)++`]
+* {xref-SafeCast-toInt40-int256-}[`++toInt40(value)++`]
 * {xref-SafeCast-toInt32-int256-}[`++toInt32(value)++`]
+* {xref-SafeCast-toInt24-int256-}[`++toInt24(value)++`]
 * {xref-SafeCast-toInt16-int256-}[`++toInt16(value)++`]
 * {xref-SafeCast-toInt8-int256-}[`++toInt8(value)++`]
 * {xref-SafeCast-toInt256-uint256-}[`++toInt256(value)++`]
@@ -2285,6 +2681,51 @@ all math on `uint256` and `int256` and then downcasting.
 --
 
 
+
+[.contract-item]
+[[SafeCast-toUint248-uint256-]]
+==== `[.contract-item-name]#++toUint248++#++(uint256 value) → uint248++` [.item-kind]#internal#
+
+Returns the downcasted uint248 from uint256, reverting on
+overflow (when the input is greater than largest uint248).
+
+Counterpart to Solidity's `uint248` operator.
+
+Requirements:
+
+- input must fit into 248 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint240-uint256-]]
+==== `[.contract-item-name]#++toUint240++#++(uint256 value) → uint240++` [.item-kind]#internal#
+
+Returns the downcasted uint240 from uint256, reverting on
+overflow (when the input is greater than largest uint240).
+
+Counterpart to Solidity's `uint240` operator.
+
+Requirements:
+
+- input must fit into 240 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint232-uint256-]]
+==== `[.contract-item-name]#++toUint232++#++(uint256 value) → uint232++` [.item-kind]#internal#
+
+Returns the downcasted uint232 from uint256, reverting on
+overflow (when the input is greater than largest uint232).
+
+Counterpart to Solidity's `uint232` operator.
+
+Requirements:
+
+- input must fit into 232 bits
+
+_Available since v4.7._
 
 [.contract-item]
 [[SafeCast-toUint224-uint256-]]
@@ -2299,6 +2740,173 @@ Requirements:
 
 - input must fit into 224 bits
 
+_Available since v4.2._
+
+[.contract-item]
+[[SafeCast-toUint216-uint256-]]
+==== `[.contract-item-name]#++toUint216++#++(uint256 value) → uint216++` [.item-kind]#internal#
+
+Returns the downcasted uint216 from uint256, reverting on
+overflow (when the input is greater than largest uint216).
+
+Counterpart to Solidity's `uint216` operator.
+
+Requirements:
+
+- input must fit into 216 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint208-uint256-]]
+==== `[.contract-item-name]#++toUint208++#++(uint256 value) → uint208++` [.item-kind]#internal#
+
+Returns the downcasted uint208 from uint256, reverting on
+overflow (when the input is greater than largest uint208).
+
+Counterpart to Solidity's `uint208` operator.
+
+Requirements:
+
+- input must fit into 208 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint200-uint256-]]
+==== `[.contract-item-name]#++toUint200++#++(uint256 value) → uint200++` [.item-kind]#internal#
+
+Returns the downcasted uint200 from uint256, reverting on
+overflow (when the input is greater than largest uint200).
+
+Counterpart to Solidity's `uint200` operator.
+
+Requirements:
+
+- input must fit into 200 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint192-uint256-]]
+==== `[.contract-item-name]#++toUint192++#++(uint256 value) → uint192++` [.item-kind]#internal#
+
+Returns the downcasted uint192 from uint256, reverting on
+overflow (when the input is greater than largest uint192).
+
+Counterpart to Solidity's `uint192` operator.
+
+Requirements:
+
+- input must fit into 192 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint184-uint256-]]
+==== `[.contract-item-name]#++toUint184++#++(uint256 value) → uint184++` [.item-kind]#internal#
+
+Returns the downcasted uint184 from uint256, reverting on
+overflow (when the input is greater than largest uint184).
+
+Counterpart to Solidity's `uint184` operator.
+
+Requirements:
+
+- input must fit into 184 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint176-uint256-]]
+==== `[.contract-item-name]#++toUint176++#++(uint256 value) → uint176++` [.item-kind]#internal#
+
+Returns the downcasted uint176 from uint256, reverting on
+overflow (when the input is greater than largest uint176).
+
+Counterpart to Solidity's `uint176` operator.
+
+Requirements:
+
+- input must fit into 176 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint168-uint256-]]
+==== `[.contract-item-name]#++toUint168++#++(uint256 value) → uint168++` [.item-kind]#internal#
+
+Returns the downcasted uint168 from uint256, reverting on
+overflow (when the input is greater than largest uint168).
+
+Counterpart to Solidity's `uint168` operator.
+
+Requirements:
+
+- input must fit into 168 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint160-uint256-]]
+==== `[.contract-item-name]#++toUint160++#++(uint256 value) → uint160++` [.item-kind]#internal#
+
+Returns the downcasted uint160 from uint256, reverting on
+overflow (when the input is greater than largest uint160).
+
+Counterpart to Solidity's `uint160` operator.
+
+Requirements:
+
+- input must fit into 160 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint152-uint256-]]
+==== `[.contract-item-name]#++toUint152++#++(uint256 value) → uint152++` [.item-kind]#internal#
+
+Returns the downcasted uint152 from uint256, reverting on
+overflow (when the input is greater than largest uint152).
+
+Counterpart to Solidity's `uint152` operator.
+
+Requirements:
+
+- input must fit into 152 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint144-uint256-]]
+==== `[.contract-item-name]#++toUint144++#++(uint256 value) → uint144++` [.item-kind]#internal#
+
+Returns the downcasted uint144 from uint256, reverting on
+overflow (when the input is greater than largest uint144).
+
+Counterpart to Solidity's `uint144` operator.
+
+Requirements:
+
+- input must fit into 144 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint136-uint256-]]
+==== `[.contract-item-name]#++toUint136++#++(uint256 value) → uint136++` [.item-kind]#internal#
+
+Returns the downcasted uint136 from uint256, reverting on
+overflow (when the input is greater than largest uint136).
+
+Counterpart to Solidity's `uint136` operator.
+
+Requirements:
+
+- input must fit into 136 bits
+
+_Available since v4.7._
+
 [.contract-item]
 [[SafeCast-toUint128-uint256-]]
 ==== `[.contract-item-name]#++toUint128++#++(uint256 value) → uint128++` [.item-kind]#internal#
@@ -2311,6 +2919,53 @@ Counterpart to Solidity's `uint128` operator.
 Requirements:
 
 - input must fit into 128 bits
+
+_Available since v2.5._
+
+[.contract-item]
+[[SafeCast-toUint120-uint256-]]
+==== `[.contract-item-name]#++toUint120++#++(uint256 value) → uint120++` [.item-kind]#internal#
+
+Returns the downcasted uint120 from uint256, reverting on
+overflow (when the input is greater than largest uint120).
+
+Counterpart to Solidity's `uint120` operator.
+
+Requirements:
+
+- input must fit into 120 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint112-uint256-]]
+==== `[.contract-item-name]#++toUint112++#++(uint256 value) → uint112++` [.item-kind]#internal#
+
+Returns the downcasted uint112 from uint256, reverting on
+overflow (when the input is greater than largest uint112).
+
+Counterpart to Solidity's `uint112` operator.
+
+Requirements:
+
+- input must fit into 112 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint104-uint256-]]
+==== `[.contract-item-name]#++toUint104++#++(uint256 value) → uint104++` [.item-kind]#internal#
+
+Returns the downcasted uint104 from uint256, reverting on
+overflow (when the input is greater than largest uint104).
+
+Counterpart to Solidity's `uint104` operator.
+
+Requirements:
+
+- input must fit into 104 bits
+
+_Available since v4.7._
 
 [.contract-item]
 [[SafeCast-toUint96-uint256-]]
@@ -2325,6 +2980,53 @@ Requirements:
 
 - input must fit into 96 bits
 
+_Available since v4.2._
+
+[.contract-item]
+[[SafeCast-toUint88-uint256-]]
+==== `[.contract-item-name]#++toUint88++#++(uint256 value) → uint88++` [.item-kind]#internal#
+
+Returns the downcasted uint88 from uint256, reverting on
+overflow (when the input is greater than largest uint88).
+
+Counterpart to Solidity's `uint88` operator.
+
+Requirements:
+
+- input must fit into 88 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint80-uint256-]]
+==== `[.contract-item-name]#++toUint80++#++(uint256 value) → uint80++` [.item-kind]#internal#
+
+Returns the downcasted uint80 from uint256, reverting on
+overflow (when the input is greater than largest uint80).
+
+Counterpart to Solidity's `uint80` operator.
+
+Requirements:
+
+- input must fit into 80 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint72-uint256-]]
+==== `[.contract-item-name]#++toUint72++#++(uint256 value) → uint72++` [.item-kind]#internal#
+
+Returns the downcasted uint72 from uint256, reverting on
+overflow (when the input is greater than largest uint72).
+
+Counterpart to Solidity's `uint72` operator.
+
+Requirements:
+
+- input must fit into 72 bits
+
+_Available since v4.7._
+
 [.contract-item]
 [[SafeCast-toUint64-uint256-]]
 ==== `[.contract-item-name]#++toUint64++#++(uint256 value) → uint64++` [.item-kind]#internal#
@@ -2337,6 +3039,53 @@ Counterpart to Solidity's `uint64` operator.
 Requirements:
 
 - input must fit into 64 bits
+
+_Available since v2.5._
+
+[.contract-item]
+[[SafeCast-toUint56-uint256-]]
+==== `[.contract-item-name]#++toUint56++#++(uint256 value) → uint56++` [.item-kind]#internal#
+
+Returns the downcasted uint56 from uint256, reverting on
+overflow (when the input is greater than largest uint56).
+
+Counterpart to Solidity's `uint56` operator.
+
+Requirements:
+
+- input must fit into 56 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint48-uint256-]]
+==== `[.contract-item-name]#++toUint48++#++(uint256 value) → uint48++` [.item-kind]#internal#
+
+Returns the downcasted uint48 from uint256, reverting on
+overflow (when the input is greater than largest uint48).
+
+Counterpart to Solidity's `uint48` operator.
+
+Requirements:
+
+- input must fit into 48 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toUint40-uint256-]]
+==== `[.contract-item-name]#++toUint40++#++(uint256 value) → uint40++` [.item-kind]#internal#
+
+Returns the downcasted uint40 from uint256, reverting on
+overflow (when the input is greater than largest uint40).
+
+Counterpart to Solidity's `uint40` operator.
+
+Requirements:
+
+- input must fit into 40 bits
+
+_Available since v4.7._
 
 [.contract-item]
 [[SafeCast-toUint32-uint256-]]
@@ -2351,6 +3100,23 @@ Requirements:
 
 - input must fit into 32 bits
 
+_Available since v2.5._
+
+[.contract-item]
+[[SafeCast-toUint24-uint256-]]
+==== `[.contract-item-name]#++toUint24++#++(uint256 value) → uint24++` [.item-kind]#internal#
+
+Returns the downcasted uint24 from uint256, reverting on
+overflow (when the input is greater than largest uint24).
+
+Counterpart to Solidity's `uint24` operator.
+
+Requirements:
+
+- input must fit into 24 bits
+
+_Available since v4.7._
+
 [.contract-item]
 [[SafeCast-toUint16-uint256-]]
 ==== `[.contract-item-name]#++toUint16++#++(uint256 value) → uint16++` [.item-kind]#internal#
@@ -2364,6 +3130,8 @@ Requirements:
 
 - input must fit into 16 bits
 
+_Available since v2.5._
+
 [.contract-item]
 [[SafeCast-toUint8-uint256-]]
 ==== `[.contract-item-name]#++toUint8++#++(uint256 value) → uint8++` [.item-kind]#internal#
@@ -2375,7 +3143,9 @@ Counterpart to Solidity's `uint8` operator.
 
 Requirements:
 
-- input must fit into 8 bits.
+- input must fit into 8 bits
+
+_Available since v2.5._
 
 [.contract-item]
 [[SafeCast-toUint256-int256-]]
@@ -2386,6 +3156,248 @@ Converts a signed int256 into an unsigned uint256.
 Requirements:
 
 - input must be greater than or equal to 0.
+
+_Available since v3.0._
+
+[.contract-item]
+[[SafeCast-toInt248-int256-]]
+==== `[.contract-item-name]#++toInt248++#++(int256 value) → int248++` [.item-kind]#internal#
+
+Returns the downcasted int248 from int256, reverting on
+overflow (when the input is less than smallest int248 or
+greater than largest int248).
+
+Counterpart to Solidity's `int248` operator.
+
+Requirements:
+
+- input must fit into 248 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt240-int256-]]
+==== `[.contract-item-name]#++toInt240++#++(int256 value) → int240++` [.item-kind]#internal#
+
+Returns the downcasted int240 from int256, reverting on
+overflow (when the input is less than smallest int240 or
+greater than largest int240).
+
+Counterpart to Solidity's `int240` operator.
+
+Requirements:
+
+- input must fit into 240 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt232-int256-]]
+==== `[.contract-item-name]#++toInt232++#++(int256 value) → int232++` [.item-kind]#internal#
+
+Returns the downcasted int232 from int256, reverting on
+overflow (when the input is less than smallest int232 or
+greater than largest int232).
+
+Counterpart to Solidity's `int232` operator.
+
+Requirements:
+
+- input must fit into 232 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt224-int256-]]
+==== `[.contract-item-name]#++toInt224++#++(int256 value) → int224++` [.item-kind]#internal#
+
+Returns the downcasted int224 from int256, reverting on
+overflow (when the input is less than smallest int224 or
+greater than largest int224).
+
+Counterpart to Solidity's `int224` operator.
+
+Requirements:
+
+- input must fit into 224 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt216-int256-]]
+==== `[.contract-item-name]#++toInt216++#++(int256 value) → int216++` [.item-kind]#internal#
+
+Returns the downcasted int216 from int256, reverting on
+overflow (when the input is less than smallest int216 or
+greater than largest int216).
+
+Counterpart to Solidity's `int216` operator.
+
+Requirements:
+
+- input must fit into 216 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt208-int256-]]
+==== `[.contract-item-name]#++toInt208++#++(int256 value) → int208++` [.item-kind]#internal#
+
+Returns the downcasted int208 from int256, reverting on
+overflow (when the input is less than smallest int208 or
+greater than largest int208).
+
+Counterpart to Solidity's `int208` operator.
+
+Requirements:
+
+- input must fit into 208 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt200-int256-]]
+==== `[.contract-item-name]#++toInt200++#++(int256 value) → int200++` [.item-kind]#internal#
+
+Returns the downcasted int200 from int256, reverting on
+overflow (when the input is less than smallest int200 or
+greater than largest int200).
+
+Counterpart to Solidity's `int200` operator.
+
+Requirements:
+
+- input must fit into 200 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt192-int256-]]
+==== `[.contract-item-name]#++toInt192++#++(int256 value) → int192++` [.item-kind]#internal#
+
+Returns the downcasted int192 from int256, reverting on
+overflow (when the input is less than smallest int192 or
+greater than largest int192).
+
+Counterpart to Solidity's `int192` operator.
+
+Requirements:
+
+- input must fit into 192 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt184-int256-]]
+==== `[.contract-item-name]#++toInt184++#++(int256 value) → int184++` [.item-kind]#internal#
+
+Returns the downcasted int184 from int256, reverting on
+overflow (when the input is less than smallest int184 or
+greater than largest int184).
+
+Counterpart to Solidity's `int184` operator.
+
+Requirements:
+
+- input must fit into 184 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt176-int256-]]
+==== `[.contract-item-name]#++toInt176++#++(int256 value) → int176++` [.item-kind]#internal#
+
+Returns the downcasted int176 from int256, reverting on
+overflow (when the input is less than smallest int176 or
+greater than largest int176).
+
+Counterpart to Solidity's `int176` operator.
+
+Requirements:
+
+- input must fit into 176 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt168-int256-]]
+==== `[.contract-item-name]#++toInt168++#++(int256 value) → int168++` [.item-kind]#internal#
+
+Returns the downcasted int168 from int256, reverting on
+overflow (when the input is less than smallest int168 or
+greater than largest int168).
+
+Counterpart to Solidity's `int168` operator.
+
+Requirements:
+
+- input must fit into 168 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt160-int256-]]
+==== `[.contract-item-name]#++toInt160++#++(int256 value) → int160++` [.item-kind]#internal#
+
+Returns the downcasted int160 from int256, reverting on
+overflow (when the input is less than smallest int160 or
+greater than largest int160).
+
+Counterpart to Solidity's `int160` operator.
+
+Requirements:
+
+- input must fit into 160 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt152-int256-]]
+==== `[.contract-item-name]#++toInt152++#++(int256 value) → int152++` [.item-kind]#internal#
+
+Returns the downcasted int152 from int256, reverting on
+overflow (when the input is less than smallest int152 or
+greater than largest int152).
+
+Counterpart to Solidity's `int152` operator.
+
+Requirements:
+
+- input must fit into 152 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt144-int256-]]
+==== `[.contract-item-name]#++toInt144++#++(int256 value) → int144++` [.item-kind]#internal#
+
+Returns the downcasted int144 from int256, reverting on
+overflow (when the input is less than smallest int144 or
+greater than largest int144).
+
+Counterpart to Solidity's `int144` operator.
+
+Requirements:
+
+- input must fit into 144 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt136-int256-]]
+==== `[.contract-item-name]#++toInt136++#++(int256 value) → int136++` [.item-kind]#internal#
+
+Returns the downcasted int136 from int256, reverting on
+overflow (when the input is less than smallest int136 or
+greater than largest int136).
+
+Counterpart to Solidity's `int136` operator.
+
+Requirements:
+
+- input must fit into 136 bits
+
+_Available since v4.7._
 
 [.contract-item]
 [[SafeCast-toInt128-int256-]]
@@ -2404,6 +3416,118 @@ Requirements:
 _Available since v3.1._
 
 [.contract-item]
+[[SafeCast-toInt120-int256-]]
+==== `[.contract-item-name]#++toInt120++#++(int256 value) → int120++` [.item-kind]#internal#
+
+Returns the downcasted int120 from int256, reverting on
+overflow (when the input is less than smallest int120 or
+greater than largest int120).
+
+Counterpart to Solidity's `int120` operator.
+
+Requirements:
+
+- input must fit into 120 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt112-int256-]]
+==== `[.contract-item-name]#++toInt112++#++(int256 value) → int112++` [.item-kind]#internal#
+
+Returns the downcasted int112 from int256, reverting on
+overflow (when the input is less than smallest int112 or
+greater than largest int112).
+
+Counterpart to Solidity's `int112` operator.
+
+Requirements:
+
+- input must fit into 112 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt104-int256-]]
+==== `[.contract-item-name]#++toInt104++#++(int256 value) → int104++` [.item-kind]#internal#
+
+Returns the downcasted int104 from int256, reverting on
+overflow (when the input is less than smallest int104 or
+greater than largest int104).
+
+Counterpart to Solidity's `int104` operator.
+
+Requirements:
+
+- input must fit into 104 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt96-int256-]]
+==== `[.contract-item-name]#++toInt96++#++(int256 value) → int96++` [.item-kind]#internal#
+
+Returns the downcasted int96 from int256, reverting on
+overflow (when the input is less than smallest int96 or
+greater than largest int96).
+
+Counterpart to Solidity's `int96` operator.
+
+Requirements:
+
+- input must fit into 96 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt88-int256-]]
+==== `[.contract-item-name]#++toInt88++#++(int256 value) → int88++` [.item-kind]#internal#
+
+Returns the downcasted int88 from int256, reverting on
+overflow (when the input is less than smallest int88 or
+greater than largest int88).
+
+Counterpart to Solidity's `int88` operator.
+
+Requirements:
+
+- input must fit into 88 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt80-int256-]]
+==== `[.contract-item-name]#++toInt80++#++(int256 value) → int80++` [.item-kind]#internal#
+
+Returns the downcasted int80 from int256, reverting on
+overflow (when the input is less than smallest int80 or
+greater than largest int80).
+
+Counterpart to Solidity's `int80` operator.
+
+Requirements:
+
+- input must fit into 80 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt72-int256-]]
+==== `[.contract-item-name]#++toInt72++#++(int256 value) → int72++` [.item-kind]#internal#
+
+Returns the downcasted int72 from int256, reverting on
+overflow (when the input is less than smallest int72 or
+greater than largest int72).
+
+Counterpart to Solidity's `int72` operator.
+
+Requirements:
+
+- input must fit into 72 bits
+
+_Available since v4.7._
+
+[.contract-item]
 [[SafeCast-toInt64-int256-]]
 ==== `[.contract-item-name]#++toInt64++#++(int256 value) → int64++` [.item-kind]#internal#
 
@@ -2420,6 +3544,54 @@ Requirements:
 _Available since v3.1._
 
 [.contract-item]
+[[SafeCast-toInt56-int256-]]
+==== `[.contract-item-name]#++toInt56++#++(int256 value) → int56++` [.item-kind]#internal#
+
+Returns the downcasted int56 from int256, reverting on
+overflow (when the input is less than smallest int56 or
+greater than largest int56).
+
+Counterpart to Solidity's `int56` operator.
+
+Requirements:
+
+- input must fit into 56 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt48-int256-]]
+==== `[.contract-item-name]#++toInt48++#++(int256 value) → int48++` [.item-kind]#internal#
+
+Returns the downcasted int48 from int256, reverting on
+overflow (when the input is less than smallest int48 or
+greater than largest int48).
+
+Counterpart to Solidity's `int48` operator.
+
+Requirements:
+
+- input must fit into 48 bits
+
+_Available since v4.7._
+
+[.contract-item]
+[[SafeCast-toInt40-int256-]]
+==== `[.contract-item-name]#++toInt40++#++(int256 value) → int40++` [.item-kind]#internal#
+
+Returns the downcasted int40 from int256, reverting on
+overflow (when the input is less than smallest int40 or
+greater than largest int40).
+
+Counterpart to Solidity's `int40` operator.
+
+Requirements:
+
+- input must fit into 40 bits
+
+_Available since v4.7._
+
+[.contract-item]
 [[SafeCast-toInt32-int256-]]
 ==== `[.contract-item-name]#++toInt32++#++(int256 value) → int32++` [.item-kind]#internal#
 
@@ -2434,6 +3606,22 @@ Requirements:
 - input must fit into 32 bits
 
 _Available since v3.1._
+
+[.contract-item]
+[[SafeCast-toInt24-int256-]]
+==== `[.contract-item-name]#++toInt24++#++(int256 value) → int24++` [.item-kind]#internal#
+
+Returns the downcasted int24 from int256, reverting on
+overflow (when the input is less than smallest int24 or
+greater than largest int24).
+
+Counterpart to Solidity's `int24` operator.
+
+Requirements:
+
+- input must fit into 24 bits
+
+_Available since v4.7._
 
 [.contract-item]
 [[SafeCast-toInt16-int256-]]
@@ -2463,7 +3651,7 @@ Counterpart to Solidity's `int8` operator.
 
 Requirements:
 
-- input must fit into 8 bits.
+- input must fit into 8 bits
 
 _Available since v3.1._
 
@@ -2476,6 +3664,8 @@ Converts an unsigned uint256 into a signed int256.
 Requirements:
 
 - input must be less than or equal to maxInt256.
+
+_Available since v3.0._
 
 
 
@@ -2497,7 +3687,7 @@ Requirements:
 
 [.contract]
 [[SafeMath]]
-=== `++SafeMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/math/SafeMath.sol[{github-icon},role=heading-link]
+=== `++SafeMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/math/SafeMath.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2698,7 +3888,7 @@ Requirements:
 
 [.contract]
 [[SignedSafeMath]]
-=== `++SignedSafeMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/math/SignedSafeMath.sol[{github-icon},role=heading-link]
+=== `++SignedSafeMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/math/SignedSafeMath.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2794,7 +3984,7 @@ Requirements:
 
 [.contract]
 [[ECDSA]]
-=== `++ECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/cryptography/ECDSA.sol[{github-icon},role=heading-link]
+=== `++ECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/cryptography/ECDSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2944,7 +4134,7 @@ See {recover}.
 
 [.contract]
 [[SignatureChecker]]
-=== `++SignatureChecker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/cryptography/SignatureChecker.sol[{github-icon},role=heading-link]
+=== `++SignatureChecker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/cryptography/SignatureChecker.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2982,18 +4172,24 @@ change through time. It could return true at block N and false at block N+1 (or 
 
 :MerkleProof: pass:normal[xref:#MerkleProof[`++MerkleProof++`]]
 :verify: pass:normal[xref:#MerkleProof-verify-bytes32---bytes32-bytes32-[`++verify++`]]
+:verifyCalldata: pass:normal[xref:#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-[`++verifyCalldata++`]]
 :processProof: pass:normal[xref:#MerkleProof-processProof-bytes32---bytes32-[`++processProof++`]]
+:processProofCalldata: pass:normal[xref:#MerkleProof-processProofCalldata-bytes32---bytes32-[`++processProofCalldata++`]]
+:multiProofVerify: pass:normal[xref:#MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---[`++multiProofVerify++`]]
+:multiProofVerifyCalldata: pass:normal[xref:#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---[`++multiProofVerifyCalldata++`]]
+:processMultiProof: pass:normal[xref:#MerkleProof-processMultiProof-bytes32---bool---bytes32---[`++processMultiProof++`]]
+:processMultiProofCalldata: pass:normal[xref:#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---[`++processMultiProofCalldata++`]]
 
 [.contract]
 [[MerkleProof]]
-=== `++MerkleProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/cryptography/MerkleProof.sol[{github-icon},role=heading-link]
+=== `++MerkleProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/cryptography/MerkleProof.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 ```
 
-These functions deal with verification of Merkle Trees proofs.
+These functions deal with verification of Merkle Tree proofs.
 
 The proofs can be generated using the JavaScript library
 https://github.com/miguelmota/merkletreejs[merkletreejs].
@@ -3011,7 +4207,13 @@ the merkle tree could be reinterpreted as a leaf value.
 .Functions
 --
 * {xref-MerkleProof-verify-bytes32---bytes32-bytes32-}[`++verify(proof, root, leaf)++`]
+* {xref-MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-}[`++verifyCalldata(proof, root, leaf)++`]
 * {xref-MerkleProof-processProof-bytes32---bytes32-}[`++processProof(proof, leaf)++`]
+* {xref-MerkleProof-processProofCalldata-bytes32---bytes32-}[`++processProofCalldata(proof, leaf)++`]
+* {xref-MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---}[`++multiProofVerify(proof, proofFlags, root, leaves)++`]
+* {xref-MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---}[`++multiProofVerifyCalldata(proof, proofFlags, root, leaves)++`]
+* {xref-MerkleProof-processMultiProof-bytes32---bool---bytes32---}[`++processMultiProof(proof, proofFlags, leaves)++`]
+* {xref-MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---}[`++processMultiProofCalldata(proof, proofFlags, leaves)++`]
 
 --
 
@@ -3027,6 +4229,14 @@ sibling hashes on the branch from the leaf to the root of the tree. Each
 pair of leaves and each pair of pre-images are assumed to be sorted.
 
 [.contract-item]
+[[MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-]]
+==== `[.contract-item-name]#++verifyCalldata++#++(bytes32[] proof, bytes32 root, bytes32 leaf) → bool++` [.item-kind]#internal#
+
+Calldata version of {verify}
+
+_Available since v4.7._
+
+[.contract-item]
 [[MerkleProof-processProof-bytes32---bytes32-]]
 ==== `[.contract-item-name]#++processProof++#++(bytes32[] proof, bytes32 leaf) → bytes32++` [.item-kind]#internal#
 
@@ -3036,6 +4246,49 @@ hash matches the root of the tree. When processing the proof, the pairs
 of leafs & pre-images are assumed to be sorted.
 
 _Available since v4.4._
+
+[.contract-item]
+[[MerkleProof-processProofCalldata-bytes32---bytes32-]]
+==== `[.contract-item-name]#++processProofCalldata++#++(bytes32[] proof, bytes32 leaf) → bytes32++` [.item-kind]#internal#
+
+Calldata version of {processProof}
+
+_Available since v4.7._
+
+[.contract-item]
+[[MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---]]
+==== `[.contract-item-name]#++multiProofVerify++#++(bytes32[] proof, bool[] proofFlags, bytes32 root, bytes32[] leaves) → bool++` [.item-kind]#internal#
+
+Returns true if the `leaves` can be proved to be a part of a Merkle tree defined by
+`root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
+
+_Available since v4.7._
+
+[.contract-item]
+[[MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---]]
+==== `[.contract-item-name]#++multiProofVerifyCalldata++#++(bytes32[] proof, bool[] proofFlags, bytes32 root, bytes32[] leaves) → bool++` [.item-kind]#internal#
+
+Calldata version of {multiProofVerify}
+
+_Available since v4.7._
+
+[.contract-item]
+[[MerkleProof-processMultiProof-bytes32---bool---bytes32---]]
+==== `[.contract-item-name]#++processMultiProof++#++(bytes32[] proof, bool[] proofFlags, bytes32[] leaves) → bytes32 merkleRoot++` [.item-kind]#internal#
+
+Returns the root of a tree reconstructed from `leaves` and the sibling nodes in `proof`,
+consuming from one or the other at each step according to the instructions given by
+`proofFlags`.
+
+_Available since v4.7._
+
+[.contract-item]
+[[MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---]]
+==== `[.contract-item-name]#++processMultiProofCalldata++#++(bytes32[] proof, bool[] proofFlags, bytes32[] leaves) → bytes32 merkleRoot++` [.item-kind]#internal#
+
+Calldata version of {processMultiProof}
+
+_Available since v4.7._
 
 
 
@@ -3047,7 +4300,7 @@ _Available since v4.4._
 
 [.contract]
 [[EIP712]]
-=== `++EIP712++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/cryptography/draft-EIP712.sol[{github-icon},role=heading-link]
+=== `++EIP712++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/cryptography/draft-EIP712.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3134,7 +4387,7 @@ address signer = ECDSA.recover(digest, signature);
 
 [.contract]
 [[ConditionalEscrow]]
-=== `++ConditionalEscrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/escrow/ConditionalEscrow.sol[{github-icon},role=heading-link]
+=== `++ConditionalEscrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/escrow/ConditionalEscrow.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3160,6 +4413,7 @@ Intended usage: See {Escrow}. Same usage guidelines apply here.
 .Ownable
 * {xref-Ownable-constructor--}[`++constructor()++`]
 * {xref-Ownable-owner--}[`++owner()++`]
+* {xref-Ownable-_checkOwner--}[`++_checkOwner()++`]
 * {xref-Ownable-renounceOwnership--}[`++renounceOwnership()++`]
 * {xref-Ownable-transferOwnership-address-}[`++transferOwnership(newOwner)++`]
 * {xref-Ownable-_transferOwnership-address-}[`++_transferOwnership(newOwner)++`]
@@ -3211,7 +4465,7 @@ implemented by derived contracts.
 
 [.contract]
 [[Escrow]]
-=== `++Escrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/escrow/Escrow.sol[{github-icon},role=heading-link]
+=== `++Escrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/escrow/Escrow.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3241,6 +4495,7 @@ to the escrow's deposit and withdraw.
 .Ownable
 * {xref-Ownable-constructor--}[`++constructor()++`]
 * {xref-Ownable-owner--}[`++owner()++`]
+* {xref-Ownable-_checkOwner--}[`++_checkOwner()++`]
 * {xref-Ownable-renounceOwnership--}[`++renounceOwnership()++`]
 * {xref-Ownable-transferOwnership-address-}[`++transferOwnership(newOwner)++`]
 * {xref-Ownable-_transferOwnership-address-}[`++_transferOwnership(newOwner)++`]
@@ -3319,7 +4574,7 @@ checks-effects-interactions pattern or using {ReentrancyGuard}.
 
 [.contract]
 [[RefundEscrow]]
-=== `++RefundEscrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/escrow/RefundEscrow.sol[{github-icon},role=heading-link]
+=== `++RefundEscrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/escrow/RefundEscrow.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3358,6 +4613,7 @@ with `RefundEscrow` will be made through the owner contract.
 [.contract-subindex-inherited]
 .Ownable
 * {xref-Ownable-owner--}[`++owner()++`]
+* {xref-Ownable-_checkOwner--}[`++_checkOwner()++`]
 * {xref-Ownable-renounceOwnership--}[`++renounceOwnership()++`]
 * {xref-Ownable-transferOwnership-address-}[`++transferOwnership(newOwner)++`]
 * {xref-Ownable-_transferOwnership-address-}[`++_transferOwnership(newOwner)++`]
@@ -3473,7 +4729,7 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 [.contract]
 [[IERC165]]
-=== `++IERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/introspection/IERC165.sol[{github-icon},role=heading-link]
+=== `++IERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/introspection/IERC165.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3517,7 +4773,7 @@ This function call must use less than 30 000 gas.
 
 [.contract]
 [[ERC165]]
-=== `++ERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/introspection/ERC165.sol[{github-icon},role=heading-link]
+=== `++ERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/introspection/ERC165.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3565,7 +4821,7 @@ See {IERC165-supportsInterface}.
 
 [.contract]
 [[ERC165Storage]]
-=== `++ERC165Storage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/introspection/ERC165Storage.sol[{github-icon},role=heading-link]
+=== `++ERC165Storage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/introspection/ERC165Storage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3625,7 +4881,7 @@ Requirements:
 
 [.contract]
 [[ERC165Checker]]
-=== `++ERC165Checker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/introspection/ERC165Checker.sol[{github-icon},role=heading-link]
+=== `++ERC165Checker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/introspection/ERC165Checker.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3708,7 +4964,7 @@ See {IERC165-supportsInterface}.
 
 [.contract]
 [[IERC1820Registry]]
-=== `++IERC1820Registry++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/introspection/IERC1820Registry.sol[{github-icon},role=heading-link]
+=== `++IERC1820Registry++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/introspection/IERC1820Registry.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3857,7 +5113,7 @@ https://eips.ethereum.org/EIPS/eip-1820#interface-name[section of the EIP].
 
 [.contract]
 [[IERC1820Implementer]]
-=== `++IERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/introspection/IERC1820Implementer.sol[{github-icon},role=heading-link]
+=== `++IERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/introspection/IERC1820Implementer.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3897,7 +5153,7 @@ See {IERC1820Registry-setInterfaceImplementer}.
 
 [.contract]
 [[ERC1820Implementer]]
-=== `++ERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/introspection/ERC1820Implementer.sol[{github-icon},role=heading-link]
+=== `++ERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/introspection/ERC1820Implementer.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3955,7 +5211,7 @@ See {IERC1820Registry-setInterfaceImplementer} and
 
 [.contract]
 [[BitMaps]]
-=== `++BitMaps++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/structs/BitMaps.sol[{github-icon},role=heading-link]
+=== `++BitMaps++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/structs/BitMaps.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4014,6 +5270,14 @@ Unsets the bit at `index`.
 :tryGet: pass:normal[xref:#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-[`++tryGet++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-[`++get++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-[`++get++`]]
+:set: pass:normal[xref:#EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-[`++set++`]]
+:remove: pass:normal[xref:#EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-[`++remove++`]]
+:contains: pass:normal[xref:#EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-[`++contains++`]]
+:length: pass:normal[xref:#EnumerableMap-length-struct-EnumerableMap-UintToUintMap-[`++length++`]]
+:at: pass:normal[xref:#EnumerableMap-at-struct-EnumerableMap-UintToUintMap-uint256-[`++at++`]]
+:tryGet: pass:normal[xref:#EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-[`++tryGet++`]]
+:get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-[`++get++`]]
+:get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-[`++get++`]]
 :set: pass:normal[xref:#EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-[`++set++`]]
 :remove: pass:normal[xref:#EnumerableMap-remove-struct-EnumerableMap-UintToAddressMap-uint256-[`++remove++`]]
 :contains: pass:normal[xref:#EnumerableMap-contains-struct-EnumerableMap-UintToAddressMap-uint256-[`++contains++`]]
@@ -4030,13 +5294,23 @@ Unsets the bit at `index`.
 :tryGet: pass:normal[xref:#EnumerableMap-tryGet-struct-EnumerableMap-AddressToUintMap-address-[`++tryGet++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-[`++get++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-[`++get++`]]
+:set: pass:normal[xref:#EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-[`++set++`]]
+:remove: pass:normal[xref:#EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`++remove++`]]
+:contains: pass:normal[xref:#EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`++contains++`]]
+:length: pass:normal[xref:#EnumerableMap-length-struct-EnumerableMap-Bytes32ToUintMap-[`++length++`]]
+:at: pass:normal[xref:#EnumerableMap-at-struct-EnumerableMap-Bytes32ToUintMap-uint256-[`++at++`]]
+:tryGet: pass:normal[xref:#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`++tryGet++`]]
+:get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`++get++`]]
+:get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-[`++get++`]]
 :Bytes32ToBytes32Map: pass:normal[xref:#EnumerableMap-Bytes32ToBytes32Map[`++Bytes32ToBytes32Map++`]]
+:UintToUintMap: pass:normal[xref:#EnumerableMap-UintToUintMap[`++UintToUintMap++`]]
 :UintToAddressMap: pass:normal[xref:#EnumerableMap-UintToAddressMap[`++UintToAddressMap++`]]
 :AddressToUintMap: pass:normal[xref:#EnumerableMap-AddressToUintMap[`++AddressToUintMap++`]]
+:Bytes32ToUintMap: pass:normal[xref:#EnumerableMap-Bytes32ToUintMap[`++Bytes32ToUintMap++`]]
 
 [.contract]
 [[EnumerableMap]]
-=== `++EnumerableMap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/structs/EnumerableMap.sol[{github-icon},role=heading-link]
+=== `++EnumerableMap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/structs/EnumerableMap.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4068,6 +5342,16 @@ The following map types are supported:
 - `uint256 -> address` (`UintToAddressMap`) since v3.0.0
 - `address -> uint256` (`AddressToUintMap`) since v4.6.0
 - `bytes32 -> bytes32` (`Bytes32ToBytes32`) since v4.6.0
+- `uint256 -> uint256` (`UintToUintMap`) since v4.7.0
+- `bytes32 -> uint256` (`Bytes32ToUintMap`) since v4.7.0
+
+[WARNING]
+====
+ Trying to delete such a structure from storage will likely result in data corruption, rendering the structure unusable.
+ See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
+
+ In order to clean an EnumerableMap, you can either remove all elements one by one or create a fresh instance using an array of EnumerableMap.
+====
 
 
 [.contract-index]
@@ -4081,6 +5365,14 @@ The following map types are supported:
 * {xref-EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-}[`++tryGet(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-}[`++get(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-}[`++get(map, key, errorMessage)++`]
+* {xref-EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-}[`++set(map, key, value)++`]
+* {xref-EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-}[`++remove(map, key)++`]
+* {xref-EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-}[`++contains(map, key)++`]
+* {xref-EnumerableMap-length-struct-EnumerableMap-UintToUintMap-}[`++length(map)++`]
+* {xref-EnumerableMap-at-struct-EnumerableMap-UintToUintMap-uint256-}[`++at(map, index)++`]
+* {xref-EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-}[`++tryGet(map, key)++`]
+* {xref-EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-}[`++get(map, key)++`]
+* {xref-EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-}[`++get(map, key, errorMessage)++`]
 * {xref-EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-}[`++set(map, key, value)++`]
 * {xref-EnumerableMap-remove-struct-EnumerableMap-UintToAddressMap-uint256-}[`++remove(map, key)++`]
 * {xref-EnumerableMap-contains-struct-EnumerableMap-UintToAddressMap-uint256-}[`++contains(map, key)++`]
@@ -4097,6 +5389,14 @@ The following map types are supported:
 * {xref-EnumerableMap-tryGet-struct-EnumerableMap-AddressToUintMap-address-}[`++tryGet(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-}[`++get(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-}[`++get(map, key, errorMessage)++`]
+* {xref-EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-}[`++set(map, key, value)++`]
+* {xref-EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-}[`++remove(map, key)++`]
+* {xref-EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-}[`++contains(map, key)++`]
+* {xref-EnumerableMap-length-struct-EnumerableMap-Bytes32ToUintMap-}[`++length(map)++`]
+* {xref-EnumerableMap-at-struct-EnumerableMap-Bytes32ToUintMap-uint256-}[`++at(map, index)++`]
+* {xref-EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-}[`++tryGet(map, key)++`]
+* {xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-}[`++get(map, key)++`]
+* {xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-}[`++get(map, key, errorMessage)++`]
 
 --
 
@@ -4170,6 +5470,74 @@ Same as {_get}, with a custom error message when `key` is not in the map.
 
 CAUTION: This function is deprecated because it requires allocating memory for the error
 message unnecessarily. For custom revert reasons use {_tryGet}.
+
+[.contract-item]
+[[EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-]]
+==== `[.contract-item-name]#++set++#++(struct EnumerableMap.UintToUintMap map, uint256 key, uint256 value) → bool++` [.item-kind]#internal#
+
+Adds a key-value pair to a map, or updates the value for an existing
+key. O(1).
+
+Returns true if the key was added to the map, that is if it was not
+already present.
+
+[.contract-item]
+[[EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-]]
+==== `[.contract-item-name]#++remove++#++(struct EnumerableMap.UintToUintMap map, uint256 key) → bool++` [.item-kind]#internal#
+
+Removes a value from a set. O(1).
+
+Returns true if the key was removed from the map, that is if it was present.
+
+[.contract-item]
+[[EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-]]
+==== `[.contract-item-name]#++contains++#++(struct EnumerableMap.UintToUintMap map, uint256 key) → bool++` [.item-kind]#internal#
+
+Returns true if the key is in the map. O(1).
+
+[.contract-item]
+[[EnumerableMap-length-struct-EnumerableMap-UintToUintMap-]]
+==== `[.contract-item-name]#++length++#++(struct EnumerableMap.UintToUintMap map) → uint256++` [.item-kind]#internal#
+
+Returns the number of elements in the map. O(1).
+
+[.contract-item]
+[[EnumerableMap-at-struct-EnumerableMap-UintToUintMap-uint256-]]
+==== `[.contract-item-name]#++at++#++(struct EnumerableMap.UintToUintMap map, uint256 index) → uint256, uint256++` [.item-kind]#internal#
+
+Returns the element stored at position `index` in the set. O(1).
+Note that there are no guarantees on the ordering of values inside the
+array, and it may change when more values are added or removed.
+
+Requirements:
+
+- `index` must be strictly less than {length}.
+
+[.contract-item]
+[[EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-]]
+==== `[.contract-item-name]#++tryGet++#++(struct EnumerableMap.UintToUintMap map, uint256 key) → bool, uint256++` [.item-kind]#internal#
+
+Tries to returns the value associated with `key`.  O(1).
+Does not revert if `key` is not in the map.
+
+[.contract-item]
+[[EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-]]
+==== `[.contract-item-name]#++get++#++(struct EnumerableMap.UintToUintMap map, uint256 key) → uint256++` [.item-kind]#internal#
+
+Returns the value associated with `key`.  O(1).
+
+Requirements:
+
+- `key` must be in the map.
+
+[.contract-item]
+[[EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-]]
+==== `[.contract-item-name]#++get++#++(struct EnumerableMap.UintToUintMap map, uint256 key, string errorMessage) → uint256++` [.item-kind]#internal#
+
+Same as {get}, with a custom error message when `key` is not in the map.
+
+CAUTION: This function is deprecated because it requires allocating memory for the error
+message unnecessarily. For custom revert reasons use {tryGet}.
 
 [.contract-item]
 [[EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-]]
@@ -4290,8 +5658,6 @@ Requirements:
 Tries to returns the value associated with `key`.  O(1).
 Does not revert if `key` is not in the map.
 
-_Available since v3.4._
-
 [.contract-item]
 [[EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-]]
 ==== `[.contract-item-name]#++get++#++(struct EnumerableMap.AddressToUintMap map, address key) → uint256++` [.item-kind]#internal#
@@ -4305,6 +5671,74 @@ Requirements:
 [.contract-item]
 [[EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-]]
 ==== `[.contract-item-name]#++get++#++(struct EnumerableMap.AddressToUintMap map, address key, string errorMessage) → uint256++` [.item-kind]#internal#
+
+Same as {get}, with a custom error message when `key` is not in the map.
+
+CAUTION: This function is deprecated because it requires allocating memory for the error
+message unnecessarily. For custom revert reasons use {tryGet}.
+
+[.contract-item]
+[[EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-]]
+==== `[.contract-item-name]#++set++#++(struct EnumerableMap.Bytes32ToUintMap map, bytes32 key, uint256 value) → bool++` [.item-kind]#internal#
+
+Adds a key-value pair to a map, or updates the value for an existing
+key. O(1).
+
+Returns true if the key was added to the map, that is if it was not
+already present.
+
+[.contract-item]
+[[EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-]]
+==== `[.contract-item-name]#++remove++#++(struct EnumerableMap.Bytes32ToUintMap map, bytes32 key) → bool++` [.item-kind]#internal#
+
+Removes a value from a set. O(1).
+
+Returns true if the key was removed from the map, that is if it was present.
+
+[.contract-item]
+[[EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-]]
+==== `[.contract-item-name]#++contains++#++(struct EnumerableMap.Bytes32ToUintMap map, bytes32 key) → bool++` [.item-kind]#internal#
+
+Returns true if the key is in the map. O(1).
+
+[.contract-item]
+[[EnumerableMap-length-struct-EnumerableMap-Bytes32ToUintMap-]]
+==== `[.contract-item-name]#++length++#++(struct EnumerableMap.Bytes32ToUintMap map) → uint256++` [.item-kind]#internal#
+
+Returns the number of elements in the map. O(1).
+
+[.contract-item]
+[[EnumerableMap-at-struct-EnumerableMap-Bytes32ToUintMap-uint256-]]
+==== `[.contract-item-name]#++at++#++(struct EnumerableMap.Bytes32ToUintMap map, uint256 index) → bytes32, uint256++` [.item-kind]#internal#
+
+Returns the element stored at position `index` in the set. O(1).
+Note that there are no guarantees on the ordering of values inside the
+array, and it may change when more values are added or removed.
+
+Requirements:
+
+- `index` must be strictly less than {length}.
+
+[.contract-item]
+[[EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-]]
+==== `[.contract-item-name]#++tryGet++#++(struct EnumerableMap.Bytes32ToUintMap map, bytes32 key) → bool, uint256++` [.item-kind]#internal#
+
+Tries to returns the value associated with `key`.  O(1).
+Does not revert if `key` is not in the map.
+
+[.contract-item]
+[[EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-]]
+==== `[.contract-item-name]#++get++#++(struct EnumerableMap.Bytes32ToUintMap map, bytes32 key) → uint256++` [.item-kind]#internal#
+
+Returns the value associated with `key`.  O(1).
+
+Requirements:
+
+- `key` must be in the map.
+
+[.contract-item]
+[[EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-]]
+==== `[.contract-item-name]#++get++#++(struct EnumerableMap.Bytes32ToUintMap map, bytes32 key, string errorMessage) → uint256++` [.item-kind]#internal#
 
 Same as {get}, with a custom error message when `key` is not in the map.
 
@@ -4340,7 +5774,7 @@ message unnecessarily. For custom revert reasons use {tryGet}.
 
 [.contract]
 [[EnumerableSet]]
-=== `++EnumerableSet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/structs/EnumerableSet.sol[{github-icon},role=heading-link]
+=== `++EnumerableSet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/structs/EnumerableSet.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4369,6 +5803,14 @@ contract Example {
 
 As of v3.3.0, sets of type `bytes32` (`Bytes32Set`), `address` (`AddressSet`)
 and `uint256` (`UintSet`) are supported.
+
+[WARNING]
+====
+ Trying to delete such a structure from storage will likely result in data corruption, rendering the structure unusable.
+ See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
+
+ In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an array of EnumerableSet.
+====
 
 
 [.contract-index]
@@ -4577,7 +6019,7 @@ uncallable if the set grows to a point where copying to memory consumes too much
 
 [.contract]
 [[DoubleEndedQueue]]
-=== `++DoubleEndedQueue++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/structs/DoubleEndedQueue.sol[{github-icon},role=heading-link]
+=== `++DoubleEndedQueue++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/structs/DoubleEndedQueue.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4703,7 +6145,7 @@ Returns true if the queue is empty.
 
 [.contract]
 [[Checkpoints]]
-=== `++Checkpoints++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/Checkpoints.sol[{github-icon},role=heading-link]
+=== `++Checkpoints++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/Checkpoints.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4773,7 +6215,7 @@ Returns previous value and new value.
 
 [.contract]
 [[Create2]]
-=== `++Create2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/Create2.sol[{github-icon},role=heading-link]
+=== `++Create2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/Create2.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4849,7 +6291,7 @@ Returns the address where a contract will be stored if deployed via {deploy} fro
 
 [.contract]
 [[Address]]
-=== `++Address++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/Address.sol[{github-icon},role=heading-link]
+=== `++Address++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/Address.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5032,7 +6474,7 @@ _Available since v4.3._
 
 [.contract]
 [[Arrays]]
-=== `++Arrays++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/Arrays.sol[{github-icon},role=heading-link]
+=== `++Arrays++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/Arrays.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5072,7 +6514,7 @@ repeated elements.
 
 [.contract]
 [[Base64]]
-=== `++Base64++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/Base64.sol[{github-icon},role=heading-link]
+=== `++Base64++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/Base64.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5111,7 +6553,7 @@ Converts a `bytes` to its Bytes64 `string` representation.
 
 [.contract]
 [[Counters]]
-=== `++Counters++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/Counters.sol[{github-icon},role=heading-link]
+=== `++Counters++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/Counters.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5167,10 +6609,11 @@ Include with `using Counters for Counters.Counter;`
 :toString: pass:normal[xref:#Strings-toString-uint256-[`++toString++`]]
 :toHexString: pass:normal[xref:#Strings-toHexString-uint256-[`++toHexString++`]]
 :toHexString: pass:normal[xref:#Strings-toHexString-uint256-uint256-[`++toHexString++`]]
+:toHexString: pass:normal[xref:#Strings-toHexString-address-[`++toHexString++`]]
 
 [.contract]
 [[Strings]]
-=== `++Strings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/Strings.sol[{github-icon},role=heading-link]
+=== `++Strings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/Strings.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5186,6 +6629,7 @@ String operations.
 * {xref-Strings-toString-uint256-}[`++toString(value)++`]
 * {xref-Strings-toHexString-uint256-}[`++toHexString(value)++`]
 * {xref-Strings-toHexString-uint256-uint256-}[`++toHexString(value, length)++`]
+* {xref-Strings-toHexString-address-}[`++toHexString(addr)++`]
 
 --
 
@@ -5209,6 +6653,12 @@ Converts a `uint256` to its ASCII `string` hexadecimal representation.
 
 Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
 
+[.contract-item]
+[[Strings-toHexString-address-]]
+==== `[.contract-item-name]#++toHexString++#++(address addr) → string++` [.item-kind]#internal#
+
+Converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal representation.
+
 
 
 
@@ -5224,7 +6674,7 @@ Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed
 
 [.contract]
 [[StorageSlot]]
-=== `++StorageSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/StorageSlot.sol[{github-icon},role=heading-link]
+=== `++StorageSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/StorageSlot.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -5301,7 +6751,7 @@ Returns an `Uint256Slot` with member `value` located at `slot`.
 
 [.contract]
 [[Multicall]]
-=== `++Multicall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.6.0/contracts/utils/Multicall.sol[{github-icon},role=heading-link]
+=== `++Multicall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.0/contracts/utils/Multicall.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

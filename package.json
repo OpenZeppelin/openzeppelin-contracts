@@ -1,7 +1,7 @@
 {
   "name": "openzeppelin-solidity",
   "description": "Secure Smart Contract library for Solidity",
-  "version": "4.6.0",
+  "version": "4.7.0",
   "files": [
     "/contracts/**/*.sol",
     "/build/contracts/*.json",
@@ -23,14 +23,16 @@
     "lint:sol": "solhint 'contracts/**/*.sol' && prettier -c 'contracts/**/*.sol'",
     "lint:sol:fix": "prettier --write \"contracts/**/*.sol\"",
     "clean": "hardhat clean && rimraf build contracts/build",
-    "prepare": "npm run clean && env COMPILE_MODE=production npm run compile",
+    "prepare": "scripts/prepare.sh",
     "prepack": "scripts/prepack.sh",
+    "generate": "scripts/generate/run.js",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
-    "test:inheritance": "node scripts/inheritanceOrdering artifacts/build-info/*",
+    "test:inheritance": "scripts/checks/inheritance-ordering.js artifacts/build-info/*",
+    "test:generation": "scripts/checks/generation.sh",
     "gas-report": "env ENABLE_GAS_REPORT=true npm run test",
-    "slither": "npm run clean && slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas --filter-paths contracts/mocks"
+    "slither": "npm run clean && slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas"
   },
   "repository": {
     "type": "git",

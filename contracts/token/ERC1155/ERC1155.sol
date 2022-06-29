@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC1155/ERC1155.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC1155/ERC1155.sol)
 
 pragma solidity ^0.8.0;
 
@@ -68,7 +68,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - `account` cannot be the zero address.
      */
     function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
-        require(account != address(0), "ERC1155: balance query for the zero address");
+        require(account != address(0), "ERC1155: address zero is not a valid owner");
         return _balances[id][account];
     }
 
@@ -123,7 +123,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     ) public virtual override {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: caller is not owner nor approved"
+            "ERC1155: caller is not token owner nor approved"
         );
         _safeTransferFrom(from, to, id, amount, data);
     }
@@ -140,7 +140,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     ) public virtual override {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: transfer caller is not owner nor approved"
+            "ERC1155: caller is not token owner nor approved"
         );
         _safeBatchTransferFrom(from, to, ids, amounts, data);
     }

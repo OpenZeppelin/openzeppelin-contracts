@@ -1,6 +1,6 @@
 = Adding cross-chain support to contracts
 
-If your contract is targetting to be used in the context of multichain operations, you may need specific tools to identify and process these cross-chain operations.
+If your contract is targeting to be used in the context of multichain operations, you may need specific tools to identify and process these cross-chain operations.
 
 OpenZeppelin provides the xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] abstract contract, that includes dedicated internal functions.
 

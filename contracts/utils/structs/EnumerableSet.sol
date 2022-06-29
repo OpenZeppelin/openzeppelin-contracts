@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (utils/structs/EnumerableSet.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (utils/structs/EnumerableSet.sol)
 
 pragma solidity ^0.8.0;
 
@@ -26,6 +26,14 @@ pragma solidity ^0.8.0;
  *
  * As of v3.3.0, sets of type `bytes32` (`Bytes32Set`), `address` (`AddressSet`)
  * and `uint256` (`UintSet`) are supported.
+ *
+ * [WARNING]
+ * ====
+ *  Trying to delete such a structure from storage will likely result in data corruption, rendering the structure unusable.
+ *  See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
+ *
+ *  In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an array of EnumerableSet.
+ * ====
  */
 library EnumerableSet {
     // To implement this library for multiple types with as little code
@@ -275,6 +283,7 @@ library EnumerableSet {
         bytes32[] memory store = _values(set._inner);
         address[] memory result;
 
+        /// @solidity memory-safe-assembly
         assembly {
             result := store
         }
@@ -348,6 +357,7 @@ library EnumerableSet {
         bytes32[] memory store = _values(set._inner);
         uint256[] memory result;
 
+        /// @solidity memory-safe-assembly
         assembly {
             result := store
         }

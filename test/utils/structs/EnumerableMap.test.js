@@ -3,6 +3,8 @@ const { BN, constants } = require('@openzeppelin/test-helpers');
 const AddressToUintMapMock = artifacts.require('AddressToUintMapMock');
 const UintToAddressMapMock = artifacts.require('UintToAddressMapMock');
 const Bytes32ToBytes32MapMock = artifacts.require('Bytes32ToBytes32MapMock');
+const UintToUintMapMock = artifacts.require('UintToUintMapMock');
+const Bytes32ToUintMapMock = artifacts.require('Bytes32ToUintMapMock');
 
 const { shouldBehaveLikeMap } = require('./EnumerableMap.behavior');
 
@@ -24,8 +26,8 @@ contract('EnumerableMap', function (accounts) {
     });
 
     shouldBehaveLikeMap(
-      [accountA, accountB, accountC],
-      [keyA, keyB, keyC],
+      [ accountA, accountB, accountC ],
+      [ keyA, keyB, keyC ],
       new BN('0'),
     );
   });
@@ -37,8 +39,8 @@ contract('EnumerableMap', function (accounts) {
     });
 
     shouldBehaveLikeMap(
-      [keyA, keyB, keyC],
-      [accountA, accountB, accountC],
+      [ keyA, keyB, keyC ],
+      [ accountA, accountB, accountC ],
       constants.ZERO_ADDRESS,
     );
   });
@@ -50,9 +52,35 @@ contract('EnumerableMap', function (accounts) {
     });
 
     shouldBehaveLikeMap(
-      [keyA, keyB, keyC].map(k => ('0x' + k.toString(16)).padEnd(66, '0')),
-      [bytesA, bytesB, bytesC],
+      [ keyA, keyB, keyC ].map(k => '0x' + k.toString(16).padEnd(64, '0')),
+      [ bytesA, bytesB, bytesC ],
       constants.ZERO_BYTES32,
+    );
+  });
+
+  // UintToUintMap
+  describe('UintToUintMap', function () {
+    beforeEach(async function () {
+      this.map = await UintToUintMapMock.new();
+    });
+
+    shouldBehaveLikeMap(
+      [ keyA, keyB, keyC ],
+      [ keyA, keyB, keyC ].map(k => k.add(new BN('1332'))),
+      new BN('0'),
+    );
+  });
+
+  // Bytes32ToUintMap
+  describe('Bytes32ToUintMap', function () {
+    beforeEach(async function () {
+      this.map = await Bytes32ToUintMapMock.new();
+    });
+
+    shouldBehaveLikeMap(
+      [ bytesA, bytesB, bytesC ],
+      [ keyA, keyB, keyC ],
+      new BN('0'),
     );
   });
 });

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (finance/PaymentSplitter.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (finance/PaymentSplitter.sol)
 
 pragma solidity ^0.8.0;
 
@@ -14,7 +14,8 @@ import "../utils/Context.sol";
  *
  * The split can be in equal parts or in any other arbitrary proportion. The way this is specified is by assigning each
  * account to a number of shares. Of all the Ether that this contract receives, each account will then be able to claim
- * an amount proportional to the percentage of total shares they were assigned.
+ * an amount proportional to the percentage of total shares they were assigned. The distribution of shares is set at the
+ * time of contract deployment and can't be updated thereafter.
  *
  * `PaymentSplitter` follows a _pull payment_ model. This means that payments are not automatically forwarded to the
  * accounts but kept in this contract, and the actual transfer is triggered as a separate step by calling the {release}
@@ -121,14 +122,30 @@ contract PaymentSplitter is Context {
     }
 
     /**
+     * @dev Getter for the amount of payee's releasable Ether.
+     */
+    function releasable(address account) public view returns (uint256) {
+        uint256 totalReceived = address(this).balance + totalReleased();
+        return _pendingPayment(account, totalReceived, released(account));
+    }
+
+    /**
+     * @dev Getter for the amount of payee's releasable `token` tokens. `token` should be the address of an
+     * IERC20 contract.
+     */
+    function releasable(IERC20 token, address account) public view returns (uint256) {
+        uint256 totalReceived = token.balanceOf(address(this)) + totalReleased(token);
+        return _pendingPayment(account, totalReceived, released(token, account));
+    }
+
+    /**
      * @dev Triggers a transfer to `account` of the amount of Ether they are owed, according to their percentage of the
      * total shares and their previous withdrawals.
      */
     function release(address payable account) public virtual {
         require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
-        uint256 totalReceived = address(this).balance + totalReleased();
-        uint256 payment = _pendingPayment(account, totalReceived, released(account));
+        uint256 payment = releasable(account);
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
@@ -147,8 +164,7 @@ contract PaymentSplitter is Context {
     function release(IERC20 token, address account) public virtual {
         require(_shares[account] > 0, "PaymentSplitter: account has no shares");
 
-        uint256 totalReceived = token.balanceOf(address(this)) + totalReleased(token);
-        uint256 payment = _pendingPayment(account, totalReceived, released(token, account));
+        uint256 payment = releasable(token, account);
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
