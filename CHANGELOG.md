@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.7.0
+## 4.7.0 (2022-06-29)
 
  * `TimelockController`: Migrate `_call` to `_execute` and allow inheritance and overriding similar to `Governor`. ([#3317](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3317))
  * `CrossChainEnabledPolygonChild`: replace the `require` statement with the custom error `NotCrossChainCall`. ([#3380](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3380))

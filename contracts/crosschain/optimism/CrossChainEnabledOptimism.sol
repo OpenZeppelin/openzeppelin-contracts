@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0-rc.0) (crosschain/optimism/CrossChainEnabledOptimism.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (crosschain/optimism/CrossChainEnabledOptimism.sol)
 
 pragma solidity ^0.8.4;
 
