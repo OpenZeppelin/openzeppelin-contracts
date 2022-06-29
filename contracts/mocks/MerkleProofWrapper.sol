@@ -30,19 +30,36 @@ contract MerkleProofWrapper {
     }
 
     function multiProofVerify(
-        bytes32[] calldata proofs,
-        bool[] calldata proofFlag,
+        bytes32[] memory proofs,
+        bool[] memory proofFlag,
         bytes32 root,
-        bytes32[] calldata leaves
+        bytes32[] memory leaves
     ) public pure returns (bool) {
         return MerkleProof.multiProofVerify(proofs, proofFlag, root, leaves);
     }
 
-    function processMultiProof(
+    function multiProofVerifyCalldata(
         bytes32[] calldata proofs,
         bool[] calldata proofFlag,
-        bytes32[] calldata leaves
+        bytes32 root,
+        bytes32[] memory leaves
+    ) public pure returns (bool) {
+        return MerkleProof.multiProofVerifyCalldata(proofs, proofFlag, root, leaves);
+    }
+
+    function processMultiProof(
+        bytes32[] memory proofs,
+        bool[] memory proofFlag,
+        bytes32[] memory leaves
     ) public pure returns (bytes32) {
         return MerkleProof.processMultiProof(proofs, proofFlag, leaves);
+    }
+
+    function processMultiProofCalldata(
+        bytes32[] calldata proofs,
+        bool[] calldata proofFlag,
+        bytes32[] memory leaves
+    ) public pure returns (bytes32) {
+        return MerkleProof.processMultiProofCalldata(proofs, proofFlag, leaves);
     }
 }
