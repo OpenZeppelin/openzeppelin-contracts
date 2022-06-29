@@ -16,4 +16,11 @@ contract ArraysImpl {
     function findUpperBound(uint256 element) external view returns (uint256) {
         return _array.findUpperBound(element);
     }
+
+    function sort(uint256[] memory array) external view returns (uint256[] memory sorted, uint256 gasUsed) {
+        gasUsed = gasleft();
+        array.sort();
+        gasUsed -= gasleft();
+        return (array, gasUsed);
+    }
 }

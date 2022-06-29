@@ -1,6 +1,7 @@
 require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
+const { config } = require('hardhat');
 
 const ArraysImpl = artifacts.require('ArraysImpl');
 
@@ -82,6 +83,87 @@ contract('Arrays', function (accounts) {
       it('always returns 0 for empty array', async function () {
         expect(await this.arrays.findUpperBound(10)).to.be.bignumber.equal('0');
       });
+    });
+  });
+
+  describe('sort', function () {
+    let arraysImpl;
+
+    before(async function () {
+      arraysImpl = await ArraysImpl.new([]);
+    });
+
+    async function testSort (array) {
+      const { sorted, gasUsed } = (await arraysImpl.sort(array));
+      const sortedNum = sorted.map(val => val.toNumber());
+      array.sort((a, b) => a - b);
+      expect(sortedNum).to.deep.equal(array, 'Invalid sorting result');
+      // Gas reporting is enabled, print gas usage.
+      // `hardhat-gas-reporter` can't be relied on here because:
+      // - it adds up all the calls without breaking down into specific tests
+      // - it measures the whole TXs and not just the library function calls
+      if (config.mocha.reporter) console.log('Gas used:', gasUsed.toString());
+    }
+
+    function arrayOf (length, generator) {
+      return Array.from(Array(length), generator);
+    }
+
+    const randomItems = () => Math.floor(Math.random() * 1000);
+    const sameItems = () => 1;
+    const sortedItems = (_, idx) => idx;
+    const reverseSortedItems = (_, idx) => 1000 - idx;
+
+    it('accepts zero length arrays', async function () {
+      await testSort([]);
+    });
+
+    it('accepts one length arrays', async function () {
+      await testSort([1]);
+    });
+
+    it('handles sorted data', async function () {
+      await testSort([1, 2, 3]);
+    });
+
+    it('handles reverse sorted data', async function () {
+      await testSort([3, 2, 1]);
+    });
+
+    it('handles scrambled data', async function () {
+      await testSort([2, 1, 3]);
+    });
+
+    it('handles 10 random items', async function () {
+      await testSort(arrayOf(10, randomItems));
+    });
+
+    it('handles 10 same items', async function () {
+      await testSort(arrayOf(10, sameItems));
+    });
+
+    it('handles 10 sorted items', async function () {
+      await testSort(arrayOf(10, sortedItems));
+    });
+
+    it('handles 10 reverse sorted items', async function () {
+      await testSort(arrayOf(10, reverseSortedItems));
+    });
+
+    it('handles 100 random items', async function () {
+      await testSort(arrayOf(100, randomItems));
+    });
+
+    it('handles 100 same items', async function () {
+      await testSort(arrayOf(100, sameItems));
+    });
+
+    it('handles 100 sorted items', async function () {
+      await testSort(arrayOf(100, sortedItems));
+    });
+
+    it('handles 100 reverse sorted items', async function () {
+      await testSort(arrayOf(100, reverseSortedItems));
     });
   });
 });
