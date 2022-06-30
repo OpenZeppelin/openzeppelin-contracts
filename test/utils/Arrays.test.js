@@ -86,7 +86,7 @@ contract('Arrays', function (accounts) {
     });
   });
 
-  describe('sort', function () {
+  describe.only('sort', function () {
     let arraysImpl;
 
     before(async function () {

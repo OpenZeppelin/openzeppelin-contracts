@@ -51,8 +51,8 @@ library Arrays {
      *
      * Sorting is done in-place using the heap sort algorithm.
      * Examples of gas cost with optimizer enabled for 200 runs:
-     * - 10 random items: ~11K gas
-     * - 100 random items: ~224K gas
+     * - 10 random items: ~8K gas
+     * - 100 random items: ~156K gas
      */
     function sort(uint256[] memory array) internal pure {
         unchecked {
@@ -60,13 +60,13 @@ library Arrays {
             if (length < 2) return;
             // Heapify the array
             for (uint256 i = length / 2; i-- > 0; ) {
-                _siftDown(array, length, i, array[i]);
+                _siftDown(array, length, i, _arrayLoad(array, i));
             }
             // Drain all elements from highest to lowest and put them at the end of the array
             while (--length != 0) {
-                uint256 val = array[0];
-                _siftDown(array, length, 0, array[length]);
-                array[length] = val;
+                uint256 val = _arrayLoad(array, 0);
+                _siftDown(array, length, 0, _arrayLoad(array, length));
+                _arrayStore(array, length, val);
             }
         }
     }
@@ -79,32 +79,46 @@ library Arrays {
     function _siftDown(
         uint256[] memory array,
         uint256 length,
-        uint256 empty,
+        uint256 emptyIdx,
         uint256 inserted
     ) private pure {
         unchecked {
             while (true) {
                 // The first child of empty, one level deeper in the heap
-                uint256 child = empty * 2 + 1;
+                uint256 childIdx = (emptyIdx << 1) + 1;
                 // Empty has no children
-                if (child >= length) break;
-                uint256 childVal = array[child];
-                uint256 otherChild = child + 1;
+                if (childIdx >= length) break;
+                uint256 childVal = _arrayLoad(array, childIdx);
+                uint256 otherChildIdx = childIdx + 1;
                 // Pick the larger child
-                if (otherChild < length) {
-                    uint256 otherChildVal = array[otherChild];
+                if (otherChildIdx < length) {
+                    uint256 otherChildVal = _arrayLoad(array, otherChildIdx);
                     if (otherChildVal > childVal) {
-                        child = otherChild;
+                        childIdx = otherChildIdx;
                         childVal = otherChildVal;
                     }
                 }
                 // No child is larger than the inserted value
                 if (childVal <= inserted) break;
                 // Move the larger child one level up and keep sifting down
-                array[empty] = childVal;
-                empty = child;
+                _arrayStore(array, emptyIdx, childVal);
+                emptyIdx = childIdx;
             }
-            array[empty] = inserted;
+            _arrayStore(array, emptyIdx, inserted);
+        }
+    }
+
+    function _arrayLoad(uint256[] memory array, uint256 idx) private pure returns (uint256 val) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            val := mload(add(32, add(array, shl(5, idx))))
+        }
+    }
+
+    function _arrayStore(uint256[] memory array, uint256 idx, uint256 val) private pure {
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(add(32, add(array, shl(5, idx))), val)
         }
     }
 }
