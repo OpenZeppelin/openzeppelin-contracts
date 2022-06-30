@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+ * `ERC165Checker`: add `supportsERC165InterfaceUnchecked` for consulting individual interfaces without the full ERC165 protocol. ([#3339](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3339))
+ * `Address`: optimize `functionCall` by calling `functionCallWithValue` directly. ([#3468](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3468))
+ * `Address`: optimize `functionCall` functions by checking contract size only if there is no returned data. ([#3469](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3469))
+ * `GovernorCompatibilityBravo`: remove unused `using` statements ([#3506](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3506))
+
 ## 4.7.0 (2022-06-29)
 
  * `TimelockController`: Migrate `_call` to `_execute` and allow inheritance and overriding similar to `Governor`. ([#3317](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3317))
@@ -20,8 +27,6 @@
  * `PaymentSplitter`: add `releasable` getters. ([#3350](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3350))
  * `Initializable`: refactored implementation of modifiers for easier understanding. ([#3450](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3450))
  * `Proxies`: remove runtime check of ERC1967 storage slots. ([#3455](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3455))
- * `ERC165Checker`: add `supportsERC165InterfaceUnchecked` for consulting individual interfaces without the full ERC165 protocol. ([#3339](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3339))
- * `Address`: optimize `functionCall` functions by checking contract size only if there is no returned data. ([#3469](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3469))
 
 ### Breaking changes
 
