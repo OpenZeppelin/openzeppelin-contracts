@@ -115,7 +115,11 @@ library Arrays {
         }
     }
 
-    function _arrayStore(uint256[] memory array, uint256 idx, uint256 val) private pure {
+    function _arrayStore(
+        uint256[] memory array,
+        uint256 idx,
+        uint256 val
+    ) private pure {
         /// @solidity memory-safe-assembly
         assembly {
             mstore(add(32, add(array, shl(5, idx))), val)
