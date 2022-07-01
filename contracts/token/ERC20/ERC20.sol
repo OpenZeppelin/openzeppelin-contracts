@@ -237,6 +237,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
         unchecked {
             _balances[from] = fromBalance - amount;
+            // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
+            // decrementing then incrementing.
             _balances[to] += amount;
         }
 
@@ -261,6 +263,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         _totalSupply += amount;
         unchecked {
+            // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
             _balances[account] += amount;
         }
         emit Transfer(address(0), account, amount);
@@ -288,6 +291,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
         unchecked {
             _balances[account] = accountBalance - amount;
+            // Overflow not possible: amount <= accountBalance <= totalSupply.
             _totalSupply -= amount;
         }
 
