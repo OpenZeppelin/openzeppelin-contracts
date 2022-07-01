@@ -6,7 +6,7 @@
  * `Address`: optimize `functionCall` by calling `functionCallWithValue` directly. ([#3468](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3468))
  * `Address`: optimize `functionCall` functions by checking contract size only if there is no returned data. ([#3469](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3469))
  * `GovernorCompatibilityBravo`: remove unused `using` statements ([#3506](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3506))
- * `ERC20`: optimize `_transfer_` and `_mint_` by wrapping arithmetic calculations in an `unchecked` block. ([#3513](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3513))
+ * `ERC20`: optimize `_transfer_`, `_mint_` and `_burn` by using `unchecked` arithmetic when possible. ([#3513](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3513))
 
 ## 4.7.0 (2022-06-29)
 
