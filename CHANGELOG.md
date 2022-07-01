@@ -6,7 +6,8 @@
  * `Address`: optimize `functionCall` by calling `functionCallWithValue` directly. ([#3468](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3468))
  * `Address`: optimize `functionCall` functions by checking contract size only if there is no returned data. ([#3469](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3469))
  * `GovernorCompatibilityBravo`: remove unused `using` statements ([#3506](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3506))
-
+ * `ERC20`: optimize `_transfer_` and `_mint_` by wrapping arithmetic calculations in an `unchecked` block.
+   ([#3513](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3513))
 ## 4.7.0 (2022-06-29)
 
  * `TimelockController`: Migrate `_call` to `_execute` and allow inheritance and overriding similar to `Governor`. ([#3317](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3317))
@@ -26,7 +27,7 @@
  * `ERC721`: removed redundant require statement. ([#3434](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3434))
  * `PaymentSplitter`: add `releasable` getters. ([#3350](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3350))
  * `Initializable`: refactored implementation of modifiers for easier understanding. ([#3450](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3450))
- * `Proxies`: remove runtime check of ERC1967 storage slots. ([#3455](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3455))
+ * `Proxies`: remove runtime check of ERC1967 storage slots.([#3455](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3455))
 
 ### Breaking changes
 
