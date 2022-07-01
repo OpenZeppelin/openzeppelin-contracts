@@ -3,7 +3,6 @@
 
 pragma solidity ^0.8.0;
 
-import "../../utils/Counters.sol";
 import "../../utils/math/SafeCast.sol";
 import "../extensions/IGovernorTimelock.sol";
 import "../Governor.sol";
@@ -20,9 +19,6 @@ import "./IGovernorCompatibilityBravo.sol";
  * _Available since v4.3._
  */
 abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorCompatibilityBravo, Governor {
-    using Counters for Counters.Counter;
-    using Timers for Timers.BlockNumber;
-
     enum VoteType {
         Against,
         For,
