@@ -144,7 +144,7 @@ function shouldBehaveLikeERC1363 ([owner, spender, recipient], balance) {
       it('reverts', async function () {
         await expectRevert(
           transferFromAndCallWithoutData.call(this, owner, recipient, value, { from: spender }),
-          'ERC1363: _checkOnTransferReceived reverts',
+          'ERC1363: transfer to non contract address',
         );
       });
     });
@@ -154,7 +154,7 @@ function shouldBehaveLikeERC1363 ([owner, spender, recipient], balance) {
         const invalidReceiver = await ERC1363Receiver.new(data, false);
         await expectRevert(
           transferFromAndCallWithoutData.call(this, owner, invalidReceiver.address, value, { from: spender }),
-          'ERC1363: _checkOnTransferReceived reverts',
+          'ERC1363: receiver returned wrong data',
         );
       });
     });
@@ -172,8 +172,9 @@ function shouldBehaveLikeERC1363 ([owner, spender, recipient], balance) {
     describe('to a contract that does not implement the required function', function () {
       it('reverts', async function () {
         const invalidReceiver = this.token;
-        await expectRevert.unspecified(
+        await expectRevert(
           transferFromAndCallWithoutData.call(this, owner, invalidReceiver.address, value, { from: spender }),
+          'ERC1363: transfer to non ERC1363Receiver implementer',
         );
       });
     });
@@ -298,7 +299,7 @@ function shouldBehaveLikeERC1363 ([owner, spender, recipient], balance) {
       it('reverts', async function () {
         await expectRevert(
           transferAndCallWithoutData.call(this, recipient, value, { from: owner }),
-          'ERC1363: _checkOnTransferReceived reverts',
+          'ERC1363: transfer to non contract address',
         );
       });
     });
@@ -308,7 +309,7 @@ function shouldBehaveLikeERC1363 ([owner, spender, recipient], balance) {
         const invalidReceiver = await ERC1363Receiver.new(data, false);
         await expectRevert(
           transferAndCallWithoutData.call(this, invalidReceiver.address, value, { from: owner }),
-          'ERC1363: _checkOnTransferReceived reverts',
+          'ERC1363: receiver returned wrong data',
         );
       });
     });
@@ -326,8 +327,9 @@ function shouldBehaveLikeERC1363 ([owner, spender, recipient], balance) {
     describe('to a contract that does not implement the required function', function () {
       it('reverts', async function () {
         const invalidReceiver = this.token;
-        await expectRevert.unspecified(
+        await expectRevert(
           transferAndCallWithoutData.call(this, invalidReceiver.address, value, { from: owner }),
+          'ERC1363: transfer to non ERC1363Receiver implementer',
         );
       });
     });
@@ -422,7 +424,7 @@ function shouldBehaveLikeERC1363 ([owner, spender, recipient], balance) {
       it('reverts', async function () {
         await expectRevert(
           approveAndCallWithoutData.call(this, recipient, value, { from: owner }),
-          'ERC1363: _checkOnApprovalReceived reverts',
+          'ERC1363: approve a non contract address',
         );
       });
     });
@@ -432,7 +434,7 @@ function shouldBehaveLikeERC1363 ([owner, spender, recipient], balance) {
         const invalidSpender = await ERC1363Spender.new(data, false);
         await expectRevert(
           approveAndCallWithoutData.call(this, invalidSpender.address, value, { from: owner }),
-          'ERC1363: _checkOnApprovalReceived reverts',
+          'ERC1363: spender returned wrong data',
         );
       });
     });
@@ -450,8 +452,9 @@ function shouldBehaveLikeERC1363 ([owner, spender, recipient], balance) {
     describe('to a contract that does not implement the required function', function () {
       it('reverts', async function () {
         const invalidSpender = this.token;
-        await expectRevert.unspecified(
+        await expectRevert(
           approveAndCallWithoutData.call(this, invalidSpender.address, value, { from: owner }),
+          'ERC1363: approve a non ERC1363Spender implementer',
         );
       });
     });

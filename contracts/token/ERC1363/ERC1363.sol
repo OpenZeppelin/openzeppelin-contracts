@@ -39,7 +39,7 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
         bytes memory data
     ) public virtual override returns (bool) {
         transfer(to, amount);
-        require(_checkOnTransferReceived(_msgSender(), to, amount, data), "ERC1363: _checkOnTransferReceived reverts");
+        require(_checkOnTransferReceived(_msgSender(), to, amount, data), "ERC1363: receiver returned wrong data");
         return true;
     }
 
@@ -47,24 +47,24 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
      * @dev See {IERC1363-transferFromAndCall}.
      */
     function transferFromAndCall(
-        address sender,
+        address from,
         address to,
         uint256 amount
     ) public virtual override returns (bool) {
-        return transferFromAndCall(sender, to, amount, "");
+        return transferFromAndCall(from, to, amount, "");
     }
 
     /**
      * @dev See {IERC1363-transferFromAndCall}.
      */
     function transferFromAndCall(
-        address sender,
+        address from,
         address to,
         uint256 amount,
         bytes memory data
     ) public virtual override returns (bool) {
-        transferFrom(sender, to, amount);
-        require(_checkOnTransferReceived(sender, to, amount, data), "ERC1363: _checkOnTransferReceived reverts");
+        transferFrom(from, to, amount);
+        require(_checkOnTransferReceived(from, to, amount, data), "ERC1363: receiver returned wrong data");
         return true;
     }
 
@@ -84,7 +84,7 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
         bytes memory data
     ) public virtual override returns (bool) {
         approve(spender, amount);
-        require(_checkOnApprovalReceived(spender, amount, data), "ERC1363: _checkOnApprovalReceived reverts");
+        require(_checkOnApprovalReceived(spender, amount, data), "ERC1363: spender returned wrong data");
         return true;
     }
 
@@ -104,10 +104,21 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
         bytes memory data
     ) internal virtual returns (bool) {
         if (!recipient.isContract()) {
-            return false;
+            revert("ERC1363: transfer to non contract address");
         }
-        bytes4 retval = IERC1363Receiver(recipient).onTransferReceived(_msgSender(), sender, amount, data);
-        return retval == IERC1363Receiver.onTransferReceived.selector;
+
+        try IERC1363Receiver(recipient).onTransferReceived(_msgSender(), sender, amount, data) returns (bytes4 retval) {
+            return retval == IERC1363Receiver.onTransferReceived.selector;
+        } catch (bytes memory reason) {
+            if (reason.length == 0) {
+                revert("ERC1363: transfer to non ERC1363Receiver implementer");
+            } else {
+                /// @solidity memory-safe-assembly
+                assembly {
+                    revert(add(32, reason), mload(reason))
+                }
+            }
+        }
     }
 
     /**
@@ -124,9 +135,20 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
         bytes memory data
     ) internal virtual returns (bool) {
         if (!spender.isContract()) {
-            return false;
+            revert("ERC1363: approve a non contract address");
         }
-        bytes4 retval = IERC1363Spender(spender).onApprovalReceived(_msgSender(), amount, data);
-        return retval == IERC1363Spender.onApprovalReceived.selector;
+
+        try IERC1363Spender(spender).onApprovalReceived(_msgSender(), amount, data) returns (bytes4 retval) {
+            return retval == IERC1363Spender.onApprovalReceived.selector;
+        } catch (bytes memory reason) {
+            if (reason.length == 0) {
+                revert("ERC1363: approve a non ERC1363Spender implementer");
+            } else {
+                /// @solidity memory-safe-assembly
+                assembly {
+                    revert(add(32, reason), mload(reason))
+                }
+            }
+        }
     }
 }

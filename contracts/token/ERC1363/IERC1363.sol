@@ -41,27 +41,27 @@ interface IERC1363 is IERC165, IERC20 {
 
     /**
      * @dev Transfer tokens from one address to another and then call `onTransferReceived` on receiver
-     * @param sender address The address which you want to send tokens from
+     * @param from address The address which you want to send tokens from
      * @param to address The address which you want to transfer to
      * @param amount uint256 The amount of tokens to be transferred
      * @return true unless throwing
      */
     function transferFromAndCall(
-        address sender,
+        address from,
         address to,
         uint256 amount
     ) external returns (bool);
 
     /**
      * @dev Transfer tokens from one address to another and then call `onTransferReceived` on receiver
-     * @param sender address The address which you want to send tokens from
+     * @param from address The address which you want to send tokens from
      * @param to address The address which you want to transfer to
      * @param amount uint256 The amount of tokens to be transferred
      * @param data bytes Additional data with no specified format, sent in call to `to`
      * @return true unless throwing
      */
     function transferFromAndCall(
-        address sender,
+        address from,
         address to,
         uint256 amount,
         bytes memory data
