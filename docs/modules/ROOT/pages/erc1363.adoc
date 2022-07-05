@@ -1,10 +1,13 @@
 = ERC1363
 
+ERC1363 is an xref:erc20.adoc[ERC20] compatible token that can perform a callback on a receiver or spender contract, after a transfer or an approval, in a single transaction.
+
+== Why use ERC1363?
+
 There is no way to execute any code on a receiver or spender contract after an xref:erc20.adoc[ERC20] `transfer`, `transferFrom` or `approve` so, to make an action, it is required to send another transaction.
 This introduces complexity on UI development and friction on adoption because users must wait for the first transaction to be executed and then send the second one. They must also pay GAS twice.
 
-ERC1363 makes xref:erc20.adoc[ERC20] tokens capable of performing actions more easily and working without the use of any other listener.
-It allows to make a callback on a receiver or spender contract, after a transfer or an approval, in a single transaction.
+ERC1363 makes xref:erc20.adoc[ERC20] tokens capable of performing actions more easily and working without the use of any other listener. It allows to make a callback on a receiver or spender contract, after a transfer or an approval, in a single transaction.
 
 There are many proposed uses of Ethereum smart contracts that can accept EIP-20 callbacks.
 
@@ -26,6 +29,26 @@ ERC1363 adds the following methods:
 * xref:api:token/ERC1363.adoc#IERC1363-approveAndCall-address-uint256-[`approveAndCall`] will call xref:api:token/ERC1363.adoc#IERC1363Spender-onApprovalReceived-address-uint256-bytes-[`onApprovalReceived`] on a xref:api:token/ERC1363.adoc#IERC1363Spender[`IERC1363Spender`] contract.
 
 For more information about the `ERC1363` standard, check out the https://eips.ethereum.org/EIPS/eip-1363[EIP-1363 specification].
+
+== Constructing an ERC1363 Token Contract
+
+We will replicate the `GLD` example of the xref:erc20.adoc#constructing-an-erc20-token-contract[ERC20 guide], this time using ERC1363. As always, check out the xref:api:token/ERC1363.adoc#IERC1363[`API reference`] to learn more about the details of each function.
+
+[source,solidity]
+----
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC1363/ERC1363.sol";
+
+contract GLDToken is ERC1363 {
+    constructor(uint256 initialSupply) ERC20("Gold", "GLD") {
+        _mint(msg.sender, initialSupply);
+    }
+}
+----
+
+We’re reusing xref:erc20.adoc[ERC20] for both the basic standard implementation and the `name` and, `symbol`. Additionally, we’re creating an `initialSupply` of tokens, which will be assigned to the address that deploys the contract.
 
 [[Presets]]
 == Preset ERC1363 contract
