@@ -48,7 +48,7 @@ contract GLDToken is ERC1363 {
 }
 ----
 
-We’re reusing xref:erc20.adoc[ERC20] for both the basic standard implementation and the `name` and, `symbol`. Additionally, we’re creating an `initialSupply` of tokens, which will be assigned to the address that deploys the contract.
+We’re reusing xref:erc20.adoc[ERC20] for both the basic standard implementation and the `name` and `symbol`. Additionally, we’re creating an `initialSupply` of tokens, which will be assigned to the address that deploys the contract.
 
 [[Presets]]
 == Preset ERC1363 contract
