@@ -149,8 +149,10 @@ contract PaymentSplitter is Context {
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
-        _released[account] += payment;
         _totalReleased += payment;
+        unchecked {
+            _released[account] += payment;
+        }
 
         Address.sendValue(account, payment);
         emit PaymentReleased(account, payment);
@@ -168,8 +170,10 @@ contract PaymentSplitter is Context {
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
-        _erc20Released[token][account] += payment;
         _erc20TotalReleased[token] += payment;
+        unchecked {
+            _erc20Released[token][account] += payment;
+        }
 
         SafeERC20.safeTransfer(token, account, payment);
         emit ERC20PaymentReleased(token, account, payment);
