@@ -149,6 +149,8 @@ contract PaymentSplitter is Context {
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
+        //_totalReleased is the sum of all values in _released.
+        //if "_totalReleased += payment" does not overflow, then "_released[account] += payment" cannot overflow.
         _totalReleased += payment;
         unchecked {
             _released[account] += payment;
@@ -170,6 +172,9 @@ contract PaymentSplitter is Context {
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
+        //_erc20TotalReleased[token] is the sum of all values in _erc20Released[token].
+        //if "_erc20TotalReleased[token] += payment" does not overflow, then "_erc20Released[token][account] += payment"
+        //cannot overflow.
         _erc20TotalReleased[token] += payment;
         unchecked {
             _erc20Released[token][account] += payment;
