@@ -11,7 +11,10 @@ The EIP specifies three interfaces:
 * {IERC1363Receiver}: An interface that must be implemented by contracts if they want to accept tokens through `transferAndCall` or `transferFromAndCall`.
 * {IERC1363Spender}: An interface that must be implemented by contracts if they want to accept tokens through `approveAndCall`.
 
-{ERC1363} implements the mandatory {IERC1363} interface.
+OpenZeppelin Contracts provides implementations of the following contracts:
+
+* {ERC1363} implements the mandatory {IERC1363} interface.
+* {ERC1363Holder} is a bare bones implementation of the receiver and spender interfaces.
 
 == Core
 
@@ -28,3 +31,7 @@ The EIP specifies three interfaces:
 These contracts are preconfigured combinations of features. They can be used through inheritance or as models to copy and paste their source code.
 
 {{ERC1363PresetFixedSupply}}
+
+== Utilities
+
+{{ERC1363Holder}}
