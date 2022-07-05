@@ -1,0 +1,34 @@
+= ERC1363
+
+There is no way to execute any code on a receiver or spender contract after an xref:erc20.adoc[ERC20] `transfer`, `transferFrom` or `approve` so, to make an action, it is required to send another transaction.
+This introduces complexity on UI development and friction on adoption because users must wait for the first transaction to be executed and then send the second one. They must also pay GAS twice.
+
+ERC1363 makes xref:erc20.adoc[ERC20] tokens capable of performing actions more easily and working without the use of any other listener.
+It allows to make a callback on a receiver or spender contract, after a transfer or an approval, in a single transaction.
+
+There are many proposed uses of Ethereum smart contracts that can accept EIP-20 callbacks.
+
+Examples could be:
+
+* to create a token payable crowdsale
+* selling services for tokens
+* paying invoices
+* making subscriptions
+
+For these reasons it was originally named "Payable Token".
+
+Anyway you can use it for specific utilities or for any other purposes who require the execution of a callback after a transfer or approval received.
+
+ERC1363 adds the following methods:
+
+* xref:api:token/ERC1363.adoc#IERC1363-transferAndCall-address-uint256-[`transferAndCall`] and xref:api:token/ERC1363.adoc#IERC1363-transferFromAndCall-address-address-uint256-[`transferFromAndCall`] will call xref:api:token/ERC1363.adoc#IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-[`onTransferReceived`] on a xref:api:token/ERC1363.adoc#IERC1363Receiver[`IERC1363Receiver`] contract.
+
+* xref:api:token/ERC1363.adoc#IERC1363-approveAndCall-address-uint256-[`approveAndCall`] will call xref:api:token/ERC1363.adoc#IERC1363Spender-onApprovalReceived-address-uint256-bytes-[`onApprovalReceived`] on a xref:api:token/ERC1363.adoc#IERC1363Spender[`IERC1363Spender`] contract.
+
+For more information about the `ERC1363` standard, check out the https://eips.ethereum.org/EIPS/eip-1363[EIP-1363 specification].
+
+[[Presets]]
+== Preset ERC1363 contract
+A preset ERC1363 is available, xref:api:token/ERC1363.adoc#ERC1363PresetFixedSupply[`ERC1363PresetFixedSupply`]. It is preset to create an ERC1363, mint the `initialSupply` amount of tokens and transfer them to `owner`.
+
+This contract is ready to deploy without having to write any Solidity code. It can be used as-is for quick prototyping and testing, but is also suitable for production environments.
