@@ -70,8 +70,8 @@ jobs:
       - run: npm run test
         env:
           GAS: true
-          GAS_REPORT: ${{ github.ref_name }}.gasreport.log
-      - run: node scripts/checks/compareGasReports.js ${{ github.ref_name }}.gasreport.log master.gasreport.log
+          GAS_REPORT: head.gasreport.log
+      - run: node scripts/checks/compareGasReports.js head.gasreport.log master.gasreport.log
 
   updateCache:
     if: github.ref == 'refs/heads/master'

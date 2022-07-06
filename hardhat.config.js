@@ -60,7 +60,7 @@ if (argv.gas) {
 
   // default report path if CI=true
   if (argv.ci) {
-    argv.gasReport |= "gas-report.txt";
+    argv.gasReport |= 'gas-report.txt';
   }
 }
 
