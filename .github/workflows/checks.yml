@@ -64,9 +64,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up environment
         uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v3
+      - uses: dawidd6/action-download-artifact@v2
         with:
-          name: gasreport-${{ github.base_ref }}
+          branch: ${{ github.base_ref }}
+          name: gasreport
       - run: npm run test
         env:
           GAS: true
@@ -86,5 +87,5 @@ jobs:
           GAS_REPORT: ${{ github.ref_name }}.gasreport.log
       - uses: actions/upload-artifact@v3
         with:
-          name: gasreport-${{ github.ref_name }}
+          name: gasreport
           path: ${{ github.ref_name }}.gasreport.log
