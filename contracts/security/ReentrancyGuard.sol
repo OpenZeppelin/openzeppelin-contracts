@@ -40,7 +40,7 @@ abstract contract ReentrancyGuard {
         _status = _NOT_ENTERED;
     }
 
-    function _nonReentrant() private {
+    function _nonReentrantBefore() private {
         // On the first call to nonReentrant, _notEntered will be true
         require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
 
@@ -48,7 +48,7 @@ abstract contract ReentrancyGuard {
         _status = _ENTERED;
     }
 
-    function _nonReentrant2() private {
+    function _nonReentrantAfter() private {
         // By storing the original value once again, a refund is triggered (see
         // https://eips.ethereum.org/EIPS/eip-2200)
         _status = _NOT_ENTERED;
@@ -62,8 +62,8 @@ abstract contract ReentrancyGuard {
      * `private` function that does the actual work.
      */
     modifier nonReentrant() {
-        _nonReentrant();
+        _nonReentrantBefore();
         _;
-        _nonReentrant2();
+        _nonReentrantAfter();
     }
 }
