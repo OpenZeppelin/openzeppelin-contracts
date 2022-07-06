@@ -31,10 +31,16 @@ jobs:
       - run: npm run test
         env:
           FORCE_COLOR: 1
-          ENABLE_GAS_REPORT: true
+          GAS: true
+          GAS_REPORT: ${{ github.ref_name }}.gasreport.log
       - run: npm run test:inheritance
       - run: npm run test:generation
         if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+      - uses: actions/upload-artifact@v3
+        if: github.event_name == 'push'
+        with:
+          name: gasreport-${{ github.ref_name }}
+          path: ${{ github.ref_name }}.gasreport.log
 
   coverage:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
@@ -58,7 +64,7 @@ jobs:
       - uses: crytic/slither-action@v0.1.1
 
   gas:
-    if: github.ref != 'refs/heads/master'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -66,25 +72,9 @@ jobs:
         uses: ./.github/actions/setup
       - uses: actions/download-artifact@v3
         with:
-          name: gas-usage-report
+          name: gasreport-${{ github.base_ref_name }}
       - run: npm run test
         env:
           GAS: true
-          GAS_REPORT: head.gasreport.log
-      - run: node scripts/checks/compareGasReports.js head.gasreport.log master.gasreport.log
-
-  updateCache:
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up environment
-        uses: ./.github/actions/setup
-      - run: npm run test
-        env:
-          GAS: true
-          GAS_REPORT: master.gasreport.log
-      - uses: actions/upload-artifact@v3
-        with:
-          name: gas-usage-report
-          path: master.gasreport.log
+          GAS_REPORT: head.gasreport.log~
+      - run: node scripts/checks/compareGasReports.js head.gasreport.log~ ${{ github.base_ref_name }}.gasreport.log
