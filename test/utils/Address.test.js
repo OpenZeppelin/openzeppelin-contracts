@@ -143,7 +143,7 @@ contract('Address', function (accounts) {
         }, []);
 
         await expectRevert(
-          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall, { gas: '100000' }),
+          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall, { gas: '120000' }),
           'Address: low-level call failed',
         );
       });
@@ -329,7 +329,7 @@ contract('Address', function (accounts) {
       }, []);
       await expectRevert(
         this.mock.functionStaticCall(recipient, abiEncodedCall),
-        'Address: static call to non-contract',
+        'Address: call to non-contract',
       );
     });
   });
@@ -375,7 +375,7 @@ contract('Address', function (accounts) {
       }, []);
       await expectRevert(
         this.mock.functionDelegateCall(recipient, abiEncodedCall),
-        'Address: delegate call to non-contract',
+        'Address: call to non-contract',
       );
     });
   });
