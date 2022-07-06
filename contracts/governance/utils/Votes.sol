@@ -92,7 +92,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
     /**
      * @dev Delegates votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee) public virtual override {
+    function delegate(address delegatee) external virtual override {
         address account = _msgSender();
         _delegate(account, delegatee);
     }
