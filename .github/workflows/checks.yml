@@ -77,6 +77,8 @@ jobs:
           GAS_REPORT: HEAD.gasreport.log~
       - name: 'Compare reports'
         run: node scripts/checks/compareGasReports.js HEAD.gasreport.log~ ${{ github.base_ref }}.gasreport.log
+        env:
+          FORCE_COLOR: 1
 
   gasCache:
     if: github.event_name != 'pull_request'
