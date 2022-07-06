@@ -35,7 +35,7 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
     ) public override returns (bool) {
         require(transfer(to, value));
         require(
-            _checkOnTransferReceived(_msgSender(), to, value, data),
+            _checkOnTransferReceived(_msgSender(), _msgSender(), to, value, data),
             "ERC1363: transfer to non ERC1363Receiver implementer"
         );
         return true;
@@ -63,7 +63,7 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
     ) public override returns (bool) {
         require(transferFrom(from, to, value));
         require(
-            _checkOnTransferReceived(from, to, value, data),
+            _checkOnTransferReceived(_msgSender(), from, to, value, data),
             "ERC1363: transfer to non ERC1363Receiver implementer"
         );
         return true;
@@ -97,12 +97,13 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
      * The call is not executed if the target address is not a contract.
      */
     function _checkOnTransferReceived(
+        address operator,
         address from,
         address to,
         uint256 value,
         bytes memory data
     ) private returns (bool) {
-        try IERC1363Receiver(to).onTransferReceived(_msgSender(), from, value, data) returns (bytes4 retval) {
+        try IERC1363Receiver(to).onTransferReceived(operator, from, value, data) returns (bytes4 retval) {
             return retval == IERC1363Receiver.onTransferReceived.selector;
         } catch (bytes memory reason) {
             if (reason.length == 0) {
