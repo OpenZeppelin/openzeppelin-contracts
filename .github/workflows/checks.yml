@@ -31,16 +31,10 @@ jobs:
       - run: npm run test
         env:
           FORCE_COLOR: 1
-          GAS: true
-          GAS_REPORT: ${{ github.ref_name }}.gasreport.log
+          ENABLE_GAS_REPORT: true
       - run: npm run test:inheritance
       - run: npm run test:generation
         if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
-      - uses: actions/upload-artifact@v3
-        if: github.event_name == 'push'
-        with:
-          name: gasreport-${{ github.ref_name }}
-          path: ${{ github.ref_name }}.gasreport.log
 
   coverage:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
@@ -76,5 +70,21 @@ jobs:
       - run: npm run test
         env:
           GAS: true
-          GAS_REPORT: head.gasreport.log~
-      - run: node scripts/checks/compareGasReports.js head.gasreport.log~ ${{ github.base_ref_name }}.gasreport.log
+          GAS_REPORT: HEAD.gasreport.log~
+      - run: node scripts/checks/compareGasReports.js HEAD.gasreport.log~ ${{ github.base_ref_name }}.gasreport.log
+
+  gasCache:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: npm run test
+        env:
+          GAS: true
+          GAS_REPORT: ${{ github.ref_name }}.gasreport.log
+      - uses: actions/upload-artifact@v3
+        with:
+          name: gasreport-${{ github.ref_name }}
+          path: ${{ github.ref_name }}.gasreport.log
