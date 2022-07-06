@@ -58,22 +58,6 @@ jobs:
       - uses: crytic/slither-action@v0.1.1
 
   gas:
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up environment
-        uses: ./.github/actions/setup
-      - run: npm run test
-        env:
-          GAS: true
-          GAS_REPORT: master.gasreport.log
-      - uses: actions/upload-artifact@v3
-        with:
-          name: gas-usage-report
-          path: master.gasreport.log
-
-  updateCache:
     if: github.ref != 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
@@ -88,3 +72,19 @@ jobs:
           GAS: true
           GAS_REPORT: ${{ github.ref_name }}.gasreport.log
       - run: node scripts/checks/compareGasReports.js ${{ github.ref_name }}.gasreport.log master.gasreport.log
+
+  updateCache:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: npm run test
+        env:
+          GAS: true
+          GAS_REPORT: master.gasreport.log
+      - uses: actions/upload-artifact@v3
+        with:
+          name: gas-usage-report
+          path: master.gasreport.log
