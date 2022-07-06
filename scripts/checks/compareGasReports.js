@@ -86,7 +86,8 @@ class Report {
     // ... ... skip the function doesn't exist in either contract
     // ... ... skip if the report are identical and if we have the hideEqual option
     // ... ... generate the log line
-    // ... ... join the log lines and trim contracts for which there is no change
+    // ... ... join the log lines
+    // ... skip contracts for which there is no log
     const rows = Object.keys(update)
       .filter(contract => ref[contract])
       .map(contract => unique(update[contract]
