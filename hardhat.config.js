@@ -59,7 +59,7 @@ if (argv.gas) {
   require('hardhat-gas-reporter');
 
   // default report path if CI=true
-  if (argv.ci)
+  if (argv.ci) {
     argv.gasReport |= "gas-report.txt";
   }
 }
