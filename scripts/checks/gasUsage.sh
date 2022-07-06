@@ -1,30 +1,45 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
-
-genReport() {
-    export GAS=true
-    export GAS_REPORT=.$(git branch --show).report.log
-    npm run test $@
-}
-
 REF=master
-BRANCH=$(git branch --show)
+HEAD=$(git branch --show)
 DIFF=$(git status --porcelain)
 
-# set repo to ref branch
-[[ -n $DIFF ]] && git stash push --quiet
-git checkout $REF --quiet
+PARAMS=$@
 
-# generate reference report
-genReport $@
+migrate() {
+    echo "· Checking out $REF"
 
-# set repo to original state
-git checkout $BRANCH --quiet
-[[ -n $DIFF ]] && git stash pop --quiet
+    [[ -n $DIFF ]] && git stash push --all --quiet
+    git checkout $REF --quiet
+}
 
-# generate head report
-genReport $@
+cleanup() {
+    echo "· Resetting $HEAD to its previous state"
 
-# view diff
-scripts/checks/compareGasReports.js .$BRANCH.report.log .$REF.report.log
+    git checkout $HEAD --quiet
+    [[ -n $DIFF ]] && git stash pop --quiet
+}
+
+generate() {
+    BRANCH=$(git branch --show)
+    export GAS=true
+    export GAS_REPORT=.$BRANCH.report.log
+
+    echo "· Generating gas report for $BRANCH..."
+    npm run test $PARAMS > /dev/null
+}
+
+display() {
+    $(dirname $0)/compareGasReports.js .$HEAD.report.log .$REF.report.log
+}
+
+# generate the master report
+migrate
+generate || { cleanup; exit 1; }
+
+# generate the head report
+cleanup
+generate || { exit 1; }
+
+# Compare reports
+display
