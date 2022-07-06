@@ -64,10 +64,15 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up environment
         uses: ./.github/actions/setup
-      - uses: actions/download-artifact@v3
-        with:
-          branch: ${{ github.base_ref }}
-          name: gasreport
+      # - uses: actions/download-artifact@v3
+      #   with:
+      #     name: gasreport
+      - name: "Download artifact"
+        run: |
+          RUN_ID=`gh run list --repo ${{ github.repository }} --workflow ${{ github.workflow }} --json databaseId --jq '.[0].databaseId'`
+          gh run download --repo ${{ github.repository }}  ${RUN_ID} -n gasreport
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run test
         env:
           GAS: true
