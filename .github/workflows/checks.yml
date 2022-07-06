@@ -74,7 +74,7 @@ jobs:
       - run: node scripts/checks/compareGasReports.js HEAD.gasreport.log~ ${{ github.base_ref }}.gasreport.log
 
   gasCache:
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
