@@ -64,20 +64,19 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up environment
         uses: ./.github/actions/setup
-      # - uses: actions/download-artifact@v3
-      #   with:
-      #     name: gasreport
-      - name: "Download artifact"
+      - name: 'Download reference report'
         run: |
-          RUN_ID=`gh run list --repo ${{ github.repository }} --workflow ${{ github.workflow }} --json databaseId --jq '.[0].databaseId'`
-          gh run download --repo ${{ github.repository }}  ${RUN_ID} -n gasreport
+          RUN_ID=`gh run list --repo ${{ github.repository }} --branch ${{ github.base_ref }} --workflow ${{ github.workflow }} --json databaseId --jq '.[0].databaseId'`
+          gh run download ${RUN_ID} --repo ${{ github.repository }} -n gasreport
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: npm run test
+      - name: 'Generate new report'
+        run: npm run test
         env:
           GAS: true
           GAS_REPORT: HEAD.gasreport.log~
-      - run: node scripts/checks/compareGasReports.js HEAD.gasreport.log~ ${{ github.base_ref }}.gasreport.log
+      - name: 'Compare reports'
+        run: node scripts/checks/compareGasReports.js HEAD.gasreport.log~ ${{ github.base_ref }}.gasreport.log
 
   gasCache:
     if: github.event_name != 'pull_request'
