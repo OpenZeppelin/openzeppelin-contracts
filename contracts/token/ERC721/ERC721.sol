@@ -283,10 +283,10 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         _beforeTokenTransfer(address(0), to, tokenId);
 
         unchecked {
-					  // Will not overflow unless all 2**256 token ids are minted to the same owner. 
-						// Given that tokens are minted one by one, it is impossible in practice that 
-						// this ever happens. Might change if allow batch minting.
-						// The ERC fails to describe this case.
+            // Will not overflow unless all 2**256 token ids are minted to the same owner.
+            // Given that tokens are minted one by one, it is impossible in practice that
+            // this ever happens. Might change if allow batch minting.
+            // The ERC fails to describe this case.
             _balances[to] += 1;
         }
         _owners[tokenId] = to;
@@ -315,8 +315,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         _approve(address(0), tokenId);
 
         unchecked {
-					  // Cannot overflow, as that would require more tokens to be burned/transfered
-						// out then the owner initialy received through minting and transfering in.
+            // Cannot overflow, as that would require more tokens to be burned/transfered
+            // out then the owner initialy received through minting and transfering in.
             _balances[owner] -= 1;
         }
         delete _owners[tokenId];
@@ -351,11 +351,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         delete _tokenApprovals[tokenId];
 
         unchecked {
-					  // `_balances[from]` cannot overflow for the same reason as described in `_burn`:
-						// `from`'s balance is the number of token held, which is at least one before the current
-						// transfer.
-						// `_balances[to]` could overflow in the conditions described in `_mint`. That would require
-						// all 2**256 token ids to be minted, which in practice is impossible.
+            // `_balances[from]` cannot overflow for the same reason as described in `_burn`:
+            // `from`'s balance is the number of token held, which is at least one before the current
+            // transfer.
+            // `_balances[to]` could overflow in the conditions described in `_mint`. That would require
+            // all 2**256 token ids to be minted, which in practice is impossible.
             _balances[from] -= 1;
             _balances[to] += 1;
         }
