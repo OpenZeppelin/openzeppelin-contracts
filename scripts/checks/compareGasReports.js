@@ -78,7 +78,7 @@ class Report {
   }
 
   // Compare two reports
-  static compare (update, ref, opts = { hideEqual: false }) {
+  static compare (update, ref, opts = { hideEqual: true }) {
     // For each contract in the new report
     // ... if the contract exist in the old report
     // ... ... for all (unique) function names in the contract
