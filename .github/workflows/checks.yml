@@ -66,12 +66,12 @@ jobs:
         uses: ./.github/actions/setup
       - uses: actions/download-artifact@v3
         with:
-          name: gasreport-${{ github.base_ref_name }}
+          name: gasreport-${{ github.base_ref }}
       - run: npm run test
         env:
           GAS: true
           GAS_REPORT: HEAD.gasreport.log~
-      - run: node scripts/checks/compareGasReports.js HEAD.gasreport.log~ ${{ github.base_ref_name }}.gasreport.log
+      - run: node scripts/checks/compareGasReports.js HEAD.gasreport.log~ ${{ github.base_ref }}.gasreport.log
 
   gasCache:
     if: github.event_name == 'push'
