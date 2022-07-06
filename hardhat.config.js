@@ -11,10 +11,6 @@ const path = require('path');
 const argv = require('yargs/yargs')()
   .env('')
   .options({
-    ci: {
-      type: 'boolean',
-      default: false,
-    },
     coverage: {
       type: 'boolean',
       default: false,
@@ -57,11 +53,6 @@ require('@nomiclabs/hardhat-truffle5');
 
 if (argv.gas) {
   require('hardhat-gas-reporter');
-
-  // default report path if CI=true
-  if (argv.ci) {
-    argv.gasReport |= 'gas-report.txt';
-  }
 }
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
