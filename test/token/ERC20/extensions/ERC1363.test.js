@@ -31,7 +31,7 @@ contract('ERC1363', function (accounts) {
           value,
           { from: holder },
         ),
-        'function call to a non-contract account',
+        'function returned an unexpected amount of data',
       );
     });
 
@@ -116,7 +116,7 @@ contract('ERC1363', function (accounts) {
           value,
           { from: operator },
         ),
-        'function call to a non-contract account',
+        'function returned an unexpected amount of data',
       );
     });
 
@@ -199,7 +199,7 @@ contract('ERC1363', function (accounts) {
     it('to EOA', async function () {
       await expectRevert(
         this.token.methods['approveAndCall(address,uint256)'](other, value, { from: holder }),
-        'function call to a non-contract account',
+        'function returned an unexpected amount of data',
       );
     });
 
