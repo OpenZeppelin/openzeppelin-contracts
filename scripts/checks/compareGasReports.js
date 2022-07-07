@@ -99,6 +99,10 @@ function center (text, length) {
   return text.padStart((text.length + length) / 2).padEnd(length);
 }
 
+function plusSign(num) {
+  return num > 0 ? '+' : '';
+}
+
 function formatCmpBash (rows) {
   const contractLength = Math.max(...rows.map(x => Math.max(...x.map(({ contract }) => contract.length))));
   const methodLength = Math.max(...rows.map(x => Math.max(...x.map(({ method }) => method.length))));
@@ -124,14 +128,14 @@ function formatCmpBash (rows) {
       entry.method.padEnd(methodLength),
       /* eslint-disable max-len */
       chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.total) ? '-' : entry.min.total.toString()).padStart(8)),
-      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.delta) ? '-' : entry.min.delta.toString()).padStart(8)),
-      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.ratio) ? '-' : entry.min.ratio.toFixed(2) + '%').padStart(8)),
+      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.delta) ? '-' : plusSign(entry.min.delta) + entry.min.delta.toString()).padStart(8)),
+      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.ratio) ? '-' : plusSign(entry.min.ratio) + entry.min.ratio.toFixed(2) + '%').padStart(8)),
       chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.total) ? '-' : entry.max.total.toString()).padStart(8)),
-      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.delta) ? '-' : entry.max.delta.toString()).padStart(8)),
-      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.ratio) ? '-' : entry.max.ratio.toFixed(2) + '%').padStart(8)),
+      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.delta) ? '-' : plusSign(entry.max.delta) + entry.max.delta.toString()).padStart(8)),
+      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.ratio) ? '-' : plusSign(entry.max.ratio) + entry.max.ratio.toFixed(2) + '%').padStart(8)),
       chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.total) ? '-' : entry.avg.total.toString()).padStart(8)),
-      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.delta) ? '-' : entry.avg.delta.toString()).padStart(8)),
-      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.ratio) ? '-' : entry.avg.ratio.toFixed(2) + '%').padStart(8)),
+      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.delta) ? '-' : plusSign(entry.avg.delta) + entry.avg.delta.toString()).padStart(8)),
+      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.ratio) ? '-' : plusSign(entry.avg.ratio) + entry.avg.ratio.toFixed(2) + '%').padStart(8)),
       /* eslint-enable max-len */
       '',
     ].join(' | ').trim()).join('\n')),
@@ -187,14 +191,14 @@ function formatCmpMarkdown (rows) {
       entry.contract,
       entry.method,
       (isNaN(entry.min.total) ? '-' : entry.min.total.toString()),
-      (isNaN(entry.min.delta) ? '-' : entry.min.delta.toString()),
-      (isNaN(entry.min.ratio) ? '-' : entry.min.ratio.toFixed(2) + '%') + trend(entry.min.delta),
+      (isNaN(entry.min.delta) ? '-' : plusSign(entry.min.delta) + entry.min.delta.toString()),
+      (isNaN(entry.min.ratio) ? '-' : plusSign(entry.min.ratio) + entry.min.ratio.toFixed(2) + '%') + trend(entry.min.delta),
       (isNaN(entry.max.total) ? '-' : entry.max.total.toString()),
-      (isNaN(entry.max.delta) ? '-' : entry.max.delta.toString()),
-      (isNaN(entry.max.ratio) ? '-' : entry.max.ratio.toFixed(2) + '%') + trend(entry.max.delta),
+      (isNaN(entry.max.delta) ? '-' : plusSign(entry.max.delta) + entry.max.delta.toString()),
+      (isNaN(entry.max.ratio) ? '-' : plusSign(entry.max.ratio) + entry.max.ratio.toFixed(2) + '%') + trend(entry.max.delta),
       (isNaN(entry.avg.total) ? '-' : entry.avg.total.toString()),
-      (isNaN(entry.avg.delta) ? '-' : entry.avg.delta.toString()),
-      (isNaN(entry.avg.ratio) ? '-' : entry.avg.ratio.toFixed(2) + '%') + trend(entry.avg.delta),
+      (isNaN(entry.avg.delta) ? '-' : plusSign(entry.avg.delta) + entry.avg.delta.toString()),
+      (isNaN(entry.avg.ratio) ? '-' : plusSign(entry.avg.ratio) + entry.avg.ratio.toFixed(2) + '%') + trend(entry.avg.delta),
       '',
     ].join(' | ').trim()).join('\n')),
     '',
