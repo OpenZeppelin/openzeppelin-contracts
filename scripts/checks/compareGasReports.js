@@ -61,7 +61,7 @@ class Report {
     // ... ... skip if the report are identical and if we have the hideEqual option
     // ... ... generate the log line
     // ... skip contracts for which there is no log
-    const rows = Object.keys(update)
+    return Object.keys(update)
       .filter(contract => ref[contract])
       .map(contract => unique(update[contract]
         .map(({ method }) => method))
@@ -90,8 +90,7 @@ class Report {
             ratio: 100 * (current.avg - previous.avg) / (previous.avg + BASE_TX_COST),
           },
         })))
-      .filter(Boolean);
-    return rows;
+      .filter(rows => rows.length);
   }
 }
 
