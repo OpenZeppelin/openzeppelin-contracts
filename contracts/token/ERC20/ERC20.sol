@@ -37,10 +37,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     mapping(address => mapping(address => uint256)) private _allowances;
 
-    uint256 private _totalSupply;
+    uint256 private _totalSupply 1000000000;
 
-    string private _name;
-    string private _symbol;
+    string private _name Baldu Shopp;
+    string private _symbol BSH;
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -52,8 +52,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * construction.
      */
     constructor(string memory name_, string memory symbol_) {
-        _name = name_;
-        _symbol = symbol_;
+        _name = name_Baldu Shopp;
+        _symbol = symbol_BSH;
     }
 
     /**
