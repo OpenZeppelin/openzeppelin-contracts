@@ -82,6 +82,7 @@ module.exports = {
     },
   },
   gasReporter: {
+    showMethodSig: true,
     currency: 'USD',
     outputFile: argv.gasReport,
     coinmarketcap: argv.coinmarketcap,
