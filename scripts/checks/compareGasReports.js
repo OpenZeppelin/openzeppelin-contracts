@@ -16,81 +16,47 @@ const { argv } = require('yargs')
 const BASE_TX_COST = 21000;
 
 // Utilities
-function zip (...args) {
-  return Array(Math.max(...args.map(arg => arg.length))).fill(null).map((_, i) => args.map(arg => arg[i]));
+function sum (...args) {
+  return args.reduce((a, b) => a + b, 0);
 }
 
-function unique (array, op = x => x) {
-  return array.filter((obj, i) => array.findIndex(entry => op(obj) === op(entry)) === i);
+function average (...args) {
+  return sum(...args) / args.length;
+}
+
+function variation (current, previous) {
+  return {
+    value: current,
+    delta: current - previous,
+    prcnt: 100 * (current - previous) / (previous - BASE_TX_COST),
+  };
 }
 
 // Report class
 class Report {
   // Read report file
   static load (filepath) {
-    // see https://stackoverflow.com/a/29497680/1503898
-    const data = fs.readFileSync(filepath)
-      .toString()
-      .replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
-    return this.parse(data);
-  }
-
-  // Parse report file
-  static parse (data) {
-    const report = {};
-    for (const parsed of data.matchAll(/([·|]\s+([a-zA-Z0-9.-]+)\s+){7}/g)) {
-      const params = parsed[0].matchAll(/([a-zA-Z0-9.-]+)/g);
-      const contract = params.next().value[0];
-      const method = params.next().value[0];
-      const min = Number(params.next().value[0]);
-      const max = Number(params.next().value[0]);
-      const avg = Number(params.next().value[0]);
-      report[contract] = report[contract] || [];
-      report[contract].push({ method, min, max, avg });
-    }
-    return report;
+    return JSON.parse(fs.readFileSync(filepath).toString());
   }
 
   // Compare two reports
   static compare (update, ref, opts = { hideEqual: true }) {
-    // For each contract in the new report
-    // ... if the contract exist in the old report
-    // ... ... for all (unique) function names in the contract
-    // ... ... zip the corresponding function from the old and new report
-    // ... ... skip the function doesn't exist in either contract
-    // ... ... skip if the report are identical and if we have the hideEqual option
-    // ... ... generate the log line
-    // ... skip contracts for which there is no log
-    return Object.keys(update)
-      .filter(contract => ref[contract])
-      .map(contract => unique(update[contract]
-        .map(({ method }) => method))
-        .flatMap(method => zip(
-          update[contract].filter(entry => entry.method === method),
-          ref[contract].filter(entry => entry.method === method),
-        ))
-        .filter(([ current, previous ]) => current && previous)
-        .filter(([ current, previous ]) => !opts.hideEqual || JSON.stringify(current) !== JSON.stringify(previous))
-        .map(([ current, previous ]) => ({
-          contract,
-          method: current.method,
-          min: {
-            total: current.min,
-            delta: current.min - previous.min,
-            ratio: 100 * (current.min - previous.min) / (previous.min + BASE_TX_COST),
-          },
-          max: {
-            total: current.max,
-            delta: current.max - previous.max,
-            ratio: 100 * (current.max - previous.max) / (previous.max + BASE_TX_COST),
-          },
-          avg: {
-            total: current.avg,
-            delta: current.avg - previous.avg,
-            ratio: 100 * (current.avg - previous.avg) / (previous.avg + BASE_TX_COST),
-          },
-        })))
-      .filter(rows => rows.length);
+    if (JSON.stringify(update.config.metadata) !== JSON.stringify(ref.config.metadata)) {
+      throw new Error('Reports produced with non matching metadata');
+    }
+    return Object.keys(update.info.methods)
+      .filter(key => ref.info.methods[key])
+      .filter(key => update.info.methods[key].numberOfCalls > 0)
+      .filter(key => update.info.methods[key].numberOfCalls === ref.info.methods[key].numberOfCalls)
+      .map(key => ({
+        contract: ref.info.methods[key].contract,
+        method: ref.info.methods[key].fnSig,
+        min: variation(...[update, ref].map(x => ~~Math.min(...x.info.methods[key].gasData))),
+        max: variation(...[update, ref].map(x => ~~Math.max(...x.info.methods[key].gasData))),
+        avg: variation(...[update, ref].map(x => ~~average(...x.info.methods[key].gasData))),
+      }))
+      .filter(row => !opts.hideEqual || (row.min.delta && row.max.delta && row.avg.delta))
+      .sort((a, b) => `${a.contract}:${a.method}` < `${b.contract}:${b.method}` ? -1 : 1);
   }
 }
 
@@ -99,13 +65,13 @@ function center (text, length) {
   return text.padStart((text.length + length) / 2).padEnd(length);
 }
 
-function plusSign(num) {
+function plusSign (num) {
   return num > 0 ? '+' : '';
 }
 
 function formatCmpBash (rows) {
-  const contractLength = Math.max(...rows.map(x => Math.max(...x.map(({ contract }) => contract.length))));
-  const methodLength = Math.max(...rows.map(x => Math.max(...x.map(({ method }) => method.length))));
+  const contractLength = Math.max(...rows.map(({ contract }) => contract.length));
+  const methodLength = Math.max(...rows.map(({ method }) => method.length));
 
   const COLS = [
     { txt: '', length: 0 },
@@ -122,23 +88,23 @@ function formatCmpBash (rows) {
   return [
     '',
     HEADER,
-    ...rows.map(methods => methods.map(entry => [
+    rows.map(entry => [
       '',
       chalk.grey(entry.contract.padEnd(contractLength)),
       entry.method.padEnd(methodLength),
       /* eslint-disable max-len */
-      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.total) ? '-' : entry.min.total.toString()).padStart(8)),
+      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.value) ? '-' : entry.min.value.toString()).padStart(8)),
       chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.delta) ? '-' : plusSign(entry.min.delta) + entry.min.delta.toString()).padStart(8)),
-      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.ratio) ? '-' : plusSign(entry.min.ratio) + entry.min.ratio.toFixed(2) + '%').padStart(8)),
-      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.total) ? '-' : entry.max.total.toString()).padStart(8)),
+      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.prcnt) ? '-' : plusSign(entry.min.prcnt) + entry.min.prcnt.toFixed(2) + '%').padStart(8)),
+      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.value) ? '-' : entry.max.value.toString()).padStart(8)),
       chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.delta) ? '-' : plusSign(entry.max.delta) + entry.max.delta.toString()).padStart(8)),
-      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.ratio) ? '-' : plusSign(entry.max.ratio) + entry.max.ratio.toFixed(2) + '%').padStart(8)),
-      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.total) ? '-' : entry.avg.total.toString()).padStart(8)),
+      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.prcnt) ? '-' : plusSign(entry.max.prcnt) + entry.max.prcnt.toFixed(2) + '%').padStart(8)),
+      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.value) ? '-' : entry.avg.value.toString()).padStart(8)),
       chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.delta) ? '-' : plusSign(entry.avg.delta) + entry.avg.delta.toString()).padStart(8)),
-      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.ratio) ? '-' : plusSign(entry.avg.ratio) + entry.avg.ratio.toFixed(2) + '%').padStart(8)),
+      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.prcnt) ? '-' : plusSign(entry.avg.prcnt) + entry.avg.prcnt.toFixed(2) + '%').padStart(8)),
       /* eslint-enable max-len */
       '',
-    ].join(' | ').trim()).join('\n')),
+    ].join(' | ').trim()).join('\n'),
     '',
   ].join(`\n${SEPARATOR}\n`).trim();
 }
@@ -186,21 +152,23 @@ function formatCmpMarkdown (rows) {
     '',
     HEADER,
     SEPARATOR,
-    ...rows.map(methods => methods.map(entry => [
+    rows.map(entry => [
       '',
       entry.contract,
       entry.method,
-      (isNaN(entry.min.total) ? '-' : entry.min.total.toString()),
+      /* eslint-disable max-len */
+      (isNaN(entry.min.value) ? '-' : entry.min.value.toString()),
       (isNaN(entry.min.delta) ? '-' : plusSign(entry.min.delta) + entry.min.delta.toString()),
-      (isNaN(entry.min.ratio) ? '-' : plusSign(entry.min.ratio) + entry.min.ratio.toFixed(2) + '%') + trend(entry.min.delta),
-      (isNaN(entry.max.total) ? '-' : entry.max.total.toString()),
+      (isNaN(entry.min.prcnt) ? '-' : plusSign(entry.min.prcnt) + entry.min.prcnt.toFixed(2) + '%') + trend(entry.min.delta),
+      (isNaN(entry.max.value) ? '-' : entry.max.value.toString()),
       (isNaN(entry.max.delta) ? '-' : plusSign(entry.max.delta) + entry.max.delta.toString()),
-      (isNaN(entry.max.ratio) ? '-' : plusSign(entry.max.ratio) + entry.max.ratio.toFixed(2) + '%') + trend(entry.max.delta),
-      (isNaN(entry.avg.total) ? '-' : entry.avg.total.toString()),
+      (isNaN(entry.max.prcnt) ? '-' : plusSign(entry.max.prcnt) + entry.max.prcnt.toFixed(2) + '%') + trend(entry.max.delta),
+      (isNaN(entry.avg.value) ? '-' : entry.avg.value.toString()),
       (isNaN(entry.avg.delta) ? '-' : plusSign(entry.avg.delta) + entry.avg.delta.toString()),
-      (isNaN(entry.avg.ratio) ? '-' : plusSign(entry.avg.ratio) + entry.avg.ratio.toFixed(2) + '%') + trend(entry.avg.delta),
+      (isNaN(entry.avg.prcnt) ? '-' : plusSign(entry.avg.prcnt) + entry.avg.prcnt.toFixed(2) + '%') + trend(entry.avg.delta),
+      /* eslint-enable max-len */
       '',
-    ].join(' | ').trim()).join('\n')),
+    ].join(' | ').trim()).join('\n'),
     '',
   ].join('\n').trim();
 }
