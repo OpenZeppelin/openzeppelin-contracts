@@ -73,8 +73,8 @@ function formatCellShell (cell) {
   const format = chalk[cell.delta > 0 ? 'red' : cell.delta < 0 ? 'green' : 'reset'];
   return [
     format((isNaN(cell.value) ? '-' : cell.value.toString()).padStart(8)),
-    format((isNaN(cell.delta) ? '-' : plusSign(cell.delta) + entrycell.delta.toString()).padStart(8)),
-    format((isNaN(cell.prcnt) ? '-' : plusSign(cell.prcnt) + entrycell.prcnt.toFixed(2) + '%').padStart(8)),
+    format((isNaN(cell.delta) ? '-' : plusSign(cell.delta) + cell.delta.toString()).padStart(8)),
+    format((isNaN(cell.prcnt) ? '-' : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '%').padStart(8)),
   ];
 }
 
@@ -101,9 +101,9 @@ function formatCmpShell (rows) {
       '',
       chalk.grey(entry.contract.padEnd(contractLength)),
       entry.method.padEnd(methodLength),
-      ...formatCellShell(entry.min.delta),
-      ...formatCellShell(entry.max.delta),
-      ...formatCellShell(entry.avg.delta),
+      ...formatCellShell(entry.min),
+      ...formatCellShell(entry.max),
+      ...formatCellShell(entry.avg),
       '',
     ].join(' | ').trim()),
     '',
