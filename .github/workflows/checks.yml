@@ -50,13 +50,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Compare reports'
         if: github.event_name == 'pull_request'
-        run: node scripts/checks/compareGasReports.js $GAS_REPORT $REF_REPORT
+        run: node scripts/checks/compareGasReports.js $GAS_REPORT $REF_REPORT >> $GITHUB_STEP_SUMMARY
       - name: 'Rename report for upload'
         if: github.event_name != 'pull_request'
         run: |
           mv $GAS_REPORT $OUT_REPORT
       - name: 'Save report'
-        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v3
         with:
           name: gasreport
