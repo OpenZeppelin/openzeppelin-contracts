@@ -186,15 +186,15 @@ function formatCmpMarkdown (rows) {
       '',
       entry.contract,
       entry.method,
-      (isNaN(entry.min.total) ? '-' : entry.min.total.toString()).padStart(8),
-      (isNaN(entry.min.delta) ? '-' : entry.min.delta.toString()).padStart(8),
-      (isNaN(entry.min.ratio) ? '-' : entry.min.ratio.toFixed(2) + '%').padStart(8) + trend(entry.min.delta),
-      (isNaN(entry.max.total) ? '-' : entry.max.total.toString()).padStart(8),
-      (isNaN(entry.max.delta) ? '-' : entry.max.delta.toString()).padStart(8),
-      (isNaN(entry.max.ratio) ? '-' : entry.max.ratio.toFixed(2) + '%').padStart(8) + trend(entry.max.delta),
-      (isNaN(entry.avg.total) ? '-' : entry.avg.total.toString()).padStart(8),
-      (isNaN(entry.avg.delta) ? '-' : entry.avg.delta.toString()).padStart(8),
-      (isNaN(entry.avg.ratio) ? '-' : entry.avg.ratio.toFixed(2) + '%').padStart(8) + trend(entry.avg.delta),
+      (isNaN(entry.min.total) ? '-' : entry.min.total.toString())
+      (isNaN(entry.min.delta) ? '-' : entry.min.delta.toString())
+      (isNaN(entry.min.ratio) ? '-' : entry.min.ratio.toFixed(2) + '%') + trend(entry.min.delta),
+      (isNaN(entry.max.total) ? '-' : entry.max.total.toString())
+      (isNaN(entry.max.delta) ? '-' : entry.max.delta.toString())
+      (isNaN(entry.max.ratio) ? '-' : entry.max.ratio.toFixed(2) + '%') + trend(entry.max.delta),
+      (isNaN(entry.avg.total) ? '-' : entry.avg.total.toString())
+      (isNaN(entry.avg.delta) ? '-' : entry.avg.delta.toString())
+      (isNaN(entry.avg.ratio) ? '-' : entry.avg.ratio.toFixed(2) + '%') + trend(entry.avg.delta),
       '',
     ].join(' | ').trim()).join('\n')),
     '',
