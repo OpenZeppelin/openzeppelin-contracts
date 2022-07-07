@@ -7,12 +7,12 @@ const { argv } = require('yargs')
   .options({
     style: {
       type: 'string',
-      choices: [ 'bash', 'markdown' ],
-      default: 'bash',
+      choices: [ 'shell', 'markdown' ],
+      default: 'shell',
     },
   });
 
-// Deduce bas tx cost from the percentage denominator
+// Deduce base tx cost from the percentage denominator
 const BASE_TX_COST = 21000;
 
 // Utilities
@@ -36,7 +36,7 @@ function variation (current, previous) {
 class Report {
   // Read report file
   static load (filepath) {
-    return JSON.parse(fs.readFileSync(filepath).toString());
+    return JSON.parse(fs.readFileSync(filepath, 'utf8'));
   }
 
   // Compare two reports
@@ -180,7 +180,7 @@ switch (argv.style) {
 case 'markdown':
   console.log(formatCmpMarkdown(report));
   break;
-case 'bash':
+case 'shell':
 default:
   console.log(formatCmpBash(report));
   break;
