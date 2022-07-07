@@ -69,9 +69,18 @@ function plusSign (num) {
   return num > 0 ? '+' : '';
 }
 
-function formatCmpBash (rows) {
-  const contractLength = Math.max(...rows.map(({ contract }) => contract.length));
-  const methodLength = Math.max(...rows.map(({ method }) => method.length));
+function formatCellShell (cell) {
+  const format = chalk[cell.delta > 0 ? 'red' : cell.delta < 0 ? 'green' : 'reset'];
+  return [
+    format((isNaN(cell.value) ? '-' : cell.value.toString()).padStart(8)),
+    format((isNaN(cell.delta) ? '-' : plusSign(cell.delta) + entrycell.delta.toString()).padStart(8)),
+    format((isNaN(cell.prcnt) ? '-' : plusSign(cell.prcnt) + entrycell.prcnt.toFixed(2) + '%').padStart(8)),
+  ];
+}
+
+function formatCmpShell (rows) {
+  const contractLength = Math.max(8, ...rows.map(({ contract }) => contract.length));
+  const methodLength = Math.max(7, ...rows.map(({ method }) => method.length));
 
   const COLS = [
     { txt: '', length: 0 },
@@ -88,23 +97,15 @@ function formatCmpBash (rows) {
   return [
     '',
     HEADER,
-    rows.map(entry => [
+    ...rows.map(entry => [
       '',
       chalk.grey(entry.contract.padEnd(contractLength)),
       entry.method.padEnd(methodLength),
-      /* eslint-disable max-len */
-      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.value) ? '-' : entry.min.value.toString()).padStart(8)),
-      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.delta) ? '-' : plusSign(entry.min.delta) + entry.min.delta.toString()).padStart(8)),
-      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.prcnt) ? '-' : plusSign(entry.min.prcnt) + entry.min.prcnt.toFixed(2) + '%').padStart(8)),
-      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.value) ? '-' : entry.max.value.toString()).padStart(8)),
-      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.delta) ? '-' : plusSign(entry.max.delta) + entry.max.delta.toString()).padStart(8)),
-      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.prcnt) ? '-' : plusSign(entry.max.prcnt) + entry.max.prcnt.toFixed(2) + '%').padStart(8)),
-      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.value) ? '-' : entry.avg.value.toString()).padStart(8)),
-      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.delta) ? '-' : plusSign(entry.avg.delta) + entry.avg.delta.toString()).padStart(8)),
-      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.prcnt) ? '-' : plusSign(entry.avg.prcnt) + entry.avg.prcnt.toFixed(2) + '%').padStart(8)),
-      /* eslint-enable max-len */
+      ...formatCellShell(entry.min.delta),
+      ...formatCellShell(entry.max.delta),
+      ...formatCellShell(entry.avg.delta),
       '',
-    ].join(' | ').trim()).join('\n'),
+    ].join(' | ').trim()),
     '',
   ].join(`\n${SEPARATOR}\n`).trim();
 }
@@ -127,6 +128,14 @@ function trend (value) {
     : value < 0
       ? ':heavy_check_mark:'
       : ':heavy_minus_sign:';
+}
+
+function formatCellMarkdown (cell) {
+  return [
+    (isNaN(cell.value) ? '-' : cell.value.toString()),
+    (isNaN(cell.delta) ? '-' : plusSign(cell.delta) + cell.delta.toString()),
+    (isNaN(cell.prcnt) ? '-' : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '%') + trend(cell.delta),
+  ];
 }
 
 function formatCmpMarkdown (rows) {
@@ -156,17 +165,9 @@ function formatCmpMarkdown (rows) {
       '',
       entry.contract,
       entry.method,
-      /* eslint-disable max-len */
-      (isNaN(entry.min.value) ? '-' : entry.min.value.toString()),
-      (isNaN(entry.min.delta) ? '-' : plusSign(entry.min.delta) + entry.min.delta.toString()),
-      (isNaN(entry.min.prcnt) ? '-' : plusSign(entry.min.prcnt) + entry.min.prcnt.toFixed(2) + '%') + trend(entry.min.delta),
-      (isNaN(entry.max.value) ? '-' : entry.max.value.toString()),
-      (isNaN(entry.max.delta) ? '-' : plusSign(entry.max.delta) + entry.max.delta.toString()),
-      (isNaN(entry.max.prcnt) ? '-' : plusSign(entry.max.prcnt) + entry.max.prcnt.toFixed(2) + '%') + trend(entry.max.delta),
-      (isNaN(entry.avg.value) ? '-' : entry.avg.value.toString()),
-      (isNaN(entry.avg.delta) ? '-' : plusSign(entry.avg.delta) + entry.avg.delta.toString()),
-      (isNaN(entry.avg.prcnt) ? '-' : plusSign(entry.avg.prcnt) + entry.avg.prcnt.toFixed(2) + '%') + trend(entry.avg.delta),
-      /* eslint-enable max-len */
+      ...formatCellMarkdown(entry.min),
+      ...formatCellMarkdown(entry.max),
+      ...formatCellMarkdown(entry.avg),
       '',
     ].join(' | ').trim()).join('\n'),
     '',
@@ -182,6 +183,6 @@ case 'markdown':
   break;
 case 'shell':
 default:
-  console.log(formatCmpBash(report));
+  console.log(formatCmpShell(report));
   break;
 }
