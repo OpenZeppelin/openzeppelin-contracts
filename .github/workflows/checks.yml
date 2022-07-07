@@ -12,12 +12,6 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  FORCE_COLOR: 1
-  GAS: true
-  GAS_REPORT: HEAD.gasreport.log~
-  REF_REPORT: ${{ github.ref_name }}.gasreport.log
-
 jobs:
   lint:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
@@ -30,6 +24,11 @@ jobs:
 
   tests:
     runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+      GAS: true
+      GAS_REPORT: HEAD.gasreport.log~
+      REF_REPORT: ${{ github.ref_name }}.gasreport.log
     steps:
       - uses: actions/checkout@v3
       - name: Set up environment
@@ -54,15 +53,13 @@ jobs:
       - name: 'Rename report for upload'
         if: github.event_name != 'pull_request'
         run: |
-          ls
           mv $GAS_REPORT $REF_REPORT
-          ls
       - name: 'Save report'
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v3
         with:
           name: gasreport
-          path: $REF_REPORT
+          path: ${{ env.REF_REPORT }}
 
   coverage:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
