@@ -11,7 +11,7 @@ const BASE_TX_COST = 21000;
 const COLS = [
   { txt: '', length: 0 },
   { txt: 'Contract', length: 40 },
-  { txt: 'Method', length: 20 },
+  { txt: 'Method', length: 40 },
   { txt: 'Min', length: 30 },
   { txt: 'Max', length: 30 },
   { txt: 'Avg', length: 30 },
