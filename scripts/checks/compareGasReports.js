@@ -156,7 +156,7 @@ function trend (value) {
     ? ':x:'
     : value < 0
       ? ':heavy_check_mark:'
-      : '';
+      : ':heavy_minus_sign:';
 }
 
 function formatCmpMarkdown (rows) {
