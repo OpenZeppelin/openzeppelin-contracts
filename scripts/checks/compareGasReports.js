@@ -2,24 +2,18 @@
 
 const fs = require('fs');
 const chalk = require('chalk');
-const { _: params } = require('yargs').argv;
+const { argv } = require('yargs')
+  .env()
+  .options({
+    style: {
+      type: 'string',
+      choices: [ 'bash', 'markdown' ],
+      default: 'bash',
+    },
+  });
 
 // Deduce bas tx cost from the percentage denominator
 const BASE_TX_COST = 21000;
-
-// Report format
-const COLS = [
-  { txt: '', length: 0 },
-  { txt: 'Contract', length: 40 },
-  { txt: 'Method', length: 40 },
-  { txt: 'Min', length: 30 },
-  { txt: 'Max', length: 30 },
-  { txt: 'Avg', length: 30 },
-  { txt: '', length: 0 },
-];
-
-const HEADER = COLS.map(entry => chalk.bold(center(entry.txt, entry.length || 0))).join(' | ').trim();
-const SEPARATOR = COLS.map(({ length }) => length > 0 ? '-'.repeat(length + 2) : '').join('|').trim();
 
 // Utilities
 function zip (...args) {
@@ -28,26 +22,6 @@ function zip (...args) {
 
 function unique (array, op = x => x) {
   return array.filter((obj, i) => array.findIndex(entry => op(obj) === op(entry)) === i);
-}
-
-function center (text, length) {
-  return text.padStart((text.length + length) / 2).padEnd(length);
-}
-
-function diffString (to, from) {
-  const delta = to - from;
-  const percentage = 100 * delta / (from - BASE_TX_COST);
-  const string = [
-    isNaN(to) ? '-' : to,
-    isNaN(delta) ? '-' : (delta > 0 ? '+' : '') + delta,
-    isNaN(percentage) ? '-' : (percentage > 0 ? '+' : '') + percentage.toFixed(2) + '%',
-  ].map(x => x.toString().padStart(10)).join('');
-
-  return isNaN(delta) || delta === 0
-    ? chalk.grey(string)
-    : delta > 0
-      ? chalk.bold.red(string)
-      : chalk.bold.green(string);
 }
 
 // Report class
@@ -64,15 +38,15 @@ class Report {
   // Parse report file
   static parse (data) {
     const report = {};
-    for (const method of data.matchAll(/([·|]\s+([a-zA-Z0-9.-]+)\s+){7}/g)) {
-      const params = method[0].matchAll(/([a-zA-Z0-9.-]+)/g);
+    for (const parsed of data.matchAll(/([·|]\s+([a-zA-Z0-9.-]+)\s+){7}/g)) {
+      const params = parsed[0].matchAll(/([a-zA-Z0-9.-]+)/g);
       const contract = params.next().value[0];
-      const name = params.next().value[0];
+      const method = params.next().value[0];
       const min = Number(params.next().value[0]);
       const max = Number(params.next().value[0]);
       const avg = Number(params.next().value[0]);
       report[contract] = report[contract] || [];
-      report[contract].push({ name, min, max, avg });
+      report[contract].push({ method, min, max, avg });
     }
     return report;
   }
@@ -86,34 +60,157 @@ class Report {
     // ... ... skip the function doesn't exist in either contract
     // ... ... skip if the report are identical and if we have the hideEqual option
     // ... ... generate the log line
-    // ... ... join the log lines
     // ... skip contracts for which there is no log
     const rows = Object.keys(update)
       .filter(contract => ref[contract])
       .map(contract => unique(update[contract]
-        .map(({ name }) => name))
-        .flatMap(name => zip(
-          update[contract].filter(entry => entry.name === name),
-          ref[contract].filter(entry => entry.name === name),
+        .map(({ method }) => method))
+        .flatMap(method => zip(
+          update[contract].filter(entry => entry.method === method),
+          ref[contract].filter(entry => entry.method === method),
         ))
         .filter(([ current, previous ]) => current && previous)
         .filter(([ current, previous ]) => !opts.hideEqual || JSON.stringify(current) !== JSON.stringify(previous))
-        .map(([ current, previous ]) =>
-          [
-            '',
-            chalk.grey(contract.padEnd(40)),
-            current.name.padEnd(20),
-            diffString(current.min, previous.min),
-            diffString(current.max, previous.max),
-            diffString(current.avg, previous.avg),
-            '',
-          ].join(' | ').trim())
-        .join('\n'))
+        .map(([ current, previous ]) => ({
+          contract,
+          method: current.method,
+          min: {
+            total: current.min,
+            delta: current.min - previous.min,
+            ratio: 100 * (current.min - previous.min) / (previous.min + BASE_TX_COST),
+          },
+          max: {
+            total: current.max,
+            delta: current.max - previous.max,
+            ratio: 100 * (current.max - previous.max) / (previous.max + BASE_TX_COST),
+          },
+          avg: {
+            total: current.avg,
+            delta: current.avg - previous.avg,
+            ratio: 100 * (current.avg - previous.avg) / (previous.avg + BASE_TX_COST),
+          },
+        })))
       .filter(Boolean);
-
-    return [ '', HEADER, ...rows, '' ].join(`\n${SEPARATOR}\n`).trim();
+    return rows;
   }
 }
 
+// Display
+function center (text, length) {
+  return text.padStart((text.length + length) / 2).padEnd(length);
+}
+
+function formatCmpBash (rows) {
+  const contractLength = Math.max(...rows.map(x => Math.max(...x.map(({ contract }) => contract.length))));
+  const methodLength = Math.max(...rows.map(x => Math.max(...x.map(({ method }) => method.length))));
+
+  const COLS = [
+    { txt: '', length: 0 },
+    { txt: 'Contract', length: contractLength },
+    { txt: 'Method', length: methodLength },
+    { txt: 'Min', length: 30 },
+    { txt: 'Max', length: 30 },
+    { txt: 'Avg', length: 30 },
+    { txt: '', length: 0 },
+  ];
+  const HEADER = COLS.map(entry => chalk.bold(center(entry.txt, entry.length || 0))).join(' | ').trim();
+  const SEPARATOR = COLS.map(({ length }) => length > 0 ? '-'.repeat(length + 2) : '').join('|').trim();
+
+  return [
+    '',
+    HEADER,
+    ...rows.map(methods => methods.map(entry => [
+      '',
+      chalk.grey(entry.contract.padEnd(contractLength)),
+      entry.method.padEnd(methodLength),
+      /* eslint-disable max-len */
+      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.total) ? '-' : entry.min.total.toString()).padStart(8)),
+      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.delta) ? '-' : entry.min.total.toString()).padStart(8)),
+      chalk[entry.min.delta > 0 ? 'red' : entry.min.delta < 0 ? 'green' : 'reset']((isNaN(entry.min.ratio) ? '-' : entry.min.ratio.toFixed(2) + '%').padStart(8)),
+      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.total) ? '-' : entry.max.total.toString()).padStart(8)),
+      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.delta) ? '-' : entry.max.total.toString()).padStart(8)),
+      chalk[entry.max.delta > 0 ? 'red' : entry.max.delta < 0 ? 'green' : 'reset']((isNaN(entry.max.ratio) ? '-' : entry.max.ratio.toFixed(2) + '%').padStart(8)),
+      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.total) ? '-' : entry.avg.total.toString()).padStart(8)),
+      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.delta) ? '-' : entry.avg.total.toString()).padStart(8)),
+      chalk[entry.avg.delta > 0 ? 'red' : entry.avg.delta < 0 ? 'green' : 'reset']((isNaN(entry.avg.ratio) ? '-' : entry.avg.ratio.toFixed(2) + '%').padStart(8)),
+      /* eslint-enable max-len */
+      '',
+    ].join(' | ').trim()).join('\n')),
+    '',
+  ].join(`\n${SEPARATOR}\n`).trim();
+}
+
+function alignPattern (align) {
+  switch (align) {
+  case 'left':
+  case undefined:
+    return ':-';
+  case 'right':
+    return '-:';
+  case 'center':
+    return ':-:';
+  }
+}
+
+function trend (value) {
+  return value > 0
+    ? ':x:'
+    : value < 0
+      ? ':heavy_check_mark:'
+      : '';
+}
+
+function formatCmpMarkdown (rows) {
+  const COLS = [
+    { txt: '' },
+    { txt: 'Contract', align: 'left' },
+    { txt: 'Method', align: 'left' },
+    { txt: 'Min', align: 'right' },
+    { txt: '(+/-)', align: 'right' },
+    { txt: '%', align: 'right' },
+    { txt: 'Max', align: 'right' },
+    { txt: '(+/-)', align: 'right' },
+    { txt: '%', align: 'right' },
+    { txt: 'Avg', align: 'right' },
+    { txt: '(+/-)', align: 'right' },
+    { txt: '%', align: 'right' },
+    { txt: '' },
+  ];
+  const HEADER = COLS.map(entry => entry.txt).join(' | ').trim();
+  const SEPARATOR = COLS.map(entry => entry.txt ? alignPattern(entry.align) : '').join('|').trim();
+
+  return [
+    '',
+    HEADER,
+    SEPARATOR,
+    ...rows.map(methods => methods.map(entry => [
+      '',
+      entry.contract,
+      entry.method,
+      (isNaN(entry.min.total) ? '-' : entry.min.total.toString()).padStart(8),
+      (isNaN(entry.min.delta) ? '-' : entry.min.delta.toString()).padStart(8),
+      (isNaN(entry.min.ratio) ? '-' : entry.min.ratio.toFixed(2) + '%').padStart(8) + trend(entry.min.delta),
+      (isNaN(entry.max.total) ? '-' : entry.max.total.toString()).padStart(8),
+      (isNaN(entry.max.delta) ? '-' : entry.max.delta.toString()).padStart(8),
+      (isNaN(entry.max.ratio) ? '-' : entry.max.ratio.toFixed(2) + '%').padStart(8) + trend(entry.max.delta),
+      (isNaN(entry.avg.total) ? '-' : entry.avg.total.toString()).padStart(8),
+      (isNaN(entry.avg.delta) ? '-' : entry.avg.delta.toString()).padStart(8),
+      (isNaN(entry.avg.ratio) ? '-' : entry.avg.ratio.toFixed(2) + '%').padStart(8) + trend(entry.avg.delta),
+      '',
+    ].join(' | ').trim()).join('\n')),
+    '',
+  ].join('\n').trim();
+}
+
 // MAIN
-console.log(Report.compare(Report.load(params[0]), Report.load(params[1])));
+const report = Report.compare(Report.load(argv._[0]), Report.load(argv._[1]));
+
+switch (argv.style) {
+case 'markdown':
+  console.log(formatCmpMarkdown(report));
+  break;
+case 'bash':
+default:
+  console.log(formatCmpBash(report));
+  break;
+}

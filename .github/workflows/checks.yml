@@ -30,6 +30,7 @@ jobs:
       GAS_REPORT: HEAD.gasreport.log~
       REF_REPORT: ${{ github.base_ref }}.gasreport.log
       OUT_REPORT: ${{ github.ref_name }}.gasreport.log
+      STYLE: markdown
     steps:
       - uses: actions/checkout@v3
       - name: Set up environment
