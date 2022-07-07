@@ -285,7 +285,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         unchecked {
             // Will not overflow unless all 2**256 token ids are minted to the same owner.
             // Given that tokens are minted one by one, it is impossible in practice that
-            // this ever happens. Might change if allow batch minting.
+            // this ever happens. Might change if we allow batch minting.
             // The ERC fails to describe this case.
             _balances[to] += 1;
         }
