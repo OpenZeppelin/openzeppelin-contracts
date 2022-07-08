@@ -11,10 +11,6 @@ const path = require('path');
 const argv = require('yargs/yargs')()
   .env('')
   .options({
-    ci: {
-      type: 'boolean',
-      default: false,
-    },
     coverage: {
       type: 'boolean',
       default: false,
@@ -23,6 +19,12 @@ const argv = require('yargs/yargs')()
       alias: 'enableGasReport',
       type: 'boolean',
       default: false,
+    },
+    gasReport: {
+      alias: 'enableGasReportPath',
+      type: 'string',
+      implies: 'gas',
+      default: undefined,
     },
     mode: {
       alias: 'compileMode',
@@ -49,7 +51,7 @@ const argv = require('yargs/yargs')()
 
 require('@nomiclabs/hardhat-truffle5');
 
-if (argv.enableGasReport) {
+if (argv.gas) {
   require('hardhat-gas-reporter');
 }
 
@@ -57,7 +59,7 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
 
-const withOptimizations = argv.enableGasReport || argv.compileMode === 'production';
+const withOptimizations = argv.gas || argv.compileMode === 'production';
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -80,8 +82,9 @@ module.exports = {
     },
   },
   gasReporter: {
+    showMethodSig: true,
     currency: 'USD',
-    outputFile: argv.ci ? 'gas-report.txt' : undefined,
+    outputFile: argv.gasReport,
     coinmarketcap: argv.coinmarketcap,
   },
 };
