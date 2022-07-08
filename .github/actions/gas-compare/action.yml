@@ -27,8 +27,9 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       shell: bash
+      continue-on-error: true
     - name: Compare reports
-      if: github.event_name == 'pull_request'
+      if: success()
       run: |
         node scripts/checks/compareGasReports.js ${{ inputs.report }} ${{ inputs.ref_report }} >> $GITHUB_STEP_SUMMARY
       shell: bash
