@@ -29,7 +29,7 @@ runs:
       shell: bash
       continue-on-error: true
     - name: Compare reports
-      if: success()
+      if: success() && github.event_name == 'pull_request'
       run: |
         node scripts/checks/compareGasReports.js ${{ inputs.report }} ${{ inputs.ref_report }} >> $GITHUB_STEP_SUMMARY
       shell: bash
