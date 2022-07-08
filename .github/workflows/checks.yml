@@ -27,10 +27,6 @@ jobs:
     env:
       FORCE_COLOR: 1
       GAS: true
-      REPORT: gasReporterOutput.json
-      REF_REPORT: ${{ github.base_ref }}.gasreport.json
-      OUT_REPORT: ${{ github.ref_name }}.gasreport.json
-      STYLE: markdown
     steps:
       - uses: actions/checkout@v3
       - name: Set up environment

@@ -33,6 +33,8 @@ runs:
       if: steps.reference.outcome == 'success' && github.event_name == 'pull_request'
       run: |
         node scripts/checks/compareGasReports.js ${{ inputs.report }} ${{ inputs.ref_report }} >> $GITHUB_STEP_SUMMARY
+      env:
+        STYLE: markdown
       shell: bash
     - name: Rename report for upload
       if: github.event_name != 'pull_request'
