@@ -52,7 +52,7 @@ abstract contract ReentrancyGuard {
         _;
         _nonReentrantAfter();
     }
-    
+
     function _nonReentrantBefore() private {
         // On the first call to nonReentrant, _notEntered will be true
         require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
