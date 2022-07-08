@@ -158,6 +158,7 @@ function formatCmpMarkdown (rows) {
   const SEPARATOR = COLS.map(entry => entry.txt ? alignPattern(entry.align) : '').join('|').trim();
 
   return [
+    '# Changes to gas costs',
     '',
     HEADER,
     SEPARATOR,
