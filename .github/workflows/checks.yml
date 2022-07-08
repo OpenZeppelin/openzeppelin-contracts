@@ -42,26 +42,10 @@ jobs:
       - name: Check proceduraly generated contracts are up-to-date
         if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
         run: npm run test:generation
-      - name: 'Download reference report'
-        if: github.event_name == 'pull_request'
-        run: |
-          RUN_ID=`gh run list --repo ${{ github.repository }} --branch ${{ github.base_ref }} --workflow ${{ github.workflow }} --json 'conclusion,databaseId' --jq 'map(select(.conclusion=="success"))[0].databaseId'`
-          gh run download ${RUN_ID} --repo ${{ github.repository }} -n gasreport
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: 'Compare reports'
-        if: github.event_name == 'pull_request'
-        run: node scripts/checks/compareGasReports.js $REPORT $REF_REPORT >> $GITHUB_STEP_SUMMARY
-      - name: 'Rename report for upload'
-        if: github.event_name != 'pull_request'
-        run: |
-          mv $REPORT $OUT_REPORT
-      - name: 'Save report'
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v3
+      - name: Compare gas costs
+        uses: ./.github/actions/gas-compare
         with:
-          name: gasreport
-          path: ${{ env.OUT_REPORT }}
+          token: ${{ github.token }}
 
   coverage:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
