@@ -693,10 +693,6 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           expectEvent(this.receipt, 'Transfer', { from: owner, to: ZERO_ADDRESS, tokenId: firstTokenId });
         });
 
-        it('emits an Approval event', function () {
-          expectEvent(this.receipt, 'Approval', { owner, approved: ZERO_ADDRESS, tokenId: firstTokenId });
-        });
-
         it('deletes the token', async function () {
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('1');
           await expectRevert(
