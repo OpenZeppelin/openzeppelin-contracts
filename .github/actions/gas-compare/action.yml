@@ -8,7 +8,7 @@ inputs:
     required: false
     default: gasReporterOutput.json
   out_report:
-    description: report to read 
+    description: report to read
     required: false
     default: ${{ github.ref_name }}.gasreport.json
   ref_report:
@@ -22,7 +22,7 @@ runs:
     - name: Download reference report
       if: github.event_name == 'pull_request'
       run: |
-        RUN_ID=`gh run list --repo ${{ github.repository }} --branch ${{ github.base_ref }} --workflow ${{ github.workflow }} --json 'conclusion,databaseId' --jq 'map(select(.conclusion=="success"))[0].databaseId'`
+        RUN_ID=`gh run list --repo ${{ github.repository }} --branch ${{ github.base_ref }} --workflow ${{ github.workflow }} --limit 100 --json 'conclusion,databaseId,event' --jq 'map(select(.conclusion=="success" and .event!="pull_request"))[0].databaseId'`
         gh run download ${RUN_ID} --repo ${{ github.repository }} -n gasreport
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
