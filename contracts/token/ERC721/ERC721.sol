@@ -308,7 +308,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         // Clear approvals
         delete _tokenApprovals[tokenId];
 
-        _balances[owner] -= 1;
+        unchecked {
+            _balances[owner] -= 1;
+        }
         delete _owners[tokenId];
 
         emit Transfer(owner, address(0), tokenId);
@@ -340,7 +342,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         // Clear approvals from the previous owner
         delete _tokenApprovals[tokenId];
 
-        _balances[from] -= 1;
+        unchecked {
+            _balances[from] -= 1;
+        }
         _balances[to] += 1;
         _owners[tokenId] = to;
 
