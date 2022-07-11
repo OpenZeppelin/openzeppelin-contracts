@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/ERC721.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC721/ERC721.sol)
 
 pragma solidity ^0.8.0;
 
@@ -306,7 +306,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         _beforeTokenTransfer(owner, address(0), tokenId);
 
         // Clear approvals
-        _approve(address(0), tokenId);
+        delete _tokenApprovals[tokenId];
 
         _balances[owner] -= 1;
         delete _owners[tokenId];
@@ -338,7 +338,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         _beforeTokenTransfer(from, to, tokenId);
 
         // Clear approvals from the previous owner
-        _approve(address(0), tokenId);
+        delete _tokenApprovals[tokenId];
 
         _balances[from] -= 1;
         _balances[to] += 1;

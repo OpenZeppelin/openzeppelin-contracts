@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC20/extensions/ERC4626.sol)
 
 pragma solidity ^0.8.0;
 
@@ -34,67 +35,67 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         _asset = asset_;
     }
 
-    /** @dev See {IERC4262-asset}. */
+    /** @dev See {IERC4626-asset}. */
     function asset() public view virtual override returns (address) {
         return address(_asset);
     }
 
-    /** @dev See {IERC4262-totalAssets}. */
+    /** @dev See {IERC4626-totalAssets}. */
     function totalAssets() public view virtual override returns (uint256) {
         return _asset.balanceOf(address(this));
     }
 
-    /** @dev See {IERC4262-convertToShares}. */
+    /** @dev See {IERC4626-convertToShares}. */
     function convertToShares(uint256 assets) public view virtual override returns (uint256 shares) {
         return _convertToShares(assets, Math.Rounding.Down);
     }
 
-    /** @dev See {IERC4262-convertToAssets}. */
+    /** @dev See {IERC4626-convertToAssets}. */
     function convertToAssets(uint256 shares) public view virtual override returns (uint256 assets) {
         return _convertToAssets(shares, Math.Rounding.Down);
     }
 
-    /** @dev See {IERC4262-maxDeposit}. */
+    /** @dev See {IERC4626-maxDeposit}. */
     function maxDeposit(address) public view virtual override returns (uint256) {
         return _isVaultCollateralized() ? type(uint256).max : 0;
     }
 
-    /** @dev See {IERC4262-maxMint}. */
+    /** @dev See {IERC4626-maxMint}. */
     function maxMint(address) public view virtual override returns (uint256) {
         return type(uint256).max;
     }
 
-    /** @dev See {IERC4262-maxWithdraw}. */
+    /** @dev See {IERC4626-maxWithdraw}. */
     function maxWithdraw(address owner) public view virtual override returns (uint256) {
         return _convertToAssets(balanceOf(owner), Math.Rounding.Down);
     }
 
-    /** @dev See {IERC4262-maxRedeem}. */
+    /** @dev See {IERC4626-maxRedeem}. */
     function maxRedeem(address owner) public view virtual override returns (uint256) {
         return balanceOf(owner);
     }
 
-    /** @dev See {IERC4262-previewDeposit}. */
+    /** @dev See {IERC4626-previewDeposit}. */
     function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Down);
     }
 
-    /** @dev See {IERC4262-previewMint}. */
+    /** @dev See {IERC4626-previewMint}. */
     function previewMint(uint256 shares) public view virtual override returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Up);
     }
 
-    /** @dev See {IERC4262-previewWithdraw}. */
+    /** @dev See {IERC4626-previewWithdraw}. */
     function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Up);
     }
 
-    /** @dev See {IERC4262-previewRedeem}. */
+    /** @dev See {IERC4626-previewRedeem}. */
     function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Down);
     }
 
-    /** @dev See {IERC4262-deposit}. */
+    /** @dev See {IERC4626-deposit}. */
     function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
         require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
 
@@ -104,7 +105,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return shares;
     }
 
-    /** @dev See {IERC4262-mint}. */
+    /** @dev See {IERC4626-mint}. */
     function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
         require(shares <= maxMint(receiver), "ERC4626: mint more than max");
 
@@ -114,7 +115,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return assets;
     }
 
-    /** @dev See {IERC4262-withdraw}. */
+    /** @dev See {IERC4626-withdraw}. */
     function withdraw(
         uint256 assets,
         address receiver,
@@ -128,7 +129,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return shares;
     }
 
-    /** @dev See {IERC4262-redeem}. */
+    /** @dev See {IERC4626-redeem}. */
     function redeem(
         uint256 shares,
         address receiver,

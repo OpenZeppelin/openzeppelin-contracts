@@ -96,10 +96,6 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           expect(await this.token.getApproved(tokenId)).to.be.equal(ZERO_ADDRESS);
         });
 
-        it('emits an Approval event', async function () {
-          expectEvent(receipt, 'Approval', { owner, approved: ZERO_ADDRESS, tokenId: tokenId });
-        });
-
         it('adjusts owners balances', async function () {
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('1');
         });
@@ -695,10 +691,6 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
 
         it('emits a Transfer event', function () {
           expectEvent(this.receipt, 'Transfer', { from: owner, to: ZERO_ADDRESS, tokenId: firstTokenId });
-        });
-
-        it('emits an Approval event', function () {
-          expectEvent(this.receipt, 'Approval', { owner, approved: ZERO_ADDRESS, tokenId: firstTokenId });
         });
 
         it('deletes the token', async function () {
