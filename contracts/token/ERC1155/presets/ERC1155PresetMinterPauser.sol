@@ -53,7 +53,7 @@ contract ERC1155PresetMinterPauser is Context, AccessControlEnumerable, ERC1155B
         address to,
         uint256 id,
         uint256 amount,
-        bytes memory data
+        bytes calldata data
     ) public virtual {
         require(hasRole(MINTER_ROLE, _msgSender()), "ERC1155PresetMinterPauser: must have minter role to mint");
 
@@ -65,9 +65,9 @@ contract ERC1155PresetMinterPauser is Context, AccessControlEnumerable, ERC1155B
      */
     function mintBatch(
         address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
+        bytes calldata data
     ) public virtual {
         require(hasRole(MINTER_ROLE, _msgSender()), "ERC1155PresetMinterPauser: must have minter role to mint");
 

@@ -79,7 +79,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      *
      * - `accounts` and `ids` must have the same length.
      */
-    function balanceOfBatch(address[] memory accounts, uint256[] memory ids)
+    function balanceOfBatch(address[] calldata accounts, uint256[] calldata ids)
         public
         view
         virtual
@@ -119,7 +119,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         address to,
         uint256 id,
         uint256 amount,
-        bytes memory data
+        bytes calldata data
     ) public virtual override {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
@@ -134,9 +134,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     function safeBatchTransferFrom(
         address from,
         address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
+        uint256[] calldata ids,
+        uint256[] calldata amounts,
+        bytes calldata data
     ) public virtual override {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),

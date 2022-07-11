@@ -11,7 +11,7 @@ import "../token/ERC1155/ERC1155.sol";
 contract ERC1155Mock is ERC1155 {
     constructor(string memory uri) ERC1155(uri) {}
 
-    function setURI(string memory newuri) public {
+    function setURI(string calldata newuri) public {
         _setURI(newuri);
     }
 
@@ -19,16 +19,16 @@ contract ERC1155Mock is ERC1155 {
         address to,
         uint256 id,
         uint256 value,
-        bytes memory data
+        bytes calldata data
     ) public {
         _mint(to, id, value, data);
     }
 
     function mintBatch(
         address to,
-        uint256[] memory ids,
-        uint256[] memory values,
-        bytes memory data
+        uint256[] calldata ids,
+        uint256[] calldata values,
+        bytes calldata data
     ) public {
         _mintBatch(to, ids, values, data);
     }
@@ -43,8 +43,8 @@ contract ERC1155Mock is ERC1155 {
 
     function burnBatch(
         address owner,
-        uint256[] memory ids,
-        uint256[] memory values
+        uint256[] calldata ids,
+        uint256[] calldata values
     ) public {
         _burnBatch(owner, ids, values);
     }

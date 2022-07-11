@@ -11,7 +11,7 @@ contract ERC1155BurnableMock is ERC1155Burnable {
         address to,
         uint256 id,
         uint256 value,
-        bytes memory data
+        bytes calldata data
     ) public {
         _mint(to, id, value, data);
     }

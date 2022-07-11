@@ -27,8 +27,8 @@ abstract contract ERC1155Burnable is ERC1155 {
 
     function burnBatch(
         address account,
-        uint256[] memory ids,
-        uint256[] memory values
+        uint256[] calldata ids,
+        uint256[] calldata values
     ) public virtual {
         require(
             account == _msgSender() || isApprovedForAll(account, _msgSender()),
