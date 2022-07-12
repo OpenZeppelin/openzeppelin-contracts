@@ -87,4 +87,4 @@ Here’s what a preset ERC721 contract would look like, https://github.com/thead
 
 This contract is ready to deploy without having to write any Solidity code. It can be used as-is for quick prototyping and testing but is also suitable for production environments.
 
-NOTE:Contract presets are now deprecated in favor of https://wizard.openzeppelin.com/[Contracts Wizard] as a more powerful alternative.
+NOTE: Contract presets are now deprecated in favor of https://wizard.openzeppelin.com/[Contracts Wizard] as a more powerful alternative.
