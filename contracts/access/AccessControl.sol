@@ -108,11 +108,14 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
         if (!hasRole(role, account)) {
             revert(
                 string(
+                    keccak256(
                     abi.encodePacked(
                         "AccessControl: account ",
                         Strings.toHexString(account),
                         " is missing role ",
                         Strings.toHexString(uint256(role), 32)
+                            )
+                        )
                     )
                 )
             );
