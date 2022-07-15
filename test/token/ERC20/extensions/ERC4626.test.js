@@ -15,7 +15,7 @@ contract('ERC4626', function (accounts) {
 
   beforeEach(async function () {
     this.token = await ERC20DecimalsMock.new(name, symbol, 12);
-    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol + 'V');
+    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol + 'V', 18);
 
     await this.token.mint(holder, web3.utils.toWei('100'));
     await this.token.approve(this.vault.address, constants.MAX_UINT256, { from: holder });
@@ -400,7 +400,7 @@ contract('ERC4626', function (accounts) {
   it('multiple mint, deposit, redeem & withdrawal', async function () {
     // test designed with both asset using similar decimals
     this.token = await ERC20DecimalsMock.new(name, symbol, 18);
-    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol + 'V');
+    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol + 'V', 18);
 
     await this.token.mint(user1, 4000);
     await this.token.mint(user2, 7001);

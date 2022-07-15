@@ -26,13 +26,22 @@ import "../../../utils/math/Math.sol";
 abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
 
-    IERC20Metadata private immutable _asset;
+    IERC20 private immutable _asset;
 
     /**
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
      */
-    constructor(IERC20Metadata asset_) {
+    constructor(IERC20 asset_) {
         _asset = asset_;
+    }
+
+    /** @dev See {IERC4626-asset}. */
+    function decimals() public view virtual override(IERC20Metadata, ERC20) returns (uint8) {
+        try IERC20Metadata(address(_asset)).decimals() returns (uint8 value) {
+            return value;
+        } catch {
+            return super.decimals();
+        }
     }
 
     /** @dev See {IERC4626-asset}. */
@@ -153,7 +162,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         uint256 supply = totalSupply();
         return
             (assets == 0 || supply == 0)
-                ? assets.mulDiv(10**decimals(), 10**_asset.decimals(), rounding)
+                ? assets.mulDiv(10**decimals(), 10**ERC4626.decimals(), rounding)
                 : assets.mulDiv(supply, totalAssets(), rounding);
     }
 
@@ -164,7 +173,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         uint256 supply = totalSupply();
         return
             (supply == 0)
-                ? shares.mulDiv(10**_asset.decimals(), 10**decimals(), rounding)
+                ? shares.mulDiv(10**ERC4626.decimals(), 10**decimals(), rounding)
                 : shares.mulDiv(totalAssets(), supply, rounding);
     }
 
