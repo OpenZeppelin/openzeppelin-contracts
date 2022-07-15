@@ -30,16 +30,13 @@ contract('ERC20FlashMint', function (accounts) {
     });
   });
 
-  describe('_flashFee', function () {
+  describe('flashFee', function () {
+    it('token match', async function () {
+      expect(await this.token.flashFee(this.token.address, loanAmount)).to.be.bignumber.equal('0');
+    });
 
-    describe('flashFee', function () {
-      it('token match', async function () {
-        expect(await this.token.flashFee(this.token.address, loanAmount)).to.be.bignumber.equal('0');
-      });
-
-      it('token mismatch', async function () {
-        await expectRevert(this.token.flashFee(ZERO_ADDRESS, loanAmount), 'ERC20FlashMint: wrong token');
-      });
+    it('token mismatch', async function () {
+      await expectRevert(this.token.flashFee(ZERO_ADDRESS, loanAmount), 'ERC20FlashMint: wrong token');
     });
   });
 

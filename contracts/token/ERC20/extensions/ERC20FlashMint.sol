@@ -38,9 +38,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      */
     function flashFee(address token, uint256 amount) public view virtual override returns (uint256) {
         require(token == address(this), "ERC20FlashMint: wrong token");
-        // silence warning about unused variable without the addition of bytecode.
-        amount;
-        return 0;
+        return _flashFee(token, amount);
     }
 
     /**
@@ -50,8 +48,10 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @return The fees applied to the corresponding flash loan.
      */
     function _flashFee(address token, uint256 amount) internal view virtual returns (uint256) {
-        uint256 fee = flashFee(token, amount);
-        return fee;
+        // silence warning about unused variable without the addition of bytecode.
+        token;
+        amount;
+        return 0;
     }
 
     /**
@@ -88,7 +88,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         bytes calldata data
     ) public virtual override returns (bool) {
         require(amount <= maxFlashLoan(token), "ERC20FlashMint: amount exceeds maxFlashLoan");
-        uint256 fee = _flashFee(token, amount);
+        uint256 fee = flashFee(token, amount);
         _mint(address(receiver), amount);
         require(
             receiver.onFlashLoan(msg.sender, token, amount, fee, data) == _RETURN_VALUE,
