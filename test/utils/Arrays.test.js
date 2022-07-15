@@ -94,15 +94,10 @@ contract('Arrays', function (accounts) {
     });
 
     async function testSort (array) {
-      const { sorted, gasUsed } = (await arraysImpl.sort(array));
+      const sorted = await arraysImpl.sort(array);
       const sortedNum = sorted.map(val => val.toNumber());
       array.sort((a, b) => a - b);
       expect(sortedNum).to.deep.equal(array, 'Invalid sorting result');
-      // Gas reporting is enabled, print gas usage.
-      // `hardhat-gas-reporter` can't be relied on here because:
-      // - it adds up all the calls without breaking down into specific tests
-      // - it measures the whole TXs and not just the library function calls
-      if (config.mocha.reporter) console.log('Gas used:', gasUsed.toString());
     }
 
     function arrayOf (length, generator) {
