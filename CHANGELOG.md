@@ -13,7 +13,6 @@
  * `SignatureChecker`: fix an issue that cause `isValidSignatureNow` to revert when processing invalid return data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
  * `ERC165Checker`: fix an issue that cause `supportsERC165InterfaceUnchecked` to revert when processing invalid return data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
 
-
 ### Compatibility Note
 
 ERC-721 integrators that interpret contract state from events should make sure that they implement the clearing of approval that is implicit in every transfer according to the EIP. Previous versions of OpenZeppellin Contracts emitted an explicit `Approval` event even though it was not required by the specification, and this is no longer the case.
