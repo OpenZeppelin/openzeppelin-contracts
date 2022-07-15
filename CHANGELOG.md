@@ -8,6 +8,7 @@
  * `GovernorCompatibilityBravo`: remove unused `using` statements ([#3506](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3506))
  * `ERC20`: optimize `_transfer`, `_mint` and `_burn` by using `unchecked` arithmetic when possible. ([#3513](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3513))
  * `ERC721`: optimize transfers by making approval clearing implicit instead of emitting an event. ([#3481](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3481))
+ * `ERC20FlashMint`: add `_flashFee' function for calling flashFee inside it. ([#3551](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3551))
 
 ### Compatibility Note
 
