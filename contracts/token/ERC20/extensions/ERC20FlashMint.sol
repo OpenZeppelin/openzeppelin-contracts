@@ -44,6 +44,17 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     }
 
     /**
+     * @dev Returns the fee applied when doing flash loans. This function calls the {flashFee} function which returns the fee applied when doing flash loans.
+     * @param token The token to be flash loaned.
+     * @param amount The amount of tokens to be loaned.
+     * @return The fees applied to the corresponding flash loan.
+     */
+    function _flashFee(address token, uint256 amount) internal view virtual returns (uint256) {
+        uint256 fee = flashFee(token, amount);
+        return fee;
+    }
+
+    /**
      * @dev Returns the receiver address of the flash fee. By default this
      * implementation returns the address(0) which means the fee amount will be burnt.
      * This function can be overloaded to change the fee receiver.
@@ -77,7 +88,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         bytes calldata data
     ) public virtual override returns (bool) {
         require(amount <= maxFlashLoan(token), "ERC20FlashMint: amount exceeds maxFlashLoan");
-        uint256 fee = flashFee(token, amount);
+        uint256 fee = _flashFee(token, amount);
         _mint(address(receiver), amount);
         require(
             receiver.onFlashLoan(msg.sender, token, amount, fee, data) == _RETURN_VALUE,
