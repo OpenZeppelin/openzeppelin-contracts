@@ -97,7 +97,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         // make sure we keep track of the old numerator (applicable to upgrade only)
         if (_quorumNumeratorHistory._checkpoints.length == 0) {
             _quorumNumeratorHistory._checkpoints.push(
-                Checkpoint({ _blockNumber: 0, _value: oldQuorumNumerator })
+                Checkpoints({ _blockNumber: 0, _value: oldQuorumNumerator })
             );
         }
 
