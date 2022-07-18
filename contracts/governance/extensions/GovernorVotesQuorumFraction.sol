@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 
 import "./GovernorVotes.sol";
 import "../../utils/Checkpoints.sol";
+import "../../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token and a quorum expressed as a
@@ -97,7 +98,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         // make sure we keep track of the old numerator (applicable to upgrade only)
         if (_quorumNumeratorHistory._checkpoints.length == 0) {
             _quorumNumeratorHistory._checkpoints.push(
-                Checkpoints({ _blockNumber: 0, _value: oldQuorumNumerator })
+                Checkpoints.Checkpoint({_blockNumber: 0, _value: SafeCast.toUint224(oldQuorumNumerator)})
             );
         }
 
