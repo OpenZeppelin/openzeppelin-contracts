@@ -9,13 +9,14 @@
  * `ERC20`: optimize `_transfer`, `_mint` and `_burn` by using `unchecked` arithmetic when possible. ([#3513](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3513))
  * `ERC721`: optimize transfers by making approval clearing implicit instead of emitting an event. ([#3481](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3481))
 
-### Bugfixes
- * `SignatureChecker`: fix an issue that cause `isValidSignatureNow` to revert when processing invalid return data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
- * `ERC165Checker`: fix an issue that cause `supportsERC165InterfaceUnchecked` to revert when processing invalid return data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
-
 ### Compatibility Note
 
 ERC-721 integrators that interpret contract state from events should make sure that they implement the clearing of approval that is implicit in every transfer according to the EIP. Previous versions of OpenZeppellin Contracts emitted an explicit `Approval` event even though it was not required by the specification, and this is no longer the case.
+
+## 4.7.1
+
+ * `SignatureChecker`: Fix an issue that causes `isValidSignatureNow` to revert when the target contract returns ill-encoded data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
+ * `ERC165Checker`: Fix an issue that causes `supportsInterface` to revert when the target contract returns ill-encoded data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
 
 ## 4.7.0 (2022-06-29)
 
