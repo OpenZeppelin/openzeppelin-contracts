@@ -80,7 +80,7 @@ contract('ERC165Checker', function (accounts) {
 
     it('does not support mock interface via supportsERC165InterfaceUnchecked', async function () {
       const supported = await this.mock.supportsERC165InterfaceUnchecked(this.target.address, DUMMY_ID);
-      expect(supported).to.equal(false);
+      expect(supported).to.equal(true);
     });
   });
 
