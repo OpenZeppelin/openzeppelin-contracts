@@ -101,7 +101,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
             );
         }
 
-        // set new quorum for upcomming proposals
+        // Set new quorum for future proposals
         _quorumNumeratorHistory.push(newQuorumNumerator);
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
