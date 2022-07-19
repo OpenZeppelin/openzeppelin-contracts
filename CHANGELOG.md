@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.7.1
+## 4.7.1 (2022-07-19)
 
  * `SignatureChecker`: Fix an issue that causes `isValidSignatureNow` to revert when the target contract returns ill-encoded data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
  * `ERC165Checker`: Fix an issue that causes `supportsInterface` to revert when the target contract returns ill-encoded data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
