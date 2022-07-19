@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165Checker.sol)
+// OpenZeppelin Contracts (last updated v4.7.1) (utils/introspection/ERC165Checker.sol)
 
 pragma solidity ^0.8.0;
 
@@ -108,6 +108,6 @@ library ERC165Checker {
         bytes memory encodedParams = abi.encodeWithSelector(IERC165.supportsInterface.selector, interfaceId);
         (bool success, bytes memory result) = account.staticcall{gas: 30000}(encodedParams);
         if (result.length < 32) return false;
-        return success && abi.decode(result, (bool));
+        return success && abi.decode(result, (uint256)) > 0;
     }
 }

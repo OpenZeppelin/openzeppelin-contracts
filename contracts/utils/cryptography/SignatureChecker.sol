@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (utils/cryptography/SignatureChecker.sol)
+// OpenZeppelin Contracts (last updated v4.7.1) (utils/cryptography/SignatureChecker.sol)
 
 pragma solidity ^0.8.0;
 
@@ -35,6 +35,8 @@ library SignatureChecker {
         (bool success, bytes memory result) = signer.staticcall(
             abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)
         );
-        return (success && result.length == 32 && abi.decode(result, (bytes4)) == IERC1271.isValidSignature.selector);
+        return (success &&
+            result.length == 32 &&
+            abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector));
     }
 }
