@@ -2549,7 +2549,7 @@ during this block.
 ==== `[.contract-item-name]#++votingDelay++#++() → uint256++` [.item-kind]#public#
 
 Delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
-leave time for users to buy voting power, of delegate it, before the voting of a proposal starts.
+leave time for users to buy voting power, or delegate it, before the voting of a proposal starts.
 
 [.contract-item]
 [[IGovernor-votingPeriod--]]
@@ -2902,7 +2902,7 @@ See {IGovernor-version}.
 
 See {IGovernor-hashProposal}.
 
-The proposal id is produced by hashing the RLC encoded `targets` array, the `values` array, the `calldatas` array
+The proposal id is produced by hashing the ABI encoded `targets` array, the `values` array, the `calldatas` array
 and the descriptionHash (bytes32 which itself is the keccak256 hash of the description string). This proposal id
 can be produced from the proposal data which is part of the {ProposalCreated} event. It can even be computed in
 advance, before the proposal is submitted.
