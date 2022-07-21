@@ -26,7 +26,6 @@ contract ERC20FlashMintMock is ERC20FlashMint {
     }
 
     function _flashFee(address token, uint256 amount) internal view override returns (uint256) {
-        super._flashFee(token, amount);
         return _flashFeeAmount;
     }
 
