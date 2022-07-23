@@ -13,26 +13,55 @@ library Strings {
     /**
      * @dev Converts a `uint256` to its ASCII `string` decimal representation.
      */
-    function toString(uint256 value) internal pure returns (string memory) {
-        // Inspired by OraclizeAPI's implementation - MIT licence
-        // https://github.com/oraclize/ethereum-api/blob/b42146b063c7d6ee1358846c198246239e9360e8/oraclizeAPI_0.4.25.sol
+    function toString(uint256 value) internal pure returns (string memory result) {
+        unchecked {
+            if (value < 10) {
+                return string(abi.encodePacked(uint8(value + 48)));
+            }
+            uint256 length = 0;
+            uint256 valueCopy = value;
+            if (valueCopy >= 1000000000000000000000000000000000000000000000000000000000000000) {
+                valueCopy /= 10000000000000000000000000000000000000000000000000000000000000000;
+                length += 64;
+            }
+            if (valueCopy >= 10000000000000000000000000000000) {
+                valueCopy /= 100000000000000000000000000000000;
+                length += 32;
+            }
+            if (valueCopy >= 1000000000000000) {
+                valueCopy /= 10000000000000000;
+                length += 16;
+            }
+            if (valueCopy >= 10000000) {
+                valueCopy /= 100000000;
+                length += 8;
+            }
+            if (valueCopy >= 1000) {
+                valueCopy /= 10000;
+                length += 4;
+            }
+            if (valueCopy >= 10) {
+                valueCopy /= 100;
+                length += 2;
+            }
+            if (valueCopy >= 1) {
+                length += 1;
+            }
+            result = new string(length);
+            /// @solidity memory-safe-assembly
+            assembly {
+                let ptr := add(result, add(length, 32))
+                for {
 
-        if (value == 0) {
-            return "0";
+                } gt(value, 0) {
+
+                } {
+                    ptr := sub(ptr, 1)
+                    mstore8(ptr, add(48, mod(value, 10)))
+                    value := div(value, 10)
+                }
+            }
         }
-        uint256 temp = value;
-        uint256 digits;
-        while (temp != 0) {
-            digits++;
-            temp /= 10;
-        }
-        bytes memory buffer = new bytes(digits);
-        while (value != 0) {
-            digits -= 1;
-            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
-            value /= 10;
-        }
-        return string(buffer);
     }
 
     /**
