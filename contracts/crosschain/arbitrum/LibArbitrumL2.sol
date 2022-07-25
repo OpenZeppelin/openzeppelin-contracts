@@ -21,7 +21,7 @@ library LibArbitrumL2 {
     address public constant ARBSYS = 0x0000000000000000000000000000000000000064;
 
     function isCrossChain(address arbsys) internal view returns (bool) {
-        return ArbitrumL2_Bridge(arbsys).isTopLevelCall();
+        return ArbitrumL2_Bridge(arbsys).wasMyCallersAddressAliased();
     }
 
     /**
@@ -35,9 +35,6 @@ library LibArbitrumL2 {
     function crossChainSender(address arbsys) internal view returns (address) {
         if (!isCrossChain(arbsys)) revert NotCrossChainCall();
 
-        return
-            ArbitrumL2_Bridge(arbsys).wasMyCallersAddressAliased()
-                ? ArbitrumL2_Bridge(arbsys).myCallersAddressWithoutAliasing()
-                : msg.sender;
+        return ArbitrumL2_Bridge(arbsys).myCallersAddressWithoutAliasing();
     }
 }
