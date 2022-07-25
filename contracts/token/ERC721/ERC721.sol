@@ -115,7 +115,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         require(
             _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
-            "ERC721: approve caller is not token owner nor approved for all"
+            "ERC721: approve caller is not token owner or approved for all"
         );
 
         _approve(to, tokenId);
@@ -153,7 +153,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId
     ) public virtual override {
         //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
 
         _transfer(from, to, tokenId);
     }
@@ -178,7 +178,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId,
         bytes memory data
     ) public virtual override {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
         _safeTransfer(from, to, tokenId, data);
     }
 
