@@ -71,7 +71,7 @@ The core development principles and strategies that OpenZeppelin Contracts is ba
 
 The latest audit was done on October 2018 on version 2.0.0.
 
-We have a [**bug bounty program** on Immunefi](https://www.immunefi.com/bounty/openzeppelin). Please report any security issues you find through the Immunefi dashboard; or, reach out to security@openzeppelin.com.
+We have a [**bug bounty program** on Immunefi](https://www.immunefi.com/bounty/openzeppelin). Please report any security issues you find through the Immunefi dashboard, or reach out to security@openzeppelin.com.
 
 Critical bug fixes will be backported to past major releases.
 
