@@ -44,7 +44,20 @@ class Report {
     if (JSON.stringify(update.config.metadata) !== JSON.stringify(ref.config.metadata)) {
       throw new Error('Reports produced with non matching metadata');
     }
-    return Object.keys(update.info.methods)
+
+    const deployments = update.info.deployments
+      .filter(contract => contract.gasData?.length)
+      .map(contract => Object.assign(contract, { previousGasData: ref.info.deployments.find(({ name }) => name === contract.name).gasData }))
+      .map(contract => ({
+        contract: contract.name,
+        method: '[constructor]',
+        min: variation(...[contract.gasData, contract.previousGasData].map(x => ~~Math.min(...x))),
+        max: variation(...[contract.gasData, contract.previousGasData].map(x => ~~Math.max(...x))),
+        avg: variation(...[contract.gasData, contract.previousGasData].map(x => ~~average(...x))),
+      }))
+      .sort((a, b) => `${a.contract}:${a.method}` < `${b.contract}:${b.method}` ? -1 : 1);
+
+    const methods = Object.keys(update.info.methods)
       .filter(key => ref.info.methods[key])
       .filter(key => update.info.methods[key].numberOfCalls > 0)
       .filter(key => update.info.methods[key].numberOfCalls === ref.info.methods[key].numberOfCalls)
@@ -55,8 +68,10 @@ class Report {
         max: variation(...[update, ref].map(x => ~~Math.max(...x.info.methods[key].gasData))),
         avg: variation(...[update, ref].map(x => ~~average(...x.info.methods[key].gasData))),
       }))
-      .filter(row => !opts.hideEqual || (row.min.delta && row.max.delta && row.avg.delta))
       .sort((a, b) => `${a.contract}:${a.method}` < `${b.contract}:${b.method}` ? -1 : 1);
+
+    return [].concat(deployments, methods)
+      .filter(row => !opts.hideEqual || (row.min.delta && row.max.delta && row.avg.delta));
   }
 }
 
