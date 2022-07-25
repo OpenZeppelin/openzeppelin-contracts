@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC1155/ERC1155.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC1155/ERC1155.sol)
 
 pragma solidity ^0.8.0;
 
@@ -123,7 +123,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     ) public virtual override {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: caller is not owner nor approved"
+            "ERC1155: caller is not token owner or approved"
         );
         _safeTransferFrom(from, to, id, amount, data);
     }
@@ -140,7 +140,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     ) public virtual override {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: transfer caller is not owner nor approved"
+            "ERC1155: caller is not token owner or approved"
         );
         _safeBatchTransferFrom(from, to, ids, amounts, data);
     }
@@ -480,7 +480,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+                revert("ERC1155: transfer to non-ERC1155Receiver implementer");
             }
         }
     }
@@ -503,7 +503,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+                revert("ERC1155: transfer to non-ERC1155Receiver implementer");
             }
         }
     }

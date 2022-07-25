@@ -66,7 +66,7 @@ function shouldBehaveLikeERC2981 () {
       );
 
       await expectRevert(
-        this.token.setTokenRoyalty(this.tokenId1, this.account1, new BN('11000')),
+        this.token.setDefaultRoyalty(this.account1, new BN('11000')),
         'ERC2981: royalty fee will exceed salePrice',
       );
     });

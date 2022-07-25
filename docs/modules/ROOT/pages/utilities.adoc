@@ -26,7 +26,11 @@ WARNING: Getting signature verification right is not trivial: make sure you full
 
 === Verifying Merkle Proofs
 
-xref:api:cryptography.adoc#MerkleProof[`MerkleProof`] provides xref:api:cryptography.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-[`verify`], which can prove that some value is part of a https://en.wikipedia.org/wiki/Merkle_tree[Merkle tree].
+xref:api:cryptography.adoc#MerkleProof[`MerkleProof`] provides:
+
+* xref:api:cryptography.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-[`verify`] - can prove that some value is part of a https://en.wikipedia.org/wiki/Merkle_tree[Merkle tree].
+
+* xref:api:cryptography.adoc#MerkleProof-multiProofVerify-bytes32-bytes32---bytes32---bool---[`multiProofVerify`] - can prove multiple values are part of a Merkle tree.
 
 [[introspection]]
 == Introspection

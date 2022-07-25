@@ -60,6 +60,18 @@ contract ConstructorInitializableMock is Initializable {
     }
 }
 
+contract ChildConstructorInitializableMock is ConstructorInitializableMock {
+    bool public childInitializerRan;
+
+    constructor() initializer {
+        childInitialize();
+    }
+
+    function childInitialize() public initializer {
+        childInitializerRan = true;
+    }
+}
+
 contract ReinitializerMock is Initializable {
     uint256 public counter;
 
@@ -88,3 +100,23 @@ contract ReinitializerMock is Initializable {
         counter++;
     }
 }
+
+contract DisableNew is Initializable {
+    constructor() {
+        _disableInitializers();
+    }
+}
+
+contract DisableOld is Initializable {
+    constructor() initializer {}
+}
+
+contract DisableBad1 is DisableNew, DisableOld {}
+
+contract DisableBad2 is Initializable {
+    constructor() initializer {
+        _disableInitializers();
+    }
+}
+
+contract DisableOk is DisableOld, DisableNew {}

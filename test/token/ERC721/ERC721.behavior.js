@@ -66,7 +66,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
 
         it('reverts', async function () {
           await expectRevert(
-            this.token.ownerOf(tokenId), 'ERC721: owner query for nonexistent token',
+            this.token.ownerOf(tokenId), 'ERC721: invalid token ID',
           );
         });
       });
@@ -94,10 +94,6 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
 
         it('clears the approval for the token ID', async function () {
           expect(await this.token.getApproved(tokenId)).to.be.equal(ZERO_ADDRESS);
-        });
-
-        it('emits an Approval event', async function () {
-          expectEvent(receipt, 'Approval', { owner, approved: ZERO_ADDRESS, tokenId: tokenId });
         });
 
         it('adjusts owners balances', async function () {
@@ -192,7 +188,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           it('reverts', async function () {
             await expectRevert(
               transferFunction.call(this, owner, other, tokenId, { from: other }),
-              'ERC721: transfer caller is not owner nor approved',
+              'ERC721: caller is not token owner or approved',
             );
           });
         });
@@ -201,7 +197,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           it('reverts', async function () {
             await expectRevert(
               transferFunction.call(this, owner, other, nonExistentTokenId, { from: owner }),
-              'ERC721: operator query for nonexistent token',
+              'ERC721: invalid token ID',
             );
           });
         });
@@ -276,7 +272,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
                     nonExistentTokenId,
                     { from: owner },
                   ),
-                  'ERC721: operator query for nonexistent token',
+                  'ERC721: invalid token ID',
                 );
               });
             });
@@ -509,7 +505,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
       context('when the sender does not own the given token ID', function () {
         it('reverts', async function () {
           await expectRevert(this.token.approve(approved, tokenId, { from: other }),
-            'ERC721: approve caller is not owner nor approved');
+            'ERC721: approve caller is not token owner or approved');
         });
       });
 
@@ -517,7 +513,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
         it('reverts', async function () {
           await this.token.approve(approved, tokenId, { from: owner });
           await expectRevert(this.token.approve(anotherApproved, tokenId, { from: approved }),
-            'ERC721: approve caller is not owner nor approved for all');
+            'ERC721: approve caller is not token owner or approved for all');
         });
       });
 
@@ -534,7 +530,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
       context('when the given token ID does not exist', function () {
         it('reverts', async function () {
           await expectRevert(this.token.approve(approved, nonExistentTokenId, { from: operator }),
-            'ERC721: owner query for nonexistent token');
+            'ERC721: invalid token ID');
         });
       });
     });
@@ -623,7 +619,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
         it('reverts', async function () {
           await expectRevert(
             this.token.getApproved(nonExistentTokenId),
-            'ERC721: approved query for nonexistent token',
+            'ERC721: invalid token ID',
           );
         });
       });
@@ -678,7 +674,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
   describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
       await expectRevert(
-        this.token.burn(nonExistentTokenId), 'ERC721: owner query for nonexistent token',
+        this.token.burn(nonExistentTokenId), 'ERC721: invalid token ID',
       );
     });
 
@@ -697,20 +693,16 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           expectEvent(this.receipt, 'Transfer', { from: owner, to: ZERO_ADDRESS, tokenId: firstTokenId });
         });
 
-        it('emits an Approval event', function () {
-          expectEvent(this.receipt, 'Approval', { owner, approved: ZERO_ADDRESS, tokenId: firstTokenId });
-        });
-
         it('deletes the token', async function () {
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('1');
           await expectRevert(
-            this.token.ownerOf(firstTokenId), 'ERC721: owner query for nonexistent token',
+            this.token.ownerOf(firstTokenId), 'ERC721: invalid token ID',
           );
         });
 
         it('reverts when burning a token id that has been deleted', async function () {
           await expectRevert(
-            this.token.burn(firstTokenId), 'ERC721: owner query for nonexistent token',
+            this.token.burn(firstTokenId), 'ERC721: invalid token ID',
           );
         });
       });
@@ -846,7 +838,7 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
   describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
       await expectRevert(
-        this.token.burn(firstTokenId), 'ERC721: owner query for nonexistent token',
+        this.token.burn(firstTokenId), 'ERC721: invalid token ID',
       );
     });
 
@@ -906,7 +898,7 @@ function shouldBehaveLikeERC721Metadata (errorPrefix, name, symbol, owner) {
 
       it('reverts when queried for non existent token id', async function () {
         await expectRevert(
-          this.token.tokenURI(nonExistentTokenId), 'ERC721Metadata: URI query for nonexistent token',
+          this.token.tokenURI(nonExistentTokenId), 'ERC721: invalid token ID',
         );
       });
 

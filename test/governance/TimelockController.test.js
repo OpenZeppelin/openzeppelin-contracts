@@ -201,7 +201,7 @@ contract('TimelockController', function (accounts) {
           );
         });
 
-        it('prevent non-proposer from commiting', async function () {
+        it('prevent non-proposer from committing', async function () {
           await expectRevert(
             this.mock.schedule(
               this.operation.target,
@@ -438,7 +438,7 @@ contract('TimelockController', function (accounts) {
           );
         });
 
-        it('prevent non-proposer from commiting', async function () {
+        it('prevent non-proposer from committing', async function () {
           await expectRevert(
             this.mock.scheduleBatch(
               this.operation.targets,
