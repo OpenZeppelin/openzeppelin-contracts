@@ -77,23 +77,23 @@ library Strings {
 
             // compute log256(value), and add it to length
             uint256 valueCopy = value;
-            if (valueCopy > 1 << 128 ) {
+            if (valueCopy >= 1 << 128) {
                 valueCopy >>= 128;
                 length += 16;
             }
-            if (valueCopy > 1 << 64 ) {
+            if (valueCopy >= 1 << 64) {
                 valueCopy >>= 64;
                 length += 8;
             }
-            if (valueCopy > 1 << 32 ) {
+            if (valueCopy >= 1 << 32) {
                 valueCopy >>= 32;
                 length += 4;
             }
-            if (valueCopy > 1 << 16 ) {
+            if (valueCopy >= 1 << 16) {
                 valueCopy >>= 16;
                 length += 2;
             }
-            if (valueCopy > 1 << 8 ) {
+            if (valueCopy >= 1 << 8) {
                 valueCopy >>= 8;
                 length += 1;
             }
