@@ -217,6 +217,7 @@ library EnumerableSet {
         bytes32[] memory store = _values(set._inner);
         bytes32[] memory result;
 
+        /// @solidity memory-safe-assembly
         assembly {
             result := store
         }

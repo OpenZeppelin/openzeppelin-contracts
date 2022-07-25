@@ -230,6 +230,7 @@ function values(${name} storage set) internal view returns (${type}[] memory) {
     bytes32[] memory store = _values(set._inner);
     ${type}[] memory result;
 
+    /// @solidity memory-safe-assembly
     assembly {
         result := store
     }
