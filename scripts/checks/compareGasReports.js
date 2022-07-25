@@ -46,13 +46,16 @@ class Report {
     }
 
     const deployments = update.info.deployments
-      .filter(contract => contract.gasData?.length)
-      .map(contract => Object.assign(contract, { previousVersion: ref.info.deployments.find(({ name }) => name === contract.name) }))
+      .map(contract => Object.assign(
+        contract,
+        { previousVersion: ref.info.deployments.find(({ name }) => name === contract.name) },
+      ))
+      .filter(contract => contract.gasData?.length && contract.previousVersion?.gasData?.length)
       .flatMap(contract => [{
         contract: contract.name,
         method: '[bytecode length]',
         avg: variation(contract.bytecode.length - 2, contract.previousVersion.bytecode.length - 2),
-      },{
+      }, {
         contract: contract.name,
         method: '[construction cost]',
         avg: variation(...[contract.gasData, contract.previousVersion.gasData].map(x => ~~average(...x))),
