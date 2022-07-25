@@ -54,13 +54,13 @@ class Report {
       .flatMap(contract => [{
         contract: contract.name,
         method: '[bytecode length]',
-        avg: variation(contract.bytecode.length - 2, contract.previousVersion.bytecode.length - 2),
+        avg: variation(contract.bytecode.length / 2 - 1, contract.previousVersion.bytecode.length / 2 - 1),
       }, {
         contract: contract.name,
         method: '[construction cost]',
-        avg: variation(...[contract.gasData, contract.previousVersion.gasData].map(x => ~~average(...x))),
+        avg: variation(...[contract.gasData, contract.previousVersion.gasData].map(x => Math.round(average(...x)))),
       }])
-      .sort((a, b) => `${a.contract}:${a.method}` < `${b.contract}:${b.method}` ? -1 : 1);
+      .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
 
     const methods = Object.keys(update.info.methods)
       .filter(key => ref.info.methods[key])
@@ -69,11 +69,11 @@ class Report {
       .map(key => ({
         contract: ref.info.methods[key].contract,
         method: ref.info.methods[key].fnSig,
-        min: variation(...[update, ref].map(x => ~~Math.min(...x.info.methods[key].gasData))),
-        max: variation(...[update, ref].map(x => ~~Math.max(...x.info.methods[key].gasData))),
-        avg: variation(...[update, ref].map(x => ~~average(...x.info.methods[key].gasData))),
+        min: variation(...[update, ref].map(x => Math.min(...x.info.methods[key].gasData))),
+        max: variation(...[update, ref].map(x => Math.max(...x.info.methods[key].gasData))),
+        avg: variation(...[update, ref].map(x => Math.round(average(...x.info.methods[key].gasData)))),
       }))
-      .sort((a, b) => `${a.contract}:${a.method}` < `${b.contract}:${b.method}` ? -1 : 1);
+      .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
 
     return [].concat(deployments, methods)
       .filter(row => !opts.hideEqual || row.min?.delta || row.max?.delta || row.avg?.delta);
