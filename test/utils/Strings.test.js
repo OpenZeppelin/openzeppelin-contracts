@@ -35,41 +35,41 @@ contract('Strings', function (accounts) {
       MAX_UINT256: constants.MAX_UINT256.toString(),
     }))) {
       it(`converts ${key}`, async function () {
-        expect(await strings.toStringDecimal(value)).to.equal(value.toString(10));
+        expect(await strings.methods['toString(uint256)'](value)).to.equal(value.toString(10));
       });
     }
   });
 
   describe('toHexString', function () {
     it('converts 0', async function () {
-      expect(await strings.toHexString(0)).to.equal('0x00');
+      expect(await strings.methods['toHexString(uint256)'](0)).to.equal('0x00');
     });
 
     it('converts a positive number', async function () {
-      expect(await strings.toHexString(0x4132)).to.equal('0x4132');
+      expect(await strings.methods['toHexString(uint256)'](0x4132)).to.equal('0x4132');
     });
 
     it('converts MAX_UINT256', async function () {
-      expect(await strings.toHexString(constants.MAX_UINT256))
+      expect(await strings.methods['toHexString(uint256)'](constants.MAX_UINT256))
         .to.equal(web3.utils.toHex(constants.MAX_UINT256));
     });
   });
 
   describe('toHexString fixed', function () {
     it('converts a positive number (long)', async function () {
-      expect(await strings.toHexString(0x4132, 32))
+      expect(await strings.methods['toHexString(uint256,uint256)'](0x4132, 32))
         .to.equal('0x0000000000000000000000000000000000000000000000000000000000004132');
     });
 
     it('converts a positive number (short)', async function () {
       await expectRevert(
-        strings.toHexString(0x4132, 1),
+        strings.methods['toHexString(uint256,uint256)'](0x4132, 1),
         'Strings: hex length insufficient',
       );
     });
 
     it('converts MAX_UINT256', async function () {
-      expect(await strings.toHexString(constants.MAX_UINT256, 32))
+      expect(await strings.methods['toHexString(uint256,uint256)'](constants.MAX_UINT256, 32))
         .to.equal(web3.utils.toHex(constants.MAX_UINT256));
     });
   });
@@ -77,12 +77,12 @@ contract('Strings', function (accounts) {
   describe('toHexString address', function () {
     it('converts a random address', async function () {
       const addr = '0xa9036907dccae6a1e0033479b12e837e5cf5a02f';
-      expect(await strings.toHexStringAddress(addr)).to.equal(addr);
+      expect(await strings.methods['toHexString(address)'](addr)).to.equal(addr);
     });
 
     it('converts an address with leading zeros', async function () {
       const addr = '0x0000e0ca771e21bd00057f54a68c30d400000000';
-      expect(await strings.toHexStringAddress(addr)).to.equal(addr);
+      expect(await strings.methods['toHexString(address)'](addr)).to.equal(addr);
     });
   });
 });

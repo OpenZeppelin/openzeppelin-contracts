@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "../utils/Strings.sol";
 
 contract StringsMock {
-    function toStringDecimal(uint256 value) public pure returns (string memory) {
+    function toString(uint256 value) public pure returns (string memory) {
         return Strings.toString(value);
     }
 
@@ -17,7 +17,7 @@ contract StringsMock {
         return Strings.toHexString(value, length);
     }
 
-    function toHexStringAddress(address addr) public pure returns (string memory) {
+    function toHexString(address addr) public pure returns (string memory) {
         return Strings.toHexString(addr);
     }
 }
