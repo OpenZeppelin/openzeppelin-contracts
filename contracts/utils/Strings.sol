@@ -47,6 +47,7 @@ library Strings {
                 length += 1;
             }
             // now, length is log10(value) + 1
+
             result = new string(length);
             /// @solidity memory-safe-assembly
             assembly {
@@ -70,16 +71,35 @@ library Strings {
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
      */
     function toHexString(uint256 value) internal pure returns (string memory) {
-        if (value == 0) {
-            return "0x00";
+        unchecked {
+            uint256 length = 1;
+
+            // compute log256(value), and add it to length
+            uint256 valueCopy = value;
+            if (valueCopy >> 128 > 0) {
+                valueCopy >>= 128;
+                length += 16;
+            }
+            if (valueCopy >> 64 > 0) {
+                valueCopy >>= 64;
+                length += 8;
+            }
+            if (valueCopy >> 32 > 0) {
+                valueCopy >>= 32;
+                length += 4;
+            }
+            if (valueCopy >> 16 > 0) {
+                valueCopy >>= 16;
+                length += 2;
+            }
+            if (valueCopy >> 8 > 0) {
+                valueCopy >>= 8;
+                length += 1;
+            }
+            // now, length is log256(value) + 1
+
+            return toHexString(value, length);
         }
-        uint256 temp = value;
-        uint256 length = 0;
-        while (temp != 0) {
-            length++;
-            temp >>= 8;
-        }
-        return toHexString(value, length);
     }
 
     /**
