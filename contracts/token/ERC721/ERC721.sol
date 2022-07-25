@@ -293,6 +293,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev Destroys `tokenId`.
      * The approval is cleared when the token is burned.
+     * This is an internal function that does not check if the sender is authorized to operate on the token.
      *
      * Requirements:
      *
