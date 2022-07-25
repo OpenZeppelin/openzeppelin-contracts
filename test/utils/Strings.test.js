@@ -1,4 +1,4 @@
-const { constants, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
@@ -12,73 +12,32 @@ contract('Strings', function (accounts) {
   });
 
   describe('toString', function () {
-    async function testToString (input) {
-      expect(await strings.toStringDecimal(input)).to.equal(input);
+    for (const [ key, value ] of Object.entries([
+      '0',
+      '7',
+      '10',
+      '99',
+      '100',
+      '101',
+      '123',
+      '4132',
+      '12345',
+      '1234567',
+      '1234567890',
+      '123456789012345',
+      '12345678901234567890',
+      '123456789012345678901234567890',
+      '1234567890123456789012345678901234567890',
+      '12345678901234567890123456789012345678901234567890',
+      '123456789012345678901234567890123456789012345678901234567890',
+      '1234567890123456789012345678901234567890123456789012345678901234567890',
+    ].reduce((acc, value) => Object.assign(acc, { [value]: new BN(value) }), {
+      MAX_UINT256: constants.MAX_UINT256.toString(),
+    }))) {
+      it(`converts ${key}`, async function () {
+        expect(await strings.toStringDecimal(value)).to.equal(value.toString(10));
+      });
     }
-
-    it('converts 0', async function () {
-      await testToString('0');
-    });
-
-    it('converts 7', async function () {
-      await testToString('7');
-    });
-
-    it('converts 42', async function () {
-      await testToString('42');
-    });
-
-    it('converts 123', async function () {
-      await testToString('123');
-    });
-
-    it('converts 4132', async function () {
-      await testToString('4132');
-    });
-
-    it('converts 12345', async function () {
-      await testToString('12345');
-    });
-
-    it('converts 1234567', async function () {
-      await testToString('1234567');
-    });
-
-    it('converts 1234567890', async function () {
-      await testToString('1234567890');
-    });
-
-    it('converts 123456789012345', async function () {
-      await testToString('123456789012345');
-    });
-
-    it('converts 12345678901234567890', async function () {
-      await testToString('12345678901234567890');
-    });
-
-    it('converts 123456789012345678901234567890', async function () {
-      await testToString('123456789012345678901234567890');
-    });
-
-    it('converts 1234567890123456789012345678901234567890', async function () {
-      await testToString('1234567890123456789012345678901234567890');
-    });
-
-    it('converts 12345678901234567890123456789012345678901234567890', async function () {
-      await testToString('12345678901234567890123456789012345678901234567890');
-    });
-
-    it('converts 123456789012345678901234567890123456789012345678901234567890', async function () {
-      await testToString('123456789012345678901234567890123456789012345678901234567890');
-    });
-
-    it('converts 1234567890123456789012345678901234567890123456789012345678901234567890', async function () {
-      await testToString('1234567890123456789012345678901234567890123456789012345678901234567890');
-    });
-
-    it('converts MAX_UINT256', async function () {
-      await testToString(constants.MAX_UINT256.toString());
-    });
   });
 
   describe('toHexString', function () {
