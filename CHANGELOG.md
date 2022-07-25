@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.7.2
+
+ * `LibArbitrumL2`, `CrossChainEnabledArbitrumL2`: Fixed detection of cross-chain calls for EOAs. Previously, calls from EOAs would be classified as cross-chain calls. ([#3578](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3578))
+
 ## 4.7.1 (2022-07-19)
 
  * `SignatureChecker`: Fix an issue that causes `isValidSignatureNow` to revert when the target contract returns ill-encoded data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
