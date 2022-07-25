@@ -20,31 +20,31 @@ library Strings {
             }
             uint256 length = 0;
             uint256 valueCopy = value;
-            if(valueCopy >= 10 ** 63) {
-                valueCopy /= 10 ** 64;
+            if (valueCopy >= 10**63) {
+                valueCopy /= 10**64;
                 length += 64;
             }
-            if(valueCopy >= 10 ** 31) {
-                valueCopy /= 10 ** 32;
+            if (valueCopy >= 10**31) {
+                valueCopy /= 10**32;
                 length += 32;
             }
-            if(valueCopy >= 10 ** 15) {
-                valueCopy /= 10 ** 16;
+            if (valueCopy >= 10**15) {
+                valueCopy /= 10**16;
                 length += 16;
             }
-            if(valueCopy >= 10 ** 7) {
-                valueCopy /= 10 ** 8;
+            if (valueCopy >= 10**7) {
+                valueCopy /= 10**8;
                 length += 8;
             }
-            if(valueCopy >= 10 ** 3) {
-                valueCopy /= 10 ** 4;
+            if (valueCopy >= 10**3) {
+                valueCopy /= 10**4;
                 length += 4;
             }
-            if(valueCopy >= 10 ** 1) {
-                valueCopy /= 10 ** 2;
+            if (valueCopy >= 10**1) {
+                valueCopy /= 10**2;
                 length += 2;
             }
-            if(valueCopy >= 1) {
+            if (valueCopy >= 1) {
                 length += 1;
             }
             result = new string(length);
