@@ -13,7 +13,7 @@ library Strings {
     /**
      * @dev Converts a `uint256` to its ASCII `string` decimal representation.
      */
-    function toString(uint256 value) internal pure returns (string memory result) {
+    function toString(uint256 value) internal pure returns (string memory) {
         unchecked {
             uint256 length = 1;
 
@@ -48,10 +48,10 @@ library Strings {
             }
             // now, length is log10(value) + 1
 
-            result = new string(length);
+            string memory buffer = new string(length);
             /// @solidity memory-safe-assembly
             assembly {
-                let pos := add(result, 32)
+                let pos := add(buffer, 32)
                 let ptr := add(pos, length)
 
                 for {
@@ -64,6 +64,7 @@ library Strings {
                     value := div(value, 10)
                 }
             }
+            return buffer;
         }
     }
 
