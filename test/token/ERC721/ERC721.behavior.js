@@ -188,7 +188,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           it('reverts', async function () {
             await expectRevert(
               transferFunction.call(this, owner, other, tokenId, { from: other }),
-              'ERC721: caller is not token owner nor approved',
+              'ERC721: caller is not token owner or approved',
             );
           });
         });
@@ -505,7 +505,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
       context('when the sender does not own the given token ID', function () {
         it('reverts', async function () {
           await expectRevert(this.token.approve(approved, tokenId, { from: other }),
-            'ERC721: approve caller is not token owner nor approved');
+            'ERC721: approve caller is not token owner or approved');
         });
       });
 
@@ -513,7 +513,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
         it('reverts', async function () {
           await this.token.approve(approved, tokenId, { from: owner });
           await expectRevert(this.token.approve(anotherApproved, tokenId, { from: approved }),
-            'ERC721: approve caller is not token owner nor approved for all');
+            'ERC721: approve caller is not token owner or approved for all');
         });
       });
 
