@@ -7,7 +7,7 @@ pragma solidity ^0.8.0;
  * @dev String operations.
  */
 library Strings {
-    bytes16 private constant _HEX_SYMBOLS = "0123456789abcdef";
+    bytes16 private constant _SYMBOLS = "0123456789abcdef";
     uint8 private constant _ADDRESS_LENGTH = 20;
 
     /**
@@ -51,17 +51,18 @@ library Strings {
             string memory buffer = new string(length);
             /// @solidity memory-safe-assembly
             assembly {
-                let pos := add(buffer, 32)
-                let ptr := add(pos, length)
-
+                let ptr := add(buffer, add(32, length))
                 for {
 
-                } gt(ptr, pos) {
+                } 1 {
 
                 } {
                     ptr := sub(ptr, 1)
-                    mstore8(ptr, add(48, mod(value, 10)))
+                    mstore8(ptr, byte(mod(value, 10), _SYMBOLS))
                     value := div(value, 10)
+                    if iszero(value) {
+                        break
+                    }
                 }
             }
             return buffer;
@@ -111,7 +112,7 @@ library Strings {
         buffer[0] = "0";
         buffer[1] = "x";
         for (uint256 i = 2 * length + 1; i > 1; --i) {
-            buffer[i] = _HEX_SYMBOLS[value & 0xf];
+            buffer[i] = _SYMBOLS[value & 0xf];
             value >>= 4;
         }
         require(value == 0, "Strings: hex length insufficient");
