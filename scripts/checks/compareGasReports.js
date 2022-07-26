@@ -44,19 +44,39 @@ class Report {
     if (JSON.stringify(update.config.metadata) !== JSON.stringify(ref.config.metadata)) {
       throw new Error('Reports produced with non matching metadata');
     }
-    return Object.keys(update.info.methods)
+
+    const deployments = update.info.deployments
+      .map(contract => Object.assign(
+        contract,
+        { previousVersion: ref.info.deployments.find(({ name }) => name === contract.name) },
+      ))
+      .filter(contract => contract.gasData?.length && contract.previousVersion?.gasData?.length)
+      .flatMap(contract => [{
+        contract: contract.name,
+        method: '[bytecode length]',
+        avg: variation(contract.bytecode.length / 2 - 1, contract.previousVersion.bytecode.length / 2 - 1),
+      }, {
+        contract: contract.name,
+        method: '[construction cost]',
+        avg: variation(...[contract.gasData, contract.previousVersion.gasData].map(x => Math.round(average(...x)))),
+      }])
+      .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
+
+    const methods = Object.keys(update.info.methods)
       .filter(key => ref.info.methods[key])
       .filter(key => update.info.methods[key].numberOfCalls > 0)
       .filter(key => update.info.methods[key].numberOfCalls === ref.info.methods[key].numberOfCalls)
       .map(key => ({
         contract: ref.info.methods[key].contract,
         method: ref.info.methods[key].fnSig,
-        min: variation(...[update, ref].map(x => ~~Math.min(...x.info.methods[key].gasData))),
-        max: variation(...[update, ref].map(x => ~~Math.max(...x.info.methods[key].gasData))),
-        avg: variation(...[update, ref].map(x => ~~average(...x.info.methods[key].gasData))),
+        min: variation(...[update, ref].map(x => Math.min(...x.info.methods[key].gasData))),
+        max: variation(...[update, ref].map(x => Math.max(...x.info.methods[key].gasData))),
+        avg: variation(...[update, ref].map(x => Math.round(average(...x.info.methods[key].gasData)))),
       }))
-      .filter(row => !opts.hideEqual || (row.min.delta && row.max.delta && row.avg.delta))
-      .sort((a, b) => `${a.contract}:${a.method}` < `${b.contract}:${b.method}` ? -1 : 1);
+      .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
+
+    return [].concat(deployments, methods)
+      .filter(row => !opts.hideEqual || row.min?.delta || row.max?.delta || row.avg?.delta);
   }
 }
 
@@ -70,11 +90,11 @@ function plusSign (num) {
 }
 
 function formatCellShell (cell) {
-  const format = chalk[cell.delta > 0 ? 'red' : cell.delta < 0 ? 'green' : 'reset'];
+  const format = chalk[cell?.delta > 0 ? 'red' : cell?.delta < 0 ? 'green' : 'reset'];
   return [
-    format((isNaN(cell.value) ? '-' : cell.value.toString()).padStart(8)),
-    format((isNaN(cell.delta) ? '-' : plusSign(cell.delta) + cell.delta.toString()).padStart(8)),
-    format((isNaN(cell.prcnt) ? '-' : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '%').padStart(8)),
+    format((!isFinite(cell?.value) ? '-' : cell.value.toString()).padStart(8)),
+    format((!isFinite(cell?.delta) ? '-' : plusSign(cell.delta) + cell.delta.toString()).padStart(8)),
+    format((!isFinite(cell?.prcnt) ? '-' : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '%').padStart(8)),
   ];
 }
 
@@ -87,8 +107,8 @@ function formatCmpShell (rows) {
     { txt: 'Contract', length: contractLength },
     { txt: 'Method', length: methodLength },
     { txt: 'Min', length: 30 },
-    { txt: 'Avg', length: 30 },
     { txt: 'Max', length: 30 },
+    { txt: 'Avg', length: 30 },
     { txt: '', length: 0 },
   ];
   const HEADER = COLS.map(entry => chalk.bold(center(entry.txt, entry.length || 0))).join(' | ').trim();
@@ -102,8 +122,8 @@ function formatCmpShell (rows) {
       chalk.grey(entry.contract.padEnd(contractLength)),
       entry.method.padEnd(methodLength),
       ...formatCellShell(entry.min),
-      ...formatCellShell(entry.avg),
       ...formatCellShell(entry.max),
+      ...formatCellShell(entry.avg),
       '',
     ].join(' | ').trim()),
     '',
@@ -132,9 +152,9 @@ function trend (value) {
 
 function formatCellMarkdown (cell) {
   return [
-    (isNaN(cell.value) ? '-' : cell.value.toString()),
-    (isNaN(cell.delta) ? '-' : plusSign(cell.delta) + cell.delta.toString()),
-    (isNaN(cell.prcnt) ? '-' : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '%') + trend(cell.delta),
+    (!isFinite(cell?.value) ? '-' : cell.value.toString()),
+    (!isFinite(cell?.delta) ? '-' : plusSign(cell.delta) + cell.delta.toString()),
+    (!isFinite(cell?.prcnt) ? '-' : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '%' + trend(cell.delta)),
   ];
 }
 
@@ -146,10 +166,10 @@ function formatCmpMarkdown (rows) {
     { txt: 'Min', align: 'right' },
     { txt: '(+/-)', align: 'right' },
     { txt: '%', align: 'right' },
-    { txt: 'Avg', align: 'right' },
+    { txt: 'Max', align: 'right' },
     { txt: '(+/-)', align: 'right' },
     { txt: '%', align: 'right' },
-    { txt: 'Max', align: 'right' },
+    { txt: 'Avg', align: 'right' },
     { txt: '(+/-)', align: 'right' },
     { txt: '%', align: 'right' },
     { txt: '' },
@@ -167,8 +187,8 @@ function formatCmpMarkdown (rows) {
       entry.contract,
       entry.method,
       ...formatCellMarkdown(entry.min),
-      ...formatCellMarkdown(entry.avg),
       ...formatCellMarkdown(entry.max),
+      ...formatCellMarkdown(entry.avg),
       '',
     ].join(' | ').trim()).join('\n'),
     '',
