@@ -632,6 +632,8 @@
 :xref-GovernorVotesQuorumFraction-constructor-uint256-: xref:governance.adoc#GovernorVotesQuorumFraction-constructor-uint256-
 :GovernorVotesQuorumFraction-quorumNumerator: pass:normal[xref:governance.adoc#GovernorVotesQuorumFraction-quorumNumerator--[`GovernorVotesQuorumFraction.quorumNumerator`]]
 :xref-GovernorVotesQuorumFraction-quorumNumerator--: xref:governance.adoc#GovernorVotesQuorumFraction-quorumNumerator--
+:GovernorVotesQuorumFraction-quorumNumerator: pass:normal[xref:governance.adoc#GovernorVotesQuorumFraction-quorumNumerator-uint256-[`GovernorVotesQuorumFraction.quorumNumerator`]]
+:xref-GovernorVotesQuorumFraction-quorumNumerator-uint256-: xref:governance.adoc#GovernorVotesQuorumFraction-quorumNumerator-uint256-
 :GovernorVotesQuorumFraction-quorumDenominator: pass:normal[xref:governance.adoc#GovernorVotesQuorumFraction-quorumDenominator--[`GovernorVotesQuorumFraction.quorumDenominator`]]
 :xref-GovernorVotesQuorumFraction-quorumDenominator--: xref:governance.adoc#GovernorVotesQuorumFraction-quorumDenominator--
 :GovernorVotesQuorumFraction-quorum: pass:normal[xref:governance.adoc#GovernorVotesQuorumFraction-quorum-uint256-[`GovernorVotesQuorumFraction.quorum`]]
@@ -3420,6 +3422,7 @@ _Available since v4.3._
 :GovernorVotesQuorumFraction: pass:normal[xref:#GovernorVotesQuorumFraction[`++GovernorVotesQuorumFraction++`]]
 :constructor: pass:normal[xref:#GovernorVotesQuorumFraction-constructor-uint256-[`++constructor++`]]
 :quorumNumerator: pass:normal[xref:#GovernorVotesQuorumFraction-quorumNumerator--[`++quorumNumerator++`]]
+:quorumNumerator: pass:normal[xref:#GovernorVotesQuorumFraction-quorumNumerator-uint256-[`++quorumNumerator++`]]
 :quorumDenominator: pass:normal[xref:#GovernorVotesQuorumFraction-quorumDenominator--[`++quorumDenominator++`]]
 :quorum: pass:normal[xref:#GovernorVotesQuorumFraction-quorum-uint256-[`++quorum++`]]
 :updateQuorumNumerator: pass:normal[xref:#GovernorVotesQuorumFraction-updateQuorumNumerator-uint256-[`++updateQuorumNumerator++`]]
@@ -3446,6 +3449,7 @@ _Available since v4.3._
 --
 * {xref-GovernorVotesQuorumFraction-constructor-uint256-}[`++constructor(quorumNumeratorValue)++`]
 * {xref-GovernorVotesQuorumFraction-quorumNumerator--}[`++quorumNumerator()++`]
+* {xref-GovernorVotesQuorumFraction-quorumNumerator-uint256-}[`++quorumNumerator(blockNumber)++`]
 * {xref-GovernorVotesQuorumFraction-quorumDenominator--}[`++quorumDenominator()++`]
 * {xref-GovernorVotesQuorumFraction-quorum-uint256-}[`++quorum(blockNumber)++`]
 * {xref-GovernorVotesQuorumFraction-updateQuorumNumerator-uint256-}[`++updateQuorumNumerator(newQuorumNumerator)++`]
@@ -3572,6 +3576,12 @@ customized by overriding {quorumDenominator}.
 ==== `[.contract-item-name]#++quorumNumerator++#++() → uint256++` [.item-kind]#public#
 
 Returns the current quorum numerator. See {quorumDenominator}.
+
+[.contract-item]
+[[GovernorVotesQuorumFraction-quorumNumerator-uint256-]]
+==== `[.contract-item-name]#++quorumNumerator++#++(uint256 blockNumber) → uint256++` [.item-kind]#public#
+
+Returns the quorum numerator at a specific block number. See {quorumDenominator}.
 
 [.contract-item]
 [[GovernorVotesQuorumFraction-quorumDenominator--]]

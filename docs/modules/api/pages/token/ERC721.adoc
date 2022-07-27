@@ -632,6 +632,8 @@
 :xref-GovernorVotesQuorumFraction-constructor-uint256-: xref:governance.adoc#GovernorVotesQuorumFraction-constructor-uint256-
 :GovernorVotesQuorumFraction-quorumNumerator: pass:normal[xref:governance.adoc#GovernorVotesQuorumFraction-quorumNumerator--[`GovernorVotesQuorumFraction.quorumNumerator`]]
 :xref-GovernorVotesQuorumFraction-quorumNumerator--: xref:governance.adoc#GovernorVotesQuorumFraction-quorumNumerator--
+:GovernorVotesQuorumFraction-quorumNumerator: pass:normal[xref:governance.adoc#GovernorVotesQuorumFraction-quorumNumerator-uint256-[`GovernorVotesQuorumFraction.quorumNumerator`]]
+:xref-GovernorVotesQuorumFraction-quorumNumerator-uint256-: xref:governance.adoc#GovernorVotesQuorumFraction-quorumNumerator-uint256-
 :GovernorVotesQuorumFraction-quorumDenominator: pass:normal[xref:governance.adoc#GovernorVotesQuorumFraction-quorumDenominator--[`GovernorVotesQuorumFraction.quorumDenominator`]]
 :xref-GovernorVotesQuorumFraction-quorumDenominator--: xref:governance.adoc#GovernorVotesQuorumFraction-quorumDenominator--
 :GovernorVotesQuorumFraction-quorum: pass:normal[xref:governance.adoc#GovernorVotesQuorumFraction-quorum-uint256-[`GovernorVotesQuorumFraction.quorum`]]
