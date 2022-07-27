@@ -18,17 +18,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up environment
-        uses: ./.github/actions/setup
       - name: Check diff
         id: diff
         run: |
           git fetch origin ${{ github.base_ref }} --depth=1
-          git diff --exit-code origin/${{ github.base_ref }} -- CHANGELOG.md
-        continue-on-error: true
-      - name: Produce output
-        if: steps.diff.outcome == 'success'
-        run: echo 'Missing changelog entry'; exit 1
+          if git diff --exit-code origin/${{ github.base_ref }} -- CHANGELOG.md ; then
+            echo 'Missing changelog entry'
+            exit 1
+          fi
 
   lint:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
