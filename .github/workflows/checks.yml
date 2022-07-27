@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/actions/setup
       - name: Check diff
         id: diff
-        run: git diff ${{ github.base_ref }} ${{ github.ref }} --exit-code
+        run: git diff --exit-code ${{ github.event.pull_request.base.sha }} ${{ github.sha }}
         continue-on-error: true
       - name: Produce output
         if: steps.diff.outcome == 'failure'
