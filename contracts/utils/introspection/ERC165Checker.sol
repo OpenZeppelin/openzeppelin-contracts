@@ -110,23 +110,14 @@ library ERC165Checker {
 
         // perform static call
         bool success;
-        uint256 returnsize;
+        uint256 returnSize;
+        uint256 returnValue;
         assembly {
             success := staticcall(30000, account, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x20)
-            returnsize := returndatasize()
+            returnSize := returndatasize()
+            returnValue := mload(0x00)
         }
 
-        // if call failure of invalid return length, return false
-        if (!success || returnsize < 0x20) {
-            return false;
-        }
-
-        // only copy the first 32 bytes of returndata (avoid return bomb)
-        assembly {
-            returndatacopy(0x00, 0x00, 0x20)
-            success := mload(0x00)
-        }
-
-        return success;
+        return success && returnSize >= 0x20 && returnValue > 0;
     }
 }
