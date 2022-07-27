@@ -105,9 +105,28 @@ library ERC165Checker {
      * Interface identification is specified in ERC-165.
      */
     function supportsERC165InterfaceUnchecked(address account, bytes4 interfaceId) internal view returns (bool) {
+        // prepare call
         bytes memory encodedParams = abi.encodeWithSelector(IERC165.supportsInterface.selector, interfaceId);
-        (bool success, bytes memory result) = account.staticcall{gas: 30000}(encodedParams);
-        if (result.length < 32) return false;
-        return success && abi.decode(result, (uint256)) > 0;
+
+        // perform static call
+        bool success;
+        uint256 returnsize;
+        assembly {
+            success := staticcall(30000, account, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x20)
+            returnsize := returndatasize()
+        }
+
+        // if call failure of invalid return length, return false
+        if (!success || returnsize < 0x20) {
+            return false;
+        }
+
+        // only copy the first 32 bytes of returndata (avoid return bomb)
+        assembly {
+            returndatacopy(0x00, 0x00, 0x20)
+            success := mload(0x00)
+        }
+
+        return success;
     }
 }
