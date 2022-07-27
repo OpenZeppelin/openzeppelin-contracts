@@ -25,7 +25,7 @@ jobs:
         run: git diff --quiet ${{ github.base_ref }} -- CHANGELOG.md
         continue-on-error: true
       - name: Produce output
-        if: steps.diff.outcome != 'success'
+        if: steps.diff.outcome == 'failure'
         run: exit 1
 
   lint:
