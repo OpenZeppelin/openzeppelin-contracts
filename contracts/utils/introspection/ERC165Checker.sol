@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.1) (utils/introspection/ERC165Checker.sol)
+// OpenZeppelin Contracts (last updated v4.7.2) (utils/introspection/ERC165Checker.sol)
 
 pragma solidity ^0.8.0;
 
@@ -105,9 +105,19 @@ library ERC165Checker {
      * Interface identification is specified in ERC-165.
      */
     function _supportsERC165Interface(address account, bytes4 interfaceId) private view returns (bool) {
+        // prepare call
         bytes memory encodedParams = abi.encodeWithSelector(IERC165.supportsInterface.selector, interfaceId);
-        (bool success, bytes memory result) = account.staticcall{gas: 30000}(encodedParams);
-        if (result.length < 32) return false;
-        return success && abi.decode(result, (uint256)) > 0;
+
+        // perform static call
+        bool success;
+        uint256 returnSize;
+        uint256 returnValue;
+        assembly {
+            success := staticcall(30000, account, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x20)
+            returnSize := returndatasize()
+            returnValue := mload(0x00)
+        }
+
+        return success && returnSize >= 0x20 && returnValue > 0;
     }
 }
