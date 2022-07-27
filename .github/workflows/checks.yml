@@ -24,7 +24,7 @@ jobs:
         id: diff
         run: |
           git fetch origin ${{ github.base_ref }} --depth=1
-          git diff --exit-code ${{ github.base_ref }} -- CHANGELOG.md
+          git diff --exit-code origin/${{ github.base_ref }} -- CHANGELOG.md
         continue-on-error: true
       - name: Produce output
         if: steps.diff.outcome == 'success'
