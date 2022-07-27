@@ -7,7 +7,7 @@ const ERC165MissingData = artifacts.require('ERC165MissingData');
 const ERC165MaliciousData = artifacts.require('ERC165MaliciousData');
 const ERC165NotSupported = artifacts.require('ERC165NotSupported');
 const ERC165InterfacesSupported = artifacts.require('ERC165InterfacesSupported');
-const ERC165ReturnBombMock = artifacts.require("ERC165ReturnBombMock");
+const ERC165ReturnBombMock = artifacts.require('ERC165ReturnBombMock');
 
 const DUMMY_ID = '0xdeadbeef';
 const DUMMY_ID_2 = '0xcafebabe';
