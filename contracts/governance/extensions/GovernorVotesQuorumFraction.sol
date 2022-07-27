@@ -43,10 +43,20 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * @dev Returns the quorum numerator at a specific block number. See {quorumDenominator}.
      */
     function quorumNumerator(uint256 blockNumber) public view virtual returns (uint256) {
-        return
-            _quorumNumeratorHistory._checkpoints.length == 0
-                ? _quorumNumerator
-                : _quorumNumeratorHistory.getAtBlock(blockNumber);
+        // If history is empty, fallback to old storage
+        uint256 length = _quorumNumeratorHistory._checkpoints.length;
+        if (length == 0) {
+            return _quorumNumerator;
+        }
+
+        // Optimistic search, check the latest checkpoint
+        Checkpoints.Checkpoint memory latest = _quorumNumeratorHistory._checkpoints[length - 1];
+        if (latest._blockNumber <= blockNumber) {
+            return latest._value;
+        }
+
+        // Otherwize, do the binary search
+        return _quorumNumeratorHistory.getAtBlock(blockNumber);
     }
 
     /**
