@@ -3,6 +3,8 @@
 ## 4.7.2
 
  * `LibArbitrumL2`, `CrossChainEnabledArbitrumL2`: Fixed detection of cross-chain calls for EOAs. Previously, calls from EOAs would be classified as cross-chain calls. ([#3578](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3578))
+ * `GovernorVotesQuorumFraction`: Fixed quorum updates so they do not affect past proposals that failed due to lack of quorum. ([#3561](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3561))
+ * `ERC165Checker`: Added protection against large returndata. ([#3587](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3587))
 
 ## 4.7.1 (2022-07-19)
 
