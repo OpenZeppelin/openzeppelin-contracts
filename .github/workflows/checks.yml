@@ -13,6 +13,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changelog:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: ! git diff --quiet ${{ github.base_ref }} -- CHANGELOG.md
+
   lint:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
