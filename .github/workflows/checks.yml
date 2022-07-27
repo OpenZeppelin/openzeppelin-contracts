@@ -22,12 +22,11 @@ jobs:
         uses: ./.github/actions/setup
       - name: Check diff
         id: diff
-        run: git diff --exit-code ${{ github.event.pull_request.base.sha }}
+        run: git diff --exit-code ${{ github.base_ref }} -- CHANGELOG.md
         continue-on-error: true
       - name: Produce output
-        # if: steps.diff.outcome == 'failure'
-        # run: echo 'Missing changelog entry'; exit 1
-        run: echo ${{ steps.diff.outcome }}; exit 1
+        if: steps.diff.outcome == 'success'
+        run: echo 'Missing changelog entry'; exit 1
 
   lint:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
