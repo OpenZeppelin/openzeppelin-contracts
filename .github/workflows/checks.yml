@@ -22,7 +22,9 @@ jobs:
         uses: ./.github/actions/setup
       - name: Check diff
         id: diff
-        run: git diff --exit-code origin/${{ github.base_ref }} -- CHANGELOG.md
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1
+          git diff --exit-code ${{ github.base_ref }} -- CHANGELOG.md
         continue-on-error: true
       - name: Produce output
         if: steps.diff.outcome == 'success'
