@@ -50,8 +50,8 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         }
 
         // Optimistic search, check the latest checkpoint
-        Checkpoints.Checkpoint memory latest = _quorumNumeratorHistory._checkpoints[length - 1];
-        if (latest._blockNumber <= blockNumber) {
+        Checkpoints.Checkpoint224 memory latest = _quorumNumeratorHistory._checkpoints[length - 1];
+        if (latest._key <= blockNumber) {
             return latest._value;
         }
 
@@ -107,7 +107,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         // Make sure we keep track of the original numerator in contracts upgraded from a version without checkpoints.
         if (oldQuorumNumerator != 0 && _quorumNumeratorHistory._checkpoints.length == 0) {
             _quorumNumeratorHistory._checkpoints.push(
-                Checkpoints.Checkpoint({_blockNumber: 0, _value: SafeCast.toUint224(oldQuorumNumerator)})
+                Checkpoints.Checkpoint224({_key: 0, _value: SafeCast.toUint224(oldQuorumNumerator)})
             );
         }
 

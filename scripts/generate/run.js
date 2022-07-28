@@ -14,6 +14,8 @@ function getVersion (path) {
 }
 
 for (const [ file, template ] of Object.entries({
+  'utils/Checkpoints.sol': './templates/Checkpoints',
+  'mocks/CheckpointsMock.sol': './templates/CheckpointsMock',
   'utils/math/SafeCast.sol': './templates/SafeCast',
   'mocks/SafeCastMock.sol': './templates/SafeCastMock',
 })) {

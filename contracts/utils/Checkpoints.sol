@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.5.0) (utils/Checkpoints.sol)
+
 pragma solidity ^0.8.0;
 
 import "./math/Math.sol";
@@ -15,21 +16,187 @@ import "./math/SafeCast.sol";
  * _Available since v4.5._
  */
 library Checkpoints {
-    struct Checkpoint {
-        uint32 _blockNumber;
+    struct Checkpoint224 {
+        uint32 _key;
         uint224 _value;
     }
 
+    function latest(Checkpoint224[] storage self) internal view returns (uint224) {
+        uint256 pos = self.length;
+        return pos == 0 ? 0 : self[pos - 1]._value;
+    }
+
+    function push(
+        Checkpoint224[] storage self,
+        uint32 key,
+        uint224 value
+    ) internal returns (uint224, uint224) {
+        uint256 pos = self.length;
+        uint224 old = latest(self);
+        if (pos > 0 && self[pos - 1]._key == key) {
+            self[pos - 1]._value = value;
+        } else {
+            self.push(Checkpoint224({_key: key, _value: value}));
+        }
+        return (old, value);
+    }
+
+    function lowerLookup(Checkpoint224[] storage self, uint32 key) internal view returns (uint224) {
+        uint256 length = self.length;
+        uint256 pos = _lowerDichotomicLookup(self, key, 0, length);
+        return pos == length ? 0 : self[pos]._value;
+    }
+
+    function upperLookup(Checkpoint224[] storage self, uint32 key) internal view returns (uint224) {
+        uint256 length = self.length;
+        uint256 pos = _upperDichotomicLookup(self, key, 0, length);
+        return pos == 0 ? 0 : self[pos - 1]._value;
+    }
+
+    function upperLookupExpEnd(Checkpoint224[] storage self, uint32 key) internal view returns (uint224) {
+        uint256 length = self.length;
+        uint256 offset = 1;
+
+        while (offset <= length && self[length - offset]._key > key) {
+            offset <<= 1;
+        }
+
+        uint256 low = offset < length ? length - offset : 0;
+        uint256 high = length - (offset >> 1);
+        uint256 pos = _upperDichotomicLookup(self, key, low, high);
+
+        return pos == 0 ? 0 : self[pos - 1]._value;
+    }
+
+    function _upperDichotomicLookup(
+        Checkpoint224[] storage self,
+        uint32 key,
+        uint256 low,
+        uint256 high
+    ) private view returns (uint256) {
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+            if (self[mid]._key > key) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+        return high;
+    }
+
+    function _lowerDichotomicLookup(
+        Checkpoint224[] storage self,
+        uint32 key,
+        uint256 low,
+        uint256 high
+    ) private view returns (uint256) {
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+            if (self[mid]._key < key) {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+        return high;
+    }
+
+    struct Checkpoint160 {
+        uint96 _key;
+        uint160 _value;
+    }
+
+    function latest(Checkpoint160[] storage self) internal view returns (uint160) {
+        uint256 pos = self.length;
+        return pos == 0 ? 0 : self[pos - 1]._value;
+    }
+
+    function push(
+        Checkpoint160[] storage self,
+        uint96 key,
+        uint160 value
+    ) internal returns (uint160, uint160) {
+        uint256 pos = self.length;
+        uint160 old = latest(self);
+        if (pos > 0 && self[pos - 1]._key == key) {
+            self[pos - 1]._value = value;
+        } else {
+            self.push(Checkpoint160({_key: key, _value: value}));
+        }
+        return (old, value);
+    }
+
+    function lowerLookup(Checkpoint160[] storage self, uint96 key) internal view returns (uint160) {
+        uint256 length = self.length;
+        uint256 pos = _lowerDichotomicLookup(self, key, 0, length);
+        return pos == length ? 0 : self[pos]._value;
+    }
+
+    function upperLookup(Checkpoint160[] storage self, uint96 key) internal view returns (uint160) {
+        uint256 length = self.length;
+        uint256 pos = _upperDichotomicLookup(self, key, 0, length);
+        return pos == 0 ? 0 : self[pos - 1]._value;
+    }
+
+    function upperLookupExpEnd(Checkpoint160[] storage self, uint96 key) internal view returns (uint224) {
+        uint256 length = self.length;
+        uint256 offset = 1;
+
+        while (offset <= length && self[length - offset]._key > key) {
+            offset <<= 1;
+        }
+
+        uint256 low = offset < length ? length - offset : 0;
+        uint256 high = length - (offset >> 1);
+        uint256 pos = _upperDichotomicLookup(self, key, low, high);
+
+        return pos == 0 ? 0 : self[pos - 1]._value;
+    }
+
+    function _upperDichotomicLookup(
+        Checkpoint160[] storage self,
+        uint96 key,
+        uint256 low,
+        uint256 high
+    ) private view returns (uint256) {
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+            if (self[mid]._key > key) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+        return high;
+    }
+
+    function _lowerDichotomicLookup(
+        Checkpoint160[] storage self,
+        uint96 key,
+        uint256 low,
+        uint256 high
+    ) private view returns (uint256) {
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+            if (self[mid]._key < key) {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+        return high;
+    }
+
     struct History {
-        Checkpoint[] _checkpoints;
+        Checkpoint224[] _checkpoints;
     }
 
     /**
      * @dev Returns the value in the latest checkpoint, or zero if there are no checkpoints.
      */
     function latest(History storage self) internal view returns (uint256) {
-        uint256 pos = self._checkpoints.length;
-        return pos == 0 ? 0 : self._checkpoints[pos - 1]._value;
+        return latest(self._checkpoints);
     }
 
     /**
@@ -39,17 +206,7 @@ library Checkpoints {
     function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
 
-        uint256 high = self._checkpoints.length;
-        uint256 low = 0;
-        while (low < high) {
-            uint256 mid = Math.average(low, high);
-            if (self._checkpoints[mid]._blockNumber > blockNumber) {
-                high = mid;
-            } else {
-                low = mid + 1;
-            }
-        }
-        return high == 0 ? 0 : self._checkpoints[high - 1]._value;
+        return upperLookupExpEnd(self._checkpoints, SafeCast.toUint32(blockNumber));
     }
 
     /**
@@ -58,16 +215,7 @@ library Checkpoints {
      * Returns previous value and new value.
      */
     function push(History storage self, uint256 value) internal returns (uint256, uint256) {
-        uint256 pos = self._checkpoints.length;
-        uint256 old = latest(self);
-        if (pos > 0 && self._checkpoints[pos - 1]._blockNumber == block.number) {
-            self._checkpoints[pos - 1]._value = SafeCast.toUint224(value);
-        } else {
-            self._checkpoints.push(
-                Checkpoint({_blockNumber: SafeCast.toUint32(block.number), _value: SafeCast.toUint224(value)})
-            );
-        }
-        return (old, value);
+        return push(self._checkpoints, SafeCast.toUint32(block.number), SafeCast.toUint224(value));
     }
 
     /**

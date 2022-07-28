@@ -4,71 +4,133 @@ const { expect } = require('chai');
 
 const { batchInBlock } = require('../helpers/txpool');
 
-const CheckpointsImpl = artifacts.require('CheckpointsImpl');
+const CheckpointsMock = artifacts.require('CheckpointsMock');
+
+const first = (...args) => args.length ? args[0] : undefined;
+const last = (...args) => args.length ? args[args.length - 1] : undefined;
 
 contract('Checkpoints', function (accounts) {
-  beforeEach(async function () {
-    this.checkpoint = await CheckpointsImpl.new();
+  describe('History checkpoints', function () {
+    beforeEach(async function () {
+      this.checkpoint = await CheckpointsMock.new();
+    });
+
+    describe('without checkpoints', function () {
+      it('returns zero as latest value', async function () {
+        expect(await this.checkpoint.latest()).to.be.bignumber.equal('0');
+      });
+
+      it('returns zero as past value', async function () {
+        await time.advanceBlock();
+        expect(await this.checkpoint.getAtBlock(await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
+      });
+    });
+
+    describe('with checkpoints', function () {
+      beforeEach('pushing checkpoints', async function () {
+        this.tx1 = await this.checkpoint.push(1);
+        this.tx2 = await this.checkpoint.push(2);
+        await time.advanceBlock();
+        this.tx3 = await this.checkpoint.push(3);
+        await time.advanceBlock();
+        await time.advanceBlock();
+      });
+
+      it('returns latest value', async function () {
+        expect(await this.checkpoint.latest()).to.be.bignumber.equal('3');
+      });
+
+      it('returns past values', async function () {
+        expect(await this.checkpoint.getAtBlock(this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+        expect(await this.checkpoint.getAtBlock(this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
+        expect(await this.checkpoint.getAtBlock(this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
+        // Block with no new checkpoints
+        expect(await this.checkpoint.getAtBlock(this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
+        expect(await this.checkpoint.getAtBlock(this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
+        expect(await this.checkpoint.getAtBlock(this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
+      });
+
+      it('reverts if block number >= current block', async function () {
+        await expectRevert(
+          this.checkpoint.getAtBlock(await web3.eth.getBlockNumber()),
+          'Checkpoints: block not yet mined',
+        );
+
+        await expectRevert(
+          this.checkpoint.getAtBlock(await web3.eth.getBlockNumber() + 1),
+          'Checkpoints: block not yet mined',
+        );
+      });
+
+      it('multiple checkpoints in the same block', async function () {
+        const lengthBefore = await this.checkpoint.length();
+        await batchInBlock([
+          () => this.checkpoint.push(8, { gas: 100000 }),
+          () => this.checkpoint.push(9, { gas: 100000 }),
+          () => this.checkpoint.push(10, { gas: 100000 }),
+        ]);
+        const lengthAfter = await this.checkpoint.length();
+
+        expect(lengthAfter.toNumber()).to.be.equal(lengthBefore.toNumber() + 1);
+        expect(await this.checkpoint.latest()).to.be.bignumber.equal('10');
+      });
+    });
   });
 
-  describe('without checkpoints', function () {
-    it('returns zero as latest value', async function () {
-      expect(await this.checkpoint.latest()).to.be.bignumber.equal('0');
+  for (const length of [160, 224]) {
+    describe(`Checkpoint${length}[]`, function () {
+      beforeEach(async function () {
+        this.contract = await artifacts.require(`Checkpoints${length}Mock`).new();
+      });
+
+      describe('without checkpoints', function () {
+        it('returns zero as latest value', async function () {
+          expect(await this.contract.latest()).to.be.bignumber.equal('0');
+        });
+
+        it('lookup returns 0', async function () {
+          expect(await this.contract.lowerLookup(0)).to.be.bignumber.equal('0');
+          expect(await this.contract.upperLookup(0)).to.be.bignumber.equal('0');
+          expect(await this.contract.upperLookupExpEnd(0)).to.be.bignumber.equal('0');
+        });
+      });
+
+      describe('with checkpoints', function () {
+        beforeEach('pushing checkpoints', async function () {
+          this.checkpoints = [
+            { key: 2, value: '2' },
+            { key: 3, value: '3' },
+            { key: 5, value: '5' },
+            { key: 7, value: '8' },
+            { key: 11, value: '13' },
+          ];
+          for (const { key, value } of this.checkpoints) {
+            await this.contract.push(key, value);
+          }
+        });
+
+        it('returns latest value', async function () {
+          expect(await this.contract.latest())
+            .to.be.bignumber.equal(last(...this.checkpoints).value);
+        });
+
+        it('lower lookup', async function () {
+          for (let i = 0; i < 14; ++i) {
+            const value = first(...this.checkpoints.filter(x => i <= x.key))?.value || '0';
+
+            expect(await this.contract.lowerLookup(i)).to.be.bignumber.equal(value);
+          }
+        });
+
+        it('upper lookup', async function () {
+          for (let i = 0; i < 14; ++i) {
+            const value = last(...this.checkpoints.filter(x => i >= x.key))?.value || '0';
+
+            expect(await this.contract.upperLookup(i)).to.be.bignumber.equal(value);
+            expect(await this.contract.upperLookupExpEnd(i)).to.be.bignumber.equal(value);
+          }
+        });
+      });
     });
-
-    it('returns zero as past value', async function () {
-      await time.advanceBlock();
-      expect(await this.checkpoint.getAtBlock(await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
-    });
-  });
-
-  describe('with checkpoints', function () {
-    beforeEach('pushing checkpoints', async function () {
-      this.tx1 = await this.checkpoint.push(1);
-      this.tx2 = await this.checkpoint.push(2);
-      await time.advanceBlock();
-      this.tx3 = await this.checkpoint.push(3);
-      await time.advanceBlock();
-      await time.advanceBlock();
-    });
-
-    it('returns latest value', async function () {
-      expect(await this.checkpoint.latest()).to.be.bignumber.equal('3');
-    });
-
-    it('returns past values', async function () {
-      expect(await this.checkpoint.getAtBlock(this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-      expect(await this.checkpoint.getAtBlock(this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
-      expect(await this.checkpoint.getAtBlock(this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
-      // Block with no new checkpoints
-      expect(await this.checkpoint.getAtBlock(this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
-      expect(await this.checkpoint.getAtBlock(this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
-      expect(await this.checkpoint.getAtBlock(this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
-    });
-
-    it('reverts if block number >= current block', async function () {
-      await expectRevert(
-        this.checkpoint.getAtBlock(await web3.eth.getBlockNumber()),
-        'Checkpoints: block not yet mined',
-      );
-
-      await expectRevert(
-        this.checkpoint.getAtBlock(await web3.eth.getBlockNumber() + 1),
-        'Checkpoints: block not yet mined',
-      );
-    });
-
-    it('multiple checkpoints in the same block', async function () {
-      const lengthBefore = await this.checkpoint.length();
-      await batchInBlock([
-        () => this.checkpoint.push(8, { gas: 100000 }),
-        () => this.checkpoint.push(9, { gas: 100000 }),
-        () => this.checkpoint.push(10, { gas: 100000 }),
-      ]);
-      const lengthAfter = await this.checkpoint.length();
-
-      expect(lengthAfter.toNumber()).to.be.equal(lengthBefore.toNumber() + 1);
-      expect(await this.checkpoint.latest()).to.be.bignumber.equal('10');
-    });
-  });
+  }
 });

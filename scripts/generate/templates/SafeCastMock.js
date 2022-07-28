@@ -42,9 +42,9 @@ module.exports = format(
     'using SafeCast for int256;',
     '',
     toUint(256),
-    ...LENGTHS.map(size => toUintDownCast(size)),
+    ...LENGTHS.map(toUintDownCast),
     toInt(256),
-    ...LENGTHS.map(size => toIntDownCast(size)),
+    ...LENGTHS.map(toIntDownCast),
   ].flatMap(fn => fn.split('\n')).slice(0, -1),
   '}',
 );
