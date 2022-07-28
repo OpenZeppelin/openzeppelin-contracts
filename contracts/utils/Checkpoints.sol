@@ -53,7 +53,7 @@ library Checkpoints {
         return pos == 0 ? 0 : self[pos - 1]._value;
     }
 
-    function upperLookupExpEnd(Checkpoint224[] storage self, uint32 key) internal view returns (uint224) {
+    function upperLookupRecent(Checkpoint224[] storage self, uint32 key) internal view returns (uint224) {
         uint256 length = self.length;
         uint256 offset = 1;
 
@@ -139,7 +139,7 @@ library Checkpoints {
         return pos == 0 ? 0 : self[pos - 1]._value;
     }
 
-    function upperLookupExpEnd(Checkpoint160[] storage self, uint96 key) internal view returns (uint224) {
+    function upperLookupRecent(Checkpoint160[] storage self, uint96 key) internal view returns (uint224) {
         uint256 length = self.length;
         uint256 offset = 1;
 
@@ -206,7 +206,7 @@ library Checkpoints {
     function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
 
-        return upperLookupExpEnd(self._checkpoints, SafeCast.toUint32(blockNumber));
+        return upperLookupRecent(self._checkpoints, SafeCast.toUint32(blockNumber));
     }
 
     /**

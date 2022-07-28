@@ -54,8 +54,8 @@ contract Checkpoints${length}Mock {
         return _totalCheckpoints.upperLookup(key);
     }
 
-    function upperLookupExpEnd(uint${256 - length} key) public view returns (uint224) {
-        return _totalCheckpoints.upperLookupExpEnd(key);
+    function upperLookupRecent(uint${256 - length} key) public view returns (uint224) {
+        return _totalCheckpoints.upperLookupRecent(key);
     }
 
     function length() public view returns (uint256) {
