@@ -83,13 +83,25 @@ function push(
     uint${length} value
 ) internal returns (uint${length}, uint${length}) {
     uint256 pos = self.length;
-    uint${length} old = latest(self);
-    if (pos > 0 && self[pos - 1]._key == key) {
-        self[pos - 1]._value = value;
+
+    if (pos > 0) {
+        // Use of memory is important here.
+        Checkpoint${length} memory last = self[pos - 1];
+
+        // Checkpoints keys must be increassing.
+        require(last._key <= key, "Checkpoint: invalid key");
+
+        // Update or push new checkpoint
+        if (last._key == key) {
+            self[pos - 1]._value = value;
+        } else {
+            self.push(Checkpoint${length}({_key: key, _value: value}));
+        }
+        return (last._value, value);
     } else {
         self.push(Checkpoint${length}({_key: key, _value: value}));
+        return (0, value);
     }
-    return (old, value);
 }
 
 function lowerLookup(Checkpoint${length}[] storage self, uint${256 - length} key) internal view returns (uint${length}) {

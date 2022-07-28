@@ -32,13 +32,25 @@ library Checkpoints {
         uint224 value
     ) internal returns (uint224, uint224) {
         uint256 pos = self.length;
-        uint224 old = latest(self);
-        if (pos > 0 && self[pos - 1]._key == key) {
-            self[pos - 1]._value = value;
+
+        if (pos > 0) {
+            // Use of memory is important here.
+            Checkpoint224 memory last = self[pos - 1];
+
+            // Checkpoints keys must be increassing.
+            require(last._key <= key, "Checkpoint: invalid key");
+
+            // Update or push new checkpoint
+            if (last._key == key) {
+                self[pos - 1]._value = value;
+            } else {
+                self.push(Checkpoint224({_key: key, _value: value}));
+            }
+            return (last._value, value);
         } else {
             self.push(Checkpoint224({_key: key, _value: value}));
+            return (0, value);
         }
-        return (old, value);
     }
 
     function lowerLookup(Checkpoint224[] storage self, uint32 key) internal view returns (uint224) {
@@ -118,13 +130,25 @@ library Checkpoints {
         uint160 value
     ) internal returns (uint160, uint160) {
         uint256 pos = self.length;
-        uint160 old = latest(self);
-        if (pos > 0 && self[pos - 1]._key == key) {
-            self[pos - 1]._value = value;
+
+        if (pos > 0) {
+            // Use of memory is important here.
+            Checkpoint160 memory last = self[pos - 1];
+
+            // Checkpoints keys must be increassing.
+            require(last._key <= key, "Checkpoint: invalid key");
+
+            // Update or push new checkpoint
+            if (last._key == key) {
+                self[pos - 1]._value = value;
+            } else {
+                self.push(Checkpoint160({_key: key, _value: value}));
+            }
+            return (last._value, value);
         } else {
             self.push(Checkpoint160({_key: key, _value: value}));
+            return (0, value);
         }
-        return (old, value);
     }
 
     function lowerLookup(Checkpoint160[] storage self, uint96 key) internal view returns (uint160) {
