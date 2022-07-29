@@ -49,13 +49,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
             return _quorumNumerator;
         }
 
-        // Optimistic search, check the latest checkpoint
-        Checkpoints.Checkpoint224 memory latest = _quorumNumeratorHistory._checkpoints[length - 1];
-        if (latest._key <= blockNumber) {
-            return latest._value;
-        }
-
-        // Otherwize, do the binary search
+        // Otherwize, do the binary search (recent optimized)
         return _quorumNumeratorHistory.getAtBlock(blockNumber);
     }
 
