@@ -31,7 +31,7 @@ library Arrays {
 
             // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
             // because Math.average rounds down (it does integer division with truncation).
-            if (array[mid] > element) {
+            if (unsafeAccess(array, mid) > element) {
                 high = mid;
             } else {
                 low = mid + 1;
@@ -39,10 +39,21 @@ library Arrays {
         }
 
         // At this point `low` is the exclusive upper bound. We will return the inclusive upper bound.
-        if (low > 0 && array[low - 1] == element) {
+        if (low > 0 && unsafeAccess(array, low - 1) == element) {
             return low - 1;
         } else {
             return low;
+        }
+    }
+
+    /**
+     * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
+     * @notice WARNING: only use if you are certain pos is lower then the array length.
+     */
+    function unsafeAccess(uint256[] storage arr, uint256 pos) internal view returns (uint256 result) {
+        assembly {
+            mstore(0, arr.slot)
+            result := sload(add(keccak256(0, 0x20), pos))
         }
     }
 }

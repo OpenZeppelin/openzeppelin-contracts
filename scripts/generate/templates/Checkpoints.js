@@ -74,7 +74,7 @@ struct Checkpoint${length} {
 
 function latest(Checkpoint${length}[] storage self) internal view returns (uint${length}) {
     uint256 pos = self.length;
-    return pos == 0 ? 0 : self[pos - 1]._value;
+    return pos == 0 ? 0 : _unsafeAccess(self, pos - 1)._value;
 }
 
 function push(
@@ -86,14 +86,14 @@ function push(
 
     if (pos > 0) {
         // Use of memory is important here.
-        Checkpoint${length} memory last = self[pos - 1];
+        Checkpoint${length} memory last = _unsafeAccess(self, pos - 1);
 
         // Checkpoints keys must be increassing.
         require(last._key <= key, "Checkpoint: invalid key");
 
         // Update or push new checkpoint
         if (last._key == key) {
-            self[pos - 1]._value = value;
+            _unsafeAccess(self, pos - 1)._value = value;
         } else {
             self.push(Checkpoint${length}({_key: key, _value: value}));
         }
@@ -107,20 +107,20 @@ function push(
 function lowerLookup(Checkpoint${length}[] storage self, uint${256 - length} key) internal view returns (uint${length}) {
     uint256 length = self.length;
     uint256 pos = _lowerDichotomicLookup(self, key, 0, length);
-    return pos == length ? 0 : self[pos]._value;
+    return pos == length ? 0 : _unsafeAccess(self, pos)._value;
 }
 
 function upperLookup(Checkpoint${length}[] storage self, uint${256 - length} key) internal view returns (uint${length}) {
     uint256 length = self.length;
     uint256 pos = _upperDichotomicLookup(self, key, 0, length);
-    return pos == 0 ? 0 : self[pos - 1]._value;
+    return pos == 0 ? 0 : _unsafeAccess(self, pos - 1)._value;
 }
 
 function upperLookupRecent(Checkpoint${length}[] storage self, uint${256 - length} key) internal view returns (uint224) {
     uint256 length = self.length;
     uint256 offset = 1;
 
-    while (offset <= length && self[length - offset]._key > key) {
+    while (offset <= length && _unsafeAccess(self, length - offset)._key > key) {
         offset <<= 1;
     }
 
@@ -128,7 +128,7 @@ function upperLookupRecent(Checkpoint${length}[] storage self, uint${256 - lengt
     uint256 high = length - (offset >> 1);
     uint256 pos = _upperDichotomicLookup(self, key, low, high);
 
-    return pos == 0 ? 0 : self[pos - 1]._value;
+    return pos == 0 ? 0 : _unsafeAccess(self, pos - 1)._value;
 }
 
 function _upperDichotomicLookup(
@@ -139,7 +139,7 @@ function _upperDichotomicLookup(
 ) private view returns (uint256) {
     while (low < high) {
         uint256 mid = Math.average(low, high);
-        if (self[mid]._key > key) {
+        if (_unsafeAccess(self, mid)._key > key) {
             high = mid;
         } else {
             low = mid + 1;
@@ -156,13 +156,20 @@ function _lowerDichotomicLookup(
 ) private view returns (uint256) {
     while (low < high) {
         uint256 mid = Math.average(low, high);
-        if (self[mid]._key < key) {
+        if (_unsafeAccess(self, mid)._key < key) {
             low = mid + 1;
         } else {
             high = mid;
         }
     }
     return high;
+}
+
+function _unsafeAccess(Checkpoint${length}[] storage self, uint256 pos) private view returns (Checkpoint${length} storage result) {
+    assembly {
+        mstore(0, self.slot)
+        result.slot := add(keccak256(0, 0x20), pos)
+    }
 }
 `;
 /* eslint-enable max-len */
