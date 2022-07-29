@@ -1,3 +1,15 @@
+//// ## Verification of ERC1155Pausable
+//// 
+//// `ERC1155Pausable` extends existing `Pausable` functionality by requiring that a
+//// contract not be in a `paused` state prior to a token transfer.
+//// 
+//// ### Assumptions and Simplifications
+//// - Internal methods `_pause` and `_unpause` wrapped in CVT callable versions
+//// - Dummy functions created to verify `whenPaused` and `whenNotPaused` modifiers
+//// 
+//// 
+//// ### Properties
+
 methods {
     balanceOf(address, uint256) returns uint256 envfree
     paused() returns bool envfree
