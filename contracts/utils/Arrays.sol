@@ -10,6 +10,8 @@ import "./math/Math.sol";
  * @dev Collection of functions related to array types.
  */
 library Arrays {
+    using StorageSlot for bytes32;
+
     /**
      * @dev Searches a sorted `array` and returns the first index that contains
      * a value greater or equal to `element`. If no such index exists (i.e. all
@@ -58,7 +60,7 @@ library Arrays {
             mstore(0, arr.slot)
             slot := add(keccak256(0, 0x20), pos)
         }
-        return StorageSlot.getAddressSlot(slot);
+        return slot.getAddressSlot();
     }
 
     /**
@@ -72,7 +74,7 @@ library Arrays {
             mstore(0, arr.slot)
             slot := add(keccak256(0, 0x20), pos)
         }
-        return StorageSlot.getBytes32Slot(slot);
+        return slot.getBytes32Slot();
     }
 
     /**
@@ -86,6 +88,6 @@ library Arrays {
             mstore(0, arr.slot)
             slot := add(keccak256(0, 0x20), pos)
         }
-        return StorageSlot.getUint256Slot(slot);
+        return slot.getUint256Slot();
     }
 }
