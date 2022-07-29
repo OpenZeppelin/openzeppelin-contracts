@@ -165,7 +165,11 @@ function _lowerDichotomicLookup(
     return high;
 }
 
-function _unsafeAccess(Checkpoint${length}[] storage self, uint256 pos) private view returns (Checkpoint${length} storage result) {
+function _unsafeAccess(Checkpoint${length}[] storage self, uint256 pos)
+    private
+    view
+    returns (Checkpoint${length} storage result)
+{
     assembly {
         mstore(0, self.slot)
         result.slot := add(keccak256(0, 0x20), pos)

@@ -114,7 +114,11 @@ library Checkpoints {
         return high;
     }
 
-    function _unsafeAccess(Checkpoint224[] storage self, uint256 pos) private view returns (Checkpoint224 storage result) {
+    function _unsafeAccess(Checkpoint224[] storage self, uint256 pos)
+        private
+        view
+        returns (Checkpoint224 storage result)
+    {
         assembly {
             mstore(0, self.slot)
             result.slot := add(keccak256(0, 0x20), pos)
@@ -219,7 +223,11 @@ library Checkpoints {
         return high;
     }
 
-    function _unsafeAccess(Checkpoint160[] storage self, uint256 pos) private view returns (Checkpoint160 storage result) {
+    function _unsafeAccess(Checkpoint160[] storage self, uint256 pos)
+        private
+        view
+        returns (Checkpoint160 storage result)
+    {
         assembly {
             mstore(0, self.slot)
             result.slot := add(keccak256(0, 0x20), pos)
@@ -244,7 +252,7 @@ library Checkpoints {
     function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
 
-        return upperLookupRecent(self._checkpoints, SafeCast.toUint32(blockNumber));
+        return upperLookup(self._checkpoints, SafeCast.toUint32(blockNumber));
     }
 
     /**
