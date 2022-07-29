@@ -1,3 +1,16 @@
+//// ## Verification of ERC1155Burnable
+//// 
+//// `ERC1155Burnable` extends the `ERC1155` functionality by wrapping the internal
+//// methods `_burn` and `_burnBatch` in the public methods `burn` and `burnBatch`,
+//// adding a requirement that the caller of either method be the account holding
+//// the tokens or approved to act on that account's behalf.
+//// 
+//// ### Assumptions and Simplifications
+//// 
+//// - No changes made using the harness
+//// 
+//// ### Properties
+
 methods {
     balanceOf(address, uint256) returns uint256 envfree
     isApprovedForAll(address,address) returns bool envfree
