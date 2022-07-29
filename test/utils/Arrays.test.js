@@ -2,6 +2,8 @@ require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
+const AddressArraysMock = artifacts.require('AddressArraysMock');
+const Bytes32ArraysMock = artifacts.require('Bytes32ArraysMock');
 const Uint256ArraysMock = artifacts.require('Uint256ArraysMock');
 
 contract('Arrays', function (accounts) {
@@ -87,9 +89,9 @@ contract('Arrays', function (accounts) {
 
   describe('unsafeAccess', function () {
     for (const { type, artifact, elements } of [
-      { type: 'address', artifact: artifacts.require('AddressArraysMock'), elements: Array(10).fill().map(() => web3.utils.randomHex(20)) },
-      { type: 'bytes32', artifact: artifacts.require('Bytes32ArraysMock'), elements: Array(10).fill().map(() => web3.utils.randomHex(32)) },
-      { type: 'uint256', artifact: artifacts.require('Uint256ArraysMock'), elements: Array(10).fill().map(() => web3.utils.randomHex(32)) },
+      { type: 'address', artifact: AddressArraysMock, elements: Array(10).fill().map(() => web3.utils.randomHex(20)) },
+      { type: 'bytes32', artifact: Bytes32ArraysMock, elements: Array(10).fill().map(() => web3.utils.randomHex(32)) },
+      { type: 'uint256', artifact: Uint256ArraysMock, elements: Array(10).fill().map(() => web3.utils.randomHex(32)) },
     ]) {
       it(type, async function () {
         const contract = await artifact.new(elements);
