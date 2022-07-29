@@ -3,6 +3,7 @@
 
 pragma solidity ^0.8.0;
 
+import "./StorageSlot.sol";
 import "./math/Math.sol";
 
 /**
@@ -31,7 +32,7 @@ library Arrays {
 
             // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
             // because Math.average rounds down (it does integer division with truncation).
-            if (unsafeAccess(array, mid) > element) {
+            if (unsafeAccess(array, mid).value > element) {
                 high = mid;
             } else {
                 low = mid + 1;
@@ -39,7 +40,7 @@ library Arrays {
         }
 
         // At this point `low` is the exclusive upper bound. We will return the inclusive upper bound.
-        if (low > 0 && unsafeAccess(array, low - 1) == element) {
+        if (low > 0 && unsafeAccess(array, low - 1).value == element) {
             return low - 1;
         } else {
             return low;
@@ -50,10 +51,41 @@ library Arrays {
      * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
      * @notice WARNING: only use if you are certain pos is lower then the array length.
      */
-    function unsafeAccess(uint256[] storage arr, uint256 pos) internal view returns (uint256 result) {
+    function unsafeAccess(address[] storage arr, uint256 pos) internal pure returns (StorageSlot.AddressSlot storage) {
+        bytes32 slot;
+        /// @solidity memory-safe-assembly
         assembly {
             mstore(0, arr.slot)
-            result := sload(add(keccak256(0, 0x20), pos))
+            slot := add(keccak256(0, 0x20), pos)
         }
+        return StorageSlot.getAddressSlot(slot);
+    }
+
+    /**
+     * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
+     * @notice WARNING: only use if you are certain pos is lower then the array length.
+     */
+    function unsafeAccess(bytes32[] storage arr, uint256 pos) internal pure returns (StorageSlot.Bytes32Slot storage) {
+        bytes32 slot;
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(0, arr.slot)
+            slot := add(keccak256(0, 0x20), pos)
+        }
+        return StorageSlot.getBytes32Slot(slot);
+    }
+
+    /**
+     * @dev Access an array in an "unsafe" way. Skips solidity "index-out-of-range" check.
+     * @notice WARNING: only use if you are certain pos is lower then the array length.
+     */
+    function unsafeAccess(uint256[] storage arr, uint256 pos) internal pure returns (StorageSlot.Uint256Slot storage) {
+        bytes32 slot;
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(0, arr.slot)
+            slot := add(keccak256(0, 0x20), pos)
+        }
+        return StorageSlot.getUint256Slot(slot);
     }
 }
