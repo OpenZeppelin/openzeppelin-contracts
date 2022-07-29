@@ -38,7 +38,7 @@ function latest(History storage self) internal view returns (uint256) {
 function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
     require(blockNumber < block.number, "Checkpoints: block not yet mined");
 
-    return upperLookupRecent(self._checkpoints, SafeCast.toUint32(blockNumber));
+    return upperLookup(self._checkpoints, SafeCast.toUint32(blockNumber));
 }
 
 /**
