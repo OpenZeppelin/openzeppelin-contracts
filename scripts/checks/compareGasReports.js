@@ -24,11 +24,11 @@ function average (...args) {
   return sum(...args) / args.length;
 }
 
-function variation (current, previous) {
+function variation (current, previous, offset = 0) {
   return {
     value: current,
     delta: current - previous,
-    prcnt: 100 * (current - previous) / (previous - BASE_TX_COST),
+    prcnt: 100 * (current - previous) / (previous - offset),
   };
 }
 
@@ -58,7 +58,7 @@ class Report {
       }, {
         contract: contract.name,
         method: '[construction cost]',
-        avg: variation(...[contract.gasData, contract.previousVersion.gasData].map(x => Math.round(average(...x)))),
+        avg: variation(...[contract.gasData, contract.previousVersion.gasData].map(x => Math.round(average(...x))), BASE_TX_COST),
       }])
       .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
 
@@ -69,9 +69,9 @@ class Report {
       .map(key => ({
         contract: ref.info.methods[key].contract,
         method: ref.info.methods[key].fnSig,
-        min: variation(...[update, ref].map(x => Math.min(...x.info.methods[key].gasData))),
-        max: variation(...[update, ref].map(x => Math.max(...x.info.methods[key].gasData))),
-        avg: variation(...[update, ref].map(x => Math.round(average(...x.info.methods[key].gasData)))),
+        min: variation(...[update, ref].map(x => Math.min(...x.info.methods[key].gasData)), BASE_TX_COST),
+        max: variation(...[update, ref].map(x => Math.max(...x.info.methods[key].gasData)), BASE_TX_COST),
+        avg: variation(...[update, ref].map(x => Math.round(average(...x.info.methods[key].gasData))), BASE_TX_COST),
       }))
       .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
 
