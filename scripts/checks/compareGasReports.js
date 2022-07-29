@@ -58,7 +58,9 @@ class Report {
       }, {
         contract: contract.name,
         method: '[construction cost]',
-        avg: variation(...[contract.gasData, contract.previousVersion.gasData].map(x => Math.round(average(...x))), BASE_TX_COST),
+        avg: variation(
+          ...[contract.gasData, contract.previousVersion.gasData].map(x => Math.round(average(...x))),
+          BASE_TX_COST),
       }])
       .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
 
