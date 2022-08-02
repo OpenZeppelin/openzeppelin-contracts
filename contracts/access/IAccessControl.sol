@@ -35,6 +35,13 @@ interface IAccessControl {
     event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
 
     /**
+     * @dev Emitted when `account` is granted `role` via a transfer.
+     *
+     * `sender` is the account that originated the contract call, a target role bearer
+     */
+    event RoleTransferred(bytes32 indexed role, address indexed account, address indexed recipient);
+
+    /**
      * @dev Returns `true` if `account` has been granted `role`.
      */
     function hasRole(bytes32 role, address account) external view returns (bool);
@@ -85,4 +92,25 @@ interface IAccessControl {
      * - the caller must be `account`.
      */
     function renounceRole(bytes32 role, address account) external;
+
+    /**
+     * @dev Transfers `role` from the calling account to `.
+     *
+     * Roles are often managed via {grantRole} and {revokeRole}: this function's
+     * purpose is to provide a mechanism for accounts to transfer their privileges
+     * if they are switching to a new account or compromised (such as when a
+     * trusted device is misplaced), without involving the role admin.
+     *
+     * If the calling account had been granted `role`, and the recipient account
+     * had not, emits a {RoleTransferred} event.
+     *
+     * Requirements:
+     *
+     * - the caller must be `account` and have the `role` role
+     */
+    function transferRole(
+        bytes32 role,
+        address account,
+        address recipient
+    ) external;
 }

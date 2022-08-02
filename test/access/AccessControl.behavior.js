@@ -113,6 +113,57 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
     });
   });
 
+  describe('transferring', function () {
+    it('roles that are not had can be transferred', async function () {
+      const receipt = await this.accessControl.transferRole(ROLE, authorized, other, { from: authorized });
+      expectEvent.notEmitted(receipt, 'RoleTransferred');
+    });
+
+    context('with granted role', function () {
+      beforeEach(async function () {
+        await this.accessControl.grantRole(ROLE, authorized, { from: admin });
+      });
+
+      it('bearer can transfer role', async function () {
+        const receipt = await this.accessControl.transferRole(ROLE, authorized, other, { from: authorized });
+        expectEvent(receipt, 'RoleTransferred', { account: authorized, role: ROLE, recipient: other });
+
+        expect(await this.accessControl.hasRole(ROLE, authorized)).to.equal(false);
+        expect(await this.accessControl.hasRole(ROLE, other)).to.equal(true);
+      });
+
+      it('bearer can transfer role to themselves', async function () {
+        const receipt = await this.accessControl.transferRole(ROLE, authorized, authorized, { from: authorized });
+        expectEvent.notEmitted(receipt, 'RoleTransferred');
+      });
+
+      it('only the sender can transfer their roles', async function () {
+        await expectRevert(
+          this.accessControl.transferRole(ROLE, authorized, other, { from: admin }),
+          `${errorPrefix}: can only transfer roles from self`,
+        );
+      });
+
+      it('a role can be transferred multiple times', async function () {
+        await this.accessControl.transferRole(ROLE, authorized, other, { from: authorized });
+
+        const receipt = await this.accessControl.transferRole(ROLE, authorized, other, { from: authorized });
+        expectEvent.notEmitted(receipt, 'RoleTransferred');
+      });
+    });
+
+    context('with granted role to the recipient', function () {
+      beforeEach(async function () {
+        await this.accessControl.grantRole(ROLE, other, { from: admin });
+      });
+
+      it('roles that are already had can be transferred', async function () {
+        const receipt = await this.accessControl.transferRole(ROLE, authorized, other, { from: authorized });
+        expectEvent.notEmitted(receipt, 'RoleTransferred');
+      });
+    });
+  });
+
   describe('setting role admin', function () {
     beforeEach(async function () {
       const receipt = await this.accessControl.setRoleAdmin(ROLE, OTHER_ROLE);

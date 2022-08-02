@@ -183,6 +183,35 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     }
 
     /**
+     * @dev Transfers `role` from the calling account.
+     *
+     * Roles are often managed via {grantRole} and {revokeRole}: this function's
+     * purpose is to provide a mechanism for accounts to transfer their privileges
+     * if they are switching to a new account or compromised (such as when a
+     * trusted device is misplaced), without involving the role admin.
+     *
+     * If the calling account had been granted `role`, and the recipient account
+     * had not, emits a {RoleTransferred} event.
+     *
+     * Requirements:
+     *
+     * - the caller must have the `role` role
+     */
+    function transferRole(
+        bytes32 role,
+        address account,
+        address recipient
+    ) public virtual override {
+        require(account == _msgSender(), "AccessControl: can only transfer roles from self");
+
+        if (account != recipient && hasRole(role, account) && !hasRole(role, recipient)) {
+            _roles[role].members[account] = false;
+            _roles[role].members[recipient] = true;
+            emit RoleTransferred(role, account, recipient);
+        }
+    }
+
+    /**
      * @dev Grants `role` to `account`.
      *
      * If `account` had not been already granted `role`, emits a {RoleGranted}

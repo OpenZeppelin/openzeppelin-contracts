@@ -45,6 +45,7 @@ const INTERFACES = {
     'grantRole(bytes32,address)',
     'revokeRole(bytes32,address)',
     'renounceRole(bytes32,address)',
+    'transferRole(bytes32,address,address)',
   ],
   AccessControlEnumerable: [
     'getRoleMember(bytes32,uint256)',
