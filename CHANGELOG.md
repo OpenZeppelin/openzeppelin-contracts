@@ -12,7 +12,7 @@
  * `ReentrancyGuard`: Reduce code size impact of the modifier by using internal functions. ([#3515](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3515))
  * `SafeCast`: optimize downcasting of signed integers. ([#3565](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3565))
  * `ERC20FlashMint`: add an internal `_flashFee` function for overriding. ([#3551](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3551))
- * `AccessControl`: add `transferRole` function for transferring role from a role bearer to a new account. ([#????](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/????))
+ * `AccessControl`: add `transferRole` function for transferring role from a role bearer to a new account. ([#3593](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3593))
 
 ### Compatibility Note
 
