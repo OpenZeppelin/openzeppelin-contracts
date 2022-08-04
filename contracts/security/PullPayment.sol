@@ -7,7 +7,7 @@ import "../utils/escrow/Escrow.sol";
 
 /**
  * @dev Simple implementation of a
- * https://consensys.github.io/smart-contract-best-practices/recommendations/#favor-pull-over-push-for-external-calls[pull-payment]
+ * https://consensys.github.io/smart-contract-best-practices/development-recommendations/general/external-calls/#favor-pull-over-push-for-external-calls
  * strategy, where the paying contract doesn't interact directly with the
  * receiver account, which must withdraw its payments itself.
  *
