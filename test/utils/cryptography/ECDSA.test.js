@@ -144,11 +144,13 @@ contract('ECDSA', function (accounts) {
         );
       });
 
-      it('works with short EIP2098 format', async function () {
+      it('rejects short EIP2098 format', async function () {
         const version = '1b'; // 27 = 1b.
         const signature = signatureWithoutVersion + version;
-        expect(await this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature))).to.equal(signer);
-        expect(await this.ecdsa.recover(TEST_MESSAGE, from2098Format(to2098Format(signature)))).to.equal(signer);
+        await expectRevert(
+          this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature)),
+          'ECDSA: invalid signature length',
+        );
       });
     });
 
@@ -187,11 +189,13 @@ contract('ECDSA', function (accounts) {
         );
       });
 
-      it('works with short EIP2098 format', async function () {
+      it('rejects short EIP2098 format', async function () {
         const version = '1c'; // 27 = 1b.
         const signature = signatureWithoutVersion + version;
-        expect(await this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature))).to.equal(signer);
-        expect(await this.ecdsa.recover(TEST_MESSAGE, from2098Format(to2098Format(signature)))).to.equal(signer);
+        await expectRevert(
+          this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature)),
+          'ECDSA: invalid signature length',
+        );
       });
     });
 
