@@ -31,8 +31,7 @@ library Create2 {
         uint256 amount,
         bytes32 salt,
         bytes memory bytecode
-    ) internal returns (address) {
-        address addr;
+    ) internal returns (address addr) {
         require(address(this).balance >= amount, "Create2: insufficient balance");
         require(bytecode.length != 0, "Create2: bytecode length is zero");
         /// @solidity memory-safe-assembly
@@ -40,7 +39,6 @@ library Create2 {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
         }
         require(addr != address(0), "Create2: Failed on deploy");
-        return addr;
     }
 
     /**
@@ -59,8 +57,16 @@ library Create2 {
         bytes32 salt,
         bytes32 bytecodeHash,
         address deployer
-    ) internal pure returns (address) {
-        bytes32 _data = keccak256(abi.encodePacked(bytes1(0xff), deployer, salt, bytecodeHash));
-        return address(uint160(uint256(_data)));
+    ) internal pure returns (address addr) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(0, deployer)
+            mstore8(0x0b, 0xff)
+            mstore(0x20, salt)
+            let ptr := mload(0x40)                                                                
+            mstore(0x40, bytecodeHash)
+            addr := keccak256(11,85)
+            mstore(0x40, ptr)
+        }
     }
 }
