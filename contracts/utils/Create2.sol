@@ -63,9 +63,9 @@ library Create2 {
             mstore(0, deployer)
             mstore8(0x0b, 0xff)
             mstore(0x20, salt)
-            let ptr := mload(0x40)                                                                
+            let ptr := mload(0x40)
             mstore(0x40, bytecodeHash)
-            addr := keccak256(11,85)
+            addr := keccak256(11, 85)
             mstore(0x40, ptr)
         }
     }
