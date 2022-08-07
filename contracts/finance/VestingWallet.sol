@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 import "../token/ERC20/utils/SafeERC20.sol";
 import "../utils/Address.sol";
 import "../utils/Context.sol";
-import "../utils/math/Math.sol";
 
 /**
  * @title VestingWallet
