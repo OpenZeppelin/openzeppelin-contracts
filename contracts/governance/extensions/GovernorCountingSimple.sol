@@ -97,7 +97,7 @@ abstract contract GovernorCountingSimple is Governor {
         if (support == uint8(VoteType.Against)) {
             proposalVote.againstVotes += weight;
         } else if (support == uint8(VoteType.For)) {
-            proposalvote.forVotes += weight;
+            proposalVote.forVotes += weight;
         } else if (support == uint8(VoteType.Abstain)) {
             proposalVote.abstainVotes += weight;
         } else {
