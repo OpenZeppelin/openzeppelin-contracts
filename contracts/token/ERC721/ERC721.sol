@@ -68,7 +68,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev See {IERC721-ownerOf}.
      */
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
-        address owner = _owners[tokenId];
+        address owner = _ownerOf(tokenId);
         require(owner != address(0), "ERC721: invalid token ID");
         return owner;
     }
@@ -211,6 +211,13 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
+     * @dev Returns the owner of the `tokenId`. Does NOT revert if token doesn't exist
+     */
+    function _ownerOf(uint256 tokenId) internal view virtual returns (address) {
+        return _owners[tokenId];
+    }
+
+    /**
      * @dev Returns whether `tokenId` exists.
      *
      * Tokens can be managed by their owner or approved accounts via {approve} or {setApprovalForAll}.
@@ -219,7 +226,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * and stop existing when they are burned (`_burn`).
      */
     function _exists(uint256 tokenId) internal view virtual returns (bool) {
-        return _owners[tokenId] != address(0);
+        return _ownerOf(tokenId) != address(0);
     }
 
     /**
@@ -451,5 +458,29 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address from,
         address to,
         uint256 tokenId
+    ) internal virtual {}
+
+    /**
+     * TODO
+     */
+    function _beforeConsecutiveTokenTransfer(
+        address from,
+        address to,
+        uint256 first,
+        uint256 last
+    ) internal virtual {
+        if (from != address(0)) {
+            _balances[from] -= last - first + 1;
+        }
+        if (to != address(0)) {
+            _balances[to] += last - first + 1;
+        }
+    }
+
+    function _afterConsecutiveTokenTransfer(
+        address from,
+        address to,
+        uint256 first,
+        uint256 last
     ) internal virtual {}
 }

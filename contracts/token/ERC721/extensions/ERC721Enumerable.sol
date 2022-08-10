@@ -89,6 +89,48 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     }
 
     /**
+     * @dev Hook that is called before any batch token transfer. For now this is limited
+     * to batch minting by the {ERC721Consecutive} extension.
+     *
+     * Calling conditions:
+     *
+     * - When `from` and `to` are both non-zero, ``from``'s `tokenId` will be
+     * transferred to `to`.
+     * - When `from` is zero, `tokenId` will be minted for `to`.
+     * - When `to` is zero, ``from``'s `tokenId` will be burned.
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     *
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _beforeConsecutiveTokenTransfer(
+        address from,
+        address to,
+        uint256 first,
+        uint256 last
+    ) internal virtual override {
+        require(from == address(0) && to != address(0), "ERC721Enumerable: only batch minting is supported");
+
+        // Before balance is updated (that is part of the super call)
+        uint256 length = ERC721.balanceOf(to);
+
+        // Do the super call
+        super._beforeConsecutiveTokenTransfer(from, to, first, last);
+
+        // Add to enumerability
+        for (uint256 tokenId = first; tokenId <= last; ++tokenId) {
+            // Add to all tokens
+            _addTokenToAllTokensEnumeration(tokenId);
+
+            // Add to owner tokens
+            _ownedTokens[to][length] = tokenId;
+            _ownedTokensIndex[tokenId] = length;
+
+            ++length;
+        }
+    }
+
+    /**
      * @dev Private function to add a token to this extension's ownership-tracking data structures.
      * @param to address representing the new owner of the given token ID
      * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
