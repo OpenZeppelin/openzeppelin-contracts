@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (token/ERC721/extensions/ERC721Burnable.sol)
 
 pragma solidity ^0.8.0;
 
@@ -9,7 +8,16 @@ import "../../../utils/math/SafeCast.sol";
 import "../../../utils/structs/BitMaps.sol";
 
 /**
- * @title ERC721 Cheap sequential minting
+ * * @dev Implementation of the ERC2309 "Consecutive Transfer Extension" as defined in
+ * https://eips.ethereum.org/EIPS/eip-2309[EIP-2309].
+ *
+ * This extension allows the minting of large batches of tokens duting the contract construction. These batches are
+ * limited to 5000 tokens at a time to accomodate off-chain indexers.
+ *
+ * Using this extensions removes the ability to mint single token buring the contract construction. This ability is
+ * regained after construction. During construction, only batch minting is allowed.
+ *
+ * _Available since v4.8._
  */
 abstract contract ERC721Consecutive is ERC721 {
     using BitMaps for BitMaps.BitMap;
