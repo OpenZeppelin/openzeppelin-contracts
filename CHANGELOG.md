@@ -12,7 +12,7 @@
  * `ReentrancyGuard`: Reduce code size impact of the modifier by using internal functions. ([#3515](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3515))
  * `SafeCast`: optimize downcasting of signed integers. ([#3565](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3565))
  * `ERC20FlashMint`: add an internal `_flashFee` function for overriding. ([#3551](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3551))
- * `GovernorCountingSimple`: rename `proposalvote` variables to `proposalVote` to preserve camelCase. ([#3608](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3608))
+
 ### Compatibility Note
 
 ERC-721 integrators that interpret contract state from events should make sure that they implement the clearing of approval that is implicit in every transfer according to the EIP. Previous versions of OpenZeppellin Contracts emitted an explicit `Approval` event even though it was not required by the specification, and this is no longer the case.
