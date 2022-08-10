@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.7.3
+## 4.7.3 (2022-08-10)
 
 ### Breaking changes
 
