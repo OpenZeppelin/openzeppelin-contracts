@@ -60,10 +60,10 @@ library Create2 {
     ) internal pure returns (address addr) {
         /// @solidity memory-safe-assembly
         assembly {
+            let ptr := mload(0x40)
             mstore(0x00, deployer)
             mstore8(0x0b, 0xff)
             mstore(0x20, salt)
-            let ptr := mload(0x40)
             mstore(0x40, bytecodeHash)
             addr := keccak256(0x0b, 85)
             mstore(0x40, ptr)
