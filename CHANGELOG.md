@@ -21,7 +21,7 @@ ERC-721 integrators that interpret contract state from events should make sure t
 
 ### Breaking changes
 
- * `ECDSA`: `recover` and `tryRecover` no longer accept compact signatures to prevent malleability.
+ * `ECDSA`: `recover(bytes32,bytes)` and `tryRecover(bytes32,bytes)` no longer accept compact signatures to prevent malleability. Compact signature support remains available using `recover(bytes32,bytes32,bytes32)` and `tryRecover(bytes32,bytes32,bytes32)`.
 
 ## 4.7.2
 
