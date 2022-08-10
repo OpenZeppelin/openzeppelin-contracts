@@ -22,16 +22,6 @@ function to2098Format (signature) {
   return web3.utils.bytesToHex(short);
 }
 
-function from2098Format (signature) {
-  const short = web3.utils.hexToBytes(signature);
-  if (short.length !== 64) {
-    throw new Error('invalid signature length (expected short format)');
-  }
-  short.push((short[32] >> 7) + 27);
-  short[32] &= (1 << 7) - 1; // zero out the first bit of 1 the 32nd byte
-  return web3.utils.bytesToHex(short);
-}
-
 function split (signature) {
   const raw = web3.utils.hexToBytes(signature);
   switch (raw.length) {
