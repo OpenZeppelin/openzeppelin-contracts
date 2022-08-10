@@ -2393,7 +2393,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/IERC20.sol[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/IERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2511,7 +2511,7 @@ a call to {approve}. `value` is the new allowance.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/extensions/IERC20Metadata.sol[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/extensions/IERC20Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2597,7 +2597,7 @@ Returns the decimals places of the token.
 
 [.contract]
 [[ERC20]]
-=== `++ERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/ERC20.sol[{github-icon},role=heading-link]
+=== `++ERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/ERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2928,7 +2928,7 @@ To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hook
 
 [.contract]
 [[ERC20Burnable]]
-=== `++ERC20Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/extensions/ERC20Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC20Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/extensions/ERC20Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3029,7 +3029,7 @@ Requirements:
 
 [.contract]
 [[ERC20Capped]]
-=== `++ERC20Capped++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/extensions/ERC20Capped.sol[{github-icon},role=heading-link]
+=== `++ERC20Capped++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/extensions/ERC20Capped.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3122,7 +3122,7 @@ See {ERC20-_mint}.
 
 [.contract]
 [[ERC20Pausable]]
-=== `++ERC20Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/extensions/ERC20Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC20Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/extensions/ERC20Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3228,7 +3228,7 @@ Requirements:
 
 [.contract]
 [[ERC20Snapshot]]
-=== `++ERC20Snapshot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/extensions/ERC20Snapshot.sol[{github-icon},role=heading-link]
+=== `++ERC20Snapshot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/extensions/ERC20Snapshot.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3401,7 +3401,7 @@ Emitted by {_snapshot} when a snapshot identified by `id` is created.
 
 [.contract]
 [[ERC20Votes]]
-=== `++ERC20Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/extensions/ERC20Votes.sol[{github-icon},role=heading-link]
+=== `++ERC20Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/extensions/ERC20Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3621,7 +3621,7 @@ Emits events {DelegateChanged} and {DelegateVotesChanged}.
 
 [.contract]
 [[ERC20VotesComp]]
-=== `++ERC20VotesComp++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/extensions/ERC20VotesComp.sol[{github-icon},role=heading-link]
+=== `++ERC20VotesComp++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/extensions/ERC20VotesComp.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3781,7 +3781,7 @@ Maximum token supply. Reduced to `type(uint96).max` (2^96^ - 1) to fit COMP inte
 
 [.contract]
 [[ERC20Wrapper]]
-=== `++ERC20Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/extensions/ERC20Wrapper.sol[{github-icon},role=heading-link]
+=== `++ERC20Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/extensions/ERC20Wrapper.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3897,7 +3897,7 @@ function that can be exposed with access control if desired.
 
 [.contract]
 [[ERC20FlashMint]]
-=== `++ERC20FlashMint++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/extensions/ERC20FlashMint.sol[{github-icon},role=heading-link]
+=== `++ERC20FlashMint++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/extensions/ERC20FlashMint.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4042,7 +4042,7 @@ they can be burned.
 
 [.contract]
 [[ERC4626]]
-=== `++ERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/extensions/ERC4626.sol[{github-icon},role=heading-link]
+=== `++ERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/extensions/ERC4626.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4292,7 +4292,7 @@ The following EIPs are still in Draft status. Due to their nature as drafts, the
 
 [.contract]
 [[ERC20Permit]]
-=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/extensions/draft-ERC20Permit.sol[{github-icon},role=heading-link]
+=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/extensions/draft-ERC20Permit.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4439,7 +4439,7 @@ These contracts are preconfigured combinations of the above features. They can b
 
 [.contract]
 [[SafeERC20]]
-=== `++SafeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/utils/SafeERC20.sol[{github-icon},role=heading-link]
+=== `++SafeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/utils/SafeERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4520,7 +4520,7 @@ Whenever possible, use {safeIncreaseAllowance} and
 
 [.contract]
 [[TokenTimelock]]
-=== `++TokenTimelock++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.2/contracts/token/ERC20/utils/TokenTimelock.sol[{github-icon},role=heading-link]
+=== `++TokenTimelock++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.7.3/contracts/token/ERC20/utils/TokenTimelock.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
