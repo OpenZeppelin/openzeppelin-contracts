@@ -33,12 +33,11 @@ contract ERC721ConsecutiveMock is
         string memory symbol,
         address[] memory receivers,
         uint96[] memory amounts
-    )
-        __VotesDelegationInConstructor(receivers)
-        ERC721(name, symbol)
-        ERC721Consecutive(receivers, amounts)
-        EIP712(name, "1")
-    {}
+    ) __VotesDelegationInConstructor(receivers) ERC721(name, symbol) EIP712(name, "1") {
+        for (uint256 i = 0; i < receivers.length; ++i) {
+            _mintConsecutive(receivers[i], amounts[i]);
+        }
+    }
 
     function pause() external {
         _pause();
@@ -64,6 +63,10 @@ contract ERC721ConsecutiveMock is
 
     function mint(address to, uint256 tokenId) public {
         _mint(to, tokenId);
+    }
+
+    function mintConsecutive(address to, uint96 amount) public {
+        _mintConsecutive(to, amount);
     }
 
     function safeMint(address to, uint256 tokenId) public {

@@ -25,17 +25,10 @@ abstract contract ERC721Consecutive is ERC721 {
         address indexed toAddress
     );
 
-    constructor(address[] memory receivers, uint96[] memory amounts) {
-        // Check input length
-        uint256 length = receivers.length;
-        require(length == amounts.length);
-
-        // For each batch of token
-        for (uint256 i = 0; i < length; ++i) {
-            _mintConsecutive(receivers[i], amounts[i]);
-        }
-    }
-
+    /**
+     * @dev See {ERC721-_ownerOf}. Override version that checks the sequential ownership structure for tokens that have
+     * been minted as part of a batch, and not yet transfered.
+     */
     function _ownerOf(uint256 tokenId) internal view virtual override returns (address) {
         address owner = super._ownerOf(tokenId);
 
@@ -46,12 +39,20 @@ abstract contract ERC721Consecutive is ERC721 {
 
         // Otherwize, check the token was not burned, and fetch ownership from the anchors
         // Note: no need for safe cast, we know that tokenId <= type(uint96).max
-        return
-            _sequentialBurn.get(tokenId)
-                ? address(0)
-                : address(_sequentialOwnership.lowerLookup(uint96(tokenId)));
+        return _sequentialBurn.get(tokenId) ? address(0) : address(_sequentialOwnership.lowerLookup(uint96(tokenId)));
     }
 
+    /**
+     * @dev Mint a batch of token of length `batchSize` for `to`.
+     *
+     * WARNING: Consecutive mint is only available during construction. ERC721 requires that any minting done after
+     * construction emits a Transfer event, which is not the case of mints performed using this function.
+     *
+     * WARNING: Consecutive mint is limited to batches of 5000 tokens. Further minting is possible from a contract's
+     * point of view but would cause indexing issues for off-chain services.
+     *
+     * Emits a {ConsecutiveTransfer} event.
+     */
     function _mintConsecutive(address to, uint96 batchSize) internal virtual {
         require(!Address.isContract(address(this)), "ERC721Consecutive: batch minting restricted to constructor");
 
@@ -73,9 +74,13 @@ abstract contract ERC721Consecutive is ERC721 {
         _afterConsecutiveTokenTransfer(address(0), to, first, last);
     }
 
+    /**
+     * @dev See {ERC721-_mint}. Override version that restricts normal minting to after construction.
+     *
+     * Warning: Using {ERC721Consecutive} prevents using {_mint} during construction in favor of {_mintConsecutive}.
+     * After construction, {_mintConsecutive} is no longer available and {_mint} becomes available.
+     */
     function _mint(address to, uint256 tokenId) internal virtual override {
-        // During construction, minting should only be performed using the batch mechanism.
-        // This is necessary because interleaving mint and batchmint would cause issues.
         require(Address.isContract(address(this)), "ERC721Consecutive: cant mint durring construction");
 
         super._mint(to, tokenId);
@@ -84,6 +89,10 @@ abstract contract ERC721Consecutive is ERC721 {
         }
     }
 
+    /**
+     * @dev See {ERC721-_mint}. Override needed to avoid looking up in the sequential ownership structure for burnt
+     * token.
+     */
     function _burn(uint256 tokenId) internal virtual override {
         super._burn(tokenId);
         if (tokenId <= _totalConsecutiveSupply()) {

@@ -23,7 +23,7 @@ contract('ERC721Consecutive', function (accounts) {
     );
   });
 
-  describe('batch are minted', function () {
+  describe('minting during construction', function () {
     it('events are emitted at construction', async function () {
       let first = 0;
 
@@ -84,6 +84,21 @@ contract('ERC721Consecutive', function (accounts) {
             .to.be.bignumber.equal(web3.utils.toBN(owned[i]));
         }
       }
+    });
+  });
+
+  describe('minting after construction', function () {
+    it('consecutive minting is not possible after construction', async function () {
+      await expectRevert(
+        this.token.mintConsecutive(user1, 10),
+        'ERC721Consecutive: batch minting restricted to constructor',
+      );
+    });
+
+    it('simple minting is possible after construction', async function () {
+      const tokenId = batches.reduce((acc, { amount }) => acc + amount, 0) + 1;
+      const receipt = await this.token.mint(user1, tokenId);
+      expectEvent(receipt, 'Transfer', { from: constants.ZERO_ADDRESS, to: user1, tokenId: tokenId.toString() });
     });
   });
 

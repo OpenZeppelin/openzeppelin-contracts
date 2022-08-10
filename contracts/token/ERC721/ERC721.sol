@@ -424,8 +424,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Hook that is called before any token transfer. This includes minting
-     * and burning.
+     * @dev Hook that is called before any (single) token transfer. This includes minting and burning.
      *
      * Calling conditions:
      *
@@ -444,8 +443,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     ) internal virtual {}
 
     /**
-     * @dev Hook that is called after any transfer of tokens. This includes
-     * minting and burning.
+     * @dev Hook that is called after any (single) transfer of tokens. This includes minting and burning.
      *
      * Calling conditions:
      *
@@ -461,7 +459,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     ) internal virtual {}
 
     /**
-     * TODO
+     * @dev Hook that is called before consecutive token transfers.
+     * Calling conditions are similar to {_beforeTokenTransfer}.
+     *
+     * The default implementation include balances updates that extensions such as {ERC721Consecutive} cannot performe
+     * directly.
      */
     function _beforeConsecutiveTokenTransfer(
         address from,
@@ -477,6 +479,10 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         }
     }
 
+    /**
+     * @dev Hook that is called after consecutive token transfers.
+     * Calling conditions are similar to {_afterTokenTransfer}.
+     */
     function _afterConsecutiveTokenTransfer(
         address from,
         address to,
