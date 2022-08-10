@@ -55,9 +55,7 @@ library ECDSA {
      * _Available since v4.3._
      */
     function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError) {
-        if (signature.length != 65) {
-            return (address(0), RecoverError.InvalidSignatureLength);
-        } else {
+        if (signature.length == 65) {
             bytes32 r;
             bytes32 s;
             uint8 v;
@@ -70,6 +68,8 @@ library ECDSA {
                 v := byte(0, mload(add(signature, 0x60)))
             }
             return tryRecover(hash, v, r, s);
+        } else {
+            return (address(0), RecoverError.InvalidSignatureLength);
         }
     }
 
