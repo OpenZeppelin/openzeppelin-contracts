@@ -277,10 +277,10 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _mint(address to, uint256 tokenId) internal virtual {
+        _beforeTokenTransfer(address(0), to, tokenId);
+
         require(to != address(0), "ERC721: mint to the zero address");
         require(!_exists(tokenId), "ERC721: token already minted");
-
-        _beforeTokenTransfer(address(0), to, tokenId);
 
         _balances[to] += 1;
         _owners[tokenId] = to;
@@ -302,19 +302,21 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = ERC721.ownerOf(tokenId);
+        address from = ERC721.ownerOf(tokenId);
 
-        _beforeTokenTransfer(owner, address(0), tokenId);
+        _beforeTokenTransfer(from, address(0), tokenId);
+
+        require(from == ERC721.ownerOf(tokenId), "ERC721: burn from incorrect owner");
 
         // Clear approvals
         delete _tokenApprovals[tokenId];
 
-        _balances[owner] -= 1;
+        _balances[from] -= 1;
         delete _owners[tokenId];
 
-        emit Transfer(owner, address(0), tokenId);
+        emit Transfer(from, address(0), tokenId);
 
-        _afterTokenTransfer(owner, address(0), tokenId);
+        _afterTokenTransfer(from, address(0), tokenId);
     }
 
     /**
@@ -333,10 +335,10 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address to,
         uint256 tokenId
     ) internal virtual {
-        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
-        require(to != address(0), "ERC721: transfer to the zero address");
-
         _beforeTokenTransfer(from, to, tokenId);
+
+        require(from == ERC721.ownerOf(tokenId), "ERC721: transfer from incorrect owner");
+        require(to != address(0), "ERC721: transfer to the zero address");
 
         // Clear approvals from the previous owner
         delete _tokenApprovals[tokenId];
