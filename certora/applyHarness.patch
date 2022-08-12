@@ -1,12 +1,12 @@
 diff -ruN .gitignore .gitignore
 --- .gitignore	1969-12-31 16:00:00.000000000 -0800
-+++ .gitignore	2022-06-06 12:25:10.000000000 -0700
++++ .gitignore	2022-08-11 21:15:52.000000000 -0700
 @@ -0,0 +1,2 @@
 +*
 +!.gitignore
 diff -ruN access/AccessControl.sol access/AccessControl.sol
---- access/AccessControl.sol	2022-06-06 10:42:37.000000000 -0700
-+++ access/AccessControl.sol	2022-06-06 12:25:10.000000000 -0700
+--- access/AccessControl.sol	2022-08-11 21:13:55.000000000 -0700
++++ access/AccessControl.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -93,7 +93,7 @@
       *
       * _Available since v4.6._
@@ -17,8 +17,8 @@ diff -ruN access/AccessControl.sol access/AccessControl.sol
      }
  
 diff -ruN access/Ownable.sol access/Ownable.sol
---- access/Ownable.sol	2022-06-14 06:30:55.000000000 -0700
-+++ access/Ownable.sol	2022-06-06 12:25:10.000000000 -0700
+--- access/Ownable.sol	2022-08-11 21:13:55.000000000 -0700
++++ access/Ownable.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -30,14 +30,6 @@
      }
  
@@ -49,8 +49,8 @@ diff -ruN access/Ownable.sol access/Ownable.sol
  
      /**
 diff -ruN governance/Governor.sol governance/Governor.sol
---- governance/Governor.sol	2022-06-06 10:42:37.000000000 -0700
-+++ governance/Governor.sol	2022-06-06 12:25:10.000000000 -0700
+--- governance/Governor.sol	2022-08-11 21:13:55.000000000 -0700
++++ governance/Governor.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -44,7 +44,7 @@
  
      string private _name;
@@ -61,8 +61,8 @@ diff -ruN governance/Governor.sol governance/Governor.sol
      // This queue keeps track of the governor operating on itself. Calls to functions protected by the
      // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
 diff -ruN governance/TimelockController.sol governance/TimelockController.sol
---- governance/TimelockController.sol	2022-06-06 10:42:37.000000000 -0700
-+++ governance/TimelockController.sol	2022-06-06 12:25:10.000000000 -0700
+--- governance/TimelockController.sol	2022-08-11 21:13:55.000000000 -0700
++++ governance/TimelockController.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -28,10 +28,10 @@
      bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
      bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
@@ -77,8 +77,8 @@ diff -ruN governance/TimelockController.sol governance/TimelockController.sol
      /**
       * @dev Emitted when a call is scheduled as part of operation `id`.
 diff -ruN governance/extensions/GovernorCountingSimple.sol governance/extensions/GovernorCountingSimple.sol
---- governance/extensions/GovernorCountingSimple.sol	2022-06-14 16:49:50.000000000 -0700
-+++ governance/extensions/GovernorCountingSimple.sol	2022-06-06 12:25:10.000000000 -0700
+--- governance/extensions/GovernorCountingSimple.sol	2022-08-11 21:13:55.000000000 -0700
++++ governance/extensions/GovernorCountingSimple.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -27,7 +27,7 @@
          mapping(address => bool) hasVoted;
      }
@@ -89,8 +89,8 @@ diff -ruN governance/extensions/GovernorCountingSimple.sol governance/extensions
      /**
       * @dev See {IGovernor-COUNTING_MODE}.
 diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensions/GovernorPreventLateQuorum.sol
---- governance/extensions/GovernorPreventLateQuorum.sol	2022-06-06 10:42:37.000000000 -0700
-+++ governance/extensions/GovernorPreventLateQuorum.sol	2022-06-15 17:00:30.000000000 -0700
+--- governance/extensions/GovernorPreventLateQuorum.sol	2022-08-11 21:13:55.000000000 -0700
++++ governance/extensions/GovernorPreventLateQuorum.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -21,8 +21,8 @@
      using SafeCast for uint256;
      using Timers for Timers.BlockNumber;
@@ -103,8 +103,8 @@ diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensi
      /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
      event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
 diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
---- governance/utils/Votes.sol	2022-06-06 10:42:37.000000000 -0700
-+++ governance/utils/Votes.sol	2022-06-06 12:25:10.000000000 -0700
+--- governance/utils/Votes.sol	2022-08-11 21:13:55.000000000 -0700
++++ governance/utils/Votes.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -35,7 +35,25 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -178,8 +178,8 @@ diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
 +    function _getVotingUnits(address) public virtual returns (uint256); // HARNESS: internal -> public
  }
 diff -ruN metatx/MinimalForwarder.sol metatx/MinimalForwarder.sol
---- metatx/MinimalForwarder.sol	2022-06-14 06:30:55.000000000 -0700
-+++ metatx/MinimalForwarder.sol	2022-06-06 12:25:10.000000000 -0700
+--- metatx/MinimalForwarder.sol	2022-08-11 21:13:55.000000000 -0700
++++ metatx/MinimalForwarder.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -8,11 +8,6 @@
  
  /**
@@ -194,7 +194,7 @@ diff -ruN metatx/MinimalForwarder.sol metatx/MinimalForwarder.sol
      using ECDSA for bytes32;
 diff -ruN mocks/ERC20TokenizedVaultMock.sol mocks/ERC20TokenizedVaultMock.sol
 --- mocks/ERC20TokenizedVaultMock.sol	1969-12-31 16:00:00.000000000 -0800
-+++ mocks/ERC20TokenizedVaultMock.sol	2022-06-06 12:25:10.000000000 -0700
++++ mocks/ERC20TokenizedVaultMock.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -0,0 +1,22 @@
 +// SPDX-License-Identifier: MIT
 +
@@ -219,7 +219,7 @@ diff -ruN mocks/ERC20TokenizedVaultMock.sol mocks/ERC20TokenizedVaultMock.sol
 +    }
 +}
 diff -ruN mocks/ERC4626Mock.sol mocks/ERC4626Mock.sol
---- mocks/ERC4626Mock.sol	2022-06-15 14:13:43.000000000 -0700
+--- mocks/ERC4626Mock.sol	2022-08-11 21:13:55.000000000 -0700
 +++ mocks/ERC4626Mock.sol	1969-12-31 16:00:00.000000000 -0800
 @@ -1,22 +0,0 @@
 -// SPDX-License-Identifier: MIT
@@ -245,8 +245,8 @@ diff -ruN mocks/ERC4626Mock.sol mocks/ERC4626Mock.sol
 -    }
 -}
 diff -ruN mocks/MathMock.sol mocks/MathMock.sol
---- mocks/MathMock.sol	2022-06-14 06:30:55.000000000 -0700
-+++ mocks/MathMock.sol	2022-06-06 12:25:10.000000000 -0700
+--- mocks/MathMock.sol	2022-08-11 21:13:55.000000000 -0700
++++ mocks/MathMock.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -29,8 +29,4 @@
      ) public pure returns (uint256) {
          return Math.mulDiv(a, b, denominator, direction);
@@ -257,8 +257,8 @@ diff -ruN mocks/MathMock.sol mocks/MathMock.sol
 -    }
  }
 diff -ruN mocks/SafeERC20Helper.sol mocks/SafeERC20Helper.sol
---- mocks/SafeERC20Helper.sol	2022-06-14 06:30:55.000000000 -0700
-+++ mocks/SafeERC20Helper.sol	2022-06-06 12:25:10.000000000 -0700
+--- mocks/SafeERC20Helper.sol	2022-08-11 21:13:55.000000000 -0700
++++ mocks/SafeERC20Helper.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -4,7 +4,6 @@
  
  import "../utils/Context.sol";
@@ -331,8 +331,8 @@ diff -ruN mocks/SafeERC20Helper.sol mocks/SafeERC20Helper.sol
          ERC20ReturnTrueMock(address(_token)).setAllowance(allowance_);
      }
 diff -ruN proxy/Clones.sol proxy/Clones.sol
---- proxy/Clones.sol	2022-06-14 06:30:55.000000000 -0700
-+++ proxy/Clones.sol	2022-06-06 12:25:10.000000000 -0700
+--- proxy/Clones.sol	2022-08-11 21:13:55.000000000 -0700
++++ proxy/Clones.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -26,10 +26,10 @@
          /// @solidity memory-safe-assembly
          assembly {
@@ -385,8 +385,8 @@ diff -ruN proxy/Clones.sol proxy/Clones.sol
      }
  
 diff -ruN proxy/ERC1967/ERC1967Proxy.sol proxy/ERC1967/ERC1967Proxy.sol
---- proxy/ERC1967/ERC1967Proxy.sol	2022-06-14 06:30:55.000000000 -0700
-+++ proxy/ERC1967/ERC1967Proxy.sol	2022-06-06 12:25:10.000000000 -0700
+--- proxy/ERC1967/ERC1967Proxy.sol	2022-08-11 21:13:55.000000000 -0700
++++ proxy/ERC1967/ERC1967Proxy.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -20,6 +20,7 @@
       * function call, and allows initializing the storage of the proxy like a Solidity constructor.
       */
@@ -396,8 +396,8 @@ diff -ruN proxy/ERC1967/ERC1967Proxy.sol proxy/ERC1967/ERC1967Proxy.sol
      }
  
 diff -ruN proxy/beacon/BeaconProxy.sol proxy/beacon/BeaconProxy.sol
---- proxy/beacon/BeaconProxy.sol	2022-06-14 06:30:55.000000000 -0700
-+++ proxy/beacon/BeaconProxy.sol	2022-06-06 12:25:10.000000000 -0700
+--- proxy/beacon/BeaconProxy.sol	2022-08-11 21:13:55.000000000 -0700
++++ proxy/beacon/BeaconProxy.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -28,6 +28,7 @@
       * - `beacon` must be a contract with the interface {IBeacon}.
       */
@@ -407,8 +407,8 @@ diff -ruN proxy/beacon/BeaconProxy.sol proxy/beacon/BeaconProxy.sol
      }
  
 diff -ruN proxy/transparent/TransparentUpgradeableProxy.sol proxy/transparent/TransparentUpgradeableProxy.sol
---- proxy/transparent/TransparentUpgradeableProxy.sol	2022-06-14 06:30:55.000000000 -0700
-+++ proxy/transparent/TransparentUpgradeableProxy.sol	2022-06-06 12:25:10.000000000 -0700
+--- proxy/transparent/TransparentUpgradeableProxy.sol	2022-08-11 21:13:55.000000000 -0700
++++ proxy/transparent/TransparentUpgradeableProxy.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -36,6 +36,7 @@
          address admin_,
          bytes memory _data
@@ -418,8 +418,8 @@ diff -ruN proxy/transparent/TransparentUpgradeableProxy.sol proxy/transparent/Tr
      }
  
 diff -ruN proxy/utils/Initializable.sol proxy/utils/Initializable.sol
---- proxy/utils/Initializable.sol	2022-06-06 10:42:37.000000000 -0700
-+++ proxy/utils/Initializable.sol	2022-06-06 12:25:10.000000000 -0700
+--- proxy/utils/Initializable.sol	2022-08-11 21:13:55.000000000 -0700
++++ proxy/utils/Initializable.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -59,12 +59,12 @@
       * @dev Indicates that the contract has been initialized.
       * @custom:oz-retyped-from bool
@@ -437,7 +437,7 @@ diff -ruN proxy/utils/Initializable.sol proxy/utils/Initializable.sol
       * @dev Triggered when the contract has been initialized or reinitialized.
 diff -ruN proxy/utils/Initializable.sol.orig proxy/utils/Initializable.sol.orig
 --- proxy/utils/Initializable.sol.orig	1969-12-31 16:00:00.000000000 -0800
-+++ proxy/utils/Initializable.sol.orig	2022-06-06 12:25:10.000000000 -0700
++++ proxy/utils/Initializable.sol.orig	2022-08-11 21:15:52.000000000 -0700
 @@ -0,0 +1,138 @@
 +// SPDX-License-Identifier: MIT
 +// OpenZeppelin Contracts (last updated v4.6.0) (proxy/utils/Initializable.sol)
@@ -579,7 +579,7 @@ diff -ruN proxy/utils/Initializable.sol.orig proxy/utils/Initializable.sol.orig
 +}
 diff -ruN proxy/utils/Initializable.sol.rej proxy/utils/Initializable.sol.rej
 --- proxy/utils/Initializable.sol.rej	1969-12-31 16:00:00.000000000 -0800
-+++ proxy/utils/Initializable.sol.rej	2022-06-06 12:25:10.000000000 -0700
++++ proxy/utils/Initializable.sol.rej	2022-08-11 21:15:52.000000000 -0700
 @@ -0,0 +1,17 @@
 +***************
 +*** 130,136 ****
@@ -599,8 +599,8 @@ diff -ruN proxy/utils/Initializable.sol.rej proxy/utils/Initializable.sol.rej
 +          // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
 +          // of initializers, because in other contexts the contract may have been reentered.
 diff -ruN security/Pausable.sol security/Pausable.sol
---- security/Pausable.sol	2022-06-14 06:30:55.000000000 -0700
-+++ security/Pausable.sol	2022-06-06 12:25:10.000000000 -0700
+--- security/Pausable.sol	2022-08-11 21:13:55.000000000 -0700
++++ security/Pausable.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -35,6 +35,13 @@
      }
  
@@ -656,8 +656,8 @@ diff -ruN security/Pausable.sol security/Pausable.sol
  
      /**
 diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
---- token/ERC1155/ERC1155.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC1155/ERC1155.sol	2022-06-15 16:37:15.000000000 -0700
+--- token/ERC1155/ERC1155.sol	2022-08-11 21:13:55.000000000 -0700
++++ token/ERC1155/ERC1155.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -21,7 +21,7 @@
      using Address for address;
  
@@ -686,8 +686,8 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
              try IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, amounts, data) returns (
                  bytes4 response
 diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
---- token/ERC20/ERC20.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC20/ERC20.sol	2022-06-06 12:25:10.000000000 -0700
+--- token/ERC20/ERC20.sol	2022-08-11 21:25:35.000000000 -0700
++++ token/ERC20/ERC20.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -277,7 +277,7 @@
       * - `account` cannot be the zero address.
       * - `account` must have at least `amount` tokens.
@@ -698,8 +698,8 @@ diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
  
          _beforeTokenTransfer(account, address(0), amount);
 diff -ruN token/ERC20/README.adoc token/ERC20/README.adoc
---- token/ERC20/README.adoc	2022-06-15 14:13:43.000000000 -0700
-+++ token/ERC20/README.adoc	2022-06-06 12:25:10.000000000 -0700
+--- token/ERC20/README.adoc	2022-08-11 21:13:55.000000000 -0700
++++ token/ERC20/README.adoc	2022-08-11 21:15:52.000000000 -0700
 @@ -24,7 +24,7 @@
  * {ERC20Votes}: support for voting and vote delegation.
  * {ERC20VotesComp}: support for voting and vote delegation (compatible with Compound's token, with uint96 restrictions).
@@ -719,8 +719,8 @@ diff -ruN token/ERC20/README.adoc token/ERC20/README.adoc
  == Draft EIPs
  
 diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20FlashMint.sol
---- token/ERC20/extensions/ERC20FlashMint.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC20/extensions/ERC20FlashMint.sol	2022-06-06 12:25:10.000000000 -0700
+--- token/ERC20/extensions/ERC20FlashMint.sol	2022-08-11 21:13:55.000000000 -0700
++++ token/ERC20/extensions/ERC20FlashMint.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -40,9 +40,11 @@
          require(token == address(this), "ERC20FlashMint: wrong token");
          // silence warning about unused variable without the addition of bytecode.
@@ -736,7 +736,7 @@ diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20
       * implementation returns the address(0) which means the fee amount will be burnt.
 diff -ruN token/ERC20/extensions/ERC20TokenizedVault.sol token/ERC20/extensions/ERC20TokenizedVault.sol
 --- token/ERC20/extensions/ERC20TokenizedVault.sol	1969-12-31 16:00:00.000000000 -0800
-+++ token/ERC20/extensions/ERC20TokenizedVault.sol	2022-06-06 12:25:10.000000000 -0700
++++ token/ERC20/extensions/ERC20TokenizedVault.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -0,0 +1,217 @@
 +// SPDX-License-Identifier: MIT
 +
@@ -956,8 +956,8 @@ diff -ruN token/ERC20/extensions/ERC20TokenizedVault.sol token/ERC20/extensions/
 +    }
 +}
 diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Votes.sol
---- token/ERC20/extensions/ERC20Votes.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC20/extensions/ERC20Votes.sol	2022-06-06 12:25:10.000000000 -0700
+--- token/ERC20/extensions/ERC20Votes.sol	2022-08-11 21:16:57.000000000 -0700
++++ token/ERC20/extensions/ERC20Votes.sol	2022-08-11 21:25:13.000000000 -0700
 @@ -33,8 +33,8 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -969,18 +969,127 @@ diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Vote
      Checkpoint[] private _totalSupplyCheckpoints;
  
      /**
-@@ -169,7 +169,7 @@
+@@ -152,7 +152,7 @@
+     /**
+      * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
+      */
+-    function _maxSupply() internal view virtual returns (uint224) {
++    function _maxSupply() public view virtual returns (uint224) { //harnessed to public
+         return type(uint224).max;
+     }
+ 
+@@ -163,16 +163,16 @@
+         super._mint(account, amount);
+         require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
+ 
+-        _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
++        _writeCheckpointAdd(_totalSupplyCheckpoints, amount);           // HARNESS: new version without pointer
+     }
+ 
      /**
       * @dev Snapshots the totalSupply after it has been decreased.
       */
 -    function _burn(address account, uint256 amount) internal virtual override {
-+    function _burn(address account, uint256 amount) public virtual override {
++    function _burn(address account, uint256 amount) public virtual override { // HARNESS: internal -> public (to comply with the ERC20 harness)
          super._burn(account, amount);
  
-         _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
+-        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
++        _writeCheckpointSub(_totalSupplyCheckpoints, amount);           // HARNESS: new version without pointer
+     }
+ 
+     /**
+@@ -187,7 +187,7 @@
+     ) internal virtual override {
+         super._afterTokenTransfer(from, to, amount);
+ 
+-        _moveVotingPower(delegates(from), delegates(to), amount);
++        _moveVotingPower(delegates(from), delegates(to), amount);       
+     }
+ 
+     /**
+@@ -195,7 +195,7 @@
+      *
+      * Emits events {DelegateChanged} and {DelegateVotesChanged}.
+      */
+-    function _delegate(address delegator, address delegatee) internal virtual {
++    function _delegate(address delegator, address delegatee) public virtual { // HARNESSED TO MAKE PUBLIC
+         address currentDelegate = delegates(delegator);
+         uint256 delegatorBalance = balanceOf(delegator);
+         _delegates[delegator] = delegatee;
+@@ -212,25 +212,25 @@
+     ) private {
+         if (src != dst && amount > 0) {
+             if (src != address(0)) {
+-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);
++                (uint256 oldWeight, uint256 newWeight) = _writeCheckpointSub(_checkpoints[src], amount);        // HARNESS: new version without pointer
+                 emit DelegateVotesChanged(src, oldWeight, newWeight);
+             }
+ 
+             if (dst != address(0)) {
+-                (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[dst], _add, amount);
++                (uint256 oldWeight, uint256 newWeight) = _writeCheckpointAdd(_checkpoints[dst], amount);        // HARNESS: new version without pointer
+                 emit DelegateVotesChanged(dst, oldWeight, newWeight);
+             }
+         }
+     }
+ 
+-    function _writeCheckpoint(
++    // HARNESS: split _writeCheckpoint() to two functions as a workaround for function pointers that cannot be managed by the tool
++    function _writeCheckpointAdd(
+         Checkpoint[] storage ckpts,
+-        function(uint256, uint256) view returns (uint256) op,
+         uint256 delta
+     ) private returns (uint256 oldWeight, uint256 newWeight) {
+         uint256 pos = ckpts.length;
+         oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
+-        newWeight = op(oldWeight, delta);
++        newWeight = _add(oldWeight, delta);
+ 
+         if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
+             ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
+@@ -239,6 +239,39 @@
+         }
+     }
+ 
++    function _writeCheckpointSub(
++        Checkpoint[] storage ckpts,
++        uint256 delta
++    ) private returns (uint256 oldWeight, uint256 newWeight) {
++        uint256 pos = ckpts.length;
++        oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
++        newWeight = _subtract(oldWeight, delta);
++
++        if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
++            ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
++        } else {
++            ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
++        }
++    }
++
++    // backup of original function
++    //
++    // function _writeCheckpoint(
++    //     Checkpoint[] storage ckpts,
++    //     function(uint256, uint256) view returns (uint256) op,
++    //     uint256 delta
++    // ) private returns (uint256 oldWeight, uint256 newWeight) {
++    //     uint256 pos = ckpts.length;
++    //     oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
++    //     newWeight = op(oldWeight, delta);
++    //
++    //     if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
++    //         ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
++    //     } else {
++    //         ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
++    //     }
++    // }
++
+     function _add(uint256 a, uint256 b) private pure returns (uint256) {
+         return a + b;
+     }
 diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wrapper.sol
---- token/ERC20/extensions/ERC20Wrapper.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC20/extensions/ERC20Wrapper.sol	2022-06-06 12:25:10.000000000 -0700
+--- token/ERC20/extensions/ERC20Wrapper.sol	2022-08-11 21:13:55.000000000 -0700
++++ token/ERC20/extensions/ERC20Wrapper.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -55,7 +55,7 @@
       * @dev Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake. Internal
       * function that can be exposed with access control if desired.
@@ -991,7 +1100,7 @@ diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wr
          _mint(account, value);
          return value;
 diff -ruN token/ERC20/extensions/ERC4626.sol token/ERC20/extensions/ERC4626.sol
---- token/ERC20/extensions/ERC4626.sol	2022-06-15 14:13:43.000000000 -0700
+--- token/ERC20/extensions/ERC4626.sol	2022-08-11 21:13:55.000000000 -0700
 +++ token/ERC20/extensions/ERC4626.sol	1969-12-31 16:00:00.000000000 -0800
 @@ -1,217 +0,0 @@
 -// SPDX-License-Identifier: MIT
@@ -1212,8 +1321,8 @@ diff -ruN token/ERC20/extensions/ERC4626.sol token/ERC20/extensions/ERC4626.sol
 -    }
 -}
 diff -ruN token/ERC20/utils/SafeERC20.sol token/ERC20/utils/SafeERC20.sol
---- token/ERC20/utils/SafeERC20.sol	2022-06-14 06:30:55.000000000 -0700
-+++ token/ERC20/utils/SafeERC20.sol	2022-06-06 12:25:10.000000000 -0700
+--- token/ERC20/utils/SafeERC20.sol	2022-08-11 21:13:55.000000000 -0700
++++ token/ERC20/utils/SafeERC20.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -4,7 +4,6 @@
  pragma solidity ^0.8.0;
  
@@ -1246,8 +1355,8 @@ diff -ruN token/ERC20/utils/SafeERC20.sol token/ERC20/utils/SafeERC20.sol
       * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement
       * on the return value: the return value is optional (but if data is returned, it must not be false).
 diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/draft-ERC721Votes.sol
---- token/ERC721/extensions/draft-ERC721Votes.sol	2022-06-06 10:42:37.000000000 -0700
-+++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-06-06 12:25:10.000000000 -0700
+--- token/ERC721/extensions/draft-ERC721Votes.sol	2022-08-11 21:13:55.000000000 -0700
++++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -34,7 +34,7 @@
      /**
       * @dev Returns the balance of `account`.
@@ -1258,8 +1367,8 @@ diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/
      }
  }
 diff -ruN utils/Address.sol utils/Address.sol
---- utils/Address.sol	2022-06-06 10:42:37.000000000 -0700
-+++ utils/Address.sol	2022-06-06 12:25:10.000000000 -0700
+--- utils/Address.sol	2022-08-11 21:13:55.000000000 -0700
++++ utils/Address.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -131,6 +131,7 @@
          uint256 value,
          string memory errorMessage
@@ -1269,8 +1378,8 @@ diff -ruN utils/Address.sol utils/Address.sol
          require(isContract(target), "Address: call to non-contract");
  
 diff -ruN utils/math/Math.sol utils/math/Math.sol
---- utils/math/Math.sol	2022-06-14 06:30:55.000000000 -0700
-+++ utils/math/Math.sol	2022-06-06 12:25:10.000000000 -0700
+--- utils/math/Math.sol	2022-08-11 21:13:55.000000000 -0700
++++ utils/math/Math.sol	2022-08-11 21:15:52.000000000 -0700
 @@ -149,78 +149,4 @@
          }
          return result;
