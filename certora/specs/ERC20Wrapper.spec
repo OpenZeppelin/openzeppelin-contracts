@@ -15,7 +15,7 @@ methods {
 // totalsupply of wrapped should be less than or equal to underlying (assuming no external transfer) - solvency
 invariant whatAboutTotal(env e)
     totalSupply(e) <= underlyingTotalSupply()
-    filtered { f -> f.selector != certorafallback_0().selector }
+    filtered { f -> f.selector != certorafallback_0().selector && !f.isView}
     {
         preserved {
             require underlyingBalanceOf(currentContract) <= underlyingTotalSupply();

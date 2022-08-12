@@ -40,25 +40,25 @@ function hashIdCorrelation(bytes32 id, address target, uint256 value, bytes data
 // `isOperation()` correctness check
 invariant operationCheck(bytes32 id)
     getTimestamp(id) > 0 <=> isOperation(id)
-
+filtered { f -> !f.isView }
 
 // STATUS - verified
 // `isOperationPending()` correctness check
 invariant pendingCheck(bytes32 id)
     getTimestamp(id) > _DONE_TIMESTAMP() <=> isOperationPending(id)
-
+filtered { f -> !f.isView }
 
 // STATUS - verified
 // `isOperationReady()` correctness check
 invariant readyCheck(env e, bytes32 id)
     (e.block.timestamp >= getTimestamp(id) && getTimestamp(id) > 1) <=> isOperationReady(e, id)
-
+filtered { f -> !f.isView }
 
 // STATUS - verified
 // `isOperationDone()` correctness check
 invariant doneCheck(bytes32 id)
     getTimestamp(id) == _DONE_TIMESTAMP() <=> isOperationDone(id)
-
+filtered { f -> !f.isView }
 
 
 ////////////////////////////////////////////////////////////////////////////

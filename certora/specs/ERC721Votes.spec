@@ -67,19 +67,11 @@ hook Sstore _checkpoints[KEY address account].fromBlock uint32 newBlock (uint32 
         doubleFromBlock@new(account) == (newBlock == lastFromBlock(account));
 }
 
-// sum of user balances is >= total amount of delegated votes
-// blocked by tool error
-invariant votes_solvency()
-    to_mathint(totalSupply()) >= totalVotes()
-{ preserved with(env e) {
-    require forall address account. numCheckpoints(account) < 1000000;
-} }
-
-
 // for some checkpoint, the fromBlock is less than the current block number
 // passes but fails rule sanity from hash on delegate by sig
 invariant timestamp_constrains_fromBlock(address account, uint32 index, env e)
     ckptFromBlock(account, index) < e.block.number
+    filtered { f -> !f.isView }
 {
     preserved {
         require index < numCheckpoints(account);
@@ -95,6 +87,7 @@ invariant timestamp_constrains_fromBlock(address account, uint32 index, env e)
 // passes
 invariant fromBlock_constrains_numBlocks(address account)
     numCheckpoints(account) <= ckptFromBlock(account, numCheckpoints(account) - 1)
+    filtered { f -> !f.isView }
 { preserved with(env e) {
     require e.block.number >= ckptFromBlock(account, numCheckpoints(account) - 1); // this should be true from the invariant above!!
 }}
@@ -107,11 +100,13 @@ invariant fromBlock_constrains_numBlocks(address account)
 // passes + rule sanity
 invariant fromBlock_greaterThanEq_pos(address account, uint32 pos)
     ckptFromBlock(account, pos) >= pos
+    filtered { f -> !f.isView }
 
 // a larger index must have a larger fromBlock
 // passes + rule sanity
 invariant fromBlock_increasing(address account, uint32 pos, uint32 pos2)
     pos > pos2 => ckptFromBlock(account, pos) > ckptFromBlock(account, pos2)
+    filtered { f -> !f.isView }
 
 
 // converted from an invariant to a rule to slightly change the logic

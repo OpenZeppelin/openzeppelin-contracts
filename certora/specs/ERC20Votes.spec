@@ -18,13 +18,10 @@ methods {
     mint(address, uint256)
     burn(address, uint256)
     unsafeNumCheckpoints(address) returns (uint256) envfree
-
     // solidity generated getters
     _delegates(address) returns (address) envfree
 
     // external functions
-
-
 }
 // gets the most recent votes for a user
 ghost userVotes(address) returns uint224 {
@@ -36,9 +33,7 @@ ghost totalVotes() returns mathint {
     init_state axiom totalVotes() == 0;
     axiom totalVotes() >= 0;
 }
-
 ghost lastIndex(address) returns uint32;
-
 // helper
 
 hook Sstore _checkpoints[KEY address account][INDEX uint32 index].votes uint224 newVotes (uint224 oldVotes) STORAGE {
@@ -82,12 +77,12 @@ invariant votes_solvency()
 // for some checkpoint, the fromBlock is less than the current block number
 invariant blockNum_constrains_fromBlock(address account, uint32 index, env e)
     ckptFromBlock(account, index) < e.block.number
+    filtered { f -> !f.isView }
 {
     preserved {
         require index < numCheckpoints(account);
     }
 }
-
 // numCheckpoints are less than maxInt
 // passes because numCheckpoints does a safeCast
 // invariant maxInt_constrains_numBlocks(address account)
@@ -97,6 +92,7 @@ invariant blockNum_constrains_fromBlock(address account, uint32 index, env e)
 // passes
 invariant fromBlock_constrains_numBlocks(address account)
     numCheckpoints(account) <= ckptFromBlock(account, numCheckpoints(account) - 1)
+    filtered { f -> !f.isView }
 { preserved with(env e) {
     require e.block.number >= ckptFromBlock(account, numCheckpoints(account) - 1); // this should be true from the invariant above!!
 }}
@@ -109,11 +105,13 @@ invariant fromBlock_constrains_numBlocks(address account)
 // passes + rule sanity
 invariant fromBlock_greaterThanEq_pos(address account, uint32 pos)
     ckptFromBlock(account, pos) >= pos
+    filtered { f -> !f.isView }
 
 // a larger index must have a larger fromBlock
 // passes + rule sanity
 invariant fromBlock_increasing(address account, uint32 pos, uint32 pos2)
     pos > pos2 => ckptFromBlock(account, pos) > ckptFromBlock(account, pos2)
+    filtered { f -> !f.isView }
 
 
 // converted from an invariant to a rule to slightly change the logic
@@ -144,27 +142,21 @@ rule transfer_safe() {
     uint256 amount;
     address a; address b;
     require delegates(a) != delegates(b); // confirmed if they both delegate to the same person then transfer keeps the votes the same
-
     require numCheckpoints(delegates(a)) < 1000000;
     require numCheckpoints(delegates(b)) < 1000000;
-
     uint256 votesA_pre = getVotes(delegates(a));
     uint256 votesB_pre = getVotes(delegates(b));
-
     mathint totalVotes_pre = totalVotes();
-
     transferFrom(e, a, b, amount);
     
     mathint totalVotes_post = totalVotes();
     uint256 votesA_post = getVotes(delegates(a));
     uint256 votesB_post = getVotes(delegates(b));
-
     // if an account that has not delegated transfers balance to an account that has, it will increase the total supply of votes
     assert totalVotes_pre == totalVotes_post, "transfer changed total supply";
     assert delegates(a) != 0 => votesA_pre - votesA_post == amount, "A lost the wrong amount of votes";
     assert delegates(b) != 0 => votesB_post - votesB_pre == amount, "B lost the wrong amount of votes";
 }
-
 // for any given function f, if the delegate is changed the function must be delegate or delegateBySig
 // passes
 rule delegates_safe(method f) filtered {f -> (f.selector != delegate(address).selector &&
@@ -174,14 +166,10 @@ rule delegates_safe(method f) filtered {f -> (f.selector != delegate(address).se
     env e; calldataarg args;
     address account;
     address pre = delegates(account);
-
     f(e, args);
-
     address post = delegates(account);
-
     assert pre == post, "invalid delegate change";
 }
-
 // delegates increases the delegatee's votes by the proper amount
 // passes + rule sanity
 rule delegatee_receives_votes() {
