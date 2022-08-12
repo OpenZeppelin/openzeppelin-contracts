@@ -5,5 +5,6 @@ certoraRun \
     --optimistic_loop \
     --loop_iter 3 \
     --send_only \
+    --cloud \
     --msg "ERC1155"
     

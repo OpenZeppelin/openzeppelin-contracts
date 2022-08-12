@@ -4,5 +4,6 @@ certoraRun \
     --solc solc8.2 \
     --optimistic_loop \
     --cloud \
-    --msg "AccessControl verification"
+    --msg "AccessControl verification" \
+    --send_only
     

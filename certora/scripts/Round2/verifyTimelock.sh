@@ -4,7 +4,10 @@ certoraRun \
     --solc solc8.2 \
     --optimistic_loop \
     --loop_iter 3 \
-    --staging alex/new-dt-hashing-alpha \
+    --cloud \
     --settings -byteMapHashingPrecision=32 \
-    --msg "TimelockController verification"
+    --msg "TimelockController verification" \
+    --send_only \
+
+    #  --staging alex/new-dt-hashing-alpha \
       

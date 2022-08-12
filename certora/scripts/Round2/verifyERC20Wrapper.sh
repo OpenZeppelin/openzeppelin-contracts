@@ -5,5 +5,6 @@ certoraRun \
     --solc solc8.2 \
     --optimistic_loop \
     --cloud \
-    --msg "ERC20Wrapper verification"
+    --msg "ERC20Wrapper verification" \
+    --send_only
     

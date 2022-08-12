@@ -5,5 +5,6 @@ certoraRun \
     --solc solc8.2 \
     --optimistic_loop \
     --cloud \
-    --msg "ERC20FlashMint verification"
+    --msg "ERC20FlashMint verification" \
+    --send_only
     
