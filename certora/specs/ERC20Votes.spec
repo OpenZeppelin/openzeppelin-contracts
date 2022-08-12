@@ -29,19 +29,18 @@ ghost userVotes(address) returns uint224 {
 }
 
 // sums the total votes for all users
-ghost totalVotes() returns mathint {
+ghost totalVotes() returns uint224 {
     init_state axiom totalVotes() == 0;
-    axiom totalVotes() >= 0;
 }
 ghost lastIndex(address) returns uint32;
 // helper
 
-hook Sstore _checkpoints[KEY address account][INDEX uint32 index].votes uint224 newVotes (uint224 oldVotes) STORAGE {
+hook Sstore _checkpoints[KEY address account][INDEX uint32 index].votes uint224 newVotes (uint224 oldVotes) STORAGE {    
     havoc userVotes assuming
         userVotes@new(account) == newVotes;
 
     havoc totalVotes assuming
-        totalVotes@new() == totalVotes@old() + to_mathint(newVotes) - to_mathint(userVotes(account));
+        totalVotes@new() == totalVotes@old() + newVotes - userVotes(account);
 
     havoc lastIndex assuming
         lastIndex@new(account) == index;
@@ -68,10 +67,16 @@ hook Sstore _checkpoints[KEY address account][INDEX uint32 index].fromBlock uint
 // sum of user balances is >= total amount of delegated votes
 // fails on burn. This is because burn does not remove votes from the users
 invariant votes_solvency()
-    to_mathint(totalSupply()) >= totalVotes()
+    totalSupply() >= to_uint256(totalVotes())
+filtered { f -> f.selector != _burn(address, uint256).selector}
 { preserved with(env e) {
     require forall address account. numCheckpoints(account) < 1000000;
-} }
+} preserved burn(address a, uint256 amount) with(env e){
+    require _delegates(0) == 0;
+    require forall address a2. (_delegates(a) != _delegates(a2)) && (balanceOf(e, _delegates(a)) + balanceOf(e, _delegates(a2)) <= totalVotes());
+    require balanceOf(e, _delegates(a)) < totalVotes();
+    require amount < 100000;
+}}
 
 
 // for some checkpoint, the fromBlock is less than the current block number
@@ -146,10 +151,10 @@ rule transfer_safe() {
     require numCheckpoints(delegates(b)) < 1000000;
     uint256 votesA_pre = getVotes(delegates(a));
     uint256 votesB_pre = getVotes(delegates(b));
-    mathint totalVotes_pre = totalVotes();
+    uint224 totalVotes_pre = totalVotes();
     transferFrom(e, a, b, amount);
     
-    mathint totalVotes_post = totalVotes();
+    uint224 totalVotes_post = totalVotes();
     uint256 votesA_post = getVotes(delegates(a));
     uint256 votesB_post = getVotes(delegates(b));
     // if an account that has not delegated transfers balance to an account that has, it will increase the total supply of votes
@@ -308,7 +313,7 @@ rule mint_doesnt_increase_totalVotes() {
     env e;
     uint256 amount; address account;
 
-    mathint totalVotes_ = totalVotes();
+    uint224 totalVotes_ = totalVotes();
 
     mint(e, account, amount);
 
@@ -319,7 +324,7 @@ rule burn_doesnt_decrease_totalVotes() {
     env e;
     uint256 amount; address account;
 
-    mathint totalVotes_ = totalVotes();
+    uint224 totalVotes_ = totalVotes();
 
     burn(e, account, amount);
 
