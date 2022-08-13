@@ -22,16 +22,6 @@ function to2098Format (signature) {
   return web3.utils.bytesToHex(short);
 }
 
-function from2098Format (signature) {
-  const short = web3.utils.hexToBytes(signature);
-  if (short.length !== 64) {
-    throw new Error('invalid signature length (expected short format)');
-  }
-  short.push((short[32] >> 7) + 27);
-  short[32] &= (1 << 7) - 1; // zero out the first bit of 1 the 32nd byte
-  return web3.utils.bytesToHex(short);
-}
-
 function split (signature) {
   const raw = web3.utils.hexToBytes(signature);
   switch (raw.length) {
@@ -144,11 +134,13 @@ contract('ECDSA', function (accounts) {
         );
       });
 
-      it('works with short EIP2098 format', async function () {
+      it('rejects short EIP2098 format', async function () {
         const version = '1b'; // 27 = 1b.
         const signature = signatureWithoutVersion + version;
-        expect(await this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature))).to.equal(signer);
-        expect(await this.ecdsa.recover(TEST_MESSAGE, from2098Format(to2098Format(signature)))).to.equal(signer);
+        await expectRevert(
+          this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature)),
+          'ECDSA: invalid signature length',
+        );
       });
     });
 
@@ -187,11 +179,13 @@ contract('ECDSA', function (accounts) {
         );
       });
 
-      it('works with short EIP2098 format', async function () {
+      it('rejects short EIP2098 format', async function () {
         const version = '1c'; // 27 = 1b.
         const signature = signatureWithoutVersion + version;
-        expect(await this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature))).to.equal(signer);
-        expect(await this.ecdsa.recover(TEST_MESSAGE, from2098Format(to2098Format(signature)))).to.equal(signer);
+        await expectRevert(
+          this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature)),
+          'ECDSA: invalid signature length',
+        );
       });
     });
 
