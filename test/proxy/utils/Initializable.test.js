@@ -1,6 +1,5 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { it } = require('node:test');
 
 const InitializableMock = artifacts.require('InitializableMock');
 const ConstructorInitializableMock = artifacts.require('ConstructorInitializableMock');
@@ -112,9 +111,9 @@ contract('Initializable', function (accounts) {
 
     it('_getInitializedVersion returns right version', async function () {
       await this.contract.initialize();
-      expect(await this.contract.getInitializedVersion()).to.equal(0);
-      await this.contract.reinitialize(128);
-      expect(await this.contract.getInitializedVersion()).to.equal(128);
+      expect(await this.contract.getInitializedVersion()).to.be.bignumber.equal('1');
+      await this.contract.reinitialize(12);
+      expect(await this.contract.getInitializedVersion()).to.be.bignumber.equal('12');
     });
 
     describe('contract locking', function () {
