@@ -8,7 +8,7 @@ import "../StorageSlot.sol";
 error Full();
 
 library MerkleTree {
-    uint256 private constant MAX_DEPTH = 255;
+    uint256 private constant _MAX_DEPTH = 255;
 
     struct TreeWithHistory {
         uint256 currentRootIndex;
@@ -33,12 +33,12 @@ library MerkleTree {
         bytes32 zero,
         function(bytes32, bytes32) view returns (bytes32) fnHash
     ) internal {
-        require(depth <= MAX_DEPTH);
+        require(depth <= _MAX_DEPTH);
 
         // Store depth & length in the dynamic array
-        setLength(self.sides, depth);
-        setLength(self.zeros, depth);
-        setLength(self.roots, length);
+        _unsafeSetLength(self.sides, depth);
+        _unsafeSetLength(self.zeros, depth);
+        _unsafeSetLength(self.roots, length);
         self.fnHash = fnHash;
 
         // Build the different hashes in a zero-filled complete tree
@@ -142,7 +142,7 @@ library MerkleTree {
     /**
      * @dev Helper to set the length of an dynamic array. Directly writting to `.length` is forbiden.
      */
-    function setLength(bytes32[] storage array, uint256 len) private {
+    function _unsafeSetLength(bytes32[] storage array, uint256 len) private {
         assembly {
             sstore(array.slot, len)
         }
