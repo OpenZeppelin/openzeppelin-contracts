@@ -8,7 +8,7 @@ import "../StorageSlot.sol";
 error Full();
 
 library MerkleTree {
-    uint256 private constant MAX_DEPTH = 256;
+    uint256 private constant MAX_DEPTH = 255;
 
     struct TreeWithHistory {
         uint256 currentRootIndex;
@@ -54,9 +54,6 @@ library MerkleTree {
 
     /**
      * @dev Insert a new leaf in the tree, compute the new root, and store that new root in the history.
-     *
-     * Note: because of the `nextLeafIndex` overflow, trees of depth 256 can only store 2**256-1 items.
-     * This should never be an issue in practice.
      */
     function insert(TreeWithHistory storage self, bytes32 leaf) internal returns (uint256) {
         // Cache read
@@ -65,8 +62,7 @@ library MerkleTree {
         // Get leaf index
         uint256 leafIndex = self.nextLeafIndex++;
 
-        // Check if tree is full. This check will not work if depth == 256 and the tree is full, but realistically
-        // this will never happen.
+        // Check if tree is full.
         if (leafIndex == 1 << depth) revert Full();
 
         // Rebuild branch from leaf to root
