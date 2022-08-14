@@ -9,12 +9,20 @@ contract MerkleTreeMock {
 
     MerkleTree.TreeWithHistory private tree;
 
-    constructor(uint32 _depth, uint32 _length) {
+    constructor(uint256 _depth, uint256 _length) {
         tree.initialize(_depth, _length);
     }
 
-    function insert(bytes32 leaf) public returns (uint32) {
+    function insert(bytes32 leaf) public returns (uint256) {
         return tree.insert(leaf);
+    }
+
+    function getDepth() public view returns (uint256) {
+        return tree.getDepth();
+    }
+
+    function getLength() public view returns (uint256) {
+        return tree.getLength();
     }
 
     function getLastRoot() public view returns (bytes32) {
@@ -26,19 +34,11 @@ contract MerkleTreeMock {
     }
 
     // internal state
-    function depth() public view returns (uint32) {
-        return tree.depth;
-    }
-
-    function length() public view returns (uint32) {
-        return tree.length;
-    }
-
-    function currentRootIndex() public view returns (uint32) {
+    function currentRootIndex() public view returns (uint256) {
         return tree.currentRootIndex;
     }
 
-    function nextLeafIndex() public view returns (uint32) {
+    function nextLeafIndex() public view returns (uint256) {
         return tree.nextLeafIndex;
     }
 

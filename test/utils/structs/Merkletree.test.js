@@ -17,8 +17,8 @@ describe('Merklee tree', function () {
     const leafs = Array(2 ** DEPTH).fill(constants.ZERO_BYTES32);
     const merkleTree = new MerkleTree(leafs, keccak256, { sortPairs: true });
 
-    expect(await this.contract.depth()).to.be.bignumber.equal(DEPTH);
-    expect(await this.contract.length()).to.be.bignumber.equal(LENGTH);
+    expect(await this.contract.getDepth()).to.be.bignumber.equal(DEPTH);
+    expect(await this.contract.getLength()).to.be.bignumber.equal(LENGTH);
     expect(await this.contract.currentRootIndex()).to.be.bignumber.equal('0');
     expect(await this.contract.nextLeafIndex()).to.be.bignumber.equal('0');
 
