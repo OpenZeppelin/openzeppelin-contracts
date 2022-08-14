@@ -33,7 +33,7 @@ library MerkleTree {
         bytes32 zero,
         function(bytes32, bytes32) view returns (bytes32) fnHash
     ) internal {
-        require(depth <= _MAX_DEPTH);
+        require(depth <= _MAX_DEPTH, "MerkleTree: invalid length");
 
         // Store depth & length in the dynamic array
         _unsafeSetLength(self.sides, depth);
