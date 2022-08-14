@@ -25,7 +25,7 @@ describe('Merklee tree', function () {
     expect(await this.contract.getLastRoot()).to.be.equal(merkleTree.getHexRoot());
     for (let i = 0; i < DEPTH; ++i) {
       expect(await this.contract.zeros(i)).to.be.equal(merkleTree.getHexLayers()[i][0]);
-      expect(await this.contract.filledSubtrees(i)).to.be.equal(merkleTree.getHexLayers()[i][0]);
+      expect(await this.contract.sides(i)).to.be.equal(constants.ZERO_BYTES32);
     }
 
     for (let i = 0; i < LENGTH; ++i) {

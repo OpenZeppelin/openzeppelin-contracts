@@ -42,8 +42,8 @@ contract MerkleTreeMock {
         return tree.nextLeafIndex;
     }
 
-    function filledSubtrees(uint256 i) public view returns (bytes32) {
-        return tree.filledSubtrees[i];
+    function sides(uint256 i) public view returns (bytes32) {
+        return tree.sides[i];
     }
 
     function zeros(uint256 i) public view returns (bytes32) {

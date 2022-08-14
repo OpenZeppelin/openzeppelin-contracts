@@ -13,7 +13,7 @@ library MerkleTree {
     struct TreeWithHistory {
         uint256 currentRootIndex;
         uint256 nextLeafIndex;
-        bytes32[] filledSubtrees;
+        bytes32[] sides;
         bytes32[] zeros;
         bytes32[] roots;
         function(bytes32, bytes32) view returns (bytes32) fnHash;
@@ -35,15 +35,16 @@ library MerkleTree {
     ) internal {
         require(depth <= MAX_DEPTH);
 
-        setLength(self.filledSubtrees, depth);
+        // Store depth & length in the dynamic array
+        setLength(self.sides, depth);
         setLength(self.zeros, depth);
         setLength(self.roots, length);
         self.fnHash = fnHash;
 
+        // Build the different hashes in a zero-filled complete tree
         bytes32 currentZero = zero;
         for (uint32 i = 0; i < depth; ++i) {
             unsafeAccess(self.zeros, i).value = currentZero;
-            unsafeAccess(self.filledSubtrees, i).value = currentZero;
             currentZero = fnHash(currentZero, currentZero);
         }
 
@@ -58,7 +59,7 @@ library MerkleTree {
      * This should never be an issue in practice.
      */
     function insert(TreeWithHistory storage self, bytes32 leaf) internal returns (uint256) {
-        // cache read
+        // Cache read
         uint256 depth = self.zeros.length;
 
         // Get leaf index
@@ -77,14 +78,14 @@ library MerkleTree {
 
             // If so, next time we will come from the right, so we need to save it
             if (isLeft) {
-                unsafeAccess(self.filledSubtrees, i).value = currentLevelHash;
+                unsafeAccess(self.sides, i).value = currentLevelHash;
             }
 
             // Compute the node hash by hasing the current hash with either:
             // - the last value for this level
             // - the zero for this level
             currentLevelHash = self.fnHash(
-                isLeft ? currentLevelHash : unsafeAccess(self.filledSubtrees, i).value,
+                isLeft ? currentLevelHash : unsafeAccess(self.sides, i).value,
                 isLeft ? unsafeAccess(self.zeros, i).value : currentLevelHash
             );
 
