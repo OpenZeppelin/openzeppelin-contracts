@@ -13,6 +13,13 @@ describe('Merklee tree', function () {
     this.contract = await MerkleTreeMock.new(DEPTH, LENGTH);
   });
 
+  it('depth is limited', async function () {
+    await expectRevert(
+      MerkleTreeMock.new(256, LENGTH),
+      'MerkleTree: invalid length',
+    );
+  });
+
   it('setup', async function () {
     const leafs = Array(2 ** DEPTH).fill(constants.ZERO_BYTES32);
     const merkleTree = new MerkleTree(leafs, keccak256, { sortPairs: true });
