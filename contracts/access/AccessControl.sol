@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 
 import "./IAccessControl.sol";
 import "../utils/Context.sol";
+import "../utils/Strings.sol";
 import "../utils/introspection/ERC165.sol";
 
 /**
@@ -105,7 +106,16 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      */
     function _checkRole(bytes32 role, address account) internal view virtual {
         if (!hasRole(role, account)) {
-            revert("AccessControl: account is missing role.");
+            revert(
+                string(
+                    abi.encodePacked(
+                        "AccessControl: account ",
+                        Strings.toHexString(account),
+                        " is missing role ",
+                        Strings.toHexString(uint256(role), 32)
+                    )
+                )
+            );
         }
     }
 
