@@ -85,7 +85,7 @@ library MerkleTree {
                 isLeft ? unsafeAccess(self.zeros, i).value : currentLevelHash
             );
 
-            // update node index
+            // Update node index
             currentIndex >>= 1;
         }
 
@@ -125,11 +125,11 @@ library MerkleTree {
             return false;
         }
 
-        // cache as uint256 (avoid overflow)
+        // Cache read
         uint256 currentRootIndex = self.currentRootIndex;
         uint256 length = self.roots.length;
 
-        // search
+        // Search (most recents first)
         for (uint256 i = length; i > 0; --i) {
             if (root == unsafeAccess(self.roots, (currentRootIndex + i) % length).value) {
                 return true;
