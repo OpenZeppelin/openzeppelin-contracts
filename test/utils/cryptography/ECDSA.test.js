@@ -117,11 +117,8 @@ contract('ECDSA', function (accounts) {
       it('reverts with 00 as version value', async function () {
         const version = '00';
         const signature = signatureWithoutVersion + version;
-        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
-        await expectRevert(
-          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
-          'ECDSA: invalid signature \'v\' value',
-        );
+        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
+        await expectRevert(this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)), 'ECDSA: invalid signature');
       });
 
       it('works with 27 as version value', async function () {
@@ -137,11 +134,8 @@ contract('ECDSA', function (accounts) {
         // The only valid values are 0, 1, 27 and 28.
         const version = '02';
         const signature = signatureWithoutVersion + version;
-        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
-        await expectRevert(
-          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
-          'ECDSA: invalid signature \'v\' value',
-        );
+        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
+        await expectRevert(this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)), 'ECDSA: invalid signature');
       });
 
       it('works with short EIP2098 format', async function () {
@@ -160,11 +154,8 @@ contract('ECDSA', function (accounts) {
       it('reverts with 01 as version value', async function () {
         const version = '01';
         const signature = signatureWithoutVersion + version;
-        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
-        await expectRevert(
-          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
-          'ECDSA: invalid signature \'v\' value',
-        );
+        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
+        await expectRevert(this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)), 'ECDSA: invalid signature');
       });
 
       it('works with 28 as version value', async function () {
@@ -180,11 +171,8 @@ contract('ECDSA', function (accounts) {
         // The only valid values are 0, 1, 27 and 28.
         const version = '02';
         const signature = signatureWithoutVersion + version;
-        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
-        await expectRevert(
-          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
-          'ECDSA: invalid signature \'v\' value',
-        );
+        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
+        await expectRevert(this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)), 'ECDSA: invalid signature');
       });
 
       it('works with short EIP2098 format', async function () {
