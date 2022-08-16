@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20VotesComp.sol)
 
 pragma solidity ^0.8.0;
 
@@ -18,8 +19,6 @@ import "./ERC20Votes.sol";
  *
  * By default, token balance does not account for voting power. This makes transfers cheaper. The downside is that it
  * requires users to delegate to themselves in order to activate checkpoints and have their voting power tracked.
- * Enabling self-delegation can easily be done by overriding the {delegates} function. Keep in mind however that this
- * will significantly increase the base gas cost of transfers.
  *
  * _Available since v4.2._
  */
@@ -27,14 +26,14 @@ abstract contract ERC20VotesComp is ERC20Votes {
     /**
      * @dev Comp version of the {getVotes} accessor, with `uint96` return type.
      */
-    function getCurrentVotes(address account) external view returns (uint96) {
+    function getCurrentVotes(address account) external view virtual returns (uint96) {
         return SafeCast.toUint96(getVotes(account));
     }
 
     /**
      * @dev Comp version of the {getPastVotes} accessor, with `uint96` return type.
      */
-    function getPriorVotes(address account, uint256 blockNumber) external view returns (uint96) {
+    function getPriorVotes(address account, uint256 blockNumber) external view virtual returns (uint96) {
         return SafeCast.toUint96(getPastVotes(account, blockNumber));
     }
 

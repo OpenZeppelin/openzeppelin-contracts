@@ -3,7 +3,7 @@
 // - COVERAGE:          enable coverage report
 // - ENABLE_GAS_REPORT: enable gas report
 // - COMPILE_MODE:      production modes enables optimizations (default: development)
-// - COMPILE_VERSION:   compiler version (default: 0.8.3)
+// - COMPILE_VERSION:   compiler version (default: 0.8.9)
 // - COINMARKETCAP:     coinmarkercat api key for USD value in gas report
 
 const fs = require('fs');
@@ -11,10 +11,6 @@ const path = require('path');
 const argv = require('yargs/yargs')()
   .env('')
   .options({
-    ci: {
-      type: 'boolean',
-      default: false,
-    },
     coverage: {
       type: 'boolean',
       default: false,
@@ -24,16 +20,27 @@ const argv = require('yargs/yargs')()
       type: 'boolean',
       default: false,
     },
+    gasReport: {
+      alias: 'enableGasReportPath',
+      type: 'string',
+      implies: 'gas',
+      default: undefined,
+    },
     mode: {
       alias: 'compileMode',
       type: 'string',
       choices: [ 'production', 'development' ],
       default: 'development',
     },
+    ir: {
+      alias: 'enableIR',
+      type: 'boolean',
+      default: false,
+    },
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.3',
+      default: '0.8.13',
     },
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
@@ -44,7 +51,7 @@ const argv = require('yargs/yargs')()
 
 require('@nomiclabs/hardhat-truffle5');
 
-if (argv.enableGasReport) {
+if (argv.gas) {
   require('hardhat-gas-reporter');
 }
 
@@ -52,7 +59,7 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
 
-const withOptimizations = argv.enableGasReport || argv.compileMode === 'production';
+const withOptimizations = argv.gas || argv.compileMode === 'production';
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -65,6 +72,7 @@ module.exports = {
         enabled: withOptimizations,
         runs: 200,
       },
+      viaIR: withOptimizations && argv.ir,
     },
   },
   networks: {
@@ -74,8 +82,9 @@ module.exports = {
     },
   },
   gasReporter: {
+    showMethodSig: true,
     currency: 'USD',
-    outputFile: argv.ci ? 'gas-report.txt' : undefined,
+    outputFile: argv.gasReport,
     coinmarketcap: argv.coinmarketcap,
   },
 };

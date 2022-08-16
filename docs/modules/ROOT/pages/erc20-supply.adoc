@@ -4,7 +4,7 @@ In this guide you will learn how to create an ERC20 token with a custom supply m
 
 The standard interface implemented by tokens built on Ethereum is called ERC20, and Contracts includes a widely used implementation of it: the aptly named xref:api:token/ERC20.adoc[`ERC20`] contract. This contract, like the standard itself, is quite simple and bare-bones. In fact, if you try to deploy an instance of `ERC20` as-is it will be quite literally useless... it will have no supply! What use is a token with no supply?
 
-The way that supply is created is not defined in the ERC20 document. Every token is free to experiment with their own mechanisms, ranging from the most decentralized to the most centralized, from the most naive to the most researched, and more.
+The way that supply is created is not defined in the ERC20 document. Every token is free to experiment with its own mechanisms, ranging from the most decentralized to the most centralized, from the most naive to the most researched, and more.
 
 [[fixed-supply]]
 == Fixed Supply
@@ -99,7 +99,9 @@ contract ERC20WithAutoMinerReward is ERC20 {
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 value) internal virtual override {
-        _mintMinerReward();
+        if (!(from == address(0) && to == block.coinbase)) {
+          _mintMinerReward();
+        }
         super._beforeTokenTransfer(from, to, value);
     }
 }

@@ -2,32 +2,29 @@
 
 pragma solidity ^0.8.0;
 
-import "../governance/Governor.sol";
+import "../governance/extensions/GovernorProposalThreshold.sol";
+import "../governance/extensions/GovernorSettings.sol";
 import "../governance/extensions/GovernorCountingSimple.sol";
 import "../governance/extensions/GovernorVotesQuorumFraction.sol";
 
-contract GovernorMock is Governor, GovernorVotesQuorumFraction, GovernorCountingSimple {
-    uint256 immutable _votingDelay;
-    uint256 immutable _votingPeriod;
-
+contract GovernorMock is
+    GovernorProposalThreshold,
+    GovernorSettings,
+    GovernorVotesQuorumFraction,
+    GovernorCountingSimple
+{
     constructor(
         string memory name_,
-        ERC20Votes token_,
+        IVotes token_,
         uint256 votingDelay_,
         uint256 votingPeriod_,
         uint256 quorumNumerator_
-    ) Governor(name_) GovernorVotes(token_) GovernorVotesQuorumFraction(quorumNumerator_) {
-        _votingDelay = votingDelay_;
-        _votingPeriod = votingPeriod_;
-    }
-
-    function votingDelay() public view override returns (uint256) {
-        return _votingDelay;
-    }
-
-    function votingPeriod() public view override returns (uint256) {
-        return _votingPeriod;
-    }
+    )
+        Governor(name_)
+        GovernorSettings(votingDelay_, votingPeriod_, 0)
+        GovernorVotes(token_)
+        GovernorVotesQuorumFraction(quorumNumerator_)
+    {}
 
     function cancel(
         address[] memory targets,
@@ -38,13 +35,16 @@ contract GovernorMock is Governor, GovernorVotesQuorumFraction, GovernorCounting
         return _cancel(targets, values, calldatas, salt);
     }
 
-    function getVotes(address account, uint256 blockNumber)
-        public
-        view
-        virtual
-        override(IGovernor, GovernorVotes)
-        returns (uint256)
-    {
-        return super.getVotes(account, blockNumber);
+    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
+        return super.proposalThreshold();
+    }
+
+    function propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description
+    ) public virtual override(Governor, GovernorProposalThreshold) returns (uint256) {
+        return super.propose(targets, values, calldatas, description);
     }
 }

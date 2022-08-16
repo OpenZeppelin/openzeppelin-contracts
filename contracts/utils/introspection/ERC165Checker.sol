@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165Checker.sol)
 
 pragma solidity ^0.8.0;
 
@@ -22,8 +23,8 @@ library ERC165Checker {
         // Any contract that implements ERC165 must explicitly indicate support of
         // InterfaceId_ERC165 and explicitly indicate non-support of InterfaceId_Invalid
         return
-            _supportsERC165Interface(account, type(IERC165).interfaceId) &&
-            !_supportsERC165Interface(account, _INTERFACE_ID_INVALID);
+            supportsERC165InterfaceUnchecked(account, type(IERC165).interfaceId) &&
+            !supportsERC165InterfaceUnchecked(account, _INTERFACE_ID_INVALID);
     }
 
     /**
@@ -34,7 +35,7 @@ library ERC165Checker {
      */
     function supportsInterface(address account, bytes4 interfaceId) internal view returns (bool) {
         // query support of both ERC165 as per the spec and support of _interfaceId
-        return supportsERC165(account) && _supportsERC165Interface(account, interfaceId);
+        return supportsERC165(account) && supportsERC165InterfaceUnchecked(account, interfaceId);
     }
 
     /**
@@ -59,7 +60,7 @@ library ERC165Checker {
         if (supportsERC165(account)) {
             // query support of each interface in interfaceIds
             for (uint256 i = 0; i < interfaceIds.length; i++) {
-                interfaceIdsSupported[i] = _supportsERC165Interface(account, interfaceIds[i]);
+                interfaceIdsSupported[i] = supportsERC165InterfaceUnchecked(account, interfaceIds[i]);
             }
         }
 
@@ -83,7 +84,7 @@ library ERC165Checker {
 
         // query support of each interface in _interfaceIds
         for (uint256 i = 0; i < interfaceIds.length; i++) {
-            if (!_supportsERC165Interface(account, interfaceIds[i])) {
+            if (!supportsERC165InterfaceUnchecked(account, interfaceIds[i])) {
                 return false;
             }
         }
@@ -103,10 +104,20 @@ library ERC165Checker {
      * with {supportsERC165}.
      * Interface identification is specified in ERC-165.
      */
-    function _supportsERC165Interface(address account, bytes4 interfaceId) private view returns (bool) {
+    function supportsERC165InterfaceUnchecked(address account, bytes4 interfaceId) internal view returns (bool) {
+        // prepare call
         bytes memory encodedParams = abi.encodeWithSelector(IERC165.supportsInterface.selector, interfaceId);
-        (bool success, bytes memory result) = account.staticcall{gas: 30000}(encodedParams);
-        if (result.length < 32) return false;
-        return success && abi.decode(result, (bool));
+
+        // perform static call
+        bool success;
+        uint256 returnSize;
+        uint256 returnValue;
+        assembly {
+            success := staticcall(30000, account, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x20)
+            returnSize := returndatasize()
+            returnValue := mload(0x00)
+        }
+
+        return success && returnSize >= 0x20 && returnValue > 0;
     }
 }

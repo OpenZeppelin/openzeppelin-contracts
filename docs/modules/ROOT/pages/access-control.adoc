@@ -37,7 +37,7 @@ Ownable also lets you:
 
 WARNING: Removing the owner altogether will mean that administrative tasks that are protected by `onlyOwner` will no longer be callable!
 
-Note that *a contract can also be the owner of another one*! This opens the door to using, for example, a https://github.com/gnosis/MultiSigWallet[Gnosis Multisig] or https://safe.gnosis.io[Gnosis Safe], an https://aragon.org[Aragon DAO], an https://www.uport.me[ERC725/uPort] identity contract, or a totally custom contract that _you_ create.
+Note that *a contract can also be the owner of another one*! This opens the door to using, for example, a https://gnosis-safe.io[Gnosis Safe], an https://aragon.org[Aragon DAO], or a totally custom contract that _you_ create.
 
 In this way you can use _composability_ to add additional layers of access control complexity to your contracts. Instead of having a single regular Ethereum account (Externally Owned Account, or EOA) as the owner, you could use a 2-of-3 multisig run by your project leads, for example. Prominent projects in the space, such as https://makerdao.com[MakerDAO], use systems similar to this one.
 
@@ -73,7 +73,7 @@ contract MyToken is ERC20, AccessControl {
 
     constructor(address minter) ERC20("MyToken", "TKN") {
         // Grant the minter role to a specified account
-        _setupRole(MINTER_ROLE, minter);
+        _grantRole(MINTER_ROLE, minter);
     }
 
     function mint(address to, uint256 amount) public {
@@ -104,8 +104,8 @@ contract MyToken is ERC20, AccessControl {
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
     constructor(address minter, address burner) ERC20("MyToken", "TKN") {
-        _setupRole(MINTER_ROLE, minter);
-        _setupRole(BURNER_ROLE, burner);
+        _grantRole(MINTER_ROLE, minter);
+        _grantRole(BURNER_ROLE, burner);
     }
 
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
@@ -123,7 +123,7 @@ So clean! By splitting concerns this way, more granular levels of permission may
 [[granting-and-revoking]]
 === Granting and Revoking Roles
 
-The ERC20 token example above uses `_setupRole`, an `internal` function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
+The ERC20 token example above uses `_grantRole`, an `internal` function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
 By default, **accounts with a role cannot grant it or revoke it from other accounts**: all having a role does is making the `hasRole` check pass. To grant and revoke roles dynamically, you will need help from the _role's admin_.
 
@@ -149,7 +149,7 @@ contract MyToken is ERC20, AccessControl {
     constructor() ERC20("MyToken", "TKN") {
         // Grant the contract deployer the default admin role: it will be able
         // to grant and revoke any roles
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {

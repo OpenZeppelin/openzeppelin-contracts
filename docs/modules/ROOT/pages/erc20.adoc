@@ -58,9 +58,9 @@ To work around this, xref:api:token/ERC20.adoc#ERC20[`ERC20`] provides a xref:ap
 
 How can this be achieved? It's actually very simple: a token contract can use larger integer values, so that a balance of `50` will represent `5 GLD`, a transfer of `15` will correspond to `1.5 GLD` being sent, and so on.
 
-It is important to understand that `decimals` is _only used for display purposes_. All arithmetic inside the contract is still performed on integers, and it is the different user interfaces (wallets, exchanges, etc.) that must adjust the displayed values according to `decimals`. The total token supply and balance of each account are not specified in `GLD`: you need to divide by `10^decimals` to get the actual `GLD` amount.
+It is important to understand that `decimals` is _only used for display purposes_. All arithmetic inside the contract is still performed on integers, and it is the different user interfaces (wallets, exchanges, etc.) that must adjust the displayed values according to `decimals`. The total token supply and balance of each account are not specified in `GLD`: you need to divide by `10 ** decimals` to get the actual `GLD` amount.
 
-You'll probably want to use a `decimals` value of `18`, just like Ether and most ERC20 token contracts in use, unless you have a very special reason not to. When minting tokens or transferring them around, you will be actually sending the number `num GLD * 10^decimals`.
+You'll probably want to use a `decimals` value of `18`, just like Ether and most ERC20 token contracts in use, unless you have a very special reason not to. When minting tokens or transferring them around, you will be actually sending the number `num GLD * (10 ** decimals)`.
 
 NOTE: By default, `ERC20` uses a value of `18` for `decimals`. To use a different value, you will need to override the `decimals()` function in your contract.
 
@@ -73,11 +73,13 @@ function decimals() public view virtual override returns (uint8) {
 So if you want to send `5` tokens using a token contract with 18 decimals, the method to call will actually be:
 
 ```solidity
-transfer(recipient, 5 * 10^18);
+transfer(recipient, 5 * (10 ** 18));
 ```
 
 [[Presets]]
 == Preset ERC20 contract
-A preset ERC20 is available, xref:api:presets#ERC20PresetMinterPauser[`ERC20PresetMinterPauser`]. It is preset to allow for token minting (create), stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
+A preset ERC20 is available, https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.7/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol[`ERC20PresetMinterPauser`]. It is preset to allow for token minting (create), stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
 
 This contract is ready to deploy without having to write any Solidity code.  It can be used as-is for quick prototyping and testing, but is also suitable for production environments.
+
+NOTE: Contract presets are now deprecated in favor of https://wizard.openzeppelin.com[Contracts Wizard] as a more powerful alternative.

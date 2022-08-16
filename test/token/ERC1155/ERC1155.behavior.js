@@ -23,7 +23,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       it('reverts when queried about the zero address', async function () {
         await expectRevert(
           this.token.balanceOf(ZERO_ADDRESS, firstTokenId),
-          'ERC1155: balance query for the zero address',
+          'ERC1155: address zero is not a valid owner',
         );
       });
 
@@ -106,7 +106,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstTokenHolder, secondTokenHolder, ZERO_ADDRESS],
             [firstTokenId, secondTokenId, unknownTokenId],
           ),
-          'ERC1155: balance query for the zero address',
+          'ERC1155: address zero is not a valid owner',
         );
       });
 
@@ -165,9 +165,9 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
     });
 
     describe('setApprovalForAll', function () {
-      let logs;
+      let receipt;
       beforeEach(async function () {
-        ({ logs } = await this.token.setApprovalForAll(proxy, true, { from: multiTokenHolder }));
+        (receipt = await this.token.setApprovalForAll(proxy, true, { from: multiTokenHolder }));
       });
 
       it('sets approval status which can be queried via isApprovedForAll', async function () {
@@ -175,7 +175,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       });
 
       it('emits an ApprovalForAll log', function () {
-        expectEvent.inLogs(logs, 'ApprovalForAll', { account: multiTokenHolder, operator: proxy, approved: true });
+        expectEvent(receipt, 'ApprovalForAll', { account: multiTokenHolder, operator: proxy, approved: true });
       });
 
       it('can unset approval for an operator', async function () {
@@ -247,7 +247,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         });
 
         it('emits a TransferSingle log', function () {
-          expectEvent.inLogs(this.transferLogs, 'TransferSingle', {
+          expectEvent(this.transferLogs, 'TransferSingle', {
             operator,
             from,
             to: this.toWhom,
@@ -260,7 +260,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       context('when called by the multiTokenHolder', async function () {
         beforeEach(async function () {
           this.toWhom = recipient;
-          ({ logs: this.transferLogs } =
+          (this.transferLogs =
             await this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstAmount, '0x', {
               from: multiTokenHolder,
             }));
@@ -293,7 +293,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstAmount, '0x', {
                 from: proxy,
               }),
-              'ERC1155: caller is not owner nor approved',
+              'ERC1155: caller is not token owner or approved',
             );
           });
         });
@@ -302,7 +302,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           beforeEach(async function () {
             this.toWhom = recipient;
             await this.token.setApprovalForAll(proxy, true, { from: multiTokenHolder });
-            ({ logs: this.transferLogs } =
+            (this.transferLogs =
               await this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstAmount, '0x', {
                 from: proxy,
               }));
@@ -344,7 +344,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               '0x',
               { from: multiTokenHolder },
             );
-            ({ logs: this.transferLogs } = this.transferReceipt);
+            (this.transferLogs = this.transferReceipt);
           });
 
           transferWasSuccessful.call(this, {
@@ -377,7 +377,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               data,
               { from: multiTokenHolder },
             );
-            ({ logs: this.transferLogs } = this.transferReceipt);
+            (this.transferLogs = this.transferReceipt);
           });
 
           transferWasSuccessful.call(this, {
@@ -525,7 +525,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         });
 
         it('emits a TransferBatch log', function () {
-          expectEvent.inLogs(this.transferLogs, 'TransferBatch', {
+          expectEvent(this.transferLogs, 'TransferBatch', {
             operator,
             from,
             to: this.toWhom,
@@ -538,7 +538,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       context('when called by the multiTokenHolder', async function () {
         beforeEach(async function () {
           this.toWhom = recipient;
-          ({ logs: this.transferLogs } =
+          (this.transferLogs =
             await this.token.safeBatchTransferFrom(
               multiTokenHolder, recipient,
               [firstTokenId, secondTokenId],
@@ -569,7 +569,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
                 [firstAmount, secondAmount],
                 '0x', { from: proxy },
               ),
-              'ERC1155: transfer caller is not owner nor approved',
+              'ERC1155: caller is not token owner or approved',
             );
           });
         });
@@ -578,7 +578,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
           beforeEach(async function () {
             this.toWhom = recipient;
             await this.token.setApprovalForAll(proxy, true, { from: multiTokenHolder });
-            ({ logs: this.transferLogs } =
+            (this.transferLogs =
               await this.token.safeBatchTransferFrom(
                 multiTokenHolder, recipient,
                 [firstTokenId, secondTokenId],
@@ -620,7 +620,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               [firstAmount, secondAmount],
               '0x', { from: multiTokenHolder },
             );
-            ({ logs: this.transferLogs } = this.transferReceipt);
+            (this.transferLogs = this.transferReceipt);
           });
 
           batchTransferWasSuccessful.call(this, {
@@ -651,7 +651,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
               [firstAmount, secondAmount],
               data, { from: multiTokenHolder },
             );
-            ({ logs: this.transferLogs } = this.transferReceipt);
+            (this.transferLogs = this.transferReceipt);
           });
 
           batchTransferWasSuccessful.call(this, {
@@ -729,7 +729,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
             [firstAmount, secondAmount],
             '0x', { from: multiTokenHolder },
           );
-          ({ logs: this.transferLogs } = this.transferReceipt);
+          (this.transferLogs = this.transferReceipt);
         });
 
         batchTransferWasSuccessful.call(this, {

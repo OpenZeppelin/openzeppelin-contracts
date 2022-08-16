@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/compatibility/GovernorCompatibilityBravo.sol)
 
 pragma solidity ^0.8.0;
 
-import "../../utils/Counters.sol";
 import "../../utils/math/SafeCast.sol";
 import "../extensions/IGovernorTimelock.sol";
-import "../extensions/GovernorProposalThreshold.sol";
 import "../Governor.sol";
 import "./IGovernorCompatibilityBravo.sol";
 
@@ -19,15 +18,7 @@ import "./IGovernorCompatibilityBravo.sol";
  *
  * _Available since v4.3._
  */
-abstract contract GovernorCompatibilityBravo is
-    IGovernorTimelock,
-    IGovernorCompatibilityBravo,
-    Governor,
-    GovernorProposalThreshold
-{
-    using Counters for Counters.Counter;
-    using Timers for Timers.BlockNumber;
-
+abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorCompatibilityBravo, Governor {
     enum VoteType {
         Against,
         For,
@@ -63,7 +54,7 @@ abstract contract GovernorCompatibilityBravo is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override(IGovernor, Governor, GovernorProposalThreshold) returns (uint256) {
+    ) public virtual override(IGovernor, Governor) returns (uint256) {
         _storeProposal(_msgSender(), targets, values, new string[](calldatas.length), calldatas, description);
         return super.propose(targets, values, calldatas, description);
     }
@@ -137,7 +128,7 @@ abstract contract GovernorCompatibilityBravo is
         for (uint256 i = 0; i < signatures.length; ++i) {
             fullcalldatas[i] = bytes(signatures[i]).length == 0
                 ? calldatas[i]
-                : abi.encodeWithSignature(signatures[i], calldatas[i]);
+                : abi.encodePacked(bytes4(keccak256(bytes(signatures[i]))), calldatas[i]);
         }
 
         return fullcalldatas;
@@ -169,16 +160,6 @@ abstract contract GovernorCompatibilityBravo is
     }
 
     // ==================================================== Views =====================================================
-    /**
-     * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
-     */
-    function proposalThreshold()
-        public
-        view
-        virtual
-        override(IGovernorCompatibilityBravo, GovernorProposalThreshold)
-        returns (uint256);
-
     /**
      * @dev See {IGovernorCompatibilityBravo-proposals}.
      */
@@ -262,7 +243,7 @@ abstract contract GovernorCompatibilityBravo is
      */
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalDetails storage details = _proposalDetails[proposalId];
-        return quorum(proposalSnapshot(proposalId)) < details.forVotes;
+        return quorum(proposalSnapshot(proposalId)) <= details.forVotes;
     }
 
     /**
@@ -280,7 +261,8 @@ abstract contract GovernorCompatibilityBravo is
         uint256 proposalId,
         address account,
         uint8 support,
-        uint256 weight
+        uint256 weight,
+        bytes memory // params
     ) internal virtual override {
         ProposalDetails storage details = _proposalDetails[proposalId];
         Receipt storage receipt = details.receipts[account];

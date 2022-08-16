@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.7.0) (security/PullPayment.sol)
 
 pragma solidity ^0.8.0;
 
@@ -42,6 +43,8 @@ abstract contract PullPayment {
      * checks-effects-interactions pattern or using {ReentrancyGuard}.
      *
      * @param payee Whose payments will be withdrawn.
+     *
+     * Causes the `escrow` to emit a {Withdrawn} event.
      */
     function withdrawPayments(address payable payee) public virtual {
         _escrow.withdraw(payee);
@@ -62,6 +65,8 @@ abstract contract PullPayment {
      *
      * @param dest The destination address of the funds.
      * @param amount The amount to transfer.
+     *
+     * Causes the `escrow` to emit a {Deposited} event.
      */
     function _asyncTransfer(address dest, uint256 amount) internal virtual {
         _escrow.deposit{value: amount}(dest);

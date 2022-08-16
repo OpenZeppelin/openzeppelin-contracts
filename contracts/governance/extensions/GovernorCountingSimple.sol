@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/extensions/GovernorCountingSimple.sol)
 
 pragma solidity ^0.8.0;
 
@@ -56,26 +57,26 @@ abstract contract GovernorCountingSimple is Governor {
             uint256 abstainVotes
         )
     {
-        ProposalVote storage proposalvote = _proposalVotes[proposalId];
-        return (proposalvote.againstVotes, proposalvote.forVotes, proposalvote.abstainVotes);
+        ProposalVote storage proposalVote = _proposalVotes[proposalId];
+        return (proposalVote.againstVotes, proposalVote.forVotes, proposalVote.abstainVotes);
     }
 
     /**
      * @dev See {Governor-_quorumReached}.
      */
     function _quorumReached(uint256 proposalId) internal view virtual override returns (bool) {
-        ProposalVote storage proposalvote = _proposalVotes[proposalId];
+        ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        return quorum(proposalSnapshot(proposalId)) <= proposalvote.forVotes + proposalvote.abstainVotes;
+        return quorum(proposalSnapshot(proposalId)) <= proposalVote.forVotes + proposalVote.abstainVotes;
     }
 
     /**
-     * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
+     * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be strictly over the againstVotes.
      */
     function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
-        ProposalVote storage proposalvote = _proposalVotes[proposalId];
+        ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        return proposalvote.forVotes > proposalvote.againstVotes;
+        return proposalVote.forVotes > proposalVote.againstVotes;
     }
 
     /**
@@ -85,19 +86,20 @@ abstract contract GovernorCountingSimple is Governor {
         uint256 proposalId,
         address account,
         uint8 support,
-        uint256 weight
+        uint256 weight,
+        bytes memory // params
     ) internal virtual override {
-        ProposalVote storage proposalvote = _proposalVotes[proposalId];
+        ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        require(!proposalvote.hasVoted[account], "GovernorVotingSimple: vote already cast");
-        proposalvote.hasVoted[account] = true;
+        require(!proposalVote.hasVoted[account], "GovernorVotingSimple: vote already cast");
+        proposalVote.hasVoted[account] = true;
 
         if (support == uint8(VoteType.Against)) {
-            proposalvote.againstVotes += weight;
+            proposalVote.againstVotes += weight;
         } else if (support == uint8(VoteType.For)) {
-            proposalvote.forVotes += weight;
+            proposalVote.forVotes += weight;
         } else if (support == uint8(VoteType.Abstain)) {
-            proposalvote.abstainVotes += weight;
+            proposalVote.abstainVotes += weight;
         } else {
             revert("GovernorVotingSimple: invalid value for enum VoteType");
         }

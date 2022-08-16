@@ -26,6 +26,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{IERC1155Receiver}}
 
+{{ERC1155Receiver}}
+
 == Extensions
 
 {{ERC1155Pausable}}
@@ -33,6 +35,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC1155Burnable}}
 
 {{ERC1155Supply}}
+
+{{ERC1155URIStorage}}
 
 == Presets
 

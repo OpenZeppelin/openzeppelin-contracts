@@ -1,9 +1,12 @@
-const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const { expect } = require('chai');
+const { BN, constants } = require('@openzeppelin/test-helpers');
 
-const zip = require('lodash.zip');
+const AddressToUintMapMock = artifacts.require('AddressToUintMapMock');
+const UintToAddressMapMock = artifacts.require('UintToAddressMapMock');
+const Bytes32ToBytes32MapMock = artifacts.require('Bytes32ToBytes32MapMock');
+const UintToUintMapMock = artifacts.require('UintToUintMapMock');
+const Bytes32ToUintMapMock = artifacts.require('Bytes32ToUintMapMock');
 
-const EnumerableMapMock = artifacts.require('EnumerableMapMock');
+const { shouldBehaveLikeMap } = require('./EnumerableMap.behavior');
 
 contract('EnumerableMap', function (accounts) {
   const [ accountA, accountB, accountC ] = accounts;
@@ -12,170 +15,72 @@ contract('EnumerableMap', function (accounts) {
   const keyB = new BN('451');
   const keyC = new BN('9592328');
 
-  beforeEach(async function () {
-    this.map = await EnumerableMapMock.new();
-  });
+  const bytesA = '0xdeadbeef'.padEnd(66, '0');
+  const bytesB = '0x0123456789'.padEnd(66, '0');
+  const bytesC = '0x42424242'.padEnd(66, '0');
 
-  async function expectMembersMatch (map, keys, values) {
-    expect(keys.length).to.equal(values.length);
-
-    await Promise.all(keys.map(async key =>
-      expect(await map.contains(key)).to.equal(true),
-    ));
-
-    expect(await map.length()).to.bignumber.equal(keys.length.toString());
-
-    expect(await Promise.all(keys.map(key =>
-      map.get(key),
-    ))).to.have.same.members(values);
-
-    // To compare key-value pairs, we zip keys and values, and convert BNs to
-    // strings to workaround Chai limitations when dealing with nested arrays
-    expect(await Promise.all([...Array(keys.length).keys()].map(async (index) => {
-      const entry = await map.at(index);
-      return [entry.key.toString(), entry.value];
-    }))).to.have.same.deep.members(
-      zip(keys.map(k => k.toString()), values),
-    );
-  }
-
-  it('starts empty', async function () {
-    expect(await this.map.contains(keyA)).to.equal(false);
-
-    await expectMembersMatch(this.map, [], []);
-  });
-
-  describe('set', function () {
-    it('adds a key', async function () {
-      const receipt = await this.map.set(keyA, accountA);
-      expectEvent(receipt, 'OperationResult', { result: true });
-
-      await expectMembersMatch(this.map, [keyA], [accountA]);
-    });
-
-    it('adds several keys', async function () {
-      await this.map.set(keyA, accountA);
-      await this.map.set(keyB, accountB);
-
-      await expectMembersMatch(this.map, [keyA, keyB], [accountA, accountB]);
-      expect(await this.map.contains(keyC)).to.equal(false);
-    });
-
-    it('returns false when adding keys already in the set', async function () {
-      await this.map.set(keyA, accountA);
-
-      const receipt = (await this.map.set(keyA, accountA));
-      expectEvent(receipt, 'OperationResult', { result: false });
-
-      await expectMembersMatch(this.map, [keyA], [accountA]);
-    });
-
-    it('updates values for keys already in the set', async function () {
-      await this.map.set(keyA, accountA);
-
-      await this.map.set(keyA, accountB);
-
-      await expectMembersMatch(this.map, [keyA], [accountB]);
-    });
-  });
-
-  describe('remove', function () {
-    it('removes added keys', async function () {
-      await this.map.set(keyA, accountA);
-
-      const receipt = await this.map.remove(keyA);
-      expectEvent(receipt, 'OperationResult', { result: true });
-
-      expect(await this.map.contains(keyA)).to.equal(false);
-      await expectMembersMatch(this.map, [], []);
-    });
-
-    it('returns false when removing keys not in the set', async function () {
-      const receipt = await this.map.remove(keyA);
-      expectEvent(receipt, 'OperationResult', { result: false });
-
-      expect(await this.map.contains(keyA)).to.equal(false);
-    });
-
-    it('adds and removes multiple keys', async function () {
-      // []
-
-      await this.map.set(keyA, accountA);
-      await this.map.set(keyC, accountC);
-
-      // [A, C]
-
-      await this.map.remove(keyA);
-      await this.map.remove(keyB);
-
-      // [C]
-
-      await this.map.set(keyB, accountB);
-
-      // [C, B]
-
-      await this.map.set(keyA, accountA);
-      await this.map.remove(keyC);
-
-      // [A, B]
-
-      await this.map.set(keyA, accountA);
-      await this.map.set(keyB, accountB);
-
-      // [A, B]
-
-      await this.map.set(keyC, accountC);
-      await this.map.remove(keyA);
-
-      // [B, C]
-
-      await this.map.set(keyA, accountA);
-      await this.map.remove(keyB);
-
-      // [A, C]
-
-      await expectMembersMatch(this.map, [keyA, keyC], [accountA, accountC]);
-
-      expect(await this.map.contains(keyB)).to.equal(false);
-    });
-  });
-
-  describe('read', function () {
+  // AddressToUintMap
+  describe('AddressToUintMap', function () {
     beforeEach(async function () {
-      await this.map.set(keyA, accountA);
+      this.map = await AddressToUintMapMock.new();
     });
 
-    describe('get', function () {
-      it('existing value', async function () {
-        expect(await this.map.get(keyA)).to.be.equal(accountA);
-      });
-      it('missing value', async function () {
-        await expectRevert(this.map.get(keyB), 'EnumerableMap: nonexistent key');
-      });
+    shouldBehaveLikeMap(
+      [ accountA, accountB, accountC ],
+      [ keyA, keyB, keyC ],
+      new BN('0'),
+    );
+  });
+
+  // UintToAddressMap
+  describe('UintToAddressMap', function () {
+    beforeEach(async function () {
+      this.map = await UintToAddressMapMock.new();
     });
 
-    describe('get with message', function () {
-      it('existing value', async function () {
-        expect(await this.map.getWithMessage(keyA, 'custom error string')).to.be.equal(accountA);
-      });
-      it('missing value', async function () {
-        await expectRevert(this.map.getWithMessage(keyB, 'custom error string'), 'custom error string');
-      });
+    shouldBehaveLikeMap(
+      [ keyA, keyB, keyC ],
+      [ accountA, accountB, accountC ],
+      constants.ZERO_ADDRESS,
+    );
+  });
+
+  // Bytes32ToBytes32Map
+  describe('Bytes32ToBytes32Map', function () {
+    beforeEach(async function () {
+      this.map = await Bytes32ToBytes32MapMock.new();
     });
 
-    describe('tryGet', function () {
-      it('existing value', async function () {
-        expect(await this.map.tryGet(keyA)).to.be.deep.equal({
-          0: true,
-          1: accountA,
-        });
-      });
-      it('missing value', async function () {
-        expect(await this.map.tryGet(keyB)).to.be.deep.equal({
-          0: false,
-          1: constants.ZERO_ADDRESS,
-        });
-      });
+    shouldBehaveLikeMap(
+      [ keyA, keyB, keyC ].map(k => '0x' + k.toString(16).padEnd(64, '0')),
+      [ bytesA, bytesB, bytesC ],
+      constants.ZERO_BYTES32,
+    );
+  });
+
+  // UintToUintMap
+  describe('UintToUintMap', function () {
+    beforeEach(async function () {
+      this.map = await UintToUintMapMock.new();
     });
+
+    shouldBehaveLikeMap(
+      [ keyA, keyB, keyC ],
+      [ keyA, keyB, keyC ].map(k => k.add(new BN('1332'))),
+      new BN('0'),
+    );
+  });
+
+  // Bytes32ToUintMap
+  describe('Bytes32ToUintMap', function () {
+    beforeEach(async function () {
+      this.map = await Bytes32ToUintMapMock.new();
+    });
+
+    shouldBehaveLikeMap(
+      [ bytesA, bytesB, bytesC ],
+      [ keyA, keyB, keyC ],
+      new BN('0'),
+    );
   });
 });

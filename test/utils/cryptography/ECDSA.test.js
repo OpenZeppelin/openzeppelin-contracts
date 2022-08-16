@@ -7,6 +7,7 @@ const ECDSAMock = artifacts.require('ECDSAMock');
 
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
+const NON_HASH_MESSAGE = '0x' + Buffer.from('abcd').toString('hex');
 
 function to2098Format (signature) {
   const long = web3.utils.hexToBytes(signature);
@@ -18,16 +19,6 @@ function to2098Format (signature) {
   }
   const short = long.slice(0, 64);
   short[32] |= (long[64] % 27) << 7; // set the first bit of the 32nd byte to the v parity bit
-  return web3.utils.bytesToHex(short);
-}
-
-function from2098Format (signature) {
-  const short = web3.utils.hexToBytes(signature);
-  if (short.length !== 64) {
-    throw new Error('invalid signature length (expected short format)');
-  }
-  short.push((short[32] >> 7) + 27);
-  short[32] &= (1 << 7) - 1; // zero out the first bit of 1 the 32nd byte
   return web3.utils.bytesToHex(short);
 }
 
@@ -46,7 +37,7 @@ function split (signature) {
       web3.utils.bytesToHex(raw.slice(32, 64)), // s
     ];
   default:
-    expect.fail('Invalid siganture length, cannot split');
+    expect.fail('Invalid signature length, cannot split');
   }
 }
 
@@ -80,6 +71,17 @@ contract('ECDSA', function (accounts) {
         // Recover the signer address from the generated message and signature.
         expect(await this.ecdsa.recover(
           toEthSignedMessageHash(TEST_MESSAGE),
+          signature,
+        )).to.equal(other);
+      });
+
+      it('returns signer address with correct signature for arbitrary length message', async function () {
+        // Create the signature
+        const signature = await web3.eth.sign(NON_HASH_MESSAGE, other);
+
+        // Recover the signer address from the generated message and signature.
+        expect(await this.ecdsa.recover(
+          toEthSignedMessageHash(NON_HASH_MESSAGE),
           signature,
         )).to.equal(other);
       });
@@ -132,11 +134,13 @@ contract('ECDSA', function (accounts) {
         );
       });
 
-      it('works with short EIP2098 format', async function () {
+      it('rejects short EIP2098 format', async function () {
         const version = '1b'; // 27 = 1b.
         const signature = signatureWithoutVersion + version;
-        expect(await this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature))).to.equal(signer);
-        expect(await this.ecdsa.recover(TEST_MESSAGE, from2098Format(to2098Format(signature)))).to.equal(signer);
+        await expectRevert(
+          this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature)),
+          'ECDSA: invalid signature length',
+        );
       });
     });
 
@@ -175,11 +179,13 @@ contract('ECDSA', function (accounts) {
         );
       });
 
-      it('works with short EIP2098 format', async function () {
+      it('rejects short EIP2098 format', async function () {
         const version = '1c'; // 27 = 1b.
         const signature = signatureWithoutVersion + version;
-        expect(await this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature))).to.equal(signer);
-        expect(await this.ecdsa.recover(TEST_MESSAGE, from2098Format(to2098Format(signature)))).to.equal(signer);
+        await expectRevert(
+          this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature)),
+          'ECDSA: invalid signature length',
+        );
       });
     });
 
@@ -196,9 +202,15 @@ contract('ECDSA', function (accounts) {
     });
   });
 
-  context('toEthSignedMessage', function () {
-    it('prefixes hashes correctly', async function () {
-      expect(await this.ecdsa.toEthSignedMessageHash(TEST_MESSAGE)).to.equal(toEthSignedMessageHash(TEST_MESSAGE));
+  context('toEthSignedMessageHash', function () {
+    it('prefixes bytes32 data correctly', async function () {
+      expect(await this.ecdsa.methods['toEthSignedMessageHash(bytes32)'](TEST_MESSAGE))
+        .to.equal(toEthSignedMessageHash(TEST_MESSAGE));
+    });
+
+    it('prefixes dynamic length data correctly', async function () {
+      expect(await this.ecdsa.methods['toEthSignedMessageHash(bytes)'](NON_HASH_MESSAGE))
+        .to.equal(toEthSignedMessageHash(NON_HASH_MESSAGE));
     });
   });
 });
