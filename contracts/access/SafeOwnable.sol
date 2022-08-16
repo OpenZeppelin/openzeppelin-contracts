@@ -35,7 +35,7 @@ abstract contract SafeOwnable is Ownable {
      * @dev The new owner accepts the ownership transfer.
      */
     function acceptOwnership() external {
-		require(_newOwner == _msgSender(), "SafeOwnable: caller is not the new owner");
+        require(_newOwner == _msgSender(), "SafeOwnable: caller is not the new owner");
         _transferOwnership(_msgSender());
-	}
+    }
 }
