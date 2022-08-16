@@ -17,7 +17,7 @@ library ECDSA {
         InvalidSignature,
         InvalidSignatureLength,
         InvalidSignatureS,
-        InvalidSignatureV
+        InvalidSignatureV // Deprecated in v4.8
     }
 
     function _throwError(RecoverError error) private pure {
@@ -29,8 +29,6 @@ library ECDSA {
             revert("ECDSA: invalid signature length");
         } else if (error == RecoverError.InvalidSignatureS) {
             revert("ECDSA: invalid signature 's' value");
-        } else if (error == RecoverError.InvalidSignatureV) {
-            revert("ECDSA: invalid signature 'v' value");
         }
     }
 
@@ -148,9 +146,6 @@ library ECDSA {
         // these malleable signatures as well.
         if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
             return (address(0), RecoverError.InvalidSignatureS);
-        }
-        if (v != 27 && v != 28) {
-            return (address(0), RecoverError.InvalidSignatureV);
         }
 
         // If the signature is valid (and not malleable), return the signer address
