@@ -17,7 +17,7 @@ library ECDSA {
         InvalidSignature,
         InvalidSignatureLength,
         InvalidSignatureS,
-        InvalidSignatureV
+        InvalidSignatureV // Deprecated in v4.8
     }
 
     function _throwError(RecoverError error) private pure {
