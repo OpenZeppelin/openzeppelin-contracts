@@ -12,6 +12,11 @@ import "../errors.sol";
  *
  * This version should only be used on L2 to process cross-chain messages
  * originating from L1. For the other side, use {LibArbitrumL1}.
+ *
+ * WARNING: There is currently a bug in Arbitrum that causes this contract to
+ * fail to detect cross-chain calls when deployed behind a proxy. This will be
+ * fixed when the network is upgraded to Arbitrum Nitro, currently scheduled for
+ * August 31st.
  */
 library LibArbitrumL2 {
     /**
