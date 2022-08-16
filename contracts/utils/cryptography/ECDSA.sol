@@ -16,7 +16,8 @@ library ECDSA {
         NoError,
         InvalidSignature,
         InvalidSignatureLength,
-        InvalidSignatureS
+        InvalidSignatureS,
+        InvalidSignatureV
     }
 
     function _throwError(RecoverError error) private pure {
