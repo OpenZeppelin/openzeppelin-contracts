@@ -5,11 +5,48 @@ pragma solidity ^0.8.0;
 // TODO: replace this import in favor or "../Array.sol" when #3589 is merged
 import "../StorageSlot.sol";
 
-error Full();
-
+/**
+ * @dev A complete binary tree with the ability to sequentially insert leaves, changing them from a zero to a non-zero
+ * value, while keeping a history of merkle roots. This structure allows inserting commitment (or other entrie) that
+ * are not stored, but can be proven to be part of the tree.
+ *
+ * The history of merkle roots allow inclusion proofs to remain valid even if leaves are inserted into the tree between
+ *  the moment the proof is generated and the moment it's verified.
+ *
+ * Each tree can be customized to use specific
+ * - depth
+ * - length of the root history
+ * - zero values (for "empty" leaves)
+ * - hash function
+ *
+ * WARNING:
+ *
+ * By design, the tree include zero leaves. Customizing the "zero value" might be necessary to ensure that empty leaves
+ * being provably part of the tree is not a security issue.
+ *
+ * _Available since v4.x._
+ */
 library MerkleTree {
+    /**
+     * @dev Maximum supported depth. Beyond that, some checks will fail to properly work.
+     * This should be enough for any realistic usecase.
+     */
     uint256 private constant _MAX_DEPTH = 255;
 
+    /**
+     * @dev Leaf cannot be inserted because the tree is full.
+     */
+    error Full();
+
+    /**
+     * @dev The `sides` and `zero` arrays are set, at initialization, to have a length equal to the depth of the tree.
+     * No push/pop operations should be performed of these array, and their lengths should not be updated.
+     *
+     * The `roots` array stores the history of roots. Its length is set at initialization, and should not be updated.
+     *
+     * The hashing function used during initialization to compute the `zeros` values (value of a node at a given depth
+     * for which the subtree is full of zero leaves). This function is kept in the structure for handling insertions.
+     */
     struct TreeWithHistory {
         uint256 currentRootIndex;
         uint256 nextLeafIndex;
@@ -58,6 +95,7 @@ library MerkleTree {
     function insert(TreeWithHistory storage self, bytes32 leaf) internal returns (uint256) {
         // Cache read
         uint256 depth = self.zeros.length;
+        function(bytes32, bytes32) view returns (bytes32) fnHash = self.fnHash;
 
         // Get leaf index
         uint256 leafIndex = self.nextLeafIndex++;
@@ -80,7 +118,7 @@ library MerkleTree {
             // Compute the node hash by hasing the current hash with either:
             // - the last value for this level
             // - the zero for this level
-            currentLevelHash = self.fnHash(
+            currentLevelHash = fnHash(
                 isLeft ? currentLevelHash : unsafeAccess(self.sides, i).value,
                 isLeft ? unsafeAccess(self.zeros, i).value : currentLevelHash
             );
