@@ -53,7 +53,11 @@ contract PaymentSplitter is Context {
         require(payees.length > 0, "PaymentSplitter: no payees");
 
         for (uint256 i = 0; i < payees.length; i++) {
-            _addPayee(payees[i], shares_[i]);
+
+            unchecked {
+              _addPayee(payees[i], shares_[i]);
+            }
+            
         }
     }
 
