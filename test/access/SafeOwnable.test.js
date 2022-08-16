@@ -19,19 +19,19 @@ contract('SafeOwnable', function (accounts) {
       expect(await this.safe_ownable.owner()).to.equal(owner);
     });
 
-    it('guards transfer against invalid user', async function () {
-        await this.safe_ownable.transferOwnership(accountA, { from: owner });
-        await expectRevert(
-          this.safe_ownable.acceptOwnership({ from: accountB }),
-          'SafeOwnable: caller is not the new owner',
-        );
-      });
-
     it('changes owner after transfer', async function () {
-        await this.safe_ownable.transferOwnership(accountA, { from: owner });
-        const receipt = await this.safe_ownable.acceptOwnership({ from: accountA });
-        expectEvent(receipt, 'OwnershipTransferred');
-        expect(await this.safe_ownable.owner()).to.equal(accountA);
+      await this.safe_ownable.transferOwnership(accountA, { from: owner });
+      const receipt = await this.safe_ownable.acceptOwnership({ from: accountA });
+      expectEvent(receipt, 'OwnershipTransferred');
+      expect(await this.safe_ownable.owner()).to.equal(accountA);
+    });
+
+    it('guards transfer against invalid user', async function () {
+      await this.safe_ownable.transferOwnership(accountA, { from: owner });
+      await expectRevert(
+        this.safe_ownable.acceptOwnership({ from: accountB }),
+        'SafeOwnable: caller is not the new owner',
+      );
     });
 
     it('guards ownership against stuck state', async function () {
