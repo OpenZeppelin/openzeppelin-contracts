@@ -16,7 +16,7 @@ import "../errors.sol";
  * WARNING: There is currently a bug in Arbitrum that causes this contract to
  * fail to detect cross-chain calls when deployed behind a proxy. This will be
  * fixed when the network is upgraded to Arbitrum Nitro, currently scheduled for
- * August 31st.
+ * August 31st 2022.
  */
 library LibArbitrumL2 {
     /**
