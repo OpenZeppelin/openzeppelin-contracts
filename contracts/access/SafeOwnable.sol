@@ -26,7 +26,6 @@ abstract contract SafeOwnable is Ownable {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual override onlyOwner {
-        require(newOwner != address(0), "SafeOwnable: new owner is the zero address");
         _newOwner = newOwner;
         emit OwnershipTransferStarted(newOwner);
     }

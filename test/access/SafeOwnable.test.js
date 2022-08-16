@@ -33,12 +33,5 @@ contract('SafeOwnable', function (accounts) {
         'SafeOwnable: caller is not the new owner',
       );
     });
-
-    it('guards ownership against stuck state', async function () {
-      await expectRevert(
-        this.safeOwnable.transferOwnership(ZERO_ADDRESS, { from: owner }),
-        'SafeOwnable: new owner is the zero address',
-      );
-    });
   });
 });
