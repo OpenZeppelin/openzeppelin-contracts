@@ -27,6 +27,7 @@ abstract contract SafeOwnable is Ownable {
     function pendingOwner() public view virtual returns (address) {
         return _pendingOwner;
     }
+
     /**
      * @dev Starts the ownership transfer of the contract to a new account
      * Can only be called by the current owner.
@@ -36,12 +37,13 @@ abstract contract SafeOwnable is Ownable {
         emit OwnershipTransferStarted(newOwner);
     }
 
-/**
- * @dev Make the direct ownership transfer available as a fallback when the receiver cannot accept.
- */
-function forceTransferOwnership(address newOwner) public virtual {
-    super.transferOwnership(newOwner);
-}
+    /**
+     * @dev Make the direct ownership transfer available as a fallback when the receiver cannot accept.
+     */
+    function forceTransferOwnership(address newOwner) public virtual {
+        super.transferOwnership(newOwner);
+    }
+
     /**
      * @dev Transfers ownership of the contract to a new account (`newOwner`).
      * Internal function without access restriction.
