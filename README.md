@@ -19,13 +19,19 @@
 
 ### Installation
 
+**using npm**
 ```console
 $ npm install @openzeppelin/contracts
 ```
 
+**using yarn**
+```console
+$ yarn add @openzeppelin/contracts
+```
+
 OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/contracts/releases-stability#api-stability), which means that your contracts won't break unexpectedly when upgrading to a newer minor version.
 
-An alternative to npm is to use the GitHub repository (`openzeppelin/openzeppelin-contracts`) to retrieve the contracts. When doing this, make sure to specify the tag for a release such as `v4.5.0`, instead of using the `master` branch.
+An alternative to npm and yarn is to use the GitHub repository (`openzeppelin/openzeppelin-contracts`) to retrieve the contracts. When doing this, make sure to specify the tag for a release such as `v4.5.0`, instead of using the `master` branch.
 
 ### Usage
 
