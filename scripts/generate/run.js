@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const cp = require('child_process');
 const format = require('./format-lines');
 
 function getVersion (path) {
@@ -28,4 +29,5 @@ for (const [ file, template ] of Object.entries({
   );
 
   fs.writeFileSync(path, content);
+  cp.execFileSync('prettier', ['--write', path]);
 }
