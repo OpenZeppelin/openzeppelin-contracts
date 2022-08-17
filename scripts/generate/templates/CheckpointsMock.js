@@ -1,6 +1,6 @@
 const format = require('../format-lines');
 
-const LENGTHS = [ 224, 160 ];
+const VALUE_SIZES = [ 224, 160 ];
 
 const header = `\
 pragma solidity ^0.8.0;
@@ -34,9 +34,9 @@ contract CheckpointsMock {
 
 const checkpoint = length => `\
 contract Checkpoints${length}Mock {
-    using Checkpoints for Checkpoints.Checkpoint${length}[];
+    using Checkpoints for Checkpoints.Trace${length};
 
-    Checkpoints.Checkpoint${length}[] private _totalCheckpoints;
+    Checkpoints.Trace${length} private _totalCheckpoints;
 
     function latest() public view returns (uint${length}) {
         return _totalCheckpoints.latest();
@@ -59,7 +59,7 @@ contract Checkpoints${length}Mock {
     }
 
     function length() public view returns (uint256) {
-        return _totalCheckpoints.length;
+        return _totalCheckpoints._checkpoints.length;
     }
 }
 `;
@@ -68,6 +68,5 @@ contract Checkpoints${length}Mock {
 module.exports = format(
   header,
   legacy(),
-  ...LENGTHS.map(checkpoint),
-  // ].flatMap(fn => fn.split('\n')).slice(0, -1),
+  ...VALUE_SIZES.map(checkpoint),
 );

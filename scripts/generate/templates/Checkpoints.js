@@ -1,6 +1,6 @@
 const format = require('../format-lines');
 
-const LENGTHS = [ 224, 160 ];
+const VALUE_SIZES = [ 224, 160 ];
 
 const header = `\
 pragma solidity ^0.8.0;
@@ -19,26 +19,79 @@ import "./math/SafeCast.sol";
  */
 `;
 
-const legacy = () => `\
-struct History {
-    Checkpoint224[] _checkpoints;
+const types = opts => `\
+struct ${opts.historyTypeName} {
+    ${opts.checkpointTypeName}[] ${opts.checkpointFieldName};
 }
 
+struct ${opts.checkpointTypeName} {
+    ${opts.keyTypeName} ${opts.keyFieldName};
+    ${opts.valueTypeName} ${opts.valueFieldName};
+}
+`;
+
+/* eslint-disable max-len */
+const operations = opts => `\
+function latest(${opts.historyTypeName} storage self) internal view returns (${opts.valueTypeName}) {
+    uint256 pos = self.${opts.checkpointFieldName}.length;
+    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
+}
+
+function push(
+    ${opts.historyTypeName} storage self,
+    ${opts.keyTypeName} key,
+    ${opts.valueTypeName} value
+) internal returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
+    return _insert(self.${opts.checkpointFieldName}, key, value);
+}
+
+function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
+    uint256 length = self.${opts.checkpointFieldName}.length;
+    uint256 pos = _lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, length);
+    return pos == length ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos).${opts.valueFieldName};
+}
+
+function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
+    uint256 length = self.${opts.checkpointFieldName}.length;
+    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, length);
+    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
+}
+
+function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
+    uint256 length = self.${opts.checkpointFieldName}.length;
+    uint256 offset = 1;
+
+    while (offset <= length && _unsafeAccess(self.${opts.checkpointFieldName}, length - offset).${opts.keyFieldName} > key) {
+        offset <<= 1;
+    }
+
+    uint256 low = offset < length ? length - offset : 0;
+    uint256 high = length - (offset >> 1);
+    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
+
+    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
+}
+`;
+
+const legacyOperations = opts => `\
 /**
  * @dev Returns the value in the latest checkpoint, or zero if there are no checkpoints.
  */
-function latest(History storage self) internal view returns (uint256) {
-    return latest(self._checkpoints);
+function latest(${opts.historyTypeName} storage self) internal view returns (uint256) {
+    uint256 pos = self.${opts.checkpointFieldName}.length;
+    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
 
 /**
  * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
  * before it is returned, or zero otherwise.
  */
-function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
+function getAtBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
     require(blockNumber < block.number, "Checkpoints: block not yet mined");
 
-    return upperLookup(self._checkpoints, SafeCast.toUint32(blockNumber));
+    uint256 length = self.${opts.checkpointFieldName}.length;
+    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, SafeCast.toUint32(blockNumber), 0, length);
+    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
 
 /**
@@ -46,8 +99,8 @@ function getAtBlock(History storage self, uint256 blockNumber) internal view ret
  *
  * Returns previous value and new value.
  */
-function push(History storage self, uint256 value) internal returns (uint256, uint256) {
-    return push(self._checkpoints, SafeCast.toUint32(block.number), SafeCast.toUint224(value));
+function push(${opts.historyTypeName} storage self, uint256 value) internal returns (uint256, uint256) {
+    return _insert(self.${opts.checkpointFieldName}, SafeCast.toUint32(block.number), SafeCast.toUint224(value));
 }
 
 /**
@@ -57,7 +110,7 @@ function push(History storage self, uint256 value) internal returns (uint256, ui
  * Returns previous value and new value.
  */
 function push(
-    History storage self,
+    ${opts.historyTypeName} storage self,
     function(uint256, uint256) view returns (uint256) op,
     uint256 delta
 ) internal returns (uint256, uint256) {
@@ -65,81 +118,43 @@ function push(
 }
 `;
 
-/* eslint-disable max-len */
-const checkpoint = length => `\
-struct Checkpoint${length} {
-    uint${256 - length} _key;
-    uint${length} _value;
-}
-
-function latest(Checkpoint${length}[] storage self) internal view returns (uint${length}) {
-    uint256 pos = self.length;
-    return pos == 0 ? 0 : _unsafeAccess(self, pos - 1)._value;
-}
-
-function push(
-    Checkpoint${length}[] storage self,
-    uint${256 - length} key,
-    uint${length} value
-) internal returns (uint${length}, uint${length}) {
+const helpers = opts => `\
+function _insert(
+    ${opts.checkpointTypeName}[] storage self,
+    ${opts.keyTypeName} key,
+    ${opts.valueTypeName} value
+) private returns (${opts.valueTypeName}, ${opts.valueTypeName}) {
     uint256 pos = self.length;
 
     if (pos > 0) {
         // Use of memory is important here.
-        Checkpoint${length} memory last = _unsafeAccess(self, pos - 1);
+        ${opts.checkpointTypeName} memory last = _unsafeAccess(self, pos - 1);
 
         // Checkpoints keys must be increassing.
-        require(last._key <= key, "Checkpoint: invalid key");
+        require(last.${opts.keyFieldName} <= key, "Checkpoint: invalid key");
 
         // Update or push new checkpoint
-        if (last._key == key) {
-            _unsafeAccess(self, pos - 1)._value = value;
+        if (last.${opts.keyFieldName} == key) {
+            _unsafeAccess(self, pos - 1).${opts.valueFieldName} = value;
         } else {
-            self.push(Checkpoint${length}({_key: key, _value: value}));
+            self.push(${opts.checkpointTypeName}({${opts.keyFieldName}: key, ${opts.valueFieldName}: value}));
         }
-        return (last._value, value);
+        return (last.${opts.valueFieldName}, value);
     } else {
-        self.push(Checkpoint${length}({_key: key, _value: value}));
+        self.push(${opts.checkpointTypeName}({${opts.keyFieldName}: key, ${opts.valueFieldName}: value}));
         return (0, value);
     }
 }
 
-function lowerLookup(Checkpoint${length}[] storage self, uint${256 - length} key) internal view returns (uint${length}) {
-    uint256 length = self.length;
-    uint256 pos = _lowerDichotomicLookup(self, key, 0, length);
-    return pos == length ? 0 : _unsafeAccess(self, pos)._value;
-}
-
-function upperLookup(Checkpoint${length}[] storage self, uint${256 - length} key) internal view returns (uint${length}) {
-    uint256 length = self.length;
-    uint256 pos = _upperDichotomicLookup(self, key, 0, length);
-    return pos == 0 ? 0 : _unsafeAccess(self, pos - 1)._value;
-}
-
-function upperLookupRecent(Checkpoint${length}[] storage self, uint${256 - length} key) internal view returns (uint224) {
-    uint256 length = self.length;
-    uint256 offset = 1;
-
-    while (offset <= length && _unsafeAccess(self, length - offset)._key > key) {
-        offset <<= 1;
-    }
-
-    uint256 low = offset < length ? length - offset : 0;
-    uint256 high = length - (offset >> 1);
-    uint256 pos = _upperDichotomicLookup(self, key, low, high);
-
-    return pos == 0 ? 0 : _unsafeAccess(self, pos - 1)._value;
-}
-
-function _upperDichotomicLookup(
-    Checkpoint${length}[] storage self,
-    uint${256 - length} key,
+function _upperBinaryLookup(
+    ${opts.checkpointTypeName}[] storage self,
+    ${opts.keyTypeName} key,
     uint256 low,
     uint256 high
 ) private view returns (uint256) {
     while (low < high) {
         uint256 mid = Math.average(low, high);
-        if (_unsafeAccess(self, mid)._key > key) {
+        if (_unsafeAccess(self, mid).${opts.keyFieldName} > key) {
             high = mid;
         } else {
             low = mid + 1;
@@ -148,15 +163,15 @@ function _upperDichotomicLookup(
     return high;
 }
 
-function _lowerDichotomicLookup(
-    Checkpoint${length}[] storage self,
-    uint${256 - length} key,
+function _lowerBinaryLookup(
+    ${opts.checkpointTypeName}[] storage self,
+    ${opts.keyTypeName} key,
     uint256 low,
     uint256 high
 ) private view returns (uint256) {
     while (low < high) {
         uint256 mid = Math.average(low, high);
-        if (_unsafeAccess(self, mid)._key < key) {
+        if (_unsafeAccess(self, mid).${opts.keyFieldName} < key) {
             low = mid + 1;
         } else {
             high = mid;
@@ -165,10 +180,10 @@ function _lowerDichotomicLookup(
     return high;
 }
 
-function _unsafeAccess(Checkpoint${length}[] storage self, uint256 pos)
+function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
     private
     view
-    returns (Checkpoint${length} storage result)
+    returns (${opts.checkpointTypeName} storage result)
 {
     assembly {
         mstore(0, self.slot)
@@ -178,13 +193,40 @@ function _unsafeAccess(Checkpoint${length}[] storage self, uint256 pos)
 `;
 /* eslint-enable max-len */
 
+// OPTIONS
+const defaultOpts = (length, override = {}) => Object.assign({
+  historyTypeName: `Trace${length}`,
+  checkpointTypeName: `Checkpoint${length}`,
+  checkpointFieldName: '_checkpoints',
+  keyTypeName: `uint${256 - length}`,
+  keyFieldName: '_key',
+  valueTypeName: `uint${length}`,
+  valueFieldName: '_value',
+}, override);
+
+const OPTS = VALUE_SIZES.map(defaultOpts);
+
+const LEGACY_OPTS = defaultOpts(224, {
+  historyTypeName: 'History',
+  checkpointTypeName: 'Checkpoint',
+  keyFieldName: '_blockNumber',
+});
+
 // GENERATE
 module.exports = format(
   header.trimEnd(),
   'library Checkpoints {',
   [
-    ...LENGTHS.map(checkpoint),
-    legacy().trimEnd(),
+    // Legacy types & functions
+    types(LEGACY_OPTS),
+    legacyOperations(LEGACY_OPTS),
+    helpers(LEGACY_OPTS),
+    // New flavors
+    ...OPTS.flatMap(opts => [
+      types(opts),
+      operations(opts),
+      helpers(opts),
+    ]),
   ],
   '}',
 );
