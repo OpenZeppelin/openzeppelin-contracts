@@ -5,7 +5,7 @@ const { expect } = require('chai');
 const SafeOwnable = artifacts.require('SafeOwnableMock');
 
 contract('SafeOwnable', function (accounts) {
-  const [ owner, accountA, accountB ] = accounts;
+  const [owner, accountA, accountB] = accounts;
 
   beforeEach(async function () {
     this.safeOwnable = await SafeOwnable.new({ from: owner });
@@ -23,6 +23,13 @@ contract('SafeOwnable', function (accounts) {
       const receipt = await this.safeOwnable.acceptOwnership({ from: accountA });
       expectEvent(receipt, 'OwnershipTransferred');
       expect(await this.safeOwnable.owner()).to.equal(accountA);
+      expect(await this.safeOwnable.pendingOwner()).to.not.equal(accountA);
+    });
+
+    it('changes owner after force transfer', async function () {
+      await this.safeOwnable.forceTransferOwnership(accountA, { from: owner });
+      expect(await this.safeOwnable.owner()).to.equal(accountA);
+      expect(await this.safeOwnable.pendingOwner()).to.not.equal(accountA);
     });
 
     it('guards transfer against invalid user', async function () {
