@@ -14,7 +14,15 @@
  * `SafeCast`: optimize downcasting of signed integers. ([#3565](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3565))
  * `VestingWallet`: remove unused library `Math.sol`. ([#3605](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3605))
  * `ECDSA`: Remove redundant check on the `v` value. ([#3591](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3591))
- * `EIP-712`: `draft-EIP712.sol` is now deprecated in favor of `EIP712.sol`. Developpers are encouraged to update imports. ([#3621](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3621))
+
+### Deprecations
+
+ * `EIP712`: Deprecated the file `draft-EIP712.sol` in favor of `EIP712.sol`. Developers are encouraged to update their imports. ([#3621](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3621))
+
+```diff
+-import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
++import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+```
 
 ### Compatibility Note
 
