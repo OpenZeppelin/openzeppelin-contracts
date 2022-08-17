@@ -13,9 +13,9 @@
  * `SafeCast`: optimize downcasting of signed integers. ([#3565](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3565))
  * `ERC20FlashMint`: add an internal `_flashFee` function for overriding. ([#3551](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3551))
  * `VestingWallet`: remove unused library `Math.sol`. ([#3605](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3605))
- * `Checkpoints`: Use provedural generation to support multiple key/value lengths. ([#3589](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3589))
+ * `Checkpoints`: Use procedural generation to support multiple key/value lengths. ([#3589](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3589))
  * `Checkpoints`: Add new lookup mechanisms. ([#3589](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3589))
- * `Array`: Add `unsafeAccess` functions that allow reading and writting to a element in a storage array while bypassing solidity's "out-of-array" check. ([#3589](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3589))
+ * `Array`: Add `unsafeAccess` functions that allow reading and writting to an element in a storage array bypassing Solidity's "out-of-bounds" check. ([#3589](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3589))
 
 ### Compatibility Note
 
