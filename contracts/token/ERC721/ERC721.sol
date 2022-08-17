@@ -306,6 +306,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         _beforeTokenTransfer(from, address(0), tokenId);
 
+        // The token may have been transferred in the before hook so we have to re-read the current owner.
         from = ERC721.ownerOf(tokenId);
 
         // Clear approvals
