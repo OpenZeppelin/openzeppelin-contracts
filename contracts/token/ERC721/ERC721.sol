@@ -306,7 +306,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         _beforeTokenTransfer(from, address(0), tokenId);
 
-        require(from == ERC721.ownerOf(tokenId), "ERC721: burn from incorrect owner");
+        from = ERC721.ownerOf(tokenId);
 
         // Clear approvals
         delete _tokenApprovals[tokenId];
