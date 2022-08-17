@@ -16,6 +16,7 @@ contract('SafeOwnable', function (accounts) {
       const receipt = await this.safeOwnable.transferOwnership(accountA, { from: owner });
       expectEvent(receipt, 'OwnershipTransferStarted');
       expect(await this.safeOwnable.owner()).to.equal(owner);
+      expect(await this.safeOwnable.pendingOwner()).to.equal(accountA);
     });
 
     it('changes owner after transfer', async function () {
