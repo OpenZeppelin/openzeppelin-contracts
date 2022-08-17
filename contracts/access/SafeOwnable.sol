@@ -17,7 +17,7 @@ import "./Ownable.sol";
  * from parent (Ownable).
  */
 abstract contract SafeOwnable is Ownable {
-    address private _newOwner;
+    address private _pendingOwner;
 
     event OwnershipTransferStarted(address indexed newOwner);
 
@@ -26,7 +26,7 @@ abstract contract SafeOwnable is Ownable {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual override onlyOwner {
-        _newOwner = newOwner;
+        _pendingOwner = newOwner;
         emit OwnershipTransferStarted(newOwner);
     }
 
@@ -34,7 +34,7 @@ abstract contract SafeOwnable is Ownable {
      * @dev The new owner accepts the ownership transfer.
      */
     function acceptOwnership() external {
-        require(_newOwner == _msgSender(), "SafeOwnable: caller is not the new owner");
+        require(_pendingOwner == _msgSender(), "SafeOwnable: caller is not the new owner");
         _transferOwnership(_msgSender());
     }
 }
