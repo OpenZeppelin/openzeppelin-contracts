@@ -22,6 +22,12 @@ abstract contract SafeOwnable is Ownable {
     event OwnershipTransferStarted(address indexed newOwner);
 
     /**
+     * @dev Returns the address of the pending owner.
+     */
+    function pendingOwner() public view virtual returns (address) {
+        return _pendingOwner;
+    }
+    /**
      * @dev Starts the ownership transfer of the contract to a new account
      * Can only be called by the current owner.
      */
