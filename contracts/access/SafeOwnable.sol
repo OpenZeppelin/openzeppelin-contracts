@@ -36,6 +36,12 @@ abstract contract SafeOwnable is Ownable {
         emit OwnershipTransferStarted(newOwner);
     }
 
+/**
+ * @dev Make the direct ownership transfer available as a fallback when the receiver cannot accept.
+ */
+function forceTransferOwnership(address newOwner) public virtual {
+    super.transferOwnership(newOwner);
+}
     /**
      * @dev Transfers ownership of the contract to a new account (`newOwner`).
      * Internal function without access restriction.
