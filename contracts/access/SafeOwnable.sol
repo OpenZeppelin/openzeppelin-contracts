@@ -31,6 +31,15 @@ abstract contract SafeOwnable is Ownable {
     }
 
     /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
+     */
+    function _transferOwnership(address newOwner) internal virtual override {
+        delete _pendingOwner;
+        super._transferOwnership(newOwner);
+    }
+
+    /**
      * @dev The new owner accepts the ownership transfer.
      */
     function acceptOwnership() external {
