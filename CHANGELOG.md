@@ -13,6 +13,7 @@
  * `SafeCast`: optimize downcasting of signed integers. ([#3565](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3565))
  * `ERC20FlashMint`: add an internal `_flashFee` function for overriding. ([#3551](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3551))
  * `VestingWallet`: remove unused library `Math.sol`. ([#3605](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3605))
+ * `EIP-712`: `draft-EIP712.sol` is now deprecated in favor of `EIP712.sol`. Developpers are encouraged to update imports. ([#3621](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3621))
 
 ### Compatibility Note
 
