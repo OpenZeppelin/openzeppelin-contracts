@@ -66,20 +66,13 @@ library Clones {
         /// @solidity memory-safe-assembly
         assembly {
             let ptr := mload(0x40)
-
-            // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
-            // of the `implementation` address with the bytecode before the address.
-            mstore(ptr, or(0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000, shr(232, shl(96, implementation))))
-            // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.
-            mstore(add(ptr, 0x20), or(shl(120, implementation), 0x5af43d82803e903d91602b57fd5bf3))
-
-            // Compute and store the bytecode hash.
-            mstore(add(ptr, 0x40), keccak256(add(ptr, 0x09), 0x37))
-            mstore(ptr, deployer)
-            mstore8(add(ptr, 0x0b), 0xff) // Store the prefix at the byte before `deployer`.
-            mstore(add(ptr, 0x20), salt)
-
-            predicted := keccak256(add(ptr, 0x0b), 0x55)
+            mstore(ptr, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
+            mstore(add(ptr, 0x14), shl(0x60, implementation))
+            mstore(add(ptr, 0x28), 0x5af43d82803e903d91602b57fd5bf3ff00000000000000000000000000000000)
+            mstore(add(ptr, 0x38), shl(0x60, deployer))
+            mstore(add(ptr, 0x4c), salt)
+            mstore(add(ptr, 0x6c), keccak256(ptr, 0x37))
+            predicted := keccak256(add(ptr, 0x37), 0x55)
         }
     }
 
