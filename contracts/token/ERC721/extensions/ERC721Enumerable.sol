@@ -55,26 +55,14 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     }
 
     /**
-     * @dev Hook that is called before any token transfer. This includes minting
-     * and burning.
-     *
-     * Calling conditions:
-     *
-     * - When `from` and `to` are both non-zero, ``from``'s `tokenId` will be
-     * transferred to `to`.
-     * - When `from` is zero, `tokenId` will be minted for `to`.
-     * - When `to` is zero, ``from``'s `tokenId` will be burned.
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     * @dev See {ERC721-_transfer}
      */
-    function _beforeTokenTransfer(
+    function _transfer(
         address from,
         address to,
         uint256 tokenId
     ) internal virtual override {
-        super._beforeTokenTransfer(from, to, tokenId);
+        super._transfer(from, to, tokenId);
 
         if (from == address(0)) {
             _addTokenToAllTokensEnumeration(tokenId);
@@ -94,9 +82,9 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
      */
     function _addTokenToOwnerEnumeration(address to, uint256 tokenId) private {
-        uint256 length = ERC721.balanceOf(to);
-        _ownedTokens[to][length] = tokenId;
-        _ownedTokensIndex[tokenId] = length;
+        uint256 lastTokenIndex = ERC721.balanceOf(to) - 1;
+        _ownedTokens[to][lastTokenIndex] = tokenId;
+        _ownedTokensIndex[tokenId] = lastTokenIndex;
     }
 
     /**
@@ -120,7 +108,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         // To prevent a gap in from's tokens array, we store the last token in the index of the token to delete, and
         // then delete the last slot (swap and pop).
 
-        uint256 lastTokenIndex = ERC721.balanceOf(from) - 1;
+        uint256 lastTokenIndex = ERC721.balanceOf(from);
         uint256 tokenIndex = _ownedTokensIndex[tokenId];
 
         // When the token to delete is the last token, the swap operation is unnecessary

@@ -116,12 +116,12 @@ contract ERC721PresetMinterPauserAutoId is
         _unpause();
     }
 
-    function _beforeTokenTransfer(
+    function _transfer(
         address from,
         address to,
         uint256 tokenId
     ) internal virtual override(ERC721, ERC721Enumerable, ERC721Pausable) {
-        super._beforeTokenTransfer(from, to, tokenId);
+        super._transfer(from, to, tokenId);
     }
 
     /**
