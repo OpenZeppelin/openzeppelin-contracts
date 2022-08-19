@@ -15,7 +15,6 @@
  * `SafeCast`: optimize downcasting of signed integers. ([#3565](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3565))
  * `VestingWallet`: remove unused library `Math.sol`. ([#3605](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3605))
  * `ECDSA`: Remove redundant check on the `v` value. ([#3591](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3591))
- * `EIP712`: `utils/cryptography/EIP712.sol`
 
 ### Deprecations
 
