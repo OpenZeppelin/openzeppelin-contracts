@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (metatx/MinimalForwarder.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (metatx/MinimalForwarder.sol)
 
 pragma solidity ^0.8.0;
 
 import "../utils/cryptography/ECDSA.sol";
-import "../utils/cryptography/draft-EIP712.sol";
+import "../utils/cryptography/EIP712.sol";
 
 /**
  * @dev Simple minimal forwarder to be used together with an ERC2771 compatible contract. See {ERC2771Context}.

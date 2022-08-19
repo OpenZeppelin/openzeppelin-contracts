@@ -83,6 +83,8 @@ TIP: If you'd like to put all item information on-chain, you can extend ERC721 t
 
 [[Presets]]
 == Preset ERC721 contract
-A preset ERC721 is available, xref:api:presets#ERC721PresetMinterPauserAutoId[`ERC721PresetMinterPauserAutoId`]. It is preset to allow for token minting (create) with token ID and URI auto generation, stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
+A preset ERC721 is available, https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.7/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol[`ERC721PresetMinterPauserAutoId`]. It is preconfigured with token minting (creation) with token ID and URI auto generation, the ability to stop all token transfers (pause), and it allows holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
 
-This contract is ready to deploy without having to write any Solidity code.  It can be used as-is for quick prototyping and testing, but is also suitable for production environments.
+This contract is ready to deploy without having to write any Solidity code. It can be used as-is for quick prototyping and testing but is also suitable for production environments.
+
+NOTE: Contract presets are now deprecated in favor of https://wizard.openzeppelin.com[Contracts Wizard] as a more powerful alternative.

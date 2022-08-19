@@ -1,3 +1,4 @@
+const { time } = require('@nomicfoundation/hardhat-network-helpers');
 const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
@@ -9,18 +10,24 @@ function releasedEvent (token, amount) {
 
 function shouldBehaveLikeVesting (beneficiary) {
   it('check vesting schedule', async function () {
-    const [ method, ...args ] = this.token
-      ? [ 'vestedAmount(address,uint64)', this.token.address ]
-      : [ 'vestedAmount(uint64)' ];
+    const [ fnVestedAmount, fnReleasable, ...args ] = this.token
+      ? [ 'vestedAmount(address,uint64)', 'releasable(address)', this.token.address ]
+      : [ 'vestedAmount(uint64)', 'releasable()' ];
 
     for (const timestamp of this.schedule) {
-      expect(await this.mock.methods[method](...args, timestamp))
-        .to.be.bignumber.equal(this.vestingFn(timestamp));
+      await time.increaseTo(timestamp);
+      const vesting = this.vestingFn(timestamp);
+
+      expect(await this.mock.methods[fnVestedAmount](...args, timestamp))
+        .to.be.bignumber.equal(vesting);
+
+      expect(await this.mock.methods[fnReleasable](...args))
+        .to.be.bignumber.equal(vesting);
     }
   });
 
   it('execute vesting schedule', async function () {
-    const [ method, ...args ] = this.token
+    const [ fnRelease, ...args ] = this.token
       ? [ 'release(address)', this.token.address ]
       : [ 'release()' ];
 
@@ -28,7 +35,7 @@ function shouldBehaveLikeVesting (beneficiary) {
     const before = await this.getBalance(beneficiary);
 
     {
-      const receipt = await this.mock.methods[method](...args);
+      const receipt = await this.mock.methods[fnRelease](...args);
 
       await expectEvent.inTransaction(
         receipt.tx,
@@ -42,15 +49,10 @@ function shouldBehaveLikeVesting (beneficiary) {
     }
 
     for (const timestamp of this.schedule) {
+      await time.setNextBlockTimestamp(timestamp);
       const vested = this.vestingFn(timestamp);
 
-      await new Promise(resolve => web3.currentProvider.send({
-        method: 'evm_setNextBlockTimestamp',
-        params: [ timestamp.toNumber() ],
-      }, resolve));
-
-      const receipt = await this.mock.methods[method](...args);
-
+      const receipt = await this.mock.methods[fnRelease](...args);
       await expectEvent.inTransaction(
         receipt.tx,
         this.mock,

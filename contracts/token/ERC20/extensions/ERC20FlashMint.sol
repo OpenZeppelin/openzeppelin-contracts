@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/extensions/ERC20FlashMint.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC20/extensions/ERC20FlashMint.sol)
 
 pragma solidity ^0.8.0;
 
@@ -38,7 +38,18 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      */
     function flashFee(address token, uint256 amount) public view virtual override returns (uint256) {
         require(token == address(this), "ERC20FlashMint: wrong token");
+        return _flashFee(token, amount);
+    }
+
+    /**
+     * @dev Returns the fee applied when doing flash loans. This function calls the {flashFee} function which returns the fee applied when doing flash loans.
+     * @param token The token to be flash loaned.
+     * @param amount The amount of tokens to be loaned.
+     * @return The fees applied to the corresponding flash loan.
+     */
+    function _flashFee(address token, uint256 amount) internal view virtual returns (uint256) {
         // silence warning about unused variable without the addition of bytecode.
+        token;
         amount;
         return 0;
     }

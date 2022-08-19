@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC20/extensions/ERC4626.sol)
 
 pragma solidity ^0.8.0;
 
@@ -16,9 +17,13 @@ import "../../../utils/math/Math.sol";
  * the ERC20 standard. Any additional extensions included along it would affect the "shares" token represented by this
  * contract and not the "assets" token which is an independent contract.
  *
+ * CAUTION: Deposits and withdrawals may incur unexpected slippage. Users should verify that the amount received of
+ * shares or assets is as expected. EOAs should operate through a wrapper that performs these checks such as
+ * https://github.com/fei-protocol/ERC4626#erc4626router-and-base[ERC4626Router].
+ *
  * _Available since v4.7._
  */
-abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
+abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
 
     IERC20Metadata private immutable _asset;
@@ -30,69 +35,69 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         _asset = asset_;
     }
 
-    /** @dev See {IERC4262-asset} */
+    /** @dev See {IERC4626-asset}. */
     function asset() public view virtual override returns (address) {
         return address(_asset);
     }
 
-    /** @dev See {IERC4262-totalAssets} */
+    /** @dev See {IERC4626-totalAssets}. */
     function totalAssets() public view virtual override returns (uint256) {
         return _asset.balanceOf(address(this));
     }
 
-    /** @dev See {IERC4262-convertToShares} */
+    /** @dev See {IERC4626-convertToShares}. */
     function convertToShares(uint256 assets) public view virtual override returns (uint256 shares) {
         return _convertToShares(assets, Math.Rounding.Down);
     }
 
-    /** @dev See {IERC4262-convertToAssets} */
+    /** @dev See {IERC4626-convertToAssets}. */
     function convertToAssets(uint256 shares) public view virtual override returns (uint256 assets) {
         return _convertToAssets(shares, Math.Rounding.Down);
     }
 
-    /** @dev See {IERC4262-maxDeposit} */
+    /** @dev See {IERC4626-maxDeposit}. */
     function maxDeposit(address) public view virtual override returns (uint256) {
         return _isVaultCollateralized() ? type(uint256).max : 0;
     }
 
-    /** @dev See {IERC4262-maxMint} */
+    /** @dev See {IERC4626-maxMint}. */
     function maxMint(address) public view virtual override returns (uint256) {
         return type(uint256).max;
     }
 
-    /** @dev See {IERC4262-maxWithdraw} */
+    /** @dev See {IERC4626-maxWithdraw}. */
     function maxWithdraw(address owner) public view virtual override returns (uint256) {
         return _convertToAssets(balanceOf(owner), Math.Rounding.Down);
     }
 
-    /** @dev See {IERC4262-maxRedeem} */
+    /** @dev See {IERC4626-maxRedeem}. */
     function maxRedeem(address owner) public view virtual override returns (uint256) {
         return balanceOf(owner);
     }
 
-    /** @dev See {IERC4262-previewDeposit} */
+    /** @dev See {IERC4626-previewDeposit}. */
     function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Down);
     }
 
-    /** @dev See {IERC4262-previewMint} */
+    /** @dev See {IERC4626-previewMint}. */
     function previewMint(uint256 shares) public view virtual override returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Up);
     }
 
-    /** @dev See {IERC4262-previewWithdraw} */
+    /** @dev See {IERC4626-previewWithdraw}. */
     function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Up);
     }
 
-    /** @dev See {IERC4262-previewRedeem} */
+    /** @dev See {IERC4626-previewRedeem}. */
     function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Down);
     }
 
-    /** @dev See {IERC4262-deposit} */
+    /** @dev See {IERC4626-deposit}. */
     function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
-        require(assets <= maxDeposit(receiver), "ERC20TokenizedVault: deposit more than max");
+        require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
 
         uint256 shares = previewDeposit(assets);
         _deposit(_msgSender(), receiver, assets, shares);
@@ -100,9 +105,9 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         return shares;
     }
 
-    /** @dev See {IERC4262-mint} */
+    /** @dev See {IERC4626-mint}. */
     function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
-        require(shares <= maxMint(receiver), "ERC20TokenizedVault: mint more than max");
+        require(shares <= maxMint(receiver), "ERC4626: mint more than max");
 
         uint256 assets = previewMint(shares);
         _deposit(_msgSender(), receiver, assets, shares);
@@ -110,13 +115,13 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         return assets;
     }
 
-    /** @dev See {IERC4262-withdraw} */
+    /** @dev See {IERC4626-withdraw}. */
     function withdraw(
         uint256 assets,
         address receiver,
         address owner
     ) public virtual override returns (uint256) {
-        require(assets <= maxWithdraw(owner), "ERC20TokenizedVault: withdraw more than max");
+        require(assets <= maxWithdraw(owner), "ERC4626: withdraw more than max");
 
         uint256 shares = previewWithdraw(assets);
         _withdraw(_msgSender(), receiver, owner, assets, shares);
@@ -124,13 +129,13 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         return shares;
     }
 
-    /** @dev See {IERC4262-redeem} */
+    /** @dev See {IERC4626-redeem}. */
     function redeem(
         uint256 shares,
         address receiver,
         address owner
     ) public virtual override returns (uint256) {
-        require(shares <= maxRedeem(owner), "ERC20TokenizedVault: redeem more than max");
+        require(shares <= maxRedeem(owner), "ERC4626: redeem more than max");
 
         uint256 assets = previewRedeem(shares);
         _withdraw(_msgSender(), receiver, owner, assets, shares);
@@ -139,7 +144,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
     }
 
     /**
-     * @dev Internal convertion function (from assets to shares) with support for rounding direction
+     * @dev Internal conversion function (from assets to shares) with support for rounding direction.
      *
      * Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
      * would represent an infinite amout of shares.
@@ -153,7 +158,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
     }
 
     /**
-     * @dev Internal convertion function (from shares to assets) with support for rounding direction
+     * @dev Internal conversion function (from shares to assets) with support for rounding direction.
      */
     function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256 assets) {
         uint256 supply = totalSupply();
@@ -164,14 +169,14 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
     }
 
     /**
-     * @dev Deposit/mint common workflow
+     * @dev Deposit/mint common workflow.
      */
     function _deposit(
         address caller,
         address receiver,
         uint256 assets,
         uint256 shares
-    ) private {
+    ) internal virtual {
         // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
         // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
         // calls the vault, which is assumed not malicious.
@@ -186,7 +191,7 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
     }
 
     /**
-     * @dev Withdraw/redeem common workflow
+     * @dev Withdraw/redeem common workflow.
      */
     function _withdraw(
         address caller,
@@ -194,12 +199,12 @@ abstract contract ERC20TokenizedVault is ERC20, IERC4626 {
         address owner,
         uint256 assets,
         uint256 shares
-    ) private {
+    ) internal virtual {
         if (caller != owner) {
             _spendAllowance(owner, caller, shares);
         }
 
-        // If _asset is ERC777, `transfer` can trigger trigger a reentrancy AFTER the transfer happens through the
+        // If _asset is ERC777, `transfer` can trigger a reentrancy AFTER the transfer happens through the
         // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
         // calls the vault, which is assumed not malicious.
         //

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (governance/IGovernor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -141,7 +141,7 @@ abstract contract IGovernor is IERC165 {
     /**
      * @notice module:user-config
      * @dev Delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
-     * leave time for users to buy voting power, of delegate it, before the voting of a proposal starts.
+     * leave time for users to buy voting power, or delegate it, before the voting of a proposal starts.
      */
     function votingDelay() public view virtual returns (uint256);
 

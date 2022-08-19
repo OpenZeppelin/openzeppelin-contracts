@@ -4,6 +4,7 @@ const { expect } = require('chai');
 
 const SignatureCheckerMock = artifacts.require('SignatureCheckerMock');
 const ERC1271WalletMock = artifacts.require('ERC1271WalletMock');
+const ERC1271MaliciousMock = artifacts.require('ERC1271MaliciousMock');
 
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
@@ -14,6 +15,7 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
   before('deploying', async function () {
     this.signaturechecker = await SignatureCheckerMock.new();
     this.wallet = await ERC1271WalletMock.new(signer);
+    this.malicious = await ERC1271MaliciousMock.new();
     this.signature = await web3.eth.sign(TEST_MESSAGE, signer);
   });
 
@@ -64,6 +66,14 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
       expect(await this.signaturechecker.isValidSignatureNow(
         this.wallet.address,
         toEthSignedMessageHash(WRONG_MESSAGE),
+        this.signature,
+      )).to.equal(false);
+    });
+
+    it('with malicious wallet', async function () {
+      expect(await this.signaturechecker.isValidSignatureNow(
+        this.malicious.address,
+        toEthSignedMessageHash(TEST_MESSAGE),
         this.signature,
       )).to.equal(false);
     });

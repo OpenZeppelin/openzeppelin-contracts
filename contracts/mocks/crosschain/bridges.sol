@@ -22,7 +22,7 @@ abstract contract BaseRelayMock {
         _currentSender = sender;
 
         (bool success, bytes memory returndata) = target.call(data);
-        Address.verifyCallResult(success, returndata, "low-level call reverted");
+        Address.verifyCallResultFromTarget(target, success, returndata, "low-level call reverted");
 
         _currentSender = previousSender;
     }
@@ -70,12 +70,8 @@ contract BridgeArbitrumL1Outbox {
 }
 
 contract BridgeArbitrumL2Mock is BaseRelayMock {
-    function isTopLevelCall() public view returns (bool) {
+    function wasMyCallersAddressAliased() public view returns (bool) {
         return _currentSender != address(0);
-    }
-
-    function wasMyCallersAddressAliased() public pure returns (bool) {
-        return true;
     }
 
     function myCallersAddressWithoutAliasing() public view returns (address) {

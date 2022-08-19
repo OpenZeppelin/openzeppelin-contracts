@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (finance/PaymentSplitter.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (finance/PaymentSplitter.sol)
 
 pragma solidity ^0.8.0;
 
@@ -14,7 +14,8 @@ import "../utils/Context.sol";
  *
  * The split can be in equal parts or in any other arbitrary proportion. The way this is specified is by assigning each
  * account to a number of shares. Of all the Ether that this contract receives, each account will then be able to claim
- * an amount proportional to the percentage of total shares they were assigned.
+ * an amount proportional to the percentage of total shares they were assigned. The distribution of shares is set at the
+ * time of contract deployment and can't be updated thereafter.
  *
  * `PaymentSplitter` follows a _pull payment_ model. This means that payments are not automatically forwarded to the
  * accounts but kept in this contract, and the actual transfer is triggered as a separate step by calling the {release}
@@ -148,8 +149,12 @@ contract PaymentSplitter is Context {
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
-        _released[account] += payment;
+        // _totalReleased is the sum of all values in _released.
+        // If "_totalReleased += payment" does not overflow, then "_released[account] += payment" cannot overflow.
         _totalReleased += payment;
+        unchecked {
+            _released[account] += payment;
+        }
 
         Address.sendValue(account, payment);
         emit PaymentReleased(account, payment);
@@ -167,8 +172,13 @@ contract PaymentSplitter is Context {
 
         require(payment != 0, "PaymentSplitter: account is not due payment");
 
-        _erc20Released[token][account] += payment;
+        // _erc20TotalReleased[token] is the sum of all values in _erc20Released[token].
+        // If "_erc20TotalReleased[token] += payment" does not overflow, then "_erc20Released[token][account] += payment"
+        // cannot overflow.
         _erc20TotalReleased[token] += payment;
+        unchecked {
+            _erc20Released[token][account] += payment;
+        }
 
         SafeERC20.safeTransfer(token, account, payment);
         emit ERC20PaymentReleased(token, account, payment);

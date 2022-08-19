@@ -73,7 +73,7 @@ contract MyToken is ERC20, AccessControl {
 
     constructor(address minter) ERC20("MyToken", "TKN") {
         // Grant the minter role to a specified account
-        _setupRole(MINTER_ROLE, minter);
+        _grantRole(MINTER_ROLE, minter);
     }
 
     function mint(address to, uint256 amount) public {
@@ -104,8 +104,8 @@ contract MyToken is ERC20, AccessControl {
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 
     constructor(address minter, address burner) ERC20("MyToken", "TKN") {
-        _setupRole(MINTER_ROLE, minter);
-        _setupRole(BURNER_ROLE, burner);
+        _grantRole(MINTER_ROLE, minter);
+        _grantRole(BURNER_ROLE, burner);
     }
 
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
@@ -123,7 +123,7 @@ So clean! By splitting concerns this way, more granular levels of permission may
 [[granting-and-revoking]]
 === Granting and Revoking Roles
 
-The ERC20 token example above uses `_setupRole`, an `internal` function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
+The ERC20 token example above uses `_grantRole`, an `internal` function that is useful when programmatically assigning roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
 
 By default, **accounts with a role cannot grant it or revoke it from other accounts**: all having a role does is making the `hasRole` check pass. To grant and revoke roles dynamically, you will need help from the _role's admin_.
 
@@ -149,7 +149,7 @@ contract MyToken is ERC20, AccessControl {
     constructor() ERC20("MyToken", "TKN") {
         // Grant the contract deployer the default admin role: it will be able
         // to grant and revoke any roles
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {

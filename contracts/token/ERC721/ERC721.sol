@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/ERC721.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC721/ERC721.sol)
 
 pragma solidity ^0.8.0;
 
@@ -115,7 +115,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         require(
             _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
-            "ERC721: approve caller is not token owner nor approved for all"
+            "ERC721: approve caller is not token owner or approved for all"
         );
 
         _approve(to, tokenId);
@@ -153,7 +153,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId
     ) public virtual override {
         //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
 
         _transfer(from, to, tokenId);
     }
@@ -178,7 +178,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId,
         bytes memory data
     ) public virtual override {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
         _safeTransfer(from, to, tokenId, data);
     }
 
@@ -293,6 +293,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev Destroys `tokenId`.
      * The approval is cleared when the token is burned.
+     * This is an internal function that does not check if the sender is authorized to operate on the token.
      *
      * Requirements:
      *
@@ -306,7 +307,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         _beforeTokenTransfer(owner, address(0), tokenId);
 
         // Clear approvals
-        _approve(address(0), tokenId);
+        delete _tokenApprovals[tokenId];
 
         _balances[owner] -= 1;
         delete _owners[tokenId];
@@ -338,7 +339,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         _beforeTokenTransfer(from, to, tokenId);
 
         // Clear approvals from the previous owner
-        _approve(address(0), tokenId);
+        delete _tokenApprovals[tokenId];
 
         _balances[from] -= 1;
         _balances[to] += 1;

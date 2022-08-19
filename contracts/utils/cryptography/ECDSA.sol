@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (utils/cryptography/ECDSA.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (utils/cryptography/ECDSA.sol)
 
 pragma solidity ^0.8.0;
 
@@ -17,7 +17,7 @@ library ECDSA {
         InvalidSignature,
         InvalidSignatureLength,
         InvalidSignatureS,
-        InvalidSignatureV
+        InvalidSignatureV // Deprecated in v4.8
     }
 
     function _throwError(RecoverError error) private pure {
@@ -29,8 +29,6 @@ library ECDSA {
             revert("ECDSA: invalid signature length");
         } else if (error == RecoverError.InvalidSignatureS) {
             revert("ECDSA: invalid signature 's' value");
-        } else if (error == RecoverError.InvalidSignatureV) {
-            revert("ECDSA: invalid signature 'v' value");
         }
     }
 
@@ -55,9 +53,6 @@ library ECDSA {
      * _Available since v4.3._
      */
     function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError) {
-        // Check the signature length
-        // - case 65: r,s,v signature (standard)
-        // - case 64: r,vs signature (cf https://eips.ethereum.org/EIPS/eip-2098) _Available since v4.1._
         if (signature.length == 65) {
             bytes32 r;
             bytes32 s;
@@ -71,17 +66,6 @@ library ECDSA {
                 v := byte(0, mload(add(signature, 0x60)))
             }
             return tryRecover(hash, v, r, s);
-        } else if (signature.length == 64) {
-            bytes32 r;
-            bytes32 vs;
-            // ecrecover takes the signature parameters, and the only way to get them
-            // currently is to use assembly.
-            /// @solidity memory-safe-assembly
-            assembly {
-                r := mload(add(signature, 0x20))
-                vs := mload(add(signature, 0x40))
-            }
-            return tryRecover(hash, r, vs);
         } else {
             return (address(0), RecoverError.InvalidSignatureLength);
         }
@@ -162,9 +146,6 @@ library ECDSA {
         // these malleable signatures as well.
         if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
             return (address(0), RecoverError.InvalidSignatureS);
-        }
-        if (v != 27 && v != 28) {
-            return (address(0), RecoverError.InvalidSignatureV);
         }
 
         // If the signature is valid (and not malleable), return the signer address
