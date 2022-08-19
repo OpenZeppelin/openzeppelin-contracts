@@ -65,25 +65,21 @@ library Clones {
     ) internal pure returns (address predicted) {
         /// @solidity memory-safe-assembly
         assembly {
-            // Cache the free memory pointer for restoring later.
-            let freeMemoryPointer := mload(0x40)
+            let ptr := mload(0x40)
 
             // Cleans the upper 96 bits of the `implementation` word, then packs the first 3 bytes
             // of the `implementation` address with the bytecode before the address.
-            mstore(0x00, or(0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000, shr(232, shl(96, implementation))))
+            mstore(ptr, or(0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000, shr(232, shl(96, implementation))))
             // Packs the remaining 17 bytes of `implementation` with the bytecode after the address.
-            mstore(0x20, or(shl(120, implementation), 0x5af43d82803e903d91602b57fd5bf3))
+            mstore(add(ptr, 0x20), or(shl(120, implementation), 0x5af43d82803e903d91602b57fd5bf3))
 
             // Compute and store the bytecode hash.
-            mstore(0x40, keccak256(0x09, 0x37))
-            mstore(0x00, deployer)
-            mstore8(0x0b, 0xff) // Store the prefix at the byte before `deployer`.
-            mstore(0x20, salt)
+            mstore(add(ptr, 0x40), keccak256(add(ptr, 0x09), 0x37))
+            mstore(ptr, deployer)
+            mstore8(add(ptr, 0x0b), 0xff) // Store the prefix at the byte before `deployer`.
+            mstore(add(ptr, 0x20), salt)
 
-            predicted := keccak256(0x0b, 0x55)
-
-            // Restore the free memory pointer.
-            mstore(0x40, freeMemoryPointer)
+            predicted := keccak256(add(ptr, 0x0b), 0x55)
         }
     }
 
