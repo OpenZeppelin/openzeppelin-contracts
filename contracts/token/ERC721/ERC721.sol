@@ -277,8 +277,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _mint(address to, uint256 tokenId) internal virtual {
-        require(!_exists(tokenId), "ERC721: token already minted");
         require(to != address(0), "ERC721: mint to the zero address");
+        require(!_exists(tokenId), "ERC721: token already minted");
 
         _beforeTokenTransfer(address(0), to, tokenId);
 
@@ -305,22 +305,22 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address from = ERC721.ownerOf(tokenId);
+        address owner = ERC721.ownerOf(tokenId);
 
-        _beforeTokenTransfer(from, address(0), tokenId);
+        _beforeTokenTransfer(owner, address(0), tokenId);
 
         // Update ownership in case tokenId was transfered by `_beforeTokenTransfer` hook
-        from = ERC721.ownerOf(tokenId);
+        owner = ERC721.ownerOf(tokenId);
 
         // Clear approvals
         delete _tokenApprovals[tokenId];
 
-        _balances[from] -= 1;
+        _balances[owner] -= 1;
         delete _owners[tokenId];
 
-        emit Transfer(from, address(0), tokenId);
+        emit Transfer(owner, address(0), tokenId);
 
-        _afterTokenTransfer(from, address(0), tokenId);
+        _afterTokenTransfer(owner, address(0), tokenId);
     }
 
     /**
@@ -339,13 +339,13 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address to,
         uint256 tokenId
     ) internal virtual {
-        require(from == ERC721.ownerOf(tokenId), "ERC721: transfer from incorrect owner");
+        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
         require(to != address(0), "ERC721: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId);
 
         // Check that tokenId was not transfered by `_beforeTokenTransfer` hook
-        require(from == ERC721.ownerOf(tokenId), "ERC721: transfer from incorrect owner");
+        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
 
         // Clear approvals from the previous owner
         delete _tokenApprovals[tokenId];
