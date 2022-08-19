@@ -277,9 +277,12 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _mint(address to, uint256 tokenId) internal virtual {
+        require(!_exists(tokenId), "ERC721: token already minted");
+        require(to != address(0), "ERC721: mint to the zero address");
+
         _beforeTokenTransfer(address(0), to, tokenId);
 
-        require(to != address(0), "ERC721: mint to the zero address");
+        // Check that tokenId was not minted by `_beforeTokenTransfer` hook
         require(!_exists(tokenId), "ERC721: token already minted");
 
         _balances[to] += 1;
@@ -306,7 +309,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         _beforeTokenTransfer(from, address(0), tokenId);
 
-        // The token may have been transferred in the before hook so we have to re-read the current owner.
+        // Update ownership in case tokenId was transfered by `_beforeTokenTransfer` hook
         from = ERC721.ownerOf(tokenId);
 
         // Clear approvals
@@ -336,10 +339,13 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address to,
         uint256 tokenId
     ) internal virtual {
-        _beforeTokenTransfer(from, to, tokenId);
-
         require(from == ERC721.ownerOf(tokenId), "ERC721: transfer from incorrect owner");
         require(to != address(0), "ERC721: transfer to the zero address");
+
+        _beforeTokenTransfer(from, to, tokenId);
+
+        // Check that tokenId was not transfered by `_beforeTokenTransfer` hook
+        require(from == ERC721.ownerOf(tokenId), "ERC721: transfer from incorrect owner");
 
         // Clear approvals from the previous owner
         delete _tokenApprovals[tokenId];
