@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "../../utils/Context.sol";
 import "../../utils/Counters.sol";
 import "../../utils/Checkpoints.sol";
-import "../../utils/cryptography/draft-EIP712.sol";
+import "../../utils/cryptography/EIP712.sol";
 import "./IVotes.sol";
 
 /**
