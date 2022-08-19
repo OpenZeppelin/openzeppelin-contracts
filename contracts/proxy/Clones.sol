@@ -64,14 +64,14 @@ library Clones {
 
             mstore(0x00, or(0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000, shr(232, shl(96, implementation))))
             mstore(0x20, or(0x5af43d82803e903d91602b57fd5bf3, shl(120, implementation)))
-            
+
             // Compute and Store the bytecode hash.
             mstore(0x40, keccak256(0x09, 0x37))
             mstore(0x00, deployer)
             // Store the prefix.
             mstore8(0x0b, 0xff)
             mstore(0x20, salt)
-            
+
             predicted := keccak256(0x0b, 0x55)
 
             // Restore the free memory pointer.
