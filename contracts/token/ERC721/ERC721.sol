@@ -308,14 +308,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     ) internal virtual {
         require(
             from == _owners[tokenId],
-            from == address(0)
-                ? "ERC721: token already minted"
-                : "ERC721: transfer from incorrect owner"
+            from == address(0) ? "ERC721: token already minted" : "ERC721: transfer from incorrect owner"
         );
-        require(
-            from != address(0) || to != address(0),
-            "ERC721: mint to the zero address"
-        );
+        require(from != address(0) || to != address(0), "ERC721: mint to the zero address");
 
         if (from != address(0)) {
             _balances[from] -= 1;
