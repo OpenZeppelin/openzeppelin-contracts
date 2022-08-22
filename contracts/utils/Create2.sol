@@ -60,13 +60,14 @@ library Create2 {
     ) internal pure returns (address addr) {
         /// @solidity memory-safe-assembly
         assembly {
-            let ptr := mload(0x40)
-            mstore(0x00, deployer)
-            mstore8(0x0b, 0xff)
-            mstore(0x20, salt)
-            mstore(0x40, bytecodeHash)
-            addr := keccak256(0x0b, 85)
-            mstore(0x40, ptr)
+            let ptr := mload(0x40) //get free memory pointer
+            mstore(add(ptr,0x40), bytecodeHash)
+            mstore(add(ptr,0x20), salt)
+
+            mstore(ptr, deployer) //right-aligned with 12 preceding garbage bytes
+            ptr := add(ptr,0x0b) //The hashed data starts at the final garbage byte which we will overwrite with 0xff
+            mstore8(ptr, 0xff) 
+            addr := keccak256(ptr, 85)
         }
     }
 }
