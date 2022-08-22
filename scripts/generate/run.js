@@ -14,8 +14,15 @@ function getVersion (path) {
 }
 
 for (const [ file, template ] of Object.entries({
+  // SafeCast
   'utils/math/SafeCast.sol': './templates/SafeCast',
   'mocks/SafeCastMock.sol': './templates/SafeCastMock',
+  // EnumerableSet
+  'utils/structs/EnumerableSet.sol': './templates/EnumerableSet',
+  'mocks/EnumerableSetMock.sol': './templates/EnumerableSetMock',
+  // EnumerableMap
+  'utils/structs/EnumerableMap.sol': './templates/EnumerableMap',
+  'mocks/EnumerableMapMock.sol': './templates/EnumerableMapMock',
 })) {
   const path = `./contracts/${file}`;
   const version = getVersion(path);

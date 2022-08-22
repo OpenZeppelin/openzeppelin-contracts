@@ -135,4 +135,18 @@ abstract contract Initializable {
             emit Initialized(type(uint8).max);
         }
     }
+
+    /**
+     * @dev Internal function that returns the initialized version. Returns `_initialized`
+     */
+    function _getInitializedVersion() internal view returns (uint8) {
+        return _initialized;
+    }
+
+    /**
+     * @dev Internal function that returns the initialized version. Returns `_initializing`
+     */
+    function _isInitializing() internal view returns (bool) {
+        return _initializing;
+    }
 }
