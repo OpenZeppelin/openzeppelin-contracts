@@ -97,7 +97,7 @@ contract('ERC20FlashMint', function (accounts) {
       const receiverInitialBalance = new BN(200000);
       const flashFee = new BN(5000);
 
-      beforeEach('init receive balance & set flash fee', async function () {
+      beforeEach('init receiver balance & set flash fee', async function () {
         this.receiver = await ERC3156FlashBorrowerMock.new(true, true);
         const receipt = await this.token.mint(this.receiver.address, receiverInitialBalance);
         await expectEvent(receipt, 'Transfer', { from: ZERO_ADDRESS, to: this.receiver.address, value: receiverInitialBalance });
