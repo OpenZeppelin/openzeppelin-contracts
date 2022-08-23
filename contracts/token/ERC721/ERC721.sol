@@ -324,7 +324,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         unchecked {
             // Cannot overflow, as that would require more tokens to be burned/transferred
-            // out then the owner initialy received through minting and transfering in.
+            // out than the owner initialy received through minting and transferring in.
             _balances[owner] -= 1;
         }
         delete _owners[tokenId];
