@@ -61,7 +61,7 @@ library Create2 {
         /// @solidity memory-safe-assembly
         assembly {
             let ptr := mload(0x40) // Get free memory pointer
-            
+
             // |                   | ↓ ptr                 ↓ ptr + 0x0B (start)                      ↓ ptr + 0x20                                                    ↓ ptr + 0x40                                                     |
             // |-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
             // | bytecodeHash      |                                                                                                                                 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC |
