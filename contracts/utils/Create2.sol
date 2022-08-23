@@ -66,7 +66,7 @@ library Create2 {
 
             mstore(ptr, deployer) // Right-aligned with 12 preceding garbage bytes
             let start := add(ptr, 0x0b) // The hashed data starts at the final garbage byte which we will set to 0xff
-            mstore8(start, 0xff) 
+            mstore8(start, 0xff)
             addr := keccak256(start, 85)
         }
     }
