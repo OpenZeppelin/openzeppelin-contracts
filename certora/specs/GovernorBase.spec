@@ -98,26 +98,26 @@ function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
  // To use env with general preserved block disable type checking [--disableLocalTypeChecking]
 invariant startAndEndDatesNonZero(uint256 pId)
         proposalSnapshot(pId) != 0 <=> proposalDeadline(pId) != 0
-        { preserved with (env e){   
+        { preserved with (env e){
                 require e.block.number > 0;
         }}
-        
+
 
 /*
- * If a proposal is canceled it must have a start and an end date 
+ * If a proposal is canceled it must have a start and an end date
  */
  // To use env with general preserved block disable type checking [--disableLocalTypeChecking]
 invariant canceledImplyStartAndEndDateNonZero(uint pId)
         isCanceled(pId) => proposalSnapshot(pId) != 0
-        {preserved with (env e){               
+        {preserved with (env e){
                 require e.block.number > 0;
         }}
 
 
 /*
- * If a proposal is executed it must have a start and an end date 
+ * If a proposal is executed it must have a start and an end date
  */
- // To use env with general preserved block disable type checking [--disableLocalTypeChecking] 
+ // To use env with general preserved block disable type checking [--disableLocalTypeChecking]
 invariant executedImplyStartAndEndDateNonZero(uint pId)
         isExecuted(pId) => proposalSnapshot(pId) != 0
         { preserved with (env e){
@@ -143,7 +143,7 @@ invariant voteStartBeforeVoteEnd(uint256 pId)
 /*
  * A proposal cannot be both executed and canceled simultaneously.
  */
-invariant noBothExecutedAndCanceled(uint256 pId) 
+invariant noBothExecutedAndCanceled(uint256 pId)
         !isExecuted(pId) || !isCanceled(pId)
 
 
@@ -154,10 +154,10 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
     bool isExecutedBefore = isExecuted(pId);
     bool quorumReachedBefore = _quorumReached(e, pId);
     bool voteSucceededBefore = _voteSucceeded(pId);
-    
+
     calldataarg args;
     f(e, args);
-    
+
     bool isExecutedAfter = isExecuted(pId);
     assert (!isExecutedBefore && isExecutedAfter) => (quorumReachedBefore && voteSucceededBefore), "quorum was changed";
 }
@@ -177,16 +177,16 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
  // the fact that the 3 functions themselves makes no changes, but rather call an internal function to execute.
  // That means that we do not check those 3 functions directly, however for castVote & castVoteWithReason it is quite trivial
  // to understand why this is ok. For castVoteBySig we basically assume that the signature referendum is correct without checking it.
- // We could check each function separately and pass the rule, but that would have uglyfied the code with no concrete 
+ // We could check each function separately and pass the rule, but that would have uglyfied the code with no concrete
  // benefit, as it is evident that nothing is happening in the first 2 functions (calling a view function), and we do not desire to check the signature verification.
 rule doubleVoting(uint256 pId, uint8 sup, method f) {
     env e;
-    address user = e.msg.sender;        
+    address user = e.msg.sender;
     bool votedCheck = hasVoted(e, pId, user);
 
     castVote@withrevert(e, pId, sup);
 
-    assert votedCheck => lastReverted, "double voting accured";
+    assert votedCheck => lastReverted, "double voting occured";
 }
 
 
@@ -207,7 +207,7 @@ rule immutableFieldsAfterProposalCreation(uint256 pId, method f) {
     uint256 _voteEnd = proposalDeadline(pId);
 
     require proposalCreated(pId); // startDate > 0
-    
+
     env e; calldataarg arg;
     f(e, arg);
 
@@ -226,7 +226,7 @@ rule noStartBeforeCreation(uint256 pId) {
     // This line makes sure that we see only cases where start date is changed from 0, i.e. creation of proposal
     // We proved in immutableFieldsAfterProposalCreation that once dates set for proposal, it cannot be changed
     require !proposalCreated(pId); // previousStart == 0;
-    
+
     env e; calldataarg args;
     propose(e, args);
 
@@ -273,7 +273,7 @@ rule noExecuteOrCancelBeforeDeadline(uint256 pId, method f){
  * All proposal specific (non-view) functions should revert if proposal is executed
  */
  // In this rule we show that if a function is executed, i.e. execute() was called on the proposal ID,
- // non of the proposal specific functions can make changes again. In executedOnlyAfterExecuteFunc 
+ // non of the proposal specific functions can make changes again. In executedOnlyAfterExecuteFunc
  // we connected the executed attribute to the execute() function, showing that only execute() can
  // change it, and that it will always change it.
 rule allFunctionsRevertIfExecuted(method f) filtered { f ->
@@ -331,4 +331,3 @@ rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] c
     bool executedAfter = isExecuted(pId);
     assert(executedAfter != executedBefore => f.selector == execute(address[], uint256[], bytes[], bytes32).selector, "isExecuted only changes in the execute method");
 }
-

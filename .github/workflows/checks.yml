@@ -86,4 +86,4 @@ jobs:
         uses: codespell-project/actions-codespell@v1.0
         with:
           check_filenames: true
-          only_warn: 1
+          skip: package-lock.json

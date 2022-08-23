@@ -324,7 +324,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         unchecked {
             // Cannot overflow, as that would require more tokens to be burned/transferred
-            // out than the owner initialy received through minting and transferring in.
+            // out than the owner initially received through minting and transferring in.
             _balances[owner] -= 1;
         }
         delete _owners[tokenId];
@@ -355,7 +355,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         _beforeTokenTransfer(from, to, tokenId);
 
-        // Check that tokenId was not transfered by `_beforeTokenTransfer` hook
+        // Check that tokenId was not transferred by `_beforeTokenTransfer` hook
         require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
 
         // Clear approvals from the previous owner
