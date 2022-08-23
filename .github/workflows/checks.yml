@@ -83,7 +83,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run CodeSpell
-        uses: codespell-project/actions-codespell@v1
+        uses: codespell-project/actions-codespell@v1.0
         with:
           check_filenames: true
           only_warn: 1
