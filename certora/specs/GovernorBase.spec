@@ -186,7 +186,7 @@ rule doubleVoting(uint256 pId, uint8 sup, method f) {
 
     castVote@withrevert(e, pId, sup);
 
-    assert votedCheck => lastReverted, "double voting occured";
+    assert votedCheck => lastReverted, "double voting occurred";
 }
 
 
