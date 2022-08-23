@@ -285,7 +285,14 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         // Check that tokenId was not minted by `_beforeTokenTransfer` hook
         require(!_exists(tokenId), "ERC721: token already minted");
 
-        _balances[to] += 1;
+        unchecked {
+            // Will not overflow unless all 2**256 token ids are minted to the same owner.
+            // Given that tokens are minted one by one, it is impossible in practice that
+            // this ever happens. Might change if we allow batch minting.
+            // The ERC fails to describe this case.
+            _balances[to] += 1;
+        }
+
         _owners[tokenId] = to;
 
         emit Transfer(address(0), to, tokenId);
@@ -309,13 +316,17 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
-        // Update ownership in case tokenId was transfered by `_beforeTokenTransfer` hook
+        // Update ownership in case tokenId was transferred by `_beforeTokenTransfer` hook
         owner = ERC721.ownerOf(tokenId);
 
         // Clear approvals
         delete _tokenApprovals[tokenId];
 
-        _balances[owner] -= 1;
+        unchecked {
+            // Cannot overflow, as that would require more tokens to be burned/transferred
+            // out than the owner initialy received through minting and transferring in.
+            _balances[owner] -= 1;
+        }
         delete _owners[tokenId];
 
         emit Transfer(owner, address(0), tokenId);
@@ -350,8 +361,15 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         // Clear approvals from the previous owner
         delete _tokenApprovals[tokenId];
 
-        _balances[from] -= 1;
-        _balances[to] += 1;
+        unchecked {
+            // `_balances[from]` cannot overflow for the same reason as described in `_burn`:
+            // `from`'s balance is the number of token held, which is at least one before the current
+            // transfer.
+            // `_balances[to]` could overflow in the conditions described in `_mint`. That would require
+            // all 2**256 token ids to be minted, which in practice is impossible.
+            _balances[from] -= 1;
+            _balances[to] += 1;
+        }
         _owners[tokenId] = to;
 
         emit Transfer(from, to, tokenId);
