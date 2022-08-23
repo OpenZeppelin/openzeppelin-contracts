@@ -61,9 +61,19 @@ library Create2 {
         /// @solidity memory-safe-assembly
         assembly {
             let ptr := mload(0x40) // Get free memory pointer
+            
+            // |                   | ↓ ptr                 ↓ ptr + 0x0B (start)                      ↓ ptr + 0x20                                                    ↓ ptr + 0x40                                                     |
+            // |-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+            // | bytecodeHash      |                                                                                                                                 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC |
+            // | salt              |                                                                 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB                                                                 |
+            // | deployer          | 000000000000000000000000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA                                                                                                                                 |
+            // | 0xFF              |                       FF                                                                                                                                                                         |
+            // |-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+            // | memory            | 0000000000000000000000FFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC |
+            // | keccak(start, 85) |                       ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ |
+
             mstore(add(ptr, 0x40), bytecodeHash)
             mstore(add(ptr, 0x20), salt)
-
             mstore(ptr, deployer) // Right-aligned with 12 preceding garbage bytes
             let start := add(ptr, 0x0b) // The hashed data starts at the final garbage byte which we will set to 0xff
             mstore8(start, 0xff)
