@@ -3,6 +3,7 @@ const { expect } = require('chai');
 
 const ERC20DecimalsMock = artifacts.require('ERC20DecimalsMock');
 const ERC4626Mock = artifacts.require('ERC4626Mock');
+const ERC4626DecimalMock = artifacts.require('ERC4626DecimalMock');
 
 const parseToken = (token) => (new BN(token)).mul(new BN('1000000000000'));
 const parseShare = (share) => (new BN(share)).mul(new BN('1000000000000000000'));
@@ -15,7 +16,7 @@ contract('ERC4626', function (accounts) {
 
   beforeEach(async function () {
     this.token = await ERC20DecimalsMock.new(name, symbol, 12);
-    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol + 'V', 18);
+    this.vault = await ERC4626DecimalMock.new(this.token.address, name + ' Vault', symbol + 'V', 18);
 
     await this.token.mint(holder, web3.utils.toWei('100'));
     await this.token.approve(this.vault.address, constants.MAX_UINT256, { from: holder });
@@ -25,7 +26,16 @@ contract('ERC4626', function (accounts) {
   it('metadata', async function () {
     expect(await this.vault.name()).to.be.equal(name + ' Vault');
     expect(await this.vault.symbol()).to.be.equal(symbol + 'V');
+    expect(await this.vault.decimals()).to.be.bignumber.equal('18');
     expect(await this.vault.asset()).to.be.equal(this.token.address);
+  });
+
+  it('inherit decimals if from asset', async function () {
+    for (const decimals of [ 0, 9, 12, 18, 36 ].map(web3.utils.toBN)) {
+      const token = await ERC20DecimalsMock.new('', '', decimals);
+      const vault = await ERC4626Mock.new(token.address, '', '');
+      expect(await vault.decimals()).to.be.bignumber.equal(decimals);
+    }
   });
 
   describe('empty vault: no assets & no shares', function () {
@@ -400,7 +410,7 @@ contract('ERC4626', function (accounts) {
   it('multiple mint, deposit, redeem & withdrawal', async function () {
     // test designed with both asset using similar decimals
     this.token = await ERC20DecimalsMock.new(name, symbol, 18);
-    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol + 'V', 18);
+    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol + 'V');
 
     await this.token.mint(user1, 4000);
     await this.token.mint(user2, 7001);
