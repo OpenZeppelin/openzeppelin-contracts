@@ -316,14 +316,14 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
-        // Update ownership in case tokenId was transfered by `_beforeTokenTransfer` hook
+        // Update ownership in case tokenId was transferred by `_beforeTokenTransfer` hook
         owner = ERC721.ownerOf(tokenId);
 
         // Clear approvals
         delete _tokenApprovals[tokenId];
 
         unchecked {
-            // Cannot overflow, as that would require more tokens to be burned/transfered
+            // Cannot overflow, as that would require more tokens to be burned/transferred
             // out then the owner initialy received through minting and transfering in.
             _balances[owner] -= 1;
         }
