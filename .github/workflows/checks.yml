@@ -13,6 +13,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changelog:
+    if: github.event_name == 'pull_request' && github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check diff
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1
+          if git diff --exit-code origin/${{ github.base_ref }} -- CHANGELOG.md ; then
+            echo 'Missing changelog entry'
+            exit 1
+          fi
+
   lint:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
@@ -24,17 +37,24 @@ jobs:
 
   tests:
     runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+      GAS: true
     steps:
       - uses: actions/checkout@v3
       - name: Set up environment
         uses: ./.github/actions/setup
-      - run: npm run test
-        env:
-          FORCE_COLOR: 1
-          ENABLE_GAS_REPORT: true
-      - run: npm run test:inheritance
-      - run: npm run test:generation
+      - name: Run tests and generate gas report
+        run: npm run test
+      - name: Check linearisation of the inheritance graph
+        run: npm run test:inheritance
+      - name: Check proceduraly generated contracts are up-to-date
         if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+        run: npm run test:generation
+      - name: Compare gas costs
+        uses: ./.github/actions/gas-compare
+        with:
+          token: ${{ github.token }}
 
   coverage:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'

@@ -114,9 +114,9 @@ const toIntDownCast = length => `\
  *
  * _Available since v${version('toInt(int)', length)}._
  */
-function toInt${length}(int256 value) internal pure returns (int${length}) {
-    require(value >= type(int${length}).min && value <= type(int${length}).max, "SafeCast: value doesn't fit in ${length} bits");
-    return int${length}(value);
+function toInt${length}(int256 value) internal pure returns (int${length} downcasted) {
+    downcasted = int${length}(value);
+    require(downcasted == value, "SafeCast: value doesn't fit in ${length} bits");
 }
 `;
 /* eslint-enable max-len */

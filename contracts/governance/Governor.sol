@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 import "../token/ERC721/IERC721Receiver.sol";
 import "../token/ERC1155/IERC1155Receiver.sol";
 import "../utils/cryptography/ECDSA.sol";
-import "../utils/cryptography/draft-EIP712.sol";
+import "../utils/cryptography/EIP712.sol";
 import "../utils/introspection/ERC165.sol";
 import "../utils/math/SafeCast.sol";
 import "../utils/structs/DoubleEndedQueue.sol";
@@ -120,7 +120,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     /**
      * @dev See {IGovernor-hashProposal}.
      *
-     * The proposal id is produced by hashing the RLC encoded `targets` array, the `values` array, the `calldatas` array
+     * The proposal id is produced by hashing the ABI encoded `targets` array, the `values` array, the `calldatas` array
      * and the descriptionHash (bytes32 which itself is the keccak256 hash of the description string). This proposal id
      * can be produced from the proposal data which is part of the {ProposalCreated} event. It can even be computed in
      * advance, before the proposal is submitted.

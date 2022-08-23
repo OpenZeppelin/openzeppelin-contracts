@@ -115,7 +115,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         require(
             _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
-            "ERC721: approve caller is not token owner nor approved for all"
+            "ERC721: approve caller is not token owner or approved for all"
         );
 
         _approve(to, tokenId);
@@ -153,7 +153,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId
     ) public virtual override {
         //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
 
         _transfer(from, to, tokenId);
     }
@@ -178,7 +178,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId,
         bytes memory data
     ) public virtual override {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
         _safeTransfer(from, to, tokenId, data);
     }
 
@@ -282,6 +282,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         _beforeTokenTransfer(address(0), to, tokenId);
 
+        // Check that tokenId was not minted by `_beforeTokenTransfer` hook
+        require(!_exists(tokenId), "ERC721: token already minted");
+
         unchecked {
             // Will not overflow unless all 2**256 token ids are minted to the same owner.
             // Given that tokens are minted one by one, it is impossible in practice that
@@ -289,6 +292,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
             // The ERC fails to describe this case.
             _balances[to] += 1;
         }
+
         _owners[tokenId] = to;
 
         emit Transfer(address(0), to, tokenId);
@@ -299,6 +303,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     /**
      * @dev Destroys `tokenId`.
      * The approval is cleared when the token is burned.
+     * This is an internal function that does not check if the sender is authorized to operate on the token.
      *
      * Requirements:
      *
@@ -311,8 +316,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
+        // Update ownership in case tokenId was transfered by `_beforeTokenTransfer` hook
+        owner = ERC721.ownerOf(tokenId);
+
         // Clear approvals
-        _approve(address(0), tokenId);
+        delete _tokenApprovals[tokenId];
 
         unchecked {
             // Cannot overflow, as that would require more tokens to be burned/transfered
@@ -347,8 +355,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         _beforeTokenTransfer(from, to, tokenId);
 
+        // Check that tokenId was not transfered by `_beforeTokenTransfer` hook
+        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
+
         // Clear approvals from the previous owner
-        _approve(address(0), tokenId);
+        delete _tokenApprovals[tokenId];
 
         unchecked {
             // `_balances[from]` cannot overflow for the same reason as described in `_burn`:
