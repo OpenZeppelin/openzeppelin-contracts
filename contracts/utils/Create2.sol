@@ -62,15 +62,15 @@ library Create2 {
         assembly {
             let ptr := mload(0x40) // Get free memory pointer
 
-            // |                   | ↓ ptr                 ↓ ptr + 0x0B (start)                      ↓ ptr + 0x20                                                    ↓ ptr + 0x40                                                     |
-            // |-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-            // | bytecodeHash      |                                                                                                                                 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC |
-            // | salt              |                                                                 BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB                                                                 |
-            // | deployer          | 000000000000000000000000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA                                                                                                                                 |
-            // | 0xFF              |                       FF                                                                                                                                                                         |
-            // |-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-            // | memory            | 0000000000000000000000FFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC |
-            // | keccak(start, 85) |                       ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ |
+            // |                   | ↓ ptr ...  ↓ ptr + 0x0B (start) ...  ↓ ptr + 0x20 ...  ↓ ptr + 0x40 ...   |
+            // |-------------------|---------------------------------------------------------------------------|
+            // | bytecodeHash      |                                                        CCCCCCCCCCCCC...CC |
+            // | salt              |                                      BBBBBBBBBBBBB...BB                   |
+            // | deployer          | 000000...0000AAAAAAAAAAAAAAAAAAA...AA                                     |
+            // | 0xFF              |            FF                                                             |
+            // |-------------------|---------------------------------------------------------------------------|
+            // | memory            | 000000...00FFAAAAAAAAAAAAAAAAAAA...AABBBBBBBBBBBBB...BBCCCCCCCCCCCCC...CC |
+            // | keccak(start, 85) |            ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ |
 
             mstore(add(ptr, 0x40), bytecodeHash)
             mstore(add(ptr, 0x20), salt)
