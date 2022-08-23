@@ -18,6 +18,7 @@
  * `VestingWallet`: remove unused library `Math.sol`. ([#3605](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3605))
  * `ECDSA`: Remove redundant check on the `v` value. ([#3591](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3591))
  * `VestingWallet`: add `releasable` getters. ([#3580](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3580))
+ * `Create2`: optimize address computation by using assembly instead of `abi.encodePacked`. ([#3600](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3600))
 
 ### Deprecations
 
