@@ -104,6 +104,13 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
 
       expect(await this.mock.quorumNumerator()).to.be.bignumber.equal(newRatio);
       expect(await this.mock.quorumDenominator()).to.be.bignumber.equal('100');
+
+      // it takes one block for the new quorum to take effect
+      expect(await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1))))
+        .to.be.bignumber.equal(tokenSupply.mul(ratio).divn(100));
+
+      await time.advanceBlock();
+
       expect(await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1))))
         .to.be.bignumber.equal(tokenSupply.mul(newRatio).divn(100));
     });

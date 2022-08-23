@@ -28,12 +28,12 @@ interface IERC777 {
     event Burned(address indexed operator, address indexed from, uint256 amount, bytes data, bytes operatorData);
 
     /**
-     * @dev Emitted when `operator` is made operator for `tokenHolder`
+     * @dev Emitted when `operator` is made operator for `tokenHolder`.
      */
     event AuthorizedOperator(address indexed operator, address indexed tokenHolder);
 
     /**
-     * @dev Emitted when `operator` is revoked its operator status for `tokenHolder`
+     * @dev Emitted when `operator` is revoked its operator status for `tokenHolder`.
      */
     event RevokedOperator(address indexed operator, address indexed tokenHolder);
 

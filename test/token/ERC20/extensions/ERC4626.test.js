@@ -406,7 +406,7 @@ contract('ERC4626', function (accounts) {
   });
 
   /// Scenario inspired by solmate ERC4626 tests:
-  /// https://github.com/Rari-Capital/solmate/blob/main/src/test/ERC4626.t.sol
+  /// https://github.com/transmissions11/solmate/blob/main/src/test/ERC4626.t.sol
   it('multiple mint, deposit, redeem & withdrawal', async function () {
     // test designed with both asset using similar decimals
     this.token = await ERC20DecimalsMock.new(name, symbol, 18);
