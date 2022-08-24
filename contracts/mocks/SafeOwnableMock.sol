@@ -2,6 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-import "../access/SafeOwnable.sol";
+import "../access/Ownable2Step.sol";
 
-contract SafeOwnableMock is SafeOwnable {}
+contract Ownable2StepMock is Ownable2Step {}

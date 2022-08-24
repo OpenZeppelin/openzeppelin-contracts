@@ -16,7 +16,7 @@ import "./Ownable.sol";
  * This module is used through inheritance. It will make available all functions
  * from parent (Ownable).
  */
-abstract contract SafeOwnable is Ownable {
+abstract contract Ownable2Step is Ownable {
     address private _pendingOwner;
 
     event OwnershipTransferStarted(address indexed newOwner);
@@ -57,7 +57,7 @@ abstract contract SafeOwnable is Ownable {
      * @dev The new owner accepts the ownership transfer.
      */
     function acceptOwnership() external {
-        require(_pendingOwner == _msgSender(), "SafeOwnable: caller is not the new owner");
+        require(_pendingOwner == _msgSender(), "Ownable2Step: caller is not the new owner");
         _transferOwnership(_msgSender());
     }
 }
