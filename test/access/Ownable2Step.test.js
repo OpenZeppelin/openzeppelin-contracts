@@ -39,7 +39,7 @@ contract('Ownable2Step', function (accounts) {
       await this.ownable2Step.forceTransferOwnership(accountB, { from: owner });
       expect(await this.ownable2Step.pendingOwner()).to.equal(ZERO_ADDRESS);
       await expectRevert(
-        this.ownable2Step.acceptOwnership({ from: accountB }),
+        this.ownable2Step.acceptOwnership({ from: accountA }),
         'Ownable2Step: caller is not the new owner',
       );
     });
