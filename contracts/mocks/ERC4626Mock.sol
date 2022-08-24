@@ -38,11 +38,23 @@ contract ERC4626DecimalMock is ERC4626Mock {
         return _decimals;
     }
 
-    function _initialConvertToShares(uint256 assets, Math.Rounding rounding) internal view virtual override returns (uint256 shares) {
+    function _initialConvertToShares(uint256 assets, Math.Rounding rounding)
+        internal
+        view
+        virtual
+        override
+        returns (uint256 shares)
+    {
         return assets.mulDiv(10**decimals(), 10**super.decimals(), rounding);
     }
 
-    function _initialConvertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual override returns (uint256 assets) {
+    function _initialConvertToAssets(uint256 shares, Math.Rounding rounding)
+        internal
+        view
+        virtual
+        override
+        returns (uint256 assets)
+    {
         return shares.mulDiv(10**super.decimals(), 10**decimals(), rounding);
     }
 }
