@@ -170,12 +170,10 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Internal conversion function (from assets to shares) to apply when the vault is empty.
      * Note: make sure to keep this function consistent with {_initialConvertToAssets} when overriding it.
      */
-    function _initialConvertToShares(uint256 assets, Math.Rounding /*rounding*/)
-        internal
-        view
-        virtual
-        returns (uint256 shares)
-    {
+    function _initialConvertToShares(
+        uint256 assets,
+        Math.Rounding /*rounding*/
+    ) internal view virtual returns (uint256 shares) {
         return assets;
     }
 
@@ -192,12 +190,10 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Internal conversion function (from shares to assets) to apply when the vault is empty.
      * Note: make sure to keep this function consistent with {_initialConvertToShares} when overriding it.
      */
-    function _initialConvertToAssets(uint256 shares, Math.Rounding /*rounding*/)
-        internal
-        view
-        virtual
-        returns (uint256 assets)
-    {
+    function _initialConvertToAssets(
+        uint256 shares,
+        Math.Rounding /*rounding*/
+    ) internal view virtual returns (uint256 assets) {
         return shares;
     }
 
