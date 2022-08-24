@@ -27,9 +27,9 @@ contract ERC4626DecimalMock is ERC4626Mock {
         IERC20Metadata asset,
         string memory name,
         string memory symbol,
-        uint8 decimaloverride
+        uint8 decimalsOverride
     ) ERC4626Mock(asset, name, symbol) {
-        _decimals = decimaloverride;
+        _decimals = decimalsOverride;
     }
 
     function decimals() public view virtual override returns (uint8) {
