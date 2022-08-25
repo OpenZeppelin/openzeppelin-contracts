@@ -33,15 +33,15 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
      */
     constructor(IERC20 asset_) {
-        uint8 assetDecimals;
+        uint8 decimals_;
         try IERC20Metadata(address(asset_)).decimals() returns (uint8 value) {
-            assetDecimals = value;
+            decimals_ = value;
         } catch {
-            assetDecimals = super.decimals();
+            decimals_ = super.decimals();
         }
 
         _asset = asset_;
-        _decimals = assetDecimals;
+        _decimals = decimals_;
     }
 
     /** @dev See {IERC20Metadata-decimals}. */
