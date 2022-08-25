@@ -10,7 +10,7 @@ abstract contract Buyable is Ownable {
     bool public isForSale;
 
     uint256 public priceOfContract;
-    uint256 public FEE_PCT;
+    uint256 public feePct;
 
     /**
      * @dev Initializes the contract setting the deployer as the original owner.
@@ -52,7 +52,7 @@ abstract contract Buyable is Ownable {
         isForSale = false;
         priceOfContract = 0;
 
-        uint256 fee = (msg.value / 100) * FEE_PCT;
+        uint256 fee = (msg.value / 100) * feePct;
 
         (bool success,) = owner().call{value: msg.value - fee}("");
         require(success, 'Transfer fail');
@@ -70,6 +70,6 @@ abstract contract Buyable is Ownable {
      */
     function setFee(uint256 _feepct) public originalOwner {
         require(_feepct <= 10, "Buyable: Fee percentage exceeds upper limit");
-        FEE_PCT = _feepct;
+        feePct = _feepct;
     }
 }
