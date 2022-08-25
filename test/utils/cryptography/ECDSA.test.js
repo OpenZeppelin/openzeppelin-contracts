@@ -98,45 +98,39 @@ contract('ECDSA', function (accounts) {
       });
     });
 
-    context('with v0 signature', function () {
+    context('with v=27 signature', function () {
       // Signature generated outside ganache with method web3.eth.sign(signer, message)
       const signer = '0x2cc1166f6212628A0deEf2B33BEFB2187D35b86c';
       // eslint-disable-next-line max-len
-      const signatureWithoutVersion = '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892';
+      const signatureWithoutV = '0x5d99b6f7f6d1f73d1a26497f2b1c89b24c0993913f86e9a2d02cd69887d9c94f3c880358579d811b21dd1b7fd9bb01c1d81d10e69f0384e675c32b39643be892';
 
-      it('reverts with 00 as version value', async function () {
-        const version = '00';
-        const signature = signatureWithoutVersion + version;
-        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
-        await expectRevert(
-          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
-          'ECDSA: invalid signature \'v\' value',
-        );
-      });
-
-      it('works with 27 as version value', async function () {
-        const version = '1b'; // 27 = 1b.
-        const signature = signatureWithoutVersion + version;
+      it('works with correct v value', async function () {
+        const v = '1b'; // 27 = 1b.
+        const signature = signatureWithoutV + v;
         expect(await this.ecdsa.recover(TEST_MESSAGE, signature)).to.equal(signer);
         expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.equal(signer);
         expect(await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature)))).to.equal(signer);
       });
 
-      it('reverts with wrong version', async function () {
-        // The last two hex digits are the signature version.
-        // The only valid values are 0, 1, 27 and 28.
-        const version = '02';
-        const signature = signatureWithoutVersion + version;
-        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
-        await expectRevert(
-          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
-          'ECDSA: invalid signature \'v\' value',
-        );
+      it('rejects incorrect v value', async function () {
+        const v = '1c'; // 28 = 1c.
+        const signature = signatureWithoutV + v;
+        expect(await this.ecdsa.recover(TEST_MESSAGE, signature)).to.not.equal(signer);
+        expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.not.equal(signer);
+        expect(await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature)))).to.not.equal(signer);
+      });
+
+      it('reverts wrong v values', async function () {
+        for (const v of ['00', '01']) {
+          const signature = signatureWithoutV + v;
+          await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
+          await expectRevert(this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)), 'ECDSA: invalid signature');
+        }
       });
 
       it('rejects short EIP2098 format', async function () {
-        const version = '1b'; // 27 = 1b.
-        const signature = signatureWithoutVersion + version;
+        const v = '1b'; // 27 = 1b.
+        const signature = signatureWithoutV + v;
         await expectRevert(
           this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature)),
           'ECDSA: invalid signature length',
@@ -144,44 +138,38 @@ contract('ECDSA', function (accounts) {
       });
     });
 
-    context('with v1 signature', function () {
+    context('with v=28 signature', function () {
       const signer = '0x1E318623aB09Fe6de3C9b8672098464Aeda9100E';
       // eslint-disable-next-line max-len
-      const signatureWithoutVersion = '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e0';
+      const signatureWithoutV = '0x331fe75a821c982f9127538858900d87d3ec1f9f737338ad67cad133fa48feff48e6fa0c18abc62e42820f05943e47af3e9fbe306ce74d64094bdf1691ee53e0';
 
-      it('reverts with 01 as version value', async function () {
-        const version = '01';
-        const signature = signatureWithoutVersion + version;
-        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
-        await expectRevert(
-          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
-          'ECDSA: invalid signature \'v\' value',
-        );
-      });
-
-      it('works with 28 as version value', async function () {
-        const version = '1c'; // 28 = 1c.
-        const signature = signatureWithoutVersion + version;
+      it('works with correct v value', async function () {
+        const v = '1c'; // 28 = 1c.
+        const signature = signatureWithoutV + v;
         expect(await this.ecdsa.recover(TEST_MESSAGE, signature)).to.equal(signer);
         expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.equal(signer);
         expect(await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature)))).to.equal(signer);
       });
 
-      it('reverts with wrong version', async function () {
-        // The last two hex digits are the signature version.
-        // The only valid values are 0, 1, 27 and 28.
-        const version = '02';
-        const signature = signatureWithoutVersion + version;
-        await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature \'v\' value');
-        await expectRevert(
-          this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
-          'ECDSA: invalid signature \'v\' value',
-        );
+      it('rejects incorrect v value', async function () {
+        const v = '1b'; // 27 = 1b.
+        const signature = signatureWithoutV + v;
+        expect(await this.ecdsa.recover(TEST_MESSAGE, signature)).to.not.equal(signer);
+        expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.not.equal(signer);
+        expect(await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature)))).to.not.equal(signer);
+      });
+
+      it('reverts invalid v values', async function () {
+        for (const v of ['00', '01']) {
+          const signature = signatureWithoutV + v;
+          await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
+          await expectRevert(this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)), 'ECDSA: invalid signature');
+        }
       });
 
       it('rejects short EIP2098 format', async function () {
-        const version = '1c'; // 27 = 1b.
-        const signature = signatureWithoutVersion + version;
+        const v = '1c'; // 27 = 1b.
+        const signature = signatureWithoutV + v;
         await expectRevert(
           this.ecdsa.recover(TEST_MESSAGE, to2098Format(signature)),
           'ECDSA: invalid signature length',

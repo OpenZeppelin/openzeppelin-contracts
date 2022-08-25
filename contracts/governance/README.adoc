@@ -118,7 +118,7 @@ Both operations contain:
 
 * *Target*, the address of the smart contract that the timelock should operate on.
 * *Value*, in wei, that should be sent with the transaction. Most of the time this will be 0. Ether can be deposited before-end or passed along when executing the transaction.
-* *Data*, containing the encoded function selector and parameters of the call. This can be produced using a number of tools. For example, a maintenance operation granting role `ROLE` to `ACCOUNT` can be encode using web3js as follows:
+* *Data*, containing the encoded function selector and parameters of the call. This can be produced using a number of tools. For example, a maintenance operation granting role `ROLE` to `ACCOUNT` can be encoded using web3js as follows:
 
 ```javascript
 const data = timelock.contract.methods.grantRole(ROLE, ACCOUNT).encodeABI()
