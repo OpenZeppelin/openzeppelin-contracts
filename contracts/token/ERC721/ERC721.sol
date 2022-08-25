@@ -317,7 +317,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * Note: this function is not virtual, {_safeTransfer} should be overriden instead.
      */
-    function _safeMint(address to, uint256 tokenId, bytes memory data) internal {
+    function _safeMint(
+        address to,
+        uint256 tokenId,
+        bytes memory data
+    ) internal {
         _safeTransfer(address(0), to, tokenId, data);
     }
 
