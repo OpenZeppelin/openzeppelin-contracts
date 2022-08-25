@@ -29,7 +29,7 @@ for (const [ file, template ] of Object.entries({
   'utils/Checkpoints.sol': './templates/Checkpoints.js',
   'mocks/CheckpointsMock.sol': './templates/CheckpointsMock.js',
 })) {
-  const script = process.env._;
+  const script = __filename.replace(path.join(__dirname, '../../'), '');
   const input = path.join(path.dirname(script), template);
   const output = `./contracts/${file}`;
   const version = getVersion(output);
