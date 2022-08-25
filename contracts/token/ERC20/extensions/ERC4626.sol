@@ -168,7 +168,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /**
      * @dev Internal conversion function (from assets to shares) to apply when the vault is empty.
-     * Note: make sure to keep this function consistent with {_initialConvertToAssets} when overriding it.
+     *
+     * NOTE: Make sure to keep this function consistent with {_initialConvertToAssets} when overriding it.
      */
     function _initialConvertToShares(
         uint256 assets,
@@ -188,7 +189,8 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /**
      * @dev Internal conversion function (from shares to assets) to apply when the vault is empty.
-     * Note: make sure to keep this function consistent with {_initialConvertToShares} when overriding it.
+     *
+     * NOTE: Make sure to keep this function consistent with {_initialConvertToShares} when overriding it.
      */
     function _initialConvertToAssets(
         uint256 shares,

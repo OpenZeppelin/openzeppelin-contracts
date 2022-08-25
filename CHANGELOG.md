@@ -23,7 +23,7 @@
 
 ### Breaking changes
 
- * `ERC4626`: Conversion from shares to assets (and vice-versa) in an empty vault used to consider the possible mismatch between the underlying asset's and the vault's decimals. With the vault now using the assets decimals by default, this initial conversion rate is now set to 1-to-1. Developers overriding the vault decimals to a value that does not match the underlying asset may want to override the `_initialConvertToShares` and `_initialConvertToAssets` to replicate the previous behavior. Note that this change should not affect non-empty vault upgrades.
+ * `ERC4626`: Conversion from shares to assets (and vice-versa) in an empty vault used to consider the possible mismatch between the underlying asset's and the vault's decimals. This initial conversion rate is now set to 1-to-1 irrespective of decimals, which are meant for usability purposes only. The vault now uses the assets decimals by default, so off-chain the numbers should appear the same. Developers overriding the vault decimals to a value that does not match the underlying asset may want to override the `_initialConvertToShares` and `_initialConvertToAssets` to replicate the previous behavior. Note that this change should not affect non-empty vault upgrades.
 
 ### Deprecations
 
