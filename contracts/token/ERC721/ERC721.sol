@@ -190,34 +190,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
-     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
-     *
-     * `data` is additional data, it has no specified format and it is sent in call to `to`.
-     *
-     * This internal function is equivalent to {safeTransferFrom}, and can be used to e.g.
-     * implement alternative mechanisms to perform token transfer, such as signature-based.
-     *
-     * Requirements:
-     *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `tokenId` token must exist and be owned by `from`.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-     *
-     * Emits a {Transfer} event.
-     */
-    function _safeTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal virtual {
-        _transfer(from, to, tokenId);
-        require(_checkOnERC721Received(from, to, tokenId, data), "ERC721: transfer to non ERC721Receiver implementer");
-    }
-
-    /**
      * @dev Returns whether `tokenId` exists.
      *
      * Tokens can be managed by their owner or approved accounts via {approve} or {setApprovalForAll}.
@@ -230,6 +202,13 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
+     * @dev Reverts if the `tokenId` has not been minted yet.
+     */
+    function _requireMinted(uint256 tokenId) internal view virtual {
+        require(_exists(tokenId), "ERC721: invalid token ID");
+    }
+
+    /**
      * @dev Returns whether `spender` is allowed to manage `tokenId`.
      *
      * Requirements:
@@ -239,58 +218,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
         address owner = ERC721.ownerOf(tokenId);
         return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
-    }
-
-    /**
-     * @dev Safely mints `tokenId` and transfers it to `to`.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must not exist.
-     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
-     *
-     * Emits a {Transfer} event.
-     */
-    function _safeMint(address to, uint256 tokenId) internal virtual {
-        _safeMint(to, tokenId, "");
-    }
-
-    /**
-     * @dev Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
-     * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
-     */
-    function _safeMint(
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal virtual {
-        _mint(to, tokenId);
-        require(
-            _checkOnERC721Received(address(0), to, tokenId, data),
-            "ERC721: transfer to non ERC721Receiver implementer"
-        );
-    }
-
-    /**
-     * @dev Mints `tokenId` by transfering it from address(0).
-     * Relies on the `_transfer` mechanism.
-     *
-     * WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
-     *
-     * Emits a {Transfer} event.
-     */
-    function _mint(address to, uint256 tokenId) internal virtual {
-        _transfer(address(0), to, tokenId);
-    }
-
-    /**
-     * @dev Destroys `tokenId` by transfering it to address(0).
-     * Relies on the `_transfer` mechanism.
-     *
-     * Emits a {Transfer} event.
-     */
-    function _burn(uint256 tokenId) internal virtual {
-        _transfer(ownerOf(tokenId), address(0), tokenId);
     }
 
     /**
@@ -327,6 +254,86 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
+     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
+     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
+     *
+     * `data` is additional data, it has no specified format and it is sent in call to `to`.
+     *
+     * This internal function is equivalent to {safeTransferFrom}, and can be used to e.g.
+     * implement alternative mechanisms to perform token transfer, such as signature-based.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must exist and be owned by `from`.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _safeTransfer(
+        address from,
+        address to,
+        uint256 tokenId,
+        bytes memory data
+    ) internal virtual {
+        _transfer(from, to, tokenId);
+        require(_checkOnERC721Received(from, to, tokenId, data), "ERC721: transfer to non ERC721Receiver implementer");
+    }
+
+    /**
+     * @dev Mints `tokenId` by transfering it from address(0).
+     * Relies on the `_transfer` mechanism.
+     *
+     * WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
+     *
+     * Note: this function is not virtual, {_transfer} should be overriden instead.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _mint(address to, uint256 tokenId) internal {
+        _transfer(address(0), to, tokenId);
+    }
+
+    /**
+     * @dev Safely mints `tokenId` and transfers it to `to`.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must not exist.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     *
+     * Note: this function is not virtual, {_safeTransfer} should be overriden instead.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _safeMint(address to, uint256 tokenId) internal {
+        _safeTransfer(address(0), to, tokenId, bytes(""));
+    }
+
+    /**
+     * @dev Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
+     * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
+     *
+     * Note: this function is not virtual, {_safeTransfer} should be overriden instead.
+     */
+    function _safeMint(address to, uint256 tokenId, bytes memory data) internal {
+        _safeTransfer(address(0), to, tokenId, data);
+    }
+
+    /**
+     * @dev Destroys `tokenId` by transfering it to address(0).
+     * Relies on the `_transfer` mechanism.
+     *
+     * Note: this function is not virtual, {_transfer} should be overriden instead.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _burn(uint256 tokenId) internal {
+        _transfer(ownerOf(tokenId), address(0), tokenId);
+    }
+
+    /**
      * @dev Approve `to` to operate on `tokenId`
      *
      * Emits an {Approval} event.
@@ -349,13 +356,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         require(owner != operator, "ERC721: approve to caller");
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
-    }
-
-    /**
-     * @dev Reverts if the `tokenId` has not been minted yet.
-     */
-    function _requireMinted(uint256 tokenId) internal view virtual {
-        require(_exists(tokenId), "ERC721: invalid token ID");
     }
 
     /**
