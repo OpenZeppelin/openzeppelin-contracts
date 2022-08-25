@@ -27,21 +27,26 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
 
     IERC20 private immutable _asset;
+    uint8 private immutable _decimals;
 
     /**
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
      */
     constructor(IERC20 asset_) {
+        uint8 assetDecimals;
+        try IERC20Metadata(address(asset_)).decimals() returns (uint8 value) {
+            assetDecimals = value;
+        } catch {
+            assetDecimals = super.decimals();
+        }
+
         _asset = asset_;
+        _decimals = assetDecimals;
     }
 
-    /** @dev See {IERC4626-asset}. */
+    /** @dev See {IERC20Metadata-decimals}. */
     function decimals() public view virtual override(IERC20Metadata, ERC20) returns (uint8) {
-        try IERC20Metadata(address(_asset)).decimals() returns (uint8 value) {
-            return value;
-        } catch {
-            return super.decimals();
-        }
+        return _decimals;
     }
 
     /** @dev See {IERC4626-asset}. */
