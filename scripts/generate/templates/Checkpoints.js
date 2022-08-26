@@ -226,23 +226,24 @@ function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
 /* eslint-enable max-len */
 
 // OPTIONS
-const defaultOpts = (length, override = {}) => Object.assign({
-  historyTypeName: `Trace${length}`,
-  checkpointTypeName: `Checkpoint${length}`,
+const defaultOpts = (size) => ({
+  historyTypeName: `Trace${size}`,
+  checkpointTypeName: `Checkpoint${size}`,
   checkpointFieldName: '_checkpoints',
-  keyTypeName: `uint${256 - length}`,
+  keyTypeName: `uint${256 - size}`,
   keyFieldName: '_key',
-  valueTypeName: `uint${length}`,
+  valueTypeName: `uint${size}`,
   valueFieldName: '_value',
-}, override);
+});
 
-const OPTS = VALUE_SIZES.map(defaultOpts);
+const OPTS = VALUE_SIZES.map(size => defaultOpts(size));
 
-const LEGACY_OPTS = defaultOpts(224, {
+const LEGACY_OPTS = {
+  ...defaultOpts(224),
   historyTypeName: 'History',
   checkpointTypeName: 'Checkpoint',
   keyFieldName: '_blockNumber',
-});
+};
 
 // GENERATE
 module.exports = format(
