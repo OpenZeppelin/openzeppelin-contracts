@@ -114,6 +114,17 @@ contract('Checkpoints', function (accounts) {
             .to.be.bignumber.equal(last(...this.checkpoints).value);
         });
 
+        it('cannot push values in the past', async function () {
+          await expectRevert(this.contract.push(last(...this.checkpoints).key - 1, '0'), 'Checkpoint: invalid key');
+        });
+
+        it('can update last value', async function () {
+          const newValue = '42';
+
+          await this.contract.push(last(...this.checkpoints).key, newValue);
+          expect(await this.contract.latest()).to.be.bignumber.equal(newValue);
+        });
+
         it('lower lookup', async function () {
           for (let i = 0; i < 14; ++i) {
             const value = first(...this.checkpoints.filter(x => i <= x.key))?.value || '0';
