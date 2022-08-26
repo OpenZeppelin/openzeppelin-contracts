@@ -573,9 +573,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt248(int256 value) internal pure returns (int248) {
-        require(value >= type(int248).min && value <= type(int248).max, "SafeCast: value doesn't fit in 248 bits");
-        return int248(value);
+    function toInt248(int256 value) internal pure returns (int248 downcasted) {
+        downcasted = int248(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 248 bits");
     }
 
     /**
@@ -591,9 +591,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt240(int256 value) internal pure returns (int240) {
-        require(value >= type(int240).min && value <= type(int240).max, "SafeCast: value doesn't fit in 240 bits");
-        return int240(value);
+    function toInt240(int256 value) internal pure returns (int240 downcasted) {
+        downcasted = int240(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 240 bits");
     }
 
     /**
@@ -609,9 +609,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt232(int256 value) internal pure returns (int232) {
-        require(value >= type(int232).min && value <= type(int232).max, "SafeCast: value doesn't fit in 232 bits");
-        return int232(value);
+    function toInt232(int256 value) internal pure returns (int232 downcasted) {
+        downcasted = int232(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 232 bits");
     }
 
     /**
@@ -627,9 +627,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt224(int256 value) internal pure returns (int224) {
-        require(value >= type(int224).min && value <= type(int224).max, "SafeCast: value doesn't fit in 224 bits");
-        return int224(value);
+    function toInt224(int256 value) internal pure returns (int224 downcasted) {
+        downcasted = int224(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 224 bits");
     }
 
     /**
@@ -645,9 +645,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt216(int256 value) internal pure returns (int216) {
-        require(value >= type(int216).min && value <= type(int216).max, "SafeCast: value doesn't fit in 216 bits");
-        return int216(value);
+    function toInt216(int256 value) internal pure returns (int216 downcasted) {
+        downcasted = int216(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 216 bits");
     }
 
     /**
@@ -663,9 +663,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt208(int256 value) internal pure returns (int208) {
-        require(value >= type(int208).min && value <= type(int208).max, "SafeCast: value doesn't fit in 208 bits");
-        return int208(value);
+    function toInt208(int256 value) internal pure returns (int208 downcasted) {
+        downcasted = int208(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 208 bits");
     }
 
     /**
@@ -681,9 +681,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt200(int256 value) internal pure returns (int200) {
-        require(value >= type(int200).min && value <= type(int200).max, "SafeCast: value doesn't fit in 200 bits");
-        return int200(value);
+    function toInt200(int256 value) internal pure returns (int200 downcasted) {
+        downcasted = int200(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 200 bits");
     }
 
     /**
@@ -699,9 +699,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt192(int256 value) internal pure returns (int192) {
-        require(value >= type(int192).min && value <= type(int192).max, "SafeCast: value doesn't fit in 192 bits");
-        return int192(value);
+    function toInt192(int256 value) internal pure returns (int192 downcasted) {
+        downcasted = int192(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 192 bits");
     }
 
     /**
@@ -717,9 +717,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt184(int256 value) internal pure returns (int184) {
-        require(value >= type(int184).min && value <= type(int184).max, "SafeCast: value doesn't fit in 184 bits");
-        return int184(value);
+    function toInt184(int256 value) internal pure returns (int184 downcasted) {
+        downcasted = int184(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 184 bits");
     }
 
     /**
@@ -735,9 +735,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt176(int256 value) internal pure returns (int176) {
-        require(value >= type(int176).min && value <= type(int176).max, "SafeCast: value doesn't fit in 176 bits");
-        return int176(value);
+    function toInt176(int256 value) internal pure returns (int176 downcasted) {
+        downcasted = int176(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 176 bits");
     }
 
     /**
@@ -753,9 +753,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt168(int256 value) internal pure returns (int168) {
-        require(value >= type(int168).min && value <= type(int168).max, "SafeCast: value doesn't fit in 168 bits");
-        return int168(value);
+    function toInt168(int256 value) internal pure returns (int168 downcasted) {
+        downcasted = int168(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 168 bits");
     }
 
     /**
@@ -771,9 +771,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt160(int256 value) internal pure returns (int160) {
-        require(value >= type(int160).min && value <= type(int160).max, "SafeCast: value doesn't fit in 160 bits");
-        return int160(value);
+    function toInt160(int256 value) internal pure returns (int160 downcasted) {
+        downcasted = int160(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 160 bits");
     }
 
     /**
@@ -789,9 +789,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt152(int256 value) internal pure returns (int152) {
-        require(value >= type(int152).min && value <= type(int152).max, "SafeCast: value doesn't fit in 152 bits");
-        return int152(value);
+    function toInt152(int256 value) internal pure returns (int152 downcasted) {
+        downcasted = int152(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 152 bits");
     }
 
     /**
@@ -807,9 +807,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt144(int256 value) internal pure returns (int144) {
-        require(value >= type(int144).min && value <= type(int144).max, "SafeCast: value doesn't fit in 144 bits");
-        return int144(value);
+    function toInt144(int256 value) internal pure returns (int144 downcasted) {
+        downcasted = int144(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 144 bits");
     }
 
     /**
@@ -825,9 +825,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt136(int256 value) internal pure returns (int136) {
-        require(value >= type(int136).min && value <= type(int136).max, "SafeCast: value doesn't fit in 136 bits");
-        return int136(value);
+    function toInt136(int256 value) internal pure returns (int136 downcasted) {
+        downcasted = int136(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 136 bits");
     }
 
     /**
@@ -843,9 +843,9 @@ library SafeCast {
      *
      * _Available since v3.1._
      */
-    function toInt128(int256 value) internal pure returns (int128) {
-        require(value >= type(int128).min && value <= type(int128).max, "SafeCast: value doesn't fit in 128 bits");
-        return int128(value);
+    function toInt128(int256 value) internal pure returns (int128 downcasted) {
+        downcasted = int128(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 128 bits");
     }
 
     /**
@@ -861,9 +861,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt120(int256 value) internal pure returns (int120) {
-        require(value >= type(int120).min && value <= type(int120).max, "SafeCast: value doesn't fit in 120 bits");
-        return int120(value);
+    function toInt120(int256 value) internal pure returns (int120 downcasted) {
+        downcasted = int120(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 120 bits");
     }
 
     /**
@@ -879,9 +879,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt112(int256 value) internal pure returns (int112) {
-        require(value >= type(int112).min && value <= type(int112).max, "SafeCast: value doesn't fit in 112 bits");
-        return int112(value);
+    function toInt112(int256 value) internal pure returns (int112 downcasted) {
+        downcasted = int112(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 112 bits");
     }
 
     /**
@@ -897,9 +897,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt104(int256 value) internal pure returns (int104) {
-        require(value >= type(int104).min && value <= type(int104).max, "SafeCast: value doesn't fit in 104 bits");
-        return int104(value);
+    function toInt104(int256 value) internal pure returns (int104 downcasted) {
+        downcasted = int104(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 104 bits");
     }
 
     /**
@@ -915,9 +915,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt96(int256 value) internal pure returns (int96) {
-        require(value >= type(int96).min && value <= type(int96).max, "SafeCast: value doesn't fit in 96 bits");
-        return int96(value);
+    function toInt96(int256 value) internal pure returns (int96 downcasted) {
+        downcasted = int96(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 96 bits");
     }
 
     /**
@@ -933,9 +933,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt88(int256 value) internal pure returns (int88) {
-        require(value >= type(int88).min && value <= type(int88).max, "SafeCast: value doesn't fit in 88 bits");
-        return int88(value);
+    function toInt88(int256 value) internal pure returns (int88 downcasted) {
+        downcasted = int88(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 88 bits");
     }
 
     /**
@@ -951,9 +951,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt80(int256 value) internal pure returns (int80) {
-        require(value >= type(int80).min && value <= type(int80).max, "SafeCast: value doesn't fit in 80 bits");
-        return int80(value);
+    function toInt80(int256 value) internal pure returns (int80 downcasted) {
+        downcasted = int80(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 80 bits");
     }
 
     /**
@@ -969,9 +969,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt72(int256 value) internal pure returns (int72) {
-        require(value >= type(int72).min && value <= type(int72).max, "SafeCast: value doesn't fit in 72 bits");
-        return int72(value);
+    function toInt72(int256 value) internal pure returns (int72 downcasted) {
+        downcasted = int72(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 72 bits");
     }
 
     /**
@@ -987,9 +987,9 @@ library SafeCast {
      *
      * _Available since v3.1._
      */
-    function toInt64(int256 value) internal pure returns (int64) {
-        require(value >= type(int64).min && value <= type(int64).max, "SafeCast: value doesn't fit in 64 bits");
-        return int64(value);
+    function toInt64(int256 value) internal pure returns (int64 downcasted) {
+        downcasted = int64(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 64 bits");
     }
 
     /**
@@ -1005,9 +1005,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt56(int256 value) internal pure returns (int56) {
-        require(value >= type(int56).min && value <= type(int56).max, "SafeCast: value doesn't fit in 56 bits");
-        return int56(value);
+    function toInt56(int256 value) internal pure returns (int56 downcasted) {
+        downcasted = int56(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 56 bits");
     }
 
     /**
@@ -1023,9 +1023,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt48(int256 value) internal pure returns (int48) {
-        require(value >= type(int48).min && value <= type(int48).max, "SafeCast: value doesn't fit in 48 bits");
-        return int48(value);
+    function toInt48(int256 value) internal pure returns (int48 downcasted) {
+        downcasted = int48(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 48 bits");
     }
 
     /**
@@ -1041,9 +1041,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt40(int256 value) internal pure returns (int40) {
-        require(value >= type(int40).min && value <= type(int40).max, "SafeCast: value doesn't fit in 40 bits");
-        return int40(value);
+    function toInt40(int256 value) internal pure returns (int40 downcasted) {
+        downcasted = int40(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 40 bits");
     }
 
     /**
@@ -1059,9 +1059,9 @@ library SafeCast {
      *
      * _Available since v3.1._
      */
-    function toInt32(int256 value) internal pure returns (int32) {
-        require(value >= type(int32).min && value <= type(int32).max, "SafeCast: value doesn't fit in 32 bits");
-        return int32(value);
+    function toInt32(int256 value) internal pure returns (int32 downcasted) {
+        downcasted = int32(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 32 bits");
     }
 
     /**
@@ -1077,9 +1077,9 @@ library SafeCast {
      *
      * _Available since v4.7._
      */
-    function toInt24(int256 value) internal pure returns (int24) {
-        require(value >= type(int24).min && value <= type(int24).max, "SafeCast: value doesn't fit in 24 bits");
-        return int24(value);
+    function toInt24(int256 value) internal pure returns (int24 downcasted) {
+        downcasted = int24(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 24 bits");
     }
 
     /**
@@ -1095,9 +1095,9 @@ library SafeCast {
      *
      * _Available since v3.1._
      */
-    function toInt16(int256 value) internal pure returns (int16) {
-        require(value >= type(int16).min && value <= type(int16).max, "SafeCast: value doesn't fit in 16 bits");
-        return int16(value);
+    function toInt16(int256 value) internal pure returns (int16 downcasted) {
+        downcasted = int16(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 16 bits");
     }
 
     /**
@@ -1113,9 +1113,9 @@ library SafeCast {
      *
      * _Available since v3.1._
      */
-    function toInt8(int256 value) internal pure returns (int8) {
-        require(value >= type(int8).min && value <= type(int8).max, "SafeCast: value doesn't fit in 8 bits");
-        return int8(value);
+    function toInt8(int256 value) internal pure returns (int8 downcasted) {
+        downcasted = int8(value);
+        require(downcasted == value, "SafeCast: value doesn't fit in 8 bits");
     }
 
     /**

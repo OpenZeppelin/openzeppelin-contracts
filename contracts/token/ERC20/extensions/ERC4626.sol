@@ -147,7 +147,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Internal conversion function (from assets to shares) with support for rounding direction.
      *
      * Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
-     * would represent an infinite amout of shares.
+     * would represent an infinite amount of shares.
      */
     function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256 shares) {
         uint256 supply = totalSupply();
@@ -182,7 +182,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         // calls the vault, which is assumed not malicious.
         //
         // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
-        // assets are transfered and before the shares are minted, which is a valid state.
+        // assets are transferred and before the shares are minted, which is a valid state.
         // slither-disable-next-line reentrancy-no-eth
         SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
         _mint(receiver, shares);
@@ -209,7 +209,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         // calls the vault, which is assumed not malicious.
         //
         // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
-        // shares are burned and after the assets are transfered, which is a valid state.
+        // shares are burned and after the assets are transferred, which is a valid state.
         _burn(owner, shares);
         SafeERC20.safeTransfer(_asset, receiver, assets);
 
