@@ -35,7 +35,7 @@ for (const [ file, template ] of Object.entries({
   const version = getVersion(output);
   const content = format(
     '// SPDX-License-Identifier: MIT',
-    (version ? version + ` (${file})` : ''),
+    ...(version ? [ version + ` (${file})` ] : []),
     `// This file was procedurally generated from ${input}.`,
     '',
     require(template),
