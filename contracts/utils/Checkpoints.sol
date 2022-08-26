@@ -69,6 +69,9 @@ library Checkpoints {
         return push(self, op(latest(self), delta));
     }
 
+    /**
+     * @dev Pushes a (`key`, `value`) pair into a ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
+     */
     function _insert(
         Checkpoint[] storage self,
         uint32 key,
@@ -77,10 +80,10 @@ library Checkpoints {
         uint256 pos = self.length;
 
         if (pos > 0) {
-            // Use of memory is important here.
+            // Copying to memory is important here.
             Checkpoint memory last = _unsafeAccess(self, pos - 1);
 
-            // Checkpoints keys must be increassing.
+            // Checkpoints keys must be increasing.
             require(last._blockNumber <= key, "Checkpoint: invalid key");
 
             // Update or push new checkpoint
@@ -96,6 +99,9 @@ library Checkpoints {
         }
     }
 
+    /**
+     * @dev Return the index of the last checkpoint for which `key` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the seach key.
+     */
     function _upperBinaryLookup(
         Checkpoint[] storage self,
         uint32 key,
@@ -113,6 +119,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Return the index of the first checkpoint for which `key` <= checkpoint.key, i.e. the oldest checkpoint which key is higher or equal than the seach key.
+     */
     function _lowerBinaryLookup(
         Checkpoint[] storage self,
         uint32 key,
@@ -146,11 +155,19 @@ library Checkpoints {
         uint224 _value;
     }
 
+    /**
+     * @dev Returns the value in the latest checkpoint, or zero if there are no checkpoints.
+     */
     function latest(Trace224 storage self) internal view returns (uint224) {
         uint256 pos = self._checkpoints.length;
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
+    /**
+     * @dev Pushes a (`key`, `value`) pair into a History so that it is stored as the checkpoint.
+     *
+     * Returns previous value and new value.
+     */
     function push(
         Trace224 storage self,
         uint32 key,
@@ -159,18 +176,27 @@ library Checkpoints {
         return _insert(self._checkpoints, key, value);
     }
 
+    /**
+     * @dev Return the value most recent checkpoint which key is lower or equal than the seach key.
+     */
     function lowerLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
         uint256 length = self._checkpoints.length;
         uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, length);
         return pos == length ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
     }
 
+    /**
+     * @dev Return the value oldest checkpoint which key is higher or equal than the seach key.
+     */
     function upperLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
         uint256 length = self._checkpoints.length;
         uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, length);
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
+    /**
+     * @dev Return the value oldest checkpoint which key is higher or equal than the seach key (similarly to {upperLookupRecent}) doing an exponential lookup first to optimize for recent checkpoints.
+     */
     function upperLookupRecent(Trace224 storage self, uint32 key) internal view returns (uint224) {
         uint256 length = self._checkpoints.length;
         uint256 offset = 1;
@@ -186,6 +212,9 @@ library Checkpoints {
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
+    /**
+     * @dev Pushes a (`key`, `value`) pair into a ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
+     */
     function _insert(
         Checkpoint224[] storage self,
         uint32 key,
@@ -194,10 +223,10 @@ library Checkpoints {
         uint256 pos = self.length;
 
         if (pos > 0) {
-            // Use of memory is important here.
+            // Copying to memory is important here.
             Checkpoint224 memory last = _unsafeAccess(self, pos - 1);
 
-            // Checkpoints keys must be increassing.
+            // Checkpoints keys must be increasing.
             require(last._key <= key, "Checkpoint: invalid key");
 
             // Update or push new checkpoint
@@ -213,6 +242,9 @@ library Checkpoints {
         }
     }
 
+    /**
+     * @dev Return the index of the last checkpoint for which `key` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the seach key.
+     */
     function _upperBinaryLookup(
         Checkpoint224[] storage self,
         uint32 key,
@@ -230,6 +262,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Return the index of the first checkpoint for which `key` <= checkpoint.key, i.e. the oldest checkpoint which key is higher or equal than the seach key.
+     */
     function _lowerBinaryLookup(
         Checkpoint224[] storage self,
         uint32 key,
@@ -267,11 +302,19 @@ library Checkpoints {
         uint160 _value;
     }
 
+    /**
+     * @dev Returns the value in the latest checkpoint, or zero if there are no checkpoints.
+     */
     function latest(Trace160 storage self) internal view returns (uint160) {
         uint256 pos = self._checkpoints.length;
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
+    /**
+     * @dev Pushes a (`key`, `value`) pair into a History so that it is stored as the checkpoint.
+     *
+     * Returns previous value and new value.
+     */
     function push(
         Trace160 storage self,
         uint96 key,
@@ -280,18 +323,27 @@ library Checkpoints {
         return _insert(self._checkpoints, key, value);
     }
 
+    /**
+     * @dev Return the value most recent checkpoint which key is lower or equal than the seach key.
+     */
     function lowerLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 length = self._checkpoints.length;
         uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, length);
         return pos == length ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
     }
 
+    /**
+     * @dev Return the value oldest checkpoint which key is higher or equal than the seach key.
+     */
     function upperLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 length = self._checkpoints.length;
         uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, length);
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
+    /**
+     * @dev Return the value oldest checkpoint which key is higher or equal than the seach key (similarly to {upperLookupRecent}) doing an exponential lookup first to optimize for recent checkpoints.
+     */
     function upperLookupRecent(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 length = self._checkpoints.length;
         uint256 offset = 1;
@@ -307,6 +359,9 @@ library Checkpoints {
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
+    /**
+     * @dev Pushes a (`key`, `value`) pair into a ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
+     */
     function _insert(
         Checkpoint160[] storage self,
         uint96 key,
@@ -315,10 +370,10 @@ library Checkpoints {
         uint256 pos = self.length;
 
         if (pos > 0) {
-            // Use of memory is important here.
+            // Copying to memory is important here.
             Checkpoint160 memory last = _unsafeAccess(self, pos - 1);
 
-            // Checkpoints keys must be increassing.
+            // Checkpoints keys must be increasing.
             require(last._key <= key, "Checkpoint: invalid key");
 
             // Update or push new checkpoint
@@ -334,6 +389,9 @@ library Checkpoints {
         }
     }
 
+    /**
+     * @dev Return the index of the last checkpoint for which `key` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the seach key.
+     */
     function _upperBinaryLookup(
         Checkpoint160[] storage self,
         uint96 key,
@@ -351,6 +409,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Return the index of the first checkpoint for which `key` <= checkpoint.key, i.e. the oldest checkpoint which key is higher or equal than the seach key.
+     */
     function _lowerBinaryLookup(
         Checkpoint160[] storage self,
         uint96 key,

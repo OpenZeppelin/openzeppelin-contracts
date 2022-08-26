@@ -32,11 +32,19 @@ struct ${opts.checkpointTypeName} {
 
 /* eslint-disable max-len */
 const operations = opts => `\
+/**
+ * @dev Returns the value in the latest checkpoint, or zero if there are no checkpoints.
+ */
 function latest(${opts.historyTypeName} storage self) internal view returns (${opts.valueTypeName}) {
     uint256 pos = self.${opts.checkpointFieldName}.length;
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
 
+/**
+ * @dev Pushes a (\`key\`, \`value\`) pair into a History so that it is stored as the checkpoint.
+ *
+ * Returns previous value and new value.
+ */
 function push(
     ${opts.historyTypeName} storage self,
     ${opts.keyTypeName} key,
@@ -45,18 +53,27 @@ function push(
     return _insert(self.${opts.checkpointFieldName}, key, value);
 }
 
+/**
+ * @dev Return the value most recent checkpoint which key is lower or equal than the seach key.
+ */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 length = self.${opts.checkpointFieldName}.length;
     uint256 pos = _lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, length);
     return pos == length ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos).${opts.valueFieldName};
 }
 
+/**
+ * @dev Return the value oldest checkpoint which key is higher or equal than the seach key.
+ */
 function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 length = self.${opts.checkpointFieldName}.length;
     uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, length);
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
 
+/**
+ * @dev Return the value oldest checkpoint which key is higher or equal than the seach key (similarly to {upperLookupRecent}) doing an exponential lookup first to optimize for recent checkpoints.
+ */
 function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 length = self.${opts.checkpointFieldName}.length;
     uint256 offset = 1;
@@ -119,6 +136,9 @@ function push(
 `;
 
 const helpers = opts => `\
+/**
+ * @dev Pushes a (\`key\`, \`value\`) pair into a ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
+ */
 function _insert(
     ${opts.checkpointTypeName}[] storage self,
     ${opts.keyTypeName} key,
@@ -127,10 +147,10 @@ function _insert(
     uint256 pos = self.length;
 
     if (pos > 0) {
-        // Use of memory is important here.
+        // Copying to memory is important here.
         ${opts.checkpointTypeName} memory last = _unsafeAccess(self, pos - 1);
 
-        // Checkpoints keys must be increassing.
+        // Checkpoints keys must be increasing.
         require(last.${opts.keyFieldName} <= key, "Checkpoint: invalid key");
 
         // Update or push new checkpoint
@@ -146,6 +166,9 @@ function _insert(
     }
 }
 
+/**
+ * @dev Return the index of the last checkpoint for which \`key\` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the seach key.
+ */
 function _upperBinaryLookup(
     ${opts.checkpointTypeName}[] storage self,
     ${opts.keyTypeName} key,
@@ -163,6 +186,9 @@ function _upperBinaryLookup(
     return high;
 }
 
+/**
+ * @dev Return the index of the first checkpoint for which \`key\` <= checkpoint.key, i.e. the oldest checkpoint which key is higher or equal than the seach key.
+ */
 function _lowerBinaryLookup(
     ${opts.checkpointTypeName}[] storage self,
     ${opts.keyTypeName} key,
