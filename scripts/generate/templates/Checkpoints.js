@@ -168,6 +168,9 @@ function _insert(
 
 /**
  * @dev Return the index of the last checkpoint for which \`key\` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the seach key.
+ * \`low\` and \`high\` define a section where to do the search, with an \`low\` inclusive and \`high\` exclusive.
+ *
+ * WARNING: \`high\` should not be greater than the array's length.
  */
 function _upperBinaryLookup(
     ${opts.checkpointTypeName}[] storage self,
@@ -188,6 +191,9 @@ function _upperBinaryLookup(
 
 /**
  * @dev Return the index of the first checkpoint for which \`key\` <= checkpoint.key, i.e. the oldest checkpoint which key is higher or equal than the seach key.
+ * \`low\` and \`high\` define a section where to do the search, with an \`low\` inclusive and \`high\` exclusive.
+ *
+ * WARNING: \`high\` should not be greater than the array's length.
  */
 function _lowerBinaryLookup(
     ${opts.checkpointTypeName}[] storage self,
