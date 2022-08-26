@@ -54,7 +54,7 @@ function push(
 }
 
 /**
- * @dev Return the value most recent checkpoint which key is lower or equal than the seach key.
+ * @dev Return the value most recent checkpoint which key is lower or equal than the search key.
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 length = self.${opts.checkpointFieldName}.length;
@@ -63,7 +63,7 @@ function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 }
 
 /**
- * @dev Return the value oldest checkpoint which key is higher or equal than the seach key.
+ * @dev Return the value oldest checkpoint which key is higher or equal than the search key.
  */
 function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 length = self.${opts.checkpointFieldName}.length;
@@ -72,7 +72,7 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 }
 
 /**
- * @dev Return the value oldest checkpoint which key is higher or equal than the seach key (similarly to {upperLookupRecent}) doing an exponential lookup first to optimize for recent checkpoints.
+ * @dev Return the value oldest checkpoint which key is higher or equal than the search key (similarly to {upperLookupRecent}) doing an exponential lookup first to optimize for recent checkpoints.
  */
 function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 length = self.${opts.checkpointFieldName}.length;
@@ -167,7 +167,7 @@ function _insert(
 }
 
 /**
- * @dev Return the index of the last checkpoint for which \`key\` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the seach key.
+ * @dev Return the index of the last checkpoint for which \`key\` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the search key.
  * \`low\` and \`high\` define a section where to do the search, with an \`low\` inclusive and \`high\` exclusive.
  *
  * WARNING: \`high\` should not be greater than the array's length.
@@ -190,7 +190,7 @@ function _upperBinaryLookup(
 }
 
 /**
- * @dev Return the index of the first checkpoint for which \`key\` <= checkpoint.key, i.e. the oldest checkpoint which key is higher or equal than the seach key.
+ * @dev Return the index of the first checkpoint for which \`key\` <= checkpoint.key, i.e. the oldest checkpoint which key is higher or equal than the search key.
  * \`low\` and \`high\` define a section where to do the search, with an \`low\` inclusive and \`high\` exclusive.
  *
  * WARNING: \`high\` should not be greater than the array's length.
