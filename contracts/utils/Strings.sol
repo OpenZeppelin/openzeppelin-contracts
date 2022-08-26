@@ -49,12 +49,12 @@ library Strings {
             // now, length is log10(value) + 1
 
             string memory buffer = new string(length);
-            uint ptr;
+            uint256 ptr;
             /// @solidity memory-safe-assembly
             assembly {
                 ptr := add(buffer, add(32, length))
             }
-            while(true) {
+            while (true) {
                 ptr--;
                 /// @solidity memory-safe-assembly
                 assembly {
