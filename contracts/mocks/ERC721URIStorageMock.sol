@@ -13,7 +13,7 @@ contract ERC721URIStorageMock is ERC721URIStorage {
 
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
-    function _baseURI() internal view virtual override returns (string memory) {
+    function _baseURI() internal view override returns (string memory) {
         return _baseTokenURI;
     }
 
