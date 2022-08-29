@@ -58,7 +58,7 @@ abstract contract Ownable2Step is Ownable {
      */
     function acceptOwnership() external {
         address sender = _msgSender();
-        require(_pendingOwner == sender, "Ownable2Step: caller is not the new owner");
+        require(pendingOwner() == sender, "Ownable2Step: caller is not the new owner");
         _transferOwnership(sender);
     }
 }
