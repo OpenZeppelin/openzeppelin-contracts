@@ -72,7 +72,7 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 }
 
 /**
- * @dev Return the value oldest checkpoint which key is higher or equal than the search key (similarly to {upperLookupRecent}) doing an exponential lookup first to optimize for recent checkpoints.
+ * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key (similarly to {upperLookup}), optimized for the case when the search key is known to be recent.
  */
 function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 length = self.${opts.checkpointFieldName}.length;
