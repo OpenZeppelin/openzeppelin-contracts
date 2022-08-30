@@ -83,7 +83,7 @@ function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeN
         offset <<= 1;
     }
 
-    uint256 low = offset < length ? length - offset : 0;
+    uint256 low = 0 < offset && offset < length ? length - offset : 0;
     uint256 high = length - (offset >> 1);
     uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
 
