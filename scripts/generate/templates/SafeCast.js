@@ -162,7 +162,7 @@ module.exports = format(
     ...LENGTHS.map(toUintDownCast),
     toUint(256),
     ...LENGTHS.map(toIntDownCast),
-    toInt(256).trimEnd(),
+    toInt(256),
   ],
   '}',
 );

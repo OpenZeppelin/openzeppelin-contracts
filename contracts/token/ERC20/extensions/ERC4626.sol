@@ -26,13 +26,27 @@ import "../../../utils/math/Math.sol";
 abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
 
-    IERC20Metadata private immutable _asset;
+    IERC20 private immutable _asset;
+    uint8 private immutable _decimals;
 
     /**
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
      */
-    constructor(IERC20Metadata asset_) {
+    constructor(IERC20 asset_) {
+        uint8 decimals_;
+        try IERC20Metadata(address(asset_)).decimals() returns (uint8 value) {
+            decimals_ = value;
+        } catch {
+            decimals_ = super.decimals();
+        }
+
         _asset = asset_;
+        _decimals = decimals_;
+    }
+
+    /** @dev See {IERC20Metadata-decimals}. */
+    function decimals() public view virtual override(IERC20Metadata, ERC20) returns (uint8) {
+        return _decimals;
     }
 
     /** @dev See {IERC4626-asset}. */
@@ -147,14 +161,26 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Internal conversion function (from assets to shares) with support for rounding direction.
      *
      * Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
-     * would represent an infinite amout of shares.
+     * would represent an infinite amount of shares.
      */
     function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256 shares) {
         uint256 supply = totalSupply();
         return
             (assets == 0 || supply == 0)
-                ? assets.mulDiv(10**decimals(), 10**_asset.decimals(), rounding)
+                ? _initialConvertToShares(assets, rounding)
                 : assets.mulDiv(supply, totalAssets(), rounding);
+    }
+
+    /**
+     * @dev Internal conversion function (from assets to shares) to apply when the vault is empty.
+     *
+     * NOTE: Make sure to keep this function consistent with {_initialConvertToAssets} when overriding it.
+     */
+    function _initialConvertToShares(
+        uint256 assets,
+        Math.Rounding /*rounding*/
+    ) internal view virtual returns (uint256 shares) {
+        return assets;
     }
 
     /**
@@ -163,9 +189,19 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256 assets) {
         uint256 supply = totalSupply();
         return
-            (supply == 0)
-                ? shares.mulDiv(10**_asset.decimals(), 10**decimals(), rounding)
-                : shares.mulDiv(totalAssets(), supply, rounding);
+            (supply == 0) ? _initialConvertToAssets(shares, rounding) : shares.mulDiv(totalAssets(), supply, rounding);
+    }
+
+    /**
+     * @dev Internal conversion function (from shares to assets) to apply when the vault is empty.
+     *
+     * NOTE: Make sure to keep this function consistent with {_initialConvertToShares} when overriding it.
+     */
+    function _initialConvertToAssets(
+        uint256 shares,
+        Math.Rounding /*rounding*/
+    ) internal view virtual returns (uint256 assets) {
+        return shares;
     }
 
     /**
@@ -182,7 +218,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         // calls the vault, which is assumed not malicious.
         //
         // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
-        // assets are transfered and before the shares are minted, which is a valid state.
+        // assets are transferred and before the shares are minted, which is a valid state.
         // slither-disable-next-line reentrancy-no-eth
         SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
         _mint(receiver, shares);
@@ -209,7 +245,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         // calls the vault, which is assumed not malicious.
         //
         // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
-        // shares are burned and after the assets are transfered, which is a valid state.
+        // shares are burned and after the assets are transferred, which is a valid state.
         _burn(owner, shares);
         SafeERC20.safeTransfer(_asset, receiver, assets);
 

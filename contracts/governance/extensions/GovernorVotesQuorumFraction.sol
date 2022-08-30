@@ -55,7 +55,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
             return latest._value;
         }
 
-        // Otherwize, do the binary search
+        // Otherwise, do the binary search
         return _quorumNumeratorHistory.getAtBlock(blockNumber);
     }
 

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.7.0) (utils/structs/EnumerableMap.sol)
+// This file was procedurally generated from scripts/generate/templates/EnumerableMap.js.
 
 pragma solidity ^0.8.0;
 
@@ -30,7 +31,7 @@ import "./EnumerableSet.sol";
  *
  * - `uint256 -> address` (`UintToAddressMap`) since v3.0.0
  * - `address -> uint256` (`AddressToUintMap`) since v4.6.0
- * - `bytes32 -> bytes32` (`Bytes32ToBytes32`) since v4.6.0
+ * - `bytes32 -> bytes32` (`Bytes32ToBytes32Map`) since v4.6.0
  * - `uint256 -> uint256` (`UintToUintMap`) since v4.7.0
  * - `bytes32 -> uint256` (`Bytes32ToUintMap`) since v4.7.0
  *
@@ -116,7 +117,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`.  O(1).
+     * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bool, bytes32) {
@@ -129,7 +130,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Returns the value associated with `key`.  O(1).
+     * @dev Returns the value associated with `key`. O(1).
      *
      * Requirements:
      *
@@ -216,7 +217,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`.  O(1).
+     * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(UintToUintMap storage map, uint256 key) internal view returns (bool, uint256) {
@@ -225,7 +226,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Returns the value associated with `key`.  O(1).
+     * @dev Returns the value associated with `key`. O(1).
      *
      * Requirements:
      *
@@ -308,10 +309,8 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`.  O(1).
+     * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
-     *
-     * _Available since v3.4._
      */
     function tryGet(UintToAddressMap storage map, uint256 key) internal view returns (bool, address) {
         (bool success, bytes32 value) = tryGet(map._inner, bytes32(key));
@@ -319,7 +318,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Returns the value associated with `key`.  O(1).
+     * @dev Returns the value associated with `key`. O(1).
      *
      * Requirements:
      *
@@ -402,7 +401,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`.  O(1).
+     * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(AddressToUintMap storage map, address key) internal view returns (bool, uint256) {
@@ -411,7 +410,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Returns the value associated with `key`.  O(1).
+     * @dev Returns the value associated with `key`. O(1).
      *
      * Requirements:
      *
@@ -494,7 +493,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Tries to returns the value associated with `key`.  O(1).
+     * @dev Tries to returns the value associated with `key`. O(1).
      * Does not revert if `key` is not in the map.
      */
     function tryGet(Bytes32ToUintMap storage map, bytes32 key) internal view returns (bool, uint256) {
@@ -503,7 +502,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Returns the value associated with `key`.  O(1).
+     * @dev Returns the value associated with `key`. O(1).
      *
      * Requirements:
      *

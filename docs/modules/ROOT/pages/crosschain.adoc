@@ -120,7 +120,7 @@ Due to the way smart contract addresses are computed, and the fact that smart co
 
 == Going further with access control
 
-In previous example, we have both a `onlyOwner()` modifier and the `onlyCrossChainSender(owner)` mechanism. We didn't use the xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern because the ownership transfer mechanism in includes is not designed to work with the owner being a cross-chain entity. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectivelly be used to build cross-chain-aware contracts.
+In previous example, we have both an `onlyOwner()` modifier and the `onlyCrossChainSender(owner)` mechanism. We didn't use the xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern because the ownership transfer mechanism in includes is not designed to work with the owner being a cross-chain entity. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectivelly be used to build cross-chain-aware contracts.
 
 Using xref:api:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`] includes both the xref:api:access.adoc#AccessControl[`AccessControl`] core and the xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] abstraction. It also includes some binding to make role management compatible with cross-chain operations.
 

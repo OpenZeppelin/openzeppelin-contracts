@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// This file was procedurally generated from scripts/generate/templates/CheckpointsMock.js.
 
 pragma solidity ^0.8.0;
 
@@ -21,15 +22,19 @@ contract CheckpointsMock {
         return _totalCheckpoints.getAtBlock(blockNumber);
     }
 
+    function getAtRecentBlock(uint256 blockNumber) public view returns (uint256) {
+        return _totalCheckpoints.getAtRecentBlock(blockNumber);
+    }
+
     function length() public view returns (uint256) {
         return _totalCheckpoints._checkpoints.length;
     }
 }
 
 contract Checkpoints224Mock {
-    using Checkpoints for Checkpoints.Checkpoint224[];
+    using Checkpoints for Checkpoints.Trace224;
 
-    Checkpoints.Checkpoint224[] private _totalCheckpoints;
+    Checkpoints.Trace224 private _totalCheckpoints;
 
     function latest() public view returns (uint224) {
         return _totalCheckpoints.latest();
@@ -52,14 +57,14 @@ contract Checkpoints224Mock {
     }
 
     function length() public view returns (uint256) {
-        return _totalCheckpoints.length;
+        return _totalCheckpoints._checkpoints.length;
     }
 }
 
 contract Checkpoints160Mock {
-    using Checkpoints for Checkpoints.Checkpoint160[];
+    using Checkpoints for Checkpoints.Trace160;
 
-    Checkpoints.Checkpoint160[] private _totalCheckpoints;
+    Checkpoints.Trace160 private _totalCheckpoints;
 
     function latest() public view returns (uint160) {
         return _totalCheckpoints.latest();
@@ -82,6 +87,6 @@ contract Checkpoints160Mock {
     }
 
     function length() public view returns (uint256) {
-        return _totalCheckpoints.length;
+        return _totalCheckpoints._checkpoints.length;
     }
 }
