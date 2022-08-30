@@ -72,7 +72,8 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 }
 
 /**
- * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key (similarly to {upperLookup}), optimized for the case when the search key is known to be recent.
+ * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key (similarly to
+ * {upperLookup}), optimized for the case when the search key is known to be recent.
  */
 function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 length = self.${opts.checkpointFieldName}.length;
@@ -161,7 +162,8 @@ function push(
 
 const helpers = opts => `\
 /**
- * @dev Pushes a (\`key\`, \`value\`) pair into an ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
+ * @dev Pushes a (\`key\`, \`value\`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
+ * or by updating the last one.
  */
 function _insert(
     ${opts.checkpointTypeName}[] storage self,

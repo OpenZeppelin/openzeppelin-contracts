@@ -94,7 +94,8 @@ library Checkpoints {
     }
 
     /**
-     * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
+     * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
+     * or by updating the last one.
      */
     function _insert(
         Checkpoint[] storage self,
@@ -225,7 +226,8 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key (similarly to {upperLookup}), optimized for the case when the search key is known to be recent.
+     * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key (similarly to
+     * {upperLookup}), optimized for the case when the search key is known to be recent.
      */
     function upperLookupRecent(Trace224 storage self, uint32 key) internal view returns (uint224) {
         uint256 length = self._checkpoints.length;
@@ -243,7 +245,8 @@ library Checkpoints {
     }
 
     /**
-     * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
+     * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
+     * or by updating the last one.
      */
     function _insert(
         Checkpoint224[] storage self,
@@ -378,7 +381,8 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key (similarly to {upperLookup}), optimized for the case when the search key is known to be recent.
+     * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key (similarly to
+     * {upperLookup}), optimized for the case when the search key is known to be recent.
      */
     function upperLookupRecent(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 length = self._checkpoints.length;
@@ -396,7 +400,8 @@ library Checkpoints {
     }
 
     /**
-     * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
+     * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
+     * or by updating the last one.
      */
     function _insert(
         Checkpoint160[] storage self,
