@@ -45,7 +45,7 @@ abstract contract Ownable2Step is Ownable {
     }
 
     /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * @dev Transfers ownership of the contract to a new account (`newOwner`) and deletes any pending owner.
      * Internal function without access restriction.
      */
     function _transferOwnership(address newOwner) internal virtual override {
