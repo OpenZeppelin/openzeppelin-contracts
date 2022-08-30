@@ -5,22 +5,27 @@ pragma solidity ^0.8.0;
 import "../utils/EvalInfix.sol";
 
 contract EvalInfixMock {
-
-    function getResult() external pure returns(bool){
-        return (true || false && false);  //straight -> false , precedence -> true
+    function getResult() external pure returns (bool) {
+        return (true || (false && false)); //straight -> false , precedence -> true
     }
 
-    function checkValid(string[] memory tokens,uint noOfValues,uint noOfOperands) external view returns(bool check) {
-        try this.evaluateExp(tokens,noOfValues,noOfOperands) returns(bool){
+    function checkValid(
+        string[] memory tokens,
+        uint256 noOfValues,
+        uint256 noOfOperands
+    ) external view returns (bool check) {
+        try this.evaluateExp(tokens, noOfValues, noOfOperands) returns (bool) {
             check = true;
-        }
-        catch{
+        } catch {
             check = false;
         }
     }
 
-    function evaluateExp(string[] memory tokens,uint noOfValues,uint noOfOperands) external pure returns (bool) {
+    function evaluateExp(
+        string[] memory tokens,
+        uint256 noOfValues,
+        uint256 noOfOperands
+    ) external pure returns (bool) {
         return EvalInfix.evaluate(tokens, noOfValues, noOfOperands);
     }
-
 }
