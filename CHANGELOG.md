@@ -22,6 +22,7 @@
  * `VestingWallet`: add `releasable` getters. ([#3580](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3580))
  * `Create2`: optimize address computation by using assembly instead of `abi.encodePacked`. ([#3600](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3600))
  * `Clones`: optimized the assembly to use only the scratch space during deployments, and optimized `predictDeterministicAddress` to use lesser operations. ([#3640](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3640))
+ * `EvalInfix` : Add Infix Expression Evaluation Utility Library. ([#3660](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3660))
 
 ### Breaking changes
 
