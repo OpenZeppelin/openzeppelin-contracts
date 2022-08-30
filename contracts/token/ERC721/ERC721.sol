@@ -489,7 +489,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev Hook that is called before consecutive token transfers.
      * Calling conditions are similar to {_beforeTokenTransfer}.
      *
-     * The default implementation include balances updates that extensions such as {ERC721Consecutive} cannot performe
+     * The default implementation include balances updates that extensions such as {ERC721Consecutive} cannot perform
      * directly.
      */
     function _beforeConsecutiveTokenTransfer(

@@ -11,10 +11,10 @@ import "../../../utils/structs/BitMaps.sol";
  * * @dev Implementation of the ERC2309 "Consecutive Transfer Extension" as defined in
  * https://eips.ethereum.org/EIPS/eip-2309[EIP-2309].
  *
- * This extension allows the minting of large batches of tokens duting the contract construction. These batches are
- * limited to 5000 tokens at a time to accomodate off-chain indexers.
+ * This extension allows the minting of large batches of tokens during the contract construction. These batches are
+ * limited to 5000 tokens at a time to accommodate off-chain indexers.
  *
- * Using this extensions removes the ability to mint single token buring the contract construction. This ability is
+ * Using this extensions removes the ability to mint single token during the contract construction. This ability is
  * regained after construction. During construction, only batch minting is allowed.
  *
  * _Available since v4.8._
@@ -35,17 +35,17 @@ abstract contract ERC721Consecutive is ERC721 {
 
     /**
      * @dev See {ERC721-_ownerOf}. Override version that checks the sequential ownership structure for tokens that have
-     * been minted as part of a batch, and not yet transfered.
+     * been minted as part of a batch, and not yet transferred.
      */
     function _ownerOf(uint256 tokenId) internal view virtual override returns (address) {
         address owner = super._ownerOf(tokenId);
 
-        // If token is owned by the core, or beyound consecutive range, return base value
+        // If token is owned by the core, or beyond consecutive range, return base value
         if (owner != address(0) || tokenId > type(uint96).max) {
             return owner;
         }
 
-        // Otherwize, check the token was not burned, and fetch ownership from the anchors
+        // Otherwise, check the token was not burned, and fetch ownership from the anchors
         // Note: no need for safe cast, we know that tokenId <= type(uint96).max
         return _sequentialBurn.get(tokenId) ? address(0) : address(_sequentialOwnership.lowerLookup(uint96(tokenId)));
     }
@@ -89,7 +89,7 @@ abstract contract ERC721Consecutive is ERC721 {
      * After construction, {_mintConsecutive} is no longer available and {_mint} becomes available.
      */
     function _mint(address to, uint256 tokenId) internal virtual override {
-        require(Address.isContract(address(this)), "ERC721Consecutive: cant mint durring construction");
+        require(Address.isContract(address(this)), "ERC721Consecutive: can't mint during construction");
 
         super._mint(to, tokenId);
         if (_sequentialBurn.get(tokenId)) {
