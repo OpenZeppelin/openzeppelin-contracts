@@ -33,7 +33,7 @@ struct ${opts.checkpointTypeName} {
 /* eslint-disable max-len */
 const operations = opts => `\
 /**
- * @dev Returns the value in the latest checkpoint, or zero if there are no checkpoints.
+ * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
  */
 function latest(${opts.historyTypeName} storage self) internal view returns (${opts.valueTypeName}) {
     uint256 pos = self.${opts.checkpointFieldName}.length;
@@ -167,7 +167,7 @@ function _insert(
 }
 
 /**
- * @dev Return the index of the last checkpoint for which \`key\` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the search key.
+ * @dev Return the index of the oldest checkpoint whose key is greater than the search key, or `high` if there is none.
  * \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive \`high\`.
  *
  * WARNING: \`high\` should not be greater than the array's length.
