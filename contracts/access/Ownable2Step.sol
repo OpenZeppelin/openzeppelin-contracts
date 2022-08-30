@@ -19,7 +19,7 @@ import "./Ownable.sol";
 abstract contract Ownable2Step is Ownable {
     address private _pendingOwner;
 
-    event OwnershipTransferStarted(address indexed newOwner);
+    event OwnershipTransferStarted(address indexed previousOwner, address indexed newOwner);
 
     /**
      * @dev Returns the address of the pending owner.
@@ -34,7 +34,7 @@ abstract contract Ownable2Step is Ownable {
      */
     function transferOwnership(address newOwner) public virtual override onlyOwner {
         _pendingOwner = newOwner;
-        emit OwnershipTransferStarted(newOwner);
+        emit OwnershipTransferStarted(owner(), newOwner);
     }
 
     /**
