@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 /**
  * @title EvalInfix
  * @author Namit Jain (namit.cs.rdjps@gmail.com)
- * @dev Provides method that can be used to evalute any Infix Notation Expression which
+ * @dev Provides method that can be used to evaluate any Infix Notation Expression which
  *     consist of 1 and 0 as operands .
  *     consist of a (&&) , o (||) , ( , ) as operators.
  *     precedence is also considered for LOGICAL AND (&&) and LOGICAL OR (||)
