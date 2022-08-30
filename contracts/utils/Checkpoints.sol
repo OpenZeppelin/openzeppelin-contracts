@@ -237,7 +237,7 @@ library Checkpoints {
             offset <<= 1;
         }
 
-        uint256 low = offset < length ? length - offset : 0;
+        uint256 low = 0 < offset && offset < length ? length - offset : 0;
         uint256 high = length - (offset >> 1);
         uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
 
@@ -392,7 +392,7 @@ library Checkpoints {
             offset <<= 1;
         }
 
-        uint256 low = offset < length ? length - offset : 0;
+        uint256 low = 0 < offset && offset < length ? length - offset : 0;
         uint256 high = length - (offset >> 1);
         uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
 
