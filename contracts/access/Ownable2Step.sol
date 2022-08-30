@@ -29,7 +29,7 @@ abstract contract Ownable2Step is Ownable {
     }
 
     /**
-     * @dev Starts the ownership transfer of the contract to a new account
+     * @dev Starts the ownership transfer of the contract to a new account. Replaces the pending transfer if there is one.
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual override onlyOwner {
