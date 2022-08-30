@@ -54,7 +54,7 @@ function push(
 }
 
 /**
- * @dev Return the value most recent checkpoint which key is lower or equal than the search key.
+ * @dev Returns the value in the oldest checkpoint with key greater or equal than the search key, or zero if there is none.
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 length = self.${opts.checkpointFieldName}.length;
