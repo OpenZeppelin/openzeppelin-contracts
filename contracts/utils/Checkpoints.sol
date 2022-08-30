@@ -40,9 +40,33 @@ library Checkpoints {
      */
     function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
+        uint32 key = SafeCast.toUint32(blockNumber);
 
         uint256 length = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, SafeCast.toUint32(blockNumber), 0, length);
+        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, length);
+        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+    }
+
+    /**
+     * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
+     * before it is returned, or zero otherwise. Similarly to {upperLookup} but optimized for the case when the search
+     * key is known to be recent.
+     */
+    function getAtRecentBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
+        require(blockNumber < block.number, "Checkpoints: block not yet mined");
+        uint32 key = SafeCast.toUint32(blockNumber);
+
+        uint256 length = self._checkpoints.length;
+        uint256 offset = 1;
+
+        while (offset <= length && _unsafeAccess(self._checkpoints, length - offset)._blockNumber > key) {
+            offset <<= 1;
+        }
+
+        uint256 low = offset < length ? length - offset : 0;
+        uint256 high = length - (offset >> 1);
+        uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
+
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 

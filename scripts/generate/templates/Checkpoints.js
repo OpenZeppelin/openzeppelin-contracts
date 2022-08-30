@@ -105,9 +105,33 @@ function latest(${opts.historyTypeName} storage self) internal view returns (uin
  */
 function getAtBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
     require(blockNumber < block.number, "Checkpoints: block not yet mined");
+    uint32 key = SafeCast.toUint32(blockNumber);
 
     uint256 length = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, SafeCast.toUint32(blockNumber), 0, length);
+    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, length);
+    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
+}
+
+/**
+ * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
+ * before it is returned, or zero otherwise. Similarly to {upperLookup} but optimized for the case when the search
+ * key is known to be recent.
+ */
+function getAtRecentBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
+    require(blockNumber < block.number, "Checkpoints: block not yet mined");
+    uint32 key = SafeCast.toUint32(blockNumber);
+
+    uint256 length = self.${opts.checkpointFieldName}.length;
+    uint256 offset = 1;
+
+    while (offset <= length && _unsafeAccess(self.${opts.checkpointFieldName}, length - offset).${opts.keyFieldName} > key) {
+        offset <<= 1;
+    }
+
+    uint256 low = offset < length ? length - offset : 0;
+    uint256 high = length - (offset >> 1);
+    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
+
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
 

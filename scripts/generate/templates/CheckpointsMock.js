@@ -26,6 +26,10 @@ contract CheckpointsMock {
         return _totalCheckpoints.getAtBlock(blockNumber);
     }
 
+    function getAtRecentBlock(uint256 blockNumber) public view returns (uint256) {
+        return _totalCheckpoints.getAtRecentBlock(blockNumber);
+    }
+
     function length() public view returns (uint256) {
         return _totalCheckpoints._checkpoints.length;
     }
