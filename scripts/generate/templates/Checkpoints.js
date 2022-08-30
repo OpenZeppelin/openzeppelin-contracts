@@ -41,7 +41,7 @@ function latest(${opts.historyTypeName} storage self) internal view returns (${o
 }
 
 /**
- * @dev Pushes a (\`key\`, \`value\`) pair into a History so that it is stored as the checkpoint.
+ * @dev Pushes a (\`key\`, \`value\`) pair into a ${opts.historyTypeName} so that it is stored as the checkpoint.
  *
  * Returns previous value and new value.
  */

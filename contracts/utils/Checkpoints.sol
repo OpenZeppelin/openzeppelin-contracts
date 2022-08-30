@@ -194,7 +194,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Pushes a (`key`, `value`) pair into a History so that it is stored as the checkpoint.
+     * @dev Pushes a (`key`, `value`) pair into a Trace224 so that it is stored as the checkpoint.
      *
      * Returns previous value and new value.
      */
@@ -347,7 +347,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Pushes a (`key`, `value`) pair into a History so that it is stored as the checkpoint.
+     * @dev Pushes a (`key`, `value`) pair into a Trace160 so that it is stored as the checkpoint.
      *
      * Returns previous value and new value.
      */
