@@ -6,8 +6,8 @@ const { batchInBlock } = require('../helpers/txpool');
 
 const CheckpointsMock = artifacts.require('CheckpointsMock');
 
-const first = (...args) => args.length ? args[0] : undefined;
-const last = (...args) => args.length ? args[args.length - 1] : undefined;
+const first = (array) => array.length ? array[0] : undefined;
+const last = (array) => array.length ? array[array.length - 1] : undefined;
 
 contract('Checkpoints', function (accounts) {
   describe('History checkpoints', function () {
@@ -98,11 +98,11 @@ contract('Checkpoints', function (accounts) {
       describe('with checkpoints', function () {
         beforeEach('pushing checkpoints', async function () {
           this.checkpoints = [
-            { key: 2, value: '2' },
-            { key: 3, value: '3' },
-            { key: 5, value: '5' },
-            { key: 7, value: '8' },
-            { key: 11, value: '13' },
+            { key: 2, value: '17' },
+            { key: 3, value: '42' },
+            { key: 5, value: '101' },
+            { key: 7, value: '23' },
+            { key: 11, value: '99' },
           ];
           for (const { key, value } of this.checkpoints) {
             await this.contract.push(key, value);
@@ -111,23 +111,30 @@ contract('Checkpoints', function (accounts) {
 
         it('returns latest value', async function () {
           expect(await this.contract.latest())
-            .to.be.bignumber.equal(last(...this.checkpoints).value);
+            .to.be.bignumber.equal(last(this.checkpoints).value);
         });
 
         it('cannot push values in the past', async function () {
-          await expectRevert(this.contract.push(last(...this.checkpoints).key - 1, '0'), 'Checkpoint: invalid key');
+          await expectRevert(this.contract.push(last(this.checkpoints).key - 1, '0'), 'Checkpoint: invalid key');
         });
 
         it('can update last value', async function () {
           const newValue = '42';
 
-          await this.contract.push(last(...this.checkpoints).key, newValue);
+          // check length before the update
+          expect(await this.contract.length()).to.be.bignumber.equal(this.checkpoints.length.toString());
+
+          // update last key
+          await this.contract.push(last(this.checkpoints).key, newValue);
           expect(await this.contract.latest()).to.be.bignumber.equal(newValue);
+
+          // check that length did not change
+          expect(await this.contract.length()).to.be.bignumber.equal(this.checkpoints.length.toString());
         });
 
         it('lower lookup', async function () {
           for (let i = 0; i < 14; ++i) {
-            const value = first(...this.checkpoints.filter(x => i <= x.key))?.value || '0';
+            const value = first(this.checkpoints.filter(x => i <= x.key))?.value || '0';
 
             expect(await this.contract.lowerLookup(i)).to.be.bignumber.equal(value);
           }
@@ -135,7 +142,7 @@ contract('Checkpoints', function (accounts) {
 
         it('upper lookup', async function () {
           for (let i = 0; i < 14; ++i) {
-            const value = last(...this.checkpoints.filter(x => i >= x.key))?.value || '0';
+            const value = last(this.checkpoints.filter(x => i >= x.key))?.value || '0';
 
             expect(await this.contract.upperLookup(i)).to.be.bignumber.equal(value);
             expect(await this.contract.upperLookupRecent(i)).to.be.bignumber.equal(value);
