@@ -78,7 +78,7 @@ contract('Checkpoints', function (accounts) {
   });
 
   for (const length of [160, 224]) {
-    describe(`Checkpoint${length}[]`, function () {
+    describe(`Trace${length}`, function () {
       beforeEach(async function () {
         this.contract = await artifacts.require(`Checkpoints${length}Mock`).new();
       });
