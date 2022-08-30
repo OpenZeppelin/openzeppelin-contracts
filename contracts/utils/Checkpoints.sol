@@ -100,7 +100,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the last checkpoint for which `key` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the search key.
+     * @dev Return the index of the oldest checkpoint whose key is greater than the search key, or `high` if there is none.
      * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
@@ -162,7 +162,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the latest checkpoint, or zero if there are no checkpoints.
+     * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
      */
     function latest(Trace224 storage self) internal view returns (uint224) {
         uint256 pos = self._checkpoints.length;
@@ -249,7 +249,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the last checkpoint for which `key` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the search key.
+     * @dev Return the index of the oldest checkpoint whose key is greater than the search key, or `high` if there is none.
      * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
@@ -315,7 +315,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the latest checkpoint, or zero if there are no checkpoints.
+     * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
      */
     function latest(Trace160 storage self) internal view returns (uint160) {
         uint256 pos = self._checkpoints.length;
@@ -402,7 +402,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Return the index of the last checkpoint for which `key` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the search key.
+     * @dev Return the index of the oldest checkpoint whose key is greater than the search key, or `high` if there is none.
      * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
