@@ -70,7 +70,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Pushes a (`key`, `value`) pair into a ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
+     * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
      */
     function _insert(
         Checkpoint[] storage self,
@@ -101,7 +101,7 @@ library Checkpoints {
 
     /**
      * @dev Return the index of the last checkpoint for which `key` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the search key.
-     * `low` and `high` define a section where to do the search, with an `low` inclusive and `high` exclusive.
+     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -124,7 +124,7 @@ library Checkpoints {
 
     /**
      * @dev Return the index of the first checkpoint for which `key` <= checkpoint.key, i.e. the oldest checkpoint which key is higher or equal than the search key.
-     * `low` and `high` define a section where to do the search, with an `low` inclusive and `high` exclusive.
+     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -219,7 +219,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Pushes a (`key`, `value`) pair into a ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
+     * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
      */
     function _insert(
         Checkpoint224[] storage self,
@@ -250,7 +250,7 @@ library Checkpoints {
 
     /**
      * @dev Return the index of the last checkpoint for which `key` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the search key.
-     * `low` and `high` define a section where to do the search, with an `low` inclusive and `high` exclusive.
+     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -273,7 +273,7 @@ library Checkpoints {
 
     /**
      * @dev Return the index of the first checkpoint for which `key` <= checkpoint.key, i.e. the oldest checkpoint which key is higher or equal than the search key.
-     * `low` and `high` define a section where to do the search, with an `low` inclusive and `high` exclusive.
+     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -372,7 +372,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Pushes a (`key`, `value`) pair into a ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
+     * @dev Pushes a (`key`, `value`) pair into an ordered list of checkpoints, either by inserting a new checkpoint, or by updating the last one.
      */
     function _insert(
         Checkpoint160[] storage self,
@@ -403,7 +403,7 @@ library Checkpoints {
 
     /**
      * @dev Return the index of the last checkpoint for which `key` >= checkpoint.key, i.e. the most recent checkpoint which key is lower or equal than the search key.
-     * `low` and `high` define a section where to do the search, with an `low` inclusive and `high` exclusive.
+     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
@@ -426,7 +426,7 @@ library Checkpoints {
 
     /**
      * @dev Return the index of the first checkpoint for which `key` <= checkpoint.key, i.e. the oldest checkpoint which key is higher or equal than the search key.
-     * `low` and `high` define a section where to do the search, with an `low` inclusive and `high` exclusive.
+     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
      *
      * WARNING: `high` should not be greater than the array's length.
      */
