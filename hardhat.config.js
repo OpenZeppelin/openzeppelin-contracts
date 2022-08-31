@@ -87,6 +87,8 @@ module.exports = {
       // internal or recursive type is not allowed for public state variables
       'utils/Checkpoints.sol',
       'utils/structs/EnumerableSet.sol',
+      'utils/structs/EnumerableMap.sol',
+      'utils/structs/BitMaps.sol',
     ],
   },
 };
