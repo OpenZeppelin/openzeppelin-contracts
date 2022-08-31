@@ -16,11 +16,11 @@ const Permit = [
   { name: 'deadline', type: 'uint256' },
 ];
 
-function bufferToHexString(buffer) {
+function bufferToHexString (buffer) {
   return '0x' + buffer.toString('hex');
 }
 
-function hexStringToBuffer(hexstr) {
+function hexStringToBuffer (hexstr) {
   return Buffer.from(hexstr.replace(/^0x/, ''), 'hex');
 }
 
@@ -30,7 +30,7 @@ async function domainSeparator ({ name, version, chainId, verifyingContract }) {
       'EIP712Domain',
       { name, version, chainId, verifyingContract },
       { EIP712Domain },
-    )
+    ),
   );
 }
 

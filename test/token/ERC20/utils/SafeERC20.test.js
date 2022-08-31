@@ -171,15 +171,24 @@ contract('SafeERC20', function (accounts) {
 
 function shouldRevertOnAllCalls (reason) {
   it('reverts on transfer', async function () {
-    await expectRevert(this.mock.$safeTransfer(this.token.address, constants.ZERO_ADDRESS, 0), reason);
+    await expectRevert(
+      this.mock.$safeTransfer(this.token.address, constants.ZERO_ADDRESS, 0),
+      reason,
+    );
   });
 
   it('reverts on transferFrom', async function () {
-    await expectRevert(this.mock.$safeTransferFrom(this.token.address, this.mock.address, constants.ZERO_ADDRESS, 0), reason);
+    await expectRevert(
+      this.mock.$safeTransferFrom(this.token.address, this.mock.address, constants.ZERO_ADDRESS, 0),
+      reason,
+    );
   });
 
   it('reverts on approve', async function () {
-    await expectRevert(this.mock.$safeApprove(this.token.address, constants.ZERO_ADDRESS, 0), reason);
+    await expectRevert(
+      this.mock.$safeApprove(this.token.address, constants.ZERO_ADDRESS, 0),
+      reason,
+    );
   });
 
   it('reverts on increaseAllowance', async function () {

@@ -2,17 +2,19 @@ const { expectRevert, BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
+const { getChainId } = require('../../helpers/chainid');
+
 const {
   shouldBehaveLikeVotes,
 } = require('./Votes.behavior');
 
-const Votes = artifacts.require('VotesMock');
+const Votes = artifacts.require('$VotesMock');
 
 contract('Votes', function (accounts) {
   const [ account1, account2, account3 ] = accounts;
   beforeEach(async function () {
     this.name = 'My Vote';
-    this.votes = await Votes.new(this.name);
+    this.votes = await Votes.new(this.name, '1');
   });
 
   it('starts with zero votes', async function () {
@@ -21,9 +23,9 @@ contract('Votes', function (accounts) {
 
   describe('performs voting operations', function () {
     beforeEach(async function () {
-      this.tx1 = await this.votes.mint(account1, 1);
-      this.tx2 = await this.votes.mint(account2, 1);
-      this.tx3 = await this.votes.mint(account3, 1);
+      this.tx1 = await this.votes.$_mint(account1, 1);
+      this.tx2 = await this.votes.$_mint(account2, 1);
+      this.tx3 = await this.votes.$_mint(account3, 1);
     });
 
     it('reverts if block number >= current block', async function () {
@@ -46,7 +48,7 @@ contract('Votes', function (accounts) {
 
   describe('performs voting workflow', function () {
     beforeEach(async function () {
-      this.chainId = await this.votes.getChainId();
+      this.chainId = await getChainId();
       this.account1 = account1;
       this.account2 = account2;
       this.account1Delegatee = account2;

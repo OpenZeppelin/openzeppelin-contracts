@@ -19,7 +19,8 @@ contract('Strings', function (accounts) {
     });
 
     it('converts MAX_UINT256', async function () {
-      expect(await this.strings.methods['$toString(uint256)'](constants.MAX_UINT256)).to.equal(constants.MAX_UINT256.toString());
+      expect(await this.strings.methods['$toString(uint256)'](constants.MAX_UINT256))
+        .to.equal(constants.MAX_UINT256.toString());
     });
   });
 

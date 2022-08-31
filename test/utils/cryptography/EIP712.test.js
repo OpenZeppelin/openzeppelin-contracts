@@ -13,22 +13,28 @@ contract('EIP712', function (accounts) {
   const version = '1';
 
   beforeEach('deploying', async function () {
-    this.chainId = await getChainId();
     this.eip712 = await EIP712Verifier.new(name, version);
+
+    this.domain = {
+      name,
+      version,
+      chainId: await getChainId(),
+      verifyingContract: this.eip712.address,
+    };
   });
 
   it('domain separator', async function () {
-    const expected = await domainSeparator({ name, version, chainId: this.chainId, verifyingContract: this.eip712.address });
+    const expected = await domainSeparator(this.domain);
 
     expect(await this.eip712.$_domainSeparatorV4()).to.equal(expected);
   });
 
   it('hash digest', async function () {
     const structhash = web3.utils.randomHex(32);
-    const expected = await hashTypedData({ name, version, chainId: this.chainId, verifyingContract: this.eip712.address }, structhash);
+    const expected = await hashTypedData(this.domain, structhash);
 
-    expect(await this.eip712.$_hashTypedDataV4(structhash)).to.be.equal(expected)
-  })
+    expect(await this.eip712.$_hashTypedDataV4(structhash)).to.be.equal(expected);
+  });
 
   it('digest', async function () {
     const message = {
@@ -44,7 +50,7 @@ contract('EIP712', function (accounts) {
           { name: 'contents', type: 'string' },
         ],
       },
-      domain: { name, version, chainId: this.chainId, verifyingContract: this.eip712.address },
+      domain: this.domain,
       primaryType: 'Mail',
       message,
     };

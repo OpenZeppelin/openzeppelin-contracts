@@ -14,8 +14,8 @@ const {
 const Token = artifacts.require('$ERC20Votes');
 const Governor = artifacts.require('GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
-const ERC721Mock = artifacts.require('ERC721Mock');
-const ERC1155Mock = artifacts.require('ERC1155Mock');
+const ERC721 = artifacts.require('$ERC721');
+const ERC1155 = artifacts.require('$ERC1155');
 
 contract('Governor', function (accounts) {
   const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
@@ -585,8 +585,8 @@ contract('Governor', function (accounts) {
       const tokenId = new BN(1);
 
       beforeEach(async function () {
-        this.token = await ERC721Mock.new(name, symbol);
-        await this.token.mint(owner, tokenId);
+        this.token = await ERC721.new(name, symbol);
+        await this.token.$_mint(owner, tokenId);
       });
 
       it('can receive an ERC721 safeTransfer', async function () {
@@ -603,8 +603,8 @@ contract('Governor', function (accounts) {
       };
 
       beforeEach(async function () {
-        this.token = await ERC1155Mock.new(uri);
-        await this.token.mintBatch(owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
+        this.token = await ERC1155.new(uri);
+        await this.token.$_mintBatch(owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
       });
 
       it('can receive ERC1155 safeTransfer', async function () {

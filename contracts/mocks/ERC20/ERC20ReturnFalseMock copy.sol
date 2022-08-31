@@ -2,14 +2,18 @@
 
 pragma solidity ^0.8.0;
 
-contract ERC20ReturnFalseMock  {
+contract ERC20ReturnFalseMock {
     mapping(address => uint256) private _allowances;
 
     function transfer(address, uint256) public pure returns (bool) {
         return false;
     }
 
-    function transferFrom(address, address, uint256) public pure returns (bool) {
+    function transferFrom(
+        address,
+        address,
+        uint256
+    ) public pure returns (bool) {
         return false;
     }
 

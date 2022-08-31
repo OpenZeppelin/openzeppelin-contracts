@@ -51,7 +51,7 @@ contract('VestingWallet', function (accounts) {
 
     describe('ERC20 vesting', function () {
       beforeEach(async function () {
-        this.token = await ERC20.new('Name', 'Symbol')
+        this.token = await ERC20.new('Name', 'Symbol');
         this.getBalance = (account) => this.token.balanceOf(account);
         this.checkRelease = (receipt, to, value) => expectEvent.inTransaction(
           receipt.tx,

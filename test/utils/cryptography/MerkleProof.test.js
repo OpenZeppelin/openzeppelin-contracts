@@ -134,23 +134,24 @@ contract('MerkleProof', function (accounts) {
 
       const root = merkleTree.getRoot();
 
-      // 'reverted with panic code 0x32',
-      await expectRevert.unspecified(
+      await expectRevert(
         this.merkleProof.$multiProofVerify(
           [ leaves[1], fill, merkleTree.layers[1][1] ],
           [ false, false, false, false ],
           root,
           [ badLeaf, leaves[0] ], // A, E
         ),
+        'reverted with panic code 0x32',
       );
-      // 'reverted with panic code 0x32',
-      await expectRevert.unspecified(
+
+      await expectRevert(
         this.merkleProof.$multiProofVerifyCalldata(
           [ leaves[1], fill, merkleTree.layers[1][1] ],
           [ false, false, false, false ],
           root,
           [ badLeaf, leaves[0] ], // A, E
         ),
+        'reverted with panic code 0x32',
       );
     });
 

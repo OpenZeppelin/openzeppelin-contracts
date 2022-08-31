@@ -107,24 +107,53 @@ contract('ECDSA', function (accounts) {
       it('works with correct v value', async function () {
         const v = '1b'; // 27 = 1b.
         const signature = signatureWithoutV + v;
-        expect(await this.ecdsa.$recover(TEST_MESSAGE, signature)).to.equal(signer);
-        expect(await this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](TEST_MESSAGE, ...split(signature))).to.equal(signer);
-        expect(await this.ecdsa.methods['$recover(bytes32,bytes32,bytes32)'](TEST_MESSAGE, ...split(to2098Format(signature)))).to.equal(signer);
+        expect(await this.ecdsa.$recover(
+          TEST_MESSAGE,
+          signature,
+        )).to.equal(signer);
+
+        expect(await this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](
+          TEST_MESSAGE,
+          ...split(signature),
+        )).to.equal(signer);
+
+        expect(await this.ecdsa.methods['$recover(bytes32,bytes32,bytes32)'](
+          TEST_MESSAGE,
+          ...split(to2098Format(signature)),
+        )).to.equal(signer);
       });
 
       it('rejects incorrect v value', async function () {
         const v = '1c'; // 28 = 1c.
         const signature = signatureWithoutV + v;
-        expect(await this.ecdsa.$recover(TEST_MESSAGE, signature)).to.not.equal(signer);
-        expect(await this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](TEST_MESSAGE, ...split(signature))).to.not.equal(signer);
-        expect(await this.ecdsa.methods['$recover(bytes32,bytes32,bytes32)'](TEST_MESSAGE, ...split(to2098Format(signature)))).to.not.equal(signer);
+        expect(await this.ecdsa.$recover(
+          TEST_MESSAGE,
+          signature,
+        )).to.not.equal(signer);
+
+        expect(await this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](
+          TEST_MESSAGE,
+          ...split(signature),
+        )).to.not.equal(signer);
+
+        expect(await this.ecdsa.methods['$recover(bytes32,bytes32,bytes32)'](
+          TEST_MESSAGE,
+          ...split(to2098Format(signature)),
+        )).to.not.equal(signer);
       });
 
       it('reverts wrong v values', async function () {
         for (const v of ['00', '01']) {
           const signature = signatureWithoutV + v;
-          await expectRevert(this.ecdsa.$recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
-          await expectRevert(this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](TEST_MESSAGE, ...split(signature)), 'ECDSA: invalid signature');
+          await expectRevert(
+            this.ecdsa.$recover(TEST_MESSAGE, signature),
+            'ECDSA: invalid signature',
+          );
+
+          await expectRevert(
+            this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](TEST_MESSAGE, ...split(signature)),
+            'ECDSA: invalid signature',
+          );
         }
       });
 
@@ -146,24 +175,53 @@ contract('ECDSA', function (accounts) {
       it('works with correct v value', async function () {
         const v = '1c'; // 28 = 1c.
         const signature = signatureWithoutV + v;
-        expect(await this.ecdsa.$recover(TEST_MESSAGE, signature)).to.equal(signer);
-        expect(await this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](TEST_MESSAGE, ...split(signature))).to.equal(signer);
-        expect(await this.ecdsa.methods['$recover(bytes32,bytes32,bytes32)'](TEST_MESSAGE, ...split(to2098Format(signature)))).to.equal(signer);
+        expect(await this.ecdsa.$recover(
+          TEST_MESSAGE,
+          signature,
+        )).to.equal(signer);
+
+        expect(await this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](
+          TEST_MESSAGE,
+          ...split(signature),
+        )).to.equal(signer);
+
+        expect(await this.ecdsa.methods['$recover(bytes32,bytes32,bytes32)'](
+          TEST_MESSAGE,
+          ...split(to2098Format(signature)),
+        )).to.equal(signer);
       });
 
       it('rejects incorrect v value', async function () {
         const v = '1b'; // 27 = 1b.
         const signature = signatureWithoutV + v;
-        expect(await this.ecdsa.$recover(TEST_MESSAGE, signature)).to.not.equal(signer);
-        expect(await this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](TEST_MESSAGE, ...split(signature))).to.not.equal(signer);
-        expect(await this.ecdsa.methods['$recover(bytes32,bytes32,bytes32)'](TEST_MESSAGE, ...split(to2098Format(signature)))).to.not.equal(signer);
+        expect(await this.ecdsa.$recover(
+          TEST_MESSAGE,
+          signature,
+        )).to.not.equal(signer);
+
+        expect(await this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](
+          TEST_MESSAGE,
+          ...split(signature),
+        )).to.not.equal(signer);
+
+        expect(await this.ecdsa.methods['$recover(bytes32,bytes32,bytes32)'](
+          TEST_MESSAGE,
+          ...split(to2098Format(signature)),
+        )).to.not.equal(signer);
       });
 
       it('reverts invalid v values', async function () {
         for (const v of ['00', '01']) {
           const signature = signatureWithoutV + v;
-          await expectRevert(this.ecdsa.$recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
-          await expectRevert(this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](TEST_MESSAGE, ...split(signature)), 'ECDSA: invalid signature');
+          await expectRevert(
+            this.ecdsa.$recover(TEST_MESSAGE, signature),
+            'ECDSA: invalid signature',
+          );
+
+          await expectRevert(
+            this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](TEST_MESSAGE, ...split(signature)),
+            'ECDSA: invalid signature',
+          );
         }
       });
 

@@ -8,7 +8,7 @@ contract('Multicall', function (accounts) {
 
   beforeEach(async function () {
     this.multicallToken = await ERC20MulticallMock.new('name', 'symbol');
-    await this.multicallToken.$_mint(deployer, amount)
+    await this.multicallToken.$_mint(deployer, amount);
   });
 
   it('batches function calls', async function () {

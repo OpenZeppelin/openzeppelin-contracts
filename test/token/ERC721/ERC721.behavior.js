@@ -25,8 +25,8 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
 
   context('with minted tokens', function () {
     beforeEach(async function () {
-      await this.token.mint(owner, firstTokenId);
-      await this.token.mint(owner, secondTokenId);
+      await this.token.$_mint(owner, firstTokenId);
+      await this.token.$_mint(owner, secondTokenId);
       this.toWhom = other; // default to other for toWhom in context-dependent tests
     });
 
@@ -345,7 +345,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
       describe('via safeMint', function () { // regular minting is tested in ERC721Mintable.test.js and others
         it('calls onERC721Received — with data', async function () {
           this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.None);
-          const receipt = await this.token.safeMint(this.receiver.address, tokenId, data);
+          const receipt = await this.token.$_safeMint(this.receiver.address, tokenId, data);
 
           await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
             from: ZERO_ADDRESS,
@@ -356,7 +356,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
 
         it('calls onERC721Received — without data', async function () {
           this.receiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.None);
-          const receipt = await this.token.safeMint(this.receiver.address, tokenId);
+          const receipt = await this.token.$_safeMint(this.receiver.address, tokenId);
 
           await expectEvent.inTransaction(receipt.tx, ERC721ReceiverMock, 'Received', {
             from: ZERO_ADDRESS,
@@ -368,7 +368,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           it('reverts', async function () {
             const invalidReceiver = await ERC721ReceiverMock.new('0x42', Error.None);
             await expectRevert(
-              this.token.safeMint(invalidReceiver.address, tokenId),
+              this.token.$_safeMint(invalidReceiver.address, tokenId),
               'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
@@ -378,7 +378,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.RevertWithMessage);
             await expectRevert(
-              this.token.safeMint(revertingReceiver.address, tokenId),
+              this.token.$_safeMint(revertingReceiver.address, tokenId),
               'ERC721ReceiverMock: reverting',
             );
           });
@@ -388,7 +388,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.RevertWithoutMessage);
             await expectRevert(
-              this.token.safeMint(revertingReceiver.address, tokenId),
+              this.token.$_safeMint(revertingReceiver.address, tokenId),
               'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
@@ -398,7 +398,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.Panic);
             await expectRevert.unspecified(
-              this.token.safeMint(revertingReceiver.address, tokenId),
+              this.token.$_safeMint(revertingReceiver.address, tokenId),
             );
           });
         });
@@ -407,7 +407,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
           it('reverts', async function () {
             const nonReceiver = this.token;
             await expectRevert(
-              this.token.safeMint(nonReceiver.address, tokenId),
+              this.token.$_safeMint(nonReceiver.address, tokenId),
               'ERC721: transfer to non ERC721Receiver implementer',
             );
           });
@@ -647,13 +647,13 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
   describe('_mint(address, uint256)', function () {
     it('reverts with a null destination address', async function () {
       await expectRevert(
-        this.token.mint(ZERO_ADDRESS, firstTokenId), 'ERC721: mint to the zero address',
+        this.token.$_mint(ZERO_ADDRESS, firstTokenId), 'ERC721: mint to the zero address',
       );
     });
 
     context('with minted token', async function () {
       beforeEach(async function () {
-        (this.receipt = await this.token.mint(owner, firstTokenId));
+        (this.receipt = await this.token.$_mint(owner, firstTokenId));
       });
 
       it('emits a Transfer event', function () {
@@ -666,7 +666,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
       });
 
       it('reverts when adding a token id that already exists', async function () {
-        await expectRevert(this.token.mint(owner, firstTokenId), 'ERC721: token already minted');
+        await expectRevert(this.token.$_mint(owner, firstTokenId), 'ERC721: token already minted');
       });
     });
   });
@@ -674,19 +674,19 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
   describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
       await expectRevert(
-        this.token.burn(nonExistentTokenId), 'ERC721: invalid token ID',
+        this.token.$_burn(nonExistentTokenId), 'ERC721: invalid token ID',
       );
     });
 
     context('with minted tokens', function () {
       beforeEach(async function () {
-        await this.token.mint(owner, firstTokenId);
-        await this.token.mint(owner, secondTokenId);
+        await this.token.$_mint(owner, firstTokenId);
+        await this.token.$_mint(owner, secondTokenId);
       });
 
       context('with burnt token', function () {
         beforeEach(async function () {
-          (this.receipt = await this.token.burn(firstTokenId));
+          (this.receipt = await this.token.$_burn(firstTokenId));
         });
 
         it('emits a Transfer event', function () {
@@ -702,7 +702,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
 
         it('reverts when burning a token id that has been deleted', async function () {
           await expectRevert(
-            this.token.burn(firstTokenId), 'ERC721: invalid token ID',
+            this.token.$_burn(firstTokenId), 'ERC721: invalid token ID',
           );
         });
       });
@@ -717,8 +717,8 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
 
   context('with minted tokens', function () {
     beforeEach(async function () {
-      await this.token.mint(owner, firstTokenId);
-      await this.token.mint(owner, secondTokenId);
+      await this.token.$_mint(owner, firstTokenId);
+      await this.token.$_mint(owner, secondTokenId);
       this.toWhom = other; // default to other for toWhom in context-dependent tests
     });
 
@@ -795,9 +795,9 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
           const newTokenId = new BN(300);
           const anotherNewTokenId = new BN(400);
 
-          await this.token.burn(tokenId);
-          await this.token.mint(newOwner, newTokenId);
-          await this.token.mint(newOwner, anotherNewTokenId);
+          await this.token.$_burn(tokenId);
+          await this.token.$_mint(newOwner, newTokenId);
+          await this.token.$_mint(newOwner, anotherNewTokenId);
 
           expect(await this.token.totalSupply()).to.be.bignumber.equal('3');
 
@@ -816,13 +816,13 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
   describe('_mint(address, uint256)', function () {
     it('reverts with a null destination address', async function () {
       await expectRevert(
-        this.token.mint(ZERO_ADDRESS, firstTokenId), 'ERC721: mint to the zero address',
+        this.token.$_mint(ZERO_ADDRESS, firstTokenId), 'ERC721: mint to the zero address',
       );
     });
 
     context('with minted token', async function () {
       beforeEach(async function () {
-        (this.receipt = await this.token.mint(owner, firstTokenId));
+        (this.receipt = await this.token.$_mint(owner, firstTokenId));
       });
 
       it('adjusts owner tokens by index', async function () {
@@ -838,19 +838,19 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
   describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
       await expectRevert(
-        this.token.burn(firstTokenId), 'ERC721: invalid token ID',
+        this.token.$_burn(firstTokenId), 'ERC721: invalid token ID',
       );
     });
 
     context('with minted tokens', function () {
       beforeEach(async function () {
-        await this.token.mint(owner, firstTokenId);
-        await this.token.mint(owner, secondTokenId);
+        await this.token.$_mint(owner, firstTokenId);
+        await this.token.$_mint(owner, secondTokenId);
       });
 
       context('with burnt token', function () {
         beforeEach(async function () {
-          (this.receipt = await this.token.burn(firstTokenId));
+          (this.receipt = await this.token.$_burn(firstTokenId));
         });
 
         it('removes that token from the token list of the owner', async function () {
@@ -862,7 +862,7 @@ function shouldBehaveLikeERC721Enumerable (errorPrefix, owner, newOwner, approve
         });
 
         it('burns all tokens', async function () {
-          await this.token.burn(secondTokenId, { from: owner });
+          await this.token.$_burn(secondTokenId, { from: owner });
           expect(await this.token.totalSupply()).to.be.bignumber.equal('0');
           await expectRevert(
             this.token.tokenByIndex(0), 'ERC721Enumerable: global index out of bounds',
@@ -889,7 +889,7 @@ function shouldBehaveLikeERC721Metadata (errorPrefix, name, symbol, owner) {
 
     describe('token URI', function () {
       beforeEach(async function () {
-        await this.token.mint(owner, firstTokenId);
+        await this.token.$_mint(owner, firstTokenId);
       });
 
       it('return empty string by default', async function () {

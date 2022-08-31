@@ -1,9 +1,8 @@
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const ERC721BurnableMock = artifacts.require('ERC721BurnableMock');
+const ERC721Burnable = artifacts.require('$ERC721Burnable');
 
 contract('ERC721Burnable', function (accounts) {
   const [owner, approved] = accounts;
@@ -16,13 +15,13 @@ contract('ERC721Burnable', function (accounts) {
   const symbol = 'NFT';
 
   beforeEach(async function () {
-    this.token = await ERC721BurnableMock.new(name, symbol);
+    this.token = await ERC721Burnable.new(name, symbol);
   });
 
   describe('like a burnable ERC721', function () {
     beforeEach(async function () {
-      await this.token.mint(owner, firstTokenId);
-      await this.token.mint(owner, secondTokenId);
+      await this.token.$_mint(owner, firstTokenId);
+      await this.token.$_mint(owner, secondTokenId);
     });
 
     describe('burn', function () {
@@ -45,7 +44,7 @@ contract('ERC721Burnable', function (accounts) {
         it('emits a burn event', async function () {
           expectEvent(receipt, 'Transfer', {
             from: owner,
-            to: ZERO_ADDRESS,
+            to: constants.ZERO_ADDRESS,
             tokenId: tokenId,
           });
         });

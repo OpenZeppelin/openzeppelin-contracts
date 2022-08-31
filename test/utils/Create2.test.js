@@ -1,4 +1,4 @@
-const { balance, BN, ether, expectRevert, send } = require('@openzeppelin/test-helpers');
+const { balance, ether, expectRevert, send } = require('@openzeppelin/test-helpers');
 const { computeCreate2Address } = require('../helpers/create2');
 const { expect } = require('chai');
 

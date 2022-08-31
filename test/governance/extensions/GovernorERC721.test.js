@@ -7,7 +7,7 @@ const Token = artifacts.require('$ERC721Votes');
 const Governor = artifacts.require('GovernorVoteMocks');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-contract('GovernorERC721Mock', function (accounts) {
+contract('GovernorERC721', function (accounts) {
   const [ owner, voter1, voter2, voter3, voter4 ] = accounts;
 
   const name = 'OZ-Governor';
@@ -25,7 +25,7 @@ contract('GovernorERC721Mock', function (accounts) {
 
   beforeEach(async function () {
     this.owner = owner;
-    this.token = await Token.new(tokenName, tokenSymbol, tokenName, "1");
+    this.token = await Token.new(tokenName, tokenSymbol, tokenName, '1');
     this.mock = await Governor.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
 
