@@ -38,13 +38,6 @@ abstract contract Ownable2Step is Ownable {
     }
 
     /**
-     * @dev Make the direct ownership transfer available as a fallback when the receiver cannot accept.
-     */
-    function forceTransferOwnership(address newOwner) public virtual {
-        super.transferOwnership(newOwner);
-    }
-
-    /**
      * @dev Transfers ownership of the contract to a new account (`newOwner`) and deletes any pending owner.
      * Internal function without access restriction.
      */

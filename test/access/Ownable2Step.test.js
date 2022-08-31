@@ -27,16 +27,18 @@ contract('Ownable2Step', function (accounts) {
       expect(await this.ownable2Step.pendingOwner()).to.not.equal(accountA);
     });
 
-    it('changes owner after force transfer', async function () {
-      await this.ownable2Step.forceTransferOwnership(accountA, { from: owner });
-      expect(await this.ownable2Step.owner()).to.equal(accountA);
-      expect(await this.ownable2Step.pendingOwner()).to.not.equal(accountA);
+    it('changes owner after renouncing ownership', async function () {
+      await this.ownable2Step.renounceOwnership({ from: owner });
+      // If renounceOwnership is removed from parent an alternative is needed ...
+      // without it is difficult to cleanly renounce with the two step process
+      // see: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3620#discussion_r957930388
+      expect(await this.ownable2Step.owner()).to.equal(ZERO_ADDRESS);
     });
 
-    it('pending owner resets on force transfer', async function () {
+    it('pending owner resets after renouncing ownership', async function () {
       await this.ownable2Step.transferOwnership(accountA, { from: owner });
       expect(await this.ownable2Step.pendingOwner()).to.equal(accountA);
-      await this.ownable2Step.forceTransferOwnership(accountB, { from: owner });
+      await this.ownable2Step.renounceOwnership({ from: owner });
       expect(await this.ownable2Step.pendingOwner()).to.equal(ZERO_ADDRESS);
       await expectRevert(
         this.ownable2Step.acceptOwnership({ from: accountA }),
