@@ -20,7 +20,6 @@
  * `VestingWallet`: add `releasable` getters. ([#3580](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3580))
  * `Create2`: optimize address computation by using assembly instead of `abi.encodePacked`. ([#3600](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3600))
  * `Clones`: optimized the assembly to use only the scratch space during deployments, and optimized `predictDeterministicAddress` to use lesser operations. ([#3640](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3640))
- * `Mocks`: removed unnecessary use of `virtual` where contracts are not meant to be subclassed. ([#3650](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3650))
 
 ### Deprecations
 
