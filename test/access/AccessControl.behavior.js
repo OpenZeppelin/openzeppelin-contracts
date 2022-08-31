@@ -115,7 +115,7 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
 
   describe('setting role admin', function () {
     beforeEach(async function () {
-      const receipt = await this.accessControl.setRoleAdmin(ROLE, OTHER_ROLE);
+      const receipt = await this.accessControl.$_setRoleAdmin(ROLE, OTHER_ROLE);
       expectEvent(receipt, 'RoleAdminChanged', {
         role: ROLE,
         previousAdminRole: DEFAULT_ADMIN_ROLE,
@@ -161,19 +161,19 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
     });
 
     it('do not revert if sender has role', async function () {
-      await this.accessControl.senderProtected(ROLE, { from: authorized });
+      await this.accessControl.methods['$_checkRole(bytes32)'](ROLE, { from: authorized });
     });
 
     it('revert if sender doesn\'t have role #1', async function () {
       await expectRevert(
-        this.accessControl.senderProtected(ROLE, { from: other }),
+        this.accessControl.methods['$_checkRole(bytes32)'](ROLE, { from: other }),
         `${errorPrefix}: account ${other.toLowerCase()} is missing role ${ROLE}`,
       );
     });
 
     it('revert if sender doesn\'t have role #2', async function () {
       await expectRevert(
-        this.accessControl.senderProtected(OTHER_ROLE, { from: authorized }),
+        this.accessControl.methods['$_checkRole(bytes32)'](OTHER_ROLE, { from: authorized }),
         `${errorPrefix}: account ${authorized.toLowerCase()} is missing role ${OTHER_ROLE}`,
       );
     });
@@ -211,6 +211,7 @@ function shouldBehaveLikeAccessControlEnumerable (errorPrefix, admin, authorized
 }
 
 module.exports = {
+  DEFAULT_ADMIN_ROLE,
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlEnumerable,
 };
