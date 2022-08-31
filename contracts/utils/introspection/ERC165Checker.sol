@@ -17,7 +17,7 @@ library ERC165Checker {
     bytes4 private constant _INTERFACE_ID_INVALID = 0xffffffff;
 
     /**
-     * @dev Returns true if `account` supports the {IERC165} interface,
+     * @dev Returns true if `account` supports the {IERC165} interface.
      */
     function supportsERC165(address account) internal view returns (bool) {
         // Any contract that implements ERC165 must explicitly indicate support of
@@ -82,7 +82,7 @@ library ERC165Checker {
             return false;
         }
 
-        // query support of each interface in _interfaceIds
+        // query support of each interface in interfaceIds
         for (uint256 i = 0; i < interfaceIds.length; i++) {
             if (!supportsERC165InterfaceUnchecked(account, interfaceIds[i])) {
                 return false;
