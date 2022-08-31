@@ -2,8 +2,8 @@ const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/te
 const { web3 } = require('@openzeppelin/test-helpers/src/setup');
 const { expect } = require('chai');
 
-const ERC20Mock = artifacts.require('ERC20Mock');
 const VestingWallet = artifacts.require('VestingWallet');
+const ERC20 = artifacts.require('$ERC20');
 
 const { shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
 
@@ -51,7 +51,7 @@ contract('VestingWallet', function (accounts) {
 
     describe('ERC20 vesting', function () {
       beforeEach(async function () {
-        this.token = await ERC20Mock.new('Name', 'Symbol', this.mock.address, amount);
+        this.token = await ERC20.new('Name', 'Symbol')
         this.getBalance = (account) => this.token.balanceOf(account);
         this.checkRelease = (receipt, to, value) => expectEvent.inTransaction(
           receipt.tx,
@@ -59,6 +59,8 @@ contract('VestingWallet', function (accounts) {
           'Transfer',
           { from: this.mock.address, to, value },
         );
+
+        await this.token.$_mint(this.mock.address, amount);
       });
 
       shouldBehaveLikeVesting(beneficiary);
