@@ -4,13 +4,15 @@ const { expect } = require('chai');
 const ERC721ConsecutiveMock = artifacts.require('ERC721ConsecutiveMock');
 
 contract('ERC721Consecutive', function (accounts) {
-  const [ user1, user2, receiver ] = accounts;
+  const [ user1, user2, user3, receiver ] = accounts;
 
   const name = 'Non Fungible Token';
   const symbol = 'NFT';
   const batches = [
+    { receiver: user1, amount: 0 },
     { receiver: user1, amount: 3 },
     { receiver: user2, amount: 5 },
+    { receiver: user3, amount: 0 },
     { receiver: user1, amount: 7 },
   ];
 
@@ -28,6 +30,8 @@ contract('ERC721Consecutive', function (accounts) {
       let first = 0;
 
       for (const batch of batches) {
+        if (batch.amount == 0) continue;
+
         await expectEvent.inTransaction(this.token.transactionHash, this.token, 'ConsecutiveTransfer', {
           fromTokenId: web3.utils.toBN(first),
           toTokenId: web3.utils.toBN(first + batch.amount - 1),

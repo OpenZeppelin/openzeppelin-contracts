@@ -62,10 +62,11 @@ abstract contract ERC721Consecutive is ERC721 {
      * Emits a {ConsecutiveTransfer} event.
      */
     function _mintConsecutive(address to, uint96 batchSize) internal virtual {
-        require(!Address.isContract(address(this)), "ERC721Consecutive: batch minting restricted to constructor");
+        // minting a batch of size 0 is a no-op
+        if (batchSize == 0) return;
 
+        require(!Address.isContract(address(this)), "ERC721Consecutive: batch minting restricted to constructor");
         require(to != address(0), "ERC721Consecutive: mint to the zero address");
-        require(batchSize > 0, "ERC721Consecutive: empty batch");
         require(batchSize < 5000, "ERC721Consecutive: batches too large for indexing");
 
         uint96 first = _totalConsecutiveSupply();
