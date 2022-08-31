@@ -6,14 +6,14 @@ const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
 const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock');
 const UUPSUpgradeableLegacyMock = artifacts.require('UUPSUpgradeableLegacyMock');
-const CountersImpl = artifacts.require('CountersImpl');
+const NonUpgradeableMock = artifacts.require('NonUpgradeableMock');
 
 contract('UUPSUpgradeable', function (accounts) {
   before(async function () {
     this.implInitial = await UUPSUpgradeableMock.new();
     this.implUpgradeOk = await UUPSUpgradeableMock.new();
     this.implUpgradeUnsafe = await UUPSUpgradeableUnsafeMock.new();
-    this.implUpgradeNonUUPS = await CountersImpl.new();
+    this.implUpgradeNonUUPS = await NonUpgradeableMock.new();
   });
 
   beforeEach(async function () {
