@@ -4,7 +4,7 @@ const RLP = require('rlp');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
 
-const Token = artifacts.require('ERC20VotesCompMock');
+const Token = artifacts.require('$ERC20VotesComp');
 const Timelock = artifacts.require('CompTimelock');
 const Governor = artifacts.require('GovernorCompatibilityBravoMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
@@ -29,7 +29,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
   beforeEach(async function () {
     const [ deployer ] = await web3.eth.getAccounts();
 
-    this.token = await Token.new(tokenName, tokenSymbol);
+    this.token = await Token.new(tokenName, tokenSymbol, tokenName);
 
     // Need to predict governance address to set it as timelock admin with a delayed transfer
     const nonce = await web3.eth.getTransactionCount(deployer);
@@ -50,7 +50,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
     await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
 
-    await this.token.mint(owner, tokenSupply);
+    await this.token.$_mint(owner, tokenSupply);
     await this.helper.delegate({ token: this.token, to: proposer, value: proposalThreshold }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });

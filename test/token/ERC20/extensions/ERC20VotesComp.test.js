@@ -8,7 +8,7 @@ const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
-const ERC20VotesCompMock = artifacts.require('ERC20VotesCompMock');
+const ERC20VotesComp = artifacts.require('$ERC20VotesComp');
 
 const { batchInBlock } = require('../../../helpers/txpool');
 const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
@@ -29,7 +29,8 @@ contract('ERC20VotesComp', function (accounts) {
   const supply = new BN('10000000000000000000000000');
 
   beforeEach(async function () {
-    this.token = await ERC20VotesCompMock.new(name, symbol);
+    this.chainId = await getChainId();
+    this.token = await ERC20VotesComp.new(name, symbol, name);
   });
 
   it('initial nonce is 0', async function () {
@@ -40,14 +41,14 @@ contract('ERC20VotesComp', function (accounts) {
     expect(
       await this.token.DOMAIN_SEPARATOR(),
     ).to.equal(
-      await domainSeparator(name, version, await getChainId(), this.token.address),
+      await domainSeparator({ name, version, chainId: this.chainId, verifyingContract: this.token.address }),
     );
   });
 
   it('minting restriction', async function () {
     const amount = new BN('2').pow(new BN('96'));
     await expectRevert(
-      this.token.mint(holder, amount),
+      this.token.$_mint(holder, amount),
       'ERC20Votes: total supply risks overflowing votes',
     );
   });
@@ -55,7 +56,7 @@ contract('ERC20VotesComp', function (accounts) {
   describe('set delegation', function () {
     describe('call', function () {
       it('delegation with balance', async function () {
-        await this.token.mint(holder, supply);
+        await this.token.$_mint(holder, supply);
         expect(await this.token.delegates(holder)).to.be.equal(ZERO_ADDRESS);
 
         const { receipt } = await this.token.delegate(holder, { from: holder });
@@ -106,13 +107,13 @@ contract('ERC20VotesComp', function (accounts) {
       }});
 
       beforeEach(async function () {
-        await this.token.mint(delegatorAddress, supply);
+        await this.token.$_mint(delegatorAddress, supply);
       });
 
       it('accept signed delegation', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(await getChainId(), this.token.address, {
+          buildData(this.chainId, this.token.address, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -144,7 +145,7 @@ contract('ERC20VotesComp', function (accounts) {
       it('rejects reused signature', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(await getChainId(), this.token.address, {
+          buildData(this.chainId, this.token.address, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -162,7 +163,7 @@ contract('ERC20VotesComp', function (accounts) {
       it('rejects bad delegatee', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(await getChainId(), this.token.address, {
+          buildData(this.chainId, this.token.address, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -179,7 +180,7 @@ contract('ERC20VotesComp', function (accounts) {
       it('rejects bad nonce', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(await getChainId(), this.token.address, {
+          buildData(this.chainId, this.token.address, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -195,7 +196,7 @@ contract('ERC20VotesComp', function (accounts) {
         const expiry = (await time.latest()) - time.duration.weeks(1);
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(await getChainId(), this.token.address, {
+          buildData(this.chainId, this.token.address, {
             delegatee: delegatorAddress,
             nonce,
             expiry,
@@ -212,7 +213,7 @@ contract('ERC20VotesComp', function (accounts) {
 
   describe('change delegation', function () {
     beforeEach(async function () {
-      await this.token.mint(holder, supply);
+      await this.token.$_mint(holder, supply);
       await this.token.delegate(holder, { from: holder });
     });
 
@@ -250,7 +251,7 @@ contract('ERC20VotesComp', function (accounts) {
 
   describe('transfers', function () {
     beforeEach(async function () {
-      await this.token.mint(holder, supply);
+      await this.token.$_mint(holder, supply);
     });
 
     it('no delegation', async function () {
@@ -312,7 +313,7 @@ contract('ERC20VotesComp', function (accounts) {
   // The following tests are a adaptation of https://github.com/compound-finance/compound-protocol/blob/master/tests/Governance/CompTest.js.
   describe('Compound test suite', function () {
     beforeEach(async function () {
-      await this.token.mint(holder, supply);
+      await this.token.$_mint(holder, supply);
     });
 
     describe('balanceOf', function () {
@@ -445,7 +446,7 @@ contract('ERC20VotesComp', function (accounts) {
     });
 
     it('returns the latest block if >= last checkpoint block', async function () {
-      t1 = await this.token.mint(holder, supply);
+      t1 = await this.token.$_mint(holder, supply);
 
       await time.advanceBlock();
       await time.advanceBlock();
@@ -456,7 +457,7 @@ contract('ERC20VotesComp', function (accounts) {
 
     it('returns zero if < first checkpoint block', async function () {
       await time.advanceBlock();
-      const t1 = await this.token.mint(holder, supply);
+      const t1 = await this.token.$_mint(holder, supply);
       await time.advanceBlock();
       await time.advanceBlock();
 
@@ -465,16 +466,16 @@ contract('ERC20VotesComp', function (accounts) {
     });
 
     it('generally returns the voting balance at the appropriate checkpoint', async function () {
-      const t1 = await this.token.mint(holder, supply);
+      const t1 = await this.token.$_mint(holder, supply);
       await time.advanceBlock();
       await time.advanceBlock();
-      const t2 = await this.token.burn(holder, 10);
+      const t2 = await this.token.$_burn(holder, 10);
       await time.advanceBlock();
       await time.advanceBlock();
-      const t3 = await this.token.burn(holder, 10);
+      const t3 = await this.token.$_burn(holder, 10);
       await time.advanceBlock();
       await time.advanceBlock();
-      const t4 = await this.token.mint(holder, 20);
+      const t4 = await this.token.$_mint(holder, 20);
       await time.advanceBlock();
       await time.advanceBlock();
 

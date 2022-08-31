@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
 
-const Token = artifacts.require('ERC721VotesMock');
+const Token = artifacts.require('$ERC721Votes');
 const Governor = artifacts.require('GovernorVoteMocks');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
@@ -25,7 +25,7 @@ contract('GovernorERC721Mock', function (accounts) {
 
   beforeEach(async function () {
     this.owner = owner;
-    this.token = await Token.new(tokenName, tokenSymbol);
+    this.token = await Token.new(tokenName, tokenSymbol, tokenName, "1");
     this.mock = await Governor.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
 
@@ -33,7 +33,7 @@ contract('GovernorERC721Mock', function (accounts) {
 
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
-    await Promise.all([ NFT0, NFT1, NFT2, NFT3, NFT4 ].map(tokenId => this.token.mint(owner, tokenId)));
+    await Promise.all([ NFT0, NFT1, NFT2, NFT3, NFT4 ].map(tokenId => this.token.$_mint(owner, tokenId)));
     await this.helper.delegate({ token: this.token, to: voter1, tokenId: NFT0 }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter2, tokenId: NFT1 }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter2, tokenId: NFT2 }, { from: owner });

@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
 
-const Token = artifacts.require('ERC20VotesMock');
+const Token = artifacts.require('$ERC20Votes');
 const Governor = artifacts.require('GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
@@ -23,7 +23,7 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
 
   beforeEach(async function () {
     this.owner = owner;
-    this.token = await Token.new(tokenName, tokenSymbol);
+    this.token = await Token.new(tokenName, tokenSymbol, tokenName);
     this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, ratio);
     this.receiver = await CallReceiver.new();
 
@@ -31,7 +31,7 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
 
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
-    await this.token.mint(owner, tokenSupply);
+    await this.token.$_mint(owner, tokenSupply);
     await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });

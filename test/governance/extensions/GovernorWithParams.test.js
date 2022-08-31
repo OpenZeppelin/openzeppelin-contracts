@@ -7,7 +7,7 @@ const Enums = require('../../helpers/enums');
 const { EIP712Domain } = require('../../helpers/eip712');
 const { GovernorHelper } = require('../../helpers/governance');
 
-const Token = artifacts.require('ERC20VotesCompMock');
+const Token = artifacts.require('$ERC20VotesComp');
 const Governor = artifacts.require('GovernorWithParamsMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
@@ -35,7 +35,7 @@ contract('GovernorWithParams', function (accounts) {
 
   beforeEach(async function () {
     this.chainId = await web3.eth.getChainId();
-    this.token = await Token.new(tokenName, tokenSymbol);
+    this.token = await Token.new(tokenName, tokenSymbol, tokenName);
     this.mock = await Governor.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
 
@@ -43,7 +43,7 @@ contract('GovernorWithParams', function (accounts) {
 
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
-    await this.token.mint(owner, tokenSupply);
+    await this.token.$_mint(owner, tokenSupply);
     await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });

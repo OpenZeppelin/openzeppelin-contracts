@@ -26,7 +26,7 @@ function shouldBehaveLikeVotes () {
       expect(
         await this.votes.DOMAIN_SEPARATOR(),
       ).to.equal(
-        await domainSeparator(this.name, version, this.chainId, this.votes.address),
+        await domainSeparator({ name: this.name, version, chainId: this.chainId, verifyingContract: this.votes.address }),
       );
     });
 

@@ -8,7 +8,7 @@ const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
-const ERC20PermitMock = artifacts.require('ERC20PermitMock');
+const ERC20Permit = artifacts.require('$ERC20Permit');
 
 const { EIP712Domain, Permit, domainSeparator } = require('../../../helpers/eip712');
 const { getChainId } = require('../../../helpers/chainid');
@@ -23,7 +23,10 @@ contract('ERC20Permit', function (accounts) {
   const initialSupply = new BN(100);
 
   beforeEach(async function () {
-    this.token = await ERC20PermitMock.new(name, symbol, initialHolder, initialSupply);
+    this.chainId = await getChainId();
+
+    this.token = await ERC20Permit.new(name, symbol, name);
+    await this.token.$_mint(initialHolder, initialSupply);
   });
 
   it('initial nonce is 0', async function () {
@@ -34,7 +37,7 @@ contract('ERC20Permit', function (accounts) {
     expect(
       await this.token.DOMAIN_SEPARATOR(),
     ).to.equal(
-      await domainSeparator(name, version, await getChainId(), this.token.address),
+      await domainSeparator({ name, version, chainId: this.chainId, verifyingContract: this.token.address }),
     );
   });
 
@@ -54,7 +57,7 @@ contract('ERC20Permit', function (accounts) {
     });
 
     it('accepts owner signature', async function () {
-      const data = buildData(await getChainId(), this.token.address);
+      const data = buildData(this.chainId, this.token.address);
       const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
       const { v, r, s } = fromRpcSig(signature);
 
@@ -65,7 +68,7 @@ contract('ERC20Permit', function (accounts) {
     });
 
     it('rejects reused signature', async function () {
-      const data = buildData(await getChainId(), this.token.address);
+      const data = buildData(this.chainId, this.token.address);
       const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
       const { v, r, s } = fromRpcSig(signature);
 
@@ -79,7 +82,7 @@ contract('ERC20Permit', function (accounts) {
 
     it('rejects other signature', async function () {
       const otherWallet = Wallet.generate();
-      const data = buildData(await getChainId(), this.token.address);
+      const data = buildData(this.chainId, this.token.address);
       const signature = ethSigUtil.signTypedMessage(otherWallet.getPrivateKey(), { data });
       const { v, r, s } = fromRpcSig(signature);
 
@@ -92,7 +95,7 @@ contract('ERC20Permit', function (accounts) {
     it('rejects expired permit', async function () {
       const deadline = (await time.latest()) - time.duration.weeks(1);
 
-      const data = buildData(await getChainId(), this.token.address, deadline);
+      const data = buildData(this.chainId, this.token.address, deadline);
       const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
       const { v, r, s } = fromRpcSig(signature);
 

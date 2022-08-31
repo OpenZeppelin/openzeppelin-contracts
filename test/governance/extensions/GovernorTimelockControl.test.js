@@ -7,7 +7,7 @@ const {
   shouldSupportInterfaces,
 } = require('../../utils/introspection/SupportsInterface.behavior');
 
-const Token = artifacts.require('ERC20VotesMock');
+const Token = artifacts.require('$ERC20Votes');
 const Timelock = artifacts.require('TimelockController');
 const Governor = artifacts.require('GovernorTimelockControlMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
@@ -32,7 +32,7 @@ contract('GovernorTimelockControl', function (accounts) {
   beforeEach(async function () {
     const [ deployer ] = await web3.eth.getAccounts();
 
-    this.token = await Token.new(tokenName, tokenSymbol);
+    this.token = await Token.new(tokenName, tokenSymbol, tokenName);
     this.timelock = await Timelock.new(3600, [], []);
     this.mock = await Governor.new(
       name,
@@ -61,7 +61,7 @@ contract('GovernorTimelockControl', function (accounts) {
     await this.timelock.grantRole(EXECUTOR_ROLE, constants.ZERO_ADDRESS);
     await this.timelock.revokeRole(TIMELOCK_ADMIN_ROLE, deployer);
 
-    await this.token.mint(owner, tokenSupply);
+    await this.token.$_mint(owner, tokenSupply);
     await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
@@ -245,7 +245,7 @@ contract('GovernorTimelockControl', function (accounts) {
   describe('onlyGovernance', function () {
     describe('relay', function () {
       beforeEach(async function () {
-        await this.token.mint(this.mock.address, 1);
+        await this.token.$_mint(this.mock.address, 1);
       });
 
       it('is protected', async function () {

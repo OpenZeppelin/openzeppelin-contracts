@@ -3,8 +3,8 @@ const { computeCreate2Address } = require('../helpers/create2');
 const { expect } = require('chai');
 
 const Create2Impl = artifacts.require('Create2Impl');
-const ERC20Mock = artifacts.require('ERC20Mock');
-const ERC1820Implementer = artifacts.require('ERC1820Implementer');
+const ERC20Decimals = artifacts.require('$ERC20Decimals');
+const ERC1820Implementer = artifacts.require('$ERC1820Implementer');
 
 contract('Create2', function (accounts) {
   const [deployerAccount] = accounts;
@@ -13,11 +13,11 @@ contract('Create2', function (accounts) {
   const saltHex = web3.utils.soliditySha3(salt);
 
   const encodedParams = web3.eth.abi.encodeParameters(
-    ['string', 'string', 'address', 'uint256'],
-    ['MyToken', 'MTKN', deployerAccount, 100],
+    ['string', 'string', 'uint8'],
+    ['MyToken', 'MTKN', '9'],
   ).slice(2);
 
-  const constructorByteCode = `${ERC20Mock.bytecode}${encodedParams}`;
+  const constructorByteCode = `${ERC20Decimals.bytecode}${encodedParams}`;
 
   beforeEach(async function () {
     this.factory = await Create2Impl.new();
@@ -48,13 +48,13 @@ contract('Create2', function (accounts) {
       expect(ERC1820Implementer.bytecode).to.include((await web3.eth.getCode(offChainComputed)).slice(2));
     });
 
-    it('deploys a ERC20Mock with correct balances', async function () {
+    it('deploys a ERC20 with correct balances', async function () {
       const offChainComputed = computeCreate2Address(saltHex, constructorByteCode, this.factory.address);
 
       await this.factory.deploy(0, saltHex, constructorByteCode);
 
-      const erc20 = await ERC20Mock.at(offChainComputed);
-      expect(await erc20.balanceOf(deployerAccount)).to.be.bignumber.equal(new BN(100));
+      const erc20 = await ERC20Decimals.at(offChainComputed);
+      expect(await erc20.decimals()).to.be.bignumber.equal('9');
     });
 
     it('deploys a contract with funds deposited in the factory', async function () {
