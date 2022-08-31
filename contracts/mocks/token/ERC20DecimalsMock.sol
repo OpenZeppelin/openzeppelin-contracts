@@ -11,7 +11,7 @@ abstract contract ERC20DecimalsMock is ERC20 {
         _decimals = decimals_;
     }
 
-    function decimals() public view virtual override returns (uint8) {
+    function decimals() public view override returns (uint8) {
         return _decimals;
     }
 }

@@ -16,7 +16,7 @@ abstract contract VotesMock is Votes {
         return _delegate(account, newDelegation);
     }
 
-    function _getVotingUnits(address account) internal view virtual override returns (uint256) {
+    function _getVotingUnits(address account) internal view override returns (uint256) {
         return _balances[account];
     }
 

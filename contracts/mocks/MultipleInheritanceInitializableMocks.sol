@@ -42,7 +42,7 @@ contract SampleHuman is Initializable {
 contract SampleMother is Initializable, SampleHuman {
     uint256 public mother;
 
-    function initialize(uint256 value) public virtual initializer {
+    function initialize(uint256 value) public initializer {
         __SampleMother_init(value);
     }
 
@@ -64,7 +64,7 @@ contract SampleMother is Initializable, SampleHuman {
 contract SampleGramps is Initializable, SampleHuman {
     string public gramps;
 
-    function initialize(string memory value) public virtual initializer {
+    function initialize(string memory value) public initializer {
         __SampleGramps_init(value);
     }
 
