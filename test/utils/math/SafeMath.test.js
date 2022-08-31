@@ -4,7 +4,7 @@ const { MAX_UINT256 } = constants;
 const { expect } = require('chai');
 
 const SafeMath = artifacts.require('$SafeMath');
-const SafeMathMemory = artifacts.require('SafeMathMemoryMock');
+const SafeMathMemoryCheck = artifacts.require('$SafeMathMemoryCheck');
 
 function expectStruct (value, expected) {
   for (const key in expected) {
@@ -382,27 +382,27 @@ contract('SafeMath', function (accounts) {
 
   describe('memory leakage', function () {
     beforeEach(async function () {
-      this.safeMath = await SafeMathMemory.new();
+      this.safeMathMemoryCheck = await SafeMathMemoryCheck.new();
     });
 
     it('add', async function () {
-      expect(await this.safeMath.addMemoryCheck()).to.be.bignumber.equal('0');
+      expect(await this.safeMathMemoryCheck.$addMemoryCheck()).to.be.bignumber.equal('0');
     });
 
     it('sub', async function () {
-      expect(await this.safeMath.subMemoryCheck()).to.be.bignumber.equal('0');
+      expect(await this.safeMathMemoryCheck.$subMemoryCheck()).to.be.bignumber.equal('0');
     });
 
     it('mul', async function () {
-      expect(await this.safeMath.mulMemoryCheck()).to.be.bignumber.equal('0');
+      expect(await this.safeMathMemoryCheck.$mulMemoryCheck()).to.be.bignumber.equal('0');
     });
 
     it('div', async function () {
-      expect(await this.safeMath.divMemoryCheck()).to.be.bignumber.equal('0');
+      expect(await this.safeMathMemoryCheck.$divMemoryCheck()).to.be.bignumber.equal('0');
     });
 
     it('mod', async function () {
-      expect(await this.safeMath.modMemoryCheck()).to.be.bignumber.equal('0');
+      expect(await this.safeMathMemoryCheck.$modMemoryCheck()).to.be.bignumber.equal('0');
     });
   });
 });

@@ -5,9 +5,7 @@ pragma solidity ^0.8.0;
 import "../utils/cryptography/ECDSA.sol";
 import "../utils/cryptography/EIP712.sol";
 
-contract EIP712Verifier is EIP712 {
-    constructor(string memory name, string memory version) EIP712(name, version) {}
-
+abstract contract EIP712Verifier is EIP712 {
     function verify(
         bytes memory signature,
         address signer,

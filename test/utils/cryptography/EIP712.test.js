@@ -4,8 +4,7 @@ const Wallet = require('ethereumjs-wallet').default;
 const { EIP712Domain, domainSeparator, hashTypedData } = require('../../helpers/eip712');
 const { getChainId } = require('../../helpers/chainid');
 
-const EIP712 = artifacts.require('$EIP712');
-const EIP712Verifier = artifacts.require('EIP712Verifier');
+const EIP712Verifier = artifacts.require('$EIP712Verifier');
 
 contract('EIP712', function (accounts) {
   const [mailTo] = accounts;
@@ -15,8 +14,7 @@ contract('EIP712', function (accounts) {
 
   beforeEach('deploying', async function () {
     this.chainId = await getChainId();
-    this.eip712 = await EIP712.new(name, version);
-    this.eip712verifier = await EIP712Verifier.new(name, version);
+    this.eip712 = await EIP712Verifier.new(name, version);
   });
 
   it('domain separator', async function () {
@@ -46,7 +44,7 @@ contract('EIP712', function (accounts) {
           { name: 'contents', type: 'string' },
         ],
       },
-      domain: { name, version, chainId: this.chainId, verifyingContract: this.eip712verifier.address },
+      domain: { name, version, chainId: this.chainId, verifyingContract: this.eip712.address },
       primaryType: 'Mail',
       message,
     };
@@ -54,6 +52,6 @@ contract('EIP712', function (accounts) {
     const wallet = Wallet.generate();
     const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
 
-    await this.eip712verifier.verify(signature, wallet.getAddressString(), message.to, message.contents);
+    await this.eip712.verify(signature, wallet.getAddressString(), message.to, message.contents);
   });
 });

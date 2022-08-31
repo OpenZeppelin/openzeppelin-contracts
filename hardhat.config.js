@@ -80,7 +80,6 @@ module.exports = {
   },
   exposed: {
     exclude: [
-      'mocks/**/*',
       'vendor/**/*',
       // overflow clash
       'utils/Timers.sol',

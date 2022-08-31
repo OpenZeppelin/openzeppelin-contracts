@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 
 import "../utils/math/SafeMath.sol";
 
-contract SafeMathMemoryMock {
-    function addMemoryCheck() public pure returns (uint256 mem) {
+library SafeMathMemoryCheck {
+    function addMemoryCheck() internal pure returns (uint256 mem) {
         uint256 length = 32;
         assembly {
             mem := mload(0x40)
@@ -18,7 +18,7 @@ contract SafeMathMemoryMock {
         }
     }
 
-    function subMemoryCheck() public pure returns (uint256 mem) {
+    function subMemoryCheck() internal pure returns (uint256 mem) {
         uint256 length = 32;
         assembly {
             mem := mload(0x40)
@@ -31,7 +31,7 @@ contract SafeMathMemoryMock {
         }
     }
 
-    function mulMemoryCheck() public pure returns (uint256 mem) {
+    function mulMemoryCheck() internal pure returns (uint256 mem) {
         uint256 length = 32;
         assembly {
             mem := mload(0x40)
@@ -44,7 +44,7 @@ contract SafeMathMemoryMock {
         }
     }
 
-    function divMemoryCheck() public pure returns (uint256 mem) {
+    function divMemoryCheck() internal pure returns (uint256 mem) {
         uint256 length = 32;
         assembly {
             mem := mload(0x40)
@@ -57,7 +57,7 @@ contract SafeMathMemoryMock {
         }
     }
 
-    function modMemoryCheck() public pure returns (uint256 mem) {
+    function modMemoryCheck() internal pure returns (uint256 mem) {
         uint256 length = 32;
         assembly {
             mem := mload(0x40)
