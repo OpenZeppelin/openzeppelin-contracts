@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./ERC20/ERC20MulticallMock.sol";
+import "./token/ERC20MulticallMock.sol";
 
 contract MulticallTest {
     function testReturnValues(
