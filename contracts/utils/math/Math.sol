@@ -169,31 +169,31 @@ library Math {
         // good first approximation of `sqrt(a)` with at least 1 correct bit.
         uint256 result = 1;
         uint256 x = a;
-        if (x >= 1 << 128) {
+        if (x >> 128 > 0) {
             x >>= 128;
             result <<= 64;
         }
-        if (x >= 1 << 64) {
+        if (x >> 64 > 0) {
             x >>= 64;
             result <<= 32;
         }
-        if (x >= 1 << 32) {
+        if (x >> 32 > 0) {
             x >>= 32;
             result <<= 16;
         }
-        if (x >= 1 << 16) {
+        if (x >> 16 > 0) {
             x >>= 16;
             result <<= 8;
         }
-        if (x >= 1 << 8) {
+        if (x >> 8 > 0) {
             x >>= 8;
             result <<= 4;
         }
-        if (x >= 1 << 4) {
+        if (x >> 4 > 0) {
             x >>= 4;
             result <<= 2;
         }
-        if (x >= 1 << 2) {
+        if (x >> 2 > 0) {
             result <<= 1;
         }
 
