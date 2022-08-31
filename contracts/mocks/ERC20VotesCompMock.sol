@@ -14,8 +14,4 @@ contract ERC20VotesCompMock is ERC20VotesComp {
     function burn(address account, uint256 amount) public {
         _burn(account, amount);
     }
-
-    function getChainId() external view returns (uint256) {
-        return block.chainid;
-    }
 }

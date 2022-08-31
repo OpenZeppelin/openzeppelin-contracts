@@ -12,6 +12,7 @@ const ERC20VotesCompMock = artifacts.require('ERC20VotesCompMock');
 
 const { batchInBlock } = require('../../../helpers/txpool');
 const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
+const { getChainId } = require('../../../helpers/chainid');
 
 const Delegation = [
   { name: 'delegatee', type: 'address' },
@@ -29,11 +30,6 @@ contract('ERC20VotesComp', function (accounts) {
 
   beforeEach(async function () {
     this.token = await ERC20VotesCompMock.new(name, symbol);
-
-    // We get the chain id from the contract because Ganache (used for coverage) does not return the same chain id
-    // from within the EVM as from the JSON RPC interface.
-    // See https://github.com/trufflesuite/ganache-core/issues/515
-    this.chainId = await this.token.getChainId();
   });
 
   it('initial nonce is 0', async function () {
@@ -44,7 +40,7 @@ contract('ERC20VotesComp', function (accounts) {
     expect(
       await this.token.DOMAIN_SEPARATOR(),
     ).to.equal(
-      await domainSeparator(name, version, this.chainId, this.token.address),
+      await domainSeparator(name, version, await getChainId(), this.token.address),
     );
   });
 
@@ -116,7 +112,7 @@ contract('ERC20VotesComp', function (accounts) {
       it('accept signed delegation', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(this.chainId, this.token.address, {
+          buildData(await getChainId(), this.token.address, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -148,7 +144,7 @@ contract('ERC20VotesComp', function (accounts) {
       it('rejects reused signature', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(this.chainId, this.token.address, {
+          buildData(await getChainId(), this.token.address, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -166,7 +162,7 @@ contract('ERC20VotesComp', function (accounts) {
       it('rejects bad delegatee', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(this.chainId, this.token.address, {
+          buildData(await getChainId(), this.token.address, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -183,7 +179,7 @@ contract('ERC20VotesComp', function (accounts) {
       it('rejects bad nonce', async function () {
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(this.chainId, this.token.address, {
+          buildData(await getChainId(), this.token.address, {
             delegatee: delegatorAddress,
             nonce,
             expiry: MAX_UINT256,
@@ -199,7 +195,7 @@ contract('ERC20VotesComp', function (accounts) {
         const expiry = (await time.latest()) - time.duration.weeks(1);
         const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
           delegator.getPrivateKey(),
-          buildData(this.chainId, this.token.address, {
+          buildData(await getChainId(), this.token.address, {
             delegatee: delegatorAddress,
             nonce,
             expiry,
