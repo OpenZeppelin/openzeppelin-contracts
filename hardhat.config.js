@@ -50,10 +50,7 @@ const argv = require('yargs/yargs')()
   .argv;
 
 require('@nomiclabs/hardhat-truffle5');
-
-if (argv.gas) {
-  require('hardhat-gas-reporter');
-}
+require('hardhat-exposed');
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
@@ -81,13 +78,28 @@ module.exports = {
       allowUnlimitedContractSize: !withOptimizations,
     },
   },
-  gasReporter: {
+  exposed: {
+    exclude: [
+      'mocks/**/*',
+      'vendor/**/*',
+      // overflow clash
+      'utils/Timers.sol',
+      // internal or recursive type is not allowed for public state variables
+      'utils/Checkpoints.sol',
+      'utils/structs/EnumerableSet.sol',
+    ],
+  },
+};
+
+if (argv.gas) {
+  require('hardhat-gas-reporter');
+  module.exports.gasReporter = {
     showMethodSig: true,
     currency: 'USD',
     outputFile: argv.gasReport,
     coinmarketcap: argv.coinmarketcap,
-  },
-};
+  };
+}
 
 if (argv.coverage) {
   require('solidity-coverage');
