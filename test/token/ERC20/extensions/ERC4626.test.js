@@ -1,9 +1,9 @@
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const ERC20Decimals = artifacts.require('$ERC20Decimals');
+const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC4626 = artifacts.require('$ERC4626');
-const ERC4626Decimals = artifacts.require('$ERC4626Decimals');
+const ERC4626Decimals = artifacts.require('$ERC4626DecimalsMock');
 
 const parseToken = (token) => (new BN(token)).mul(new BN('1000000000000'));
 const parseShare = (share) => (new BN(share)).mul(new BN('1000000000000000000'));

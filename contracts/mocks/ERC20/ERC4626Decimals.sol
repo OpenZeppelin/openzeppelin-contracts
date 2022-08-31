@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../../token/ERC20/extensions/ERC4626.sol";
 
-abstract contract ERC4626Decimals is ERC4626 {
+abstract contract ERC4626DecimalsMock is ERC4626 {
     using Math for uint256;
 
     uint8 private immutable _decimals;
