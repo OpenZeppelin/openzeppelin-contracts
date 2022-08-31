@@ -3,21 +3,21 @@ const { computeCreate2Address } = require('../helpers/create2');
 const { expect } = require('chai');
 
 const Create2Impl = artifacts.require('Create2Impl');
-const ERC20Decimals = artifacts.require('$ERC20Decimals');
+const VestingWallet = artifacts.require('VestingWallet');
 const ERC1820Implementer = artifacts.require('$ERC1820Implementer');
 
 contract('Create2', function (accounts) {
-  const [deployerAccount] = accounts;
+  const [ deployerAccount, other ] = accounts;
 
   const salt = 'salt message';
   const saltHex = web3.utils.soliditySha3(salt);
 
   const encodedParams = web3.eth.abi.encodeParameters(
-    ['string', 'string', 'uint8'],
-    ['MyToken', 'MTKN', '9'],
+    [ 'address', 'uint64', 'uint64' ],
+    [ other, 0, 0 ],
   ).slice(2);
 
-  const constructorByteCode = `${ERC20Decimals.bytecode}${encodedParams}`;
+  const constructorByteCode = `${VestingWallet.bytecode}${encodedParams}`;
 
   beforeEach(async function () {
     this.factory = await Create2Impl.new();
@@ -53,8 +53,8 @@ contract('Create2', function (accounts) {
 
       await this.factory.deploy(0, saltHex, constructorByteCode);
 
-      const erc20 = await ERC20Decimals.at(offChainComputed);
-      expect(await erc20.decimals()).to.be.bignumber.equal('9');
+      const erc20 = await VestingWallet.at(offChainComputed);
+      expect(await erc20.beneficiary()).to.be.bignumber.equal(other);
     });
 
     it('deploys a contract with funds deposited in the factory', async function () {
