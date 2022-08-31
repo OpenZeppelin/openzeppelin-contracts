@@ -21,9 +21,9 @@ import "../../../utils/structs/BitMaps.sol";
  */
 abstract contract ERC721Consecutive is ERC721 {
     using BitMaps for BitMaps.BitMap;
-    using Checkpoints for Checkpoints.Checkpoint160[];
+    using Checkpoints for Checkpoints.Trace160;
 
-    Checkpoints.Checkpoint160[] private _sequentialOwnership;
+    Checkpoints.Trace160 private _sequentialOwnership;
     BitMaps.BitMap private _sequentialBurn;
 
     event ConsecutiveTransfer(
@@ -109,7 +109,7 @@ abstract contract ERC721Consecutive is ERC721 {
     }
 
     function _totalConsecutiveSupply() private view returns (uint96) {
-        uint256 length = _sequentialOwnership.length;
-        return length == 0 ? 0 : _sequentialOwnership[length - 1]._key + 1;
+        uint256 length = _sequentialOwnership._checkpoints.length;
+        return length == 0 ? 0 : _sequentialOwnership._checkpoints[length - 1]._key + 1;
     }
 }

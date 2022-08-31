@@ -8,20 +8,10 @@ import "../token/ERC721/extensions/ERC721Enumerable.sol";
 import "../token/ERC721/extensions/ERC721Pausable.sol";
 import "../token/ERC721/extensions/draft-ERC721Votes.sol";
 
-/* solhint-disable-next-line contract-name-camelcase */
-abstract contract __VotesDelegationInConstructor is Votes {
-    constructor(address[] memory accounts) {
-        for (uint256 i; i < accounts.length; ++i) {
-            _delegate(accounts[i], accounts[i]);
-        }
-    }
-}
-
 /**
  * @title ERC721ConsecutiveMock
  */
 contract ERC721ConsecutiveMock is
-    __VotesDelegationInConstructor,
     ERC721Burnable,
     ERC721Consecutive,
     ERC721Enumerable,
@@ -33,8 +23,9 @@ contract ERC721ConsecutiveMock is
         string memory symbol,
         address[] memory receivers,
         uint96[] memory amounts
-    ) __VotesDelegationInConstructor(receivers) ERC721(name, symbol) EIP712(name, "1") {
+    ) ERC721(name, symbol) EIP712(name, "1") {
         for (uint256 i = 0; i < receivers.length; ++i) {
+            _delegate(receivers[i], receivers[i]);
             _mintConsecutive(receivers[i], amounts[i]);
         }
     }
