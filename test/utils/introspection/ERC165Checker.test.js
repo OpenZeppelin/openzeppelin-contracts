@@ -3,10 +3,10 @@ require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const ERC165Checker = artifacts.require('$ERC165Checker');
+const ERC165Storage = artifacts.require('$ERC165Storage');
 const ERC165MissingData = artifacts.require('ERC165MissingData');
 const ERC165MaliciousData = artifacts.require('ERC165MaliciousData');
 const ERC165NotSupported = artifacts.require('ERC165NotSupported');
-const ERC165InterfacesSupported = artifacts.require('ERC165InterfacesSupported');
 const ERC165ReturnBombMock = artifacts.require('ERC165ReturnBombMock');
 
 const DUMMY_ID = '0xdeadbeef';
@@ -119,7 +119,7 @@ contract('ERC165Checker', function (accounts) {
 
   context('ERC165 supported', function () {
     beforeEach(async function () {
-      this.target = await ERC165InterfacesSupported.new([]);
+      this.target = await ERC165Storage.new();
     });
 
     it('supports ERC165', async function () {
@@ -151,7 +151,8 @@ contract('ERC165Checker', function (accounts) {
 
   context('ERC165 and single interface supported', function () {
     beforeEach(async function () {
-      this.target = await ERC165InterfacesSupported.new([DUMMY_ID]);
+      this.target = await ERC165Storage.new();
+      await this.target.$_registerInterface(DUMMY_ID);
     });
 
     it('supports ERC165', async function () {
@@ -183,8 +184,9 @@ contract('ERC165Checker', function (accounts) {
 
   context('ERC165 and many interfaces supported', function () {
     beforeEach(async function () {
-      this.supportedInterfaces = [DUMMY_ID, DUMMY_ID_2, DUMMY_ID_3];
-      this.target = await ERC165InterfacesSupported.new(this.supportedInterfaces);
+      this.supportedInterfaces = [ DUMMY_ID, DUMMY_ID_2, DUMMY_ID_3 ];
+      this.target = await ERC165Storage.new();
+      await Promise.all(this.supportedInterfaces.map(interfaceId => this.target.$_registerInterface(interfaceId)));
     });
 
     it('supports ERC165', async function () {
