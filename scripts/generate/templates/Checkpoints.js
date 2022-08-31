@@ -70,25 +70,6 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
     uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, length);
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
-
-/**
- * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key (similarly to
- * {upperLookup}), optimized for the case when the search key is known to be recent.
- */
-function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
-    uint256 length = self.${opts.checkpointFieldName}.length;
-    uint256 offset = 1;
-
-    while (offset <= length && _unsafeAccess(self.${opts.checkpointFieldName}, length - offset).${opts.keyFieldName} > key) {
-        offset <<= 1;
-    }
-
-    uint256 low = offset < length ? length - offset : 0;
-    uint256 high = length - (offset >> 1);
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
-
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
-}
 `;
 
 const legacyOperations = opts => `\

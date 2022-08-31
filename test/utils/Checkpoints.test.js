@@ -95,7 +95,6 @@ contract('Checkpoints', function (accounts) {
         it('lookup returns 0', async function () {
           expect(await this.contract.lowerLookup(0)).to.be.bignumber.equal('0');
           expect(await this.contract.upperLookup(0)).to.be.bignumber.equal('0');
-          expect(await this.contract.upperLookupRecent(0)).to.be.bignumber.equal('0');
         });
       });
 
@@ -149,7 +148,6 @@ contract('Checkpoints', function (accounts) {
             const value = last(this.checkpoints.filter(x => i >= x.key))?.value || '0';
 
             expect(await this.contract.upperLookup(i)).to.be.bignumber.equal(value);
-            expect(await this.contract.upperLookupRecent(i)).to.be.bignumber.equal(value);
           }
         });
       });

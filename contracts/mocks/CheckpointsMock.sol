@@ -52,10 +52,6 @@ contract Checkpoints224Mock {
         return _totalCheckpoints.upperLookup(key);
     }
 
-    function upperLookupRecent(uint32 key) public view returns (uint224) {
-        return _totalCheckpoints.upperLookupRecent(key);
-    }
-
     function length() public view returns (uint256) {
         return _totalCheckpoints._checkpoints.length;
     }
@@ -80,10 +76,6 @@ contract Checkpoints160Mock {
 
     function upperLookup(uint96 key) public view returns (uint160) {
         return _totalCheckpoints.upperLookup(key);
-    }
-
-    function upperLookupRecent(uint96 key) public view returns (uint224) {
-        return _totalCheckpoints.upperLookupRecent(key);
     }
 
     function length() public view returns (uint256) {
