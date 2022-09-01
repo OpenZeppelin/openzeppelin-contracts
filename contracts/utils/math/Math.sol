@@ -290,7 +290,7 @@ library Math {
      */
     function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
         uint256 result = log10(value);
-        if (rounding == Rounding.Up && 10 ** result < value) {
+        if (rounding == Rounding.Up && 10**result < value) {
             result += 1;
         }
         return result;
