@@ -2,6 +2,7 @@ const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-hel
 const { expect } = require('chai');
 
 const ERC721ConsecutiveMock = artifacts.require('ERC721ConsecutiveMock');
+const ERC721ConsecutiveNoConstructorMintMock = artifacts.require('ERC721ConsecutiveNoConstructorMintMock');
 
 contract('ERC721Consecutive', function (accounts) {
   const [ user1, user2, user3, receiver ] = accounts;
@@ -15,11 +16,13 @@ contract('ERC721Consecutive', function (accounts) {
     { receiver: user3, amount: 0 },
     { receiver: user1, amount: 7 },
   ];
+  const delegates = [ user1, user3 ];
 
   beforeEach(async function () {
     this.token = await ERC721ConsecutiveMock.new(
       name,
       symbol,
+      delegates,
       batches.map(({ receiver }) => receiver),
       batches.map(({ amount }) => amount),
     );
@@ -30,15 +33,17 @@ contract('ERC721Consecutive', function (accounts) {
       let first = 0;
 
       for (const batch of batches) {
-        if (batch.amount == 0) continue;
-
-        await expectEvent.inTransaction(this.token.transactionHash, this.token, 'ConsecutiveTransfer', {
-          fromTokenId: web3.utils.toBN(first),
-          toTokenId: web3.utils.toBN(first + batch.amount - 1),
-          fromAddress: constants.ZERO_ADDRESS,
-          toAddress: batch.receiver,
-        });
-
+        if (batch.amount > 0) {
+          // an event is emmited
+          await expectEvent.inConstruction(this.token, 'ConsecutiveTransfer', {
+            fromTokenId: web3.utils.toBN(first),
+            toTokenId: web3.utils.toBN(first + batch.amount - 1),
+            fromAddress: constants.ZERO_ADDRESS,
+            toAddress: batch.receiver,
+          });
+        } else {
+          // expectEvent.notEmitted.inConstruction only looks at event name, and doesn't check the parameters
+        }
         first += batch.amount;
       }
     });
@@ -62,6 +67,15 @@ contract('ERC721Consecutive', function (accounts) {
         expect(await this.token.balanceOf(account))
           .to.be.bignumber.equal(web3.utils.toBN(balance));
 
+        // If not delegated at construction, check before + do delegation
+        if (!delegates.includes(account)) {
+          expect(await this.token.getVotes(account))
+            .to.be.bignumber.equal(web3.utils.toBN(0));
+
+          await this.token.delegate(account, { from: account });
+        }
+
+        // At this point all accounts should have delegated
         expect(await this.token.getVotes(account))
           .to.be.bignumber.equal(web3.utils.toBN(balance));
       }
@@ -89,6 +103,13 @@ contract('ERC721Consecutive', function (accounts) {
         }
       }
     });
+
+    it('cannot use single minting during construction', async function () {
+      await expectRevert(
+        ERC721ConsecutiveNoConstructorMintMock.new(name, symbol),
+        'ERC721Consecutive: can\'t mint during construction',
+      );
+    });
   });
 
   describe('minting after construction', function () {
@@ -100,9 +121,26 @@ contract('ERC721Consecutive', function (accounts) {
     });
 
     it('simple minting is possible after construction', async function () {
-      const tokenId = batches.reduce((acc, { amount }) => acc + amount, 0) + 1;
-      const receipt = await this.token.mint(user1, tokenId);
-      expectEvent(receipt, 'Transfer', { from: constants.ZERO_ADDRESS, to: user1, tokenId: tokenId.toString() });
+      const tokenId = batches.reduce((acc, { amount }) => acc + amount, 0);
+
+      expect(await this.token.exists(tokenId)).to.be.equal(false);
+
+      expectEvent(
+        await this.token.mint(user1, tokenId),
+        'Transfer',
+        { from: constants.ZERO_ADDRESS, to: user1, tokenId: tokenId.toString() },
+      );
+    });
+
+    it('cannot mint a token that has been batched minted', async function () {
+      const tokenId = batches.reduce((acc, { amount }) => acc + amount, 0) - 1;
+
+      expect(await this.token.exists(tokenId)).to.be.equal(true);
+
+      await expectRevert(
+        this.token.mint(user1, tokenId),
+        'ERC721: token already minted',
+      );
     });
   });
 
@@ -114,13 +152,19 @@ contract('ERC721Consecutive', function (accounts) {
     });
 
     it('tokens can be burned and re-minted', async function () {
-      const receipt1 = await this.token.burn(1, { from: user1 });
-      expectEvent(receipt1, 'Transfer', { from: user1, to: constants.ZERO_ADDRESS, tokenId: '1' });
+      expectEvent(
+        await this.token.burn(1, { from: user1 }),
+        'Transfer',
+        { from: user1, to: constants.ZERO_ADDRESS, tokenId: '1' },
+      );
 
       await expectRevert(this.token.ownerOf(1), 'ERC721: invalid token ID');
 
-      const receipt2 = await this.token.mint(user2, 1);
-      expectEvent(receipt2, 'Transfer', { from: constants.ZERO_ADDRESS, to: user2, tokenId: '1' });
+      expectEvent(
+        await this.token.mint(user2, 1),
+        'Transfer',
+        { from: constants.ZERO_ADDRESS, to: user2, tokenId: '1' },
+      );
 
       expect(await this.token.ownerOf(1)).to.be.equal(user2);
     });

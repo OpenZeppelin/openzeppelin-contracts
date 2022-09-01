@@ -21,11 +21,15 @@ contract ERC721ConsecutiveMock is
     constructor(
         string memory name,
         string memory symbol,
+        address[] memory delegates,
         address[] memory receivers,
         uint96[] memory amounts
     ) ERC721(name, symbol) EIP712(name, "1") {
+        for (uint256 i = 0; i < delegates.length; ++i) {
+            _delegate(delegates[i], delegates[i]);
+        }
+
         for (uint256 i = 0; i < receivers.length; ++i) {
-            _delegate(receivers[i], receivers[i]);
             _mintConsecutive(receivers[i], amounts[i]);
         }
     }
@@ -108,5 +112,11 @@ contract ERC721ConsecutiveMock is
         uint96 size
     ) internal virtual override(ERC721, ERC721Votes) {
         super._afterConsecutiveTokenTransfer(from, to, first, size);
+    }
+}
+
+contract ERC721ConsecutiveNoConstructorMintMock is ERC721Consecutive {
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) {
+        _mint(msg.sender, 0);
     }
 }
