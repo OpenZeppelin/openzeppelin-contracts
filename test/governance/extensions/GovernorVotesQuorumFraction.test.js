@@ -30,7 +30,7 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
       votingPeriod,
       0,
       this.token.address,
-      ratio
+      ratio,
     );
     this.receiver = await CallReceiver.new();
 
