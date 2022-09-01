@@ -56,7 +56,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
      * - `blockNumber` must have been already mined
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return _delegateCheckpoints[account].getAtBlock(blockNumber);
+        return _delegateCheckpoints[account].getAtRecentBlock(blockNumber, _recencyThreshold());
     }
 
     /**
@@ -72,7 +72,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
      */
     function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "Votes: block not yet mined");
-        return _totalCheckpoints.getAtBlock(blockNumber);
+        return _totalCheckpoints.getAtRecentBlock(blockNumber, _recencyThreshold());
     }
 
     /**
@@ -202,6 +202,14 @@ abstract contract Votes is IVotes, Context, EIP712 {
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() external view returns (bytes32) {
         return _domainSeparatorV4();
+    }
+
+    /**
+     * @dev A parameter used in {getPastVotes} that determines how many of the last checkpoints get an optimized path.
+     * Defaults to 32.
+     */
+    function _recencyThreshold() internal view virtual returns (uint256) {
+        return 32;
     }
 
     /**
