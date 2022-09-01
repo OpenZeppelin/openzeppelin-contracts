@@ -63,26 +63,29 @@ abstract contract ERC721Consecutive is ERC721 {
      *
      * Emits a {ConsecutiveTransfer} event.
      */
-    function _mintConsecutive(address to, uint96 batchSize) internal virtual {
-        // minting a batch of size 0 is a no-op
-        if (batchSize == 0) return;
-
-        require(!Address.isContract(address(this)), "ERC721Consecutive: batch minting restricted to constructor");
-        require(to != address(0), "ERC721Consecutive: mint to the zero address");
-        require(batchSize < 5000, "ERC721Consecutive: batches too large for indexing");
-
+    function _mintConsecutive(address to, uint96 batchSize) internal virtual returns (uint96) {
         uint96 first = _totalConsecutiveSupply();
-        uint96 last = first + batchSize - 1;
 
-        // hook before
-        _beforeConsecutiveTokenTransfer(address(0), to, first, batchSize);
+        // minting a batch of size 0 is a no-op
+        if (batchSize > 0) {
+            require(!Address.isContract(address(this)), "ERC721Consecutive: batch minting restricted to constructor");
+            require(to != address(0), "ERC721Consecutive: mint to the zero address");
+            require(batchSize <= 5000, "ERC721Consecutive: batches too large for indexing");
 
-        // push an ownership checkpoint & emit event
-        _sequentialOwnership.push(SafeCast.toUint96(last), uint160(to));
-        emit ConsecutiveTransfer(first, last, address(0), to);
 
-        // hook after
-        _afterConsecutiveTokenTransfer(address(0), to, first, batchSize);
+            // hook before
+            _beforeConsecutiveTokenTransfer(address(0), to, first, batchSize);
+
+            // push an ownership checkpoint & emit event
+            uint96 last = first + batchSize - 1;
+            _sequentialOwnership.push(last, uint160(to));
+            emit ConsecutiveTransfer(first, last, address(0), to);
+
+            // hook after
+            _afterConsecutiveTokenTransfer(address(0), to, first, batchSize);
+        }
+
+        return first;
     }
 
     /**
