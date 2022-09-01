@@ -34,7 +34,6 @@ contract('ERC721Consecutive', function (accounts) {
 
       for (const batch of batches) {
         if (batch.amount > 0) {
-          // an event is emmited
           await expectEvent.inConstruction(this.token, 'ConsecutiveTransfer', {
             fromTokenId: web3.utils.toBN(first),
             toTokenId: web3.utils.toBN(first + batch.amount - 1),
