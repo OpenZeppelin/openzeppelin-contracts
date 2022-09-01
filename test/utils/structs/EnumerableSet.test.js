@@ -18,8 +18,8 @@ contract('EnumerableSet', function (accounts) {
         fnLength: (self, ...args) => self.methods['$length_EnumerableSet_Bytes32Set(uint256)'](0, ...args),
         fnAt: (self, ...args) => self.methods['$at_EnumerableSet_Bytes32Set(uint256,uint256)'](0, ...args),
         fnValues: (self, ...args) => self.methods['$values_EnumerableSet_Bytes32Set(uint256)'](0, ...args),
-        evAdd: '$add_uint256_bytes32_ReturnEvent',
-        evRemove: '$remove_uint256_bytes32_ReturnEvent',
+        evAdd: '$add_EnumerableSet_Bytes32Set_bytes32_Returned',
+        evRemove: '$remove_EnumerableSet_Bytes32Set_bytes32_Returned',
       },
     );
   });
@@ -35,8 +35,8 @@ contract('EnumerableSet', function (accounts) {
         fnLength: (self, ...args) => self.methods['$length_EnumerableSet_AddressSet(uint256)'](0, ...args),
         fnAt: (self, ...args) => self.methods['$at_EnumerableSet_AddressSet(uint256,uint256)'](0, ...args),
         fnValues: (self, ...args) => self.methods['$values_EnumerableSet_AddressSet(uint256)'](0, ...args),
-        evAdd: '$add_uint256_address_ReturnEvent',
-        evRemove: '$remove_uint256_address_ReturnEvent',
+        evAdd: '$add_EnumerableSet_AddressSet_address_Returned',
+        evRemove: '$remove_EnumerableSet_AddressSet_address_Returned',
       },
     );
   });
@@ -52,8 +52,8 @@ contract('EnumerableSet', function (accounts) {
         fnLength: (self, ...args) => self.methods['$length_EnumerableSet_UintSet(uint256)'](0, ...args),
         fnAt: (self, ...args) => self.methods['$at_EnumerableSet_UintSet(uint256,uint256)'](0, ...args),
         fnValues: (self, ...args) => self.methods['$values_EnumerableSet_UintSet(uint256)'](0, ...args),
-        evAdd: '$add_uint256_uint256_ReturnEvent',
-        evRemove: '$remove_uint256_uint256_ReturnEvent',
+        evAdd: '$add_EnumerableSet_UintSet_uint256_Returned',
+        evRemove: '$remove_EnumerableSet_UintSet_uint256_Returned',
       },
     );
   });
