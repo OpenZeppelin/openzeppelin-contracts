@@ -83,11 +83,8 @@ module.exports = {
       'vendor/**/*',
       // overflow clash
       'utils/Timers.sol',
-      // internal or recursive type is not allowed for public state variables
+      // function pointers
       'utils/Checkpoints.sol',
-      'utils/structs/EnumerableSet.sol',
-      'utils/structs/EnumerableMap.sol',
-      'utils/structs/BitMaps.sol',
     ],
   },
 };

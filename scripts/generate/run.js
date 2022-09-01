@@ -20,10 +20,8 @@ for (const [ file, template ] of Object.entries({
   'utils/math/SafeCast.sol': './templates/SafeCast.js',
   // EnumerableSet
   'utils/structs/EnumerableSet.sol': './templates/EnumerableSet.js',
-  'mocks/EnumerableSetMock.sol': './templates/EnumerableSetMock.js',
   // EnumerableMap
   'utils/structs/EnumerableMap.sol': './templates/EnumerableMap.js',
-  'mocks/EnumerableMapMock.sol': './templates/EnumerableMapMock.js',
   // Checkpoints
   'utils/Checkpoints.sol': './templates/Checkpoints.js',
   'mocks/CheckpointsMock.sol': './templates/CheckpointsMock.js',

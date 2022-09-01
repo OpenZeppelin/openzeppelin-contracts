@@ -1,46 +1,60 @@
-const { BN } = require('@openzeppelin/test-helpers');
-
-const EnumerableBytes32SetMock = artifacts.require('EnumerableBytes32SetMock');
-const EnumerableAddressSetMock = artifacts.require('EnumerableAddressSetMock');
-const EnumerableUintSetMock = artifacts.require('EnumerableUintSetMock');
+const EnumerableSet = artifacts.require('$EnumerableSet');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
 
 contract('EnumerableSet', function (accounts) {
+  beforeEach(async function () {
+    this.set = await EnumerableSet.new();
+  });
+
   // Bytes32Set
   describe('EnumerableBytes32Set', function () {
-    const bytesA = '0xdeadbeef'.padEnd(66, '0');
-    const bytesB = '0x0123456789'.padEnd(66, '0');
-    const bytesC = '0x42424242'.padEnd(66, '0');
-
-    beforeEach(async function () {
-      this.set = await EnumerableBytes32SetMock.new();
-    });
-
-    shouldBehaveLikeSet(bytesA, bytesB, bytesC);
+    shouldBehaveLikeSet(
+      [ '0xdeadbeef', '0x0123456789', '0x42424242' ].map(e => e.padEnd(66, '0')),
+      {
+        fnAdd: (self, ...args) => self.methods['$add(uint256,bytes32)'](0, ...args),
+        fnRemove: (self, ...args) => self.methods['$remove(uint256,bytes32)'](0, ...args),
+        fnContains: (self, ...args) => self.methods['$contains(uint256,bytes32)'](0, ...args),
+        fnLength: (self, ...args) => self.methods['$length_EnumerableSet_Bytes32Set(uint256)'](0, ...args),
+        fnAt: (self, ...args) => self.methods['$at_EnumerableSet_Bytes32Set(uint256,uint256)'](0, ...args),
+        fnValues: (self, ...args) => self.methods['$values_EnumerableSet_Bytes32Set(uint256)'](0, ...args),
+        evAdd: '$add_uint256_bytes32_ReturnEvent',
+        evRemove: '$remove_uint256_bytes32_ReturnEvent',
+      },
+    );
   });
 
   // AddressSet
   describe('EnumerableAddressSet', function () {
-    const [accountA, accountB, accountC] = accounts;
-
-    beforeEach(async function () {
-      this.set = await EnumerableAddressSetMock.new();
-    });
-
-    shouldBehaveLikeSet(accountA, accountB, accountC);
+    shouldBehaveLikeSet(
+      accounts,
+      {
+        fnAdd: (self, ...args) => self.methods['$add(uint256,address)'](0, ...args),
+        fnRemove: (self, ...args) => self.methods['$remove(uint256,address)'](0, ...args),
+        fnContains: (self, ...args) => self.methods['$contains(uint256,address)'](0, ...args),
+        fnLength: (self, ...args) => self.methods['$length_EnumerableSet_AddressSet(uint256)'](0, ...args),
+        fnAt: (self, ...args) => self.methods['$at_EnumerableSet_AddressSet(uint256,uint256)'](0, ...args),
+        fnValues: (self, ...args) => self.methods['$values_EnumerableSet_AddressSet(uint256)'](0, ...args),
+        evAdd: '$add_uint256_address_ReturnEvent',
+        evRemove: '$remove_uint256_address_ReturnEvent',
+      },
+    );
   });
 
   // UintSet
   describe('EnumerableUintSet', function () {
-    const uintA = new BN('1234');
-    const uintB = new BN('5678');
-    const uintC = new BN('9101112');
-
-    beforeEach(async function () {
-      this.set = await EnumerableUintSetMock.new();
-    });
-
-    shouldBehaveLikeSet(uintA, uintB, uintC);
+    shouldBehaveLikeSet(
+      [ 1234, 5678, 9101112 ].map(e => web3.utils.toBN(e)),
+      {
+        fnAdd: (self, ...args) => self.methods['$add(uint256,uint256)'](0, ...args),
+        fnRemove: (self, ...args) => self.methods['$remove(uint256,uint256)'](0, ...args),
+        fnContains: (self, ...args) => self.methods['$contains(uint256,uint256)'](0, ...args),
+        fnLength: (self, ...args) => self.methods['$length_EnumerableSet_UintSet(uint256)'](0, ...args),
+        fnAt: (self, ...args) => self.methods['$at_EnumerableSet_UintSet(uint256,uint256)'](0, ...args),
+        fnValues: (self, ...args) => self.methods['$values_EnumerableSet_UintSet(uint256)'](0, ...args),
+        evAdd: '$add_uint256_uint256_ReturnEvent',
+        evRemove: '$remove_uint256_uint256_ReturnEvent',
+      },
+    );
   });
 });
