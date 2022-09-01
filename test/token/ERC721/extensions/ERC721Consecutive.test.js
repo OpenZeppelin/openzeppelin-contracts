@@ -52,7 +52,7 @@ contract('ERC721Consecutive', function (accounts) {
       }
     });
 
-    it('balance & voting poser are set', async function () {
+    it('balance & voting power are set', async function () {
       for (const account of accounts) {
         const balance = batches
           .filter(({ receiver }) => receiver === account)

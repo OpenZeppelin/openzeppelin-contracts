@@ -8,7 +8,7 @@ import "../../../utils/math/SafeCast.sol";
 import "../../../utils/structs/BitMaps.sol";
 
 /**
- * * @dev Implementation of the ERC2309 "Consecutive Transfer Extension" as defined in
+ * @dev Implementation of the ERC2309 "Consecutive Transfer Extension" as defined in
  * https://eips.ethereum.org/EIPS/eip-2309[EIP-2309].
  *
  * This extension allows the minting of large batches of tokens during the contract construction. These batches are
@@ -16,6 +16,8 @@ import "../../../utils/structs/BitMaps.sol";
  *
  * Using this extensions removes the ability to mint single token during the contract construction. This ability is
  * regained after construction. During construction, only batch minting is allowed.
+ *
+ * IMPORTANT: This extension bypasses the hooks `_beforeTokenTransfer` and `_afterTokenTransfer`
  *
  * _Available since v4.8._
  */
@@ -103,6 +105,7 @@ abstract contract ERC721Consecutive is ERC721 {
      * token.
      */
     function _burn(uint256 tokenId) internal virtual override {
+        // Invoke the core burn functionality to adjust balances, invoke hooks, etc.
         super._burn(tokenId);
         if (tokenId <= _totalConsecutiveSupply()) {
             _sequentialBurn.set(tokenId);

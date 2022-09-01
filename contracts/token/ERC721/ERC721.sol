@@ -452,6 +452,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
     /**
      * @dev Hook that is called before any (single) token transfer. This includes minting and burning.
+     * See {_beforeConsecutiveTokenTransfer}.
      *
      * Calling conditions:
      *
@@ -471,6 +472,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
     /**
      * @dev Hook that is called after any (single) transfer of tokens. This includes minting and burning.
+     * See {_afterConsecutiveTokenTransfer}.
      *
      * Calling conditions:
      *
