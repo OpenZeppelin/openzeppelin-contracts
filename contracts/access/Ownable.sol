@@ -30,7 +30,7 @@ abstract contract Ownable is Context {
     }
 
     /**
-     * @dev Throws if called by any account other than the owner.
+     * @dev Throws error if called by any account other than the owner.
      */
     modifier onlyOwner() {
         _checkOwner();
@@ -45,7 +45,7 @@ abstract contract Ownable is Context {
     }
 
     /**
-     * @dev Throws if the sender is not the owner.
+     * @dev Throws errror if the sender is not the owner.
      */
     function _checkOwner() internal view virtual {
         require(owner() == _msgSender(), "Ownable: caller is not the owner");
