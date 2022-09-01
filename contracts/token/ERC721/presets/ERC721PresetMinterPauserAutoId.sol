@@ -128,9 +128,9 @@ contract ERC721PresetMinterPauserAutoId is
         address from,
         address to,
         uint256 first,
-        uint256 last
+        uint96 size
     ) internal virtual override(ERC721, ERC721Enumerable, ERC721Pausable) {
-        super._beforeConsecutiveTokenTransfer(from, to, first, last);
+        super._beforeConsecutiveTokenTransfer(from, to, first, size);
     }
 
     /**

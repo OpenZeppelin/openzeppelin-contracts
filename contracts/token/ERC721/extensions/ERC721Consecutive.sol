@@ -73,14 +73,14 @@ abstract contract ERC721Consecutive is ERC721 {
         uint96 last = first + batchSize - 1;
 
         // hook before
-        _beforeConsecutiveTokenTransfer(address(0), to, first, last);
+        _beforeConsecutiveTokenTransfer(address(0), to, first, batchSize);
 
         // push an ownership checkpoint & emit event
         _sequentialOwnership.push(SafeCast.toUint96(last), uint160(to));
         emit ConsecutiveTransfer(first, last, address(0), to);
 
         // hook after
-        _afterConsecutiveTokenTransfer(address(0), to, first, last);
+        _afterConsecutiveTokenTransfer(address(0), to, first, batchSize);
     }
 
     /**
