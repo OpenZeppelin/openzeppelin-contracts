@@ -11,13 +11,7 @@ import "../token/ERC721/extensions/draft-ERC721Votes.sol";
 /**
  * @title ERC721ConsecutiveMock
  */
-contract ERC721ConsecutiveMock is
-    ERC721Burnable,
-    ERC721Consecutive,
-    ERC721Enumerable,
-    ERC721Pausable,
-    ERC721Votes
-{
+contract ERC721ConsecutiveMock is ERC721Burnable, ERC721Consecutive, ERC721Enumerable, ERC721Pausable, ERC721Votes {
     constructor(
         string memory name,
         string memory symbol,

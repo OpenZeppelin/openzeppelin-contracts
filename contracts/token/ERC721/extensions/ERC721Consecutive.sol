@@ -72,7 +72,6 @@ abstract contract ERC721Consecutive is ERC721 {
             require(to != address(0), "ERC721Consecutive: mint to the zero address");
             require(batchSize <= 5000, "ERC721Consecutive: batches too large for indexing");
 
-
             // hook before
             _beforeConsecutiveTokenTransfer(address(0), to, first, batchSize);
 

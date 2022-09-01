@@ -497,7 +497,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _beforeConsecutiveTokenTransfer(
         address from,
         address to,
-        uint256 /*first*/,
+        uint256, /*first*/
         uint96 size
     ) internal virtual {
         if (from != address(0)) {
@@ -513,9 +513,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Calling conditions are similar to {_afterTokenTransfer}.
      */
     function _afterConsecutiveTokenTransfer(
-        address /*from*/,
-        address /*to*/,
-        uint256 /*first*/,
+        address, /*from*/
+        address, /*to*/
+        uint256, /*first*/
         uint96 /*size*/
     ) internal virtual {}
 }
