@@ -26,22 +26,22 @@ contract('EnumerableMap', function (accounts) {
       [ keyA, keyB, keyC ],
       new BN('0'),
       {
-        fnSet:
-          (self, ...args) => self.methods['$set(uint256,address,uint256)'](0, ...args),
-        fnGet:
-          (self, ...args) => self.methods['$get(uint256,address)'](0, ...args),
-        fnGetWithMessage:
-          (self, ...args) => self.methods['$get(uint256,address,string)'](0, ...args),
-        fnTryGet:
-          (self, ...args) => self.methods['$tryGet(uint256,address)'](0, ...args),
-        fnRemove:
-          (self, ...args) => self.methods['$remove(uint256,address)'](0, ...args),
-        fnLength:
-          (self, ...args) => self.methods['$length_EnumerableMap_AddressToUintMap(uint256)'](0, ...args),
-        fnAt:
-          (self, ...args) => self.methods['$at_EnumerableMap_AddressToUintMap(uint256,uint256)'](0, ...args),
-        fnContains:
-          (self, ...args) => self.methods['$contains(uint256,address)'](0, ...args),
+        fnSet: (self, ...args) =>
+          self.methods['$set(uint256,address,uint256)'](0, ...args),
+        fnGet: (self, ...args) =>
+          self.methods['$get(uint256,address)'](0, ...args),
+        fnGetWithMessage: (self, ...args) =>
+          self.methods['$get(uint256,address,string)'](0, ...args),
+        fnTryGet: (self, ...args) =>
+          self.methods['$tryGet(uint256,address)'](0, ...args),
+        fnRemove: (self, ...args) =>
+          self.methods['$remove(uint256,address)'](0, ...args),
+        fnLength: (self, ...args) =>
+          self.methods['$length_EnumerableMap_AddressToUintMap(uint256)'](0, ...args),
+        fnAt: (self, ...args) =>
+          self.methods['$at_EnumerableMap_AddressToUintMap(uint256,uint256)'](0, ...args),
+        fnContains: (self, ...args) =>
+          self.methods['$contains(uint256,address)'](0, ...args),
         evSet: '$set_EnumerableMap_AddressToUintMap_address_uint256_Returned',
         evRemove: '$remove_EnumerableMap_AddressToUintMap_address_Returned',
         argsPrefix: [ 0 ],
@@ -56,22 +56,22 @@ contract('EnumerableMap', function (accounts) {
       [ accountA, accountB, accountC ],
       constants.ZERO_ADDRESS,
       {
-        fnSet:
-          (self, ...args) => self.methods['$set(uint256,uint256,address)'](0, ...args),
-        fnGet:
-          (self, ...args) => self.methods['$get_EnumerableMap_UintToAddressMap(uint256,uint256)'](0, ...args),
-        fnGetWithMessage:
-          (self, ...args) => self.methods['$get_EnumerableMap_UintToAddressMap(uint256,uint256,string)'](0, ...args),
-        fnTryGet:
-          (self, ...args) => self.methods['$tryGet_EnumerableMap_UintToAddressMap(uint256,uint256)'](0, ...args),
-        fnRemove:
-          (self, ...args) => self.methods['$remove_EnumerableMap_UintToAddressMap(uint256,uint256)'](0, ...args),
-        fnLength:
-          (self, ...args) => self.methods['$length_EnumerableMap_UintToAddressMap(uint256)'](0, ...args),
-        fnAt:
-          (self, ...args) => self.methods['$at_EnumerableMap_UintToAddressMap(uint256,uint256)'](0, ...args),
-        fnContains:
-          (self, ...args) => self.methods['$contains_EnumerableMap_UintToAddressMap(uint256,uint256)'](0, ...args),
+        fnSet: (self, ...args) =>
+          self.methods['$set(uint256,uint256,address)'](0, ...args),
+        fnGet: (self, ...args) =>
+          self.methods['$get_EnumerableMap_UintToAddressMap(uint256,uint256)'](0, ...args),
+        fnGetWithMessage: (self, ...args) =>
+          self.methods['$get_EnumerableMap_UintToAddressMap(uint256,uint256,string)'](0, ...args),
+        fnTryGet: (self, ...args) =>
+          self.methods['$tryGet_EnumerableMap_UintToAddressMap(uint256,uint256)'](0, ...args),
+        fnRemove: (self, ...args) =>
+          self.methods['$remove_EnumerableMap_UintToAddressMap(uint256,uint256)'](0, ...args),
+        fnLength: (self, ...args) =>
+          self.methods['$length_EnumerableMap_UintToAddressMap(uint256)'](0, ...args),
+        fnAt: (self, ...args) =>
+          self.methods['$at_EnumerableMap_UintToAddressMap(uint256,uint256)'](0, ...args),
+        fnContains: (self, ...args) =>
+          self.methods['$contains_EnumerableMap_UintToAddressMap(uint256,uint256)'](0, ...args),
         evSet: '$set_EnumerableMap_UintToAddressMap_uint256_address_Returned',
         evRemove: '$remove_EnumerableMap_UintToAddressMap_uint256_Returned',
         argsPrefix: [ 0 ],
@@ -86,22 +86,22 @@ contract('EnumerableMap', function (accounts) {
       [ bytesA, bytesB, bytesC ],
       constants.ZERO_BYTES32,
       {
-        fnSet:
-          (self, ...args) => self.methods['$set(uint256,bytes32,bytes32)'](0, ...args),
-        fnGet:
-          (self, ...args) => self.methods['$get_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)'](0, ...args),
-        fnGetWithMessage:
-          (self, ...args) => self.methods['$get_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32,string)'](0, ...args),
-        fnTryGet:
-          (self, ...args) => self.methods['$tryGet_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)'](0, ...args),
-        fnRemove:
-          (self, ...args) => self.methods['$remove_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)'](0, ...args),
-        fnLength:
-          (self, ...args) => self.methods['$length_EnumerableMap_Bytes32ToBytes32Map(uint256)'](0, ...args),
-        fnAt:
-          (self, ...args) => self.methods['$at_EnumerableMap_Bytes32ToBytes32Map(uint256,uint256)'](0, ...args),
-        fnContains:
-          (self, ...args) => self.methods['$contains_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)'](0, ...args),
+        fnSet: (self, ...args) =>
+          self.methods['$set(uint256,bytes32,bytes32)'](0, ...args),
+        fnGet: (self, ...args) =>
+          self.methods['$get_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)'](0, ...args),
+        fnGetWithMessage: (self, ...args) =>
+          self.methods['$get_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32,string)'](0, ...args),
+        fnTryGet: (self, ...args) =>
+          self.methods['$tryGet_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)'](0, ...args),
+        fnRemove: (self, ...args) =>
+          self.methods['$remove_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)'](0, ...args),
+        fnLength: (self, ...args) =>
+          self.methods['$length_EnumerableMap_Bytes32ToBytes32Map(uint256)'](0, ...args),
+        fnAt: (self, ...args) =>
+          self.methods['$at_EnumerableMap_Bytes32ToBytes32Map(uint256,uint256)'](0, ...args),
+        fnContains: (self, ...args) =>
+          self.methods['$contains_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)'](0, ...args),
         evSet: '$set_EnumerableMap_Bytes32ToBytes32Map_bytes32_bytes32_Returned',
         evRemove: '$remove_EnumerableMap_Bytes32ToBytes32Map_bytes32_Returned',
         argsPrefix: [ 0 ],
@@ -116,22 +116,22 @@ contract('EnumerableMap', function (accounts) {
       [ keyA, keyB, keyC ].map(k => k.add(new BN('1332'))),
       new BN('0'),
       {
-        fnSet:
-          (self, ...args) => self.methods['$set(uint256,uint256,uint256)'](0, ...args),
-        fnGet:
-          (self, ...args) => self.methods['$get_EnumerableMap_UintToUintMap(uint256,uint256)'](0, ...args),
-        fnGetWithMessage:
-          (self, ...args) => self.methods['$get_EnumerableMap_UintToUintMap(uint256,uint256,string)'](0, ...args),
-        fnTryGet:
-          (self, ...args) => self.methods['$tryGet_EnumerableMap_UintToUintMap(uint256,uint256)'](0, ...args),
-        fnRemove:
-          (self, ...args) => self.methods['$remove_EnumerableMap_UintToUintMap(uint256,uint256)'](0, ...args),
-        fnLength:
-          (self, ...args) => self.methods['$length_EnumerableMap_UintToUintMap(uint256)'](0, ...args),
-        fnAt:
-          (self, ...args) => self.methods['$at_EnumerableMap_UintToUintMap(uint256,uint256)'](0, ...args),
-        fnContains:
-          (self, ...args) => self.methods['$contains_EnumerableMap_UintToUintMap(uint256,uint256)'](0, ...args),
+        fnSet: (self, ...args) =>
+          self.methods['$set(uint256,uint256,uint256)'](0, ...args),
+        fnGet: (self, ...args) =>
+          self.methods['$get_EnumerableMap_UintToUintMap(uint256,uint256)'](0, ...args),
+        fnGetWithMessage: (self, ...args) =>
+          self.methods['$get_EnumerableMap_UintToUintMap(uint256,uint256,string)'](0, ...args),
+        fnTryGet: (self, ...args) =>
+          self.methods['$tryGet_EnumerableMap_UintToUintMap(uint256,uint256)'](0, ...args),
+        fnRemove: (self, ...args) =>
+          self.methods['$remove_EnumerableMap_UintToUintMap(uint256,uint256)'](0, ...args),
+        fnLength: (self, ...args) =>
+          self.methods['$length_EnumerableMap_UintToUintMap(uint256)'](0, ...args),
+        fnAt: (self, ...args) =>
+          self.methods['$at_EnumerableMap_UintToUintMap(uint256,uint256)'](0, ...args),
+        fnContains: (self, ...args) =>
+          self.methods['$contains_EnumerableMap_UintToUintMap(uint256,uint256)'](0, ...args),
         evSet: '$set_EnumerableMap_UintToUintMap_uint256_uint256_Returned',
         evRemove: '$remove_EnumerableMap_UintToUintMap_uint256_Returned',
         argsPrefix: [ 0 ],
@@ -146,22 +146,22 @@ contract('EnumerableMap', function (accounts) {
       [ keyA, keyB, keyC ],
       new BN('0'),
       {
-        fnSet:
-          (self, ...args) => self.methods['$set(uint256,bytes32,uint256)'](0, ...args),
-        fnGet:
-          (self, ...args) => self.methods['$get_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)'](0, ...args),
-        fnGetWithMessage:
-          (self, ...args) => self.methods['$get_EnumerableMap_Bytes32ToUintMap(uint256,bytes32,string)'](0, ...args),
-        fnTryGet:
-          (self, ...args) => self.methods['$tryGet_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)'](0, ...args),
-        fnRemove:
-          (self, ...args) => self.methods['$remove_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)'](0, ...args),
-        fnLength:
-          (self, ...args) => self.methods['$length_EnumerableMap_Bytes32ToUintMap(uint256)'](0, ...args),
-        fnAt:
-          (self, ...args) => self.methods['$at_EnumerableMap_Bytes32ToUintMap(uint256,uint256)'](0, ...args),
-        fnContains:
-          (self, ...args) => self.methods['$contains_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)'](0, ...args),
+        fnSet: (self, ...args) =>
+          self.methods['$set(uint256,bytes32,uint256)'](0, ...args),
+        fnGet: (self, ...args) =>
+          self.methods['$get_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)'](0, ...args),
+        fnGetWithMessage: (self, ...args) =>
+          self.methods['$get_EnumerableMap_Bytes32ToUintMap(uint256,bytes32,string)'](0, ...args),
+        fnTryGet: (self, ...args) =>
+          self.methods['$tryGet_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)'](0, ...args),
+        fnRemove: (self, ...args) =>
+          self.methods['$remove_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)'](0, ...args),
+        fnLength: (self, ...args) =>
+          self.methods['$length_EnumerableMap_Bytes32ToUintMap(uint256)'](0, ...args),
+        fnAt: (self, ...args) =>
+          self.methods['$at_EnumerableMap_Bytes32ToUintMap(uint256,uint256)'](0, ...args),
+        fnContains: (self, ...args) =>
+          self.methods['$contains_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)'](0, ...args),
         evSet: '$set_EnumerableMap_Bytes32ToUintMap_bytes32_uint256_Returned',
         evRemove: '$remove_EnumerableMap_Bytes32ToUintMap_bytes32_Returned',
         argsPrefix: [ 0 ],
