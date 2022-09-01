@@ -77,7 +77,7 @@ class GovernorHelper {
         [ proposal.id ],
         opts,
       ))
-      : this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](...concatOpts(
+      : this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](...concatOpts(
         proposal.shortProposal,
         opts,
       ));

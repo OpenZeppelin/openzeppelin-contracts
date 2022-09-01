@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.0;
 
-import "../governance/extensions/GovernorPreventLateQuorum.sol";
-import "../governance/extensions/GovernorSettings.sol";
-import "../governance/extensions/GovernorCountingSimple.sol";
-import "../governance/extensions/GovernorVotes.sol";
+import "../../governance/extensions/GovernorPreventLateQuorum.sol";
+import "../../governance/extensions/GovernorSettings.sol";
+import "../../governance/extensions/GovernorCountingSimple.sol";
+import "../../governance/extensions/GovernorVotes.sol";
 
-contract GovernorPreventLateQuorumMock is
+abstract contract GovernorPreventLateQuorumMock is
     GovernorSettings,
     GovernorVotes,
     GovernorCountingSimple,
@@ -15,19 +15,7 @@ contract GovernorPreventLateQuorumMock is
 {
     uint256 private _quorum;
 
-    constructor(
-        string memory name_,
-        IVotes token_,
-        uint256 votingDelay_,
-        uint256 votingPeriod_,
-        uint256 quorum_,
-        uint64 voteExtension_
-    )
-        Governor(name_)
-        GovernorSettings(votingDelay_, votingPeriod_, 0)
-        GovernorVotes(token_)
-        GovernorPreventLateQuorum(voteExtension_)
-    {
+    constructor(uint256 quorum_) {
         _quorum = quorum_;
     }
 

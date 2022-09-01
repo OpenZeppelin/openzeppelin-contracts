@@ -6,7 +6,7 @@ const { GovernorHelper } = require('../../helpers/governance');
 
 const Token = artifacts.require('$ERC20VotesComp');
 const Timelock = artifacts.require('CompTimelock');
-const Governor = artifacts.require('GovernorCompatibilityBravoMock');
+const Governor = artifacts.require('$GovernorCompatibilityBravoMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 function makeContractAddress (creator, nonce) {
@@ -38,11 +38,11 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
     this.mock = await Governor.new(
       name,
-      this.token.address,
       votingDelay,
       votingPeriod,
       proposalThreshold,
       this.timelock.address,
+      this.token.address,
     );
     this.receiver = await CallReceiver.new();
 

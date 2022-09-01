@@ -8,7 +8,7 @@ const { EIP712Domain } = require('../../helpers/eip712');
 const { GovernorHelper } = require('../../helpers/governance');
 
 const Token = artifacts.require('$ERC20VotesComp');
-const Governor = artifacts.require('GovernorWithParamsMock');
+const Governor = artifacts.require('$GovernorWithParamsMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 const rawParams = {

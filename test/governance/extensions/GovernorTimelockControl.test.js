@@ -9,7 +9,7 @@ const {
 
 const Token = artifacts.require('$ERC20Votes');
 const Timelock = artifacts.require('TimelockController');
-const Governor = artifacts.require('GovernorTimelockControlMock');
+const Governor = artifacts.require('$GovernorTimelockControlMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 contract('GovernorTimelockControl', function (accounts) {
@@ -36,10 +36,11 @@ contract('GovernorTimelockControl', function (accounts) {
     this.timelock = await Timelock.new(3600, [], []);
     this.mock = await Governor.new(
       name,
-      this.token.address,
       votingDelay,
       votingPeriod,
+      0,
       this.timelock.address,
+      this.token.address,
       0,
     );
     this.receiver = await CallReceiver.new();

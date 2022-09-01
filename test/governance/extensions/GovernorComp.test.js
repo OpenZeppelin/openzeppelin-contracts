@@ -4,7 +4,7 @@ const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
 
 const Token = artifacts.require('$ERC20VotesComp');
-const Governor = artifacts.require('GovernorCompMock');
+const Governor = artifacts.require('$GovernorCompMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 contract('GovernorComp', function (accounts) {

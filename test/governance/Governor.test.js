@@ -12,7 +12,7 @@ const {
 } = require('../utils/introspection/SupportsInterface.behavior');
 
 const Token = artifacts.require('$ERC20Votes');
-const Governor = artifacts.require('GovernorMock');
+const Governor = artifacts.require('$GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 const ERC721 = artifacts.require('$ERC721');
 const ERC1155 = artifacts.require('$ERC1155');
@@ -33,7 +33,14 @@ contract('Governor', function (accounts) {
   beforeEach(async function () {
     this.chainId = await web3.eth.getChainId();
     this.token = await Token.new(tokenName, tokenSymbol, tokenName);
-    this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, 10);
+    this.mock = await Governor.new(
+      name, // name
+      votingDelay, // initialVotingDelay
+      votingPeriod, // initialVotingPeriod
+      0, // initialProposalThreshold
+      this.token.address, // tokenAddress
+      10, // quorumNumeratorValue
+    );
     this.receiver = await CallReceiver.new();
 
     this.helper = new GovernorHelper(this.mock);

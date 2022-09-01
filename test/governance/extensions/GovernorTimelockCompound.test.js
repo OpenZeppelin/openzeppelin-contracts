@@ -10,7 +10,7 @@ const {
 
 const Token = artifacts.require('$ERC20Votes');
 const Timelock = artifacts.require('CompTimelock');
-const Governor = artifacts.require('GovernorTimelockCompoundMock');
+const Governor = artifacts.require('$GovernorTimelockCompoundMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 function makeContractAddress (creator, nonce) {
@@ -41,10 +41,11 @@ contract('GovernorTimelockCompound', function (accounts) {
     this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
     this.mock = await Governor.new(
       name,
-      this.token.address,
       votingDelay,
       votingPeriod,
+      0,
       this.timelock.address,
+      this.token.address,
       0,
     );
     this.receiver = await CallReceiver.new();
@@ -337,8 +338,7 @@ contract('GovernorTimelockCompound', function (accounts) {
     });
 
     it('can transfer timelock to new governor', async function () {
-      const newGovernor = await Governor.new(name, this.token.address, 8, 32, this.timelock.address, 0);
-
+      const newGovernor = await Governor.new(name, 8, 32, 0, this.timelock.address, this.token.address, 0);
       this.helper.setProposal([
         {
           target: this.timelock.address,

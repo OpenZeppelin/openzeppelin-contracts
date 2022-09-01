@@ -2,30 +2,20 @@
 
 pragma solidity ^0.8.0;
 
-import "../governance/compatibility/GovernorCompatibilityBravo.sol";
-import "../governance/extensions/GovernorTimelockCompound.sol";
-import "../governance/extensions/GovernorSettings.sol";
-import "../governance/extensions/GovernorVotesComp.sol";
+import "../../governance/compatibility/GovernorCompatibilityBravo.sol";
+import "../../governance/extensions/GovernorTimelockCompound.sol";
+import "../../governance/extensions/GovernorSettings.sol";
+import "../../governance/extensions/GovernorVotesComp.sol";
 
-contract GovernorCompatibilityBravoMock is
+abstract contract GovernorCompatibilityBravoMock is
     GovernorCompatibilityBravo,
     GovernorSettings,
     GovernorTimelockCompound,
     GovernorVotesComp
 {
-    constructor(
-        string memory name_,
-        ERC20VotesComp token_,
-        uint256 votingDelay_,
-        uint256 votingPeriod_,
-        uint256 proposalThreshold_,
-        ICompoundTimelock timelock_
-    )
-        Governor(name_)
-        GovernorTimelockCompound(timelock_)
-        GovernorSettings(votingDelay_, votingPeriod_, proposalThreshold_)
-        GovernorVotesComp(token_)
-    {}
+    function quorum(uint256) public pure override returns (uint256) {
+        return 0;
+    }
 
     function supportsInterface(bytes4 interfaceId)
         public
@@ -34,10 +24,6 @@ contract GovernorCompatibilityBravoMock is
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
-    }
-
-    function quorum(uint256) public pure override returns (uint256) {
-        return 0;
     }
 
     function state(uint256 proposalId)
@@ -97,19 +83,6 @@ contract GovernorCompatibilityBravoMock is
         bytes32 descriptionHash
     ) internal override(Governor, GovernorTimelockCompound) {
         super._execute(proposalId, targets, values, calldatas, descriptionHash);
-    }
-
-    /**
-     * @notice WARNING: this is for mock purposes only. Ability to the _cancel function should be restricted for live
-     * deployments.
-     */
-    function cancel(
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 salt
-    ) public returns (uint256 proposalId) {
-        return _cancel(targets, values, calldatas, salt);
     }
 
     function _cancel(
