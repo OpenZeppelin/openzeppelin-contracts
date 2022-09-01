@@ -12,11 +12,11 @@ contract ERC2771ContextMock is ContextMock, ERC2771Context {
         emit Sender(_msgSender()); // _msgSender() should be accessible during construction
     }
 
-    function _msgSender() internal view virtual override(Context, ERC2771Context) returns (address) {
+    function _msgSender() internal view override(Context, ERC2771Context) returns (address) {
         return ERC2771Context._msgSender();
     }
 
-    function _msgData() internal view virtual override(Context, ERC2771Context) returns (bytes calldata) {
+    function _msgData() internal view override(Context, ERC2771Context) returns (bytes calldata) {
         return ERC2771Context._msgData();
     }
 }

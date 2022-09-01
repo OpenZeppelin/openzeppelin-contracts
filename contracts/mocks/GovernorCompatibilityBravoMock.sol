@@ -30,7 +30,6 @@ contract GovernorCompatibilityBravoMock is
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        virtual
         override(IERC165, Governor, GovernorTimelockCompound)
         returns (bool)
     {
@@ -44,7 +43,6 @@ contract GovernorCompatibilityBravoMock is
     function state(uint256 proposalId)
         public
         view
-        virtual
         override(IGovernor, Governor, GovernorTimelockCompound)
         returns (ProposalState)
     {
@@ -54,7 +52,6 @@ contract GovernorCompatibilityBravoMock is
     function proposalEta(uint256 proposalId)
         public
         view
-        virtual
         override(IGovernorTimelock, GovernorTimelockCompound)
         returns (uint256)
     {
@@ -70,7 +67,7 @@ contract GovernorCompatibilityBravoMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override(IGovernor, Governor, GovernorCompatibilityBravo) returns (uint256) {
+    ) public override(IGovernor, Governor, GovernorCompatibilityBravo) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
 
@@ -79,7 +76,7 @@ contract GovernorCompatibilityBravoMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public virtual override(IGovernorTimelock, GovernorTimelockCompound) returns (uint256) {
+    ) public override(IGovernorTimelock, GovernorTimelockCompound) returns (uint256) {
         return super.queue(targets, values, calldatas, salt);
     }
 
@@ -88,7 +85,7 @@ contract GovernorCompatibilityBravoMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) public payable virtual override(IGovernor, Governor) returns (uint256) {
+    ) public payable override(IGovernor, Governor) returns (uint256) {
         return super.execute(targets, values, calldatas, salt);
     }
 
@@ -98,7 +95,7 @@ contract GovernorCompatibilityBravoMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal virtual override(Governor, GovernorTimelockCompound) {
+    ) internal override(Governor, GovernorTimelockCompound) {
         super._execute(proposalId, targets, values, calldatas, descriptionHash);
     }
 
@@ -120,11 +117,11 @@ contract GovernorCompatibilityBravoMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 salt
-    ) internal virtual override(Governor, GovernorTimelockCompound) returns (uint256 proposalId) {
+    ) internal override(Governor, GovernorTimelockCompound) returns (uint256 proposalId) {
         return super._cancel(targets, values, calldatas, salt);
     }
 
-    function _executor() internal view virtual override(Governor, GovernorTimelockCompound) returns (address) {
+    function _executor() internal view override(Governor, GovernorTimelockCompound) returns (address) {
         return super._executor();
     }
 }

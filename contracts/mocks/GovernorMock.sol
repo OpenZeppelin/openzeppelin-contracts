@@ -44,7 +44,7 @@ contract GovernorMock is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public virtual override(Governor, GovernorProposalThreshold) returns (uint256) {
+    ) public override(Governor, GovernorProposalThreshold) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
 }

@@ -33,7 +33,7 @@ contract VestingWallet is Context {
         address beneficiaryAddress,
         uint64 startTimestamp,
         uint64 durationSeconds
-    ) {
+    ) payable {
         require(beneficiaryAddress != address(0), "VestingWallet: beneficiary is zero address");
         _beneficiary = beneficiaryAddress;
         _start = startTimestamp;
