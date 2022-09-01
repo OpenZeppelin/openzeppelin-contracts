@@ -4,62 +4,73 @@ const { expect } = require('chai');
 
 const { batchInBlock } = require('../helpers/txpool');
 
-const CheckpointsMock = artifacts.require('CheckpointsMock');
+const $Checkpoints = artifacts.require('$Checkpoints');
 
 const first = (array) => array.length ? array[0] : undefined;
 const last = (array) => array.length ? array[array.length - 1] : undefined;
 
 contract('Checkpoints', function (accounts) {
+  beforeEach(async function () {
+    this.mock = await $Checkpoints.new();
+  });
+
   describe('History checkpoints', function () {
-    beforeEach(async function () {
-      this.checkpoint = await CheckpointsMock.new();
-    });
+    const fnLatest = (self, ...args) =>
+      self.methods['$latest_Checkpoints_History(uint256)'](0, ...args);
+    const fnPush = (self, ...args) =>
+      self.methods['$push(uint256,uint256)'](0, ...args);
+    const fnGetAtBlock = (self, ...args) =>
+      self.methods['$getAtBlock(uint256,uint256)'](0, ...args);
+    const fnGetAtRecentBlock = (self, ...args) =>
+      self.methods['$getAtRecentBlock(uint256,uint256)'](0, ...args);
+    const fnLength = (self, ...args) =>
+      self.methods['$length_Checkpoints_History(uint256)'](0, ...args);
 
     describe('without checkpoints', function () {
       it('returns zero as latest value', async function () {
-        expect(await this.checkpoint.latest()).to.be.bignumber.equal('0');
+        expect(await fnLatest(this.mock)).to.be.bignumber.equal('0');
       });
 
       it('returns zero as past value', async function () {
         await time.advanceBlock();
-        expect(await this.checkpoint.getAtBlock(await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
-        expect(await this.checkpoint.getAtRecentBlock(await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
+        expect(await fnGetAtBlock(this.mock, await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
+        expect(await fnGetAtRecentBlock(this.mock, await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
       });
     });
 
     describe('with checkpoints', function () {
       beforeEach('pushing checkpoints', async function () {
-        this.tx1 = await this.checkpoint.push(1);
-        this.tx2 = await this.checkpoint.push(2);
+        this.tx1 = await fnPush(this.mock, 1);
+        this.tx2 = await fnPush(this.mock, 2);
         await time.advanceBlock();
-        this.tx3 = await this.checkpoint.push(3);
+        this.tx3 = await fnPush(this.mock, 3);
         await time.advanceBlock();
         await time.advanceBlock();
       });
 
       it('returns latest value', async function () {
-        expect(await this.checkpoint.latest()).to.be.bignumber.equal('3');
+        expect(await fnLatest(this.mock)).to.be.bignumber.equal('3');
       });
 
-      for (const fn of [ 'getAtBlock(uint256)', 'getAtRecentBlock(uint256)' ]) {
+      for (const fn of [ fnGetAtBlock, fnGetAtRecentBlock ]) {
         describe(`lookup: ${fn}`, function () {
           it('returns past values', async function () {
-            expect(await this.checkpoint.methods[fn](this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-            expect(await this.checkpoint.methods[fn](this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
-            expect(await this.checkpoint.methods[fn](this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
+            expect(await fn(this.mock, this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+            expect(await fn(this.mock, this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
+            expect(await fn(this.mock, this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
             // Block with no new checkpoints
-            expect(await this.checkpoint.methods[fn](this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
-            expect(await this.checkpoint.methods[fn](this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
-            expect(await this.checkpoint.methods[fn](this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
+            expect(await fn(this.mock, this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
+            expect(await fn(this.mock, this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
+            expect(await fn(this.mock, this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
           });
           it('reverts if block number >= current block', async function () {
             await expectRevert(
-              this.checkpoint.methods[fn](await web3.eth.getBlockNumber()),
+              fn(this.mock, await web3.eth.getBlockNumber()),
               'Checkpoints: block not yet mined',
             );
 
             await expectRevert(
-              this.checkpoint.methods[fn](await web3.eth.getBlockNumber() + 1),
+              fn(this.mock, await web3.eth.getBlockNumber() + 1),
               'Checkpoints: block not yet mined',
             );
           });
@@ -67,35 +78,44 @@ contract('Checkpoints', function (accounts) {
       }
 
       it('multiple checkpoints in the same block', async function () {
-        const lengthBefore = await this.checkpoint.length();
+        const lengthBefore = await fnLength(this.mock);
 
         await batchInBlock([
-          () => this.checkpoint.push(8, { gas: 100000 }),
-          () => this.checkpoint.push(9, { gas: 100000 }),
-          () => this.checkpoint.push(10, { gas: 100000 }),
+          () => fnPush(this.mock, 8, { gas: 100000 }),
+          () => fnPush(this.mock, 9, { gas: 100000 }),
+          () => fnPush(this.mock, 10, { gas: 100000 }),
         ]);
 
-        expect(await this.checkpoint.length()).to.be.bignumber.equal(lengthBefore.addn(1));
-        expect(await this.checkpoint.latest()).to.be.bignumber.equal('10');
+        expect(await fnLength(this.mock)).to.be.bignumber.equal(lengthBefore.addn(1));
+        expect(await fnLatest(this.mock)).to.be.bignumber.equal('10');
       });
     });
   });
 
   for (const length of [160, 224]) {
     describe(`Trace${length}`, function () {
-      beforeEach(async function () {
-        this.contract = await artifacts.require(`Checkpoints${length}Mock`).new();
-      });
+      const fnLatest = (self, ...args) =>
+        self.methods[`$latest_Checkpoints_Trace${length}(uint256)`](0, ...args);
+      const fnPush = (self, ...args) =>
+        self.methods[`$push(uint256,uint${256 - length},uint${length})`](0, ...args);
+      const fnUpperLookup = (self, ...args) =>
+        self.methods[`$upperLookup(uint256,uint${256 - length})`](0, ...args);
+      const fnUpperLookupRecent = (self, ...args) =>
+        self.methods[`$upperLookupRecent(uint256,uint${256 - length})`](0, ...args);
+      const fnLowerLookup = (self, ...args) =>
+        self.methods[`$lowerLookup(uint256,uint${256 - length})`](0, ...args);
+      const fnLength = (self, ...args) =>
+        self.methods[`$length_Checkpoints_Trace${length}(uint256)`](0, ...args);
 
       describe('without checkpoints', function () {
         it('returns zero as latest value', async function () {
-          expect(await this.contract.latest()).to.be.bignumber.equal('0');
+          expect(await fnLatest(this.mock)).to.be.bignumber.equal('0');
         });
 
         it('lookup returns 0', async function () {
-          expect(await this.contract.lowerLookup(0)).to.be.bignumber.equal('0');
-          expect(await this.contract.upperLookup(0)).to.be.bignumber.equal('0');
-          expect(await this.contract.upperLookupRecent(0)).to.be.bignumber.equal('0');
+          expect(await fnLowerLookup(this.mock, 0)).to.be.bignumber.equal('0');
+          expect(await fnUpperLookup(this.mock, 0)).to.be.bignumber.equal('0');
+          expect(await fnUpperLookupRecent(this.mock, 0)).to.be.bignumber.equal('0');
         });
       });
 
@@ -109,38 +129,43 @@ contract('Checkpoints', function (accounts) {
             { key: 11, value: '99' },
           ];
           for (const { key, value } of this.checkpoints) {
-            await this.contract.push(key, value);
+            await fnPush(this.mock, key, value);
           }
         });
 
+        it('length', async function () {
+          expect(await fnLength(this.mock))
+            .to.be.bignumber.equal(this.checkpoints.length.toString());
+        });
+
         it('returns latest value', async function () {
-          expect(await this.contract.latest())
+          expect(await fnLatest(this.mock))
             .to.be.bignumber.equal(last(this.checkpoints).value);
         });
 
         it('cannot push values in the past', async function () {
-          await expectRevert(this.contract.push(last(this.checkpoints).key - 1, '0'), 'Checkpoint: invalid key');
+          await expectRevert(fnPush(this.mock, last(this.checkpoints).key - 1, '0'), 'Checkpoint: invalid key');
         });
 
         it('can update last value', async function () {
           const newValue = '42';
 
           // check length before the update
-          expect(await this.contract.length()).to.be.bignumber.equal(this.checkpoints.length.toString());
+          expect(await fnLength(this.mock)).to.be.bignumber.equal(this.checkpoints.length.toString());
 
           // update last key
-          await this.contract.push(last(this.checkpoints).key, newValue);
-          expect(await this.contract.latest()).to.be.bignumber.equal(newValue);
+          await fnPush(this.mock, last(this.checkpoints).key, newValue);
+          expect(await fnLatest(this.mock)).to.be.bignumber.equal(newValue);
 
           // check that length did not change
-          expect(await this.contract.length()).to.be.bignumber.equal(this.checkpoints.length.toString());
+          expect(await fnLength(this.mock)).to.be.bignumber.equal(this.checkpoints.length.toString());
         });
 
         it('lower lookup', async function () {
           for (let i = 0; i < 14; ++i) {
             const value = first(this.checkpoints.filter(x => i <= x.key))?.value || '0';
 
-            expect(await this.contract.lowerLookup(i)).to.be.bignumber.equal(value);
+            expect(await fnLowerLookup(this.mock, i)).to.be.bignumber.equal(value);
           }
         });
 
@@ -148,8 +173,8 @@ contract('Checkpoints', function (accounts) {
           for (let i = 0; i < 14; ++i) {
             const value = last(this.checkpoints.filter(x => i >= x.key))?.value || '0';
 
-            expect(await this.contract.upperLookup(i)).to.be.bignumber.equal(value);
-            expect(await this.contract.upperLookupRecent(i)).to.be.bignumber.equal(value);
+            expect(await fnUpperLookup(this.mock, i)).to.be.bignumber.equal(value);
+            expect(await fnUpperLookupRecent(this.mock, i)).to.be.bignumber.equal(value);
           }
         });
       });

@@ -83,8 +83,6 @@ module.exports = {
       'vendor/**/*',
       // overflow clash
       'utils/Timers.sol',
-      // function pointers
-      'utils/Checkpoints.sol',
     ],
   },
 };
