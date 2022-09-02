@@ -27,7 +27,7 @@ contract CheckpointsMock {
     }
 
     function getAtProbablyRecentBlock(uint256 blockNumber) public view returns (uint256) {
-        return _totalCheckpoints.getAtProbablyRecentBlock(blockNumber);
+        return _totalCheckpoints.getAtProbablyRecentBlock(blockNumber, 32);
     }
 
     function length() public view returns (uint256) {
