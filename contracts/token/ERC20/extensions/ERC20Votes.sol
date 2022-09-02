@@ -75,7 +75,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
-        return _checkpointsLookup(_checkpoints[account], blockNumber);
+        return _checkpointsLookup(_checkpoints[account], blockNumber, _recencyThreshold());
     }
 
     /**
@@ -88,7 +88,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      */
     function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
-        return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
+        return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber, _recencyThreshold());
     }
 
     /**
