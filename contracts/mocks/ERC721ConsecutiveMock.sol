@@ -66,10 +66,6 @@ contract ERC721ConsecutiveMock is ERC721Burnable, ERC721Consecutive, ERC721Enume
         return super._ownerOf(tokenId);
     }
 
-    function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721Consecutive) {
-        super._burn(tokenId);
-    }
-
     function _mint(address to, uint256 tokenId) internal virtual override(ERC721, ERC721Consecutive) {
         super._mint(to, tokenId);
     }
@@ -86,7 +82,7 @@ contract ERC721ConsecutiveMock is ERC721Burnable, ERC721Consecutive, ERC721Enume
         address from,
         address to,
         uint256 tokenId
-    ) internal virtual override(ERC721, ERC721Votes) {
+    ) internal virtual override(ERC721, ERC721Votes, ERC721Consecutive) {
         super._afterTokenTransfer(from, to, tokenId);
     }
 
