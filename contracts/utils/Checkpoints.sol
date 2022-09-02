@@ -66,7 +66,7 @@ library Checkpoints {
         uint256 low = 0;
         uint256 high = length;
 
-        if (recencyThreshold < length) {
+        if (0 < recencyThreshold && recencyThreshold < length) {
             uint256 mid = length - recencyThreshold;
             if (key < _unsafeAccess(self._checkpoints, mid)._blockNumber) {
                 high = mid;

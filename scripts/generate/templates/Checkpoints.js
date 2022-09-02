@@ -109,7 +109,7 @@ function getAtProbablyRecentBlock(${opts.historyTypeName} storage self, uint256 
     uint256 low = 0;
     uint256 high = length;
 
-    if (recencyThreshold < length) {
+    if (0 < recencyThreshold && recencyThreshold < length) {
         uint256 mid = length - recencyThreshold;
         if (key < _unsafeAccess(self.${opts.checkpointFieldName}, mid)._blockNumber) {
             high = mid;
