@@ -22,8 +22,10 @@ contract('Checkpoints', function (accounts) {
 
       it('returns zero as past value', async function () {
         await time.advanceBlock();
-        expect(await this.checkpoint.getAtBlock(await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
-        expect(await this.checkpoint.getAtProbablyRecentBlock(await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
+        expect(await this.checkpoint.getAtBlock(await web3.eth.getBlockNumber() - 1))
+          .to.be.bignumber.equal('0');
+        expect(await this.checkpoint.getAtProbablyRecentBlock(await web3.eth.getBlockNumber() - 1))
+          .to.be.bignumber.equal('0');
       });
     });
 
