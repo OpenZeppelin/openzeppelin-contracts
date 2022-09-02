@@ -167,7 +167,7 @@ library Math {
         // This gives `2**k < a <= 2**(k+1)` → `2**(k/2) <= sqrt(a) < 2 ** (k/2+1)`.
         // Using an algorithm similar to the msb computation, we are able to compute `result = 2**(k/2)` which is a
         // good first approximation of `sqrt(a)` with at least 1 correct bit.
-        uint256 result = 1 << (log2(a) / 2);
+        uint256 result = 1 << (log2(a) >> 1);
 
         // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
         // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at
