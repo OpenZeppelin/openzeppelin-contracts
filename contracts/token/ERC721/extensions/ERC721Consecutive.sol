@@ -17,7 +17,13 @@ import "../../../utils/structs/BitMaps.sol";
  * Using this extensions removes the ability to mint single token during the contract construction. This ability is
  * regained after construction. During construction, only batch minting is allowed.
  *
- * IMPORTANT: This extension bypasses the hooks `_beforeTokenTransfer` and `_afterTokenTransfer`
+ * IMPORTANT: This extension bypasses the hooks {_beforeTokenTransfer} and {_afterTokenTransfer} for token minted in
+ * batch. When using this extensions, you should consider the {_beforeConsecutiveTokenTransfer} and
+ * {_afterConsecutiveTokenTransfer} hooks in addition to {_beforeTokenTransfer} and {_afterTokenTransfer}.
+ *
+ * IMPORTANT: When overriding {_afterTokenTransfer}, be carefull about call ordering. {ownerOf} may return invalid
+ * values during the {_afterTokenTransfer} execution if the super call is not called first. To be safe, execute the
+ * super call before your custom logic.
  *
  * _Available since v4.8._
  */
@@ -95,23 +101,25 @@ abstract contract ERC721Consecutive is ERC721 {
      */
     function _mint(address to, uint256 tokenId) internal virtual override {
         require(Address.isContract(address(this)), "ERC721Consecutive: can't mint during construction");
-
         super._mint(to, tokenId);
-        if (_sequentialBurn.get(tokenId)) {
-            _sequentialBurn.unset(tokenId);
-        }
     }
 
     /**
-     * @dev See {ERC721-_mint}. Override needed to avoid looking up in the sequential ownership structure for burnt
-     * token.
+     * @dev See {ERC721-_afterTokenTransfer}. Burning of token that have been sequentially minted must be explicit.
      */
-    function _burn(uint256 tokenId) internal virtual override {
-        // Invoke the core burn functionality to adjust balances, invoke hooks, etc.
-        super._burn(tokenId);
-        if (tokenId <= _totalConsecutiveSupply()) {
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual override {
+        if (
+            to == address(0) && // if we burn
+            tokenId <= _totalConsecutiveSupply() && // and the tokenId was sequentialy minted
+            !_sequentialBurn.get(tokenId) // and the token was never marked as burnt
+        ) {
             _sequentialBurn.set(tokenId);
         }
+        super._afterTokenTransfer(from, to, tokenId);
     }
 
     function _totalConsecutiveSupply() private view returns (uint96) {
