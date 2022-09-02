@@ -116,9 +116,9 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         uint256 low = 0;
         uint256 high = length;
 
-        if (recencyThreshold < length) {
+        if (0 < recencyThreshold && recencyThreshold < length) {
             uint256 mid = length - recencyThreshold;
-            if (ckpts[mid].fromBlock > blockNumber) {
+            if (_unsafeAccess(ckpts, mid).fromBlock > blockNumber) {
                 high = mid;
             } else {
                 low = mid + 1;
@@ -127,14 +127,14 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
 
         while (low < high) {
             uint256 mid = Math.average(low, high);
-            if (ckpts[mid].fromBlock > blockNumber) {
+            if (_unsafeAccess(ckpts, mid).fromBlock > blockNumber) {
                 high = mid;
             } else {
                 low = mid + 1;
             }
         }
 
-        return high == 0 ? 0 : ckpts[high - 1].votes;
+        return high == 0 ? 0 : _unsafeAccess(ckpts, high - 1).votes;
     }
 
     /**
@@ -254,11 +254,14 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         uint256 delta
     ) private returns (uint256 oldWeight, uint256 newWeight) {
         uint256 pos = ckpts.length;
-        oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
+
+        Checkpoint memory oldCkpt = pos == 0 ? Checkpoint(0, 0) : _unsafeAccess(ckpts, pos - 1);
+
+        oldWeight = oldCkpt.votes;
         newWeight = op(oldWeight, delta);
 
-        if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
-            ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
+        if (pos > 0 && oldCkpt.fromBlock == block.number) {
+            _unsafeAccess(ckpts, pos - 1).votes = SafeCast.toUint224(newWeight);
         } else {
             ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
         }
@@ -270,5 +273,12 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
 
     function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
         return a - b;
+    }
+
+    function _unsafeAccess(Checkpoint[] storage ckpts, uint256 pos) private view returns (Checkpoint storage result) {
+        assembly {
+            mstore(0, ckpts.slot)
+            result.slot := add(keccak256(0, 0x20), pos)
+        }
     }
 }
