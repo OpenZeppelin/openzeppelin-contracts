@@ -75,7 +75,7 @@ contract('Create2', function (accounts) {
       expectEvent(
         await this.factory.$deploy(deposit, saltHex, constructorByteCode),
         '$deploy_Returned',
-        { arg0: offChainComputed }
+        { arg0: offChainComputed },
       );
 
       expect(await balance.current(offChainComputed)).to.be.bignumber.equal(deposit);
