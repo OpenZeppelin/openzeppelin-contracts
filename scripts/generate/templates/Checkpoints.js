@@ -110,14 +110,11 @@ function getAtProbablyRecentBlock(${opts.historyTypeName} storage self, uint256 
     uint256 high = length;
 
     if (length > 5) {
-        uint256 recentThreshold = Math.sqrt(length);
-        if (recentThreshold < length) {
-            uint256 mid = length - recentThreshold;
-            if (key < _unsafeAccess(self.${opts.checkpointFieldName}, mid)._blockNumber) {
-                high = mid;
-            } else {
-                low = mid + 1;
-            }
+        uint256 mid = length - Math.sqrt(length);
+        if (key < _unsafeAccess(self.${opts.checkpointFieldName}, mid)._blockNumber) {
+            high = mid;
+        } else {
+            low = mid + 1;
         }
     }
 

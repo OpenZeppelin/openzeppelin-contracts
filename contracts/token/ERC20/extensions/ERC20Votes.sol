@@ -113,14 +113,11 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         uint256 high = length;
 
         if (length > 5) {
-            uint256 recentThreshold = Math.sqrt(length);
-            if (recentThreshold < length) {
-                uint256 mid = length - recentThreshold;
-                if (_unsafeAccess(ckpts, mid).fromBlock > blockNumber) {
-                    high = mid;
-                } else {
-                    low = mid + 1;
-                }
+            uint256 mid = length - Math.sqrt(length);
+            if (_unsafeAccess(ckpts, mid).fromBlock > blockNumber) {
+                high = mid;
+            } else {
+                low = mid + 1;
             }
         }
 
