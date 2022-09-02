@@ -71,14 +71,14 @@ contract('DoubleEndedQueue', function (accounts) {
     describe('pop', function () {
       it('front', async function () {
         const value = this.content.shift(); // remove first element
-        expectEvent(await this.deque.$popFront(0), '$popFront_uint256_ReturnEvent', { arg0: value });
+        expectEvent(await this.deque.$popFront(0), '$popFront_Returned', { arg0: value });
 
         expect(await getContent(this.deque)).to.have.ordered.members(this.content);
       });
 
       it('back', async function () {
         const value = this.content.pop(); // remove last element
-        expectEvent(await this.deque.$popBack(0), '$popBack_uint256_ReturnEvent', { arg0: value });
+        expectEvent(await this.deque.$popBack(0), '$popBack_Returned', { arg0: value });
 
         expect(await getContent(this.deque)).to.have.ordered.members(this.content);
       });

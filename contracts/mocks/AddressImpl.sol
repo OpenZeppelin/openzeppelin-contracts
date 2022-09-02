@@ -5,6 +5,9 @@ pragma solidity ^0.8.0;
 import "../utils/Address.sol";
 
 contract AddressImpl {
+    // This is going to be writter to using a delegateCall.
+    string public sharedAnswer;
+
     event CallReturnValue(string data);
 
     function isContract(address account) external view returns (bool) {
