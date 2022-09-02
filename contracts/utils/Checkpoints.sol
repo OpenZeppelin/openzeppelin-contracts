@@ -50,14 +50,10 @@ library Checkpoints {
     /**
      * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
      * before it is returned, or zero otherwise. Similar to {upperLookup} but optimized for the case when the searched
-     * checkpoint is probably "recent", i.e. is among the last few checkpoints (at most `recencyThreshold`), in which
-     * case the search gas cost has an upper bound independent of the total number of checkpoints.
+     * checkpoint is probably "recent", defined as being among the last sqrt(N) checkpoints where N is the number of
+     * checkpoints.
      */
-    function getAtProbablyRecentBlock(
-        History storage self,
-        uint256 blockNumber,
-        uint256 recencyThreshold
-    ) internal view returns (uint256) {
+    function getAtProbablyRecentBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
         uint32 key = SafeCast.toUint32(blockNumber);
 
@@ -66,12 +62,15 @@ library Checkpoints {
         uint256 low = 0;
         uint256 high = length;
 
-        if (0 < recencyThreshold && recencyThreshold < length) {
-            uint256 mid = length - recencyThreshold;
-            if (key < _unsafeAccess(self._checkpoints, mid)._blockNumber) {
-                high = mid;
-            } else {
-                low = mid + 1;
+        if (length > 5) {
+            uint256 recentThreshold = Math.sqrt(length);
+            if (recentThreshold < length) {
+                uint256 mid = length - recentThreshold;
+                if (key < _unsafeAccess(self._checkpoints, mid)._blockNumber) {
+                    high = mid;
+                } else {
+                    low = mid + 1;
+                }
             }
         }
 

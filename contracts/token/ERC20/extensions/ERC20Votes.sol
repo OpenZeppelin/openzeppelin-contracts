@@ -75,7 +75,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
-        return _checkpointsLookup(_checkpoints[account], blockNumber, _recencyThreshold());
+        return _checkpointsLookup(_checkpoints[account], blockNumber);
     }
 
     /**
@@ -88,17 +88,13 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      */
     function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "ERC20Votes: block not yet mined");
-        return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber, _recencyThreshold());
+        return _checkpointsLookup(_totalSupplyCheckpoints, blockNumber);
     }
 
     /**
      * @dev Lookup a value in a list of (sorted) checkpoints.
      */
-    function _checkpointsLookup(
-        Checkpoint[] storage ckpts,
-        uint256 blockNumber,
-        uint256 recencyThreshold
-    ) private view returns (uint256) {
+    function _checkpointsLookup(Checkpoint[] storage ckpts, uint256 blockNumber) private view returns (uint256) {
         // We run a binary search to look for the earliest checkpoint taken after `blockNumber`.
         //
         // Initially we check if the block is recent to narrow the search range.
@@ -116,12 +112,15 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         uint256 low = 0;
         uint256 high = length;
 
-        if (0 < recencyThreshold && recencyThreshold < length) {
-            uint256 mid = length - recencyThreshold;
-            if (_unsafeAccess(ckpts, mid).fromBlock > blockNumber) {
-                high = mid;
-            } else {
-                low = mid + 1;
+        if (length > 5) {
+            uint256 recentThreshold = Math.sqrt(length);
+            if (recentThreshold < length) {
+                uint256 mid = length - recentThreshold;
+                if (_unsafeAccess(ckpts, mid).fromBlock > blockNumber) {
+                    high = mid;
+                } else {
+                    low = mid + 1;
+                }
             }
         }
 
@@ -220,14 +219,6 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         emit DelegateChanged(delegator, currentDelegate, delegatee);
 
         _moveVotingPower(currentDelegate, delegatee, delegatorBalance);
-    }
-
-    /**
-     * @dev A parameter used in {getPastVotes} that determines how many of the last checkpoints get an optimized path.
-     * Defaults to 32.
-     */
-    function _recencyThreshold() internal view virtual returns (uint256) {
-        return 32;
     }
 
     function _moveVotingPower(
