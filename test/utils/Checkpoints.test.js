@@ -23,7 +23,7 @@ contract('Checkpoints', function (accounts) {
       it('returns zero as past value', async function () {
         await time.advanceBlock();
         expect(await this.checkpoint.getAtBlock(await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
-        expect(await this.checkpoint.getAtRecentBlock(await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
+        expect(await this.checkpoint.getAtProbablyRecentBlock(await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
       });
     });
 
@@ -41,7 +41,7 @@ contract('Checkpoints', function (accounts) {
         expect(await this.checkpoint.latest()).to.be.bignumber.equal('3');
       });
 
-      for (const fn of [ 'getAtBlock(uint256)', 'getAtRecentBlock(uint256)' ]) {
+      for (const fn of [ 'getAtBlock(uint256)', 'getAtProbablyRecentBlock(uint256)' ]) {
         describe(`lookup: ${fn}`, function () {
           it('returns past values', async function () {
             expect(await this.checkpoint.methods[fn](this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');

@@ -56,7 +56,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
      * - `blockNumber` must have been already mined
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return _delegateCheckpoints[account].getAtRecentBlock(blockNumber, _recencyThreshold());
+        return _delegateCheckpoints[account].getAtProbablyRecentBlock(blockNumber, _recencyThreshold());
     }
 
     /**
@@ -72,7 +72,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
      */
     function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "Votes: block not yet mined");
-        return _totalCheckpoints.getAtRecentBlock(blockNumber, _recencyThreshold());
+        return _totalCheckpoints.getAtProbablyRecentBlock(blockNumber, _recencyThreshold());
     }
 
     /**

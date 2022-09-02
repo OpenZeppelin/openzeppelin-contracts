@@ -99,7 +99,7 @@ function getAtBlock(${opts.historyTypeName} storage self, uint256 blockNumber) i
  * before it is returned, or zero otherwise. Similarly to {upperLookup} but optimized for the case when the search
  * key is known to be recent.
  */
-function getAtRecentBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
+function getAtProbablyRecentBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
     require(blockNumber < block.number, "Checkpoints: block not yet mined");
     uint32 key = SafeCast.toUint32(blockNumber);
 

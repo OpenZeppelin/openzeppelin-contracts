@@ -53,7 +53,7 @@ library Checkpoints {
      * checkpoint is probably "recent", i.e. is among the last few checkpoints (at most `recencyThreshold`), in which
      * case the search gas cost has an upper bound independent of the total number of checkpoints.
      */
-    function getAtRecentBlock(
+    function getAtProbablyRecentBlock(
         History storage self,
         uint256 blockNumber,
         uint256 recencyThreshold
