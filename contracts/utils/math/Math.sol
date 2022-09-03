@@ -161,12 +161,15 @@ library Math {
         }
 
         // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.
+        //
         // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have
-        // `msb(a) <= a < 2*msb(a)`.
-        // We also know that `k`, the position of the most significant bit, is such that `msb(a) = 2**k`.
-        // This gives `2**k < a <= 2**(k+1)` → `2**(k/2) <= sqrt(a) < 2 ** (k/2+1)`.
-        // Using an algorithm similar to the msb computation, we are able to compute `result = 2**(k/2)` which is a
-        // good first approximation of `sqrt(a)` with at least 1 correct bit.
+        // `msb(a) <= a < 2*msb(a)`. This value can be written `msb(a)=2**k` with `k=log2(a)`.
+        //
+        // This can be rewritten `2**log2(a) <= a < 2**(log2(a) + 1)`
+        // → `sqrt(2**k) <= sqrt(a) < sqrt(2**(k+1))`
+        // → `2**(k/2) <= sqrt(a) < 2**((k+1)/2) <= 2**(k/2 + 1)`
+        //
+        // Consequently, `2**(log2(a) / 2)` is a good first approximation of `sqrt(a)` with at least 1 correct bit.
         uint256 result = 1 << (log2(a) >> 1);
 
         // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
@@ -189,13 +192,10 @@ library Math {
      * @notice Calculates sqrt(a), following the selected rounding direction.
      */
     function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
-        uint256 result = sqrt(a);
         unchecked {
-            if (rounding == Rounding.Up && result * result < a) {
-                result += 1;
-            }
+            uint256 result = sqrt(a);
+            return result + (rounding == Rounding.Up && result * result < a ? 1 : 0);
         }
-        return result;
     }
 
     /**
@@ -245,13 +245,10 @@ library Math {
      * Returns 0 if given 0.
      */
     function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {
-        uint256 result = log2(value);
         unchecked {
-            if (rounding == Rounding.Up && 1 << result < value) {
-                result += 1;
-            }
+            uint256 result = log2(value);
+            return result + (rounding == Rounding.Up && 1 << result < value ? 1 : 0);
         }
-        return result;
     }
 
     /**
@@ -297,13 +294,10 @@ library Math {
      * Returns 0 if given 0.
      */
     function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
-        uint256 result = log10(value);
         unchecked {
-            if (rounding == Rounding.Up && 10**result < value) {
-                result += 1;
-            }
+            uint256 result = log10(value);
+            return result + (rounding == Rounding.Up && 10**result < value ? 1 : 0);
         }
-        return result;
     }
 
     /**
@@ -343,12 +337,9 @@ library Math {
      * Returns 0 if given 0.
      */
     function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
-        uint256 result = log256(value);
         unchecked {
-            if (rounding == Rounding.Up && 1 << (result * 8) < value) {
-                result += 1;
-            }
+            uint256 result = log256(value);
+            return result + (rounding == Rounding.Up && 1 << (result * 8) < value ? 1 : 0);
         }
-        return result;
     }
 }
