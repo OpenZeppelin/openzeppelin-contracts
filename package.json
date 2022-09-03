@@ -70,7 +70,7 @@
     "ethereumjs-wallet": "^1.0.1",
     "graphlib": "^2.1.8",
     "hardhat": "^2.9.1",
-    "hardhat-exposed": "^0.2.5",
+    "hardhat-exposed": "^0.2.6",
     "hardhat-gas-reporter": "^1.0.4",
     "keccak256": "^1.0.2",
     "lodash.startcase": "^4.4.0",
