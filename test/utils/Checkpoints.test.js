@@ -80,6 +80,18 @@ contract('Checkpoints', function (accounts) {
         expect(await this.checkpoint.length()).to.be.bignumber.equal(lengthBefore.addn(1));
         expect(await this.checkpoint.latest()).to.be.bignumber.equal('10');
       });
+
+      it('more than 5 checkpoints', async function () {
+        for (let i = 4; i <= 6; i++) {
+          await this.checkpoint.push(i);
+        }
+        expect(await this.checkpoint.length()).to.be.bignumber.equal('6');
+        const block = await web3.eth.getBlockNumber();
+        // recent
+        expect(await this.checkpoint.getAtProbablyRecentBlock(block - 1)).to.be.bignumber.equal('5');
+        // non-recent
+        expect(await this.checkpoint.getAtProbablyRecentBlock(block - 9)).to.be.bignumber.equal('0');
+      });
     });
   });
 
