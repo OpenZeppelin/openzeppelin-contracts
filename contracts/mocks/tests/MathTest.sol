@@ -15,10 +15,10 @@ contract MathTest is Test {
         // `sqrt` should return a rounded-down value, so `square` is either less or equal to `input`.
         if (square < input) {
             // We know `result` is less than the true value for the square root, but we want to check that the error is
-            // minimal - in this case, less than 1.
+            // minimal, in this case, less than 1.
             // This should only happen if `input` is not a perfect square. We can then check that any result larger than
-            // the one we got would result in a square larger than `input`, meaning we got the smallest value for which
-            // the square is less than `input`.
+            // the one we got would yield a square larger than `input`, meaning we got the smallest value for which the
+            // square is less than `input`.
 
             (bool noOverflow, uint256 nextSquare) = SafeMath.tryMul(result + 1, result + 1);
 
