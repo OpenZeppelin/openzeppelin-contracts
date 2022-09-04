@@ -2,6 +2,7 @@ const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-hel
 const { expect } = require('chai');
 
 const ERC721ConsecutiveMock = artifacts.require('ERC721ConsecutiveMock');
+const ERC721ConsecutiveEnumerableMock = artifacts.require('ERC721ConsecutiveEnumerableMock');
 const ERC721ConsecutiveNoConstructorMintMock = artifacts.require('ERC721ConsecutiveNoConstructorMintMock');
 
 contract('ERC721Consecutive', function (accounts) {
@@ -80,33 +81,25 @@ contract('ERC721Consecutive', function (accounts) {
       }
     });
 
-    it('enumerability correctly set', async function () {
-      const owners = batches.flatMap(({ receiver, amount }) => Array(amount).fill(receiver));
-
-      expect(await this.token.totalSupply())
-        .to.be.bignumber.equal(web3.utils.toBN(owners.length));
-
-      for (const tokenId in owners) {
-        expect(await this.token.tokenByIndex(tokenId))
-          .to.be.bignumber.equal(web3.utils.toBN(tokenId));
-      }
-
-      for (const account of accounts) {
-        const owned = Object.entries(owners)
-          .filter(([ _, owner ]) => owner === account)
-          .map(([ tokenId, _ ]) => tokenId);
-
-        for (const i in owned) {
-          expect(await this.token.tokenOfOwnerByIndex(account, i).then(x => x.toString()))
-            .to.be.bignumber.equal(web3.utils.toBN(owned[i]));
-        }
-      }
-    });
-
     it('cannot use single minting during construction', async function () {
       await expectRevert(
-        ERC721ConsecutiveNoConstructorMintMock.new(name, symbol),
+        ERC721ConsecutiveNoConstructorMintMock.new(
+          name,
+          symbol,
+        ),
         'ERC721Consecutive: can\'t mint during construction',
+      );
+    });
+
+    it('consecutive mint not compatible with enumerability', async function () {
+      await expectRevert(
+        ERC721ConsecutiveEnumerableMock.new(
+          name,
+          symbol,
+          batches.map(({ receiver }) => receiver),
+          batches.map(({ amount }) => amount),
+        ),
+        'ERC721Enumerable: consecutive transfers not supported'
       );
     });
   });

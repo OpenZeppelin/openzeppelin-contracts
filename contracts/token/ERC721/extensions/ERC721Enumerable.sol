@@ -108,25 +108,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         uint256 first,
         uint96 size
     ) internal virtual override {
-        require(from == address(0) && to != address(0), "ERC721Enumerable: only batch minting is supported");
-
-        // Before balance is updated (that is part of the super call)
-        uint256 length = ERC721.balanceOf(to);
-
-        // Do the super call
-        super._beforeConsecutiveTokenTransfer(from, to, first, size);
-
-        // Add to enumerability
-        for (uint256 tokenId = first; tokenId < first + size; ++tokenId) {
-            // Add to all tokens
-            _addTokenToAllTokensEnumeration(tokenId);
-
-            // Add to owner tokens
-            _ownedTokens[to][length] = tokenId;
-            _ownedTokensIndex[tokenId] = length;
-
-            ++length;
-        }
+        revert("ERC721Enumerable: consecutive transfers not supported");
     }
 
     /**

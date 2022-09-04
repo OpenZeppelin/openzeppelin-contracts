@@ -11,7 +11,7 @@ import "../token/ERC721/extensions/draft-ERC721Votes.sol";
 /**
  * @title ERC721ConsecutiveMock
  */
-contract ERC721ConsecutiveMock is ERC721Burnable, ERC721Consecutive, ERC721Enumerable, ERC721Pausable, ERC721Votes {
+contract ERC721ConsecutiveMock is ERC721Burnable, ERC721Consecutive, ERC721Pausable, ERC721Votes {
     constructor(
         string memory name,
         string memory symbol,
@@ -34,16 +34,6 @@ contract ERC721ConsecutiveMock is ERC721Burnable, ERC721Consecutive, ERC721Enume
 
     function unpause() external {
         _unpause();
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC721, ERC721Enumerable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
     }
 
     function exists(uint256 tokenId) public view returns (bool) {
@@ -74,7 +64,7 @@ contract ERC721ConsecutiveMock is ERC721Burnable, ERC721Consecutive, ERC721Enume
         address from,
         address to,
         uint256 tokenId
-    ) internal virtual override(ERC721, ERC721Enumerable, ERC721Pausable) {
+    ) internal virtual override(ERC721, ERC721Pausable) {
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
@@ -91,7 +81,7 @@ contract ERC721ConsecutiveMock is ERC721Burnable, ERC721Consecutive, ERC721Enume
         address to,
         uint256 first,
         uint96 size
-    ) internal virtual override(ERC721, ERC721Enumerable, ERC721Pausable) {
+    ) internal virtual override(ERC721, ERC721Pausable) {
         super._beforeConsecutiveTokenTransfer(from, to, first, size);
     }
 
@@ -102,6 +92,62 @@ contract ERC721ConsecutiveMock is ERC721Burnable, ERC721Consecutive, ERC721Enume
         uint96 size
     ) internal virtual override(ERC721, ERC721Votes) {
         super._afterConsecutiveTokenTransfer(from, to, first, size);
+    }
+}
+
+contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable {
+    constructor(
+        string memory name,
+        string memory symbol,
+        address[] memory receivers,
+        uint96[] memory amounts
+    ) ERC721(name, symbol) {
+        for (uint256 i = 0; i < receivers.length; ++i) {
+            _mintConsecutive(receivers[i], amounts[i]);
+        }
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+
+    function _ownerOf(uint256 tokenId) internal view virtual override(ERC721, ERC721Consecutive) returns (address) {
+        return super._ownerOf(tokenId);
+    }
+
+    function _mint(address to, uint256 tokenId) internal virtual override(ERC721, ERC721Consecutive) {
+        super._mint(to, tokenId);
+    }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual override(ERC721, ERC721Enumerable) {
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual override(ERC721, ERC721Consecutive) {
+        super._afterTokenTransfer(from, to, tokenId);
+    }
+
+    function _beforeConsecutiveTokenTransfer(
+        address from,
+        address to,
+        uint256 first,
+        uint96 size
+    ) internal virtual override(ERC721, ERC721Enumerable) {
+        super._beforeConsecutiveTokenTransfer(from, to, first, size);
     }
 }
 
