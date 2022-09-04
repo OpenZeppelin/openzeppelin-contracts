@@ -103,10 +103,10 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
     function _beforeConsecutiveTokenTransfer(
-        address from,
-        address to,
-        uint256 first,
-        uint96 size
+        address,
+        address,
+        uint256,
+        uint96
     ) internal virtual override {
         revert("ERC721Enumerable: consecutive transfers not supported");
     }
