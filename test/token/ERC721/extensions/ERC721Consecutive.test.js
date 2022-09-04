@@ -99,7 +99,7 @@ contract('ERC721Consecutive', function (accounts) {
           batches.map(({ receiver }) => receiver),
           batches.map(({ amount }) => amount),
         ),
-        'ERC721Enumerable: consecutive transfers not supported'
+        'ERC721Enumerable: consecutive transfers not supported',
       );
     });
   });
