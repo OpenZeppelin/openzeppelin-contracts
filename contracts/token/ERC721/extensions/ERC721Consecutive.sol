@@ -15,11 +15,11 @@ import "../../../utils/structs/BitMaps.sol";
  * This extension allows the minting of large batches of tokens during the contract construction. These batches are
  * limited to 5000 tokens at a time to accommodate off-chain indexers.
  *
- * Using this extensions removes the ability to mint single token during the contract construction. This ability is
+ * Using this extension removes the ability to mint single tokens during the contract construction. This ability is
  * regained after construction. During construction, only batch minting is allowed.
  *
- * IMPORTANT: This extension bypasses the hooks {_beforeTokenTransfer} and {_afterTokenTransfer} for token minted in
- * batch. When using this extensions, you should consider the {_beforeConsecutiveTokenTransfer} and
+ * IMPORTANT: This extension bypasses the hooks {_beforeTokenTransfer} and {_afterTokenTransfer} for tokens minted in
+ * batch. When using this extension, you should consider the {_beforeConsecutiveTokenTransfer} and
  * {_afterConsecutiveTokenTransfer} hooks in addition to {_beforeTokenTransfer} and {_afterTokenTransfer}.
  *
  * IMPORTANT: When overriding {_afterTokenTransfer}, be careful about call ordering. {ownerOf} may return invalid
