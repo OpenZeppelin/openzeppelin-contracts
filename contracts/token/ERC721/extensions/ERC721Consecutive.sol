@@ -70,7 +70,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         if (batchSize > 0) {
             require(!Address.isContract(address(this)), "ERC721Consecutive: batch minting restricted to constructor");
             require(to != address(0), "ERC721Consecutive: mint to the zero address");
-            require(batchSize <= 5000, "ERC721Consecutive: batches too large for indexing");
+            require(batchSize <= 5000, "ERC721Consecutive: batch too large");
 
             // hook before
             _beforeConsecutiveTokenTransfer(address(0), to, first, batchSize);
