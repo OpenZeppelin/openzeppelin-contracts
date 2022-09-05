@@ -148,7 +148,7 @@ function latestCheckpoint(${opts.historyTypeName} storage self)
     internal
     view
     returns (
-        bool exist,
+        bool exists,
         ${opts.keyTypeName} ${opts.keyFieldName},
         ${opts.valueTypeName} ${opts.valueFieldName}
     )

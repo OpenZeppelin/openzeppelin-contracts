@@ -107,7 +107,7 @@ library Checkpoints {
         internal
         view
         returns (
-            bool exist,
+            bool exists,
             uint32 _blockNumber,
             uint224 _value
         )
@@ -268,7 +268,7 @@ library Checkpoints {
         internal
         view
         returns (
-            bool exist,
+            bool exists,
             uint32 _key,
             uint224 _value
         )
@@ -433,7 +433,7 @@ library Checkpoints {
         internal
         view
         returns (
-            bool exist,
+            bool exists,
             uint96 _key,
             uint160 _value
         )

@@ -117,7 +117,7 @@ abstract contract ERC721Consecutive is ERC721, IERC2309 {
     }
 
     function _totalConsecutiveSupply() private view returns (uint96) {
-        (bool exist, uint96 latestId, ) = _sequentialOwnership.latestCheckpoint();
-        return exist ? latestId + 1 : 0;
+        (bool exists, uint96 latestId, ) = _sequentialOwnership.latestCheckpoint();
+        return exists ? latestId + 1 : 0;
     }
 }
