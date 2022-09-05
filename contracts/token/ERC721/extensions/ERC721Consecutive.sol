@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../ERC721.sol";
+import "../../../interfaces/IERC2309.sol";
 import "../../../utils/Checkpoints.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/structs/BitMaps.sol";
@@ -27,19 +28,12 @@ import "../../../utils/structs/BitMaps.sol";
  *
  * _Available since v4.8._
  */
-abstract contract ERC721Consecutive is ERC721 {
+abstract contract ERC721Consecutive is ERC721, IERC2309 {
     using BitMaps for BitMaps.BitMap;
     using Checkpoints for Checkpoints.Trace160;
 
     Checkpoints.Trace160 private _sequentialOwnership;
     BitMaps.BitMap private _sequentialBurn;
-
-    event ConsecutiveTransfer(
-        uint256 indexed fromTokenId,
-        uint256 toTokenId,
-        address indexed fromAddress,
-        address indexed toAddress
-    );
 
     /**
      * @dev See {ERC721-_ownerOf}. Override version that checks the sequential ownership structure for tokens that have
