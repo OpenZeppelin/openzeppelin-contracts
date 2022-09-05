@@ -141,7 +141,7 @@ function latest(${opts.historyTypeName} storage self) internal view returns (${o
 }
 
 /**
- * @dev Returns weither there is a checkpoint if the structure (structure is not empty), and if so the key and value
+ * @dev Returns wether there is a checkpoint if the structure (structure is not empty), and if so the key and value
  * in the most recent checkpoint.
  */
 function latestCheckpoint(${opts.historyTypeName} storage self)
