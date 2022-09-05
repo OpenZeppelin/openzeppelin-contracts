@@ -34,8 +34,8 @@ contract CheckpointsMock {
         return _totalCheckpoints.getAtBlock(blockNumber);
     }
 
-    function getAtRecentBlock(uint256 blockNumber) public view returns (uint256) {
-        return _totalCheckpoints.getAtRecentBlock(blockNumber);
+    function getAtProbablyRecentBlock(uint256 blockNumber) public view returns (uint256) {
+        return _totalCheckpoints.getAtProbablyRecentBlock(blockNumber);
     }
 }
 `;
@@ -68,10 +68,6 @@ contract Checkpoints${length}Mock {
 
     function upperLookup(uint${256 - length} key) public view returns (uint${length}) {
         return _totalCheckpoints.upperLookup(key);
-    }
-
-    function upperLookupRecent(uint${256 - length} key) public view returns (uint224) {
-        return _totalCheckpoints.upperLookupRecent(key);
     }
 }
 `;
