@@ -29,6 +29,7 @@
  * `Arrays`: Add `unsafeAccess` functions that allow reading and writing to an element in a storage array bypassing Solidity's "out-of-bounds" check. ([#3589](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3589))
  * `Strings`: optimize `toString`. ([#3573](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3573))
  * `Ownable2Step`: extension of `Ownable` that makes the ownership transfers a two step process. ([#3620](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3620))
+ * `Math` and `SignedMath`: optimize function `max` by using `>` instead of `>=`. ([#3679](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3679))
 
 ### Breaking changes
 
