@@ -18,6 +18,14 @@ contract CheckpointsMock {
         return _totalCheckpoints.latest();
     }
 
+    function latestCheckpoint() public view returns (bool, uint256, uint256) {
+        return _totalCheckpoints.latestCheckpoint();
+    }
+
+    function length() public view returns (uint256) {
+        return _totalCheckpoints.length();
+    }
+
     function push(uint256 value) public returns (uint256, uint256) {
         return _totalCheckpoints.push(value);
     }
@@ -28,10 +36,6 @@ contract CheckpointsMock {
 
     function getAtProbablyRecentBlock(uint256 blockNumber) public view returns (uint256) {
         return _totalCheckpoints.getAtProbablyRecentBlock(blockNumber);
-    }
-
-    function length() public view returns (uint256) {
-        return _totalCheckpoints._checkpoints.length;
     }
 }
 `;
@@ -46,6 +50,14 @@ contract Checkpoints${length}Mock {
         return _totalCheckpoints.latest();
     }
 
+    function latestCheckpoint() public view returns (bool, uint${256 - length}, uint${length}) {
+        return _totalCheckpoints.latestCheckpoint();
+    }
+
+    function length() public view returns (uint256) {
+        return _totalCheckpoints.length();
+    }
+
     function push(uint${256 - length} key, uint${length} value) public returns (uint${length}, uint${length}) {
         return _totalCheckpoints.push(key, value);
     }
@@ -56,10 +68,6 @@ contract Checkpoints${length}Mock {
 
     function upperLookup(uint${256 - length} key) public view returns (uint${length}) {
         return _totalCheckpoints.upperLookup(key);
-    }
-
-    function length() public view returns (uint256) {
-        return _totalCheckpoints._checkpoints.length;
     }
 }
 `;

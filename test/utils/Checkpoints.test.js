@@ -18,6 +18,11 @@ contract('Checkpoints', function (accounts) {
     describe('without checkpoints', function () {
       it('returns zero as latest value', async function () {
         expect(await this.checkpoint.latest()).to.be.bignumber.equal('0');
+
+        const ckpt = await this.checkpoint.latestCheckpoint();
+        expect(ckpt[0]).to.be.equal(false);
+        expect(ckpt[1]).to.be.bignumber.equal('0');
+        expect(ckpt[2]).to.be.bignumber.equal('0');
       });
 
       it('returns zero as past value', async function () {
@@ -41,6 +46,11 @@ contract('Checkpoints', function (accounts) {
 
       it('returns latest value', async function () {
         expect(await this.checkpoint.latest()).to.be.bignumber.equal('3');
+
+        const ckpt = await this.checkpoint.latestCheckpoint();
+        expect(ckpt[0]).to.be.equal(true);
+        expect(ckpt[1]).to.be.bignumber.equal(web3.utils.toBN(this.tx3.receipt.blockNumber));
+        expect(ckpt[2]).to.be.bignumber.equal(web3.utils.toBN('3'));
       });
 
       for (const fn of [ 'getAtBlock(uint256)', 'getAtProbablyRecentBlock(uint256)' ]) {
@@ -104,6 +114,11 @@ contract('Checkpoints', function (accounts) {
       describe('without checkpoints', function () {
         it('returns zero as latest value', async function () {
           expect(await this.contract.latest()).to.be.bignumber.equal('0');
+
+          const ckpt = await this.contract.latestCheckpoint();
+          expect(ckpt[0]).to.be.equal(false);
+          expect(ckpt[1]).to.be.bignumber.equal('0');
+          expect(ckpt[2]).to.be.bignumber.equal('0');
         });
 
         it('lookup returns 0', async function () {
@@ -115,11 +130,11 @@ contract('Checkpoints', function (accounts) {
       describe('with checkpoints', function () {
         beforeEach('pushing checkpoints', async function () {
           this.checkpoints = [
-            { key: 2, value: '17' },
-            { key: 3, value: '42' },
-            { key: 5, value: '101' },
-            { key: 7, value: '23' },
-            { key: 11, value: '99' },
+            { key: '2', value: '17' },
+            { key: '3', value: '42' },
+            { key: '5', value: '101' },
+            { key: '7', value: '23' },
+            { key: '11', value: '99' },
           ];
           for (const { key, value } of this.checkpoints) {
             await this.contract.push(key, value);
@@ -127,8 +142,12 @@ contract('Checkpoints', function (accounts) {
         });
 
         it('returns latest value', async function () {
-          expect(await this.contract.latest())
-            .to.be.bignumber.equal(last(this.checkpoints).value);
+          expect(await this.contract.latest()).to.be.bignumber.equal(last(this.checkpoints).value);
+
+          const ckpt = await this.contract.latestCheckpoint();
+          expect(ckpt[0]).to.be.equal(true);
+          expect(ckpt[1]).to.be.bignumber.equal(last(this.checkpoints).key);
+          expect(ckpt[2]).to.be.bignumber.equal(last(this.checkpoints).value);
         });
 
         it('cannot push values in the past', async function () {

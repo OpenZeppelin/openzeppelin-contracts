@@ -14,6 +14,22 @@ contract CheckpointsMock {
         return _totalCheckpoints.latest();
     }
 
+    function latestCheckpoint()
+        public
+        view
+        returns (
+            bool,
+            uint256,
+            uint256
+        )
+    {
+        return _totalCheckpoints.latestCheckpoint();
+    }
+
+    function length() public view returns (uint256) {
+        return _totalCheckpoints.length();
+    }
+
     function push(uint256 value) public returns (uint256, uint256) {
         return _totalCheckpoints.push(value);
     }
@@ -25,10 +41,6 @@ contract CheckpointsMock {
     function getAtProbablyRecentBlock(uint256 blockNumber) public view returns (uint256) {
         return _totalCheckpoints.getAtProbablyRecentBlock(blockNumber);
     }
-
-    function length() public view returns (uint256) {
-        return _totalCheckpoints._checkpoints.length;
-    }
 }
 
 contract Checkpoints224Mock {
@@ -38,6 +50,22 @@ contract Checkpoints224Mock {
 
     function latest() public view returns (uint224) {
         return _totalCheckpoints.latest();
+    }
+
+    function latestCheckpoint()
+        public
+        view
+        returns (
+            bool,
+            uint32,
+            uint224
+        )
+    {
+        return _totalCheckpoints.latestCheckpoint();
+    }
+
+    function length() public view returns (uint256) {
+        return _totalCheckpoints.length();
     }
 
     function push(uint32 key, uint224 value) public returns (uint224, uint224) {
@@ -51,10 +79,6 @@ contract Checkpoints224Mock {
     function upperLookup(uint32 key) public view returns (uint224) {
         return _totalCheckpoints.upperLookup(key);
     }
-
-    function length() public view returns (uint256) {
-        return _totalCheckpoints._checkpoints.length;
-    }
 }
 
 contract Checkpoints160Mock {
@@ -64,6 +88,22 @@ contract Checkpoints160Mock {
 
     function latest() public view returns (uint160) {
         return _totalCheckpoints.latest();
+    }
+
+    function latestCheckpoint()
+        public
+        view
+        returns (
+            bool,
+            uint96,
+            uint160
+        )
+    {
+        return _totalCheckpoints.latestCheckpoint();
+    }
+
+    function length() public view returns (uint256) {
+        return _totalCheckpoints.length();
     }
 
     function push(uint96 key, uint160 value) public returns (uint160, uint160) {
@@ -76,9 +116,5 @@ contract Checkpoints160Mock {
 
     function upperLookup(uint96 key) public view returns (uint160) {
         return _totalCheckpoints.upperLookup(key);
-    }
-
-    function length() public view returns (uint256) {
-        return _totalCheckpoints._checkpoints.length;
     }
 }
