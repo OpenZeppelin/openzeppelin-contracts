@@ -131,7 +131,44 @@ function push(
 }
 `;
 
-const helpers = opts => `\
+const common = opts => `\
+/**
+ * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
+ */
+function latest(${opts.historyTypeName} storage self) internal view returns (${opts.valueTypeName}) {
+    uint256 pos = self.${opts.checkpointFieldName}.length;
+    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
+}
+
+/**
+ * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
+ * in the most recent checkpoint.
+ */
+function latestCheckpoint(${opts.historyTypeName} storage self)
+    internal
+    view
+    returns (
+        bool exists,
+        ${opts.keyTypeName} ${opts.keyFieldName},
+        ${opts.valueTypeName} ${opts.valueFieldName}
+    )
+{
+    uint256 pos = self.${opts.checkpointFieldName}.length;
+    if (pos == 0) {
+        return (false, 0, 0);
+    } else {
+        ${opts.checkpointTypeName} memory ckpt = _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1);
+        return (true, ckpt.${opts.keyFieldName}, ckpt.${opts.valueFieldName});
+    }
+}
+
+/**
+ * @dev Returns the number of checkpoint.
+ */
+function length(${opts.historyTypeName} storage self) internal view returns (uint256) {
+    return self.${opts.checkpointFieldName}.length;
+}
+
 /**
  * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
  */
@@ -265,12 +302,12 @@ module.exports = format(
     // Legacy types & functions
     types(LEGACY_OPTS),
     legacyOperations(LEGACY_OPTS),
-    helpers(LEGACY_OPTS),
+    common(LEGACY_OPTS),
     // New flavors
     ...OPTS.flatMap(opts => [
       types(opts),
       operations(opts),
-      helpers(opts),
+      common(opts),
     ]),
   ],
   '}',

@@ -17,6 +17,8 @@ contract('Checkpoints', function (accounts) {
   describe('History checkpoints', function () {
     const fnLatest = (self, ...args) =>
       self.methods['$latest_Checkpoints_History(uint256)'](0, ...args);
+    const fnLatestCheckpoint = (self, ...args) =>
+      self.methods['$latestCheckpoint_Checkpoints_History(uint256)'](0, ...args);
     const fnPush = (self, ...args) =>
       self.methods['$push(uint256,uint256)'](0, ...args);
     const fnGetAtBlock = (self, ...args) =>
@@ -29,6 +31,11 @@ contract('Checkpoints', function (accounts) {
     describe('without checkpoints', function () {
       it('returns zero as latest value', async function () {
         expect(await fnLatest(this.mock)).to.be.bignumber.equal('0');
+
+        const ckpt = await fnLatestCheckpoint(this.mock);
+        expect(ckpt[0]).to.be.equal(false);
+        expect(ckpt[1]).to.be.bignumber.equal('0');
+        expect(ckpt[2]).to.be.bignumber.equal('0');
       });
 
       it('returns zero as past value', async function () {
@@ -50,6 +57,11 @@ contract('Checkpoints', function (accounts) {
 
       it('returns latest value', async function () {
         expect(await fnLatest(this.mock)).to.be.bignumber.equal('3');
+
+        const ckpt = await fnLatestCheckpoint(this.mock);
+        expect(ckpt[0]).to.be.equal(true);
+        expect(ckpt[1]).to.be.bignumber.equal(web3.utils.toBN(this.tx3.receipt.blockNumber));
+        expect(ckpt[2]).to.be.bignumber.equal(web3.utils.toBN('3'));
       });
 
       for (const fn of [ fnGetAtBlock, fnGetAtRecentBlock ]) {
@@ -108,6 +120,8 @@ contract('Checkpoints', function (accounts) {
     describe(`Trace${length}`, function () {
       const fnLatest = (self, ...args) =>
         self.methods[`$latest_Checkpoints_Trace${length}(uint256)`](0, ...args);
+      const fnLatestCheckpoint = (self, ...args) =>
+        self.methods[`$latestCheckpoint_Checkpoints_Trace${length}(uint256)`](0, ...args);
       const fnPush = (self, ...args) =>
         self.methods[`$push(uint256,uint${256 - length},uint${length})`](0, ...args);
       const fnUpperLookup = (self, ...args) =>
@@ -122,6 +136,11 @@ contract('Checkpoints', function (accounts) {
       describe('without checkpoints', function () {
         it('returns zero as latest value', async function () {
           expect(await fnLatest(this.mock)).to.be.bignumber.equal('0');
+
+          const ckpt = await fnLatestCheckpoint(this.mock);
+          expect(ckpt[0]).to.be.equal(false);
+          expect(ckpt[1]).to.be.bignumber.equal('0');
+          expect(ckpt[2]).to.be.bignumber.equal('0');
         });
 
         it('lookup returns 0', async function () {
@@ -133,11 +152,11 @@ contract('Checkpoints', function (accounts) {
       describe('with checkpoints', function () {
         beforeEach('pushing checkpoints', async function () {
           this.checkpoints = [
-            { key: 2, value: '17' },
-            { key: 3, value: '42' },
-            { key: 5, value: '101' },
-            { key: 7, value: '23' },
-            { key: 11, value: '99' },
+            { key: '2', value: '17' },
+            { key: '3', value: '42' },
+            { key: '5', value: '101' },
+            { key: '7', value: '23' },
+            { key: '11', value: '99' },
           ];
           for (const { key, value } of this.checkpoints) {
             await fnPush(this.mock, key, value);
@@ -150,8 +169,12 @@ contract('Checkpoints', function (accounts) {
         });
 
         it('returns latest value', async function () {
-          expect(await fnLatest(this.mock))
-            .to.be.bignumber.equal(last(this.checkpoints).value);
+          expect(await fnLatest(this.mock)).to.be.bignumber.equal(last(this.checkpoints).value);
+
+          const ckpt = await fnLatestCheckpoint(this.mock);
+          expect(ckpt[0]).to.be.equal(true);
+          expect(ckpt[1]).to.be.bignumber.equal(last(this.checkpoints).key);
+          expect(ckpt[2]).to.be.bignumber.equal(last(this.checkpoints).value);
         });
 
         it('cannot push values in the past', async function () {

@@ -100,6 +100,28 @@ library Checkpoints {
     }
 
     /**
+     * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
+     * in the most recent checkpoint.
+     */
+    function latestCheckpoint(History storage self)
+        internal
+        view
+        returns (
+            bool exists,
+            uint32 _blockNumber,
+            uint224 _value
+        )
+    {
+        uint256 pos = self._checkpoints.length;
+        if (pos == 0) {
+            return (false, 0, 0);
+        } else {
+            Checkpoint memory ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            return (true, ckpt._blockNumber, ckpt._value);
+        }
+    }
+
+    /**
      * @dev Returns the number of checkpoint.
      */
     function length(History storage self) internal view returns (uint256) {
@@ -231,30 +253,33 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key (similarly to
-     * {upperLookup}), optimized for the case when the search key is known to be recent.
-     */
-    function upperLookupRecent(Trace224 storage self, uint32 key) internal view returns (uint224) {
-        uint256 length = self._checkpoints.length;
-        uint256 offset = 1;
-
-        while (offset <= length && _unsafeAccess(self._checkpoints, length - offset)._key > key) {
-            offset <<= 1;
-        }
-
-        uint256 low = 0 < offset && offset < length ? length - offset : 0;
-        uint256 high = length - (offset >> 1);
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
-
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
-    }
-
-    /**
      * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
      */
     function latest(Trace224 storage self) internal view returns (uint224) {
         uint256 pos = self._checkpoints.length;
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+    }
+
+    /**
+     * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
+     * in the most recent checkpoint.
+     */
+    function latestCheckpoint(Trace224 storage self)
+        internal
+        view
+        returns (
+            bool exists,
+            uint32 _key,
+            uint224 _value
+        )
+    {
+        uint256 pos = self._checkpoints.length;
+        if (pos == 0) {
+            return (false, 0, 0);
+        } else {
+            Checkpoint224 memory ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            return (true, ckpt._key, ckpt._value);
+        }
     }
 
     /**
@@ -393,30 +418,33 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key (similarly to
-     * {upperLookup}), optimized for the case when the search key is known to be recent.
-     */
-    function upperLookupRecent(Trace160 storage self, uint96 key) internal view returns (uint160) {
-        uint256 length = self._checkpoints.length;
-        uint256 offset = 1;
-
-        while (offset <= length && _unsafeAccess(self._checkpoints, length - offset)._key > key) {
-            offset <<= 1;
-        }
-
-        uint256 low = 0 < offset && offset < length ? length - offset : 0;
-        uint256 high = length - (offset >> 1);
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
-
-        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
-    }
-
-    /**
      * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
      */
     function latest(Trace160 storage self) internal view returns (uint160) {
         uint256 pos = self._checkpoints.length;
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+    }
+
+    /**
+     * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
+     * in the most recent checkpoint.
+     */
+    function latestCheckpoint(Trace160 storage self)
+        internal
+        view
+        returns (
+            bool exists,
+            uint96 _key,
+            uint160 _value
+        )
+    {
+        uint256 pos = self._checkpoints.length;
+        if (pos == 0) {
+            return (false, 0, 0);
+        } else {
+            Checkpoint160 memory ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            return (true, ckpt._key, ckpt._value);
+        }
     }
 
     /**
