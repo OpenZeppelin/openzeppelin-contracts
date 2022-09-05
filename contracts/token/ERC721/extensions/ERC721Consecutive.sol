@@ -36,7 +36,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     BitMaps.BitMap private _sequentialBurn;
 
     /**
-     * @dev See {ERC721-_ownerOf}. Override version that checks the sequential ownership structure for tokens that have
+     * @dev See {ERC721-_ownerOf}. Override that checks the sequential ownership structure for tokens that have
      * been minted as part of a batch, and not yet transferred.
      */
     function _ownerOf(uint256 tokenId) internal view virtual override returns (address) {
@@ -53,10 +53,10 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     }
 
     /**
-     * @dev Mint a batch of token of length `batchSize` for `to`.
+     * @dev Mint a batch of tokens of length `batchSize` for `to`.
      *
      * WARNING: Consecutive mint is only available during construction. ERC721 requires that any minting done after
-     * construction emits a Transfer event, which is not the case of mints performed using this function.
+     * construction emits a `Transfer` event, which is not the case of mints performed using this function.
      *
      * WARNING: Consecutive mint is limited to batches of 5000 tokens. Further minting is possible from a contract's
      * point of view but would cause indexing issues for off-chain services.
