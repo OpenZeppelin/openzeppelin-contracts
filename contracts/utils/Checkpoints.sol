@@ -94,13 +94,25 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the key and value in the most recent checkpoint. Revert if there are no checkpoints.
+     * @dev Returns weither there is a checkpoint if the structure (structure is not empty), and if so the key and value
+     * in the most recent checkpoint.
      */
-    function latestCheckpoint(History storage self) internal view returns (uint32, uint224) {
+    function latestCheckpoint(History storage self)
+        internal
+        view
+        returns (
+            bool exist,
+            uint32 _blockNumber,
+            uint224 _value
+        )
+    {
         uint256 pos = self._checkpoints.length;
-        require(pos > 0, "Checkpoint: empty");
-        Checkpoint memory ckpt = _unsafeAccess(self._checkpoints, pos - 1);
-        return (ckpt._blockNumber, ckpt._value);
+        if (pos == 0) {
+            return (false, 0, 0);
+        } else {
+            Checkpoint memory ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            return (true, ckpt._blockNumber, ckpt._value);
+        }
     }
 
     /**
@@ -262,13 +274,25 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the key and value in the most recent checkpoint. Revert if there are no checkpoints.
+     * @dev Returns weither there is a checkpoint if the structure (structure is not empty), and if so the key and value
+     * in the most recent checkpoint.
      */
-    function latestCheckpoint(Trace224 storage self) internal view returns (uint32, uint224) {
+    function latestCheckpoint(Trace224 storage self)
+        internal
+        view
+        returns (
+            bool exist,
+            uint32 _key,
+            uint224 _value
+        )
+    {
         uint256 pos = self._checkpoints.length;
-        require(pos > 0, "Checkpoint: empty");
-        Checkpoint224 memory ckpt = _unsafeAccess(self._checkpoints, pos - 1);
-        return (ckpt._key, ckpt._value);
+        if (pos == 0) {
+            return (false, 0, 0);
+        } else {
+            Checkpoint224 memory ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            return (true, ckpt._key, ckpt._value);
+        }
     }
 
     /**
@@ -434,13 +458,25 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the key and value in the most recent checkpoint. Revert if there are no checkpoints.
+     * @dev Returns weither there is a checkpoint if the structure (structure is not empty), and if so the key and value
+     * in the most recent checkpoint.
      */
-    function latestCheckpoint(Trace160 storage self) internal view returns (uint96, uint160) {
+    function latestCheckpoint(Trace160 storage self)
+        internal
+        view
+        returns (
+            bool exist,
+            uint96 _key,
+            uint160 _value
+        )
+    {
         uint256 pos = self._checkpoints.length;
-        require(pos > 0, "Checkpoint: empty");
-        Checkpoint160 memory ckpt = _unsafeAccess(self._checkpoints, pos - 1);
-        return (ckpt._key, ckpt._value);
+        if (pos == 0) {
+            return (false, 0, 0);
+        } else {
+            Checkpoint160 memory ckpt = _unsafeAccess(self._checkpoints, pos - 1);
+            return (true, ckpt._key, ckpt._value);
+        }
     }
 
     /**

@@ -154,13 +154,25 @@ function latest(${opts.historyTypeName} storage self) internal view returns (${o
 }
 
 /**
- * @dev Returns the key and value in the most recent checkpoint. Revert if there are no checkpoints.
+ * @dev Returns weither there is a checkpoint if the structure (structure is not empty), and if so the key and value
+ * in the most recent checkpoint.
  */
-function latestCheckpoint(${opts.historyTypeName} storage self) internal view returns (${opts.keyTypeName}, ${opts.valueTypeName}) {
+function latestCheckpoint(${opts.historyTypeName} storage self)
+    internal
+    view
+    returns (
+        bool exist,
+        ${opts.keyTypeName} ${opts.keyFieldName},
+        ${opts.valueTypeName} ${opts.valueFieldName}
+    )
+{
     uint256 pos = self.${opts.checkpointFieldName}.length;
-    require(pos > 0, "Checkpoint: empty");
-    ${opts.checkpointTypeName} memory ckpt = _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1);
-    return (ckpt.${opts.keyFieldName}, ckpt.${opts.valueFieldName});
+    if (pos == 0) {
+        return (false, 0, 0);
+    } else {
+        ${opts.checkpointTypeName} memory ckpt = _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1);
+        return (true, ckpt.${opts.keyFieldName}, ckpt.${opts.valueFieldName});
+    }
 }
 
 /**

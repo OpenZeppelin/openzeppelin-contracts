@@ -18,7 +18,7 @@ contract CheckpointsMock {
         return _totalCheckpoints.latest();
     }
 
-    function latestCheckpoint() public view returns (uint256, uint256) {
+    function latestCheckpoint() public view returns (bool, uint256, uint256) {
         return _totalCheckpoints.latestCheckpoint();
     }
 
@@ -50,7 +50,7 @@ contract Checkpoints${length}Mock {
         return _totalCheckpoints.latest();
     }
 
-    function latestCheckpoint() public view returns (uint${256 - length}, uint${length}) {
+    function latestCheckpoint() public view returns (bool, uint${256 - length}, uint${length}) {
         return _totalCheckpoints.latestCheckpoint();
     }
 

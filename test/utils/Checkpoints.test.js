@@ -19,10 +19,10 @@ contract('Checkpoints', function (accounts) {
       it('returns zero as latest value', async function () {
         expect(await this.checkpoint.latest()).to.be.bignumber.equal('0');
 
-        await expectRevert(
-          this.checkpoint.latestCheckpoint(),
-          'Checkpoint: empty',
-        );
+        const ckpt = await this.checkpoint.latestCheckpoint();
+        expect(ckpt[0]).to.be.equal(false);
+        expect(ckpt[1]).to.be.bignumber.equal('0');
+        expect(ckpt[2]).to.be.bignumber.equal('0');
       });
 
       it('returns zero as past value', async function () {
@@ -46,8 +46,9 @@ contract('Checkpoints', function (accounts) {
         expect(await this.checkpoint.latest()).to.be.bignumber.equal('3');
 
         const ckpt = await this.checkpoint.latestCheckpoint();
-        expect(ckpt[0]).to.be.bignumber.equal(web3.utils.toBN(this.tx3.receipt.blockNumber));
-        expect(ckpt[1]).to.be.bignumber.equal(web3.utils.toBN('3'));
+        expect(ckpt[0]).to.be.equal(true);
+        expect(ckpt[1]).to.be.bignumber.equal(web3.utils.toBN(this.tx3.receipt.blockNumber));
+        expect(ckpt[2]).to.be.bignumber.equal(web3.utils.toBN('3'));
       });
 
       for (const fn of [ 'getAtBlock(uint256)', 'getAtRecentBlock(uint256)' ]) {
@@ -100,10 +101,10 @@ contract('Checkpoints', function (accounts) {
         it('returns zero as latest value', async function () {
           expect(await this.contract.latest()).to.be.bignumber.equal('0');
 
-          await expectRevert(
-            this.contract.latestCheckpoint(),
-            'Checkpoint: empty',
-          );
+          const ckpt = await this.contract.latestCheckpoint();
+          expect(ckpt[0]).to.be.equal(false);
+          expect(ckpt[1]).to.be.bignumber.equal('0');
+          expect(ckpt[2]).to.be.bignumber.equal('0');
         });
 
         it('lookup returns 0', async function () {
@@ -131,8 +132,9 @@ contract('Checkpoints', function (accounts) {
           expect(await this.contract.latest()).to.be.bignumber.equal(last(this.checkpoints).value);
 
           const ckpt = await this.contract.latestCheckpoint();
-          expect(ckpt[0]).to.be.bignumber.equal(last(this.checkpoints).key);
-          expect(ckpt[1]).to.be.bignumber.equal(last(this.checkpoints).value);
+          expect(ckpt[0]).to.be.equal(true);
+          expect(ckpt[1]).to.be.bignumber.equal(last(this.checkpoints).key);
+          expect(ckpt[2]).to.be.bignumber.equal(last(this.checkpoints).value);
         });
 
         it('cannot push values in the past', async function () {
