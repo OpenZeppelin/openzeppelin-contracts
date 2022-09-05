@@ -22,7 +22,7 @@ contract('Checkpoints', function (accounts) {
     const fnGetAtBlock = (self, ...args) =>
       self.methods['$getAtBlock(uint256,uint256)'](0, ...args);
     const fnGetAtRecentBlock = (self, ...args) =>
-      self.methods['$getAtRecentBlock(uint256,uint256)'](0, ...args);
+      self.methods['$getAtProbablyRecentBlock(uint256,uint256)'](0, ...args);
     const fnLength = (self, ...args) =>
       self.methods['$length_Checkpoints_History(uint256)'](0, ...args);
 
@@ -89,6 +89,18 @@ contract('Checkpoints', function (accounts) {
         expect(await fnLength(this.mock)).to.be.bignumber.equal(lengthBefore.addn(1));
         expect(await fnLatest(this.mock)).to.be.bignumber.equal('10');
       });
+
+      it('more than 5 checkpoints', async function () {
+        for (let i = 4; i <= 6; i++) {
+          await fnPush(this.mock, i);
+        }
+        expect(await fnLength(this.mock)).to.be.bignumber.equal('6');
+        const block = await web3.eth.getBlockNumber();
+        // recent
+        expect(await fnGetAtRecentBlock(this.mock, block - 1)).to.be.bignumber.equal('5');
+        // non-recent
+        expect(await fnGetAtRecentBlock(this.mock, block - 9)).to.be.bignumber.equal('0');
+      });
     });
   });
 
@@ -115,7 +127,6 @@ contract('Checkpoints', function (accounts) {
         it('lookup returns 0', async function () {
           expect(await fnLowerLookup(this.mock, 0)).to.be.bignumber.equal('0');
           expect(await fnUpperLookup(this.mock, 0)).to.be.bignumber.equal('0');
-          expect(await fnUpperLookupRecent(this.mock, 0)).to.be.bignumber.equal('0');
         });
       });
 
@@ -174,7 +185,6 @@ contract('Checkpoints', function (accounts) {
             const value = last(this.checkpoints.filter(x => i >= x.key))?.value || '0';
 
             expect(await fnUpperLookup(this.mock, i)).to.be.bignumber.equal(value);
-            expect(await fnUpperLookupRecent(this.mock, i)).to.be.bignumber.equal(value);
           }
         });
       });
