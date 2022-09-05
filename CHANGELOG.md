@@ -44,9 +44,11 @@
 +import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 ```
 
-### Compatibility Note
+### ERC-721 Compatibility Note
 
 ERC-721 integrators that interpret contract state from events should make sure that they implement the clearing of approval that is implicit in every transfer according to the EIP. Previous versions of OpenZeppelin Contracts emitted an explicit `Approval` event even though it was not required by the specification, and this is no longer the case.
+
+With the new `ERC721Consecutive` extension, the internal workings of `ERC721` are slightly changed. Custom extensions to ERC721 should be reviewed to ensure they remain correct. The new internal functions that should be considered are `_ownerOf`, `_beforeConsecutiveTokenTransfer`, and `_afterConsecutiveTokenTransfer`, and the existing internal functions that should be reviewed are `_exists`, `_beforeTokenTransfer`, and `_afterTokenTransfer`.
 
 ## 4.7.3
 
