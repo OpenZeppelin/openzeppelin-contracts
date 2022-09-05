@@ -28,7 +28,7 @@ import "../../../utils/structs/BitMaps.sol";
  *
  * _Available since v4.8._
  */
-abstract contract ERC721Consecutive is ERC721, IERC2309 {
+abstract contract ERC721Consecutive is IERC2309, ERC721 {
     using BitMaps for BitMaps.BitMap;
     using Checkpoints for Checkpoints.Trace160;
 
