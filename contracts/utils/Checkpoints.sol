@@ -100,7 +100,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns wether there is a checkpoint if the structure (structure is not empty), and if so the key and value
+     * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
      * in the most recent checkpoint.
      */
     function latestCheckpoint(History storage self)
@@ -261,7 +261,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns wether there is a checkpoint if the structure (structure is not empty), and if so the key and value
+     * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
      * in the most recent checkpoint.
      */
     function latestCheckpoint(Trace224 storage self)
@@ -426,7 +426,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns wether there is a checkpoint if the structure (structure is not empty), and if so the key and value
+     * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
      * in the most recent checkpoint.
      */
     function latestCheckpoint(Trace160 storage self)

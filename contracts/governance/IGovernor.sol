@@ -184,7 +184,7 @@ abstract contract IGovernor is IERC165 {
 
     /**
      * @notice module:voting
-     * @dev Returns wether `account` has cast a vote on `proposalId`.
+     * @dev Returns whether `account` has cast a vote on `proposalId`.
      */
     function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
 
