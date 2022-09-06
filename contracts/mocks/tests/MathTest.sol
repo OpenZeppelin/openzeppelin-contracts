@@ -8,29 +8,32 @@ import "../../utils/math/Math.sol";
 import "../../utils/math/SafeMath.sol";
 
 contract MathTest is Test {
-    function testSquareRoot(uint256 input) public {
-        uint256 result = Math.sqrt(input);
-        uint256 square = result * result;
+    function testSquareRoot(uint256 input, uint8 r) public {
+        vm.assume(r < uint8(type(Math.Rounding).max));
 
-        // `sqrt` should return a rounded-down value, so `square` is either less or equal to `input`.
-        if (square < input) {
-            // We know `result` is less than the true value for the square root, but we want to check that the error is
-            // minimal, in this case, less than 1.
-            // This should only happen if `input` is not a perfect square. We can then check that any result larger than
-            // the one we got would yield a square larger than `input`, meaning we got the smallest value for which the
-            // square is less than `input`.
+        Math.Rounding rounding = Math.Rounding(r);
+        uint256 result = Math.sqrt(input, rounding);
 
-            (bool noOverflow, uint256 nextSquare) = SafeMath.tryMul(result + 1, result + 1);
-
-            // The only case in which this doesn't work if is `nextSquare` doesn't fit in 256 bits - but since `input`
-            // does fit in 256 bits, this still means that `nextSquare` is larger than `input`.
-            vm.assume(noOverflow);
-
-            assertTrue(input < nextSquare);
-        } else {
-            // If `square` is not less than input, then it must be a perfect match (because `input` is a perfect
-            // square).
-            assertEq(square, input);
+        // square of result is bigger than input
+        if (_squareBigger(result, input))
+        {
+            assertTrue(rounding == Math.Rounding.Up);
+            assertTrue(_squareSmaller(result - 1, input));
         }
+        // square of result is smaller than input
+        else if (_squareSmaller(result, input))
+        {
+            assertFalse(rounding == Math.Rounding.Up);
+            assertTrue(_squareBigger(result + 1, input));
+        }
+    }
+
+    function _squareBigger(uint256 value, uint256 ref) private pure returns (bool) {
+        (bool noOverflow, uint256 square) = SafeMath.tryMul(value, value);
+        return ref < square || !noOverflow;
+    }
+
+    function _squareSmaller(uint256 value, uint256 ref) private pure returns (bool) {
+        return value * value < ref;
     }
 }
