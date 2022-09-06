@@ -67,7 +67,7 @@ jobs:
         with:
           version: nightly
       - name: Run tests
-        run: forge test -vvv
+        run: forge test -vv
 
   coverage:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
