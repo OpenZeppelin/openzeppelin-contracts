@@ -8,6 +8,7 @@
  * `Address`: optimize `functionCall` functions by checking contract size only if there is no returned data. ([#3469](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3469))
  * `GovernorCompatibilityBravo`: remove unused `using` statements. ([#3506](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3506))
  * `ERC20`: optimize `_transfer`, `_mint` and `_burn` by using `unchecked` arithmetic when possible. ([#3513](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3513))
+ * `ERC20Votes`, `ERC721Votes`: optimize `getPastVotes` for looking up recent checkpoints. ([#3673](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3673))
  * `ERC20FlashMint`: add an internal `_flashFee` function for overriding. ([#3551](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3551))
  * `ERC4626`: use the same `decimals()` as the underlying asset by default (if available). ([#3639](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3639))
  * `ERC4626`: add internal `_initialConvertToShares` and `_initialConvertToAssets` functions to customize empty vaults behavior. ([#3639](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3639))
@@ -15,6 +16,7 @@
  * `ERC721`: optimize burn by making approval clearing implicit instead of emitting an event. ([#3538](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3538))
  * `ERC721`: Fix balance accounting when a custom `_beforeTokenTransfer` hook results in a transfer of the token under consideration. ([#3611](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3611))
  * `ERC721`: use unchecked arithmetic for balance updates. ([#3524](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3524))
+ * `ERC721Consecutive`: Implementation of EIP-2309 that allows batch minting of ERC721 tokens during construction. ([#3311](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3311))
  * `ReentrancyGuard`: Reduce code size impact of the modifier by using internal functions. ([#3515](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3515))
  * `SafeCast`: optimize downcasting of signed integers. ([#3565](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3565))
  * `ECDSA`: Remove redundant check on the `v` value. ([#3591](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3591))
@@ -28,6 +30,7 @@
  * `Arrays`: Add `unsafeAccess` functions that allow reading and writing to an element in a storage array bypassing Solidity's "out-of-bounds" check. ([#3589](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3589))
  * `Strings`: optimize `toString`. ([#3573](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3573))
  * `Ownable2Step`: extension of `Ownable` that makes the ownership transfers a two step process. ([#3620](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3620))
+ * `Math` and `SignedMath`: optimize function `max` by using `>` instead of `>=`. ([#3679](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3679))
  * `Math`: Add `log2`, `log10` and `log256`. ([#3670](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3670))
 
 ### Breaking changes
@@ -43,9 +46,11 @@
 +import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 ```
 
-### Compatibility Note
+### ERC-721 Compatibility Note
 
 ERC-721 integrators that interpret contract state from events should make sure that they implement the clearing of approval that is implicit in every transfer according to the EIP. Previous versions of OpenZeppelin Contracts emitted an explicit `Approval` event even though it was not required by the specification, and this is no longer the case.
+
+With the new `ERC721Consecutive` extension, the internal workings of `ERC721` are slightly changed. Custom extensions to ERC721 should be reviewed to ensure they remain correct. The new internal functions that should be considered are `_ownerOf`, `_beforeConsecutiveTokenTransfer`, and `_afterConsecutiveTokenTransfer`, and the existing internal functions that should be reviewed are `_exists`, `_beforeTokenTransfer`, and `_afterTokenTransfer`.
 
 ## 4.7.3
 

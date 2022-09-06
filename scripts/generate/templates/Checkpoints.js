@@ -33,14 +33,6 @@ struct ${opts.checkpointTypeName} {
 /* eslint-disable max-len */
 const operations = opts => `\
 /**
- * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
- */
-function latest(${opts.historyTypeName} storage self) internal view returns (${opts.valueTypeName}) {
-    uint256 pos = self.${opts.checkpointFieldName}.length;
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
-}
-
-/**
  * @dev Pushes a (\`key\`, \`value\`) pair into a ${opts.historyTypeName} so that it is stored as the checkpoint.
  *
  * Returns previous value and new value.
@@ -70,36 +62,9 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
     uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, length);
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
-
-/**
- * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key (similarly to
- * {upperLookup}), optimized for the case when the search key is known to be recent.
- */
-function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
-    uint256 length = self.${opts.checkpointFieldName}.length;
-    uint256 offset = 1;
-
-    while (offset <= length && _unsafeAccess(self.${opts.checkpointFieldName}, length - offset).${opts.keyFieldName} > key) {
-        offset <<= 1;
-    }
-
-    uint256 low = 0 < offset && offset < length ? length - offset : 0;
-    uint256 high = length - (offset >> 1);
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
-
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
-}
 `;
 
 const legacyOperations = opts => `\
-/**
- * @dev Returns the value in the latest checkpoint, or zero if there are no checkpoints.
- */
-function latest(${opts.historyTypeName} storage self) internal view returns (uint256) {
-    uint256 pos = self.${opts.checkpointFieldName}.length;
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
-}
-
 /**
  * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
  * before it is returned, or zero otherwise.
@@ -115,22 +80,28 @@ function getAtBlock(${opts.historyTypeName} storage self, uint256 blockNumber) i
 
 /**
  * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
- * before it is returned, or zero otherwise. Similarly to {upperLookup} but optimized for the case when the search
- * key is known to be recent.
+ * before it is returned, or zero otherwise. Similar to {upperLookup} but optimized for the case when the searched
+ * checkpoint is probably "recent", defined as being among the last sqrt(N) checkpoints where N is the number of
+ * checkpoints.
  */
-function getAtRecentBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
+function getAtProbablyRecentBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
     require(blockNumber < block.number, "Checkpoints: block not yet mined");
     uint32 key = SafeCast.toUint32(blockNumber);
 
     uint256 length = self.${opts.checkpointFieldName}.length;
-    uint256 offset = 1;
 
-    while (offset <= length && _unsafeAccess(self.${opts.checkpointFieldName}, length - offset).${opts.keyFieldName} > key) {
-        offset <<= 1;
+    uint256 low = 0;
+    uint256 high = length;
+
+    if (length > 5) {
+        uint256 mid = length - Math.sqrt(length);
+        if (key < _unsafeAccess(self.${opts.checkpointFieldName}, mid)._blockNumber) {
+            high = mid;
+        } else {
+            low = mid + 1;
+        }
     }
 
-    uint256 low = offset < length ? length - offset : 0;
-    uint256 high = length - (offset >> 1);
     uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
 
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
@@ -160,7 +131,44 @@ function push(
 }
 `;
 
-const helpers = opts => `\
+const common = opts => `\
+/**
+ * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
+ */
+function latest(${opts.historyTypeName} storage self) internal view returns (${opts.valueTypeName}) {
+    uint256 pos = self.${opts.checkpointFieldName}.length;
+    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
+}
+
+/**
+ * @dev Returns whether there is a checkpoint in the structure (i.e. it is not empty), and if so the key and value
+ * in the most recent checkpoint.
+ */
+function latestCheckpoint(${opts.historyTypeName} storage self)
+    internal
+    view
+    returns (
+        bool exists,
+        ${opts.keyTypeName} ${opts.keyFieldName},
+        ${opts.valueTypeName} ${opts.valueFieldName}
+    )
+{
+    uint256 pos = self.${opts.checkpointFieldName}.length;
+    if (pos == 0) {
+        return (false, 0, 0);
+    } else {
+        ${opts.checkpointTypeName} memory ckpt = _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1);
+        return (true, ckpt.${opts.keyFieldName}, ckpt.${opts.valueFieldName});
+    }
+}
+
+/**
+ * @dev Returns the number of checkpoint.
+ */
+function length(${opts.historyTypeName} storage self) internal view returns (uint256) {
+    return self.${opts.checkpointFieldName}.length;
+}
+
 /**
  * @dev Pushes a (\`key\`, \`value\`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
  * or by updating the last one.
@@ -279,12 +287,12 @@ module.exports = format(
     // Legacy types & functions
     types(LEGACY_OPTS),
     legacyOperations(LEGACY_OPTS),
-    helpers(LEGACY_OPTS),
+    common(LEGACY_OPTS),
     // New flavors
     ...OPTS.flatMap(opts => [
       types(opts),
       operations(opts),
-      helpers(opts),
+      common(opts),
     ]),
   ],
   '}',
