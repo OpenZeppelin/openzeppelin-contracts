@@ -498,7 +498,10 @@ contract ERC777 is Context, IERC777, IERC20 {
         if (implementer != address(0)) {
             IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
         } else if (requireReceptionAck) {
-            require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
+            require(
+                to.code.length == 0,
+                "ERC777: token recipient contract has no implementer for ERC777TokensRecipient"
+            );
         }
     }
 

@@ -3,8 +3,6 @@
 
 pragma solidity ^0.8.2;
 
-import "../../utils/Address.sol";
-
 /**
  * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
  * behind a proxy. Since proxied contracts do not make use of a constructor, it's common to move constructor logic to an
@@ -78,7 +76,7 @@ abstract contract Initializable {
     modifier initializer() {
         bool isTopLevelCall = !_initializing;
         require(
-            (isTopLevelCall && _initialized < 1) || (!Address.isContract(address(this)) && _initialized == 1),
+            (isTopLevelCall && _initialized < 1) || (address(this).code.length == 0 && _initialized == 1),
             "Initializable: contract is already initialized"
         );
         _initialized = 1;

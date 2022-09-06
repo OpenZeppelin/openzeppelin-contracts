@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.5;
 
 import "./UUPSUpgradeableMock.sol";
 
@@ -13,7 +13,7 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
     // ERC1967Upgrade._setImplementation is private so we reproduce it here.
     // An extra underscore prevents a name clash error.
     function __setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
+        require(address(newImplementation).code.length > 0, "ERC1967: new implementation is not a contract");
         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
     }
 

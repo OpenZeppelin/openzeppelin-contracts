@@ -21,6 +21,7 @@
 ### Deprecations
 
  * `EIP712`: Added the file `EIP712.sol` and deprecated `draft-EIP712.sol` since the EIP is no longer a Draft. Developers are encouraged to update their imports. ([#3621](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3621))
+  * `Address.isContract`: `isContract` utilitiy function is deprecated from v5.0.0 because of its ambiguous nature. Reasons and discussions here: [#3417](https://github.com/OpenZeppelin/openzeppelin-contracts/issues/3417).
 
 ```diff
 -import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
