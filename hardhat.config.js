@@ -72,7 +72,7 @@ module.exports = {
         enabled: withOptimizations,
         runs: 200,
       },
-      viaIR: argv.ir,
+      viaIR: withOptimizations && argv.ir,
     },
   },
   networks: {
