@@ -9,9 +9,8 @@ import "../../utils/math/SafeMath.sol";
 
 contract MathTest is Test {
     function testSquareRoot(uint256 input, uint8 r) public {
-        vm.assume(r < uint8(type(Math.Rounding).max));
+        Math.Rounding rounding = _asRounding(r);
 
-        Math.Rounding rounding = Math.Rounding(r);
         uint256 result = Math.sqrt(input, rounding);
 
         // square of result is bigger than input
@@ -35,5 +34,10 @@ contract MathTest is Test {
 
     function _squareSmaller(uint256 value, uint256 ref) private pure returns (bool) {
         return value * value < ref;
+    }
+
+    function _asRounding(uint8 r) private pure returns (Math.Rounding) {
+        vm.assume(r < uint8(type(Math.Rounding).max));
+        return Math.Rounding(r);
     }
 }
