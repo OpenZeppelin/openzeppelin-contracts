@@ -11,7 +11,7 @@ library SignedMath {
      * @dev Returns the largest of two signed numbers.
      */
     function max(int256 a, int256 b) internal pure returns (int256) {
-        return a >= b ? a : b;
+        return a > b ? a : b;
     }
 
     /**

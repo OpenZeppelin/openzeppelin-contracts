@@ -68,7 +68,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * @dev See {IERC721-ownerOf}.
      */
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
-        address owner = _owners[tokenId];
+        address owner = _ownerOf(tokenId);
         require(owner != address(0), "ERC721: invalid token ID");
         return owner;
     }
@@ -211,6 +211,13 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
+     * @dev Returns the owner of the `tokenId`. Does NOT revert if token doesn't exist
+     */
+    function _ownerOf(uint256 tokenId) internal view virtual returns (address) {
+        return _owners[tokenId];
+    }
+
+    /**
      * @dev Returns whether `tokenId` exists.
      *
      * Tokens can be managed by their owner or approved accounts via {approve} or {setApprovalForAll}.
@@ -219,7 +226,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * and stop existing when they are burned (`_burn`).
      */
     function _exists(uint256 tokenId) internal view virtual returns (bool) {
-        return _owners[tokenId] != address(0);
+        return _ownerOf(tokenId) != address(0);
     }
 
     /**
@@ -444,8 +451,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Hook that is called before any token transfer. This includes minting
-     * and burning.
+     * @dev Hook that is called before any (single) token transfer. This includes minting and burning.
+     * See {_beforeConsecutiveTokenTransfer}.
      *
      * Calling conditions:
      *
@@ -464,8 +471,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     ) internal virtual {}
 
     /**
-     * @dev Hook that is called after any transfer of tokens. This includes
-     * minting and burning.
+     * @dev Hook that is called after any (single) transfer of tokens. This includes minting and burning.
+     * See {_afterConsecutiveTokenTransfer}.
      *
      * Calling conditions:
      *
@@ -478,5 +485,37 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address from,
         address to,
         uint256 tokenId
+    ) internal virtual {}
+
+    /**
+     * @dev Hook that is called before consecutive token transfers.
+     * Calling conditions are similar to {_beforeTokenTransfer}.
+     *
+     * The default implementation include balances updates that extensions such as {ERC721Consecutive} cannot perform
+     * directly.
+     */
+    function _beforeConsecutiveTokenTransfer(
+        address from,
+        address to,
+        uint256, /*first*/
+        uint96 size
+    ) internal virtual {
+        if (from != address(0)) {
+            _balances[from] -= size;
+        }
+        if (to != address(0)) {
+            _balances[to] += size;
+        }
+    }
+
+    /**
+     * @dev Hook that is called after consecutive token transfers.
+     * Calling conditions are similar to {_afterTokenTransfer}.
+     */
+    function _afterConsecutiveTokenTransfer(
+        address, /*from*/
+        address, /*to*/
+        uint256, /*first*/
+        uint96 /*size*/
     ) internal virtual {}
 }
