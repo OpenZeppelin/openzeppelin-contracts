@@ -13,19 +13,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  changelog:
-    if: github.event_name == 'pull_request' && github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Check diff
-        run: |
-          git fetch origin ${{ github.base_ref }} --depth=1
-          if git diff --exit-code origin/${{ github.base_ref }} -- CHANGELOG.md ; then
-            echo 'Missing changelog entry'
-            exit 1
-          fi
-
   lint:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
