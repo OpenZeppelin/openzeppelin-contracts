@@ -9,7 +9,7 @@ contract ERC4626Mock is ERC4626 {
         IERC20Metadata asset,
         string memory name,
         string memory symbol
-    ) ERC20(name, symbol) ERC4626(asset) {}
+    ) ERC20(name, symbol) ERC4626(asset, name, symbol) {}
 
     function mockMint(address account, uint256 amount) public {
         _mint(account, amount);
