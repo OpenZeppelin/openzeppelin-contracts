@@ -49,17 +49,17 @@ function push(
  * @dev Returns the value in the oldest checkpoint with key greater or equal than the search key, or zero if there is none.
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
-    uint256 length = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, length);
-    return pos == length ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos).${opts.valueFieldName};
+    uint256 len = self.${opts.checkpointFieldName}.length;
+    uint256 pos = _lowerBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
+    return pos == len ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos).${opts.valueFieldName};
 }
 
 /**
  * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key.
  */
 function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
-    uint256 length = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, length);
+    uint256 len = self.${opts.checkpointFieldName}.length;
+    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
 `;
@@ -73,8 +73,8 @@ function getAtBlock(${opts.historyTypeName} storage self, uint256 blockNumber) i
     require(blockNumber < block.number, "Checkpoints: block not yet mined");
     uint32 key = SafeCast.toUint32(blockNumber);
 
-    uint256 length = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, length);
+    uint256 len = self.${opts.checkpointFieldName}.length;
+    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
 
@@ -88,13 +88,13 @@ function getAtProbablyRecentBlock(${opts.historyTypeName} storage self, uint256 
     require(blockNumber < block.number, "Checkpoints: block not yet mined");
     uint32 key = SafeCast.toUint32(blockNumber);
 
-    uint256 length = self.${opts.checkpointFieldName}.length;
+    uint256 len = self.${opts.checkpointFieldName}.length;
 
     uint256 low = 0;
-    uint256 high = length;
+    uint256 high = len;
 
-    if (length > 5) {
-        uint256 mid = length - Math.sqrt(length);
+    if (len > 5) {
+        uint256 mid = len - Math.sqrt(len);
         if (key < _unsafeAccess(self.${opts.checkpointFieldName}, mid)._blockNumber) {
             high = mid;
         } else {
@@ -248,7 +248,7 @@ function _lowerBinaryLookup(
 
 function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
     private
-    view
+    pure
     returns (${opts.checkpointTypeName} storage result)
 {
     assembly {
