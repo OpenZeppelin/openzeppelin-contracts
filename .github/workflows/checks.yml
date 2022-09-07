@@ -56,6 +56,19 @@ jobs:
         with:
           token: ${{ github.token }}
 
+  foundry-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Run tests
+        run: forge test -vv
+
   coverage:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
