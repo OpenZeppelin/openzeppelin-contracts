@@ -205,7 +205,7 @@ library Checkpoints {
         return high;
     }
 
-    function _unsafeAccess(Checkpoint[] storage self, uint256 pos) private view returns (Checkpoint storage result) {
+    function _unsafeAccess(Checkpoint[] storage self, uint256 pos) private pure returns (Checkpoint storage result) {
         assembly {
             mstore(0, self.slot)
             result.slot := add(keccak256(0, 0x20), pos)
@@ -368,7 +368,7 @@ library Checkpoints {
 
     function _unsafeAccess(Checkpoint224[] storage self, uint256 pos)
         private
-        view
+        pure
         returns (Checkpoint224 storage result)
     {
         assembly {
@@ -533,7 +533,7 @@ library Checkpoints {
 
     function _unsafeAccess(Checkpoint160[] storage self, uint256 pos)
         private
-        view
+        pure
         returns (Checkpoint160 storage result)
     {
         assembly {

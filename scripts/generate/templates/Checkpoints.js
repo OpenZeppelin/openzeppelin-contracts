@@ -248,7 +248,7 @@ function _lowerBinaryLookup(
 
 function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
     private
-    view
+    pure
     returns (${opts.checkpointTypeName} storage result)
 {
     assembly {
