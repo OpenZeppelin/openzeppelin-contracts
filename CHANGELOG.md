@@ -31,6 +31,7 @@
  * `Strings`: optimize `toString`. ([#3573](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3573))
  * `Ownable2Step`: extension of `Ownable` that makes the ownership transfers a two step process. ([#3620](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3620))
  * `Math` and `SignedMath`: optimize function `max` by using `>` instead of `>=`. ([#3679](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3679))
+ * `Math`: Add `log2`, `log10` and `log256`. ([#3670](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3670))
 
 ### Breaking changes
 
