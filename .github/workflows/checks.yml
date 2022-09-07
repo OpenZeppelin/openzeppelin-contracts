@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   changelog:
-    if: github.event_name == 'pull_request' && github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+    if: github.event_name == 'pull_request' && github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable' && !contains(github.event.pull_request.labels.*.name, 'ignore-changelog')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
