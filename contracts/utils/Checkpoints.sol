@@ -34,8 +34,8 @@ library Checkpoints {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
         uint32 key = SafeCast.toUint32(blockNumber);
 
-        uint256 length = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, length);
+        uint256 len = self._checkpoints.length;
+        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
@@ -49,13 +49,13 @@ library Checkpoints {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
         uint32 key = SafeCast.toUint32(blockNumber);
 
-        uint256 length = self._checkpoints.length;
+        uint256 len = self._checkpoints.length;
 
         uint256 low = 0;
-        uint256 high = length;
+        uint256 high = len;
 
-        if (length > 5) {
-            uint256 mid = length - Math.sqrt(length);
+        if (len > 5) {
+            uint256 mid = len - Math.sqrt(len);
             if (key < _unsafeAccess(self._checkpoints, mid)._blockNumber) {
                 high = mid;
             } else {
@@ -238,17 +238,17 @@ library Checkpoints {
      * @dev Returns the value in the oldest checkpoint with key greater or equal than the search key, or zero if there is none.
      */
     function lowerLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
-        uint256 length = self._checkpoints.length;
-        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, length);
-        return pos == length ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+        uint256 len = self._checkpoints.length;
+        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, len);
+        return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
     }
 
     /**
      * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key.
      */
     function upperLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
-        uint256 length = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, length);
+        uint256 len = self._checkpoints.length;
+        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
@@ -403,17 +403,17 @@ library Checkpoints {
      * @dev Returns the value in the oldest checkpoint with key greater or equal than the search key, or zero if there is none.
      */
     function lowerLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
-        uint256 length = self._checkpoints.length;
-        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, length);
-        return pos == length ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
+        uint256 len = self._checkpoints.length;
+        uint256 pos = _lowerBinaryLookup(self._checkpoints, key, 0, len);
+        return pos == len ? 0 : _unsafeAccess(self._checkpoints, pos)._value;
     }
 
     /**
      * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key.
      */
     function upperLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
-        uint256 length = self._checkpoints.length;
-        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, length);
+        uint256 len = self._checkpoints.length;
+        uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
