@@ -32,7 +32,11 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     /**
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
      */
-    constructor(IERC20 asset_, string memory name_, string memory symbol_) ERC20(name_, symbol_) {
+    constructor(
+        IERC20 asset_,
+        string memory name_,
+        string memory symbol_
+    ) ERC20(name_, symbol_) {
         uint8 decimals_;
         try IERC20Metadata(address(asset_)).decimals() returns (uint8 value) {
             decimals_ = value;
