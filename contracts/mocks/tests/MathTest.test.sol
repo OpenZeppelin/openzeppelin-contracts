@@ -28,7 +28,7 @@ contract MathTest is Test {
 
     function _squareBigger(uint256 value, uint256 ref) private pure returns (bool) {
         (bool noOverflow, uint256 square) = SafeMath.tryMul(value, value);
-        return !noOverflow || ref < square;
+        return !noOverflow || square > ref;
     }
 
     function _squareSmaller(uint256 value, uint256 ref) private pure returns (bool) {
