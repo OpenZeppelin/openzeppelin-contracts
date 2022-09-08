@@ -126,8 +126,6 @@ contract('Checkpoints', function (accounts) {
         self.methods[`$push(uint256,uint${256 - length},uint${length})`](0, ...args);
       const fnUpperLookup = (self, ...args) =>
         self.methods[`$upperLookup(uint256,uint${256 - length})`](0, ...args);
-      const fnUpperLookupRecent = (self, ...args) =>
-        self.methods[`$upperLookupRecent(uint256,uint${256 - length})`](0, ...args);
       const fnLowerLookup = (self, ...args) =>
         self.methods[`$lowerLookup(uint256,uint${256 - length})`](0, ...args);
       const fnLength = (self, ...args) =>
