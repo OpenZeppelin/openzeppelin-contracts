@@ -56,7 +56,7 @@ contract('ERC20Votes', function (accounts) {
   it('recent checkpoints', async function () {
     await this.token.delegate(holder, { from: holder });
     for (let i = 0; i < 6; i++) {
-      await this.token.mint(holder, 1);
+      await this.token.$_mint(holder, 1);
     }
     const block = await web3.eth.getBlockNumber();
     expect(await this.token.numCheckpoints(holder)).to.be.bignumber.equal('6');
