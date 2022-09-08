@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "./token/ERC20MulticallMock.sol";
 
 contract MulticallTest {
-    function testReturnValues(
+    function checkReturnValues(
         ERC20MulticallMock multicallToken,
         address[] calldata recipients,
         uint256[] calldata amounts

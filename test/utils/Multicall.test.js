@@ -33,7 +33,7 @@ contract('Multicall', function (accounts) {
     const recipients = [alice, bob];
     const amounts = [amount / 2, amount / 3].map(n => new BN(n));
 
-    await multicallTest.testReturnValues(this.multicallToken.address, recipients, amounts);
+    await multicallTest.checkReturnValues(this.multicallToken.address, recipients, amounts);
   });
 
   it('reverts previous calls', async function () {

@@ -185,35 +185,131 @@ contract('Math', function (accounts) {
 
   describe('sqrt', function () {
     it('rounds down', async function () {
-      expect(await this.math.$sqrt(new BN('0'), Rounding.Down)).to.be.bignumber.equal('0');
-      expect(await this.math.$sqrt(new BN('1'), Rounding.Down)).to.be.bignumber.equal('1');
-      expect(await this.math.$sqrt(new BN('2'), Rounding.Down)).to.be.bignumber.equal('1');
-      expect(await this.math.$sqrt(new BN('3'), Rounding.Down)).to.be.bignumber.equal('1');
-      expect(await this.math.$sqrt(new BN('4'), Rounding.Down)).to.be.bignumber.equal('2');
-      expect(await this.math.$sqrt(new BN('144'), Rounding.Down)).to.be.bignumber.equal('12');
-      expect(await this.math.$sqrt(new BN('999999'), Rounding.Down)).to.be.bignumber.equal('999');
-      expect(await this.math.$sqrt(new BN('1000000'), Rounding.Down)).to.be.bignumber.equal('1000');
-      expect(await this.math.$sqrt(new BN('1000001'), Rounding.Down)).to.be.bignumber.equal('1000');
-      expect(await this.math.$sqrt(new BN('1002000'), Rounding.Down)).to.be.bignumber.equal('1000');
-      expect(await this.math.$sqrt(new BN('1002001'), Rounding.Down)).to.be.bignumber.equal('1001');
+      expect(await this.math.$sqrt('0', Rounding.Down)).to.be.bignumber.equal('0');
+      expect(await this.math.$sqrt('1', Rounding.Down)).to.be.bignumber.equal('1');
+      expect(await this.math.$sqrt('2', Rounding.Down)).to.be.bignumber.equal('1');
+      expect(await this.math.$sqrt('3', Rounding.Down)).to.be.bignumber.equal('1');
+      expect(await this.math.$sqrt('4', Rounding.Down)).to.be.bignumber.equal('2');
+      expect(await this.math.$sqrt('144', Rounding.Down)).to.be.bignumber.equal('12');
+      expect(await this.math.$sqrt('999999', Rounding.Down)).to.be.bignumber.equal('999');
+      expect(await this.math.$sqrt('1000000', Rounding.Down)).to.be.bignumber.equal('1000');
+      expect(await this.math.$sqrt('1000001', Rounding.Down)).to.be.bignumber.equal('1000');
+      expect(await this.math.$sqrt('1002000', Rounding.Down)).to.be.bignumber.equal('1000');
+      expect(await this.math.$sqrt('1002001', Rounding.Down)).to.be.bignumber.equal('1001');
       expect(await this.math.$sqrt(MAX_UINT256, Rounding.Down))
         .to.be.bignumber.equal('340282366920938463463374607431768211455');
     });
 
     it('rounds up', async function () {
-      expect(await this.math.$sqrt(new BN('0'), Rounding.Up)).to.be.bignumber.equal('0');
-      expect(await this.math.$sqrt(new BN('1'), Rounding.Up)).to.be.bignumber.equal('1');
-      expect(await this.math.$sqrt(new BN('2'), Rounding.Up)).to.be.bignumber.equal('2');
-      expect(await this.math.$sqrt(new BN('3'), Rounding.Up)).to.be.bignumber.equal('2');
-      expect(await this.math.$sqrt(new BN('4'), Rounding.Up)).to.be.bignumber.equal('2');
-      expect(await this.math.$sqrt(new BN('144'), Rounding.Up)).to.be.bignumber.equal('12');
-      expect(await this.math.$sqrt(new BN('999999'), Rounding.Up)).to.be.bignumber.equal('1000');
-      expect(await this.math.$sqrt(new BN('1000000'), Rounding.Up)).to.be.bignumber.equal('1000');
-      expect(await this.math.$sqrt(new BN('1000001'), Rounding.Up)).to.be.bignumber.equal('1001');
-      expect(await this.math.$sqrt(new BN('1002000'), Rounding.Up)).to.be.bignumber.equal('1001');
-      expect(await this.math.$sqrt(new BN('1002001'), Rounding.Up)).to.be.bignumber.equal('1001');
+      expect(await this.math.$sqrt('0', Rounding.Up)).to.be.bignumber.equal('0');
+      expect(await this.math.$sqrt('1', Rounding.Up)).to.be.bignumber.equal('1');
+      expect(await this.math.$sqrt('2', Rounding.Up)).to.be.bignumber.equal('2');
+      expect(await this.math.$sqrt('3', Rounding.Up)).to.be.bignumber.equal('2');
+      expect(await this.math.$sqrt('4', Rounding.Up)).to.be.bignumber.equal('2');
+      expect(await this.math.$sqrt('144', Rounding.Up)).to.be.bignumber.equal('12');
+      expect(await this.math.$sqrt('999999', Rounding.Up)).to.be.bignumber.equal('1000');
+      expect(await this.math.$sqrt('1000000', Rounding.Up)).to.be.bignumber.equal('1000');
+      expect(await this.math.$sqrt('1000001', Rounding.Up)).to.be.bignumber.equal('1001');
+      expect(await this.math.$sqrt('1002000', Rounding.Up)).to.be.bignumber.equal('1001');
+      expect(await this.math.$sqrt('1002001', Rounding.Up)).to.be.bignumber.equal('1001');
       expect(await this.math.$sqrt(MAX_UINT256, Rounding.Up))
         .to.be.bignumber.equal('340282366920938463463374607431768211456');
+    });
+  });
+
+  describe('log', function () {
+    describe('log2', function () {
+      it('rounds down', async function () {
+        // For some reason calling .$log2() directly fails
+        expect(await this.math.methods['$log2(uint256,uint8)']('0', Rounding.Down)).to.be.bignumber.equal('0');
+        expect(await this.math.methods['$log2(uint256,uint8)']('1', Rounding.Down)).to.be.bignumber.equal('0');
+        expect(await this.math.methods['$log2(uint256,uint8)']('2', Rounding.Down)).to.be.bignumber.equal('1');
+        expect(await this.math.methods['$log2(uint256,uint8)']('3', Rounding.Down)).to.be.bignumber.equal('1');
+        expect(await this.math.methods['$log2(uint256,uint8)']('4', Rounding.Down)).to.be.bignumber.equal('2');
+        expect(await this.math.methods['$log2(uint256,uint8)']('5', Rounding.Down)).to.be.bignumber.equal('2');
+        expect(await this.math.methods['$log2(uint256,uint8)']('6', Rounding.Down)).to.be.bignumber.equal('2');
+        expect(await this.math.methods['$log2(uint256,uint8)']('7', Rounding.Down)).to.be.bignumber.equal('2');
+        expect(await this.math.methods['$log2(uint256,uint8)']('8', Rounding.Down)).to.be.bignumber.equal('3');
+        expect(await this.math.methods['$log2(uint256,uint8)']('9', Rounding.Down)).to.be.bignumber.equal('3');
+        expect(await this.math.methods['$log2(uint256,uint8)'](MAX_UINT256, Rounding.Down)).to.be.bignumber.equal('255');
+      });
+
+      it('rounds up', async function () {
+        // For some reason calling .$log2() directly fails
+        expect(await this.math.methods['$log2(uint256,uint8)']('0', Rounding.Up)).to.be.bignumber.equal('0');
+        expect(await this.math.methods['$log2(uint256,uint8)']('1', Rounding.Up)).to.be.bignumber.equal('0');
+        expect(await this.math.methods['$log2(uint256,uint8)']('2', Rounding.Up)).to.be.bignumber.equal('1');
+        expect(await this.math.methods['$log2(uint256,uint8)']('3', Rounding.Up)).to.be.bignumber.equal('2');
+        expect(await this.math.methods['$log2(uint256,uint8)']('4', Rounding.Up)).to.be.bignumber.equal('2');
+        expect(await this.math.methods['$log2(uint256,uint8)']('5', Rounding.Up)).to.be.bignumber.equal('3');
+        expect(await this.math.methods['$log2(uint256,uint8)']('6', Rounding.Up)).to.be.bignumber.equal('3');
+        expect(await this.math.methods['$log2(uint256,uint8)']('7', Rounding.Up)).to.be.bignumber.equal('3');
+        expect(await this.math.methods['$log2(uint256,uint8)']('8', Rounding.Up)).to.be.bignumber.equal('3');
+        expect(await this.math.methods['$log2(uint256,uint8)']('9', Rounding.Up)).to.be.bignumber.equal('4');
+        expect(await this.math.methods['$log2(uint256,uint8)'](MAX_UINT256, Rounding.Up)).to.be.bignumber.equal('256');
+      });
+    });
+
+    describe('log10', function () {
+      it('rounds down', async function () {
+        expect(await this.math.$log10('0', Rounding.Down)).to.be.bignumber.equal('0');
+        expect(await this.math.$log10('1', Rounding.Down)).to.be.bignumber.equal('0');
+        expect(await this.math.$log10('2', Rounding.Down)).to.be.bignumber.equal('0');
+        expect(await this.math.$log10('9', Rounding.Down)).to.be.bignumber.equal('0');
+        expect(await this.math.$log10('10', Rounding.Down)).to.be.bignumber.equal('1');
+        expect(await this.math.$log10('11', Rounding.Down)).to.be.bignumber.equal('1');
+        expect(await this.math.$log10('99', Rounding.Down)).to.be.bignumber.equal('1');
+        expect(await this.math.$log10('100', Rounding.Down)).to.be.bignumber.equal('2');
+        expect(await this.math.$log10('101', Rounding.Down)).to.be.bignumber.equal('2');
+        expect(await this.math.$log10('999', Rounding.Down)).to.be.bignumber.equal('2');
+        expect(await this.math.$log10('1000', Rounding.Down)).to.be.bignumber.equal('3');
+        expect(await this.math.$log10('1001', Rounding.Down)).to.be.bignumber.equal('3');
+        expect(await this.math.$log10(MAX_UINT256, Rounding.Down)).to.be.bignumber.equal('77');
+      });
+
+      it('rounds up', async function () {
+        expect(await this.math.$log10('0', Rounding.Up)).to.be.bignumber.equal('0');
+        expect(await this.math.$log10('1', Rounding.Up)).to.be.bignumber.equal('0');
+        expect(await this.math.$log10('2', Rounding.Up)).to.be.bignumber.equal('1');
+        expect(await this.math.$log10('9', Rounding.Up)).to.be.bignumber.equal('1');
+        expect(await this.math.$log10('10', Rounding.Up)).to.be.bignumber.equal('1');
+        expect(await this.math.$log10('11', Rounding.Up)).to.be.bignumber.equal('2');
+        expect(await this.math.$log10('99', Rounding.Up)).to.be.bignumber.equal('2');
+        expect(await this.math.$log10('100', Rounding.Up)).to.be.bignumber.equal('2');
+        expect(await this.math.$log10('101', Rounding.Up)).to.be.bignumber.equal('3');
+        expect(await this.math.$log10('999', Rounding.Up)).to.be.bignumber.equal('3');
+        expect(await this.math.$log10('1000', Rounding.Up)).to.be.bignumber.equal('3');
+        expect(await this.math.$log10('1001', Rounding.Up)).to.be.bignumber.equal('4');
+        expect(await this.math.$log10(MAX_UINT256, Rounding.Up)).to.be.bignumber.equal('78');
+      });
+    });
+
+    describe('log256', function () {
+      it('rounds down', async function () {
+        expect(await this.math.$log256('0', Rounding.Down)).to.be.bignumber.equal('0');
+        expect(await this.math.$log256('1', Rounding.Down)).to.be.bignumber.equal('0');
+        expect(await this.math.$log256('2', Rounding.Down)).to.be.bignumber.equal('0');
+        expect(await this.math.$log256('255', Rounding.Down)).to.be.bignumber.equal('0');
+        expect(await this.math.$log256('256', Rounding.Down)).to.be.bignumber.equal('1');
+        expect(await this.math.$log256('257', Rounding.Down)).to.be.bignumber.equal('1');
+        expect(await this.math.$log256('65535', Rounding.Down)).to.be.bignumber.equal('1');
+        expect(await this.math.$log256('65536', Rounding.Down)).to.be.bignumber.equal('2');
+        expect(await this.math.$log256('65537', Rounding.Down)).to.be.bignumber.equal('2');
+        expect(await this.math.$log256(MAX_UINT256, Rounding.Down)).to.be.bignumber.equal('31');
+      });
+
+      it('rounds up', async function () {
+        expect(await this.math.$log256('0', Rounding.Up)).to.be.bignumber.equal('0');
+        expect(await this.math.$log256('1', Rounding.Up)).to.be.bignumber.equal('0');
+        expect(await this.math.$log256('2', Rounding.Up)).to.be.bignumber.equal('1');
+        expect(await this.math.$log256('255', Rounding.Up)).to.be.bignumber.equal('1');
+        expect(await this.math.$log256('256', Rounding.Up)).to.be.bignumber.equal('1');
+        expect(await this.math.$log256('257', Rounding.Up)).to.be.bignumber.equal('2');
+        expect(await this.math.$log256('65535', Rounding.Up)).to.be.bignumber.equal('2');
+        expect(await this.math.$log256('65536', Rounding.Up)).to.be.bignumber.equal('2');
+        expect(await this.math.$log256('65537', Rounding.Up)).to.be.bignumber.equal('3');
+        expect(await this.math.$log256(MAX_UINT256, Rounding.Up)).to.be.bignumber.equal('32');
+      });
     });
   });
 });
