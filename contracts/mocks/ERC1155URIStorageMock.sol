@@ -8,7 +8,7 @@ import "../token/ERC1155/extensions/ERC1155URIStorage.sol";
 contract ERC1155URIStorageMock is ERC1155Mock, ERC1155URIStorage {
     constructor(string memory _uri) ERC1155Mock(_uri) {}
 
-    function uri(uint256 tokenId) public view virtual override(ERC1155, ERC1155URIStorage) returns (string memory) {
+    function uri(uint256 tokenId) public view override(ERC1155, ERC1155URIStorage) returns (string memory) {
         return ERC1155URIStorage.uri(tokenId);
     }
 

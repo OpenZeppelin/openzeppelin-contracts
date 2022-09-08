@@ -159,10 +159,10 @@ module.exports = format(
   header.trimEnd(),
   'library SafeCast {',
   [
-    ...LENGTHS.map(size => toUintDownCast(size)),
+    ...LENGTHS.map(toUintDownCast),
     toUint(256),
-    ...LENGTHS.map(size => toIntDownCast(size)),
-    toInt(256).trimEnd(),
+    ...LENGTHS.map(toIntDownCast),
+    toInt(256),
   ],
   '}',
 );
