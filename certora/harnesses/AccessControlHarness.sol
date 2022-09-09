@@ -5,6 +5,4 @@ pragma solidity ^0.8.0;
 
 import "../munged/access/AccessControl.sol";
 
-contract AccessControlHarness is AccessControl {
-    
-}
+contract AccessControlHarness is AccessControl {}

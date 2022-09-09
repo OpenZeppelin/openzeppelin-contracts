@@ -1,8 +1,8 @@
 import "../../munged/token/ERC1155/extensions/ERC1155Supply.sol";
 
-
 contract ERC1155SupplyHarness is ERC1155Supply {
     address public owner;
+
     constructor(string memory uri_) ERC1155(uri_) {
         owner = msg.sender;
     }
@@ -12,19 +12,24 @@ contract ERC1155SupplyHarness is ERC1155Supply {
         return exists(id);
     }
 
-    // These rules were not implemented in the base but there are changes in supply 
-    // that are affected by the internal contracts so we implemented them. We assume 
-    // only the owner can call any of these functions to be able to test them but also 
+    // These rules were not implemented in the base but there are changes in supply
+    // that are affected by the internal contracts so we implemented them. We assume
+    // only the owner can call any of these functions to be able to test them but also
     // limit false positives.
 
-    modifier onlyOwner {
+    modifier onlyOwner() {
         require(msg.sender == owner);
         _;
     }
 
-    function burn( address from, uint256 id, uint256 amount) public virtual onlyOwner {
+    function burn(
+        address from,
+        uint256 id,
+        uint256 amount
+    ) public virtual onlyOwner {
         _burn(from, id, amount);
     }
+
     function burnBatch(
         address from,
         uint256[] memory ids,
@@ -47,7 +52,7 @@ contract ERC1155SupplyHarness is ERC1155Supply {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) public virtual onlyOwner { 
+    ) public virtual onlyOwner {
         _mintBatch(to, ids, amounts, data);
     }
 
@@ -58,4 +63,3 @@ contract ERC1155SupplyHarness is ERC1155Supply {
         return _balances[id][account];
     }
 }
-

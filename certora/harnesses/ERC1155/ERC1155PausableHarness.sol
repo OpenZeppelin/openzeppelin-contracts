@@ -1,9 +1,7 @@
 import "../../munged/token/ERC1155/extensions/ERC1155Pausable.sol";
 
 contract ERC1155PausableHarness is ERC1155Pausable {
-    constructor(string memory uri_)
-        ERC1155(uri_)
-    {}
+    constructor(string memory uri_) ERC1155(uri_) {}
 
     function pause() public {
         _pause();
@@ -13,10 +11,7 @@ contract ERC1155PausableHarness is ERC1155Pausable {
         _unpause();
     }
 
-    function onlyWhenPausedMethod() public whenPaused {
-    }
+    function onlyWhenPausedMethod() public whenPaused {}
 
-    function onlyWhenNotPausedMethod() public whenNotPaused {
-    }
+    function onlyWhenNotPausedMethod() public whenNotPaused {}
 }
-

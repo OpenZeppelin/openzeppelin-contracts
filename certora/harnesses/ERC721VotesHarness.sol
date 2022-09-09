@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 import "../munged/token/ERC721/extensions/draft-ERC721Votes.sol";
 
 contract ERC721VotesHarness is ERC721Votes {
-    constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, symbol){}
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, symbol) {}
 
     function delegateBySig(
         address delegatee,

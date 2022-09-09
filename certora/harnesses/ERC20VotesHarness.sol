@@ -6,7 +6,7 @@ contract ERC20VotesHarness is ERC20Votes {
     function ckptFromBlock(address account, uint32 pos) public view returns (uint32) {
         return _checkpoints[account][pos].fromBlock;
     }
-    
+
     function ckptVotes(address account, uint32 pos) public view returns (uint224) {
         return _checkpoints[account][pos].fromBlock;
     }
@@ -30,7 +30,5 @@ contract ERC20VotesHarness is ERC20Votes {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual override { }
-
+    ) public virtual override {}
 }
-

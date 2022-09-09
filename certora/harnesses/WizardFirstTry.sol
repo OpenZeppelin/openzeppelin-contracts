@@ -14,8 +14,19 @@ ERC20Votes
 TimelockCompound
 */
 
-contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockCompound {
-    constructor(ERC20Votes _token, ICompoundTimelock _timelock, string memory name, uint256 quorumFraction)
+contract WizardFirstTry is
+    Governor,
+    GovernorCountingSimple,
+    GovernorVotes,
+    GovernorVotesQuorumFraction,
+    GovernorTimelockCompound
+{
+    constructor(
+        ERC20Votes _token,
+        ICompoundTimelock _timelock,
+        string memory name,
+        uint256 quorumFraction
+    )
         Governor(name)
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(quorumFraction)
@@ -27,7 +38,7 @@ contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, Gove
     function isExecuted(uint256 proposalId) public view returns (bool) {
         return _proposals[proposalId].executed;
     }
-    
+
     function isCanceled(uint256 proposalId) public view returns (bool) {
         return _proposals[proposalId].canceled;
     }
@@ -36,7 +47,7 @@ contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, Gove
         return _proposals[proposalId].voteStart._deadline;
     }
 
-    function getExecutor() public view returns (address){
+    function getExecutor() public view returns (address) {
         return _executor();
     }
 
@@ -51,22 +62,23 @@ contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, Gove
         address account,
         uint8 support,
         string memory reason
-    ) internal override virtual returns (uint256) {
-        
-        uint256 deltaWeight = super._castVote(proposalId, account, support, reason);  //HARNESS
+    ) internal virtual override returns (uint256) {
+        uint256 deltaWeight = super._castVote(proposalId, account, support, reason); //HARNESS
         ghost_sum_vote_power_by_id[proposalId] += deltaWeight;
 
-        return deltaWeight;        
+        return deltaWeight;
     }
 
     // original code, harnessed
 
-    function votingDelay() public view override virtual returns (uint256) {     // HARNESS: pure -> view
-        return _votingDelay;                                                    // HARNESS: parametric
+    function votingDelay() public view virtual override returns (uint256) {
+        // HARNESS: pure -> view
+        return _votingDelay; // HARNESS: parametric
     }
 
-    function votingPeriod() public view override virtual returns (uint256) {    // HARNESS: pure -> view
-        return _votingPeriod;                                                   // HARNESS: parametric
+    function votingPeriod() public view virtual override returns (uint256) {
+        // HARNESS: pure -> view
+        return _votingPeriod; // HARNESS: parametric
     }
 
     // original code, not harnessed
@@ -99,35 +111,35 @@ contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, Gove
         return super.state(proposalId);
     }
 
-    function propose(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, string memory description)
-        public
-        override(Governor, IGovernor)
-        returns (uint256)
-    {
+    function propose(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        string memory description
+    ) public override(Governor, IGovernor) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
 
-    function _execute(uint256 proposalId, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
-        internal
-        override(Governor, GovernorTimelockCompound)
-    {
+    function _execute(
+        uint256 proposalId,
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockCompound) {
         super._execute(proposalId, targets, values, calldatas, descriptionHash);
     }
 
-    function _cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
-        internal
-        override(Governor, GovernorTimelockCompound)
-        returns (uint256)
-    {
+    function _cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) internal override(Governor, GovernorTimelockCompound) returns (uint256) {
         return super._cancel(targets, values, calldatas, descriptionHash);
     }
 
-    function _executor()
-        internal
-        view
-        override(Governor, GovernorTimelockCompound)
-        returns (address)
-    {
+    function _executor() internal view override(Governor, GovernorTimelockCompound) returns (address) {
         return super._executor();
     }
 

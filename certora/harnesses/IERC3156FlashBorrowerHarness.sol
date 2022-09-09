@@ -14,7 +14,7 @@ contract IERC3156FlashBorrowerHarness is IERC3156FlashBorrower {
         uint256 amount,
         uint256 fee,
         bytes calldata data
-    ) external override returns (bytes32){
+    ) external override returns (bytes32) {
         return somethingToReturn;
     }
 }
