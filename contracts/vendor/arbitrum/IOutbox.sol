@@ -81,7 +81,7 @@ interface IOutbox {
      *       not really a fixed cost, but can be treated as so with a fixed overhead for gas estimation).
      *       We can't include the cost of proof validation since this is intended to be used to simulate txs
      *       that are included in yet-to-be confirmed merkle roots. The simulation entrypoint could instead pretend
-     *       to confirm a pending merkle root, but that would be less pratical for integrating with tooling.
+     *       to confirm a pending merkle root, but that would be less practical for integrating with tooling.
      *       It is only possible to trigger it when the msg sender is address zero, which should be impossible
      *       unless under simulation in an eth_call or eth_estimateGas
      */

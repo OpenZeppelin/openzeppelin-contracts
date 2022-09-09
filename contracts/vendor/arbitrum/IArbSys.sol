@@ -131,7 +131,7 @@ interface IArbSys {
     );
 
     /**
-     * @notice logs a merkle branch for proof sythesis
+     * @notice logs a merkle branch for proof synthesis
      * @param reserved an index meant only to align the 4th index with L2ToL1Transaction's 4th event
      * @param hash the merkle hash
      * @param position = (level << 192) + leaf
