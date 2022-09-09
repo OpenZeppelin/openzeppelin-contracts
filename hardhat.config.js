@@ -50,6 +50,7 @@ const argv = require('yargs/yargs')()
   .argv;
 
 require('@nomiclabs/hardhat-truffle5');
+require('hardhat-ignore-warnings');
 
 if (argv.gas) {
   require('hardhat-gas-reporter');
@@ -73,6 +74,13 @@ module.exports = {
         runs: 200,
       },
       viaIR: withOptimizations && argv.ir,
+    },
+  },
+  warnings: {
+    ignore: {
+      '**/*': {
+        'code-size': !withOptimizations,
+      },
     },
   },
   networks: {
