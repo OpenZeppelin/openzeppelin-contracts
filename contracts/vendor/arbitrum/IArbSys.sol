@@ -53,10 +53,7 @@ interface IArbSys {
      * @param unused argument no longer used
      * @return aliased sender address
      */
-    function mapL1SenderContractAddressToL2Alias(address sender, address unused)
-        external
-        pure
-        returns (address);
+    function mapL1SenderContractAddressToL2Alias(address sender, address unused) external pure returns (address);
 
     /**
      * @notice check if the caller (of this caller of this) is an aliased L1 contract address
@@ -86,10 +83,7 @@ interface IArbSys {
      * @param data (optional) calldata for L1 contract call
      * @return a unique identifier for this L2-to-L1 transaction.
      */
-    function sendTxToL1(address destination, bytes calldata data)
-        external
-        payable
-        returns (uint256);
+    function sendTxToL1(address destination, bytes calldata data) external payable returns (uint256);
 
     /**
      * @notice Get send Merkle tree state
@@ -142,9 +136,5 @@ interface IArbSys {
      * @param hash the merkle hash
      * @param position = (level << 192) + leaf
      */
-    event SendMerkleUpdate(
-        uint256 indexed reserved,
-        bytes32 indexed hash,
-        uint256 indexed position
-    );
+    event SendMerkleUpdate(uint256 indexed reserved, bytes32 indexed hash, uint256 indexed position);
 }

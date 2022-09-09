@@ -66,10 +66,7 @@ interface IInbox is IDelayedMessageProvider {
      * @param dataLength The length of the retryable's calldata, in bytes
      * @param baseFee The block basefee when the retryable is included in the chain, if 0 current block.basefee will be used
      */
-    function calculateRetryableSubmissionFee(uint256 dataLength, uint256 baseFee)
-        external
-        view
-        returns (uint256);
+    function calculateRetryableSubmissionFee(uint256 dataLength, uint256 baseFee) external view returns (uint256);
 
     /**
      * @notice Deposit eth from L1 to L2 to address of the sender if sender is an EOA, and to its aliased address if the sender is a contract
