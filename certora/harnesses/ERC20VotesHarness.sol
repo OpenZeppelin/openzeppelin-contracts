@@ -3,26 +3,34 @@ import "../munged/token/ERC20/extensions/ERC20Votes.sol";
 contract ERC20VotesHarness is ERC20Votes {
     constructor(string memory name, string memory symbol) ERC20Permit(name) ERC20(name, symbol) {}
 
-    mapping(address => mapping(uint256 => uint256)) public _getPastVotes;
-
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual override {
-        super._afterTokenTransfer(from, to, amount);
-        _getPastVotes[from][block.number] -= amount;
-        _getPastVotes[to][block.number] += amount;
+    function ckptFromBlock(address account, uint32 pos) public view returns (uint32) {
+        return _checkpoints[account][pos].fromBlock;
+    }
+    
+    function ckptVotes(address account, uint32 pos) public view returns (uint224) {
+        return _checkpoints[account][pos].fromBlock;
     }
 
-    /**
-     * @dev Change delegation for `delegator` to `delegatee`.
-     *
-     * Emits events {DelegateChanged} and {DelegateVotesChanged}.
-     */
-    function _delegate(address delegator, address delegatee) internal virtual override{
-        super._delegate(delegator, delegatee);
-        _getPastVotes[delegator][block.number] -= balanceOf(delegator);
-        _getPastVotes[delegatee][block.number] += balanceOf(delegator);
+    function mint(address account, uint256 amount) public {
+        _mint(account, amount);
     }
+
+    function burn(address account, uint256 amount) public {
+        _burn(account, amount);
+    }
+
+    function unsafeNumCheckpoints(address account) public view returns (uint256) {
+        return _checkpoints[account].length;
+    }
+
+    function delegateBySig(
+        address delegatee,
+        uint256 nonce,
+        uint256 expiry,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual override { }
+
 }
+

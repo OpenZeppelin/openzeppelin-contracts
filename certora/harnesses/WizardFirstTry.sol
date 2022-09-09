@@ -6,6 +6,7 @@ import "../munged/governance/extensions/GovernorCountingSimple.sol";
 import "../munged/governance/extensions/GovernorVotes.sol";
 import "../munged/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "../munged/governance/extensions/GovernorTimelockCompound.sol";
+import "../munged/token/ERC20/extensions/ERC20Votes.sol";
 
 /* 
 Wizard options:
@@ -83,7 +84,7 @@ contract WizardFirstTry is Governor, GovernorCountingSimple, GovernorVotes, Gove
     function getVotes(address account, uint256 blockNumber)
         public
         view
-        override(IGovernor, GovernorVotes)
+        override(IGovernor, Governor)
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);
