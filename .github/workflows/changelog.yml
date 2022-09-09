@@ -25,4 +25,3 @@ jobs:
             echo 'Missing changelog entry'
             exit 1
           fi
-

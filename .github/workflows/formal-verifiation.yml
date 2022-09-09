@@ -1,9 +1,10 @@
-name: Certora
+name: formal verification
 
 on:
-  branches:
-    - master
-    - release-v*
+  push:
+    branches:
+      - master
+      - release-v*
   pull_request: {}
   workflow_dispatch: {}
 
@@ -58,7 +59,3 @@ jobs:
           - Round3/verifyERC1155Pausable.sh
           - Round3/verifyInitializable.sh
           - Round3/verifyGovernorPreventLateQuorum.sh
-
-
-
-
