@@ -1,4 +1,4 @@
-name: changelog
+name: Changelog
 
 on:
   pull_request:
