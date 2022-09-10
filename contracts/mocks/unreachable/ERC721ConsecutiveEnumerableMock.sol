@@ -60,4 +60,3 @@ contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable 
         super._beforeConsecutiveTokenTransfer(from, to, first, size);
     }
 }
-
