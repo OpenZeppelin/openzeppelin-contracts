@@ -106,9 +106,11 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         address,
         address,
         uint256,
-        uint96
+        uint96 size
     ) internal virtual override {
-        revert("ERC721Enumerable: consecutive transfers not supported");
+        if (size > 0) {
+            revert("ERC721Enumerable: consecutive transfers not supported");
+        }
     }
 
     /**
