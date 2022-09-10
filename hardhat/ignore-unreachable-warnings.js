@@ -11,11 +11,11 @@ const {
   TASK_COMPILE_SOLIDITY_COMPILE,
 } = require('hardhat/builtin-tasks/task-names');
 
-const marker = Symbol();
+const marker = Symbol('unreachable');
 const markedCache = new WeakMap();
 
 task(TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE, async (params, _, runSuper) => {
-  const job = await runSuper(params)
+  const job = await runSuper(params);
   // If the file is in the unreachable directory, we make a copy of the config and mark it, which will cause it to get
   // compiled separately (along with the other marked files).
   if (params.file.sourceName.startsWith('contracts/mocks/unreachable')) {
@@ -39,7 +39,7 @@ task(TASK_COMPILE_SOLIDITY_COMPILE, async (params, _, runSuper) => {
     result.output = {
       ...result.output,
       errors: result.output.errors.filter(
-        e => e.severity !== 'warning' || e.errorCode !== W_UNREACHABLE_CODE
+        e => e.severity !== 'warning' || e.errorCode !== W_UNREACHABLE_CODE,
       ),
     };
   }
