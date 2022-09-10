@@ -77,6 +77,7 @@ module.exports = {
     },
   },
   warnings: {
+    errors: true,
     ignore: {
       '**/*': {
         'code-size': !withOptimizations,
