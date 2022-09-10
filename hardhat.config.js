@@ -81,6 +81,7 @@ module.exports = {
     ignore: {
       '**/*': {
         'code-size': !withOptimizations,
+        'unused-param': argv.coverage, // coverage causes unused-param warnings
       },
     },
   },
