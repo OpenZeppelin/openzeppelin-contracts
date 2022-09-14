@@ -77,12 +77,10 @@ module.exports = {
     },
   },
   warnings: {
-    errors: true,
-    ignore: {
-      '**/*': {
-        'code-size': !withOptimizations,
-        'unused-param': argv.coverage, // coverage causes unused-param warnings
-      },
+    '*': {
+      'code-size': withOptimizations,
+      'unused-param': !argv.coverage, // coverage causes unused-param warnings
+      default: 'error',
     },
   },
   networks: {
