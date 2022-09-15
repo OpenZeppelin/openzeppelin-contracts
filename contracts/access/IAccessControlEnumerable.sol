@@ -28,4 +28,24 @@ interface IAccessControlEnumerable is IAccessControl {
      * together with {getRoleMember} to enumerate all bearers of a role.
      */
     function getRoleMemberCount(bytes32 role) external view returns (uint256);
+
+    /**
+    * @dev Returns one of the roles that are on an `account`. `index` must be a
+     * value between 0 and {getMemberRoleCount}, non-inclusive.
+     *
+     * Roles are not sorted in any particular way, and their ordering may
+     * change at any point.
+     *
+     * WARNING: When using {getMemberRole} and {getMemberRoleCount}, make sure
+     * you perform all queries on the same block. See the following
+     * https://forum.openzeppelin.com/t/iterating-over-elements-on-enumerableset-in-openzeppelin-contracts/2296[forum post]
+     * for more information.
+     */
+    function getMemberRole(address account, uint256 index) external view returns (bytes32);
+
+    /**
+     * @dev Returns the number of roles belonging to an `account`. Can be used
+     * together with {getMemberRole} to enumerate all roles of an account.
+     */
+    function getMemberRoleCount(address account) external view returns (uint256);
 }
