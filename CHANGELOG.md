@@ -46,6 +46,13 @@
 +import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 ```
 
+ * `ERC721Votes`: Added the file `ERC721Votes.sol` and deprecated `draft-ERC721Votes.sol` since it no longer depends on a Draft EIP (EIP-712). Developers are encouraged to update their imports. ([#3621](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3699))
+
+```diff
+-import "@openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
++import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Votes.sol";
+```
+
 ### ERC-721 Compatibility Note
 
 ERC-721 integrators that interpret contract state from events should make sure that they implement the clearing of approval that is implicit in every transfer according to the EIP. Previous versions of OpenZeppelin Contracts emitted an explicit `Approval` event even though it was not required by the specification, and this is no longer the case.
