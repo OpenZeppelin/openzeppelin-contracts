@@ -44,6 +44,7 @@ jobs:
           token: ${{ github.token }}
 
   foundry-tests:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
