@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (governance/utils/Votes.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (governance/utils/Votes.sol)
 pragma solidity ^0.8.0;
 
 import "../../utils/Context.sol";
 import "../../utils/Counters.sol";
 import "../../utils/Checkpoints.sol";
-import "../../utils/cryptography/draft-EIP712.sol";
+import "../../utils/cryptography/EIP712.sol";
 import "./IVotes.sol";
 
 /**
@@ -56,7 +56,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
      * - `blockNumber` must have been already mined
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return _delegateCheckpoints[account].getAtBlock(blockNumber);
+        return _delegateCheckpoints[account].getAtProbablyRecentBlock(blockNumber);
     }
 
     /**
@@ -72,7 +72,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
      */
     function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "Votes: block not yet mined");
-        return _totalCheckpoints.getAtBlock(blockNumber);
+        return _totalCheckpoints.getAtProbablyRecentBlock(blockNumber);
     }
 
     /**
@@ -207,5 +207,5 @@ abstract contract Votes is IVotes, Context, EIP712 {
     /**
      * @dev Must return the voting units held by an account.
      */
-    function _getVotingUnits(address) internal virtual returns (uint256);
+    function _getVotingUnits(address) internal view virtual returns (uint256);
 }

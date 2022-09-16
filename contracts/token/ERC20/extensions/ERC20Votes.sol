@@ -97,6 +97,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     function _checkpointsLookup(Checkpoint[] storage ckpts, uint256 blockNumber) private view returns (uint256) {
         // We run a binary search to look for the earliest checkpoint taken after `blockNumber`.
         //
+        // Initially we check if the block is recent to narrow the search range.
         // During the loop, the index of the wanted checkpoint remains in the range [low-1, high).
         // With each iteration, either `low` or `high` is moved towards the middle of the range to maintain the invariant.
         // - If the middle checkpoint is after `blockNumber`, we look in [low, mid)
@@ -106,18 +107,30 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         // Note that if the latest checkpoint available is exactly for `blockNumber`, we end up with an index that is
         // past the end of the array, so we technically don't find a checkpoint after `blockNumber`, but it works out
         // the same.
-        uint256 high = ckpts.length;
+        uint256 length = ckpts.length;
+
         uint256 low = 0;
-        while (low < high) {
-            uint256 mid = Math.average(low, high);
-            if (ckpts[mid].fromBlock > blockNumber) {
+        uint256 high = length;
+
+        if (length > 5) {
+            uint256 mid = length - Math.sqrt(length);
+            if (_unsafeAccess(ckpts, mid).fromBlock > blockNumber) {
                 high = mid;
             } else {
                 low = mid + 1;
             }
         }
 
-        return high == 0 ? 0 : ckpts[high - 1].votes;
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+            if (_unsafeAccess(ckpts, mid).fromBlock > blockNumber) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        return high == 0 ? 0 : _unsafeAccess(ckpts, high - 1).votes;
     }
 
     /**
@@ -229,11 +242,14 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         uint256 delta
     ) private returns (uint256 oldWeight, uint256 newWeight) {
         uint256 pos = ckpts.length;
-        oldWeight = pos == 0 ? 0 : ckpts[pos - 1].votes;
+
+        Checkpoint memory oldCkpt = pos == 0 ? Checkpoint(0, 0) : _unsafeAccess(ckpts, pos - 1);
+
+        oldWeight = oldCkpt.votes;
         newWeight = op(oldWeight, delta);
 
-        if (pos > 0 && ckpts[pos - 1].fromBlock == block.number) {
-            ckpts[pos - 1].votes = SafeCast.toUint224(newWeight);
+        if (pos > 0 && oldCkpt.fromBlock == block.number) {
+            _unsafeAccess(ckpts, pos - 1).votes = SafeCast.toUint224(newWeight);
         } else {
             ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
         }
@@ -245,5 +261,12 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
 
     function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
         return a - b;
+    }
+
+    function _unsafeAccess(Checkpoint[] storage ckpts, uint256 pos) private pure returns (Checkpoint storage result) {
+        assembly {
+            mstore(0, ckpts.slot)
+            result.slot := add(keccak256(0, 0x20), pos)
+        }
     }
 }

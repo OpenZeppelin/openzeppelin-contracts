@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (security/PullPayment.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (security/PullPayment.sol)
 
 pragma solidity ^0.8.0;
 
@@ -7,7 +7,7 @@ import "../utils/escrow/Escrow.sol";
 
 /**
  * @dev Simple implementation of a
- * https://consensys.github.io/smart-contract-best-practices/recommendations/#favor-pull-over-push-for-external-calls[pull-payment]
+ * https://consensys.github.io/smart-contract-best-practices/development-recommendations/general/external-calls/#favor-pull-over-push-for-external-calls[pull-payment]
  * strategy, where the paying contract doesn't interact directly with the
  * receiver account, which must withdraw its payments itself.
  *
@@ -43,6 +43,8 @@ abstract contract PullPayment {
      * checks-effects-interactions pattern or using {ReentrancyGuard}.
      *
      * @param payee Whose payments will be withdrawn.
+     *
+     * Causes the `escrow` to emit a {Withdrawn} event.
      */
     function withdrawPayments(address payable payee) public virtual {
         _escrow.withdraw(payee);
@@ -63,6 +65,8 @@ abstract contract PullPayment {
      *
      * @param dest The destination address of the funds.
      * @param amount The amount to transfer.
+     *
+     * Causes the `escrow` to emit a {Deposited} event.
      */
     function _asyncTransfer(address dest, uint256 amount) internal virtual {
         _escrow.deposit{value: amount}(dest);

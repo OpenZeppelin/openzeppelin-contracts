@@ -32,11 +32,11 @@ contract('Pausable', function (accounts) {
 
     context('when paused', function () {
       beforeEach(async function () {
-        ({ logs: this.logs } = await this.pausable.pause({ from: pauser }));
+        (this.receipt = await this.pausable.pause({ from: pauser }));
       });
 
       it('emits a Paused event', function () {
-        expectEvent.inLogs(this.logs, 'Paused', { account: pauser });
+        expectEvent(this.receipt, 'Paused', { account: pauser });
       });
 
       it('cannot perform normal process in pause', async function () {
@@ -60,11 +60,11 @@ contract('Pausable', function (accounts) {
 
         context('when unpaused', function () {
           beforeEach(async function () {
-            ({ logs: this.logs } = await this.pausable.unpause({ from: pauser }));
+            (this.receipt = await this.pausable.unpause({ from: pauser }));
           });
 
           it('emits an Unpaused event', function () {
-            expectEvent.inLogs(this.logs, 'Unpaused', { account: pauser });
+            expectEvent(this.receipt, 'Unpaused', { account: pauser });
           });
 
           it('should resume allowing normal process', async function () {

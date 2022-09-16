@@ -22,4 +22,8 @@ contract ERC165CheckerMock {
     function getSupportedInterfaces(address account, bytes4[] memory interfaceIds) public view returns (bool[] memory) {
         return account.getSupportedInterfaces(interfaceIds);
     }
+
+    function supportsERC165InterfaceUnchecked(address account, bytes4 interfaceId) public view returns (bool) {
+        return account.supportsERC165InterfaceUnchecked(interfaceId);
+    }
 }

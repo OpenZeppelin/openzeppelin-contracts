@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC721/extensions/draft-ERC721Votes.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/extensions/draft-ERC721Votes.sol)
 
 pragma solidity ^0.8.0;
 
@@ -32,9 +32,24 @@ abstract contract ERC721Votes is ERC721, Votes {
     }
 
     /**
+     * @dev Adjusts votes when a batch of tokens is transferred.
+     *
+     * Emits a {Votes-DelegateVotesChanged} event.
+     */
+    function _afterConsecutiveTokenTransfer(
+        address from,
+        address to,
+        uint256 first,
+        uint96 size
+    ) internal virtual override {
+        _transferVotingUnits(from, to, size);
+        super._afterConsecutiveTokenTransfer(from, to, first, size);
+    }
+
+    /**
      * @dev Returns the balance of `account`.
      */
-    function _getVotingUnits(address account) internal virtual override returns (uint256) {
+    function _getVotingUnits(address account) internal view virtual override returns (uint256) {
         return balanceOf(account);
     }
 }

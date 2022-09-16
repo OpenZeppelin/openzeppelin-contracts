@@ -1,7 +1,7 @@
 {
   "name": "openzeppelin-solidity",
   "description": "Secure Smart Contract library for Solidity",
-  "version": "4.5.0",
+  "version": "4.7.0",
   "files": [
     "/contracts/**/*.sol",
     "/build/contracts/*.json",
@@ -23,12 +23,14 @@
     "lint:sol": "solhint 'contracts/**/*.sol' && prettier -c 'contracts/**/*.sol'",
     "lint:sol:fix": "prettier --write \"contracts/**/*.sol\"",
     "clean": "hardhat clean && rimraf build contracts/build",
-    "prepare": "npm run clean && env COMPILE_MODE=production npm run compile",
+    "prepare": "scripts/prepare.sh",
     "prepack": "scripts/prepack.sh",
+    "generate": "scripts/generate/run.js",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
     "test": "hardhat test",
-    "test:inheritance": "node scripts/inheritanceOrdering artifacts/build-info/*",
+    "test:inheritance": "scripts/checks/inheritance-ordering.js artifacts/build-info/*",
+    "test:generation": "scripts/checks/generation.sh",
     "gas-report": "env ENABLE_GAS_REPORT=true npm run test",
     "slither": "npm run clean && slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas"
   },
@@ -51,7 +53,8 @@
   },
   "homepage": "https://openzeppelin.com/contracts/",
   "devDependencies": {
-    "@nomiclabs/hardhat-truffle5": "^2.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.3",
+    "@nomiclabs/hardhat-truffle5": "^2.0.5",
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/docs-utils": "^0.1.2",
     "@openzeppelin/test-helpers": "^0.5.13",
@@ -67,7 +70,7 @@
     "ethereumjs-wallet": "^1.0.1",
     "glob": "^8.0.3",
     "graphlib": "^2.1.8",
-    "hardhat": "^2.0.6",
+    "hardhat": "^2.9.1",
     "hardhat-gas-reporter": "^1.0.4",
     "keccak256": "^1.0.2",
     "lodash.startcase": "^4.4.0",
@@ -80,7 +83,7 @@
     "semver": "^7.3.5",
     "solhint": "^3.3.6",
     "solidity-ast": "^0.4.25",
-    "solidity-coverage": "^0.7.18",
+    "solidity-coverage": "^0.8.0",
     "solidity-docgen": "^0.6.0-beta.26",
     "web3": "^1.3.0",
     "yargs": "^17.0.0"

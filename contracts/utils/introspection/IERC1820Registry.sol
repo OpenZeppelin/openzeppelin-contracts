@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC1820Registry.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (utils/introspection/IERC1820Registry.sol)
 
 pragma solidity ^0.8.0;
 
@@ -18,6 +18,10 @@ pragma solidity ^0.8.0;
  * For an in-depth explanation and source code analysis, see the EIP text.
  */
 interface IERC1820Registry {
+    event InterfaceImplementerSet(address indexed account, bytes32 indexed interfaceHash, address indexed implementer);
+
+    event ManagerChanged(address indexed account, address indexed newManager);
+
     /**
      * @dev Sets `newManager` as the manager for `account`. A manager of an
      * account is able to set interface implementers for it.
@@ -103,14 +107,10 @@ interface IERC1820Registry {
     function implementsERC165Interface(address account, bytes4 interfaceId) external view returns (bool);
 
     /**
-     * @notice Checks whether a contract implements an ERC165 interface or not without using nor updating the cache.
+     * @notice Checks whether a contract implements an ERC165 interface or not without using or updating the cache.
      * @param account Address of the contract to check.
      * @param interfaceId ERC165 interface to check.
      * @return True if `account` implements `interfaceId`, false otherwise.
      */
     function implementsERC165InterfaceNoCache(address account, bytes4 interfaceId) external view returns (bool);
-
-    event InterfaceImplementerSet(address indexed account, bytes32 indexed interfaceHash, address indexed implementer);
-
-    event ManagerChanged(address indexed account, address indexed newManager);
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20FlashMint.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC20/extensions/ERC20FlashMint.sol)
 
 pragma solidity ^0.8.0;
 
@@ -38,9 +38,30 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      */
     function flashFee(address token, uint256 amount) public view virtual override returns (uint256) {
         require(token == address(this), "ERC20FlashMint: wrong token");
+        return _flashFee(token, amount);
+    }
+
+    /**
+     * @dev Returns the fee applied when doing flash loans. This function calls the {flashFee} function which returns the fee applied when doing flash loans.
+     * @param token The token to be flash loaned.
+     * @param amount The amount of tokens to be loaned.
+     * @return The fees applied to the corresponding flash loan.
+     */
+    function _flashFee(address token, uint256 amount) internal view virtual returns (uint256) {
         // silence warning about unused variable without the addition of bytecode.
+        token;
         amount;
         return 0;
+    }
+
+    /**
+     * @dev Returns the receiver address of the flash fee. By default this
+     * implementation returns the address(0) which means the fee amount will be burnt.
+     * This function can be overloaded to change the fee receiver.
+     * @return The address for which the flash fee will be sent to.
+     */
+    function _flashFeeReceiver() internal view virtual returns (address) {
+        return address(0);
     }
 
     /**
@@ -73,10 +94,14 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
             receiver.onFlashLoan(msg.sender, token, amount, fee, data) == _RETURN_VALUE,
             "ERC20FlashMint: invalid return value"
         );
-        uint256 currentAllowance = allowance(address(receiver), address(this));
-        require(currentAllowance >= amount + fee, "ERC20FlashMint: allowance does not allow refund");
-        _approve(address(receiver), address(this), currentAllowance - amount - fee);
-        _burn(address(receiver), amount + fee);
+        address flashFeeReceiver = _flashFeeReceiver();
+        _spendAllowance(address(receiver), address(this), amount + fee);
+        if (fee == 0 || flashFeeReceiver == address(0)) {
+            _burn(address(receiver), amount + fee);
+        } else {
+            _burn(address(receiver), amount);
+            _transfer(address(receiver), flashFeeReceiver, fee);
+        }
         return true;
     }
 }

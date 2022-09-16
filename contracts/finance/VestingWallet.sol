@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (finance/VestingWallet.sol)
+// OpenZeppelin Contracts (last updated v4.7.0) (finance/VestingWallet.sol)
 pragma solidity ^0.8.0;
 
 import "../token/ERC20/utils/SafeERC20.sol";
 import "../utils/Address.sol";
 import "../utils/Context.sol";
-import "../utils/math/Math.sol";
 
 /**
  * @title VestingWallet
@@ -34,7 +33,7 @@ contract VestingWallet is Context {
         address beneficiaryAddress,
         uint64 startTimestamp,
         uint64 durationSeconds
-    ) {
+    ) payable {
         require(beneficiaryAddress != address(0), "VestingWallet: beneficiary is zero address");
         _beneficiary = beneficiaryAddress;
         _start = startTimestamp;
@@ -82,27 +81,42 @@ contract VestingWallet is Context {
     }
 
     /**
+     * @dev Getter for the amount of releasable eth.
+     */
+    function releasable() public view virtual returns (uint256) {
+        return vestedAmount(uint64(block.timestamp)) - released();
+    }
+
+    /**
+     * @dev Getter for the amount of releasable `token` tokens. `token` should be the address of an
+     * IERC20 contract.
+     */
+    function releasable(address token) public view virtual returns (uint256) {
+        return vestedAmount(token, uint64(block.timestamp)) - released(token);
+    }
+
+    /**
      * @dev Release the native token (ether) that have already vested.
      *
-     * Emits a {TokensReleased} event.
+     * Emits a {EtherReleased} event.
      */
     function release() public virtual {
-        uint256 releasable = vestedAmount(uint64(block.timestamp)) - released();
-        _released += releasable;
-        emit EtherReleased(releasable);
-        Address.sendValue(payable(beneficiary()), releasable);
+        uint256 amount = releasable();
+        _released += amount;
+        emit EtherReleased(amount);
+        Address.sendValue(payable(beneficiary()), amount);
     }
 
     /**
      * @dev Release the tokens that have already vested.
      *
-     * Emits a {TokensReleased} event.
+     * Emits a {ERC20Released} event.
      */
     function release(address token) public virtual {
-        uint256 releasable = vestedAmount(token, uint64(block.timestamp)) - released(token);
-        _erc20Released[token] += releasable;
-        emit ERC20Released(token, releasable);
-        SafeERC20.safeTransfer(IERC20(token), beneficiary(), releasable);
+        uint256 amount = releasable(token);
+        _erc20Released[token] += amount;
+        emit ERC20Released(token, amount);
+        SafeERC20.safeTransfer(IERC20(token), beneficiary(), amount);
     }
 
     /**
@@ -120,7 +134,7 @@ contract VestingWallet is Context {
     }
 
     /**
-     * @dev Virtual implementation of the vesting formula. This returns the amout vested, as a function of time, for
+     * @dev Virtual implementation of the vesting formula. This returns the amount vested, as a function of time, for
      * an asset given its total historical allocation.
      */
     function _vestingSchedule(uint256 totalAllocation, uint64 timestamp) internal view virtual returns (uint256) {

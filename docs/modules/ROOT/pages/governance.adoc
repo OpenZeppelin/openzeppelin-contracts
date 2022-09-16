@@ -28,7 +28,7 @@ When using a timelock with your Governor contract, you can use either OpenZeppel
 
 === Tally
 
-https://www.withtally.com[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
+https://www.tally.xyz[Tally] is a full-fledged application for user owned on-chain governance. It comprises a voting dashboard, proposal creation wizard, real time research and analysis, and educational content.
 
 For all of these options, the Governor will be compatible with Tally: users will be able to create proposals, visualize voting power and advocates, navigate proposals, and cast votes. For proposal creation in particular, projects can also use Defender Admin as an alternative interface.
 
