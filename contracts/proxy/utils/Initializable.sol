@@ -105,8 +105,8 @@ abstract contract Initializable {
      * A reinitializer may be used after the original initialization step. This is essential to configure modules that
      * are added through upgrades and that require initialization.
      * 
-     * It's similar to `initializer`, except that functions marked with `reinitializer` cannot be nested.
-     * If one is invoked in the context of another, execution will revert.
+     * When `version` is 1, this modifier is similar to `initializer`, except that functions marked with `reinitializer`
+     * cannot be nested. If one is invoked in the context of another, execution will revert.
      *
      * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in
      * a contract, executing them in the right order is up to the developer or operator.
