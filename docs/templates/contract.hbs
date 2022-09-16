@@ -1,7 +1,3 @@
-{{~#*inline "typed-variable-array"~}}
-{{#each .}}{{type}}{{#if name}} {{name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}
-{{~/inline~}}
-
 {{#each linkable}}
 :{{name}}: pass:normal[xref:#{{anchor}}[`++{{name}}++`]]
 {{/each}}
@@ -50,7 +46,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each modifiers}}
 [.contract-item]
 [[{{anchor}}]]
-==== `[.contract-item-name]#++{{name}}++#++({{> typed-variable-array params}})++` [.item-kind]#modifier#
+==== `[.contract-item-name]#++{{name}}++#++({{typed-params params}})++` [.item-kind]#modifier#
 
 {{{natspec.dev}}}
 
@@ -59,7 +55,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each functions}}
 [.contract-item]
 [[{{anchor}}]]
-==== `[.contract-item-name]#++{{name}}++#++({{> typed-variable-array params}}){{#if returns}} → {{> typed-variable-array returns}}{{/if}}++` [.item-kind]#{{visibility}}#
+==== `[.contract-item-name]#++{{name}}++#++({{typed-params params}}){{#if returns}} → {{typed-params returns}}{{/if}}++` [.item-kind]#{{visibility}}#
 
 {{{natspec.dev}}}
 
@@ -68,7 +64,7 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 {{#each events}}
 [.contract-item]
 [[{{anchor}}]]
-==== `[.contract-item-name]#++{{name}}++#++({{> typed-variable-array params}})++` [.item-kind]#event#
+==== `[.contract-item-name]#++{{name}}++#++({{typed-params params}})++` [.item-kind]#event#
 
 {{{natspec.dev}}}
 
