@@ -72,7 +72,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
      * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
      */
-    function implementation() external ifAdmin returns (address implementation_) {
+    function implementation() external view returns (address implementation_) {
         implementation_ = _implementation();
     }
 
