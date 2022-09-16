@@ -44,6 +44,8 @@ const argv = require('yargs/yargs')()
 
 require('@nomiclabs/hardhat-truffle5');
 
+require('solidity-docgen');
+
 if (argv.enableGasReport) {
   require('hardhat-gas-reporter');
 }
@@ -78,6 +80,7 @@ module.exports = {
     outputFile: argv.ci ? 'gas-report.txt' : undefined,
     coinmarketcap: argv.coinmarketcap,
   },
+  docgen: require('./docs/config'),
 };
 
 if (argv.coverage) {

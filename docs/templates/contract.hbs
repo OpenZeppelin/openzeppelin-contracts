@@ -1,0 +1,75 @@
+{{~#*inline "typed-variable-array"~}}
+{{#each .}}{{type}}{{#if name}} {{name}}{{/if}}{{#unless @last}}, {{/unless}}{{/each}}
+{{~/inline~}}
+
+{{#each linkable}}
+:{{name}}: pass:normal[xref:#{{anchor}}[`++{{name}}++`]]
+{{/each}}
+
+[.contract]
+[[{{anchor}}]]
+=== `++{{name}}++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v{{oz-version}}/{{__item_context.file.absolutePath}}[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/{{__item_context.file.absolutePath}}";
+```
+
+{{{natspec.dev}}}
+
+{{#if modifiers}}
+[.contract-index]
+.Modifiers
+--
+{{#each modifiers}}
+* {xref-{{anchor~}} }[`++{{name}}({{params.names}})++`]
+{{/each}}
+--
+{{/if}}
+
+{{#if functions}}
+[.contract-index]
+.Functions
+--
+{{#each functions}}
+* {xref-{{anchor~}} }[`++{{name}}({{params.names}})++`]
+{{/each}}
+--
+{{/if}}
+
+{{#if events}}
+[.contract-index]
+.Events
+--
+{{#each events}}
+* {xref-{{anchor~}} }[`++{{name}}({{params.names}})++`]
+{{/each}}
+--
+{{/if}}
+
+{{#each modifiers}}
+[.contract-item]
+[[{{anchor}}]]
+==== `[.contract-item-name]#++{{name}}++#++({{> typed-variable-array params}})++` [.item-kind]#modifier#
+
+{{{natspec.dev}}}
+
+{{/each}}
+
+{{#each functions}}
+[.contract-item]
+[[{{anchor}}]]
+==== `[.contract-item-name]#++{{name}}++#++({{> typed-variable-array params}}){{#if returns}} → {{> typed-variable-array returns}}{{/if}}++` [.item-kind]#{{visibility}}#
+
+{{{natspec.dev}}}
+
+{{/each}}
+
+{{#each events}}
+[.contract-item]
+[[{{anchor}}]]
+==== `[.contract-item-name]#++{{name}}++#++({{> typed-variable-array params}})++` [.item-kind]#event#
+
+{{{natspec.dev}}}
+
+{{/each}}
