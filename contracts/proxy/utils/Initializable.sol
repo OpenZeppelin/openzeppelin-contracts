@@ -73,7 +73,12 @@ abstract contract Initializable {
 
     /**
      * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,
-     * `onlyInitializing` functions can be used to initialize parent contracts. Equivalent to `reinitializer(1)`.
+     * `onlyInitializing` functions can be used to initialize parent contracts.
+     *
+     * Similar to `reinitializer(1)`, except that functions marked with `initializer` can be nested in the context of a
+     * constructor.
+     *
+     * Emits an {Initialized} event.
      */
     modifier initializer() {
         bool isTopLevelCall = !_initializing;
@@ -97,12 +102,18 @@ abstract contract Initializable {
      * contract hasn't been initialized to a greater version before. In its scope, `onlyInitializing` functions can be
      * used to initialize parent contracts.
      *
-     * `initializer` is equivalent to `reinitializer(1)`, so a reinitializer may be used after the original
-     * initialization step. This is essential to configure modules that are added through upgrades and that require
-     * initialization.
+     * A reinitializer may be used after the original initialization step. This is essential to configure modules that
+     * are added through upgrades and that require initialization.
+     *
+     * When `version` is 1, this modifier is similar to `initializer`, except that functions marked with `reinitializer`
+     * cannot be nested. If one is invoked in the context of another, execution will revert.
      *
      * Note that versions can jump in increments greater than 1; this implies that if multiple reinitializers coexist in
      * a contract, executing them in the right order is up to the developer or operator.
+     *
+     * WARNING: setting the version to 255 will prevent any future reinitialization.
+     *
+     * Emits an {Initialized} event.
      */
     modifier reinitializer(uint8 version) {
         require(!_initializing && _initialized < version, "Initializable: contract is already initialized");
@@ -127,6 +138,8 @@ abstract contract Initializable {
      * Calling this in the constructor of a contract will prevent that contract from being initialized or reinitialized
      * to any version. It is recommended to use this to lock implementation contracts that are designed to be called
      * through proxies.
+     *
+     * Emits an {Initialized} event the first time it is successfully executed.
      */
     function _disableInitializers() internal virtual {
         require(!_initializing, "Initializable: contract is initializing");
