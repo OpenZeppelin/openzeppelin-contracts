@@ -6,7 +6,7 @@ import "../token/ERC721/extensions/ERC721Burnable.sol";
 import "../token/ERC721/extensions/ERC721Consecutive.sol";
 import "../token/ERC721/extensions/ERC721Enumerable.sol";
 import "../token/ERC721/extensions/ERC721Pausable.sol";
-import "../token/ERC721/extensions/draft-ERC721Votes.sol";
+import "../token/ERC721/extensions/ERC721Votes.sol";
 
 /**
  * @title ERC721ConsecutiveMock
