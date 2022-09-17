@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const path = require('path');
-const proc = require('child_process');
 const glob = require('glob');
 const startCase = require('lodash.startcase');
 

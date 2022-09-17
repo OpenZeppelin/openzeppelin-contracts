@@ -1,26 +1,25 @@
 const { version } = require('../../package.json');
-const { isNodeType } = require('solidity-ast/utils');
 
 module.exports['oz-version'] = () => version;
 
 module.exports['readme-path'] = (opts) => {
   return 'contracts/' + opts.data.root.id.replace(/\.adoc$/, '') + '/README.adoc';
-}
+};
 
 module.exports['typed-params'] = (params) => {
   return params.map(p => `${p.type}${p.name ? ' ' + p.name : ''}`).join(', ');
-}
+};
 
 const slug = module.exports.slug = (str) => {
   if (str === undefined) {
     throw new Error('Missing argument');
   }
   return str.replace(/\W/g, '-');
-}
+};
 
 const linksCache = new WeakMap();
 
-function getAllLinks(items) {
+function getAllLinks (items) {
   if (linksCache.has(items)) {
     return linksCache.get(items);
   }
@@ -42,4 +41,4 @@ module.exports['with-prelude'] = (opts) => {
     .filter(k => k in links);
   const prelude = neededLinks.map(k => `:${k}: ${links[k]}`).join('\n');
   return prelude + '\n' + contents;
-}
+};
