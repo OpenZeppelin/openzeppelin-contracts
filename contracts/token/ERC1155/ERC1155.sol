@@ -43,6 +43,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         return
             interfaceId == type(IERC1155).interfaceId ||
             interfaceId == type(IERC1155MetadataURI).interfaceId ||
+            interfaceId == type(IERC5679Ext1155).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
