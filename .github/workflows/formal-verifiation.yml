@@ -29,7 +29,7 @@ jobs:
         with: { python-version: 3.6, cache: 'pip' }
       - name: Install java
         uses: actions/setup-java@v1
-        with: { java-version: "11", java-package: jre }
+        with: { java-version: '11', java-package: jre }
       - name: Install certora
         run: pip install certora-cli
       - name: Install solc
@@ -40,13 +40,11 @@ jobs:
       - name: Verify rule ${{ matrix.params.spec }}
         if: matrix.params.disabled != true
         run: |
-          echo "file:" ${{ matrix.params.file }}
-          echo "name:" ${{ matrix.params.name }}
-          echo "spec:" ${{ matrix.params.spec }}
-          echo "key length:" ${#CERTORAKEY}
-
+          echo 'file:' ${{ matrix.params.file }}
+          echo 'name:' ${{ matrix.params.name }}
+          echo 'spec:' ${{ matrix.params.spec }}
           make -C certora munged
-          certoraRun ${{ matrix.params.file }} --verify ${{ matrix.params.name }}:${{ matrix.params.spec }} --solc solc --optimistic_loop --loop_iter 3 --rule_sanity advanced --cloud
+          certoraRun ${{ matrix.params.file }} --verify ${{ matrix.params.name }}:${{ matrix.params.spec }} --solc solc --optimistic_loop --loop_iter 3 --rule_sanity advanced --cloud --debug
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
     strategy:
