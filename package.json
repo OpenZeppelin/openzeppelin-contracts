@@ -13,8 +13,8 @@
   "scripts": {
     "compile": "hardhat compile",
     "coverage": "env COVERAGE=true hardhat coverage",
-    "docs": "oz-docs",
-    "docs:watch": "npm run docs watch contracts 'docs/templates' docs/config.js",
+    "docs": "npm run prepare-docs && oz-docs",
+    "docs:watch": "oz-docs watch contracts 'docs/templates' docs/config.js",
     "prepare-docs": "scripts/prepare-docs.sh",
     "lint": "npm run lint:js && npm run lint:sol",
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
