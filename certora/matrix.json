@@ -23,7 +23,7 @@
     "name": "GovernorPreventLateQuorumHarness",
     "spec": "certora/specs/GovernorPreventLateQuorum.spec"
 },{
-    "disable": true,
+    "disabled": true,
     "file": "certora/harnesses/InitializableComplexHarness.sol",
     "name": "InitializableComplexHarness",
     "spec": "certora/specs/Initializable.spec"
