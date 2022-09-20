@@ -1,0 +1,30 @@
+[{
+    "file": "certora/harnesses/ERC1155/ERC1155Harness.sol",
+    "name": "ERC1155Harness",
+    "spec": "certora/specs/ERC1155.spec"
+},{
+    "file": "certora/harnesses/ERC1155/ERC1155BurnableHarness.sol",
+    "name": "ERC1155BurnableHarness",
+    "spec": "certora/specs/ERC1155Burnable.spec"
+},{
+    "file": "certora/harnesses/ERC1155/ERC1155BurnableHarness.sol",
+    "name": "ERC1155BurnableHarness",
+    "spec": "certora/specs/ERC1155Burnable.spec"
+},{
+    "file": "certora/harnesses/ERC1155/ERC1155PausableHarness.sol",
+    "name": "ERC1155PausableHarness",
+    "spec": "certora/specs/ERC1155Pausable.spec"
+},{
+    "file": "certora/harnesses/ERC1155/ERC1155SupplyHarness.sol",
+    "name": "ERC1155SupplyHarness",
+    "spec": "certora/specs/ERC1155Supply.spec"
+},{
+    "file": "certora/harnesses/ERC721VotesHarness.sol certora/munged/governance/TimelockController.sol certora/harnesses/GovernorPreventLateQuorumHarness.sol",
+    "name": "GovernorPreventLateQuorumHarness",
+    "spec": "certora/specs/GovernorPreventLateQuorum.spec"
+},{
+    "disable": true,
+    "file": "certora/harnesses/InitializableComplexHarness.sol",
+    "name": "InitializableComplexHarness",
+    "spec": "certora/specs/Initializable.spec"
+}]

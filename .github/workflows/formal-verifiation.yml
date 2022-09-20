@@ -17,32 +17,33 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: set-matrix
-        run: echo ::set-output name=matrix::$(ls certora/scripts/**/*.sh | jq -Rsc 'split("\n")[:-1]')
+        run: echo ::set-output name=matrix::$(cat certora/matrix.json)
 
   verify:
     runs-on: ubuntu-latest
     needs: list-scripts
     steps:
       - uses: actions/checkout@v2
-      - name: Install python
-        uses: actions/setup-python@v2
-        with: { python-version: 3.6, cache: 'pip' }
-      - name: Install java
-        uses: actions/setup-java@v1
-        with: { java-version: "11", java-package: jre }
-      - name: Install certora
-        run: pip install certora-cli
-      - name: Install solc
-        run: |
-          wget https://github.com/ethereum/solidity/releases/download/v0.8.4/solc-static-linux
-          chmod +x solc-static-linux
-          sudo mv solc-static-linux /usr/local/bin/solc8.4
+      # - name: Install python
+      #   uses: actions/setup-python@v2
+      #   with: { python-version: 3.6, cache: 'pip' }
+      # - name: Install java
+      #   uses: actions/setup-java@v1
+      #   with: { java-version: "11", java-package: jre }
+      # - name: Install certora
+      #   run: pip install certora-cli
+      # - name: Install solc
+      #   run: |
+      #     wget https://github.com/ethereum/solidity/releases/download/v0.8.17/solc-static-linux
+      #     sudo mv solc-static-linux /usr/local/bin/solc
+      #     chmod +x /usr/local/bin/solc
       - name: Verify rule ${{ matrix.script }}
         run: |
-          touch certora/applyHarness.patch
-          make -C certora munged
-          echo "key length" ${#CERTORAKEY}
-          sh ${{ matrix.script }}
+          echo ${{ matrix.script }}
+        # touch certora/applyHarness.patch
+        # make -C certora munged
+        # echo "key length" ${#CERTORAKEY}
+        # sh ${{ matrix.script }}
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
     strategy:
