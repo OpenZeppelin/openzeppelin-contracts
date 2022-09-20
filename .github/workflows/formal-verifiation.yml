@@ -24,29 +24,25 @@ jobs:
     needs: list-scripts
     steps:
       - uses: actions/checkout@v2
-      # - name: Install python
-      #   uses: actions/setup-python@v2
-      #   with: { python-version: 3.6, cache: 'pip' }
-      # - name: Install java
-      #   uses: actions/setup-java@v1
-      #   with: { java-version: "11", java-package: jre }
-      # - name: Install certora
-      #   run: pip install certora-cli
-      # - name: Install solc
-      #   run: |
-      #     wget https://github.com/ethereum/solidity/releases/download/v0.8.17/solc-static-linux
-      #     sudo mv solc-static-linux /usr/local/bin/solc
-      #     chmod +x /usr/local/bin/solc
-      - name: Verify rule ${{ matrix.params }}
+      - name: Install python
+        uses: actions/setup-python@v2
+        with: { python-version: 3.6, cache: 'pip' }
+      - name: Install java
+        uses: actions/setup-java@v1
+        with: { java-version: "11", java-package: jre }
+      - name: Install certora
+        run: pip install certora-cli
+      - name: Install solc
+        run: |
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.17/solc-static-linux
+          sudo mv solc-static-linux /usr/local/bin/solc
+          chmod +x /usr/local/bin/solc
+      - name: Verify rule ${{ matrix.params.spec }}
         if: matrix.params.disabled != true
         run: |
-          echo ${{ matrix.params.file }}
-          echo ${{ matrix.params.name }}
-          echo ${{ matrix.params.spec }}
-        # touch certora/applyHarness.patch
-        # make -C certora munged
-        # echo "key length" ${#CERTORAKEY}
-        # sh ${{ matrix.params }}
+          echo "key length" ${#CERTORAKEY}
+          make -C certora munged
+          certoraRun ${{ matrix.params.file }} --verify ${{ matrix.params.name }}:$${{ matrix.params.spec }} --solc solc --optimistic_loop --loop_iter 3 --rule_sanity advanced --cloud
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
     strategy:
