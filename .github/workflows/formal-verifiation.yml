@@ -40,9 +40,13 @@ jobs:
       - name: Verify rule ${{ matrix.params.spec }}
         if: matrix.params.disabled != true
         run: |
-          echo "key length" ${#CERTORAKEY}
+          echo "file:" ${{ matrix.params.file }}
+          echo "name:" ${{ matrix.params.name }}
+          echo "spec:" ${{ matrix.params.spec }}
+          echo "key length:" ${#CERTORAKEY}
+
           make -C certora munged
-          certoraRun ${{ matrix.params.file }} --verify ${{ matrix.params.name }}:$${{ matrix.params.spec }} --solc solc --optimistic_loop --loop_iter 3 --rule_sanity advanced --cloud
+          certoraRun ${{ matrix.params.file }} --verify ${{ matrix.params.name }}:${{ matrix.params.spec }} --solc solc --optimistic_loop --loop_iter 3 --rule_sanity advanced --cloud
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
     strategy:
