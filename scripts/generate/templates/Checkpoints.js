@@ -170,21 +170,6 @@ function length(${opts.historyTypeName} storage self) internal view returns (uin
 }
 
 /**
- * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
- */
-function latest(${opts.historyTypeName} storage self) internal view returns (${opts.valueTypeName}) {
-    uint256 pos = self.${opts.checkpointFieldName}.length;
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
-}
-
-/**
- * @dev Returns the number of checkpoint.
- */
-function length(${opts.historyTypeName} storage self) internal view returns (uint256) {
-    return self.${opts.checkpointFieldName}.length;
-}
-
-/**
  * @dev Pushes a (\`key\`, \`value\`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
  * or by updating the last one.
  */
