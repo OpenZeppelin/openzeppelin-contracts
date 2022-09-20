@@ -47,9 +47,18 @@ jobs:
           echo 'file:' ${{ matrix.params.file }}
           echo 'name:' ${{ matrix.params.name }}
           echo 'spec:' ${{ matrix.params.spec }}
+          echo 'args:' ${{ matrix.params.args || '' }}
+
           touch certora/applyHarness.patch
           make -C certora munged
-          certoraRun ${{ matrix.params.file }} --verify ${{ matrix.params.name }}:${{ matrix.params.spec }} --solc solc --optimistic_loop --loop_iter 3 --rule_sanity advanced --cloud
+
+          certoraRun ${{ matrix.params.file }} \
+            --verify ${{ matrix.params.name }}:${{ matrix.params.spec }} \
+            --solc solc \
+            --optimistic_loop
+            --loop_iter 3 \
+            --cloud \
+            ${{ matrix.params.args || '' }}
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
     strategy:
