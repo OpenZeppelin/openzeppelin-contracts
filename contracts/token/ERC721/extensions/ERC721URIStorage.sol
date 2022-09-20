@@ -59,7 +59,7 @@ abstract contract ERC721URIStorage is ERC721 {
     ) internal virtual override {
         super._transfer(from, to, tokenId);
 
-        if (bytes(_tokenURIs[tokenId]).length != 0) {
+        if (to == address(0) && bytes(_tokenURIs[tokenId]).length != 0) {
             delete _tokenURIs[tokenId];
         }
     }
