@@ -263,7 +263,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
      * acceptance magic value.
      */
-    function _mint(
+    function _safeMint(
         address to,
         uint256 id,
         uint256 amount,
@@ -296,7 +296,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
      * acceptance magic value.
      */
-    function _mintBatch(
+    function _safeMintBatch(
         address to,
         uint256[] memory ids,
         uint256[] memory amounts,
