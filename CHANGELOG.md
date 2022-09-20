@@ -46,7 +46,7 @@
 +import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 ```
 
- * `ERC721Votes`: Added the file `ERC721Votes.sol` and deprecated `draft-ERC721Votes.sol` since it no longer depends on a Draft EIP (EIP-712). Developers are encouraged to update their imports. ([#3621](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3699))
+ * `ERC721Votes`: Added the file `ERC721Votes.sol` and deprecated `draft-ERC721Votes.sol` since it no longer depends on a Draft EIP (EIP-712). Developers are encouraged to update their imports. ([#3699](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3699))
 
 ```diff
 -import "@openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
