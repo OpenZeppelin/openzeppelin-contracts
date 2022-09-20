@@ -21,4 +21,3 @@ record:
 clean:
 	git clean -fdX
 	touch $(PATCH)
-
