@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 import "../ERC721.sol";
 import "../../../interfaces/IERC2309.sol";
 import "../../../utils/Checkpoints.sol";
-import "../../../utils/math/SafeCast.sol";
 import "../../../utils/structs/BitMaps.sol";
 
 /**
@@ -99,7 +98,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     }
 
     /**
-     * @dev See {ERC721-_afterTokenTransfer}. Burning of token that have been sequentially minted must be explicit.
+     * @dev See {ERC721-_afterTokenTransfer}. Burning of tokens that have been sequentially minted must be explicit.
      */
     function _afterTokenTransfer(
         address from,
@@ -108,7 +107,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     ) internal virtual override {
         if (
             to == address(0) && // if we burn
-            tokenId <= _totalConsecutiveSupply() && // and the tokenId was minted is a batch
+            tokenId < _totalConsecutiveSupply() && // and the tokenId was minted in a batch
             !_sequentialBurn.get(tokenId) // and the token was never marked as burnt
         ) {
             _sequentialBurn.set(tokenId);
