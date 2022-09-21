@@ -60,4 +60,12 @@ abstract contract ReentrancyGuard {
         // https://eips.ethereum.org/EIPS/eip-2200)
         _status = _NOT_ENTERED;
     }
+
+    /**
+     * only allow a function to be called when _ENTERED, this is useful for callbacks
+     */
+    modifier entered() {
+        require(_status == _ENTERED);
+        _;
+    }
 }
