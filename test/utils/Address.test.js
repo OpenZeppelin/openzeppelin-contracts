@@ -226,6 +226,29 @@ contract('Address', function (accounts) {
         expect(await tracker.delta()).to.be.bignumber.equal(amount);
       });
 
+      it('calls the requested function with transaction funds', async function () {
+        const abiEncodedCall = this.target.contract.methods.mockFunction().encodeABI();
+
+        const tracker = await balance.tracker(this.target.address);
+
+        expect(await balance.current(this.mock.address)).to.be.bignumber.equal('0');
+
+        const receipt = await this.mock.$functionCallWithValue(
+          this.target.address,
+          abiEncodedCall,
+          amount,
+          { from: other, value: amount },
+        );
+        expectEvent(
+          receipt,
+          '$functionCallWithValue_address_bytes_uint256_Returned',
+          { arg0: web3.eth.abi.encodeParameters(['string'], [ '0x1234' ]) },
+        );
+        await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
+
+        expect(await tracker.delta()).to.be.bignumber.equal(amount);
+      });
+
       it('reverts when calling non-payable functions', async function () {
         const abiEncodedCall = this.target.contract.methods.mockFunctionNonPayable().encodeABI();
 
