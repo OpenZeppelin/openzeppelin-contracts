@@ -16,6 +16,7 @@
  * `ERC20Wrapper`: the `decimals()` function now tries to fetch the value from the underlying token instance. If that calls revert, then the default value is used. ([#3259](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3259))
  * `Governor`: Implement `IERC721Receiver` and `IERC1155Receiver` to improve token custody by governors. ([#3230](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3230))
  * `TimelockController`: Implement `IERC721Receiver` and `IERC1155Receiver` to improve token custody by timelocks. ([#3230](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3230))
+ * `ReentrancyGuard`: Add a `entered` modifier, which is useful for callback functions. ([#3713](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3713))
 
 ### Breaking changes
 
