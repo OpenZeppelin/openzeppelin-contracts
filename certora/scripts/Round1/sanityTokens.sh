@@ -9,9 +9,8 @@ do
     echo ${file%.*}
     certoraRun certora/harnesses/$file \
         --verify ${file%.*}:certora/specs/sanity.spec "$@" \
-        --solc solc8.2 --staging \
+        --solc solc --staging \
         --optimistic_loop \
         --msg "checking sanity on ${file%.*}" \
-        --settings -copyLoopUnroll=4,-strictDecompiler=false \
-        --send_only
+        --settings -copyLoopUnroll=4,-strictDecompiler=false
 done

@@ -7,7 +7,7 @@ make -C certora munged
 for contract in certora/harnesses/Wizard*.sol;
 do
     for spec in certora/specs/*.spec;
-    do      
+    do
         contractFile=$(basename $contract)
         specFile=$(basename $spec)
         if [[ "${specFile%.*}" != "RulesInProgress" ]];
@@ -23,7 +23,6 @@ do
                 --disableLocalTypeChecking \
                 --optimistic_loop \
                 --settings -copyLoopUnroll=4 \
-                --send_only \
                 --msg "checking $specFile on ${contractFile%.*}"
             else
                 certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
@@ -33,10 +32,8 @@ do
                 --disableLocalTypeChecking \
                 --optimistic_loop \
                 --settings -copyLoopUnroll=4 \
-                --send_only \
                 --msg "checking $specFile on ${contractFile%.*}"
             fi
         fi
     done
 done
-

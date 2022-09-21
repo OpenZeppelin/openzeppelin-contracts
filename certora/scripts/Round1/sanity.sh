@@ -7,7 +7,7 @@
 #     echo ${file%.*}
 #     certoraRun certora/harnesses/$file \
 #     --verify ${file%.*}:certora/specs/sanity.spec "$@" \
-#     --solc solc8.2 --staging shelly/forSasha \
+#     --solc solc --staging shelly/forSasha \
 #     --optimistic_loop \
 #     --msg "checking sanity on ${file%.*}"
 #     --settings -copyLoopUnroll=4
@@ -17,7 +17,7 @@
 certoraRun \
     certora/harnesses/TimelockControllerHarness.sol \
     --verify TimelockControllerHarness:certora/specs/sanity.spec \
-    --solc solc8.2 \
+    --solc solc \
     --optimistic_loop \
     --cloud \
     --msg "sanity and keccak check"
@@ -27,9 +27,8 @@ certoraRun \
 # certoraRun \
 #     certora/harnesses/VotesHarness.sol \
 #     --verify VotesHarness:certora/specs/sanity.spec \
-#     --solc solc8.2 \
+#     --solc solc \
 #     --optimistic_loop \
 #     --cloud \
 #     --settings -strictDecompiler=false,-assumeUnwindCond \
 #     --msg "sanityVotes"
-

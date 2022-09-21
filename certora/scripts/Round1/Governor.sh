@@ -2,7 +2,7 @@ make -C certora munged
 
 certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/GovernorHarness.sol \
     --verify GovernorHarness:certora/specs/GovernorBase.spec \
-    --solc solc8.0 \
+    --solc solc \
     --staging shelly/forSasha \
     --optimistic_loop \
     --settings -copyLoopUnroll=4 \
