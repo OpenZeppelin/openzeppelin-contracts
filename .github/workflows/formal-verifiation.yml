@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: set-matrix
-        run: echo ::set-output name=matrix::$(cat certora/matrix.json)
+        run: echo ::set-output name=matrix::$(ls certora/scripts/**/*.sh | jq -Rsc 'split("\n")[:-1]')
 
   verify:
     runs-on: ubuntu-latest
@@ -41,24 +41,11 @@ jobs:
           wget https://github.com/ethereum/solidity/releases/download/v0.8.17/solc-static-linux
           sudo mv solc-static-linux /usr/local/bin/solc
           chmod +x /usr/local/bin/solc
-      - name: Verify rule ${{ matrix.params.spec }}
-        if: matrix.params.disabled != true
+      - name: Verify rule ${{ matrix.params }}
         run: |
-          echo 'file:' ${{ matrix.params.file }}
-          echo 'name:' ${{ matrix.params.name }}
-          echo 'spec:' ${{ matrix.params.spec }}
-          echo 'args:' ${{ matrix.params.args || '' }}
-
           touch certora/applyHarness.patch
           make -C certora munged
-
-          certoraRun ${{ matrix.params.file }} \
-            --verify ${{ matrix.params.name }}:${{ matrix.params.spec }} \
-            --solc solc \
-            --optimistic_loop \
-            --loop_iter 3 \
-            --cloud \
-            ${{ matrix.params.args || '' }}
+          sh ${{ matrix.params }}
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
     strategy:
