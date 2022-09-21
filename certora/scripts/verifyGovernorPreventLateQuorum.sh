@@ -3,10 +3,6 @@ certoraRun \
     --verify GovernorPreventLateQuorumHarness:certora/specs/GovernorPreventLateQuorum.spec \
     --solc solc \
     --optimistic_loop \
-    --rule_sanity advanced \
-    --send_only \
     --loop_iter 1 \
+    --rule_sanity advanced \
     --msg "all sanity" \
-
-
-

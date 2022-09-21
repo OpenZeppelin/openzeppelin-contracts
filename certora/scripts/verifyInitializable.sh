@@ -3,10 +3,6 @@ certoraRun \
     --verify InitializableComplexHarness:certora/specs/Initializable.spec \
     --solc solc \
     --optimistic_loop \
-    --send_only \
-    --rule_sanity advanced \
     --loop_iter 3 \
+    --rule_sanity advanced \
     --msg "all complex sanity" \
-
-
-
