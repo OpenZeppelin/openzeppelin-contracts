@@ -55,7 +55,7 @@ jobs:
           certoraRun ${{ matrix.params.file }} \
             --verify ${{ matrix.params.name }}:${{ matrix.params.spec }} \
             --solc solc \
-            --optimistic_loop
+            --optimistic_loop \
             --loop_iter 3 \
             --cloud \
             ${{ matrix.params.args || '' }}
