@@ -322,7 +322,12 @@ contract('GovernorTimelockControl', function (accounts) {
 
     describe('updateTimelock', function () {
       beforeEach(async function () {
-        this.newTimelock = await Timelock.new(3600, [], []);
+        this.newTimelock = await Timelock.new(
+          3600,
+          [ this.mock.address ],
+          [ this.mock.address ],
+          constants.ZERO_ADDRESS,
+        );
       });
 
       it('is protected', async function () {
