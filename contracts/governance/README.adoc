@@ -153,7 +153,7 @@ Operations status can be queried using the functions:
 [[timelock-admin]]
 ===== Admin
 
-The admins are in charge of managing proposers and executors. For the timelock to be self-governed, this role should only be given to the timelock itself. Upon deployment, both the timelock and the deployer have this role. After further configuration and testing, the deployer can renounce this role such that all further maintenance operations have to go through the timelock process.
+The admins are in charge of managing proposers and executors. For the timelock to be self-governed, this role should only be given to the timelock itself. Upon deployment, the admin role can be granted to any address (in addition to the timelock itself). After further configuration and testing, this optional admin should be renounce its role such that all further maintenance operations have to go through the timelock process.
 
 This role is identified by the *TIMELOCK_ADMIN_ROLE* value: `0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5`
 
