@@ -115,4 +115,59 @@ contract MathTest is Test {
         vm.assume(r < uint8(type(Math.Rounding).max));
         return Math.Rounding(r);
     }
+
+    function testMulDiv(uint256 x, uint256 y, uint256 d) public {
+        vm.assume(d != 0);
+
+        // assume no overflow
+        // TODO: make this condition weaker
+        uint256 M = type(uint256).max;
+        vm.assume(y == 0 || x / d <= M / y);
+        vm.assume(x == 0 || y / d <= M / x);
+
+        uint256 res = Math.mulDiv(x, y, d);
+
+        (uint256 res_times_d_hi, uint256 res_times_d_lo) = _mulHighLow(res, d);
+
+        uint256 rem;
+        assembly {
+            rem := mulmod(x, y, d)
+        }
+
+        (uint256 res_times_d_plus_rem_lo, uint256 c) = _addCarry(res_times_d_lo, rem);
+        uint256 res_times_d_plus_rem_hi = res_times_d_hi + c;
+
+        (uint256 xy_hi, uint256 xy_lo) = _mulHighLow(x, y);
+
+        assertEq(xy_hi, res_times_d_plus_rem_hi);
+        assertEq(xy_lo, res_times_d_plus_rem_lo);
+    }
+
+    function _addCarry(uint256 a, uint256 b) private pure returns (uint256 res, uint256 carry) {
+        unchecked {
+            res = a + b;
+        }
+        carry = res < a ? 1 : 0;
+    }
+
+    // https://stackoverflow.com/a/28904636/667959
+    function _mulHighLow(uint256 a, uint256 b) private view returns (uint256 high, uint256 low) {
+        uint256 a_lo = uint128(a);
+        uint256 a_hi = a >> 128;
+        uint256 b_lo = uint128(b);
+        uint256 b_hi = b >> 128;
+
+        uint256 a_x_b_hi =  a_hi * b_hi;
+        uint256 a_x_b_mid = a_hi * b_lo;
+        uint256 b_x_a_mid = b_hi * a_lo;
+        uint256 a_x_b_lo =  a_lo * b_lo;
+
+        uint256 carry_bit = (uint256(uint128(a_x_b_mid)) + uint256(uint128(b_x_a_mid)) + (a_x_b_lo >> 128)) >> 128;
+
+        high = a_x_b_hi + (a_x_b_mid >> 128) + (b_x_a_mid >> 128) + carry_bit;
+
+        unchecked {
+            low = a * b;
+        }
+    }
 }
