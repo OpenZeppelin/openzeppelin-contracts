@@ -63,9 +63,9 @@ contract('TimelockController', function (accounts) {
     // Deploy new timelock
     this.mock = await TimelockController.new(
       MINDELAY,
-      admin,
       [ proposer ],
       [ executor ],
+      admin,
     );
 
     expect(await this.mock.hasRole(CANCELLER_ROLE, proposer)).to.be.equal(true);
@@ -105,9 +105,9 @@ contract('TimelockController', function (accounts) {
   it('optional admin', async function () {
     const mock = await TimelockController.new(
       MINDELAY,
-      ZERO_ADDRESS,
       [ proposer ],
       [ executor ],
+      ZERO_ADDRESS,
       { from: other },
     );
 

@@ -33,7 +33,7 @@ contract('GovernorTimelockControl', function (accounts) {
     const [ deployer ] = await web3.eth.getAccounts();
 
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.timelock = await Timelock.new(3600, deployer, [], []);
+    this.timelock = await Timelock.new(3600, [], [], deployer);
     this.mock = await Governor.new(
       name,
       this.token.address,

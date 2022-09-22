@@ -75,9 +75,9 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      */
     constructor(
         uint256 minDelay,
-        address admin,
         address[] memory proposers,
-        address[] memory executors
+        address[] memory executors,
+        address admin
     ) {
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
