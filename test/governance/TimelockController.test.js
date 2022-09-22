@@ -52,7 +52,7 @@ function genOperationBatch (targets, values, payloads, predecessor, salt) {
 }
 
 contract('TimelockController', function (accounts) {
-  const [ _, admin, proposer, canceller, executor, other ] = accounts;
+  const [ , admin, proposer, canceller, executor, other ] = accounts;
 
   const TIMELOCK_ADMIN_ROLE = web3.utils.soliditySha3('TIMELOCK_ADMIN_ROLE');
   const PROPOSER_ROLE = web3.utils.soliditySha3('PROPOSER_ROLE');
@@ -65,7 +65,7 @@ contract('TimelockController', function (accounts) {
       MINDELAY,
       admin,
       [ proposer ],
-      [ executor ]
+      [ executor ],
     );
 
     expect(await this.mock.hasRole(CANCELLER_ROLE, proposer)).to.be.equal(true);
