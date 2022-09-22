@@ -24,6 +24,10 @@ contract MathTest is Test {
             assertFalse(rounding == Math.Rounding.Up);
             assertTrue(_squareBigger(result + 1, input));
         }
+        // input is perfect square
+        else {
+            assertEq(result * result, input);
+        }
     }
 
     function _squareBigger(uint256 value, uint256 ref) private pure returns (bool) {
@@ -49,6 +53,8 @@ contract MathTest is Test {
         } else if (_powerOf2Smaller(result, input)) {
             assertFalse(rounding == Math.Rounding.Up);
             assertTrue(_powerOf2Bigger(result + 1, input));
+        } else {
+            assertEq(2**result, input);
         }
     }
 
@@ -74,6 +80,8 @@ contract MathTest is Test {
         } else if (_powerOf10Smaller(result, input)) {
             assertFalse(rounding == Math.Rounding.Up);
             assertTrue(_powerOf10Bigger(result + 1, input));
+        } else {
+            assertEq(10**result, input);
         }
     }
 
@@ -99,6 +107,8 @@ contract MathTest is Test {
         } else if (_powerOf256Smaller(result, input)) {
             assertFalse(rounding == Math.Rounding.Up);
             assertTrue(_powerOf256Bigger(result + 1, input));
+        } else {
+            assertEq(256**result, input);
         }
     }
 
