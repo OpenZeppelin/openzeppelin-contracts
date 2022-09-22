@@ -71,6 +71,7 @@
     "graphlib": "^2.1.8",
     "hardhat": "^2.9.1",
     "hardhat-gas-reporter": "^1.0.4",
+    "hardhat-ignore-warnings": "^0.2.0",
     "keccak256": "^1.0.2",
     "lodash.startcase": "^4.4.0",
     "lodash.zip": "^4.2.0",
