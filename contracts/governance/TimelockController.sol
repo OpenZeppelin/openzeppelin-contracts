@@ -67,14 +67,15 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * proposer and the canceller role (for backward compatibility). The
      * executors receive the executor role.
      *
-     * NOTE: At construction, both the deployer and the timelock itself are
-     * administrators. This helps further configuration of the timelock by the
-     * deployer. After configuration is done, it is recommended that the
-     * deployer renounces its admin position and relies on timelocked
-     * operations to perform future maintenance.
+     * NOTE: At construction, an optional admin can be set (in addition to the
+     * timelock itself). Setting such an admin can helps further configuration
+     * of the timelock. After configuration is done, it is recommended to have
+     * this admin renounces its admin and relies on timelocked operations to
+     * perform future maintenance.
      */
     constructor(
         uint256 minDelay,
+        address admin,
         address[] memory proposers,
         address[] memory executors
     ) {
@@ -83,9 +84,13 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE);
 
-        // deployer + self administration
-        _setupRole(TIMELOCK_ADMIN_ROLE, _msgSender());
+        // self administration
         _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
+
+        // optional admin
+        if (admin != address(0)) {
+            _setupRole(TIMELOCK_ADMIN_ROLE, admin);
+        }
 
         // register proposers and cancellers
         for (uint256 i = 0; i < proposers.length; ++i) {
