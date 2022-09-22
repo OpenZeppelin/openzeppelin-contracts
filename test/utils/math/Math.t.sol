@@ -8,6 +8,21 @@ import "../../../contracts/utils/math/Math.sol";
 import "../../../contracts/utils/math/SafeMath.sol";
 
 contract MathTest is Test {
+    // CEILDIV
+    function testCeilDiv(uint256 a, uint256 b) public {
+        vm.assume(b > 0);
+
+        uint256 r = Math.ceilDiv(a, b);
+
+        if (r == 0) {
+            assertEq(a, 0);
+        } else {
+            bool overflow = UINT256_MAX - (UINT256_MAX % b) < a;
+            assertTrue(a > b * (r-1));
+            assertTrue(overflow || a <= b * r);
+        }
+    }
+
     // SQRT
     function testSqrt(uint256 input, uint8 r) public {
         Math.Rounding rounding = _asRounding(r);
@@ -126,8 +141,8 @@ contract MathTest is Test {
             assertEq(q, 0);
         } else {
             uint256 r = _mulmod(x, y, d);
-            assertEq(_mulmod(q, d, x), _ceildiv(r, x) * x - r);
-            assertEq(_mulmod(q, d, y), _ceildiv(r, y) * y - r);
+            assertEq(_mulmod(q, d, x), Math.ceilDiv(r, x) * x - r);
+            assertEq(_mulmod(q, d, y), Math.ceilDiv(r, y) * y - r);
         }
     }
 
@@ -170,9 +185,5 @@ contract MathTest is Test {
         assembly {
             r := mulmod(a, b, c)
         }
-    }
-
-    function _ceildiv(uint256 a, uint256 b) private pure returns (uint256) {
-        return a / b + ((a / b) * b == a ? 0 : 1);
     }
 }
