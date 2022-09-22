@@ -12,15 +12,15 @@ contract MathTest is Test {
     function testCeilDiv(uint256 a, uint256 b) public {
         vm.assume(b > 0);
 
-        uint256 r = Math.ceilDiv(a, b);
+        uint256 result = Math.ceilDiv(a, b);
 
-        if (r == 0) {
+        if (result == 0) {
             assertEq(a, 0);
         } else {
             uint256 maxdiv = UINT256_MAX / b;
             bool overflow = maxdiv * b < a;
-            assertTrue(a > b * (r - 1));
-            assertTrue(overflow ? r == maxdiv + 1 : a <= b * r);
+            assertTrue(a > b * (result - 1));
+            assertTrue(overflow ? result == maxdiv + 1 : a <= b * result);
         }
     }
 
