@@ -67,10 +67,10 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * proposer and the canceller role (for backward compatibility). The
      * executors receive the executor role.
      *
-     * NOTE: At construction, an optional admin can be set (in addition to the
+     * CAUTION: At construction, an optional admin can be set (in addition to the
      * timelock itself). Setting such an admin can help further configuration
-     * of the timelock. After configuration is done, it is recommended to have
-     * this admin renounces its role and to rely on timelocked operations to
+     * of the timelock. After configuration is done, this admin should
+     * renounce its role, and only timelocked operations should be used to
      * perform future maintenance.
      */
     constructor(
