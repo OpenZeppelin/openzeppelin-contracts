@@ -1,11 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-make -C certora munged
-
-
+set -euxo pipefail
 
 for contract in certora/harnesses/Wizard*.sol;
 do
+    # NOTE: some spec wile are not governor related, and should be run on Wizard*.sol
     for spec in certora/specs/*.spec;
     do
         contractFile=$(basename $contract)
@@ -15,24 +14,24 @@ do
             echo "Processing ${contractFile%.*} with $specFile"
             if [[ "${contractFile%.*}" = *"WizardControl"* ]];
             then
-                certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
-                --link ${contractFile%.*}:token=ERC20VotesHarness \
-                --verify ${contractFile%.*}:certora/specs/$specFile "$@" \
-                --solc solc \
-                --staging shelly/forSasha \
-                --disableLocalTypeChecking \
-                --optimistic_loop \
-                --settings -copyLoopUnroll=4 \
-                --msg "checking $specFile on ${contractFile%.*}"
+                certoraRun \
+                    certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
+                    --link ${contractFile%.*}:token=ERC20VotesHarness \
+                    --verify ${contractFile%.*}:certora/specs/$specFile "$@" \
+                    --solc solc \
+                    --optimistic_loop \
+                    --disableLocalTypeChecking \
+                    --settings -copyLoopUnroll=4 \
+                    --msg "checking $specFile on ${contractFile%.*}"
             else
-                certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
-                --verify ${contractFile%.*}:certora/specs/$specFile "$@" \
-                --solc solc \
-                --staging shelly/forSasha \
-                --disableLocalTypeChecking \
-                --optimistic_loop \
-                --settings -copyLoopUnroll=4 \
-                --msg "checking $specFile on ${contractFile%.*}"
+                certoraRun \
+                    certora/harnesses/ERC20VotesHarness.sol certora/harnesses/$contractFile \
+                    --verify ${contractFile%.*}:certora/specs/$specFile "$@" \
+                    --solc solc \
+                    --optimistic_loop \
+                    --disableLocalTypeChecking \
+                    --settings -copyLoopUnroll=4 \
+                    --msg "checking $specFile on ${contractFile%.*}"
             fi
         fi
     done

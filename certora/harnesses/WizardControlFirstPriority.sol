@@ -9,7 +9,7 @@ import "../munged/governance/extensions/GovernorTimelockControl.sol";
 import "../munged/governance/extensions/GovernorProposalThreshold.sol";
 import "../munged/token/ERC20/extensions/ERC20Votes.sol";
 
-/* 
+/*
 Wizard options:
 ProposalThreshhold = 10
 ERC20Votes
@@ -106,7 +106,7 @@ contract WizardControlFirstPriority is
     function getVotes(address account, uint256 blockNumber)
         public
         view
-        override(IGovernor, GovernorVotes)
+        override(IGovernor, Governor)
         returns (uint256)
     {
         return super.getVotes(account, blockNumber);

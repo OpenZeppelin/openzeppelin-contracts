@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+set -euxo pipefail
+
 certoraRun \
     certora/harnesses/ERC721VotesHarness.sol certora/munged/governance/TimelockController.sol certora/harnesses/GovernorPreventLateQuorumHarness.sol \
     --verify GovernorPreventLateQuorumHarness:certora/specs/GovernorPreventLateQuorum.spec \

@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-make -C certora munged
+set -euxo pipefail
 
 for f in certora/harnesses/ERC20{Votes,Permit,Wrapper}Harness.sol
 do
@@ -9,8 +9,8 @@ do
     echo ${file%.*}
     certoraRun certora/harnesses/$file \
         --verify ${file%.*}:certora/specs/sanity.spec "$@" \
-        --solc solc --staging \
+        --solc solc \
         --optimistic_loop \
-        --msg "checking sanity on ${file%.*}" \
-        --settings -copyLoopUnroll=4,-strictDecompiler=false
+        --settings -copyLoopUnroll=4,-strictDecompiler=false \
+        --msg "checking sanity on ${file%.*}"
 done

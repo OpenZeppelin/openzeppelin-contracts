@@ -6,7 +6,6 @@ How it works:
     - If all execution paths are reverting, we never call the assertion, and the method will pass this rule vacuously.
 */
 
-
 rule sanity(method f) {
     env e;
     calldataarg arg;

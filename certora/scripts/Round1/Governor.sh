@@ -1,10 +1,12 @@
-make -C certora munged
+#!/usr/bin/env bash
 
-certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/GovernorHarness.sol \
-    --verify GovernorHarness:certora/specs/GovernorBase.spec \
+set -euxo pipefail
+
+# Changed: GovernorHarness → GovernorPreventLateQuorumHarness
+certoraRun \
+    certora/harnesses/ERC20VotesHarness.sol certora/harnesses/GovernorPreventLateQuorumHarness.sol \
+    --verify GovernorPreventLateQuorumHarness:certora/specs/GovernorBase.spec \
     --solc solc \
-    --staging shelly/forSasha \
     --optimistic_loop \
     --settings -copyLoopUnroll=4 \
-    --rule voteStartBeforeVoteEnd \
-    --msg "$1"
+    --rule voteStartBeforeVoteEnd

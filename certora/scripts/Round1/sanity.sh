@@ -1,16 +1,19 @@
-# make -C certora munged
+#!/usr/bin/env bash
+
+set -euxo pipefail
 
 # for f in certora/harnesses/Wizard*.sol
 # do
 #     echo "Processing $f"
 #     file=$(basename $f)
 #     echo ${file%.*}
-#     certoraRun certora/harnesses/$file \
-#     --verify ${file%.*}:certora/specs/sanity.spec "$@" \
-#     --solc solc --staging shelly/forSasha \
-#     --optimistic_loop \
-#     --msg "checking sanity on ${file%.*}"
-#     --settings -copyLoopUnroll=4
+#     certoraRun \
+#         certora/harnesses/$file \
+#         --verify ${file%.*}:certora/specs/sanity.spec "$@" \
+#         --solc solc \
+#         --optimistic_loop \
+#         --settings -copyLoopUnroll=4 \
+#         --msg "checking sanity on ${file%.*}"
 # done
 
 # TimelockController
@@ -19,9 +22,7 @@ certoraRun \
     --verify TimelockControllerHarness:certora/specs/sanity.spec \
     --solc solc \
     --optimistic_loop \
-    --cloud \
     --msg "sanity and keccak check"
-
 
 # Votes
 # certoraRun \
@@ -29,6 +30,5 @@ certoraRun \
 #     --verify VotesHarness:certora/specs/sanity.spec \
 #     --solc solc \
 #     --optimistic_loop \
-#     --cloud \
 #     --settings -strictDecompiler=false,-assumeUnwindCond \
 #     --msg "sanityVotes"

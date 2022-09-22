@@ -10,12 +10,6 @@ diff -ruN access/AccessControl.sol access/AccessControl.sol
          _checkRole(role, _msgSender());
      }
 
-diff -ruN .gitignore .gitignore
---- .gitignore	1970-01-01 01:00:00.000000000 +0100
-+++ .gitignore	2022-09-20 14:34:08.626268788 +0200
-@@ -0,0 +1,2 @@
-+*
-+!.gitignore
 diff -ruN governance/extensions/GovernorCountingSimple.sol governance/extensions/GovernorCountingSimple.sol
 --- governance/extensions/GovernorCountingSimple.sol	2022-09-20 11:01:10.432848512 +0200
 +++ governance/extensions/GovernorCountingSimple.sol	2022-09-20 14:34:08.632935582 +0200

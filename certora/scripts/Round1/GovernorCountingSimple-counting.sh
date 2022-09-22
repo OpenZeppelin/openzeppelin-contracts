@@ -1,8 +1,11 @@
-make -C certora munged
+#!/usr/bin/env bash
 
-certoraRun  certora/harnesses/ERC20VotesHarness.sol certora/harnesses/GovernorBasicHarness.sol \
-    --verify GovernorBasicHarness:certora/specs/GovernorCountingSimple.spec \
+set -euxo pipefail
+
+# Changed: GovernorBasicHarness → GovernorPreventLateQuorumHarness
+certoraRun \
+    certora/harnesses/ERC20VotesHarness.sol certora/harnesses/GovernorPreventLateQuorumHarness.sol \
+    --verify GovernorPreventLateQuorumHarness:certora/specs/GovernorCountingSimple.spec \
     --solc solc \
     --optimistic_loop \
-    --settings -copyLoopUnroll=4 \
-    --msg "$1"
+    --settings -copyLoopUnroll=4
