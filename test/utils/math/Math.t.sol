@@ -165,10 +165,8 @@ contract MathTest is Test {
 
         // we are outside the scope of {testMulDiv}, we expect muldiv to revert
         try this.muldiv(x, y, d) returns (uint256) {
-            assertTrue(false);
-        } catch {
-            assertTrue(true);
-        }
+            fail();
+        } catch {}
     }
 
     // External call
