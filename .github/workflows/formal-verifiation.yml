@@ -42,6 +42,7 @@ jobs:
           sudo mv solc-static-linux /usr/local/bin/solc
           chmod +x /usr/local/bin/solc
       - name: Verify rule ${{ matrix.params }}
+        if: ${{ !contains(matrix.params, 'noCI') }}
         run: |
           touch certora/applyHarness.patch
           make -C certora munged
