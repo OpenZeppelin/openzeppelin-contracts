@@ -1,10 +1,11 @@
-make -C certora munged
+#!/usr/bin/env bash
 
-certoraRun certora/harnesses/ERC20VotesHarness.sol certora/harnesses/WizardFirstTry.sol \
+set -euxo pipefail
+
+certoraRun \
+    certora/harnesses/ERC20VotesHarness.sol certora/harnesses/WizardFirstTry.sol \
     --verify WizardFirstTry:certora/specs/GovernorBase.spec \
     --solc solc \
-    --staging shelly/forSasha \
     --optimistic_loop \
     --disableLocalTypeChecking \
-    --settings -copyLoopUnroll=4 \
-    --msg "$1"
+    --settings -copyLoopUnroll=4
