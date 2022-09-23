@@ -46,7 +46,7 @@ jobs:
         run: |
           touch certora/applyHarness.patch
           make -C certora munged
-          sh ${{ matrix.params }}
+          bash ${{ matrix.params }}
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
     strategy:
