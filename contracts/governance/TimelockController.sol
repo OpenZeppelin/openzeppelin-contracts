@@ -62,16 +62,17 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     event MinDelayChange(uint256 oldDuration, uint256 newDuration);
 
     /**
-     * @dev Initializes the contract with a given `minDelay`, and a list of
-     * initial proposers and executors. The proposers receive both the
-     * proposer and the canceller role (for backward compatibility). The
-     * executors receive the executor role.
+     * @dev Initializes the contract with the following parameters:
      *
-     * CAUTION: At construction, an optional admin can be set (in addition to the
-     * timelock itself). Setting such an admin can help further configuration
-     * of the timelock. After configuration is done, this admin should
-     * renounce its role, and only timelocked operations should be used to
-     * perform future maintenance.
+     * - `minDelay`: initial minimum delay for operations
+     * - `proposers`: accounts to be granted proposer and canceller roles
+     * - `executors`: accounts to be granted executor role
+     * - `admin`: optional account to be granted admin role; disable with zero address
+     *
+     * IMPORTANT: The optional admin can aid with initial configuration of roles after deployment
+     * without being subject to delay, but this role should be subsequently renounced in favor of
+     * administration through timelocked proposals. Previous versions of this contract would assign
+     * this admin to the deployer automatically and should be renounced as well.
      */
     constructor(
         uint256 minDelay,
