@@ -133,18 +133,25 @@ contract MathTest is Test {
         uint256 d
     ) public {
         vm.assume(d != 0);
+
+        // This catching all overflow
         vm.assume(y == 0 || x / d <= UINT256_MAX / y);
         vm.assume(x == 0 || y / d <= UINT256_MAX / x);
 
         uint256 q = Math.mulDiv(x, y, d);
 
-        if (x == 0 || y == 0) {
-            assertEq(q, 0);
-        } else {
-            uint256 r = _mulmod(x, y, d);
-            assertEq(_mulmod(q, d, x), Math.ceilDiv(r, x) * x - r);
-            assertEq(_mulmod(q, d, y), Math.ceilDiv(r, y) * y - r);
-        }
+        // Full precision for q * d
+        (uint256 qdHi, uint256 qdLo) = _mulHighLow(q, d);
+        // Add reminder of x * y / d (computed as rem = (x * y % d))
+        (uint256 qdRemLo, uint256 c) = _addCarry(qdLo, _mulmod(x, y, d));
+        uint256 qdRemHi = qdHi + c;
+
+        // Full precision for x * y
+        (uint256 xyHi, uint256 xyLo) = _mulHighLow(x, y);
+
+        // Full precision check that x * y = q * d + rem
+        assertEq(xyHi, qdRemHi);
+        assertEq(xyLo, qdRemLo);
     }
 
     function testMulDivDomain(
@@ -186,5 +193,33 @@ contract MathTest is Test {
         assembly {
             r := mulmod(a, b, c)
         }
+    }
+
+    // https://stackoverflow.com/a/28904636/667959
+    function _mulHighLow(uint256 a, uint256 b) private pure returns (uint256 high, uint256 low) {
+        uint256 aLo = uint128(a);
+        uint256 aHi = a >> 128;
+        uint256 bLo = uint128(b);
+        uint256 bHi = b >> 128;
+
+        uint256 abHi = aHi * bHi;
+        uint256 abMid = aHi * bLo;
+        uint256 baMid = bHi * aLo;
+        uint256 abLo = aLo * bLo;
+
+        uint256 carry = (uint256(uint128(abMid)) + uint256(uint128(baMid)) + (abLo >> 128)) >> 128;
+
+        high = abHi + (abMid >> 128) + (baMid >> 128) + carry;
+
+        unchecked {
+            low = a * b;
+        }
+    }
+
+    function _addCarry(uint256 a, uint256 b) private pure returns (uint256 res, uint256 carry) {
+        unchecked {
+            res = a + b;
+        }
+        carry = res < a ? 1 : 0;
     }
 }
