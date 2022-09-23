@@ -134,10 +134,13 @@ contract MathTest is Test {
     ) public {
         vm.assume(d != 0);
 
-        // This catching all overflow
-        vm.assume(y == 0 || x / d <= UINT256_MAX / y);
-        vm.assume(x == 0 || y / d <= UINT256_MAX / x);
+        // Full precision for x * y
+        (uint256 xyHi, uint256 xyLo) = _mulHighLow(x, y);
 
+        // This catching all overflow
+        vm.assume(xyHi < d);
+
+        // Perform muldiv
         uint256 q = Math.mulDiv(x, y, d);
 
         // Full precision for q * d
@@ -145,9 +148,6 @@ contract MathTest is Test {
         // Add reminder of x * y / d (computed as rem = (x * y % d))
         (uint256 qdRemLo, uint256 c) = _addCarry(qdLo, _mulmod(x, y, d));
         uint256 qdRemHi = qdHi + c;
-
-        // Full precision for x * y
-        (uint256 xyHi, uint256 xyLo) = _mulHighLow(x, y);
 
         // Full precision check that x * y = q * d + rem
         assertEq(xyHi, qdRemHi);
@@ -159,8 +159,10 @@ contract MathTest is Test {
         uint256 y,
         uint256 d
     ) public {
+        (uint256 xyHi,) = _mulHighLow(x, y);
+
         // violate one of the {testMulDiv} assumptions
-        vm.assume(d == 0 || (y > 0 && x / d > UINT256_MAX / y) || (x > 0 && y / d > UINT256_MAX / x));
+        vm.assume(d == 0 || xyHi >= d);
 
         // we are outside the scope of {testMulDiv}, we expect muldiv to revert
         try this.muldiv(x, y, d) returns (uint256) {
