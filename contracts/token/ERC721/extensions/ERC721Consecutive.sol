@@ -35,6 +35,18 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     BitMaps.BitMap private _sequentialBurn;
 
     /**
+     * @dev Maximum size of a batch of consecutive tokens. This is designed to limit stress on off-chain indexing
+     * services that have to record one entry per token, and have protections against "unreasonably large" batches of
+     * tokens.
+     *
+     * NOTE: Overriding the default value of 5000 will not cause on-chain issues, but may result in the asset not being
+     * correctly supported by off-chain indexing services (including marketplaces).
+     */
+    function _maxBatchSize() internal view virtual returns (uint96) {
+        return 5000;
+    }
+
+    /**
      * @dev See {ERC721-_ownerOf}. Override that checks the sequential ownership structure for tokens that have
      * been minted as part of a batch, and not yet transferred.
      */
@@ -69,7 +81,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         if (batchSize > 0) {
             require(!Address.isContract(address(this)), "ERC721Consecutive: batch minting restricted to constructor");
             require(to != address(0), "ERC721Consecutive: mint to the zero address");
-            require(batchSize <= 5000, "ERC721Consecutive: batch too large");
+            require(batchSize <= _maxBatchSize(), "ERC721Consecutive: batch too large");
 
             // hook before
             _beforeConsecutiveTokenTransfer(address(0), to, first, batchSize);
