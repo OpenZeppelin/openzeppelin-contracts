@@ -196,7 +196,6 @@ contract MathTest is Test {
         }
     }
 
-    // https://stackoverflow.com/a/28904636/667959
     function _mulHighLow(uint256 x, uint256 y) private pure returns (uint256 high, uint256 low) {
         (uint256 x0, uint256 x1) = (x & type(uint128).max, x >> 128);
         (uint256 y0, uint256 y1) = (y & type(uint128).max, y >> 128);
