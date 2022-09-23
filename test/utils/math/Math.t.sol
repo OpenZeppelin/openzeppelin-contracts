@@ -208,7 +208,7 @@ contract MathTest is Test {
         uint256 z1b = x0 * y1;
         uint256 z0 = x0 * y0;
 
-        uint256 carry = (uint256(uint128(z1a)) + uint256(uint128(z1b)) + (z0 >> 128)) >> 128;
+        uint256 carry = ((z1a & type(uint128).max) + (z1b & type(uint128).max) + (z0 >> 128)) >> 128;
 
         high = z2 + (z1a >> 128) + (z1b >> 128) + carry;
 
