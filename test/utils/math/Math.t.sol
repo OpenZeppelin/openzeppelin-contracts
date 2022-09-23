@@ -132,12 +132,11 @@ contract MathTest is Test {
         uint256 y,
         uint256 d
     ) public {
-        vm.assume(d != 0);
-
         // Full precision for x * y
         (uint256 xyHi, uint256 xyLo) = _mulHighLow(x, y);
 
-        // This catching all overflow
+        // Assume result won't overflow (see {testMulDivDomain})
+        // This also checks that `d` is positive
         vm.assume(xyHi < d);
 
         // Perform muldiv
@@ -159,10 +158,10 @@ contract MathTest is Test {
         uint256 y,
         uint256 d
     ) public {
-        (uint256 xyHi,) = _mulHighLow(x, y);
+        (uint256 xyHi, ) = _mulHighLow(x, y);
 
-        // violate one of the {testMulDiv} assumptions
-        vm.assume(d == 0 || xyHi >= d);
+        // Violate {testMulDiv} assumption (covers d is 0 and result overflow)
+        vm.assume(xyHi >= d);
 
         // we are outside the scope of {testMulDiv}, we expect muldiv to revert
         try this.muldiv(x, y, d) returns (uint256) {
@@ -188,40 +187,40 @@ contract MathTest is Test {
     }
 
     function _mulmod(
-        uint256 a,
-        uint256 b,
-        uint256 c
+        uint256 x,
+        uint256 y,
+        uint256 z
     ) private pure returns (uint256 r) {
         assembly {
-            r := mulmod(a, b, c)
+            r := mulmod(x, y, z)
         }
     }
 
     // https://stackoverflow.com/a/28904636/667959
-    function _mulHighLow(uint256 a, uint256 b) private pure returns (uint256 high, uint256 low) {
-        uint256 aLo = uint128(a);
-        uint256 aHi = a >> 128;
-        uint256 bLo = uint128(b);
-        uint256 bHi = b >> 128;
+    function _mulHighLow(uint256 x, uint256 y) private pure returns (uint256 high, uint256 low) {
+        (uint256 x0, uint256 x1) = (x & type(uint128).max, x >> 128);
+        (uint256 y0, uint256 y1) = (y & type(uint128).max, y >> 128);
 
-        uint256 abHi = aHi * bHi;
-        uint256 abMid = aHi * bLo;
-        uint256 baMid = bHi * aLo;
-        uint256 abLo = aLo * bLo;
+        // Karatsuba algorithm
+        // https://en.wikipedia.org/wiki/Karatsuba_algorithm
+        uint256 z2 = x1 * y1;
+        uint256 z1a = x1 * y0;
+        uint256 z1b = x0 * y1;
+        uint256 z0 = x0 * y0;
 
-        uint256 carry = (uint256(uint128(abMid)) + uint256(uint128(baMid)) + (abLo >> 128)) >> 128;
+        uint256 carry = (uint256(uint128(z1a)) + uint256(uint128(z1b)) + (z0 >> 128)) >> 128;
 
-        high = abHi + (abMid >> 128) + (baMid >> 128) + carry;
+        high = z2 + (z1a >> 128) + (z1b >> 128) + carry;
 
         unchecked {
-            low = a * b;
+            low = x * y;
         }
     }
 
-    function _addCarry(uint256 a, uint256 b) private pure returns (uint256 res, uint256 carry) {
+    function _addCarry(uint256 x, uint256 y) private pure returns (uint256 res, uint256 carry) {
         unchecked {
-            res = a + b;
+            res = x + y;
         }
-        carry = res < a ? 1 : 0;
+        carry = res < x ? 1 : 0;
     }
 }
