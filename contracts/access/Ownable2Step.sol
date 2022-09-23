@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0-rc.0) (access/Ownable2Step.sol)
+// OpenZeppelin Contracts (last updated v4.8.0-rc.1) (access/Ownable2Step.sol)
 
 pragma solidity ^0.8.0;
 
