@@ -68,10 +68,9 @@ abstract contract ReentrancyGuard {
     }
 
     /**
-     * only allow a function to be called when _ENTERED, this is useful for callbacks
+     * expose _status as internal function, the caller decides what to do with it
      */
-    modifier entered() {
-        require(_status == _ENTERED);
-        _;
+    function _status() internal returns (uint256) {
+        return _status;
     }
 }
