@@ -70,7 +70,7 @@ abstract contract ReentrancyGuard {
     /**
      * expose _status as internal function, the caller decides what to do with it
      */
-    function _status() internal returns (uint256) {
+    function _guardStatus() internal view returns (uint256) {
         return _status;
     }
 }
