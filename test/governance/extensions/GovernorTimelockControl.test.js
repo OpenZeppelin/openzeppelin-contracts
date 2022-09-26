@@ -1,4 +1,4 @@
-const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
@@ -24,10 +24,10 @@ contract('GovernorTimelockControl', function (accounts) {
   // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
-  const tokenSupply = web3.utils.toBN(web3.utils.toWei('100'));
-  const votingDelay = web3.utils.toBN(4);
-  const votingPeriod = web3.utils.toBN(16);
-  const value = web3.utils.toBN(web3.utils.toWei('1'));
+  const tokenSupply = web3.utils.toWei('100');
+  const votingDelay = new BN(4);
+  const votingPeriod = new BN(16);
+  const value = web3.utils.toWei('1');
 
   beforeEach(async function () {
     const [ deployer ] = await web3.eth.getAccounts();
