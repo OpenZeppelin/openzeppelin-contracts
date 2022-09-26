@@ -4,7 +4,6 @@
 pragma solidity ^0.8.0;
 
 import "./ECDSA.sol";
-import "../Address.sol";
 import "../../interfaces/IERC1271.sol";
 
 /**
