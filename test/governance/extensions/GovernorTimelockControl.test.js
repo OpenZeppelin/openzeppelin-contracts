@@ -304,7 +304,7 @@ contract('GovernorTimelockControl', function (accounts) {
             data: this.mock.contract.methods.relay(
               other,
               g2o,
-              "0x",
+              '0x',
             ).encodeABI(),
           },
         ], '<proposal description>');
