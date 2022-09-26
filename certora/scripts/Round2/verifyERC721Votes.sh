@@ -9,4 +9,5 @@ certoraRun \
     --optimistic_loop \
     --disableLocalTypeChecking \
     --settings -copyLoopUnroll=4 \
-    --msg "ERC721Votes"
+    --msg "ERC721Votes" \
+    $@

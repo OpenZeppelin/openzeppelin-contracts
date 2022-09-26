@@ -10,4 +10,5 @@ certoraRun \
     --verify ERC20FlashMintHarness:certora/specs/ERC20FlashMint.spec \
     --solc solc \
     --optimistic_loop \
-    --msg "ERC20FlashMint verification"
+    --msg "ERC20FlashMint verification" \
+    $@

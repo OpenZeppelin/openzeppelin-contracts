@@ -278,18 +278,6 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
          if (to.isContract()) {
              try IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, amounts, data) returns (
                  bytes4 response
-diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
---- token/ERC20/ERC20.sol	2022-09-20 13:34:47.024598756 +0200
-+++ token/ERC20/ERC20.sol	2022-09-20 14:34:24.809915708 +0200
-@@ -282,7 +282,7 @@
-      * - `account` cannot be the zero address.
-      * - `account` must have at least `amount` tokens.
-      */
--    function _burn(address account, uint256 amount) internal virtual {
-+    function _burn(address account, uint256 amount) public virtual {          // HARNESS: internal -> public
-         require(account != address(0), "ERC20: burn from the zero address");
-
-         _beforeTokenTransfer(account, address(0), amount);
 diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20FlashMint.sol
 --- token/ERC20/extensions/ERC20FlashMint.sol	2022-09-20 11:01:10.432848512 +0200
 +++ token/ERC20/extensions/ERC20FlashMint.sol	2022-09-20 14:34:24.809915708 +0200

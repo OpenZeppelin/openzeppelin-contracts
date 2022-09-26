@@ -9,4 +9,5 @@ certoraRun \
     --optimistic_loop \
     --loop_iter 3 \
     --settings -byteMapHashingPrecision=32 \
-    --msg "TimelockController verification"
+    --msg "TimelockController verification" \
+    $@

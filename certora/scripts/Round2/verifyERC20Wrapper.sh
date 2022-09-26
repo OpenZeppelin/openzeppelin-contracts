@@ -7,4 +7,5 @@ certoraRun \
     --verify ERC20WrapperHarness:certora/specs/ERC20Wrapper.spec \
     --solc solc \
     --optimistic_loop \
-    --msg "ERC20Wrapper verification"
+    --msg "ERC20Wrapper verification" \
+    $@
