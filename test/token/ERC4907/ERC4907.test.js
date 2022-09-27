@@ -1,31 +1,17 @@
-const { expect } = require('chai');
+const {
+    shouldBehaveLikeERC4907
+} = require('./ERC4907.behavior');
 
-contract('ERC777', function (accounts) {
-    const [alice, bob, carl, ...otherAccounts] = accounts;
-    let contract;
+const ERC4907Mock = artifacts.require('ERC4907Mock');
 
+contract('ERC4907', function (accounts) {
+    const name = 'Non Fungible Token 4907';
+    const symbol = 'NFT4907';
+  
     beforeEach(async function () {
-        const ERC4907Mock = artifacts.require('ERC4907Mock');
-        contract = await ERC4907Mock.new("4907", "4907");
+      this.token = await ERC4907Mock.new(name, symbol);
     });
+  
+    shouldBehaveLikeERC4907('ERC4907', ...accounts);
+  });
 
-    describe("setUser", function () {
-        it("Should set user to bob", async function () {
-            await contract.mint(1, alice);
-            let expires = Math.floor(new Date().getTime() / 1000) + 1000;
-            await contract.setUser(1, bob, BigInt(expires),{ from: alice });
-            expect(await contract.userOf(1)).equals(bob);
-            expect(await contract.ownerOf(1)).equals(alice);
-        });
-
-        it("Should set user to carl", async function () {
-            await contract.mint(1, alice);
-            let expires = Math.floor(new Date().getTime() / 1000) + 1000;
-            await contract.setUser(1, bob, BigInt(expires),{ from: alice });
-            await contract.setUser(1, carl, BigInt(expires),{ from: alice });
-            expect(await contract.userOf(1)).equals(carl);
-            expect(await contract.ownerOf(1)).equals(alice);
-        });
-
-    });
-});

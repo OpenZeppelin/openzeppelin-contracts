@@ -99,6 +99,11 @@ const INTERFACES = {
   ERC2981: [
     'royaltyInfo(uint256,uint256)',
   ],
+  ERC4907: [
+    'setUser(uint256,address,uint64)',
+    'userOf(uint256)',
+    'userExpires(uint256)',
+  ],
 };
 
 const INTERFACE_IDS = {};
