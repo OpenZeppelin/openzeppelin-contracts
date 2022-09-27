@@ -62,8 +62,8 @@ ghost doubleFromBlock(address) returns bool {
 hook Sstore _checkpoints[KEY address account].fromBlock uint32 newBlock (uint32 oldBlock) STORAGE {
     havoc lastFromBlock assuming
         lastFromBlock@new(account) == newBlock;
-    
-    havoc doubleFromBlock assuming 
+
+    havoc doubleFromBlock assuming
         doubleFromBlock@new(account) == (newBlock == lastFromBlock(account));
 }
 
@@ -94,7 +94,7 @@ invariant fromBlock_constrains_numBlocks(address account)
 
 // for any given checkpoint, the fromBlock must be greater than the checkpoint
 // this proves the above invariant in combination with the below invariant
-// if checkpoint has a greater fromBlock than the last, and the FromBlock is always greater than the pos. 
+// if checkpoint has a greater fromBlock than the last, and the FromBlock is always greater than the pos.
 // Then the number of positions must be less than the currentFromBlock
 // ^note that the tool is assuming it's possible for the starting fromBlock to be 0 or anything, and does not know the current starting block
 // passes + rule sanity
@@ -116,14 +116,14 @@ invariant fromBlock_increasing(address account, uint32 pos, uint32 pos2)
 rule unique_checkpoints_rule(method f) {
     env e; calldataarg args;
     address account;
-    uint32 num_ckpts_ = numCheckpoints(account); 
+    uint32 num_ckpts_ = numCheckpoints(account);
     uint32 fromBlock_ = num_ckpts_ == 0 ? 0 : ckptFromBlock(account, num_ckpts_ - 1);
 
     f(e, args);
 
     uint32 _num_ckpts = numCheckpoints(account);
     uint32 _fromBlock = _num_ckpts == 0 ? 0 : ckptFromBlock(account, _num_ckpts - 1);
-    
+
 
     assert fromBlock_ == _fromBlock => num_ckpts_ == _num_ckpts || _num_ckpts == 1, "same fromBlock, new checkpoint";
     // this assert fails consistently
@@ -149,7 +149,7 @@ rule transfer_safe() {
     mathint totalVotes_pre = totalVotes();
 
     transferFrom(e, a, b, ID);
-    
+
     mathint totalVotes_post = totalVotes();
     uint256 votesA_post = getVotes(delegates(a));
     uint256 votesB_post = getVotes(delegates(b));
@@ -180,7 +180,7 @@ rule delegates_safe(method f) filtered {f -> (f.selector != delegate(address).se
 // delegates increases the delegatee's votes by the proper amount
 // passes + rule sanity
 rule delegatee_receives_votes() {
-    env e; 
+    env e;
     address delegator; address delegatee;
 
     require numCheckpoints(delegatee) < 1000000;
@@ -222,7 +222,7 @@ rule delegate_contained() {
     address delegator; address delegatee; address other;
 
     require other != delegatee;
-    require other != delegates(delegator); 
+    require other != delegates(delegator);
 
     uint256 votes_ = getVotes(other);
 
