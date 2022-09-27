@@ -37,6 +37,44 @@ library Counters {
         }
     }
 
+    /**
+     * @dev Returns the current value and increments the value in the storage.
+     */
+    function getAndIncrement(Counter storage counter) internal returns (uint256 counter_) {
+        unchecked {
+            counter_ = counter._value++;
+        }
+    }
+
+    /**
+     * @dev Increments the value in the storage and returns the new value.
+     */
+    function incrementAndGet(Counter storage counter) internal returns (uint256 counter_) {
+        unchecked {
+            counter_ = ++counter._value;
+        }
+    }
+
+    /**
+     * @dev Returns the current value and decrements the value in the storage.
+     */
+    function getAndDecrement(Counter storage counter) internal returns (uint256 counter_) {
+        require(counter._value > 0, "Counter: decrement overflow");
+        unchecked {
+            counter_ = counter._value--;
+        }
+    }
+
+    /**
+     * @dev Decrements the value in the storage and returns the new value.
+     */
+    function decrementAndGet(Counter storage counter) internal returns (uint256 counter_) {
+        require(counter._value > 0, "Counter: decrement overflow");
+        unchecked {
+            counter_ = --counter._value;
+        }
+    }
+
     function reset(Counter storage counter) internal {
         counter._value = 0;
     }

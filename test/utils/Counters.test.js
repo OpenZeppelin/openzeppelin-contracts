@@ -11,6 +11,7 @@ contract('Counters', function (accounts) {
 
   it('starts at zero', async function () {
     expect(await this.counter.current()).to.be.bignumber.equal('0');
+    expect(await this.counter.helper()).to.be.bignumber.equal('0');
   });
 
   describe('increment', function () {
@@ -58,6 +59,115 @@ contract('Counters', function (accounts) {
         await this.counter.decrement();
 
         expect(await this.counter.current()).to.be.bignumber.equal('0');
+      });
+    });
+  });
+
+  describe('getAndIncrement', function () {
+    context('starting from 0 and can be called multiple times', function () {
+      it('assign the current value to the variable `helper` and increments by one', async function () {
+        await this.counter.getAndIncrement();
+        expect(await this.counter.current()).to.be.bignumber.equal('1');
+        expect(await this.counter.helper()).to.be.bignumber.equal('0');
+
+        await this.counter.getAndIncrement();
+        expect(await this.counter.current()).to.be.bignumber.equal('2');
+        expect(await this.counter.helper()).to.be.bignumber.equal('1');
+
+        await this.counter.getAndIncrement();
+        expect(await this.counter.current()).to.be.bignumber.equal('3');
+        expect(await this.counter.helper()).to.be.bignumber.equal('2');
+      });
+    });
+  });
+
+  describe('incrementAndGet', function () {
+    context('starting from 0', function () {
+      it('increments by one the current value and assign to the variable `helper`', async function () {
+        await this.counter.incrementAndGet();
+        expect(await this.counter.current()).to.be.bignumber.equal('1');
+        expect(await this.counter.helper()).to.be.bignumber.equal('1');
+      });
+
+      it('can be called multiple times', async function () {
+        await this.counter.incrementAndGet();
+        await this.counter.incrementAndGet();
+        await this.counter.incrementAndGet();
+
+        expect(await this.counter.current()).to.be.bignumber.equal('3');
+        expect(await this.counter.helper()).to.be.bignumber.equal('3');
+      });
+    });
+  });
+
+  describe('getAndDecrement', function () {
+    beforeEach(async function () {
+      await this.counter.increment();
+      expect(await this.counter.current()).to.be.bignumber.equal('1');
+      expect(await this.counter.helper()).to.be.bignumber.equal('0');
+    });
+    context('starting from 1', function () {
+      it('assign the current value to the variable `helper` and decrements by one', async function () {
+        await this.counter.getAndDecrement();
+        expect(await this.counter.current()).to.be.bignumber.equal('0');
+        expect(await this.counter.helper()).to.be.bignumber.equal('1');
+      });
+
+      it('reverts if the current value is 0', async function () {
+        await this.counter.decrement();
+        await expectRevert(this.counter.getAndDecrement(), 'Counter: decrement overflow');
+      });
+    });
+    context('after incremented to 3', function () {
+      it('can be called multiple times', async function () {
+        await this.counter.increment();
+        await this.counter.increment();
+
+        expect(await this.counter.current()).to.be.bignumber.equal('3');
+        expect(await this.counter.helper()).to.be.bignumber.equal('0');
+
+        await this.counter.getAndDecrement();
+        await this.counter.getAndDecrement();
+        await this.counter.getAndDecrement();
+
+        expect(await this.counter.current()).to.be.bignumber.equal('0');
+        expect(await this.counter.helper()).to.be.bignumber.equal('1');
+      });
+    });
+  });
+
+  describe('decrementAndGet', function () {
+    beforeEach(async function () {
+      await this.counter.incrementAndGet();
+      expect(await this.counter.current()).to.be.bignumber.equal('1');
+      expect(await this.counter.helper()).to.be.bignumber.equal('1');
+    });
+    context('starting from 1', function () {
+      it('decrements by one the current value and assign to the variable `helper`', async function () {
+        await this.counter.decrementAndGet();
+        expect(await this.counter.current()).to.be.bignumber.equal('0');
+        expect(await this.counter.helper()).to.be.bignumber.equal('0');
+      });
+
+      it('reverts if the current value is 0', async function () {
+        await this.counter.decrement();
+        await expectRevert(this.counter.decrementAndGet(), 'Counter: decrement overflow');
+      });
+    });
+    context('after incremented to 3', function () {
+      it('can be called multiple times', async function () {
+        await this.counter.incrementAndGet();
+        await this.counter.incrementAndGet();
+
+        expect(await this.counter.current()).to.be.bignumber.equal('3');
+        expect(await this.counter.helper()).to.be.bignumber.equal('3');
+
+        await this.counter.decrementAndGet();
+        await this.counter.decrementAndGet();
+        await this.counter.decrementAndGet();
+
+        expect(await this.counter.current()).to.be.bignumber.equal('0');
+        expect(await this.counter.helper()).to.be.bignumber.equal('0');
       });
     });
   });
