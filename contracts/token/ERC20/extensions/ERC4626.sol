@@ -33,10 +33,10 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
      */
     constructor(IERC20 asset_) {
-        (bool ok, bytes memory encodedDecimals) = address(asset_).call(
+        (bool success, bytes memory encodedDecimals) = address(asset_).call(
             abi.encodeWithSelector(IERC20Metadata.decimals.selector)
         );
-        _decimals = ok && encodedDecimals.length >= 32
+        _decimals = success && encodedDecimals.length >= 32
             ? uint8(abi.decode(encodedDecimals, (uint256)))
             : super.decimals();
         _asset = asset_;
