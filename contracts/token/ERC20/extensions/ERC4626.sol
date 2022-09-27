@@ -33,18 +33,19 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
      */
     constructor(IERC20 asset_) {
-        uint8 decimals_;
-        try IERC20Metadata(address(asset_)).decimals() returns (uint8 value) {
-            decimals_ = value;
-        } catch {
-            decimals_ = super.decimals();
-        }
-
+        (bool ok, bytes memory encodedDecimals) = address(asset_).call(
+            abi.encodeWithSelector(IERC20Metadata.decimals.selector)
+        );
+        _decimals = ok && encodedDecimals.length >= 32 ? abi.decode(encodedDecimals, (uint8)) : super.decimals();
         _asset = asset_;
-        _decimals = decimals_;
     }
 
-    /** @dev See {IERC20Metadata-decimals}. */
+    /**
+     * @dev Decimals are read from the underlying asset in the constructor and cached. If this fails (e.g., the asset
+     * has not been created yet), the cached value is set to a default obtained by `super.decimals()` (which depends on
+     * inheritance but is most likely 18). Override this function in order to set a guaranteed hardcoded value.
+     * See {IERC20Metadata-decimals}.
+     */
     function decimals() public view virtual override(IERC20Metadata, ERC20) returns (uint8) {
         return _decimals;
     }
