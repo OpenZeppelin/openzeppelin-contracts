@@ -11,10 +11,11 @@ import "../../../utils/structs/BitMaps.sol";
  * @dev Implementation of the ERC2309 "Consecutive Transfer Extension" as defined in
  * https://eips.ethereum.org/EIPS/eip-2309[EIP-2309].
  *
- * This extension allows the minting of large batches of tokens during the contract construction. These batches are
- * limited to 5000 tokens at a time to accommodate off-chain indexers.
+ * This extension allows the minting of large batches of tokens, during contract construction only. For upgradeable
+ * contracts this implies that batch minting is only available during proxy deployment, and not in subsequent upgrades.
+ * These batches are limited to 5000 tokens at a time by default to accommodate off-chain indexers.
  *
- * Using this extension removes the ability to mint single tokens during the contract construction. This ability is
+ * Using this extension removes the ability to mint single tokens during contract construction. This ability is
  * regained after construction. During construction, only batch minting is allowed.
  *
  * IMPORTANT: This extension bypasses the hooks {_beforeTokenTransfer} and {_afterTokenTransfer} for tokens minted in
@@ -66,11 +67,15 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     /**
      * @dev Mint a batch of tokens of length `batchSize` for `to`.
      *
-     * WARNING: Consecutive mint is only available during construction. ERC721 requires that any minting done after
-     * construction emits a `Transfer` event, which is not the case of mints performed using this function.
+     * Requirements:
      *
-     * WARNING: Consecutive mint is limited to batches of 5000 tokens. Further minting is possible from a contract's
-     * point of view but would cause indexing issues for off-chain services.
+     * - `batchSize` must not be greater than {_maxBatchSize}.
+     * - The function is called in the constructor of the contract (directly or indirectly).
+     * 
+     * CAUTION: Does not emit a `Transfer` event. This is ERC721 compliant as long as it is done outside of the
+     * constructor, which is enforced by this function.
+     *
+     * CAUTION: Does not invoke `onERC721Received` on the receiver.
      *
      * Emits a {ConsecutiveTransfer} event.
      */
