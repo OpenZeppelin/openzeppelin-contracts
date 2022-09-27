@@ -5,8 +5,8 @@ contract('ERC777', function (accounts) {
     let contract;
 
     beforeEach(async function () {
-        const ERC4907Demo = artifacts.require('ERC4907Demo');
-        contract = await ERC4907Demo.new("4907", "4907");
+        const ERC4907Mock = artifacts.require('ERC4907Mock');
+        contract = await ERC4907Mock.new("4907", "4907");
     });
 
     describe("setUser", function () {
