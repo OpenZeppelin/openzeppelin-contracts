@@ -122,7 +122,7 @@ contract('ERC721Consecutive', function (accounts) {
         expect(await this.token.ownerOf(1)).to.be.equal(receiver);
       });
 
-      it('tokens can be burned and re-minted', async function () {
+      it('tokens can be burned and re-minted #1', async function () {
         expectEvent(
           await this.token.burn(1, { from: user1 }),
           'Transfer',
@@ -138,6 +138,39 @@ contract('ERC721Consecutive', function (accounts) {
         );
 
         expect(await this.token.ownerOf(1)).to.be.equal(user2);
+      });
+
+      it('tokens can be burned and re-minted #2', async function () {
+        const tokenId = batches.reduce((acc, { amount }) => acc.addn(amount), web3.utils.toBN(0));
+
+        expect(await this.token.exists(tokenId)).to.be.equal(false);
+        await expectRevert(this.token.ownerOf(tokenId), 'ERC721: invalid token ID');
+
+        // mint
+        await this.token.mint(user1, tokenId);
+
+        expect(await this.token.exists(tokenId)).to.be.equal(true);
+        expect(await this.token.ownerOf(tokenId), user1);
+
+        // burn
+        expectEvent(
+          await this.token.burn(tokenId, { from: user1 }),
+          'Transfer',
+          { from: user1, to: constants.ZERO_ADDRESS, tokenId },
+        );
+
+        expect(await this.token.exists(tokenId)).to.be.equal(false);
+        await expectRevert(this.token.ownerOf(tokenId), 'ERC721: invalid token ID');
+
+        // re-mint
+        expectEvent(
+          await this.token.mint(user2, tokenId),
+          'Transfer',
+          { from: constants.ZERO_ADDRESS, to: user2, tokenId },
+        );
+
+        expect(await this.token.exists(tokenId)).to.be.equal(true);
+        expect(await this.token.ownerOf(tokenId), user2);
       });
     });
   });
