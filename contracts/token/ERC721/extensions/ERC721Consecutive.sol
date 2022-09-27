@@ -65,7 +65,8 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     }
 
     /**
-     * @dev Mint a batch of tokens of length `batchSize` for `to`.
+     * @dev Mint a batch of tokens of length `batchSize` for `to`. Returns the token id of the first token minted in the
+     * batch; if `batchSize` is 0, returns the number of consecutive ids minted so far.
      *
      * Requirements:
      *
