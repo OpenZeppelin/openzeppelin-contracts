@@ -488,11 +488,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     ) internal virtual {}
 
     /**
-     * @dev Hook that is called before consecutive token transfers.
+     * @dev Hook that is called before "consecutive token transfers" as defined in ERC2309 and implemented in
+     * {ERC721Consecutive}.
      * Calling conditions are similar to {_beforeTokenTransfer}.
-     *
-     * The default implementation include balances updates that extensions such as {ERC721Consecutive} cannot perform
-     * directly.
      */
     function _beforeConsecutiveTokenTransfer(
         address from,
@@ -509,7 +507,8 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Hook that is called after consecutive token transfers.
+     * @dev Hook that is called after "consecutive token transfers" as defined in ERC2309 and implemented in
+     * {ERC721Consecutive}.
      * Calling conditions are similar to {_afterTokenTransfer}.
      */
     function _afterConsecutiveTokenTransfer(
