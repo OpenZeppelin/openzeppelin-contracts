@@ -72,7 +72,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      *
      * - `batchSize` must not be greater than {_maxBatchSize}.
      * - The function is called in the constructor of the contract (directly or indirectly).
-     * 
+     *
      * CAUTION: Does not emit a `Transfer` event. This is ERC721 compliant as long as it is done outside of the
      * constructor, which is enforced by this function.
      *
