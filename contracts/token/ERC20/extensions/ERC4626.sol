@@ -34,14 +34,14 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      */
     constructor(IERC20 asset_) {
         (bool success, uint8 assetDecimals) = _tryGetAssetDecimals(asset_);
-        _decimals = success ? returnedDecimals : super.decimals();
+        _decimals = success ? assetDecimals : super.decimals();
         _asset = asset_;
     }
 
     /**
      * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
      */
-    function _tryGetAssetDecimals(address asset_) private returns (bool, uint8) {
+    function _tryGetAssetDecimals(IERC20 asset_) private returns (bool, uint8) {
         (bool success, bytes memory encodedDecimals) = address(asset_).call(
             abi.encodeWithSelector(IERC20Metadata.decimals.selector)
         );
