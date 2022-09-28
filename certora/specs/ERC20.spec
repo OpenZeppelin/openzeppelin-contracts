@@ -31,7 +31,7 @@ invariant zeroAddressNoBalance()
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: totalSupply only changes through mint or burn                                                                │
+│ Rules: only mint and burn can change total supply                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noChangeTotalSupply() {
@@ -51,40 +51,7 @@ rule noChangeTotalSupply() {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: totalSupply change matches minted or burned amount                                                           │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule mintIncreasesTotalSupply() {
-    requireInvariant totalSupplyIsSumOfBalances();
-
-    env e;
-    address to;
-    uint256 amount;
-
-    uint256 totalSupplyBefore = totalSupply();
-    _mint(e, to, amount);
-    uint256 totalSupplyAfter = totalSupply();
-
-    assert totalSupplyAfter == totalSupplyBefore + amount;
-}
-
-rule burnDecreasesTotalSupply() {
-    requireInvariant totalSupplyIsSumOfBalances();
-
-    env e;
-    address from;
-    uint256 amount;
-
-    uint256 totalSupplyBefore = totalSupply();
-    _burn(e, from, amount);
-    uint256 totalSupplyAfter = totalSupply();
-
-    assert totalSupplyAfter == totalSupplyBefore - amount;
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: Balance can only decrease if the tx was sent by holder or by approved spender                                │
+│ Rules: only the token holder or an approved third party can reduce an account's balance                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyAuthorizedCanTransfer() {
@@ -111,7 +78,7 @@ rule onlyAuthorizedCanTransfer() {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: Allowance can only change if holder calls approve or spender uses allowance                                  │
+│ Rules: only the token holder (or a permit) can increase allowance. The spender can decrease it by using it          │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyHolderOfSpenderCanChangeAllowance() {
@@ -147,7 +114,83 @@ rule onlyHolderOfSpenderCanChangeAllowance() {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: transfer moves correct amount from sender to receiver                                                         │
+│ Rules: mint behavior and side effects                                                                               │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule mint() {
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    env e;
+    address to;
+    address other;
+    uint256 amount;
+
+    // env: function is not payable
+    require e.msg.sender != 0;
+    require e.msg.value  == 0;
+
+    // cache state
+    uint256 toBalanceBefore    = balanceOf(to);
+    uint256 otherBalanceBefore = balanceOf(other);
+    uint256 totalSupplyBefore  = totalSupply();
+
+    // run transaction
+    _mint@withrevert(e, to, amount);
+
+    // check outcome
+    if (lastReverted) {
+        assert to == 0 || totalSupplyBefore + amount > to_uint256(max_uint256);
+    } else {
+        // updates balance and totalSupply
+        assert balanceOf(to) == toBalanceBefore   + amount;
+        assert totalSupply() == totalSupplyBefore + amount;
+
+        // no other balance is modified
+        assert balanceOf(other) != otherBalanceBefore => other == to;
+    }
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rules: burn behavior and side effects                                                                               │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule burn() {
+    requireInvariant totalSupplyIsSumOfBalances();
+
+    env e;
+    address from;
+    address other;
+    uint256 amount;
+
+    // env: function is not payable
+    require e.msg.sender != 0;
+    require e.msg.value  == 0;
+
+    // cache state
+    uint256 fromBalanceBefore  = balanceOf(from);
+    uint256 otherBalanceBefore = balanceOf(other);
+    uint256 totalSupplyBefore  = totalSupply();
+
+    // run transaction
+    _burn@withrevert(e, from, amount);
+
+    // check outcome
+    if (lastReverted) {
+        assert from == 0 || fromBalanceBefore < amount;
+    } else {
+        // updates balance and totalSupply
+        assert balanceOf(from) == fromBalanceBefore   - amount;
+        assert totalSupply()   == totalSupplyBefore - amount;
+
+        // no other balance is modified
+        assert balanceOf(other) != otherBalanceBefore => other == from;
+    }
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: transfer behavior and side effects                                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule transfer() {
@@ -186,7 +229,7 @@ rule transfer() {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: transferFrom moves correct amount from holder to receiver and updates allowance                               │
+│ Rule: transferFrom behavior and side effects                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule transferFrom() {
@@ -230,7 +273,7 @@ rule transferFrom() {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: approve sets allowance                                                                                        │
+│ Rule: approve behavior and side effects                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule approve() {
@@ -267,7 +310,7 @@ rule approve() {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: calling increaseAllowance increases the allowance                                                             │
+│ Rule: increaseAllowance behavior and side effects                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule increaseAllowance() {
@@ -305,7 +348,7 @@ rule increaseAllowance() {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: calling decreaseAllowance decreases the allowance                                                             │
+│ Rule: decreaseAllowance behavior and side effects                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule decreaseAllowance() {
