@@ -1,7 +1,9 @@
 # Changelog
 
 ## Unreleased
+
 * `Counters`: Added new functions that return the previous/next counter value and increase/decrease it by one in the storage. ([#3734](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3734))
+
 ## Unreleased
 
  * `TimelockController`: Added a new `admin` constructor parameter that is assigned the admin role instead of the deployer account. ([#3722](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3722))
