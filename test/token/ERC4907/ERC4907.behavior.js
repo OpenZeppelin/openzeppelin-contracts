@@ -7,7 +7,7 @@ const firstTokenId = new BN('5042');
 const secondTokenId = new BN('79217');
 const nonExistentTokenId = new BN('13');
 
-const userExpiresTimestamp = new BN(Math.floor(new Date().getTime() / 1000) + 86400 * 365);
+const userExpiresTimestamp = new BN('18446744073709551615');
 
 function shouldBehaveLikeERC4907 (errorPrefix, owner, approved, operator, other) {
   shouldSupportInterfaces([
@@ -26,9 +26,10 @@ function shouldBehaveLikeERC4907 (errorPrefix, owner, approved, operator, other)
     describe('userOf', function () {
       context('when the given token ID was tracked by this token', function () {
         it('returns the user of the given token ID if user not expired', async function () {
-          await this.token.setUser(firstTokenId, this.toUser, userExpiresTimestamp, { from: owner });
           const timestamp = await latest();
-          if (userExpiresTimestamp >= timestamp) {
+          const _expires = timestamp.add(new BN('86400'));
+          await this.token.setUser(firstTokenId, this.toUser, _expires, { from: owner });
+          if (_expires.gte(timestamp)) {
             expect(await this.token.userOf(firstTokenId)).to.be.equal(this.toUser);
           } else {
             expect(await this.token.userOf(firstTokenId)).to.be.equal(ZERO_ADDRESS);
@@ -61,7 +62,7 @@ function shouldBehaveLikeERC4907 (errorPrefix, owner, approved, operator, other)
       const setUserSuccessful = function () {
         it('transfers the user of the given token ID to the given address', async function () {
           const timestamp = await latest();
-          if (userExpiresTimestamp >= timestamp) {
+          if (userExpiresTimestamp.gte(timestamp)) {
             expect(await this.token.userOf(tokenId)).to.be.equal(this.toUser);
           } else {
             expect(await this.token.userOf(tokenId)).to.be.equal(ZERO_ADDRESS);
