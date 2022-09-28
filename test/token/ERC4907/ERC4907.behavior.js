@@ -1,15 +1,11 @@
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
-const hre = require('hardhat');
-
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
-
 const firstTokenId = new BN('5042');
 const secondTokenId = new BN('79217');
 const nonExistentTokenId = new BN('13');
 
-const expiresOneHourLater = new BN(Math.floor(new Date().getTime() / 1000) + 3600);
 const expiresOneDayLater = new BN(Math.floor(new Date().getTime() / 1000) + 86400);
 
 function shouldBehaveLikeERC4907 (errorPrefix, owner, approved, operator, other) {
@@ -25,17 +21,16 @@ function shouldBehaveLikeERC4907 (errorPrefix, owner, approved, operator, other)
       await this.token.mint(secondTokenId, owner);
       this.toUser = other; // default to other for toUser in context-dependent tests
       await this.token.setUser(firstTokenId, this.toUser, expiresOneDayLater, { from: owner });
-      await this.token.setUser(secondTokenId, this.toUser, expiresOneHourLater, { from: owner });
+      await this.token.setUser(secondTokenId, this.toUser, 0, { from: owner });
     });
 
     describe('userOf', function () {
       context('when the given token ID was tracked by this token', function () {
         it('returns the user of the given token ID if user not expired', async function () {
-          expect(await this.token.userOf(secondTokenId)).to.be.equal(this.toUser);
+          expect(await this.token.userOf(firstTokenId)).to.be.equal(this.toUser);
         });
 
         it('returns ZERO_ADDRESS if user expired', async function () {
-          await hre.network.provider.send('hardhat_mine', ['0x3e', '0x3c']);
           expect(await this.token.userOf(secondTokenId)).to.be.equal(ZERO_ADDRESS);
         });
       });
