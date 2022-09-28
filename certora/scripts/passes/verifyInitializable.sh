@@ -8,5 +8,4 @@ certoraRun \
     --solc solc \
     --optimistic_loop \
     --loop_iter 3 \
-    --rule_sanity advanced \
-    --msg "all complex sanity" \
+    $@

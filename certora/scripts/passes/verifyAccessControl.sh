@@ -7,5 +7,4 @@ certoraRun \
     --verify AccessControlHarness:certora/specs/AccessControl.spec \
     --solc solc \
     --optimistic_loop \
-    --msg "AccessControl verification" \
     $@

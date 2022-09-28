@@ -8,4 +8,4 @@ certoraRun \
     --solc solc \
     --optimistic_loop \
     --loop_iter 3 \
-    --msg "ERC1155 verification all rules "
+    $@
