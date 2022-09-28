@@ -9,4 +9,10 @@ contract ERC4907Mock is ERC4907 {
     function mint(uint256 tokenId, address to) public {
         _mint(to, tokenId);
     }
+
+    function burn(uint256 tokenId) public virtual {
+        //solhint-disable-next-line max-line-length
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
+        _burn(tokenId);
+    }
 }

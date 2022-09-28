@@ -56,6 +56,9 @@ contract ERC4907 is ERC721, IERC4907 {
         return interfaceId == type(IERC4907).interfaceId || super.supportsInterface(interfaceId);
     }
 
+    /**
+     * @dev See {ERC721-_burn}. This override additionally clears the user information for the token.
+     */
     function _burn(uint256 tokenId) internal virtual override {
         super._burn(tokenId);
         delete _users[tokenId];
