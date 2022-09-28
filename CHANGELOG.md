@@ -7,6 +7,7 @@
  * `ERC165Checker`: add `supportsERC165InterfaceUnchecked` for consulting individual interfaces without the full ERC165 protocol. ([#3339](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3339))
  * `Address`: optimize `functionCall` by calling `functionCallWithValue` directly. ([#3468](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3468))
  * `Address`: optimize `functionCall` functions by checking contract size only if there is no returned data. ([#3469](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3469))
+ * `Governor`: make the `relay` function payable, and add support for EOA payments. ([#3730](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3730))
  * `GovernorCompatibilityBravo`: remove unused `using` statements. ([#3506](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3506))
  * `ERC20`: optimize `_transfer`, `_mint` and `_burn` by using `unchecked` arithmetic when possible. ([#3513](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3513))
  * `ERC20Votes`, `ERC721Votes`: optimize `getPastVotes` for looking up recent checkpoints. ([#3673](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3673))
@@ -207,8 +208,8 @@ It is no longer possible to call an `initializer`-protected function from within
  * `ECDSA`: add a variant of `toEthSignedMessageHash` for arbitrary length message hashing. ([#2865](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2865))
  * `MerkleProof`: add a `processProof` function that returns the rebuilt root hash given a leaf and a proof. ([#2841](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2841))
  * `VestingWallet`: new contract that handles the vesting of Ether and ERC20 tokens following a customizable vesting schedule. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2748))
- * `Governor`: enable receiving Ether when a Timelock contract is not used. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
- * `GovernorTimelockCompound`: fix ability to use Ether stored in the Timelock contract. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
+ * `Governor`: enable receiving Ether when a Timelock contract is not used. ([#2849](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
+ * `GovernorTimelockCompound`: fix ability to use Ether stored in the Timelock contract. ([#2849](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
 
 ## 4.3.3
 
