@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-
+ * `ERC4907`: add implementation of the ERC4907 standard. ([#3735](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3737))
  * `TimelockController`: Added a new `admin` constructor parameter that is assigned the admin role instead of the deployer account. ([#3722](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3722))
  * `Initializable`: add internal functions `_getInitializedVersion` and `_isInitializing` ([#3598](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3598))
  * `ERC165Checker`: add `supportsERC165InterfaceUnchecked` for consulting individual interfaces without the full ERC165 protocol. ([#3339](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3339))

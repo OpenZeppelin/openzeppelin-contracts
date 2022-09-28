@@ -1,7 +1,7 @@
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
-const hre = require("hardhat");
+const hre = require('hardhat');
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 
@@ -9,14 +9,14 @@ const firstTokenId = new BN('5042');
 const secondTokenId = new BN('79217');
 const nonExistentTokenId = new BN('13');
 
-const expires_one_hour_later = new BN(Math.floor(new Date().getTime() / 1000) + 3600);
-const expires_one_day_later = new BN(Math.floor(new Date().getTime() / 1000) + 86400);
+const expiresOneHourLater = new BN(Math.floor(new Date().getTime() / 1000) + 3600);
+const expiresOneDayLater = new BN(Math.floor(new Date().getTime() / 1000) + 86400);
 
-function shouldBehaveLikeERC4907(errorPrefix, owner, approved, operator, other) {
+function shouldBehaveLikeERC4907 (errorPrefix, owner, approved, operator, other) {
   shouldSupportInterfaces([
     'ERC165',
     'ERC721',
-    'ERC4907'
+    'ERC4907',
   ]);
 
   context('with minted tokens', function () {
@@ -24,8 +24,8 @@ function shouldBehaveLikeERC4907(errorPrefix, owner, approved, operator, other) 
       await this.token.mint(firstTokenId, owner);
       await this.token.mint(secondTokenId, owner);
       this.toUser = other; // default to other for toUser in context-dependent tests
-      await this.token.setUser(firstTokenId, this.toUser, expires_one_day_later, { from: owner });
-      await this.token.setUser(secondTokenId, this.toUser, expires_one_hour_later, { from: owner });
+      await this.token.setUser(firstTokenId, this.toUser, expiresOneDayLater, { from: owner });
+      await this.token.setUser(secondTokenId, this.toUser, expiresOneHourLater, { from: owner });
     });
 
     describe('userOf', function () {
@@ -35,7 +35,7 @@ function shouldBehaveLikeERC4907(errorPrefix, owner, approved, operator, other) 
         });
 
         it('returns ZERO_ADDRESS if user expired', async function () {
-          await hre.network.provider.send("hardhat_mine", ["0x3e", "0x3c"]);
+          await hre.network.provider.send('hardhat_mine', ['0x3e', '0x3c']);
           expect(await this.token.userOf(secondTokenId)).to.be.equal(ZERO_ADDRESS);
         });
       });
@@ -60,7 +60,7 @@ function shouldBehaveLikeERC4907(errorPrefix, owner, approved, operator, other) 
       const setUserSuccessful = function () {
         it('transfers the user of the given token ID to the given address', async function () {
           expect(await this.token.userOf(tokenId)).to.be.equal(this.toUser);
-          expect(await this.token.userExpires(tokenId)).to.be.bignumber.equal(expires_one_day_later);
+          expect(await this.token.userExpires(tokenId)).to.be.bignumber.equal(expiresOneDayLater);
         });
 
         it('owner still own the NFT', async function () {
@@ -68,29 +68,28 @@ function shouldBehaveLikeERC4907(errorPrefix, owner, approved, operator, other) 
         });
 
         it('emits a UpdateUser event', async function () {
-          expectEvent(receipt, 'UpdateUser', { tokenId: tokenId, user: this.toUser, expires: expires_one_day_later });
+          expectEvent(receipt, 'UpdateUser', { tokenId: tokenId, user: this.toUser, expires: expiresOneDayLater });
         });
-
       };
 
       const shouldSetUserByOperator = function (setUserFunction) {
         context('when called by the owner', function () {
           beforeEach(async function () {
-            (receipt = await setUserFunction.call(this, tokenId, this.toUser, expires_one_day_later, owner));
+            (receipt = await setUserFunction.call(this, tokenId, this.toUser, expiresOneDayLater, owner));
           });
           setUserSuccessful();
         });
 
         context('when called by the approved individual', function () {
           beforeEach(async function () {
-            (receipt = await setUserFunction.call(this, tokenId, this.toUser, expires_one_day_later, approved));
+            (receipt = await setUserFunction.call(this, tokenId, this.toUser, expiresOneDayLater, approved));
           });
           setUserSuccessful();
         });
 
         context('when called by the operator', function () {
           beforeEach(async function () {
-            (receipt = await setUserFunction.call(this, tokenId, this.toUser, expires_one_day_later, operator));
+            (receipt = await setUserFunction.call(this, tokenId, this.toUser, expiresOneDayLater, operator));
           });
           setUserSuccessful();
         });
@@ -98,13 +97,11 @@ function shouldBehaveLikeERC4907(errorPrefix, owner, approved, operator, other) 
         context('when called by other', function () {
           it('reverts', async function () {
             await expectRevert(
-              setUserFunction.call(this, tokenId, this.toUser, expires_one_day_later, other),
+              setUserFunction.call(this, tokenId, this.toUser, expiresOneDayLater, other),
               'ERC721: transfer caller is not owner nor approved',
             );
           });
-
         });
-
       };
 
       describe('via setUser', function () {
@@ -112,10 +109,8 @@ function shouldBehaveLikeERC4907(errorPrefix, owner, approved, operator, other) 
           return this.token.setUser(tokenId, user, expires, { from: from });
         });
       });
-
     });
   });
-
 }
 
 module.exports = {
