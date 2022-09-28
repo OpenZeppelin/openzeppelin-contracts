@@ -11,7 +11,8 @@ import "./IDelayedMessageProvider.sol";
 interface IInbox is IDelayedMessageProvider {
     function bridge() external view returns (IBridge);
 
-    function sequencerInbox() external view returns (address); // OZ: retyped from ISequencerInbox
+    // OpenZeppelin: changed return type from ISequencerInbox
+    function sequencerInbox() external view returns (address);
 
     /**
      * @notice Send a generic L2 message to the chain
@@ -145,5 +146,6 @@ interface IInbox is IDelayedMessageProvider {
      */
     function postUpgradeInit(IBridge _bridge) external;
 
-    function initialize(IBridge _bridge, address _sequencerInbox) external; // OZ: retyped from ISequencerInbox
+    // OpenZeppelin: changed _sequencerInbox type from ISequencerInbox
+    function initialize(IBridge _bridge, address _sequencerInbox) external;
 }

@@ -35,7 +35,8 @@ interface IBridge {
     /// @dev Accumulator for sequencer inbox messages; tail represents hash of the current state; each element represents the inclusion of a new message.
     function sequencerInboxAccs(uint256) external view returns (bytes32);
 
-    function rollup() external view returns (address); // OZ: retyped from IOwnable
+    // OpenZeppelin: changed return type from IOwnable
+    function rollup() external view returns (address);
 
     function sequencerInbox() external view returns (address);
 
@@ -102,5 +103,6 @@ interface IBridge {
 
     // ---------- initializer ----------
 
-    function initialize(address rollup_) external; // OZ: retyped from IOwnable
+    // OpenZeppelin: changed rollup_ type from IOwnable
+    function initialize(address rollup_) external;
 }
