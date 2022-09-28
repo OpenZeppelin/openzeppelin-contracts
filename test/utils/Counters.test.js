@@ -1,4 +1,4 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
+const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
@@ -11,7 +11,6 @@ contract('Counters', function (accounts) {
 
   it('starts at zero', async function () {
     expect(await this.counter.current()).to.be.bignumber.equal('0');
-    expect(await this.counter.helper()).to.be.bignumber.equal('0');
   });
 
   describe('increment', function () {
@@ -64,38 +63,39 @@ contract('Counters', function (accounts) {
   });
 
   describe('getAndIncrement', function () {
-    context('starting from 0 and can be called multiple times', function () {
-      it('assign the current value to the variable `helper` and increments by one', async function () {
-        await this.counter.getAndIncrement();
+    context('starting from 0', function () {
+      it('gets the current counter value and increments by one', async function () {
+        expectEvent(await this.counter.getAndIncrement(), 'ReturnedValue', { value: '0' });
         expect(await this.counter.current()).to.be.bignumber.equal('1');
-        expect(await this.counter.helper()).to.be.bignumber.equal('0');
+      });
 
-        await this.counter.getAndIncrement();
+      it('can be called multiple times', async function () {
+        expect(await this.counter.current()).to.be.bignumber.equal('0');
+        expectEvent(await this.counter.getAndIncrement(), 'ReturnedValue', { value: '0' });
+        expect(await this.counter.current()).to.be.bignumber.equal('1');
+        expectEvent(await this.counter.getAndIncrement(), 'ReturnedValue', { value: '1' });
         expect(await this.counter.current()).to.be.bignumber.equal('2');
-        expect(await this.counter.helper()).to.be.bignumber.equal('1');
-
-        await this.counter.getAndIncrement();
+        expectEvent(await this.counter.getAndIncrement(), 'ReturnedValue', { value: '2' });
         expect(await this.counter.current()).to.be.bignumber.equal('3');
-        expect(await this.counter.helper()).to.be.bignumber.equal('2');
       });
     });
   });
 
   describe('incrementAndGet', function () {
     context('starting from 0', function () {
-      it('increments by one the current value and assign to the variable `helper`', async function () {
-        await this.counter.incrementAndGet();
+      it('increments the current counter value by one and gets it', async function () {
+        expectEvent(await this.counter.incrementAndGet(), 'ReturnedValue', { value: '1' });
         expect(await this.counter.current()).to.be.bignumber.equal('1');
-        expect(await this.counter.helper()).to.be.bignumber.equal('1');
       });
 
       it('can be called multiple times', async function () {
-        await this.counter.incrementAndGet();
-        await this.counter.incrementAndGet();
-        await this.counter.incrementAndGet();
-
+        expect(await this.counter.current()).to.be.bignumber.equal('0');
+        expectEvent(await this.counter.incrementAndGet(), 'ReturnedValue', { value: '1' });
+        expect(await this.counter.current()).to.be.bignumber.equal('1');
+        expectEvent(await this.counter.incrementAndGet(), 'ReturnedValue', { value: '2' });
+        expect(await this.counter.current()).to.be.bignumber.equal('2');
+        expectEvent(await this.counter.incrementAndGet(), 'ReturnedValue', { value: '3' });
         expect(await this.counter.current()).to.be.bignumber.equal('3');
-        expect(await this.counter.helper()).to.be.bignumber.equal('3');
       });
     });
   });
@@ -103,14 +103,12 @@ contract('Counters', function (accounts) {
   describe('getAndDecrement', function () {
     beforeEach(async function () {
       await this.counter.increment();
-      expect(await this.counter.current()).to.be.bignumber.equal('1');
-      expect(await this.counter.helper()).to.be.bignumber.equal('0');
     });
     context('starting from 1', function () {
-      it('assign the current value to the variable `helper` and decrements by one', async function () {
-        await this.counter.getAndDecrement();
+      it('gets the current counter value and decrements by one', async function () {
+        expect(await this.counter.current()).to.be.bignumber.equal('1');
+        expectEvent(await this.counter.getAndDecrement(), 'ReturnedValue', { value: '1' });
         expect(await this.counter.current()).to.be.bignumber.equal('0');
-        expect(await this.counter.helper()).to.be.bignumber.equal('1');
       });
 
       it('reverts if the current value is 0', async function () {
@@ -124,14 +122,12 @@ contract('Counters', function (accounts) {
         await this.counter.increment();
 
         expect(await this.counter.current()).to.be.bignumber.equal('3');
-        expect(await this.counter.helper()).to.be.bignumber.equal('0');
-
-        await this.counter.getAndDecrement();
-        await this.counter.getAndDecrement();
-        await this.counter.getAndDecrement();
-
+        expectEvent(await this.counter.getAndDecrement(), 'ReturnedValue', { value: '3' });
+        expect(await this.counter.current()).to.be.bignumber.equal('2');
+        expectEvent(await this.counter.getAndDecrement(), 'ReturnedValue', { value: '2' });
+        expect(await this.counter.current()).to.be.bignumber.equal('1');
+        expectEvent(await this.counter.getAndDecrement(), 'ReturnedValue', { value: '1' });
         expect(await this.counter.current()).to.be.bignumber.equal('0');
-        expect(await this.counter.helper()).to.be.bignumber.equal('1');
       });
     });
   });
@@ -139,14 +135,12 @@ contract('Counters', function (accounts) {
   describe('decrementAndGet', function () {
     beforeEach(async function () {
       await this.counter.incrementAndGet();
-      expect(await this.counter.current()).to.be.bignumber.equal('1');
-      expect(await this.counter.helper()).to.be.bignumber.equal('1');
     });
     context('starting from 1', function () {
-      it('decrements by one the current value and assign to the variable `helper`', async function () {
-        await this.counter.decrementAndGet();
+      it('decrements by one the current value and gets it', async function () {
+        expect(await this.counter.current()).to.be.bignumber.equal('1');
+        expectEvent(await this.counter.decrementAndGet(), 'ReturnedValue', { value: '0' });
         expect(await this.counter.current()).to.be.bignumber.equal('0');
-        expect(await this.counter.helper()).to.be.bignumber.equal('0');
       });
 
       it('reverts if the current value is 0', async function () {
@@ -156,18 +150,16 @@ contract('Counters', function (accounts) {
     });
     context('after incremented to 3', function () {
       it('can be called multiple times', async function () {
-        await this.counter.incrementAndGet();
-        await this.counter.incrementAndGet();
+        await this.counter.increment();
+        await this.counter.increment();
 
         expect(await this.counter.current()).to.be.bignumber.equal('3');
-        expect(await this.counter.helper()).to.be.bignumber.equal('3');
-
-        await this.counter.decrementAndGet();
-        await this.counter.decrementAndGet();
-        await this.counter.decrementAndGet();
-
+        expectEvent(await this.counter.decrementAndGet(), 'ReturnedValue', { value: '2' });
+        expect(await this.counter.current()).to.be.bignumber.equal('2');
+        expectEvent(await this.counter.decrementAndGet(), 'ReturnedValue', { value: '1' });
+        expect(await this.counter.current()).to.be.bignumber.equal('1');
+        expectEvent(await this.counter.decrementAndGet(), 'ReturnedValue', { value: '0' });
         expect(await this.counter.current()).to.be.bignumber.equal('0');
-        expect(await this.counter.helper()).to.be.bignumber.equal('0');
       });
     });
   });

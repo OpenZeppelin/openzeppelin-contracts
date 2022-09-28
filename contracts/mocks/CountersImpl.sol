@@ -8,7 +8,8 @@ contract CountersImpl {
     using Counters for Counters.Counter;
 
     Counters.Counter private _counter;
-    uint256 public helper;
+
+    event ReturnedValue(uint256 value);
 
     function current() public view returns (uint256) {
         return _counter.current();
@@ -23,19 +24,23 @@ contract CountersImpl {
     }
 
     function getAndIncrement() public {
-        helper = _counter.getAndIncrement();
+        uint256 value = _counter.getAndIncrement();
+        emit ReturnedValue(value);
     }
 
     function incrementAndGet() public {
-        helper = _counter.incrementAndGet();
+        uint256 value = _counter.incrementAndGet();
+        emit ReturnedValue(value);
     }
 
     function getAndDecrement() public {
-        helper = _counter.getAndDecrement();
+        uint256 value = _counter.getAndDecrement();
+        emit ReturnedValue(value);
     }
 
     function decrementAndGet() public {
-        helper = _counter.decrementAndGet();
+        uint256 value = _counter.decrementAndGet();
+        emit ReturnedValue(value);
     }
 
     function reset() public {
