@@ -1,92 +1,151 @@
-// SPDX-License-Identifier: Apache-2.0
-// OpenZeppelin Contracts (last updated v4.6.0) (vendor/arbitrum/IInbox.sol)
+// Copyright 2021-2022, Offchain Labs, Inc.
+// For license information, see https://github.com/nitro/blob/master/LICENSE
+// SPDX-License-Identifier: BUSL-1.1
 
-/*
- * Copyright 2021, Offchain Labs, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// solhint-disable-next-line compiler-version
+pragma solidity >=0.6.9 <0.9.0;
 
-pragma solidity ^0.8.0;
+import "./IBridge.sol";
+import "./IDelayedMessageProvider.sol";
 
-import "./IMessageProvider.sol";
+interface IInbox is IDelayedMessageProvider {
+    function bridge() external view returns (IBridge);
 
-interface IInbox is IMessageProvider {
+    // OpenZeppelin: changed return type from ISequencerInbox
+    function sequencerInbox() external view returns (address);
+
+    /**
+     * @notice Send a generic L2 message to the chain
+     * @dev This method is an optimization to avoid having to emit the entirety of the messageData in a log. Instead validators are expected to be able to parse the data from the transaction's input
+     * @param messageData Data of the message being sent
+     */
+    function sendL2MessageFromOrigin(bytes calldata messageData) external returns (uint256);
+
+    /**
+     * @notice Send a generic L2 message to the chain
+     * @dev This method can be used to send any type of message that doesn't require L1 validation
+     * @param messageData Data of the message being sent
+     */
     function sendL2Message(bytes calldata messageData) external returns (uint256);
 
-    function sendUnsignedTransaction(
-        uint256 maxGas,
-        uint256 gasPriceBid,
-        uint256 nonce,
-        address destAddr,
-        uint256 amount,
-        bytes calldata data
-    ) external returns (uint256);
-
-    function sendContractTransaction(
-        uint256 maxGas,
-        uint256 gasPriceBid,
-        address destAddr,
-        uint256 amount,
-        bytes calldata data
-    ) external returns (uint256);
-
     function sendL1FundedUnsignedTransaction(
-        uint256 maxGas,
-        uint256 gasPriceBid,
+        uint256 gasLimit,
+        uint256 maxFeePerGas,
         uint256 nonce,
-        address destAddr,
+        address to,
         bytes calldata data
     ) external payable returns (uint256);
 
     function sendL1FundedContractTransaction(
-        uint256 maxGas,
-        uint256 gasPriceBid,
-        address destAddr,
+        uint256 gasLimit,
+        uint256 maxFeePerGas,
+        address to,
         bytes calldata data
     ) external payable returns (uint256);
 
+    function sendUnsignedTransaction(
+        uint256 gasLimit,
+        uint256 maxFeePerGas,
+        uint256 nonce,
+        address to,
+        uint256 value,
+        bytes calldata data
+    ) external returns (uint256);
+
+    function sendContractTransaction(
+        uint256 gasLimit,
+        uint256 maxFeePerGas,
+        address to,
+        uint256 value,
+        bytes calldata data
+    ) external returns (uint256);
+
+    /**
+     * @notice Get the L1 fee for submitting a retryable
+     * @dev This fee can be paid by funds already in the L2 aliased address or by the current message value
+     * @dev This formula may change in the future, to future proof your code query this method instead of inlining!!
+     * @param dataLength The length of the retryable's calldata, in bytes
+     * @param baseFee The block basefee when the retryable is included in the chain, if 0 current block.basefee will be used
+     */
+    function calculateRetryableSubmissionFee(uint256 dataLength, uint256 baseFee) external view returns (uint256);
+
+    /**
+     * @notice Deposit eth from L1 to L2 to address of the sender if sender is an EOA, and to its aliased address if the sender is a contract
+     * @dev This does not trigger the fallback function when receiving in the L2 side.
+     *      Look into retryable tickets if you are interested in this functionality.
+     * @dev This function should not be called inside contract constructors
+     */
+    function depositEth() external payable returns (uint256);
+
+    /**
+     * @notice Put a message in the L2 inbox that can be reexecuted for some fixed amount of time if it reverts
+     * @dev all msg.value will deposited to callValueRefundAddress on L2
+     * @dev Gas limit and maxFeePerGas should not be set to 1 as that is used to trigger the RetryableData error
+     * @param to destination L2 contract address
+     * @param l2CallValue call value for retryable L2 message
+     * @param maxSubmissionCost Max gas deducted from user's L2 balance to cover base submission fee
+     * @param excessFeeRefundAddress gasLimit x maxFeePerGas - execution cost gets credited here on L2 balance
+     * @param callValueRefundAddress l2Callvalue gets credited here on L2 if retryable txn times out or gets cancelled
+     * @param gasLimit Max gas deducted from user's L2 balance to cover L2 execution. Should not be set to 1 (magic value used to trigger the RetryableData error)
+     * @param maxFeePerGas price bid for L2 execution. Should not be set to 1 (magic value used to trigger the RetryableData error)
+     * @param data ABI encoded data of L2 message
+     * @return unique message number of the retryable transaction
+     */
     function createRetryableTicket(
-        address destAddr,
-        uint256 arbTxCallValue,
+        address to,
+        uint256 l2CallValue,
         uint256 maxSubmissionCost,
-        address submissionRefundAddress,
-        address valueRefundAddress,
-        uint256 maxGas,
-        uint256 gasPriceBid,
+        address excessFeeRefundAddress,
+        address callValueRefundAddress,
+        uint256 gasLimit,
+        uint256 maxFeePerGas,
         bytes calldata data
     ) external payable returns (uint256);
 
-    function createRetryableTicketNoRefundAliasRewrite(
-        address destAddr,
-        uint256 arbTxCallValue,
+    /**
+     * @notice Put a message in the L2 inbox that can be reexecuted for some fixed amount of time if it reverts
+     * @dev Same as createRetryableTicket, but does not guarantee that submission will succeed by requiring the needed funds
+     * come from the deposit alone, rather than falling back on the user's L2 balance
+     * @dev Advanced usage only (does not rewrite aliases for excessFeeRefundAddress and callValueRefundAddress).
+     * createRetryableTicket method is the recommended standard.
+     * @dev Gas limit and maxFeePerGas should not be set to 1 as that is used to trigger the RetryableData error
+     * @param to destination L2 contract address
+     * @param l2CallValue call value for retryable L2 message
+     * @param maxSubmissionCost Max gas deducted from user's L2 balance to cover base submission fee
+     * @param excessFeeRefundAddress gasLimit x maxFeePerGas - execution cost gets credited here on L2 balance
+     * @param callValueRefundAddress l2Callvalue gets credited here on L2 if retryable txn times out or gets cancelled
+     * @param gasLimit Max gas deducted from user's L2 balance to cover L2 execution. Should not be set to 1 (magic value used to trigger the RetryableData error)
+     * @param maxFeePerGas price bid for L2 execution. Should not be set to 1 (magic value used to trigger the RetryableData error)
+     * @param data ABI encoded data of L2 message
+     * @return unique message number of the retryable transaction
+     */
+    function unsafeCreateRetryableTicket(
+        address to,
+        uint256 l2CallValue,
         uint256 maxSubmissionCost,
-        address submissionRefundAddress,
-        address valueRefundAddress,
-        uint256 maxGas,
-        uint256 gasPriceBid,
+        address excessFeeRefundAddress,
+        address callValueRefundAddress,
+        uint256 gasLimit,
+        uint256 maxFeePerGas,
         bytes calldata data
     ) external payable returns (uint256);
 
-    function depositEth(uint256 maxSubmissionCost) external payable returns (uint256);
+    // ---------- onlyRollupOrOwner functions ----------
 
-    function bridge() external view returns (address);
+    /// @notice pauses all inbox functionality
+    function pause() external;
 
-    function pauseCreateRetryables() external;
+    /// @notice unpauses all inbox functionality
+    function unpause() external;
 
-    function unpauseCreateRetryables() external;
+    // ---------- initializer ----------
 
-    function startRewriteAddress() external;
+    /**
+     * @dev function to be called one time during the inbox upgrade process
+     *      this is used to fix the storage slots
+     */
+    function postUpgradeInit(IBridge _bridge) external;
 
-    function stopRewriteAddress() external;
+    // OpenZeppelin: changed _sequencerInbox type from ISequencerInbox
+    function initialize(IBridge _bridge, address _sequencerInbox) external;
 }
