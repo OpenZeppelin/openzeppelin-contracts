@@ -56,6 +56,9 @@ library Arrays {
      */
     function unsafeAccess(address[] storage arr, uint256 pos) internal pure returns (StorageSlot.AddressSlot storage) {
         bytes32 slot;
+        // We use assembly to calculate the storage slot of the element at index `pos` of the dynamic array `arr`
+        // following https://docs.soliditylang.org/en/v0.8.17/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0, arr.slot)
@@ -71,6 +74,9 @@ library Arrays {
      */
     function unsafeAccess(bytes32[] storage arr, uint256 pos) internal pure returns (StorageSlot.Bytes32Slot storage) {
         bytes32 slot;
+        // We use assembly to calculate the storage slot of the element at index `pos` of the dynamic array `arr`
+        // following https://docs.soliditylang.org/en/v0.8.17/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0, arr.slot)
@@ -86,6 +92,9 @@ library Arrays {
      */
     function unsafeAccess(uint256[] storage arr, uint256 pos) internal pure returns (StorageSlot.Uint256Slot storage) {
         bytes32 slot;
+        // We use assembly to calculate the storage slot of the element at index `pos` of the dynamic array `arr`
+        // following https://docs.soliditylang.org/en/v0.8.17/internals/layout_in_storage.html#mappings-and-dynamic-arrays.
+
         /// @solidity memory-safe-assembly
         assembly {
             mstore(0, arr.slot)

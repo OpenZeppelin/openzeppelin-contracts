@@ -1,23 +1,9 @@
-// SPDX-License-Identifier: Apache-2.0
-// OpenZeppelin Contracts (last updated v4.6.0) (vendor/arbitrum/IBridge.sol)
+// Copyright 2021-2022, Offchain Labs, Inc.
+// For license information, see https://github.com/nitro/blob/master/LICENSE
+// SPDX-License-Identifier: BUSL-1.1
 
-/*
- * Copyright 2021, Offchain Labs, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-pragma solidity ^0.8.0;
+// solhint-disable-next-line compiler-version
+pragma solidity >=0.6.9 <0.9.0;
 
 interface IBridge {
     event MessageDelivered(
@@ -26,41 +12,97 @@ interface IBridge {
         address inbox,
         uint8 kind,
         address sender,
-        bytes32 messageDataHash
+        bytes32 messageDataHash,
+        uint256 baseFeeL1,
+        uint64 timestamp
     );
 
-    event BridgeCallTriggered(address indexed outbox, address indexed destAddr, uint256 amount, bytes data);
+    event BridgeCallTriggered(address indexed outbox, address indexed to, uint256 value, bytes data);
 
     event InboxToggle(address indexed inbox, bool enabled);
 
     event OutboxToggle(address indexed outbox, bool enabled);
 
-    function deliverMessageToInbox(
+    event SequencerInboxUpdated(address newSequencerInbox);
+
+    function allowedDelayedInboxList(uint256) external returns (address);
+
+    function allowedOutboxList(uint256) external returns (address);
+
+    /// @dev Accumulator for delayed inbox messages; tail represents hash of the current state; each element represents the inclusion of a new message.
+    function delayedInboxAccs(uint256) external view returns (bytes32);
+
+    /// @dev Accumulator for sequencer inbox messages; tail represents hash of the current state; each element represents the inclusion of a new message.
+    function sequencerInboxAccs(uint256) external view returns (bytes32);
+
+    // OpenZeppelin: changed return type from IOwnable
+    function rollup() external view returns (address);
+
+    function sequencerInbox() external view returns (address);
+
+    function activeOutbox() external view returns (address);
+
+    function allowedDelayedInboxes(address inbox) external view returns (bool);
+
+    function allowedOutboxes(address outbox) external view returns (bool);
+
+    function sequencerReportedSubMessageCount() external view returns (uint256);
+
+    /**
+     * @dev Enqueue a message in the delayed inbox accumulator.
+     *      These messages are later sequenced in the SequencerInbox, either
+     *      by the sequencer as part of a normal batch, or by force inclusion.
+     */
+    function enqueueDelayedMessage(
         uint8 kind,
         address sender,
         bytes32 messageDataHash
     ) external payable returns (uint256);
 
     function executeCall(
-        address destAddr,
-        uint256 amount,
+        address to,
+        uint256 value,
         bytes calldata data
     ) external returns (bool success, bytes memory returnData);
 
-    // These are only callable by the admin
-    function setInbox(address inbox, bool enabled) external;
+    function delayedMessageCount() external view returns (uint256);
+
+    function sequencerMessageCount() external view returns (uint256);
+
+    // ---------- onlySequencerInbox functions ----------
+
+    function enqueueSequencerMessage(
+        bytes32 dataHash,
+        uint256 afterDelayedMessagesRead,
+        uint256 prevMessageCount,
+        uint256 newMessageCount
+    )
+        external
+        returns (
+            uint256 seqMessageIndex,
+            bytes32 beforeAcc,
+            bytes32 delayedAcc,
+            bytes32 acc
+        );
+
+    /**
+     * @dev Allows the sequencer inbox to submit a delayed message of the batchPostingReport type
+     *      This is done through a separate function entrypoint instead of allowing the sequencer inbox
+     *      to call `enqueueDelayedMessage` to avoid the gas overhead of an extra SLOAD in either
+     *      every delayed inbox or every sequencer inbox call.
+     */
+    function submitBatchSpendingReport(address batchPoster, bytes32 dataHash) external returns (uint256 msgNum);
+
+    // ---------- onlyRollupOrOwner functions ----------
+
+    function setSequencerInbox(address _sequencerInbox) external;
+
+    function setDelayedInbox(address inbox, bool enabled) external;
 
     function setOutbox(address inbox, bool enabled) external;
 
-    // View functions
+    // ---------- initializer ----------
 
-    function activeOutbox() external view returns (address);
-
-    function allowedInboxes(address inbox) external view returns (bool);
-
-    function allowedOutboxes(address outbox) external view returns (bool);
-
-    function inboxAccs(uint256 index) external view returns (bytes32);
-
-    function messageCount() external view returns (uint256);
+    // OpenZeppelin: changed rollup_ type from IOwnable
+    function initialize(address rollup_) external;
 }

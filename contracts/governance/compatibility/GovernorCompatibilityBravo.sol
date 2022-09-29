@@ -12,7 +12,7 @@ import "./IGovernorCompatibilityBravo.sol";
  * @dev Compatibility layer that implements GovernorBravo compatibility on to of {Governor}.
  *
  * This compatibility layer includes a voting system and requires a {IGovernorTimelock} compatible module to be added
- * through inheritance. It does not include token bindings, not does it include any variable upgrade patterns.
+ * through inheritance. It does not include token bindings, nor does it include any variable upgrade patterns.
  *
  * NOTE: When using this module, you may need to enable the Solidity optimizer to avoid hitting the contract size limit.
  *
