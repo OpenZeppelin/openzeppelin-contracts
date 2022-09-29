@@ -68,9 +68,10 @@ abstract contract ReentrancyGuard {
     }
 
     /**
-     * expose _status as internal function, the caller decides what to do with it
+     * @dev Returns true if the reentrancy guard is currently set to "entered", which indicates there is a
+     * `nonReentrant` function in the call stack.
      */
-    function _reentrancyGuardStatus() internal view returns (uint256) {
-        return _status;
+    function _reentrancyGuardEntered() internal view returns (bool) {
+        return _status == _ENTERED;
     }
 }

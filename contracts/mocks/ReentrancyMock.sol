@@ -41,11 +41,11 @@ contract ReentrancyMock is ReentrancyGuard {
         counter += 1;
     }
 
-    function testEnteredStatus() public nonReentrant {
-        require(_reentrancyGuardStatus() == 2, "ReentrancyMock: _reentrancyGuardStatus failed");
+    function guardedCheckEntered() public nonReentrant returns (bool) {
+        require(_reentrancyGuardEntered());
     }
 
-    function testNonEnteredStatus() public view {
-        require(_reentrancyGuardStatus() == 1, "ReentrancyMock: _reentrancyGuardStatus failed");
+    function unguardedCheckNotEntered() public returns (bool) {
+        require(!_reentrancyGuardEntered());
     }
 }
