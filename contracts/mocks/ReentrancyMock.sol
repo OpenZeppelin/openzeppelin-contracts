@@ -35,11 +35,17 @@ contract ReentrancyMock is ReentrancyGuard {
         _count();
         bytes4 func = bytes4(keccak256("callback()"));
         attacker.callSender(func);
-
-        require(_reentrancyGuardStatus() == 2, "ReentrancyMock: _reentrancyGuardStatus failed");
     }
 
     function _count() private {
         counter += 1;
+    }
+
+    function testEnteredStatus() public nonReentrant {
+        require(_reentrancyGuardStatus() == 2, "ReentrancyMock: _reentrancyGuardStatus failed");
+    }
+
+    function testNonEnteredStatus() public view {
+        require(_reentrancyGuardStatus() == 1, "ReentrancyMock: _reentrancyGuardStatus failed");
     }
 }

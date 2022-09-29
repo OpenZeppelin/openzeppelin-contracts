@@ -23,6 +23,16 @@ contract('ReentrancyGuard', function (accounts) {
       this.reentrancyMock.countAndCall(attacker.address), 'ReentrancyAttack: failed call');
   });
 
+  it('_reentrancyGuardStatus should be 2 when guarded by nonReentrant', async function () {
+    await expect(
+      this.reentrancyMock.testEnteredStatus(), 'testEnteredStatus: failed call');
+  });
+
+  it('_reentrancyGuardStatus should be 1 when not guarded by nonReentrant', async function () {
+    await expect(
+      this.reentrancyMock.testNonEnteredStatus(), 'testNonEnteredStatus: failed call');
+  });
+
   // The following are more side-effects than intended behavior:
   // I put them here as documentation, and to monitor any changes
   // in the side-effects.
