@@ -8,7 +8,7 @@ import "../munged/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "../munged/governance/extensions/GovernorTimelockCompound.sol";
 import "../munged/token/ERC20/extensions/ERC20Votes.sol";
 
-/* 
+/*
 Wizard options:
 ERC20Votes
 TimelockCompound

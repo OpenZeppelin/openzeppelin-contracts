@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-import "../munged/governance/extensions/GovernorPreventLateQuorum.sol";
 import "../munged/governance/Governor.sol";
 import "../munged/governance/extensions/GovernorCountingSimple.sol";
+import "../munged/governance/extensions/GovernorPreventLateQuorum.sol";
+import "../munged/governance/extensions/GovernorTimelockControl.sol";
 import "../munged/governance/extensions/GovernorVotes.sol";
 import "../munged/governance/extensions/GovernorVotesQuorumFraction.sol";
-import "../munged/governance/extensions/GovernorTimelockControl.sol";
 import "../munged/token/ERC20/extensions/ERC20Votes.sol";
 
-contract GovernorPreventLateQuorumHarness is
+contract GovernorFullHarness is
     Governor,
     GovernorCountingSimple,
-    GovernorVotes,
-    GovernorVotesQuorumFraction,
     GovernorTimelockControl,
-    GovernorPreventLateQuorum
+    GovernorPreventLateQuorum,
+    GovernorVotes,
+    GovernorVotesQuorumFraction
 {
     using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
@@ -27,10 +27,10 @@ contract GovernorPreventLateQuorumHarness is
         uint256 quorumNumeratorValue
     )
         Governor("Harness")
+        GovernorPreventLateQuorum(initialVoteExtension)
+        GovernorTimelockControl(_timelock)
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(quorumNumeratorValue)
-        GovernorTimelockControl(_timelock)
-        GovernorPreventLateQuorum(initialVoteExtension)
     {}
 
     mapping(uint256 => uint256) public ghost_sum_vote_power_by_id;

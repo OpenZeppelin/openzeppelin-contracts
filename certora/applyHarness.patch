@@ -37,7 +37,7 @@ diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensi
      /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
      event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
 diff -ruN governance/Governor.sol governance/Governor.sol
---- governance/Governor.sol	2022-09-27 10:26:58.548890299 +0200
+--- governance/Governor.sol	2022-09-29 10:07:27.126075551 +0200
 +++ governance/Governor.sol	2022-09-27 17:51:32.014634743 +0200
 @@ -44,7 +44,7 @@
  
@@ -49,7 +49,7 @@ diff -ruN governance/Governor.sol governance/Governor.sol
      // This queue keeps track of the governor operating on itself. Calls to functions protected by the
      // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
 diff -ruN governance/TimelockController.sol governance/TimelockController.sol
---- governance/TimelockController.sol	2022-09-27 10:26:58.548890299 +0200
+--- governance/TimelockController.sol	2022-09-29 10:07:27.126075551 +0200
 +++ governance/TimelockController.sol	2022-09-27 17:51:32.014634743 +0200
 @@ -28,10 +28,10 @@
      bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
@@ -231,7 +231,7 @@ diff -ruN mocks/SafeERC20Helper.sol mocks/SafeERC20Helper.sol
  contract SafeERC20Wrapper is Context {
      using SafeERC20 for IERC20;
 diff -ruN proxy/utils/Initializable.sol proxy/utils/Initializable.sol
---- proxy/utils/Initializable.sol	2022-09-27 10:26:58.548890299 +0200
+--- proxy/utils/Initializable.sol	2022-09-29 10:07:27.126075551 +0200
 +++ proxy/utils/Initializable.sol	2022-09-27 17:51:32.014634743 +0200
 @@ -59,12 +59,12 @@
       * @dev Indicates that the contract has been initialized.
@@ -280,7 +280,7 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
                  bytes4 response
 diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
 --- token/ERC20/ERC20.sol	2022-09-27 10:26:58.548890299 +0200
-+++ token/ERC20/ERC20.sol	2022-09-27 22:22:40.377802680 +0200
++++ token/ERC20/ERC20.sol	2022-09-29 10:09:07.479688477 +0200
 @@ -256,7 +256,7 @@
       *
       * - `account` cannot be the zero address.
@@ -299,8 +299,20 @@ diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
          require(account != address(0), "ERC20: burn from the zero address");
  
          _beforeTokenTransfer(account, address(0), amount);
+diff -ruN token/ERC20/extensions/ERC20Capped.sol token/ERC20/extensions/ERC20Capped.sol
+--- token/ERC20/extensions/ERC20Capped.sol	2022-08-31 13:44:36.381058287 +0200
++++ token/ERC20/extensions/ERC20Capped.sol	2022-09-29 10:09:41.376517581 +0200
+@@ -30,7 +30,7 @@
+     /**
+      * @dev See {ERC20-_mint}.
+      */
+-    function _mint(address account, uint256 amount) internal virtual override {
++    function _mint(address account, uint256 amount) public virtual override { // HARNESS: internal -> public
+         require(ERC20.totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
+         super._mint(account, amount);
+     }
 diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20FlashMint.sol
---- token/ERC20/extensions/ERC20FlashMint.sol	2022-09-27 10:26:58.548890299 +0200
+--- token/ERC20/extensions/ERC20FlashMint.sol	2022-09-29 10:07:27.126075551 +0200
 +++ token/ERC20/extensions/ERC20FlashMint.sol	2022-09-27 17:51:32.014634743 +0200
 @@ -51,9 +51,11 @@
          // silence warning about unused variable without the addition of bytecode.
@@ -317,7 +329,7 @@ diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20
       * implementation returns the address(0) which means the fee amount will be burnt.
 diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Votes.sol
 --- token/ERC20/extensions/ERC20Votes.sol	2022-09-27 10:26:58.548890299 +0200
-+++ token/ERC20/extensions/ERC20Votes.sol	2022-09-27 17:51:32.014634743 +0200
++++ token/ERC20/extensions/ERC20Votes.sol	2022-09-29 10:09:45.489874234 +0200
 @@ -33,8 +33,8 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -329,7 +341,7 @@ diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Vote
      Checkpoint[] private _totalSupplyCheckpoints;
  
      /**
-@@ -165,7 +165,7 @@
+@@ -165,27 +165,27 @@
      /**
       * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
       */
@@ -338,7 +350,11 @@ diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Vote
          return type(uint224).max;
      }
  
-@@ -176,16 +176,16 @@
+     /**
+      * @dev Snapshots the totalSupply after it has been increased.
+      */
+-    function _mint(address account, uint256 amount) internal virtual override {
++    function _mint(address account, uint256 amount) public virtual override { // HARNESS: internal -> public
          super._mint(account, amount);
          require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
  
@@ -441,18 +457,18 @@ diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Vote
      }
 diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wrapper.sol
 --- token/ERC20/extensions/ERC20Wrapper.sol	2022-08-31 13:44:36.381058287 +0200
-+++ token/ERC20/extensions/ERC20Wrapper.sol	2022-09-27 17:51:32.014634743 +0200
++++ token/ERC20/extensions/ERC20Wrapper.sol	2022-09-28 11:25:39.319711517 +0200
 @@ -55,7 +55,7 @@
       * @dev Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake. Internal
       * function that can be exposed with access control if desired.
       */
 -    function _recover(address account) internal virtual returns (uint256) {
-+    function _recover(address account) public virtual returns (uint256) {           // HARNESS: internal -> public
++    function _recover(address account) public virtual returns (uint256) { // HARNESS: internal -> public
          uint256 value = underlying.balanceOf(address(this)) - totalSupply();
          _mint(account, value);
          return value;
 diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/draft-ERC721Votes.sol
---- token/ERC721/extensions/draft-ERC721Votes.sol	2022-09-27 10:26:58.548890299 +0200
+--- token/ERC721/extensions/draft-ERC721Votes.sol	2022-09-29 10:07:27.126075551 +0200
 +++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-09-27 17:51:32.014634743 +0200
 @@ -49,7 +49,7 @@
      /**
@@ -464,7 +480,7 @@ diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/
      }
  }
 diff -ruN utils/Address.sol utils/Address.sol
---- utils/Address.sol	2022-09-27 10:26:58.552223642 +0200
+--- utils/Address.sol	2022-09-29 10:07:27.126075551 +0200
 +++ utils/Address.sol	2022-09-27 17:51:32.014634743 +0200
 @@ -131,6 +131,7 @@
          uint256 value,

@@ -1,13 +1,12 @@
 import "erc20.spec"
 
 methods {
-    underlying() returns(address) envfree
-    underlyingTotalSupply() returns(uint256) envfree
+    underlying()                 returns(address) envfree
+    underlyingTotalSupply()      returns(uint256) envfree
     underlyingBalanceOf(address) returns(uint256) envfree
-
     depositFor(address, uint256) returns(bool)
     withdrawTo(address, uint256) returns(bool)
-    _recover(address) returns(uint256)
+    _recover(address)            returns(uint256)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -16,20 +15,20 @@ methods {
 
 // totalsupply of wrapped should be less than or equal to underlying (assuming no external transfer) - solvency
 invariant whatAboutTotal(env e)
-    totalSupply(e) <= underlyingTotalSupply()
+    totalSupply() <= underlyingTotalSupply()
     filtered { f -> f.selector != certorafallback_0().selector && !f.isView }
     {
         preserved {
             require underlyingBalanceOf(currentContract) <= underlyingTotalSupply();
         }
-        preserved depositFor(address account, uint256 amount) with (env e2){
-            require totalSupply(e) + amount <= underlyingTotalSupply();
+        preserved depositFor(address account, uint256 amount) with (env e2) {
+            require totalSupply() + amount <= underlyingTotalSupply();
         }
     }
 
 // totalsupply of wrapped should be less than or equal to the underlying balanceOf contract (assuming no external transfer) - solvency
 invariant underTotalAndContractBalanceOfCorrelation(env e)
-    totalSupply(e) <= underlyingBalanceOf(currentContract)
+    totalSupply() <= underlyingBalanceOf(currentContract)
     {
         preserved with (env e2) {
             require underlying() != currentContract;
@@ -50,13 +49,13 @@ rule depositForSpecBasic(env e) {
     require e.msg.sender != currentContract;
     require underlying() != currentContract;
 
-    uint256 wrapperTotalBefore = totalSupply(e);
+    uint256 wrapperTotalBefore = totalSupply();
     uint256 underlyingTotalBefore = underlyingTotalSupply();
     uint256 underlyingThisBalanceBefore = underlyingBalanceOf(currentContract);
 
     depositFor(e, account, amount);
 
-    uint256 wrapperTotalAfter = totalSupply(e);
+    uint256 wrapperTotalAfter = totalSupply();
     uint256 underlyingTotalAfter = underlyingTotalSupply();
     uint256 underlyingThisBalanceAfter = underlyingBalanceOf(currentContract);
 
@@ -72,13 +71,13 @@ rule depositForSpecWrapper(env e) {
 
     require underlying() != currentContract;
 
-    uint256 wrapperUserBalanceBefore = balanceOf(e, account);
-    uint256 wrapperSenderBalanceBefore = balanceOf(e, e.msg.sender);
+    uint256 wrapperUserBalanceBefore = balanceOf(account);
+    uint256 wrapperSenderBalanceBefore = balanceOf(e.msg.sender);
 
     depositFor(e, account, amount);
 
-    uint256 wrapperUserBalanceAfter = balanceOf(e, account);
-    uint256 wrapperSenderBalanceAfter = balanceOf(e, e.msg.sender);
+    uint256 wrapperUserBalanceAfter = balanceOf(account);
+    uint256 wrapperSenderBalanceAfter = balanceOf(e.msg.sender);
 
     assert account == e.msg.sender => wrapperUserBalanceBefore == wrapperSenderBalanceBefore
         && wrapperUserBalanceAfter == wrapperSenderBalanceAfter
@@ -129,12 +128,12 @@ rule withdrawToSpecBasic(env e) {
 
     require underlying() != currentContract;
 
-    uint256 wrapperTotalBefore = totalSupply(e);
+    uint256 wrapperTotalBefore = totalSupply();
     uint256 underlyingTotalBefore = underlyingTotalSupply();
 
     withdrawTo(e, account, amount);
 
-    uint256 wrapperTotalAfter = totalSupply(e);
+    uint256 wrapperTotalAfter = totalSupply();
     uint256 underlyingTotalAfter = underlyingTotalSupply();
 
     assert wrapperTotalBefore == wrapperTotalAfter + amount, "wrapper total wrong update";
@@ -147,13 +146,13 @@ rule withdrawToSpecWrapper(env e) {
 
     require underlying() != currentContract;
 
-    uint256 wrapperUserBalanceBefore = balanceOf(e, account);
-    uint256 wrapperSenderBalanceBefore = balanceOf(e, e.msg.sender);
+    uint256 wrapperUserBalanceBefore = balanceOf(account);
+    uint256 wrapperSenderBalanceBefore = balanceOf(e.msg.sender);
 
     withdrawTo(e, account, amount);
 
-    uint256 wrapperUserBalanceAfter = balanceOf(e, account);
-    uint256 wrapperSenderBalanceAfter = balanceOf(e, e.msg.sender);
+    uint256 wrapperUserBalanceAfter = balanceOf(account);
+    uint256 wrapperSenderBalanceAfter = balanceOf(e.msg.sender);
 
     assert account == e.msg.sender => wrapperUserBalanceBefore == wrapperSenderBalanceBefore
         && wrapperUserBalanceAfter == wrapperSenderBalanceAfter
@@ -204,18 +203,18 @@ rule recoverSpec(env e) {
     address account;
     uint256 amount;
 
-    uint256 wrapperTotalBefore = totalSupply(e);
-    uint256 wrapperUserBalanceBefore = balanceOf(e, account);
-    uint256 wrapperSenderBalanceBefore = balanceOf(e, e.msg.sender);
+    uint256 wrapperTotalBefore = totalSupply();
+    uint256 wrapperUserBalanceBefore = balanceOf(account);
+    uint256 wrapperSenderBalanceBefore = balanceOf(e.msg.sender);
     uint256 underlyingThisBalanceBefore = underlyingBalanceOf(currentContract);
 
     mathint value = underlyingThisBalanceBefore - wrapperTotalBefore;
 
     _recover(e, account);
 
-    uint256 wrapperTotalAfter = totalSupply(e);
-    uint256 wrapperUserBalanceAfter = balanceOf(e, account);
-    uint256 wrapperSenderBalanceAfter = balanceOf(e, e.msg.sender);
+    uint256 wrapperTotalAfter = totalSupply();
+    uint256 wrapperUserBalanceAfter = balanceOf(account);
+    uint256 wrapperSenderBalanceAfter = balanceOf(e.msg.sender);
 
     assert wrapperTotalBefore == wrapperTotalAfter - value, "wrapper total wrong update";
 

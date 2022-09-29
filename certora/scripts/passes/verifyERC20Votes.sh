@@ -8,5 +8,4 @@ certoraRun \
     --solc solc \
     --optimistic_loop \
     --settings -copyLoopUnroll=4 \
-    --msg "ERC20Votes" \
     $@

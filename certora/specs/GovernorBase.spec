@@ -38,7 +38,7 @@ methods {
 
 
 // proposal was created - relation proved in noStartBeforeCreation
-definition proposalCreated(uint256 pId) returns bool = 
+definition proposalCreated(uint256 pId) returns bool =
     proposalSnapshot(pId) > 0
     && proposalDeadline(pId) > 0;
 
@@ -160,7 +160,7 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
     bool isExecutedBefore = isExecuted(pId);
     bool quorumReachedBefore = quorumReached(e, pId);
     bool voteSucceededBefore = voteSucceeded(pId);
-    
+
     calldataarg args;
     f(e, args);
 
@@ -289,7 +289,9 @@ rule allFunctionsRevertIfExecuted(method f) filtered { f ->
       && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
       && f.selector != relay(address,uint256,bytes).selector
       && f.selector != 0xb9a61961 // __acceptAdmin()
-      && f.selector != setLateQuorumVoteExtension(uint64).selector
+      && f.selector != onERC721Received(address,address,uint256,bytes).selector
+      && f.selector != onERC1155Received(address,address,uint256,uint256,bytes).selector
+      && f.selector != onERC1155BatchReceived(address,address,uint256[],uint256[],bytes).selector
 } {
     env e; calldataarg args;
     uint256 pId;
@@ -312,7 +314,9 @@ rule allFunctionsRevertIfCanceled(method f) filtered {
       && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
       && f.selector != relay(address,uint256,bytes).selector
       && f.selector != 0xb9a61961 // __acceptAdmin()
-      && f.selector != setLateQuorumVoteExtension(uint64).selector
+      && f.selector != onERC721Received(address,address,uint256,bytes).selector
+      && f.selector != onERC1155Received(address,address,uint256,uint256,bytes).selector
+      && f.selector != onERC1155BatchReceived(address,address,uint256[],uint256[],bytes).selector
 } {
     env e; calldataarg args;
     uint256 pId;
