@@ -1,4 +1,3 @@
-const { docItemTypes } = require('solidity-docgen');
 const { isNodeType } = require('solidity-ast/utils');
 const { slug } = require('./helpers');
 
@@ -30,11 +29,11 @@ module.exports.inheritance = function ({ item, build }) {
 
 module.exports['has-functions'] = function ({ item }) {
   return item.inheritance.some(c => c.functions.length > 0);
-}
+};
 
 module.exports['has-events'] = function ({ item }) {
   return item.inheritance.some(c => c.events.length > 0);
-}
+};
 
 module.exports['inherited-functions'] = function ({ item }) {
   const { inheritance } = item;
@@ -47,4 +46,4 @@ module.exports['inherited-functions'] = function ({ item }) {
       !baseFunctions.has(f.id) && (f.name !== 'constructor' || i === 0),
     ),
   }));
-}
+};
