@@ -24,11 +24,11 @@ contract('ReentrancyGuard', function (accounts) {
   });
 
   it('_reentrancyGuardEntered should be true when guarded', async function () {
-    await this.reentrancyMock.guardedCheckEntered()
+    await this.reentrancyMock.guardedCheckEntered();
   });
 
   it('_reentrancyGuardEntered should be false when unguarded', async function () {
-    await this.reentrancyMock.unguardedCheckNotEntered()
+    await this.reentrancyMock.unguardedCheckNotEntered();
   });
 
   // The following are more side-effects than intended behavior:
