@@ -1,4 +1,4 @@
-{{#each linkable}}
+{{#each items}}
 :{{name}}: pass:normal[xref:#{{anchor}}[`++{{name}}++`]]
 {{/each}}
 
@@ -18,27 +18,41 @@ import "@openzeppelin/{{__item_context.file.absolutePath}}";
 .Modifiers
 --
 {{#each modifiers}}
-* {xref-{{anchor~}} }[`++{{name}}({{params.names}})++`]
+* {xref-{{anchor~}} }[`++{{name}}({{names params}})++`]
 {{/each}}
 --
 {{/if}}
 
-{{#if functions}}
+{{#if has-functions}}
 [.contract-index]
 .Functions
 --
+{{#each inherited-functions}}
+{{#unless @first}}
+[.contract-subindex-inherited]
+.{{contract.name}}
+{{/unless}}
 {{#each functions}}
-* {xref-{{anchor~}} }[`++{{name}}({{params.names}})++`]
+* {xref-{{anchor~}} }[`++{{name}}({{names params}})++`]
+{{/each}}
+
 {{/each}}
 --
 {{/if}}
 
-{{#if events}}
+{{#if has-events}}
 [.contract-index]
 .Events
 --
+{{#each inheritance}}
+{{#unless @first}}
+[.contract-subindex-inherited]
+.{{name}}
+{{/unless}}
 {{#each events}}
-* {xref-{{anchor~}} }[`++{{name}}({{params.names}})++`]
+* {xref-{{anchor~}} }[`++{{name}}({{names params}})++`]
+{{/each}}
+
 {{/each}}
 --
 {{/if}}

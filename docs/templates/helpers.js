@@ -6,6 +6,8 @@ module.exports['readme-path'] = (opts) => {
   return 'contracts/' + opts.data.root.id.replace(/\.adoc$/, '') + '/README.adoc';
 };
 
+module.exports.names = (params) => params.map(p => p.name).join(', ');
+
 module.exports['typed-params'] = (params) => {
   return params.map(p => `${p.type}${p.name ? ' ' + p.name : ''}`).join(', ');
 };
