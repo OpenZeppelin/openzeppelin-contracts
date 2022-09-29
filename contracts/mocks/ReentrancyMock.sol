@@ -41,11 +41,11 @@ contract ReentrancyMock is ReentrancyGuard {
         counter += 1;
     }
 
-    function guardedCheckEntered() public nonReentrant returns (bool) {
+    function guardedCheckEntered() public nonReentrant {
         require(_reentrancyGuardEntered());
     }
 
-    function unguardedCheckNotEntered() public returns (bool) {
+    function unguardedCheckNotEntered() public view {
         require(!_reentrancyGuardEntered());
     }
 }
