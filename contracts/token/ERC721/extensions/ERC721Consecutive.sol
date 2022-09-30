@@ -32,18 +32,19 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     using BitMaps for BitMaps.BitMap;
     using Checkpoints for Checkpoints.Trace160;
 
-    mapping(address => uint256) private _batchBalances;
-
     Checkpoints.Trace160 private _sequentialOwnership;
     BitMaps.BitMap private _sequentialBurn;
 
+    mapping(address => uint256) private _batchBalances;
 
+    /**
+     * @dev See {ERC721-balanceOf}.
+     */
     function balanceOf(address owner) public view virtual override returns (uint256) {
         unchecked {
             return super.balanceOf(owner) + _batchBalances[owner];
         }
     }
-
 
     /**
      * @dev Maximum size of a batch of consecutive tokens. This is designed to limit stress on off-chain indexing
