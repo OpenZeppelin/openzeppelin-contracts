@@ -122,7 +122,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
     /**
      * @dev Delegate all of `account`'s voting units to `delegatee`.
      *
-     * Emits events {DelegateChanged} and {DelegateVotesChanged}.
+     * Emits events {IVotes-DelegateChanged} and {IVotes-DelegateVotesChanged}.
      */
     function _delegate(address account, address delegatee) internal virtual {
         address oldDelegate = delegates(account);

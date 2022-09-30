@@ -191,7 +191,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     /**
      * @dev Move voting power when tokens are transferred.
      *
-     * Emits a {DelegateVotesChanged} event.
+     * Emits a {IVotes-DelegateVotesChanged} event.
      */
     function _afterTokenTransfer(
         address from,
@@ -206,7 +206,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     /**
      * @dev Change delegation for `delegator` to `delegatee`.
      *
-     * Emits events {DelegateChanged} and {DelegateVotesChanged}.
+     * Emits events {IVotes-DelegateChanged} and {IVotes-DelegateVotesChanged}.
      */
     function _delegate(address delegator, address delegatee) internal virtual {
         address currentDelegate = delegates(delegator);

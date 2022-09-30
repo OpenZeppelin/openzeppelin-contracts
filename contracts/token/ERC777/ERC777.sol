@@ -508,7 +508,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Does not update the allowance amount in case of infinite allowance.
      * Revert if not enough allowance is available.
      *
-     * Might emit an {Approval} event.
+     * Might emit an {IERC20-Approval} event.
      */
     function _spendAllowance(
         address owner,
