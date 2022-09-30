@@ -154,10 +154,10 @@ function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns
 }
 
 /**
- * @dev Same as {_get}, with a custom error message when \`key\` is not in the map.
+ * @dev Same as {get}, with a custom error message when \`key\` is not in the map.
  *
  * CAUTION: This function is deprecated because it requires allocating memory for the error
- * message unnecessarily. For custom revert reasons use {_tryGet}.
+ * message unnecessarily. For custom revert reasons use {tryGet}.
  */
 function get(
     Bytes32ToBytes32Map storage map,
