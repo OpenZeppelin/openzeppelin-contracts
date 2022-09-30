@@ -20,7 +20,7 @@ abstract contract ERC721Votes is ERC721, Votes {
     /**
      * @dev Adjusts votes when tokens are transferred.
      *
-     * Emits a {Votes-DelegateVotesChanged} event.
+     * Emits a {IVotes-DelegateVotesChanged} event.
      */
     function _afterTokenTransfer(
         address from,
@@ -34,7 +34,7 @@ abstract contract ERC721Votes is ERC721, Votes {
     /**
      * @dev Adjusts votes when a batch of tokens is transferred.
      *
-     * Emits a {Votes-DelegateVotesChanged} event.
+     * Emits a {IVotes-DelegateVotesChanged} event.
      */
     function _afterConsecutiveTokenTransfer(
         address from,
