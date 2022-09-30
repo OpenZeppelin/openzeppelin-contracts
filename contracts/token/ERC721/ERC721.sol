@@ -493,18 +493,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Calling conditions are similar to {_beforeTokenTransfer}.
      */
     function _beforeConsecutiveTokenTransfer(
-        address from,
-        address to,
+        address, /*from*/
+        address, /*to*/
         uint256, /*first*/
-        uint96 size
-    ) internal virtual {
-        if (from != address(0)) {
-            _balances[from] -= size;
-        }
-        if (to != address(0)) {
-            _balances[to] += size;
-        }
-    }
+        uint96 /*size*/
+    ) internal virtual {}
 
     /**
      * @dev Hook that is called after "consecutive token transfers" as defined in ERC2309 and implemented in

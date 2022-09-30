@@ -52,6 +52,10 @@ contract ERC721ConsecutiveMock is ERC721Burnable, ERC721Consecutive, ERC721Pausa
         _safeMint(to, tokenId);
     }
 
+    function balanceOf(address account) public view virtual override(ERC721, ERC721Consecutive) returns (uint256) {
+        return super.balanceOf(account);
+    }
+
     function _ownerOf(uint256 tokenId) internal view virtual override(ERC721, ERC721Consecutive) returns (address) {
         return super._ownerOf(tokenId);
     }

@@ -27,6 +27,10 @@ contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable 
         return super.supportsInterface(interfaceId);
     }
 
+    function balanceOf(address account) public view virtual override(IERC721, ERC721, ERC721Consecutive) returns (uint256) {
+        return super.balanceOf(account);
+    }
+
     function _ownerOf(uint256 tokenId) internal view virtual override(ERC721, ERC721Consecutive) returns (address) {
         return super._ownerOf(tokenId);
     }
