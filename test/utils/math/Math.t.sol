@@ -154,7 +154,7 @@ contract MathTest is Test {
 
         // Full precision for q * d
         (uint256 qdHi, uint256 qdLo) = _mulHighLow(q, d);
-        // Add reminder of x * y / d (computed as rem = (x * y % d))
+        // Add remainder of x * y / d (computed as rem = (x * y % d))
         (uint256 qdRemLo, uint256 c) = _addCarry(qdLo, _mulmod(x, y, d));
         uint256 qdRemHi = qdHi + c;
 
