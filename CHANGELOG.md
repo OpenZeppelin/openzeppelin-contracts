@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+ * `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
+
+## Unreleased
 
  * `Initializable`: add internal functions `_getInitializedVersion` and `_isInitializing` ([#3598](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3598))
  * `ERC165Checker`: add `supportsERC165InterfaceUnchecked` for consulting individual interfaces without the full ERC165 protocol. ([#3339](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3339))
@@ -123,7 +126,6 @@ With the new `ERC721Consecutive` extension, the internal workings of `ERC721` ar
  * `Initializable`: add a reinitializer modifier that enables the initialization of new modules, added to already initialized contracts through upgradeability. ([#3232](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3232))
  * `Initializable`: add an Initialized event that tracks initialized version numbers. ([#3294](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3294))
  * `ERC2981`: make `royaltyInfo` public to allow super call in overrides. ([#3305](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3305))
- * `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3713](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3713))
 
 ### Upgradeability notice
 
