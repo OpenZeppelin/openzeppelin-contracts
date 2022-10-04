@@ -63,7 +63,9 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      */
     function getVotes(address account) public view virtual override returns (uint256) {
         uint256 pos = _checkpoints[account].length;
-        return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
+        unchecked {
+            return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
+        }
     }
 
     /**
@@ -129,8 +131,10 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
                 low = mid + 1;
             }
         }
-
-        return high == 0 ? 0 : _unsafeAccess(ckpts, high - 1).votes;
+        
+        unchecked {
+            return high == 0 ? 0 : _unsafeAccess(ckpts, high - 1).votes;
+        }
     }
 
     /**
@@ -242,8 +246,10 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         uint256 delta
     ) private returns (uint256 oldWeight, uint256 newWeight) {
         uint256 pos = ckpts.length;
-
-        Checkpoint memory oldCkpt = pos == 0 ? Checkpoint(0, 0) : _unsafeAccess(ckpts, pos - 1);
+        
+        unchecked {
+            Checkpoint memory oldCkpt = pos == 0 ? Checkpoint(0, 0) : _unsafeAccess(ckpts, pos - 1);
+        }
 
         oldWeight = oldCkpt.votes;
         newWeight = op(oldWeight, delta);
