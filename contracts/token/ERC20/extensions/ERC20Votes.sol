@@ -249,15 +249,15 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         
         unchecked {
             Checkpoint memory oldCkpt = pos == 0 ? Checkpoint(0, 0) : _unsafeAccess(ckpts, pos - 1);
-        }
+            
+            oldWeight = oldCkpt.votes;
+            newWeight = op(oldWeight, delta);
 
-        oldWeight = oldCkpt.votes;
-        newWeight = op(oldWeight, delta);
-
-        if (pos > 0 && oldCkpt.fromBlock == block.number) {
-            _unsafeAccess(ckpts, pos - 1).votes = SafeCast.toUint224(newWeight);
-        } else {
-            ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
+            if (pos > 0 && oldCkpt.fromBlock == block.number) {
+                _unsafeAccess(ckpts, pos - 1).votes = SafeCast.toUint224(newWeight);
+            } else {
+                ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
+            }
         }
     }
 
