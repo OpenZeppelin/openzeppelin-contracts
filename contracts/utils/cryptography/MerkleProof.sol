@@ -138,7 +138,9 @@ library MerkleProof {
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-            bytes32 b = proofFlags[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proof[proofPos++];
+            bytes32 b = proofFlags[i]
+                ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
+                : proof[proofPos++];
             hashes[i] = _hashPair(a, b);
         }
 
