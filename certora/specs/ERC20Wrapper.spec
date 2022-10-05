@@ -1,28 +1,40 @@
-import "erc20.spec"
+import "ERC20.spec"
 
 methods {
-    underlying()                 returns(address) envfree
-    underlyingTotalSupply()      returns(uint256) envfree
+    underlying() returns(address) envfree
+    underlyingTotalSupply() returns(uint256) envfree
     underlyingBalanceOf(address) returns(uint256) envfree
+
     depositFor(address, uint256) returns(bool)
     withdrawTo(address, uint256) returns(bool)
-    _recover(address)            returns(uint256)
+    _recover(address) returns(uint256)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                    Invariants                                                     //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+use invariant totalSupplyIsSumOfBalances
+
 // totalsupply of wrapped should be less than or equal to underlying (assuming no external transfer) - solvency
 invariant whatAboutTotal(env e)
     totalSupply() <= underlyingTotalSupply()
     filtered { f -> f.selector != certorafallback_0().selector && !f.isView }
     {
-        preserved {
+        preserved with (env e2) {
             require underlyingBalanceOf(currentContract) <= underlyingTotalSupply();
+            requireInvariant totalSupplyIsSumOfBalances;
+            require e.msg.sender == e2.msg.sender;
         }
-        preserved depositFor(address account, uint256 amount) with (env e2) {
+        preserved depositFor(address account, uint256 amount) with (env e3){
             require totalSupply() + amount <= underlyingTotalSupply();
+        }
+        preserved _mint(address account, uint256 amount) with (env e4){
+            require totalSupply() + amount <= underlyingTotalSupply();
+        }
+        preserved _burn(address account, uint256 amount) with (env e5){
+            require balanceOf(account) >= amount;
+            requireInvariant totalSupplyIsSumOfBalances;
         }
     }
 
@@ -34,6 +46,15 @@ invariant underTotalAndContractBalanceOfCorrelation(env e)
             require underlying() != currentContract;
             require e.msg.sender != currentContract;
             require e.msg.sender == e2.msg.sender;
+            requireInvariant totalSupplyIsSumOfBalances;
+        }
+        preserved _mint(address account, uint256 amount) with (env e4){
+            require totalSupply() + amount <= underlyingBalanceOf(currentContract);
+            require underlying() != currentContract;
+        }
+        preserved _burn(address account, uint256 amount) with (env e5){
+            require balanceOf(account) >= amount;
+            requireInvariant totalSupplyIsSumOfBalances;
         }
     }
 
@@ -59,9 +80,9 @@ rule depositForSpecBasic(env e) {
     uint256 underlyingTotalAfter = underlyingTotalSupply();
     uint256 underlyingThisBalanceAfter = underlyingBalanceOf(currentContract);
 
-    assert wrapperTotalBefore == wrapperTotalAfter - amount, "wrapper total wrong update";
+    assert wrapperTotalBefore == to_uint256(wrapperTotalAfter - amount), "wrapper total wrong update";
     assert underlyingTotalBefore == underlyingTotalAfter, "underlying total was updated";
-    assert underlyingThisBalanceBefore == underlyingThisBalanceAfter - amount, "underlying this balance wrong update";
+    assert underlyingThisBalanceBefore == to_uint256(underlyingThisBalanceAfter - amount), "underlying this balance wrong update";
 }
 
 // Check that values are updated correctly by `depositFor()`
@@ -81,10 +102,10 @@ rule depositForSpecWrapper(env e) {
 
     assert account == e.msg.sender => wrapperUserBalanceBefore == wrapperSenderBalanceBefore
         && wrapperUserBalanceAfter == wrapperSenderBalanceAfter
-        && wrapperUserBalanceBefore == wrapperUserBalanceAfter - amount
+        && wrapperUserBalanceBefore == to_uint256(wrapperUserBalanceAfter - amount)
         , "wrapper balances wrong update";
 
-    assert account != e.msg.sender => wrapperUserBalanceBefore == wrapperUserBalanceAfter - amount
+    assert account != e.msg.sender => wrapperUserBalanceBefore == to_uint256(wrapperUserBalanceAfter - amount)
         && wrapperSenderBalanceBefore == wrapperSenderBalanceAfter
         , "wrapper balances wrong update";
 }
@@ -107,17 +128,17 @@ rule depositForSpecUnderlying(env e) {
 
     assert account == e.msg.sender => underlyingSenderBalanceBefore == underlyingUserBalanceBefore
         && underlyingSenderBalanceAfter == underlyingUserBalanceAfter
-        && underlyingSenderBalanceBefore == underlyingSenderBalanceAfter + amount
+        && underlyingSenderBalanceBefore == to_uint256(underlyingSenderBalanceAfter + amount)
         , "underlying balances wrong update";
 
     assert account != e.msg.sender
-        && account == currentContract => underlyingSenderBalanceBefore == underlyingSenderBalanceAfter + amount
-        && underlyingUserBalanceBefore == underlyingUserBalanceAfter - amount
+        && account == currentContract => underlyingSenderBalanceBefore == to_uint256(underlyingSenderBalanceAfter + amount)
+        && underlyingUserBalanceBefore == to_uint256(underlyingUserBalanceAfter - amount)
         , "underlying balances wrong update";
 
     assert account != e.msg.sender
-        && account != currentContract => underlyingSenderBalanceBefore == underlyingSenderBalanceAfter + amount
-        && underlyingUserBalanceBefore == underlyingUserBalanceAfter
+        && account != currentContract => underlyingSenderBalanceBefore == to_uint256(underlyingSenderBalanceAfter + amount)
+        && underlyingUserBalanceBefore == to_uint256(underlyingUserBalanceAfter)
         , "underlying balances wrong update";
 }
 
@@ -136,7 +157,7 @@ rule withdrawToSpecBasic(env e) {
     uint256 wrapperTotalAfter = totalSupply();
     uint256 underlyingTotalAfter = underlyingTotalSupply();
 
-    assert wrapperTotalBefore == wrapperTotalAfter + amount, "wrapper total wrong update";
+    assert wrapperTotalBefore == to_uint256(wrapperTotalAfter + amount), "wrapper total wrong update";
     assert underlyingTotalBefore == underlyingTotalAfter, "underlying total was updated";
 }
 
@@ -156,10 +177,10 @@ rule withdrawToSpecWrapper(env e) {
 
     assert account == e.msg.sender => wrapperUserBalanceBefore == wrapperSenderBalanceBefore
         && wrapperUserBalanceAfter == wrapperSenderBalanceAfter
-        && wrapperUserBalanceBefore == wrapperUserBalanceAfter + amount
+        && wrapperUserBalanceBefore == to_uint256(wrapperUserBalanceAfter + amount)
         , "wrapper user balance wrong update";
 
-    assert account != e.msg.sender => wrapperSenderBalanceBefore == wrapperSenderBalanceAfter + amount
+    assert account != e.msg.sender => wrapperSenderBalanceBefore == to_uint256(wrapperSenderBalanceAfter + amount)
         && wrapperUserBalanceBefore == wrapperUserBalanceAfter
         , "wrapper user balance wrong update";
 }
@@ -185,16 +206,16 @@ rule withdrawToSpecUnderlying(env e) {
 
     assert account == e.msg.sender => underlyingSenderBalanceBefore == underlyingUserBalanceBefore
         && underlyingSenderBalanceAfter == underlyingUserBalanceAfter
-        && underlyingUserBalanceBefore == underlyingUserBalanceAfter - amount
+        && underlyingUserBalanceBefore == to_uint256(underlyingUserBalanceAfter - amount)
         , "underlying balances wrong update (acc == sender)";
 
     assert account != e.msg.sender && account == currentContract => underlyingUserBalanceBefore == underlyingUserBalanceAfter
         && underlyingSenderBalanceBefore == underlyingSenderBalanceAfter
         , "underlying balances wrong update (acc == contract)";
 
-    assert account != e.msg.sender && account != currentContract => underlyingUserBalanceBefore == underlyingUserBalanceAfter - amount
+    assert account != e.msg.sender && account != currentContract => underlyingUserBalanceBefore == to_uint256(underlyingUserBalanceAfter - amount)
         && underlyingSenderBalanceBefore == underlyingSenderBalanceAfter
-        && underlyingThisBalanceBefore == underlyingThisBalanceAfter + amount
+        && underlyingThisBalanceBefore == to_uint256(underlyingThisBalanceAfter + amount)
         , "underlying balances wrong update (acc != contract)";
 }
 
@@ -216,14 +237,14 @@ rule recoverSpec(env e) {
     uint256 wrapperUserBalanceAfter = balanceOf(account);
     uint256 wrapperSenderBalanceAfter = balanceOf(e.msg.sender);
 
-    assert wrapperTotalBefore == wrapperTotalAfter - value, "wrapper total wrong update";
+    assert wrapperTotalBefore == to_uint256(wrapperTotalAfter - value), "wrapper total wrong update";
 
     assert e.msg.sender == account => wrapperUserBalanceBefore == wrapperSenderBalanceBefore
         && wrapperUserBalanceAfter == wrapperSenderBalanceAfter
-        && wrapperUserBalanceBefore == wrapperUserBalanceAfter - value
+        && wrapperUserBalanceBefore == to_uint256(wrapperUserBalanceAfter - value)
         , "wrapper balances wrong update";
 
-    assert e.msg.sender != account => wrapperUserBalanceBefore == wrapperUserBalanceAfter - value
+    assert e.msg.sender != account => wrapperUserBalanceBefore == to_uint256(wrapperUserBalanceAfter - value)
         && wrapperSenderBalanceBefore == wrapperSenderBalanceAfter
         , "wrapper balances wrong update";
 }
