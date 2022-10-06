@@ -89,16 +89,17 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             require(to != address(0), "ERC721Consecutive: mint to the zero address");
             require(batchSize <= _maxBatchSize(), "ERC721Consecutive: batch too large");
 
+            uint96 last = first + batchSize - 1;
+
             // hook before
-            _beforeConsecutiveTokenTransfer(address(0), to, first, batchSize);
+            _beforeTokenTransfer(address(0), to, first, last);
 
             // push an ownership checkpoint & emit event
-            uint96 last = first + batchSize - 1;
             _sequentialOwnership.push(last, uint160(to));
             emit ConsecutiveTransfer(first, last, address(0), to);
 
             // hook after
-            _afterConsecutiveTokenTransfer(address(0), to, first, batchSize);
+            _afterTokenTransfer(address(0), to, first, last);
         }
 
         return first;
@@ -121,16 +122,18 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     function _afterTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
+        uint256 firstTokenId,
+        uint256 lastTokenId
     ) internal virtual override {
         if (
             to == address(0) && // if we burn
-            tokenId < _totalConsecutiveSupply() && // and the tokenId was minted in a batch
-            !_sequentialBurn.get(tokenId) // and the token was never marked as burnt
+            firstTokenId < _totalConsecutiveSupply() && // and the tokenId was minted in a batch
+            !_sequentialBurn.get(firstTokenId) // and the token was never marked as burnt
         ) {
-            _sequentialBurn.set(tokenId);
+            require(firstTokenId == lastTokenId, "ERC721Consecutive: batch burn not supported");
+            _sequentialBurn.set(firstTokenId);
         }
-        super._afterTokenTransfer(from, to, tokenId);
+        super._afterTokenTransfer(from, to, firstTokenId, lastTokenId);
     }
 
     function _totalConsecutiveSupply() private view returns (uint96) {

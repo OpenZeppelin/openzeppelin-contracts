@@ -287,7 +287,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         require(to != address(0), "ERC721: mint to the zero address");
         require(!_exists(tokenId), "ERC721: token already minted");
 
-        _beforeTokenTransfer(address(0), to, tokenId);
+        _beforeTokenTransfer(address(0), to, tokenId, tokenId);
 
         // Check that tokenId was not minted by `_beforeTokenTransfer` hook
         require(!_exists(tokenId), "ERC721: token already minted");
@@ -304,7 +304,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         emit Transfer(address(0), to, tokenId);
 
-        _afterTokenTransfer(address(0), to, tokenId);
+        _afterTokenTransfer(address(0), to, tokenId, tokenId);
     }
 
     /**
@@ -321,7 +321,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _burn(uint256 tokenId) internal virtual {
         address owner = ERC721.ownerOf(tokenId);
 
-        _beforeTokenTransfer(owner, address(0), tokenId);
+        _beforeTokenTransfer(owner, address(0), tokenId, tokenId);
 
         // Update ownership in case tokenId was transferred by `_beforeTokenTransfer` hook
         owner = ERC721.ownerOf(tokenId);
@@ -338,7 +338,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         emit Transfer(owner, address(0), tokenId);
 
-        _afterTokenTransfer(owner, address(0), tokenId);
+        _afterTokenTransfer(owner, address(0), tokenId, tokenId);
     }
 
     /**
@@ -360,7 +360,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
         require(to != address(0), "ERC721: transfer to the zero address");
 
-        _beforeTokenTransfer(from, to, tokenId);
+        _beforeTokenTransfer(from, to, tokenId, tokenId);
 
         // Check that tokenId was not transferred by `_beforeTokenTransfer` hook
         require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
@@ -381,7 +381,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         emit Transfer(from, to, tokenId);
 
-        _afterTokenTransfer(from, to, tokenId);
+        _afterTokenTransfer(from, to, tokenId, tokenId);
     }
 
     /**
@@ -467,8 +467,19 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
-    ) internal virtual {}
+        uint256 firstTokenId,
+        uint256 lastTokenId
+    ) internal virtual {
+        if (lastTokenId > firstTokenId) {
+            uint size = lastTokenId - firstTokenId + 1;
+            if (from != address(0)) {
+                _balances[from] -= size;
+            }
+            if (to != address(0)) {
+                _balances[to] += size;
+            }
+        }
+    }
 
     /**
      * @dev Hook that is called after any (single) transfer of tokens. This includes minting and burning.
@@ -484,37 +495,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _afterTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
-    ) internal virtual {}
-
-    /**
-     * @dev Hook that is called before "consecutive token transfers" as defined in ERC2309 and implemented in
-     * {ERC721Consecutive}.
-     * Calling conditions are similar to {_beforeTokenTransfer}.
-     */
-    function _beforeConsecutiveTokenTransfer(
-        address from,
-        address to,
-        uint256, /*first*/
-        uint96 size
-    ) internal virtual {
-        if (from != address(0)) {
-            _balances[from] -= size;
-        }
-        if (to != address(0)) {
-            _balances[to] += size;
-        }
-    }
-
-    /**
-     * @dev Hook that is called after "consecutive token transfers" as defined in ERC2309 and implemented in
-     * {ERC721Consecutive}.
-     * Calling conditions are similar to {_afterTokenTransfer}.
-     */
-    function _afterConsecutiveTokenTransfer(
-        address, /*from*/
-        address, /*to*/
-        uint256, /*first*/
-        uint96 /*size*/
+        uint256 firstTokenId,
+        uint256 lastTokenId
     ) internal virtual {}
 }

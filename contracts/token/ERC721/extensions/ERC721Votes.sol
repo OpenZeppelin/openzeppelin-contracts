@@ -24,25 +24,12 @@ abstract contract ERC721Votes is ERC721, Votes {
     function _afterTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
+        uint256 firstTokenId,
+        uint256 lastTokenId
     ) internal virtual override {
-        _transferVotingUnits(from, to, 1);
-        super._afterTokenTransfer(from, to, tokenId);
-    }
-
-    /**
-     * @dev Adjusts votes when a batch of tokens is transferred.
-     *
-     * Emits a {IVotes-DelegateVotesChanged} event.
-     */
-    function _afterConsecutiveTokenTransfer(
-        address from,
-        address to,
-        uint256 first,
-        uint96 size
-    ) internal virtual override {
+        uint256 size = lastTokenId - firstTokenId + 1;
         _transferVotingUnits(from, to, size);
-        super._afterConsecutiveTokenTransfer(from, to, first, size);
+        super._afterTokenTransfer(from, to, firstTokenId, lastTokenId);
     }
 
     /**

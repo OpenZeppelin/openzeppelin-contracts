@@ -124,15 +124,6 @@ contract ERC721PresetMinterPauserAutoId is
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
-    function _beforeConsecutiveTokenTransfer(
-        address from,
-        address to,
-        uint256 first,
-        uint96 size
-    ) internal virtual override(ERC721, ERC721Enumerable, ERC721Pausable) {
-        super._beforeConsecutiveTokenTransfer(from, to, first, size);
-    }
-
     /**
      * @dev See {IERC165-supportsInterface}.
      */
