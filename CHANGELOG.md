@@ -6,10 +6,12 @@
 
 ## Unreleased
 
+ * `TimelockController`: Added a new `admin` constructor parameter that is assigned the admin role instead of the deployer account. ([#3722](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3722))
  * `Initializable`: add internal functions `_getInitializedVersion` and `_isInitializing` ([#3598](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3598))
  * `ERC165Checker`: add `supportsERC165InterfaceUnchecked` for consulting individual interfaces without the full ERC165 protocol. ([#3339](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3339))
  * `Address`: optimize `functionCall` by calling `functionCallWithValue` directly. ([#3468](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3468))
  * `Address`: optimize `functionCall` functions by checking contract size only if there is no returned data. ([#3469](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3469))
+ * `Governor`: make the `relay` function payable, and add support for EOA payments. ([#3730](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3730))
  * `GovernorCompatibilityBravo`: remove unused `using` statements. ([#3506](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3506))
  * `ERC20`: optimize `_transfer`, `_mint` and `_burn` by using `unchecked` arithmetic when possible. ([#3513](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3513))
  * `ERC20Votes`, `ERC721Votes`: optimize `getPastVotes` for looking up recent checkpoints. ([#3673](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3673))
@@ -36,10 +38,14 @@
  * `Ownable2Step`: extension of `Ownable` that makes the ownership transfers a two step process. ([#3620](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3620))
  * `Math` and `SignedMath`: optimize function `max` by using `>` instead of `>=`. ([#3679](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3679))
  * `Math`: Add `log2`, `log10` and `log256`. ([#3670](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3670))
+ * Arbitrum: Update the vendored arbitrum contracts to match the nitro upgrade. ([#3692](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3692))
+ * `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
 
 ### Breaking changes
 
  * `ERC4626`: Conversion from shares to assets (and vice-versa) in an empty vault used to consider the possible mismatch between the underlying asset's and the vault's decimals. This initial conversion rate is now set to 1-to-1 irrespective of decimals, which are meant for usability purposes only. The vault now uses the assets decimals by default, so off-chain the numbers should appear the same. Developers overriding the vault decimals to a value that does not match the underlying asset may want to override the `_initialConvertToShares` and `_initialConvertToAssets` to replicate the previous behavior.
+
+ * `TimelockController`: During deployment, the TimelockController used to grant the `TIMELOCK_ADMIN_ROLE` to the deployer and to the timelock itself. The deployer was then expected to renounce this role once configuration of the timelock is over. Failing to renounce that role allows the deployer to change the timelock permissions (but not to bypass the delay for any time-locked actions). The role is no longer given to the deployer by default. A new parameter `admin` can be set to a non-zero address to grant the admin role during construction (to the deployer or any other address). Just like previously, this admin role should be renounced after configuration. If this param is given `address(0)`, the role is not allocated and doesn't need to be revoked. In any case, the timelock itself continues to have this role.
 
 ### Deprecations
 
@@ -208,8 +214,8 @@ It is no longer possible to call an `initializer`-protected function from within
  * `ECDSA`: add a variant of `toEthSignedMessageHash` for arbitrary length message hashing. ([#2865](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2865))
  * `MerkleProof`: add a `processProof` function that returns the rebuilt root hash given a leaf and a proof. ([#2841](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2841))
  * `VestingWallet`: new contract that handles the vesting of Ether and ERC20 tokens following a customizable vesting schedule. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2748))
- * `Governor`: enable receiving Ether when a Timelock contract is not used. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
- * `GovernorTimelockCompound`: fix ability to use Ether stored in the Timelock contract. ([#2748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
+ * `Governor`: enable receiving Ether when a Timelock contract is not used. ([#2849](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
+ * `GovernorTimelockCompound`: fix ability to use Ether stored in the Timelock contract. ([#2849](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
 
 ## 4.3.3
 
