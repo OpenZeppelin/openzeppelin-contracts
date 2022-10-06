@@ -4261,8 +4261,10 @@ _Available since v4.7._
 [[MerkleProof-multiProofVerify-bytes32---bool---bytes32-bytes32---]]
 ==== `[.contract-item-name]#++multiProofVerify++#++(bytes32[] proof, bool[] proofFlags, bytes32 root, bytes32[] leaves) → bool++` [.item-kind]#internal#
 
-Returns true if the `leaves` can be proved to be a part of a Merkle tree defined by
+Returns true if the `leaves` can be simultaneously proven to be a part of a merkle tree defined by
 `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
+
+CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
 
 _Available since v4.7._
 
@@ -4272,15 +4274,22 @@ _Available since v4.7._
 
 Calldata version of {multiProofVerify}
 
+CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
+
 _Available since v4.7._
 
 [.contract-item]
 [[MerkleProof-processMultiProof-bytes32---bool---bytes32---]]
 ==== `[.contract-item-name]#++processMultiProof++#++(bytes32[] proof, bool[] proofFlags, bytes32[] leaves) → bytes32 merkleRoot++` [.item-kind]#internal#
 
-Returns the root of a tree reconstructed from `leaves` and the sibling nodes in `proof`,
-consuming from one or the other at each step according to the instructions given by
-`proofFlags`.
+Returns the root of a tree reconstructed from `leaves` and sibling nodes in `proof`. The reconstruction
+proceeds by incrementally reconstructing all inner nodes by combining a leaf/inner node with either another
+leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
+respectively.
+
+CAUTION: Not all merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
+is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
+tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
 
 _Available since v4.7._
 
@@ -4288,7 +4297,9 @@ _Available since v4.7._
 [[MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---]]
 ==== `[.contract-item-name]#++processMultiProofCalldata++#++(bytes32[] proof, bool[] proofFlags, bytes32[] leaves) → bytes32 merkleRoot++` [.item-kind]#internal#
 
-Calldata version of {processMultiProof}
+Calldata version of {processMultiProof}.
+
+CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
 
 _Available since v4.7._
 
