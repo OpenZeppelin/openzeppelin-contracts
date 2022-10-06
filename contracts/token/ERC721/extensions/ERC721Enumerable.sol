@@ -72,11 +72,12 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         address from,
         address to,
         uint256 firstTokenId,
-        uint256 lastTokenId
+        uint256 batchSize
     ) internal virtual override {
-        super._beforeTokenTransfer(from, to, firstTokenId, lastTokenId);
+        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
 
-        if (lastTokenId != firstTokenId) {
+        if (batchSize > 1) {
+            // Will only trigger during construction. Batch transferring (minting) is not available afterwards.
             revert("ERC721Enumerable: consecutive transfers not supported");
         }
 

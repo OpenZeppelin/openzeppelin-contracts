@@ -287,7 +287,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         require(to != address(0), "ERC721: mint to the zero address");
         require(!_exists(tokenId), "ERC721: token already minted");
 
-        _beforeTokenTransfer(address(0), to, tokenId, tokenId);
+        _beforeTokenTransfer(address(0), to, tokenId, 1);
 
         // Check that tokenId was not minted by `_beforeTokenTransfer` hook
         require(!_exists(tokenId), "ERC721: token already minted");
@@ -304,7 +304,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         emit Transfer(address(0), to, tokenId);
 
-        _afterTokenTransfer(address(0), to, tokenId, tokenId);
+        _afterTokenTransfer(address(0), to, tokenId, 1);
     }
 
     /**
@@ -321,7 +321,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _burn(uint256 tokenId) internal virtual {
         address owner = ERC721.ownerOf(tokenId);
 
-        _beforeTokenTransfer(owner, address(0), tokenId, tokenId);
+        _beforeTokenTransfer(owner, address(0), tokenId, 1);
 
         // Update ownership in case tokenId was transferred by `_beforeTokenTransfer` hook
         owner = ERC721.ownerOf(tokenId);
@@ -338,7 +338,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         emit Transfer(owner, address(0), tokenId);
 
-        _afterTokenTransfer(owner, address(0), tokenId, tokenId);
+        _afterTokenTransfer(owner, address(0), tokenId, 1);
     }
 
     /**
@@ -360,7 +360,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
         require(to != address(0), "ERC721: transfer to the zero address");
 
-        _beforeTokenTransfer(from, to, tokenId, tokenId);
+        _beforeTokenTransfer(from, to, tokenId, 1);
 
         // Check that tokenId was not transferred by `_beforeTokenTransfer` hook
         require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
@@ -381,7 +381,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         emit Transfer(from, to, tokenId);
 
-        _afterTokenTransfer(from, to, tokenId, tokenId);
+        _afterTokenTransfer(from, to, tokenId, 1);
     }
 
     /**
@@ -467,16 +467,15 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 firstTokenId,
-        uint256 lastTokenId
+        uint256, /* firstTokenId */
+        uint256 batchSize
     ) internal virtual {
-        if (lastTokenId > firstTokenId) {
-            uint size = lastTokenId - firstTokenId + 1;
+        if (batchSize > 1) {
             if (from != address(0)) {
-                _balances[from] -= size;
+                _balances[from] -= batchSize;
             }
             if (to != address(0)) {
-                _balances[to] += size;
+                _balances[to] += batchSize;
             }
         }
     }
@@ -496,6 +495,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address from,
         address to,
         uint256 firstTokenId,
-        uint256 lastTokenId
+        uint256 batchSize
     ) internal virtual {}
 }
