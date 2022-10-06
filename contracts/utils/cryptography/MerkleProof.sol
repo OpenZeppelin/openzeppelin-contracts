@@ -75,8 +75,10 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns true if the `leaves` can be proved to be a part of a Merkle tree defined by
+     * @dev Returns true if the `leaves` can be simultaneously proven to be a part of a merkle tree defined by
      * `root`, according to `proof` and `proofFlags` as described in {processMultiProof}.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
      *
      * _Available since v4.7._
      */
@@ -92,6 +94,8 @@ library MerkleProof {
     /**
      * @dev Calldata version of {multiProofVerify}
      *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
+     *
      * _Available since v4.7._
      */
     function multiProofVerifyCalldata(
@@ -104,9 +108,14 @@ library MerkleProof {
     }
 
     /**
-     * @dev Returns the root of a tree reconstructed from `leaves` and the sibling nodes in `proof`,
-     * consuming from one or the other at each step according to the instructions given by
-     * `proofFlags`.
+     * @dev Returns the root of a tree reconstructed from `leaves` and sibling nodes in `proof`. The reconstruction
+     * proceeds by incrementally reconstructing all inner nodes by combining a leaf/inner node with either another
+     * leaf/inner node or a proof sibling node, depending on whether each `proofFlags` item is true or false
+     * respectively.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure that: 1) the tree
+     * is complete (but not necessarily perfect), 2) the leaves to be proven are in the opposite order they are in the
+     * tree (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
      *
      * _Available since v4.7._
      */
@@ -152,7 +161,9 @@ library MerkleProof {
     }
 
     /**
-     * @dev Calldata version of {processMultiProof}
+     * @dev Calldata version of {processMultiProof}.
+     *
+     * CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for details.
      *
      * _Available since v4.7._
      */
