@@ -39,6 +39,17 @@
 
 ### Breaking changes
 
+ * `ERC721`: In order to add support for batch minting via `ERC721Consecutive` it was necessary to make a minor breaking change in the internal interface of `ERC721`. Namely, the hooks `_beforeTokenTransfer` and `_afterTokenTransfer` have one additional argument that may need to be added to overrides:
+
+```diff
+ function _beforeTokenTransfer(
+     address from,
+     address to,
+     uint256 tokenId,
++    uint256 batchSize
+ ) internal virtual override
+```
+
  * `ERC4626`: Conversion from shares to assets (and vice-versa) in an empty vault used to consider the possible mismatch between the underlying asset's and the vault's decimals. This initial conversion rate is now set to 1-to-1 irrespective of decimals, which are meant for usability purposes only. The vault now uses the assets decimals by default, so off-chain the numbers should appear the same. Developers overriding the vault decimals to a value that does not match the underlying asset may want to override the `_initialConvertToShares` and `_initialConvertToAssets` to replicate the previous behavior.
 
  * `TimelockController`: During deployment, the TimelockController used to grant the `TIMELOCK_ADMIN_ROLE` to the deployer and to the timelock itself. The deployer was then expected to renounce this role once configuration of the timelock is over. Failing to renounce that role allows the deployer to change the timelock permissions (but not to bypass the delay for any time-locked actions). The role is no longer given to the deployer by default. A new parameter `admin` can be set to a non-zero address to grant the admin role during construction (to the deployer or any other address). Just like previously, this admin role should be renounced after configuration. If this param is given `address(0)`, the role is not allocated and doesn't need to be revoked. In any case, the timelock itself continues to have this role.
@@ -63,7 +74,7 @@
 
 ERC-721 integrators that interpret contract state from events should make sure that they implement the clearing of approval that is implicit in every transfer according to the EIP. Previous versions of OpenZeppelin Contracts emitted an explicit `Approval` event even though it was not required by the specification, and this is no longer the case.
 
-With the new `ERC721Consecutive` extension, the internal workings of `ERC721` are slightly changed. Custom extensions to ERC721 should be reviewed to ensure they remain correct. The new internal functions that should be considered are `_ownerOf`, `_beforeConsecutiveTokenTransfer`, and `_afterConsecutiveTokenTransfer`, and the existing internal functions that should be reviewed are `_exists`, `_beforeTokenTransfer`, and `_afterTokenTransfer`.
+With the new `ERC721Consecutive` extension, the internal workings of `ERC721` are slightly changed. Custom extensions to ERC721 should be reviewed to ensure they remain correct. The internal functions that should be considered are `_ownerOf` (new), `_beforeTokenTransfer`, and `_afterTokenTransfer`.
 
 ## 4.7.3
 
