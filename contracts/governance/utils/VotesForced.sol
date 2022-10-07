@@ -122,6 +122,7 @@ abstract contract VotesForced is IVotes, Context, EIP712 {
             s
         );
         require(nonce == _useNonce(signer), "Votes: invalid nonce");
+        require(_getVotingUnits(signer) > 0, "Votes: no units to transfer");
         _delegate(signer, delegatee);
     }
 
@@ -134,7 +135,7 @@ abstract contract VotesForced is IVotes, Context, EIP712 {
         address oldDelegate = delegates(account);
 
         //TODO: Consider to revert if the operation is pointless
-        // require(oldDelegate != delegatee, "NO_CHANGE");
+        // require(oldDelegate != delegatee, "Votes: no change");
 
         _delegation[account] = delegatee;
         emit DelegateChanged(account, oldDelegate, delegatee);

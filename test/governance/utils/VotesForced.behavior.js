@@ -100,11 +100,10 @@ function shouldBehaveLikeVotesForced () {
           }),
         ));
 
-        const tx = await this.votes.delegateBySig(this.account1Delegatee, nonce, MAX_UINT256, v, r, s);
-        const { args } = tx.logs.find(({ event }) => event === 'DelegateChanged');
-        expect(args.delegator).to.not.be.equal(delegatorAddress);
-        expect(args.fromDelegate).to.not.be.equal(delegatorAddress);
-        expect(args.toDelegate).to.be.equal(this.account1Delegatee);
+        await expectRevert(
+          this.votes.delegateBySig(this.account1Delegatee, nonce, MAX_UINT256, v, r, s),
+          'Votes: no units to transfer',
+        );
       });
 
       it('rejects bad nonce', async function () {
