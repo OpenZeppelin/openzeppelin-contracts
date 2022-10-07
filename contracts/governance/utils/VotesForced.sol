@@ -9,26 +9,26 @@ import "../../utils/cryptography/EIP712.sol";
 import "./IVotes.sol";
 
 /**
- * @dev This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
+ * This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
  * transferred, and provides a system of vote delegation, where an account can delegate its voting units to a sort of
  * "representative" that will pool delegated voting units from different accounts and can then use it to vote in
- * decisions. In fact, voting units _must_ be delegated in order to count as actual votes, and an account has to
- * delegate those votes to itself if it wishes to participate in decisions and does not have a trusted representative.
+ * decisions. With this version of Votes, everyone participates automatically (there's no opt-in/out mechanism), but 
+ * different tokens may have different weights / voting rights than others. 
  *
  * This contract is often combined with a token contract such that voting units correspond to token units. For an
- * example, see {ERC721Votes}.
+ * example, see {ERC721VotesForced}.
  *
  * The full history of delegate votes is tracked on-chain so that governance protocols can consider votes as distributed
  * at a particular block number to protect against flash loans and double voting. The opt-in delegate system makes the
  * cost of this history tracking optional.
  *
- * When using this module the derived contract must implement {_getVotingUnits} (for example, make it return
- * {ERC721-balanceOf}), and can use {_transferVotingUnits} to track a change in the distribution of those units (in the
- * previous example, it would be included in {ERC721-_beforeTokenTransfer}).
+ * @dev When using this module the derived contract can use {_transferVotingUnits} to track a change in the distribution 
+ * of those units (in the previous example, it would be included in {ERC721-_beforeTokenTransfer}). and can also add a
+ * function that calculates the voting power for token, as long as the function is stable and the voting power is set 
+ * before the call to {_transferVotingUnits}.
  *
- * _Available since v4.5._
  */
-abstract contract Votes is IVotes, Context, EIP712 {
+abstract contract VotesForced is IVotes, Context, EIP712 {
     using Checkpoints for Checkpoints.History;
     using Counters for Counters.Counter;
 
@@ -40,6 +40,10 @@ abstract contract Votes is IVotes, Context, EIP712 {
     Checkpoints.History private _totalCheckpoints;
 
     mapping(address => Counters.Counter) private _nonces;
+
+    // Track the current undelegated balance for each account.
+    // this allows to support different voting power for different tokens
+    mapping(address => uint256) private _unitsBalance;
 
     /**
      * @dev Returns the current amount of votes that `account` has.
@@ -84,9 +88,11 @@ abstract contract Votes is IVotes, Context, EIP712 {
 
     /**
      * @dev Returns the delegate that `account` has chosen.
+     * To maintain consistency opt-out was removed and self is now default. 
      */
     function delegates(address account) public view virtual override returns (address) {
-        return _delegation[account];
+        address delegatee = _delegation[account];
+        return delegatee == address(0) ? account : _delegation[account];
     }
 
     /**
@@ -126,8 +132,11 @@ abstract contract Votes is IVotes, Context, EIP712 {
      */
     function _delegate(address account, address delegatee) internal virtual {
         address oldDelegate = delegates(account);
-        _delegation[account] = delegatee;
 
+        //TODO: Consider to revert if the operation is pointless
+        // require(oldDelegate != delegatee, "NO_CHANGE");
+
+        _delegation[account] = delegatee;
         emit DelegateChanged(account, oldDelegate, delegatee);
         _moveDelegateVotes(oldDelegate, delegatee, _getVotingUnits(account));
     }
@@ -143,9 +152,15 @@ abstract contract Votes is IVotes, Context, EIP712 {
     ) internal virtual {
         if (from == address(0)) {
             _totalCheckpoints.push(_add, amount);
+        } else{
+            //Units Removed
+            _unitsBalance[from] = _subtract(_unitsBalance[from], amount);
         }
         if (to == address(0)) {
             _totalCheckpoints.push(_subtract, amount);
+        } else{
+            //Units Added
+            _unitsBalance[to] = _add(_unitsBalance[to], amount);
         }
         _moveDelegateVotes(delegates(from), delegates(to), amount);
     }
@@ -207,5 +222,9 @@ abstract contract Votes is IVotes, Context, EIP712 {
     /**
      * @dev Must return the voting units held by an account.
      */
-    function _getVotingUnits(address) internal view virtual returns (uint256);
+    function _getVotingUnits(address account) private view returns (uint256){
+        return _unitsBalance[account];
+    }
+
+
 }
