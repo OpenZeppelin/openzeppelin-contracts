@@ -132,6 +132,7 @@ abstract contract VotesForced is IVotes, Context, EIP712 {
      * Emits events {IVotes-DelegateChanged} and {IVotes-DelegateVotesChanged}.
      */
     function _delegate(address account, address delegatee) internal virtual {
+        require(address(0) != delegatee, "Votes: invalid address");
         address oldDelegate = delegates(account);
 
         //TODO: Consider to revert if the operation is pointless
