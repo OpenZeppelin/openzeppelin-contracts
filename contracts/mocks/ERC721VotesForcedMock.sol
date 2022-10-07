@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
-import "../token/ERC721/extensions/ERC721Votes.sol";
+import "../token/ERC721/extensions/draft-ERC721VotesForced.sol";
 
-contract ERC721VotesMock is ERC721Votes {
+contract ERC721VotesForcedMock is ERC721VotesForced {
     constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}
 
     function getTotalSupply() public view returns (uint256) {
@@ -22,4 +22,5 @@ contract ERC721VotesMock is ERC721Votes {
     function getChainId() external view returns (uint256) {
         return block.chainid;
     }
+
 }
