@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.4;
 
-import "../token/ERC721/extensions/draft-ERC721VotesForced.sol";
+import "../token/ERC721/extensions/ERC721VotesForced.sol";
 
 contract ERC721VotesForcedMock is ERC721VotesForced {
     constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}
