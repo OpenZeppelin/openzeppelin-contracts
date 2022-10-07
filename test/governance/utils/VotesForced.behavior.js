@@ -68,7 +68,7 @@ function shouldBehaveLikeVotesForced () {
         });
         expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
         expect(await this.votes.delegates(delegatorAddress)).to.be.equal(delegatorAddress);
-        const NFT0power = await this.votes.powerForToken(this.NFT0);
+        const NFT0power = await this.votes.powerOfToken(this.NFT0);
         expect(await this.votes.getVotes(delegatorAddress)).to.be.bignumber.equal(NFT0power);
       });
 
@@ -144,7 +144,7 @@ function shouldBehaveLikeVotesForced () {
       describe('call', function () {
         it('delegation with tokens', async function () {
           await this.votes.mint(this.account1, this.NFT0);
-          const NFT0power = await this.votes.powerForToken(this.NFT0);
+          const NFT0power = await this.votes.powerOfToken(this.NFT0);
           const { receipt } = await this.votes.delegate(this.account1, { from: this.account1 });
           expectEvent(receipt, 'DelegateChanged', {
             delegator: this.account1,
@@ -176,7 +176,7 @@ function shouldBehaveLikeVotesForced () {
       beforeEach(async function () {
         await this.votes.mint(this.account1, this.NFT0);
         await this.votes.delegate(this.account1, { from: this.account1 });
-        this.NFT0power = await this.votes.powerForToken(this.NFT0);
+        this.NFT0power = await this.votes.powerOfToken(this.NFT0);
       });
 
       it('call', async function () {
@@ -236,7 +236,7 @@ function shouldBehaveLikeVotesForced () {
 
         expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber + 1))
-          .to.be.bignumber.equal(await this.votes.powerForToken(this.NFT0));
+          .to.be.bignumber.equal(await this.votes.powerOfToken(this.NFT0));
       });
 
       it('returns zero if < first checkpoint block', async function () {
@@ -247,7 +247,7 @@ function shouldBehaveLikeVotesForced () {
 
         expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber + 1))
-          .to.be.bignumber.equal(await this.votes.powerForToken(this.NFT1));
+          .to.be.bignumber.equal(await this.votes.powerOfToken(this.NFT1));
       });
 
       it('generally returns the voting balance at the appropriate checkpoint', async function () {
@@ -269,21 +269,21 @@ function shouldBehaveLikeVotesForced () {
 
         expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber))
-          .to.be.bignumber.equal(await this.votes.powerForToken(this.NFT1));
+          .to.be.bignumber.equal(await this.votes.powerOfToken(this.NFT1));
         expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber + 1))
-          .to.be.bignumber.equal(await this.votes.powerForToken(this.NFT1));
+          .to.be.bignumber.equal(await this.votes.powerOfToken(this.NFT1));
         expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastTotalSupply(t3.receipt.blockNumber))
-          .to.be.bignumber.equal(await this.votes.powerForToken(this.NFT2));
+          .to.be.bignumber.equal(await this.votes.powerOfToken(this.NFT2));
         expect(await this.votes.getPastTotalSupply(t3.receipt.blockNumber + 1))
-          .to.be.bignumber.equal(await this.votes.powerForToken(this.NFT2));
+          .to.be.bignumber.equal(await this.votes.powerOfToken(this.NFT2));
         expect(await this.votes.getPastTotalSupply(t4.receipt.blockNumber)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastTotalSupply(t4.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastTotalSupply(t5.receipt.blockNumber))
-          .to.be.bignumber.equal(await this.votes.powerForToken(this.NFT3));
+          .to.be.bignumber.equal(await this.votes.powerOfToken(this.NFT3));
         expect(await this.votes.getPastTotalSupply(t5.receipt.blockNumber + 1))
-          .to.be.bignumber.equal(await this.votes.powerForToken(this.NFT3));
+          .to.be.bignumber.equal(await this.votes.powerOfToken(this.NFT3));
       });
     });
 
