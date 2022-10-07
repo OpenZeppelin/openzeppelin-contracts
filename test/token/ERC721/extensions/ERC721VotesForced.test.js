@@ -1,7 +1,8 @@
 /* eslint-disable */
 
-const { BN, expectEvent, time } = require('@openzeppelin/test-helpers');
+const { BN, expectEvent, time, expectRevert, constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+const { ZERO_ADDRESS } = constants;
 
 const { promisify } = require('util');
 const queue = promisify(setImmediate);
@@ -55,19 +56,22 @@ contract('ERC721VotesForced', function (accounts) {
     
     beforeEach(async function () {
       await this.votes.mint(account1, this.NFT0);
+      //Set Defaults
+      this.account1Votes = this.NFT0power;
+      this.account2Votes = '0';
     });
 
     it('transfer token with power', async function () {
-        const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, { from: account1 });
-        expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: this.NFT0 });
-        expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousBalance: this.NFT0power, newBalance: '0' });
-        expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousBalance: '0', newBalance: this.NFT0power });
+      const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, { from: account1 });
+      expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: this.NFT0 });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousBalance: this.NFT0power, newBalance: '0' });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousBalance: '0', newBalance: this.NFT0power });
 
-        const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
-        expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
+      const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
+      expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
 
-        this.account1Votes = '0';
-        this.account2Votes = this.NFT0power;
+      this.account1Votes = '0';
+      this.account2Votes = this.NFT0power;
     });
 
     it('returns the same total supply on transfers', async function () {
@@ -83,53 +87,60 @@ contract('ERC721VotesForced', function (accounts) {
       this.account2Votes = this.NFT0power;
     });
 
+    it('can`t delegate to zero-address', async function () {
+      await expectRevert(
+        this.votes.delegate(ZERO_ADDRESS, { from: account1 }),
+        'Votes: invalid address',
+      );
+    });
+
     it('generally returns the voting balance at the appropriate checkpoint', async function () {
-        await this.votes.mint(account1, this.NFT1);
-        await this.votes.mint(account1, this.NFT2);
-        await this.votes.mint(account1, this.NFT3);
+      await this.votes.mint(account1, this.NFT1);
+      await this.votes.mint(account1, this.NFT2);
+      await this.votes.mint(account1, this.NFT3);
 
-        const t1 = await this.votes.delegate(other1, { from: account1 });
-        await time.advanceBlock();
-        await time.advanceBlock();
-        const t2 = await this.votes.transferFrom(account1, other2, this.NFT0, { from: account1 });
-        await time.advanceBlock();
-        await time.advanceBlock();
-        const t3 = await this.votes.transferFrom(account1, other2, this.NFT2, { from: account1 });
-        await time.advanceBlock();
-        await time.advanceBlock();
-        const t4 = await this.votes.transferFrom(other2, account1, this.NFT2, { from: other2 });
-        await time.advanceBlock();
-        await time.advanceBlock();
-        //Pull Voting Power Back
-        const t5 = await this.votes.delegate(account1, { from: account1 });
-        await time.advanceBlock();
-        await time.advanceBlock();
+      const t1 = await this.votes.delegate(other1, { from: account1 });
+      await time.advanceBlock();
+      await time.advanceBlock();
+      const t2 = await this.votes.transferFrom(account1, other2, this.NFT0, { from: account1 });
+      await time.advanceBlock();
+      await time.advanceBlock();
+      const t3 = await this.votes.transferFrom(account1, other2, this.NFT2, { from: account1 });
+      await time.advanceBlock();
+      await time.advanceBlock();
+      const t4 = await this.votes.transferFrom(other2, account1, this.NFT2, { from: other2 });
+      await time.advanceBlock();
+      await time.advanceBlock();
+      //Pull Voting Power Back
+      const t5 = await this.votes.delegate(account1, { from: account1 });
+      await time.advanceBlock();
+      await time.advanceBlock();
 
-        //Power of tokens 0,1,2,3
-        expect(await this.votes.getPastVotes(other1, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal(this.totalVotingPower);
-        expect(await this.votes.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal(this.totalVotingPower);
+      //Power of tokens 0,1,2,3
+      expect(await this.votes.getPastVotes(other1, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+      expect(await this.votes.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal(this.totalVotingPower);
+      expect(await this.votes.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal(this.totalVotingPower);
 
-        //Power of Tokens 1,2,3
-        let expectedPower123 = this.NFT1power.add(this.NFT2power).add(this.NFT3power).toString();
-        expect(await this.votes.getPastVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal(expectedPower123);
-        expect(await this.votes.getPastVotes(other1, t2.receipt.blockNumber + 1)).to.be.bignumber.equal(expectedPower123);
+      //Power of Tokens 1,2,3
+      let expectedPower123 = this.NFT1power.add(this.NFT2power).add(this.NFT3power).toString();
+      expect(await this.votes.getPastVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal(expectedPower123);
+      expect(await this.votes.getPastVotes(other1, t2.receipt.blockNumber + 1)).to.be.bignumber.equal(expectedPower123);
 
-        //Power of Tokens 1,3
-        let expectedPower13 = this.NFT1power.add(this.NFT3power).toString();
-        expect(await this.votes.getPastVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal(expectedPower13);
-        expect(await this.votes.getPastVotes(other1, t3.receipt.blockNumber + 1)).to.be.bignumber.equal(expectedPower13);
+      //Power of Tokens 1,3
+      let expectedPower13 = this.NFT1power.add(this.NFT3power).toString();
+      expect(await this.votes.getPastVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal(expectedPower13);
+      expect(await this.votes.getPastVotes(other1, t3.receipt.blockNumber + 1)).to.be.bignumber.equal(expectedPower13);
 
-        //Power of Tokens 1,2,3
-        expect(await this.votes.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal(expectedPower123);
-        expect(await this.votes.getPastVotes(other1, t4.receipt.blockNumber + 1)).to.be.bignumber.equal(expectedPower123);
+      //Power of Tokens 1,2,3
+      expect(await this.votes.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal(expectedPower123);
+      expect(await this.votes.getPastVotes(other1, t4.receipt.blockNumber + 1)).to.be.bignumber.equal(expectedPower123);
 
-        //Pulled Back Power of Tokens 1,2,3
-        expect(await this.votes.getPastVotes(other1, t5.receipt.blockNumber-1)).to.be.bignumber.equal(expectedPower123);
-        expect(await this.votes.getPastVotes(other1, t5.receipt.blockNumber)).to.be.bignumber.equal('0');
+      //Pulled Back Power of Tokens 1,2,3
+      expect(await this.votes.getPastVotes(other1, t5.receipt.blockNumber-1)).to.be.bignumber.equal(expectedPower123);
+      expect(await this.votes.getPastVotes(other1, t5.receipt.blockNumber)).to.be.bignumber.equal('0');
 
-        this.account1Votes = expectedPower123;
-        this.account2Votes = '0';
+      this.account1Votes = expectedPower123;
+      this.account2Votes = '0';
     });
 
     afterEach(async function () {
