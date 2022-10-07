@@ -1,21 +1,31 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/extensions/draft-ERC721Votes.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "../ERC721.sol";
-import "../../../governance/utils/Votes.sol";
+import "../../../governance/utils/VotesForced.sol";
 
 /**
- * @dev Extension of ERC721 to support voting and delegation as implemented by {Votes}, where each individual NFT counts
- * as 1 vote unit.
+ * @dev Extension of ERC721 to support voting and delegation as implemented by {VotesForces}, where every NFT may
+ * have different voting power.
  *
- * Tokens do not count as votes until they are delegated, because votes must be tracked which incurs an additional cost
- * on every transfer. Token holders can either delegate to a trusted representative who will decide how to make use of
- * the votes in governance decisions, or they can delegate to themselves to be their own representative.
+ * All tokens count as votes, even if not delegated. There's no need to delegate to oneself. 
+ * There's an additional cost for every token transfer (more gas). 
+ * Token holders may cast their vote themselves or delegate their vote to a representative.
  *
- * _Available since v4.5._
  */
-abstract contract ERC721Votes is ERC721, Votes {
+abstract contract ERC721VotesForced is ERC721, VotesForced {
+    
+    /**
+     * @dev Calculate the voting power of each token
+     * token weight exected to remain consistent and immutable. 
+     */ 
+    function powerOfToken(uint256 tokenId) public pure virtual returns (uint256) {
+        if(tokenId <= 1000) return tokenId * 2;
+        return tokenId / 2;
+    }
+
     /**
      * @dev Adjusts votes when tokens are transferred.
      *
@@ -26,7 +36,7 @@ abstract contract ERC721Votes is ERC721, Votes {
         address to,
         uint256 tokenId
     ) internal virtual override {
-        _transferVotingUnits(from, to, 1);
+        _transferVotingUnits(from, to, powerOfToken(tokenId));
         super._afterTokenTransfer(from, to, tokenId);
     }
 
@@ -41,14 +51,10 @@ abstract contract ERC721Votes is ERC721, Votes {
         uint256 first,
         uint96 size
     ) internal virtual override {
-        _transferVotingUnits(from, to, size);
+        for (uint256 i = 0; i < size; ++i) {
+            _transferVotingUnits(from, to, powerOfToken(first+i));
+        }
         super._afterConsecutiveTokenTransfer(from, to, first, size);
     }
 
-    /**
-     * @dev Returns the balance of `account`.
-     */
-    function _getVotingUnits(address account) internal view virtual override returns (uint256) {
-        return balanceOf(account);
-    }
 }
