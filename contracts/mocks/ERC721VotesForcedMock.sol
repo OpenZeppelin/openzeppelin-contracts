@@ -22,5 +22,4 @@ contract ERC721VotesForcedMock is ERC721VotesForced {
     function getChainId() external view returns (uint256) {
         return block.chainid;
     }
-
 }

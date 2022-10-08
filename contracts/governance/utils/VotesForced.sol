@@ -12,8 +12,8 @@ import "./IVotes.sol";
  * This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
  * transferred, and provides a system of vote delegation, where an account can delegate its voting units to a sort of
  * "representative" that will pool delegated voting units from different accounts and can then use it to vote in
- * decisions. With this version of Votes, everyone participates automatically (there's no opt-in/out mechanism), but 
- * different tokens may have different weights / voting rights than others. 
+ * decisions. With this version of Votes, everyone participates automatically (there's no opt-in/out mechanism), but
+ * different tokens may have different weights / voting rights than others.
  *
  * This contract is often combined with a token contract such that voting units correspond to token units. For an
  * example, see {ERC721VotesForced}.
@@ -22,9 +22,9 @@ import "./IVotes.sol";
  * at a particular block number to protect against flash loans and double voting. The opt-in delegate system makes the
  * cost of this history tracking optional.
  *
- * @dev When using this module the derived contract can use {_transferVotingUnits} to track a change in the distribution 
+ * @dev When using this module the derived contract can use {_transferVotingUnits} to track a change in the distribution
  * of those units (in the previous example, it would be included in {ERC721-_beforeTokenTransfer}). and can also add a
- * function that calculates the voting power for token, as long as the function is stable and the voting power is set 
+ * function that calculates the voting power for token, as long as the function is stable and the voting power is set
  * before the call to {_transferVotingUnits}.
  *
  */
@@ -88,7 +88,7 @@ abstract contract VotesForced is IVotes, Context, EIP712 {
 
     /**
      * @dev Returns the delegate that `account` has chosen.
-     * To maintain consistency opt-out was removed and self is now default. 
+     * To maintain consistency opt-out was removed and self is now default.
      */
     function delegates(address account) public view virtual override returns (address) {
         address delegatee = _delegation[account];
@@ -154,13 +154,13 @@ abstract contract VotesForced is IVotes, Context, EIP712 {
     ) internal virtual {
         if (from == address(0)) {
             _totalCheckpoints.push(_add, amount);
-        } else{
+        } else {
             //Units Removed
             _unitsBalance[from] = _subtract(_unitsBalance[from], amount);
         }
         if (to == address(0)) {
             _totalCheckpoints.push(_subtract, amount);
-        } else{
+        } else {
             //Units Added
             _unitsBalance[to] = _add(_unitsBalance[to], amount);
         }
@@ -224,9 +224,7 @@ abstract contract VotesForced is IVotes, Context, EIP712 {
     /**
      * @dev Must return the voting units held by an account.
      */
-    function _getVotingUnits(address account) private view returns (uint256){
+    function _getVotingUnits(address account) private view returns (uint256) {
         return _unitsBalance[account];
     }
-
-
 }
