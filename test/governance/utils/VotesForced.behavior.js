@@ -1,6 +1,6 @@
 const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 
-const { MAX_UINT256, ZERO_ADDRESS } = constants;
+const { MAX_UINT256 } = constants;
 
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
@@ -148,7 +148,7 @@ function shouldBehaveLikeVotesForced () {
           expectEvent(receipt, 'DelegateChanged', {
             delegator: this.account1,
             fromDelegate: this.account1,
-            toDelegate: this.account1, 
+            toDelegate: this.account1,
           });
           expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
           expect(await this.votes.delegates(this.account1)).to.be.equal(this.account1);
