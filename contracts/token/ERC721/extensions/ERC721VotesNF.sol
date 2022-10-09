@@ -16,12 +16,10 @@ import "../../../governance/utils/Votes.sol";
  *
  */
 abstract contract ERC721VotesNF is ERC721, Votes {
-    
     // Track the current undelegated balance for each account.
     // this allows to support different voting power for different tokens
     mapping(address => uint256) private _unitsBalance;
 
-    
     /**
      * @dev Calculate the voting power of each token
      * token weight exected to remain consistent and immutable.
@@ -29,7 +27,7 @@ abstract contract ERC721VotesNF is ERC721, Votes {
     function powerOfToken(uint256) public pure virtual returns (uint256) {
         return 1;
     }
-    
+
     /**
      * @dev Must return the voting units held by an account.
      */
@@ -55,7 +53,7 @@ abstract contract ERC721VotesNF is ERC721, Votes {
         }
         super._transferVotingUnits(from, to, amount);
     }
-    
+
     /**
      * @dev Adjusts votes when tokens are transferred.
      *

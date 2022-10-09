@@ -5,7 +5,6 @@ pragma solidity ^0.8.4;
 import "../token/ERC721/extensions/ERC721VotesNF.sol";
 
 contract ERC721VotesNFMock is ERC721VotesNF {
-    
     constructor(string memory name, string memory symbol) ERC721(name, symbol) EIP712(name, "1") {}
 
     /**
