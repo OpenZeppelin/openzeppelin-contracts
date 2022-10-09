@@ -9,7 +9,7 @@ contract ERC721VotesNFMock is ERC721VotesNF {
 
     /**
      * @dev Calculate the voting power of each token
-     * token weight exected to remain consistent and immutable.
+     * token weight expected to remain consistent and immutable.
      */
     function powerOfToken(uint256 tokenId) public pure override returns (uint256) {
         if (tokenId <= 1000) return tokenId * 2;

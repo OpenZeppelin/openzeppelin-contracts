@@ -22,7 +22,7 @@ abstract contract ERC721VotesNF is ERC721, Votes {
 
     /**
      * @dev Calculate the voting power of each token
-     * token weight exected to remain consistent and immutable.
+     * token weight expected to remain consistent and immutable.
      */
     function powerOfToken(uint256) public pure virtual returns (uint256) {
         return 1;
