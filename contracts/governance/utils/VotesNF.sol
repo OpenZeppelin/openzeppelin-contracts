@@ -16,7 +16,7 @@ import "./IVotes.sol";
  * different tokens may have different weights / voting rights than others.
  *
  * This contract is often combined with a token contract such that voting units correspond to token units. For an
- * example, see {ERC721VotesForced}.
+ * example, see {ERC721VotesNF}.
  *
  * The full history of delegate votes is tracked on-chain so that governance protocols can consider votes as distributed
  * at a particular block number to protect against flash loans and double voting. The opt-in delegate system makes the
@@ -28,7 +28,7 @@ import "./IVotes.sol";
  * before the call to {_transferVotingUnits}.
  *
  */
-abstract contract VotesForced is IVotes, Context, EIP712 {
+abstract contract VotesNF is IVotes, Context, EIP712 {
     using Checkpoints for Checkpoints.History;
     using Counters for Counters.Counter;
 

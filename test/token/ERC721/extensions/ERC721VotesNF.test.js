@@ -7,11 +7,11 @@ const { ZERO_ADDRESS } = constants;
 const { promisify } = require('util');
 const queue = promisify(setImmediate);
 
-const ERC721VotesMock = artifacts.require('ERC721VotesForcedMock');
+const ERC721VotesMock = artifacts.require('ERC721VotesNFMock');
 
-const { shouldBehaveLikeVotesForced } = require('../../../governance/utils/VotesForced.behavior');
+const { shouldBehaveLikeVotesNF } = require('../../../governance/utils/VotesNF.behavior');
 
-contract('ERC721VotesForced', function (accounts) {
+contract('ERC721VotesNF', function (accounts) {
   const [ account1, account2, account1Delegatee, other1, other2 ] = accounts;
   this.name = 'My Vote';
   const symbol = 'MTKN';
@@ -163,6 +163,6 @@ contract('ERC721VotesForced', function (accounts) {
       this.name = 'My Vote';
     });
 
-    shouldBehaveLikeVotesForced();
+    shouldBehaveLikeVotesNF();
   });
 });

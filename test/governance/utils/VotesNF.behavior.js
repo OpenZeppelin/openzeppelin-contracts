@@ -16,7 +16,7 @@ const Delegation = [
 
 const version = '1';
 
-function shouldBehaveLikeVotesForced () {
+function shouldBehaveLikeVotesNF () {
   describe('run votes workflow', function () {
     it('initial nonce is 0', async function () {
       expect(await this.votes.nonces(this.account1)).to.be.bignumber.equal('0');
@@ -332,5 +332,5 @@ function shouldBehaveLikeVotesForced () {
 }
 
 module.exports = {
-  shouldBehaveLikeVotesForced,
+  shouldBehaveLikeVotesNF,
 };

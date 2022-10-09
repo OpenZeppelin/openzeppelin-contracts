@@ -4,7 +4,7 @@
 pragma solidity ^0.8.4;
 
 import "../ERC721.sol";
-import "../../../governance/utils/VotesForced.sol";
+import "../../../governance/utils/VotesNF.sol";
 
 /**
  * @dev Extension of ERC721 to support voting and delegation as implemented by {VotesForces}, where every NFT may
@@ -15,7 +15,7 @@ import "../../../governance/utils/VotesForced.sol";
  * Token holders may cast their vote themselves or delegate their vote to a representative.
  *
  */
-abstract contract ERC721VotesForced is ERC721, VotesForced {
+abstract contract ERC721VotesNF is ERC721, VotesNF {
     /**
      * @dev Calculate the voting power of each token
      * token weight exected to remain consistent and immutable.
