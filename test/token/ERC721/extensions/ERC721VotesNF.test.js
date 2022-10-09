@@ -155,12 +155,6 @@ contract('ERC721Votes', function (accounts) {
       //Power of Tokens 1,2,3
       expect(await this.votes.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal(expectedPower123);
       expect(await this.votes.getPastVotes(other1, t4.receipt.blockNumber + 1)).to.be.bignumber.equal(expectedPower123);
-      //expect(await this.votes.getPastVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal('3');
-      //expect(await this.votes.getPastVotes(other1, t2.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
-      //expect(await this.votes.getPastVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal('2');
-      //expect(await this.votes.getPastVotes(other1, t3.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
-      //expect(await this.votes.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal('3');
-      //expect(await this.votes.getPastVotes(other1, t4.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
 
       this.account1Votes = '0';
       this.account2Votes = '0';
