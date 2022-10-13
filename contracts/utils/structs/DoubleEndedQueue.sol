@@ -165,6 +165,6 @@ library DoubleEndedQueue {
      * @dev Returns true if the queue is empty.
      */
     function empty(Bytes32Deque storage deque) internal view returns (bool) {
-        return deque._end <= deque._begin;
+        return deque._end == deque._begin;
     }
 }
