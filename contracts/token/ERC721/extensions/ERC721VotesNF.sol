@@ -36,7 +36,7 @@ abstract contract ERC721VotesNF is ERC721, Votes {
     }
 
     /**
-     * @dev Track all power-adjusted balanced
+     * @dev Track all power-adjusted balances
      */
     function _transferVotingUnits(
         address from,
