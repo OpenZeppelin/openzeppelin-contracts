@@ -36,6 +36,7 @@
  * `Math`: Add `log2`, `log10` and `log256`. ([#3670](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3670))
  * Arbitrum: Update the vendored arbitrum contracts to match the nitro upgrade. ([#3692](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3692))
  * `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
+ * `DoubleEndedQueue`: optimize function `empty` by using `==` instead of `<=`. ([#3760](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3760))
 
 ### Breaking changes
 
