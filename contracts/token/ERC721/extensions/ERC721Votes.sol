@@ -17,7 +17,7 @@ import "../../../governance/utils/Votes.sol";
  */
 abstract contract ERC721Votes is ERC721, Votes {
     /**
-     * @dev Adjusts votes when tokens are transferred.
+     * @dev See {ERC721-_afterTokenTransfer}. Adjusts votes when tokens are transferred.
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
