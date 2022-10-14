@@ -18,48 +18,43 @@ contract ERC20Meta is Context {
     string private _symbol;
     uint8 private _decimals;
 
-    address private _trustedForwarder;
-
-    modifier onlyTrustedForwarder{
-        require(msg.sender == _trustedForwarder, "Only trusted forwarder");
-        _;
-    }
-
-    constructor(string memory name_, string memory symbol_, address trustedForwarder_){
+    constructor(string memory name_, string memory symbol_){
         _name = name_;
         _symbol = symbol_;
-        _trustedForwarder = trustedForwarder_;
     }
 
-    function trustedForwarder() public view returns(address){
-        return _trustedForwarder;
-    }
-    
-    function _setTrustedForwarder(address trustedForwarder_) internal{
-        _trustedForwarder = trustedForwarder_;
-    }
 
-    
-    /**
-     * @dev Called by the Forwarder contract to the request on of the three 
-     * functions: metaTransfer, metaApprove or metaTransferFrom.
-     * This function handles this request and returns bool value
-    */
-    function requestFromForwarder(
+    function _requestFromForwarder(
         bytes calldata _data
-        ) external onlyTrustedForwarder returns(bool)
+        ) internal returns(bool)
     {
         (bytes4 selector, bytes memory data) = abi.decode(_data, (bytes4,bytes));
-        
+
         bool success;
-        if(selector == bytes4(keccak256("metaTransfer(address,address,uint256)"))){
-            (address from, address to, uint256 amount) = abi.decode(data, (address,address,uint256));
+        if(selector == bytes4(
+                keccak256(
+                    "metaTransfer(address,address,uint256)"
+                    )
+                )
+        ){
+            (address from, address to, uint256 amount) = 
+                        abi.decode(data, (address,address,uint256));
             success = metaTransfer(from, to, amount);
-        } else if(selector == bytes4(keccak256("metaTransferFrom(address,address,address,uint256)"))){
-            (address caller, address __owner, address to, uint256 amount) = abi.decode(data, (address,address,address,uint256));
+        } else if(
+            selector == bytes4(
+                keccak256(
+                    "metaTransferFrom(address,address,address,uint256)"
+                    )
+                )
+        ){
+            (address caller, address __owner, address to, uint256 amount) = 
+                        abi.decode(data, (address,address,address,uint256));
             success = metaTransferFrom(caller, __owner, to, amount);
-        } else if(selector == bytes4(keccak256("metaApprove(address,address,uint256)"))){
-            (address __owner, address spender, uint256 amount) = abi.decode(data, (address,address,uint256));
+        } else if(selector == bytes4(
+            keccak256("metaApprove(address,address,uint256)"))
+        ){
+            (address __owner, address spender, uint256 amount) = 
+                        abi.decode(data, (address,address,uint256));
             success = metaApprove(__owner, spender, amount);
         } else {
             success = false;
@@ -84,7 +79,6 @@ contract ERC20Meta is Context {
         _balances[from] -= amount;
         _balances[to] += amount;
 
-        emit MetaTransfer(from, to, amount);
         return true;
     }
 
@@ -112,7 +106,6 @@ contract ERC20Meta is Context {
         _balances[__owner] -= amount;
         _balances[to] += amount;
 
-        emit MetaTransferFrom(caller, __owner, to, amount);
         return true;
     }
 
@@ -128,7 +121,6 @@ contract ERC20Meta is Context {
 
         _allowances[__owner][spender] = amount;
 
-        emit MetaApproval(__owner, spender, amount);
         return true;
     }
 
