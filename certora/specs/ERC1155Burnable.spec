@@ -1,4 +1,4 @@
-//// ## Verification of ERC1155Burnable
+//// ## Verification of `ERC1155Burnable`
 //// 
 //// `ERC1155Burnable` extends the `ERC1155` functionality by wrapping the internal
 //// methods `_burn` and `_burnBatch` in the public methods `burn` and `burnBatch`,
@@ -35,7 +35,7 @@ rule onlyHolderOrApprovedCanReduceBalance(method f)
 /// Burning a larger amount of a token must reduce that token's balance more 
 /// than burning a smaller amount.
 /// n.b. This rule holds for `burnBatch` as well due to rules establishing 
-/// appropriate equivance between `burn` and `burnBatch` methods.
+/// appropriate equivalence between `burn` and `burnBatch` methods.
 rule burnAmountProportionalToBalanceReduction {
     storage beforeBurn = lastStorage;
     env e;
@@ -60,7 +60,7 @@ rule burnAmountProportionalToBalanceReduction {
 /// Two sequential burns must be equivalent to a single burn of the sum of their
 /// amounts.
 /// This rule holds for `burnBatch` as well due to rules establishing 
-/// appropriate equivance between `burn` and `burnBatch` methods.
+/// appropriate equivalence between `burn` and `burnBatch` methods.
 rule sequentialBurnsEquivalentToSingleBurnOfSum {
     storage beforeBurns = lastStorage;
     env e;
@@ -85,6 +85,7 @@ rule sequentialBurnsEquivalentToSingleBurnOfSum {
 
 /// The result of burning a single token must be equivalent whether done via
 /// burn or burnBatch.
+/// @title Single token `burn` / `burnBatch` equivalence
 rule singleTokenBurnBurnBatchEquivalence {
     storage beforeBurn = lastStorage;
     env e;
@@ -111,7 +112,8 @@ rule singleTokenBurnBurnBatchEquivalence {
 }   
 
 /// The results of burning multiple tokens must be equivalent whether done 
-/// separately via burn or together via burnBatch.
+/// separately via `burn` or together via `burnBatch`.
+/// @title Multiple token `burn` / `burnBatch` equivalence
 rule multipleTokenBurnBurnBatchEquivalence {
     storage beforeBurns = lastStorage;
     env e;
@@ -150,7 +152,7 @@ rule multipleTokenBurnBurnBatchEquivalence {
         "Burning multiple tokens via burn or burnBatch must be equivalent";
 }
 
-/// If passed empty token and burn amount arrays, burnBatch must not change 
+/// If passed empty token and burn amount arrays, `burnBatch` must not change 
 /// token balances or address permissions.
 rule burnBatchOnEmptyArraysChangesNothing {
     uint256 token; address nonHolderA; address nonHolderB;

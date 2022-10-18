@@ -1,10 +1,10 @@
-//// ## Verification of ERC1155Supply
+//// ## Verification of `ERC1155Supply`
 //// 
 //// `ERC1155Supply` extends the `ERC1155` functionality. The contract creates a publicly callable `totalSupply` wrapper for the private `_totalSupply` method, a public `exists` method to check for a positive balance of a given token, and updates `_beforeTokenTransfer` to appropriately change the mapping `_totalSupply` in the context of minting and burning tokens.
 //// 
 //// ### Assumptions and Simplifications
 //// - The `exists` method was wrapped in the `exists_wrapper` method because `exists` is a keyword in CVL.
-//// - The public functions `burn`, `burnBatch`, `mint`, and `mintBatch` were implemented in the harnesssing contract make their respective internal functions callable by the CVL. This was used to test the increase and decrease of `totalSupply` when tokens are minted and burned. 
+//// - The public functions `burn`, `burnBatch`, `mint`, and `mintBatch` were implemented in the harnessing contract make their respective internal functions callable by the CVL. This was used to test the increase and decrease of `totalSupply` when tokens are minted and burned. 
 //// - We created the `onlyOwner` modifier to be used in the above functions so that they are not called in unrelated rules.
 //// 
 //// ### Properties
@@ -17,8 +17,8 @@ methods {
     owner() returns address envfree
 }
  
-/// Given two different token ids, if totalSupply for one changes, then
-/// totalSupply for other must not.
+/// Given two different token ids, if total supply for one changes, then
+/// total supply for other must not.
 rule token_totalSupply_independence(method f)
 filtered {
     f -> f.selector != safeBatchTransferFrom(address,address,uint256[],uint256[],bytes).selector

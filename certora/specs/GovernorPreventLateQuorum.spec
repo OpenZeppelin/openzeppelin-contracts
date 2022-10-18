@@ -1,7 +1,7 @@
 import "GovernorCountingSimple.spec"
 
 /***
-## Verification of GovernorPreventLateQuorum 
+## Verification of `GovernorPreventLateQuorum`
 
 `GovernorPreventLateQuorum` extends the Governor group of contracts to add the
 feature of giving voters more time to vote in the case that a proposal reaches
@@ -19,7 +19,7 @@ None
   CVL. It also implements all of the required functions not implemented in the
   abstract contracts it inherits from.
 
-- `_castVote` was overriden to add an additional flag before calling the parent
+- `_castVote` was overridden to add an additional flag before calling the parent
   version. This flag stores the `block.number` in a variable
   `latestCastVoteCall` and is used as a way to check when any of variations of
   `castVote` are called.
@@ -131,7 +131,7 @@ invariant quorumReachedEffect(env e, uint256 pId)
     // filtered { f -> f.selector != updateQuorumNumerator(uint256).selector } // * fails for this function
 
 /**
- * A non-existant proposal must meet the definition of one.
+ * A non-existent proposal must meet the definition of one.
  * @dev INVARIANT NOT PASSING // fails for updateQuorumNumerator and in the initial state when voting token total supply is 0 (causes quoromReached to return true)
  * @dev ADVANCED SANITY NOT RAN
  */
@@ -140,7 +140,7 @@ invariant proposalNotCreatedEffects(env e, uint256 pId)
     // filtered { f -> f.selector != updateQuorumNumerator(uint256).selector } // * fails for this function
 
 /**
- * A created propsal must be in state deadlineExtendable or deadlineExtended.
+ * A created proposal must be in state `deadlineExtendable` or `deadlineExtended`.
  * @dev INVARIANT NOT PASSING // fails for updateQuorumNumerator and in the initial state when voting token total supply is 0 (causes quoromReached to return true)
  * @dev ADVANCED SANITY NOT RAN 
  */
@@ -156,8 +156,8 @@ invariant proposalInOneState(env e, uint256 pId)
 
 ///////////////////////////// #### first set of rules ////////////////////////
 
-//// The rules [R1](#deadlineChangeEffects) and [R2](#deadlineCantBeUnextended)
-//// are assumed in rule [R3](#canExtendDeadlineOnce), so we prove them first.
+//// The rules [`deadlineChangeEffects`](#deadlineChangeEffects) and [`deadlineCantBeUnextended`](#deadlineCantBeUnextended)
+//// are assumed in rule [`canExtendDeadlineOnce`](#canExtendDeadlineOnce), so we prove them first.
 
 /**
  * If deadline increases then we are in `deadlineExtended` state and `castVote`
@@ -221,12 +221,12 @@ rule canExtendDeadlineOnce(method f) filtered {f -> !f.isView} {
 
 /////////////////////// #### second set of rules ////////////////////////////
 
-//// The main rule in this section is [the deadline can only extended if quorum reached w/ <= timeOfExtension left to vote](#deadlineExtenededIfQuorumReached)
+//// The main rule in this section is [the deadline can only be extended if quorum reached with <= `timeOfExtension` left to vote](#deadlineExtnededIfQuorumReached)
 //// The other rules of this section are assumed in the proof, so we prove them
 //// first.
 
 /**
- * A change in hasVoted must be correlated with an increasing of the vote
+ * A change in `hasVoted` must be correlated with an increasing of the vote
  * supports, i.e. casting a vote increases the total number of votes.
  * @dev RULE PASSING
  * @dev ADVANCED SANITY PASSING
@@ -287,7 +287,7 @@ rule againstVotesDontCount(method f) filtered {f -> !f.isView} {
  * @dev RULE PASSING
  * @dev ADVANCED SANITY PASSING 
  */
-rule deadlineExtenededIfQuorumReached(method f) filtered {f -> !f.isView} {
+rule deadlineExtendedIfQuorumReached(method f) filtered {f -> !f.isView} {
     env e; calldataarg args; uint256 pId;
 
     requireInvariant proposalInOneState(e, pId);
@@ -305,7 +305,7 @@ rule deadlineExtenededIfQuorumReached(method f) filtered {f -> !f.isView} {
 }
 
 /**
- * `extendedDeadlineField` is set iff `_castVote` is called and quroum is reached.
+ * `extendedDeadlineField` is set if and only if `_castVote` is called and quorum is reached.
  * @dev RULE PASSING
  * @dev ADVANCED SANITY PASSING 
  */

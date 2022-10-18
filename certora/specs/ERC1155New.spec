@@ -9,7 +9,7 @@ import "ERC1155.spec"
 //// increased verification coverage with respect to token transfer methods.
 //// 
 //// ### Assumptions and Simplifications
-//// - Internal burn and mint methods are wrapped by CVT callable functions.
+//// - Internal burn and mint methods are wrapped by functions callable from CVL.
 //// 
 //// ### Properties
 ////
@@ -17,7 +17,7 @@ import "ERC1155.spec"
 //// Please see the file ERC1155.spec for earlier contract properties verified.
 
 /// The result of transferring a single token must be equivalent whether done 
-/// via safeTransferFrom or safeBatchTransferFrom.
+/// via `safeTransferFrom` or `safeBatchTransferFrom`.
 rule singleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
     storage beforeTransfer = lastStorage;
     env e;
@@ -48,7 +48,7 @@ rule singleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
 }   
 
 /// The results of transferring multiple tokens must be equivalent whether done 
-/// separately via safeTransferFrom or together via safeBatchTransferFrom.
+/// separately via `safeTransferFrom` or together via `safeBatchTransferFrom`.
 rule multipleTokenSafeTransferFromSafeBatchTransferFromEquivalence {
     storage beforeTransfers = lastStorage;
     env e;

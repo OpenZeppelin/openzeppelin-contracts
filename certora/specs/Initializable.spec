@@ -1,28 +1,28 @@
-//// ## Verification of Initializable
+//// ## Verification of `Initializable`
 //// 
-//// `Initializable` is a contract used to make constructors for upgradeable
+//// `Initializable` is a contract used to make constructors for upgradable
 //// contracts. This is accomplished by applying the `initializer` modifier to any
 //// function that serves as a constructor, which makes this function only
 //// callable once. The secondary modifier `reinitializer` allows for upgrades
-//// that change the contract's initializations. 
+//// that should run at most once after the contract is upgraded.
 ////     
 //// 
 //// ### Assumptions and Simplifications
 //// We assume `initializer()` and `reinitializer(1)` are equivalent if they
-//// both guarentee `_initialized` to be set to 1 after a successful call. This
+//// both guarantee `_initialized` to be set to 1 after a successful call. This
 //// allows us to use `reinitializer(n)` as a general version that also handles
 //// the regular `initialzer` case.
 ////     
 //// #### Harnessing
 //// Two harness versions were implemented, a simple flat contract, and a
 //// Multi-inheriting contract. The two versions together help us ensure there are
-//// No unexpected results because of different implementions. Initializable can
+//// No unexpected results because of different implementations. `Initializable` can
 //// Be used in many different ways but we believe these 2 cases provide good
 //// Coverage for all cases. In both harnesses we use getter functions for
 //// `_initialized` and `_initializing` and implement  `initializer` and
 //// `reinitializer` functions that use their respective modifiers. We also
 //// Implement some versioned functions that are only callable in specific
-//// Versions of the contract to mimick upgrading contracts.
+//// Versions of the contract to mimic upgrading contracts.
 ////     
 //// #### Munging
 //// Variables `_initialized` and `_initializing` were changed to have internal
@@ -106,10 +106,10 @@ rule reinitializeEffects {
     assert isInitializedOnce(), "reinitialize(1) must set _initialized to 1";
 }
 
-/// Successfully calling `initalize()` must result in `_initialized` being set to 1.
+/// Successfully calling `initialize()` must result in `_initialized` being set to 1.
 /// @dev We assume `initialize()` and `reinitialize(1)` are equivalent if this rule
-///      and the [above rule][#reinitalizeEffects] both pass.
-rule initalizeEffects {
+///      and the [above rule][#reinitializeEffects] both pass.
+rule initializeEffects {
     uint256 val; uint256 a; uint256 b;
 
     initialize(val, a, b);
@@ -138,8 +138,9 @@ rule increasingInitialized(method f) {
     assert initBefore <= initAfter, "_initialized must only increase";
 }
 
-/// If `reinitialize(...)` was called successfuly, then the variable
+/// If `reinitialize(...)` was called successfully, then the variable
 /// `_initialized` must increase.
+/// @title Reinitialize increases `init`
 rule reinitializeIncreasesInit {
     uint256 val; uint8 n; uint256 a; uint256 b;
 
@@ -176,6 +177,7 @@ rule reinitializeRule {
 
 /// Functions implemented in the parent contract that require `_initialized` to
 /// be a certain value are only callable when it is that value. 
+/// @title Reinitialize version check parent
 rule reinitVersionCheckParent {
     uint8 n;
 
@@ -185,6 +187,7 @@ rule reinitVersionCheckParent {
 
 /// Functions implemented in the child contract that require `_initialized` to
 /// be a certain value are only callable when it is that value.
+/// @title Reinitialize version check child
 rule reinitVersionCheckChild {
     uint8 n;
 
@@ -194,6 +197,7 @@ rule reinitVersionCheckChild {
 
 /// Functions implemented in the grandchild contract that require `_initialized`
 /// to be a certain value are only callable when it is that value.
+/// @title Reinitialize version check grandchild
 rule reinitVersionCheckGrandchild {
     uint8 n;
 
@@ -201,7 +205,7 @@ rule reinitVersionCheckGrandchild {
     assert initialized() == n, "gransdchild contract's version n functions must only be callable in version n";
 }
 
-/// Calling parent initalizer function must initialize all child contracts.
+/// Calling parent initializer function must initialize all child contracts.
 rule inheritanceCheck {
     uint256 val; uint8 n; uint256 a; uint256 b;
 
