@@ -1,4 +1,4 @@
-import "erc20.spec"
+import "erc20methods.spec"
 
 methods {
     maxFlashLoan(address) returns(uint256) envfree
