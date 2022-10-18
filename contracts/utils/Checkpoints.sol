@@ -51,7 +51,7 @@ library Checkpoints {
 
         uint256 len = self._checkpoints.length;
 
-        uint256 low = 0;
+        uint256 low;
         uint256 high = len;
 
         if (len > 5) {
@@ -139,7 +139,7 @@ library Checkpoints {
     ) private returns (uint224, uint224) {
         uint256 pos = self.length;
 
-        if (pos > 0) {
+        if (pos >= 1) {
             // Copying to memory is important here.
             Checkpoint memory last = _unsafeAccess(self, pos - 1);
 
@@ -300,7 +300,7 @@ library Checkpoints {
     ) private returns (uint224, uint224) {
         uint256 pos = self.length;
 
-        if (pos > 0) {
+        if (pos >= 1) {
             // Copying to memory is important here.
             Checkpoint224 memory last = _unsafeAccess(self, pos - 1);
 
@@ -465,7 +465,7 @@ library Checkpoints {
     ) private returns (uint160, uint160) {
         uint256 pos = self.length;
 
-        if (pos > 0) {
+        if (pos >= 1) {
             // Copying to memory is important here.
             Checkpoint160 memory last = _unsafeAccess(self, pos - 1);
 
