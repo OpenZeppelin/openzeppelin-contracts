@@ -56,6 +56,11 @@ invariant underTotalAndContractBalanceOfCorrelation(env e)
             require balanceOf(account) >= amount;
             requireInvariant totalSupplyIsSumOfBalances;
         }
+        preserved depositFor(address account, uint256 amount) with (env e3){
+            require totalSupply() + amount <= underlyingBalanceOf(currentContract);
+            require underlyingBalanceOf(currentContract) + amount < max_uint256;
+            require underlying() != currentContract;
+        }
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
