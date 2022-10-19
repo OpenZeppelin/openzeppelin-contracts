@@ -85,7 +85,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
     /**
      * @dev Returns the delegate that `account` has chosen.
      */
-    function delegates(address account) public view virtual override returns (address) {
+    function delegatee(address account) public view virtual override returns (address) {
         return _delegation[account];
     }
 
