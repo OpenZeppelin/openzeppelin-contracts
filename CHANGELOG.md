@@ -4,6 +4,7 @@
 
  * `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
  * `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
+ * `code` changed to `creationCode` to avoid usage of `code` as identifier. ([#3769](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3769))
 
 ## Unreleased
 
