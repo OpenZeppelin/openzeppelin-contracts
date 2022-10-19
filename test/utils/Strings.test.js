@@ -1,7 +1,6 @@
 const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
-const { it } = require('ethers/wordlists');
 
 const StringsMock = artifacts.require('StringsMock');
 
@@ -41,15 +40,15 @@ contract('Strings', function (accounts) {
 
   describe('toString int256', function () {
     it('converts 0', async function () {
-      expect(await this.strings.methods['toString(int256)'](0)).to.equal('0')
+      expect(await this.strings.methods['toString(int256)'](0)).to.equal('0');
     });
 
     it('converts positive number', async function () {
-      expect(await this.strings.methods['toString(int256)'](1)).to.equal('1')
+      expect(await this.strings.methods['toString(int256)'](1)).to.equal('1');
     });
 
     it('converts negative number', async function () {
-      expect(await this.strings.methods['toString(int256)'](-1)).to.equal('-1')
+      expect(await this.strings.methods['toString(int256)'](-1)).to.equal('-1');
     });
   });
 
