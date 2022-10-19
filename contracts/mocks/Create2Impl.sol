@@ -9,9 +9,9 @@ contract Create2Impl {
     function deploy(
         uint256 value,
         bytes32 salt,
-        bytes memory code
+        bytes memory creationCode
     ) public {
-        Create2.deploy(value, salt, code);
+        Create2.deploy(value, salt, creationCode);
     }
 
     function deployERC1820Implementer(uint256 value, bytes32 salt) public {
