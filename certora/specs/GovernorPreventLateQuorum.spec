@@ -64,9 +64,9 @@ methods {
 }
 
 
-//////////////////////////////////////////////////////////////////////////////
-// Helper Functions                            ///////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// Helper Functions                                                           //
+////////////////////////////////////////////////////////////////////////////////
 
 function helperFunctionsWithRevertOnlyCastVote(uint256 proposalId, method f, env e) {
     string reason; uint8 support; uint8 v; bytes32 r; bytes32 s; bytes params;
@@ -91,19 +91,19 @@ function helperFunctionsWithRevertOnlyCastVote(uint256 proposalId, method f, env
 ////////////////////////////////////////////////////////////////////////////////
 
 /// proposal deadline can be extended (but isn't)
-definition deadlineExtendable(env e, uint256 pId) returns bool = 
+definition deadlineExtendable(env e, uint256 pId) returns bool =
     getExtendedDeadlineIsUnset(pId) // deadline == 0
     && !quorumReached(e, pId);
 
 
 
 /// proposal deadline has been extended
-definition deadlineExtended(env e, uint256 pId) returns bool = 
+definition deadlineExtended(env e, uint256 pId) returns bool =
     getExtendedDeadlineIsStarted(pId) // deadline > 0
     && quorumReached(e, pId);
 
-/// proposal isn't created
-definition proposalNotCreated(env e, uint256 pId) returns bool = 
+/// proposal has not been created
+definition proposalNotCreated(env e, uint256 pId) returns bool =
     proposalSnapshot(pId) == 0
     && proposalDeadline(pId) == 0
     && getExtendedDeadlineIsUnset(pId)
@@ -142,7 +142,7 @@ invariant proposalNotCreatedEffects(env e, uint256 pId)
 /**
  * A created proposal must be in state `deadlineExtendable` or `deadlineExtended`.
  * @dev INVARIANT NOT PASSING // fails for updateQuorumNumerator and in the initial state when voting token total supply is 0 (causes quoromReached to return true)
- * @dev ADVANCED SANITY NOT RAN 
+ * @dev ADVANCED SANITY NOT RAN
  */
 invariant proposalInOneState(env e, uint256 pId)
     proposalNotCreated(e, pId) || deadlineExtendable(e, pId) || deadlineExtended(e, pId)
@@ -151,7 +151,7 @@ invariant proposalInOneState(env e, uint256 pId)
 
 
 //////////////////////////////////////////////////////////////////////////////
-// Rules                                  ////////////////////////////////////
+// Rules                                                                    //
 //////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////// #### first set of rules ////////////////////////
