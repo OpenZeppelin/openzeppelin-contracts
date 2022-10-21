@@ -83,4 +83,19 @@ contract('Strings', function (accounts) {
       expect(await this.strings.methods['toHexString(address)'](addr)).to.equal(addr);
     });
   });
+
+  describe('compare', function () {
+    it('compares two equal strings', async function () {
+      expect(await this.strings.methods['compare(string,string)']('a', 'a')).to.be.true;
+    });
+
+    it('compares two different strings', async function () {
+      expect(await this.strings.methods['compare(string,string)']('a', 'b')).to.be.false;
+    });
+
+    it('compares two different strings of different lengths', async function () {
+      expect(await this.strings.methods['compare(string,string)']('a', 'aa')).to.be.false;
+      expect(await this.strings.methods['compare(string,string)']('aa', 'a')).to.be.false;
+    });
+  });
 });
