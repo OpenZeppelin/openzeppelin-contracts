@@ -4,6 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "./math/Math.sol";
+import "./math/SignedMath.sol";
 
 /**
  * @dev String operations.
@@ -40,32 +41,8 @@ library Strings {
     /**
      * @dev Converts a `int256` to its ASCII `string` decimal representation.
      */
-    function toString(int256 value) internal pure returns (string memory) {
-        unchecked {
-            int256 value_;
-            if (value >= 0)
-            value_ = value;
-            else 
-            value_ = -value;
-            uint256 _value = uint256(value_);
-            uint256 length = Math.log10(_value) + 1;
-            string memory buffer = new string(length);
-            uint256 ptr;
-            /// @solidity memory-safe-assembly
-            assembly {
-                ptr := add(buffer, add(32, length))
-            }
-            while (true) {
-                ptr--;
-                /// @solidity memory-safe-assembly
-                assembly {
-                    mstore8(ptr, byte(mod(_value, 10), _SYMBOLS))
-                }
-                _value /= 10;
-                if (_value == 0) break;
-            }
-            return value >= 0 ? buffer : string(abi.encodePacked("-",buffer));
-        }
+    function toString(int256 value) public pure returns (string memory) {
+        return string(abi.encodePacked(value < 0 ? "-" : "",toString(SignedMath.abs(value))));       
     }
 
     /**
