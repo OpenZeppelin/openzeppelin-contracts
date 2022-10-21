@@ -86,16 +86,16 @@ contract('Strings', function (accounts) {
 
   describe('compare', function () {
     it('compares two equal strings', async function () {
-      expect(await this.strings.methods['compare(string,string)']('a', 'a')).to.be.true;
+      expect(await this.strings.methods['compare(string,string)']('a', 'a')).to.equal(true);
     });
 
     it('compares two different strings', async function () {
-      expect(await this.strings.methods['compare(string,string)']('a', 'b')).to.be.false;
+      expect(await this.strings.methods['compare(string,string)']('a', 'b')).to.equal(false);
     });
 
     it('compares two different strings of different lengths', async function () {
-      expect(await this.strings.methods['compare(string,string)']('a', 'aa')).to.be.false;
-      expect(await this.strings.methods['compare(string,string)']('aa', 'a')).to.be.false;
+      expect(await this.strings.methods['compare(string,string)']('a', 'aa')).to.equal(false);
+      expect(await this.strings.methods['compare(string,string)']('aa', 'a')).to.equal(false);
     });
   });
 });
