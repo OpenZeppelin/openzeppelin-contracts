@@ -85,11 +85,7 @@ filtered { f -> f.selector != _burn(address, uint256).selector}
 invariant blockNum_constrains_fromBlock(address account, uint32 index, env e)
     ckptFromBlock(account, index) < e.block.number
     filtered { f -> !f.isView }
-{
-    preserved {
-        require index < numCheckpoints(account);
-    }
-}
+
 // numCheckpoints are less than maxInt
 // passes because numCheckpoints does a safeCast
 // invariant maxInt_constrains_numBlocks(address account)
