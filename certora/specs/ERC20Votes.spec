@@ -11,7 +11,7 @@ methods {
     delegate(address)
     _delegate(address, address)
     // delegateBySig(address, uint256, uint256, uint8, bytes32, bytes32)
-    totalSupply() returns (uint256) envfree
+    // totalSupply() returns (uint256) envfree
     _maxSupply() returns (uint224) envfree
 
     // harnesss functions
@@ -75,8 +75,8 @@ filtered { f -> f.selector != _burn(address, uint256).selector}
     require forall address account. numCheckpoints(account) < 1000000;
 } preserved burn(address a, uint256 amount) with(env e){
     require _delegates(0) == 0;
-    require forall address a2. (_delegates(a) != _delegates(a2)) && (balanceOf(e, _delegates(a)) + balanceOf(e, _delegates(a2)) <= totalVotes());
-    require balanceOf(e, _delegates(a)) < totalVotes();
+    require forall address a2. (_delegates(a) != _delegates(a2)) && (balanceOf(_delegates(a)) + balanceOf(_delegates(a2)) <= totalVotes());
+    require balanceOf(_delegates(a)) < totalVotes();
     require amount < 100000;
 }}
 
@@ -187,7 +187,7 @@ rule delegatee_receives_votes() {
     require delegatee != 0x0;
 
 
-    uint256 delegator_bal = balanceOf(e, delegator);
+    uint256 delegator_bal = balanceOf(delegator);
     uint256 votes_= getVotes(delegatee);
 
     _delegate(e, delegator, delegatee);
@@ -208,7 +208,7 @@ rule previous_delegatee_votes_removed() {
     require delegates(delegator) == third;
     require numCheckpoints(third) < 1000000;
 
-    uint256 delegator_bal = balanceOf(e, delegator);
+    uint256 delegator_bal = balanceOf(delegator);
     uint256 votes_ = getVotes(third);
 
     _delegate(e, delegator, delegatee);
@@ -247,7 +247,7 @@ rule delegate_no_frontrunning(method f) {
 
     f(e, args);
 
-    uint256 delegator_bal = balanceOf(e, delegator);
+    uint256 delegator_bal = balanceOf(delegator);
     uint256 delegatee_votes_ = getVotes(delegatee);
     uint256 third_votes_ = getVotes(third);
     uint256 other_votes_ = getVotes(other);
