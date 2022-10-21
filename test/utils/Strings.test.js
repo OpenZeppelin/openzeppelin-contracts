@@ -97,5 +97,11 @@ contract('Strings', function (accounts) {
       expect(await this.strings.methods['compare(string,string)']('a', 'aa')).to.equal(false);
       expect(await this.strings.methods['compare(string,string)']('aa', 'a')).to.equal(false);
     });
+
+    it('compares two different strings of different (big) lengths', async function () {
+      const str1 = 'a'.repeat(201);
+      const str2 = 'a'.repeat(200) + 'b';
+      expect(await this.strings.methods['compare(string,string)'](str1, str2)).to.equal(false);
+    });
   });
 });

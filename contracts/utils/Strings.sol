@@ -72,6 +72,7 @@ library Strings {
      * @dev Returns true if the two strings are equal.
      */
     function compare(string memory a, string memory b) internal pure returns (bool) {
+        if (bytes(a).length != bytes(b).length) return false;
         return keccak256(abi.encodePacked(a)) == keccak256(abi.encodePacked(b));
     }
 }
