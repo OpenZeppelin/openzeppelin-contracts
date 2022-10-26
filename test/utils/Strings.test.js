@@ -35,16 +35,18 @@ contract('Strings', function (accounts) {
       it(`converts ${key} as uint256`, async function () {
         expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value.toString(10));
       });
-      
-      it(`convert ${key} as int256`, async function () {
-        if (value.gt(constants.MAX_INT256)) skip();
-        expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
-      });
 
-      it(`convert -${key} as int256`, async function () {
-        if (value.neg().lt(constants.MIN_INT256)) skip();
-        expect(await this.strings.methods['toString(int256)'](value.neg())).to.equal(value.neg().toString(10));
-      });
+      if (value.lte(constants.MAX_INT256)) {
+        it(`convert ${key} as int256`, async function () {
+          expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
+        });
+      }
+
+      if (value.neg().gte(constants.MIN_INT256)) {
+        it(`convert -${key} as int256`, async function () {
+          expect(await this.strings.methods['toString(int256)'](value.neg())).to.equal(value.neg().toString(10));
+        });
+      }
     }
   });
 
