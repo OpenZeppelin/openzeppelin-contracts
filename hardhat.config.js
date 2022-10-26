@@ -50,7 +50,10 @@ const argv = require('yargs/yargs')()
   .argv;
 
 require('@nomiclabs/hardhat-truffle5');
+require('hardhat-ignore-warnings');
 require('hardhat-exposed');
+
+require('solidity-docgen');
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
@@ -72,6 +75,13 @@ module.exports = {
       viaIR: withOptimizations && argv.ir,
     },
   },
+  warnings: {
+    '*': {
+      'code-size': withOptimizations,
+      'unused-param': !argv.coverage, // coverage causes unused-param warnings
+      default: 'error',
+    },
+  },
   networks: {
     hardhat: {
       blockGasLimit: 10000000,
@@ -85,6 +95,7 @@ module.exports = {
       'utils/Timers.sol',
     ],
   },
+  docgen: require('./docs/config'),
 };
 
 if (argv.gas) {
@@ -95,7 +106,7 @@ if (argv.gas) {
     outputFile: argv.gasReport,
     coinmarketcap: argv.coinmarketcap,
   };
-}
+};
 
 if (argv.coverage) {
   require('solidity-coverage');

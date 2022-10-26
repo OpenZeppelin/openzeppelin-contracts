@@ -287,7 +287,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         require(to != address(0), "ERC721: mint to the zero address");
         require(!_exists(tokenId), "ERC721: token already minted");
 
-        _beforeTokenTransfer(address(0), to, tokenId);
+        _beforeTokenTransfer(address(0), to, tokenId, 1);
 
         // Check that tokenId was not minted by `_beforeTokenTransfer` hook
         require(!_exists(tokenId), "ERC721: token already minted");
@@ -304,7 +304,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         emit Transfer(address(0), to, tokenId);
 
-        _afterTokenTransfer(address(0), to, tokenId);
+        _afterTokenTransfer(address(0), to, tokenId, 1);
     }
 
     /**
@@ -321,7 +321,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _burn(uint256 tokenId) internal virtual {
         address owner = ERC721.ownerOf(tokenId);
 
-        _beforeTokenTransfer(owner, address(0), tokenId);
+        _beforeTokenTransfer(owner, address(0), tokenId, 1);
 
         // Update ownership in case tokenId was transferred by `_beforeTokenTransfer` hook
         owner = ERC721.ownerOf(tokenId);
@@ -338,7 +338,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         emit Transfer(owner, address(0), tokenId);
 
-        _afterTokenTransfer(owner, address(0), tokenId);
+        _afterTokenTransfer(owner, address(0), tokenId, 1);
     }
 
     /**
@@ -360,7 +360,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
         require(to != address(0), "ERC721: transfer to the zero address");
 
-        _beforeTokenTransfer(from, to, tokenId);
+        _beforeTokenTransfer(from, to, tokenId, 1);
 
         // Check that tokenId was not transferred by `_beforeTokenTransfer` hook
         require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
@@ -381,7 +381,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
         emit Transfer(from, to, tokenId);
 
-        _afterTokenTransfer(from, to, tokenId);
+        _afterTokenTransfer(from, to, tokenId, 1);
     }
 
     /**
@@ -451,71 +451,53 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     }
 
     /**
-     * @dev Hook that is called before any (single) token transfer. This includes minting and burning.
-     * See {_beforeConsecutiveTokenTransfer}.
+     * @dev Hook that is called before any token transfer. This includes minting and burning. If {ERC721Consecutive} is
+     * used, the hook may be called as part of a consecutive (batch) mint, as indicated by `batchSize` greater than 1.
      *
      * Calling conditions:
      *
-     * - When `from` and `to` are both non-zero, ``from``'s `tokenId` will be
-     * transferred to `to`.
-     * - When `from` is zero, `tokenId` will be minted for `to`.
-     * - When `to` is zero, ``from``'s `tokenId` will be burned.
+     * - When `from` and `to` are both non-zero, ``from``'s tokens will be transferred to `to`.
+     * - When `from` is zero, the tokens will be minted for `to`.
+     * - When `to` is zero, ``from``'s tokens will be burned.
      * - `from` and `to` are never both zero.
+     * - `batchSize` is non-zero.
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
-    ) internal virtual {}
+        uint256, /* firstTokenId */
+        uint256 batchSize
+    ) internal virtual {
+        if (batchSize > 1) {
+            if (from != address(0)) {
+                _balances[from] -= batchSize;
+            }
+            if (to != address(0)) {
+                _balances[to] += batchSize;
+            }
+        }
+    }
 
     /**
-     * @dev Hook that is called after any (single) transfer of tokens. This includes minting and burning.
-     * See {_afterConsecutiveTokenTransfer}.
+     * @dev Hook that is called after any token transfer. This includes minting and burning. If {ERC721Consecutive} is
+     * used, the hook may be called as part of a consecutive (batch) mint, as indicated by `batchSize` greater than 1.
      *
      * Calling conditions:
      *
-     * - when `from` and `to` are both non-zero.
+     * - When `from` and `to` are both non-zero, ``from``'s tokens were transferred to `to`.
+     * - When `from` is zero, the tokens were minted for `to`.
+     * - When `to` is zero, ``from``'s tokens were burned.
      * - `from` and `to` are never both zero.
+     * - `batchSize` is non-zero.
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
     function _afterTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
-    ) internal virtual {}
-
-    /**
-     * @dev Hook that is called before consecutive token transfers.
-     * Calling conditions are similar to {_beforeTokenTransfer}.
-     *
-     * The default implementation include balances updates that extensions such as {ERC721Consecutive} cannot perform
-     * directly.
-     */
-    function _beforeConsecutiveTokenTransfer(
-        address from,
-        address to,
-        uint256, /*first*/
-        uint96 size
-    ) internal virtual {
-        if (from != address(0)) {
-            _balances[from] -= size;
-        }
-        if (to != address(0)) {
-            _balances[to] += size;
-        }
-    }
-
-    /**
-     * @dev Hook that is called after consecutive token transfers.
-     * Calling conditions are similar to {_afterTokenTransfer}.
-     */
-    function _afterConsecutiveTokenTransfer(
-        address, /*from*/
-        address, /*to*/
-        uint256, /*first*/
-        uint96 /*size*/
+        uint256 firstTokenId,
+        uint256 batchSize
     ) internal virtual {}
 }

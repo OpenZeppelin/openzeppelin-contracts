@@ -32,8 +32,8 @@ contract('GovernorTimelockControl', function (accounts) {
   beforeEach(async function () {
     const [ deployer ] = await web3.eth.getAccounts();
 
-    this.token = await Token.new(tokenName, tokenSymbol, tokenName);
-    this.timelock = await Timelock.new(3600, [], []);
+    this.token = await Token.new(tokenName, tokenSymbol);
+    this.timelock = await Timelock.new(3600, [], [], deployer);
     this.mock = await Governor.new(
       name,
       votingDelay,
@@ -294,6 +294,39 @@ contract('GovernorTimelockControl', function (accounts) {
         );
       });
 
+      it('is payable and can transfer eth to EOA', async function () {
+        const t2g = web3.utils.toBN(128); // timelock to governor
+        const g2o = web3.utils.toBN(100); // governor to eoa (other)
+
+        this.helper.setProposal([
+          {
+            target: this.mock.address,
+            value: t2g,
+            data: this.mock.contract.methods.relay(
+              other,
+              g2o,
+              '0x',
+            ).encodeABI(),
+          },
+        ], '<proposal description>');
+
+        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+        const timelockBalance = await web3.eth.getBalance(this.timelock.address).then(web3.utils.toBN);
+        const otherBalance = await web3.eth.getBalance(other).then(web3.utils.toBN);
+
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.waitForDeadline();
+        await this.helper.queue();
+        await this.helper.waitForEta();
+        await this.helper.execute();
+
+        expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(timelockBalance.sub(t2g));
+        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(t2g.sub(g2o));
+        expect(await web3.eth.getBalance(other)).to.be.bignumber.equal(otherBalance.add(g2o));
+      });
+
       it('protected against other proposers', async function () {
         await this.timelock.schedule(
           this.mock.address,
@@ -323,7 +356,12 @@ contract('GovernorTimelockControl', function (accounts) {
 
     describe('updateTimelock', function () {
       beforeEach(async function () {
-        this.newTimelock = await Timelock.new(3600, [], []);
+        this.newTimelock = await Timelock.new(
+          3600,
+          [ this.mock.address ],
+          [ this.mock.address ],
+          constants.ZERO_ADDRESS,
+        );
       });
 
       it('is protected', async function () {

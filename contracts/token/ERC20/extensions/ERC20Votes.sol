@@ -63,7 +63,9 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      */
     function getVotes(address account) public view virtual override returns (uint256) {
         uint256 pos = _checkpoints[account].length;
-        return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
+        unchecked {
+            return pos == 0 ? 0 : _checkpoints[account][pos - 1].votes;
+        }
     }
 
     /**
@@ -80,7 +82,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
 
     /**
      * @dev Retrieve the `totalSupply` at the end of `blockNumber`. Note, this value is the sum of all balances.
-     * It is but NOT the sum of all the delegated votes!
+     * It is NOT the sum of all the delegated votes!
      *
      * Requirements:
      *
@@ -130,7 +132,9 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
             }
         }
 
-        return high == 0 ? 0 : _unsafeAccess(ckpts, high - 1).votes;
+        unchecked {
+            return high == 0 ? 0 : _unsafeAccess(ckpts, high - 1).votes;
+        }
     }
 
     /**
@@ -191,7 +195,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     /**
      * @dev Move voting power when tokens are transferred.
      *
-     * Emits a {DelegateVotesChanged} event.
+     * Emits a {IVotes-DelegateVotesChanged} event.
      */
     function _afterTokenTransfer(
         address from,
@@ -206,7 +210,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     /**
      * @dev Change delegation for `delegator` to `delegatee`.
      *
-     * Emits events {DelegateChanged} and {DelegateVotesChanged}.
+     * Emits events {IVotes-DelegateChanged} and {IVotes-DelegateVotesChanged}.
      */
     function _delegate(address delegator, address delegatee) internal virtual {
         address currentDelegate = delegates(delegator);
@@ -243,15 +247,19 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     ) private returns (uint256 oldWeight, uint256 newWeight) {
         uint256 pos = ckpts.length;
 
-        Checkpoint memory oldCkpt = pos == 0 ? Checkpoint(0, 0) : _unsafeAccess(ckpts, pos - 1);
+        unchecked {
+            Checkpoint memory oldCkpt = pos == 0 ? Checkpoint(0, 0) : _unsafeAccess(ckpts, pos - 1);
 
-        oldWeight = oldCkpt.votes;
-        newWeight = op(oldWeight, delta);
+            oldWeight = oldCkpt.votes;
+            newWeight = op(oldWeight, delta);
 
-        if (pos > 0 && oldCkpt.fromBlock == block.number) {
-            _unsafeAccess(ckpts, pos - 1).votes = SafeCast.toUint224(newWeight);
-        } else {
-            ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)}));
+            if (pos > 0 && oldCkpt.fromBlock == block.number) {
+                _unsafeAccess(ckpts, pos - 1).votes = SafeCast.toUint224(newWeight);
+            } else {
+                ckpts.push(
+                    Checkpoint({fromBlock: SafeCast.toUint32(block.number), votes: SafeCast.toUint224(newWeight)})
+                );
+            }
         }
     }
 

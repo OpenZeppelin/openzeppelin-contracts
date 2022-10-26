@@ -55,25 +55,22 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     }
 
     /**
-     * @dev Hook that is called before any token transfer. This includes minting
-     * and burning.
-     *
-     * Calling conditions:
-     *
-     * - When `from` and `to` are both non-zero, ``from``'s `tokenId` will be
-     * transferred to `to`.
-     * - When `from` is zero, `tokenId` will be minted for `to`.
-     * - When `to` is zero, ``from``'s `tokenId` will be burned.
-     * - `from` and 'to' cannot be the zero address at the same time.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     * @dev See {ERC721-_beforeTokenTransfer}.
      */
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
+        uint256 firstTokenId,
+        uint256 batchSize
     ) internal virtual override {
-        super._beforeTokenTransfer(from, to, tokenId);
+        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
+
+        if (batchSize > 1) {
+            // Will only trigger during construction. Batch transferring (minting) is not available afterwards.
+            revert("ERC721Enumerable: consecutive transfers not supported");
+        }
+
+        uint256 tokenId = firstTokenId;
 
         if (from == address(0)) {
             _addTokenToAllTokensEnumeration(tokenId);
@@ -85,30 +82,6 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         } else if (to != from) {
             _addTokenToOwnerEnumeration(to, tokenId);
         }
-    }
-
-    /**
-     * @dev Hook that is called before any batch token transfer. For now this is limited
-     * to batch minting by the {ERC721Consecutive} extension.
-     *
-     * Calling conditions:
-     *
-     * - When `from` and `to` are both non-zero, ``from``'s `tokenId` will be
-     * transferred to `to`.
-     * - When `from` is zero, `tokenId` will be minted for `to`.
-     * - When `to` is zero, ``from``'s `tokenId` will be burned.
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
-    function _beforeConsecutiveTokenTransfer(
-        address,
-        address,
-        uint256,
-        uint96
-    ) internal virtual override {
-        revert("ERC721Enumerable: consecutive transfers not supported");
     }
 
     /**

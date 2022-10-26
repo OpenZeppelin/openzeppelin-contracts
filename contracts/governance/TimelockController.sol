@@ -62,30 +62,36 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     event MinDelayChange(uint256 oldDuration, uint256 newDuration);
 
     /**
-     * @dev Initializes the contract with a given `minDelay`, and a list of
-     * initial proposers and executors. The proposers receive both the
-     * proposer and the canceller role (for backward compatibility). The
-     * executors receive the executor role.
+     * @dev Initializes the contract with the following parameters:
      *
-     * NOTE: At construction, both the deployer and the timelock itself are
-     * administrators. This helps further configuration of the timelock by the
-     * deployer. After configuration is done, it is recommended that the
-     * deployer renounces its admin position and relies on timelocked
-     * operations to perform future maintenance.
+     * - `minDelay`: initial minimum delay for operations
+     * - `proposers`: accounts to be granted proposer and canceller roles
+     * - `executors`: accounts to be granted executor role
+     * - `admin`: optional account to be granted admin role; disable with zero address
+     *
+     * IMPORTANT: The optional admin can aid with initial configuration of roles after deployment
+     * without being subject to delay, but this role should be subsequently renounced in favor of
+     * administration through timelocked proposals. Previous versions of this contract would assign
+     * this admin to the deployer automatically and should be renounced as well.
      */
     constructor(
         uint256 minDelay,
         address[] memory proposers,
-        address[] memory executors
+        address[] memory executors,
+        address admin
     ) {
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE);
 
-        // deployer + self administration
-        _setupRole(TIMELOCK_ADMIN_ROLE, _msgSender());
+        // self administration
         _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
+
+        // optional admin
+        if (admin != address(0)) {
+            _setupRole(TIMELOCK_ADMIN_ROLE, admin);
+        }
 
         // register proposers and cancellers
         for (uint256 i = 0; i < proposers.length; ++i) {
@@ -158,7 +164,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     }
 
     /**
-     * @dev Returns the timestamp at with an operation becomes ready (0 for
+     * @dev Returns the timestamp at which an operation becomes ready (0 for
      * unset operations, 1 for done operations).
      */
     function getTimestamp(bytes32 id) public view virtual returns (uint256 timestamp) {

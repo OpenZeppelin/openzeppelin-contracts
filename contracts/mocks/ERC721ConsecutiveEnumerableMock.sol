@@ -2,29 +2,29 @@
 
 pragma solidity ^0.8.0;
 
-import "../../token/ERC721/extensions/ERC721Consecutive.sol";
-import "../../token/ERC721/extensions/ERC721Enumerable.sol";
-import "../../token/ERC721/extensions/ERC721Pausable.sol";
-import "../../token/ERC721/extensions/draft-ERC721Votes.sol";
+import "../token/ERC721/extensions/ERC721Consecutive.sol";
+import "../token/ERC721/extensions/ERC721Enumerable.sol";
 
-/**
- * @title ERC721ConsecutiveMock
- */
-contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes {
+contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable {
     constructor(
         string memory name,
         string memory symbol,
-        address[] memory delegates,
         address[] memory receivers,
         uint96[] memory amounts
-    ) ERC721(name, symbol) EIP712(name, "1") {
-        for (uint256 i = 0; i < delegates.length; ++i) {
-            _delegate(delegates[i], delegates[i]);
-        }
-
+    ) ERC721(name, symbol) {
         for (uint256 i = 0; i < receivers.length; ++i) {
             _mintConsecutive(receivers[i], amounts[i]);
         }
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 
     function _ownerOf(uint256 tokenId) internal view virtual override(ERC721, ERC721Consecutive) returns (address) {
@@ -40,7 +40,7 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
         address to,
         uint256 firstTokenId,
         uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Pausable) {
+    ) internal virtual override(ERC721, ERC721Enumerable) {
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
@@ -49,13 +49,7 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
         address to,
         uint256 firstTokenId,
         uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Votes, ERC721Consecutive) {
+    ) internal virtual override(ERC721, ERC721Consecutive) {
         super._afterTokenTransfer(from, to, firstTokenId, batchSize);
-    }
-}
-
-contract ERC721ConsecutiveNoConstructorMintMock is ERC721Consecutive {
-    constructor(string memory name, string memory symbol) ERC721(name, symbol) {
-        _mint(msg.sender, 0);
     }
 }

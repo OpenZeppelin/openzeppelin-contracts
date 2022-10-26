@@ -11,8 +11,8 @@ import "../../../utils/introspection/ERC165.sol";
  * @dev Extension of ERC721 with the ERC2981 NFT Royalty Standard, a standardized way to retrieve royalty payment
  * information.
  *
- * Royalty information can be specified globally for all token ids via {_setDefaultRoyalty}, and/or individually for
- * specific token ids via {_setTokenRoyalty}. The latter takes precedence over the first.
+ * Royalty information can be specified globally for all token ids via {ERC2981-_setDefaultRoyalty}, and/or individually for
+ * specific token ids via {ERC2981-_setTokenRoyalty}. The latter takes precedence over the first.
  *
  * IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
  * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
