@@ -30,7 +30,9 @@ contract('Strings', function (accounts) {
       '123456789012345678901234567890123456789012345678901234567890',
       '1234567890123456789012345678901234567890123456789012345678901234567890',
     ].reduce((acc, value) => Object.assign(acc, { [value]: new BN(value) }), {
-      MAX_UINT256: constants.MAX_UINT256.toString(),
+      MAX_INT256: constants.MAX_INT256,
+      MAX_INT256_PLUS_1: constants.MAX_INT256.addn(1),
+      MAX_UINT256: constants.MAX_UINT256,
     }))) {
       it(`converts ${key} as uint256`, async function () {
         expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value.toString(10));
