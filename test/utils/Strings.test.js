@@ -35,7 +35,7 @@ contract('Strings', function (accounts) {
       MAX_UINT256: constants.MAX_UINT256,
     }))) {
       // only numbers in the [0, 2**256-1] range
-      if (value.gte(0) && value.lte(constants.MAX_UINT256)) {
+      if (value.gten(0) && value.lte(constants.MAX_UINT256)) {
         it(`converts ${key} as uint256`, async function () {
           expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value.toString(10));
         });
