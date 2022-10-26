@@ -32,24 +32,20 @@ contract('Strings', function (accounts) {
     ].reduce((acc, value) => Object.assign(acc, { [value]: new BN(value) }), {
       MAX_UINT256: constants.MAX_UINT256.toString(),
     }))) {
-      it(`converts ${key}`, async function () {
+      it(`converts ${key} as uint256`, async function () {
         expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value.toString(10));
       });
+      
+      it(`convert ${key} as int256`, async function () {
+        if (value.gt(constants.MAX_INT256)) skip();
+        expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
+      });
+
+      it(`convert -${key} as int256`, async function () {
+        if (value.neg().lt(constants.MIN_INT256)) skip();
+        expect(await this.strings.methods['toString(int256)'](value.neg())).to.equal(value.neg().toString(10));
+      });
     }
-  });
-
-  describe('toString int256', function () {
-    it('converts 0', async function () {
-      expect(await this.strings.methods['toString(int256)'](0)).to.equal('0');
-    });
-
-    it('converts positive number', async function () {
-      expect(await this.strings.methods['toString(int256)'](1)).to.equal('1');
-    });
-
-    it('converts negative number', async function () {
-      expect(await this.strings.methods['toString(int256)'](-1)).to.equal('-1');
-    });
   });
 
   describe('toHexString', function () {
