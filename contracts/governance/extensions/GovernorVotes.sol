@@ -4,7 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "../Governor.sol";
-import "../utils/IVotes.sol";
+import "../utils/IEIP5805.sol";
 
 /**
  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes} token.
@@ -12,9 +12,9 @@ import "../utils/IVotes.sol";
  * _Available since v4.3._
  */
 abstract contract GovernorVotes is Governor {
-    IVotes public immutable token;
+    IEIP5805 public immutable token;
 
-    constructor(IVotes tokenAddress) {
+    constructor(IEIP5805 tokenAddress) {
         token = tokenAddress;
     }
 

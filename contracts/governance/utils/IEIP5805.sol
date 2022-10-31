@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (governance/utils/IVotes.sol)
 pragma solidity ^0.8.0;
 
 /**
- * @dev Common interface for {ERC20Votes}, {ERC721Votes}, and other {Votes}-enabled contracts.
- *
- * _Available since v4.5._
+ * @dev EIP-5805 interface: common interface for {ERC20Votes}, {ERC721Votes}, and other {Votes}-enabled contracts.
  */
-interface IVotes {
+interface IEIP5805 {
     /**
      * @dev Emitted when an account changes their delegate.
      */
@@ -17,6 +14,11 @@ interface IVotes {
      * @dev Emitted when a token transfer or delegate change results in changes to a delegate's number of votes.
      */
     event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
+
+    /**
+     * @dev Return the current timestamp, this can be overriden to use `block.timestamp` or any other mechanism
+     */
+    function clock() external view returns (uint256);
 
     /**
      * @dev Returns the current amount of votes that `account` has.

@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../ERC721.sol";
-import "../../../governance/utils/Votes.sol";
+import "../../../governance/utils/EIP5805.sol";
 
 /**
  * @dev Extension of ERC721 to support voting and delegation as implemented by {Votes}, where each individual NFT counts
@@ -15,7 +15,7 @@ import "../../../governance/utils/Votes.sol";
  *
  * _Available since v4.5._
  */
-abstract contract ERC721Votes is ERC721, Votes {
+abstract contract ERC721Votes is ERC721, EIP5805 {
     /**
      * @dev See {ERC721-_afterTokenTransfer}. Adjusts votes when tokens are transferred.
      *

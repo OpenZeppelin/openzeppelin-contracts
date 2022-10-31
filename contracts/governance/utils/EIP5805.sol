@@ -1,16 +1,22 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (governance/utils/Votes.sol)
 pragma solidity ^0.8.0;
 
+<<<<<<< HEAD:contracts/governance/utils/Votes.sol
 import "./IVotes.sol";
 import "../../utils/cryptography/draft-EIP712.sol";
 import "../../utils/cryptography/ECDSA.sol";
+=======
+>>>>>>> 040f8132 (use EIP5805):contracts/governance/utils/EIP5805.sol
 import "../../utils/Context.sol";
-import "../../utils/Nonces.sol";
+import "../../utils/Counters.sol";
 import "../../utils/Checkpoints.sol";
+import "../../utils/cryptography/EIP712.sol";
+import "./IEIP5805.sol";
 
 /**
- * @dev This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
+ * @dev Core implementation of EIP-5805
+ *
+ * This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
  * transferred, and provides a system of vote delegation, where an account can delegate its voting units to a sort of
  * "representative" that will pool delegated voting units from different accounts and can then use it to vote in
  * decisions. In fact, voting units _must_ be delegated in order to count as actual votes, and an account has to
@@ -19,25 +25,32 @@ import "../../utils/Checkpoints.sol";
  * This contract is often combined with a token contract such that voting units correspond to token units. For an
  * example, see {ERC721Votes}.
  *
- * The full history of delegate votes is tracked on-chain so that governance protocols can consider votes as distributed
- * at a particular block number to protect against flash loans and double voting. The opt-in delegate system makes the
- * cost of this history tracking optional.
+ * The full history of delegate votes is tracked on-chain so that governance protocols can consider votes as
+ * distributed at a particular timestamp to protect against flash loans and double voting. The opt-in delegate system
+ * makes the cost of this history tracking optional.
  *
  * When using this module the derived contract must implement {_getVotingUnits} (for example, make it return
  * {ERC721-balanceOf}), and can use {_transferVotingUnits} to track a change in the distribution of those units (in the
  * previous example, it would be included in {ERC721-_beforeTokenTransfer}).
- *
- * _Available since v4.5._
  */
-abstract contract Votes is IVotes, Context, EIP712, Nonces {
-    using Checkpoints for Checkpoints.History;
+abstract contract EIP5805 is IEIP5805, Context, EIP712 {
+    using Checkpoints for Checkpoints.Trace224;
+    using Counters for Counters.Counter;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping(address => address) private _delegation;
-    mapping(address => Checkpoints.History) private _delegateCheckpoints;
-    Checkpoints.History private _totalCheckpoints;
+    mapping(address => Checkpoints.Trace224) private _delegateCheckpoints;
+    Checkpoints.Trace224 private _totalCheckpoints;
+    mapping(address => Counters.Counter) private _nonces;
+
+    /**
+     * @dev Return the current timestamp, this can be overriden to use `block.timestamp` or any other mechanism
+     */
+    function clock() public view virtual override returns (uint256) {
+        return block.number;
+    }
 
     /**
      * @dev Returns the current amount of votes that `account` has.
@@ -47,18 +60,25 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
     }
 
     /**
-     * @dev Returns the amount of votes that `account` had at the end of a past block (`blockNumber`).
+     * @dev Returns the amount of votes that `account` had at the end of a past timepoint (`timepoint`).
      *
      * Requirements:
      *
-     * - `blockNumber` must have been already mined
+     * - `timepoint` must have been already mined
      */
+<<<<<<< HEAD:contracts/governance/utils/Votes.sol
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
         return _delegateCheckpoints[account].getAtProbablyRecentBlock(blockNumber);
+=======
+    function getPastVotes(address account, uint256 timepoint) public view virtual override returns (uint256) {
+        require(timepoint < clock(), "Checkpoints: invalid past lookup");
+        // TODO: optimisitc lookup
+        return _delegateCheckpoints[account].upperLookup(SafeCast.toUint32(timepoint));
+>>>>>>> 040f8132 (use EIP5805):contracts/governance/utils/EIP5805.sol
     }
 
     /**
-     * @dev Returns the total supply of votes available at the end of a past block (`blockNumber`).
+     * @dev Returns the total supply of votes available at the end of a past timepoint (`timepoint`).
      *
      * NOTE: This value is the sum of all available votes, which is not necessarily the sum of all delegated votes.
      * Votes that have not been delegated are still part of total supply, even though they would not participate in a
@@ -66,10 +86,17 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
      *
      * Requirements:
      *
-     * - `blockNumber` must have been already mined
+     * - `timepoint` must have been already mined
      */
+<<<<<<< HEAD:contracts/governance/utils/Votes.sol
     function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
         return _totalCheckpoints.getAtBlock(blockNumber);
+=======
+    function getPastTotalSupply(uint256 timepoint) public view virtual override returns (uint256) {
+        require(timepoint < clock(), "Checkpoints: invalid past lookup");
+        // TODO: optimisitc lookup
+        return _totalCheckpoints.upperLookup(SafeCast.toUint32(timepoint));
+>>>>>>> 040f8132 (use EIP5805):contracts/governance/utils/EIP5805.sol
     }
 
     /**
@@ -139,10 +166,10 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
         uint256 amount
     ) internal virtual {
         if (from == address(0)) {
-            _totalCheckpoints.push(_add, amount);
+            _totalCheckpoints.push(SafeCast.toUint32(clock()), _add, amount);
         }
         if (to == address(0)) {
-            _totalCheckpoints.push(_subtract, amount);
+            _totalCheckpoints.push(SafeCast.toUint32(clock()), _subtract, amount);
         }
         _moveDelegateVotes(delegates(from), delegates(to), amount);
     }
@@ -157,22 +184,40 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
     ) private {
         if (from != to && amount > 0) {
             if (from != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(_subtract, amount);
+                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(SafeCast.toUint32(clock()), _subtract, amount);
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
             if (to != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(_add, amount);
+                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(SafeCast.toUint32(clock()), _add, amount);
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
         }
     }
 
-    function _add(uint256 a, uint256 b) private pure returns (uint256) {
-        return a + b;
+    function _add(uint224 a, uint256 b) private pure returns (uint224) {
+        return SafeCast.toUint224(a + b);
     }
 
-    function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
-        return a - b;
+    function _subtract(uint224 a, uint256 b) private pure returns (uint224) {
+        return SafeCast.toUint224(a - b);
+    }
+
+    /**
+     * @dev Consumes a nonce.
+     *
+     * Returns the current value and increments nonce.
+     */
+    function _useNonce(address owner) internal virtual returns (uint256 current) {
+        Counters.Counter storage nonce = _nonces[owner];
+        current = nonce.current();
+        nonce.increment();
+    }
+
+    /**
+     * @dev Returns an address nonce.
+     */
+    function nonces(address owner) public view virtual returns (uint256) {
+        return _nonces[owner].current();
     }
 
     /**

@@ -235,6 +235,21 @@ library Checkpoints {
     }
 
     /**
+     * @dev Pushes a value onto a History, by updating the latest value using binary operation `op`. The new value will
+     * be set to `op(latest, delta)`.
+     *
+     * Returns previous value and new value.
+     */
+    function push(
+        Trace224 storage self,
+        uint32 key,
+        function(uint224, uint256) view returns (uint224) op,
+        uint256 delta
+    ) internal returns (uint256, uint256) {
+        return push(self, key, op(latest(self), delta));
+    }
+
+    /**
      * @dev Returns the value in the oldest checkpoint with key greater or equal than the search key, or zero if there is none.
      */
     function lowerLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
@@ -397,6 +412,21 @@ library Checkpoints {
         uint160 value
     ) internal returns (uint160, uint160) {
         return _insert(self._checkpoints, key, value);
+    }
+
+    /**
+     * @dev Pushes a value onto a History, by updating the latest value using binary operation `op`. The new value will
+     * be set to `op(latest, delta)`.
+     *
+     * Returns previous value and new value.
+     */
+    function push(
+        Trace160 storage self,
+        uint96 key,
+        function(uint160, uint256) view returns (uint160) op,
+        uint256 delta
+    ) internal returns (uint256, uint256) {
+        return push(self, key, op(latest(self), delta));
     }
 
     /**

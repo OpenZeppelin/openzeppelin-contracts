@@ -14,7 +14,7 @@ contract MyGovernor is
     GovernorVotes,
     GovernorVotesQuorumFraction
 {
-    constructor(IVotes _token, TimelockController _timelock)
+    constructor(IEIP5805 _token, TimelockController _timelock)
         Governor("MyGovernor")
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)

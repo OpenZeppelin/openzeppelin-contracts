@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.0;
 
-import "../governance/utils/Votes.sol";
+import "../governance/utils/EIP5805.sol";
 
-contract VotesMock is Votes {
+contract EIP5805Mock is EIP5805 {
     mapping(address => uint256) private _balances;
     mapping(uint256 => address) private _owners;
 

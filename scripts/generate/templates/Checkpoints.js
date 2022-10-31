@@ -46,6 +46,21 @@ function push(
 }
 
 /**
+ * @dev Pushes a value onto a History, by updating the latest value using binary operation \`op\`. The new value will
+ * be set to \`op(latest, delta)\`.
+ *
+ * Returns previous value and new value.
+ */
+function push(
+    ${opts.historyTypeName} storage self,
+    ${opts.keyTypeName} key,
+    function(${opts.valueTypeName}, uint256) view returns (${opts.valueTypeName}) op,
+    uint256 delta
+) internal returns (uint256, uint256) {
+    return push(self, key, op(latest(self), delta));
+}
+
+/**
  * @dev Returns the value in the oldest checkpoint with key greater or equal than the search key, or zero if there is none.
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {

@@ -15,7 +15,7 @@ contract GovernorTimelockControlMock is
 {
     constructor(
         string memory name_,
-        IVotes token_,
+        IEIP5805 token_,
         uint256 votingDelay_,
         uint256 votingPeriod_,
         TimelockController timelock_,

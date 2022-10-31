@@ -8,7 +8,7 @@ import "../governance/extensions/GovernorVotes.sol";
 contract GovernorWithParamsMock is GovernorVotes, GovernorCountingSimple {
     event CountParams(uint256 uintParam, string strParam);
 
-    constructor(string memory name_, IVotes token_) Governor(name_) GovernorVotes(token_) {}
+    constructor(string memory name_, IEIP5805 token_) Governor(name_) GovernorVotes(token_) {}
 
     function quorum(uint256) public pure override returns (uint256) {
         return 0;
