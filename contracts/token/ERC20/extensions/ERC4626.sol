@@ -86,7 +86,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4626-maxDeposit}. */
     function maxDeposit(address) public view virtual override returns (uint256) {
-        return _isVaultCollateralized() ? type(uint256).max : 0;
+        return _isVaultHealthy() ? type(uint256).max : 0;
     }
 
     /** @dev See {IERC4626-maxMint}. */
@@ -267,7 +267,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         emit Withdraw(caller, receiver, owner, assets, shares);
     }
 
-    function _isVaultCollateralized() private view returns (bool) {
+    function _isVaultHealthy() private view returns (bool) {
         return totalAssets() > 0 || totalSupply() == 0;
     }
 }
