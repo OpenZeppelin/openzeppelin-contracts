@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../utils/Context.sol";
 import "../token/ERC20/IERC20.sol";
-import "../token/ERC20/extensions/draft-ERC20Permit.sol";
+import "../token/ERC20/extensions/ERC20Permit.sol";
 import "../token/ERC20/utils/SafeERC20.sol";
 
 contract ERC20ReturnFalseMock is Context {
