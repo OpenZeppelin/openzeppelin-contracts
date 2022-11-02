@@ -19,7 +19,7 @@
 
 ## Yayınlama branch'i ile birleşim
 
-Son yayınlamadan sonra yayınlama branch'i `master` ile birleşmiş olmalı. Bu birleşim ezilmemeli çünkü
+Son yayınlamadan sonra yayınlama branch'i `master` ile birleşmiş olmalı. Birleşim ezilmemeli çünkü
 aksi takdirde etiketlenmiş gönderiler kaybedilebilir. Github repoları sadece ezilmiş birleşimlere izin verdiğinden dolayı birleşim sadece local olmalı ve push edilmiş olmalı.
 
 Local yayınlama branch'inizin son değişikliklere sahip olduğuna `upstream` ile emin olun.
