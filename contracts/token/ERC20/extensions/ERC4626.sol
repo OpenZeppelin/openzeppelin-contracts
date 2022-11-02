@@ -75,12 +75,12 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /** @dev See {IERC4626-convertToShares}. */
-    function convertToShares(uint256 assets) public view virtual override returns (uint256 shares) {
+    function convertToShares(uint256 assets) public view virtual override returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Down);
     }
 
     /** @dev See {IERC4626-convertToAssets}. */
-    function convertToAssets(uint256 shares) public view virtual override returns (uint256 assets) {
+    function convertToAssets(uint256 shares) public view virtual override returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Down);
     }
 
@@ -178,7 +178,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
      * would represent an infinite amount of shares.
      */
-    function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256 shares) {
+    function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256) {
         uint256 supply = totalSupply();
         return
             (assets == 0 || supply == 0)
@@ -201,7 +201,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     /**
      * @dev Internal conversion function (from shares to assets) with support for rounding direction.
      */
-    function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256 assets) {
+    function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256) {
         uint256 supply = totalSupply();
         return
             (supply == 0) ? _initialConvertToAssets(shares, rounding) : shares.mulDiv(totalAssets(), supply, rounding);
@@ -215,7 +215,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     function _initialConvertToAssets(
         uint256 shares,
         Math.Rounding /*rounding*/
-    ) internal view virtual returns (uint256 assets) {
+    ) internal view virtual returns (uint256) {
         return shares;
     }
 
