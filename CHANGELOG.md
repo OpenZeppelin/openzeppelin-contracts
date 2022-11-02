@@ -607,3 +607,7 @@ Refer to the table below to adjust your inheritance list.
 ### Deprecations
  * `ERC721._burn(address owner, uint256 tokenId)`: due to the `owner` parameter being unnecessary. ([#1550](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1550))
  * `RefundableCrowdsale`: due to trading abuse potential on crowdsales that miss their goal. ([#1543](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1543))
+
+
+### Localizations
+ * `Releasing document in Turkish`: ([#3794](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3794))
