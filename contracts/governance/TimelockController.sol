@@ -24,7 +24,6 @@ import "../utils/Address.sol";
  * _Available since v3.3._
  */
 contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver {
-    bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
     bytes32 public constant CANCELLER_ROLE = keccak256("CANCELLER_ROLE");
@@ -80,17 +79,17 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         address[] memory executors,
         address admin
     ) {
-        _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
-        _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
-        _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
-        _setRoleAdmin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE);
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setRoleAdmin(PROPOSER_ROLE, DEFAULT_ADMIN_ROLE);
+        _setRoleAdmin(EXECUTOR_ROLE, DEFAULT_ADMIN_ROLE);
+        _setRoleAdmin(CANCELLER_ROLE, DEFAULT_ADMIN_ROLE);
 
         // self administration
-        _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
+        _setupRole(DEFAULT_ADMIN_ROLE, address(this));
 
         // optional admin
         if (admin != address(0)) {
-            _setupRole(TIMELOCK_ADMIN_ROLE, admin);
+            _setupRole(DEFAULT_ADMIN_ROLE, admin);
         }
 
         // register proposers and cancellers
