@@ -12,6 +12,6 @@ contract ERC4626StdTest is ERC4626Test {
         _vault_ = address(new ERC4626Mock(IERC20Metadata(_underlying_), "MockERC4626", "MockERC4626"));
         _delta_ = 0;
         _vaultMayBeEmpty = false;
-        _unlimitedAmount = false;
+        _unlimitedAmount = true;
     }
 }
