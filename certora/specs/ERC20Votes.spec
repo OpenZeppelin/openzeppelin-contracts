@@ -1,30 +1,29 @@
 import "erc20methods.spec"
 
 methods {
-    // functions
-    checkpoints(address, uint32) envfree
-    numCheckpoints(address) returns (uint32) envfree
-    delegates(address) returns (address) envfree
-    getVotes(address) returns (uint256) envfree
-    getPastVotes(address, uint256) returns (uint256)
-    getPastTotalSupply(uint256) returns (uint256)
-    delegate(address)
-    _delegate(address, address)
-    // delegateBySig(address, uint256, uint256, uint8, bytes32, bytes32)
-    // totalSupply() returns (uint256) envfree
-    _maxSupply() returns (uint224) envfree
+    // IVotes
+    getVotes(address)                                                 returns (uint256) envfree
+    getPastVotes(address, uint256)                                    returns (uint256) // not envfree (reads block.number)
+    getPastTotalSupply(uint256)                                       returns (uint256) // not envfree (reads block.number)
+    delegates(address)                                                returns (address) envfree
+    delegate(address)                                                                   // not envfree (reads msg.sender)
+    delegateBySig(address, uint256, uint256, uint8, bytes32, bytes32)                   // not envfree (reads msg.sender)
+
+    // ERC20Votes
+    checkpoints(address, uint32)                                                        envfree
+    numCheckpoints(address)                                           returns (uint32)  envfree
+    _maxSupply()                                                      returns (uint224) envfree
+    _delegate(address, address)                                                         // not envfree (reads block.number when creating checkpoint)
 
     // harnesss functions
-    ckptFromBlock(address, uint32) returns (uint32) envfree
-    ckptVotes(address, uint32) returns (uint224) envfree
-    mint(address, uint256)
-    burn(address, uint256)
-    unsafeNumCheckpoints(address) returns (uint256) envfree
-    // solidity generated getters
-    _delegates(address) returns (address) envfree
+    ckptFromBlock(address, uint32)                                    returns (uint32)  envfree
+    ckptVotes(address, uint32)                                        returns (uint224) envfree
+    unsafeNumCheckpoints(address)                                     returns (uint256) envfree
 
-    // external functions
+    // solidity generated getters
+    _delegates(address)                                               returns (address) envfree
 }
+
 // gets the most recent votes for a user
 ghost userVotes(address) returns uint224 {
     init_state axiom forall address a. userVotes(a) == 0;
@@ -34,10 +33,11 @@ ghost userVotes(address) returns uint224 {
 ghost totalVotes() returns uint224 {
     init_state axiom totalVotes() == 0;
 }
-ghost lastIndex(address) returns uint32;
-// helper
 
-hook Sstore _checkpoints[KEY address account][INDEX uint32 index].votes uint224 newVotes (uint224 oldVotes) STORAGE {    
+ghost lastIndex(address) returns uint32;
+
+// helper
+hook Sstore _checkpoints[KEY address account][INDEX uint32 index].votes uint224 newVotes (uint224 oldVotes) STORAGE {
     havoc userVotes assuming
         userVotes@new(account) == newVotes;
 
@@ -48,21 +48,17 @@ hook Sstore _checkpoints[KEY address account][INDEX uint32 index].votes uint224 
         lastIndex@new(account) == index;
 }
 
-
 ghost lastFromBlock(address) returns uint32;
 
 ghost doubleFromBlock(address) returns bool {
     init_state axiom forall address a. doubleFromBlock(a) == false;
 }
 
-
-
-
 hook Sstore _checkpoints[KEY address account][INDEX uint32 index].fromBlock uint32 newBlock (uint32 oldBlock) STORAGE {
     havoc lastFromBlock assuming
         lastFromBlock@new(account) == newBlock;
-    
-    havoc doubleFromBlock assuming 
+
+    havoc doubleFromBlock assuming
         doubleFromBlock@new(account) == (newBlock == lastFromBlock(account));
 }
 
@@ -70,16 +66,18 @@ hook Sstore _checkpoints[KEY address account][INDEX uint32 index].fromBlock uint
 // fails on burn. This is because burn does not remove votes from the users
 invariant votes_solvency()
     totalSupply() >= to_uint256(totalVotes())
-filtered { f -> f.selector != _burn(address, uint256).selector}
-{ preserved with(env e) {
-    require forall address account. numCheckpoints(account) < 1000000;
-} preserved burn(address a, uint256 amount) with(env e){
-    require _delegates(0) == 0;
-    require forall address a2. (_delegates(a) != _delegates(a2)) && (balanceOf(_delegates(a)) + balanceOf(_delegates(a2)) <= totalVotes());
-    require balanceOf(_delegates(a)) < totalVotes();
-    require amount < 100000;
-}}
-
+    filtered { f -> f.selector != _burn(address, uint256).selector }
+{
+    preserved with(env e) {
+        require forall address account. numCheckpoints(account) < 1000000;
+    }
+    preserved _burn(address a, uint256 amount) with(env e) {
+        require _delegates(0) == 0;
+        require forall address a2. (_delegates(a) != _delegates(a2)) && (balanceOf(_delegates(a)) + balanceOf(_delegates(a2)) <= totalVotes());
+        require balanceOf(_delegates(a)) < totalVotes();
+        require amount < 100000;
+    }
+}
 
 // for some checkpoint, the fromBlock is less than the current block number
 invariant blockNum_constrains_fromBlock(address account, uint32 index, env e)
@@ -96,13 +94,15 @@ invariant blockNum_constrains_fromBlock(address account, uint32 index, env e)
 invariant fromBlock_constrains_numBlocks(address account)
     numCheckpoints(account) <= ckptFromBlock(account, numCheckpoints(account) - 1)
     filtered { f -> !f.isView }
-{ preserved with(env e) {
-    require e.block.number >= ckptFromBlock(account, numCheckpoints(account) - 1); // this should be true from the invariant above!!
-}}
+{
+    preserved with(env e) {
+        require e.block.number >= ckptFromBlock(account, numCheckpoints(account) - 1); // this should be true from the invariant above!!
+    }
+}
 
 // for any given checkpoint, the fromBlock must be greater than the checkpoint
 // this proves the above invariant in combination with the below invariant
-// if checkpoint has a greater fromBlock than the last, and the FromBlock is always greater than the pos. 
+// if checkpoint has a greater fromBlock than the last, and the FromBlock is always greater than the pos.
 // Then the number of positions must be less than the currentFromBlock
 // ^note that the tool is assuming it's possible for the starting fromBlock to be 0 or anything, and does not know the current starting block
 // passes + rule sanity
@@ -124,14 +124,13 @@ invariant fromBlock_increasing(address account, uint32 pos, uint32 pos2)
 rule unique_checkpoints_rule(method f) {
     env e; calldataarg args;
     address account;
-    uint32 num_ckpts_ = numCheckpoints(account); 
+    uint32 num_ckpts_ = numCheckpoints(account);
     uint32 fromBlock_ = num_ckpts_ == 0 ? 0 : ckptFromBlock(account, num_ckpts_ - 1);
 
     f(e, args);
 
     uint32 _num_ckpts = numCheckpoints(account);
     uint32 _fromBlock = _num_ckpts == 0 ? 0 : ckptFromBlock(account, _num_ckpts - 1);
-    
 
     assert fromBlock_ == _fromBlock => num_ckpts_ == _num_ckpts || _num_ckpts == 1, "same fromBlock, new checkpoint";
 }
@@ -151,7 +150,7 @@ rule transfer_safe() {
     uint256 votesB_pre = getVotes(delegates(b));
     uint224 totalVotes_pre = totalVotes();
     transferFrom(e, a, b, amount);
-    
+
     uint224 totalVotes_post = totalVotes();
     uint256 votesA_post = getVotes(delegates(a));
     uint256 votesB_post = getVotes(delegates(b));
@@ -160,11 +159,15 @@ rule transfer_safe() {
     assert delegates(a) != 0 => votesA_pre - votesA_post == amount, "A lost the wrong amount of votes";
     assert delegates(b) != 0 => votesB_post - votesB_pre == amount, "B lost the wrong amount of votes";
 }
+
 // for any given function f, if the delegate is changed the function must be delegate or delegateBySig
 // passes
-rule delegates_safe(method f) filtered {f -> (f.selector != delegate(address).selector &&
-                                                f.selector != _delegate(address, address).selector &&
-                                                f.selector != delegateBySig(address, uint256, uint256, uint8, bytes32, bytes32).selector) }
+rule delegates_safe(method f)
+    filtered { f -> (
+        f.selector != delegate(address).selector &&
+        f.selector != _delegate(address, address).selector &&
+        f.selector != delegateBySig(address, uint256, uint256, uint8, bytes32, bytes32).selector
+    ) }
 {
     env e; calldataarg args;
     address account;
@@ -173,15 +176,15 @@ rule delegates_safe(method f) filtered {f -> (f.selector != delegate(address).se
     address post = delegates(account);
     assert pre == post, "invalid delegate change";
 }
+
 // delegates increases the delegatee's votes by the proper amount
 // passes + rule sanity
 rule delegatee_receives_votes() {
-    env e; 
+    env e;
     address delegator; address delegatee;
 
     require delegates(delegator) != delegatee;
     require delegatee != 0x0;
-
 
     uint256 delegator_bal = balanceOf(delegator);
     uint256 votes_= getVotes(delegatee);
@@ -220,7 +223,7 @@ rule delegate_contained() {
     address delegator; address delegatee; address other;
 
     require other != delegatee;
-    require other != delegates(delegator); 
+    require other != delegates(delegator);
 
     uint256 votes_ = getVotes(other);
 
@@ -235,11 +238,8 @@ rule delegate_no_frontrunning(method f) {
     env e; calldataarg args;
     address delegator; address delegatee; address third; address other;
 
-
-
     require numCheckpoints(delegatee) < 1000000;
     require numCheckpoints(third) < 1000000;
-
 
     f(e, args);
 
@@ -268,63 +268,32 @@ rule delegate_no_frontrunning(method f) {
     assert other_votes_ == _other_votes, "delegate not contained";
 }
 
-
-
-// passes
-rule mint_increases_totalSupply() {
-
+rule onMint() {
     env e;
-    uint256 amount; address account;
+    uint256 amount;
+    address account;
 
     uint256 fromBlock = e.block.number;
-    uint256 totalSupply_ = totalSupply();
+    uint224 totalVotesBefore = totalVotes();
+    uint256 totalSupplyBefore = totalSupply();
 
-    mint(e, account, amount);
+    _mint(e, account, amount);
 
-    uint256 _totalSupply = totalSupply();
-    require _totalSupply < _maxSupply();
-
-    assert _totalSupply == totalSupply_ + amount, "totalSupply not increased properly";
-    assert getPastTotalSupply(e, fromBlock) == totalSupply_ , "previous total supply not saved properly";
+    assert totalVotes() == totalVotesBefore, "totalVotes changed";
+    assert getPastTotalSupply(e, fromBlock) == totalSupplyBefore, "previous totalSupply not saved properly";
 }
 
-// passes
-rule burn_decreases_totalSupply() {
+rule onBurn() {
     env e;
-    uint256 amount; address account;
+    uint256 amount;
+    address account;
 
     uint256 fromBlock = e.block.number;
-    uint256 totalSupply_ = totalSupply();
+    uint224 totalVotesBefore = totalVotes();
+    uint256 totalSupplyBefore = totalSupply();
 
-    burn(e, account, amount);
+    _burn(e, account, amount);
 
-    uint256 _totalSupply = totalSupply();
-
-    assert _totalSupply == totalSupply_ - amount, "totalSupply not decreased properly";
-    assert getPastTotalSupply(e, fromBlock) == totalSupply_ , "previous total supply not saved properly";
-}
-
-
-
-// passes
-rule mint_doesnt_increase_totalVotes() {
-    env e;
-    uint256 amount; address account;
-
-    uint224 totalVotes_ = totalVotes();
-
-    mint(e, account, amount);
-
-    assert totalVotes() == totalVotes_, "totalVotes increased";
-}
-// passes
-rule burn_doesnt_decrease_totalVotes() {
-    env e;
-    uint256 amount; address account;
-
-    uint224 totalVotes_ = totalVotes();
-
-    burn(e, account, amount);
-
-    assert totalVotes() == totalVotes_, "totalVotes decreased";
+    assert totalVotes() == totalVotesBefore, "totalVotes changed";
+    assert getPastTotalSupply(e, fromBlock) == totalSupplyBefore, "previous totalSupply not saved properly";
 }
