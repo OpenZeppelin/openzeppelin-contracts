@@ -162,7 +162,7 @@ rule getTimestampOnlyChange(method f, env e){
     address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt; uint256 delay;
     address[] targets; uint256[] values; bytes[] calldatas;
 
-    require (targets[0] == target && values[0] == value && datas[0] == data)
+    require (targets[0] == target && values[0] == value && calldatas[0] == data)
                 || (targets[1] == target && values[1] == value && calldatas[1] == data)
                 || (targets[2] == target && values[2] == value && calldatas[2] == data);
 

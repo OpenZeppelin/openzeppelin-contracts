@@ -4,7 +4,7 @@ set -euxo pipefail
 
 for contract in certora/harnesses/Wizard*.sol;
 do
-    # NOTE: some spec wile are not governor related, and should be run on Wizard*.sol
+    # NOTE: some spec files are not governor related, and should be run on Wizard*.sol
     for spec in certora/specs/*.spec;
     do
         contractFile=$(basename $contract)
