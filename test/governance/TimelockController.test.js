@@ -112,7 +112,7 @@ contract('TimelockController', function (accounts) {
     );
 
     expect(await mock.hasRole(DEFAULT_ADMIN_ROLE, admin)).to.be.equal(false);
-    expect(await mock.hasRole(DEFAULT_ADMIN_ROLE, other)).to.be.equal(true);
+    expect(await mock.hasRole(DEFAULT_ADMIN_ROLE, mock.address)).to.be.equal(true);
   });
 
   describe('methods', function () {
