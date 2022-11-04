@@ -10,9 +10,9 @@ feature of giving voters more time to vote in the case that a proposal reaches
 quorum with less than `voteExtension` amount of time left to vote.
 
 ### Assumptions and Simplifications
-    
+
 None
-    
+
 #### Harnessing
 - The contract that the specification was verified against is
   `GovernorPreventLateQuorumHarness`, which inherits from all of the Governor
@@ -25,7 +25,7 @@ None
   version. This flag stores the `block.number` in a variable
   `latestCastVoteCall` and is used as a way to check when any of variations of
   `castVote` are called.
-    
+
 #### Munging
 
 - Various variables' visibility was changed from private to internal or from
@@ -44,8 +44,8 @@ methods {
     // summarized
     hashProposal(address[],uint256[],bytes[],bytes32) returns (uint256) => NONDET
     _hashTypedDataV4(bytes32) returns (bytes32)
-    
-    // envfree 
+
+    // envfree
     quorumNumerator(uint256) returns uint256
     quorumDenominator() returns uint256 envfree
     votingPeriod() returns uint256 envfree
@@ -95,7 +95,7 @@ function setup(env e1, env e2) {
     require getQuorumNumeratorLength() + 1 < max_uint;
     require e2.block.number >= e1.block.number;
 }
-    
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //// #### Definitions                                                         //
@@ -118,11 +118,11 @@ definition proposalNotCreated(env e, uint256 pId) returns bool =
     && getAgainstVotes(pId) == 0
     && getAbstainVotes(pId) == 0
     && getForVotes(pId) == 0;
-    
+
 
 /// Method f is a version of `castVote` whose state changing effects are covered by `castVoteBySig`.
-/// @dev castVoteBySig allows anyone to cast a vote for anyone else if they can supply the signature. Specifically, 
-/// it covers the case where the msg.sender supplies a signature for themselves which is normally done using the normal 
+/// @dev castVoteBySig allows anyone to cast a vote for anyone else if they can supply the signature. Specifically,
+/// it covers the case where the msg.sender supplies a signature for themselves which is normally done using the normal
 /// `castVote`.
 definition castVoteSubset(method f) returns bool =
     f.selector == castVote(uint256, uint8).selector ||
@@ -139,11 +139,11 @@ definition castVoteSubset(method f) returns bool =
 
 /**
  * If a proposal has reached quorum then the proposal snapshot (start `block.number`) must be non-zero
- */ 
+ */
 invariant quorumReachedEffect(env e1, uint256 pId)
     quorumReached(e1, pId) && getPastTotalSupply(0) > 0 => proposalCreated(pId) // bug: 0 supply 0 votes => quorumReached
-    // relay havocs external contracts, chaning pastTotalSupply and thus quorumReached
-    filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector } 
+    // relay havocs external contracts, changing pastTotalSupply and thus quorumReached
+    filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector }
     {
         preserved with (env e2) {
             setup(e1, e2);
@@ -156,18 +156,18 @@ invariant quorumReachedEffect(env e1, uint256 pId)
 invariant proposalInOneState(env e1, uint256 pId)
     getPastTotalSupply(0) > 0 => (proposalNotCreated(e1, pId) || deadlineExtendable(e1, pId) || deadlineExtended(e1, pId))
     filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector }
-    { 
+    {
         preserved with (env e2) {
-            require proposalCreated(pId); 
+            require proposalCreated(pId);
             setup(e1, e2);
         }
     }
-/** 
+/**
  * The quorum numerator is always less than or equal to the quorum denominator.
  */
 invariant quorumNumerLTEDenom(env e1, uint256 blockNumber)
     quorumNumerator(e1, blockNumber) <= quorumDenominator()
-    { 
+    {
         preserved with (env e2) {
             setup(e1, e2);
         }
@@ -209,7 +209,7 @@ rule quorumReachedCantChange(method f) filtered { f -> !f.isFallback && !f.isVie
 /**
  * If deadline increases then we are in `deadlineExtended` state and `castVote`
  * was called.
- */ 
+ */
 rule deadlineChangeEffects(method f) filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector } {
     env e; calldataarg args; uint256 pId;
 
@@ -226,7 +226,7 @@ rule deadlineChangeEffects(method f) filtered { f -> !f.isFallback && !f.isView 
 /**
  * @title Deadline can't be unextended
  * @notice A proposal can't leave `deadlineExtended` state.
- */ 
+ */
 rule deadlineCantBeUnextended(method f) filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector } {
     env e1; env e2; env e3; env e4; calldataarg args; uint256 pId;
     setup(e1, e2);
@@ -242,14 +242,14 @@ rule deadlineCantBeUnextended(method f) filtered { f -> !f.isFallback && !f.isVi
 
 /**
  * A proposal's deadline can't change in `deadlineExtended` state.
- */ 
+ */
 rule canExtendDeadlineOnce(method f) filtered {f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector} {
     env e1; env e2; calldataarg args; uint256 pId;
 
     require(deadlineExtended(e1, pId));
     require(proposalSnapshot(pId) > 0);
     requireInvariant quorumReachedEffect(e1, pId);
-    setup(e1, e2); 
+    setup(e1, e2);
 
     uint256 deadlineBefore = proposalDeadline(pId);
     f(e2, args);
@@ -344,9 +344,9 @@ rule againstVotesDontCount(method f) filtered { f -> !f.isFallback && !f.isView 
 /**
  * `extendedDeadlineField` is set if and only if `_castVote` is called and quorum is reached.
  */
- // tool picks a state where quorum is unreached but extendedDeadline is set and then casts a vote which causes quorum 
+ // tool picks a state where quorum is unreached but extendedDeadline is set and then casts a vote which causes quorum
  // to be reached, so the rule breaks. Need to write a rule that says that if quorum is unreached, then extendedDeadline
- // must be unset. 
+ // must be unset.
 // rule extendedDeadlineValueSetIfQuorumReached(method f) filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector } {
 //     env e; calldataarg args; uint256 pId;
 //     setup(e, e);
