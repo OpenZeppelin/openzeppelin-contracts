@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "./MulticallTokenMock.sol";
 
 contract MulticallTest {
-    function testReturnValues(
+    function checkReturnValues(
         MulticallTokenMock multicallToken,
         address[] calldata recipients,
         uint256[] calldata amounts

@@ -54,7 +54,7 @@ abstract contract ReentrancyGuard {
     }
 
     function _nonReentrantBefore() private {
-        // On the first call to nonReentrant, _notEntered will be true
+        // On the first call to nonReentrant, _status will be _NOT_ENTERED
         require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
 
         // Any calls to nonReentrant after this point will fail
@@ -65,5 +65,13 @@ abstract contract ReentrancyGuard {
         // By storing the original value once again, a refund is triggered (see
         // https://eips.ethereum.org/EIPS/eip-2200)
         _status = _NOT_ENTERED;
+    }
+
+    /**
+     * @dev Returns true if the reentrancy guard is currently set to "entered", which indicates there is a
+     * `nonReentrant` function in the call stack.
+     */
+    function _reentrancyGuardEntered() internal view returns (bool) {
+        return _status == _ENTERED;
     }
 }

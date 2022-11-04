@@ -9,10 +9,10 @@ import "../Governor.sol";
 import "./IGovernorCompatibilityBravo.sol";
 
 /**
- * @dev Compatibility layer that implements GovernorBravo compatibility on to of {Governor}.
+ * @dev Compatibility layer that implements GovernorBravo compatibility on top of {Governor}.
  *
  * This compatibility layer includes a voting system and requires a {IGovernorTimelock} compatible module to be added
- * through inheritance. It does not include token bindings, not does it include any variable upgrade patterns.
+ * through inheritance. It does not include token bindings, nor does it include any variable upgrade patterns.
  *
  * NOTE: When using this module, you may need to enable the Solidity optimizer to avoid hitting the contract size limit.
  *
@@ -247,7 +247,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
+     * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be strictly over the againstVotes.
      */
     function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalDetails storage details = _proposalDetails[proposalId];

@@ -26,7 +26,7 @@ A different family of proxies are beacon proxies. This pattern, popularized by D
 - {BeaconProxy}: A proxy that retrieves its implementation from a beacon contract.
 - {UpgradeableBeacon}: A beacon contract with a built in admin that can upgrade the {BeaconProxy} pointing to it.
 
-In this pattern, the proxy contract doesn't hold the implementation address in storage like an ERC1967 proxy, instead the address is stored in a separate beacon contract. The `upgrade` operations that are sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
+In this pattern, the proxy contract doesn't hold the implementation address in storage like an ERC1967 proxy. Instead, the address is stored in a separate beacon contract. The `upgrade` operations are sent to the beacon instead of to the proxy contract, and all proxies that follow that beacon are automatically upgraded.
 
 Outside the realm of upgradeability, proxies can also be useful to make cheap contract clones, such as those created by an on-chain factory contract that creates many instances of the same contract. These instances are designed to be both cheap to deploy, and cheap to call.
 

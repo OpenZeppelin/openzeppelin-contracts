@@ -122,7 +122,7 @@ contract ERC20PermitNoRevertMock is
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual {
+    ) public {
         super.permit(owner, spender, value, deadline, v, r, s);
     }
 
@@ -134,7 +134,7 @@ contract ERC20PermitNoRevertMock is
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual override {
+    ) public override {
         try this.permitThatMayRevert(owner, spender, value, deadline, v, r, s) {
             // do nothing
         } catch {

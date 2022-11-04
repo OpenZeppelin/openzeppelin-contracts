@@ -45,10 +45,12 @@ import "./EnumerableSet.sol";
  *
  * [WARNING]
  * ====
- *  Trying to delete such a structure from storage will likely result in data corruption, rendering the structure unusable.
- *  See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
+ * Trying to delete such a structure from storage will likely result in data corruption, rendering the structure
+ * unusable.
+ * See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
  *
- *  In order to clean an EnumerableMap, you can either remove all elements one by one or create a fresh instance using an array of EnumerableMap.
+ * In order to clean an EnumerableMap, you can either remove all elements one by one or create a fresh instance using an
+ * array of EnumerableMap.
  * ====
  */
 `;
@@ -152,10 +154,10 @@ function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns
 }
 
 /**
- * @dev Same as {_get}, with a custom error message when \`key\` is not in the map.
+ * @dev Same as {get}, with a custom error message when \`key\` is not in the map.
  *
  * CAUTION: This function is deprecated because it requires allocating memory for the error
- * message unnecessarily. For custom revert reasons use {_tryGet}.
+ * message unnecessarily. For custom revert reasons use {tryGet}.
  */
 function get(
     Bytes32ToBytes32Map storage map,
