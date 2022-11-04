@@ -8,5 +8,5 @@ certoraRun \
     --link GovernorFullHarness:token=ERC20VotesHarness \
     --optimistic_loop \
     --loop_iter 1 \
-    --rule_sanity advanced \
+    --rule_sanity \
     $@

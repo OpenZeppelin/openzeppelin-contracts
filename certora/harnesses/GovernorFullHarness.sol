@@ -22,7 +22,7 @@ contract GovernorFullHarness is
     using Checkpoints for Checkpoints.History;
 
     constructor(
-        Votes _token,
+        IVotes _token,
         TimelockController _timelock,
         uint64 initialVoteExtension,
         uint256 quorumNumeratorValue
@@ -38,11 +38,8 @@ contract GovernorFullHarness is
 
     // variable added to check when _castVote is called
     uint256 public latestCastVoteCall;
+    
     // Harness from Votes //
-
-    function getTotalSupply() public view returns(uint256) {
-        return token._getTotalSupply();
-    }
 
     function getPastTotalSupply(uint256 blockNumber) public view returns(uint256) {
         return token.getPastTotalSupply(blockNumber);

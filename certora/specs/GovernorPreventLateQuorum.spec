@@ -41,6 +41,11 @@ None
 */
 
 methods {
+    // summarized
+    hashProposal(address[],uint256[],bytes[],bytes32) returns (uint256) => NONDET
+    _hashTypedDataV4(bytes32) returns (bytes32)
+    
+    // envfree 
     quorumNumerator(uint256) returns uint256
     quorumDenominator() returns uint256 envfree
     votingPeriod() returns uint256 envfree
@@ -57,7 +62,6 @@ methods {
     getAgainstVotes(uint256) returns uint256 envfree
     getAbstainVotes(uint256) returns uint256 envfree
     getForVotes(uint256) returns uint256 envfree
-    getTotalSupply() returns uint256 envfree
     getPastTotalSupply(uint256) returns (uint256) envfree
 
     // more robust check than f.selector == _castVote(...).selector
@@ -111,11 +115,9 @@ definition deadlineExtended(env e, uint256 pId) returns bool =
 definition proposalNotCreated(env e, uint256 pId) returns bool =
     proposalSnapshot(pId) == 0
     && proposalDeadline(pId) == 0
-    && getExtendedDeadlineIsUnset(pId)
     && getAgainstVotes(pId) == 0
     && getAbstainVotes(pId) == 0
-    && getForVotes(pId) == 0
-    && !quorumReached(e, pId);
+    && getForVotes(pId) == 0;
     
 
 /// Method f is a version of `castVote` whose state changing effects are covered by `castVoteBySig`.
@@ -137,8 +139,6 @@ definition castVoteSubset(method f) returns bool =
 
 /**
  * If a proposal has reached quorum then the proposal snapshot (start `block.number`) must be non-zero
- * @dev INVARIANT NOT PASSING // fails for updateQuorumNumerator and in the initial state when voting token total supply is 0 (causes quoromReached to return true)
- * @dev ADVANCED SANITY NOT RAN
  */ 
 invariant quorumReachedEffect(env e1, uint256 pId)
     quorumReached(e1, pId) && getPastTotalSupply(0) > 0 => proposalCreated(pId) // bug: 0 supply 0 votes => quorumReached
@@ -152,8 +152,6 @@ invariant quorumReachedEffect(env e1, uint256 pId)
 
 /**
  * A created proposal must be in state `deadlineExtendable` or `deadlineExtended`.
- * @dev INVARIANT NOT PASSING // fails for updateQuorumNumerator and in the initial state when voting token total supply is 0 (causes quoromReached to return true)
- * @dev ADVANCED SANITY NOT RAN
  */
 invariant proposalInOneState(env e1, uint256 pId)
     getPastTotalSupply(0) > 0 => (proposalNotCreated(e1, pId) || deadlineExtendable(e1, pId) || deadlineExtended(e1, pId))
@@ -164,7 +162,9 @@ invariant proposalInOneState(env e1, uint256 pId)
             setup(e1, e2);
         }
     }
-
+/** 
+ * The quorum numerator is always less than or equal to the quorum denominator.
+ */
 invariant quorumNumerLTEDenom(env e1, uint256 blockNumber)
     quorumNumerator(e1, blockNumber) <= quorumDenominator()
     { 
@@ -173,6 +173,9 @@ invariant quorumNumerLTEDenom(env e1, uint256 blockNumber)
         }
     }
 
+/**
+ * The deprecated quorum numerator variable `_quorumNumerator` is always 0 in a contract that is not upgraded.
+ */
 invariant deprecatedQuorumStateIsUninitialized()
     getDeprecatedQuorumNumerator() == 0
 
@@ -180,6 +183,10 @@ invariant deprecatedQuorumStateIsUninitialized()
 // Rules                                                                    //
 //////////////////////////////////////////////////////////////////////////////
 
+/**
+ * `updateQuorumNumerator` can only change quorum requirements for future proposals.
+ * @dev In the case that the array containing past quorum numerators overflows, this rule will fail.
+ */
 rule quorumReachedCantChange(method f) filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector } {
     env e1; uint256 pId;
     bool _quorumReached = quorumReached(e1, pId);
@@ -189,7 +196,6 @@ rule quorumReachedCantChange(method f) filtered { f -> !f.isFallback && !f.isVie
     updateQuorumNumerator(e2, newQuorumNumerator);
 
     env e3;
-    //require e3.block.number >= e2.block.number;
     bool quorumReached_ = quorumReached(e3, pId);
 
     assert _quorumReached == quorumReached_, "function changed quorumReached";
@@ -203,8 +209,6 @@ rule quorumReachedCantChange(method f) filtered { f -> !f.isFallback && !f.isVie
 /**
  * If deadline increases then we are in `deadlineExtended` state and `castVote`
  * was called.
- * @dev RULE PASSING
- * @dev ADVANCED SANITY PASSING 
  */ 
 rule deadlineChangeEffects(method f) filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector } {
     env e; calldataarg args; uint256 pId;
@@ -222,8 +226,6 @@ rule deadlineChangeEffects(method f) filtered { f -> !f.isFallback && !f.isView 
 /**
  * @title Deadline can't be unextended
  * @notice A proposal can't leave `deadlineExtended` state.
- * @dev RULE PASSING
- * @dev ADVANCED SANITY PASSING 
  */ 
 rule deadlineCantBeUnextended(method f) filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector } {
     env e1; env e2; env e3; env e4; calldataarg args; uint256 pId;
@@ -240,8 +242,6 @@ rule deadlineCantBeUnextended(method f) filtered { f -> !f.isFallback && !f.isVi
 
 /**
  * A proposal's deadline can't change in `deadlineExtended` state.
- * @dev RULE PASSING
- * @dev ADVANCED SANITY PASSING 
  */ 
 rule canExtendDeadlineOnce(method f) filtered {f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector} {
     env e1; env e2; calldataarg args; uint256 pId;
@@ -268,8 +268,6 @@ rule canExtendDeadlineOnce(method f) filtered {f -> !f.isFallback && !f.isView &
 /**
  * A change in `hasVoted` must be correlated with an increasing of the vote
  * supports, i.e. casting a vote increases the total number of votes.
- * @dev RULE PASSING
- * @dev ADVANCED SANITY PASSING
  */
 rule hasVotedCorrelationNonzero(uint256 pId, method f, env e) filtered {f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector} {
     address acc = e.msg.sender;
@@ -304,8 +302,6 @@ rule hasVotedCorrelationNonzero(uint256 pId, method f, env e) filtered {f -> !f.
 /**
  * @title Against votes don't count
  * @notice An against vote does not make a proposal reach quorum.
- * @dev RULE PASSING
- * @dev --ADVANCED SANITY PASSING vacuous but keeping
  */
 rule againstVotesDontCount(method f) filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector } {
     env e; calldataarg args; uint256 pId;
@@ -324,8 +320,6 @@ rule againstVotesDontCount(method f) filtered { f -> !f.isFallback && !f.isView 
 
 /**
  * Deadline can only be extended from a `deadlineExtendible` state with quorum being reached with <= `lateQuorumVoteExtension` time left to vote
- * @dev RULE PASSING
- * @dev ADVANCED SANITY PASSING 
  */
  // not reasonable rule since tool can arbitrarily pick a pre-state where quorum is reached
 // rule deadlineExtendedIfQuorumReached(method f) filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector } {
@@ -349,8 +343,6 @@ rule againstVotesDontCount(method f) filtered { f -> !f.isFallback && !f.isView 
 
 /**
  * `extendedDeadlineField` is set if and only if `_castVote` is called and quorum is reached.
- * @dev RULE PASSING
- * @dev ADVANCED SANITY PASSING 
  */
  // tool picks a state where quorum is unreached but extendedDeadline is set and then casts a vote which causes quorum 
  // to be reached, so the rule breaks. Need to write a rule that says that if quorum is unreached, then extendedDeadline
@@ -375,8 +367,6 @@ rule againstVotesDontCount(method f) filtered { f -> !f.isFallback && !f.isView 
 
 /**
  * Deadline can never be reduced.
- * @dev RULE PASSING
- * @dev ADVANCED SANITY PASSING
  */
 rule deadlineNeverReduced(method f) filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector } {
     env e1; env e2; calldataarg args; uint256 pId;
