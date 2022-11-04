@@ -6,6 +6,10 @@
  * `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
  * `Initializable`: optimize `_disableInitializers` by using `!=` instead of `<`. ([#3787](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3787))
 
+### Deprecations
+
+ * `ERC20Permit`: Added the file `IERC20Permit.sol` and `ERC20Permit.sol` and deprecated `draft-IERC20Permit.sol` and `draft-ERC20Permit.sol` since [EIP-2612](https://eips.ethereum.org/EIPS/eip-2612) is no longer a Draft. Developers are encouraged to update their imports. ([#3793](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3793))
+
 ## Unreleased
 
  * `TimelockController`: Added a new `admin` constructor parameter that is assigned the admin role instead of the deployer account. ([#3722](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3722))

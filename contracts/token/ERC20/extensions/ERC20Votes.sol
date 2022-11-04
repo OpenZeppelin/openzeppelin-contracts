@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./draft-ERC20Permit.sol";
+import "./ERC20Permit.sol";
 import "../../../utils/math/Math.sol";
 import "../../../governance/utils/IVotes.sol";
 import "../../../utils/math/SafeCast.sol";
