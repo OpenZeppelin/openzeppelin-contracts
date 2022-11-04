@@ -1,4 +1,4 @@
-import "erc20.spec"
+import "erc20methods.spec"
 
 methods {
     maxFlashLoan(address) returns(uint256) envfree
@@ -7,7 +7,7 @@ methods {
 
 ghost mapping(address => uint256) trackedBurnAmount;
 
-// retuns needed to overcome current CVL limitations: "could not type expression "specBurn(account,amount)", message: A summary must return a simple type, but specBurn(account,amount) returns 'void'"
+// returns is needed to overcome current CVL limitations: "could not type expression "specBurn(account,amount)", message: A summary must return a simple type, but specBurn(account,amount) returns 'void'"
 function specBurn(address account, uint256 amount) returns bool {
     trackedBurnAmount[account] = amount;
     return true;

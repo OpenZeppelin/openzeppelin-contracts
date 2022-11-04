@@ -2,8 +2,6 @@
 ///////////////////// Governor.sol base definitions //////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-using ERC20VotesHarness as erc20votes
-
 methods {
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
     proposalDeadline(uint256) returns uint256 envfree // matches proposalVoteEnd

@@ -1,3 +1,15 @@
+//// ## Verification of `ERC1155Pausable`
+//// 
+//// `ERC1155Pausable` extends existing `Pausable` functionality by requiring that a
+//// contract not be in a `paused` state prior to a token transfer.
+//// 
+//// ### Assumptions and Simplifications
+//// - Internal methods `_pause` and `_unpause` wrapped by functions callable from CVL
+//// - Dummy functions created to verify `whenPaused` and `whenNotPaused` modifiers
+//// 
+//// 
+//// ### Properties
+
 methods {
     balanceOf(address, uint256) returns uint256 envfree
     paused() returns bool envfree
@@ -36,7 +48,7 @@ filtered {
         "Transfer methods must revert in a paused contract";
 }
 
-/// When a contract is in an unpaused state, calling pause() must pause.
+/// When a contract is in an unpaused state, calling `pause()` must pause.
 rule pauseMethodPausesContract {
     require !paused();
 
@@ -80,8 +92,9 @@ rule cannotUnpauseWhileUnpaused {
         "A call to unpause when already unpaused must revert";
 }
 
-/// When a contract is in a paused state, functions with the whenNotPaused 
+/// When a contract is in a paused state, functions with the `whenNotPaused`
 /// modifier must revert.
+/// @title `whenNotPaused` modifier causes revert if paused
 rule whenNotPausedModifierCausesRevertIfPaused {
     require paused();
 
@@ -92,8 +105,9 @@ rule whenNotPausedModifierCausesRevertIfPaused {
         "Functions with the whenNotPaused modifier must revert if the contract is paused";
 }
 
-/// When a contract is in an unpaused state, functions with the whenPaused 
+/// When a contract is in an unpaused state, functions with the `whenPaused`
 /// modifier must revert.
+/// @title `whenPaused` modifier causes revert if unpaused
 rule whenPausedModifierCausesRevertIfUnpaused {
     require !paused();
 

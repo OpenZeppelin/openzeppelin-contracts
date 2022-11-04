@@ -19,6 +19,7 @@ contract GovernorFullHarness is
 {
     using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
+    using Checkpoints for Checkpoints.History;
 
     constructor(
         IVotes _token,
@@ -37,6 +38,25 @@ contract GovernorFullHarness is
 
     // variable added to check when _castVote is called
     uint256 public latestCastVoteCall;
+    
+    // Harness from Votes //
+
+    function getPastTotalSupply(uint256 blockNumber) public view returns(uint256) {
+        return token.getPastTotalSupply(blockNumber);
+    }
+    // Harness from GovernorVotesQuorumFraction //
+
+    function getQuorumNumeratorLength() public view returns(uint256) {
+        return _quorumNumeratorHistory._checkpoints.length;
+    }
+
+    function getQuorumNumeratorLatest() public view returns(uint256) {
+        return _quorumNumeratorHistory.latest();
+    }
+
+    function getDeprecatedQuorumNumerator() public view returns(uint256) {
+        return _quorumNumerator;
+    }
 
     // Harness from GovernorPreventLateQuorum //
 

@@ -140,15 +140,15 @@ rule possibleTotalVotes(uint256 pId, uint8 sup, env e, method f) {
 
 
 
-/////////////////// 2nd iteration with OZ ////////////////////////// 
+/////////////////// 2nd iteration with OZ //////////////////////////
 
-function executionsCall(method f, env e, address target, uint256 value, bytes data, 
-                                    bytes32 predecessor, bytes32 salt, uint256 delay, 
-                                    address[] targets, uint256[] values, bytes[] datas) {
+function executionsCall(method f, env e, address target, uint256 value, bytes data,
+                                    bytes32 predecessor, bytes32 salt, uint256 delay,
+                                    address[] targets, uint256[] values, bytes[] calldatas) {
     if  (f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector) {
         execute(e, target, value, data, predecessor, salt);
 	} else if (f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
-        executeBatch(e, targets, values, datas, predecessor, salt);
+        executeBatch(e, targets, values, calldatas, predecessor, salt);
 	} else {
         calldataarg args;
         f(e, args);
@@ -160,17 +160,16 @@ function executionsCall(method f, env e, address target, uint256 value, bytes da
 rule getTimestampOnlyChange(method f, env e){
     bytes32 id;
     address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt; uint256 delay;
-    address[] targets; uint256[] values; bytes[] datas;
+    address[] targets; uint256[] values; bytes[] calldatas;
 
-    require (targets[0] == target && values[0] == value && datas[0] == data)
-                || (targets[1] == target && values[1] == value && datas[1] == data)
-                || (targets[2] == target && values[2] == value && datas[2] == data);
+    require (targets[0] == target && values[0] == value && calldatas[0] == data)
+                || (targets[1] == target && values[1] == value && calldatas[1] == data)
+                || (targets[2] == target && values[2] == value && calldatas[2] == data);
 
     hashIdCorrelation(id, target, value, data, predecessor, salt);
 
-    executionsCall(f, e, target, value, data, predecessor, salt, delay, targets, values, datas);
+    executionsCall(f, e, target, value, data, predecessor, salt, delay, targets, values, calldatas);
 
-    assert getTimestamp(id) == 1 => f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector  
+    assert getTimestamp(id) == 1 => f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector
                                         || f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector, "Did you find a way to break the system?";
 }
-

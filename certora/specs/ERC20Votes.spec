@@ -1,4 +1,4 @@
-import "erc20.spec"
+import "erc20methods.spec"
 
 methods {
     // IVotes
@@ -62,10 +62,6 @@ hook Sstore _checkpoints[KEY address account][INDEX uint32 index].fromBlock uint
         doubleFromBlock@new(account) == (newBlock == lastFromBlock(account));
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                    Invariants                                                     //
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // sum of user balances is >= total amount of delegated votes
 // fails on burn. This is because burn does not remove votes from the users
 invariant votes_solvency()
@@ -74,7 +70,8 @@ invariant votes_solvency()
 {
     preserved with(env e) {
         require forall address account. numCheckpoints(account) < 1000000;
-    } preserved _burn(address a, uint256 amount) with(env e) {
+    }
+    preserved _burn(address a, uint256 amount) with(env e) {
         require _delegates(0) == 0;
         require forall address a2. (_delegates(a) != _delegates(a2)) && (balanceOf(_delegates(a)) + balanceOf(_delegates(a2)) <= totalVotes());
         require balanceOf(_delegates(a)) < totalVotes();
@@ -82,7 +79,18 @@ invariant votes_solvency()
     }
 }
 
+// for some checkpoint, the fromBlock is less than the current block number
+invariant blockNum_constrains_fromBlock(address account, uint32 index, env e)
+    ckptFromBlock(account, index) < e.block.number
+    filtered { f -> !f.isView }
+
+// numCheckpoints are less than maxInt
+// passes because numCheckpoints does a safeCast
+// invariant maxInt_constrains_numBlocks(address account)
+//     numCheckpoints(account) < 4294967295 // 2^32
+
 // can't have more checkpoints for a given account than the last from block
+// passes
 invariant fromBlock_constrains_numBlocks(address account)
     numCheckpoints(account) <= ckptFromBlock(account, numCheckpoints(account) - 1)
     filtered { f -> !f.isView }
@@ -108,9 +116,6 @@ invariant fromBlock_increasing(address account, uint32 pos, uint32 pos2)
     pos > pos2 => ckptFromBlock(account, pos) > ckptFromBlock(account, pos2)
     filtered { f -> !f.isView }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                       Rules                                                       //
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // converted from an invariant to a rule to slightly change the logic
 // if the fromBlock is the same as before, then the number of checkpoints stays the same
@@ -154,6 +159,7 @@ rule transfer_safe() {
     assert delegates(a) != 0 => votesA_pre - votesA_post == amount, "A lost the wrong amount of votes";
     assert delegates(b) != 0 => votesB_post - votesB_pre == amount, "B lost the wrong amount of votes";
 }
+
 // for any given function f, if the delegate is changed the function must be delegate or delegateBySig
 // passes
 rule delegates_safe(method f)
@@ -262,7 +268,6 @@ rule delegate_no_frontrunning(method f) {
     assert other_votes_ == _other_votes, "delegate not contained";
 }
 
-// passes
 rule onMint() {
     env e;
     uint256 amount;
@@ -274,11 +279,10 @@ rule onMint() {
 
     _mint(e, account, amount);
 
-    assert totalVotes() == totalVotesBefore, "totalVotes decreased";
-    assert getPastTotalSupply(e, fromBlock) == totalSupplyBefore , "previous total supply not saved properly";
+    assert totalVotes() == totalVotesBefore, "totalVotes changed";
+    assert getPastTotalSupply(e, fromBlock) == totalSupplyBefore, "previous totalSupply not saved properly";
 }
 
-// passes
 rule onBurn() {
     env e;
     uint256 amount;
@@ -290,6 +294,6 @@ rule onBurn() {
 
     _burn(e, account, amount);
 
-    assert totalVotes() == totalVotesBefore, "totalVotes decreased";
-    assert getPastTotalSupply(e, fromBlock) == totalSupplyBefore , "previous total supply not saved properly";
+    assert totalVotes() == totalVotesBefore, "totalVotes changed";
+    assert getPastTotalSupply(e, fromBlock) == totalSupplyBefore, "previous totalSupply not saved properly";
 }
