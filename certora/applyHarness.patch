@@ -1,6 +1,6 @@
 diff -ruN access/AccessControl.sol access/AccessControl.sol
---- access/AccessControl.sol	2022-10-04 09:46:35.000000000 -0700
-+++ access/AccessControl.sol	2022-11-03 09:10:21.000000000 -0700
+--- access/AccessControl.sol	2022-10-31 11:08:30.540461238 +0100
++++ access/AccessControl.sol	2022-11-04 16:24:05.171877282 +0100
 @@ -93,7 +93,7 @@
       *
       * _Available since v4.6._
@@ -10,9 +10,49 @@ diff -ruN access/AccessControl.sol access/AccessControl.sol
          _checkRole(role, _msgSender());
      }
  
+diff -ruN governance/extensions/GovernorCountingSimple.sol governance/extensions/GovernorCountingSimple.sol
+--- governance/extensions/GovernorCountingSimple.sol	2022-10-31 11:08:30.540461238 +0100
++++ governance/extensions/GovernorCountingSimple.sol	2022-11-04 16:24:05.171877282 +0100
+@@ -27,7 +27,7 @@
+         mapping(address => bool) hasVoted;
+     }
+ 
+-    mapping(uint256 => ProposalVote) private _proposalVotes;
++    mapping(uint256 => ProposalVote) internal _proposalVotes; // HARNESS: private -> internal
+ 
+     /**
+      * @dev See {IGovernor-COUNTING_MODE}.
+diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensions/GovernorPreventLateQuorum.sol
+--- governance/extensions/GovernorPreventLateQuorum.sol	2022-08-31 13:44:36.377724869 +0200
++++ governance/extensions/GovernorPreventLateQuorum.sol	2022-11-04 16:24:05.175210609 +0100
+@@ -21,8 +21,8 @@
+     using SafeCast for uint256;
+     using Timers for Timers.BlockNumber;
+ 
+-    uint64 private _voteExtension;
+-    mapping(uint256 => Timers.BlockNumber) private _extendedDeadlines;
++    uint64 internal _voteExtension; // HARNESS: private -> internal
++    mapping(uint256 => Timers.BlockNumber) internal _extendedDeadlines; // HARNESS: private -> internal
+ 
+     /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
+     event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
+diff -ruN governance/extensions/GovernorVotesQuorumFraction.sol governance/extensions/GovernorVotesQuorumFraction.sol
+--- governance/extensions/GovernorVotesQuorumFraction.sol	2022-10-31 11:08:30.540461238 +0100
++++ governance/extensions/GovernorVotesQuorumFraction.sol	2022-11-04 16:24:05.175210609 +0100
+@@ -16,8 +16,8 @@
+ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
+     using Checkpoints for Checkpoints.History;
+ 
+-    uint256 private _quorumNumerator; // DEPRECATED
+-    Checkpoints.History private _quorumNumeratorHistory;
++    uint256 internal _quorumNumerator; // DEPRECATED // MUNGED private => internal
++    Checkpoints.History internal _quorumNumeratorHistory; // MUNGED private => internal
+ 
+     event QuorumNumeratorUpdated(uint256 oldQuorumNumerator, uint256 newQuorumNumerator);
+ 
 diff -ruN governance/Governor.sol governance/Governor.sol
---- governance/Governor.sol	2022-10-04 11:47:09.000000000 -0700
-+++ governance/Governor.sol	2022-11-03 09:10:21.000000000 -0700
+--- governance/Governor.sol	2022-11-04 16:13:34.398935222 +0100
++++ governance/Governor.sol	2022-11-04 16:24:05.175210609 +0100
 @@ -44,7 +44,7 @@
  
      string private _name;
@@ -23,8 +63,8 @@ diff -ruN governance/Governor.sol governance/Governor.sol
      // This queue keeps track of the governor operating on itself. Calls to functions protected by the
      // {onlyGovernance} modifier needs to be whitelisted in this queue. Whitelisting is set in {_beforeExecute},
 diff -ruN governance/TimelockController.sol governance/TimelockController.sol
---- governance/TimelockController.sol	2022-10-04 11:47:09.000000000 -0700
-+++ governance/TimelockController.sol	2022-11-03 09:10:21.000000000 -0700
+--- governance/TimelockController.sol	2022-11-03 12:06:09.356515929 +0100
++++ governance/TimelockController.sol	2022-11-04 16:24:05.175210609 +0100
 @@ -28,10 +28,10 @@
      bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
      bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
@@ -38,49 +78,9 @@ diff -ruN governance/TimelockController.sol governance/TimelockController.sol
  
      /**
       * @dev Emitted when a call is scheduled as part of operation `id`.
-diff -ruN governance/extensions/GovernorCountingSimple.sol governance/extensions/GovernorCountingSimple.sol
---- governance/extensions/GovernorCountingSimple.sol	2022-10-04 09:46:35.000000000 -0700
-+++ governance/extensions/GovernorCountingSimple.sol	2022-11-03 09:10:21.000000000 -0700
-@@ -27,7 +27,7 @@
-         mapping(address => bool) hasVoted;
-     }
- 
--    mapping(uint256 => ProposalVote) private _proposalVotes;
-+    mapping(uint256 => ProposalVote) internal _proposalVotes; // HARNESS: private -> internal
- 
-     /**
-      * @dev See {IGovernor-COUNTING_MODE}.
-diff -ruN governance/extensions/GovernorPreventLateQuorum.sol governance/extensions/GovernorPreventLateQuorum.sol
---- governance/extensions/GovernorPreventLateQuorum.sol	2022-10-04 09:46:35.000000000 -0700
-+++ governance/extensions/GovernorPreventLateQuorum.sol	2022-11-03 09:10:21.000000000 -0700
-@@ -21,8 +21,8 @@
-     using SafeCast for uint256;
-     using Timers for Timers.BlockNumber;
- 
--    uint64 private _voteExtension;
--    mapping(uint256 => Timers.BlockNumber) private _extendedDeadlines;
-+    uint64 internal _voteExtension; // HARNESS: private -> internal
-+    mapping(uint256 => Timers.BlockNumber) internal _extendedDeadlines; // HARNESS: private -> internal
- 
-     /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
-     event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
-diff -ruN governance/extensions/GovernorVotesQuorumFraction.sol governance/extensions/GovernorVotesQuorumFraction.sol
---- governance/extensions/GovernorVotesQuorumFraction.sol	2022-10-04 09:46:35.000000000 -0700
-+++ governance/extensions/GovernorVotesQuorumFraction.sol	2022-11-03 09:13:10.000000000 -0700
-@@ -16,8 +16,8 @@
- abstract contract GovernorVotesQuorumFraction is GovernorVotes {
-     using Checkpoints for Checkpoints.History;
- 
--    uint256 private _quorumNumerator; // DEPRECATED
--    Checkpoints.History private _quorumNumeratorHistory;
-+    uint256 internal _quorumNumerator; // DEPRECATED // MUNGED private => internal
-+    Checkpoints.History internal _quorumNumeratorHistory; //MUNGED private => internal
- 
-     event QuorumNumeratorUpdated(uint256 oldQuorumNumerator, uint256 newQuorumNumerator);
- 
 diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
---- governance/utils/Votes.sol	2022-10-04 11:47:09.000000000 -0700
-+++ governance/utils/Votes.sol	2022-11-03 09:10:21.000000000 -0700
+--- governance/utils/Votes.sol	2022-11-03 12:06:09.356515929 +0100
++++ governance/utils/Votes.sol	2022-11-04 16:24:05.175210609 +0100
 @@ -35,7 +35,25 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -154,8 +154,8 @@ diff -ruN governance/utils/Votes.sol governance/utils/Votes.sol
 +    function _getVotingUnits(address) public virtual returns (uint256); // HARNESS: internal -> public
  }
 diff -ruN mocks/SafeERC20Helper.sol mocks/SafeERC20Helper.sol
---- mocks/SafeERC20Helper.sol	2022-10-04 09:46:35.000000000 -0700
-+++ mocks/SafeERC20Helper.sol	2022-11-03 09:10:21.000000000 -0700
+--- mocks/SafeERC20Helper.sol	2022-11-02 19:02:32.463724228 +0100
++++ mocks/SafeERC20Helper.sol	2022-11-04 16:24:05.175210609 +0100
 @@ -4,7 +4,6 @@
  
  import "../utils/Context.sol";
@@ -245,8 +245,8 @@ diff -ruN mocks/SafeERC20Helper.sol mocks/SafeERC20Helper.sol
  contract SafeERC20Wrapper is Context {
      using SafeERC20 for IERC20;
 diff -ruN proxy/utils/Initializable.sol proxy/utils/Initializable.sol
---- proxy/utils/Initializable.sol	2022-10-04 11:47:09.000000000 -0700
-+++ proxy/utils/Initializable.sol	2022-11-03 09:10:21.000000000 -0700
+--- proxy/utils/Initializable.sol	2022-11-03 12:06:09.356515929 +0100
++++ proxy/utils/Initializable.sol	2022-11-04 16:24:05.175210609 +0100
 @@ -59,12 +59,12 @@
       * @dev Indicates that the contract has been initialized.
       * @custom:oz-retyped-from bool
@@ -263,8 +263,8 @@ diff -ruN proxy/utils/Initializable.sol proxy/utils/Initializable.sol
      /**
       * @dev Triggered when the contract has been initialized or reinitialized.
 diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
---- token/ERC1155/ERC1155.sol	2022-10-04 09:46:35.000000000 -0700
-+++ token/ERC1155/ERC1155.sol	2022-11-03 09:10:21.000000000 -0700
+--- token/ERC1155/ERC1155.sol	2022-10-31 11:08:30.547127922 +0100
++++ token/ERC1155/ERC1155.sol	2022-11-04 16:24:05.175210609 +0100
 @@ -21,7 +21,7 @@
      using Address for address;
  
@@ -293,8 +293,8 @@ diff -ruN token/ERC1155/ERC1155.sol token/ERC1155/ERC1155.sol
              try IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, amounts, data) returns (
                  bytes4 response
 diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
---- token/ERC20/ERC20.sol	2022-10-04 09:46:35.000000000 -0700
-+++ token/ERC20/ERC20.sol	2022-11-03 09:10:21.000000000 -0700
+--- token/ERC20/ERC20.sol	2022-10-31 11:08:30.547127922 +0100
++++ token/ERC20/ERC20.sol	2022-11-04 16:24:05.175210609 +0100
 @@ -256,7 +256,7 @@
       *
       * - `account` cannot be the zero address.
@@ -314,8 +314,8 @@ diff -ruN token/ERC20/ERC20.sol token/ERC20/ERC20.sol
  
          _beforeTokenTransfer(account, address(0), amount);
 diff -ruN token/ERC20/extensions/ERC20Capped.sol token/ERC20/extensions/ERC20Capped.sol
---- token/ERC20/extensions/ERC20Capped.sol	2022-10-04 09:46:35.000000000 -0700
-+++ token/ERC20/extensions/ERC20Capped.sol	2022-11-03 09:10:21.000000000 -0700
+--- token/ERC20/extensions/ERC20Capped.sol	2022-08-31 13:44:36.381058287 +0200
++++ token/ERC20/extensions/ERC20Capped.sol	2022-11-04 16:24:05.178543935 +0100
 @@ -30,7 +30,7 @@
      /**
       * @dev See {ERC20-_mint}.
@@ -326,8 +326,8 @@ diff -ruN token/ERC20/extensions/ERC20Capped.sol token/ERC20/extensions/ERC20Cap
          super._mint(account, amount);
      }
 diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20FlashMint.sol
---- token/ERC20/extensions/ERC20FlashMint.sol	2022-10-04 11:47:09.000000000 -0700
-+++ token/ERC20/extensions/ERC20FlashMint.sol	2022-11-03 09:10:21.000000000 -0700
+--- token/ERC20/extensions/ERC20FlashMint.sol	2022-11-03 12:06:09.356515929 +0100
++++ token/ERC20/extensions/ERC20FlashMint.sol	2022-11-04 16:24:05.178543935 +0100
 @@ -51,9 +51,11 @@
          // silence warning about unused variable without the addition of bytecode.
          token;
@@ -342,8 +342,8 @@ diff -ruN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC20
       * @dev Returns the receiver address of the flash fee. By default this
       * implementation returns the address(0) which means the fee amount will be burnt.
 diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Votes.sol
---- token/ERC20/extensions/ERC20Votes.sol	2022-11-03 09:18:26.000000000 -0700
-+++ token/ERC20/extensions/ERC20Votes.sol	2022-11-03 09:20:40.000000000 -0700
+--- token/ERC20/extensions/ERC20Votes.sol	2022-11-03 12:06:09.356515929 +0100
++++ token/ERC20/extensions/ERC20Votes.sol	2022-11-04 16:24:05.178543935 +0100
 @@ -33,8 +33,8 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -494,8 +494,8 @@ diff -ruN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Vote
          return a + b;
      }
 diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wrapper.sol
---- token/ERC20/extensions/ERC20Wrapper.sol	2022-10-04 09:46:35.000000000 -0700
-+++ token/ERC20/extensions/ERC20Wrapper.sol	2022-11-03 09:10:21.000000000 -0700
+--- token/ERC20/extensions/ERC20Wrapper.sol	2022-08-31 13:44:36.381058287 +0200
++++ token/ERC20/extensions/ERC20Wrapper.sol	2022-11-04 16:24:05.178543935 +0100
 @@ -55,7 +55,7 @@
       * @dev Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake. Internal
       * function that can be exposed with access control if desired.
@@ -506,8 +506,8 @@ diff -ruN token/ERC20/extensions/ERC20Wrapper.sol token/ERC20/extensions/ERC20Wr
          _mint(account, value);
          return value;
 diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/draft-ERC721Votes.sol
---- token/ERC721/extensions/draft-ERC721Votes.sol	2022-10-04 11:47:09.000000000 -0700
-+++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-11-03 09:10:21.000000000 -0700
+--- token/ERC721/extensions/draft-ERC721Votes.sol	2022-11-03 12:06:09.356515929 +0100
++++ token/ERC721/extensions/draft-ERC721Votes.sol	2022-11-04 16:24:05.178543935 +0100
 @@ -49,7 +49,7 @@
      /**
       * @dev Returns the balance of `account`.
@@ -518,14 +518,14 @@ diff -ruN token/ERC721/extensions/draft-ERC721Votes.sol token/ERC721/extensions/
      }
  }
 diff -ruN utils/Address.sol utils/Address.sol
---- utils/Address.sol	2022-10-04 11:47:09.000000000 -0700
-+++ utils/Address.sol	2022-11-03 09:10:21.000000000 -0700
+--- utils/Address.sol	2022-11-03 12:06:09.356515929 +0100
++++ utils/Address.sol	2022-11-04 16:24:05.178543935 +0100
 @@ -197,7 +197,7 @@
          bool success,
          bytes memory returndata,
          string memory errorMessage
 -    ) internal view returns (bytes memory) {
-+    ) internal view returns (bytes memory val) { //MUNGED undeterministic return causes error for Prover 
++    ) internal view returns (bytes memory val) { // MUNGED undeterministic return causes error for Prover
          if (success) {
              if (returndata.length == 0) {
                  // only check isContract if the call was successful and the return data is empty
@@ -534,13 +534,13 @@ diff -ruN utils/Address.sol utils/Address.sol
          bytes memory returndata,
          string memory errorMessage
 -    ) internal pure returns (bytes memory) {
-+    ) internal pure returns (bytes memory val) { //MUNGED undeterministic return causes error for Prover 
++    ) internal pure returns (bytes memory val) { // MUNGED undeterministic return causes error for Prover
          if (success) {
              return returndata;
          } else {
 diff -ruN utils/Checkpoints.sol utils/Checkpoints.sol
---- utils/Checkpoints.sol	2022-10-04 09:46:35.000000000 -0700
-+++ utils/Checkpoints.sol	2022-11-03 09:45:23.000000000 -0700
+--- utils/Checkpoints.sol	2022-11-02 12:17:36.976298213 +0100
++++ utils/Checkpoints.sol	2022-11-04 16:24:05.178543935 +0100
 @@ -83,13 +83,13 @@
       *
       * Returns previous value and new value.
