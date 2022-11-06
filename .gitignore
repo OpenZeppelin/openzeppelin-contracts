@@ -62,3 +62,4 @@ artifacts
 .certora*
 .last_confs
 certora_*
+/out/
