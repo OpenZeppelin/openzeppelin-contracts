@@ -81,7 +81,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     ) {
 
         // self administration
-        _setupRole(DEFAULT_ADMIN_ROLE, address(this));
+        _grantRole(DEFAULT_ADMIN_ROLE, address(this));
 
         // optional admin
         if (admin != address(0)) {
