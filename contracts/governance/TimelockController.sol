@@ -88,7 +88,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
 
         // optional admin
         if (admin != address(0)) {
-            _setupRole(DEFAULT_ADMIN_ROLE, admin);
+            _grantRole(DEFAULT_ADMIN_ROLE, admin);
         }
 
         // register proposers and cancellers
