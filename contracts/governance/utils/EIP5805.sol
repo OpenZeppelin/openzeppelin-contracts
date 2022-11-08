@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-<<<<<<< HEAD:contracts/governance/utils/Votes.sol
-import "./IVotes.sol";
-import "../../utils/cryptography/draft-EIP712.sol";
-import "../../utils/cryptography/ECDSA.sol";
-=======
->>>>>>> 040f8132 (use EIP5805):contracts/governance/utils/EIP5805.sol
 import "../../utils/Context.sol";
 import "../../utils/Counters.sol";
 import "../../utils/Checkpoints.sol";
@@ -66,15 +60,10 @@ abstract contract EIP5805 is IEIP5805, Context, EIP712 {
      *
      * - `timepoint` must have been already mined
      */
-<<<<<<< HEAD:contracts/governance/utils/Votes.sol
-    function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return _delegateCheckpoints[account].getAtProbablyRecentBlock(blockNumber);
-=======
     function getPastVotes(address account, uint256 timepoint) public view virtual override returns (uint256) {
         require(timepoint < clock(), "Checkpoints: invalid past lookup");
         // TODO: optimisitc lookup
         return _delegateCheckpoints[account].upperLookup(SafeCast.toUint32(timepoint));
->>>>>>> 040f8132 (use EIP5805):contracts/governance/utils/EIP5805.sol
     }
 
     /**
@@ -88,15 +77,10 @@ abstract contract EIP5805 is IEIP5805, Context, EIP712 {
      *
      * - `timepoint` must have been already mined
      */
-<<<<<<< HEAD:contracts/governance/utils/Votes.sol
-    function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
-        return _totalCheckpoints.getAtBlock(blockNumber);
-=======
     function getPastTotalSupply(uint256 timepoint) public view virtual override returns (uint256) {
         require(timepoint < clock(), "Checkpoints: invalid past lookup");
         // TODO: optimisitc lookup
         return _totalCheckpoints.upperLookup(SafeCast.toUint32(timepoint));
->>>>>>> 040f8132 (use EIP5805):contracts/governance/utils/EIP5805.sol
     }
 
     /**

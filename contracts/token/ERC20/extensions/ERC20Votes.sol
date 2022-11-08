@@ -3,8 +3,8 @@
 
 pragma solidity ^0.8.0;
 
-import "./ERC20Permit.sol";
-import "../../../governance/utils/Votes.sol";
+import "../ERC20.sol";
+import "../../../governance/utils/EIP5805.sol";
 
 /**
  * @dev Extension of ERC20 to support Compound-like voting and delegation. This version is more generic than Compound's,
@@ -21,16 +21,7 @@ import "../../../governance/utils/Votes.sol";
  *
  * _Available since v4.2._
  */
-abstract contract ERC20Votes is Votes, ERC20Permit {
-    // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() public view virtual override(ERC20Permit, EIP712) returns (bytes32) {
-        return super.DOMAIN_SEPARATOR();
-    }
-
-    function nonces(address owner) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
-        return super.nonces(owner);
-    }
-
+abstract contract ERC20Votes is ERC20, EIP5805 {
     function _mint(address account, uint256 amount) internal virtual override {
         require(totalSupply() + amount <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
         super._mint(account, amount);
