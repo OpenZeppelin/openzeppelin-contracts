@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0-rc.2) (governance/extensions/GovernorCountingSimple.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (governance/extensions/GovernorCountingSimple.sol)
 
 pragma solidity ^0.8.0;
 
