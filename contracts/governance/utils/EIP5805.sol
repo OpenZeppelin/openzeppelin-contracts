@@ -168,11 +168,19 @@ abstract contract EIP5805 is IEIP5805, Context, EIP712 {
     ) private {
         if (from != to && amount > 0) {
             if (from != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(SafeCast.toUint32(clock()), _subtract, amount);
+                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(
+                    SafeCast.toUint32(clock()),
+                    _subtract,
+                    amount
+                );
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
             if (to != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(SafeCast.toUint32(clock()), _add, amount);
+                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(
+                    SafeCast.toUint32(clock()),
+                    _add,
+                    amount
+                );
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
         }
