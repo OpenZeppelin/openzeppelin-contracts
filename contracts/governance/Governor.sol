@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.2) (governance/Governor.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (governance/Governor.sol)
 
 pragma solidity ^0.8.0;
 
 import "../token/ERC721/IERC721Receiver.sol";
 import "../token/ERC1155/IERC1155Receiver.sol";
 import "../utils/cryptography/ECDSA.sol";
-import "../utils/cryptography/draft-EIP712.sol";
+import "../utils/cryptography/EIP712.sol";
 import "../utils/introspection/ERC165.sol";
 import "../utils/math/SafeCast.sol";
 import "../utils/structs/DoubleEndedQueue.sol";
@@ -544,8 +544,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         address target,
         uint256 value,
         bytes calldata data
-    ) external virtual onlyGovernance {
-        Address.functionCallWithValue(target, data, value);
+    ) external payable virtual onlyGovernance {
+        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        Address.verifyCallResult(success, returndata, "Governor: relay reverted without message");
     }
 
     /**

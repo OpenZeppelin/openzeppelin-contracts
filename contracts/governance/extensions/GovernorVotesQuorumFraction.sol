@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.2) (governance/extensions/GovernorVotesQuorumFraction.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (governance/extensions/GovernorVotesQuorumFraction.sol)
 
 pragma solidity ^0.8.0;
 
@@ -55,7 +55,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
             return latest._value;
         }
 
-        // Otherwize, do the binary search
+        // Otherwise, do the binary search
         return _quorumNumeratorHistory.getAtBlock(blockNumber);
     }
 

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// This file was procedurally generated from scripts/generate/templates/EnumerableMapMock.js.
 
 pragma solidity ^0.8.0;
 
@@ -90,6 +91,7 @@ contract AddressToUintMapMock {
     }
 }
 
+// Bytes32ToBytes32Map
 contract Bytes32ToBytes32MapMock {
     using EnumerableMap for EnumerableMap.Bytes32ToBytes32Map;
 

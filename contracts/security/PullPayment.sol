@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (security/PullPayment.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (security/PullPayment.sol)
 
 pragma solidity ^0.8.0;
 
@@ -7,7 +7,7 @@ import "../utils/escrow/Escrow.sol";
 
 /**
  * @dev Simple implementation of a
- * https://consensys.github.io/smart-contract-best-practices/recommendations/#favor-pull-over-push-for-external-calls[pull-payment]
+ * https://consensys.github.io/smart-contract-best-practices/development-recommendations/general/external-calls/#favor-pull-over-push-for-external-calls[pull-payment]
  * strategy, where the paying contract doesn't interact directly with the
  * receiver account, which must withdraw its payments itself.
  *

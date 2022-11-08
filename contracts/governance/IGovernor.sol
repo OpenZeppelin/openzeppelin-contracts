@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.2) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (governance/IGovernor.sol)
 
 pragma solidity ^0.8.0;
 
@@ -184,7 +184,7 @@ abstract contract IGovernor is IERC165 {
 
     /**
      * @notice module:voting
-     * @dev Returns weither `account` has cast a vote on `proposalId`.
+     * @dev Returns whether `account` has cast a vote on `proposalId`.
      */
     function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
 

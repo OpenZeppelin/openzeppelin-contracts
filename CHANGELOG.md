@@ -1,18 +1,93 @@
 # Changelog
 
-## 4.7.3 (2022-08-10)
+## 4.8.0 (2022-11-08)
+
+ * `TimelockController`: Added a new `admin` constructor parameter that is assigned the admin role instead of the deployer account. ([#3722](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3722))
+ * `Initializable`: add internal functions `_getInitializedVersion` and `_isInitializing` ([#3598](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3598))
+ * `ERC165Checker`: add `supportsERC165InterfaceUnchecked` for consulting individual interfaces without the full ERC165 protocol. ([#3339](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3339))
+ * `Address`: optimize `functionCall` by calling `functionCallWithValue` directly. ([#3468](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3468))
+ * `Address`: optimize `functionCall` functions by checking contract size only if there is no returned data. ([#3469](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3469))
+ * `Governor`: make the `relay` function payable, and add support for EOA payments. ([#3730](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3730))
+ * `GovernorCompatibilityBravo`: remove unused `using` statements. ([#3506](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3506))
+ * `ERC20`: optimize `_transfer`, `_mint` and `_burn` by using `unchecked` arithmetic when possible. ([#3513](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3513))
+ * `ERC20Votes`, `ERC721Votes`: optimize `getPastVotes` for looking up recent checkpoints. ([#3673](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3673))
+ * `ERC20FlashMint`: add an internal `_flashFee` function for overriding. ([#3551](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3551))
+ * `ERC4626`: use the same `decimals()` as the underlying asset by default (if available). ([#3639](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3639))
+ * `ERC4626`: add internal `_initialConvertToShares` and `_initialConvertToAssets` functions to customize empty vaults behavior. ([#3639](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3639))
+ * `ERC721`: optimize transfers by making approval clearing implicit instead of emitting an event. ([#3481](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3481))
+ * `ERC721`: optimize burn by making approval clearing implicit instead of emitting an event. ([#3538](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3538))
+ * `ERC721`: Fix balance accounting when a custom `_beforeTokenTransfer` hook results in a transfer of the token under consideration. ([#3611](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3611))
+ * `ERC721`: use unchecked arithmetic for balance updates. ([#3524](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3524))
+ * `ERC721Consecutive`: Implementation of EIP-2309 that allows batch minting of ERC721 tokens during construction. ([#3311](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3311))
+ * `ReentrancyGuard`: Reduce code size impact of the modifier by using internal functions. ([#3515](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3515))
+ * `SafeCast`: optimize downcasting of signed integers. ([#3565](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3565))
+ * `ECDSA`: Remove redundant check on the `v` value. ([#3591](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3591))
+ * `VestingWallet`: add `releasable` getters. ([#3580](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3580))
+ * `VestingWallet`: remove unused library `Math.sol`. ([#3605](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3605))
+ * `VestingWallet`: make constructor payable. ([#3665](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3665))
+ * `Create2`: optimize address computation by using assembly instead of `abi.encodePacked`. ([#3600](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3600))
+ * `Clones`: optimized the assembly to use only the scratch space during deployments, and optimized `predictDeterministicAddress` to use fewer operations. ([#3640](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3640))
+ * `Checkpoints`: Use procedural generation to support multiple key/value lengths. ([#3589](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3589))
+ * `Checkpoints`: Add new lookup mechanisms. ([#3589](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3589))
+ * `Arrays`: Add `unsafeAccess` functions that allow reading and writing to an element in a storage array bypassing Solidity's "out-of-bounds" check. ([#3589](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3589))
+ * `Strings`: optimize `toString`. ([#3573](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3573))
+ * `Ownable2Step`: extension of `Ownable` that makes the ownership transfers a two step process. ([#3620](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3620))
+ * `Math` and `SignedMath`: optimize function `max` by using `>` instead of `>=`. ([#3679](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3679))
+ * `Math`: Add `log2`, `log10` and `log256`. ([#3670](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3670))
+ * Arbitrum: Update the vendored arbitrum contracts to match the nitro upgrade. ([#3692](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3692))
+
+### Breaking changes
+
+ * `ERC721`: In order to add support for batch minting via `ERC721Consecutive` it was necessary to make a minor breaking change in the internal interface of `ERC721`. Namely, the hooks `_beforeTokenTransfer` and `_afterTokenTransfer` have one additional argument that may need to be added to overrides:
+
+```diff
+ function _beforeTokenTransfer(
+     address from,
+     address to,
+     uint256 tokenId,
++    uint256 batchSize
+ ) internal virtual override
+```
+
+ * `ERC4626`: Conversion from shares to assets (and vice-versa) in an empty vault used to consider the possible mismatch between the underlying asset's and the vault's decimals. This initial conversion rate is now set to 1-to-1 irrespective of decimals, which are meant for usability purposes only. The vault now uses the assets decimals by default, so off-chain the numbers should appear the same. Developers overriding the vault decimals to a value that does not match the underlying asset may want to override the `_initialConvertToShares` and `_initialConvertToAssets` to replicate the previous behavior.
+
+ * `TimelockController`: During deployment, the TimelockController used to grant the `TIMELOCK_ADMIN_ROLE` to the deployer and to the timelock itself. The deployer was then expected to renounce this role once configuration of the timelock is over. Failing to renounce that role allows the deployer to change the timelock permissions (but not to bypass the delay for any time-locked actions). The role is no longer given to the deployer by default. A new parameter `admin` can be set to a non-zero address to grant the admin role during construction (to the deployer or any other address). Just like previously, this admin role should be renounced after configuration. If this param is given `address(0)`, the role is not allocated and doesn't need to be revoked. In any case, the timelock itself continues to have this role.
+
+### Deprecations
+
+ * `EIP712`: Added the file `EIP712.sol` and deprecated `draft-EIP712.sol` since the EIP is no longer a Draft. Developers are encouraged to update their imports. ([#3621](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3621))
+
+```diff
+-import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
++import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+```
+
+ * `ERC721Votes`: Added the file `ERC721Votes.sol` and deprecated `draft-ERC721Votes.sol` since it no longer depends on a Draft EIP (EIP-712). Developers are encouraged to update their imports. ([#3699](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3699))
+
+```diff
+-import "@openzeppelin/contracts/token/ERC721/extensions/draft-ERC721Votes.sol";
++import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Votes.sol";
+```
+
+### ERC-721 Compatibility Note
+
+ERC-721 integrators that interpret contract state from events should make sure that they implement the clearing of approval that is implicit in every transfer according to the EIP. Previous versions of OpenZeppelin Contracts emitted an explicit `Approval` event even though it was not required by the specification, and this is no longer the case.
+
+With the new `ERC721Consecutive` extension, the internal workings of `ERC721` are slightly changed. Custom extensions to ERC721 should be reviewed to ensure they remain correct. The internal functions that should be considered are `_ownerOf` (new), `_beforeTokenTransfer`, and `_afterTokenTransfer`.
+
+## 4.7.3
 
 ### Breaking changes
 
  * `ECDSA`: `recover(bytes32,bytes)` and `tryRecover(bytes32,bytes)` no longer accept compact signatures to prevent malleability. Compact signature support remains available using `recover(bytes32,bytes32,bytes32)` and `tryRecover(bytes32,bytes32,bytes32)`.
 
-## 4.7.2 (2022-07-27)
+## 4.7.2
 
  * `LibArbitrumL2`, `CrossChainEnabledArbitrumL2`: Fixed detection of cross-chain calls for EOAs. Previously, calls from EOAs would be classified as cross-chain calls. ([#3578](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3578))
  * `GovernorVotesQuorumFraction`: Fixed quorum updates so they do not affect past proposals that failed due to lack of quorum. ([#3561](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3561))
  * `ERC165Checker`: Added protection against large returndata. ([#3587](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3587))
 
-## 4.7.1 (2022-07-19)
+## 4.7.1
 
  * `SignatureChecker`: Fix an issue that causes `isValidSignatureNow` to revert when the target contract returns ill-encoded data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
  * `ERC165Checker`: Fix an issue that causes `supportsInterface` to revert when the target contract returns ill-encoded data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
@@ -72,7 +147,7 @@
 ### Breaking changes
 
 * `Governor`: Adds internal virtual `_getVotes` method that must be implemented; this is a breaking change for existing concrete extensions to `Governor`. To fix this on an existing voting module extension, rename `getVotes` to `_getVotes` and add a `bytes memory` argument. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
-* `Governor`: Adds `params` parameter to internal virtual `_countVote ` method; this is a breaking change for existing concrete extensions to `Governor`. To fix this on an existing counting module extension, add a `bytes memory` argument to `_countVote`. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
+* `Governor`: Adds `params` parameter to internal virtual `_countVote` method; this is a breaking change for existing concrete extensions to `Governor`. To fix this on an existing counting module extension, add a `bytes memory` argument to `_countVote`. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
 * `Governor`: Does not emit `VoteCast` event when params data is non-empty; instead emits `VoteCastWithParams` event. To fix this on an integration that consumes the `VoteCast` event, also fetch/monitor `VoteCastWithParams` events. ([#3043](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3043))
 * `Votes`: The internal virtual function `_getVotingUnits` was made `view` (which was accidentally missing). Any overrides should now be updated so they are `view` as well.
 
@@ -95,7 +170,7 @@
  * `ERC777`: do not update allowance on `transferFrom` when allowance is `type(uint256).max`. ([#3085](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3085))
  * `ERC777`: add a `_spendAllowance` internal function. ([#3170](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3170))
  * `SignedMath`: a new signed version of the Math library with `max`, `min`,  and `average`. ([#2686](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2686))
- * `SignedMath`: add a `abs(int256)` method that returns the unsigned absolute value of a signed value. ([#2984](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2984))
+ * `SignedMath`: add an `abs(int256)` method that returns the unsigned absolute value of a signed value. ([#2984](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2984))
  * `ERC1967Upgrade`: Refactor the secure upgrade to use `ERC1822` instead of the previous rollback mechanism. This reduces code complexity and attack surface with similar security guarantees. ([#3021](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3021))
  * `UUPSUpgradeable`: Add `ERC1822` compliance to support the updated secure upgrade mechanism. ([#3021](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3021))
  * Some more functions have been made virtual to customize them via overrides. In many cases this will not imply that other functions in the contract will automatically adapt to the overridden definitions. People who wish to override should consult the source code to understand the impact and if they need to override any additional functions to achieve the desired behavior.
@@ -199,7 +274,7 @@ It is no longer possible to call an `initializer`-protected function from within
  * `SignatureChecker`: add a signature verification library that supports both EOA and ERC1271 compliant contracts as signers. ([#2532](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2532))
  * `Multicall`: add abstract contract with `multicall(bytes[] calldata data)` function to bundle multiple calls together ([#2608](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2608))
  * `ECDSA`: add support for ERC2098 short-signatures. ([#2582](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2582))
- * `AccessControl`: add a `onlyRole` modifier to restrict specific function to callers bearing a specific role. ([#2609](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2609))
+ * `AccessControl`: add an `onlyRole` modifier to restrict specific function to callers bearing a specific role. ([#2609](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2609))
  * `StorageSlot`: add a library for reading and writing primitive types to specific storage slots. ([#2542](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2542))
  * UUPS Proxies: add `UUPSUpgradeable` to implement the UUPS proxy pattern together with `EIP1967Proxy`. ([#2542](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2542))
 
@@ -517,7 +592,7 @@ Refer to the table below to adjust your inheritance list.
  * Now conforming to a 4-space indentation code style. ([1508](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1508))
  * `ERC20`: more gas efficient due to removed redundant `require`s. ([#1409](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1409))
  * `ERC721`: fixed a bug that prevented internal data structures from being properly cleaned, missing potential gas refunds. ([#1539](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1539) and [#1549](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1549))
- * `ERC721`: general gas savings on `transferFrom`, `_mint` and `_burn`, due to redudant `require`s and `SSTORE`s. ([#1549](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1549))
+ * `ERC721`: general gas savings on `transferFrom`, `_mint` and `_burn`, due to redundant `require`s and `SSTORE`s. ([#1549](https://github.com/OpenZeppelin/openzeppelin-solidity/pull/1549))
 
 ### Bugfixes
 

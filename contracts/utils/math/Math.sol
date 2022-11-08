@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.0;
 
@@ -17,7 +17,7 @@ library Math {
      * @dev Returns the largest of two numbers.
      */
     function max(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a >= b ? a : b;
+        return a > b ? a : b;
     }
 
     /**
@@ -151,7 +151,7 @@ library Math {
     }
 
     /**
-     * @dev Returns the square root of a number. It the number is not a perfect square, the value is rounded down.
+     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded down.
      *
      * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
      */
@@ -161,41 +161,16 @@ library Math {
         }
 
         // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.
+        //
         // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have
-        // `msb(a) <= a < 2*msb(a)`.
-        // We also know that `k`, the position of the most significant bit, is such that `msb(a) = 2**k`.
-        // This gives `2**k < a <= 2**(k+1)` → `2**(k/2) <= sqrt(a) < 2 ** (k/2+1)`.
-        // Using an algorithm similar to the msb conmputation, we are able to compute `result = 2**(k/2)` which is a
-        // good first aproximation of `sqrt(a)` with at least 1 correct bit.
-        uint256 result = 1;
-        uint256 x = a;
-        if (x >> 128 > 0) {
-            x >>= 128;
-            result <<= 64;
-        }
-        if (x >> 64 > 0) {
-            x >>= 64;
-            result <<= 32;
-        }
-        if (x >> 32 > 0) {
-            x >>= 32;
-            result <<= 16;
-        }
-        if (x >> 16 > 0) {
-            x >>= 16;
-            result <<= 8;
-        }
-        if (x >> 8 > 0) {
-            x >>= 8;
-            result <<= 4;
-        }
-        if (x >> 4 > 0) {
-            x >>= 4;
-            result <<= 2;
-        }
-        if (x >> 2 > 0) {
-            result <<= 1;
-        }
+        // `msb(a) <= a < 2*msb(a)`. This value can be written `msb(a)=2**k` with `k=log2(a)`.
+        //
+        // This can be rewritten `2**log2(a) <= a < 2**(log2(a) + 1)`
+        // → `sqrt(2**k) <= sqrt(a) < sqrt(2**(k+1))`
+        // → `2**(k/2) <= sqrt(a) < 2**((k+1)/2) <= 2**(k/2 + 1)`
+        //
+        // Consequently, `2**(log2(a) / 2)` is a good first approximation of `sqrt(a)` with at least 1 correct bit.
+        uint256 result = 1 << (log2(a) >> 1);
 
         // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
         // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at
@@ -217,10 +192,154 @@ library Math {
      * @notice Calculates sqrt(a), following the selected rounding direction.
      */
     function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
-        uint256 result = sqrt(a);
-        if (rounding == Rounding.Up && result * result < a) {
-            result += 1;
+        unchecked {
+            uint256 result = sqrt(a);
+            return result + (rounding == Rounding.Up && result * result < a ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 2, rounded down, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log2(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >> 128 > 0) {
+                value >>= 128;
+                result += 128;
+            }
+            if (value >> 64 > 0) {
+                value >>= 64;
+                result += 64;
+            }
+            if (value >> 32 > 0) {
+                value >>= 32;
+                result += 32;
+            }
+            if (value >> 16 > 0) {
+                value >>= 16;
+                result += 16;
+            }
+            if (value >> 8 > 0) {
+                value >>= 8;
+                result += 8;
+            }
+            if (value >> 4 > 0) {
+                value >>= 4;
+                result += 4;
+            }
+            if (value >> 2 > 0) {
+                value >>= 2;
+                result += 2;
+            }
+            if (value >> 1 > 0) {
+                result += 1;
+            }
         }
         return result;
+    }
+
+    /**
+     * @dev Return the log in base 2, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log2(value);
+            return result + (rounding == Rounding.Up && 1 << result < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 10, rounded down, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log10(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >= 10**64) {
+                value /= 10**64;
+                result += 64;
+            }
+            if (value >= 10**32) {
+                value /= 10**32;
+                result += 32;
+            }
+            if (value >= 10**16) {
+                value /= 10**16;
+                result += 16;
+            }
+            if (value >= 10**8) {
+                value /= 10**8;
+                result += 8;
+            }
+            if (value >= 10**4) {
+                value /= 10**4;
+                result += 4;
+            }
+            if (value >= 10**2) {
+                value /= 10**2;
+                result += 2;
+            }
+            if (value >= 10**1) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log10(value);
+            return result + (rounding == Rounding.Up && 10**result < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 256, rounded down, of a positive value.
+     * Returns 0 if given 0.
+     *
+     * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.
+     */
+    function log256(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >> 128 > 0) {
+                value >>= 128;
+                result += 16;
+            }
+            if (value >> 64 > 0) {
+                value >>= 64;
+                result += 8;
+            }
+            if (value >> 32 > 0) {
+                value >>= 32;
+                result += 4;
+            }
+            if (value >> 16 > 0) {
+                value >>= 16;
+                result += 2;
+            }
+            if (value >> 8 > 0) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log256(value);
+            return result + (rounding == Rounding.Up && 1 << (result * 8) < value ? 1 : 0);
+        }
     }
 }
