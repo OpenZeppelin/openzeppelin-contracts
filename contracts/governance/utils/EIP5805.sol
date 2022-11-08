@@ -40,7 +40,7 @@ abstract contract EIP5805 is IEIP5805, Context, EIP712 {
     mapping(address => Counters.Counter) private _nonces;
 
     /**
-     * @dev Return the current timestamp, this can be overriden to use `block.timestamp` or any other mechanism
+     * @dev Return the current timestamp, this can be overridden to use `block.timestamp` or any other mechanism
      */
     function clock() public view virtual override returns (uint256) {
         return block.number;
@@ -62,7 +62,7 @@ abstract contract EIP5805 is IEIP5805, Context, EIP712 {
      */
     function getPastVotes(address account, uint256 timepoint) public view virtual override returns (uint256) {
         require(timepoint < clock(), "Checkpoints: invalid past lookup");
-        // TODO: optimisitc lookup
+        // TODO: optimistic lookup
         return _delegateCheckpoints[account].upperLookup(SafeCast.toUint32(timepoint));
     }
 
