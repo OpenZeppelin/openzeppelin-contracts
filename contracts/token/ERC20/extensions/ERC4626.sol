@@ -267,6 +267,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         emit Withdraw(caller, receiver, owner, assets, shares);
     }
 
+    /**
+     * @dev Checks if vault is "healthy" in the sense of having assets backing the circulating shares.
+     */
     function _isVaultHealthy() private view returns (bool) {
         return totalAssets() > 0 || totalSupply() == 0;
     }
