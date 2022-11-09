@@ -182,6 +182,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+     */
     function _unsafeAccess(Checkpoint[] storage self, uint256 pos) private pure returns (Checkpoint storage result) {
         assembly {
             mstore(0, self.slot)
@@ -343,6 +346,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+     */
     function _unsafeAccess(Checkpoint224[] storage self, uint256 pos)
         private
         pure
@@ -508,6 +514,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+     */
     function _unsafeAccess(Checkpoint160[] storage self, uint256 pos)
         private
         pure

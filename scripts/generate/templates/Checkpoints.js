@@ -246,6 +246,9 @@ function _upperBinaryLookup(
     return high;
 }
 
+/**
+ * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+ */
 function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
     private
     pure
