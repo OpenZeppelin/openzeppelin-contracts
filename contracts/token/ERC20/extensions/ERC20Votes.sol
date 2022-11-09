@@ -4,7 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "./draft-ERC20Permit.sol";
-import "../../../governance/utils/Votes.sol";
+import "../../../governance/utils/EIP5805.sol";
 
 /**
  * @dev Extension of ERC20 to support Compound-like voting and delegation. This version is more generic than Compound's,
@@ -21,7 +21,7 @@ import "../../../governance/utils/Votes.sol";
  *
  * _Available since v4.2._
  */
-abstract contract ERC20Votes is Votes, ERC20Permit {
+abstract contract ERC20Votes is EIP5805, ERC20Permit {
     // solhint-disable-next-line func-name-mixedcase
     function DOMAIN_SEPARATOR() public view virtual override(ERC20Permit, EIP712) returns (bytes32) {
         return super.DOMAIN_SEPARATOR();
@@ -57,12 +57,5 @@ abstract contract ERC20Votes is Votes, ERC20Permit {
      */
     function _maxSupply() internal view virtual returns (uint224) {
         return type(uint224).max;
-    }
-
-    function _unsafeAccess(Checkpoint[] storage ckpts, uint256 pos) private pure returns (Checkpoint storage result) {
-        assembly {
-            mstore(0, ckpts.slot)
-            result.slot := add(keccak256(0, 0x20), pos)
-        }
     }
 }

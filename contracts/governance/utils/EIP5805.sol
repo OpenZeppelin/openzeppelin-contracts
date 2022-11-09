@@ -79,7 +79,7 @@ abstract contract EIP5805 is IEIP5805, Context, EIP712 {
      */
     function getPastTotalSupply(uint256 timepoint) public view virtual override returns (uint256) {
         require(timepoint < clock(), "Checkpoints: invalid past lookup");
-        // TODO: optimisitc lookup
+        // TODO: optimistic lookup
         return _totalCheckpoints.upperLookup(SafeCast.toUint32(timepoint));
     }
 

@@ -16,7 +16,7 @@ interface IEIP5805 {
     event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
 
     /**
-     * @dev Return the current timestamp, this can be overriden to use `block.timestamp` or any other mechanism
+     * @dev Return the current timestamp, this can be overridden to use `block.timestamp` or any other mechanism
      */
     function clock() external view returns (uint256);
 
