@@ -15,7 +15,7 @@ const CallReceiver = artifacts.require('CallReceiverMock');
 contract('GovernorTimelockControl', function (accounts) {
   const [ owner, voter1, voter2, voter3, voter4, other ] = accounts;
 
-  const TIMELOCK_ADMIN_ROLE = web3.utils.soliditySha3('TIMELOCK_ADMIN_ROLE');
+  const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
   const PROPOSER_ROLE = web3.utils.soliditySha3('PROPOSER_ROLE');
   const EXECUTOR_ROLE = web3.utils.soliditySha3('EXECUTOR_ROLE');
   const CANCELLER_ROLE = web3.utils.soliditySha3('CANCELLER_ROLE');
@@ -46,7 +46,7 @@ contract('GovernorTimelockControl', function (accounts) {
 
     this.helper = new GovernorHelper(this.mock);
 
-    this.TIMELOCK_ADMIN_ROLE = await this.timelock.TIMELOCK_ADMIN_ROLE();
+    this.DEFAULT_ADMIN_ROLE = await this.timelock.DEFAULT_ADMIN_ROLE();
     this.PROPOSER_ROLE = await this.timelock.PROPOSER_ROLE();
     this.EXECUTOR_ROLE = await this.timelock.EXECUTOR_ROLE();
     this.CANCELLER_ROLE = await this.timelock.CANCELLER_ROLE();
@@ -59,7 +59,7 @@ contract('GovernorTimelockControl', function (accounts) {
     await this.timelock.grantRole(CANCELLER_ROLE, this.mock.address);
     await this.timelock.grantRole(CANCELLER_ROLE, owner);
     await this.timelock.grantRole(EXECUTOR_ROLE, constants.ZERO_ADDRESS);
-    await this.timelock.revokeRole(TIMELOCK_ADMIN_ROLE, deployer);
+    await this.timelock.revokeRole(DEFAULT_ADMIN_ROLE, deployer);
 
     await this.token.mint(owner, tokenSupply);
     await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
