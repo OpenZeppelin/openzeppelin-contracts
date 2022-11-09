@@ -1,10 +1,12 @@
 # Changelog
 
 ## Unreleased (Breaking)
- * `TimelockController`: During deployment, the TimelockController used to grant the custom admin role `TIMELOCK_ADMIN_ROLE` to the `admin` parameter, it will now as the rest of the contracts assign the `DEFAULT_ADMIN_ROLE` to the timelock itself or to the `admin` parameter, if given, to be consistent with the rest of the repository. ([#3799](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3799))
+
+ * `TimelockController`: Changed the role architecture to use `DEFAULT_ADMIN_ROLE` as the admin for all roles, instead of the bespoke `TIMELOCK_ADMIN_ROLE` that was used previously. This aligns with the general recommendation for `AccessControl` and makes the addition of new roles easier. ([#3799](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3799))
 
 ## Unreleased
- * `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
+
+* `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
  * `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
 
 ## Unreleased
