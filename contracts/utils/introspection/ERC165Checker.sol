@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165Checker.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/introspection/ERC165Checker.sol)
 
 pragma solidity ^0.8.0;
 
@@ -17,7 +17,7 @@ library ERC165Checker {
     bytes4 private constant _INTERFACE_ID_INVALID = 0xffffffff;
 
     /**
-     * @dev Returns true if `account` supports the {IERC165} interface,
+     * @dev Returns true if `account` supports the {IERC165} interface.
      */
     function supportsERC165(address account) internal view returns (bool) {
         // Any contract that implements ERC165 must explicitly indicate support of
@@ -82,7 +82,7 @@ library ERC165Checker {
             return false;
         }
 
-        // query support of each interface in _interfaceIds
+        // query support of each interface in interfaceIds
         for (uint256 i = 0; i < interfaceIds.length; i++) {
             if (!supportsERC165InterfaceUnchecked(account, interfaceIds[i])) {
                 return false;
@@ -105,9 +105,19 @@ library ERC165Checker {
      * Interface identification is specified in ERC-165.
      */
     function supportsERC165InterfaceUnchecked(address account, bytes4 interfaceId) internal view returns (bool) {
+        // prepare call
         bytes memory encodedParams = abi.encodeWithSelector(IERC165.supportsInterface.selector, interfaceId);
-        (bool success, bytes memory result) = account.staticcall{gas: 30000}(encodedParams);
-        if (result.length < 32) return false;
-        return success && abi.decode(result, (bool));
+
+        // perform static call
+        bool success;
+        uint256 returnSize;
+        uint256 returnValue;
+        assembly {
+            success := staticcall(30000, account, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x20)
+            returnSize := returndatasize()
+            returnValue := mload(0x00)
+        }
+
+        return success && returnSize >= 0x20 && returnValue > 0;
     }
 }

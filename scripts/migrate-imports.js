@@ -9,9 +9,9 @@ const pathUpdates = {
   'access/TimelockController.sol': 'governance/TimelockController.sol',
   'cryptography/ECDSA.sol': 'utils/cryptography/ECDSA.sol',
   'cryptography/MerkleProof.sol': 'utils/cryptography/MerkleProof.sol',
-  'drafts/EIP712.sol': 'utils/cryptography/draft-EIP712.sol',
-  'drafts/ERC20Permit.sol': 'token/ERC20/extensions/draft-ERC20Permit.sol',
-  'drafts/IERC20Permit.sol': 'token/ERC20/extensions/draft-IERC20Permit.sol',
+  'drafts/EIP712.sol': 'utils/cryptography/EIP712.sol',
+  'drafts/ERC20Permit.sol': 'token/ERC20/extensions/ERC20Permit.sol',
+  'drafts/IERC20Permit.sol': 'token/ERC20/extensions/IERC20Permit.sol',
   'GSN/Context.sol': 'utils/Context.sol',
   // 'GSN/GSNRecipientERC20Fee.sol': undefined,
   // 'GSN/GSNRecipientSignature.sol': undefined,
@@ -87,6 +87,9 @@ const pathUpdates = {
   'utils/ReentrancyGuard.sol': 'security/ReentrancyGuard.sol',
   'utils/SafeCast.sol': 'utils/math/SafeCast.sol',
   // 'utils/Strings.sol': undefined,
+  'utils/cryptography/draft-EIP712.sol': 'utils/cryptography/EIP712.sol',
+  'token/ERC20/extensions/draft-ERC20Permit.sol': 'token/ERC20/extensions/ERC20Permit.sol',
+  'token/ERC20/extensions/draft-IERC20Permit.sol': 'token/ERC20/extensions/IERC20Permit.sol',
 };
 
 async function main (paths = [ 'contracts' ]) {

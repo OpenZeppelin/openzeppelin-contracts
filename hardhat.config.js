@@ -11,10 +11,6 @@ const path = require('path');
 const argv = require('yargs/yargs')()
   .env('')
   .options({
-    ci: {
-      type: 'boolean',
-      default: false,
-    },
     coverage: {
       type: 'boolean',
       default: false,
@@ -23,6 +19,12 @@ const argv = require('yargs/yargs')()
       alias: 'enableGasReport',
       type: 'boolean',
       default: false,
+    },
+    gasReport: {
+      alias: 'enableGasReportPath',
+      type: 'string',
+      implies: 'gas',
+      default: undefined,
     },
     mode: {
       alias: 'compileMode',
@@ -48,8 +50,11 @@ const argv = require('yargs/yargs')()
   .argv;
 
 require('@nomiclabs/hardhat-truffle5');
+require('hardhat-ignore-warnings');
 
-if (argv.enableGasReport) {
+require('solidity-docgen');
+
+if (argv.gas) {
   require('hardhat-gas-reporter');
 }
 
@@ -57,7 +62,7 @@ for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
 
-const withOptimizations = argv.enableGasReport || argv.compileMode === 'production';
+const withOptimizations = argv.gas || argv.compileMode === 'production';
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -73,6 +78,13 @@ module.exports = {
       viaIR: withOptimizations && argv.ir,
     },
   },
+  warnings: {
+    '*': {
+      'code-size': withOptimizations,
+      'unused-param': !argv.coverage, // coverage causes unused-param warnings
+      default: 'error',
+    },
+  },
   networks: {
     hardhat: {
       blockGasLimit: 10000000,
@@ -80,10 +92,12 @@ module.exports = {
     },
   },
   gasReporter: {
+    showMethodSig: true,
     currency: 'USD',
-    outputFile: argv.ci ? 'gas-report.txt' : undefined,
+    outputFile: argv.gasReport,
     coinmarketcap: argv.coinmarketcap,
   },
+  docgen: require('./docs/config'),
 };
 
 if (argv.coverage) {

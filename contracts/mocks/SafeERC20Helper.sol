@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../utils/Context.sol";
 import "../token/ERC20/IERC20.sol";
-import "../token/ERC20/extensions/draft-ERC20Permit.sol";
+import "../token/ERC20/extensions/ERC20Permit.sol";
 import "../token/ERC20/utils/SafeERC20.sol";
 
 contract ERC20ReturnFalseMock is Context {
@@ -122,7 +122,7 @@ contract ERC20PermitNoRevertMock is
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual {
+    ) public {
         super.permit(owner, spender, value, deadline, v, r, s);
     }
 
@@ -134,7 +134,7 @@ contract ERC20PermitNoRevertMock is
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual override {
+    ) public override {
         try this.permitThatMayRevert(owner, spender, value, deadline, v, r, s) {
             // do nothing
         } catch {

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (utils/introspection/IERC1820Registry.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/introspection/IERC1820Registry.sol)
 
 pragma solidity ^0.8.0;
 
@@ -107,7 +107,7 @@ interface IERC1820Registry {
     function implementsERC165Interface(address account, bytes4 interfaceId) external view returns (bool);
 
     /**
-     * @notice Checks whether a contract implements an ERC165 interface or not without using nor updating the cache.
+     * @notice Checks whether a contract implements an ERC165 interface or not without using or updating the cache.
      * @param account Address of the contract to check.
      * @param interfaceId ERC165 interface to check.
      * @return True if `account` implements `interfaceId`, false otherwise.

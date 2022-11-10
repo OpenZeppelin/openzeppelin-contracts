@@ -82,7 +82,7 @@ Once the abstract cross-chain version of our token is ready we can easily specia
 
 This is done using one of the many `CrossChainEnabled` implementations.
 
-For example, if our token on xDai, and our governor on mainnet, we can use the https://docs.tokenbridge.net/amb-bridge/about-amb-bridge[AMB] bridge available on xDai at https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59[0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59]
+For example, if our token is on xDai, and our governor on mainnet, we can use the https://docs.tokenbridge.net/amb-bridge/about-amb-bridge[AMB] bridge available on xDai at https://blockscout.com/xdai/mainnet/address/0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59[0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59]
 
 [source,solidity]
 ----
@@ -116,11 +116,11 @@ When designing a contract with cross-chain support, it is essential to understan
 
 In this guide, we are particularly focusing on restricting access to a specific caller. This is usually done (as shown above) using `msg.sender` or `_msgSender()`. However, when going cross-chain, it is not just that simple. Even without considering possible bridge issues, it is important to keep in mind that the same address can correspond to very different entities when considering a multi-chain space. EOA wallets can only execute operations if the wallet's private-key signs the transaction. To our knowledge this is the case in all EVM chains, so a cross-chain message coming from such a wallet is arguably equivalent to a non-cross-chain message by the same wallet. The situation is however very different for smart contracts.
 
-Due to the way smart contract addresses are computed, and the fact that smart contracts on different chains live independent lives, you could have two very different contracts live at the same address on different chains. You could imagine two multisig wallets with different signers use the same address on different chains. You could also see a very basic smart wallet live on one chain at the same address as a full-fledge governor on another chain. Therefore, you should be careful that whenever you give permissions to a specific address, you control with chain this address can act from.
+Due to the way smart contract addresses are computed, and the fact that smart contracts on different chains live independent lives, you could have two very different contracts live at the same address on different chains. You could imagine two multisig wallets with different signers using the same address on different chains. You could also see a very basic smart wallet live on one chain at the same address as a full-fledged governor on another chain. Therefore, you should be careful that whenever you give permissions to a specific address, you control with chain this address can act from.
 
 == Going further with access control
 
-In previous example, we have both a `onlyOwner()` modifier and the `onlyCrossChainSender(owner)` mechanism. We didn't use the xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern because the ownership transfer mechanism in includes is not designed to work with the owner being a cross-chain entity. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectivelly be used to build cross-chain-aware contracts.
+In the previous example, we have both an `onlyOwner()` modifier and the `onlyCrossChainSender(owner)` mechanism. We didn't use the xref:access-control.adoc#ownership-and-ownable[`Ownable`] pattern because the ownership transfer mechanism in includes is not designed to work with the owner being a cross-chain entity. Unlike xref:access-control.adoc#ownership-and-ownable[`Ownable`], xref:access-control.adoc#role-based-access-control[`AccessControl`] is more effective at capturing the nuances and can effectively be used to build cross-chain-aware contracts.
 
 Using xref:api:access.adoc#AccessControlCrossChain[`AccessControlCrossChain`] includes both the xref:api:access.adoc#AccessControl[`AccessControl`] core and the xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] abstraction. It also includes some binding to make role management compatible with cross-chain operations.
 

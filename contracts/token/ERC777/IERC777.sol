@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC777/IERC777.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC777/IERC777.sol)
 
 pragma solidity ^0.8.0;
 
@@ -28,12 +28,12 @@ interface IERC777 {
     event Burned(address indexed operator, address indexed from, uint256 amount, bytes data, bytes operatorData);
 
     /**
-     * @dev Emitted when `operator` is made operator for `tokenHolder`
+     * @dev Emitted when `operator` is made operator for `tokenHolder`.
      */
     event AuthorizedOperator(address indexed operator, address indexed tokenHolder);
 
     /**
-     * @dev Emitted when `operator` is revoked its operator status for `tokenHolder`
+     * @dev Emitted when `operator` is revoked its operator status for `tokenHolder`.
      */
     event RevokedOperator(address indexed operator, address indexed tokenHolder);
 

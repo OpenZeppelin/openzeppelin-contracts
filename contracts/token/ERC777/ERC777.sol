@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC777/ERC777.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC777/ERC777.sol)
 
 pragma solidity ^0.8.0;
 
@@ -508,7 +508,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * Does not update the allowance amount in case of infinite allowance.
      * Revert if not enough allowance is available.
      *
-     * Might emit an {Approval} event.
+     * Might emit an {IERC20-Approval} event.
      */
     function _spendAllowance(
         address owner,
