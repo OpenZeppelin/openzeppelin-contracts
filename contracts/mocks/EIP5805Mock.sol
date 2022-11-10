@@ -10,6 +10,11 @@ contract EIP5805Mock is EIP5805 {
 
     constructor(string memory name) EIP712(name, "1") {}
 
+    // solhint-disable-next-line func-name-mixedcase
+    function DOMAIN_SEPARATOR() external view returns (bytes32) {
+        return _domainSeparatorV4();
+    }
+
     function getTotalSupply() public view returns (uint256) {
         return _getTotalSupply();
     }

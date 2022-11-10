@@ -8,6 +8,10 @@ import "../utils/cryptography/EIP712.sol";
 contract EIP712External is EIP712 {
     constructor(string memory name, string memory version) EIP712(name, version) {}
 
+    function domainSeparator() external view returns (bytes32) {
+        return _domainSeparatorV4();
+    }
+
     function verify(
         bytes memory signature,
         address signer,

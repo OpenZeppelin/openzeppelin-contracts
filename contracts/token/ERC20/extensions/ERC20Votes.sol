@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./draft-ERC20Permit.sol";
+import "./ERC20Permit.sol";
 import "../../../governance/utils/EIP5805.sol";
 
 /**
@@ -22,13 +22,13 @@ import "../../../governance/utils/EIP5805.sol";
  * _Available since v4.2._
  */
 abstract contract ERC20Votes is EIP5805, ERC20Permit {
-    // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() public view virtual override(ERC20Permit, EIP712) returns (bytes32) {
-        return super.DOMAIN_SEPARATOR();
+
+    function nonces(address owner) public view virtual override(ERC20Permit, EIP5805) returns (uint256) {
+        return super.nonces(owner);
     }
 
-    function nonces(address owner) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
-        return super.nonces(owner);
+    function _useNonce(address owner) internal virtual override(ERC20Permit, EIP5805) returns (uint256) {
+        return super._useNonce(owner);
     }
 
     function _mint(address account, uint256 amount) internal virtual override {

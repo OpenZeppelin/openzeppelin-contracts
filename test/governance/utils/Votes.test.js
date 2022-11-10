@@ -6,7 +6,7 @@ const {
   shouldBehaveLikeVotes,
 } = require('./Votes.behavior');
 
-const Votes = artifacts.require('VotesMock');
+const Votes = artifacts.require('EIP5805Mock');
 
 contract('Votes', function (accounts) {
   const [ account1, account2, account3 ] = accounts;
