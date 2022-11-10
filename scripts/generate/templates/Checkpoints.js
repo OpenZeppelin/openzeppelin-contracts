@@ -90,7 +90,8 @@ function _lowerBinaryLookup(
 const legacyOperations = opts => `\
 /**
  * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
- * before it is returned, or zero otherwise.
+ * before it is returned, or zero otherwise. Because the number returned corresponds to that at the end of the
+ * block, the requested block number must be in the past, excluding the current block.
  */
 function getAtBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
     require(blockNumber < block.number, "Checkpoints: block not yet mined");
