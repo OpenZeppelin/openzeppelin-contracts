@@ -22,7 +22,6 @@ import "../../../governance/utils/EIP5805.sol";
  * _Available since v4.2._
  */
 abstract contract ERC20Votes is EIP5805, ERC20Permit {
-
     function nonces(address owner) public view virtual override(ERC20Permit, EIP5805) returns (uint256) {
         return super.nonces(owner);
     }

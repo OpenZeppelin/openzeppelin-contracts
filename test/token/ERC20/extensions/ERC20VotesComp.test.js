@@ -378,7 +378,7 @@ contract('ERC20VotesComp', function (accounts) {
       it('reverts if block number >= current block', async function () {
         await expectRevert(
           this.token.getPriorVotes(other1, 5e10),
-          'Checkpoints: block not yet mined',
+          'Checkpoints: invalid past lookup',
         );
       });
 
@@ -440,7 +440,7 @@ contract('ERC20VotesComp', function (accounts) {
     it('reverts if block number >= current block', async function () {
       await expectRevert(
         this.token.getPastTotalSupply(5e10),
-        'Checkpoints: block not yet mined',
+        'Checkpoints: invalid past lookup',
       );
     });
 

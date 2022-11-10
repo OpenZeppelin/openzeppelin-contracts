@@ -62,7 +62,7 @@ contract('ERC20Votes', function (accounts) {
       await this.token.mint(holder, 1);
     }
     const block = await web3.eth.getBlockNumber();
-    expect(await this.token.numCheckpoints(holder)).to.be.bignumber.equal('6');
+    expect(await this.token.getVotes(holder, block)).to.be.bignumber.equal('6');
     // recent
     expect(await this.token.getPastVotes(holder, block - 1)).to.be.bignumber.equal('5');
     // non-recent
@@ -400,7 +400,7 @@ contract('ERC20Votes', function (accounts) {
       it('reverts if block number >= current block', async function () {
         await expectRevert(
           this.token.getPastVotes(other1, 5e10),
-          'Checkpoints: block not yet mined',
+          'Checkpoints: invalid past lookup',
         );
       });
 
@@ -462,7 +462,7 @@ contract('ERC20Votes', function (accounts) {
     it('reverts if block number >= current block', async function () {
       await expectRevert(
         this.token.getPastTotalSupply(5e10),
-        'Checkpoints: block not yet mined',
+        'Checkpoints: invalid past lookup',
       );
     });
 

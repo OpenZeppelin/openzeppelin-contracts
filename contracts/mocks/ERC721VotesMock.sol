@@ -11,7 +11,7 @@ contract ERC721VotesMock is ERC721Votes {
     function DOMAIN_SEPARATOR() external view returns (bytes32) {
         return _domainSeparatorV4();
     }
-    
+
     function getTotalSupply() public view returns (uint256) {
         return _getTotalSupply();
     }
