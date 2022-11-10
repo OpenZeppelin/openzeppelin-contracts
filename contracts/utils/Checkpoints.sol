@@ -144,8 +144,8 @@ library Checkpoints {
             // Copying to memory is important here.
             Checkpoint memory last = _unsafeAccess(self, pos - 1);
 
-            // Checkpoints keys must be increasing.
-            require(last._blockNumber <= key, "Checkpoint: invalid key");
+            // Checkpoint keys must be non-decreasing.
+            require(last._blockNumber <= key, "Checkpoint: decreasing keys");
 
             // Update or push new checkpoint
             if (last._blockNumber == key) {
@@ -308,8 +308,8 @@ library Checkpoints {
             // Copying to memory is important here.
             Checkpoint224 memory last = _unsafeAccess(self, pos - 1);
 
-            // Checkpoints keys must be increasing.
-            require(last._key <= key, "Checkpoint: invalid key");
+            // Checkpoint keys must be non-decreasing.
+            require(last._key <= key, "Checkpoint: decreasing keys");
 
             // Update or push new checkpoint
             if (last._key == key) {
@@ -476,8 +476,8 @@ library Checkpoints {
             // Copying to memory is important here.
             Checkpoint160 memory last = _unsafeAccess(self, pos - 1);
 
-            // Checkpoints keys must be increasing.
-            require(last._key <= key, "Checkpoint: invalid key");
+            // Checkpoint keys must be non-decreasing.
+            require(last._key <= key, "Checkpoint: decreasing keys");
 
             // Update or push new checkpoint
             if (last._key == key) {

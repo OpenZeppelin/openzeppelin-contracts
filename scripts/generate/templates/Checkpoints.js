@@ -208,8 +208,8 @@ function _insert(
         // Copying to memory is important here.
         ${opts.checkpointTypeName} memory last = _unsafeAccess(self, pos - 1);
 
-        // Checkpoints keys must be increasing.
-        require(last.${opts.keyFieldName} <= key, "Checkpoint: invalid key");
+        // Checkpoint keys must be non-decreasing.
+        require(last.${opts.keyFieldName} <= key, "Checkpoint: decreasing keys");
 
         // Update or push new checkpoint
         if (last.${opts.keyFieldName} == key) {
