@@ -17,8 +17,12 @@ import "../../../utils/math/Math.sol";
  * the ERC20 standard. Any additional extensions included along it would affect the "shares" token represented by this
  * contract and not the "assets" token which is an independent contract.
  *
- * CAUTION: Deposits and withdrawals may incur unexpected slippage. Users should verify that the amount received of
- * shares or assets is as expected. EOAs should operate through a wrapper that performs these checks such as
+ * CAUTION: When the vault is empty or nearly empty, deposits are at high risk of being stolen through frontrunning with
+ * a "donation" to the vault that inflates the price of a share. This is variously known as a donation or inflation
+ * attack and is essentially a problem of slippage. Vault deployers can protect against this attack by making an initial
+ * deposit of a non-trivial amount of the asset, such that price manipulation becomes infeasible. Withdrawals may
+ * similarly be affected by slippage. Users can protect against this attack as well unexpected slippage in general by
+ * verifying the amount received is as expected, using a wrapper that performs these checks such as
  * https://github.com/fei-protocol/ERC4626#erc4626router-and-base[ERC4626Router].
  *
  * _Available since v4.7._
