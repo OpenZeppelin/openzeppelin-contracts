@@ -138,7 +138,11 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return shares;
     }
 
-    /** @dev See {IERC4626-mint}. */
+    /** @dev See {IERC4626-mint}.
+     *
+     * As opposed to {deposit}, minting is allowed even if the vault is in a state where the price of a share is zero.
+     * In this case, the shares will be minted without requiring any assets to be deposited.
+     */
     function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
         require(shares <= maxMint(receiver), "ERC4626: mint more than max");
 
