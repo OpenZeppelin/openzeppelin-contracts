@@ -1,10 +1,16 @@
 # Changelog
 
+## Unreleased (Breaking)
+
+* `EIP5805`: The `EIP5805` is the standard EIP for what used ot be the `Votes` contract, Now it will be used in all the contracts where `Votes` used to be imported. ([#3638](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3638))
+
+
 ## Unreleased
 
  * `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
  * `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
  * `Initializable`: optimize `_disableInitializers` by using `!=` instead of `<`. ([#3787](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3787))
+ * `Nonces`: This is a new contract to keep track of nonces and substitute the `_nonces` storage variable inside `Votes` contract. ([#3638](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3638))
 
 ### Deprecations
 
