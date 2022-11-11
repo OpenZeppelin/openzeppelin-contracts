@@ -184,6 +184,29 @@ library Checkpoints {
     }
 
     /**
+     * @dev Return the index of the oldest checkpoint whose key is greater or equal than the search key, or `high` if there is none.
+     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
+     *
+     * WARNING: `high` should not be greater than the array's length.
+     */
+    function _lowerBinaryLookup(
+        Checkpoint[] storage self,
+        uint32 key,
+        uint256 low,
+        uint256 high
+    ) private view returns (uint256) {
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+            if (_unsafeAccess(self, mid)._blockNumber < key) {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+        return high;
+    }
+
+    /**
      * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
      */
     function _unsafeAccess(Checkpoint[] storage self, uint256 pos) private pure returns (Checkpoint storage result) {
@@ -231,29 +254,6 @@ library Checkpoints {
         uint256 len = self._checkpoints.length;
         uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
-    }
-
-    /**
-     * @dev Return the index of the oldest checkpoint whose key is greater or equal than the search key, or `high` if there is none.
-     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
-     *
-     * WARNING: `high` should not be greater than the array's length.
-     */
-    function _lowerBinaryLookup(
-        Checkpoint224[] storage self,
-        uint32 key,
-        uint256 low,
-        uint256 high
-    ) private view returns (uint256) {
-        while (low < high) {
-            uint256 mid = Math.average(low, high);
-            if (_unsafeAccess(self, mid)._key < key) {
-                low = mid + 1;
-            } else {
-                high = mid;
-            }
-        }
-        return high;
     }
 
     /**
@@ -348,6 +348,29 @@ library Checkpoints {
     }
 
     /**
+     * @dev Return the index of the oldest checkpoint whose key is greater or equal than the search key, or `high` if there is none.
+     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
+     *
+     * WARNING: `high` should not be greater than the array's length.
+     */
+    function _lowerBinaryLookup(
+        Checkpoint224[] storage self,
+        uint32 key,
+        uint256 low,
+        uint256 high
+    ) private view returns (uint256) {
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+            if (_unsafeAccess(self, mid)._key < key) {
+                low = mid + 1;
+            } else {
+                high = mid;
+            }
+        }
+        return high;
+    }
+
+    /**
      * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
      */
     function _unsafeAccess(Checkpoint224[] storage self, uint256 pos)
@@ -399,29 +422,6 @@ library Checkpoints {
         uint256 len = self._checkpoints.length;
         uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
-    }
-
-    /**
-     * @dev Return the index of the oldest checkpoint whose key is greater or equal than the search key, or `high` if there is none.
-     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
-     *
-     * WARNING: `high` should not be greater than the array's length.
-     */
-    function _lowerBinaryLookup(
-        Checkpoint160[] storage self,
-        uint96 key,
-        uint256 low,
-        uint256 high
-    ) private view returns (uint256) {
-        while (low < high) {
-            uint256 mid = Math.average(low, high);
-            if (_unsafeAccess(self, mid)._key < key) {
-                low = mid + 1;
-            } else {
-                high = mid;
-            }
-        }
-        return high;
     }
 
     /**
@@ -510,6 +510,29 @@ library Checkpoints {
                 high = mid;
             } else {
                 low = mid + 1;
+            }
+        }
+        return high;
+    }
+
+    /**
+     * @dev Return the index of the oldest checkpoint whose key is greater or equal than the search key, or `high` if there is none.
+     * `low` and `high` define a section where to do the search, with inclusive `low` and exclusive `high`.
+     *
+     * WARNING: `high` should not be greater than the array's length.
+     */
+    function _lowerBinaryLookup(
+        Checkpoint160[] storage self,
+        uint96 key,
+        uint256 low,
+        uint256 high
+    ) private view returns (uint256) {
+        while (low < high) {
+            uint256 mid = Math.average(low, high);
+            if (_unsafeAccess(self, mid)._key < key) {
+                low = mid + 1;
+            } else {
+                high = mid;
             }
         }
         return high;
