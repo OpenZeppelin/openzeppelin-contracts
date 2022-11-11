@@ -76,7 +76,7 @@
     "keccak256": "^1.0.2",
     "lodash.startcase": "^4.4.0",
     "lodash.zip": "^4.2.0",
-    "merkletreejs": "^0.2.13",
+    "merkletreejs": "^0.3.0",
     "micromatch": "^4.0.2",
     "prettier": "^2.3.0",
     "prettier-plugin-solidity": "^1.0.0-beta.16",
