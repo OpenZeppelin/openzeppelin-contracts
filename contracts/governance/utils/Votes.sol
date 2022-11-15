@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../../utils/Context.sol";
-import "../../utils/Counters.sol";
+import "../../utils/Nonces.sol";
 import "../../utils/Checkpoints.sol";
 import "../../utils/cryptography/EIP712.sol";
 import "./IVotes.sol";
@@ -28,9 +28,8 @@ import "./IVotes.sol";
  *
  * _Available since v4.5._
  */
-abstract contract Votes is IVotes, Context, EIP712 {
+abstract contract Votes is IVotes, Context, EIP712, Nonces {
     using Checkpoints for Checkpoints.History;
-    using Counters for Counters.Counter;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -38,8 +37,6 @@ abstract contract Votes is IVotes, Context, EIP712 {
     mapping(address => address) private _delegation;
     mapping(address => Checkpoints.History) private _delegateCheckpoints;
     Checkpoints.History private _totalCheckpoints;
-
-    mapping(address => Counters.Counter) private _nonces;
 
     /**
      * @dev Returns the current amount of votes that `account` has.
@@ -176,24 +173,6 @@ abstract contract Votes is IVotes, Context, EIP712 {
 
     function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
         return a - b;
-    }
-
-    /**
-     * @dev Consumes a nonce.
-     *
-     * Returns the current value and increments nonce.
-     */
-    function _useNonce(address owner) internal virtual returns (uint256 current) {
-        Counters.Counter storage nonce = _nonces[owner];
-        current = nonce.current();
-        nonce.increment();
-    }
-
-    /**
-     * @dev Returns an address nonce.
-     */
-    function nonces(address owner) public view virtual returns (uint256) {
-        return _nonces[owner].current();
     }
 
     /**
