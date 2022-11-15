@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "./Counters.sol";
 
 /**
- * @dev Todo
+ * @dev Provides tracking nonces for addresses. Nonces will only increment.
  */
 abstract contract Nonces {
     using Counters for Counters.Counter;
