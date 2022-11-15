@@ -20,7 +20,6 @@ import "../../../utils/Nonces.sol";
  * _Available since v3.4._
  */
 abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
-
     // solhint-disable-next-line var-name-mixedcase
     bytes32 private constant _PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
