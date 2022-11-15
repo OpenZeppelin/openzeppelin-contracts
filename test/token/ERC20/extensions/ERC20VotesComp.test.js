@@ -2,7 +2,7 @@
 
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { MAX_UINT256, ZERO_ADDRESS, ZERO_BYTES32 } = constants;
+const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
@@ -11,7 +11,7 @@ const Wallet = require('ethereumjs-wallet').default;
 const ERC20VotesCompMock = artifacts.require('ERC20VotesCompMock');
 
 const { batchInBlock } = require('../../../helpers/txpool');
-const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
+const { EIP712Domain } = require('../../../helpers/eip712');
 
 const Delegation = [
   { name: 'delegatee', type: 'address' },
@@ -20,7 +20,7 @@ const Delegation = [
 ];
 
 contract('ERC20VotesComp', function (accounts) {
-  const [ holder, recipient, holderDelegatee, recipientDelegatee, other1, other2 ] = accounts;
+  const [ holder, recipient, holderDelegatee, other1, other2 ] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -38,14 +38,6 @@ contract('ERC20VotesComp', function (accounts) {
 
   it('initial nonce is 0', async function () {
     expect(await this.token.nonces(holder)).to.be.bignumber.equal('0');
-  });
-
-  it('domain separator', async function () {
-    expect(
-      await this.token.DOMAIN_SEPARATOR(),
-    ).to.equal(
-      await domainSeparator(name, version, this.chainId, this.token.address),
-    );
   });
 
   it('minting restriction', async function () {

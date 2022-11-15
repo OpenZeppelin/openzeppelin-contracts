@@ -3,10 +3,12 @@
 
 pragma solidity ^0.8.0;
 
-import "./ERC20Permit.sol";
+import "../ERC20.sol";
 import "../../../utils/math/Math.sol";
+import "../../../utils/Nonces.sol";
 import "../../../governance/utils/IVotes.sol";
 import "../../../utils/math/SafeCast.sol";
+import "../../../utils/cryptography/EIP712.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 
 /**
@@ -24,7 +26,7 @@ import "../../../utils/cryptography/ECDSA.sol";
  *
  * _Available since v4.2._
  */
-abstract contract ERC20Votes is IVotes, ERC20Permit {
+abstract contract ERC20Votes is ERC20, IVotes, Nonces, EIP712 {
     struct Checkpoint {
         uint32 fromBlock;
         uint224 votes;
