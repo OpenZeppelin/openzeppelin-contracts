@@ -10,7 +10,6 @@ certoraRun \
     certora/harnesses/ERC20VotesHarness.sol certora/harnesses/GovernorHarness.sol \
     --verify GovernorHarness:certora/specs/GovernorBase.spec \
     --link GovernorHarness:token=ERC20VotesHarness \
-    --solc solc \
     --optimistic_loop \
     --settings -copyLoopUnroll=4 \
     $@
