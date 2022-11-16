@@ -37,8 +37,7 @@ rule onlyCurrentOwnerCanCallOnlyOwner(method f, env e)
 }
 
 rule onlyPendingOwnerCanAccept(env e){
-    address pending;
-    pending = pendingOwner();
+    address pending = pendingOwner();
 
     acceptOwnership(e);
 
@@ -53,4 +52,17 @@ rule renounceDoesNotRequireTwoSteps(env e) {
 
     assert noPendingOwner(), "pending owner not cleared";
     assert owner() == 0, "owner not cleared";
+}
+
+rule onlyOwnerOrPendingOwnerCanChangeOwnership(env e, method f) {
+    address oldOwner = owner();
+    address oldPendingOwner = pendingOwner();
+    
+    calldataarg args;
+    f(e, args);
+    
+    assert (owner() != oldOwner || pendingOwner() != oldPendingOwner) 
+        => (e.msg.sender == oldOwner || e.msg.sender == oldPendingOwner);
+    
+    assert (owner() != oldOwner) => (pendingOwner() == 0);
 }
