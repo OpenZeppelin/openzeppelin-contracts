@@ -33,12 +33,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
   });
 
   describe('implementation', function () {
-    it('returns the current implementation address', async function () {
-      const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-
-      expect(implementation).to.be.equal(this.implementationV0);
-    });
-
     it('delegates to the implementation', async function () {
       const dummy = new DummyImplementation(this.proxyAddress);
       const value = await dummy.get();
@@ -52,13 +46,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
       const from = proxyAdminAddress;
 
       describe('when the given implementation is different from the current one', function () {
-        it('upgrades to the requested implementation', async function () {
-          await this.proxy.upgradeTo(this.implementationV1, { from });
-
-          const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-          expect(implementation).to.be.equal(this.implementationV1);
-        });
-
         it('emits an event', async function () {
           expectEvent(
             await this.proxy.upgradeTo(this.implementationV1, { from }),
@@ -105,11 +92,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
 
           beforeEach(async function () {
             this.receipt = await this.proxy.upgradeToAndCall(this.behavior.address, initializeData, { from, value });
-          });
-
-          it('upgrades to the requested implementation', async function () {
-            const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-            expect(implementation).to.be.equal(this.behavior.address);
           });
 
           it('emits an event', function () {
@@ -172,12 +154,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
             this.receipt = await this.proxy.upgradeToAndCall(this.behaviorV1.address, v1MigrationData, { from, value });
           });
 
-          it('upgrades to the requested version and emits an event', async function () {
-            const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-            expect(implementation).to.be.equal(this.behaviorV1.address);
-            expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV1.address });
-          });
-
           it('calls the \'initialize\' function and sends given value to the proxy', async function () {
             const migratable = new MigratableMockV1(this.proxyAddress);
 
@@ -196,12 +172,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
               this.balancePreviousV2 = new BN(await web3.eth.getBalance(this.proxyAddress));
               this.receipt =
                 await this.proxy.upgradeToAndCall(this.behaviorV2.address, v2MigrationData, { from, value });
-            });
-
-            it('upgrades to the requested version and emits an event', async function () {
-              const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-              expect(implementation).to.be.equal(this.behaviorV2.address);
-              expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV2.address });
             });
 
             it('calls the \'migrate\' function and sends given value to the proxy', async function () {
@@ -225,12 +195,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
                 this.balancePreviousV3 = new BN(await web3.eth.getBalance(this.proxyAddress));
                 this.receipt =
                   await this.proxy.upgradeToAndCall(this.behaviorV3.address, v3MigrationData, { from, value });
-              });
-
-              it('upgrades to the requested version and emits an event', async function () {
-                const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-                expect(implementation).to.be.equal(this.behaviorV3.address);
-                expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV3.address });
               });
 
               it('calls the \'migrate\' function and sends given value to the proxy', async function () {
@@ -271,11 +235,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
       describe('when the sender is the admin', function () {
         beforeEach('transferring', async function () {
           this.receipt = await this.proxy.changeAdmin(newAdmin, { from: proxyAdminAddress });
-        });
-
-        it('assigns new proxy admin', async function () {
-          const newProxyAdmin = await this.proxy.admin.call({ from: newAdmin });
-          expect(newProxyAdmin).to.be.equal(anotherAccount);
         });
 
         it('emits an event', function () {
@@ -331,18 +290,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
         this.clashing.delegatedFunction({ from: proxyAdminAddress }),
         'TransparentUpgradeableProxy: admin cannot fallback to proxy target',
       );
-    });
-
-    context('when function names clash', function () {
-      it('when sender is proxy admin should run the proxy function', async function () {
-        const value = await this.proxy.admin.call({ from: proxyAdminAddress });
-        expect(value).to.be.equal(proxyAdminAddress);
-      });
-
-      it('when sender is other should delegate to implementation', async function () {
-        const value = await this.proxy.admin.call({ from: anotherAccount });
-        expect(value).to.be.equal('0x0000000000000000000000000000000011111142');
-      });
     });
   });
 
