@@ -64,7 +64,9 @@ abstract contract Initializable {
     /**
      * @dev Indicates that the contract is in the process of being initialized.
      */
-    bool private _initializing;
+    uint private constant _INITIALIZING_FALSE = 1;
+    uint private constant _INITIALIZING_TRUE = 2;
+    uint private _initializing = _INITIALIZING_FALSE;
 
     /**
      * @dev Triggered when the contract has been initialized or reinitialized.
@@ -81,18 +83,18 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier initializer() {
-        bool isTopLevelCall = !_initializing;
+        bool isTopLevelCall = _initializing == _INITIALIZING_FALSE;
         require(
             (isTopLevelCall && _initialized < 1) || (!Address.isContract(address(this)) && _initialized == 1),
             "Initializable: contract is already initialized"
         );
         _initialized = 1;
         if (isTopLevelCall) {
-            _initializing = true;
+            _initializing = _INITIALIZING_TRUE;
         }
         _;
         if (isTopLevelCall) {
-            _initializing = false;
+            _initializing = _INITIALIZING_FALSE;
             emit Initialized(1);
         }
     }
@@ -116,11 +118,11 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier reinitializer(uint8 version) {
-        require(!_initializing && _initialized < version, "Initializable: contract is already initialized");
+        require(_initializing == _INITIALIZING_FALSE && _initialized < version, "Initializable: contract is already initialized");
         _initialized = version;
-        _initializing = true;
+        _initializing = _INITIALIZING_TRUE;
         _;
-        _initializing = false;
+        _initializing = _INITIALIZING_FALSE;
         emit Initialized(version);
     }
 
@@ -129,7 +131,7 @@ abstract contract Initializable {
      * {initializer} and {reinitializer} modifiers, directly or indirectly.
      */
     modifier onlyInitializing() {
-        require(_initializing, "Initializable: contract is not initializing");
+        require(_initializing == _INITIALIZING_TRUE, "Initializable: contract is not initializing");
         _;
     }
 
@@ -142,7 +144,7 @@ abstract contract Initializable {
      * Emits an {Initialized} event the first time it is successfully executed.
      */
     function _disableInitializers() internal virtual {
-        require(!_initializing, "Initializable: contract is initializing");
+        require(_initializing == _INITIALIZING_FALSE, "Initializable: contract is initializing");
         if (_initialized != type(uint8).max) {
             _initialized = type(uint8).max;
             emit Initialized(type(uint8).max);
@@ -160,6 +162,6 @@ abstract contract Initializable {
      * @dev Internal function that returns the initialized version. Returns `_initializing`
      */
     function _isInitializing() internal view returns (bool) {
-        return _initializing;
+        return _initializing == _INITIALIZING_TRUE;
     }
 }

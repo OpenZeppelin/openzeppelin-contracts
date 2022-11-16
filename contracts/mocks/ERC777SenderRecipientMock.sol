@@ -37,8 +37,13 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
     // Emitted in ERC777Mock. Here for easier decoding
     event BeforeTokenTransfer();
 
-    bool private _shouldRevertSend;
-    bool private _shouldRevertReceive;
+    uint private constant _SHOULDREVERTSEND_FALSE = 1;
+    uint private constant _SHOULDREVERTSEND_TRUE = 2;
+    uint private _shouldRevertSend = _SHOULDREVERTSEND_FALSE;
+    
+    uint private constant _SHOULDREVERTRECEIVE_FALSE = 1;
+    uint private constant _SHOULDREVERTRECEIVE_TRUE = 2;
+    uint private _shouldRevertReceive = _SHOULDREVERTRECEIVE_FALSE;
 
     IERC1820Registry private _erc1820 = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
 
@@ -53,7 +58,7 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
         bytes calldata userData,
         bytes calldata operatorData
     ) external override {
-        if (_shouldRevertSend) {
+        if (_shouldRevertSend == _SHOULDREVERTSEND_TRUE) {
             revert();
         }
 
@@ -84,7 +89,7 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
         bytes calldata userData,
         bytes calldata operatorData
     ) external override {
-        if (_shouldRevertReceive) {
+        if (_shouldRevertReceive == _SHOULDREVERTRECEIVE_TRUE) {
             revert();
         }
 
@@ -134,11 +139,11 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
     }
 
     function setShouldRevertSend(bool shouldRevert) public {
-        _shouldRevertSend = shouldRevert;
+        _shouldRevertSend = shouldRevert ? _SHOULDREVERTSEND_TRUE : _SHOULDREVERTSEND_FALSE;
     }
 
     function setShouldRevertReceive(bool shouldRevert) public {
-        _shouldRevertReceive = shouldRevert;
+        _shouldRevertReceive = shouldRevert ? _SHOULDREVERTRECEIVE_TRUE : _SHOULDREVERTSEND_FALSE;
     }
 
     function send(

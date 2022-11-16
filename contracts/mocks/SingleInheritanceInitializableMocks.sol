@@ -21,14 +21,17 @@ contract MigratableMockV1 is Initializable {
  * @dev This contract is a mock to test migratable functionality with params
  */
 contract MigratableMockV2 is MigratableMockV1 {
-    bool internal _migratedV2;
+    uint internal constant _MIGRATEDV2_FALSE = 1;
+    uint internal constant _MIGRATEDV2_TRUE = 2;
+    uint internal _migratedV2 = _MIGRATEDV2_FALSE;
+
     uint256 public y;
 
     function migrate(uint256 value, uint256 anotherValue) public payable {
-        require(!_migratedV2);
+        require(_migratedV2 == _MIGRATEDV2_FALSE);
         x = value;
         y = anotherValue;
-        _migratedV2 = true;
+        _migratedV2 = _MIGRATEDV2_TRUE;
     }
 }
 
@@ -37,13 +40,15 @@ contract MigratableMockV2 is MigratableMockV1 {
  * @dev This contract is a mock to test migratable functionality without params
  */
 contract MigratableMockV3 is MigratableMockV2 {
-    bool internal _migratedV3;
+    uint internal constant _MIGRATEDV3_FALSE = 1;
+    uint internal constant _MIGRATEDV3_TRUE = 2;
+    uint internal _migratedV3 = _MIGRATEDV3_FALSE;
 
     function migrate() public payable {
-        require(!_migratedV3);
+        require(_migratedV3 == _MIGRATEDV3_FALSE);
         uint256 oldX = x;
         x = y;
         y = oldX;
-        _migratedV3 = true;
+        _migratedV3 = _MIGRATEDV3_TRUE;
     }
 }

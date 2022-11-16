@@ -25,13 +25,15 @@ abstract contract Pausable is Context {
      */
     event Unpaused(address account);
 
-    bool private _paused;
+    uint private constant _PAUSED_FALSE = 1;
+    uint private constant _PAUSED_TRUE = 2;
+    uint private _paused;
 
     /**
      * @dev Initializes the contract in unpaused state.
      */
     constructor() {
-        _paused = false;
+        _paused = _PAUSED_FALSE;
     }
 
     /**
@@ -62,7 +64,7 @@ abstract contract Pausable is Context {
      * @dev Returns true if the contract is paused, and false otherwise.
      */
     function paused() public view virtual returns (bool) {
-        return _paused;
+        return _paused == _PAUSED_TRUE;
     }
 
     /**
@@ -87,7 +89,7 @@ abstract contract Pausable is Context {
      * - The contract must not be paused.
      */
     function _pause() internal virtual whenNotPaused {
-        _paused = true;
+        _paused = _PAUSED_TRUE;
         emit Paused(_msgSender());
     }
 
@@ -99,7 +101,7 @@ abstract contract Pausable is Context {
      * - The contract must be paused.
      */
     function _unpause() internal virtual whenPaused {
-        _paused = false;
+        _paused = _PAUSED_FALSE;
         emit Unpaused(_msgSender());
     }
 }
