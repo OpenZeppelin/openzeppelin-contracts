@@ -58,7 +58,7 @@ contract('ProxyAdmin', function (accounts) {
       it('upgrades implementation', async function () {
         await this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: proxyAdminOwner });
         const dummy = await new ImplV2(this.proxy.address);
-        expect(await dummy.version()).to.be.equals("V2");
+        expect(await dummy.version()).to.be.equals('V2');
       });
     });
   });
@@ -95,7 +95,7 @@ contract('ProxyAdmin', function (accounts) {
             { from: proxyAdminOwner },
           );
           const dummy = await new ImplV2(this.proxy.address);
-        expect(await dummy.version()).to.be.equals("V2");
+          expect(await dummy.version()).to.be.equals('V2');
         });
       });
     });
