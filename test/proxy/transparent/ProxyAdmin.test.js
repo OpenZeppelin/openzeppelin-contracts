@@ -40,7 +40,8 @@ contract('ProxyAdmin', function (accounts) {
 
     it('changes proxy admin', async function () {
       await this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: proxyAdminOwner });
-      expect(await this.proxy.admin.call({ from: newAdmin })).to.eq(newAdmin);
+      // Allows new admin to call ifAdmin functions
+      await this.proxy.changeAdmin(newAdmin, { from: newAdmin });// expect to not revert
     });
   });
 
