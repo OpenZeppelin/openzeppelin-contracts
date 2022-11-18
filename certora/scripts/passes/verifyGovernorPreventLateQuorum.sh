@@ -10,7 +10,4 @@ certoraRun \
     --loop_iter 1 \
     --send_only \
     --rules deadlineNeverReduced againstVotesDontCount hasVotedCorrelationNonzero canExtendDeadlineOnce deadlineChangeEffects quorumReachedCantChange quorumLengthGt0 cantExtendWhenQuorumUnreached quorumNumerLTEDenom deprecatedQuorumStateIsUninitialized \
-    
-
-
-
+    $@
