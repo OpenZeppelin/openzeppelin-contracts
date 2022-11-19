@@ -38,6 +38,19 @@ library Strings {
     }
 
     /**
+     * @dev Converts a `int256` to its ASCII `string` decimal representation.
+     */
+    function toString(int256 value) internal pure returns (string memory) {
+        string memory result;
+        if (value < 0) {
+            result = string(abi.encodePacked("-", toString(uint256(-value))));
+        } else {
+            result = toString(uint256(value));
+        }
+        return result;
+    }
+
+    /**
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
      */
     function toHexString(uint256 value) internal pure returns (string memory) {
