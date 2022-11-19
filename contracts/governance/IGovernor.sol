@@ -26,7 +26,7 @@ abstract contract IGovernor is IERC165 {
      * @dev Emitted when a proposal is created.
      */
     event ProposalCreated(
-        uint256 proposalId,
+        uint256 indexed proposalId,
         address proposer,
         address[] targets,
         uint256[] values,
