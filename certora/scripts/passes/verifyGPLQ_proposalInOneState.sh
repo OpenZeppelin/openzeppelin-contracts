@@ -8,5 +8,6 @@ certoraRun \
     --link GovernorFullHarness:token=ERC20VotesHarness \
     --optimistic_loop \
     --rule proposalInOneState \
+    --settings -t=1000 \
     --loop_iter 1 \
     $@
