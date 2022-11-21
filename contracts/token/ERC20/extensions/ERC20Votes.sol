@@ -31,23 +31,6 @@ abstract contract ERC20Votes is ERC20, Votes {
     }
 
     /**
-     * @dev Snapshots the totalSupply after it has been increased.
-     */
-    function _mint(address account, uint256 amount) internal virtual override {
-        super._mint(account, amount);
-        require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
-        _transferVotingUnits(address(0), account, amount);
-    }
-
-    /**
-     * @dev Snapshots the totalSupply after it has been decreased.
-     */
-    function _burn(address account, uint256 amount) internal virtual override {
-        super._burn(account, amount);
-        _transferVotingUnits(account, address(0), amount);
-    }
-
-    /**
      * @dev Move voting power when tokens are transferred.
      *
      * Emits a {IVotes-DelegateVotesChanged} event.

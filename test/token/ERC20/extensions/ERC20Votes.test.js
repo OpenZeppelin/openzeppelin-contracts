@@ -2,29 +2,16 @@
 
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { MAX_UINT256, ZERO_ADDRESS } = constants;
-
-const { fromRpcSig } = require('ethereumjs-util');
-const ethSigUtil = require('eth-sig-util');
-const Wallet = require('ethereumjs-wallet').default;
 
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 
 const ERC20VotesMock = artifacts.require('ERC20VotesMock');
-const { EIP712Domain } = require('../../../helpers/eip712');
-
-const Delegation = [
-  { name: 'delegatee', type: 'address' },
-  { name: 'nonce', type: 'uint256' },
-  { name: 'expiry', type: 'uint256' },
-];
 
 contract('ERC20Votes', function (accounts) {
-  const [ holder, recipient, holderDelegatee, other1, other2 ] = accounts;
+  const [ holder, recipient, holderDelegatee ] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
-  const version = '1';
   const supply = new BN('10000000000000000000000000');
 
   beforeEach(async function () {
@@ -44,7 +31,7 @@ contract('ERC20Votes', function (accounts) {
     const amount = new BN('2').pow(new BN('224'));
     await expectRevert(
       this.token.mint(holder, amount),
-      'ERC20Votes: total supply risks overflowing votes',
+      "SafeCast: value doesn't fit in 224 bits",
     );
   });
 
@@ -130,7 +117,7 @@ contract('ERC20Votes', function (accounts) {
     });
   });
 
-  describe.only('Voting workflow', function () {
+  describe('Voting workflow', function () {
     beforeEach(async function () {
       this.account1 = holder;
       this.account1Delegatee = holderDelegatee;
