@@ -50,10 +50,10 @@ contract('Votes', function (accounts) {
       this.account1 = account1;
       this.account2 = account2;
       this.account1Delegatee = account2;
-      this.NFT0 = new BN('10000000000000000000000000');
-      this.NFT1 = new BN('10');
-      this.NFT2 = new BN('20');
-      this.NFT3 = new BN('30');
+      this.token0 = new BN('10000000000000000000000000');
+      this.token1 = new BN('10');
+      this.token2 = new BN('20');
+      this.token3 = new BN('30');
     });
 
     shouldBehaveLikeVotes();
