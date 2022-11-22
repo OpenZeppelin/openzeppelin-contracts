@@ -18,6 +18,4 @@ solidity-docgen \
   --helpers ./docs/helpers.js \
   --solc-module ./scripts/prepare-docs-solc.js
 
-rm -f "$OUTDIR"/token/*/presets.md
-
 node scripts/gen-nav.js "$OUTDIR" > "$OUTDIR/../nav.adoc"
