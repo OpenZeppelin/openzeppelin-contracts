@@ -22,6 +22,7 @@ OpenZeppelin Contracts provides implementations of all four interfaces:
 
 Additionally there are a few of other extensions:
 
+* {ERC721Consecutive}: An implementation of https://eips.ethereum.org/EIPS/eip-2309[ERC2309] for minting batchs of tokens during construction, in accordance with ERC721.
 * {ERC721URIStorage}: A more flexible but more expensive way of storing metadata.
 * {ERC721Votes}: Support for voting and vote delegation.
 * {ERC721Royalty}: A way to signal royalty information following ERC2981.
@@ -49,6 +50,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC721Pausable}}
 
 {{ERC721Burnable}}
+
+{{ERC721Consecutive}}
 
 {{ERC721URIStorage}}
 

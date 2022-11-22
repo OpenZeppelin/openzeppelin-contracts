@@ -15,7 +15,7 @@ const CallReceiver = artifacts.require('CallReceiverMock');
 contract('GovernorTimelockControl', function (accounts) {
   const [ owner, voter1, voter2, voter3, voter4, other ] = accounts;
 
-  const TIMELOCK_ADMIN_ROLE = web3.utils.soliditySha3('TIMELOCK_ADMIN_ROLE');
+  const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
   const PROPOSER_ROLE = web3.utils.soliditySha3('PROPOSER_ROLE');
   const EXECUTOR_ROLE = web3.utils.soliditySha3('EXECUTOR_ROLE');
   const CANCELLER_ROLE = web3.utils.soliditySha3('CANCELLER_ROLE');
@@ -33,7 +33,7 @@ contract('GovernorTimelockControl', function (accounts) {
     const [ deployer ] = await web3.eth.getAccounts();
 
     this.token = await Token.new(tokenName, tokenSymbol);
-    this.timelock = await Timelock.new(3600, [], []);
+    this.timelock = await Timelock.new(3600, [], [], deployer);
     this.mock = await Governor.new(
       name,
       this.token.address,
@@ -46,7 +46,7 @@ contract('GovernorTimelockControl', function (accounts) {
 
     this.helper = new GovernorHelper(this.mock);
 
-    this.TIMELOCK_ADMIN_ROLE = await this.timelock.TIMELOCK_ADMIN_ROLE();
+    this.DEFAULT_ADMIN_ROLE = await this.timelock.DEFAULT_ADMIN_ROLE();
     this.PROPOSER_ROLE = await this.timelock.PROPOSER_ROLE();
     this.EXECUTOR_ROLE = await this.timelock.EXECUTOR_ROLE();
     this.CANCELLER_ROLE = await this.timelock.CANCELLER_ROLE();
@@ -59,7 +59,7 @@ contract('GovernorTimelockControl', function (accounts) {
     await this.timelock.grantRole(CANCELLER_ROLE, this.mock.address);
     await this.timelock.grantRole(CANCELLER_ROLE, owner);
     await this.timelock.grantRole(EXECUTOR_ROLE, constants.ZERO_ADDRESS);
-    await this.timelock.revokeRole(TIMELOCK_ADMIN_ROLE, deployer);
+    await this.timelock.revokeRole(DEFAULT_ADMIN_ROLE, deployer);
 
     await this.token.mint(owner, tokenSupply);
     await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
@@ -293,6 +293,39 @@ contract('GovernorTimelockControl', function (accounts) {
         );
       });
 
+      it('is payable and can transfer eth to EOA', async function () {
+        const t2g = web3.utils.toBN(128); // timelock to governor
+        const g2o = web3.utils.toBN(100); // governor to eoa (other)
+
+        this.helper.setProposal([
+          {
+            target: this.mock.address,
+            value: t2g,
+            data: this.mock.contract.methods.relay(
+              other,
+              g2o,
+              '0x',
+            ).encodeABI(),
+          },
+        ], '<proposal description>');
+
+        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+        const timelockBalance = await web3.eth.getBalance(this.timelock.address).then(web3.utils.toBN);
+        const otherBalance = await web3.eth.getBalance(other).then(web3.utils.toBN);
+
+        await this.helper.propose();
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+        await this.helper.waitForDeadline();
+        await this.helper.queue();
+        await this.helper.waitForEta();
+        await this.helper.execute();
+
+        expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(timelockBalance.sub(t2g));
+        expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(t2g.sub(g2o));
+        expect(await web3.eth.getBalance(other)).to.be.bignumber.equal(otherBalance.add(g2o));
+      });
+
       it('protected against other proposers', async function () {
         await this.timelock.schedule(
           this.mock.address,
@@ -322,7 +355,12 @@ contract('GovernorTimelockControl', function (accounts) {
 
     describe('updateTimelock', function () {
       beforeEach(async function () {
-        this.newTimelock = await Timelock.new(3600, [], []);
+        this.newTimelock = await Timelock.new(
+          3600,
+          [ this.mock.address ],
+          [ this.mock.address ],
+          constants.ZERO_ADDRESS,
+        );
       });
 
       it('is protected', async function () {

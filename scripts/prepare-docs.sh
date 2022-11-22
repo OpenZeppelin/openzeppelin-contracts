@@ -2,7 +2,7 @@
 
 set -o errexit
 
-OUTDIR=docs/modules/api/pages/
+OUTDIR="$(node -p 'require("./docs/config.js").outputDir')"
 
 if [ ! -d node_modules ]; then
   npm ci
@@ -10,12 +10,6 @@ fi
 
 rm -rf "$OUTDIR"
 
-solidity-docgen \
-  -t docs \
-  -o "$OUTDIR" \
-  -e contracts/mocks,contracts/examples \
-  --output-structure readmes \
-  --helpers ./docs/helpers.js \
-  --solc-module ./scripts/prepare-docs-solc.js
+hardhat docgen
 
 node scripts/gen-nav.js "$OUTDIR" > "$OUTDIR/../nav.adoc"

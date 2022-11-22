@@ -1,5 +1,5 @@
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
-const { ZERO_BYTES32 } = constants;
+const { ZERO_ADDRESS, ZERO_BYTES32 } = constants;
 
 const { expect } = require('chai');
 
@@ -52,9 +52,9 @@ function genOperationBatch (targets, values, payloads, predecessor, salt) {
 }
 
 contract('TimelockController', function (accounts) {
-  const [ admin, proposer, canceller, executor, other ] = accounts;
+  const [ , admin, proposer, canceller, executor, other ] = accounts;
 
-  const TIMELOCK_ADMIN_ROLE = web3.utils.soliditySha3('TIMELOCK_ADMIN_ROLE');
+  const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
   const PROPOSER_ROLE = web3.utils.soliditySha3('PROPOSER_ROLE');
   const EXECUTOR_ROLE = web3.utils.soliditySha3('EXECUTOR_ROLE');
   const CANCELLER_ROLE = web3.utils.soliditySha3('CANCELLER_ROLE');
@@ -65,7 +65,7 @@ contract('TimelockController', function (accounts) {
       MINDELAY,
       [ proposer ],
       [ executor ],
-      { from: admin },
+      admin,
     );
 
     expect(await this.mock.hasRole(CANCELLER_ROLE, proposer)).to.be.equal(true);
@@ -84,7 +84,7 @@ contract('TimelockController', function (accounts) {
   it('initial state', async function () {
     expect(await this.mock.getMinDelay()).to.be.bignumber.equal(MINDELAY);
 
-    expect(await this.mock.TIMELOCK_ADMIN_ROLE()).to.be.equal(TIMELOCK_ADMIN_ROLE);
+    expect(await this.mock.DEFAULT_ADMIN_ROLE()).to.be.equal(DEFAULT_ADMIN_ROLE);
     expect(await this.mock.PROPOSER_ROLE()).to.be.equal(PROPOSER_ROLE);
     expect(await this.mock.EXECUTOR_ROLE()).to.be.equal(EXECUTOR_ROLE);
     expect(await this.mock.CANCELLER_ROLE()).to.be.equal(CANCELLER_ROLE);
@@ -100,6 +100,19 @@ contract('TimelockController', function (accounts) {
     expect(await Promise.all([ PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE ].map(role =>
       this.mock.hasRole(role, executor),
     ))).to.be.deep.equal([ false, false, true ]);
+  });
+
+  it('optional admin', async function () {
+    const mock = await TimelockController.new(
+      MINDELAY,
+      [ proposer ],
+      [ executor ],
+      ZERO_ADDRESS,
+      { from: other },
+    );
+
+    expect(await mock.hasRole(DEFAULT_ADMIN_ROLE, admin)).to.be.equal(false);
+    expect(await mock.hasRole(DEFAULT_ADMIN_ROLE, mock.address)).to.be.equal(true);
   });
 
   describe('methods', function () {

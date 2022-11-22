@@ -22,7 +22,7 @@ import "./IGovernor.sol";
  *
  * - A counting module must implement {quorum}, {_quorumReached}, {_voteSucceeded} and {_countVote}
  * - A voting module must implement {_getVotes}
- * - Additionanly, the {votingPeriod} must also be implemented
+ * - Additionally, the {votingPeriod} must also be implemented
  *
  * _Available since v4.3._
  */
@@ -544,8 +544,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         address target,
         uint256 value,
         bytes calldata data
-    ) external virtual onlyGovernance {
-        Address.functionCallWithValue(target, data, value);
+    ) external payable virtual onlyGovernance {
+        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        Address.verifyCallResult(success, returndata, "Governor: relay reverted without message");
     }
 
     /**
