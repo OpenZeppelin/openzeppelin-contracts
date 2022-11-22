@@ -7,13 +7,13 @@ import "../utils/introspection/ERC165.sol";
 
 contract ERC1155ReceiverMock is ERC165, IERC1155Receiver {
     bytes4 private _recRetval;
-    uint private constant _RECREVERTS_FALSE = 1;
-    uint private constant _RECREVERTS_TRUE = 2;
-    uint private _recReverts;
+    uint256 private constant _RECREVERTS_FALSE = 1;
+    uint256 private constant _RECREVERTS_TRUE = 2;
+    uint256 private _recReverts;
     bytes4 private _batRetval;
-    uint private constant _BATREVERTS_FALSE = 1;
-    uint private constant _BATREVERTS_TRUE = 2;
-    uint private _batReverts;
+    uint256 private constant _BATREVERTS_FALSE = 1;
+    uint256 private constant _BATREVERTS_TRUE = 2;
+    uint256 private _batReverts;
 
     event Received(address operator, address from, uint256 id, uint256 value, bytes data, uint256 gas);
     event BatchReceived(address operator, address from, uint256[] ids, uint256[] values, bytes data, uint256 gas);
@@ -27,7 +27,7 @@ contract ERC1155ReceiverMock is ERC165, IERC1155Receiver {
         _recRetval = recRetval;
         _recReverts = recReverts ? _RECREVERTS_TRUE : _RECREVERTS_FALSE;
         _batRetval = batRetval;
-        _batReverts = batReverts ? _BATREVERTS_TRUE: _BATREVERTS_FALSE;
+        _batReverts = batReverts ? _BATREVERTS_TRUE : _BATREVERTS_FALSE;
     }
 
     function onERC1155Received(

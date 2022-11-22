@@ -25,9 +25,9 @@ abstract contract Pausable is Context {
      */
     event Unpaused(address account);
 
-    uint private constant _PAUSED_FALSE = 1;
-    uint private constant _PAUSED_TRUE = 2;
-    uint private _paused;
+    uint256 private constant _PAUSED_FALSE = 1;
+    uint256 private constant _PAUSED_TRUE = 2;
+    uint256 private _paused;
 
     /**
      * @dev Initializes the contract in unpaused state.

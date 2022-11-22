@@ -64,9 +64,9 @@ abstract contract Initializable {
     /**
      * @dev Indicates that the contract is in the process of being initialized.
      */
-    uint private constant _INITIALIZING_FALSE = 1;
-    uint private constant _INITIALIZING_TRUE = 2;
-    uint private _initializing = _INITIALIZING_FALSE;
+    uint256 private constant _INITIALIZING_FALSE = 1;
+    uint256 private constant _INITIALIZING_TRUE = 2;
+    uint256 private _initializing = _INITIALIZING_FALSE;
 
     /**
      * @dev Triggered when the contract has been initialized or reinitialized.
@@ -118,7 +118,10 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier reinitializer(uint8 version) {
-        require(_initializing == _INITIALIZING_FALSE && _initialized < version, "Initializable: contract is already initialized");
+        require(
+            _initializing == _INITIALIZING_FALSE && _initialized < version,
+            "Initializable: contract is already initialized"
+        );
         _initialized = version;
         _initializing = _INITIALIZING_TRUE;
         _;

@@ -16,12 +16,12 @@ import "../utils/Address.sol";
 contract ERC3156FlashBorrowerMock is IERC3156FlashBorrower {
     bytes32 internal constant _RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
-    uint constant _ENABLEAPPROVE_FALSE = 1;
-    uint constant _ENABLEAPPROVE_TRUE = 2;
-    uint immutable _enableApprove;
-    uint constant _ENABLERETURN_FALSE = 1;
-    uint constant _ENABLERETURN_TRUE = 2;
-    uint immutable _enableReturn;
+    uint256 constant _ENABLEAPPROVE_FALSE = 1;
+    uint256 constant _ENABLEAPPROVE_TRUE = 2;
+    uint256 immutable _enableApprove;
+    uint256 constant _ENABLERETURN_FALSE = 1;
+    uint256 constant _ENABLERETURN_TRUE = 2;
+    uint256 immutable _enableReturn;
 
     event BalanceOf(address token, address account, uint256 value);
     event TotalSupply(address token, uint256 value);

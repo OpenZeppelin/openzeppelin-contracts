@@ -37,13 +37,13 @@ contract ERC777SenderRecipientMock is Context, IERC777Sender, IERC777Recipient, 
     // Emitted in ERC777Mock. Here for easier decoding
     event BeforeTokenTransfer();
 
-    uint private constant _SHOULDREVERTSEND_FALSE = 1;
-    uint private constant _SHOULDREVERTSEND_TRUE = 2;
-    uint private _shouldRevertSend = _SHOULDREVERTSEND_FALSE;
-    
-    uint private constant _SHOULDREVERTRECEIVE_FALSE = 1;
-    uint private constant _SHOULDREVERTRECEIVE_TRUE = 2;
-    uint private _shouldRevertReceive = _SHOULDREVERTRECEIVE_FALSE;
+    uint256 private constant _SHOULDREVERTSEND_FALSE = 1;
+    uint256 private constant _SHOULDREVERTSEND_TRUE = 2;
+    uint256 private _shouldRevertSend = _SHOULDREVERTSEND_FALSE;
+
+    uint256 private constant _SHOULDREVERTRECEIVE_FALSE = 1;
+    uint256 private constant _SHOULDREVERTRECEIVE_TRUE = 2;
+    uint256 private _shouldRevertReceive = _SHOULDREVERTRECEIVE_FALSE;
 
     IERC1820Registry private _erc1820 = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
 
