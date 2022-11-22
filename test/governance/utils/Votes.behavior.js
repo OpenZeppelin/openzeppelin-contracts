@@ -46,7 +46,6 @@ function shouldBehaveLikeVotes () {
       });
 
       beforeEach(async function () {
-        console.log('pq aja', this.votes.mint, delegatorAddress, this.token0);
         await this.votes.mint(delegatorAddress, this.token0);
       });
 

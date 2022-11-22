@@ -5,12 +5,13 @@
  * `TimelockController`: Changed the role architecture to use `DEFAULT_ADMIN_ROLE` as the admin for all roles, instead of the bespoke `TIMELOCK_ADMIN_ROLE` that was used previously. This aligns with the general recommendation for `AccessControl` and makes the addition of new roles easier. Accordingly, the `admin` parameter and timelock will now be granted `DEFAULT_ADMIN_ROLE` instead of `TIMELOCK_ADMIN_ROLE`. ([#3799](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3799))
  * `ERC20Votes`: This contract will not inherit from `ERC20Permit`, it have its own nonces for delegation and direct inheritance from EIP712. [#3816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3816)
 
+ * `Nonces`: This is a new contract to keep track of nonces and substitute the `_nonces` storage variable inside `Votes` contract. ([#3816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3816))
+
 ## Unreleased
 
  * `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
  * `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
  * `Initializable`: optimize `_disableInitializers` by using `!=` instead of `<`. ([#3787](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3787))
- * `Nonces`: This is a new contract to keep track of nonces and substitute the `_nonces` storage variable inside `Votes` contract. ([#3816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3816))
 
 ### Deprecations
 
