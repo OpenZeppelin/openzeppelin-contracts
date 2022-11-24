@@ -1,8 +1,8 @@
 /* eslint-disable */
 
-const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { MAX_UINT256, ZERO_ADDRESS, ZERO_BYTES32 } = constants;
+const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
 const ERC20FlashMintMock = artifacts.require('ERC20FlashMintMock');
 const ERC3156FlashBorrowerMock = artifacts.require('ERC3156FlashBorrowerMock');
@@ -77,7 +77,7 @@ contract('ERC20FlashMint', function (accounts) {
       );
     });
 
-    it('unavailable funds', async function () {
+    it.only('unavailable funds', async function () {
       const receiver = await ERC3156FlashBorrowerMock.new(true, true);
       const data = this.token.contract.methods.transfer(other, 10).encodeABI();
       await expectRevert(
