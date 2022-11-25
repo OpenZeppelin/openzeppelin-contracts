@@ -28,7 +28,8 @@ library Checkpoints {
 
     /**
      * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
-     * before it is returned, or zero otherwise.
+     * before it is returned, or zero otherwise. Because the number returned corresponds to that at the end of the
+     * block, the requested block number must be in the past, excluding the current block.
      */
     function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
@@ -205,6 +206,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+     */
     function _unsafeAccess(Checkpoint[] storage self, uint256 pos) private pure returns (Checkpoint storage result) {
         assembly {
             mstore(0, self.slot)
@@ -366,6 +370,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+     */
     function _unsafeAccess(Checkpoint224[] storage self, uint256 pos)
         private
         pure
@@ -531,6 +538,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+     */
     function _unsafeAccess(Checkpoint160[] storage self, uint256 pos)
         private
         pure
