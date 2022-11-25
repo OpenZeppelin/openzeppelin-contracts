@@ -80,11 +80,3 @@ For more information about the `tokenURI` metadata JSON Schema, check out the ht
 NOTE: You'll notice that the item's information is included in the metadata, but that information isn't on-chain! So a game developer could change the underlying metadata, changing the rules of the game! 
 
 TIP: If you'd like to put all item information on-chain, you can extend ERC721 to do so (though it will be rather costly) by providing a xref:utilities.adoc#base64[`Base64`] Data URI with the JSON schema encoded. You could also leverage IPFS to store the tokenURI information, but these techniques are out of the scope of this overview guide.
-
-[[Presets]]
-== Preset ERC721 contract
-A preset ERC721 is available, https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.7/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol[`ERC721PresetMinterPauserAutoId`]. It is preconfigured with token minting (creation) with token ID and URI auto generation, the ability to stop all token transfers (pause), and it allows holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
-
-This contract is ready to deploy without having to write any Solidity code. It can be used as-is for quick prototyping and testing but is also suitable for production environments.
-
-NOTE: Contract presets are now deprecated in favor of https://wizard.openzeppelin.com[Contracts Wizard] as a more powerful alternative.

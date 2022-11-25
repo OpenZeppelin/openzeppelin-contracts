@@ -31,7 +31,7 @@ Finally, there are some utilities to interact with ERC20 contracts in various wa
 * {SafeERC20}: a wrapper around the interface that eliminates the need to handle boolean return values.
 * {TokenTimelock}: hold tokens for a beneficiary until a specified time.
 
-NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc20.adoc#Presets[ERC20 Presets] (such as {ERC20PresetMinterPauser}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
+NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer.
 
 == Core
 
@@ -62,14 +62,6 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC20FlashMint}}
 
 {{ERC4626}}
-
-== Presets
-
-These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
-
-{{ERC20PresetMinterPauser}}
-
-{{ERC20PresetFixedSupply}}
 
 == Utilities
 
