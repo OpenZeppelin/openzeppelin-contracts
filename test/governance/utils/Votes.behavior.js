@@ -259,10 +259,9 @@ function shouldBehaveLikeVotes () {
         const t2 = await this.votes.mint(this.account1, this.token1);
         await time.advanceBlock();
         await time.advanceBlock();
-        const block = await time.latestBlock();
 
         expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(block - 1)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
       });
 
       it('generally returns the voting balance at the appropriate checkpoint', async function () {
