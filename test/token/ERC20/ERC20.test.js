@@ -203,7 +203,7 @@ contract('ERC20', function (accounts) {
     const amount = new BN(50);
     it('rejects a null account', async function () {
       await expectRevert(
-        this.token.mint(ZERO_ADDRESS, amount), 'ERC20: mint to the zero address',
+        this.token.mint(ZERO_ADDRESS, amount), 'ERC20: invalid transfer operation',
       );
     });
 
@@ -236,7 +236,7 @@ contract('ERC20', function (accounts) {
   describe('_burn', function () {
     it('rejects a null account', async function () {
       await expectRevert(this.token.burn(ZERO_ADDRESS, new BN(1)),
-        'ERC20: burn from the zero address');
+        'ERC20: invalid transfer operation');
     });
 
     describe('for a non zero account', function () {
@@ -282,14 +282,6 @@ contract('ERC20', function (accounts) {
   describe('_transfer', function () {
     shouldBehaveLikeERC20Transfer('ERC20', initialHolder, recipient, initialSupply, function (from, to, amount) {
       return this.token.transferInternal(from, to, amount);
-    });
-
-    describe('when the sender is the zero address', function () {
-      it('reverts', async function () {
-        await expectRevert(this.token.transferInternal(ZERO_ADDRESS, recipient, initialSupply),
-          'ERC20: transfer from the zero address',
-        );
-      });
     });
   });
 

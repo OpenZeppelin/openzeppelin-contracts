@@ -184,11 +184,11 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         uint256 amount
     ) internal virtual override {
         super._transfer(from, to, amount);
-        if(from == address(0)){
+        if (from == address(0)) {
             require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
             _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
         }
-        if(to == address(0)){
+        if (to == address(0)) {
             _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
         }
 

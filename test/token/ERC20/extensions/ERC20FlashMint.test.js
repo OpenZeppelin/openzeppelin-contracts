@@ -77,7 +77,7 @@ contract('ERC20FlashMint', function (accounts) {
       );
     });
 
-    it.only('unavailable funds', async function () {
+    it('unavailable funds', async function () {
       const receiver = await ERC3156FlashBorrowerMock.new(true, true);
       const data = this.token.contract.methods.transfer(other, 10).encodeABI();
       await expectRevert(
