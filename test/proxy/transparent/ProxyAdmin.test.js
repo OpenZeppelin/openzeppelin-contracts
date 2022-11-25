@@ -1,7 +1,6 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
 const { getSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
 const { expect } = require('chai');
-const { network } = require('hardhat');
 const ImplV1 = artifacts.require('DummyImplementation');
 const ImplV2 = artifacts.require('DummyImplementationV2');
 const ProxyAdmin = artifacts.require('ProxyAdmin');
@@ -42,7 +41,7 @@ contract('ProxyAdmin', function (accounts) {
       await this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: proxyAdminOwner });
       const proxyAdminSlot = await getSlot(this.proxy, AdminSlot);
       const proxyAdminAddress = web3.utils.toChecksumAddress(proxyAdminSlot.substr(-40));
-      
+
       expect(proxyAdminAddress).to.be.eq(newAdmin);
     });
   });
@@ -60,7 +59,7 @@ contract('ProxyAdmin', function (accounts) {
     context('with authorized account', function () {
       it('upgrades implementation', async function () {
         await this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: proxyAdminOwner });
-        
+
         const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
         const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
         expect(implementationAddress).to.be.eq(this.implementationV2.address);

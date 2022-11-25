@@ -34,9 +34,9 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
 
   describe('implementation', function () {
     it('returns the current implementation address', async function () {
-      const implementation = '0x'+(await network.provider.send('eth_getStorageAt', [this.proxy.address,'0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc','latest'])).substring(26);
-
-      expect(web3.utils.toChecksumAddress(implementation)).to.be.equal(this.implementationV0);
+      const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
+      const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+      expect(implementationAddress).to.be.equal(this.implementationV0);
     });
 
     it('delegates to the implementation', async function () {
@@ -56,10 +56,10 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
           await this.proxy.upgradeTo(this.implementationV1, { from });
 
           const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-          const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));  
+          const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
           expect(implementationAddress).to.be.equal(this.implementationV1);
         });
-        
+
         it('emits an event', async function () {
           expectEvent(
             await this.proxy.upgradeTo(this.implementationV1, { from }),
@@ -110,7 +110,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
 
           it('upgrades to the requested implementation', async function () {
             const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-            const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));  
+            const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
             expect(implementationAddress).to.be.equal(this.behavior.address);
           });
 
