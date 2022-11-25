@@ -33,6 +33,12 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
   });
 
   describe('implementation', function () {
+    it('returns the current implementation address', async function () {
+      const implementation = '0x'+(await network.provider.send('eth_getStorageAt', [this.proxy.address,'0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc','latest'])).substring(26);
+
+      expect(web3.utils.toChecksumAddress(implementation)).to.be.equal(this.implementationV0);
+    });
+
     it('delegates to the implementation', async function () {
       const dummy = new DummyImplementation(this.proxyAddress);
       const value = await dummy.get();
@@ -46,6 +52,14 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
       const from = proxyAdminAddress;
 
       describe('when the given implementation is different from the current one', function () {
+        it('upgrades to the requested implementation', async function () {
+          await this.proxy.upgradeTo(this.implementationV1, { from });
+
+          const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
+          const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));  
+          expect(implementationAddress).to.be.equal(this.implementationV1);
+        });
+        
         it('emits an event', async function () {
           expectEvent(
             await this.proxy.upgradeTo(this.implementationV1, { from }),
@@ -92,6 +106,12 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
 
           beforeEach(async function () {
             this.receipt = await this.proxy.upgradeToAndCall(this.behavior.address, initializeData, { from, value });
+          });
+
+          it('upgrades to the requested implementation', async function () {
+            const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
+            const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));  
+            expect(implementationAddress).to.be.equal(this.behavior.address);
           });
 
           it('emits an event', function () {
@@ -154,6 +174,13 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
             this.receipt = await this.proxy.upgradeToAndCall(this.behaviorV1.address, v1MigrationData, { from, value });
           });
 
+          it('upgrades to the requested version and emits an event', async function () {
+            const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
+            const implementation = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+            expect(implementation).to.be.equal(this.behaviorV1.address);
+            expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV1.address });
+          });
+
           it('calls the \'initialize\' function and sends given value to the proxy', async function () {
             const migratable = new MigratableMockV1(this.proxyAddress);
 
@@ -172,6 +199,13 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
               this.balancePreviousV2 = new BN(await web3.eth.getBalance(this.proxyAddress));
               this.receipt =
                 await this.proxy.upgradeToAndCall(this.behaviorV2.address, v2MigrationData, { from, value });
+            });
+
+            it('upgrades to the requested version and emits an event', async function () {
+              const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
+              const implementation = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+              expect(implementation).to.be.equal(this.behaviorV2.address);
+              expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV2.address });
             });
 
             it('calls the \'migrate\' function and sends given value to the proxy', async function () {
@@ -195,6 +229,13 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
                 this.balancePreviousV3 = new BN(await web3.eth.getBalance(this.proxyAddress));
                 this.receipt =
                   await this.proxy.upgradeToAndCall(this.behaviorV3.address, v3MigrationData, { from, value });
+              });
+
+              it('upgrades to the requested version and emits an event', async function () {
+                const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
+                const implementation = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+                expect(implementation).to.be.equal(this.behaviorV3.address);
+                expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV3.address });
               });
 
               it('calls the \'migrate\' function and sends given value to the proxy', async function () {
@@ -237,6 +278,12 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
           this.receipt = await this.proxy.changeAdmin(newAdmin, { from: proxyAdminAddress });
         });
 
+        it('assigns new proxy admin', async function () {
+          const proxyAdminSlot = await getSlot(this.proxy, AdminSlot);
+          const newProxyAdmin = web3.utils.toChecksumAddress(proxyAdminSlot.substr(-40));
+          expect(newProxyAdmin).to.be.equal(anotherAccount);
+        });
+
         it('emits an event', function () {
           expectEvent(this.receipt, 'AdminChanged', {
             previousAdmin: proxyAdminAddress,
@@ -259,20 +306,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
           'ERC1967: new admin is the zero address',
         );
       });
-    });
-  });
-
-  describe('storage', function () {
-    it('should store the implementation address in specified location', async function () {
-      const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-      const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
-      expect(implementationAddress).to.be.equal(this.implementationV0);
-    });
-
-    it('should store the admin proxy in specified location', async function () {
-      const proxyAdminSlot = await getSlot(this.proxy, AdminSlot);
-      const proxyAdminAddress = web3.utils.toChecksumAddress(proxyAdminSlot.substr(-40));
-      expect(proxyAdminAddress).to.be.equal(proxyAdminAddress);
     });
   });
 
