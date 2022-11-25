@@ -263,6 +263,9 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         return a - b;
     }
 
+    /**
+     * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+     */
     function _unsafeAccess(Checkpoint[] storage ckpts, uint256 pos) private pure returns (Checkpoint storage result) {
         assembly {
             mstore(0, ckpts.slot)

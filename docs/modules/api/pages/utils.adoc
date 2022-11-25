@@ -4157,7 +4157,8 @@ _Available since v4.5._
 ==== `[.contract-item-name]#++getAtBlock++#++(struct Checkpoints.History self, uint256 blockNumber) → uint256++` [.item-kind]#internal#
 
 Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
-before it is returned, or zero otherwise.
+before it is returned, or zero otherwise. Because the number returned corresponds to that at the end of the
+block, the requested block number must be in the past, excluding the current block.
 
 [.contract-item]
 [[Checkpoints-getAtProbablyRecentBlock-struct-Checkpoints-History-uint256-]]
