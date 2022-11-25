@@ -1,6 +1,6 @@
 const { BN, expectRevert, expectEvent, constants } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
-const { getSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
+const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
 
 const { expect } = require('chai');
 
@@ -34,8 +34,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
 
   describe('implementation', function () {
     it('returns the current implementation address', async function () {
-      const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-      const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+      const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
       expect(implementationAddress).to.be.equal(this.implementationV0);
     });
 
@@ -55,8 +54,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
         it('upgrades to the requested implementation', async function () {
           await this.proxy.upgradeTo(this.implementationV1, { from });
 
-          const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-          const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+          const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
           expect(implementationAddress).to.be.equal(this.implementationV1);
         });
 
@@ -109,8 +107,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
           });
 
           it('upgrades to the requested implementation', async function () {
-            const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-            const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+            const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
             expect(implementationAddress).to.be.equal(this.behavior.address);
           });
 
@@ -175,8 +172,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
           });
 
           it('upgrades to the requested version and emits an event', async function () {
-            const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-            const implementation = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+            const implementation = await getAddressInSlot(this.proxy, ImplementationSlot);
             expect(implementation).to.be.equal(this.behaviorV1.address);
             expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV1.address });
           });
@@ -202,8 +198,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
             });
 
             it('upgrades to the requested version and emits an event', async function () {
-              const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-              const implementation = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+              const implementation = await getAddressInSlot(this.proxy, ImplementationSlot);
               expect(implementation).to.be.equal(this.behaviorV2.address);
               expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV2.address });
             });
@@ -232,8 +227,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
               });
 
               it('upgrades to the requested version and emits an event', async function () {
-                const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-                const implementation = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+                const implementation = await getAddressInSlot(this.proxy, ImplementationSlot);
                 expect(implementation).to.be.equal(this.behaviorV3.address);
                 expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV3.address });
               });
@@ -279,8 +273,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
         });
 
         it('assigns new proxy admin', async function () {
-          const proxyAdminSlot = await getSlot(this.proxy, AdminSlot);
-          const newProxyAdmin = web3.utils.toChecksumAddress(proxyAdminSlot.substr(-40));
+          const newProxyAdmin = await getAddressInSlot(this.proxy, AdminSlot);
           expect(newProxyAdmin).to.be.equal(anotherAccount);
         });
 
