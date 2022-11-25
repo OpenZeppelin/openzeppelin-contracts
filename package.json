@@ -7,9 +7,6 @@
     "/build/contracts/*.json",
     "!/contracts/mocks/**/*"
   ],
-  "bin": {
-    "openzeppelin-contracts-migrate-imports": "scripts/migrate-imports.js"
-  },
   "scripts": {
     "compile": "hardhat compile",
     "coverage": "env COVERAGE=true hardhat coverage",
