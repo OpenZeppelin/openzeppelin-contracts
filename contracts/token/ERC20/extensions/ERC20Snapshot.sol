@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 import "../ERC20.sol";
 import "../../../utils/Arrays.sol";
 import "../../../utils/Counters.sol";
+import "hardhat/console.sol";
 
 /**
  * @dev This contract extends an ERC20 token with a snapshot mechanism. When a snapshot is created, the balances and
@@ -127,13 +128,16 @@ abstract contract ERC20Snapshot is ERC20 {
     ) internal virtual override {
         if (from == address(0)) {
             // mint
+            console.log("mint", amount);
             _updateTotalSupplySnapshot();
         } else if (to == address(0)) {
             // burn
+            console.log("burn", amount);
             _updateAccountSnapshot(from);
             _updateTotalSupplySnapshot();
         } else {
             // transfer
+            console.log("transfer", amount);
             _updateAccountSnapshot(from);
             _updateAccountSnapshot(to);
         }

@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../token/ERC20/extensions/ERC20Snapshot.sol";
+import "hardhat/console.sol";
 
 contract ERC20SnapshotMock is ERC20Snapshot {
     constructor(
@@ -11,6 +12,7 @@ contract ERC20SnapshotMock is ERC20Snapshot {
         address initialAccount,
         uint256 initialBalance
     ) ERC20(name, symbol) {
+        console.log("we'll mint");
         _mint(initialAccount, initialBalance);
     }
 
