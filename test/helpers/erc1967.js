@@ -14,8 +14,8 @@ function getSlot (address, slot) {
 }
 
 async function getAddressInSlot (address, slot) {
-  const implementationSlot = await getSlot(address, slot);
-  return web3.utils.toChecksumAddress(implementationSlot.substr(-40));
+  const slotValue = await getSlot(address, slot);
+  return web3.utils.toChecksumAddress(slotValue.substr(-40));
 }
 
 module.exports = {
