@@ -1,6 +1,6 @@
 const { BN, expectRevert, expectEvent, constants } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
-const { getSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
+const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
 
 const { expect } = require('chai');
 
@@ -34,9 +34,8 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
 
   describe('implementation', function () {
     it('returns the current implementation address', async function () {
-      const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-
-      expect(implementation).to.be.equal(this.implementationV0);
+      const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+      expect(implementationAddress).to.be.equal(this.implementationV0);
     });
 
     it('delegates to the implementation', async function () {
@@ -55,8 +54,8 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
         it('upgrades to the requested implementation', async function () {
           await this.proxy.upgradeTo(this.implementationV1, { from });
 
-          const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-          expect(implementation).to.be.equal(this.implementationV1);
+          const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+          expect(implementationAddress).to.be.equal(this.implementationV1);
         });
 
         it('emits an event', async function () {
@@ -108,8 +107,8 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
           });
 
           it('upgrades to the requested implementation', async function () {
-            const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
-            expect(implementation).to.be.equal(this.behavior.address);
+            const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+            expect(implementationAddress).to.be.equal(this.behavior.address);
           });
 
           it('emits an event', function () {
@@ -173,7 +172,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
           });
 
           it('upgrades to the requested version and emits an event', async function () {
-            const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
+            const implementation = await getAddressInSlot(this.proxy, ImplementationSlot);
             expect(implementation).to.be.equal(this.behaviorV1.address);
             expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV1.address });
           });
@@ -199,7 +198,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
             });
 
             it('upgrades to the requested version and emits an event', async function () {
-              const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
+              const implementation = await getAddressInSlot(this.proxy, ImplementationSlot);
               expect(implementation).to.be.equal(this.behaviorV2.address);
               expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV2.address });
             });
@@ -228,7 +227,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
               });
 
               it('upgrades to the requested version and emits an event', async function () {
-                const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
+                const implementation = await getAddressInSlot(this.proxy, ImplementationSlot);
                 expect(implementation).to.be.equal(this.behaviorV3.address);
                 expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV3.address });
               });
@@ -274,7 +273,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
         });
 
         it('assigns new proxy admin', async function () {
-          const newProxyAdmin = await this.proxy.admin.call({ from: newAdmin });
+          const newProxyAdmin = await getAddressInSlot(this.proxy, AdminSlot);
           expect(newProxyAdmin).to.be.equal(anotherAccount);
         });
 
@@ -303,20 +302,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
     });
   });
 
-  describe('storage', function () {
-    it('should store the implementation address in specified location', async function () {
-      const implementationSlot = await getSlot(this.proxy, ImplementationSlot);
-      const implementationAddress = web3.utils.toChecksumAddress(implementationSlot.substr(-40));
-      expect(implementationAddress).to.be.equal(this.implementationV0);
-    });
-
-    it('should store the admin proxy in specified location', async function () {
-      const proxyAdminSlot = await getSlot(this.proxy, AdminSlot);
-      const proxyAdminAddress = web3.utils.toChecksumAddress(proxyAdminSlot.substr(-40));
-      expect(proxyAdminAddress).to.be.equal(proxyAdminAddress);
-    });
-  });
-
   describe('transparent proxy', function () {
     beforeEach('creating proxy', async function () {
       const initializeData = Buffer.from('');
@@ -331,18 +316,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy (createPro
         this.clashing.delegatedFunction({ from: proxyAdminAddress }),
         'TransparentUpgradeableProxy: admin cannot fallback to proxy target',
       );
-    });
-
-    context('when function names clash', function () {
-      it('when sender is proxy admin should run the proxy function', async function () {
-        const value = await this.proxy.admin.call({ from: proxyAdminAddress });
-        expect(value).to.be.equal(proxyAdminAddress);
-      });
-
-      it('when sender is other should delegate to implementation', async function () {
-        const value = await this.proxy.admin.call({ from: anotherAccount });
-        expect(value).to.be.equal('0x0000000000000000000000000000000011111142');
-      });
     });
   });
 
