@@ -1,7 +1,6 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-
+const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
 const { expect } = require('chai');
-
 const ImplV1 = artifacts.require('DummyImplementation');
 const ImplV2 = artifacts.require('DummyImplementationV2');
 const ProxyAdmin = artifacts.require('ProxyAdmin');
@@ -30,17 +29,6 @@ contract('ProxyAdmin', function (accounts) {
     expect(await this.proxyAdmin.owner()).to.equal(proxyAdminOwner);
   });
 
-  describe('#getProxyAdmin', function () {
-    it('returns proxyAdmin as admin of the proxy', async function () {
-      const admin = await this.proxyAdmin.getProxyAdmin(this.proxy.address);
-      expect(admin).to.be.equal(this.proxyAdmin.address);
-    });
-
-    it('call to invalid proxy', async function () {
-      await expectRevert.unspecified(this.proxyAdmin.getProxyAdmin(this.implementationV1.address));
-    });
-  });
-
   describe('#changeProxyAdmin', function () {
     it('fails to change proxy admin if its not the proxy owner', async function () {
       await expectRevert(
@@ -51,18 +39,9 @@ contract('ProxyAdmin', function (accounts) {
 
     it('changes proxy admin', async function () {
       await this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: proxyAdminOwner });
-      expect(await this.proxy.admin.call({ from: newAdmin })).to.eq(newAdmin);
-    });
-  });
 
-  describe('#getProxyImplementation', function () {
-    it('returns proxy implementation address', async function () {
-      const implementationAddress = await this.proxyAdmin.getProxyImplementation(this.proxy.address);
-      expect(implementationAddress).to.be.equal(this.implementationV1.address);
-    });
-
-    it('call to invalid proxy', async function () {
-      await expectRevert.unspecified(this.proxyAdmin.getProxyImplementation(this.implementationV1.address));
+      const newProxyAdmin = await getAddressInSlot(this.proxy, AdminSlot);
+      expect(newProxyAdmin).to.be.eq(newAdmin);
     });
   });
 
@@ -79,8 +58,9 @@ contract('ProxyAdmin', function (accounts) {
     context('with authorized account', function () {
       it('upgrades implementation', async function () {
         await this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: proxyAdminOwner });
-        const implementationAddress = await this.proxyAdmin.getProxyImplementation(this.proxy.address);
-        expect(implementationAddress).to.be.equal(this.implementationV2.address);
+
+        const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+        expect(implementationAddress).to.be.eq(this.implementationV2.address);
       });
     });
   });
@@ -116,8 +96,8 @@ contract('ProxyAdmin', function (accounts) {
           await this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData,
             { from: proxyAdminOwner },
           );
-          const implementationAddress = await this.proxyAdmin.getProxyImplementation(this.proxy.address);
-          expect(implementationAddress).to.be.equal(this.implementationV2.address);
+          const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
+          expect(implementationAddress).to.be.eq(this.implementationV2.address);
         });
       });
     });
