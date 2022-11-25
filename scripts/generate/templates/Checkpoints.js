@@ -67,7 +67,8 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 const legacyOperations = opts => `\
 /**
  * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
- * before it is returned, or zero otherwise.
+ * before it is returned, or zero otherwise. Because the number returned corresponds to that at the end of the
+ * block, the requested block number must be in the past, excluding the current block.
  */
 function getAtBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
     require(blockNumber < block.number, "Checkpoints: block not yet mined");
@@ -184,8 +185,8 @@ function _insert(
         // Copying to memory is important here.
         ${opts.checkpointTypeName} memory last = _unsafeAccess(self, pos - 1);
 
-        // Checkpoints keys must be increasing.
-        require(last.${opts.keyFieldName} <= key, "Checkpoint: invalid key");
+        // Checkpoint keys must be non-decreasing.
+        require(last.${opts.keyFieldName} <= key, "Checkpoint: decreasing keys");
 
         // Update or push new checkpoint
         if (last.${opts.keyFieldName} == key) {
@@ -246,6 +247,9 @@ function _lowerBinaryLookup(
     return high;
 }
 
+/**
+ * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+ */
 function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
     private
     pure
