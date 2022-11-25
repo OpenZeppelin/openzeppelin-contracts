@@ -1,7 +1,7 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
-
+const { network } = require('hardhat');
 const ImplV1 = artifacts.require('DummyImplementation');
 const ImplV2 = artifacts.require('DummyImplementationV2');
 const ProxyAdmin = artifacts.require('ProxyAdmin');
@@ -40,8 +40,9 @@ contract('ProxyAdmin', function (accounts) {
 
     it('changes proxy admin', async function () {
       await this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: proxyAdminOwner });
-      // Allows new admin to call ifAdmin functions
-      await this.proxy.changeAdmin(newAdmin, { from: newAdmin });// expect to not revert
+      
+      const admin = '0x'+(await network.provider.send('eth_getStorageAt', [this.proxy.address,'0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103','latest'])).substring(26);
+      expect(admin.toUpperCase()).to.be.eq(newAdmin.toUpperCase());
     });
   });
 
@@ -58,8 +59,9 @@ contract('ProxyAdmin', function (accounts) {
     context('with authorized account', function () {
       it('upgrades implementation', async function () {
         await this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: proxyAdminOwner });
-        const dummy = await new ImplV2(this.proxy.address);
-        expect(await dummy.version()).to.be.equals('V2');
+        
+        const implementation = '0x'+(await network.provider.send('eth_getStorageAt', [this.proxy.address,'0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc','latest'])).substring(26);
+        expect(implementation.toUpperCase()).to.be.eq(this.implementationV2.address.toUpperCase());
       });
     });
   });
@@ -95,8 +97,8 @@ contract('ProxyAdmin', function (accounts) {
           await this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData,
             { from: proxyAdminOwner },
           );
-          const dummy = await new ImplV2(this.proxy.address);
-          expect(await dummy.version()).to.be.equals('V2');
+          const implementation = '0x'+(await network.provider.send('eth_getStorageAt', [this.proxy.address,'0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc','latest'])).substring(26);
+          expect(implementation.toUpperCase()).to.be.eq(this.implementationV2.address.toUpperCase());
         });
       });
     });
