@@ -7,7 +7,7 @@ certoraRun \
     --verify GovernorFullHarness:certora/specs/GovernorPreventLateQuorum.spec \
     --link GovernorFullHarness:token=ERC20VotesHarness \
     --optimistic_loop \
+    --rule proposalInOneState \
+    --settings -t=1000 \
     --loop_iter 1 \
-    --send_only \
-    --rules deadlineNeverReduced againstVotesDontCount hasVotedCorrelationNonzero canExtendDeadlineOnce deadlineChangeEffects quorumReachedCantChange quorumLengthGt0 cantExtendWhenQuorumUnreached quorumNumerLTEDenom deprecatedQuorumStateIsUninitialized \
     $@
