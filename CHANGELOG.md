@@ -6,6 +6,7 @@
  * `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
  * `Initializable`: optimize `_disableInitializers` by using `!=` instead of `<`. ([#3787](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3787))
  * `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
+ * `Ownable2Step`: add to the docs. ([#3836]https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3836)
 
 ### Deprecations
 
