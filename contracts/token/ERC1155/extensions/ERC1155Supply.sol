@@ -14,13 +14,18 @@ import "../ERC1155.sol";
  * same id are not going to be minted.
  */
 abstract contract ERC1155Supply is ERC1155 {
-    mapping(uint256 => uint256) private _totalSupply;
+    mapping(uint256 => uint256) private _totalSupplyBORN;
+    mapping(uint256 => uint256) private _totalSupplyALIVE;
 
     /**
      * @dev Total amount of tokens in with a given id.
      */
-    function totalSupply(uint256 id) public view virtual returns (uint256) {
-        return _totalSupply[id];
+    function totalSupply(uint256 id, bool isALIVE) public view virtual returns (uint256) { //Adds isALIVE parameter to avoid misunderstanding and improve usability
+        if (isALIVE == false) {
+            return _totalSupplyBORN[id];
+        } else {
+            return _totalSupplyALIVE[id];
+        }
     }
 
     /**
@@ -45,7 +50,8 @@ abstract contract ERC1155Supply is ERC1155 {
 
         if (from == address(0)) {
             for (uint256 i = 0; i < ids.length; ++i) {
-                _totalSupply[ids[i]] += amounts[i];
+                _totalSupplyBORN[ids[i]] += amounts[i];
+                _totalSupplyALIVE[ids[i]] += amounts[i];
             }
         }
 
@@ -53,10 +59,10 @@ abstract contract ERC1155Supply is ERC1155 {
             for (uint256 i = 0; i < ids.length; ++i) {
                 uint256 id = ids[i];
                 uint256 amount = amounts[i];
-                uint256 supply = _totalSupply[id];
+                uint256 supply = _totalSupplyALIVE[id];
                 require(supply >= amount, "ERC1155: burn amount exceeds totalSupply");
                 unchecked {
-                    _totalSupply[id] = supply - amount;
+                    _totalSupplyALIVE[id] = supply - amount;
                 }
             }
         }
