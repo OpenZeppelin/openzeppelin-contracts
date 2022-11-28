@@ -245,12 +245,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         emit Transfer(from, to, amount);
     }
 
-    /** @dev Creates `amount` tokens and assigns them to `account`, by transfering it from address(0).
+    /** @dev Creates `amount` tokens and assigns them to `account`, by transferring it from address(0).
      * Relies on the `_transfer` mechanism
      *
      * Emits a {Transfer} event with `from` set to the zero address.
      *
-     * Note: this function is not virtual, {_transfer} should be overriden instead.
+     * Note: this function is not virtual, {_transfer} should be overridden instead.
      *
      */
     function _mint(address account, uint256 amount) internal {
@@ -258,10 +258,10 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     }
 
     /**
-     * @dev Destroys `amount` tokens from `account`, by transfering it to address(0).
+     * @dev Destroys `amount` tokens from `account`, by transferring it to address(0).
      * Relies on the `_transfer` mechanism.
      *
-     * Note: this function is not virtual, {_transfer} should be overriden instead
+     * Note: this function is not virtual, {_transfer} should be overridden instead
      *
      * Emits a {Transfer} event with `to` set to the zero address.
      *
