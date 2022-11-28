@@ -4,6 +4,7 @@ const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppeli
 const { expect } = require('chai');
 const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
+const { batchInBlock } = require('../../../helpers/txpool');
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
@@ -325,6 +326,55 @@ contract('ERC20VotesComp', function (accounts) {
       });
     });
 
+    describe('numCheckpoints', function () {
+      it('returns the number of checkpoints for a delegate', async function () {
+        await this.token.transfer(recipient, '100', { from: holder }); //give an account a few tokens for readability
+        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
+
+        const t1 = await this.token.delegate(other1, { from: recipient });
+        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
+
+        const t2 = await this.token.transfer(other2, 10, { from: recipient });
+        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
+
+        const t3 = await this.token.transfer(other2, 10, { from: recipient });
+        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('3');
+
+        const t4 = await this.token.transfer(recipient, 20, { from: holder });
+        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('4');
+
+        expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '100' ]);
+        expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t2.receipt.blockNumber.toString(), '90' ]);
+        expect(await this.token.checkpoints(other1, 2)).to.be.deep.equal([ t3.receipt.blockNumber.toString(), '80' ]);
+        expect(await this.token.checkpoints(other1, 3)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '100' ]);
+
+        await time.advanceBlock();
+        expect(await this.token.getPriorVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal('100');
+        expect(await this.token.getPriorVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal('90');
+        expect(await this.token.getPriorVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal('80');
+        expect(await this.token.getPriorVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal('100');
+      });
+
+      it('does not add more than one checkpoint in a block', async function () {
+        await this.token.transfer(recipient, '100', { from: holder });
+        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
+
+        const [ t1, t2, t3 ] = await batchInBlock([
+          () => this.token.delegate(other1, { from: recipient, gas: 100000 }),
+          () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
+          () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
+        ]);
+        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
+        expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([ t1.receipt.blockNumber.toString(), '80' ]);
+        // expectReve(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ '0', '0' ]); // Reverts due to array overflow check
+        // expect(await this.token.checkpoints(other1, 2)).to.be.deep.equal([ '0', '0' ]); // Reverts due to array overflow check
+
+        const t4 = await this.token.transfer(recipient, 20, { from: holder });
+        expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
+        expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '100' ]);
+      });
+    });
+  
     describe('getPriorVotes', function () {
       it('reverts if block number >= current block', async function () {
         await expectRevert(
