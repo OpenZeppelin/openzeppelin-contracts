@@ -6,7 +6,6 @@ pragma solidity ^0.8.0;
 import "./IERC20.sol";
 import "./extensions/IERC20Metadata.sol";
 import "../../utils/Context.sol";
-import "hardhat/console.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -231,16 +230,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         uint256 fromBalance = _balances[from];
         unchecked {
             if (from == address(0)) {
-                console.log("ERC mint", amount);
                 _balances[to] += amount;
                 _totalSupply += amount;
             } else if (to == address(0)) {
-                console.log("erc burn", amount);
                 require(fromBalance >= amount, "ERC20: burn amount exceeds balance");
                 _balances[from] -= amount;
                 _totalSupply -= amount;
             } else {
-                console.log("erc transfer", amount);
                 require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
                 _balances[from] -= amount;
                 _balances[to] += amount;

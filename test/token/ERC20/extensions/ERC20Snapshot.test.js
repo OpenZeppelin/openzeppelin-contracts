@@ -129,13 +129,10 @@ contract('ERC20Snapshot', function (accounts) {
         });
       });
 
-      context.only('with balance changes after the snapshot', function () {
+      context('with balance changes after the snapshot', function () {
         beforeEach(async function () {
-          console.log('transfer 10');
           await this.token.transfer(recipient, new BN('10'), { from: initialHolder });
-          console.log('mint 50');
           await this.token.mint(other, new BN('50'));
-          console.log('burn 20');
           await this.token.burn(initialHolder, new BN('20'));
         });
 
