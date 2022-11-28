@@ -7,6 +7,7 @@ import "../../utils/Nonces.sol";
 import "../../utils/Checkpoints.sol";
 import "../../utils/cryptography/EIP712.sol";
 import "./IVotes.sol";
+import "../../utils/math/SafeCast.sol";
 
 /**
  * @dev This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
@@ -165,6 +166,20 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
         }
+    }
+
+    /**
+     * @dev Get number of checkpoints for `account`.
+     */
+    function _numCheckpoints(address account) internal view virtual returns (uint32) {
+        return SafeCast.toUint32(_delegateCheckpoints[account].length());
+    }
+
+    /**
+     * @dev Get the `pos`-th checkpoint for `account`.
+     */
+    function _checkpoints(address account, uint32 pos) internal view virtual returns (Checkpoints.Checkpoint memory) {
+        return _delegateCheckpoints[account].getAtPosition(pos);
     }
 
     function _add(uint256 a, uint256 b) private pure returns (uint256) {
