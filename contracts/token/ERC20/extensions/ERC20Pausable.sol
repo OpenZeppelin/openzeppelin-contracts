@@ -15,7 +15,7 @@ import "../../../security/Pausable.sol";
  */
 abstract contract ERC20Pausable is ERC20, Pausable {
     /**
-     * @dev See {ERC20-_beforeTokenTransfer}.
+     * @dev See {ERC20-_transfer}.
      *
      * Requirements:
      *
