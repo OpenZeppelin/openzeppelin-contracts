@@ -16,7 +16,8 @@ contract ERC4626StdTest is ERC4626Test {
         _unlimitedAmount = true;
     }
 
-    function test_RT_mint_withdraw(ERC4626Test.Init memory init, uint shares) public override {
+    // solhint-disable-next-line func-name-mixedcase
+    function test_RT_mint_withdraw(ERC4626Test.Init memory init, uint256 shares) public override {
         // There is an edge case where we currently behave different than the property tests,
         // when all assets are lost to negative yield.
 
