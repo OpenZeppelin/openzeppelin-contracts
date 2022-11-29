@@ -41,7 +41,7 @@ abstract contract ERC20Votes is ERC20, Votes {
         uint256 amount
     ) internal virtual override {
         super._transfer(from, to, amount);
-        if(from == address(0)) {
+        if (from == address(0)) {
             require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
         }
         _transferVotingUnits(from, to, amount);
