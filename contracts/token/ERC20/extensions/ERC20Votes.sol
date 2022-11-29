@@ -48,7 +48,7 @@ abstract contract ERC20Votes is ERC20, Votes {
      * @dev Get number of checkpoints for `account`.
      */
     function numCheckpoints(address account) public view virtual returns (uint32) {
-        return super._numCheckpoints(account);
+        return _numCheckpoints(account);
     }
 
     /**
