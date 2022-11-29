@@ -15,7 +15,7 @@ contract ERC721VotesMock is ERC721Votes {
         _mint(account, tokenId);
     }
 
-    function burn(uint256 tokenId) public {
+    function burn(address, uint256 tokenId) public {
         _burn(tokenId);
     }
 

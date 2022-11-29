@@ -2,8 +2,9 @@
 
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { MAX_UINT256, ZERO_ADDRESS, ZERO_BYTES32 } = constants;
+const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
+const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
@@ -52,7 +53,7 @@ contract('ERC20Votes', function (accounts) {
     const amount = new BN('2').pow(new BN('224'));
     await expectRevert(
       this.token.mint(holder, amount),
-      'ERC20Votes: total supply risks overflowing votes',
+      "SafeCast: value doesn't fit in 224 bits",
     );
   });
 
@@ -62,7 +63,6 @@ contract('ERC20Votes', function (accounts) {
       await this.token.mint(holder, 1);
     }
     const block = await web3.eth.getBlockNumber();
-    expect(await this.token.numCheckpoints(holder)).to.be.bignumber.equal('6');
     // recent
     expect(await this.token.getPastVotes(holder, block - 1)).to.be.bignumber.equal('5');
     // non-recent
@@ -172,7 +172,7 @@ contract('ERC20Votes', function (accounts) {
 
         await expectRevert(
           this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
-          'ERC20Votes: invalid nonce',
+          'Votes: invalid nonce',
         );
       });
 
@@ -204,7 +204,7 @@ contract('ERC20Votes', function (accounts) {
         ));
         await expectRevert(
           this.token.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
-          'ERC20Votes: invalid nonce',
+          'Votes: invalid nonce',
         );
       });
 
@@ -221,7 +221,7 @@ contract('ERC20Votes', function (accounts) {
 
         await expectRevert(
           this.token.delegateBySig(delegatorAddress, nonce, expiry, v, r, s),
-          'ERC20Votes: signature expired',
+          'Votes: signature expired',
         );
       });
     });
@@ -341,12 +341,6 @@ contract('ERC20Votes', function (accounts) {
       await this.token.mint(holder, supply);
     });
 
-    describe('balanceOf', function () {
-      it('grants to initial account', async function () {
-        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal('10000000000000000000000000');
-      });
-    });
-
     describe('numCheckpoints', function () {
       it('returns the number of checkpoints for a delegate', async function () {
         await this.token.transfer(recipient, '100', { from: holder }); //give an account a few tokens for readability
@@ -354,7 +348,7 @@ contract('ERC20Votes', function (accounts) {
 
         const t1 = await this.token.delegate(other1, { from: recipient });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
-
+        
         const t2 = await this.token.transfer(other2, 10, { from: recipient });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
 
@@ -396,11 +390,17 @@ contract('ERC20Votes', function (accounts) {
       });
     });
 
+    describe('balanceOf', function () {
+      it('grants to initial account', async function () {
+        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal('10000000000000000000000000');
+      });
+    });
+
     describe('getPastVotes', function () {
       it('reverts if block number >= current block', async function () {
         await expectRevert(
           this.token.getPastVotes(other1, 5e10),
-          'ERC20Votes: block not yet mined',
+          'Checkpoints: block not yet mined',
         );
       });
 
@@ -462,7 +462,7 @@ contract('ERC20Votes', function (accounts) {
     it('reverts if block number >= current block', async function () {
       await expectRevert(
         this.token.getPastTotalSupply(5e10),
-        'ERC20Votes: block not yet mined',
+        'Votes: block not yet mined',
       );
     });
 
@@ -514,5 +514,21 @@ contract('ERC20Votes', function (accounts) {
       expect(await this.token.getPastTotalSupply(t4.receipt.blockNumber)).to.be.bignumber.equal('10000000000000000000000000');
       expect(await this.token.getPastTotalSupply(t4.receipt.blockNumber + 1)).to.be.bignumber.equal('10000000000000000000000000');
     });
+  });
+
+  describe('Voting workflow', function () {
+    beforeEach(async function () {
+      this.account1 = holder;
+      this.account1Delegatee = holderDelegatee;
+      this.account2 = recipient;
+      this.name = 'My Token';
+      this.votes = this.token
+      this.token0 = 1;      
+      this.token1 = 1;
+      this.token2 = 1;
+      this.token3 = 1;
+    });
+
+    shouldBehaveLikeVotes();
   });
 });

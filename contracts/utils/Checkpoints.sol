@@ -69,6 +69,13 @@ library Checkpoints {
     }
 
     /**
+     * @dev Returns checkpoint at given position.
+     */
+    function getAtPosition(History storage self, uint32 pos) internal view returns (Checkpoint memory) {
+        return self._checkpoints[pos];
+    }
+
+    /**
      * @dev Pushes a value onto a History so that it is stored as the checkpoint for the current block.
      *
      * Returns previous value and new value.

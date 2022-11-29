@@ -28,7 +28,7 @@ contract VotesMock is Votes {
         _transferVotingUnits(address(0), account, 1);
     }
 
-    function burn(uint256 voteId) external {
+    function burn(address, uint256 voteId) external {
         address owner = _owners[voteId];
         _balances[owner] -= 1;
         _transferVotingUnits(owner, address(0), 1);
