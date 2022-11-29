@@ -111,8 +111,7 @@ function getAtProbablyRecentBlock(${opts.historyTypeName} storage self, uint256 
  * @dev Returns checkpoint at given position.
  */
 function getAtPosition(History storage self, uint32 pos) internal view returns (Checkpoint memory) {
-    Checkpoint storage last = _unsafeAccess(self._checkpoints, pos);
-    return last;
+    return self._checkpoints[pos];
 }
 
 /**
