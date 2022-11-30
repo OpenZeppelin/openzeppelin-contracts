@@ -227,19 +227,22 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         require(from != address(0) || to != address(0), "ERC20: invalid transfer operation");
 
         uint256 fromBalance = _balances[from];
-        unchecked {
-            if (from == address(0)) {
-                _balances[to] += amount;
-                _totalSupply += amount;
-            } else if (to == address(0)) {
-                require(fromBalance >= amount, "ERC20: burn amount exceeds balance");
-                _balances[from] -= amount;
-                _totalSupply -= amount;
-            } else {
-                require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
-                _balances[from] -= amount;
+        if (from == address(0)) {
+            _totalSupply += amount;
+            unchecked {
+                // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
                 _balances[to] += amount;
             }
+        } else if (to == address(0)) {
+            require(fromBalance >= amount, "ERC20: burn amount exceeds balance");
+            _totalSupply -= amount;
+            unchecked {
+                _balances[from] -= amount;
+            }
+        } else {
+            require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
+            _balances[from] -= amount;
+            _balances[to] += amount;
         }
 
         emit Transfer(from, to, amount);

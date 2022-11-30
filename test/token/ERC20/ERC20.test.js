@@ -207,6 +207,13 @@ contract('ERC20', function (accounts) {
       );
     });
 
+    it('rejects overflow', async function () {
+      const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
+      await expectRevert.unspecified(
+        this.token.mint(recipient, maxUint256),
+      );
+    });
+
     describe('for a non zero account', function () {
       beforeEach('minting', async function () {
         this.receipt = await this.token.mint(recipient, amount);
