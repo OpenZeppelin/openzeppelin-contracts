@@ -221,20 +221,6 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         );
       });
 
-      it('reverts when transferring to zero address', async function () {
-        await expectRevert(
-          this.token.safeTransferFrom(
-            multiTokenHolder,
-            ZERO_ADDRESS,
-            firstTokenId,
-            firstAmount,
-            '0x',
-            { from: multiTokenHolder },
-          ),
-          'ERC1155: transfer to the zero address',
-        );
-      });
-
       function transferWasSuccessful ({ operator, from, id, value }) {
         it('debits transferred balance from sender', async function () {
           const newBalance = await this.token.balanceOf(from, id);

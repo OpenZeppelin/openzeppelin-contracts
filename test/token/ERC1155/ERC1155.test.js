@@ -32,7 +32,7 @@ contract('ERC1155', function (accounts) {
       it('reverts with a zero destination address', async function () {
         await expectRevert(
           this.token.mint(ZERO_ADDRESS, tokenId, mintAmount, data),
-          'ERC1155: mint to the zero address',
+          'ERC1155: invalid transfer operation',
         );
       });
 
@@ -113,7 +113,7 @@ contract('ERC1155', function (accounts) {
       it('reverts when burning the zero account\'s tokens', async function () {
         await expectRevert(
           this.token.burn(ZERO_ADDRESS, tokenId, mintAmount),
-          'ERC1155: burn from the zero address',
+          'ERC1155: invalid transfer operation',
         );
       });
 
