@@ -9,6 +9,15 @@
 :xref-Ownable-transferOwnership-address-: xref:access.adoc#Ownable-transferOwnership-address-
 :xref-Ownable-_transferOwnership-address-: xref:access.adoc#Ownable-_transferOwnership-address-
 :xref-Ownable-OwnershipTransferred-address-address-: xref:access.adoc#Ownable-OwnershipTransferred-address-address-
+:xref-Ownable2Step-pendingOwner--: xref:access.adoc#Ownable2Step-pendingOwner--
+:xref-Ownable2Step-transferOwnership-address-: xref:access.adoc#Ownable2Step-transferOwnership-address-
+:xref-Ownable2Step-_transferOwnership-address-: xref:access.adoc#Ownable2Step-_transferOwnership-address-
+:xref-Ownable2Step-acceptOwnership--: xref:access.adoc#Ownable2Step-acceptOwnership--
+:xref-Ownable-owner--: xref:access.adoc#Ownable-owner--
+:xref-Ownable-_checkOwner--: xref:access.adoc#Ownable-_checkOwner--
+:xref-Ownable-renounceOwnership--: xref:access.adoc#Ownable-renounceOwnership--
+:xref-Ownable2Step-OwnershipTransferStarted-address-address-: xref:access.adoc#Ownable2Step-OwnershipTransferStarted-address-address-
+:xref-Ownable-OwnershipTransferred-address-address-: xref:access.adoc#Ownable-OwnershipTransferred-address-address-
 :xref-IAccessControl-hasRole-bytes32-address-: xref:access.adoc#IAccessControl-hasRole-bytes32-address-
 :xref-IAccessControl-getRoleAdmin-bytes32-: xref:access.adoc#IAccessControl-getRoleAdmin-bytes32-
 :xref-IAccessControl-grantRole-bytes32-address-: xref:access.adoc#IAccessControl-grantRole-bytes32-address-
@@ -205,6 +214,89 @@ Internal function without access restriction.
 [.contract-item]
 [[Ownable-OwnershipTransferred-address-address-]]
 ==== `[.contract-item-name]#++OwnershipTransferred++#++(address previousOwner, address newOwner)++` [.item-kind]#event#
+
+:_pendingOwner: pass:normal[xref:#Ownable2Step-_pendingOwner-address[`++_pendingOwner++`]]
+:OwnershipTransferStarted: pass:normal[xref:#Ownable2Step-OwnershipTransferStarted-address-address-[`++OwnershipTransferStarted++`]]
+:pendingOwner: pass:normal[xref:#Ownable2Step-pendingOwner--[`++pendingOwner++`]]
+:transferOwnership: pass:normal[xref:#Ownable2Step-transferOwnership-address-[`++transferOwnership++`]]
+:_transferOwnership: pass:normal[xref:#Ownable2Step-_transferOwnership-address-[`++_transferOwnership++`]]
+:acceptOwnership: pass:normal[xref:#Ownable2Step-acceptOwnership--[`++acceptOwnership++`]]
+
+[.contract]
+[[Ownable2Step]]
+=== `++Ownable2Step++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.0/contracts/access/Ownable2Step.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
+```
+
+Contract module which provides access control mechanism, where
+there is an account (an owner) that can be granted exclusive access to
+specific functions.
+
+By default, the owner account will be the one that deploys the contract. This
+can later be changed with {transferOwnership} and {acceptOwnership}.
+
+This module is used through inheritance. It will make available all functions
+from parent (Ownable).
+
+[.contract-index]
+.Functions
+--
+* {xref-Ownable2Step-pendingOwner--}[`++pendingOwner()++`]
+* {xref-Ownable2Step-transferOwnership-address-}[`++transferOwnership(newOwner)++`]
+* {xref-Ownable2Step-_transferOwnership-address-}[`++_transferOwnership(newOwner)++`]
+* {xref-Ownable2Step-acceptOwnership--}[`++acceptOwnership()++`]
+
+[.contract-subindex-inherited]
+.Ownable
+* {xref-Ownable-owner--}[`++owner()++`]
+* {xref-Ownable-_checkOwner--}[`++_checkOwner()++`]
+* {xref-Ownable-renounceOwnership--}[`++renounceOwnership()++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-Ownable2Step-OwnershipTransferStarted-address-address-}[`++OwnershipTransferStarted(previousOwner, newOwner)++`]
+
+[.contract-subindex-inherited]
+.Ownable
+* {xref-Ownable-OwnershipTransferred-address-address-}[`++OwnershipTransferred(previousOwner, newOwner)++`]
+
+--
+
+[.contract-item]
+[[Ownable2Step-pendingOwner--]]
+==== `[.contract-item-name]#++pendingOwner++#++() → address++` [.item-kind]#public#
+
+Returns the address of the pending owner.
+
+[.contract-item]
+[[Ownable2Step-transferOwnership-address-]]
+==== `[.contract-item-name]#++transferOwnership++#++(address newOwner)++` [.item-kind]#public#
+
+Starts the ownership transfer of the contract to a new account. Replaces the pending transfer if there is one.
+Can only be called by the current owner.
+
+[.contract-item]
+[[Ownable2Step-_transferOwnership-address-]]
+==== `[.contract-item-name]#++_transferOwnership++#++(address newOwner)++` [.item-kind]#internal#
+
+Transfers ownership of the contract to a new account (`newOwner`) and deletes any pending owner.
+Internal function without access restriction.
+
+[.contract-item]
+[[Ownable2Step-acceptOwnership--]]
+==== `[.contract-item-name]#++acceptOwnership++#++()++` [.item-kind]#external#
+
+The new owner accepts the ownership transfer.
+
+[.contract-item]
+[[Ownable2Step-OwnershipTransferStarted-address-address-]]
+==== `[.contract-item-name]#++OwnershipTransferStarted++#++(address previousOwner, address newOwner)++` [.item-kind]#event#
 
 :RoleAdminChanged: pass:normal[xref:#IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-[`++RoleAdminChanged++`]]
 :RoleGranted: pass:normal[xref:#IAccessControl-RoleGranted-bytes32-address-address-[`++RoleGranted++`]]
