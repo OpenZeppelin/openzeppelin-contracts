@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 import "../token/ERC721/IERC721Receiver.sol";
 import "../token/ERC1155/IERC1155Receiver.sol";
 import "../utils/cryptography/ECDSA.sol";
-import "../utils/cryptography/ParallelOperations.sol";
+import "../utils/cryptography/EIP712.sol";
 import "../utils/introspection/ERC165.sol";
 import "../utils/math/SafeCast.sol";
 import "../utils/structs/DoubleEndedQueue.sol";
@@ -26,7 +26,7 @@ import "./IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract Governor is Context, ERC165, ParallelOperations, IGovernor, IERC721Receiver, IERC1155Receiver {
+abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
     using SafeCast for uint256;
     using Timers for Timers.BlockNumber;
@@ -450,10 +450,8 @@ abstract contract Governor is Context, ERC165, ParallelOperations, IGovernor, IE
         bytes32 r,
         bytes32 s
     ) public virtual override returns (uint256) {
-        address voter = _validateParallelOperation(
-            BALLOT_TYPEHASH,
-            keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support)),
-            proposalId, // use proposalId as nonce
+        address voter = ECDSA.recover(
+            _hashTypedDataV4(keccak256(abi.encode(BALLOT_TYPEHASH, proposalId, support))),
             v,
             r,
             s
@@ -473,14 +471,23 @@ abstract contract Governor is Context, ERC165, ParallelOperations, IGovernor, IE
         bytes32 r,
         bytes32 s
     ) public virtual override returns (uint256) {
-        address voter = _validateParallelOperation(
-            EXTENDED_BALLOT_TYPEHASH,
-            keccak256(abi.encode(EXTENDED_BALLOT_TYPEHASH, proposalId, support, keccak256(bytes(reason)), keccak256(params))),
-            proposalId, // use proposalId as nonce
+        address voter = ECDSA.recover(
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        EXTENDED_BALLOT_TYPEHASH,
+                        proposalId,
+                        support,
+                        keccak256(bytes(reason)),
+                        keccak256(params)
+                    )
+                )
+            ),
             v,
             r,
             s
         );
+
         return _castVote(proposalId, voter, support, reason, params);
     }
 
