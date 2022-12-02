@@ -86,6 +86,18 @@ ERC-721 integrators that interpret contract state from events should make sure t
 
 With the new `ERC721Consecutive` extension, the internal workings of `ERC721` are slightly changed. Custom extensions to ERC721 should be reviewed to ensure they remain correct. The internal functions that should be considered are `_ownerOf` (new), `_beforeTokenTransfer`, and `_afterTokenTransfer`.
 
+### ERC-4626 Upgrade Note
+
+Existing `ERC4626` contracts that are upgraded to 4.8 must initialize a new variable that holds the vault token decimals. The recommended way to do this is to use a [reinitializer]:
+
+[reinitializer]: https://docs.openzeppelin.com/contracts/4.x/api/proxy#Initializable-reinitializer-uint8-
+
+```solidity
+function migrateToV48() public reinitializer(2) {
+    __ERC4626_init(IERC20Upgradeable(asset()));
+}
+```
+
 ## 4.7.3
 
 ### Breaking changes
