@@ -224,7 +224,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         address to,
         uint256 amount
     ) internal virtual {
-        require(from != address(0) || to != address(0), "ERC20: invalid transfer operation");
+        require(!(from == address(0) && to == address(0)), "ERC20: invalid transfer operation");
 
         uint256 fromBalance = _balances[from];
         if (from == address(0)) {
