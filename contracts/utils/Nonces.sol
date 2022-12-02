@@ -6,16 +6,18 @@ import "./Counters.sol";
 /**
  * @dev Provides tracking nonces for addresses. Nonces will only increment.
  */
-abstract contract Nonces {
+library Nonces {
     using Counters for Counters.Counter;
 
-    mapping(address => Counters.Counter) private _nonces;
+    struct Data {
+        mapping(address => Counters.Counter) _nonces;
+    }
 
     /**
      * @dev Returns an address nonce.
      */
-    function nonces(address owner) public view virtual returns (uint256) {
-        return _nonces[owner].current();
+    function nonces(Data storage self, address owner) internal view returns (uint256) {
+        return self._nonces[owner].current();
     }
 
     /**
@@ -23,8 +25,8 @@ abstract contract Nonces {
      *
      * Returns the current value and increments nonce.
      */
-    function _useNonce(address owner) internal virtual returns (uint256 current) {
-        Counters.Counter storage nonce = _nonces[owner];
+    function useNonce(Data storage self, address owner) internal returns (uint256 current) {
+        Counters.Counter storage nonce = self._nonces[owner];
         current = nonce.current();
         nonce.increment();
     }

@@ -38,7 +38,7 @@ contract('ERC20VotesComp', function (accounts) {
   });
 
   it('initial nonce is 0', async function () {
-    expect(await this.token.nonces(holder)).to.be.bignumber.equal('0');
+    expect(await this.token.delegationNonces(holder)).to.be.bignumber.equal('0');
   });
 
   it('domain separator', async function () {

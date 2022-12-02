@@ -19,7 +19,9 @@ import "../../../utils/Nonces.sol";
  *
  * _Available since v3.4._
  */
-abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
+abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
+    using Nonces for Nonces.Data;
+
     // solhint-disable-next-line var-name-mixedcase
     bytes32 private constant _PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
@@ -31,6 +33,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
      */
     // solhint-disable-next-line var-name-mixedcase
     bytes32 private _PERMIT_TYPEHASH_DEPRECATED_SLOT;
+    Nonces.Data private _nonces;
 
     /**
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
@@ -53,7 +56,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
     ) public virtual override {
         require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
 
-        bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
+        bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _nonces.useNonce(owner), deadline));
 
         bytes32 hash = _hashTypedDataV4(structHash);
 
@@ -66,8 +69,8 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
     /**
      * @dev See {IERC20Permit-nonces}.
      */
-    function nonces(address owner) public view virtual override(IERC20Permit, Nonces) returns (uint256) {
-        return super.nonces(owner);
+    function nonces(address owner) public view virtual override returns (uint256) {
+        return _nonces.nonces(owner);
     }
 
     /**

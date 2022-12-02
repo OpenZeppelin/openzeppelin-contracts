@@ -20,7 +20,7 @@ const version = '1';
 function shouldBehaveLikeVotes () {
   describe('run votes workflow', function () {
     it('initial nonce is 0', async function () {
-      expect(await this.votes.nonces(this.account1)).to.be.bignumber.equal('0');
+      expect(await this.votes.delegationNonces(this.account1)).to.be.bignumber.equal('0');
     });
 
     it('domain separator', async function () {
