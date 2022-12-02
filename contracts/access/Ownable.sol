@@ -38,6 +38,14 @@ abstract contract Ownable is Context {
     }
 
     /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier checkOwner(address account) {
+        _checkOwner(account);
+        _;
+    }
+
+    /**
      * @dev Returns the address of the current owner.
      */
     function owner() public view virtual returns (address) {
@@ -49,6 +57,13 @@ abstract contract Ownable is Context {
      */
     function _checkOwner() internal view virtual {
         require(owner() == _msgSender(), "Ownable: caller is not the owner");
+    }
+
+    /**
+     * @dev Throws if the sender is not the owner.
+     */
+    function _checkOwner(address account) internal view virtual {
+        require(owner() == account, "Ownable: account is not the owner");
     }
 
     /**
