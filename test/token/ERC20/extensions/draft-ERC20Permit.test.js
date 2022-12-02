@@ -77,7 +77,7 @@ contract('ERC20Permit', function (accounts) {
 
       await expectRevert(
         this.token.permit(owner, spender, value, maxDeadline, v, r, s),
-        'ERC20Permit: invalid signature',
+        'SequentialOperations: invalid nonce',
       );
     });
 

@@ -66,7 +66,7 @@ contract('MinimalForwarder', function (accounts) {
         });
 
         it('success', async function () {
-          expect(await this.forwarder.verify(this.req, this.sign())).to.be.equal(true);
+          expect(await this.forwarder.contract.methods.verify(this.req, this.sign()).call()).to.be.equal(true);
         });
 
         afterEach(async function () {
@@ -77,29 +77,31 @@ contract('MinimalForwarder', function (accounts) {
 
       context('invalid signature', function () {
         it('tampered from', async function () {
-          expect(await this.forwarder.verify({ ...this.req, from: accounts[0] }, this.sign()))
+          expect(await this.forwarder.contract.methods.verify({ ...this.req, from: accounts[0] }, this.sign()).call())
             .to.be.equal(false);
         });
         it('tampered to', async function () {
-          expect(await this.forwarder.verify({ ...this.req, to: accounts[0] }, this.sign()))
+          expect(await this.forwarder.contract.methods.verify({ ...this.req, to: accounts[0] }, this.sign()).call())
             .to.be.equal(false);
         });
         it('tampered value', async function () {
-          expect(await this.forwarder.verify({ ...this.req, value: web3.utils.toWei('1') }, this.sign()))
+          expect(await this.forwarder.contract.methods.verify({ ...this.req, value: web3.utils.toWei('1') }, this.sign()).call())
             .to.be.equal(false);
         });
         it('tampered nonce', async function () {
-          expect(await this.forwarder.verify({ ...this.req, nonce: this.req.nonce + 1 }, this.sign()))
-            .to.be.equal(false);
+          await expectRevert(
+            this.forwarder.contract.methods.verify({ ...this.req, nonce: this.req.nonce + 1 }, this.sign()).call(),
+            'SequentialOperations: invalid nonce'
+          );
         });
         it('tampered data', async function () {
-          expect(await this.forwarder.verify({ ...this.req, data: '0x1742' }, this.sign()))
+          expect(await this.forwarder.contract.methods.verify({ ...this.req, data: '0x1742' }, this.sign()).call())
             .to.be.equal(false);
         });
         it('tampered signature', async function () {
           const tamperedsign = web3.utils.hexToBytes(this.sign());
           tamperedsign[42] ^= 0xff;
-          expect(await this.forwarder.verify(this.req, web3.utils.bytesToHex(tamperedsign)))
+          expect(await this.forwarder.contract.methods.verify(this.req, web3.utils.bytesToHex(tamperedsign)).call())
             .to.be.equal(false);
         });
       });
@@ -144,7 +146,7 @@ contract('MinimalForwarder', function (accounts) {
         it('tampered nonce', async function () {
           await expectRevert(
             this.forwarder.execute({ ...this.req, nonce: this.req.nonce + 1 }, this.sign()),
-            'MinimalForwarder: signature does not match request',
+            'SequentialOperations: invalid nonce',
           );
         });
         it('tampered data', async function () {

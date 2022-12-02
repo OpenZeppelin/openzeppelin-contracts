@@ -95,7 +95,7 @@ function shouldBehaveLikeVotes () {
 
         await expectRevert(
           this.votes.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
-          'Votes: invalid nonce',
+          'SequentialOperations: invalid nonce',
         );
       });
 
@@ -127,7 +127,7 @@ function shouldBehaveLikeVotes () {
         ));
         await expectRevert(
           this.votes.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
-          'Votes: invalid nonce',
+          'SequentialOperations: invalid nonce',
         );
       });
 

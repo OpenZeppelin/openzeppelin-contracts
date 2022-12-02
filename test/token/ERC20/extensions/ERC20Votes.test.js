@@ -172,7 +172,7 @@ contract('ERC20Votes', function (accounts) {
 
         await expectRevert(
           this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
-          'Votes: invalid nonce',
+          'SequentialOperations: invalid nonce',
         );
       });
 
@@ -204,7 +204,7 @@ contract('ERC20Votes', function (accounts) {
         ));
         await expectRevert(
           this.token.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
-          'Votes: invalid nonce',
+          'SequentialOperations: invalid nonce',
         );
       });
 

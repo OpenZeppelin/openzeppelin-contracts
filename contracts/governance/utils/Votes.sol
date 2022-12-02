@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "../../utils/Context.sol";
 import "../../utils/Nonces.sol";
 import "../../utils/Checkpoints.sol";
-import "../../utils/cryptography/EIP712.sol";
+import "../../utils/cryptography/SequentialOperations.sol";
 import "./IVotes.sol";
 import "../../utils/math/SafeCast.sol";
 
@@ -29,9 +29,8 @@ import "../../utils/math/SafeCast.sol";
  *
  * _Available since v4.5._
  */
-abstract contract Votes is IVotes, Context, EIP712 {
+abstract contract Votes is IVotes, Context, SequentialOperations {
     using Checkpoints for Checkpoints.History;
-    using Nonces for Nonces.Data;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -39,7 +38,6 @@ abstract contract Votes is IVotes, Context, EIP712 {
     mapping(address => address) private _delegation;
     mapping(address => Checkpoints.History) private _delegateCheckpoints;
     Checkpoints.History private _totalCheckpoints;
-    Nonces.Data private _nonces;
 
     /**
      * @dev Returns the current amount of votes that `account` has.
@@ -86,7 +84,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
      * @dev Returns the delegation nonce for `owner`.
      */
     function delegationNonces(address owner) public view virtual override returns (uint256) {
-        return _nonces.nonces(owner);
+        return operationNonces(_DELEGATION_TYPEHASH, owner);
     }
 
     /**
@@ -116,13 +114,14 @@ abstract contract Votes is IVotes, Context, EIP712 {
         bytes32 s
     ) public virtual override {
         require(block.timestamp <= expiry, "Votes: signature expired");
-        address signer = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
+        address signer = _validateSequentialOperation(
+            _DELEGATION_TYPEHASH,
+            keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry)),
+            nonce,
             v,
             r,
             s
         );
-        require(nonce == _nonces.useNonce(signer), "Votes: invalid nonce");
         _delegate(signer, delegatee);
     }
 

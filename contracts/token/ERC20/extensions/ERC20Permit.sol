@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 import "./IERC20Permit.sol";
 import "../ERC20.sol";
 import "../../../utils/cryptography/ECDSA.sol";
-import "../../../utils/cryptography/EIP712.sol";
+import "../../../utils/cryptography/SequentialOperations.sol";
 import "../../../utils/Nonces.sol";
 
 /**
@@ -19,9 +19,7 @@ import "../../../utils/Nonces.sol";
  *
  * _Available since v3.4._
  */
-abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
-    using Nonces for Nonces.Data;
-
+abstract contract ERC20Permit is ERC20, IERC20Permit, SequentialOperations {
     // solhint-disable-next-line var-name-mixedcase
     bytes32 private constant _PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
@@ -33,7 +31,6 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
      */
     // solhint-disable-next-line var-name-mixedcase
     bytes32 private _PERMIT_TYPEHASH_DEPRECATED_SLOT;
-    Nonces.Data private _nonces;
 
     /**
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
@@ -55,14 +52,16 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
         bytes32 s
     ) public virtual override {
         require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
-
-        bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _nonces.useNonce(owner), deadline));
-
-        bytes32 hash = _hashTypedDataV4(structHash);
-
-        address signer = ECDSA.recover(hash, v, r, s);
-        require(signer == owner, "ERC20Permit: invalid signature");
-
+        uint256 nonce = operationNonces(_PERMIT_TYPEHASH, owner);
+        address signer = _validateSequentialOperation(
+            _PERMIT_TYPEHASH,
+            keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, nonce, deadline)),
+            nonce,
+            v,
+            r,
+            s
+        );
+        require(owner == signer, "ERC20Permit: invalid signature");
         _approve(owner, spender, value);
     }
 
@@ -70,7 +69,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
      * @dev See {IERC20Permit-nonces}.
      */
     function nonces(address owner) public view virtual override returns (uint256) {
-        return _nonces.nonces(owner);
+        return operationNonces(_PERMIT_TYPEHASH, owner);
     }
 
     /**
