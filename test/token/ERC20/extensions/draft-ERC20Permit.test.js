@@ -62,7 +62,7 @@ contract('ERC20Permit', function (accounts) {
       const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
       const { v, r, s } = fromRpcSig(signature);
 
-      const receipt = await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
+      await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
 
       expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
       expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(value);
