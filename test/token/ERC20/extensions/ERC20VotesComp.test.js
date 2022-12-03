@@ -2,7 +2,7 @@
 
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { MAX_UINT256, ZERO_ADDRESS, ZERO_BYTES32 } = constants;
+const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
