@@ -13,7 +13,7 @@ const ERC20PermitMock = artifacts.require('ERC20PermitMock');
 const { EIP712Domain, Permit, domainSeparator } = require('../../../helpers/eip712');
 
 contract('ERC20Permit', function (accounts) {
-  const [ initialHolder, spender, recipient, other ] = accounts;
+  const [ initialHolder, spender ] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
