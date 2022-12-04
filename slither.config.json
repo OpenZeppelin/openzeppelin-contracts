@@ -1,5 +1,6 @@
 {
     "detectors_to_run": "reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas",
     "filter_paths": "contracts/mocks",
-    "compile_force_framework": "hardhat"
+    "compile_force_framework": "hardhat",
+    "foundry_ignore_compile": true
 }
