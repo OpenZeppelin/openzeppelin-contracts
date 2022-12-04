@@ -211,7 +211,11 @@ library ECDSA {
             let slen := mload(s)
             let totalLen := add(add(_slen, slen), 26)
 
-            for { let i := 0 } lt(i, slen) { i := add(i, 0x20) } {
+            for {
+                let i := 0
+            } lt(i, slen) {
+                i := add(i, 0x20)
+            } {
                 mstore(add(start, i), mload(add(s, add(i, 0x20))))
             }
             message := keccak256(ptr, totalLen)
