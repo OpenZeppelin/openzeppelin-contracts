@@ -209,16 +209,16 @@ library ECDSA {
             mstore(start, mload(add(_s, 0x20)))
             start := add(start, _slen)
             let slen := mload(s)
-            let totalLen := add(add(_slen, slen), 26)
+            let s2 := add(s, 0x20)
 
             for {
                 let i := 0
             } lt(i, slen) {
                 i := add(i, 0x20)
             } {
-                mstore(add(start, i), mload(add(s, add(i, 0x20))))
+                mstore(add(start, i), mload(add(s2, i)))
             }
-            message := keccak256(ptr, totalLen)
+            message := keccak256(ptr, add(add(_slen, slen), 26))
         }
     }
 
