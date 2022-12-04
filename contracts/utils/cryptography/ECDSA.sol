@@ -180,10 +180,14 @@ library ECDSA {
      *
      * See {recover}.
      */
-    function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32) {
-        // 32 is the length in bytes of hash,
+    function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32 message) {
         // enforced by the type signature above
-        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(0, 0x19457468657265756d205369676e6564204d6573736167653a0a333200000000)
+            mstore(0x1c, hash)
+            message := keccak256(0, 60)
+        }
     }
 
     /**
