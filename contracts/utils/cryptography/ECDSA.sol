@@ -198,8 +198,24 @@ library ECDSA {
      *
      * See {recover}.
      */
-    function toEthSignedMessageHash(bytes memory s) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", Strings.toString(s.length), s));
+    function toEthSignedMessageHash(bytes memory s) internal pure returns (bytes32 message) {
+        string memory _s = Strings.toString(s.length);
+        /// @solidity memory-safe-assembly
+        assembly {
+            let ptr := mload(0x40)
+            mstore(ptr, 0x19457468657265756d205369676e6564204d6573736167653a0a000000000000)
+            let _slen := mload(_s)
+            let start := add(ptr, 0x1a)
+            mstore(start, mload(add(_s, 0x20)))
+            start := add(start, _slen)
+            let slen := mload(s)
+            let totalLen := add(add(_slen, slen), 26)
+
+            for { let i := 0 } lt(i, slen) { i := add(i, 0x20) } {
+                mstore(add(start, i), mload(add(s, add(i, 0x20))))
+            }
+            message := keccak256(ptr, totalLen)
+        }
     }
 
     /**
