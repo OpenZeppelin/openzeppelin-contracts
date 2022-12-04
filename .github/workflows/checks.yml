@@ -71,7 +71,7 @@ jobs:
 
   slither:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04 # https://github.com/foundry-rs/foundry/issues/3827
     steps:
       - uses: actions/checkout@v3
       - name: Set up environment
