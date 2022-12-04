@@ -124,7 +124,7 @@ library MerkleProof {
         bool[] memory proofFlags,
         bytes32[] memory leaves
     ) internal pure returns (bytes32 merkleRoot) {
-        // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
+        // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
@@ -147,7 +147,7 @@ library MerkleProof {
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-            bytes32 b = proofFlags[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proof[proofPos++];
+            bytes32 b = proofFlags[i] ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++]) : proof[proofPos++];
             hashes[i] = _hashPair(a, b);
         }
 
@@ -172,7 +172,7 @@ library MerkleProof {
         bool[] calldata proofFlags,
         bytes32[] memory leaves
     ) internal pure returns (bytes32 merkleRoot) {
-        // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
+        // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
@@ -195,7 +195,7 @@ library MerkleProof {
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-            bytes32 b = proofFlags[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proof[proofPos++];
+            bytes32 b = proofFlags[i] ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++]) : proof[proofPos++];
             hashes[i] = _hashPair(a, b);
         }
 
