@@ -11,7 +11,7 @@
  * `ERC20`: Deleted `_beforeTokenTransfer` and `_afterTokenTransfer` hooks, and refactor all extensions using those hooks for customization, by using `transfer` instead. ([#3838](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3838))
 
 ### How to upgrade from 4.x
-These breaking changes will require additional modifications in your implementation of ERC20, ERC721, and ERC1155, since the `afterTokenTransfer` and `beforeTokenTransfer` were removed. Any customization made through those hooks should now use the `transfer` function instead, keeping in mind that `_mint` and `_burn` are no longer virtual, so they are not overrideable.
+These breaking changes will require additional modifications in your implementation of ERC20, ERC721, and ERC1155, since the `afterTokenTransfer` and `beforeTokenTransfer` were removed. Any customization made through those hooks should now use the `transfer` function instead, keeping in mind that `_mint` and `_burn` are no longer virtual, so they are not overridable.
 
 For example, a contract using `ERC20`'s `afterTokenTransfer` hook would have to be changed in the following way.
 
