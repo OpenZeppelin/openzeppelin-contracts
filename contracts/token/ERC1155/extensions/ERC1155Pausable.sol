@@ -17,13 +17,13 @@ import "../../../security/Pausable.sol";
  */
 abstract contract ERC1155Pausable is ERC1155, Pausable {
     /**
-     * @dev See {ERC1155-_beforeTokenTransfer}.
+     * @dev See {ERC1155-_safeTransferFrom}.
      *
      * Requirements:
      *
      * - the contract must not be paused.
      */
-    function _beforeTokenTransfer(
+    function _safeTransferFrom(
         address operator,
         address from,
         address to,
@@ -31,8 +31,7 @@ abstract contract ERC1155Pausable is ERC1155, Pausable {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual override {
-        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
-
         require(!paused(), "ERC1155Pausable: token transfer while paused");
+        super._safeTransferFrom(operator, from, to, ids, amounts, data);
     }
 }

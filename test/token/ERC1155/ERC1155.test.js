@@ -57,7 +57,7 @@ contract('ERC1155', function (accounts) {
       });
     });
 
-    describe('_mintBatch', function () {
+    describe.only('_mintBatch', function () {
       it('reverts with a zero destination address', async function () {
         await expectRevert(
           this.token.mintBatch(ZERO_ADDRESS, tokenBatchIds, mintAmounts, data),
@@ -169,7 +169,7 @@ contract('ERC1155', function (accounts) {
       });
     });
 
-    describe('_burnBatch', function () {
+    describe.only('_burnBatch', function () {
       it('reverts when burning the zero account\'s tokens', async function () {
         await expectRevert(
           this.token.burnBatch(ZERO_ADDRESS, tokenBatchIds, burnAmounts),
