@@ -203,14 +203,15 @@ contract('ERC20', function (accounts) {
     const amount = new BN(50);
     it('rejects a null account', async function () {
       await expectRevert(
-        this.token.mint(ZERO_ADDRESS, amount), 'ERC20: invalid transfer operation'
+        this.token.mint(ZERO_ADDRESS, amount), 'ERC20: invalid transfer operation',
       );
     });
 
     it('rejects overflow', async function () {
       const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
       await expectRevert(
-        this.token.mint(recipient, maxUint256),'reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)'
+        this.token.mint(recipient, maxUint256),
+        'reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)',
       );
     });
 
