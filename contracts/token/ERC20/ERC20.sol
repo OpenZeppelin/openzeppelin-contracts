@@ -214,7 +214,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * This internal function is equivalent to {transfer}, and can be used to
      * e.g. implement automatic token fees, slashing mechanisms, etc.
      *
-     * Will mint (or burn) if `from` (or `to`) is address(0).
+     * Will mint (or burn) if `from` (or `to`) is the zero address.
      *
      * Emits a {Transfer} event.
      *
@@ -224,7 +224,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         address to,
         uint256 amount
     ) internal virtual {
-        require(from != address(0) || to != address(0), "ERC20: invalid transfer operation");
+        require(!(from == address(0) && to == address(0)), "ERC20: invalid transfer operation");
 
         uint256 fromBalance = _balances[from];
         if (from == address(0)) {
