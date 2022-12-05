@@ -19,10 +19,10 @@ contract ERC20SnapshotMock is ERC20Snapshot {
     }
 
     function mint(address account, uint256 amount) public {
-        _transfer(address(0), account, amount);
+        _mint(account, amount);
     }
 
     function burn(address account, uint256 amount) public {
-        _transfer(account, address(0), amount);
+        _burn(account, amount);
     }
 }
