@@ -10,6 +10,31 @@
  * `ProxyAdmin`: Removed `getProxyAdmin` and `getProxyImplementation` getters. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
  * `ERC20`: Deleted `_beforeTokenTransfer` and `_afterTokenTransfer` hooks, and refactor all extensions using those hooks for customization, by using `transfer` instead. ([#3838](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3838))
 
+### How to upgrade from 4.x
+These breaking changes will require additional modifications in your implementation of ERC20, ERC721, and ERC1155, since the `afterTokenTransfer` and `beforeTokenTransfer` were removed. Any customization made through those hooks should now use the `transfer` function instead, keeping in mind that `_mint` and `_burn` are no longer virtual, so they are not overrideable.
+
+For example, a contract using `ERC20`'s `afterTokenTransfer` hook would have to be changed in the following way.
+
+```diff
+-function _beforeTokenTransfer(
+-         address from,
+-         address to,
+-         uint256 amount
+-     ) internal virtual override {
+-         super._beforeTokenTransfer(from, to, amount);
+-
+-         require(!condition(), "ERC20: wrong condition");
+-     }
++function _transfer(
++         address from,
++         address to,
++         uint256 amount
++     ) internal virtual override {
++         require(!condition(), "ERC20: wrong condition");
++         super._transfer(from, to, amount);
++     }
+```
+
 ## Unreleased
 
  * `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
