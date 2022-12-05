@@ -31,11 +31,14 @@ abstract contract ERC20Capped is ERC20 {
      * @dev See {ERC20-_transfer}.
      */
     function _transfer(
-        address,
-        address account,
+        address from,
+        address to,
         uint256 amount
     ) internal virtual override {
-        require(ERC20.totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
-        super._transfer(address(0), account, amount);
+        if(from == address(0)){
+            require(ERC20.totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
+        }
+        
+        super._transfer(from, to, amount);
     }
 }
