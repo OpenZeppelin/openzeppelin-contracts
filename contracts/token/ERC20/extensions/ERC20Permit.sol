@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 import "./IERC20Permit.sol";
 import "../ERC20.sol";
 import "../../../utils/cryptography/ECDSA.sol";
-import "../../../utils/cryptography/SequentialOperations.sol";
+import "../../../utils/cryptography/SignatureOperations.sol";
 import "../../../utils/Nonces.sol";
 
 /**
@@ -19,7 +19,7 @@ import "../../../utils/Nonces.sol";
  *
  * _Available since v3.4._
  */
-abstract contract ERC20Permit is ERC20, IERC20Permit, SequentialOperations {
+abstract contract ERC20Permit is ERC20, IERC20Permit, SignatureOperations {
     // solhint-disable-next-line var-name-mixedcase
     bytes32 private constant _PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");

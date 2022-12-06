@@ -4,7 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "../utils/cryptography/ECDSA.sol";
-import "../utils/cryptography/SequentialOperations.sol";
+import "../utils/cryptography/SignatureOperations.sol";
 
 /**
  * @dev Simple minimal forwarder to be used together with an ERC2771 compatible contract. See {ERC2771Context}.
@@ -14,7 +14,7 @@ import "../utils/cryptography/SequentialOperations.sol";
  * functioning forwarding system with good properties requires more complexity. We suggest you look at other projects
  * such as the GSN which do have the goal of building a system like that.
  */
-contract MinimalForwarder is SequentialOperations {
+contract MinimalForwarder is SignatureOperations {
     using ECDSA for bytes32;
 
     struct ForwardRequest {

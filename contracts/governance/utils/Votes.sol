@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "../../utils/Context.sol";
 import "../../utils/Nonces.sol";
 import "../../utils/Checkpoints.sol";
-import "../../utils/cryptography/SequentialOperations.sol";
+import "../../utils/cryptography/SignatureOperations.sol";
 import "./IVotes.sol";
 import "../../utils/math/SafeCast.sol";
 
@@ -29,7 +29,7 @@ import "../../utils/math/SafeCast.sol";
  *
  * _Available since v4.5._
  */
-abstract contract Votes is IVotes, Context, SequentialOperations {
+abstract contract Votes is IVotes, Context, SignatureOperations {
     using Checkpoints for Checkpoints.History;
 
     bytes32 private constant _DELEGATION_TYPEHASH =

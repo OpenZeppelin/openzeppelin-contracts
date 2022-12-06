@@ -91,7 +91,7 @@ contract('MinimalForwarder', function (accounts) {
         it('tampered nonce', async function () {
           await expectRevert(
             this.forwarder.contract.methods.verify({ ...this.req, nonce: this.req.nonce + 1 }, this.sign()).call(),
-            'SequentialOperations: invalid nonce'
+            'SignatureOperations: invalid nonce'
           );
         });
         it('tampered data', async function () {
@@ -146,7 +146,7 @@ contract('MinimalForwarder', function (accounts) {
         it('tampered nonce', async function () {
           await expectRevert(
             this.forwarder.execute({ ...this.req, nonce: this.req.nonce + 1 }, this.sign()),
-            'SequentialOperations: invalid nonce',
+            'SignatureOperations: invalid nonce',
           );
         });
         it('tampered data', async function () {
