@@ -28,6 +28,7 @@ Additionally there are a few of other extensions:
 * {ERC721Royalty}: A way to signal royalty information following ERC2981.
 * {ERC721Pausable}: A primitive to pause contract operation.
 * {ERC721Burnable}: A way for token holders to burn their own tokens.
+* {ERC721Wrapper}: Wrapper to create an ERC721 backed by another ERC721, with deposit and withdraw methods. Useful in conjunction with {ERC721Votes}.
 
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC721 (such as <<ERC721-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc721.adoc#Presets[ERC721 Presets] (such as {ERC721PresetMinterPauserAutoId}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
 
@@ -58,6 +59,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC721Votes}}
 
 {{ERC721Royalty}}
+
+{{ERC721Wrapper}}
 
 == Presets
 
