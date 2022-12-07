@@ -1226,13 +1226,13 @@ Emits an {Initialized} event the first time it is successfully executed.
 [[Initializable-_getInitializedVersion--]]
 ==== `[.contract-item-name]#++_getInitializedVersion++#++() → uint8++` [.item-kind]#internal#
 
-Internal function that returns the initialized version. Returns `_initialized`
+Returns the highest version that has been initialized. See {reinitializer}.
 
 [.contract-item]
 [[Initializable-_isInitializing--]]
 ==== `[.contract-item-name]#++_isInitializing++#++() → bool++` [.item-kind]#internal#
 
-Internal function that returns the initialized version. Returns `_initializing`
+Returns `true` if the contract is currently initializing. See {onlyInitializing}.
 
 [.contract-item]
 [[Initializable-Initialized-uint8-]]
