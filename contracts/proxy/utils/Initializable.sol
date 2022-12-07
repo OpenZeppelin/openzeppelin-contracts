@@ -157,7 +157,7 @@ abstract contract Initializable {
     }
 
     /**
-     * @dev Returns true if the contract is currently initializing. See {onlyInitializing}.
+     * @dev Returns `true` if the contract is currently initializing. See {onlyInitializing}.
      */
     function _isInitializing() internal view returns (bool) {
         return _initializing;
