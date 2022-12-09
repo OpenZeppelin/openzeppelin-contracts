@@ -16,23 +16,16 @@ These breaking changes will require additional modifications in your implementat
 For example, a contract using `ERC20`'s `afterTokenTransfer` hook would have to be changed in the following way.
 
 ```diff
--function _beforeTokenTransfer(
--         address from,
--         address to,
--         uint256 amount
--     ) internal virtual override {
--         super._beforeTokenTransfer(from, to, amount);
--
--         require(!condition(), "ERC20: wrong condition");
--     }
-+function _transfer(
-+         address from,
-+         address to,
-+         uint256 amount
-+     ) internal virtual override {
-+         require(!condition(), "ERC20: wrong condition");
-+         super._transfer(from, to, amount);
-+     }
+- function _beforeTokenTransfer(
++ function _transfer(
+      address from,
+      address to,
+      uint256 amount
+  ) internal virtual override {
+-     super._beforeTokenTransfer(from, to, amount);
+      require(!condition(), "ERC20: wrong condition");
++     super._transfer(from, to, amount);
+  }
 ```
 
 ## Unreleased
