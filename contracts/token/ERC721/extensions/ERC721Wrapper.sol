@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "../ERC721.sol";
+import "../utils/ERC721Holder.sol";
 
 /**
  * @dev Extension of the ERC721 token contract to support token wrapping.
@@ -13,7 +14,7 @@ import "../ERC721.sol";
  *
  * _Available since v4.8.1_
  */
-abstract contract ERC721Wrapper is ERC721 {
+abstract contract ERC721Wrapper is ERC721, ERC721Holder {
     IERC721 public immutable underlying;
 
     constructor(IERC721 underlyingToken) {
