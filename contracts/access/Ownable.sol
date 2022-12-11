@@ -76,7 +76,7 @@ abstract contract Ownable is Context {
      * Internal function without access restriction.
      */
     function _transferOwnership(address newOwner) internal virtual {
-        address oldOwner = _owner;
+        address oldOwner = owner();
         _owner = newOwner;
         emit OwnershipTransferred(oldOwner, newOwner);
     }
