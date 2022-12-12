@@ -30,7 +30,7 @@ abstract contract ERC20Capped is ERC20 {
     /**
      * @dev See {ERC20-_transfer}.
      */
-    function _transfer(
+    function _update(
         address from,
         address to,
         uint256 amount
@@ -39,6 +39,6 @@ abstract contract ERC20Capped is ERC20 {
             require(ERC20.totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
         }
 
-        super._transfer(from, to, amount);
+        super._update(from, to, amount);
     }
 }

@@ -15,18 +15,18 @@ import "../../../security/Pausable.sol";
  */
 abstract contract ERC20Pausable is ERC20, Pausable {
     /**
-     * @dev See {ERC20-_transfer}.
+     * @dev See {ERC20-_update}.
      *
      * Requirements:
      *
      * - the contract must not be paused.
      */
-    function _transfer(
+    function _update(
         address from,
         address to,
         uint256 amount
     ) internal virtual override {
         require(!paused(), "ERC20Pausable: token transfer while paused");
-        super._transfer(from, to, amount);
+        super._update(from, to, amount);
     }
 }

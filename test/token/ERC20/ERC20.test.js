@@ -203,7 +203,7 @@ contract('ERC20', function (accounts) {
     const amount = new BN(50);
     it('rejects a null account', async function () {
       await expectRevert(
-        this.token.mint(ZERO_ADDRESS, amount), 'ERC20: invalid transfer operation',
+        this.token.mint(ZERO_ADDRESS, amount), 'ERC20: mint to the zero address',
       );
     });
 
@@ -244,7 +244,7 @@ contract('ERC20', function (accounts) {
   describe('_burn', function () {
     it('rejects a null account', async function () {
       await expectRevert(this.token.burn(ZERO_ADDRESS, new BN(1)),
-        'ERC20: invalid transfer operation');
+        'ERC20: burn from the zero address');
     });
 
     describe('for a non zero account', function () {

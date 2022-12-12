@@ -227,8 +227,24 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         address to,
         uint256 amount
     ) internal virtual {
-        require(!(from == address(0) && to == address(0)), "ERC20: invalid transfer operation");
+        require(from != address(0), "ERC20: transfer from the zero address");
+        require(to != address(0), "ERC20: transfer to the zero address");
+        _update(from, to, amount);
+    }
 
+    /**
+     * @dev Moves `amount` of tokens from `from` to `to`.
+     *
+     * Will mint (or burn) if `from` (or `to`) is the zero address.
+     *
+     * Emits a {Transfer} event.
+     *
+     */
+    function _update(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {
         uint256 fromBalance = _balances[from];
         if (from == address(0)) {
             _totalSupply += amount;
@@ -264,7 +280,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      */
     function _mint(address account, uint256 amount) internal {
-        _transfer(address(0), account, amount);
+        require(account != address(0), "ERC20: mint to the zero address");
+        _update(address(0), account, amount);
     }
 
     /**
@@ -277,7 +294,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      */
     function _burn(address account, uint256 amount) internal {
-        _transfer(account, address(0), amount);
+        require(account != address(0), "ERC20: burn from the zero address");
+        _update(account, address(0), amount);
     }
 
     /**

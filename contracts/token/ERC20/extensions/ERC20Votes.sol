@@ -35,12 +35,12 @@ abstract contract ERC20Votes is ERC20, Votes {
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _transfer(
+    function _update(
         address from,
         address to,
         uint256 amount
     ) internal virtual override {
-        super._transfer(from, to, amount);
+        super._update(from, to, amount);
         if (from == address(0)) {
             require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
         }

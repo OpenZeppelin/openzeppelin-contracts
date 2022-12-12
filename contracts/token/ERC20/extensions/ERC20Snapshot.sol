@@ -120,7 +120,7 @@ abstract contract ERC20Snapshot is ERC20 {
 
     // Update balance and/or total supply snapshots before the values are modified. This is executed
     // for _mint, _burn, and _transfer operations.
-    function _transfer(
+    function _update(
         address from,
         address to,
         uint256 amount
@@ -138,7 +138,7 @@ abstract contract ERC20Snapshot is ERC20 {
             _updateAccountSnapshot(from);
             _updateAccountSnapshot(to);
         }
-        super._transfer(from, to, amount);
+        super._update(from, to, amount);
     }
 
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots) private view returns (bool, uint256) {
