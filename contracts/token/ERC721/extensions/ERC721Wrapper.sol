@@ -12,7 +12,7 @@ import "../utils/ERC721Holder.sol";
  * in conjunction with other modules. For example, combining this wrapping mechanism with {ERC721Votes} will allow the
  * wrapping of an existing "basic" ERC721 into a governance token.
  *
- * _Available since v4.8.1_
+ * _Available since v4.9.0_
  */
 abstract contract ERC721Wrapper is ERC721, ERC721Holder {
     IERC721 public immutable underlying;
