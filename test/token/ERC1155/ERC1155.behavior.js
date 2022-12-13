@@ -221,7 +221,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
         );
       });
 
-      it.only('reverts when transferring to zero address', async function () {
+      it('reverts when transferring to zero address', async function () {
         await expectRevert(
           this.token.safeTransferFrom(
             multiTokenHolder,
