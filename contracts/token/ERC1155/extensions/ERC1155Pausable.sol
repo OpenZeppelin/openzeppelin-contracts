@@ -23,8 +23,7 @@ abstract contract ERC1155Pausable is ERC1155, Pausable {
      *
      * - the contract must not be paused.
      */
-    function _safeTransferFrom(
-        address operator,
+    function _safeBatchTransferFrom(
         address from,
         address to,
         uint256[] memory ids,
@@ -32,6 +31,6 @@ abstract contract ERC1155Pausable is ERC1155, Pausable {
         bytes memory data
     ) internal virtual override {
         require(!paused(), "ERC1155Pausable: token transfer while paused");
-        super._safeTransferFrom(operator, from, to, ids, amounts, data);
+        super._safeBatchTransferFrom(from, to, ids, amounts, data);
     }
 }

@@ -15,4 +15,14 @@ contract ERC1155PausableMock is ERC1155Mock, ERC1155Pausable {
     function unpause() external {
         _unpause();
     }
+
+    function _safeBatchTransferFrom(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual override(ERC1155, ERC1155Pausable) {
+        super._safeBatchTransferFrom(from, to, ids, amounts, data);
+    }
 }

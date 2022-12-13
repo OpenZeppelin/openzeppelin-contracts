@@ -33,8 +33,7 @@ abstract contract ERC1155Supply is ERC1155 {
     /**
      * @dev See {ERC1155-_safeTransferFrom}.
      */
-    function _safeTransferFrom(
-        address operator,
+    function _safeBatchTransferFrom(
         address from,
         address to,
         uint256[] memory ids,
@@ -58,6 +57,6 @@ abstract contract ERC1155Supply is ERC1155 {
                 }
             }
         }
-        super._safeTransferFrom(operator, from, to, ids, amounts, data);
+        super._safeBatchTransferFrom(from, to, ids, amounts, data);
     }
 }
