@@ -31,9 +31,33 @@ abstract contract ERC1155Supply is ERC1155 {
     }
 
     /**
-     * @dev See {ERC1155-_safeTransferFrom}.
+     * @dev See {ERC1155-_update}.
      */
-    function _safeBatchTransferFrom(
+    function _update(
+        address from,
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) internal virtual override {
+        if (from == address(0)) {
+            _totalSupply[id] += amount;
+        }
+
+        if (to == address(0)) {
+            uint256 supply = _totalSupply[id];
+            require(supply >= amount, "ERC1155: burn amount exceeds totalSupply");
+            unchecked {
+                _totalSupply[id] = supply - amount;
+            }
+        }
+        super._update(from, to, id, amount, data);
+    }
+
+    /**
+     * @dev See {ERC1155-_updateBatch}.
+     */
+    function _updateBatch(
         address from,
         address to,
         uint256[] memory ids,
@@ -57,6 +81,6 @@ abstract contract ERC1155Supply is ERC1155 {
                 }
             }
         }
-        super._safeBatchTransferFrom(from, to, ids, amounts, data);
+        super._updateBatch(from, to, ids, amounts, data);
     }
 }

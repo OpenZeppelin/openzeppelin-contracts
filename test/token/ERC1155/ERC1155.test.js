@@ -32,7 +32,7 @@ contract('ERC1155', function (accounts) {
       it('reverts with a zero destination address', async function () {
         await expectRevert(
           this.token.mint(ZERO_ADDRESS, tokenId, mintAmount, data),
-          'ERC1155: invalid transfer operation',
+          'ERC1155: mint to the zero address',
         );
       });
 
@@ -57,7 +57,7 @@ contract('ERC1155', function (accounts) {
       });
     });
 
-    describe.only('_mintBatch', function () {
+    describe('_mintBatch', function () {
       it('reverts with a zero destination address', async function () {
         await expectRevert(
           this.token.mintBatch(ZERO_ADDRESS, tokenBatchIds, mintAmounts, data),
@@ -113,7 +113,7 @@ contract('ERC1155', function (accounts) {
       it('reverts when burning the zero account\'s tokens', async function () {
         await expectRevert(
           this.token.burn(ZERO_ADDRESS, tokenId, mintAmount),
-          'ERC1155: invalid transfer operation',
+          'ERC1155: burn from the zero address',
         );
       });
 
@@ -169,7 +169,7 @@ contract('ERC1155', function (accounts) {
       });
     });
 
-    describe.only('_burnBatch', function () {
+    describe('_burnBatch', function () {
       it('reverts when burning the zero account\'s tokens', async function () {
         await expectRevert(
           this.token.burnBatch(ZERO_ADDRESS, tokenBatchIds, burnAmounts),
@@ -192,7 +192,7 @@ contract('ERC1155', function (accounts) {
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts),
-          'ERC1155: burn amount exceeds balance',
+          'ERC1155: insufficient balance for transfer',
         );
       });
 

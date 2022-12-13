@@ -433,7 +433,7 @@ function shouldBehaveLikeERC1155 ([minter, firstTokenHolder, secondTokenHolder, 
       });
     });
 
-    describe.only('safeBatchTransferFrom', function () {
+    describe('safeBatchTransferFrom', function () {
       beforeEach(async function () {
         await this.token.mint(multiTokenHolder, firstTokenId, firstAmount, '0x', {
           from: minter,
