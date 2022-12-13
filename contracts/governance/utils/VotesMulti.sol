@@ -33,7 +33,7 @@ abstract contract VotesMulti is IVotesMulti, Context, EIP712, Nonces {
     using Checkpoints for Checkpoints.History;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
-        keccak256("Delegation(address delegatee,uint256 id,uint256 nonce,uint256 expiry)");
+        keccak256("Delegation(uint256 id,address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping(address => mapping(uint256 => address)) private _delegation;
     mapping(address => mapping(uint256 => Checkpoints.History)) private _delegateCheckpoints;
@@ -55,8 +55,8 @@ abstract contract VotesMulti is IVotesMulti, Context, EIP712, Nonces {
      */
     function getPastVotes(
         address account,
-        uint256 blockNumber,
-        uint256 id
+        uint256 id,
+        uint256 blockNumber
     ) public view virtual override returns (uint256) {
         return _delegateCheckpoints[account][id].getAtProbablyRecentBlock(blockNumber);
     }
@@ -72,7 +72,7 @@ abstract contract VotesMulti is IVotesMulti, Context, EIP712, Nonces {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber, uint256 id) public view virtual override returns (uint256) {
+    function getPastTotalSupply(uint256 id, uint256 blockNumber) public view virtual override returns (uint256) {
         require(blockNumber < block.number, "Votes: block not yet mined");
         return _totalCheckpoints[id].getAtProbablyRecentBlock(blockNumber);
     }
@@ -94,7 +94,7 @@ abstract contract VotesMulti is IVotesMulti, Context, EIP712, Nonces {
     /**
      * @dev Delegates votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee, uint256 id) public virtual override {
+    function delegate(uint256 id, address delegatee) public virtual override {
         address account = _msgSender();
         _delegate(account, id, delegatee);
     }
@@ -103,8 +103,8 @@ abstract contract VotesMulti is IVotesMulti, Context, EIP712, Nonces {
      * @dev Delegates votes from signer to `delegatee`.
      */
     function delegateBySig(
-        address delegatee,
         uint256 id,
+        address delegatee,
         uint256 nonce,
         uint256 expiry,
         uint8 v,
@@ -113,7 +113,7 @@ abstract contract VotesMulti is IVotesMulti, Context, EIP712, Nonces {
     ) public virtual override {
         require(block.timestamp <= expiry, "Votes: signature expired");
         address signer = ECDSA.recover(
-            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, id, nonce, expiry))),
+            _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, id, delegatee, nonce, expiry))),
             v,
             r,
             s
@@ -135,7 +135,7 @@ abstract contract VotesMulti is IVotesMulti, Context, EIP712, Nonces {
         address oldDelegate = delegates(account, id);
         _delegation[account][id] = delegatee;
 
-        emit DelegateChanged(account, oldDelegate, delegatee, id);
+        emit DelegateChanged(account, id, oldDelegate, delegatee);
         _moveDelegateVotes(oldDelegate, delegatee, id, _getVotingUnits(account, id));
     }
 

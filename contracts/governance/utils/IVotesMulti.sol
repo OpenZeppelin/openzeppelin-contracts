@@ -13,9 +13,9 @@ interface IVotesMulti {
      */
     event DelegateChanged(
         address indexed delegator,
+        uint256 id,
         address indexed fromDelegate,
-        address indexed toDelegate,
-        uint256 id
+        address indexed toDelegate
     );
 
     /**
@@ -33,8 +33,8 @@ interface IVotesMulti {
      */
     function getPastVotes(
         address account,
-        uint256 blockNumber,
-        uint256 id
+        uint256 id,
+        uint256 blockNumber
     ) external view returns (uint256);
 
     /**
@@ -44,7 +44,7 @@ interface IVotesMulti {
      * Votes that have not been delegated are still part of total supply, even though they would not participate in a
      * vote.
      */
-    function getPastTotalSupply(uint256 blockNumber, uint256 id) external view returns (uint256);
+    function getPastTotalSupply(uint256 id, uint256 blockNumber) external view returns (uint256);
 
     /**
      * @dev Returns the delegate that `account` has chosen.
@@ -54,14 +54,14 @@ interface IVotesMulti {
     /**
      * @dev Delegates votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee, uint256 id) external;
+    function delegate(uint256 id, address delegatee) external;
 
     /**
      * @dev Delegates votes from signer to `delegatee`.
      */
     function delegateBySig(
-        address delegatee,
         uint256 id,
+        address delegatee,
         uint256 nonce,
         uint256 expiry,
         uint8 v,
