@@ -9,6 +9,7 @@
  * `TransparentUpgradeableProxy`: Removed `admin` and `implementation` getters, which were only callable by the proxy owner and thus not very useful. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
  * `ProxyAdmin`: Removed `getProxyAdmin` and `getProxyImplementation` getters. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
  * `ERC20`: Deleted `_beforeTokenTransfer` and `_afterTokenTransfer` hooks, added a new internal `_update` function for customizations, and refactored all extensions using those hooks to use `_update` instead. ([#3838](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3838))
+ * `ERC165Storage`: contract was removed. ([#](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/))
 
 ### How to upgrade from 4.x
 
