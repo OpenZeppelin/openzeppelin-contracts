@@ -242,7 +242,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         address to,
         uint256 amount
     ) internal virtual {
-        uint256 fromBalance = _balances[from];
+
         if (from == address(0)) {
             _totalSupply += amount;
             unchecked {
@@ -250,6 +250,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
                 _balances[to] += amount;
             }
         } else if (to == address(0)) {
+            uint256 fromBalance = _balances[from];
             require(fromBalance >= amount, "ERC20: burn amount exceeds balance");
             _totalSupply -= amount;
             unchecked {
@@ -257,6 +258,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
                 _balances[from] = fromBalance - amount;
             }
         } else {
+            uint256 fromBalance = _balances[from];
             require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
             unchecked {
                 _balances[from] = fromBalance - amount;
