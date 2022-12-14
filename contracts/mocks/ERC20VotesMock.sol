@@ -8,11 +8,11 @@ contract ERC20VotesMock is ERC20Votes {
     constructor(string memory name, string memory symbol) ERC20(name, symbol) EIP712(name, "1") {}
 
     function mint(address account, uint256 amount) public {
-        _update(address(0), account, amount);
+        _mint(account, amount);
     }
 
     function burn(address account, uint256 amount) public {
-        _update(account, address(0), amount);
+        _burn(account, amount);
     }
 
     function getChainId() external view returns (uint256) {
