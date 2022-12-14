@@ -22,14 +22,14 @@ For example, a contract using `ERC20`'s `_afterTokenTransfer` hook would have to
 
 ```diff
 - function _beforeTokenTransfer(
-+ function _transfer(
++ function _update(
       address from,
       address to,
       uint256 amount
   ) internal virtual override {
 -     super._beforeTokenTransfer(from, to, amount);
       require(!condition(), "ERC20: wrong condition");
-+     super._transfer(from, to, amount);
++     super._update(from, to, amount);
   }
 ```
 
