@@ -18,7 +18,7 @@ These breaking changes will require modifications to ERC20, ERC721, and ERC1155 
 
 Minting and burning are implemented by `_update` and customizations should be done by overriding this function as well. `_mint` and `_burn` are no longer virtual (meaning they are not overridable) to guard against possible inconsistencies.
 
-For example, a contract using `ERC20`'s `_afterTokenTransfer` hook would have to be changed in the following way.
+For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have to be changed in the following way.
 
 ```diff
 - function _beforeTokenTransfer(
