@@ -214,28 +214,25 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * This internal function is equivalent to {transfer}, and can be used to
      * e.g. implement automatic token fees, slashing mechanisms, etc.
      *
-     * Will mint (or burn) if `from` (or `to`) is the zero address.
-     *
      * Emits a {Transfer} event.
      *
+     * NOTE: This function is not virtual, {_update} should be overridden instead.
      */
     function _transfer(
         address from,
         address to,
         uint256 amount
-    ) internal virtual {
+    ) internal {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
         _update(from, to, amount);
     }
 
     /**
-     * @dev Moves `amount` of tokens from `from` to `to`.
-     *
-     * Will mint (or burn) if `from` (or `to`) is the zero address.
+     * @dev Transfers `amount` of tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
+     * the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
      *
      * Emits a {Transfer} event.
-     *
      */
     function _update(
         address from,
@@ -270,13 +267,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         emit Transfer(from, to, amount);
     }
 
-    /** @dev Creates `amount` tokens and assigns them to `account`, by transferring it from address(0).
-     * Relies on the `_transfer` mechanism
+    /**
+     * @dev Creates `amount` tokens and assigns them to `account`, by transferring it from address(0).
+     * Relies on the `_update` mechanism
      *
      * Emits a {Transfer} event with `from` set to the zero address.
      *
-     * Note: this function is not virtual, {_transfer} should be overridden instead.
-     *
+     * NOTE: This function is not virtual, {_update} should be overridden instead.
      */
     function _mint(address account, uint256 amount) internal {
         require(account != address(0), "ERC20: mint to the zero address");
@@ -285,12 +282,11 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     /**
      * @dev Destroys `amount` tokens from `account`, by transferring it to address(0).
-     * Relies on the `_transfer` mechanism.
-     *
-     * Note: this function is not virtual, {_transfer} should be overridden instead
+     * Relies on the `_update` mechanism.
      *
      * Emits a {Transfer} event with `to` set to the zero address.
      *
+     * NOTE: This function is not virtual, {_update} should be overridden instead
      */
     function _burn(address account, uint256 amount) internal {
         require(account != address(0), "ERC20: burn from the zero address");
