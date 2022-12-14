@@ -14,9 +14,9 @@
 
 #### ERC20, ERC721, and ERC1155
 
-These breaking changes will require modifications to ERC20, ERC721, and ERC1155 contracts, since the `_afterTokenTransfer` and `_beforeTokenTransfer` functions were removed. Any customization made through those hooks should now be done overriding the `_transfer` function instead.
+These breaking changes will require modifications to ERC20, ERC721, and ERC1155 contracts, since the `_afterTokenTransfer` and `_beforeTokenTransfer` functions were removed. Any customization made through those hooks should now be done overriding the new `_update` function instead.
 
-Minting and burning are implemented by `_transfer` and customizations should be done by overriding this function as well. `_mint` and `_burn` are no longer virtual (meaning they are not overridable) to guard against possible inconsistencies.
+Minting and burning are implemented by `_update` and customizations should be done by overriding this function as well. `_mint` and `_burn` are no longer virtual (meaning they are not overridable) to guard against possible inconsistencies.
 
 For example, a contract using `ERC20`'s `_afterTokenTransfer` hook would have to be changed in the following way.
 
