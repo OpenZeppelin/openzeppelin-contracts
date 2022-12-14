@@ -118,15 +118,13 @@ abstract contract ERC20Snapshot is ERC20 {
         return snapshotted ? value : totalSupply();
     }
 
-    // Update balance and/or total supply snapshots before the values are modified. This is implemented
-    // in the _beforeTokenTransfer hook, which is executed for _mint, _burn, and _transfer operations.
-    function _beforeTokenTransfer(
+    // Update balance and/or total supply snapshots before the values are modified. This is executed
+    // for _mint, _burn, and _transfer operations.
+    function _update(
         address from,
         address to,
         uint256 amount
     ) internal virtual override {
-        super._beforeTokenTransfer(from, to, amount);
-
         if (from == address(0)) {
             // mint
             _updateAccountSnapshot(to);
@@ -140,6 +138,7 @@ abstract contract ERC20Snapshot is ERC20 {
             _updateAccountSnapshot(from);
             _updateAccountSnapshot(to);
         }
+        super._update(from, to, amount);
     }
 
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots) private view returns (bool, uint256) {

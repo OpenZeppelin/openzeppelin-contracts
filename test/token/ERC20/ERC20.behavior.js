@@ -158,8 +158,9 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
         });
 
         it('reverts', async function () {
-          await expectRevert(this.token.transferFrom(
-            tokenOwner, to, amount, { from: spender }), `${errorPrefix}: transfer to the zero address`,
+          await expectRevert(
+            this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
+            `${errorPrefix}: transfer to the zero address`,
           );
         });
       });
@@ -238,14 +239,6 @@ function shouldBehaveLikeERC20Transfer (errorPrefix, from, to, balance, transfer
           { from, to, value: amount },
         );
       });
-    });
-  });
-
-  describe('when the recipient is the zero address', function () {
-    it('reverts', async function () {
-      await expectRevert(transfer.call(this, from, ZERO_ADDRESS, balance),
-        `${errorPrefix}: transfer to the zero address`,
-      );
     });
   });
 }

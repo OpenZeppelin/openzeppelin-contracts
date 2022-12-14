@@ -53,7 +53,7 @@ contract('ERC20Votes', function (accounts) {
     const amount = new BN('2').pow(new BN('224'));
     await expectRevert(
       this.token.mint(holder, amount),
-      "SafeCast: value doesn't fit in 224 bits",
+      "ERC20Votes: total supply risks overflowing votes",
     );
   });
 
