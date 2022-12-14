@@ -8,7 +8,7 @@
  * Removed presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/).
  * `TransparentUpgradeableProxy`: Removed `admin` and `implementation` getters, which were only callable by the proxy owner and thus not very useful. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
  * `ProxyAdmin`: Removed `getProxyAdmin` and `getProxyImplementation` getters. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
- * `ERC20`: Deleted `_beforeTokenTransfer` and `_afterTokenTransfer` hooks, and refactor all extensions using those hooks for customization, by using `_update` instead. ([#3838](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3838))
+ * `ERC20`: Deleted `_beforeTokenTransfer` and `_afterTokenTransfer` hooks, added a new internal `_update` function for customizations, and refactored all extensions using those hooks to use `_update` instead. ([#3838](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3838))
 
 ### How to upgrade from 4.x
 
@@ -18,7 +18,7 @@ These breaking changes will require modifications to ERC20, ERC721, and ERC1155 
 
 Minting and burning are implemented by `_update` and customizations should be done by overriding this function as well. `_mint` and `_burn` are no longer virtual (meaning they are not overridable) to guard against possible inconsistencies.
 
-For example, a contract using `ERC20`'s `_afterTokenTransfer` hook would have to be changed in the following way.
+For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have to be changed in the following way.
 
 ```diff
 - function _beforeTokenTransfer(
