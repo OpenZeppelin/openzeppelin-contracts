@@ -261,6 +261,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
             require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
             unchecked {
                 _balances[from] = fromBalance - amount;
+                // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
+                // decrementing then incrementing.
                 _balances[to] += amount;
             }
         }
