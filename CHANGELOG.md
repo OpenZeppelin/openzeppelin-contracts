@@ -8,6 +8,7 @@
  * Removed presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/).
  * `TransparentUpgradeableProxy`: Removed `admin` and `implementation` getters, which were only callable by the proxy owner and thus not very useful. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
  * `ProxyAdmin`: Removed `getProxyAdmin` and `getProxyImplementation` getters. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
+ * `ERC165Storage`: contract was removed. ([#](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/))
 
 ## Unreleased
 
