@@ -34,6 +34,15 @@ For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have t
   }
 ```
 
+#### ERC165Storage
+As a result of removing the ERC165Storage contracts, users wanting to indicate their support for interfaces should do so by overriding the `supportsInterface` function as seen below:
+
+```
+ function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
+ }
+```
+
 ## Unreleased
 
  * `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
