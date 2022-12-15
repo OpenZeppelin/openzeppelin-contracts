@@ -25,6 +25,10 @@ contract ERC721URIStorageMock is ERC721URIStorage {
         return _baseURI();
     }
 
+    function getTokenURI(uint256 tokenId) public view returns (string memory) {
+        return _getTokenURI(tokenId);
+    }
+
     function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
         _setTokenURI(tokenId, _tokenURI);
     }

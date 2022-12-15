@@ -36,6 +36,18 @@ abstract contract ERC721URIStorage is ERC721 {
     }
 
     /**
+     * @dev Gets the tokenURI of `tokenId`.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function _getTokenURI(uint256 tokenId) internal view virtual returns (string memory) {
+        require(_exists(tokenId), "ERC721URIStorage: URI get of nonexistent token");
+        return _tokenURIs[tokenId];
+    }
+
+    /**
      * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
      *
      * Requirements:

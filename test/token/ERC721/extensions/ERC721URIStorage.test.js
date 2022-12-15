@@ -37,7 +37,14 @@ contract('ERC721URIStorage', function (accounts) {
 
     it('can be set for a token id', async function () {
       await this.token.setTokenURI(firstTokenId, sampleUri);
+      expect(await this.token.getTokenURI(firstTokenId)).to.be.equal(sampleUri);
       expect(await this.token.tokenURI(firstTokenId)).to.be.equal(sampleUri);
+    });
+
+    it('reverts when getting for non existent token id', async function () {
+      await expectRevert(
+        this.token.getTokenURI(nonExistentTokenId), 'ERC721URIStorage: URI get of nonexistent token',
+      );
     });
 
     it('reverts when setting for non existent token id', async function () {
@@ -55,6 +62,7 @@ contract('ERC721URIStorage', function (accounts) {
       await this.token.setBaseURI(baseURI);
       await this.token.setTokenURI(firstTokenId, sampleUri);
 
+      expect(await this.token.getTokenURI(firstTokenId)).to.be.equal(sampleUri);
       expect(await this.token.tokenURI(firstTokenId)).to.be.equal(baseURI + sampleUri);
     });
 
