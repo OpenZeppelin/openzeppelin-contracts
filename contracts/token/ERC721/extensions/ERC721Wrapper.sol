@@ -22,20 +22,24 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
     }
 
     /**
-     * @dev Allow a user to deposit an underlying token and mint the corresponding tokenId.
+     * @dev Allow a user to deposit an underlying token and mint the corresponding tokenIds.
      */
-    function depositFor(address account, uint256 tokenId) public virtual returns (bool) {
-        underlying.safeTransferFrom(_msgSender(), address(this), tokenId);
-        _safeMint(account, tokenId);
+    function depositFor(address account, uint256[] memory tokenIds) public virtual returns (bool) {
+        for (uint256 i = 0; i < tokenIds.length; ++i) {
+            underlying.safeTransferFrom(_msgSender(), address(this), tokenIds[i]);
+            _safeMint(account, tokenIds[i]);
+        }
         return true;
     }
 
     /**
      * @dev Allow a user to burn a wrapped token and withdraw the corresponding tokenId of the underlying token.
      */
-    function withdrawTo(address account, uint256 tokenId) public virtual returns (bool) {
-        _burn(tokenId);
-        underlying.safeTransferFrom(address(this), account, tokenId);
+    function withdrawTo(address account, uint256[] memory tokenIds) public virtual returns (bool) {
+        for (uint256 i = 0; i < tokenIds.length; ++i) {
+            _burn(tokenIds[i]);
+            underlying.safeTransferFrom(address(this), account, tokenIds[i]);
+        }
         return true;
     }
 
