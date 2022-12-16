@@ -283,14 +283,11 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * Emits a {Transfer} event.
      */
-    function _mint(address to, uint256 tokenId) internal virtual {
+    function _mint(address to, uint256 tokenId) internal {
         require(to != address(0), "ERC721: mint to the zero address");
         require(!_exists(tokenId), "ERC721: token already minted");
 
-        _beforeTokenTransfer(address(0), to, tokenId, 1);
-
-        // Check that tokenId was not minted by `_beforeTokenTransfer` hook
-        require(!_exists(tokenId), "ERC721: token already minted");
+        _update(address(0), to, tokenId, 1);
 
         unchecked {
             // Will not overflow unless all 2**256 token ids are minted to the same owner.
@@ -301,10 +298,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         }
 
         _owners[tokenId] = to;
-
-        emit Transfer(address(0), to, tokenId);
-
-        _afterTokenTransfer(address(0), to, tokenId, 1);
     }
 
     /**
@@ -318,13 +311,10 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      *
      * Emits a {Transfer} event.
      */
-    function _burn(uint256 tokenId) internal virtual {
+    function _burn(uint256 tokenId) internal {
         address owner = ERC721.ownerOf(tokenId);
 
-        _beforeTokenTransfer(owner, address(0), tokenId, 1);
-
-        // Update ownership in case tokenId was transferred by `_beforeTokenTransfer` hook
-        owner = ERC721.ownerOf(tokenId);
+        _update(owner, address(0), tokenId, 1);
 
         // Clear approvals
         delete _tokenApprovals[tokenId];
@@ -336,9 +326,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         }
         delete _owners[tokenId];
 
-        emit Transfer(owner, address(0), tokenId);
-
-        _afterTokenTransfer(owner, address(0), tokenId, 1);
     }
 
     /**
@@ -356,32 +343,60 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address from,
         address to,
         uint256 tokenId
-    ) internal virtual {
+    ) internal {
         require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
         require(to != address(0), "ERC721: transfer to the zero address");
 
-        _beforeTokenTransfer(from, to, tokenId, 1);
+        _update(from, to, tokenId, 1);
 
-        // Check that tokenId was not transferred by `_beforeTokenTransfer` hook
-        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
+    }
 
-        // Clear approvals from the previous owner
-        delete _tokenApprovals[tokenId];
-
-        unchecked {
-            // `_balances[from]` cannot overflow for the same reason as described in `_burn`:
-            // `from`'s balance is the number of token held, which is at least one before the current
-            // transfer.
-            // `_balances[to]` could overflow in the conditions described in `_mint`. That would require
-            // all 2**256 token ids to be minted, which in practice is impossible.
-            _balances[from] -= 1;
-            _balances[to] += 1;
+    /**
+     * @dev Transfers `tokenId` from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
+     * the zero address. All customizations to transfers, mints, and burns should be done by overriding this function.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _update(
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 batchSize
+    ) internal virtual {
+        if (batchSize > 1) {
+            if (from != address(0)) {
+                _balances[from] -= batchSize;
+            }
+            if (to != address(0)) {
+                _balances[to] += batchSize;
+            }
         }
+
+        if(from != address(0)) {
+            // Clear approvals from the previous owner
+            delete _tokenApprovals[tokenId];
+
+            unchecked {
+                // Cannot overflow, as that would require more tokens to be burned/transferred
+                // out than the owner initially received through minting and transferring in.
+                _balances[from] -= 1;
+            }
+        }
+
+        if(to != address(0)) {
+            unchecked {
+               // Will not overflow unless all 2**256 token ids are minted to the same owner.
+                // Given that tokens are minted one by one, it is impossible in practice that
+                // this ever happens. Might change if we allow batch minting.
+                // The ERC fails to describe this case.
+                _balances[to] += 1;
+            }
+        }
+
         _owners[tokenId] = to;
 
         emit Transfer(from, to, tokenId);
 
-        _afterTokenTransfer(from, to, tokenId, 1);
     }
 
     /**
@@ -450,54 +465,4 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         }
     }
 
-    /**
-     * @dev Hook that is called before any token transfer. This includes minting and burning. If {ERC721Consecutive} is
-     * used, the hook may be called as part of a consecutive (batch) mint, as indicated by `batchSize` greater than 1.
-     *
-     * Calling conditions:
-     *
-     * - When `from` and `to` are both non-zero, ``from``'s tokens will be transferred to `to`.
-     * - When `from` is zero, the tokens will be minted for `to`.
-     * - When `to` is zero, ``from``'s tokens will be burned.
-     * - `from` and `to` are never both zero.
-     * - `batchSize` is non-zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256, /* firstTokenId */
-        uint256 batchSize
-    ) internal virtual {
-        if (batchSize > 1) {
-            if (from != address(0)) {
-                _balances[from] -= batchSize;
-            }
-            if (to != address(0)) {
-                _balances[to] += batchSize;
-            }
-        }
-    }
-
-    /**
-     * @dev Hook that is called after any token transfer. This includes minting and burning. If {ERC721Consecutive} is
-     * used, the hook may be called as part of a consecutive (batch) mint, as indicated by `batchSize` greater than 1.
-     *
-     * Calling conditions:
-     *
-     * - When `from` and `to` are both non-zero, ``from``'s tokens were transferred to `to`.
-     * - When `from` is zero, the tokens were minted for `to`.
-     * - When `to` is zero, ``from``'s tokens were burned.
-     * - `from` and `to` are never both zero.
-     * - `batchSize` is non-zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual {}
 }
