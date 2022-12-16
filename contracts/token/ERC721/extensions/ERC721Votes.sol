@@ -17,18 +17,18 @@ import "../../../governance/utils/Votes.sol";
  */
 abstract contract ERC721Votes is ERC721, Votes {
     /**
-     * @dev See {ERC721-_afterTokenTransfer}. Adjusts votes when tokens are transferred.
+     * @dev See {ERC721-_update}. Adjusts votes when tokens are transferred.
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _afterTokenTransfer(
+    function _update(
         address from,
         address to,
         uint256 firstTokenId,
         uint256 batchSize
     ) internal virtual override {
+        super._update(from, to, firstTokenId, batchSize);
         _transferVotingUnits(from, to, batchSize);
-        super._afterTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
     /**
