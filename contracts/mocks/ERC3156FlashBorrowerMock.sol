@@ -16,19 +16,15 @@ import "../utils/Address.sol";
 contract ERC3156FlashBorrowerMock is IERC3156FlashBorrower {
     bytes32 internal constant _RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
-    uint256 constant _ENABLEAPPROVE_FALSE = 1;
-    uint256 constant _ENABLEAPPROVE_TRUE = 2;
-    uint256 immutable _enableApprove;
-    uint256 constant _ENABLERETURN_FALSE = 1;
-    uint256 constant _ENABLERETURN_TRUE = 2;
-    uint256 immutable _enableReturn;
+    bool immutable _enableApprove;
+    bool immutable _enableReturn;
 
     event BalanceOf(address token, address account, uint256 value);
     event TotalSupply(address token, uint256 value);
 
     constructor(bool enableReturn, bool enableApprove) {
-        _enableApprove = enableApprove ? _ENABLEAPPROVE_TRUE : _ENABLEAPPROVE_FALSE;
-        _enableReturn = enableReturn ? _ENABLERETURN_TRUE : _ENABLERETURN_FALSE;
+        _enableApprove = enableApprove;
+        _enableReturn = enableReturn;
     }
 
     function onFlashLoan(
@@ -48,10 +44,10 @@ contract ERC3156FlashBorrowerMock is IERC3156FlashBorrower {
             Address.functionCall(token, data);
         }
 
-        if (_enableApprove == _ENABLEAPPROVE_TRUE) {
+        if (_enableApprove) {
             IERC20(token).approve(token, amount + fee);
         }
 
-        return _enableReturn == _ENABLERETURN_TRUE ? _RETURN_VALUE : bytes32(0);
+        return _enableReturn ? _RETURN_VALUE : bytes32(0);
     }
 }
