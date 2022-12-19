@@ -38,12 +38,13 @@ For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have t
  * `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
  * `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
  * `Initializable`: optimize `_disableInitializers` by using `!=` instead of `<`. ([#3787](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3787))
+ * `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
 
 ### Deprecations
 
  * `ERC20Permit`: Added the file `IERC20Permit.sol` and `ERC20Permit.sol` and deprecated `draft-IERC20Permit.sol` and `draft-ERC20Permit.sol` since [EIP-2612](https://eips.ethereum.org/EIPS/eip-2612) is no longer a Draft. Developers are encouraged to update their imports. ([#3793](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3793))
 
-## Unreleased
+## 4.8.0 (2022-11-08)
 
  * `TimelockController`: Added a new `admin` constructor parameter that is assigned the admin role instead of the deployer account. ([#3722](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3722))
  * `Initializable`: add internal functions `_getInitializedVersion` and `_isInitializing` ([#3598](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3598))
@@ -78,7 +79,6 @@ For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have t
  * `Math` and `SignedMath`: optimize function `max` by using `>` instead of `>=`. ([#3679](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3679))
  * `Math`: Add `log2`, `log10` and `log256`. ([#3670](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3670))
  * Arbitrum: Update the vendored arbitrum contracts to match the nitro upgrade. ([#3692](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3692))
- * `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
 
 ### Breaking changes
 
@@ -118,6 +118,18 @@ For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have t
 ERC-721 integrators that interpret contract state from events should make sure that they implement the clearing of approval that is implicit in every transfer according to the EIP. Previous versions of OpenZeppelin Contracts emitted an explicit `Approval` event even though it was not required by the specification, and this is no longer the case.
 
 With the new `ERC721Consecutive` extension, the internal workings of `ERC721` are slightly changed. Custom extensions to ERC721 should be reviewed to ensure they remain correct. The internal functions that should be considered are `_ownerOf` (new), `_beforeTokenTransfer`, and `_afterTokenTransfer`.
+
+### ERC-4626 Upgrade Note
+
+Existing `ERC4626` contracts that are upgraded to 4.8 must initialize a new variable that holds the vault token decimals. The recommended way to do this is to use a [reinitializer]:
+
+[reinitializer]: https://docs.openzeppelin.com/contracts/4.x/api/proxy#Initializable-reinitializer-uint8-
+
+```solidity
+function migrateToV48() public reinitializer(2) {
+    __ERC4626_init(IERC20Upgradeable(asset()));
+}
+```
 
 ## 4.7.3
 

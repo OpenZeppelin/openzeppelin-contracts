@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/extensions/ERC721Consecutive.sol)
 
 pragma solidity ^0.8.0;
 
@@ -89,16 +90,17 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             require(to != address(0), "ERC721Consecutive: mint to the zero address");
             require(batchSize <= _maxBatchSize(), "ERC721Consecutive: batch too large");
 
-            // hook before
-            _beforeTokenTransfer(address(0), to, first, batchSize);
+            if (batchSize > 1) {
+                if (to != address(0)) {
+                    _balances[to] += batchSize;
+                }
+            }
 
             // push an ownership checkpoint & emit event
             uint96 last = first + batchSize - 1;
             _sequentialOwnership.push(last, uint160(to));
             emit ConsecutiveTransfer(first, last, address(0), to);
 
-            // hook after
-            _afterTokenTransfer(address(0), to, first, batchSize);
         }
 
         return first;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (utils/math/Math.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/Math.sol)
 
 pragma solidity ^0.8.0;
 
@@ -75,7 +75,7 @@ library Math {
             }
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
-            require(denominator > prod1);
+            require(denominator > prod1, "Math: mulDiv overflow");
 
             ///////////////////////////////////////////////
             // 512 by 256 division.
