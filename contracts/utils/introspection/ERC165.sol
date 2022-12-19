@@ -16,7 +16,6 @@ import "./IERC165.sol";
  *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
  * }
  * ```
- *
  */
 abstract contract ERC165 is IERC165 {
     /**
