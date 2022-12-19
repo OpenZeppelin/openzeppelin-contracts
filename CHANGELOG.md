@@ -35,6 +35,7 @@ For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have t
 ```
 
 #### ERC165Storage
+
 As a result of removing the ERC165Storage contracts, users wanting to indicate their support for interfaces should do so by overriding the `supportsInterface` function as seen below:
 
 ```
