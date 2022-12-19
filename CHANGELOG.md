@@ -39,9 +39,9 @@ For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have t
 As a result of removing the ERC165Storage contracts, users wanting to indicate their support for interfaces should do so by overriding the `supportsInterface` function as seen below:
 
 ```solidity
- function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
- }
+}
 ```
 
 ## Unreleased
