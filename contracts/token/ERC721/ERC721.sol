@@ -288,16 +288,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         require(!_exists(tokenId), "ERC721: token already minted");
 
         _update(address(0), to, tokenId, 1);
-
-        unchecked {
-            // Will not overflow unless all 2**256 token ids are minted to the same owner.
-            // Given that tokens are minted one by one, it is impossible in practice that
-            // this ever happens. Might change if we allow batch minting.
-            // The ERC fails to describe this case.
-            _balances[to] += 1;
-        }
-
-        _owners[tokenId] = to;
     }
 
     /**
@@ -315,16 +305,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address owner = ERC721.ownerOf(tokenId);
 
         _update(owner, address(0), tokenId, 1);
-
-        // Clear approvals
-        delete _tokenApprovals[tokenId];
-
-        unchecked {
-            // Cannot overflow, as that would require more tokens to be burned/transferred
-            // out than the owner initially received through minting and transferring in.
-            _balances[owner] -= 1;
-        }
-        delete _owners[tokenId];
 
     }
 
@@ -361,7 +341,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address from,
         address to,
         uint256 tokenId,
-        uint256 batchSize
+        uint256 batchSize 
     ) internal virtual {
         if (batchSize > 1) {
             if (from != address(0)) {
@@ -370,32 +350,32 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
             if (to != address(0)) {
                 _balances[to] += batchSize;
             }
-        }
+        } else {
+            if(from != address(0)) {
+                // Clear approvals from the previous owner
+                delete _tokenApprovals[tokenId];
 
-        if(from != address(0)) {
-            // Clear approvals from the previous owner
-            delete _tokenApprovals[tokenId];
-
-            unchecked {
-                // Cannot overflow, as that would require more tokens to be burned/transferred
-                // out than the owner initially received through minting and transferring in.
-                _balances[from] -= 1;
+                unchecked {
+                    // Cannot overflow, as that would require more tokens to be burned/transferred
+                    // out than the owner initially received through minting and transferring in.
+                    _balances[from] -= 1;
+                }
             }
-        }
 
-        if(to != address(0)) {
-            unchecked {
-               // Will not overflow unless all 2**256 token ids are minted to the same owner.
-                // Given that tokens are minted one by one, it is impossible in practice that
-                // this ever happens. Might change if we allow batch minting.
-                // The ERC fails to describe this case.
-                _balances[to] += 1;
+            if(to != address(0)) {
+                unchecked {
+                // Will not overflow unless all 2**256 token ids are minted to the same owner.
+                    // Given that tokens are minted one by one, it is impossible in practice that
+                    // this ever happens. Might change if we allow batch minting.
+                    // The ERC fails to describe this case.
+                    _balances[to] += 1;
+                }
             }
+
+            _owners[tokenId] = to;
+
+            emit Transfer(from, to, tokenId);
         }
-
-        _owners[tokenId] = to;
-
-        emit Transfer(from, to, tokenId);
 
     }
 

@@ -19,8 +19,7 @@ import "../../../utils/structs/BitMaps.sol";
  * regained after construction. During construction, only batch minting is allowed.
  *
  * IMPORTANT: This extension bypasses the hooks {_beforeTokenTransfer} and {_afterTokenTransfer} for tokens minted in
- * batch. When using this extension, you should consider the {_beforeConsecutiveTokenTransfer} and
- * {_afterConsecutiveTokenTransfer} hooks in addition to {_beforeTokenTransfer} and {_afterTokenTransfer}.
+ * batch.
  *
  * IMPORTANT: When overriding {_afterTokenTransfer}, be careful about call ordering. {ownerOf} may return invalid
  * values during the {_afterTokenTransfer} execution if the super call is not called first. To be safe, execute the
@@ -89,16 +88,12 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             require(to != address(0), "ERC721Consecutive: mint to the zero address");
             require(batchSize <= _maxBatchSize(), "ERC721Consecutive: batch too large");
 
-            // hook before
-            _beforeTokenTransfer(address(0), to, first, batchSize);
-
             // push an ownership checkpoint & emit event
             uint96 last = first + batchSize - 1;
             _sequentialOwnership.push(last, uint160(to));
             emit ConsecutiveTransfer(first, last, address(0), to);
 
-            // hook after
-            _afterTokenTransfer(address(0), to, first, batchSize);
+            _update(address(0), to, first, batchSize);//TODO evaluate if this would be better in the update override.
         }
 
         return first;
@@ -116,14 +111,15 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     }
 
     /**
-     * @dev See {ERC721-_afterTokenTransfer}. Burning of tokens that have been sequentially minted must be explicit.
+     * @dev See {ERC721-_update}. Burning of tokens that have been sequentially minted must be explicit.
      */
-    function _afterTokenTransfer(
+    function _update(
         address from,
         address to,
         uint256 firstTokenId,
         uint256 batchSize
     ) internal virtual override {
+        super._update(from, to, firstTokenId, batchSize);
         if (
             to == address(0) && // if we burn
             firstTokenId < _totalConsecutiveSupply() && // and the tokenId was minted in a batch
@@ -132,7 +128,6 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             require(batchSize == 1, "ERC721Consecutive: batch burn not supported");
             _sequentialBurn.set(firstTokenId);
         }
-        super._afterTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
     function _totalConsecutiveSupply() private view returns (uint96) {
