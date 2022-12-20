@@ -148,56 +148,14 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev Transfers `amount` tokens of token type `id` from `from` to `to`. Will mint (or burn) if `from` (or `to`) is the zero address.
      *
-     * Emits a {TransferSingle} event.
-     *
-     * Requirements:
-     *
-     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
-     * acceptance magic value.
-     */
-    function _update(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) internal virtual {
-        address operator = _msgSender();
-        uint256 fromBalance = _balances[id][from];
-
-        if (to == address(0)) {
-            require(from != address(0), "ERC1155: burn from the zero address");
-            require(fromBalance >= amount, "ERC1155: burn amount exceeds balance");
-        } else if (from == address(0)) {
-            require(to != address(0), "ERC1155: mint to the zero address");
-        } else {
-            require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
-        }
-
-        if (from != address(0)) {
-            unchecked {
-                _balances[id][from] -= amount;
-            }
-        }
-        if (to != address(0)) {
-            _balances[id][to] += amount;
-            _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
-        }
-
-        emit TransferSingle(operator, from, to, id, amount);
-    }
-
-    /**
-     * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {_update}.
-     *
-     * Emits a {TransferBatch} event.
+     * Emits a {TransferSingle} event if only one transfer is done, and {TransferBatch} event for multiple transfer operations.
      *
      * Requirements:
      *
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
      * acceptance magic value.
      */
-    function _updateBatch(
+    function _update(
         address from,
         address to,
         uint256[] memory ids,
@@ -214,6 +172,12 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
             uint256 fromBalance = _balances[id][from];
 
+            if (to == address(0)) {
+                require(from != address(0), "ERC1155: burn from the zero address");
+            } else if (from == address(0)) {
+                require(to != address(0), "ERC1155: mint to the zero address");
+            }
+
             if (from != address(0)) {
                 require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
                 unchecked {
@@ -225,10 +189,16 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
                 _balances[id][to] += amount;
             }
         }
-
-        emit TransferBatch(operator, from, to, ids, amounts);
-        if (to != address(0)) {
-            _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, amounts, data);
+        if (ids.length == 1) {
+            emit TransferSingle(operator, from, to, ids[0], amounts[0]);
+            if (to != address(0)) {
+                _doSafeTransferAcceptanceCheck(operator, from, to, ids[0], amounts[0], data);
+            }
+        } else {
+            emit TransferBatch(operator, from, to, ids, amounts);
+            if (to != address(0)) {
+                _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, amounts, data);
+            }
         }
     }
 
@@ -252,7 +222,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         bytes memory data
     ) internal virtual {
         require(to != address(0), "ERC1155: transfer to the zero address");
-        _update(from, to, id, amount, data);
+        uint256[] memory ids = _asSingletonArray(id);
+        uint256[] memory amounts = _asSingletonArray(amount);
+        _update(from, to, ids, amounts, data);
     }
 
     /**
@@ -273,7 +245,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         bytes memory data
     ) internal virtual {
         require(to != address(0), "ERC1155: transfer to the zero address");
-        _updateBatch(from, to, ids, amounts, data);
+        _update(from, to, ids, amounts, data);
     }
 
     /**
@@ -317,7 +289,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         bytes memory data
     ) internal virtual {
         require(to != address(0), "ERC1155: mint to the zero address");
-        _update(address(0), to, id, amount, data);
+        uint256[] memory ids = _asSingletonArray(id);
+        uint256[] memory amounts = _asSingletonArray(amount);
+        _update(address(0), to, ids, amounts, data);
     }
 
     /**
@@ -338,7 +312,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         bytes memory data
     ) internal {
         require(to != address(0), "ERC1155: mint to the zero address");
-        _updateBatch(address(0), to, ids, amounts, data);
+        _update(address(0), to, ids, amounts, data);
     }
 
     /**
@@ -357,7 +331,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256 amount
     ) internal {
         require(from != address(0), "ERC1155: burn from the zero address");
-        _update(from, address(0), id, amount, "");
+        uint256[] memory ids = _asSingletonArray(id);
+        uint256[] memory amounts = _asSingletonArray(amount);
+        _update(from, address(0), ids, amounts, "");
     }
 
     /**
@@ -375,7 +351,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory amounts
     ) internal {
         require(from != address(0), "ERC1155: burn from the zero address");
-        _updateBatch(from, address(0), ids, amounts, "");
+        _update(from, address(0), ids, amounts, "");
     }
 
     /**
