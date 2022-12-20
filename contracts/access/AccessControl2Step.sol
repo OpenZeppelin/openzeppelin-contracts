@@ -33,8 +33,8 @@ import "./AccessControl.sol";
  * {revokeRole} functions. Each role has an associated admin role, and only
  * accounts that have a role's admin role can call {grantRole} and {revokeRole}.
  *
- * Roles can be transferred dynamically via the {transferRole} and
- * {grantTransferRole} functions. An event is emitted for the admin hash of the
+ * Roles can be transferred dynamically via the {transferAccess} and
+ * {grantAccessTransfer} functions. An event is emitted for the role admin hash of the
  * particular role and who so ever is the admin of the role can revoke the access
  * from the user who initiated this transaction and grant it to other given address
  *
