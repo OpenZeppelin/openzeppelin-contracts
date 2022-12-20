@@ -46,6 +46,7 @@
  * `Math` and `SignedMath`: optimize function `max` by using `>` instead of `>=`. ([#3679](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3679))
  * `Math`: Add `log2`, `log10` and `log256`. ([#3670](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3670))
  * Arbitrum: Update the vendored arbitrum contracts to match the nitro upgrade. ([#3692](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3692))
+ * `AccessControl2Step`: extension of `Accesscontrol` that makes the access roles transfers a two step process. ([#3891](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3891))
 
 ### Breaking changes
 
