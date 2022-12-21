@@ -55,13 +55,13 @@ contract ERC721ConsecutiveMock is ERC721Burnable, ERC721Consecutive, ERC721Pausa
     function _ownerOf(uint256 tokenId) internal view virtual override(ERC721, ERC721Consecutive) returns (address) {
         return super._ownerOf(tokenId);
     }
-    
+
     function _update(
         address from,
         address to,
         uint256 firstTokenId,
         uint256 batchSize
-    ) internal virtual override (ERC721, ERC721Consecutive, ERC721Pausable, ERC721Votes) {
+    ) internal virtual override(ERC721, ERC721Consecutive, ERC721Pausable, ERC721Votes) {
         super._update(from, to, firstTokenId, batchSize);
     }
 }
