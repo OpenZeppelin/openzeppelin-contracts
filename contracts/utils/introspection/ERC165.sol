@@ -16,8 +16,6 @@ import "./IERC165.sol";
  *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
  * }
  * ```
- *
- * Alternatively, {ERC165Storage} provides an easier to use but more expensive implementation.
  */
 abstract contract ERC165 is IERC165 {
     /**

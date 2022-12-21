@@ -21,7 +21,7 @@ const Delegation = [
 ];
 
 contract('ERC20Votes', function (accounts) {
-  const [ holder, recipient, holderDelegatee, recipientDelegatee, other1, other2 ] = accounts;
+  const [ holder, recipient, holderDelegatee, other1, other2 ] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
