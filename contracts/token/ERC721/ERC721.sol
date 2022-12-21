@@ -305,7 +305,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address owner = ERC721.ownerOf(tokenId);
 
         _update(owner, address(0), tokenId, 1);
-
     }
 
     /**
@@ -328,7 +327,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         require(to != address(0), "ERC721: transfer to the zero address");
 
         _update(from, to, tokenId, 1);
-
     }
 
     /**
@@ -341,7 +339,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         address from,
         address to,
         uint256 tokenId,
-        uint256 batchSize 
+        uint256 batchSize
     ) internal virtual {
         if (batchSize > 1) {
             if (from != address(0)) {
@@ -351,7 +349,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
                 _balances[to] += batchSize;
             }
         } else {
-            if(from != address(0)) {
+            if (from != address(0)) {
                 // Clear approvals from the previous owner
                 delete _tokenApprovals[tokenId];
 
@@ -362,9 +360,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
                 }
             }
 
-            if(to != address(0)) {
+            if (to != address(0)) {
                 unchecked {
-                // Will not overflow unless all 2**256 token ids are minted to the same owner.
+                    // Will not overflow unless all 2**256 token ids are minted to the same owner.
                     // Given that tokens are minted one by one, it is impossible in practice that
                     // this ever happens. Might change if we allow batch minting.
                     // The ERC fails to describe this case.
@@ -376,7 +374,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
             emit Transfer(from, to, tokenId);
         }
-
     }
 
     /**
@@ -444,5 +441,4 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
             return true;
         }
     }
-
 }

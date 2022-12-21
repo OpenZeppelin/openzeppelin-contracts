@@ -18,13 +18,6 @@ import "../../../utils/structs/BitMaps.sol";
  * Using this extension removes the ability to mint single tokens during contract construction. This ability is
  * regained after construction. During construction, only batch minting is allowed.
  *
- * IMPORTANT: This extension bypasses the hooks {_beforeTokenTransfer} and {_afterTokenTransfer} for tokens minted in
- * batch.
- *
- * IMPORTANT: When overriding {_afterTokenTransfer}, be careful about call ordering. {ownerOf} may return invalid
- * values during the {_afterTokenTransfer} execution if the super call is not called first. To be safe, execute the
- * super call before your custom logic.
- *
  * _Available since v4.8._
  */
 abstract contract ERC721Consecutive is IERC2309, ERC721 {
@@ -93,25 +86,14 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             _sequentialOwnership.push(last, uint160(to));
             emit ConsecutiveTransfer(first, last, address(0), to);
 
-            _update(address(0), to, first, batchSize);//TODO evaluate if this would be better in the update override.
+            _update(address(0), to, first, batchSize);
         }
 
         return first;
     }
 
     /**
-     * @dev See {ERC721-_mint}. Override version that restricts normal minting to after construction.
-     *
-     * Warning: Using {ERC721Consecutive} prevents using {_mint} during construction in favor of {_mintConsecutive}.
-     * After construction, {_mintConsecutive} is no longer available and {_mint} becomes available.
-     */
-    function _mint(address to, uint256 tokenId) internal virtual override {
-        require(Address.isContract(address(this)), "ERC721Consecutive: can't mint during construction");
-        super._mint(to, tokenId);
-    }
-
-    /**
-     * @dev See {ERC721-_update}. Burning of tokens that have been sequentially minted must be explicit.
+     * @dev See {ERC721-_update}. Burning of tokens that have been sequentially minted must be explicit. Restricts normal minting during construction.
      */
     function _update(
         address from,
@@ -119,6 +101,11 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         uint256 firstTokenId,
         uint256 batchSize
     ) internal virtual override {
+        if (from == address(0) && batchSize == 1) {
+            // Using {ERC721Consecutive} prevents using {_mint} during construction in favor of {_mintConsecutive}.
+            // After construction, {_mintConsecutive} is no longer available and {_mint} becomes available.
+            require(Address.isContract(address(this)), "ERC721Consecutive: can't mint during construction");
+        }
         super._update(from, to, firstTokenId, batchSize);
         if (
             to == address(0) && // if we burn

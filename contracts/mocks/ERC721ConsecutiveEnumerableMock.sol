@@ -31,25 +31,12 @@ contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable 
         return super._ownerOf(tokenId);
     }
 
-    function _mint(address to, uint256 tokenId) internal virtual override(ERC721, ERC721Consecutive) {
-        super._mint(to, tokenId);
-    }
-
-    function _beforeTokenTransfer(
+    function _update(
         address from,
         address to,
         uint256 firstTokenId,
         uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Enumerable) {
-        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
-    }
-
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Consecutive) {
-        super._afterTokenTransfer(from, to, firstTokenId, batchSize);
+    ) internal virtual override (ERC721Consecutive, ERC721Enumerable) {
+        super._update(from, to, firstTokenId, batchSize);
     }
 }

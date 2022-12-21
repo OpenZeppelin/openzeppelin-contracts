@@ -23,7 +23,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
     'ERC721',
   ]);
 
-  context.only('with minted tokens', function () {
+  context('with minted tokens', function () {
     beforeEach(async function () {
       await this.token.mint(owner, firstTokenId);
       await this.token.mint(owner, secondTokenId);
@@ -644,7 +644,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
     });
   });
 
-  describe.only('_mint(address, uint256)', function () {
+  describe('_mint(address, uint256)', function () {
     it('reverts with a null destination address', async function () {
       await expectRevert(
         this.token.mint(ZERO_ADDRESS, firstTokenId), 'ERC721: mint to the zero address',
@@ -671,7 +671,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
     });
   });
 
-  describe.only('_burn', function () {
+  describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
       await expectRevert(
         this.token.burn(nonExistentTokenId), 'ERC721: invalid token ID',
