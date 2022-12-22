@@ -1,105 +1,97 @@
-Design Guidelines
-=======
+# Engineering Guidelines
 
-These are some global design goals in OpenZeppelin Contracts.
+## Testing
 
-#### D0 - Security in Depth
-We strive to provide secure, tested, audited code. To achieve this, we need to match intention with function. Thus, documentation, code clarity, community review and security discussions are fundamental.
+Code must be thoroughly tested with unit tests, and the tests must be of good quality.
 
-#### D1 - Simple and Modular
-Simpler code means easier audits, and better understanding of what each component does. We look for small files, small contracts, and small functions. If you can separate a contract into two independent functionalities you should probably do it.
+We defer to the [Moloch Testing Guide](https://github.com/MolochVentures/moloch/tree/master/test#readme) for specific recommendations, though not all of it is relevant here. Quoting from its introduction:
 
-#### D2 - Naming Matters
+> Tests should be written, not only to verify correctness of the target code, but to be comprehensively reviewed by other programmers. Therefore, for mission critical Solidity code, the quality of the tests are just as important (if not more so) than the code itself, and should be written with the highest standards of clarity and elegance.
 
-We take our time with picking names. Code is going to be written once, and read hundreds of times. Renaming for clarity is encouraged.
+Every addition or change to the code must come with relevant and comprehensive tests, except refactors, which should avoid simultaneous changes to tests.
 
-#### D3 - Tests
+The test suite should run automatically for every change in the repository, and all tests must pass before a pull request is merged. Flaky tests are not acceptable.
 
-Write tests for all your code. We encourage Test Driven Development so we know when our code is right. Even though not all code in the repository is tested at the moment, we aim to test every line of code in the future.
+The test suite must be analyzed for coverage and kept as close to 100% as possible, which should be enforced in pull requests.
 
-#### D4 - Check preconditions and post-conditions
+For some functionality unit tests may be insufficient and complementary techniques should be used:
 
-A very important way to prevent vulnerabilities is to catch a contract’s inconsistent state as early as possible. This is why we want functions to check pre- and post-conditions for executing its logic. When writing code, ask yourself what you are expecting to be true before and after the function runs, and express it in code.
+1. Property-based tests (aka. fuzzing) for math-heavy code.
+2. Formal verification for state machines.
 
-#### D5 - Code Consistency
+## Peer review
 
-Consistency on the way classes are used is paramount to an easier understanding of the library. The codebase should be as unified as possible. Read existing code and get inspired before you write your own. Follow the style guidelines. Don’t hesitate to ask for help on how to best write a specific piece of code.
+All changes must be submitted through pull requests and go through peer code review.
 
-#### D6 - Regular Audits
-Following good programming practices is a way to reduce the risk of vulnerabilities, but professional code audits are still needed. We will perform regular code audits on major releases, and hire security professionals to provide independent review.
+The review must be approached by the reviewer in a similar way as if it was an audit of the code in question (but importantly it is not a substitute for and should not be considered an audit).
 
-# Style Guidelines
+Reviewers should enforce code and project guidelines.
 
-The design guidelines have quite a high abstraction level. These style guidelines are more concrete and easier to apply, and also more opinionated. We value clean code and consistency, and those are prerequisites for us to include new code in the repository. Before proposing a change, please read these guidelines and take some time to familiarize yourself with the style of the existing codebase.
+External contributions must be reviewed separately by multiple maintainers.
 
-## Solidity code
+## Code style
 
-In order to be consistent with all the other Solidity projects, we follow the
-[official recommendations documented in the Solidity style guide](http://solidity.readthedocs.io/en/latest/style-guide.html).
+Solidity code should be written in a consistent format enforced by a linter, following the official [Solidity Style Guide](https://docs.soliditylang.org/en/latest/style-guide.html). See below for further [Solidity Conventions](#solidity-conventions).
 
-Any exception or additions specific to our project are documented below.
+The code should be simple and straightforward, prioritizing readability and understandability. Consistency and predictability should be maintained across the codebase.
 
-* Try to avoid acronyms and abbreviations.
+Sometimes these guidelines may be broken if they bring significant efficiency gains, and in these occasions comments should be added.
+
+Modularity should be pursued, but not at the cost of the above priorities.
+
+Naming should be seen as a priority, and should be systematic and clear.
+
+## Documentation
+
+For contributors, project guidelines and processes must be documented publicly.
+
+For users, features must be abundantly documented. Documentation should include answers to common questions, solutions to common problems, and recommendations for critical decisions that the user may face.
+
+All changes to the core codebase (excluding tests, auxiliary scripts, etc.) must be documented in a changelog, except for purely cosmetic or documentation changes.
+
+## Automation
+
+Automation should be used as much as possible to reduce the possibility of human error and forgetfulness.
+
+Automations that make use of sensitive credentials must use secure secret management, and must be strengthened against attacks such as [those on GitHub Actions worklows](https://github.com/nikitastupin/pwnhub).
+
+Some other examples of automation are:
+
+- Looking for common security vulnerabilities or errors in our code (eg. reentrancy analysis).
+- Keeping dependencies up to date and monitoring for vulnerable dependencies.
+
+# Solidity Conventions
+
+In addition to the official Solidity Style Guide we have a number of other conventions that must be followed.
 
 * All state variables should be private.
 
-* Private state variables should have an underscore prefix.
+* Internal or private state variables or functions should have an underscore prefix.
 
-    ```
-    contract TestContract {
+  ```
+  contract TestContract {
       uint256 private _privateVar;
       uint256 internal _internalVar;
-    }
-    ```
-
-* Parameters must not be prefixed with an underscore.
-
-    ```
-    function test(uint256 testParameter1, uint256 testParameter2) {
-    ...
-    }
-    ```
-
-* Internal and private functions should have an underscore prefix.
-
-    ```
-    function _testInternal() internal {
-      ...
-    }
-    ```
-
-    ```
-    function _testPrivate() private {
-      ...
-    }
-    ```
+      function _testInternal() internal { ... }
+      function _testPrivate() private { ... }
+  }
+  ```
 
 * Events should be emitted immediately after the state change that they
-  represent, and consequently they should be named in past tense.
+  represent, and should be named in the past tense.
 
-    ```
-    function _burn(address who, uint256 value) internal {
+  ```
+  function _burn(address who, uint256 value) internal {
       super._burn(who, value);
       emit TokensBurned(who, value);
-    }
-    ```
+  }
+  ```
 
   Some standards (e.g. ERC20) use present tense, and in those cases the
-  standard specification prevails.
+  standard specification is used.
   
 * Interface names should have a capital I prefix.
 
-    ```
-    interface IERC777 {
-    ```
-
-
-## Tests
-
-* Tests Must be Written Elegantly
-
-    Tests are a good way to show how to use the library, and maintaining them is extremely necessary. Don't write long tests, write helper functions to make them be as short and concise as possible (they should take just a few lines each), and use good variable names.
-
-* Tests Must not be Random
-
-    Inputs for tests should not be generated randomly. Accounts used to create test contracts are an exception, those can be random. Also, the type and structure of outputs should be checked.
+  ```
+  interface IERC777 {
+  ```
