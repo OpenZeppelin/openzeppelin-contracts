@@ -168,6 +168,16 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     );
   });
 
+  it('double voting is forbiden', async function () {
+    await this.helper.propose({ from: proposer });
+    await this.helper.waitForSnapshot();
+    await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+    await expectRevert(
+      this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
+      'GovernorCompatibilityBravo: vote already cast',
+    );
+  });
+
   it('with function selector and arguments', async function () {
     const target = this.receiver.address;
     this.helper.setProposal([
@@ -215,10 +225,10 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
   describe('should revert', function () {
     describe('on propose', function () {
-      it('if proposal doesnt meet proposalThreshold', async function () {
+      it('if proposal does not meet proposalThreshold', async function () {
         await expectRevert(
           this.helper.propose({ from: other }),
-          'GovernorCompatibilityBravo: proposer votes below proposal threshold',
+          'Governor: proposer votes below proposal threshold',
         );
       });
     });

@@ -1,0 +1,90 @@
+name: checks
+
+on:
+  push:
+    branches:
+      - master
+      - release-v*
+  pull_request: {}
+  workflow_dispatch: {}
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: npm run lint
+
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+      GAS: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Run tests and generate gas report
+        run: npm run test
+      - name: Check linearisation of the inheritance graph
+        run: npm run test:inheritance
+      - name: Check proceduraly generated contracts are up-to-date
+        if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+        run: npm run test:generation
+      - name: Compare gas costs
+        uses: ./.github/actions/gas-compare
+        with:
+          token: ${{ github.token }}
+
+  foundry-tests:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: Run tests
+        run: forge test -vv
+
+  coverage:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: npm run coverage
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+      - uses: codecov/codecov-action@v3
+
+  slither:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - uses: crytic/slither-action@v0.2.0
+
+  codespell:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run CodeSpell
+        uses: codespell-project/actions-codespell@v1.0
+        with:
+          check_filenames: true
+          skip: package-lock.json

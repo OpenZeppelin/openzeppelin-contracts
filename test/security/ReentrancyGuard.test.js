@@ -23,6 +23,14 @@ contract('ReentrancyGuard', function (accounts) {
       this.reentrancyMock.countAndCall(attacker.address), 'ReentrancyAttack: failed call');
   });
 
+  it('_reentrancyGuardEntered should be true when guarded', async function () {
+    await this.reentrancyMock.guardedCheckEntered();
+  });
+
+  it('_reentrancyGuardEntered should be false when unguarded', async function () {
+    await this.reentrancyMock.unguardedCheckNotEntered();
+  });
+
   // The following are more side-effects than intended behavior:
   // I put them here as documentation, and to monitor any changes
   // in the side-effects.

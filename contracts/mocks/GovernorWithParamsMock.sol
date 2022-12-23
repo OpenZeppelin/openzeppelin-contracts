@@ -26,7 +26,7 @@ contract GovernorWithParamsMock is GovernorVotes, GovernorCountingSimple {
         address account,
         uint256 blockNumber,
         bytes memory params
-    ) internal view virtual override(Governor, GovernorVotes) returns (uint256) {
+    ) internal view override(Governor, GovernorVotes) returns (uint256) {
         uint256 reduction = 0;
         // If the user provides parameters, we reduce the voting weight by the amount of the integer param
         if (params.length > 0) {
@@ -42,7 +42,7 @@ contract GovernorWithParamsMock is GovernorVotes, GovernorCountingSimple {
         uint8 support,
         uint256 weight,
         bytes memory params
-    ) internal virtual override(Governor, GovernorCountingSimple) {
+    ) internal override(Governor, GovernorCountingSimple) {
         if (params.length > 0) {
             (uint256 _uintParam, string memory _strParam) = abi.decode(params, (uint256, string));
             emit CountParams(_uintParam, _strParam);

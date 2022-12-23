@@ -2,17 +2,15 @@
 
 const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { MAX_UINT256, ZERO_ADDRESS, ZERO_BYTES32 } = constants;
+const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
-const { promisify } = require('util');
-const queue = promisify(setImmediate);
-
 const ERC20VotesMock = artifacts.require('ERC20VotesMock');
 
+const { batchInBlock } = require('../../../helpers/txpool');
 const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
 
 const Delegation = [
@@ -21,39 +19,8 @@ const Delegation = [
   { name: 'expiry', type: 'uint256' },
 ];
 
-async function countPendingTransactions() {
-  return parseInt(
-    await network.provider.send('eth_getBlockTransactionCountByNumber', ['pending'])
-  );
-}
-
-async function batchInBlock (txs) {
-  try {
-    // disable auto-mining
-    await network.provider.send('evm_setAutomine', [false]);
-    // send all transactions
-    const promises = txs.map(fn => fn());
-    // wait for node to have all pending transactions
-    while (txs.length > await countPendingTransactions()) {
-      await queue();
-    }
-    // mine one block
-    await network.provider.send('evm_mine');
-    // fetch receipts
-    const receipts = await Promise.all(promises);
-    // Sanity check, all tx should be in the same block
-    const minedBlocks = new Set(receipts.map(({ receipt }) => receipt.blockNumber));
-    expect(minedBlocks.size).to.equal(1);
-
-    return receipts;
-  } finally {
-    // enable auto-mining
-    await network.provider.send('evm_setAutomine', [true]);
-  }
-}
-
 contract('ERC20Votes', function (accounts) {
-  const [ holder, recipient, holderDelegatee, recipientDelegatee, other1, other2 ] = accounts;
+  const [ holder, recipient, holderDelegatee, other1, other2 ] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -87,6 +54,19 @@ contract('ERC20Votes', function (accounts) {
       this.token.mint(holder, amount),
       'ERC20Votes: total supply risks overflowing votes',
     );
+  });
+
+  it('recent checkpoints', async function () {
+    await this.token.delegate(holder, { from: holder });
+    for (let i = 0; i < 6; i++) {
+      await this.token.mint(holder, 1);
+    }
+    const block = await web3.eth.getBlockNumber();
+    expect(await this.token.numCheckpoints(holder)).to.be.bignumber.equal('6');
+    // recent
+    expect(await this.token.getPastVotes(holder, block - 1)).to.be.bignumber.equal('5');
+    // non-recent
+    expect(await this.token.getPastVotes(holder, block - 6)).to.be.bignumber.equal('0');
   });
 
   describe('set delegation', function () {
@@ -206,8 +186,8 @@ contract('ERC20Votes', function (accounts) {
           }),
         ));
 
-        const { logs } = await this.token.delegateBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
-        const { args } = logs.find(({ event }) => event == 'DelegateChanged');
+        const receipt = await this.token.delegateBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
+        const { args } = receipt.logs.find(({ event }) => event == 'DelegateChanged');
         expect(args.delegator).to.not.be.equal(delegatorAddress);
         expect(args.fromDelegate).to.be.equal(ZERO_ADDRESS);
         expect(args.toDelegate).to.be.equal(holderDelegatee);

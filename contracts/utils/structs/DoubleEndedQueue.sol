@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (last updated v4.6.0) (utils/structs/DoubleEndedQueue.sol)
 pragma solidity ^0.8.4;
 
 import "../math/SafeCast.sol";
@@ -24,7 +25,7 @@ library DoubleEndedQueue {
     error Empty();
 
     /**
-     * @dev An operation (e.g. {at}) could't be completed due to an index being out of bounds.
+     * @dev An operation (e.g. {at}) couldn't be completed due to an index being out of bounds.
      */
     error OutOfBounds();
 

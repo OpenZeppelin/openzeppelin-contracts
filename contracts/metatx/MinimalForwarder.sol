@@ -1,13 +1,18 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (metatx/MinimalForwarder.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (metatx/MinimalForwarder.sol)
 
 pragma solidity ^0.8.0;
 
 import "../utils/cryptography/ECDSA.sol";
-import "../utils/cryptography/draft-EIP712.sol";
+import "../utils/cryptography/EIP712.sol";
 
 /**
  * @dev Simple minimal forwarder to be used together with an ERC2771 compatible contract. See {ERC2771Context}.
+ *
+ * MinimalForwarder is mainly meant for testing, as it is missing features to be a good production-ready forwarder. This
+ * contract does not intend to have all the properties that are needed for a sound forwarding system. A fully
+ * functioning forwarding system with good properties requires more complexity. We suggest you look at other projects
+ * such as the GSN which do have the goal of building a system like that.
  */
 contract MinimalForwarder is EIP712 {
     using ECDSA for bytes32;
@@ -52,11 +57,12 @@ contract MinimalForwarder is EIP712 {
         );
 
         // Validate that the relayer has sent enough gas for the call.
-        // See https://ronan.eth.link/blog/ethereum-gas-dangers/
+        // See https://ronan.eth.limo/blog/ethereum-gas-dangers/
         if (gasleft() <= req.gas / 63) {
             // We explicitly trigger invalid opcode to consume all gas and bubble-up the effects, since
             // neither revert or assert consume all gas since Solidity 0.8.0
             // https://docs.soliditylang.org/en/v0.8.0/control-structures.html#panic-via-assert-and-error-via-require
+            /// @solidity memory-safe-assembly
             assembly {
                 invalid()
             }
