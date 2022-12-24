@@ -22,9 +22,5 @@ interface IERC1363Spender {
      * @return `bytes4(keccak256("onApprovalReceived(address,uint256,bytes)"))`
      *  unless throwing
      */
-    function onApprovalReceived(
-        address owner,
-        uint256 value,
-        bytes memory data
-    ) external returns (bytes4);
+    function onApprovalReceived(address owner, uint256 value, bytes memory data) external returns (bytes4);
 }

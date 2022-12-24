@@ -79,7 +79,7 @@
     "merkletreejs": "^0.2.13",
     "micromatch": "^4.0.2",
     "prettier": "^2.3.0",
-    "prettier-plugin-solidity": "^1.0.0-beta.16",
+    "prettier-plugin-solidity": "^1.1.0",
     "rimraf": "^3.0.2",
     "semver": "^7.3.5",
     "solhint": "^3.3.6",

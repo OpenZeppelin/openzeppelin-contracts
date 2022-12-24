@@ -18,12 +18,7 @@ contract ERC777Mock is Context, ERC777 {
         _mint(initialHolder, initialBalance, "", "");
     }
 
-    function mintInternal(
-        address to,
-        uint256 amount,
-        bytes memory userData,
-        bytes memory operatorData
-    ) public {
+    function mintInternal(address to, uint256 amount, bytes memory userData, bytes memory operatorData) public {
         _mint(to, amount, userData, operatorData);
     }
 
@@ -37,20 +32,11 @@ contract ERC777Mock is Context, ERC777 {
         _mint(to, amount, userData, operatorData, requireReceptionAck);
     }
 
-    function approveInternal(
-        address holder,
-        address spender,
-        uint256 value
-    ) public {
+    function approveInternal(address holder, address spender, uint256 value) public {
         _approve(holder, spender, value);
     }
 
-    function _beforeTokenTransfer(
-        address,
-        address,
-        address,
-        uint256
-    ) internal override {
+    function _beforeTokenTransfer(address, address, address, uint256) internal override {
         emit BeforeTokenTransfer();
     }
 }
