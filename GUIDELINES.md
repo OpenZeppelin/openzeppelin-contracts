@@ -19,16 +19,6 @@ For some functionality unit tests may be insufficient and complementary techniqu
 1. Property-based tests (aka. fuzzing) for math-heavy code.
 2. Formal verification for state machines.
 
-## Peer review
-
-All changes must be submitted through pull requests and go through peer code review.
-
-The review must be approached by the reviewer in a similar way as if it was an audit of the code in question (but importantly it is not a substitute for and should not be considered an audit).
-
-Reviewers should enforce code and project guidelines.
-
-External contributions must be reviewed separately by multiple maintainers.
-
 ## Code style
 
 Solidity code should be written in a consistent format enforced by a linter, following the official [Solidity Style Guide](https://docs.soliditylang.org/en/latest/style-guide.html). See below for further [Solidity Conventions](#solidity-conventions).
@@ -48,6 +38,16 @@ For contributors, project guidelines and processes must be documented publicly.
 For users, features must be abundantly documented. Documentation should include answers to common questions, solutions to common problems, and recommendations for critical decisions that the user may face.
 
 All changes to the core codebase (excluding tests, auxiliary scripts, etc.) must be documented in a changelog, except for purely cosmetic or documentation changes.
+
+## Peer review
+
+All changes must be submitted through pull requests and go through peer code review.
+
+The review must be approached by the reviewer in a similar way as if it was an audit of the code in question (but importantly it is not a substitute for and should not be considered an audit).
+
+Reviewers should enforce code and project guidelines.
+
+External contributions must be reviewed separately by multiple maintainers.
 
 ## Automation
 
