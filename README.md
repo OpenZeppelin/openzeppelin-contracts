@@ -1,9 +1,10 @@
 # <img src="logo.svg" alt="OpenZeppelin" height="40px">
 
-[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://docs.openzeppelin.com/contracts)
 [![NPM Package](https://img.shields.io/npm/v/@openzeppelin/contracts.svg)](https://www.npmjs.org/package/@openzeppelin/contracts)
 [![Coverage Status](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts/graph/badge.svg)](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts)
-[![gitpoap badge](https://public-api.gitpoap.io/v1/repo/OpenZeppelin/openzeppelin-contracts/badge)](https://www.gitpoap.io/gh/OpenZeppelin/openzeppelin-contracts)
+[![GitPOAPs](https://public-api.gitpoap.io/v1/repo/OpenZeppelin/openzeppelin-contracts/badge)](https://www.gitpoap.io/gh/OpenZeppelin/openzeppelin-contracts)
+[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-lightgray)](https://docs.openzeppelin.com/contracts)
+[![Forum](https://img.shields.io/badge/forum-%F0%9F%92%AC-lightgray)](https://docs.openzeppelin.com/contracts)
 
 **A library for secure smart contract development.** Build on a solid foundation of community-vetted code.
 
@@ -19,7 +20,7 @@
 
 ### Installation
 
-```console
+```
 $ npm install @openzeppelin/contracts
 ```
 
@@ -65,7 +66,7 @@ Finally, you may want to take a look at the [guides on our blog](https://blog.op
 
 ## Security
 
-This project is maintained by [OpenZeppelin](https://openzeppelin.com), and developed following our high standards for code quality and security. OpenZeppelin Contracts is meant to provide tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problems you might experience.
+This project is maintained by [OpenZeppelin](https://openzeppelin.com) following our high standards for code quality and security. OpenZeppelin Contracts is meant to provide tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problems you might experience.
 
 The core development principles and strategies that OpenZeppelin Contracts is based on include: security in depth, simple and modular code, clarity-driven naming conventions, comprehensive unit testing, pre-and-post-condition sanity checks, code consistency, and regular audits.
 
@@ -82,3 +83,4 @@ OpenZeppelin Contracts exists thanks to its contributors. There are many ways yo
 ## License
 
 OpenZeppelin Contracts is released under the [MIT License](LICENSE).
+
