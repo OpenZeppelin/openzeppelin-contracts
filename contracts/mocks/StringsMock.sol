@@ -21,7 +21,7 @@ contract StringsMock {
         return Strings.toHexString(addr);
     }
 
-    function compare(string memory a, string memory b) public pure returns (bool) {
-        return Strings.compare(a, b);
+    function equal(string memory a, string memory b) public pure returns (bool) {
+        return Strings.equal(a, b);
     }
 }
