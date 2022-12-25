@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (utils/Checkpoints.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/Checkpoints.sol)
 // This file was procedurally generated from scripts/generate/templates/Checkpoints.js.
 
 pragma solidity ^0.8.0;
@@ -28,7 +28,8 @@ library Checkpoints {
 
     /**
      * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
-     * before it is returned, or zero otherwise.
+     * before it is returned, or zero otherwise. Because the number returned corresponds to that at the end of the
+     * block, the requested block number must be in the past, excluding the current block.
      */
     function getAtBlock(History storage self, uint256 blockNumber) internal view returns (uint256) {
         require(blockNumber < block.number, "Checkpoints: block not yet mined");
@@ -150,8 +151,8 @@ library Checkpoints {
             // Copying to memory is important here.
             Checkpoint memory last = _unsafeAccess(self, pos - 1);
 
-            // Checkpoints keys must be increasing.
-            require(last._blockNumber <= key, "Checkpoint: invalid key");
+            // Checkpoint keys must be non-decreasing.
+            require(last._blockNumber <= key, "Checkpoint: decreasing keys");
 
             // Update or push new checkpoint
             if (last._blockNumber == key) {
@@ -212,6 +213,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+     */
     function _unsafeAccess(Checkpoint[] storage self, uint256 pos) private pure returns (Checkpoint storage result) {
         assembly {
             mstore(0, self.slot)
@@ -311,8 +315,8 @@ library Checkpoints {
             // Copying to memory is important here.
             Checkpoint224 memory last = _unsafeAccess(self, pos - 1);
 
-            // Checkpoints keys must be increasing.
-            require(last._key <= key, "Checkpoint: invalid key");
+            // Checkpoint keys must be non-decreasing.
+            require(last._key <= key, "Checkpoint: decreasing keys");
 
             // Update or push new checkpoint
             if (last._key == key) {
@@ -373,6 +377,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+     */
     function _unsafeAccess(Checkpoint224[] storage self, uint256 pos)
         private
         pure
@@ -476,8 +483,8 @@ library Checkpoints {
             // Copying to memory is important here.
             Checkpoint160 memory last = _unsafeAccess(self, pos - 1);
 
-            // Checkpoints keys must be increasing.
-            require(last._key <= key, "Checkpoint: invalid key");
+            // Checkpoint keys must be non-decreasing.
+            require(last._key <= key, "Checkpoint: decreasing keys");
 
             // Update or push new checkpoint
             if (last._key == key) {
@@ -538,6 +545,9 @@ library Checkpoints {
         return high;
     }
 
+    /**
+     * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+     */
     function _unsafeAccess(Checkpoint160[] storage self, uint256 pos)
         private
         pure

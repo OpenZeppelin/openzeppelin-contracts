@@ -17,7 +17,7 @@ contract(['ERC1155URIStorage'], function (accounts) {
   describe('with base uri set', function () {
     beforeEach(async function () {
       this.token = await ERC1155URIStorageMock.new(erc1155Uri);
-      this.token.setBaseURI(baseUri);
+      await this.token.setBaseURI(baseUri);
 
       await this.token.mint(holder, tokenId, amount, '0x');
     });

@@ -207,6 +207,14 @@ contract('ERC20', function (accounts) {
       );
     });
 
+    it('rejects overflow', async function () {
+      const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
+      await expectRevert(
+        this.token.mint(recipient, maxUint256),
+        'reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)',
+      );
+    });
+
     describe('for a non zero account', function () {
       beforeEach('minting', async function () {
         this.receipt = await this.token.mint(recipient, amount);
@@ -282,14 +290,6 @@ contract('ERC20', function (accounts) {
   describe('_transfer', function () {
     shouldBehaveLikeERC20Transfer('ERC20', initialHolder, recipient, initialSupply, function (from, to, amount) {
       return this.token.transferInternal(from, to, amount);
-    });
-
-    describe('when the sender is the zero address', function () {
-      it('reverts', async function () {
-        await expectRevert(this.token.transferInternal(ZERO_ADDRESS, recipient, initialSupply),
-          'ERC20: transfer from the zero address',
-        );
-      });
     });
   });
 
