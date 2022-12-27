@@ -6,8 +6,7 @@
       "files": "*.sol",
       "options": {
         "singleQuote": false,
-        "printWidth": 120,
-        "explicitTypes": "always"
+        "printWidth": 120
       }
     }
   ]
