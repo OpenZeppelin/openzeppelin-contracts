@@ -23,13 +23,11 @@ For some functionality unit tests may be insufficient and complementary techniqu
 
 Solidity code should be written in a consistent format enforced by a linter, following the official [Solidity Style Guide](https://docs.soliditylang.org/en/latest/style-guide.html). See below for further [Solidity Conventions](#solidity-conventions).
 
-The code should be simple and straightforward, prioritizing readability and understandability. Consistency and predictability should be maintained across the codebase.
+The code should be simple and straightforward, prioritizing readability and understandability. Consistency and predictability should be maintained across the codebase. In particular, this applies to naming, which should be systematic, clear, and concise.
 
-Sometimes these guidelines may be broken if they bring significant efficiency gains, and in these occasions comments should be added.
+Sometimes these guidelines may be broken if doing so brings significant efficiency gains, but explanatory comments should be added.
 
 Modularity should be pursued, but not at the cost of the above priorities.
-
-Naming should be seen as a priority, and should be systematic and clear.
 
 ## Documentation
 
