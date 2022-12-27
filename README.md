@@ -66,11 +66,11 @@ Finally, you may want to take a look at the [guides on our blog](https://blog.op
 
 ## Security
 
-This project is maintained by [OpenZeppelin](https://openzeppelin.com) with the goal of providing a secure and reliable library of smart contract components for the ecosystem. Security is approached as a set of risk management practices across areas such as: engineering and open source best practices, scoping and API design, multi-layered review processes, and incident response preparedness.
+This project is maintained by [OpenZeppelin](https://openzeppelin.com) with the goal of providing a secure and reliable library of smart contract components for the ecosystem. We address security through risk management in various areas such as engineering and open source best practices, scoping and API design, multi-layered review processes, and incident response preparedness.
 
-The security policy is detailed in [`SECURITY.md`](./SECURITY.md) including contact information for disclosure of security vulnerabilities, supported versions for security patches, and how to stay informed about potential security issues. We run a [bug bounty program on Immunefi](https://immunefi.com/bounty/openzeppelin) to reward responsible disclosure of vulnerabilities.
+The security policy is detailed in [`SECURITY.md`](./SECURITY.md), and specifies how you can report security vulnerabilities, which versions will receive security patches, and how to stay informed about them. We run a [bug bounty program on Immunefi](https://immunefi.com/bounty/openzeppelin) to reward the responsible disclosure of vulnerabilities.
 
-Engineering guidelines to ensure project quality can be found in [`GUIDELINES.md`](./GUIDELINES.md).
+The engineering guidelines we follow to ensure project quality can be found in [`GUIDELINES.md`](./GUIDELINES.md).
 
 Past audits can be found in [`audits/`](./audits).
 
