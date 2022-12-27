@@ -66,15 +66,15 @@ Finally, you may want to take a look at the [guides on our blog](https://blog.op
 
 ## Security
 
-This project is maintained by [OpenZeppelin](https://openzeppelin.com) following our high standards for code quality and security. OpenZeppelin Contracts is meant to provide tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problems you might experience.
+This project is maintained by [OpenZeppelin](https://openzeppelin.com) with the goal of providing a secure and reliable library of smart contract components for the ecosystem. Security is approached as a set of risk management practices across areas such as: engineering and open source best practices, scoping and API design, multi-layered review processes, and incident response preparedness.
 
-The core development principles and strategies that OpenZeppelin Contracts is based on include: security in depth, simple and modular code, clarity-driven naming conventions, comprehensive unit testing, pre-and-post-condition sanity checks, code consistency, and regular audits.
+The security policy is detailed in [`SECURITY.md`](./SECURITY.md) including contact information for disclosure of security vulnerabilities, supported versions for security patches, and how to stay informed about potential security issues. We run a [bug bounty program on Immunefi](https://immunefi.com/bounty/openzeppelin) to reward responsible disclosure of vulnerabilities.
 
-The latest audit was done on October 2018 on version 2.0.0.
+Engineering guidelines to ensure project quality can be found in [`GUIDELINES.md`](./GUIDELINES.md).
 
-We have a [**bug bounty program** on Immunefi](https://www.immunefi.com/bounty/openzeppelin). Please report any security issues you find through the Immunefi dashboard, or reach out to security@openzeppelin.com.
+Past audits can be found in [`audits/`](./audits).
 
-Critical bug fixes will be backported to past major releases.
+Using OpenZeppelin Contracts code is not a substitute for a security audit. Developers should be use common sense and be extremely careful when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problems you might experience.
 
 ## Contribute
 
