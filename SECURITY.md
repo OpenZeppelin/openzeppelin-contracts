@@ -22,6 +22,8 @@ Projects that build on OpenZeppelin Contracts are encouraged to clearly state, i
 
 ### Supported Versions
 
+Security patches will be released for the latest minor of a given major release. For example, if an issue is found in versions >=4.6.0 and the latest is 4.8.0, the patch will be released only in version 4.8.1.
+
 Only critical severity bug fixes will be backported to past major releases.
 
 | Version | Supported                             |
