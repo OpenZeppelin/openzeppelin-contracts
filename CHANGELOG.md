@@ -8,18 +8,54 @@
  * Removed presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/).
  * `TransparentUpgradeableProxy`: Removed `admin` and `implementation` getters, which were only callable by the proxy owner and thus not very useful. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
  * `ProxyAdmin`: Removed `getProxyAdmin` and `getProxyImplementation` getters. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
+ * `ERC20`: Deleted `_beforeTokenTransfer` and `_afterTokenTransfer` hooks, added a new internal `_update` function for customizations, and refactored all extensions using those hooks to use `_update` instead. ([#3838](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3838))
+ * `ERC165Storage`: Removed this contract in favor of inheritance based approach. ([#3880](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3880))
+
+### How to upgrade from 4.x
+
+#### ERC20, ERC721, and ERC1155
+
+These breaking changes will require modifications to ERC20, ERC721, and ERC1155 contracts, since the `_afterTokenTransfer` and `_beforeTokenTransfer` functions were removed. Any customization made through those hooks should now be done overriding the new `_update` function instead.
+
+Minting and burning are implemented by `_update` and customizations should be done by overriding this function as well. `_mint` and `_burn` are no longer virtual (meaning they are not overridable) to guard against possible inconsistencies.
+
+For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have to be changed in the following way.
+
+```diff
+- function _beforeTokenTransfer(
++ function _update(
+      address from,
+      address to,
+      uint256 amount
+  ) internal virtual override {
+-     super._beforeTokenTransfer(from, to, amount);
+      require(!condition(), "ERC20: wrong condition");
++     super._update(from, to, amount);
+  }
+```
+
+#### ERC165Storage
+
+Users that were registering EIP-165 interfaces with `_registerInterface` from `ERC165Storage` should instead do so so by overriding the `supportsInterface` function as seen below:
+
+```solidity
+function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
+}
+```
 
 ## Unreleased
 
  * `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
  * `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
  * `Initializable`: optimize `_disableInitializers` by using `!=` instead of `<`. ([#3787](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3787))
+ * `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
 
 ### Deprecations
 
  * `ERC20Permit`: Added the file `IERC20Permit.sol` and `ERC20Permit.sol` and deprecated `draft-IERC20Permit.sol` and `draft-ERC20Permit.sol` since [EIP-2612](https://eips.ethereum.org/EIPS/eip-2612) is no longer a Draft. Developers are encouraged to update their imports. ([#3793](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3793))
 
-## Unreleased
+## 4.8.0 (2022-11-08)
 
  * `TimelockController`: Added a new `admin` constructor parameter that is assigned the admin role instead of the deployer account. ([#3722](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3722))
  * `Initializable`: add internal functions `_getInitializedVersion` and `_isInitializing` ([#3598](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3598))
@@ -54,7 +90,6 @@
  * `Math` and `SignedMath`: optimize function `max` by using `>` instead of `>=`. ([#3679](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3679))
  * `Math`: Add `log2`, `log10` and `log256`. ([#3670](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3670))
  * Arbitrum: Update the vendored arbitrum contracts to match the nitro upgrade. ([#3692](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3692))
- * `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
 
 ### Breaking changes
 
@@ -94,6 +129,18 @@
 ERC-721 integrators that interpret contract state from events should make sure that they implement the clearing of approval that is implicit in every transfer according to the EIP. Previous versions of OpenZeppelin Contracts emitted an explicit `Approval` event even though it was not required by the specification, and this is no longer the case.
 
 With the new `ERC721Consecutive` extension, the internal workings of `ERC721` are slightly changed. Custom extensions to ERC721 should be reviewed to ensure they remain correct. The internal functions that should be considered are `_ownerOf` (new), `_beforeTokenTransfer`, and `_afterTokenTransfer`.
+
+### ERC-4626 Upgrade Note
+
+Existing `ERC4626` contracts that are upgraded to 4.8 must initialize a new variable that holds the vault token decimals. The recommended way to do this is to use a [reinitializer]:
+
+[reinitializer]: https://docs.openzeppelin.com/contracts/4.x/api/proxy#Initializable-reinitializer-uint8-
+
+```solidity
+function migrateToV48() public reinitializer(2) {
+    __ERC4626_init(IERC20Upgradeable(asset()));
+}
+```
 
 ## 4.7.3
 
