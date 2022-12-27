@@ -216,8 +216,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256 id,
         uint256 amount,
         bytes memory data
-    ) internal virtual {
+    ) internal {
         require(to != address(0), "ERC1155: transfer to the zero address");
+        require(from != address(0), "ERC1155: transfer from the zero address");
         uint256[] memory ids = _asSingletonArray(id);
         uint256[] memory amounts = _asSingletonArray(amount);
         _update(from, to, ids, amounts, data);
@@ -239,8 +240,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual {
+    ) internal {
         require(to != address(0), "ERC1155: transfer to the zero address");
+        require(from != address(0), "ERC1155: transfer from the zero address");
         _update(from, to, ids, amounts, data);
     }
 
@@ -283,7 +285,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256 id,
         uint256 amount,
         bytes memory data
-    ) internal virtual {
+    ) internal {
         require(to != address(0), "ERC1155: mint to the zero address");
         uint256[] memory ids = _asSingletonArray(id);
         uint256[] memory amounts = _asSingletonArray(amount);
