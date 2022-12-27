@@ -6,6 +6,8 @@
  * `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
  * `Initializable`: optimize `_disableInitializers` by using `!=` instead of `<`. ([#3787](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3787))
  * `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
+ * `Votes`: make `DOMAIN_SEPARATOR` virtual. ([#3872](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3872))
+ * `ERC20Permit`: make `DOMAIN_SEPARATOR` virtual. ([#3872](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3872))
 
 ### Deprecations
 
