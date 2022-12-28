@@ -10,7 +10,7 @@ contract('Strings', function (accounts) {
   });
 
   describe('toString', function () {
-    for (const [ key, value ] of Object.entries([
+    const values = [
       '0',
       '7',
       '10',
@@ -29,25 +29,37 @@ contract('Strings', function (accounts) {
       '12345678901234567890123456789012345678901234567890',
       '123456789012345678901234567890123456789012345678901234567890',
       '1234567890123456789012345678901234567890123456789012345678901234567890',
-    ].reduce((acc, value) => Object.assign(acc, { [value]: new BN(value), [-value]: new BN(value).neg() }), {
-      MIN_INT256: constants.MIN_INT256,
-      MAX_INT256: constants.MAX_INT256,
-      MAX_UINT256: constants.MAX_UINT256,
-    }))) {
-      // only numbers in the [0, 2**256-1] range
-      if (value.gten(0) && value.lte(constants.MAX_UINT256)) {
-        it(`converts ${key} as uint256`, async function () {
-          expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value.toString(10));
-        });
-      }
+    ];
 
-      // only numbers in the [-2**255, 2**255-1] range
-      if (value.gte(constants.MIN_INT256) && value.lte(constants.MAX_INT256)) {
-        it(`convert ${key} as int256`, async function () {
-          expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
-        });
-      }
+    for (const value of values) {
+      it(`converts ${value} as uint256`, async function () {
+        expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value);
+      });
+
+      it(`convert ${value} as int256`, async function () {
+        expect(await this.strings.methods['toString(int256)'](value)).to.equal(value);
+      });
+
+      it(`convert negative ${value} as int256`, async function () {
+        const negated = new BN(value).neg();
+        expect(await this.strings.methods['toString(int256)'](negated)).to.equal(negated.toString(10));
+      });
     }
+
+    it('converts MAX_UINT256', async function () {
+      const value = constants.MAX_UINT256;
+      expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value.toString(10));
+    });
+
+    it('converts MAX_INT256', async function () {
+      const value = constants.MAX_INT256;
+      expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
+    });
+
+    it('converts MIN_INT256', async function () {
+      const value = constants.MIN_INT256;
+      expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
+    });
   });
 
   describe('toHexString', function () {
