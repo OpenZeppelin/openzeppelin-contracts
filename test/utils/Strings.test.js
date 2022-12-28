@@ -29,7 +29,7 @@ contract('Strings', function (accounts) {
       '12345678901234567890123456789012345678901234567890',
       '123456789012345678901234567890123456789012345678901234567890',
       '1234567890123456789012345678901234567890123456789012345678901234567890',
-    ].reduce((acc, value) => Object.assign(acc, { [value]: new BN(value), [-value]: new BN(-value) }), {
+    ].reduce((acc, value) => Object.assign(acc, { [value]: new BN(value), [-value]: new BN(value).neg() }), {
       MIN_INT256: constants.MIN_INT256,
       MAX_INT256: constants.MAX_INT256,
       MAX_UINT256: constants.MAX_UINT256,
