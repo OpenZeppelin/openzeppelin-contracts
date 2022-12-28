@@ -88,7 +88,7 @@ contract('Strings', function (accounts) {
     it('compares two empty strings', async function () {
       expect(await this.strings.methods['equal(string,string)']('', '')).to.equal(true);
     });
-    
+
     it('compares two equal strings', async function () {
       expect(await this.strings.methods['equal(string,string)']('a', 'a')).to.equal(true);
     });
