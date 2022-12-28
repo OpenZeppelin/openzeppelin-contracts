@@ -2,14 +2,12 @@ const { expectRevert, BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const {
-  shouldBehaveLikeVotesMulti,
-} = require('./VotesMulti.behavior');
+const { shouldBehaveLikeVotesMulti } = require('./VotesMulti.behavior');
 
 const VotesMulti = artifacts.require('VotesMultiMock');
 
 contract('VotesMulti', function (accounts) {
-  const [ account1, account2, account3 ] = accounts;
+  const [account1, account2, account3] = accounts;
   beforeEach(async function () {
     this.name = 'My Vote';
     this.tokenId = new BN('4');

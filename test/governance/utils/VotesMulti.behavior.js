@@ -25,9 +25,7 @@ function shouldBehaveLikeVotesMulti () {
     });
 
     it('domain separator', async function () {
-      expect(
-        await this.votes.DOMAIN_SEPARATOR(),
-      ).to.equal(
+      expect(await this.votes.DOMAIN_SEPARATOR()).to.equal(
         await domainSeparator(this.name, version, this.chainId, this.votes.address),
       );
     });
@@ -51,15 +49,17 @@ function shouldBehaveLikeVotesMulti () {
       });
 
       it('accept signed delegation', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            id: this.tokenId,
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+        const { v, r, s } = fromRpcSig(
+          ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              id: this.tokenId,
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }),
+          ),
+        );
 
         expect(await this.votes.delegates(delegatorAddress, this.tokenId)).to.be.equal(ZERO_ADDRESS);
 
@@ -80,25 +80,27 @@ function shouldBehaveLikeVotesMulti () {
         expect(await this.votes.delegates(delegatorAddress, this.tokenId)).to.be.equal(delegatorAddress);
 
         expect(await this.votes.getVotes(delegatorAddress, this.tokenId)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastVotes(
-          delegatorAddress,
-          this.tokenId,
-          receipt.blockNumber - 1,
-        )).to.be.bignumber.equal('0');
+        expect(
+          await this.votes.getPastVotes(delegatorAddress, this.tokenId, receipt.blockNumber - 1),
+        ).to.be.bignumber.equal('0');
         await time.advanceBlock();
-        expect(await this.votes.getPastVotes(delegatorAddress, this.tokenId, receipt.blockNumber)).to.be.bignumber.equal('1');
+        expect(
+          await this.votes.getPastVotes(delegatorAddress, this.tokenId, receipt.blockNumber),
+        ).to.be.bignumber.equal('1');
       });
 
       it('rejects reused signature', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            id: this.tokenId,
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+        const { v, r, s } = fromRpcSig(
+          ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              id: this.tokenId,
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }),
+          ),
+        );
 
         await this.votes.delegateBySig(this.tokenId, delegatorAddress, nonce, MAX_UINT256, v, r, s);
 
@@ -109,17 +111,27 @@ function shouldBehaveLikeVotesMulti () {
       });
 
       it('rejects bad delegatee', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            id: this.tokenId,
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+        const { v, r, s } = fromRpcSig(
+          ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              id: this.tokenId,
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }),
+          ),
+        );
 
-        const receipt = await this.votes.delegateBySig(this.tokenId, this.account1Delegatee, nonce, MAX_UINT256, v, r, s);
+        const receipt = await this.votes.delegateBySig(
+          this.tokenId,
+          this.account1Delegatee,
+          nonce,
+          MAX_UINT256,
+          v,
+          r,
+          s,
+        );
         const { args } = receipt.logs.find(({ event }) => event === 'DelegateChanged');
         expect(args.delegator).to.not.be.equal(delegatorAddress);
         expect(args.fromDelegate).to.be.equal(ZERO_ADDRESS);
@@ -127,15 +139,17 @@ function shouldBehaveLikeVotesMulti () {
       });
 
       it('rejects bad nonce', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            id: this.tokenId,
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+        const { v, r, s } = fromRpcSig(
+          ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              id: this.tokenId,
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }),
+          ),
+        );
         await expectRevert(
           this.votes.delegateBySig(this.tokenId, delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
           'Votes: invalid nonce',
@@ -144,15 +158,17 @@ function shouldBehaveLikeVotesMulti () {
 
       it('rejects expired permit', async function () {
         const expiry = (await time.latest()) - time.duration.weeks(1);
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            id: this.tokenId,
-            delegatee: delegatorAddress,
-            nonce,
-            expiry,
-          }),
-        ));
+        const { v, r, s } = fromRpcSig(
+          ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              id: this.tokenId,
+              delegatee: delegatorAddress,
+              nonce,
+              expiry,
+            }),
+          ),
+        );
 
         await expectRevert(
           this.votes.delegateBySig(this.tokenId, delegatorAddress, nonce, expiry, v, r, s),
@@ -184,9 +200,13 @@ function shouldBehaveLikeVotesMulti () {
           expect(await this.votes.delegates(this.account1, this.tokenId)).to.be.equal(this.account1);
 
           expect(await this.votes.getVotes(this.account1, this.tokenId)).to.be.bignumber.equal('1');
-          expect(await this.votes.getPastVotes(this.account1, this.tokenId, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+          expect(
+            await this.votes.getPastVotes(this.account1, this.tokenId, receipt.blockNumber - 1),
+          ).to.be.bignumber.equal('0');
           await time.advanceBlock();
-          expect(await this.votes.getPastVotes(this.account1, this.tokenId, receipt.blockNumber)).to.be.bignumber.equal('1');
+          expect(await this.votes.getPastVotes(this.account1, this.tokenId, receipt.blockNumber)).to.be.bignumber.equal(
+            '1',
+          );
         });
 
         it('delegation without tokens', async function () {
@@ -239,11 +259,19 @@ function shouldBehaveLikeVotesMulti () {
 
         expect(await this.votes.getVotes(this.account1, this.tokenId)).to.be.bignumber.equal('0');
         expect(await this.votes.getVotes(this.account1Delegatee, this.tokenId)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastVotes(this.account1, this.tokenId, receipt.blockNumber - 1)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastVotes(this.account1Delegatee, this.tokenId, prevBlock)).to.be.bignumber.equal('0');
+        expect(
+          await this.votes.getPastVotes(this.account1, this.tokenId, receipt.blockNumber - 1),
+        ).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastVotes(this.account1Delegatee, this.tokenId, prevBlock)).to.be.bignumber.equal(
+          '0',
+        );
         await time.advanceBlock();
-        expect(await this.votes.getPastVotes(this.account1, this.tokenId, receipt.blockNumber)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastVotes(this.account1Delegatee, this.tokenId, receipt.blockNumber)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastVotes(this.account1, this.tokenId, receipt.blockNumber)).to.be.bignumber.equal(
+          '0',
+        );
+        expect(
+          await this.votes.getPastVotes(this.account1Delegatee, this.tokenId, receipt.blockNumber),
+        ).to.be.bignumber.equal('1');
       });
     });
 
@@ -253,10 +281,7 @@ function shouldBehaveLikeVotesMulti () {
       });
 
       it('reverts if block number >= current block', async function () {
-        await expectRevert(
-          this.votes.getPastTotalSupply(this.tokenId, 5e10),
-          'block not yet mined',
-        );
+        await expectRevert(this.votes.getPastTotalSupply(this.tokenId, 5e10), 'block not yet mined');
       });
 
       it('returns 0 if there are no checkpoints', async function () {
@@ -268,8 +293,12 @@ function shouldBehaveLikeVotesMulti () {
         await time.advanceBlock();
         await time.advanceBlock();
 
-        expect(await this.votes.getPastTotalSupply(this.tokenId, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(this.tokenId, t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(this.tokenId, t1.receipt.blockNumber - 1)).to.be.bignumber.equal(
+          '0',
+        );
+        expect(await this.votes.getPastTotalSupply(this.tokenId, t1.receipt.blockNumber + 1)).to.be.bignumber.equal(
+          '1',
+        );
       });
 
       it('returns zero if < first checkpoint block', async function () {
@@ -278,8 +307,12 @@ function shouldBehaveLikeVotesMulti () {
         await time.advanceBlock();
         await time.advanceBlock();
 
-        expect(await this.votes.getPastTotalSupply(this.tokenId, t2.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(this.tokenId, t2.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(this.tokenId, t2.receipt.blockNumber - 1)).to.be.bignumber.equal(
+          '0',
+        );
+        expect(await this.votes.getPastTotalSupply(this.tokenId, t2.receipt.blockNumber + 1)).to.be.bignumber.equal(
+          '1',
+        );
       });
 
       it('generally returns the voting balance at the appropriate checkpoint', async function () {
@@ -299,17 +332,29 @@ function shouldBehaveLikeVotesMulti () {
         await time.advanceBlock();
         await time.advanceBlock();
 
-        expect(await this.votes.getPastTotalSupply(this.tokenId, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(this.tokenId, t1.receipt.blockNumber - 1)).to.be.bignumber.equal(
+          '0',
+        );
         expect(await this.votes.getPastTotalSupply(this.tokenId, t1.receipt.blockNumber)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(this.tokenId, t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(this.tokenId, t1.receipt.blockNumber + 1)).to.be.bignumber.equal(
+          '1',
+        );
         expect(await this.votes.getPastTotalSupply(this.tokenId, t2.receipt.blockNumber)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(this.tokenId, t2.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(this.tokenId, t2.receipt.blockNumber + 1)).to.be.bignumber.equal(
+          '0',
+        );
         expect(await this.votes.getPastTotalSupply(this.tokenId, t3.receipt.blockNumber)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(this.tokenId, t3.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(this.tokenId, t3.receipt.blockNumber + 1)).to.be.bignumber.equal(
+          '1',
+        );
         expect(await this.votes.getPastTotalSupply(this.tokenId, t4.receipt.blockNumber)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(this.tokenId, t4.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(this.tokenId, t4.receipt.blockNumber + 1)).to.be.bignumber.equal(
+          '0',
+        );
         expect(await this.votes.getPastTotalSupply(this.tokenId, t5.receipt.blockNumber)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(this.tokenId, t5.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(this.tokenId, t5.receipt.blockNumber + 1)).to.be.bignumber.equal(
+          '1',
+        );
       });
     });
 
@@ -325,10 +370,7 @@ function shouldBehaveLikeVotesMulti () {
 
       describe('getPastVotes', function () {
         it('reverts if block number >= current block', async function () {
-          await expectRevert(
-            this.votes.getPastVotes(this.account2, this.tokenId, 5e10),
-            'block not yet mined',
-          );
+          await expectRevert(this.votes.getPastVotes(this.account2, this.tokenId, 5e10), 'block not yet mined');
         });
 
         it('returns 0 if there are no checkpoints', async function () {
@@ -341,7 +383,9 @@ function shouldBehaveLikeVotesMulti () {
           await time.advanceBlock();
           const latest = await this.votes.getVotes(this.account2, this.tokenId);
           const nextBlock = t1.receipt.blockNumber + 1;
-          expect(await this.votes.getPastVotes(this.account2, this.tokenId, t1.receipt.blockNumber)).to.be.bignumber.equal(latest);
+          expect(
+            await this.votes.getPastVotes(this.account2, this.tokenId, t1.receipt.blockNumber),
+          ).to.be.bignumber.equal(latest);
           expect(await this.votes.getPastVotes(this.account2, this.tokenId, nextBlock)).to.be.bignumber.equal(latest);
         });
 
@@ -351,7 +395,9 @@ function shouldBehaveLikeVotesMulti () {
           await time.advanceBlock();
           await time.advanceBlock();
 
-          expect(await this.votes.getPastVotes(this.account2, this.tokenId, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+          expect(
+            await this.votes.getPastVotes(this.account2, this.tokenId, t1.receipt.blockNumber - 1),
+          ).to.be.bignumber.equal('0');
         });
       });
     });
