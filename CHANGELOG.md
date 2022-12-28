@@ -6,7 +6,6 @@
  * `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
  * `Initializable`: optimize `_disableInitializers` by using `!=` instead of `<`. ([#3787](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3787))
  * `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
- * `ERC721`: rename `_approved` argument to `approved` in `setApprovalForAll` function in `IERC721` interface ([#3900](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3900))
 
 ### Deprecations
 
