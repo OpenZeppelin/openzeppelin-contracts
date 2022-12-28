@@ -31,34 +31,40 @@ contract('Strings', function (accounts) {
       '1234567890123456789012345678901234567890123456789012345678901234567890',
     ];
 
-    for (const value of values) {
-      it(`converts ${value} as uint256`, async function () {
-        expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value);
+    describe('uint256', function () {
+      it('converts MAX_UINT256', async function () {
+        const value = constants.MAX_UINT256;
+        expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value.toString(10));
       });
 
-      it(`convert ${value} as int256`, async function () {
-        expect(await this.strings.methods['toString(int256)'](value)).to.equal(value);
-      });
-
-      it(`convert negative ${value} as int256`, async function () {
-        const negated = new BN(value).neg();
-        expect(await this.strings.methods['toString(int256)'](negated)).to.equal(negated.toString(10));
-      });
-    }
-
-    it('converts MAX_UINT256', async function () {
-      const value = constants.MAX_UINT256;
-      expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value.toString(10));
+      for (const value of values) {
+        it(`converts ${value}`, async function () {
+          expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value);
+        });
+      }
     });
 
-    it('converts MAX_INT256', async function () {
-      const value = constants.MAX_INT256;
-      expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
-    });
+    describe('int256', function () {
+      it('converts MAX_INT256', async function () {
+        const value = constants.MAX_INT256;
+        expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
+      });
 
-    it('converts MIN_INT256', async function () {
-      const value = constants.MIN_INT256;
-      expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
+      it('converts MIN_INT256', async function () {
+        const value = constants.MIN_INT256;
+        expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
+      });
+
+      for (const value of values) {
+        it(`convert ${value}`, async function () {
+          expect(await this.strings.methods['toString(int256)'](value)).to.equal(value);
+        });
+
+        it(`convert negative ${value}`, async function () {
+          const negated = new BN(value).neg();
+          expect(await this.strings.methods['toString(int256)'](negated)).to.equal(negated.toString(10));
+        });
+      }
     });
   });
 
