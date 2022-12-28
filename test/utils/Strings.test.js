@@ -10,7 +10,7 @@ contract('Strings', function (accounts) {
   });
 
   describe('toString', function () {
-    for (const [ key, value ] of Object.entries([
+    const values = [
       '0',
       '7',
       '10',
@@ -29,13 +29,43 @@ contract('Strings', function (accounts) {
       '12345678901234567890123456789012345678901234567890',
       '123456789012345678901234567890123456789012345678901234567890',
       '1234567890123456789012345678901234567890123456789012345678901234567890',
-    ].reduce((acc, value) => Object.assign(acc, { [value]: new BN(value) }), {
-      MAX_UINT256: constants.MAX_UINT256.toString(),
-    }))) {
-      it(`converts ${key}`, async function () {
+    ];
+
+    describe('uint256', function () {
+      it('converts MAX_UINT256', async function () {
+        const value = constants.MAX_UINT256;
         expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value.toString(10));
       });
-    }
+
+      for (const value of values) {
+        it(`converts ${value}`, async function () {
+          expect(await this.strings.methods['toString(uint256)'](value)).to.equal(value);
+        });
+      }
+    });
+
+    describe('int256', function () {
+      it('converts MAX_INT256', async function () {
+        const value = constants.MAX_INT256;
+        expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
+      });
+
+      it('converts MIN_INT256', async function () {
+        const value = constants.MIN_INT256;
+        expect(await this.strings.methods['toString(int256)'](value)).to.equal(value.toString(10));
+      });
+
+      for (const value of values) {
+        it(`convert ${value}`, async function () {
+          expect(await this.strings.methods['toString(int256)'](value)).to.equal(value);
+        });
+
+        it(`convert negative ${value}`, async function () {
+          const negated = new BN(value).neg();
+          expect(await this.strings.methods['toString(int256)'](negated)).to.equal(negated.toString(10));
+        });
+      }
+    });
   });
 
   describe('toHexString', function () {

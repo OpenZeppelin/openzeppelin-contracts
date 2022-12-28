@@ -4,6 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "./math/Math.sol";
+import "./math/SignedMath.sol";
 
 /**
  * @dev String operations.
@@ -35,6 +36,13 @@ library Strings {
             }
             return buffer;
         }
+    }
+
+    /**
+     * @dev Converts a `int256` to its ASCII `string` decimal representation.
+     */
+    function toString(int256 value) internal pure returns (string memory) {
+        return string(abi.encodePacked(value < 0 ? "-" : "", toString(SignedMath.abs(value))));
     }
 
     /**
