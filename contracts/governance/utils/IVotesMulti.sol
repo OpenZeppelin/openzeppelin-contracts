@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 /**
- * @dev Common interface for {ERC20Votes}, {ERC721Votes}, and other {Votes}-enabled contracts.
+ * @dev Common interface for {ERC1155Votes} and other {VotesMulti}-enabled contracts.
  *
  * _Available since v4.5._
  */
