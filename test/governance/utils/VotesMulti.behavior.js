@@ -80,7 +80,11 @@ function shouldBehaveLikeVotesMulti () {
         expect(await this.votes.delegates(delegatorAddress, this.tokenId)).to.be.equal(delegatorAddress);
 
         expect(await this.votes.getVotes(delegatorAddress, this.tokenId)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastVotes(delegatorAddress, this.tokenId, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastVotes(
+          delegatorAddress,
+          this.tokenId,
+          receipt.blockNumber - 1,
+        )).to.be.bignumber.equal('0');
         await time.advanceBlock();
         expect(await this.votes.getPastVotes(delegatorAddress, this.tokenId, receipt.blockNumber)).to.be.bignumber.equal('1');
       });

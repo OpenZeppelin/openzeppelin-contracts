@@ -14,7 +14,11 @@ contract VotesMultiMock is VotesMulti {
         return _getTotalSupply(id);
     }
 
-    function delegate(address account, uint256 id, address newDelegation) public {
+    function delegate(
+        address account,
+        uint256 id,
+        address newDelegation
+    ) public {
         return _delegate(account, id, newDelegation);
     }
 
@@ -22,7 +26,12 @@ contract VotesMultiMock is VotesMulti {
         return _balances[account][id];
     }
 
-    function mint(address account, uint256 id, uint256 voteId, bytes calldata) external {
+    function mint(
+        address account,
+        uint256 id,
+        uint256 voteId,
+        bytes calldata
+    ) external {
         _balances[account][id] += 1;
         _owners[id][voteId] = account;
         uint256[] memory ids = new uint256[](1);
@@ -32,7 +41,11 @@ contract VotesMultiMock is VotesMulti {
         _transferVotingUnits(address(0), account, ids, amounts);
     }
 
-    function burn(address, uint256 id, uint256 voteId) external {
+    function burn(
+        address,
+        uint256 id,
+        uint256 voteId
+    ) external {
         address owner = _owners[id][voteId];
         _balances[owner][id] -= 1;
         uint256[] memory ids = new uint256[](1);
