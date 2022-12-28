@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (governance/TimelockController.sol)
 
 pragma solidity ^0.8.0;
 
@@ -74,12 +74,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * administration through timelocked proposals. Previous versions of this contract would assign
      * this admin to the deployer automatically and should be renounced as well.
      */
-    constructor(
-        uint256 minDelay,
-        address[] memory proposers,
-        address[] memory executors,
-        address admin
-    ) {
+    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors, address admin) {
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
@@ -258,7 +253,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     }
 
     /**
-     * @dev Schedule an operation that is to becomes valid after a given delay.
+     * @dev Schedule an operation that is to become valid after a given delay.
      */
     function _schedule(bytes32 id, uint256 delay) private {
         require(!isOperation(id), "TimelockController: operation already scheduled");
@@ -342,11 +337,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev Execute an operation's call.
      */
-    function _execute(
-        address target,
-        uint256 value,
-        bytes calldata data
-    ) internal virtual {
+    function _execute(address target, uint256 value, bytes calldata data) internal virtual {
         (bool success, ) = target.call{value: value}(data);
         require(success, "TimelockController: underlying transaction reverted");
     }
@@ -386,12 +377,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev See {IERC721Receiver-onERC721Received}.
      */
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes memory
-    ) public virtual override returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
         return this.onERC721Received.selector;
     }
 

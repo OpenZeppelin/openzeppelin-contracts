@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (proxy/Clones.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (proxy/Clones.sol)
 
 pragma solidity ^0.8.0;
 
@@ -79,11 +79,10 @@ library Clones {
     /**
      * @dev Computes the address of a clone deployed using {Clones-cloneDeterministic}.
      */
-    function predictDeterministicAddress(address implementation, bytes32 salt)
-        internal
-        view
-        returns (address predicted)
-    {
+    function predictDeterministicAddress(
+        address implementation,
+        bytes32 salt
+    ) internal view returns (address predicted) {
         return predictDeterministicAddress(implementation, salt, address(this));
     }
 }

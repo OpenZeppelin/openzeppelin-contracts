@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (utils/cryptography/SignatureChecker.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/SignatureChecker.sol)
 
 pragma solidity ^0.8.0;
 
@@ -21,11 +21,7 @@ library SignatureChecker {
      * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
      */
-    function isValidSignatureNow(
-        address signer,
-        bytes32 hash,
-        bytes memory signature
-    ) internal view returns (bool) {
+    function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
         (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(hash, signature);
         if (error == ECDSA.RecoverError.NoError && recovered == signer) {
             return true;

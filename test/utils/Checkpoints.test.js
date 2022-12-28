@@ -151,7 +151,7 @@ contract('Checkpoints', function (accounts) {
         });
 
         it('cannot push values in the past', async function () {
-          await expectRevert(this.contract.push(last(this.checkpoints).key - 1, '0'), 'Checkpoint: invalid key');
+          await expectRevert(this.contract.push(last(this.checkpoints).key - 1, '0'), 'Checkpoint: decreasing keys');
         });
 
         it('can update last value', async function () {

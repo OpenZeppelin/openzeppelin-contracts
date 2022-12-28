@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (governance/utils/Votes.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (governance/utils/Votes.sol)
 pragma solidity ^0.8.0;
 
 import "../../utils/Context.sol";
@@ -136,11 +136,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
      * @dev Transfers, mints, or burns voting units. To register a mint, `from` should be zero. To register a burn, `to`
      * should be zero. Total supply of voting units will be adjusted with mints and burns.
      */
-    function _transferVotingUnits(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {
+    function _transferVotingUnits(address from, address to, uint256 amount) internal virtual {
         if (from == address(0)) {
             _totalCheckpoints.push(_add, amount);
         }
@@ -153,11 +149,7 @@ abstract contract Votes is IVotes, Context, EIP712 {
     /**
      * @dev Moves delegated votes from one delegate to another.
      */
-    function _moveDelegateVotes(
-        address from,
-        address to,
-        uint256 amount
-    ) private {
+    function _moveDelegateVotes(address from, address to, uint256 amount) private {
         if (from != to && amount > 0) {
             if (from != address(0)) {
                 (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(_subtract, amount);

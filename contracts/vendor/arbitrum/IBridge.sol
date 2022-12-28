@@ -1,6 +1,7 @@
 // Copyright 2021-2022, Offchain Labs, Inc.
 // For license information, see https://github.com/nitro/blob/master/LICENSE
 // SPDX-License-Identifier: BUSL-1.1
+// OpenZeppelin Contracts (last updated v4.8.0) (vendor/arbitrum/IBridge.sol)
 
 // solhint-disable-next-line compiler-version
 pragma solidity >=0.6.9 <0.9.0;
@@ -76,14 +77,7 @@ interface IBridge {
         uint256 afterDelayedMessagesRead,
         uint256 prevMessageCount,
         uint256 newMessageCount
-    )
-        external
-        returns (
-            uint256 seqMessageIndex,
-            bytes32 beforeAcc,
-            bytes32 delayedAcc,
-            bytes32 acc
-        );
+    ) external returns (uint256 seqMessageIndex, bytes32 beforeAcc, bytes32 delayedAcc, bytes32 acc);
 
     /**
      * @dev Allows the sequencer inbox to submit a delayed message of the batchPostingReport type

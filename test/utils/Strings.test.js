@@ -107,4 +107,29 @@ contract('Strings', function (accounts) {
       expect(await this.strings.methods['toHexString(address)'](addr)).to.equal(addr);
     });
   });
+
+  describe('equal', function () {
+    it('compares two empty strings', async function () {
+      expect(await this.strings.methods['equal(string,string)']('', '')).to.equal(true);
+    });
+
+    it('compares two equal strings', async function () {
+      expect(await this.strings.methods['equal(string,string)']('a', 'a')).to.equal(true);
+    });
+
+    it('compares two different strings', async function () {
+      expect(await this.strings.methods['equal(string,string)']('a', 'b')).to.equal(false);
+    });
+
+    it('compares two different strings of different lengths', async function () {
+      expect(await this.strings.methods['equal(string,string)']('a', 'aa')).to.equal(false);
+      expect(await this.strings.methods['equal(string,string)']('aa', 'a')).to.equal(false);
+    });
+
+    it('compares two different strings of different (big) lengths', async function () {
+      const str1 = 'a'.repeat(201);
+      const str2 = 'a'.repeat(200) + 'b';
+      expect(await this.strings.methods['equal(string,string)'](str1, str2)).to.equal(false);
+    });
+  });
 });

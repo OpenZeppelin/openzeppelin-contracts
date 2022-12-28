@@ -1,6 +1,7 @@
 // Copyright 2021-2022, Offchain Labs, Inc.
 // For license information, see https://github.com/nitro/blob/master/LICENSE
 // SPDX-License-Identifier: BUSL-1.1
+// OpenZeppelin Contracts (last updated v4.8.0) (vendor/arbitrum/IOutbox.sol)
 
 // solhint-disable-next-line compiler-version
 pragma solidity >=0.6.9 <0.9.0;
@@ -112,9 +113,5 @@ interface IOutbox {
         bytes calldata data
     ) external pure returns (bytes32);
 
-    function calculateMerkleRoot(
-        bytes32[] memory proof,
-        uint256 path,
-        bytes32 item
-    ) external pure returns (bytes32);
+    function calculateMerkleRoot(bytes32[] memory proof, uint256 path, bytes32 item) external pure returns (bytes32);
 }

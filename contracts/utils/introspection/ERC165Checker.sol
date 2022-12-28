@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165Checker.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/introspection/ERC165Checker.sol)
 
 pragma solidity ^0.8.0;
 
@@ -48,11 +48,10 @@ library ERC165Checker {
      *
      * _Available since v3.4._
      */
-    function getSupportedInterfaces(address account, bytes4[] memory interfaceIds)
-        internal
-        view
-        returns (bool[] memory)
-    {
+    function getSupportedInterfaces(
+        address account,
+        bytes4[] memory interfaceIds
+    ) internal view returns (bool[] memory) {
         // an array of booleans corresponding to interfaceIds and whether they're supported or not
         bool[] memory interfaceIdsSupported = new bool[](interfaceIds.length);
 

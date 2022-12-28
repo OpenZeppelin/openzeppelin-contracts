@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (utils/structs/BitMaps.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/structs/BitMaps.sol)
 pragma solidity ^0.8.0;
 
 /**
@@ -23,11 +23,7 @@ library BitMaps {
     /**
      * @dev Sets the bit at `index` to the boolean `value`.
      */
-    function setTo(
-        BitMap storage bitmap,
-        uint256 index,
-        bool value
-    ) internal {
+    function setTo(BitMap storage bitmap, uint256 index, bool value) internal {
         if (value) {
             set(bitmap, index);
         } else {

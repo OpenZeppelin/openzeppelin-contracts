@@ -1,6 +1,7 @@
 // Copyright 2021-2022, Offchain Labs, Inc.
 // For license information, see https://github.com/OffchainLabs/nitro/blob/master/LICENSE
 // SPDX-License-Identifier: BUSL-1.1
+// OpenZeppelin Contracts (last updated v4.8.0) (vendor/arbitrum/IArbSys.sol)
 
 pragma solidity >=0.4.21 <0.9.0;
 
@@ -91,14 +92,7 @@ interface IArbSys {
      * @return root root hash of the send history
      * @return partials hashes of partial subtrees in the send history tree
      */
-    function sendMerkleTreeState()
-        external
-        view
-        returns (
-            uint256 size,
-            bytes32 root,
-            bytes32[] memory partials
-        );
+    function sendMerkleTreeState() external view returns (uint256 size, bytes32 root, bytes32[] memory partials);
 
     /**
      * @notice creates a send txn from L2 to L1

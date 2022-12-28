@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (utils/introspection/IERC1820Registry.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/introspection/IERC1820Registry.sol)
 
 pragma solidity ^0.8.0;
 
@@ -64,11 +64,7 @@ interface IERC1820Registry {
      * queried for support, unless `implementer` is the caller. See
      * {IERC1820Implementer-canImplementInterfaceForAddress}.
      */
-    function setInterfaceImplementer(
-        address account,
-        bytes32 _interfaceHash,
-        address implementer
-    ) external;
+    function setInterfaceImplementer(address account, bytes32 _interfaceHash, address implementer) external;
 
     /**
      * @dev Returns the implementer of `interfaceHash` for `account`. If no such

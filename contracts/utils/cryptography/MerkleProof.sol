@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (utils/cryptography/MerkleProof.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/MerkleProof.sol)
 
 pragma solidity ^0.8.0;
 
 /**
  * @dev These functions deal with verification of Merkle Tree proofs.
  *
- * The proofs can be generated using the JavaScript library
- * https://github.com/miguelmota/merkletreejs[merkletreejs].
- * Note: the hashing algorithm should be keccak256 and pair sorting should be enabled.
- *
- * See `test/utils/cryptography/MerkleProof.test.js` for some examples.
+ * The tree and the proofs can be generated using our
+ * https://github.com/OpenZeppelin/merkle-tree[JavaScript library].
+ * You will find a quickstart guide in the readme.
  *
  * WARNING: You should avoid using leaf values that are 64 bytes long prior to
  * hashing, or use a hash function other than keccak256 for hashing leaves.
  * This is because the concatenation of a sorted pair of internal nodes in
  * the merkle tree could be reinterpreted as a leaf value.
+ * OpenZeppelin's JavaScript library generates merkle trees that are safe
+ * against this attack out of the box.
  */
 library MerkleProof {
     /**
@@ -24,11 +24,7 @@ library MerkleProof {
      * sibling hashes on the branch from the leaf to the root of the tree. Each
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      */
-    function verify(
-        bytes32[] memory proof,
-        bytes32 root,
-        bytes32 leaf
-    ) internal pure returns (bool) {
+    function verify(bytes32[] memory proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
         return processProof(proof, leaf) == root;
     }
 
@@ -37,11 +33,7 @@ library MerkleProof {
      *
      * _Available since v4.7._
      */
-    function verifyCalldata(
-        bytes32[] calldata proof,
-        bytes32 root,
-        bytes32 leaf
-    ) internal pure returns (bool) {
+    function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
         return processProofCalldata(proof, leaf) == root;
     }
 
@@ -124,7 +116,7 @@ library MerkleProof {
         bool[] memory proofFlags,
         bytes32[] memory leaves
     ) internal pure returns (bytes32 merkleRoot) {
-        // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
+        // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
@@ -147,7 +139,9 @@ library MerkleProof {
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-            bytes32 b = proofFlags[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proof[proofPos++];
+            bytes32 b = proofFlags[i]
+                ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
+                : proof[proofPos++];
             hashes[i] = _hashPair(a, b);
         }
 
@@ -172,7 +166,7 @@ library MerkleProof {
         bool[] calldata proofFlags,
         bytes32[] memory leaves
     ) internal pure returns (bytes32 merkleRoot) {
-        // This function rebuild the root hash by traversing the tree up from the leaves. The root is rebuilt by
+        // This function rebuilds the root hash by traversing the tree up from the leaves. The root is rebuilt by
         // consuming and producing values on a queue. The queue starts with the `leaves` array, then goes onto the
         // `hashes` array. At the end of the process, the last hash in the `hashes` array should contain the root of
         // the merkle tree.
@@ -195,7 +189,9 @@ library MerkleProof {
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
-            bytes32 b = proofFlags[i] ? leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++] : proof[proofPos++];
+            bytes32 b = proofFlags[i]
+                ? (leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++])
+                : proof[proofPos++];
             hashes[i] = _hashPair(a, b);
         }
 

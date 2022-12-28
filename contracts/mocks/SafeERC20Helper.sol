@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "../utils/Context.sol";
 import "../token/ERC20/IERC20.sol";
-import "../token/ERC20/extensions/draft-ERC20Permit.sol";
+import "../token/ERC20/extensions/ERC20Permit.sol";
 import "../token/ERC20/utils/SafeERC20.sol";
 
 contract ERC20ReturnFalseMock is Context {
@@ -19,11 +19,7 @@ contract ERC20ReturnFalseMock is Context {
         return false;
     }
 
-    function transferFrom(
-        address,
-        address,
-        uint256
-    ) public returns (bool) {
+    function transferFrom(address, address, uint256) public returns (bool) {
         _dummy = 0;
         return false;
     }
@@ -51,11 +47,7 @@ contract ERC20ReturnTrueMock is Context {
         return true;
     }
 
-    function transferFrom(
-        address,
-        address,
-        uint256
-    ) public returns (bool) {
+    function transferFrom(address, address, uint256) public returns (bool) {
         _dummy = 0;
         return true;
     }
@@ -85,11 +77,7 @@ contract ERC20NoReturnMock is Context {
         _dummy = 0;
     }
 
-    function transferFrom(
-        address,
-        address,
-        uint256
-    ) public {
+    function transferFrom(address, address, uint256) public {
         _dummy = 0;
     }
 
