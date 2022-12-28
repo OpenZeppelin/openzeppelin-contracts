@@ -60,12 +60,17 @@ contract('ERC1155Votes', function (accounts) {
       this.token.mint(holder, tokenId, amount, data),
       "SafeCast: value doesn't fit in 224 bits",
     );
+    await expectRevert(
+      this.token.mintBatch(holder, [tokenId], [amount], data),
+      "SafeCast: value doesn't fit in 224 bits",
+    );
   });
 
   it('recent checkpoints', async function () {
     await this.token.delegate(tokenId, holder, { from: holder });
     for (let i = 0; i < 6; i++) {
-      await this.token.mint(holder, tokenId, 1, data);
+      // test mintBatch
+      await this.token.mintBatch(holder, [tokenId], [1], data);
     }
     const block = await web3.eth.getBlockNumber();
     // recent
