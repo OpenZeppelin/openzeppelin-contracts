@@ -422,7 +422,7 @@ contract('ERC1155Votes', function (accounts) {
         expect(await this.token.numCheckpoints(other1, tokenId)).to.be.bignumber.equal('0');
 
         const [ t1, t2, t3 ] = await batchInBlock([
-          () => this.token.delegate(tokenId, other1, { from: recipient, gas: 100000 }),
+          () => this.token.delegate(tokenId, other1, { from: recipient, gas: 200000 }),
           () => this.token.safeTransferFrom(recipient, other2, tokenId, 10, data, { from: recipient, gas: 100000 }),
           () => this.token.safeTransferFrom(recipient, other2, tokenId, 10, data, { from: recipient, gas: 100000 }),
         ]);
