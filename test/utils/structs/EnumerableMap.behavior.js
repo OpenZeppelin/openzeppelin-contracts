@@ -18,7 +18,6 @@ function shouldBehaveLikeMap (
     fnContains,
     evSet,
     evRemove,
-    argsPrefix,
   },
 ) {
   const [ keyA, keyB, keyC ] = keys;

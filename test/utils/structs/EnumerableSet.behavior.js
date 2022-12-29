@@ -12,7 +12,6 @@ function shouldBehaveLikeSet (
     fnContains,
     evAdd,
     evRemove,
-    argsPrefix,
   },
 ) {
   const [ valueA, valueB, valueC ] = values;
