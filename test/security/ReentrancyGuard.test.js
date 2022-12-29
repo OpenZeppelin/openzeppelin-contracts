@@ -5,7 +5,7 @@ const { expect } = require('chai');
 const ReentrancyMock = artifacts.require('ReentrancyMock');
 const ReentrancyAttack = artifacts.require('ReentrancyAttack');
 
-contract('ReentrancyGuard', function (accounts) {
+contract('ReentrancyGuard', function () {
   beforeEach(async function () {
     this.reentrancyMock = await ReentrancyMock.new();
     expect(await this.reentrancyMock.counter()).to.be.bignumber.equal('0');

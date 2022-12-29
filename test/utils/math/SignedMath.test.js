@@ -4,7 +4,7 @@ const { MIN_INT256, MAX_INT256 } = constants;
 
 const SignedMathMock = artifacts.require('SignedMathMock');
 
-contract('SignedMath', function (accounts) {
+contract('SignedMath', function () {
   const min = new BN('-1234');
   const max = new BN('5678');
 
