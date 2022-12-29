@@ -76,14 +76,7 @@ interface IBridge {
         uint256 afterDelayedMessagesRead,
         uint256 prevMessageCount,
         uint256 newMessageCount
-    )
-        external
-        returns (
-            uint256 seqMessageIndex,
-            bytes32 beforeAcc,
-            bytes32 delayedAcc,
-            bytes32 acc
-        );
+    ) external returns (uint256 seqMessageIndex, bytes32 beforeAcc, bytes32 delayedAcc, bytes32 acc);
 
     /**
      * @dev Allows the sequencer inbox to submit a delayed message of the batchPostingReport type

@@ -7,12 +7,7 @@ import "../../token/ERC777/ERC777.sol";
 abstract contract ERC777Mock is ERC777 {
     event BeforeTokenTransfer();
 
-    function _beforeTokenTransfer(
-        address,
-        address,
-        address,
-        uint256
-    ) internal override {
+    function _beforeTokenTransfer(address, address, address, uint256) internal override {
         emit BeforeTokenTransfer();
     }
 }

@@ -7,11 +7,7 @@ contract ERC20NoReturnMock {
 
     function transfer(address, uint256) public {}
 
-    function transferFrom(
-        address,
-        address,
-        uint256
-    ) public {}
+    function transferFrom(address, address, uint256) public {}
 
     function approve(address, uint256) public {}
 

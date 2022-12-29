@@ -197,11 +197,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual override {
+    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         super._afterTokenTransfer(from, to, amount);
 
         _moveVotingPower(delegates(from), delegates(to), amount);
@@ -222,11 +218,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         _moveVotingPower(currentDelegate, delegatee, delegatorBalance);
     }
 
-    function _moveVotingPower(
-        address src,
-        address dst,
-        uint256 amount
-    ) private {
+    function _moveVotingPower(address src, address dst, uint256 amount) private {
         if (src != dst && amount > 0) {
             if (src != address(0)) {
                 (uint256 oldWeight, uint256 newWeight) = _writeCheckpoint(_checkpoints[src], _subtract, amount);

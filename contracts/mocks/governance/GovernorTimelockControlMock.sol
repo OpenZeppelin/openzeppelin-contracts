@@ -13,21 +13,15 @@ abstract contract GovernorTimelockControlMock is
     GovernorVotesQuorumFraction,
     GovernorCountingSimple
 {
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(Governor, GovernorTimelockControl)
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(Governor, GovernorTimelockControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
-    function quorum(uint256 blockNumber)
-        public
-        view
-        override(IGovernor, GovernorVotesQuorumFraction)
-        returns (uint256)
-    {
+    function quorum(
+        uint256 blockNumber
+    ) public view override(IGovernor, GovernorVotesQuorumFraction) returns (uint256) {
         return super.quorum(blockNumber);
     }
 

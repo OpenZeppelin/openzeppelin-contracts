@@ -57,11 +57,7 @@ contract ERC777 is Context, IERC777, IERC20 {
     /**
      * @dev `defaultOperators` may be an empty array.
      */
-    constructor(
-        string memory name_,
-        string memory symbol_,
-        address[] memory defaultOperators_
-    ) {
+    constructor(string memory name_, string memory symbol_, address[] memory defaultOperators_) {
         _name = name_;
         _symbol = symbol_;
 
@@ -127,11 +123,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Also emits a {IERC20-Transfer} event for ERC20 compatibility.
      */
-    function send(
-        address recipient,
-        uint256 amount,
-        bytes memory data
-    ) public virtual override {
+    function send(address recipient, uint256 amount, bytes memory data) public virtual override {
         _send(_msgSender(), recipient, amount, data, "", true);
     }
 
@@ -272,11 +264,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Emits {Sent}, {IERC20-Transfer} and {IERC20-Approval} events.
      */
-    function transferFrom(
-        address holder,
-        address recipient,
-        uint256 amount
-    ) public virtual override returns (bool) {
+    function transferFrom(address holder, address recipient, uint256 amount) public virtual override returns (bool) {
         address spender = _msgSender();
         _spendAllowance(holder, spender, amount);
         _send(holder, recipient, amount, "", "", false);
@@ -301,12 +289,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * - if `account` is a contract, it must implement the {IERC777Recipient}
      * interface.
      */
-    function _mint(
-        address account,
-        uint256 amount,
-        bytes memory userData,
-        bytes memory operatorData
-    ) internal virtual {
+    function _mint(address account, uint256 amount, bytes memory userData, bytes memory operatorData) internal virtual {
         _mint(account, amount, userData, operatorData, true);
     }
 
@@ -387,12 +370,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      * @param data bytes extra information provided by the token holder
      * @param operatorData bytes extra information provided by the operator (if any)
      */
-    function _burn(
-        address from,
-        uint256 amount,
-        bytes memory data,
-        bytes memory operatorData
-    ) internal virtual {
+    function _burn(address from, uint256 amount, bytes memory data, bytes memory operatorData) internal virtual {
         require(from != address(0), "ERC777: burn from the zero address");
 
         address operator = _msgSender();
@@ -439,11 +417,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Note that accounts cannot have allowance issued by their operators.
      */
-    function _approve(
-        address holder,
-        address spender,
-        uint256 value
-    ) internal virtual {
+    function _approve(address holder, address spender, uint256 value) internal virtual {
         require(holder != address(0), "ERC777: approve from the zero address");
         require(spender != address(0), "ERC777: approve to the zero address");
 
@@ -510,11 +484,7 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * Might emit an {IERC20-Approval} event.
      */
-    function _spendAllowance(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {
+    function _spendAllowance(address owner, address spender, uint256 amount) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);
         if (currentAllowance != type(uint256).max) {
             require(currentAllowance >= amount, "ERC777: insufficient allowance");
@@ -538,10 +508,5 @@ contract ERC777 is Context, IERC777, IERC20 {
      *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _beforeTokenTransfer(
-        address operator,
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {}
+    function _beforeTokenTransfer(address operator, address from, address to, uint256 amount) internal virtual {}
 }

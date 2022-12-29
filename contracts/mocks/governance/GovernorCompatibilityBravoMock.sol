@@ -17,30 +17,21 @@ abstract contract GovernorCompatibilityBravoMock is
         return 0;
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(IERC165, Governor, GovernorTimelockCompound)
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(IERC165, Governor, GovernorTimelockCompound) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
-    function state(uint256 proposalId)
-        public
-        view
-        override(IGovernor, Governor, GovernorTimelockCompound)
-        returns (ProposalState)
-    {
+    function state(
+        uint256 proposalId
+    ) public view override(IGovernor, Governor, GovernorTimelockCompound) returns (ProposalState) {
         return super.state(proposalId);
     }
 
-    function proposalEta(uint256 proposalId)
-        public
-        view
-        override(IGovernorTimelock, GovernorTimelockCompound)
-        returns (uint256)
-    {
+    function proposalEta(
+        uint256 proposalId
+    ) public view override(IGovernorTimelock, GovernorTimelockCompound) returns (uint256) {
         return super.proposalEta(proposalId);
     }
 

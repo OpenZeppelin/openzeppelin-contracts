@@ -9,11 +9,7 @@ contract ERC20ReturnFalseMock {
         return false;
     }
 
-    function transferFrom(
-        address,
-        address,
-        uint256
-    ) public pure returns (bool) {
+    function transferFrom(address, address, uint256) public pure returns (bool) {
         return false;
     }
 

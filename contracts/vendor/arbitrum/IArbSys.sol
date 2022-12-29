@@ -91,14 +91,7 @@ interface IArbSys {
      * @return root root hash of the send history
      * @return partials hashes of partial subtrees in the send history tree
      */
-    function sendMerkleTreeState()
-        external
-        view
-        returns (
-            uint256 size,
-            bytes32 root,
-            bytes32[] memory partials
-        );
+    function sendMerkleTreeState() external view returns (uint256 size, bytes32 root, bytes32[] memory partials);
 
     /**
      * @notice creates a send txn from L2 to L1
