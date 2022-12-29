@@ -132,10 +132,16 @@ contract('Strings', function (accounts) {
       expect(await this.strings.methods['equal(string,string)']('aa', 'a')).to.equal(false);
     });
 
-    it('compares two different strings of different (big) lengths', async function () {
+    it('compares two different strings of equal (big) lengths', async function () {
       const str1 = 'a'.repeat(201);
       const str2 = 'a'.repeat(200) + 'b';
       expect(await this.strings.methods['equal(string,string)'](str1, str2)).to.equal(false);
+    });
+
+    it('compares two equal strings of equal (big) lengths', async function () {
+      const str1 = 'a'.repeat(201);
+      const str2 = 'a'.repeat(201);
+      expect(await this.strings.methods['equal(string,string)'](str1, str2)).to.equal(true);
     });
   });
 });
