@@ -4,7 +4,7 @@ const { range } = require('../../../scripts/helpers');
 
 const SafeCastMock = artifacts.require('SafeCastMock');
 
-contract('SafeCast', async (accounts) => {
+contract('SafeCast', async function () {
   beforeEach(async function () {
     this.safeCast = await SafeCastMock.new();
   });

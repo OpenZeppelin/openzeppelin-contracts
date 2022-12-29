@@ -4,7 +4,7 @@ const { expect } = require('chai');
 
 const StringsMock = artifacts.require('StringsMock');
 
-contract('Strings', function (accounts) {
+contract('Strings', function () {
   before(async function () {
     this.strings = await StringsMock.new();
   });
