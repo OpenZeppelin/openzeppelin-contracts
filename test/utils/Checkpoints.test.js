@@ -9,7 +9,7 @@ const $Checkpoints = artifacts.require('$Checkpoints');
 const first = (array) => array.length ? array[0] : undefined;
 const last = (array) => array.length ? array[array.length - 1] : undefined;
 
-contract('Checkpoints', function (accounts) {
+contract('Checkpoints', function () {
   beforeEach(async function () {
     this.mock = await $Checkpoints.new();
   });
@@ -176,7 +176,7 @@ contract('Checkpoints', function (accounts) {
         });
 
         it('cannot push values in the past', async function () {
-          await expectRevert(fnPush(this.mock, last(this.checkpoints).key - 1, '0'), 'Checkpoint: invalid key');
+          await expectRevert(fnPush(this.mock, last(this.checkpoints).key - 1, '0'), 'Checkpoint: decreasing keys');
         });
 
         it('can update last value', async function () {

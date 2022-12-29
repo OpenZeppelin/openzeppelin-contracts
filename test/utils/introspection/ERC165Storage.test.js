@@ -4,7 +4,7 @@ const { shouldSupportInterfaces } = require('./SupportsInterface.behavior');
 
 const ERC165Storage = artifacts.require('$ERC165Storage');
 
-contract('ERC165Storage', function (accounts) {
+contract('ERC165Storage', function () {
   beforeEach(async function () {
     this.mock = await ERC165Storage.new();
   });

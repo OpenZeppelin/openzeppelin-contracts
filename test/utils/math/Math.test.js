@@ -5,7 +5,7 @@ const { Rounding } = require('../../helpers/enums.js');
 
 const Math = artifacts.require('$Math');
 
-contract('Math', function (accounts) {
+contract('Math', function () {
   const min = new BN('1234');
   const max = new BN('5678');
   const MAX_UINT256_SUB1 = MAX_UINT256.sub(new BN('1'));

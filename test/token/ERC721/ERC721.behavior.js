@@ -83,7 +83,7 @@ function shouldBehaveLikeERC721 (errorPrefix, owner, newOwner, approved, another
         await this.token.setApprovalForAll(operator, true, { from: owner });
       });
 
-      const transferWasSuccessful = function ({ owner, tokenId, approved }) {
+      const transferWasSuccessful = function ({ owner, tokenId }) {
         it('transfers the ownership of the given token ID to the given address', async function () {
           expect(await this.token.ownerOf(tokenId)).to.be.equal(this.toWhom);
         });

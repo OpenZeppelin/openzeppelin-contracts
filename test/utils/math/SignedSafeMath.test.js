@@ -5,7 +5,7 @@ const { expect } = require('chai');
 
 const SignedSafeMath = artifacts.require('$SignedSafeMath');
 
-contract('SignedSafeMath', function (accounts) {
+contract('SignedSafeMath', function () {
   beforeEach(async function () {
     this.safeMath = await SignedSafeMath.new();
   });

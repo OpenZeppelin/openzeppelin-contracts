@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (proxy/utils/Initializable.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (proxy/utils/Initializable.sol)
 
 pragma solidity ^0.8.2;
 
@@ -143,21 +143,21 @@ abstract contract Initializable {
      */
     function _disableInitializers() internal virtual {
         require(!_initializing, "Initializable: contract is initializing");
-        if (_initialized < type(uint8).max) {
+        if (_initialized != type(uint8).max) {
             _initialized = type(uint8).max;
             emit Initialized(type(uint8).max);
         }
     }
 
     /**
-     * @dev Internal function that returns the initialized version. Returns `_initialized`
+     * @dev Returns the highest version that has been initialized. See {reinitializer}.
      */
     function _getInitializedVersion() internal view returns (uint8) {
         return _initialized;
     }
 
     /**
-     * @dev Internal function that returns the initialized version. Returns `_initializing`
+     * @dev Returns `true` if the contract is currently initializing. See {onlyInitializing}.
      */
     function _isInitializing() internal view returns (bool) {
         return _initializing;

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20Votes.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/extensions/ERC20Votes.sol)
 
 pragma solidity ^0.8.0;
 
-import "./draft-ERC20Permit.sol";
+import "./ERC20Permit.sol";
 import "../../../utils/math/Math.sol";
 import "../../../governance/utils/IVotes.sol";
 import "../../../utils/math/SafeCast.sol";
@@ -263,6 +263,9 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
         return a - b;
     }
 
+    /**
+     * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+     */
     function _unsafeAccess(Checkpoint[] storage ckpts, uint256 pos) private pure returns (Checkpoint storage result) {
         assembly {
             mstore(0, ckpts.slot)

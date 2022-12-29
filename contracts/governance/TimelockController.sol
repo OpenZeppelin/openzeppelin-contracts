@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (governance/TimelockController.sol)
 
 pragma solidity ^0.8.0;
 
@@ -253,7 +253,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     }
 
     /**
-     * @dev Schedule an operation that is to becomes valid after a given delay.
+     * @dev Schedule an operation that is to become valid after a given delay.
      */
     function _schedule(bytes32 id, uint256 delay) private {
         require(!isOperation(id), "TimelockController: operation already scheduled");

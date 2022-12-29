@@ -8,7 +8,7 @@ const { expect } = require('chai');
 
 const MerkleProof = artifacts.require('$MerkleProof');
 
-contract('MerkleProof', function (accounts) {
+contract('MerkleProof', function () {
   beforeEach(async function () {
     this.merkleProof = await MerkleProof.new();
   });

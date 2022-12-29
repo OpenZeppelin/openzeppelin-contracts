@@ -4,7 +4,7 @@ const { range } = require('../../../scripts/helpers');
 
 const SafeCast = artifacts.require('$SafeCast');
 
-contract('SafeCast', async (accounts) => {
+contract('SafeCast', async function () {
   beforeEach(async function () {
     this.safeCast = await SafeCast.new();
   });

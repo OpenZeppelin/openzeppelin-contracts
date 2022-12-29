@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (token/ERC721/IERC721.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/IERC721.sol)
 
 pragma solidity ^0.8.0;
 
@@ -112,7 +112,7 @@ interface IERC721 is IERC165 {
      *
      * Emits an {ApprovalForAll} event.
      */
-    function setApprovalForAll(address operator, bool _approved) external;
+    function setApprovalForAll(address operator, bool approved) external;
 
     /**
      * @dev Returns the account approved for `tokenId` token.

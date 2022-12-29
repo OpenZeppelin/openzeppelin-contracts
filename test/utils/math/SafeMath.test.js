@@ -16,7 +16,7 @@ function expectStruct (value, expected) {
   }
 }
 
-contract('SafeMath', function (accounts) {
+contract('SafeMath', function () {
   beforeEach(async function () {
     this.safeMath = await SafeMath.new();
   });

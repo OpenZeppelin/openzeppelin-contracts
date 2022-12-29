@@ -461,7 +461,7 @@ contract('Governor', function (accounts) {
       await expectRevert(this.helper.propose(), 'Governor: empty proposal');
     });
 
-    it('missmatch #1', async function () {
+    it('mismatch #1', async function () {
       this.helper.setProposal({
         targets: [ ],
         values: [ web3.utils.toWei('0') ],
@@ -470,7 +470,7 @@ contract('Governor', function (accounts) {
       await expectRevert(this.helper.propose(), 'Governor: invalid proposal length');
     });
 
-    it('missmatch #2', async function () {
+    it('mismatch #2', async function () {
       this.helper.setProposal({
         targets: [ this.receiver.address ],
         values: [ ],
@@ -479,7 +479,7 @@ contract('Governor', function (accounts) {
       await expectRevert(this.helper.propose(), 'Governor: invalid proposal length');
     });
 
-    it('missmatch #3', async function () {
+    it('mismatch #3', async function () {
       this.helper.setProposal({
         targets: [ this.receiver.address ],
         values: [ web3.utils.toWei('0') ],

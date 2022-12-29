@@ -8,7 +8,7 @@ const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock')
 const UUPSUpgradeableLegacyMock = artifacts.require('UUPSUpgradeableLegacyMock');
 const NonUpgradeableMock = artifacts.require('NonUpgradeableMock');
 
-contract('UUPSUpgradeable', function (accounts) {
+contract('UUPSUpgradeable', function () {
   before(async function () {
     this.implInitial = await UUPSUpgradeableMock.new();
     this.implUpgradeOk = await UUPSUpgradeableMock.new();

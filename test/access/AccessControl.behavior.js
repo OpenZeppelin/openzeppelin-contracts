@@ -7,7 +7,7 @@ const DEFAULT_ADMIN_ROLE = '0x00000000000000000000000000000000000000000000000000
 const ROLE = web3.utils.soliditySha3('ROLE');
 const OTHER_ROLE = web3.utils.soliditySha3('OTHER_ROLE');
 
-function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, otherAdmin, otherAuthorized) {
+function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, otherAdmin) {
   shouldSupportInterfaces(['AccessControl']);
 
   describe('default admin', function () {

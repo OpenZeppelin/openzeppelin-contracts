@@ -6,7 +6,7 @@ const AddressArraysMock = artifacts.require('AddressArraysMock');
 const Bytes32ArraysMock = artifacts.require('Bytes32ArraysMock');
 const Uint256ArraysMock = artifacts.require('Uint256ArraysMock');
 
-contract('Arrays', function (accounts) {
+contract('Arrays', function () {
   describe('findUpperBound', function () {
     context('Even number of elements', function () {
       const EVEN_ELEMENTS_ARRAY = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20];

@@ -17,7 +17,7 @@ contract(['ERC1155URIStorage'], function (accounts) {
   describe('with base uri set', function () {
     beforeEach(async function () {
       this.token = await ERC1155URIStorage.new(erc1155Uri);
-      this.token.$_setBaseURI(baseUri);
+      await this.token.$_setBaseURI(baseUri);
 
       await this.token.$_mint(holder, tokenId, amount, '0x');
     });

@@ -3,7 +3,7 @@ const { expect } = require('chai');
 
 const BitMap = artifacts.require('$BitMaps');
 
-contract('BitMap', function (accounts) {
+contract('BitMap', function () {
   const keyA = new BN('7891');
   const keyB = new BN('451');
   const keyC = new BN('9592328');
