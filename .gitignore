@@ -57,9 +57,12 @@ allFiredEvents
 # mocks from hardat-exposed
 contracts-exposed
 
-# hardhat
-cache
-artifacts
+# Hardhat
+/cache
+/artifacts
+
+# Foundry
+/out
 
 # Certora
 .certora*
