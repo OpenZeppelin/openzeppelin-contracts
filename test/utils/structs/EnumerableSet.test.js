@@ -1,6 +1,11 @@
 const EnumerableSet = artifacts.require('$EnumerableSet');
+const { mapValues } = require('../../helpers/map-values');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
+
+const getMethods = (ms) => {
+  return mapValues(ms, m => (self, ...args) => self.methods[m](0, ...args));
+};
 
 contract('EnumerableSet', function (accounts) {
   beforeEach(async function () {
@@ -11,15 +16,17 @@ contract('EnumerableSet', function (accounts) {
   describe('EnumerableBytes32Set', function () {
     shouldBehaveLikeSet(
       [ '0xdeadbeef', '0x0123456789', '0x42424242' ].map(e => e.padEnd(66, '0')),
+      getMethods({
+        add: '$add(uint256,bytes32)',
+        remove: '$remove(uint256,bytes32)',
+        contains: '$contains(uint256,bytes32)',
+        length: '$length_EnumerableSet_Bytes32Set(uint256)',
+        at: '$at_EnumerableSet_Bytes32Set(uint256,uint256)',
+        values: '$values_EnumerableSet_Bytes32Set(uint256)',
+      }),
       {
-        fnAdd: (self, ...args) => self.methods['$add(uint256,bytes32)'](0, ...args),
-        fnRemove: (self, ...args) => self.methods['$remove(uint256,bytes32)'](0, ...args),
-        fnContains: (self, ...args) => self.methods['$contains(uint256,bytes32)'](0, ...args),
-        fnLength: (self, ...args) => self.methods['$length_EnumerableSet_Bytes32Set(uint256)'](0, ...args),
-        fnAt: (self, ...args) => self.methods['$at_EnumerableSet_Bytes32Set(uint256,uint256)'](0, ...args),
-        fnValues: (self, ...args) => self.methods['$values_EnumerableSet_Bytes32Set(uint256)'](0, ...args),
-        evAdd: 'return$add_EnumerableSet_Bytes32Set_bytes32',
-        evRemove: 'return$remove_EnumerableSet_Bytes32Set_bytes32',
+        addReturn: 'return$add_EnumerableSet_Bytes32Set_bytes32',
+        removeReturn: 'return$remove_EnumerableSet_Bytes32Set_bytes32',
       },
     );
   });
@@ -28,15 +35,17 @@ contract('EnumerableSet', function (accounts) {
   describe('EnumerableAddressSet', function () {
     shouldBehaveLikeSet(
       accounts,
+      getMethods({
+        add: '$add(uint256,address)',
+        remove: '$remove(uint256,address)',
+        contains: '$contains(uint256,address)',
+        length: '$length_EnumerableSet_AddressSet(uint256)',
+        at: '$at_EnumerableSet_AddressSet(uint256,uint256)',
+        values: '$values_EnumerableSet_AddressSet(uint256)',
+      }),
       {
-        fnAdd: (self, ...args) => self.methods['$add(uint256,address)'](0, ...args),
-        fnRemove: (self, ...args) => self.methods['$remove(uint256,address)'](0, ...args),
-        fnContains: (self, ...args) => self.methods['$contains(uint256,address)'](0, ...args),
-        fnLength: (self, ...args) => self.methods['$length_EnumerableSet_AddressSet(uint256)'](0, ...args),
-        fnAt: (self, ...args) => self.methods['$at_EnumerableSet_AddressSet(uint256,uint256)'](0, ...args),
-        fnValues: (self, ...args) => self.methods['$values_EnumerableSet_AddressSet(uint256)'](0, ...args),
-        evAdd: 'return$add_EnumerableSet_AddressSet_address',
-        evRemove: 'return$remove_EnumerableSet_AddressSet_address',
+        addReturn: 'return$add_EnumerableSet_AddressSet_address',
+        removeReturn: 'return$remove_EnumerableSet_AddressSet_address',
       },
     );
   });
@@ -45,15 +54,17 @@ contract('EnumerableSet', function (accounts) {
   describe('EnumerableUintSet', function () {
     shouldBehaveLikeSet(
       [ 1234, 5678, 9101112 ].map(e => web3.utils.toBN(e)),
+      getMethods({
+        add: '$add(uint256,uint256)',
+        remove: '$remove(uint256,uint256)',
+        contains: '$contains(uint256,uint256)',
+        length: '$length_EnumerableSet_UintSet(uint256)',
+        at: '$at_EnumerableSet_UintSet(uint256,uint256)',
+        values: '$values_EnumerableSet_UintSet(uint256)',
+      }),
       {
-        fnAdd: (self, ...args) => self.methods['$add(uint256,uint256)'](0, ...args),
-        fnRemove: (self, ...args) => self.methods['$remove(uint256,uint256)'](0, ...args),
-        fnContains: (self, ...args) => self.methods['$contains(uint256,uint256)'](0, ...args),
-        fnLength: (self, ...args) => self.methods['$length_EnumerableSet_UintSet(uint256)'](0, ...args),
-        fnAt: (self, ...args) => self.methods['$at_EnumerableSet_UintSet(uint256,uint256)'](0, ...args),
-        fnValues: (self, ...args) => self.methods['$values_EnumerableSet_UintSet(uint256)'](0, ...args),
-        evAdd: 'return$add_EnumerableSet_UintSet_uint256',
-        evRemove: 'return$remove_EnumerableSet_UintSet_uint256',
+        addReturn: 'return$add_EnumerableSet_UintSet_uint256',
+        removeReturn: 'return$remove_EnumerableSet_UintSet_uint256',
       },
     );
   });
