@@ -57,7 +57,7 @@ function shouldBehaveLikeMap (
   describe('set', function () {
     it('adds a key', async function () {
       const receipt = await fnSet(this.map, keyA, valueA);
-      expectEvent(receipt, evSet, { arg0: true });
+      expectEvent(receipt, evSet, { ret0: true });
 
       await expectMembersMatch(this.map, [keyA], [valueA]);
     });
@@ -74,7 +74,7 @@ function shouldBehaveLikeMap (
       await fnSet(this.map, keyA, valueA);
 
       const receipt = await fnSet(this.map, keyA, valueA);
-      expectEvent(receipt, evSet, { arg0: false });
+      expectEvent(receipt, evSet, { ret0: false });
 
       await expectMembersMatch(this.map, [keyA], [valueA]);
     });
@@ -92,7 +92,7 @@ function shouldBehaveLikeMap (
       await fnSet(this.map, keyA, valueA);
 
       const receipt = await fnRemove(this.map, keyA);
-      expectEvent(receipt, evRemove, { arg0: true });
+      expectEvent(receipt, evRemove, { ret0: true });
 
       expect(await fnContains(this.map, keyA)).to.equal(false);
       await expectMembersMatch(this.map, [], []);
@@ -100,7 +100,7 @@ function shouldBehaveLikeMap (
 
     it('returns false when removing keys not in the set', async function () {
       const receipt = await fnRemove(this.map, keyA);
-      expectEvent(receipt, evRemove, { arg0: false });
+      expectEvent(receipt, evRemove, { ret0: false });
 
       expect(await fnContains(this.map, keyA)).to.equal(false);
     });

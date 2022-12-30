@@ -49,7 +49,7 @@ function shouldBehaveLikeSet (
   describe('add', function () {
     it('adds a value', async function () {
       const receipt = await fnAdd(this.set, valueA);
-      expectEvent(receipt, evAdd, { arg0: true });
+      expectEvent(receipt, evAdd, { ret0: true });
 
       await expectMembersMatch(this.set, [valueA]);
     });
@@ -66,7 +66,7 @@ function shouldBehaveLikeSet (
       await fnAdd(this.set, valueA);
 
       const receipt = await fnAdd(this.set, valueA);
-      expectEvent(receipt, evAdd, { arg0: false });
+      expectEvent(receipt, evAdd, { ret0: false });
 
       await expectMembersMatch(this.set, [valueA]);
     });
@@ -83,7 +83,7 @@ function shouldBehaveLikeSet (
       await fnAdd(this.set, valueA);
 
       const receipt = await fnRemove(this.set, valueA);
-      expectEvent(receipt, evRemove, { arg0: true });
+      expectEvent(receipt, evRemove, { ret0: true });
 
       expect(await fnContains(this.set, valueA)).to.equal(false);
       await expectMembersMatch(this.set, []);
@@ -91,7 +91,7 @@ function shouldBehaveLikeSet (
 
     it('returns false when removing values not in the set', async function () {
       const receipt = await fnRemove(this.set, valueA);
-      expectEvent(receipt, evRemove, { arg0: false });
+      expectEvent(receipt, evRemove, { ret0: false });
 
       expect(await fnContains(this.set, valueA)).to.equal(false);
     });

@@ -109,8 +109,8 @@ contract('Address', function (accounts) {
 
         expectEvent(
           receipt,
-          '$functionCall_address_bytes_Returned',
-          { arg0: web3.eth.abi.encodeParameters(['string'], [ '0x1234' ]) },
+          'return$functionCall_address_bytes',
+          { ret0: web3.eth.abi.encodeParameters(['string'], [ '0x1234' ]) },
         );
         await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
       });
@@ -189,8 +189,8 @@ contract('Address', function (accounts) {
         const receipt = await this.mock.$functionCallWithValue(this.target.address, abiEncodedCall, 0);
         expectEvent(
           receipt,
-          '$functionCallWithValue_address_bytes_uint256_Returned',
-          { arg0: web3.eth.abi.encodeParameters(['string'], [ '0x1234' ]) },
+          'return$functionCallWithValue_address_bytes_uint256',
+          { ret0: web3.eth.abi.encodeParameters(['string'], [ '0x1234' ]) },
         );
         await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
       });
@@ -218,8 +218,8 @@ contract('Address', function (accounts) {
         const receipt = await this.mock.$functionCallWithValue(this.target.address, abiEncodedCall, amount);
         expectEvent(
           receipt,
-          '$functionCallWithValue_address_bytes_uint256_Returned',
-          { arg0: web3.eth.abi.encodeParameters(['string'], [ '0x1234' ]) },
+          'return$functionCallWithValue_address_bytes_uint256',
+          { ret0: web3.eth.abi.encodeParameters(['string'], [ '0x1234' ]) },
         );
         await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
 
@@ -241,8 +241,8 @@ contract('Address', function (accounts) {
         );
         expectEvent(
           receipt,
-          '$functionCallWithValue_address_bytes_uint256_Returned',
-          { arg0: web3.eth.abi.encodeParameters(['string'], [ '0x1234' ]) },
+          'return$functionCallWithValue_address_bytes_uint256',
+          { ret0: web3.eth.abi.encodeParameters(['string'], [ '0x1234' ]) },
         );
         await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
 
@@ -318,8 +318,8 @@ contract('Address', function (accounts) {
 
       expectEvent(
         await this.mock.$functionDelegateCall(this.target.address, abiEncodedCall),
-        '$functionDelegateCall_address_bytes_Returned',
-        { arg0: web3.eth.abi.encodeParameters(['string'], [ '0x1234' ]) },
+        'return$functionDelegateCall_address_bytes',
+        { ret0: web3.eth.abi.encodeParameters(['string'], [ '0x1234' ]) },
       );
 
       expect(await web3.eth.getStorageAt(this.mock.address, slot)).to.be.equal(value);

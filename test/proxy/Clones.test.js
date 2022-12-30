@@ -13,7 +13,7 @@ contract('Clones', function (accounts) {
     shouldBehaveLikeClone(async (implementation, initData, opts = {}) => {
       const factory = await Clones.new();
       const receipt = await factory.$clone(implementation);
-      const address = receipt.logs.find(({ event }) => event === '$clone_Returned').args.arg0;
+      const address = receipt.logs.find(({ event }) => event === 'return$clone').args.instance;
       await web3.eth.sendTransaction({ from: deployer, to: address, value: opts.value, data: initData });
       return { address };
     });
@@ -24,7 +24,7 @@ contract('Clones', function (accounts) {
       const salt = web3.utils.randomHex(32);
       const factory = await Clones.new();
       const receipt = await factory.$cloneDeterministic(implementation, salt);
-      const address = receipt.logs.find(({ event }) => event === '$cloneDeterministic_Returned').args.arg0;
+      const address = receipt.logs.find(({ event }) => event === 'return$cloneDeterministic').args.instance;
       await web3.eth.sendTransaction({ from: deployer, to: address, value: opts.value, data: initData });
       return { address };
     });
@@ -36,7 +36,7 @@ contract('Clones', function (accounts) {
       // deploy once
       expectEvent(
         await factory.$cloneDeterministic(implementation, salt),
-        '$cloneDeterministic_Returned',
+        'return$cloneDeterministic',
       );
       // deploy twice
       await expectRevert(
@@ -65,8 +65,8 @@ contract('Clones', function (accounts) {
 
       expectEvent(
         await factory.$cloneDeterministic(implementation, salt),
-        '$cloneDeterministic_Returned',
-        { arg0: predicted },
+        'return$cloneDeterministic',
+        { instance: predicted },
       );
     });
   });

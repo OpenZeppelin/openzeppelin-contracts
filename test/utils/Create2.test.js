@@ -46,8 +46,8 @@ contract('Create2', function (accounts) {
 
       expectEvent(
         await this.factory.$deploy(0, saltHex, ERC1820Implementer.bytecode),
-        '$deploy_Returned',
-        { arg0: offChainComputed },
+        'return$deploy',
+        { addr: offChainComputed },
       );
 
       expect(ERC1820Implementer.bytecode).to.include((await web3.eth.getCode(offChainComputed)).slice(2));
@@ -58,8 +58,8 @@ contract('Create2', function (accounts) {
 
       expectEvent(
         await this.factory.$deploy(0, saltHex, constructorByteCode),
-        '$deploy_Returned',
-        { arg0: offChainComputed },
+        'return$deploy',
+        { addr: offChainComputed },
       );
 
       expect(await VestingWallet.at(offChainComputed).then(instance => instance.beneficiary())).to.be.equal(other);
@@ -74,8 +74,8 @@ contract('Create2', function (accounts) {
 
       expectEvent(
         await this.factory.$deploy(deposit, saltHex, constructorByteCode),
-        '$deploy_Returned',
-        { arg0: offChainComputed },
+        'return$deploy',
+        { addr: offChainComputed },
       );
 
       expect(await balance.current(offChainComputed)).to.be.bignumber.equal(deposit);
@@ -84,7 +84,7 @@ contract('Create2', function (accounts) {
     it('fails deploying a contract in an existent address', async function () {
       expectEvent(
         await this.factory.$deploy(0, saltHex, constructorByteCode),
-        '$deploy_Returned',
+        'return$deploy',
       );
 
       await expectRevert(
