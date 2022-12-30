@@ -16,7 +16,7 @@ const DUMMY_UNSUPPORTED_ID = '0xbaddcafe';
 const DUMMY_UNSUPPORTED_ID_2 = '0xbaadcafe';
 const DUMMY_ACCOUNT = '0x1111111111111111111111111111111111111111';
 
-contract('ERC165Checker', function (accounts) {
+contract('ERC165Checker', function () {
   beforeEach(async function () {
     this.mock = await ERC165CheckerMock.new();
   });

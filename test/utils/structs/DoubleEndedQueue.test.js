@@ -10,7 +10,7 @@ async function getContent (deque) {
   return values;
 }
 
-contract('DoubleEndedQueue', function (accounts) {
+contract('DoubleEndedQueue', function () {
   const bytesA = '0xdeadbeef'.padEnd(66, '0');
   const bytesB = '0x0123456789'.padEnd(66, '0');
   const bytesC = '0x42424242'.padEnd(66, '0');
