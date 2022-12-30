@@ -54,7 +54,7 @@ allFiredEvents
 .coverage_cache
 .coverage_contracts
 
-# mocks from hardat-exposed
+# hardat-exposed
 contracts-exposed
 
 # Hardhat
