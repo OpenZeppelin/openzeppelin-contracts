@@ -22,6 +22,10 @@ library Address {
      *  - a contract in construction
      *  - an address where a contract will be created
      *  - an address where a contract lived, but was destroyed
+     *
+     * Furthermore, `isContract` will also return true if the target contract within
+     * the same transaction is already scheduled for destruction by `SELFDESTRUCT`,
+     * which only has an effect at the end of a transaction.
      * ====
      *
      * [IMPORTANT]
@@ -36,11 +40,7 @@ library Address {
     function isContract(address account) internal view returns (bool) {
         // This method relies on extcodesize/address.code.length, which returns 0
         // for contracts in construction, since the code is only stored at the end
-        // of the constructor execution. Furthermore, this method returns `true` for
-        // any predeployed `account` contract that is destroyed using `SELFDESTRUCT`
-        // within the same transaction where `isContract` is used. This is possible
-        // because the contract code of `account` is destroyed at the _end_ of the
-        // current transaction.
+        // of the constructor execution.
 
         return account.code.length > 0;
     }
