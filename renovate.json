@@ -1,6 +1,6 @@
 {
   "extends": [
-    "github>OpenZeppelin/code-style"
+    "github>OpenZeppelin/configs"
   ],
   "packageRules": [
     {
