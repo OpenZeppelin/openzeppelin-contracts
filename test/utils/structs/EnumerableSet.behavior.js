@@ -41,7 +41,7 @@ function shouldBehaveLikeSet (
   describe('add', function () {
     it('adds a value', async function () {
       const receipt = await methods.add(this.set, valueA);
-      expectEvent(receipt, events.add, { ret0: true });
+      expectEvent(receipt, events.addReturn, { ret0: true });
 
       await expectMembersMatch(this.set, [valueA]);
     });
@@ -58,7 +58,7 @@ function shouldBehaveLikeSet (
       await methods.add(this.set, valueA);
 
       const receipt = await methods.add(this.set, valueA);
-      expectEvent(receipt, events.add, { ret0: false });
+      expectEvent(receipt, events.addReturn, { ret0: false });
 
       await expectMembersMatch(this.set, [valueA]);
     });
@@ -75,7 +75,7 @@ function shouldBehaveLikeSet (
       await methods.add(this.set, valueA);
 
       const receipt = await methods.remove(this.set, valueA);
-      expectEvent(receipt, events.remove, { ret0: true });
+      expectEvent(receipt, events.removeReturn, { ret0: true });
 
       expect(await methods.contains(this.set, valueA)).to.equal(false);
       await expectMembersMatch(this.set, []);
@@ -83,7 +83,7 @@ function shouldBehaveLikeSet (
 
     it('returns false when removing values not in the set', async function () {
       const receipt = await methods.remove(this.set, valueA);
-      expectEvent(receipt, events.remove, { ret0: false });
+      expectEvent(receipt, events.removeReturn, { ret0: false });
 
       expect(await methods.contains(this.set, valueA)).to.equal(false);
     });
