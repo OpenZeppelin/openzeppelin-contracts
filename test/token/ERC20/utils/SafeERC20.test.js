@@ -61,10 +61,17 @@ contract('SafeERC20', function (accounts) {
       this.data = {
         primaryType: 'Permit',
         types: { EIP712Domain, Permit },
-        domain: { name: 'ERC20PermitNoRevertMock', version: '1', chainId, verifyingContract: this.token.address },
+        domain: {
+          name: 'ERC20PermitNoRevertMock',
+          version: '1',
+          chainId,
+          verifyingContract: this.token.address,
+        },
         message: { owner, spender, value: '42', nonce: '0', deadline: constants.MAX_UINT256 },
       };
-      this.signature = fromRpcSig(ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data: this.data }));
+      this.signature = fromRpcSig(
+        ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data: this.data }),
+      );
     });
 
     it('accepts owner signature', async function () {
@@ -82,7 +89,9 @@ contract('SafeERC20', function (accounts) {
       );
 
       expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
-      expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(this.data.message.value);
+      expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(
+        this.data.message.value,
+      );
     });
 
     it('revert on reused signature', async function () {
@@ -213,7 +222,10 @@ function shouldOnlyRevertOnErrors() {
       });
 
       it('reverts when decreasing the allowance', async function () {
-        await expectRevert(this.wrapper.decreaseAllowance(10), 'SafeERC20: decreased allowance below zero');
+        await expectRevert(
+          this.wrapper.decreaseAllowance(10),
+          'SafeERC20: decreased allowance below zero',
+        );
       });
     });
 
@@ -223,7 +235,10 @@ function shouldOnlyRevertOnErrors() {
       });
 
       it('reverts when approving a non-zero allowance', async function () {
-        await expectRevert(this.wrapper.approve(20), 'SafeERC20: approve from non-zero to non-zero allowance');
+        await expectRevert(
+          this.wrapper.approve(20),
+          'SafeERC20: approve from non-zero to non-zero allowance',
+        );
       });
 
       it("doesn't revert when approving a zero allowance", async function () {
@@ -239,7 +254,10 @@ function shouldOnlyRevertOnErrors() {
       });
 
       it('reverts when decreasing the allowance to a negative value', async function () {
-        await expectRevert(this.wrapper.decreaseAllowance(200), 'SafeERC20: decreased allowance below zero');
+        await expectRevert(
+          this.wrapper.decreaseAllowance(200),
+          'SafeERC20: decreased allowance below zero',
+        );
       });
     });
   });

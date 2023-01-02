@@ -14,9 +14,9 @@ function shouldBehaveLikeMap(keys, values, zeroValue) {
 
     expect(await map.length()).to.bignumber.equal(keys.length.toString());
 
-    expect((await Promise.all(keys.map(key => map.get(key)))).map(k => k.toString())).to.have.same.members(
-      values.map(value => value.toString()),
-    );
+    expect(
+      (await Promise.all(keys.map(key => map.get(key)))).map(k => k.toString()),
+    ).to.have.same.members(values.map(value => value.toString()));
 
     // To compare key-value pairs, we zip keys and values, and convert BNs to
     // strings to workaround Chai limitations when dealing with nested arrays
@@ -152,10 +152,15 @@ function shouldBehaveLikeMap(keys, values, zeroValue) {
 
     describe('get with message', function () {
       it('existing value', async function () {
-        expect((await this.map.getWithMessage(keyA, 'custom error string')).toString()).to.be.equal(valueA.toString());
+        expect((await this.map.getWithMessage(keyA, 'custom error string')).toString()).to.be.equal(
+          valueA.toString(),
+        );
       });
       it('missing value', async function () {
-        await expectRevert(this.map.getWithMessage(keyB, 'custom error string'), 'custom error string');
+        await expectRevert(
+          this.map.getWithMessage(keyB, 'custom error string'),
+          'custom error string',
+        );
       });
     });
 

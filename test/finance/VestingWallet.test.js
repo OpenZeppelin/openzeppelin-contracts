@@ -38,7 +38,8 @@ contract('VestingWallet', function (accounts) {
       this.schedule = Array(64)
         .fill()
         .map((_, i) => web3.utils.toBN(i).mul(duration).divn(60).add(this.start));
-      this.vestingFn = timestamp => min(amount, amount.mul(timestamp.sub(this.start)).div(duration));
+      this.vestingFn = timestamp =>
+        min(amount, amount.mul(timestamp.sub(this.start)).div(duration));
     });
 
     describe('Eth vesting', function () {
@@ -56,7 +57,11 @@ contract('VestingWallet', function (accounts) {
         this.token = await ERC20Mock.new('Name', 'Symbol', this.mock.address, amount);
         this.getBalance = account => this.token.balanceOf(account);
         this.checkRelease = (receipt, to, value) =>
-          expectEvent.inTransaction(receipt.tx, this.token, 'Transfer', { from: this.mock.address, to, value });
+          expectEvent.inTransaction(receipt.tx, this.token, 'Transfer', {
+            from: this.mock.address,
+            to,
+            value,
+          });
       });
 
       shouldBehaveLikeVesting(beneficiary);

@@ -63,7 +63,10 @@ contract('ERC721Burnable', function (accounts) {
 
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
-          await expectRevert(this.token.burn(unknownTokenId, { from: owner }), 'ERC721: invalid token ID');
+          await expectRevert(
+            this.token.burn(unknownTokenId, { from: owner }),
+            'ERC721: invalid token ID',
+          );
         });
       });
     });

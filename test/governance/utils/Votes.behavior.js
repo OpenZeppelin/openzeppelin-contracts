@@ -60,7 +60,14 @@ function shouldBehaveLikeVotes() {
 
         expect(await this.votes.delegates(delegatorAddress)).to.be.equal(ZERO_ADDRESS);
 
-        const { receipt } = await this.votes.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
+        const { receipt } = await this.votes.delegateBySig(
+          delegatorAddress,
+          nonce,
+          MAX_UINT256,
+          v,
+          r,
+          s,
+        );
         expectEvent(receipt, 'DelegateChanged', {
           delegator: delegatorAddress,
           fromDelegate: ZERO_ADDRESS,
@@ -75,9 +82,13 @@ function shouldBehaveLikeVotes() {
         expect(await this.votes.delegates(delegatorAddress)).to.be.equal(delegatorAddress);
 
         expect(await this.votes.getVotes(delegatorAddress)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastVotes(delegatorAddress, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+        expect(
+          await this.votes.getPastVotes(delegatorAddress, receipt.blockNumber - 1),
+        ).to.be.bignumber.equal('0');
         await time.advanceBlock();
-        expect(await this.votes.getPastVotes(delegatorAddress, receipt.blockNumber)).to.be.bignumber.equal('1');
+        expect(
+          await this.votes.getPastVotes(delegatorAddress, receipt.blockNumber),
+        ).to.be.bignumber.equal('1');
       });
 
       it('rejects reused signature', async function () {
@@ -112,7 +123,14 @@ function shouldBehaveLikeVotes() {
           ),
         );
 
-        const receipt = await this.votes.delegateBySig(this.account1Delegatee, nonce, MAX_UINT256, v, r, s);
+        const receipt = await this.votes.delegateBySig(
+          this.account1Delegatee,
+          nonce,
+          MAX_UINT256,
+          v,
+          r,
+          s,
+        );
         const { args } = receipt.logs.find(({ event }) => event === 'DelegateChanged');
         expect(args.delegator).to.not.be.equal(delegatorAddress);
         expect(args.fromDelegate).to.be.equal(ZERO_ADDRESS);
@@ -177,9 +195,13 @@ function shouldBehaveLikeVotes() {
           expect(await this.votes.delegates(this.account1)).to.be.equal(this.account1);
 
           expect(await this.votes.getVotes(this.account1)).to.be.bignumber.equal('1');
-          expect(await this.votes.getPastVotes(this.account1, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+          expect(
+            await this.votes.getPastVotes(this.account1, receipt.blockNumber - 1),
+          ).to.be.bignumber.equal('0');
           await time.advanceBlock();
-          expect(await this.votes.getPastVotes(this.account1, receipt.blockNumber)).to.be.bignumber.equal('1');
+          expect(
+            await this.votes.getPastVotes(this.account1, receipt.blockNumber),
+          ).to.be.bignumber.equal('1');
         });
 
         it('delegation without tokens', async function () {
@@ -207,7 +229,9 @@ function shouldBehaveLikeVotes() {
       it('call', async function () {
         expect(await this.votes.delegates(this.account1)).to.be.equal(this.account1);
 
-        const { receipt } = await this.votes.delegate(this.account1Delegatee, { from: this.account1 });
+        const { receipt } = await this.votes.delegate(this.account1Delegatee, {
+          from: this.account1,
+        });
         expectEvent(receipt, 'DelegateChanged', {
           delegator: this.account1,
           fromDelegate: this.account1,
@@ -228,11 +252,19 @@ function shouldBehaveLikeVotes() {
 
         expect(await this.votes.getVotes(this.account1)).to.be.bignumber.equal('0');
         expect(await this.votes.getVotes(this.account1Delegatee)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastVotes(this.account1, receipt.blockNumber - 1)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastVotes(this.account1Delegatee, prevBlock)).to.be.bignumber.equal('0');
+        expect(
+          await this.votes.getPastVotes(this.account1, receipt.blockNumber - 1),
+        ).to.be.bignumber.equal('1');
+        expect(
+          await this.votes.getPastVotes(this.account1Delegatee, prevBlock),
+        ).to.be.bignumber.equal('0');
         await time.advanceBlock();
-        expect(await this.votes.getPastVotes(this.account1, receipt.blockNumber)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastVotes(this.account1Delegatee, receipt.blockNumber)).to.be.bignumber.equal('1');
+        expect(
+          await this.votes.getPastVotes(this.account1, receipt.blockNumber),
+        ).to.be.bignumber.equal('0');
+        expect(
+          await this.votes.getPastVotes(this.account1Delegatee, receipt.blockNumber),
+        ).to.be.bignumber.equal('1');
       });
     });
 
@@ -254,8 +286,12 @@ function shouldBehaveLikeVotes() {
         await time.advanceBlock();
         await time.advanceBlock();
 
-        expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+        expect(
+          await this.votes.getPastTotalSupply(t1.receipt.blockNumber - 1),
+        ).to.be.bignumber.equal('0');
+        expect(
+          await this.votes.getPastTotalSupply(t1.receipt.blockNumber + 1),
+        ).to.be.bignumber.equal('1');
       });
 
       it('returns zero if < first checkpoint block', async function () {
@@ -264,8 +300,12 @@ function shouldBehaveLikeVotes() {
         await time.advanceBlock();
         await time.advanceBlock();
 
-        expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+        expect(
+          await this.votes.getPastTotalSupply(t2.receipt.blockNumber - 1),
+        ).to.be.bignumber.equal('0');
+        expect(
+          await this.votes.getPastTotalSupply(t2.receipt.blockNumber + 1),
+        ).to.be.bignumber.equal('1');
       });
 
       it('generally returns the voting balance at the appropriate checkpoint', async function () {
@@ -285,17 +325,39 @@ function shouldBehaveLikeVotes() {
         await time.advanceBlock();
         await time.advanceBlock();
 
-        expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t3.receipt.blockNumber)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(t3.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(t4.receipt.blockNumber)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t4.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t5.receipt.blockNumber)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(t5.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+        expect(
+          await this.votes.getPastTotalSupply(t1.receipt.blockNumber - 1),
+        ).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber)).to.be.bignumber.equal(
+          '1',
+        );
+        expect(
+          await this.votes.getPastTotalSupply(t1.receipt.blockNumber + 1),
+        ).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber)).to.be.bignumber.equal(
+          '0',
+        );
+        expect(
+          await this.votes.getPastTotalSupply(t2.receipt.blockNumber + 1),
+        ).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(t3.receipt.blockNumber)).to.be.bignumber.equal(
+          '1',
+        );
+        expect(
+          await this.votes.getPastTotalSupply(t3.receipt.blockNumber + 1),
+        ).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(t4.receipt.blockNumber)).to.be.bignumber.equal(
+          '0',
+        );
+        expect(
+          await this.votes.getPastTotalSupply(t4.receipt.blockNumber + 1),
+        ).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(t5.receipt.blockNumber)).to.be.bignumber.equal(
+          '1',
+        );
+        expect(
+          await this.votes.getPastTotalSupply(t5.receipt.blockNumber + 1),
+        ).to.be.bignumber.equal('1');
       });
     });
 
@@ -324,8 +386,12 @@ function shouldBehaveLikeVotes() {
           await time.advanceBlock();
           const latest = await this.votes.getVotes(this.account2);
           const nextBlock = t1.receipt.blockNumber + 1;
-          expect(await this.votes.getPastVotes(this.account2, t1.receipt.blockNumber)).to.be.bignumber.equal(latest);
-          expect(await this.votes.getPastVotes(this.account2, nextBlock)).to.be.bignumber.equal(latest);
+          expect(
+            await this.votes.getPastVotes(this.account2, t1.receipt.blockNumber),
+          ).to.be.bignumber.equal(latest);
+          expect(await this.votes.getPastVotes(this.account2, nextBlock)).to.be.bignumber.equal(
+            latest,
+          );
         });
 
         it('returns zero if < first checkpoint block', async function () {
@@ -334,7 +400,9 @@ function shouldBehaveLikeVotes() {
           await time.advanceBlock();
           await time.advanceBlock();
 
-          expect(await this.votes.getPastVotes(this.account2, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+          expect(
+            await this.votes.getPastVotes(this.account2, t1.receipt.blockNumber - 1),
+          ).to.be.bignumber.equal('0');
         });
       });
     });

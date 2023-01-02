@@ -67,20 +67,34 @@ contract('TimelockController', function (accounts) {
     expect(await this.mock.CANCELLER_ROLE()).to.be.equal(CANCELLER_ROLE);
 
     expect(
-      await Promise.all([PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE].map(role => this.mock.hasRole(role, proposer))),
+      await Promise.all(
+        [PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE].map(role =>
+          this.mock.hasRole(role, proposer),
+        ),
+      ),
     ).to.be.deep.equal([true, false, false]);
 
     expect(
-      await Promise.all([PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE].map(role => this.mock.hasRole(role, canceller))),
+      await Promise.all(
+        [PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE].map(role =>
+          this.mock.hasRole(role, canceller),
+        ),
+      ),
     ).to.be.deep.equal([false, true, false]);
 
     expect(
-      await Promise.all([PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE].map(role => this.mock.hasRole(role, executor))),
+      await Promise.all(
+        [PROPOSER_ROLE, CANCELLER_ROLE, EXECUTOR_ROLE].map(role =>
+          this.mock.hasRole(role, executor),
+        ),
+      ),
     ).to.be.deep.equal([false, false, true]);
   });
 
   it('optional admin', async function () {
-    const mock = await TimelockController.new(MINDELAY, [proposer], [executor], ZERO_ADDRESS, { from: other });
+    const mock = await TimelockController.new(MINDELAY, [proposer], [executor], ZERO_ADDRESS, {
+      from: other,
+    });
 
     expect(await mock.hasRole(TIMELOCK_ADMIN_ROLE, admin)).to.be.equal(false);
     expect(await mock.hasRole(TIMELOCK_ADMIN_ROLE, other)).to.be.equal(false);
@@ -614,7 +628,11 @@ contract('TimelockController', function (accounts) {
 
         it('partial execution', async function () {
           const operation = genOperationBatch(
-            [this.callreceivermock.address, this.callreceivermock.address, this.callreceivermock.address],
+            [
+              this.callreceivermock.address,
+              this.callreceivermock.address,
+              this.callreceivermock.address,
+            ],
             [0, 0, 0],
             [
               this.callreceivermock.contract.methods.mockFunction().encodeABI(),
@@ -693,7 +711,10 @@ contract('TimelockController', function (accounts) {
 
   describe('maintenance', function () {
     it('prevent unauthorized maintenance', async function () {
-      await expectRevert(this.mock.updateDelay(0, { from: other }), 'TimelockController: caller must be timelock');
+      await expectRevert(
+        this.mock.updateDelay(0, { from: other }),
+        'TimelockController: caller must be timelock',
+      );
     });
 
     it('timelock scheduled maintenance', async function () {
@@ -724,7 +745,10 @@ contract('TimelockController', function (accounts) {
         operation.salt,
         { from: executor },
       );
-      expectEvent(receipt, 'MinDelayChange', { newDuration: newDelay.toString(), oldDuration: MINDELAY });
+      expectEvent(receipt, 'MinDelayChange', {
+        newDuration: newDelay.toString(),
+        oldDuration: MINDELAY,
+      });
 
       expect(await this.mock.getMinDelay()).to.be.bignumber.equal(newDelay);
     });
@@ -855,9 +879,16 @@ contract('TimelockController', function (accounts) {
       );
       await time.increase(MINDELAY);
       await expectRevert(
-        this.mock.execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
-          from: executor,
-        }),
+        this.mock.execute(
+          operation.target,
+          operation.value,
+          operation.data,
+          operation.predecessor,
+          operation.salt,
+          {
+            from: executor,
+          },
+        ),
         'TimelockController: underlying transaction reverted',
       );
     });
@@ -882,9 +913,16 @@ contract('TimelockController', function (accounts) {
       );
       await time.increase(MINDELAY);
       await expectRevert(
-        this.mock.execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
-          from: executor,
-        }),
+        this.mock.execute(
+          operation.target,
+          operation.value,
+          operation.data,
+          operation.predecessor,
+          operation.salt,
+          {
+            from: executor,
+          },
+        ),
         'TimelockController: underlying transaction reverted',
       );
     });
@@ -909,10 +947,17 @@ contract('TimelockController', function (accounts) {
       );
       await time.increase(MINDELAY);
       await expectRevert(
-        this.mock.execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
-          from: executor,
-          gas: '70000',
-        }),
+        this.mock.execute(
+          operation.target,
+          operation.value,
+          operation.data,
+          operation.predecessor,
+          operation.salt,
+          {
+            from: executor,
+            gas: '70000',
+          },
+        ),
         'TimelockController: underlying transaction reverted',
       );
     });
@@ -937,8 +982,12 @@ contract('TimelockController', function (accounts) {
       );
       await time.increase(MINDELAY);
 
-      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
-      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(0),
+      );
+      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(0),
+      );
 
       await this.mock.execute(
         operation.target,
@@ -949,8 +998,12 @@ contract('TimelockController', function (accounts) {
         { from: executor, value: 1 },
       );
 
-      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
-      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(1));
+      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(0),
+      );
+      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(1),
+      );
     });
 
     it('call nonpayable with eth', async function () {
@@ -973,18 +1026,33 @@ contract('TimelockController', function (accounts) {
       );
       await time.increase(MINDELAY);
 
-      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
-      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(0),
+      );
+      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(0),
+      );
 
       await expectRevert(
-        this.mock.execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
-          from: executor,
-        }),
+        this.mock.execute(
+          operation.target,
+          operation.value,
+          operation.data,
+          operation.predecessor,
+          operation.salt,
+          {
+            from: executor,
+          },
+        ),
         'TimelockController: underlying transaction reverted',
       );
 
-      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
-      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(0),
+      );
+      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(0),
+      );
     });
 
     it('call reverting with eth', async function () {
@@ -1007,18 +1075,33 @@ contract('TimelockController', function (accounts) {
       );
       await time.increase(MINDELAY);
 
-      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
-      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(0),
+      );
+      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(0),
+      );
 
       await expectRevert(
-        this.mock.execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
-          from: executor,
-        }),
+        this.mock.execute(
+          operation.target,
+          operation.value,
+          operation.data,
+          operation.predecessor,
+          operation.salt,
+          {
+            from: executor,
+          },
+        ),
         'TimelockController: underlying transaction reverted',
       );
 
-      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
-      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(0),
+      );
+      expect(await web3.eth.getBalance(this.callreceivermock.address)).to.be.bignumber.equal(
+        web3.utils.toBN(0),
+      );
     });
   });
 

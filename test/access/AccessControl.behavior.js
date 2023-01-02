@@ -20,7 +20,9 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
     });
 
     it("default admin role's admin is itself", async function () {
-      expect(await this.accessControl.getRoleAdmin(DEFAULT_ADMIN_ROLE)).to.equal(DEFAULT_ADMIN_ROLE);
+      expect(await this.accessControl.getRoleAdmin(DEFAULT_ADMIN_ROLE)).to.equal(
+        DEFAULT_ADMIN_ROLE,
+      );
     });
   });
 
@@ -91,8 +93,14 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
       });
 
       it('bearer can renounce role', async function () {
-        const receipt = await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
-        expectEvent(receipt, 'RoleRevoked', { account: authorized, role: ROLE, sender: authorized });
+        const receipt = await this.accessControl.renounceRole(ROLE, authorized, {
+          from: authorized,
+        });
+        expectEvent(receipt, 'RoleRevoked', {
+          account: authorized,
+          role: ROLE,
+          sender: authorized,
+        });
 
         expect(await this.accessControl.hasRole(ROLE, authorized)).to.equal(false);
       });
@@ -107,7 +115,9 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
       it('a role can be renounced multiple times', async function () {
         await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
 
-        const receipt = await this.accessControl.renounceRole(ROLE, authorized, { from: authorized });
+        const receipt = await this.accessControl.renounceRole(ROLE, authorized, {
+          from: authorized,
+        });
         expectEvent.notEmitted(receipt, 'RoleRevoked');
       });
     });
@@ -180,7 +190,14 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
   });
 }
 
-function shouldBehaveLikeAccessControlEnumerable(errorPrefix, admin, authorized, other, otherAdmin, otherAuthorized) {
+function shouldBehaveLikeAccessControlEnumerable(
+  errorPrefix,
+  admin,
+  authorized,
+  other,
+  otherAdmin,
+  otherAuthorized,
+) {
   shouldSupportInterfaces(['AccessControlEnumerable']);
 
   describe('enumerating', function () {

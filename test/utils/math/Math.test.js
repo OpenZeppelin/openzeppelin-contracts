@@ -105,21 +105,21 @@ contract('Math', function () {
           await this.math.mulDiv(new BN('42'), MAX_UINT256_SUB1, MAX_UINT256, Rounding.Down),
         ).to.be.bignumber.equal(new BN('41'));
 
-        expect(await this.math.mulDiv(new BN('17'), MAX_UINT256, MAX_UINT256, Rounding.Down)).to.be.bignumber.equal(
-          new BN('17'),
-        );
+        expect(
+          await this.math.mulDiv(new BN('17'), MAX_UINT256, MAX_UINT256, Rounding.Down),
+        ).to.be.bignumber.equal(new BN('17'));
 
         expect(
           await this.math.mulDiv(MAX_UINT256_SUB1, MAX_UINT256_SUB1, MAX_UINT256, Rounding.Down),
         ).to.be.bignumber.equal(MAX_UINT256_SUB2);
 
-        expect(await this.math.mulDiv(MAX_UINT256, MAX_UINT256_SUB1, MAX_UINT256, Rounding.Down)).to.be.bignumber.equal(
-          MAX_UINT256_SUB1,
-        );
+        expect(
+          await this.math.mulDiv(MAX_UINT256, MAX_UINT256_SUB1, MAX_UINT256, Rounding.Down),
+        ).to.be.bignumber.equal(MAX_UINT256_SUB1);
 
-        expect(await this.math.mulDiv(MAX_UINT256, MAX_UINT256, MAX_UINT256, Rounding.Down)).to.be.bignumber.equal(
-          MAX_UINT256,
-        );
+        expect(
+          await this.math.mulDiv(MAX_UINT256, MAX_UINT256, MAX_UINT256, Rounding.Down),
+        ).to.be.bignumber.equal(MAX_UINT256);
       });
     });
 
@@ -130,25 +130,25 @@ contract('Math', function () {
       });
 
       it('large values', async function () {
-        expect(await this.math.mulDiv(new BN('42'), MAX_UINT256_SUB1, MAX_UINT256, Rounding.Up)).to.be.bignumber.equal(
-          new BN('42'),
-        );
+        expect(
+          await this.math.mulDiv(new BN('42'), MAX_UINT256_SUB1, MAX_UINT256, Rounding.Up),
+        ).to.be.bignumber.equal(new BN('42'));
 
-        expect(await this.math.mulDiv(new BN('17'), MAX_UINT256, MAX_UINT256, Rounding.Up)).to.be.bignumber.equal(
-          new BN('17'),
-        );
+        expect(
+          await this.math.mulDiv(new BN('17'), MAX_UINT256, MAX_UINT256, Rounding.Up),
+        ).to.be.bignumber.equal(new BN('17'));
 
         expect(
           await this.math.mulDiv(MAX_UINT256_SUB1, MAX_UINT256_SUB1, MAX_UINT256, Rounding.Up),
         ).to.be.bignumber.equal(MAX_UINT256_SUB1);
 
-        expect(await this.math.mulDiv(MAX_UINT256, MAX_UINT256_SUB1, MAX_UINT256, Rounding.Up)).to.be.bignumber.equal(
-          MAX_UINT256_SUB1,
-        );
+        expect(
+          await this.math.mulDiv(MAX_UINT256, MAX_UINT256_SUB1, MAX_UINT256, Rounding.Up),
+        ).to.be.bignumber.equal(MAX_UINT256_SUB1);
 
-        expect(await this.math.mulDiv(MAX_UINT256, MAX_UINT256, MAX_UINT256, Rounding.Up)).to.be.bignumber.equal(
-          MAX_UINT256,
-        );
+        expect(
+          await this.math.mulDiv(MAX_UINT256, MAX_UINT256, MAX_UINT256, Rounding.Up),
+        ).to.be.bignumber.equal(MAX_UINT256);
       });
     });
   });

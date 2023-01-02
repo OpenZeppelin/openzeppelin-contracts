@@ -298,7 +298,9 @@ contract('SafeMath', function () {
         const a = new BN('5678');
         const b = new BN('1234');
 
-        expect(await this.safeMath.subWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(a.sub(b));
+        expect(await this.safeMath.subWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(
+          a.sub(b),
+        );
       });
 
       it('reverts if subtraction result would be negative', async function () {
@@ -314,21 +316,27 @@ contract('SafeMath', function () {
         const a = new BN('5678');
         const b = new BN('5678');
 
-        expect(await this.safeMath.divWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(a.div(b));
+        expect(await this.safeMath.divWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(
+          a.div(b),
+        );
       });
 
       it('divides zero correctly', async function () {
         const a = new BN('0');
         const b = new BN('5678');
 
-        expect(await this.safeMath.divWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal('0');
+        expect(await this.safeMath.divWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(
+          '0',
+        );
       });
 
       it('returns complete number result on non-even division', async function () {
         const a = new BN('7000');
         const b = new BN('5678');
 
-        expect(await this.safeMath.divWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal('1');
+        expect(await this.safeMath.divWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(
+          '1',
+        );
       });
 
       it('reverts on division by zero', async function () {
@@ -345,28 +353,36 @@ contract('SafeMath', function () {
           const a = new BN('284');
           const b = new BN('5678');
 
-          expect(await this.safeMath.modWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(a.mod(b));
+          expect(await this.safeMath.modWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(
+            a.mod(b),
+          );
         });
 
         it('when the dividend is equal to the divisor', async function () {
           const a = new BN('5678');
           const b = new BN('5678');
 
-          expect(await this.safeMath.modWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(a.mod(b));
+          expect(await this.safeMath.modWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(
+            a.mod(b),
+          );
         });
 
         it('when the dividend is larger than the divisor', async function () {
           const a = new BN('7000');
           const b = new BN('5678');
 
-          expect(await this.safeMath.modWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(a.mod(b));
+          expect(await this.safeMath.modWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(
+            a.mod(b),
+          );
         });
 
         it('when the dividend is a multiple of the divisor', async function () {
           const a = new BN('17034'); // 17034 == 5678 * 3
           const b = new BN('5678');
 
-          expect(await this.safeMath.modWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(a.mod(b));
+          expect(await this.safeMath.modWithMessage(a, b, 'MyErrorMessage')).to.be.bignumber.equal(
+            a.mod(b),
+          );
         });
       });
 

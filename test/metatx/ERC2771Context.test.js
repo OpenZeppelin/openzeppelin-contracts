@@ -75,7 +75,9 @@ contract('ERC2771Context', function (accounts) {
           data,
         };
 
-        const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), { data: { ...this.data, message: req } });
+        const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), {
+          data: { ...this.data, message: req },
+        });
         expect(await this.forwarder.verify(req, sign)).to.equal(true);
 
         const { tx } = await this.forwarder.execute(req, sign);
@@ -98,11 +100,17 @@ contract('ERC2771Context', function (accounts) {
           data,
         };
 
-        const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), { data: { ...this.data, message: req } });
+        const sign = ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), {
+          data: { ...this.data, message: req },
+        });
         expect(await this.forwarder.verify(req, sign)).to.equal(true);
 
         const { tx } = await this.forwarder.execute(req, sign);
-        await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Data', { data, integerValue, stringValue });
+        await expectEvent.inTransaction(tx, ERC2771ContextMock, 'Data', {
+          data,
+          integerValue,
+          stringValue,
+        });
       });
     });
   });

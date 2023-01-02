@@ -14,7 +14,10 @@ contract('Ownable2Step', function (accounts) {
   describe('transfer ownership', function () {
     it('starting a transfer does not change owner', async function () {
       const receipt = await this.ownable2Step.transferOwnership(accountA, { from: owner });
-      expectEvent(receipt, 'OwnershipTransferStarted', { previousOwner: owner, newOwner: accountA });
+      expectEvent(receipt, 'OwnershipTransferStarted', {
+        previousOwner: owner,
+        newOwner: accountA,
+      });
       expect(await this.ownable2Step.owner()).to.equal(owner);
       expect(await this.ownable2Step.pendingOwner()).to.equal(accountA);
     });

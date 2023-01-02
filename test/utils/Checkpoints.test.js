@@ -27,7 +27,9 @@ contract('Checkpoints', function () {
 
       it('returns zero as past value', async function () {
         await time.advanceBlock();
-        expect(await this.checkpoint.getAtBlock((await web3.eth.getBlockNumber()) - 1)).to.be.bignumber.equal('0');
+        expect(
+          await this.checkpoint.getAtBlock((await web3.eth.getBlockNumber()) - 1),
+        ).to.be.bignumber.equal('0');
         expect(
           await this.checkpoint.getAtProbablyRecentBlock((await web3.eth.getBlockNumber()) - 1),
         ).to.be.bignumber.equal('0');
@@ -56,13 +58,25 @@ contract('Checkpoints', function () {
       for (const fn of ['getAtBlock(uint256)', 'getAtProbablyRecentBlock(uint256)']) {
         describe(`lookup: ${fn}`, function () {
           it('returns past values', async function () {
-            expect(await this.checkpoint.methods[fn](this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-            expect(await this.checkpoint.methods[fn](this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
-            expect(await this.checkpoint.methods[fn](this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
+            expect(
+              await this.checkpoint.methods[fn](this.tx1.receipt.blockNumber - 1),
+            ).to.be.bignumber.equal('0');
+            expect(
+              await this.checkpoint.methods[fn](this.tx1.receipt.blockNumber),
+            ).to.be.bignumber.equal('1');
+            expect(
+              await this.checkpoint.methods[fn](this.tx2.receipt.blockNumber),
+            ).to.be.bignumber.equal('2');
             // Block with no new checkpoints
-            expect(await this.checkpoint.methods[fn](this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
-            expect(await this.checkpoint.methods[fn](this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
-            expect(await this.checkpoint.methods[fn](this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
+            expect(
+              await this.checkpoint.methods[fn](this.tx2.receipt.blockNumber + 1),
+            ).to.be.bignumber.equal('2');
+            expect(
+              await this.checkpoint.methods[fn](this.tx3.receipt.blockNumber),
+            ).to.be.bignumber.equal('3');
+            expect(
+              await this.checkpoint.methods[fn](this.tx3.receipt.blockNumber + 1),
+            ).to.be.bignumber.equal('3');
           });
           it('reverts if block number >= current block', async function () {
             await expectRevert(
@@ -98,9 +112,13 @@ contract('Checkpoints', function () {
         expect(await this.checkpoint.length()).to.be.bignumber.equal('6');
         const block = await web3.eth.getBlockNumber();
         // recent
-        expect(await this.checkpoint.getAtProbablyRecentBlock(block - 1)).to.be.bignumber.equal('5');
+        expect(await this.checkpoint.getAtProbablyRecentBlock(block - 1)).to.be.bignumber.equal(
+          '5',
+        );
         // non-recent
-        expect(await this.checkpoint.getAtProbablyRecentBlock(block - 9)).to.be.bignumber.equal('0');
+        expect(await this.checkpoint.getAtProbablyRecentBlock(block - 9)).to.be.bignumber.equal(
+          '0',
+        );
       });
     });
   });
@@ -151,21 +169,28 @@ contract('Checkpoints', function () {
         });
 
         it('cannot push values in the past', async function () {
-          await expectRevert(this.contract.push(last(this.checkpoints).key - 1, '0'), 'Checkpoint: decreasing keys');
+          await expectRevert(
+            this.contract.push(last(this.checkpoints).key - 1, '0'),
+            'Checkpoint: decreasing keys',
+          );
         });
 
         it('can update last value', async function () {
           const newValue = '42';
 
           // check length before the update
-          expect(await this.contract.length()).to.be.bignumber.equal(this.checkpoints.length.toString());
+          expect(await this.contract.length()).to.be.bignumber.equal(
+            this.checkpoints.length.toString(),
+          );
 
           // update last key
           await this.contract.push(last(this.checkpoints).key, newValue);
           expect(await this.contract.latest()).to.be.bignumber.equal(newValue);
 
           // check that length did not change
-          expect(await this.contract.length()).to.be.bignumber.equal(this.checkpoints.length.toString());
+          expect(await this.contract.length()).to.be.bignumber.equal(
+            this.checkpoints.length.toString(),
+          );
         });
 
         it('lower lookup', async function () {

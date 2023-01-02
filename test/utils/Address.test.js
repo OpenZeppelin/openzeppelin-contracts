@@ -63,7 +63,10 @@ contract('Address', function (accounts) {
       });
 
       it('reverts when sending more than the balance', async function () {
-        await expectRevert(this.mock.sendValue(recipient, funds.addn(1)), 'Address: insufficient balance');
+        await expectRevert(
+          this.mock.sendValue(recipient, funds.addn(1)),
+          'Address: insufficient balance',
+        );
       });
 
       context('with contract recipient', function () {
@@ -106,7 +109,10 @@ contract('Address', function (accounts) {
           [],
         );
 
-        const receipt = await this.mock.functionCall(this.contractRecipient.address, abiEncodedCall);
+        const receipt = await this.mock.functionCall(
+          this.contractRecipient.address,
+          abiEncodedCall,
+        );
 
         expectEvent(receipt, 'CallReturnValue', { data: '0x1234' });
         await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
@@ -170,7 +176,9 @@ contract('Address', function (accounts) {
           [],
         );
 
-        await expectRevert.unspecified(this.mock.functionCall(this.contractRecipient.address, abiEncodedCall));
+        await expectRevert.unspecified(
+          this.mock.functionCall(this.contractRecipient.address, abiEncodedCall),
+        );
       });
 
       it('reverts when function does not exist', async function () {
@@ -201,7 +209,10 @@ contract('Address', function (accounts) {
           },
           [],
         );
-        await expectRevert(this.mock.functionCall(recipient, abiEncodedCall), 'Address: call to non-contract');
+        await expectRevert(
+          this.mock.functionCall(recipient, abiEncodedCall),
+          'Address: call to non-contract',
+        );
       });
     });
   });
@@ -222,7 +233,11 @@ contract('Address', function (accounts) {
           [],
         );
 
-        const receipt = await this.mock.functionCallWithValue(this.contractRecipient.address, abiEncodedCall, 0);
+        const receipt = await this.mock.functionCallWithValue(
+          this.contractRecipient.address,
+          abiEncodedCall,
+          0,
+        );
 
         expectEvent(receipt, 'CallReturnValue', { data: '0x1234' });
         await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
@@ -261,7 +276,11 @@ contract('Address', function (accounts) {
         const tracker = await balance.tracker(this.contractRecipient.address);
 
         await send.ether(other, this.mock.address, amount);
-        const receipt = await this.mock.functionCallWithValue(this.contractRecipient.address, abiEncodedCall, amount);
+        const receipt = await this.mock.functionCallWithValue(
+          this.contractRecipient.address,
+          abiEncodedCall,
+          amount,
+        );
 
         expect(await tracker.delta()).to.be.bignumber.equal(amount);
 
@@ -282,10 +301,15 @@ contract('Address', function (accounts) {
         const tracker = await balance.tracker(this.contractRecipient.address);
 
         expect(await balance.current(this.mock.address)).to.be.bignumber.equal('0');
-        const receipt = await this.mock.functionCallWithValue(this.contractRecipient.address, abiEncodedCall, amount, {
-          from: other,
-          value: amount,
-        });
+        const receipt = await this.mock.functionCallWithValue(
+          this.contractRecipient.address,
+          abiEncodedCall,
+          amount,
+          {
+            from: other,
+            value: amount,
+          },
+        );
 
         expect(await tracker.delta()).to.be.bignumber.equal(amount);
 
@@ -327,7 +351,10 @@ contract('Address', function (accounts) {
         [],
       );
 
-      const receipt = await this.mock.functionStaticCall(this.contractRecipient.address, abiEncodedCall);
+      const receipt = await this.mock.functionStaticCall(
+        this.contractRecipient.address,
+        abiEncodedCall,
+      );
 
       expectEvent(receipt, 'CallReturnValue', { data: '0x1234' });
     });
@@ -374,7 +401,10 @@ contract('Address', function (accounts) {
         },
         [],
       );
-      await expectRevert(this.mock.functionStaticCall(recipient, abiEncodedCall), 'Address: call to non-contract');
+      await expectRevert(
+        this.mock.functionStaticCall(recipient, abiEncodedCall),
+        'Address: call to non-contract',
+      );
     });
   });
 
@@ -393,7 +423,10 @@ contract('Address', function (accounts) {
         [],
       );
 
-      const receipt = await this.mock.functionDelegateCall(this.contractRecipient.address, abiEncodedCall);
+      const receipt = await this.mock.functionDelegateCall(
+        this.contractRecipient.address,
+        abiEncodedCall,
+      );
 
       expectEvent(receipt, 'CallReturnValue', { data: '0x1234' });
 
@@ -426,7 +459,10 @@ contract('Address', function (accounts) {
         },
         [],
       );
-      await expectRevert(this.mock.functionDelegateCall(recipient, abiEncodedCall), 'Address: call to non-contract');
+      await expectRevert(
+        this.mock.functionDelegateCall(recipient, abiEncodedCall),
+        'Address: call to non-contract',
+      );
     });
   });
 });

@@ -13,7 +13,10 @@ contract('Create2', function (accounts) {
   const saltHex = web3.utils.soliditySha3(salt);
 
   const encodedParams = web3.eth.abi
-    .encodeParameters(['string', 'string', 'address', 'uint256'], ['MyToken', 'MTKN', deployerAccount, 100])
+    .encodeParameters(
+      ['string', 'string', 'address', 'uint256'],
+      ['MyToken', 'MTKN', deployerAccount, 100],
+    )
     .slice(2);
 
   const constructorByteCode = `${ERC20Mock.bytecode}${encodedParams}`;
@@ -23,8 +26,15 @@ contract('Create2', function (accounts) {
   });
   describe('computeAddress', function () {
     it('computes the correct contract address', async function () {
-      const onChainComputed = await this.factory.computeAddress(saltHex, web3.utils.keccak256(constructorByteCode));
-      const offChainComputed = computeCreate2Address(saltHex, constructorByteCode, this.factory.address);
+      const onChainComputed = await this.factory.computeAddress(
+        saltHex,
+        web3.utils.keccak256(constructorByteCode),
+      );
+      const offChainComputed = computeCreate2Address(
+        saltHex,
+        constructorByteCode,
+        this.factory.address,
+      );
       expect(onChainComputed).to.equal(offChainComputed);
     });
 
@@ -41,13 +51,23 @@ contract('Create2', function (accounts) {
 
   describe('deploy', function () {
     it('deploys a ERC1820Implementer from inline assembly code', async function () {
-      const offChainComputed = computeCreate2Address(saltHex, ERC1820Implementer.bytecode, this.factory.address);
+      const offChainComputed = computeCreate2Address(
+        saltHex,
+        ERC1820Implementer.bytecode,
+        this.factory.address,
+      );
       await this.factory.deployERC1820Implementer(0, saltHex);
-      expect(ERC1820Implementer.bytecode).to.include((await web3.eth.getCode(offChainComputed)).slice(2));
+      expect(ERC1820Implementer.bytecode).to.include(
+        (await web3.eth.getCode(offChainComputed)).slice(2),
+      );
     });
 
     it('deploys a ERC20Mock with correct balances', async function () {
-      const offChainComputed = computeCreate2Address(saltHex, constructorByteCode, this.factory.address);
+      const offChainComputed = computeCreate2Address(
+        saltHex,
+        constructorByteCode,
+        this.factory.address,
+      );
 
       await this.factory.deploy(0, saltHex, constructorByteCode);
 

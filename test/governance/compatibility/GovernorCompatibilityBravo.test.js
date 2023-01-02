@@ -56,11 +56,26 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
 
     await this.token.mint(owner, tokenSupply);
-    await this.helper.delegate({ token: this.token, to: proposer, value: proposalThreshold }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
+    await this.helper.delegate(
+      { token: this.token, to: proposer, value: proposalThreshold },
+      { from: owner },
+    );
+    await this.helper.delegate(
+      { token: this.token, to: voter1, value: web3.utils.toWei('10') },
+      { from: owner },
+    );
+    await this.helper.delegate(
+      { token: this.token, to: voter2, value: web3.utils.toWei('7') },
+      { from: owner },
+    );
+    await this.helper.delegate(
+      { token: this.token, to: voter3, value: web3.utils.toWei('5') },
+      { from: owner },
+    );
+    await this.helper.delegate(
+      { token: this.token, to: voter4, value: web3.utils.toWei('2') },
+      { from: owner },
+    );
 
     // default proposal
     this.proposal = this.helper.setProposal(
@@ -97,7 +112,10 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     // Run proposal
     const txPropose = await this.helper.propose({ from: proposer });
     await this.helper.waitForSnapshot();
-    await this.helper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 });
+    await this.helper.vote(
+      { support: Enums.VoteType.For, reason: 'This is nice' },
+      { from: voter1 },
+    );
     await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
     await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
     await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
@@ -118,8 +136,12 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     expect(proposal.id).to.be.bignumber.equal(this.proposal.id);
     expect(proposal.proposer).to.be.equal(proposer);
     expect(proposal.eta).to.be.bignumber.equal(await this.mock.proposalEta(this.proposal.id));
-    expect(proposal.startBlock).to.be.bignumber.equal(await this.mock.proposalSnapshot(this.proposal.id));
-    expect(proposal.endBlock).to.be.bignumber.equal(await this.mock.proposalDeadline(this.proposal.id));
+    expect(proposal.startBlock).to.be.bignumber.equal(
+      await this.mock.proposalSnapshot(this.proposal.id),
+    );
+    expect(proposal.endBlock).to.be.bignumber.equal(
+      await this.mock.proposalDeadline(this.proposal.id),
+    );
     expect(proposal.canceled).to.be.equal(false);
     expect(proposal.executed).to.be.equal(true);
 
@@ -192,7 +214,10 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
     await this.helper.propose({ from: proposer });
     await this.helper.waitForSnapshot();
-    await this.helper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 });
+    await this.helper.vote(
+      { support: Enums.VoteType.For, reason: 'This is nice' },
+      { from: voter1 },
+    );
     await this.helper.waitForDeadline();
     await this.helper.queue();
     await this.helper.waitForEta();
@@ -200,14 +225,23 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
     await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
     await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
-    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', { a: '17', b: '42' });
-    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', { a: '18', b: '43' });
+    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', {
+      a: '17',
+      b: '42',
+    });
+    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', {
+      a: '18',
+      b: '43',
+    });
   });
 
   describe('should revert', function () {
     describe('on propose', function () {
       it('if proposal does not meet proposalThreshold', async function () {
-        await expectRevert(this.helper.propose({ from: other }), 'Governor: proposer votes below proposal threshold');
+        await expectRevert(
+          this.helper.propose({ from: other }),
+          'Governor: proposer votes below proposal threshold',
+        );
       });
     });
 

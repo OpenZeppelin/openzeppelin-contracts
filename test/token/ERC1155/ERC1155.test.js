@@ -38,7 +38,9 @@ contract('ERC1155', function (accounts) {
 
       context('with minted tokens', function () {
         beforeEach(async function () {
-          this.receipt = await this.token.mint(tokenHolder, tokenId, mintAmount, data, { from: operator });
+          this.receipt = await this.token.mint(tokenHolder, tokenId, mintAmount, data, {
+            from: operator,
+          });
         });
 
         it('emits a TransferSingle event', function () {
@@ -52,7 +54,9 @@ contract('ERC1155', function (accounts) {
         });
 
         it('credits the minted amount of tokens', async function () {
-          expect(await this.token.balanceOf(tokenHolder, tokenId)).to.be.bignumber.equal(mintAmount);
+          expect(await this.token.balanceOf(tokenHolder, tokenId)).to.be.bignumber.equal(
+            mintAmount,
+          );
         });
       });
     });
@@ -79,9 +83,15 @@ contract('ERC1155', function (accounts) {
 
       context('with minted batch of tokens', function () {
         beforeEach(async function () {
-          this.receipt = await this.token.mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts, data, {
-            from: operator,
-          });
+          this.receipt = await this.token.mintBatch(
+            tokenBatchHolder,
+            tokenBatchIds,
+            mintAmounts,
+            data,
+            {
+              from: operator,
+            },
+          );
         });
 
         it('emits a TransferBatch event', function () {
@@ -107,11 +117,17 @@ contract('ERC1155', function (accounts) {
 
     describe('_burn', function () {
       it("reverts when burning the zero account's tokens", async function () {
-        await expectRevert(this.token.burn(ZERO_ADDRESS, tokenId, mintAmount), 'ERC1155: burn from the zero address');
+        await expectRevert(
+          this.token.burn(ZERO_ADDRESS, tokenId, mintAmount),
+          'ERC1155: burn from the zero address',
+        );
       });
 
       it('reverts when burning a non-existent token id', async function () {
-        await expectRevert(this.token.burn(tokenHolder, tokenId, mintAmount), 'ERC1155: burn amount exceeds balance');
+        await expectRevert(
+          this.token.burn(tokenHolder, tokenId, mintAmount),
+          'ERC1155: burn amount exceeds balance',
+        );
       });
 
       it('reverts when burning more than available tokens', async function () {
@@ -126,7 +142,9 @@ contract('ERC1155', function (accounts) {
       context('with minted-then-burnt tokens', function () {
         beforeEach(async function () {
           await this.token.mint(tokenHolder, tokenId, mintAmount, data);
-          this.receipt = await this.token.burn(tokenHolder, tokenId, burnAmount, { from: operator });
+          this.receipt = await this.token.burn(tokenHolder, tokenId, burnAmount, {
+            from: operator,
+          });
         });
 
         it('emits a TransferSingle event', function () {
@@ -140,7 +158,9 @@ contract('ERC1155', function (accounts) {
         });
 
         it('accounts for both minting and burning', async function () {
-          expect(await this.token.balanceOf(tokenHolder, tokenId)).to.be.bignumber.equal(mintAmount.sub(burnAmount));
+          expect(await this.token.balanceOf(tokenHolder, tokenId)).to.be.bignumber.equal(
+            mintAmount.sub(burnAmount),
+          );
         });
       });
     });
@@ -175,7 +195,9 @@ contract('ERC1155', function (accounts) {
       context('with minted-then-burnt tokens', function () {
         beforeEach(async function () {
           await this.token.mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts, data);
-          this.receipt = await this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts, { from: operator });
+          this.receipt = await this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts, {
+            from: operator,
+          });
         });
 
         it('emits a TransferBatch event', function () {
@@ -195,7 +217,9 @@ contract('ERC1155', function (accounts) {
           );
 
           for (let i = 0; i < holderBatchBalances.length; i++) {
-            expect(holderBatchBalances[i]).to.be.bignumber.equal(mintAmounts[i].sub(burnAmounts[i]));
+            expect(holderBatchBalances[i]).to.be.bignumber.equal(
+              mintAmounts[i].sub(burnAmounts[i]),
+            );
           }
         });
       });

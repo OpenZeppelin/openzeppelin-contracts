@@ -29,30 +29,48 @@ contract('ERC1155Pausable', function (accounts) {
 
     it('reverts when trying to safeTransferFrom from holder', async function () {
       await expectRevert(
-        this.token.safeTransferFrom(holder, receiver, firstTokenId, firstTokenAmount, '0x', { from: holder }),
+        this.token.safeTransferFrom(holder, receiver, firstTokenId, firstTokenAmount, '0x', {
+          from: holder,
+        }),
         'ERC1155Pausable: token transfer while paused',
       );
     });
 
     it('reverts when trying to safeTransferFrom from operator', async function () {
       await expectRevert(
-        this.token.safeTransferFrom(holder, receiver, firstTokenId, firstTokenAmount, '0x', { from: operator }),
+        this.token.safeTransferFrom(holder, receiver, firstTokenId, firstTokenAmount, '0x', {
+          from: operator,
+        }),
         'ERC1155Pausable: token transfer while paused',
       );
     });
 
     it('reverts when trying to safeBatchTransferFrom from holder', async function () {
       await expectRevert(
-        this.token.safeBatchTransferFrom(holder, receiver, [firstTokenId], [firstTokenAmount], '0x', { from: holder }),
+        this.token.safeBatchTransferFrom(
+          holder,
+          receiver,
+          [firstTokenId],
+          [firstTokenAmount],
+          '0x',
+          { from: holder },
+        ),
         'ERC1155Pausable: token transfer while paused',
       );
     });
 
     it('reverts when trying to safeBatchTransferFrom from operator', async function () {
       await expectRevert(
-        this.token.safeBatchTransferFrom(holder, receiver, [firstTokenId], [firstTokenAmount], '0x', {
-          from: operator,
-        }),
+        this.token.safeBatchTransferFrom(
+          holder,
+          receiver,
+          [firstTokenId],
+          [firstTokenAmount],
+          '0x',
+          {
+            from: operator,
+          },
+        ),
         'ERC1155Pausable: token transfer while paused',
       );
     });

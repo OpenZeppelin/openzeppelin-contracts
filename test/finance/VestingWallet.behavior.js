@@ -3,7 +3,9 @@ const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 function releasedEvent(token, amount) {
-  return token ? ['ERC20Released', { token: token.address, amount }] : ['EtherReleased', { amount }];
+  return token
+    ? ['ERC20Released', { token: token.address, amount }]
+    : ['EtherReleased', { amount }];
 }
 
 function shouldBehaveLikeVesting(beneficiary) {
@@ -16,14 +18,18 @@ function shouldBehaveLikeVesting(beneficiary) {
       await time.increaseTo(timestamp);
       const vesting = this.vestingFn(timestamp);
 
-      expect(await this.mock.methods[fnVestedAmount](...args, timestamp)).to.be.bignumber.equal(vesting);
+      expect(await this.mock.methods[fnVestedAmount](...args, timestamp)).to.be.bignumber.equal(
+        vesting,
+      );
 
       expect(await this.mock.methods[fnReleasable](...args)).to.be.bignumber.equal(vesting);
     }
   });
 
   it('execute vesting schedule', async function () {
-    const [fnRelease, ...args] = this.token ? ['release(address)', this.token.address] : ['release()'];
+    const [fnRelease, ...args] = this.token
+      ? ['release(address)', this.token.address]
+      : ['release()'];
 
     let released = web3.utils.toBN(0);
     const before = await this.getBalance(beneficiary);
@@ -43,7 +49,11 @@ function shouldBehaveLikeVesting(beneficiary) {
       const vested = this.vestingFn(timestamp);
 
       const receipt = await this.mock.methods[fnRelease](...args);
-      await expectEvent.inTransaction(receipt.tx, this.mock, ...releasedEvent(this.token, vested.sub(released)));
+      await expectEvent.inTransaction(
+        receipt.tx,
+        this.mock,
+        ...releasedEvent(this.token, vested.sub(released)),
+      );
 
       await this.checkRelease(receipt, beneficiary, vested.sub(released));
 

@@ -12,7 +12,10 @@ contract('ERC20Capped', function (accounts) {
   const symbol = 'MTKN';
 
   it('requires a non-zero cap', async function () {
-    await expectRevert(ERC20Capped.new(name, symbol, new BN(0), { from: minter }), 'ERC20Capped: cap is 0');
+    await expectRevert(
+      ERC20Capped.new(name, symbol, new BN(0), { from: minter }),
+      'ERC20Capped: cap is 0',
+    );
   });
 
   context('once deployed', async function () {

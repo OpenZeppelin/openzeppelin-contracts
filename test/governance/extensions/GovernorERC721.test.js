@@ -33,7 +33,9 @@ contract('GovernorERC721Mock', function (accounts) {
 
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
-    await Promise.all([NFT0, NFT1, NFT2, NFT3, NFT4].map(tokenId => this.token.mint(owner, tokenId)));
+    await Promise.all(
+      [NFT0, NFT1, NFT2, NFT3, NFT4].map(tokenId => this.token.mint(owner, tokenId)),
+    );
     await this.helper.delegate({ token: this.token, to: voter1, tokenId: NFT0 }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter2, tokenId: NFT1 }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter2, tokenId: NFT2 }, { from: owner });
@@ -65,29 +67,45 @@ contract('GovernorERC721Mock', function (accounts) {
     await this.helper.propose();
     await this.helper.waitForSnapshot();
 
-    expectEvent(await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }), 'VoteCast', {
-      voter: voter1,
-      support: Enums.VoteType.For,
-      weight: '1',
-    });
+    expectEvent(
+      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
+      'VoteCast',
+      {
+        voter: voter1,
+        support: Enums.VoteType.For,
+        weight: '1',
+      },
+    );
 
-    expectEvent(await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 }), 'VoteCast', {
-      voter: voter2,
-      support: Enums.VoteType.For,
-      weight: '2',
-    });
+    expectEvent(
+      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 }),
+      'VoteCast',
+      {
+        voter: voter2,
+        support: Enums.VoteType.For,
+        weight: '2',
+      },
+    );
 
-    expectEvent(await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 }), 'VoteCast', {
-      voter: voter3,
-      support: Enums.VoteType.Against,
-      weight: '1',
-    });
+    expectEvent(
+      await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 }),
+      'VoteCast',
+      {
+        voter: voter3,
+        support: Enums.VoteType.Against,
+        weight: '1',
+      },
+    );
 
-    expectEvent(await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 }), 'VoteCast', {
-      voter: voter4,
-      support: Enums.VoteType.Abstain,
-      weight: '1',
-    });
+    expectEvent(
+      await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 }),
+      'VoteCast',
+      {
+        voter: voter4,
+        support: Enums.VoteType.Abstain,
+        weight: '1',
+      },
+    );
 
     await this.helper.waitForDeadline();
     await this.helper.execute();

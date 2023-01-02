@@ -56,7 +56,9 @@ contract('ERC20Pausable', function (accounts) {
         await this.token.transferFrom(holder, recipient, allowance, { from: anotherAccount });
 
         expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(allowance);
-        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal(initialSupply.sub(allowance));
+        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal(
+          initialSupply.sub(allowance),
+        );
       });
 
       it('allows to transfer when paused and then unpaused', async function () {
@@ -66,7 +68,9 @@ contract('ERC20Pausable', function (accounts) {
         await this.token.transferFrom(holder, recipient, allowance, { from: anotherAccount });
 
         expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(allowance);
-        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal(initialSupply.sub(allowance));
+        expect(await this.token.balanceOf(holder)).to.be.bignumber.equal(
+          initialSupply.sub(allowance),
+        );
       });
 
       it('reverts when trying to transfer from when paused', async function () {
@@ -100,7 +104,10 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to mint when paused', async function () {
         await this.token.pause();
 
-        await expectRevert(this.token.mint(recipient, amount), 'ERC20Pausable: token transfer while paused');
+        await expectRevert(
+          this.token.mint(recipient, amount),
+          'ERC20Pausable: token transfer while paused',
+        );
       });
     });
 
@@ -125,7 +132,10 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to burn when paused', async function () {
         await this.token.pause();
 
-        await expectRevert(this.token.burn(holder, amount), 'ERC20Pausable: token transfer while paused');
+        await expectRevert(
+          this.token.burn(holder, amount),
+          'ERC20Pausable: token transfer while paused',
+        );
       });
     });
   });

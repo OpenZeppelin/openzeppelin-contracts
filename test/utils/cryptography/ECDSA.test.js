@@ -50,7 +50,10 @@ contract('ECDSA', function (accounts) {
 
   context('recover with invalid signature', function () {
     it('with short signature', async function () {
-      await expectRevert(this.ecdsa.recover(TEST_MESSAGE, '0x1234'), 'ECDSA: invalid signature length');
+      await expectRevert(
+        this.ecdsa.recover(TEST_MESSAGE, '0x1234'),
+        'ECDSA: invalid signature length',
+      );
     });
 
     it('with long signature', async function () {
@@ -72,7 +75,9 @@ contract('ECDSA', function (accounts) {
         const signature = await web3.eth.sign(TEST_MESSAGE, other);
 
         // Recover the signer address from the generated message and signature.
-        expect(await this.ecdsa.recover(toEthSignedMessageHash(TEST_MESSAGE), signature)).to.equal(other);
+        expect(await this.ecdsa.recover(toEthSignedMessageHash(TEST_MESSAGE), signature)).to.equal(
+          other,
+        );
       });
 
       it('returns signer address with correct signature for arbitrary length message', async function () {
@@ -80,7 +85,9 @@ contract('ECDSA', function (accounts) {
         const signature = await web3.eth.sign(NON_HASH_MESSAGE, other);
 
         // Recover the signer address from the generated message and signature.
-        expect(await this.ecdsa.recover(toEthSignedMessageHash(NON_HASH_MESSAGE), signature)).to.equal(other);
+        expect(
+          await this.ecdsa.recover(toEthSignedMessageHash(NON_HASH_MESSAGE), signature),
+        ).to.equal(other);
       });
 
       it('returns a different address', async function () {
@@ -108,22 +115,34 @@ contract('ECDSA', function (accounts) {
         const signature = signatureWithoutV + v;
         expect(await this.ecdsa.recover(TEST_MESSAGE, signature)).to.equal(signer);
         expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.equal(signer);
-        expect(await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature)))).to.equal(signer);
+        expect(
+          await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature))),
+        ).to.equal(signer);
       });
 
       it('rejects incorrect v value', async function () {
         const v = '1c'; // 28 = 1c.
         const signature = signatureWithoutV + v;
         expect(await this.ecdsa.recover(TEST_MESSAGE, signature)).to.not.equal(signer);
-        expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.not.equal(signer);
-        expect(await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature)))).to.not.equal(signer);
+        expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.not.equal(
+          signer,
+        );
+        expect(
+          await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature))),
+        ).to.not.equal(signer);
       });
 
       it('reverts wrong v values', async function () {
         for (const v of ['00', '01']) {
           const signature = signatureWithoutV + v;
-          await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
-          await expectRevert(this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)), 'ECDSA: invalid signature');
+          await expectRevert(
+            this.ecdsa.recover(TEST_MESSAGE, signature),
+            'ECDSA: invalid signature',
+          );
+          await expectRevert(
+            this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
+            'ECDSA: invalid signature',
+          );
         }
       });
 
@@ -148,22 +167,34 @@ contract('ECDSA', function (accounts) {
         const signature = signatureWithoutV + v;
         expect(await this.ecdsa.recover(TEST_MESSAGE, signature)).to.equal(signer);
         expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.equal(signer);
-        expect(await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature)))).to.equal(signer);
+        expect(
+          await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature))),
+        ).to.equal(signer);
       });
 
       it('rejects incorrect v value', async function () {
         const v = '1b'; // 27 = 1b.
         const signature = signatureWithoutV + v;
         expect(await this.ecdsa.recover(TEST_MESSAGE, signature)).to.not.equal(signer);
-        expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.not.equal(signer);
-        expect(await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature)))).to.not.equal(signer);
+        expect(await this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature))).to.not.equal(
+          signer,
+        );
+        expect(
+          await this.ecdsa.recover_r_vs(TEST_MESSAGE, ...split(to2098Format(signature))),
+        ).to.not.equal(signer);
       });
 
       it('reverts invalid v values', async function () {
         for (const v of ['00', '01']) {
           const signature = signatureWithoutV + v;
-          await expectRevert(this.ecdsa.recover(TEST_MESSAGE, signature), 'ECDSA: invalid signature');
-          await expectRevert(this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)), 'ECDSA: invalid signature');
+          await expectRevert(
+            this.ecdsa.recover(TEST_MESSAGE, signature),
+            'ECDSA: invalid signature',
+          );
+          await expectRevert(
+            this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(signature)),
+            'ECDSA: invalid signature',
+          );
         }
       });
 
@@ -182,7 +213,10 @@ contract('ECDSA', function (accounts) {
       // eslint-disable-next-line max-len
       const highSSignature =
         '0xe742ff452d41413616a5bf43fe15dd88294e983d3d36206c2712f39083d638bde0a0fc89be718fbc1033e1d30d78be1c68081562ed2e97af876f286f3453231d1b';
-      await expectRevert(this.ecdsa.recover(message, highSSignature), "ECDSA: invalid signature 's' value");
+      await expectRevert(
+        this.ecdsa.recover(message, highSSignature),
+        "ECDSA: invalid signature 's' value",
+      );
       await expectRevert(
         this.ecdsa.recover_v_r_s(TEST_MESSAGE, ...split(highSSignature)),
         "ECDSA: invalid signature 's' value",

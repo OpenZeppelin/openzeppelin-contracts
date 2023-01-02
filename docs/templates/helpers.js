@@ -29,7 +29,9 @@ function getAllLinks(items) {
   linksCache.set(items, res);
   for (const item of items) {
     res[`xref-${item.anchor}`] = `xref:${item.__item_context.page}#${item.anchor}`;
-    res[slug(item.fullName)] = `pass:normal[xref:${item.__item_context.page}#${item.anchor}[\`${item.fullName}\`]]`;
+    res[
+      slug(item.fullName)
+    ] = `pass:normal[xref:${item.__item_context.page}#${item.anchor}[\`${item.fullName}\`]]`;
   }
   return res;
 }

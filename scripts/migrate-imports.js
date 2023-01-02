@@ -36,7 +36,8 @@ const pathUpdates = {
   'presets/ERC1155PresetMinterPauser.sol': 'token/ERC1155/presets/ERC1155PresetMinterPauser.sol',
   'presets/ERC20PresetFixedSupply.sol': 'token/ERC20/presets/ERC20PresetFixedSupply.sol',
   'presets/ERC20PresetMinterPauser.sol': 'token/ERC20/presets/ERC20PresetMinterPauser.sol',
-  'presets/ERC721PresetMinterPauserAutoId.sol': 'token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol',
+  'presets/ERC721PresetMinterPauserAutoId.sol':
+    'token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol',
   'presets/ERC777PresetFixedSupply.sol': 'token/ERC777/presets/ERC777PresetFixedSupply.sol',
   'proxy/BeaconProxy.sol': 'proxy/beacon/BeaconProxy.sol',
   // 'proxy/Clones.sol': undefined,

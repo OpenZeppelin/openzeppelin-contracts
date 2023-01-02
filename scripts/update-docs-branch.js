@@ -11,7 +11,8 @@ const tryRead = cmd => {
   }
 };
 
-const releaseBranchRegex = /^release-v(?<version>(?<major>\d+)\.(?<minor>\d+)(?:\.(?<patch>\d+))?)$/;
+const releaseBranchRegex =
+  /^release-v(?<version>(?<major>\d+)\.(?<minor>\d+)(?:\.(?<patch>\d+))?)$/;
 
 const currentBranch = read('git rev-parse --abbrev-ref HEAD');
 const match = currentBranch.match(releaseBranchRegex);

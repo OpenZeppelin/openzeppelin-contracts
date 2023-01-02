@@ -30,10 +30,22 @@ contract('GovernorComp', function (accounts) {
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
     await this.token.mint(owner, tokenSupply);
-    await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-    await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
+    await this.helper.delegate(
+      { token: this.token, to: voter1, value: web3.utils.toWei('10') },
+      { from: owner },
+    );
+    await this.helper.delegate(
+      { token: this.token, to: voter2, value: web3.utils.toWei('7') },
+      { from: owner },
+    );
+    await this.helper.delegate(
+      { token: this.token, to: voter3, value: web3.utils.toWei('5') },
+      { from: owner },
+    );
+    await this.helper.delegate(
+      { token: this.token, to: voter4, value: web3.utils.toWei('2') },
+      { from: owner },
+    );
 
     // default proposal
     this.proposal = this.helper.setProposal(

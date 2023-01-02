@@ -47,20 +47,27 @@ class Report {
 
     const deployments = update.info.deployments
       .map(contract =>
-        Object.assign(contract, { previousVersion: ref.info.deployments.find(({ name }) => name === contract.name) }),
+        Object.assign(contract, {
+          previousVersion: ref.info.deployments.find(({ name }) => name === contract.name),
+        }),
       )
       .filter(contract => contract.gasData?.length && contract.previousVersion?.gasData?.length)
       .flatMap(contract => [
         {
           contract: contract.name,
           method: '[bytecode length]',
-          avg: variation(contract.bytecode.length / 2 - 1, contract.previousVersion.bytecode.length / 2 - 1),
+          avg: variation(
+            contract.bytecode.length / 2 - 1,
+            contract.previousVersion.bytecode.length / 2 - 1,
+          ),
         },
         {
           contract: contract.name,
           method: '[construction cost]',
           avg: variation(
-            ...[contract.gasData, contract.previousVersion.gasData].map(x => Math.round(average(...x))),
+            ...[contract.gasData, contract.previousVersion.gasData].map(x =>
+              Math.round(average(...x)),
+            ),
             BASE_TX_COST,
           ),
         },
@@ -74,9 +81,18 @@ class Report {
       .map(key => ({
         contract: ref.info.methods[key].contract,
         method: ref.info.methods[key].fnSig,
-        min: variation(...[update, ref].map(x => Math.min(...x.info.methods[key].gasData)), BASE_TX_COST),
-        max: variation(...[update, ref].map(x => Math.max(...x.info.methods[key].gasData)), BASE_TX_COST),
-        avg: variation(...[update, ref].map(x => Math.round(average(...x.info.methods[key].gasData))), BASE_TX_COST),
+        min: variation(
+          ...[update, ref].map(x => Math.min(...x.info.methods[key].gasData)),
+          BASE_TX_COST,
+        ),
+        max: variation(
+          ...[update, ref].map(x => Math.max(...x.info.methods[key].gasData)),
+          BASE_TX_COST,
+        ),
+        avg: variation(
+          ...[update, ref].map(x => Math.round(average(...x.info.methods[key].gasData))),
+          BASE_TX_COST,
+        ),
       }))
       .sort((a, b) => `${a.contract}:${a.method}`.localeCompare(`${b.contract}:${b.method}`));
 
@@ -99,8 +115,14 @@ function formatCellShell(cell) {
   const format = chalk[cell?.delta > 0 ? 'red' : cell?.delta < 0 ? 'green' : 'reset'];
   return [
     format((!isFinite(cell?.value) ? '-' : cell.value.toString()).padStart(8)),
-    format((!isFinite(cell?.delta) ? '-' : plusSign(cell.delta) + cell.delta.toString()).padStart(8)),
-    format((!isFinite(cell?.prcnt) ? '-' : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '%').padStart(8)),
+    format(
+      (!isFinite(cell?.delta) ? '-' : plusSign(cell.delta) + cell.delta.toString()).padStart(8),
+    ),
+    format(
+      (!isFinite(cell?.prcnt) ? '-' : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '%').padStart(
+        8,
+      ),
+    ),
   ];
 }
 
@@ -166,7 +188,9 @@ function formatCellMarkdown(cell) {
   return [
     !isFinite(cell?.value) ? '-' : cell.value.toString(),
     !isFinite(cell?.delta) ? '-' : plusSign(cell.delta) + cell.delta.toString(),
-    !isFinite(cell?.prcnt) ? '-' : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '%' + trend(cell.delta),
+    !isFinite(cell?.prcnt)
+      ? '-'
+      : plusSign(cell.prcnt) + cell.prcnt.toFixed(2) + '%' + trend(cell.delta),
   ];
 }
 

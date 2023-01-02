@@ -22,12 +22,15 @@ class GovernorHelper {
   delegate(delegation = {}, opts = null) {
     return Promise.all([
       delegation.token.delegate(delegation.to, { from: delegation.to }),
-      delegation.value && delegation.token.transfer(...concatOpts([delegation.to, delegation.value]), opts),
+      delegation.value &&
+        delegation.token.transfer(...concatOpts([delegation.to, delegation.value]), opts),
       delegation.tokenId &&
         delegation.token
           .ownerOf(delegation.tokenId)
           .then(owner =>
-            delegation.token.transferFrom(...concatOpts([owner, delegation.to, delegation.tokenId], opts)),
+            delegation.token.transferFrom(
+              ...concatOpts([owner, delegation.to, delegation.tokenId], opts),
+            ),
           ),
     ]);
   }
@@ -87,7 +90,10 @@ class GovernorHelper {
             })
             .then(({ v, r, s }) =>
               this.governor.castVoteWithReasonAndParamsBySig(
-                ...concatOpts([proposal.id, vote.support, vote.reason || '', vote.params || '', v, r, s], opts),
+                ...concatOpts(
+                  [proposal.id, vote.support, vote.reason || '', vote.params || '', v, r, s],
+                  opts,
+                ),
               ),
             )
         : vote
@@ -96,7 +102,9 @@ class GovernorHelper {
               support: vote.support,
             })
             .then(({ v, r, s }) =>
-              this.governor.castVoteBySig(...concatOpts([proposal.id, vote.support, v, r, s], opts)),
+              this.governor.castVoteBySig(
+                ...concatOpts([proposal.id, vote.support, v, r, s], opts),
+              ),
             )
       : vote.params
       ? // otherwise if params
@@ -105,7 +113,9 @@ class GovernorHelper {
         )
       : vote.reason
       ? // otherwise if reason
-        this.governor.castVoteWithReason(...concatOpts([proposal.id, vote.support, vote.reason], opts))
+        this.governor.castVoteWithReason(
+          ...concatOpts([proposal.id, vote.support, vote.reason], opts),
+        )
       : this.governor.castVote(...concatOpts([proposal.id, vote.support], opts));
   }
 
@@ -125,7 +135,9 @@ class GovernorHelper {
 
   waitForEta(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor.proposalEta(proposal.id).then(timestamp => time.increaseTo(timestamp.addn(offset)));
+    return this.governor
+      .proposalEta(proposal.id)
+      .then(timestamp => time.increaseTo(timestamp.addn(offset)));
   }
 
   /**
@@ -158,12 +170,21 @@ class GovernorHelper {
     const shortProposal = [targets, values, fulldata, descriptionHash];
 
     // full version for proposing
-    const fullProposal = [targets, values, ...(useCompatibilityInterface ? [signatures] : []), data, description];
+    const fullProposal = [
+      targets,
+      values,
+      ...(useCompatibilityInterface ? [signatures] : []),
+      data,
+      description,
+    ];
 
     // proposal id
     const id = web3.utils.toBN(
       web3.utils.keccak256(
-        web3.eth.abi.encodeParameters(['address[]', 'uint256[]', 'bytes[]', 'bytes32'], shortProposal),
+        web3.eth.abi.encodeParameters(
+          ['address[]', 'uint256[]', 'bytes[]', 'bytes32'],
+          shortProposal,
+        ),
       ),
     );
 

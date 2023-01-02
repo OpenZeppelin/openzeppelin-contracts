@@ -18,7 +18,13 @@ contract('ERC777PresetFixedSupply', function (accounts) {
   });
 
   beforeEach(async function () {
-    this.token = await ERC777PresetFixedSupply.new(name, symbol, defaultOperators, initialSupply, owner);
+    this.token = await ERC777PresetFixedSupply.new(
+      name,
+      symbol,
+      defaultOperators,
+      initialSupply,
+      owner,
+    );
   });
 
   it('returns the name', async function () {

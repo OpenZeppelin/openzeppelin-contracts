@@ -22,7 +22,9 @@ function shouldBehaveLikeRegularContext(sender) {
     let callData;
 
     beforeEach(async function () {
-      callData = this.context.contract.methods.msgData(integerValue.toString(), stringValue).encodeABI();
+      callData = this.context.contract.methods
+        .msgData(integerValue.toString(), stringValue)
+        .encodeABI();
     });
 
     it('returns the transaction data when called from an EOA', async function () {
@@ -32,7 +34,11 @@ function shouldBehaveLikeRegularContext(sender) {
 
     it('returns the transaction sender when from another contract', async function () {
       const { tx } = await this.caller.callData(this.context.address, integerValue, stringValue);
-      await expectEvent.inTransaction(tx, ContextMock, 'Data', { data: callData, integerValue, stringValue });
+      await expectEvent.inTransaction(tx, ContextMock, 'Data', {
+        data: callData,
+        integerValue,
+        stringValue,
+      });
     });
   });
 }

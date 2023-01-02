@@ -58,7 +58,9 @@ contract Checkpoints${length}Mock {
         return _totalCheckpoints.length();
     }
 
-    function push(uint${256 - length} key, uint${length} value) public returns (uint${length}, uint${length}) {
+    function push(uint${
+      256 - length
+    } key, uint${length} value) public returns (uint${length}, uint${length}) {
         return _totalCheckpoints.push(key, value);
     }
 

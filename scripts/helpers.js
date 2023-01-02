@@ -1,5 +1,7 @@
 function chunk(array, size = 1) {
-  return Array.range(Math.ceil(array.length / size)).map(i => array.slice(i * size, i * size + size));
+  return Array.range(Math.ceil(array.length / size)).map(i =>
+    array.slice(i * size, i * size + size),
+  );
 }
 
 function range(start, stop = undefined, step = 1) {

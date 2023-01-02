@@ -18,13 +18,19 @@ contract('ERC20', function (accounts) {
 
   beforeEach(async function () {
     this.underlying = await ERC20Mock.new(name, symbol, 9);
-    this.token = await ERC20WrapperMock.new(this.underlying.address, `Wrapped ${name}`, `W${symbol}`);
+    this.token = await ERC20WrapperMock.new(
+      this.underlying.address,
+      `Wrapped ${name}`,
+      `W${symbol}`,
+    );
 
     await this.underlying.mint(initialHolder, initialSupply);
   });
 
   afterEach(async function () {
-    expect(await this.underlying.balanceOf(this.token.address)).to.be.bignumber.equal(await this.token.totalSupply());
+    expect(await this.underlying.balanceOf(this.token.address)).to.be.bignumber.equal(
+      await this.token.totalSupply(),
+    );
   });
 
   it('has a name', async function () {
@@ -41,7 +47,11 @@ contract('ERC20', function (accounts) {
 
   it('decimals default back to 18 if token has no metadata', async function () {
     const noDecimals = await NotAnERC20.new();
-    const otherToken = await ERC20WrapperMock.new(noDecimals.address, `Wrapped ${name}`, `W${symbol}`);
+    const otherToken = await ERC20WrapperMock.new(
+      noDecimals.address,
+      `Wrapped ${name}`,
+      `W${symbol}`,
+    );
     expect(await otherToken.decimals()).to.be.bignumber.equal('18');
   });
 
@@ -52,7 +62,9 @@ contract('ERC20', function (accounts) {
   describe('deposit', function () {
     it('valid', async function () {
       await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });
-      const { tx } = await this.token.depositFor(initialHolder, initialSupply, { from: initialHolder });
+      const { tx } = await this.token.depositFor(initialHolder, initialSupply, {
+        from: initialHolder,
+      });
       await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: initialHolder,
         to: this.token.address,
@@ -82,7 +94,9 @@ contract('ERC20', function (accounts) {
 
     it('to other account', async function () {
       await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });
-      const { tx } = await this.token.depositFor(anotherAccount, initialSupply, { from: initialHolder });
+      const { tx } = await this.token.depositFor(anotherAccount, initialSupply, {
+        from: initialHolder,
+      });
       await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: initialHolder,
         to: this.token.address,
@@ -126,7 +140,9 @@ contract('ERC20', function (accounts) {
     });
 
     it('entire balance', async function () {
-      const { tx } = await this.token.withdrawTo(initialHolder, initialSupply, { from: initialHolder });
+      const { tx } = await this.token.withdrawTo(initialHolder, initialSupply, {
+        from: initialHolder,
+      });
       await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: this.token.address,
         to: initialHolder,
@@ -140,7 +156,9 @@ contract('ERC20', function (accounts) {
     });
 
     it('to other account', async function () {
-      const { tx } = await this.token.withdrawTo(anotherAccount, initialSupply, { from: initialHolder });
+      const { tx } = await this.token.withdrawTo(anotherAccount, initialSupply, {
+        from: initialHolder,
+      });
       await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: this.token.address,
         to: anotherAccount,
