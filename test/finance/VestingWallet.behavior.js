@@ -10,7 +10,7 @@ function releasedEvent (token, amount) {
 
 function shouldBehaveLikeVesting (beneficiary) {
   it('check vesting schedule', async function () {
-    const [ fnVestedAmount, fnReleasable, ...args ] = this.token
+    const [ vestedAmount, releasable, ...args ] = this.token
       ? [ 'vestedAmount(address,uint64)', 'releasable(address)', this.token.address ]
       : [ 'vestedAmount(uint64)', 'releasable()' ];
 
@@ -18,16 +18,16 @@ function shouldBehaveLikeVesting (beneficiary) {
       await time.increaseTo(timestamp);
       const vesting = this.vestingFn(timestamp);
 
-      expect(await this.mock.methods[fnVestedAmount](...args, timestamp))
+      expect(await this.mock.methods[vestedAmount](...args, timestamp))
         .to.be.bignumber.equal(vesting);
 
-      expect(await this.mock.methods[fnReleasable](...args))
+      expect(await this.mock.methods[releasable](...args))
         .to.be.bignumber.equal(vesting);
     }
   });
 
   it('execute vesting schedule', async function () {
-    const [ fnRelease, ...args ] = this.token
+    const [ release, ...args ] = this.token
       ? [ 'release(address)', this.token.address ]
       : [ 'release()' ];
 
@@ -35,7 +35,7 @@ function shouldBehaveLikeVesting (beneficiary) {
     const before = await this.getBalance(beneficiary);
 
     {
-      const receipt = await this.mock.methods[fnRelease](...args);
+      const receipt = await this.mock.methods[release](...args);
 
       await expectEvent.inTransaction(
         receipt.tx,
@@ -52,7 +52,7 @@ function shouldBehaveLikeVesting (beneficiary) {
       await time.setNextBlockTimestamp(timestamp);
       const vested = this.vestingFn(timestamp);
 
-      const receipt = await this.mock.methods[fnRelease](...args);
+      const receipt = await this.mock.methods[release](...args);
       await expectEvent.inTransaction(
         receipt.tx,
         this.mock,
