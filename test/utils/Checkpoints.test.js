@@ -9,7 +9,7 @@ const CheckpointsMock = artifacts.require('CheckpointsMock');
 const first = (array) => array.length ? array[0] : undefined;
 const last = (array) => array.length ? array[array.length - 1] : undefined;
 
-contract('Checkpoints', function (accounts) {
+contract('Checkpoints', function () {
   describe('History checkpoints', function () {
     beforeEach(async function () {
       this.checkpoint = await CheckpointsMock.new();

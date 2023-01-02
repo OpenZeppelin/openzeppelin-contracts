@@ -4,7 +4,7 @@ const { expect } = require('chai');
 
 const CountersImpl = artifacts.require('CountersImpl');
 
-contract('Counters', function (accounts) {
+contract('Counters', function () {
   beforeEach(async function () {
     this.counter = await CountersImpl.new();
   });

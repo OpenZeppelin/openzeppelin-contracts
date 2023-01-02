@@ -9,6 +9,10 @@ contract StringsMock {
         return Strings.toString(value);
     }
 
+    function toString(int256 value) public pure returns (string memory) {
+        return Strings.toString(value);
+    }
+
     function toHexString(uint256 value) public pure returns (string memory) {
         return Strings.toHexString(value);
     }
@@ -19,5 +23,9 @@ contract StringsMock {
 
     function toHexString(address addr) public pure returns (string memory) {
         return Strings.toHexString(addr);
+    }
+
+    function equal(string memory a, string memory b) public pure returns (bool) {
+        return Strings.equal(a, b);
     }
 }

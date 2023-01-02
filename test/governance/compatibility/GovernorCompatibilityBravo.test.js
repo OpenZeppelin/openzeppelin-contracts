@@ -168,7 +168,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     );
   });
 
-  it('double voting is forbiden', async function () {
+  it('double voting is forbidden', async function () {
     await this.helper.propose({ from: proposer });
     await this.helper.waitForSnapshot();
     await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
