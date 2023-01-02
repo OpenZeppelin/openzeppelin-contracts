@@ -1,11 +1,4 @@
 {
-  "extends": [
-    "github>OpenZeppelin/configs"
-  ],
-  "packageRules": [
-    {
-      "extends": ["packages:eslint"],
-      "enabled": false
-    }
-  ]
+  "extends": ["github>OpenZeppelin/configs"],
+  "labels": ["ignore-changelog"]
 }
