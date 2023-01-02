@@ -2,7 +2,7 @@ const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-function shouldBehaveLikeERC20Capped (minter, [other], cap) {
+function shouldBehaveLikeERC20Capped(minter, [other], cap) {
   describe('capped token', function () {
     const from = minter;
 

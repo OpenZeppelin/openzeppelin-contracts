@@ -6,8 +6,8 @@ const { batchInBlock } = require('../helpers/txpool');
 
 const CheckpointsMock = artifacts.require('CheckpointsMock');
 
-const first = (array) => array.length ? array[0] : undefined;
-const last = (array) => array.length ? array[array.length - 1] : undefined;
+const first = array => (array.length ? array[0] : undefined);
+const last = array => (array.length ? array[array.length - 1] : undefined);
 
 contract('Checkpoints', function () {
   describe('History checkpoints', function () {
@@ -27,10 +27,10 @@ contract('Checkpoints', function () {
 
       it('returns zero as past value', async function () {
         await time.advanceBlock();
-        expect(await this.checkpoint.getAtBlock(await web3.eth.getBlockNumber() - 1))
-          .to.be.bignumber.equal('0');
-        expect(await this.checkpoint.getAtProbablyRecentBlock(await web3.eth.getBlockNumber() - 1))
-          .to.be.bignumber.equal('0');
+        expect(await this.checkpoint.getAtBlock((await web3.eth.getBlockNumber()) - 1)).to.be.bignumber.equal('0');
+        expect(
+          await this.checkpoint.getAtProbablyRecentBlock((await web3.eth.getBlockNumber()) - 1),
+        ).to.be.bignumber.equal('0');
       });
     });
 
@@ -53,7 +53,7 @@ contract('Checkpoints', function () {
         expect(ckpt[2]).to.be.bignumber.equal(web3.utils.toBN('3'));
       });
 
-      for (const fn of [ 'getAtBlock(uint256)', 'getAtProbablyRecentBlock(uint256)' ]) {
+      for (const fn of ['getAtBlock(uint256)', 'getAtProbablyRecentBlock(uint256)']) {
         describe(`lookup: ${fn}`, function () {
           it('returns past values', async function () {
             expect(await this.checkpoint.methods[fn](this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
@@ -71,7 +71,7 @@ contract('Checkpoints', function () {
             );
 
             await expectRevert(
-              this.checkpoint.methods[fn](await web3.eth.getBlockNumber() + 1),
+              this.checkpoint.methods[fn]((await web3.eth.getBlockNumber()) + 1),
               'Checkpoints: block not yet mined',
             );
           });

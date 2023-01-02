@@ -5,7 +5,7 @@ const { expect } = require('chai');
 
 const SafeMathMock = artifacts.require('SafeMathMock');
 
-function expectStruct (value, expected) {
+function expectStruct(value, expected) {
   for (const key in expected) {
     if (BN.isBN(value[key])) {
       expect(value[key]).to.be.bignumber.equal(expected[key]);
@@ -20,12 +20,12 @@ contract('SafeMath', function () {
     this.safeMath = await SafeMathMock.new();
   });
 
-  async function testCommutative (fn, lhs, rhs, expected, ...extra) {
+  async function testCommutative(fn, lhs, rhs, expected, ...extra) {
     expect(await fn(lhs, rhs, ...extra)).to.be.bignumber.equal(expected);
     expect(await fn(rhs, lhs, ...extra)).to.be.bignumber.equal(expected);
   }
 
-  async function testFailsCommutative (fn, lhs, rhs, reason, ...extra) {
+  async function testFailsCommutative(fn, lhs, rhs, reason, ...extra) {
     if (reason === undefined) {
       await expectRevert.unspecified(fn(lhs, rhs, ...extra));
       await expectRevert.unspecified(fn(rhs, lhs, ...extra));
@@ -35,7 +35,7 @@ contract('SafeMath', function () {
     }
   }
 
-  async function testCommutativeIterable (fn, lhs, rhs, expected, ...extra) {
+  async function testCommutativeIterable(fn, lhs, rhs, expected, ...extra) {
     expectStruct(await fn(lhs, rhs, ...extra), expected);
     expectStruct(await fn(rhs, lhs, ...extra), expected);
   }

@@ -50,7 +50,4 @@ contract Enumerable${name}Mock {
 `;
 
 // GENERATE
-module.exports = format(
-  header,
-  ...TYPES.map(details => customSetMock(details)),
-);
+module.exports = format(header, ...TYPES.map(details => customSetMock(details)));

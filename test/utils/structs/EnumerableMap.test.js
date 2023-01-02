@@ -9,7 +9,7 @@ const Bytes32ToUintMapMock = artifacts.require('Bytes32ToUintMapMock');
 const { shouldBehaveLikeMap } = require('./EnumerableMap.behavior');
 
 contract('EnumerableMap', function (accounts) {
-  const [ accountA, accountB, accountC ] = accounts;
+  const [accountA, accountB, accountC] = accounts;
 
   const keyA = new BN('7891');
   const keyB = new BN('451');
@@ -25,11 +25,7 @@ contract('EnumerableMap', function (accounts) {
       this.map = await AddressToUintMapMock.new();
     });
 
-    shouldBehaveLikeMap(
-      [ accountA, accountB, accountC ],
-      [ keyA, keyB, keyC ],
-      new BN('0'),
-    );
+    shouldBehaveLikeMap([accountA, accountB, accountC], [keyA, keyB, keyC], new BN('0'));
   });
 
   // UintToAddressMap
@@ -38,11 +34,7 @@ contract('EnumerableMap', function (accounts) {
       this.map = await UintToAddressMapMock.new();
     });
 
-    shouldBehaveLikeMap(
-      [ keyA, keyB, keyC ],
-      [ accountA, accountB, accountC ],
-      constants.ZERO_ADDRESS,
-    );
+    shouldBehaveLikeMap([keyA, keyB, keyC], [accountA, accountB, accountC], constants.ZERO_ADDRESS);
   });
 
   // Bytes32ToBytes32Map
@@ -52,8 +44,8 @@ contract('EnumerableMap', function (accounts) {
     });
 
     shouldBehaveLikeMap(
-      [ keyA, keyB, keyC ].map(k => '0x' + k.toString(16).padEnd(64, '0')),
-      [ bytesA, bytesB, bytesC ],
+      [keyA, keyB, keyC].map(k => '0x' + k.toString(16).padEnd(64, '0')),
+      [bytesA, bytesB, bytesC],
       constants.ZERO_BYTES32,
     );
   });
@@ -65,8 +57,8 @@ contract('EnumerableMap', function (accounts) {
     });
 
     shouldBehaveLikeMap(
-      [ keyA, keyB, keyC ],
-      [ keyA, keyB, keyC ].map(k => k.add(new BN('1332'))),
+      [keyA, keyB, keyC],
+      [keyA, keyB, keyC].map(k => k.add(new BN('1332'))),
       new BN('0'),
     );
   });
@@ -77,10 +69,6 @@ contract('EnumerableMap', function (accounts) {
       this.map = await Bytes32ToUintMapMock.new();
     });
 
-    shouldBehaveLikeMap(
-      [ bytesA, bytesB, bytesC ],
-      [ keyA, keyB, keyC ],
-      new BN('0'),
-    );
+    shouldBehaveLikeMap([bytesA, bytesB, bytesC], [keyA, keyB, keyC], new BN('0'));
   });
 });

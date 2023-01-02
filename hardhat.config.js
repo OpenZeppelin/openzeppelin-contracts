@@ -29,7 +29,7 @@ const argv = require('yargs/yargs')()
     mode: {
       alias: 'compileMode',
       type: 'string',
-      choices: [ 'production', 'development' ],
+      choices: ['production', 'development'],
       default: 'development',
     },
     ir: {
@@ -46,8 +46,7 @@ const argv = require('yargs/yargs')()
       alias: 'coinmarketcapApiKey',
       type: 'string',
     },
-  })
-  .argv;
+  }).argv;
 
 require('@nomiclabs/hardhat-truffle5');
 require('hardhat-ignore-warnings');

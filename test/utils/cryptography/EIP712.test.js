@@ -21,9 +21,7 @@ contract('EIP712', function (accounts) {
   });
 
   it('domain separator', async function () {
-    expect(
-      await this.eip712.domainSeparator(),
-    ).to.equal(
+    expect(await this.eip712.domainSeparator()).to.equal(
       await domainSeparator(name, version, this.chainId, this.eip712.address),
     );
   });

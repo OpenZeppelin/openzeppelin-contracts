@@ -30,15 +30,9 @@ contract('Clones', function () {
       const salt = web3.utils.randomHex(32);
       const factory = await ClonesMock.new();
       // deploy once
-      expectEvent(
-        await factory.cloneDeterministic(implementation, salt, '0x'),
-        'NewInstance',
-      );
+      expectEvent(await factory.cloneDeterministic(implementation, salt, '0x'), 'NewInstance');
       // deploy twice
-      await expectRevert(
-        factory.cloneDeterministic(implementation, salt, '0x'),
-        'ERC1167: create2 failed',
-      );
+      await expectRevert(factory.cloneDeterministic(implementation, salt, '0x'), 'ERC1167: create2 failed');
     });
 
     it('address prediction', async function () {
@@ -53,17 +47,9 @@ contract('Clones', function () {
         '5af43d82803e903d91602b57fd5bf3',
       ].join('');
 
-      expect(computeCreate2Address(
-        salt,
-        creationCode,
-        factory.address,
-      )).to.be.equal(predicted);
+      expect(computeCreate2Address(salt, creationCode, factory.address)).to.be.equal(predicted);
 
-      expectEvent(
-        await factory.cloneDeterministic(implementation, salt, '0x'),
-        'NewInstance',
-        { instance: predicted },
-      );
+      expectEvent(await factory.cloneDeterministic(implementation, salt, '0x'), 'NewInstance', { instance: predicted });
     });
   });
 });

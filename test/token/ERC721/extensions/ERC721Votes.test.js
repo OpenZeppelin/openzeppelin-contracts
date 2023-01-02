@@ -11,7 +11,7 @@ const ERC721VotesMock = artifacts.require('ERC721VotesMock');
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 
 contract('ERC721Votes', function (accounts) {
-  const [ account1, account2, account1Delegatee, other1, other2 ] = accounts;
+  const [account1, account2, account1Delegatee, other1, other2] = accounts;
   this.name = 'My Vote';
   const symbol = 'MTKN';
 
@@ -64,7 +64,11 @@ contract('ERC721Votes', function (accounts) {
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousBalance: '1', newBalance: '0' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
-      expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
+      expect(
+        receipt.logs
+          .filter(({ event }) => event == 'DelegateVotesChanged')
+          .every(({ logIndex }) => transferLogIndex < logIndex),
+      ).to.be.equal(true);
 
       this.account1Votes = '0';
       this.account2Votes = '0';
@@ -78,7 +82,11 @@ contract('ERC721Votes', function (accounts) {
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousBalance: '0', newBalance: '1' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
-      expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
+      expect(
+        receipt.logs
+          .filter(({ event }) => event == 'DelegateVotesChanged')
+          .every(({ logIndex }) => transferLogIndex < logIndex),
+      ).to.be.equal(true);
 
       this.account1Votes = '0';
       this.account2Votes = '1';
@@ -90,11 +98,15 @@ contract('ERC721Votes', function (accounts) {
 
       const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, { from: account1 });
       expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: this.NFT0 });
-      expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousBalance: '1', newBalance: '0'});
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousBalance: '1', newBalance: '0' });
       expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousBalance: '0', newBalance: '1' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
-      expect(receipt.logs.filter(({ event }) => event == 'DelegateVotesChanged').every(({ logIndex }) => transferLogIndex < logIndex)).to.be.equal(true);
+      expect(
+        receipt.logs
+          .filter(({ event }) => event == 'DelegateVotesChanged')
+          .every(({ logIndex }) => transferLogIndex < logIndex),
+      ).to.be.equal(true);
 
       this.account1Votes = '0';
       this.account2Votes = '1';

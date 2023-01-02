@@ -7,7 +7,5 @@ contract('ERC165', function () {
     this.mock = await ERC165Mock.new();
   });
 
-  shouldSupportInterfaces([
-    'ERC165',
-  ]);
+  shouldSupportInterfaces(['ERC165']);
 });

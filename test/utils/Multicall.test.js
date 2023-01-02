@@ -13,10 +13,13 @@ contract('MulticallToken', function (accounts) {
     expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
     expect(await this.multicallToken.balanceOf(bob)).to.be.bignumber.equal(new BN('0'));
 
-    await this.multicallToken.multicall([
-      this.multicallToken.contract.methods.transfer(alice, amount / 2).encodeABI(),
-      this.multicallToken.contract.methods.transfer(bob, amount / 3).encodeABI(),
-    ], { from: deployer });
+    await this.multicallToken.multicall(
+      [
+        this.multicallToken.contract.methods.transfer(alice, amount / 2).encodeABI(),
+        this.multicallToken.contract.methods.transfer(bob, amount / 3).encodeABI(),
+      ],
+      { from: deployer },
+    );
 
     expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN(amount / 2));
     expect(await this.multicallToken.balanceOf(bob)).to.be.bignumber.equal(new BN(amount / 3));
@@ -37,20 +40,26 @@ contract('MulticallToken', function (accounts) {
   it('reverts previous calls', async function () {
     expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
 
-    const call = this.multicallToken.multicall([
-      this.multicallToken.contract.methods.transfer(alice, amount).encodeABI(),
-      this.multicallToken.contract.methods.transfer(bob, amount).encodeABI(),
-    ], { from: deployer });
+    const call = this.multicallToken.multicall(
+      [
+        this.multicallToken.contract.methods.transfer(alice, amount).encodeABI(),
+        this.multicallToken.contract.methods.transfer(bob, amount).encodeABI(),
+      ],
+      { from: deployer },
+    );
 
     await expectRevert(call, 'ERC20: transfer amount exceeds balance');
     expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
   });
 
   it('bubbles up revert reasons', async function () {
-    const call = this.multicallToken.multicall([
-      this.multicallToken.contract.methods.transfer(alice, amount).encodeABI(),
-      this.multicallToken.contract.methods.transfer(bob, amount).encodeABI(),
-    ], { from: deployer });
+    const call = this.multicallToken.multicall(
+      [
+        this.multicallToken.contract.methods.transfer(alice, amount).encodeABI(),
+        this.multicallToken.contract.methods.transfer(bob, amount).encodeABI(),
+      ],
+      { from: deployer },
+    );
 
     await expectRevert(call, 'ERC20: transfer amount exceeds balance');
   });

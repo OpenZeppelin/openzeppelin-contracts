@@ -13,7 +13,7 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 contract('SafeERC20', function (accounts) {
-  const [ hasNoCode ] = accounts;
+  const [hasNoCode] = accounts;
 
   describe('with address that has no contract code', function () {
     beforeEach(async function () {
@@ -47,7 +47,7 @@ contract('SafeERC20', function (accounts) {
     shouldOnlyRevertOnErrors();
   });
 
-  describe('with token that doesn\'t revert on invalid permit', function () {
+  describe("with token that doesn't revert on invalid permit", function () {
     const wallet = Wallet.generate();
     const owner = wallet.getAddressString();
     const spender = hasNoCode;
@@ -161,7 +161,7 @@ contract('SafeERC20', function (accounts) {
   });
 });
 
-function shouldRevertOnAllCalls (reason) {
+function shouldRevertOnAllCalls(reason) {
   it('reverts on transfer', async function () {
     await expectRevert(this.wrapper.transfer(), reason);
   });
@@ -185,12 +185,12 @@ function shouldRevertOnAllCalls (reason) {
   });
 }
 
-function shouldOnlyRevertOnErrors () {
-  it('doesn\'t revert on transfer', async function () {
+function shouldOnlyRevertOnErrors() {
+  it("doesn't revert on transfer", async function () {
     await this.wrapper.transfer();
   });
 
-  it('doesn\'t revert on transferFrom', async function () {
+  it("doesn't revert on transferFrom", async function () {
     await this.wrapper.transferFrom();
   });
 
@@ -200,23 +200,20 @@ function shouldOnlyRevertOnErrors () {
         await this.wrapper.setAllowance(0);
       });
 
-      it('doesn\'t revert when approving a non-zero allowance', async function () {
+      it("doesn't revert when approving a non-zero allowance", async function () {
         await this.wrapper.approve(100);
       });
 
-      it('doesn\'t revert when approving a zero allowance', async function () {
+      it("doesn't revert when approving a zero allowance", async function () {
         await this.wrapper.approve(0);
       });
 
-      it('doesn\'t revert when increasing the allowance', async function () {
+      it("doesn't revert when increasing the allowance", async function () {
         await this.wrapper.increaseAllowance(10);
       });
 
       it('reverts when decreasing the allowance', async function () {
-        await expectRevert(
-          this.wrapper.decreaseAllowance(10),
-          'SafeERC20: decreased allowance below zero',
-        );
+        await expectRevert(this.wrapper.decreaseAllowance(10), 'SafeERC20: decreased allowance below zero');
       });
     });
 
@@ -226,29 +223,23 @@ function shouldOnlyRevertOnErrors () {
       });
 
       it('reverts when approving a non-zero allowance', async function () {
-        await expectRevert(
-          this.wrapper.approve(20),
-          'SafeERC20: approve from non-zero to non-zero allowance',
-        );
+        await expectRevert(this.wrapper.approve(20), 'SafeERC20: approve from non-zero to non-zero allowance');
       });
 
-      it('doesn\'t revert when approving a zero allowance', async function () {
+      it("doesn't revert when approving a zero allowance", async function () {
         await this.wrapper.approve(0);
       });
 
-      it('doesn\'t revert when increasing the allowance', async function () {
+      it("doesn't revert when increasing the allowance", async function () {
         await this.wrapper.increaseAllowance(10);
       });
 
-      it('doesn\'t revert when decreasing the allowance to a positive value', async function () {
+      it("doesn't revert when decreasing the allowance to a positive value", async function () {
         await this.wrapper.decreaseAllowance(50);
       });
 
       it('reverts when decreasing the allowance to a negative value', async function () {
-        await expectRevert(
-          this.wrapper.decreaseAllowance(200),
-          'SafeERC20: decreased allowance below zero',
-        );
+        await expectRevert(this.wrapper.decreaseAllowance(200), 'SafeERC20: decreased allowance below zero');
       });
     });
   });

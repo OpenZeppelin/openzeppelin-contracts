@@ -78,15 +78,17 @@ contract('Strings', function () {
     });
 
     it('converts MAX_UINT256', async function () {
-      expect(await this.strings.methods['toHexString(uint256)'](constants.MAX_UINT256))
-        .to.equal(web3.utils.toHex(constants.MAX_UINT256));
+      expect(await this.strings.methods['toHexString(uint256)'](constants.MAX_UINT256)).to.equal(
+        web3.utils.toHex(constants.MAX_UINT256),
+      );
     });
   });
 
   describe('toHexString fixed', function () {
     it('converts a positive number (long)', async function () {
-      expect(await this.strings.methods['toHexString(uint256,uint256)'](0x4132, 32))
-        .to.equal('0x0000000000000000000000000000000000000000000000000000000000004132');
+      expect(await this.strings.methods['toHexString(uint256,uint256)'](0x4132, 32)).to.equal(
+        '0x0000000000000000000000000000000000000000000000000000000000004132',
+      );
     });
 
     it('converts a positive number (short)', async function () {
@@ -97,8 +99,9 @@ contract('Strings', function () {
     });
 
     it('converts MAX_UINT256', async function () {
-      expect(await this.strings.methods['toHexString(uint256,uint256)'](constants.MAX_UINT256, 32))
-        .to.equal(web3.utils.toHex(constants.MAX_UINT256));
+      expect(await this.strings.methods['toHexString(uint256,uint256)'](constants.MAX_UINT256, 32)).to.equal(
+        web3.utils.toHex(constants.MAX_UINT256),
+      );
     });
   });
 

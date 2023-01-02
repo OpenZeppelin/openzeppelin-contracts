@@ -19,8 +19,7 @@ contract('ReentrancyGuard', function () {
 
   it('does not allow remote callback', async function () {
     const attacker = await ReentrancyAttack.new();
-    await expectRevert(
-      this.reentrancyMock.countAndCall(attacker.address), 'ReentrancyAttack: failed call');
+    await expectRevert(this.reentrancyMock.countAndCall(attacker.address), 'ReentrancyAttack: failed call');
   });
 
   it('_reentrancyGuardEntered should be true when guarded', async function () {
@@ -35,14 +34,10 @@ contract('ReentrancyGuard', function () {
   // I put them here as documentation, and to monitor any changes
   // in the side-effects.
   it('does not allow local recursion', async function () {
-    await expectRevert(
-      this.reentrancyMock.countLocalRecursive(10), 'ReentrancyGuard: reentrant call',
-    );
+    await expectRevert(this.reentrancyMock.countLocalRecursive(10), 'ReentrancyGuard: reentrant call');
   });
 
   it('does not allow indirect local recursion', async function () {
-    await expectRevert(
-      this.reentrancyMock.countThisRecursive(10), 'ReentrancyMock: failed call',
-    );
+    await expectRevert(this.reentrancyMock.countThisRecursive(10), 'ReentrancyMock: failed call');
   });
 });

@@ -5,7 +5,7 @@ const { expect } = require('chai');
 const ERC1155SupplyMock = artifacts.require('ERC1155SupplyMock');
 
 contract('ERC1155Supply', function (accounts) {
-  const [ holder ] = accounts;
+  const [holder] = accounts;
 
   const uri = 'https://token.com';
 
@@ -46,12 +46,7 @@ contract('ERC1155Supply', function (accounts) {
 
     context('batch', function () {
       beforeEach(async function () {
-        await this.token.mintBatch(
-          holder,
-          [ firstTokenId, secondTokenId ],
-          [ firstTokenAmount, secondTokenAmount ],
-          '0x',
-        );
+        await this.token.mintBatch(holder, [firstTokenId, secondTokenId], [firstTokenAmount, secondTokenAmount], '0x');
       });
 
       it('exist', async function () {
@@ -84,17 +79,8 @@ contract('ERC1155Supply', function (accounts) {
 
     context('batch', function () {
       beforeEach(async function () {
-        await this.token.mintBatch(
-          holder,
-          [ firstTokenId, secondTokenId ],
-          [ firstTokenAmount, secondTokenAmount ],
-          '0x',
-        );
-        await this.token.burnBatch(
-          holder,
-          [ firstTokenId, secondTokenId ],
-          [ firstTokenAmount, secondTokenAmount ],
-        );
+        await this.token.mintBatch(holder, [firstTokenId, secondTokenId], [firstTokenAmount, secondTokenAmount], '0x');
+        await this.token.burnBatch(holder, [firstTokenId, secondTokenId], [firstTokenAmount, secondTokenAmount]);
       });
 
       it('exist', async function () {

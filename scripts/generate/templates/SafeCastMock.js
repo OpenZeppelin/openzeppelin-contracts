@@ -45,6 +45,8 @@ module.exports = format(
     ...LENGTHS.map(toUintDownCast),
     toInt(256),
     ...LENGTHS.map(toIntDownCast),
-  ].flatMap(fn => fn.split('\n')).slice(0, -1),
+  ]
+    .flatMap(fn => fn.split('\n'))
+    .slice(0, -1),
   '}',
 );

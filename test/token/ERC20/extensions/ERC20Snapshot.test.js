@@ -4,7 +4,7 @@ const ERC20SnapshotMock = artifacts.require('ERC20SnapshotMock');
 const { expect } = require('chai');
 
 contract('ERC20Snapshot', function (accounts) {
-  const [ initialHolder, recipient, other ] = accounts;
+  const [initialHolder, recipient, other] = accounts;
 
   const initialSupply = new BN(100);
 
@@ -122,8 +122,9 @@ contract('ERC20Snapshot', function (accounts) {
 
       context('with no balance changes after the snapshot', function () {
         it('returns the current balance for all accounts', async function () {
-          expect(await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
-            .to.be.bignumber.equal(initialSupply);
+          expect(await this.token.balanceOfAt(initialHolder, this.initialSnapshotId)).to.be.bignumber.equal(
+            initialSupply,
+          );
           expect(await this.token.balanceOfAt(recipient, this.initialSnapshotId)).to.be.bignumber.equal('0');
           expect(await this.token.balanceOfAt(other, this.initialSnapshotId)).to.be.bignumber.equal('0');
         });
@@ -137,8 +138,9 @@ contract('ERC20Snapshot', function (accounts) {
         });
 
         it('returns the balances before the changes', async function () {
-          expect(await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
-            .to.be.bignumber.equal(initialSupply);
+          expect(await this.token.balanceOfAt(initialHolder, this.initialSnapshotId)).to.be.bignumber.equal(
+            initialSupply,
+          );
           expect(await this.token.balanceOfAt(recipient, this.initialSnapshotId)).to.be.bignumber.equal('0');
           expect(await this.token.balanceOfAt(other, this.initialSnapshotId)).to.be.bignumber.equal('0');
         });
@@ -152,8 +154,9 @@ contract('ERC20Snapshot', function (accounts) {
           });
 
           it('snapshots return the balances before and after the changes', async function () {
-            expect(await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
-              .to.be.bignumber.equal(initialSupply);
+            expect(await this.token.balanceOfAt(initialHolder, this.initialSnapshotId)).to.be.bignumber.equal(
+              initialSupply,
+            );
             expect(await this.token.balanceOfAt(recipient, this.initialSnapshotId)).to.be.bignumber.equal('0');
             expect(await this.token.balanceOfAt(other, this.initialSnapshotId)).to.be.bignumber.equal('0');
 
@@ -180,8 +183,9 @@ contract('ERC20Snapshot', function (accounts) {
           });
 
           it('all posterior snapshots return the supply after the changes', async function () {
-            expect(await this.token.balanceOfAt(initialHolder, this.initialSnapshotId))
-              .to.be.bignumber.equal(initialSupply);
+            expect(await this.token.balanceOfAt(initialHolder, this.initialSnapshotId)).to.be.bignumber.equal(
+              initialSupply,
+            );
             expect(await this.token.balanceOfAt(recipient, this.initialSnapshotId)).to.be.bignumber.equal('0');
             expect(await this.token.balanceOfAt(other, this.initialSnapshotId)).to.be.bignumber.equal('0');
 
@@ -192,9 +196,7 @@ contract('ERC20Snapshot', function (accounts) {
               expect(await this.token.balanceOfAt(recipient, id)).to.be.bignumber.equal(
                 await this.token.balanceOf(recipient),
               );
-              expect(await this.token.balanceOfAt(other, id)).to.be.bignumber.equal(
-                await this.token.balanceOf(other),
-              );
+              expect(await this.token.balanceOfAt(other, id)).to.be.bignumber.equal(await this.token.balanceOf(other));
             }
           });
         });

@@ -15,12 +15,15 @@ const Permit = [
   { name: 'deadline', type: 'uint256' },
 ];
 
-async function domainSeparator (name, version, chainId, verifyingContract) {
-  return '0x' + ethSigUtil.TypedDataUtils.hashStruct(
-    'EIP712Domain',
-    { name, version, chainId, verifyingContract },
-    { EIP712Domain },
-  ).toString('hex');
+async function domainSeparator(name, version, chainId, verifyingContract) {
+  return (
+    '0x' +
+    ethSigUtil.TypedDataUtils.hashStruct(
+      'EIP712Domain',
+      { name, version, chainId, verifyingContract },
+      { EIP712Domain },
+    ).toString('hex')
+  );
 }
 
 module.exports = {

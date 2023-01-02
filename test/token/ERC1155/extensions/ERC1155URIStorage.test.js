@@ -6,7 +6,7 @@ const { artifacts } = require('hardhat');
 const ERC1155URIStorageMock = artifacts.require('ERC1155URIStorageMock');
 
 contract(['ERC1155URIStorage'], function (accounts) {
-  const [ holder ] = accounts;
+  const [holder] = accounts;
 
   const erc1155Uri = 'https://token.com/nfts/';
   const baseUri = 'https://token.com/';

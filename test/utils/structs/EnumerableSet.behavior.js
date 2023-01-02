@@ -1,8 +1,8 @@
 const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-function shouldBehaveLikeSet (valueA, valueB, valueC) {
-  async function expectMembersMatch (set, values) {
+function shouldBehaveLikeSet(valueA, valueB, valueC) {
+  async function expectMembersMatch(set, values) {
     const contains = await Promise.all(values.map(value => set.contains(value)));
     expect(contains.every(Boolean)).to.be.equal(true);
 
@@ -11,19 +11,15 @@ function shouldBehaveLikeSet (valueA, valueB, valueC) {
 
     // To compare values we convert to strings to workaround Chai
     // limitations when dealing with nested arrays (required for BNs)
-    const indexedValues = await Promise.all(Array(values.length).fill().map((_, index) => set.at(index)));
-    expect(
-      indexedValues.map(v => v.toString()),
-    ).to.have.same.members(
-      values.map(v => v.toString()),
+    const indexedValues = await Promise.all(
+      Array(values.length)
+        .fill()
+        .map((_, index) => set.at(index)),
     );
+    expect(indexedValues.map(v => v.toString())).to.have.same.members(values.map(v => v.toString()));
 
     const returnedValues = await set.values();
-    expect(
-      returnedValues.map(v => v.toString()),
-    ).to.have.same.members(
-      values.map(v => v.toString()),
-    );
+    expect(returnedValues.map(v => v.toString())).to.have.same.members(values.map(v => v.toString()));
   }
 
   it('starts empty', async function () {
@@ -51,7 +47,7 @@ function shouldBehaveLikeSet (valueA, valueB, valueC) {
     it('returns false when adding values already in the set', async function () {
       await this.set.add(valueA);
 
-      const receipt = (await this.set.add(valueA));
+      const receipt = await this.set.add(valueA);
       expectEvent(receipt, 'OperationResult', { result: false });
 
       await expectMembersMatch(this.set, [valueA]);

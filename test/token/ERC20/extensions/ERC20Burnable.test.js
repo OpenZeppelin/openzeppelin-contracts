@@ -4,7 +4,7 @@ const { shouldBehaveLikeERC20Burnable } = require('./ERC20Burnable.behavior');
 const ERC20BurnableMock = artifacts.require('ERC20BurnableMock');
 
 contract('ERC20Burnable', function (accounts) {
-  const [ owner, ...otherAccounts ] = accounts;
+  const [owner, ...otherAccounts] = accounts;
 
   const initialBalance = new BN(1000);
 

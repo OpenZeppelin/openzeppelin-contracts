@@ -33,7 +33,7 @@ contract('SignedMath', function () {
   });
 
   describe('average', function () {
-    function bnAverage (a, b) {
+    function bnAverage(a, b) {
       return a.add(b).divn(2);
     }
 
@@ -68,8 +68,10 @@ contract('SignedMath', function () {
 
       for (const x of valuesX) {
         for (const y of valuesY) {
-          expect(await this.math.average(x, y))
-            .to.be.bignumber.equal(bnAverage(x, y), `Bad result for average(${x}, ${y})`);
+          expect(await this.math.average(x, y)).to.be.bignumber.equal(
+            bnAverage(x, y),
+            `Bad result for average(${x}, ${y})`,
+          );
         }
       }
     });

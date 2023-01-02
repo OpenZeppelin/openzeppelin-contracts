@@ -19,7 +19,5 @@ contract('ERC165Storage', function () {
     await expectRevert(this.mock.registerInterface('0xffffffff'), 'ERC165: invalid interface id');
   });
 
-  shouldSupportInterfaces([
-    'ERC165',
-  ]);
+  shouldSupportInterfaces(['ERC165']);
 });

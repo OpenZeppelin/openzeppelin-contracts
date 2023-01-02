@@ -1,6 +1,4 @@
-const {
-  shouldBehaveLikeAccessControl,
-} = require('./AccessControl.behavior.js');
+const { shouldBehaveLikeAccessControl } = require('./AccessControl.behavior.js');
 
 const AccessControlMock = artifacts.require('AccessControlMock');
 

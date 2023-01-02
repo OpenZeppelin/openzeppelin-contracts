@@ -65,14 +65,14 @@ contract('UUPSUpgradeable', function () {
 
   it('can upgrade from legacy implementations', async function () {
     const legacyImpl = await UUPSUpgradeableLegacyMock.new();
-    const legacyInstance = await ERC1967Proxy.new(legacyImpl.address, '0x')
-      .then(({ address }) => UUPSUpgradeableLegacyMock.at(address));
+    const legacyInstance = await ERC1967Proxy.new(legacyImpl.address, '0x').then(({ address }) =>
+      UUPSUpgradeableLegacyMock.at(address),
+    );
 
     const receipt = await legacyInstance.upgradeTo(this.implInitial.address);
 
-    const UpgradedEvents = receipt.logs.filter(({ address, event }) =>
-      address === legacyInstance.address &&
-      event === 'Upgraded',
+    const UpgradedEvents = receipt.logs.filter(
+      ({ address, event }) => address === legacyInstance.address && event === 'Upgraded',
     );
     expect(UpgradedEvents.length).to.be.equal(1);
 

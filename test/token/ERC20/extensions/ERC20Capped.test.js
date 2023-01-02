@@ -4,7 +4,7 @@ const { shouldBehaveLikeERC20Capped } = require('./ERC20Capped.behavior');
 const ERC20Capped = artifacts.require('ERC20CappedMock');
 
 contract('ERC20Capped', function (accounts) {
-  const [ minter, ...otherAccounts ] = accounts;
+  const [minter, ...otherAccounts] = accounts;
 
   const cap = ether('1000');
 
@@ -12,9 +12,7 @@ contract('ERC20Capped', function (accounts) {
   const symbol = 'MTKN';
 
   it('requires a non-zero cap', async function () {
-    await expectRevert(
-      ERC20Capped.new(name, symbol, new BN(0), { from: minter }), 'ERC20Capped: cap is 0',
-    );
+    await expectRevert(ERC20Capped.new(name, symbol, new BN(0), { from: minter }), 'ERC20Capped: cap is 0');
   });
 
   context('once deployed', async function () {

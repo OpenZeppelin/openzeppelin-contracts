@@ -13,7 +13,7 @@ const ERC20PermitMock = artifacts.require('ERC20PermitMock');
 const { EIP712Domain, Permit, domainSeparator } = require('../../../helpers/eip712');
 
 contract('ERC20Permit', function (accounts) {
-  const [ initialHolder, spender ] = accounts;
+  const [initialHolder, spender] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -35,9 +35,7 @@ contract('ERC20Permit', function (accounts) {
   });
 
   it('domain separator', async function () {
-    expect(
-      await this.token.DOMAIN_SEPARATOR(),
-    ).to.equal(
+    expect(await this.token.DOMAIN_SEPARATOR()).to.equal(
       await domainSeparator(name, version, this.chainId, this.token.address),
     );
   });
@@ -100,10 +98,7 @@ contract('ERC20Permit', function (accounts) {
       const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
       const { v, r, s } = fromRpcSig(signature);
 
-      await expectRevert(
-        this.token.permit(owner, spender, value, deadline, v, r, s),
-        'ERC20Permit: expired deadline',
-      );
+      await expectRevert(this.token.permit(owner, spender, value, deadline, v, r, s), 'ERC20Permit: expired deadline');
     });
   });
 });

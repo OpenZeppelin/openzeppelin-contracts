@@ -8,7 +8,7 @@ const Governor = artifacts.require('GovernorCompMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 contract('GovernorComp', function (accounts) {
-  const [ owner, voter1, voter2, voter3, voter4 ] = accounts;
+  const [owner, voter1, voter2, voter3, voter4] = accounts;
 
   const name = 'OZ-Governor';
   // const version = '1';
@@ -36,13 +36,16 @@ contract('GovernorComp', function (accounts) {
     await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.proposal = this.helper.setProposal([
-      {
-        target: this.receiver.address,
-        value,
-        data: this.receiver.contract.methods.mockFunction().encodeABI(),
-      },
-    ], '<proposal description>');
+    this.proposal = this.helper.setProposal(
+      [
+        {
+          target: this.receiver.address,
+          value,
+          data: this.receiver.contract.methods.mockFunction().encodeABI(),
+        },
+      ],
+      '<proposal description>',
+    );
   });
 
   it('deployment check', async function () {

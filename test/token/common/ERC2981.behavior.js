@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 
-function shouldBehaveLikeERC2981 () {
+function shouldBehaveLikeERC2981() {
   const royaltyFraction = new BN('10');
 
   shouldSupportInterfaces(['ERC2981']);
@@ -60,10 +60,7 @@ function shouldBehaveLikeERC2981 () {
     });
 
     it('reverts if invalid parameters', async function () {
-      await expectRevert(
-        this.token.setDefaultRoyalty(ZERO_ADDRESS, royaltyFraction),
-        'ERC2981: invalid receiver',
-      );
+      await expectRevert(this.token.setDefaultRoyalty(ZERO_ADDRESS, royaltyFraction), 'ERC2981: invalid receiver');
 
       await expectRevert(
         this.token.setDefaultRoyalty(this.account1, new BN('11000')),

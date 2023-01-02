@@ -1,6 +1,6 @@
 const format = require('../format-lines');
 
-const VALUE_SIZES = [ 224, 160 ];
+const VALUE_SIZES = [224, 160];
 
 const header = `\
 pragma solidity ^0.8.0;
@@ -73,8 +73,4 @@ contract Checkpoints${length}Mock {
 `;
 
 // GENERATE
-module.exports = format(
-  header,
-  legacy(),
-  ...VALUE_SIZES.map(checkpoint),
-);
+module.exports = format(header, legacy(), ...VALUE_SIZES.map(checkpoint));
