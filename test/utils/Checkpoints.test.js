@@ -64,25 +64,25 @@ contract('Checkpoints', function () {
         expect(ckpt[2]).to.be.bignumber.equal(web3.utils.toBN('3'));
       });
 
-      for (const fn of [ getAtBlock, getAtRecentBlock ]) {
-        describe(`lookup: ${fn}`, function () {
+      for (const getAtBlockVariant of [ getAtBlock, getAtRecentBlock ]) {
+        describe(`lookup: ${getAtBlockVariant}`, function () {
           it('returns past values', async function () {
-            expect(await fn(this.mock, this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-            expect(await fn(this.mock, this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
-            expect(await fn(this.mock, this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
+            expect(await getAtBlockVariant(this.mock, this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+            expect(await getAtBlockVariant(this.mock, this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
+            expect(await getAtBlockVariant(this.mock, this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
             // Block with no new checkpoints
-            expect(await fn(this.mock, this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
-            expect(await fn(this.mock, this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
-            expect(await fn(this.mock, this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
+            expect(await getAtBlockVariant(this.mock, this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
+            expect(await getAtBlockVariant(this.mock, this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
+            expect(await getAtBlockVariant(this.mock, this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
           });
           it('reverts if block number >= current block', async function () {
             await expectRevert(
-              fn(this.mock, await web3.eth.getBlockNumber()),
+              getAtBlockVariant(this.mock, await web3.eth.getBlockNumber()),
               'Checkpoints: block not yet mined',
             );
 
             await expectRevert(
-              fn(this.mock, await web3.eth.getBlockNumber() + 1),
+              getAtBlockVariant(this.mock, await web3.eth.getBlockNumber() + 1),
               'Checkpoints: block not yet mined',
             );
           });
