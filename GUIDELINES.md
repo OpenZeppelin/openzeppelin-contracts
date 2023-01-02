@@ -64,6 +64,8 @@ In addition to the official Solidity Style Guide we have a number of other conve
 
 * All state variables should be private.
 
+  Changes to state should be accompanied by events, and in some cases it is not correct to arbitrarly set state. Encapsulating variables as private and only allowing modification via setters enables us to ensure that events and other rules are followed reliably and prevents this kind of user error.
+
 * Internal or private state variables or functions should have an underscore prefix.
 
   ```
