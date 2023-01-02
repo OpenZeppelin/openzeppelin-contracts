@@ -26,11 +26,11 @@ Security patches will be released for the latest minor of a given major release.
 
 Only critical severity bug fixes will be backported to past major releases.
 
-| Version | Supported                             |
-| ------- | ------------------------------------- |
-| 4.x     | :white_check_mark: :white_check_mark: |
-| 3.4     | :white_check_mark:                    |
-| 2.5     | :white_check_mark:                    |
-| < 2.0   | :x:                                   |
+| Version | Critical security fixes | Other security fixes |
+| ------- | ----------------------- | -------------------- |
+| 4.x     | :white_check_mark:      | :white_check_mark:   |
+| 3.4     | :white_check_mark:      | :x:                  |
+| 2.5     | :white_check_mark:      | :x:                  |
+| < 2.0   | :x:                     | :x:                  |
 
 Note as well that the Solidity language itself only guarantees security updates for the latest release.
