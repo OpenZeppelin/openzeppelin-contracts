@@ -234,33 +234,33 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * Emits a {Transfer} event.
      */
-function _update(
-    address from,
-    address to,
-    uint256 amount
-) internal virtual {
-    if (from == address(0)) {
-        _totalSupply += amount;
-    } else {
-        uint256 fromBalance = _balances[from];
-        require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
-        unchecked {
-            // Overflow not possible: amount <= fromBalance <= totalSupply.
-            _balances[from] = fromBalance - amount;
+    function _update(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {
+        if (from == address(0)) {
+            _totalSupply += amount;
+        } else {
+            uint256 fromBalance = _balances[from];
+            require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
+            unchecked {
+                // Overflow not possible: amount <= fromBalance <= totalSupply.
+                _balances[from] = fromBalance - amount;
+            }
         }
-    }
 
-    if (to == address(0)) {
-        _totalSupply -= amount;
-    } else {
-        unchecked {
-            // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
-            _balances[to] += amount;
+        if (to == address(0)) {
+            _totalSupply -= amount;
+        } else {
+            unchecked {
+                // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
+                _balances[to] += amount;
+            }
         }
-    }
 
-    emit Transfer(from, to, amount);
-}
+        emit Transfer(from, to, amount);
+    }
 
     /**
      * @dev Creates `amount` tokens and assigns them to `account`, by transferring it from address(0).
