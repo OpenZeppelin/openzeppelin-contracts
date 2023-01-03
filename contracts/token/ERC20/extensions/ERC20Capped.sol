@@ -36,7 +36,7 @@ abstract contract ERC20Capped is ERC20 {
         uint256 amount
     ) internal virtual override {
         if (from == address(0)) {
-            require(ERC20.totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
+            require(totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
         }
 
         super._update(from, to, amount);
