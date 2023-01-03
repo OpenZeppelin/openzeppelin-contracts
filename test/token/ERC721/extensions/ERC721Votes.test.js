@@ -3,25 +3,22 @@
 const { BN, expectEvent, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const { promisify } = require('util');
-const queue = promisify(setImmediate);
-
-const ERC721VotesMock = artifacts.require('ERC721VotesMock');
+const { getChainId } = require('../../../helpers/chainid');
 
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
 
+const ERC721Votes = artifacts.require('$ERC721Votes');
+
 contract('ERC721Votes', function (accounts) {
   const [account1, account2, account1Delegatee, other1, other2] = accounts;
-  this.name = 'My Vote';
+
+  const name = 'My Vote';
   const symbol = 'MTKN';
 
   beforeEach(async function () {
-    this.votes = await ERC721VotesMock.new(name, symbol);
+    this.chainId = await getChainId();
 
-    // We get the chain id from the contract because Ganache (used for coverage) does not return the same chain id
-    // from within the EVM as from the JSON RPC interface.
-    // See https://github.com/trufflesuite/ganache-core/issues/515
-    this.chainId = await this.votes.getChainId();
+    this.votes = await ERC721Votes.new(name, symbol, name, '1');
 
     this.NFT0 = new BN('10000000000000000000000000');
     this.NFT1 = new BN('10');
@@ -31,10 +28,10 @@ contract('ERC721Votes', function (accounts) {
 
   describe('balanceOf', function () {
     beforeEach(async function () {
-      await this.votes.mint(account1, this.NFT0);
-      await this.votes.mint(account1, this.NFT1);
-      await this.votes.mint(account1, this.NFT2);
-      await this.votes.mint(account1, this.NFT3);
+      await this.votes.$_mint(account1, this.NFT0);
+      await this.votes.$_mint(account1, this.NFT1);
+      await this.votes.$_mint(account1, this.NFT2);
+      await this.votes.$_mint(account1, this.NFT3);
     });
 
     it('grants to initial account', async function () {
@@ -44,7 +41,7 @@ contract('ERC721Votes', function (accounts) {
 
   describe('transfers', function () {
     beforeEach(async function () {
-      await this.votes.mint(account1, this.NFT0);
+      await this.votes.$_mint(account1, this.NFT0);
     });
 
     it('no delegation', async function () {
@@ -158,9 +155,9 @@ contract('ERC721Votes', function (accounts) {
     });
 
     it('generally returns the voting balance at the appropriate checkpoint', async function () {
-      await this.votes.mint(account1, this.NFT1);
-      await this.votes.mint(account1, this.NFT2);
-      await this.votes.mint(account1, this.NFT3);
+      await this.votes.$_mint(account1, this.NFT1);
+      await this.votes.$_mint(account1, this.NFT2);
+      await this.votes.$_mint(account1, this.NFT3);
 
       const total = await this.votes.balanceOf(account1);
 

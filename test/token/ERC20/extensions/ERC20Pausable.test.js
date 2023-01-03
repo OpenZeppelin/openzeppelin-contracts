@@ -2,7 +2,7 @@ const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC20PausableMock = artifacts.require('ERC20PausableMock');
+const ERC20Pausable = artifacts.require('$ERC20Pausable');
 
 contract('ERC20Pausable', function (accounts) {
   const [holder, recipient, anotherAccount] = accounts;
@@ -13,7 +13,8 @@ contract('ERC20Pausable', function (accounts) {
   const symbol = 'MTKN';
 
   beforeEach(async function () {
-    this.token = await ERC20PausableMock.new(name, symbol, holder, initialSupply);
+    this.token = await ERC20Pausable.new(name, symbol);
+    await this.token.$_mint(holder, initialSupply);
   });
 
   describe('pausable token', function () {
@@ -26,8 +27,8 @@ contract('ERC20Pausable', function (accounts) {
       });
 
       it('allows to transfer when paused and then unpaused', async function () {
-        await this.token.pause();
-        await this.token.unpause();
+        await this.token.$_pause();
+        await this.token.$_unpause();
 
         await this.token.transfer(recipient, initialSupply, { from: holder });
 
@@ -36,7 +37,7 @@ contract('ERC20Pausable', function (accounts) {
       });
 
       it('reverts when trying to transfer when paused', async function () {
-        await this.token.pause();
+        await this.token.$_pause();
 
         await expectRevert(
           this.token.transfer(recipient, initialSupply, { from: holder }),
@@ -62,8 +63,8 @@ contract('ERC20Pausable', function (accounts) {
       });
 
       it('allows to transfer when paused and then unpaused', async function () {
-        await this.token.pause();
-        await this.token.unpause();
+        await this.token.$_pause();
+        await this.token.$_unpause();
 
         await this.token.transferFrom(holder, recipient, allowance, { from: anotherAccount });
 
@@ -74,7 +75,7 @@ contract('ERC20Pausable', function (accounts) {
       });
 
       it('reverts when trying to transfer from when paused', async function () {
-        await this.token.pause();
+        await this.token.$_pause();
 
         await expectRevert(
           this.token.transferFrom(holder, recipient, allowance, { from: anotherAccount }),
@@ -87,25 +88,25 @@ contract('ERC20Pausable', function (accounts) {
       const amount = new BN('42');
 
       it('allows to mint when unpaused', async function () {
-        await this.token.mint(recipient, amount);
+        await this.token.$_mint(recipient, amount);
 
         expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(amount);
       });
 
       it('allows to mint when paused and then unpaused', async function () {
-        await this.token.pause();
-        await this.token.unpause();
+        await this.token.$_pause();
+        await this.token.$_unpause();
 
-        await this.token.mint(recipient, amount);
+        await this.token.$_mint(recipient, amount);
 
         expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(amount);
       });
 
       it('reverts when trying to mint when paused', async function () {
-        await this.token.pause();
+        await this.token.$_pause();
 
         await expectRevert(
-          this.token.mint(recipient, amount),
+          this.token.$_mint(recipient, amount),
           'ERC20Pausable: token transfer while paused',
         );
       });
@@ -115,25 +116,25 @@ contract('ERC20Pausable', function (accounts) {
       const amount = new BN('42');
 
       it('allows to burn when unpaused', async function () {
-        await this.token.burn(holder, amount);
+        await this.token.$_burn(holder, amount);
 
         expect(await this.token.balanceOf(holder)).to.be.bignumber.equal(initialSupply.sub(amount));
       });
 
       it('allows to burn when paused and then unpaused', async function () {
-        await this.token.pause();
-        await this.token.unpause();
+        await this.token.$_pause();
+        await this.token.$_unpause();
 
-        await this.token.burn(holder, amount);
+        await this.token.$_burn(holder, amount);
 
         expect(await this.token.balanceOf(holder)).to.be.bignumber.equal(initialSupply.sub(amount));
       });
 
       it('reverts when trying to burn when paused', async function () {
-        await this.token.pause();
+        await this.token.$_pause();
 
         await expectRevert(
-          this.token.burn(holder, amount),
+          this.token.$_burn(holder, amount),
           'ERC20Pausable: token transfer while paused',
         );
       });

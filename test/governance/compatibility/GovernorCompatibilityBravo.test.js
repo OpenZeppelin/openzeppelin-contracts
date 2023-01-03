@@ -4,9 +4,9 @@ const RLP = require('rlp');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
 
-const Token = artifacts.require('ERC20VotesCompMock');
+const Token = artifacts.require('$ERC20VotesComp');
 const Timelock = artifacts.require('CompTimelock');
-const Governor = artifacts.require('GovernorCompatibilityBravoMock');
+const Governor = artifacts.require('$GovernorCompatibilityBravoMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 function makeContractAddress(creator, nonce) {
@@ -34,7 +34,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
   beforeEach(async function () {
     const [deployer] = await web3.eth.getAccounts();
 
-    this.token = await Token.new(tokenName, tokenSymbol);
+    this.token = await Token.new(tokenName, tokenSymbol, tokenName);
 
     // Need to predict governance address to set it as timelock admin with a delayed transfer
     const nonce = await web3.eth.getTransactionCount(deployer);
@@ -43,11 +43,11 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
     this.mock = await Governor.new(
       name,
-      this.token.address,
       votingDelay,
       votingPeriod,
       proposalThreshold,
       this.timelock.address,
+      this.token.address,
     );
     this.receiver = await CallReceiver.new();
 
@@ -55,7 +55,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
     await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
 
-    await this.token.mint(owner, tokenSupply);
+    await this.token.$_mint(owner, tokenSupply);
     await this.helper.delegate(
       { token: this.token, to: proposer, value: proposalThreshold },
       { from: owner },

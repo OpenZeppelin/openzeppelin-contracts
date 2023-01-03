@@ -8,8 +8,8 @@ const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInte
 const TimelockController = artifacts.require('TimelockController');
 const CallReceiverMock = artifacts.require('CallReceiverMock');
 const Implementation2 = artifacts.require('Implementation2');
-const ERC721Mock = artifacts.require('ERC721Mock');
-const ERC1155Mock = artifacts.require('ERC1155Mock');
+const ERC721 = artifacts.require('$ERC721');
+const ERC1155 = artifacts.require('$ERC1155');
 
 const MINDELAY = time.duration.days(1);
 
@@ -1112,8 +1112,8 @@ contract('TimelockController', function (accounts) {
       const tokenId = new BN(1);
 
       beforeEach(async function () {
-        this.token = await ERC721Mock.new(name, symbol);
-        await this.token.mint(other, tokenId);
+        this.token = await ERC721.new(name, symbol);
+        await this.token.$_mint(other, tokenId);
       });
 
       it('can receive an ERC721 safeTransfer', async function () {
@@ -1130,8 +1130,8 @@ contract('TimelockController', function (accounts) {
       };
 
       beforeEach(async function () {
-        this.token = await ERC1155Mock.new(uri);
-        await this.token.mintBatch(other, Object.keys(tokenIds), Object.values(tokenIds), '0x');
+        this.token = await ERC1155.new(uri);
+        await this.token.$_mintBatch(other, Object.keys(tokenIds), Object.values(tokenIds), '0x');
       });
 
       it('can receive ERC1155 safeTransfer', async function () {

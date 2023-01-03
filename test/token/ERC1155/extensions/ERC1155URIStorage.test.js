@@ -3,7 +3,7 @@ const { BN, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { artifacts } = require('hardhat');
 
-const ERC1155URIStorageMock = artifacts.require('ERC1155URIStorageMock');
+const ERC1155URIStorage = artifacts.require('$ERC1155URIStorage');
 
 contract(['ERC1155URIStorage'], function (accounts) {
   const [holder] = accounts;
@@ -16,10 +16,10 @@ contract(['ERC1155URIStorage'], function (accounts) {
 
   describe('with base uri set', function () {
     beforeEach(async function () {
-      this.token = await ERC1155URIStorageMock.new(erc1155Uri);
-      await this.token.setBaseURI(baseUri);
+      this.token = await ERC1155URIStorage.new(erc1155Uri);
+      await this.token.$_setBaseURI(baseUri);
 
-      await this.token.mint(holder, tokenId, amount, '0x');
+      await this.token.$_mint(holder, tokenId, amount, '0x');
     });
 
     it('can request the token uri, returning the erc1155 uri if no token uri was set', async function () {
@@ -30,7 +30,7 @@ contract(['ERC1155URIStorage'], function (accounts) {
 
     it('can request the token uri, returning the concatenated uri if a token uri was set', async function () {
       const tokenUri = '1234/';
-      const receipt = await this.token.setURI(tokenId, tokenUri);
+      const receipt = await this.token.$_setURI(tokenId, tokenUri);
 
       const receivedTokenUri = await this.token.uri(tokenId);
 
@@ -42,9 +42,9 @@ contract(['ERC1155URIStorage'], function (accounts) {
 
   describe('with base uri set to the empty string', function () {
     beforeEach(async function () {
-      this.token = await ERC1155URIStorageMock.new('');
+      this.token = await ERC1155URIStorage.new('');
 
-      await this.token.mint(holder, tokenId, amount, '0x');
+      await this.token.$_mint(holder, tokenId, amount, '0x');
     });
 
     it('can request the token uri, returning an empty string if no token uri was set', async function () {
@@ -55,7 +55,7 @@ contract(['ERC1155URIStorage'], function (accounts) {
 
     it('can request the token uri, returning the token uri if a token uri was set', async function () {
       const tokenUri = 'ipfs://1234/';
-      const receipt = await this.token.setURI(tokenId, tokenUri);
+      const receipt = await this.token.$_setURI(tokenId, tokenUri);
 
       const receivedTokenUri = await this.token.uri(tokenId);
 

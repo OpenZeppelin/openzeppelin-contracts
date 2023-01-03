@@ -4,7 +4,7 @@ const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test
 const { expect } = require('chai');
 const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
-const ERC20FlashMintMock = artifacts.require('ERC20FlashMintMock');
+const ERC20FlashMintMock = artifacts.require('$ERC20FlashMintMock');
 const ERC3156FlashBorrowerMock = artifacts.require('ERC3156FlashBorrowerMock');
 
 contract('ERC20FlashMint', function (accounts) {
@@ -17,7 +17,8 @@ contract('ERC20FlashMint', function (accounts) {
   const loanAmount = new BN(10000000000000);
 
   beforeEach(async function () {
-    this.token = await ERC20FlashMintMock.new(name, symbol, initialHolder, initialSupply);
+    this.token = await ERC20FlashMintMock.new(name, symbol);
+    await this.token.$_mint(initialHolder, initialSupply);
   });
 
   describe('maxFlashLoan', function () {
@@ -47,7 +48,7 @@ contract('ERC20FlashMint', function (accounts) {
 
   describe('flashFeeReceiver', function () {
     it('default receiver', async function () {
-      expect(await this.token.flashFeeReceiver()).to.be.eq(ZERO_ADDRESS);
+      expect(await this.token.$_flashFeeReceiver()).to.be.eq(ZERO_ADDRESS);
     });
   });
 
@@ -128,7 +129,7 @@ contract('ERC20FlashMint', function (accounts) {
 
       beforeEach('init receiver balance & set flash fee', async function () {
         this.receiver = await ERC3156FlashBorrowerMock.new(true, true);
-        const receipt = await this.token.mint(this.receiver.address, receiverInitialBalance);
+        const receipt = await this.token.$_mint(this.receiver.address, receiverInitialBalance);
         await expectEvent(receipt, 'Transfer', {
           from: ZERO_ADDRESS,
           to: this.receiver.address,
@@ -178,7 +179,7 @@ contract('ERC20FlashMint', function (accounts) {
           receiverInitialBalance.sub(flashFee),
         );
         expect(
-          await this.token.balanceOf(await this.token.flashFeeReceiver()),
+          await this.token.balanceOf(await this.token.$_flashFeeReceiver()),
         ).to.be.bignumber.equal('0');
         expect(
           await this.token.allowance(this.receiver.address, this.token.address),
@@ -188,7 +189,7 @@ contract('ERC20FlashMint', function (accounts) {
       it('custom flash fee receiver', async function () {
         const flashFeeReceiverAddress = anotherAccount;
         await this.token.setFlashFeeReceiver(flashFeeReceiverAddress);
-        expect(await this.token.flashFeeReceiver()).to.be.eq(flashFeeReceiverAddress);
+        expect(await this.token.$_flashFeeReceiver()).to.be.eq(flashFeeReceiverAddress);
 
         expect(await this.token.balanceOf(flashFeeReceiverAddress)).to.be.bignumber.equal('0');
 

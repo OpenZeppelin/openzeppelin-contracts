@@ -52,10 +52,10 @@ function shouldBehaveLikeERC1155([
 
       context('when accounts own some tokens', function () {
         beforeEach(async function () {
-          await this.token.mint(firstTokenHolder, firstTokenId, firstAmount, '0x', {
+          await this.token.$_mint(firstTokenHolder, firstTokenId, firstAmount, '0x', {
             from: minter,
           });
-          await this.token.mint(secondTokenHolder, secondTokenId, secondAmount, '0x', {
+          await this.token.$_mint(secondTokenHolder, secondTokenId, secondAmount, '0x', {
             from: minter,
           });
         });
@@ -120,10 +120,10 @@ function shouldBehaveLikeERC1155([
 
       context('when accounts own some tokens', function () {
         beforeEach(async function () {
-          await this.token.mint(firstTokenHolder, firstTokenId, firstAmount, '0x', {
+          await this.token.$_mint(firstTokenHolder, firstTokenId, firstAmount, '0x', {
             from: minter,
           });
-          await this.token.mint(secondTokenHolder, secondTokenId, secondAmount, '0x', {
+          await this.token.$_mint(secondTokenHolder, secondTokenId, secondAmount, '0x', {
             from: minter,
           });
         });
@@ -186,10 +186,10 @@ function shouldBehaveLikeERC1155([
 
     describe('safeTransferFrom', function () {
       beforeEach(async function () {
-        await this.token.mint(multiTokenHolder, firstTokenId, firstAmount, '0x', {
+        await this.token.$_mint(multiTokenHolder, firstTokenId, firstAmount, '0x', {
           from: minter,
         });
-        await this.token.mint(multiTokenHolder, secondTokenId, secondAmount, '0x', {
+        await this.token.$_mint(multiTokenHolder, secondTokenId, secondAmount, '0x', {
           from: minter,
         });
       });
@@ -496,10 +496,10 @@ function shouldBehaveLikeERC1155([
 
     describe('safeBatchTransferFrom', function () {
       beforeEach(async function () {
-        await this.token.mint(multiTokenHolder, firstTokenId, firstAmount, '0x', {
+        await this.token.$_mint(multiTokenHolder, firstTokenId, firstAmount, '0x', {
           from: minter,
         });
-        await this.token.mint(multiTokenHolder, secondTokenId, secondAmount, '0x', {
+        await this.token.$_mint(multiTokenHolder, secondTokenId, secondAmount, '0x', {
           from: minter,
         });
       });

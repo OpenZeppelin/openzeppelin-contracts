@@ -70,7 +70,7 @@ class GovernorHelper {
 
     return proposal.useCompatibilityInterface
       ? this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts))
-      : this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](
+      : this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
           ...concatOpts(proposal.shortProposal, opts),
         );
   }

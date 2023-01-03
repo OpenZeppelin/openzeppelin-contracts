@@ -1,12 +1,14 @@
 const { BN, expectRevert } = require('@openzeppelin/test-helpers');
-const MulticallTokenMock = artifacts.require('MulticallTokenMock');
 
-contract('MulticallToken', function (accounts) {
+const ERC20MulticallMock = artifacts.require('$ERC20MulticallMock');
+
+contract('Multicall', function (accounts) {
   const [deployer, alice, bob] = accounts;
   const amount = 12000;
 
   beforeEach(async function () {
-    this.multicallToken = await MulticallTokenMock.new(new BN(amount), { from: deployer });
+    this.multicallToken = await ERC20MulticallMock.new('name', 'symbol');
+    await this.multicallToken.$_mint(deployer, amount);
   });
 
   it('batches function calls', async function () {

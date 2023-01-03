@@ -9,11 +9,11 @@ const { GovernorHelper } = require('../helpers/governance');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 
-const Token = artifacts.require('ERC20VotesMock');
-const Governor = artifacts.require('GovernorMock');
+const Token = artifacts.require('$ERC20Votes');
+const Governor = artifacts.require('$GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
-const ERC721Mock = artifacts.require('ERC721Mock');
-const ERC1155Mock = artifacts.require('ERC1155Mock');
+const ERC721 = artifacts.require('$ERC721');
+const ERC1155 = artifacts.require('$ERC1155');
 
 contract('Governor', function (accounts) {
   const [owner, proposer, voter1, voter2, voter3, voter4] = accounts;
@@ -30,15 +30,22 @@ contract('Governor', function (accounts) {
 
   beforeEach(async function () {
     this.chainId = await web3.eth.getChainId();
-    this.token = await Token.new(tokenName, tokenSymbol);
-    this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, 10);
+    this.token = await Token.new(tokenName, tokenSymbol, tokenName);
+    this.mock = await Governor.new(
+      name, // name
+      votingDelay, // initialVotingDelay
+      votingPeriod, // initialVotingPeriod
+      0, // initialProposalThreshold
+      this.token.address, // tokenAddress
+      10, // quorumNumeratorValue
+    );
     this.receiver = await CallReceiver.new();
 
     this.helper = new GovernorHelper(this.mock);
 
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
-    await this.token.mint(owner, tokenSupply);
+    await this.token.$_mint(owner, tokenSupply);
     await this.helper.delegate(
       { token: this.token, to: voter1, value: web3.utils.toWei('10') },
       { from: owner },
@@ -636,8 +643,8 @@ contract('Governor', function (accounts) {
       const tokenId = new BN(1);
 
       beforeEach(async function () {
-        this.token = await ERC721Mock.new(name, symbol);
-        await this.token.mint(owner, tokenId);
+        this.token = await ERC721.new(name, symbol);
+        await this.token.$_mint(owner, tokenId);
       });
 
       it('can receive an ERC721 safeTransfer', async function () {
@@ -654,8 +661,8 @@ contract('Governor', function (accounts) {
       };
 
       beforeEach(async function () {
-        this.token = await ERC1155Mock.new(uri);
-        await this.token.mintBatch(owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
+        this.token = await ERC1155.new(uri);
+        await this.token.$_mintBatch(owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
       });
 
       it('can receive ERC1155 safeTransfer', async function () {

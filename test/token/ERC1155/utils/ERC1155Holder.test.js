@@ -1,7 +1,7 @@
 const { BN } = require('@openzeppelin/test-helpers');
 
 const ERC1155Holder = artifacts.require('ERC1155Holder');
-const ERC1155Mock = artifacts.require('ERC1155Mock');
+const ERC1155 = artifacts.require('$ERC1155');
 
 const { expect } = require('chai');
 
@@ -17,11 +17,9 @@ contract('ERC1155Holder', function (accounts) {
   const transferData = '0x12345678';
 
   beforeEach(async function () {
-    this.multiToken = await ERC1155Mock.new(uri, { from: creator });
+    this.multiToken = await ERC1155.new(uri);
     this.holder = await ERC1155Holder.new();
-    await this.multiToken.mintBatch(creator, multiTokenIds, multiTokenAmounts, '0x', {
-      from: creator,
-    });
+    await this.multiToken.$_mintBatch(creator, multiTokenIds, multiTokenAmounts, '0x');
   });
 
   shouldSupportInterfaces(['ERC165', 'ERC1155Receiver']);

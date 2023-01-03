@@ -54,6 +54,9 @@ allFiredEvents
 .coverage_cache
 .coverage_contracts
 
+# hardat-exposed
+contracts-exposed
+
 # Hardhat
 /cache
 /artifacts

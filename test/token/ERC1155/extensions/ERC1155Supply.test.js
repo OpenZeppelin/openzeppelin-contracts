@@ -2,7 +2,7 @@ const { BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC1155SupplyMock = artifacts.require('ERC1155SupplyMock');
+const ERC1155Supply = artifacts.require('$ERC1155Supply');
 
 contract('ERC1155Supply', function (accounts) {
   const [holder] = accounts;
@@ -16,7 +16,7 @@ contract('ERC1155Supply', function (accounts) {
   const secondTokenAmount = new BN('23');
 
   beforeEach(async function () {
-    this.token = await ERC1155SupplyMock.new(uri);
+    this.token = await ERC1155Supply.new(uri);
   });
 
   context('before mint', function () {
@@ -32,7 +32,7 @@ contract('ERC1155Supply', function (accounts) {
   context('after mint', function () {
     context('single', function () {
       beforeEach(async function () {
-        await this.token.mint(holder, firstTokenId, firstTokenAmount, '0x');
+        await this.token.$_mint(holder, firstTokenId, firstTokenAmount, '0x');
       });
 
       it('exist', async function () {
@@ -46,7 +46,7 @@ contract('ERC1155Supply', function (accounts) {
 
     context('batch', function () {
       beforeEach(async function () {
-        await this.token.mintBatch(
+        await this.token.$_mintBatch(
           holder,
           [firstTokenId, secondTokenId],
           [firstTokenAmount, secondTokenAmount],
@@ -71,8 +71,8 @@ contract('ERC1155Supply', function (accounts) {
   context('after burn', function () {
     context('single', function () {
       beforeEach(async function () {
-        await this.token.mint(holder, firstTokenId, firstTokenAmount, '0x');
-        await this.token.burn(holder, firstTokenId, firstTokenAmount);
+        await this.token.$_mint(holder, firstTokenId, firstTokenAmount, '0x');
+        await this.token.$_burn(holder, firstTokenId, firstTokenAmount);
       });
 
       it('exist', async function () {
@@ -86,13 +86,13 @@ contract('ERC1155Supply', function (accounts) {
 
     context('batch', function () {
       beforeEach(async function () {
-        await this.token.mintBatch(
+        await this.token.$_mintBatch(
           holder,
           [firstTokenId, secondTokenId],
           [firstTokenAmount, secondTokenAmount],
           '0x',
         );
-        await this.token.burnBatch(
+        await this.token.$_burnBatch(
           holder,
           [firstTokenId, secondTokenId],
           [firstTokenAmount, secondTokenAmount],
