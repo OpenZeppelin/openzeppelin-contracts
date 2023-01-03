@@ -12,7 +12,7 @@ library Base64 {
     /**
      * @dev Base64 Encoding/Decoding Table
      */
-    string private constant _TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    string internal constant _TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     /**
      * @dev Converts a `bytes` to its Bytes64 `string` representation.
