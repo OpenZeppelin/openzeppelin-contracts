@@ -162,7 +162,7 @@ library EnumerableMap {
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
-     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function keys(Bytes32ToBytes32Map storage map) internal view returns (bytes32[] memory) {
         return map._keys.values();
@@ -186,7 +186,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Removes a value from a set. O(1).
+     * @dev Removes a value from a map. O(1).
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
@@ -209,7 +209,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Returns the element stored at position `index` in the set. O(1).
+     * @dev Returns the element stored at position `index` in the map. O(1).
      * Note that there are no guarantees on the ordering of values inside the
      * array, and it may change when more values are added or removed.
      *
@@ -258,7 +258,7 @@ library EnumerableMap {
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
-     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function keys(UintToUintMap storage map) internal view returns (uint256[] memory) {
         bytes32[] memory store = keys(map._inner);
@@ -290,7 +290,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Removes a value from a set. O(1).
+     * @dev Removes a value from a map. O(1).
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
@@ -313,7 +313,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Returns the element stored at position `index` in the set. O(1).
+     * @dev Returns the element stored at position `index` in the map. O(1).
      * Note that there are no guarantees on the ordering of values inside the
      * array, and it may change when more values are added or removed.
      *
@@ -366,7 +366,7 @@ library EnumerableMap {
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
-     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function keys(UintToAddressMap storage map) internal view returns (uint256[] memory) {
         bytes32[] memory store = keys(map._inner);
@@ -398,7 +398,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Removes a value from a set. O(1).
+     * @dev Removes a value from a map. O(1).
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
@@ -421,7 +421,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Returns the element stored at position `index` in the set. O(1).
+     * @dev Returns the element stored at position `index` in the map. O(1).
      * Note that there are no guarantees on the ordering of values inside the
      * array, and it may change when more values are added or removed.
      *
@@ -474,7 +474,7 @@ library EnumerableMap {
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
-     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function keys(AddressToUintMap storage map) internal view returns (address[] memory) {
         bytes32[] memory store = keys(map._inner);
@@ -506,7 +506,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Removes a value from a set. O(1).
+     * @dev Removes a value from a map. O(1).
      *
      * Returns true if the key was removed from the map, that is if it was present.
      */
@@ -529,7 +529,7 @@ library EnumerableMap {
     }
 
     /**
-     * @dev Returns the element stored at position `index` in the set. O(1).
+     * @dev Returns the element stored at position `index` in the map. O(1).
      * Note that there are no guarantees on the ordering of values inside the
      * array, and it may change when more values are added or removed.
      *
@@ -582,7 +582,7 @@ library EnumerableMap {
      * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
      * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
      * this function has an unbounded cost, and using it as part of a state-changing function may render the function
-     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     * uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
      */
     function keys(Bytes32ToUintMap storage map) internal view returns (bytes32[] memory) {
         bytes32[] memory store = keys(map._inner);
