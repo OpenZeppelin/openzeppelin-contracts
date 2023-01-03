@@ -156,6 +156,18 @@ library EnumerableMap {
         return value;
     }
 
+    /**
+     * @dev Return the an array containing all the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(Bytes32ToBytes32Map storage map) internal view returns (bytes32[] memory) {
+        return map._keys.values();
+    }
+
     // UintToUintMap
 
     struct UintToUintMap {
@@ -238,6 +250,26 @@ library EnumerableMap {
      */
     function get(UintToUintMap storage map, uint256 key, string memory errorMessage) internal view returns (uint256) {
         return uint256(get(map._inner, bytes32(key), errorMessage));
+    }
+
+    /**
+     * @dev Return the an array containing all the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(UintToUintMap storage map) internal view returns (uint256[] memory) {
+        bytes32[] memory store = keys(map._inner);
+        uint256[] memory result;
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := store
+        }
+
+        return result;
     }
 
     // UintToAddressMap
@@ -328,6 +360,26 @@ library EnumerableMap {
         return address(uint160(uint256(get(map._inner, bytes32(key), errorMessage))));
     }
 
+    /**
+     * @dev Return the an array containing all the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(UintToAddressMap storage map) internal view returns (uint256[] memory) {
+        bytes32[] memory store = keys(map._inner);
+        uint256[] memory result;
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := store
+        }
+
+        return result;
+    }
+
     // AddressToUintMap
 
     struct AddressToUintMap {
@@ -416,6 +468,26 @@ library EnumerableMap {
         return uint256(get(map._inner, bytes32(uint256(uint160(key))), errorMessage));
     }
 
+    /**
+     * @dev Return the an array containing all the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(AddressToUintMap storage map) internal view returns (address[] memory) {
+        bytes32[] memory store = keys(map._inner);
+        address[] memory result;
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := store
+        }
+
+        return result;
+    }
+
     // Bytes32ToUintMap
 
     struct Bytes32ToUintMap {
@@ -502,5 +574,25 @@ library EnumerableMap {
         string memory errorMessage
     ) internal view returns (uint256) {
         return uint256(get(map._inner, key, errorMessage));
+    }
+
+    /**
+     * @dev Return the an array containing all the keys
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function keys(Bytes32ToUintMap storage map) internal view returns (bytes32[] memory) {
+        bytes32[] memory store = keys(map._inner);
+        bytes32[] memory result;
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := store
+        }
+
+        return result;
     }
 }

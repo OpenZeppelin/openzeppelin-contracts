@@ -36,6 +36,14 @@ function shouldBehaveLikeMap (
     }))).to.have.same.deep.members(
       zip(keys.map(k => k.toString()), values.map(v => v.toString())),
     );
+
+    expect((await methods.keys(map)).length).to.equal(keys.length);
+
+    expect(
+      (await methods.keys(map)).map(k => k.toString()),
+    ).to.have.same.members(
+      keys.map(key => key.toString()),
+    );
   }
 
   it('starts empty', async function () {

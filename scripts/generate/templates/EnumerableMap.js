@@ -168,6 +168,18 @@ function get(
     require(value != 0 || contains(map, key), errorMessage);
     return value;
 }
+
+/**
+ * @dev Return the an array containing all the keys
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function keys(Bytes32ToBytes32Map storage map) internal view returns (bytes32[] memory) {
+    return map._keys.values();
+}
 `;
 
 const customMap = ({ name, keyType, valueType }) => `\
@@ -261,6 +273,26 @@ function get(
     string memory errorMessage
 ) internal view returns (${valueType}) {
     return ${fromBytes32(valueType, `get(map._inner, ${toBytes32(keyType, 'key')}, errorMessage)`)};
+}
+
+/**
+ * @dev Return the an array containing all the keys
+ *
+ * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+ * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+ * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+ * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+ */
+function keys(${name} storage map) internal view returns (${keyType}[] memory) {
+    bytes32[] memory store = keys(map._inner);
+    ${keyType}[] memory result;
+
+    /// @solidity memory-safe-assembly
+    assembly {
+        result := store
+    }
+
+    return result;
 }
 `;
 
