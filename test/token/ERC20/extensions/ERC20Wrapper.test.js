@@ -105,7 +105,7 @@ contract('ERC20', function (accounts) {
     it('missing balance', async function () {
       await expectRevert(
         this.token.withdrawTo(initialHolder, MAX_UINT256, { from: initialHolder }),
-        'ERC20: burn amount exceeds balance',
+        'ERC20: transfer amount exceeds balance',
       );
     });
 

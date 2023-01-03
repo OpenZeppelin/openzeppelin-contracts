@@ -250,7 +250,7 @@ contract('ERC20', function (accounts) {
     describe('for a non zero account', function () {
       it('rejects burning more than balance', async function () {
         await expectRevert(this.token.burn(
-          initialHolder, initialSupply.addn(1)), 'ERC20: burn amount exceeds balance',
+          initialHolder, initialSupply.addn(1)), 'ERC20: transfer amount exceeds balance',
         );
       });
 
