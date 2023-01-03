@@ -2,7 +2,6 @@ const { default: changelogGithub } = require('@changesets/changelog-github');
 
 const getReleaseLine = async (changeset, _type, options) => {
   const releaseLine = await changelogGithub.getReleaseLine(changeset, _type, options);
-
   return releaseLine;
 };
 
@@ -12,7 +11,6 @@ const getDependencyReleaseLine = async (changesets, dependenciesUpdated, options
     dependenciesUpdated,
     options,
   );
-
   return dependencyReleaseLine;
 };
 
