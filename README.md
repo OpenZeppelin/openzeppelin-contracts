@@ -73,7 +73,7 @@ The engineering guidelines we follow to ensure project quality can be found in [
 
 Past audits can be found in [`audits/`](./audits).
 
-Using OpenZeppelin Contracts code is not a substitute for a security audit. Developers should be use common sense and be extremely careful when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problems you might experience.
+Using OpenZeppelin Contracts code is not a substitute for a security audit. Developers should use common sense and be extremely careful when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problems you might experience.
 
 ## Contribute
 
