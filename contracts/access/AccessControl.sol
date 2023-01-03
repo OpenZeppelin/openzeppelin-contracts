@@ -9,6 +9,7 @@ import "../utils/Strings.sol";
 import "../utils/introspection/ERC165.sol";
 
 /**
+ * 
  * @dev Contract module that allows children to implement role-based access
  * control mechanisms. This is a lightweight version that doesn't allow enumerating role
  * members except through off-chain means by accessing the contract event logs. Some
