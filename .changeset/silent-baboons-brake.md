@@ -1,5 +1,0 @@
----
-'openzeppelin-solidity': patch
----
-
-Example
