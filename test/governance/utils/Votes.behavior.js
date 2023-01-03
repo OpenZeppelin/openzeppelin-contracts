@@ -26,7 +26,12 @@ function shouldBehaveLikeVotes () {
       expect(
         await this.votes.DOMAIN_SEPARATOR(),
       ).to.equal(
-        await domainSeparator(this.name, version, this.chainId, this.votes.address),
+        await domainSeparator({
+          name: this.name,
+          version,
+          chainId: this.chainId,
+          verifyingContract: this.votes.address,
+        }),
       );
     });
 
@@ -45,7 +50,7 @@ function shouldBehaveLikeVotes () {
       });
 
       beforeEach(async function () {
-        await this.votes.mint(delegatorAddress, this.NFT0);
+        await this.votes.$_mint(delegatorAddress, this.NFT0);
       });
 
       it('accept signed delegation', async function () {
@@ -151,7 +156,7 @@ function shouldBehaveLikeVotes () {
     describe('set delegation', function () {
       describe('call', function () {
         it('delegation with tokens', async function () {
-          await this.votes.mint(this.account1, this.NFT0);
+          await this.votes.$_mint(this.account1, this.NFT0);
           expect(await this.votes.delegates(this.account1)).to.be.equal(ZERO_ADDRESS);
 
           const { receipt } = await this.votes.delegate(this.account1, { from: this.account1 });
@@ -192,7 +197,7 @@ function shouldBehaveLikeVotes () {
 
     describe('change delegation', function () {
       beforeEach(async function () {
-        await this.votes.mint(this.account1, this.NFT0);
+        await this.votes.$_mint(this.account1, this.NFT0);
         await this.votes.delegate(this.account1, { from: this.account1 });
       });
 
@@ -245,7 +250,7 @@ function shouldBehaveLikeVotes () {
       });
 
       it('returns the latest block if >= last checkpoint block', async function () {
-        const t1 = await this.votes.mint(this.account1, this.NFT0);
+        const t1 = await this.votes.$_mint(this.account1, this.NFT0);
         await time.advanceBlock();
         await time.advanceBlock();
 
@@ -255,7 +260,7 @@ function shouldBehaveLikeVotes () {
 
       it('returns zero if < first checkpoint block', async function () {
         await time.advanceBlock();
-        const t2 = await this.votes.mint(this.account1, this.NFT1);
+        const t2 = await this.votes.$_mint(this.account1, this.NFT1);
         await time.advanceBlock();
         await time.advanceBlock();
 
@@ -264,19 +269,19 @@ function shouldBehaveLikeVotes () {
       });
 
       it('generally returns the voting balance at the appropriate checkpoint', async function () {
-        const t1 = await this.votes.mint(this.account1, this.NFT1);
+        const t1 = await this.votes.$_mint(this.account1, this.NFT1);
         await time.advanceBlock();
         await time.advanceBlock();
-        const t2 = await this.votes.burn(this.NFT1);
+        const t2 = await this.votes.$_burn(this.NFT1);
         await time.advanceBlock();
         await time.advanceBlock();
-        const t3 = await this.votes.mint(this.account1, this.NFT2);
+        const t3 = await this.votes.$_mint(this.account1, this.NFT2);
         await time.advanceBlock();
         await time.advanceBlock();
-        const t4 = await this.votes.burn(this.NFT2);
+        const t4 = await this.votes.$_burn(this.NFT2);
         await time.advanceBlock();
         await time.advanceBlock();
-        const t5 = await this.votes.mint(this.account1, this.NFT3);
+        const t5 = await this.votes.$_mint(this.account1, this.NFT3);
         await time.advanceBlock();
         await time.advanceBlock();
 
@@ -298,10 +303,10 @@ function shouldBehaveLikeVotes () {
     // https://github.com/compound-finance/compound-protocol/blob/master/tests/Governance/CompTest.js.
     describe('Compound test suite', function () {
       beforeEach(async function () {
-        await this.votes.mint(this.account1, this.NFT0);
-        await this.votes.mint(this.account1, this.NFT1);
-        await this.votes.mint(this.account1, this.NFT2);
-        await this.votes.mint(this.account1, this.NFT3);
+        await this.votes.$_mint(this.account1, this.NFT0);
+        await this.votes.$_mint(this.account1, this.NFT1);
+        await this.votes.$_mint(this.account1, this.NFT2);
+        await this.votes.$_mint(this.account1, this.NFT3);
       });
 
       describe('getPastVotes', function () {

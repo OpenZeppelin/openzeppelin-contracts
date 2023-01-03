@@ -67,6 +67,7 @@
     "glob": "^8.0.3",
     "graphlib": "^2.1.8",
     "hardhat": "^2.9.1",
+    "hardhat-exposed": "^0.3.0",
     "hardhat-gas-reporter": "^1.0.4",
     "hardhat-ignore-warnings": "^0.2.0",
     "keccak256": "^1.0.2",

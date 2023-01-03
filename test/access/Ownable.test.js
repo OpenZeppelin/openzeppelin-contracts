@@ -3,7 +3,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-const Ownable = artifacts.require('OwnableMock');
+const Ownable = artifacts.require('$Ownable');
 
 contract('Ownable', function (accounts) {
   const [ owner, other ] = accounts;

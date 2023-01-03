@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 const { expect } = require('chai');
 
 const PaymentSplitter = artifacts.require('PaymentSplitter');
-const Token = artifacts.require('ERC20Mock');
+const ERC20 = artifacts.require('$ERC20');
 
 contract('PaymentSplitter', function (accounts) {
   const [ owner, payee1, payee2, payee3, nonpayee1, payer1 ] = accounts;
@@ -51,7 +51,8 @@ contract('PaymentSplitter', function (accounts) {
       this.shares = [20, 10, 70];
 
       this.contract = await PaymentSplitter.new(this.payees, this.shares);
-      this.token = await Token.new('MyToken', 'MT', owner, ether('1000'));
+      this.token = await ERC20.new('MyToken', 'MT');
+      await this.token.$_mint(owner, ether('1000'));
     });
 
     it('has total shares', async function () {

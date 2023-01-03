@@ -16,18 +16,10 @@ function getVersion (path) {
 }
 
 for (const [ file, template ] of Object.entries({
-  // SafeCast
   'utils/math/SafeCast.sol': './templates/SafeCast.js',
-  'mocks/SafeCastMock.sol': './templates/SafeCastMock.js',
-  // EnumerableSet
   'utils/structs/EnumerableSet.sol': './templates/EnumerableSet.js',
-  'mocks/EnumerableSetMock.sol': './templates/EnumerableSetMock.js',
-  // EnumerableMap
   'utils/structs/EnumerableMap.sol': './templates/EnumerableMap.js',
-  'mocks/EnumerableMapMock.sol': './templates/EnumerableMapMock.js',
-  // Checkpoints
   'utils/Checkpoints.sol': './templates/Checkpoints.js',
-  'mocks/CheckpointsMock.sol': './templates/CheckpointsMock.js',
 })) {
   const script = path.relative(path.join(__dirname, '../..'), __filename);
   const input = path.join(path.dirname(script), template);

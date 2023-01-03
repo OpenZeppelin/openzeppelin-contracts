@@ -1,9 +1,9 @@
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const ERC721ConsecutiveMock = artifacts.require('ERC721ConsecutiveMock');
-const ERC721ConsecutiveEnumerableMock = artifacts.require('ERC721ConsecutiveEnumerableMock');
-const ERC721ConsecutiveNoConstructorMintMock = artifacts.require('ERC721ConsecutiveNoConstructorMintMock');
+const ERC721ConsecutiveMock = artifacts.require('$ERC721ConsecutiveMock');
+const ERC721ConsecutiveEnumerableMock = artifacts.require('$ERC721ConsecutiveEnumerableMock');
+const ERC721ConsecutiveNoConstructorMintMock = artifacts.require('$ERC721ConsecutiveNoConstructorMintMock');
 
 contract('ERC721Consecutive', function (accounts) {
   const [ user1, user2, user3, receiver ] = accounts;
@@ -86,7 +86,7 @@ contract('ERC721Consecutive', function (accounts) {
     describe('minting after construction', function () {
       it('consecutive minting is not possible after construction', async function () {
         await expectRevert(
-          this.token.mintConsecutive(user1, 10),
+          this.token.$_mintConsecutive(user1, 10),
           'ERC721Consecutive: batch minting restricted to constructor',
         );
       });
@@ -94,10 +94,10 @@ contract('ERC721Consecutive', function (accounts) {
       it('simple minting is possible after construction', async function () {
         const tokenId = batches.reduce((acc, { amount }) => acc + amount, 0);
 
-        expect(await this.token.exists(tokenId)).to.be.equal(false);
+        expect(await this.token.$_exists(tokenId)).to.be.equal(false);
 
         expectEvent(
-          await this.token.mint(user1, tokenId),
+          await this.token.$_mint(user1, tokenId),
           'Transfer',
           { from: constants.ZERO_ADDRESS, to: user1, tokenId: tokenId.toString() },
         );
@@ -106,10 +106,10 @@ contract('ERC721Consecutive', function (accounts) {
       it('cannot mint a token that has been batched minted', async function () {
         const tokenId = batches.reduce((acc, { amount }) => acc + amount, 0) - 1;
 
-        expect(await this.token.exists(tokenId)).to.be.equal(true);
+        expect(await this.token.$_exists(tokenId)).to.be.equal(true);
 
         await expectRevert(
-          this.token.mint(user1, tokenId),
+          this.token.$_mint(user1, tokenId),
           'ERC721: token already minted',
         );
       });
@@ -124,7 +124,7 @@ contract('ERC721Consecutive', function (accounts) {
 
       it('tokens can be burned and re-minted #1', async function () {
         expectEvent(
-          await this.token.burn(1, { from: user1 }),
+          await this.token.$_burn(1, { from: user1 }),
           'Transfer',
           { from: user1, to: constants.ZERO_ADDRESS, tokenId: '1' },
         );
@@ -132,7 +132,7 @@ contract('ERC721Consecutive', function (accounts) {
         await expectRevert(this.token.ownerOf(1), 'ERC721: invalid token ID');
 
         expectEvent(
-          await this.token.mint(user2, 1),
+          await this.token.$_mint(user2, 1),
           'Transfer',
           { from: constants.ZERO_ADDRESS, to: user2, tokenId: '1' },
         );
@@ -143,33 +143,33 @@ contract('ERC721Consecutive', function (accounts) {
       it('tokens can be burned and re-minted #2', async function () {
         const tokenId = batches.reduce((acc, { amount }) => acc.addn(amount), web3.utils.toBN(0));
 
-        expect(await this.token.exists(tokenId)).to.be.equal(false);
+        expect(await this.token.$_exists(tokenId)).to.be.equal(false);
         await expectRevert(this.token.ownerOf(tokenId), 'ERC721: invalid token ID');
 
         // mint
-        await this.token.mint(user1, tokenId);
+        await this.token.$_mint(user1, tokenId);
 
-        expect(await this.token.exists(tokenId)).to.be.equal(true);
+        expect(await this.token.$_exists(tokenId)).to.be.equal(true);
         expect(await this.token.ownerOf(tokenId), user1);
 
         // burn
         expectEvent(
-          await this.token.burn(tokenId, { from: user1 }),
+          await this.token.$_burn(tokenId, { from: user1 }),
           'Transfer',
           { from: user1, to: constants.ZERO_ADDRESS, tokenId },
         );
 
-        expect(await this.token.exists(tokenId)).to.be.equal(false);
+        expect(await this.token.$_exists(tokenId)).to.be.equal(false);
         await expectRevert(this.token.ownerOf(tokenId), 'ERC721: invalid token ID');
 
         // re-mint
         expectEvent(
-          await this.token.mint(user2, tokenId),
+          await this.token.$_mint(user2, tokenId),
           'Transfer',
           { from: constants.ZERO_ADDRESS, to: user2, tokenId },
         );
 
-        expect(await this.token.exists(tokenId)).to.be.equal(true);
+        expect(await this.token.$_exists(tokenId)).to.be.equal(true);
         expect(await this.token.ownerOf(tokenId), user2);
       });
     });

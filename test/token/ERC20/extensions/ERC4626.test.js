@@ -1,9 +1,9 @@
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const ERC20DecimalsMock = artifacts.require('ERC20DecimalsMock');
-const ERC4626Mock = artifacts.require('ERC4626Mock');
-const ERC4626DecimalMock = artifacts.require('ERC4626DecimalMock');
+const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
+const ERC4626 = artifacts.require('$ERC4626');
+const ERC4626Decimals = artifacts.require('$ERC4626DecimalsMock');
 
 const parseToken = (token) => (new BN(token)).mul(new BN('1000000000000'));
 const parseShare = (share) => (new BN(share)).mul(new BN('1000000000000000000'));
@@ -15,10 +15,10 @@ contract('ERC4626', function (accounts) {
   const symbol = 'MTKN';
 
   beforeEach(async function () {
-    this.token = await ERC20DecimalsMock.new(name, symbol, 12);
-    this.vault = await ERC4626DecimalMock.new(this.token.address, name + ' Vault', symbol + 'V', 18);
+    this.token = await ERC20Decimals.new(name, symbol, 12);
+    this.vault = await ERC4626Decimals.new(name + ' Vault', symbol + 'V', this.token.address, 18);
 
-    await this.token.mint(holder, web3.utils.toWei('100'));
+    await this.token.$_mint(holder, web3.utils.toWei('100'));
     await this.token.approve(this.vault.address, constants.MAX_UINT256, { from: holder });
     await this.vault.approve(spender, constants.MAX_UINT256, { from: holder });
   });
@@ -32,8 +32,8 @@ contract('ERC4626', function (accounts) {
 
   it('inherit decimals if from asset', async function () {
     for (const decimals of [ 0, 9, 12, 18, 36 ].map(web3.utils.toBN)) {
-      const token = await ERC20DecimalsMock.new('', '', decimals);
-      const vault = await ERC4626Mock.new(token.address, '', '');
+      const token = await ERC20Decimals.new('', '', decimals);
+      const vault = await ERC4626.new('', '', token.address);
       expect(await vault.decimals()).to.be.bignumber.equal(decimals);
     }
   });
@@ -122,7 +122,7 @@ contract('ERC4626', function (accounts) {
 
   describe('partially empty vault: assets & no shares', function () {
     beforeEach(async function () {
-      await this.token.mint(this.vault.address, parseToken(1)); // 1 token
+      await this.token.$_mint(this.vault.address, parseToken(1)); // 1 token
     });
 
     it('status', async function () {
@@ -208,7 +208,7 @@ contract('ERC4626', function (accounts) {
 
   describe('partially empty vault: shares & no assets', function () {
     beforeEach(async function () {
-      await this.vault.mockMint(holder, parseShare(1)); // 1 share
+      await this.vault.$_mint(holder, parseShare(1)); // 1 share
     });
 
     it('status', async function () {
@@ -302,8 +302,8 @@ contract('ERC4626', function (accounts) {
 
   describe('full vault: assets & shares', function () {
     beforeEach(async function () {
-      await this.token.mint(this.vault.address, parseToken(1)); // 1 tokens
-      await this.vault.mockMint(holder, parseShare(100)); // 100 share
+      await this.token.$_mint(this.vault.address, parseToken(1)); // 1 tokens
+      await this.vault.$_mint(holder, parseShare(100)); // 100 share
     });
 
     it('status', async function () {
@@ -409,11 +409,11 @@ contract('ERC4626', function (accounts) {
   /// https://github.com/transmissions11/solmate/blob/main/src/test/ERC4626.t.sol
   it('multiple mint, deposit, redeem & withdrawal', async function () {
     // test designed with both asset using similar decimals
-    this.token = await ERC20DecimalsMock.new(name, symbol, 18);
-    this.vault = await ERC4626Mock.new(this.token.address, name + ' Vault', symbol + 'V');
+    this.token = await ERC20Decimals.new(name, symbol, 18);
+    this.vault = await ERC4626.new(name + ' Vault', symbol + 'V', this.token.address);
 
-    await this.token.mint(user1, 4000);
-    await this.token.mint(user2, 7001);
+    await this.token.$_mint(user1, 4000);
+    await this.token.$_mint(user2, 7001);
     await this.token.approve(this.vault.address, 4000, { from: user1 });
     await this.token.approve(this.vault.address, 7001, { from: user2 });
 
@@ -464,7 +464,7 @@ contract('ERC4626', function (accounts) {
     }
 
     // 3. Vault mutates by +3000 tokens (simulated yield returned from strategy)
-    await this.token.mint(this.vault.address, 3000);
+    await this.token.$_mint(this.vault.address, 3000);
 
     expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('2000');
     expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4000');
@@ -521,7 +521,7 @@ contract('ERC4626', function (accounts) {
 
     // 6. Vault mutates by +3000 tokens
     // NOTE: Vault holds 17001 tokens, but sum of assetsOf() is 17000.
-    await this.token.mint(this.vault.address, 3000);
+    await this.token.$_mint(this.vault.address, 3000);
 
     expect(await this.vault.balanceOf(user1)).to.be.bignumber.equal('3333');
     expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('6000');
