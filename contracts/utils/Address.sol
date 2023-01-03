@@ -22,6 +22,10 @@ library Address {
      *  - a contract in construction
      *  - an address where a contract will be created
      *  - an address where a contract lived, but was destroyed
+     *
+     * Furthermore, `isContract` will also return true if the target contract within
+     * the same transaction is already scheduled for destruction by `SELFDESTRUCT`,
+     * which only has an effect at the end of a transaction.
      * ====
      *
      * [IMPORTANT]
