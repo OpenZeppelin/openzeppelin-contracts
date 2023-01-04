@@ -16,7 +16,9 @@ Security vulnerabilities will be patched as soon as responsibly possible, and pu
 
 [advisories]: https://github.com/OpenZeppelin/openzeppelin-contracts/security/advisories
 
-Projects that build on OpenZeppelin Contracts are encouraged to clearly state, in their source code and websites, how to be contacted about security issues in the event that a direct notification is considered necessary. Additionally, we recommend installing the library through npm and setting up vulnerability alerts such as [Dependabot].
+Projects that build on OpenZeppelin Contracts are encouraged to clearly state, in their source code and websites, how to be contacted about security issues in the event that a direct notification is considered necessary. We recommend including it in the NatSpec for the contract as `/// @custom:security-contact security@example.com`.
+
+Additionally, we recommend installing the library through npm and setting up vulnerability alerts such as [Dependabot].
 
 [Dependabot]: https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-supply-chain-security#what-is-dependabot
 
