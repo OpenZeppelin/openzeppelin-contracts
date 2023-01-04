@@ -7,7 +7,7 @@ const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');
 const { ZERO_ADDRESS } = constants;
 
 contract('ERC721Wrapper', function (accounts) {
-  const [initialHolder, anotherAccount] = accounts;
+  const [initialHolder, anotherAccount, approvedAccount] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -120,7 +120,7 @@ contract('ERC721Wrapper', function (accounts) {
       await this.token.depositFor(initialHolder, [firstTokenId], { from: initialHolder });
     });
 
-    it('works', async function () {
+    it('works for an owner', async function () {
       const { tx } = await this.token.withdrawTo(initialHolder, [firstTokenId], { from: initialHolder });
       await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: this.token.address,
@@ -132,6 +132,40 @@ contract('ERC721Wrapper', function (accounts) {
         to: ZERO_ADDRESS,
         tokenId: firstTokenId,
       });
+    });
+
+    it('works for an approved', async function () {
+      await this.token.approve(approvedAccount, firstTokenId, { from: initialHolder });
+      const { tx } = await this.token.withdrawTo(initialHolder, [firstTokenId], { from: approvedAccount });
+      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
+        from: this.token.address,
+        to: initialHolder,
+        tokenId: firstTokenId,
+      });
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: initialHolder,
+        to: ZERO_ADDRESS,
+        tokenId: firstTokenId,
+      });
+    });
+    
+    it('works for an approved for all', async function () {
+      await this.token.setApprovalForAll(approvedAccount, true, { from: initialHolder });
+      const { tx } = await this.token.withdrawTo(initialHolder, [firstTokenId], { from: approvedAccount });
+      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
+        from: this.token.address,
+        to: initialHolder,
+        tokenId: firstTokenId,
+      });
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: initialHolder,
+        to: ZERO_ADDRESS,
+        tokenId: firstTokenId,
+      });
+    });
+
+    it("doesn't work for a non-owner nor approved", async function () {
+      await expectRevert(this.token.withdrawTo(initialHolder, [firstTokenId], { from: anotherAccount }), "ERC721: caller is not token owner or approved");
     });
 
     it('works with multiple tokens', async function () {

@@ -37,6 +37,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      */
     function withdrawTo(address account, uint256[] memory tokenIds) public virtual returns (bool) {
         for (uint256 i = 0; i < tokenIds.length; ++i) {
+            require(_isApprovedOrOwner(_msgSender(), tokenIds[i]), "ERC721: caller is not token owner or approved");
             _burn(tokenIds[i]);
             underlying.safeTransferFrom(address(this), account, tokenIds[i]);
         }
