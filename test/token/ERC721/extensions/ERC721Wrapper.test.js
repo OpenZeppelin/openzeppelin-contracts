@@ -148,7 +148,7 @@ contract('ERC721Wrapper', function (accounts) {
         tokenId: firstTokenId,
       });
     });
-    
+
     it('works for an approved for all', async function () {
       await this.token.setApprovalForAll(approvedAccount, true, { from: initialHolder });
       const { tx } = await this.token.withdrawTo(initialHolder, [firstTokenId], { from: approvedAccount });
@@ -165,7 +165,7 @@ contract('ERC721Wrapper', function (accounts) {
     });
 
     it("doesn't work for a non-owner nor approved", async function () {
-      await expectRevert(this.token.withdrawTo(initialHolder, [firstTokenId], { from: anotherAccount }), "ERC721: caller is not token owner or approved");
+      await expectRevert(this.token.withdrawTo(initialHolder, [firstTokenId], { from: anotherAccount }), "ERC721Wrapper: caller is not token owner or approved");
     });
 
     it('works with multiple tokens', async function () {
@@ -199,9 +199,23 @@ contract('ERC721Wrapper', function (accounts) {
     });
   });
 
+  describe('onERC721Received', function () {
+    it('mints a token upon receival', async function () {
+      // `safeTransferFrom` guarantees `onERC721Received` check
+      const { tx } = await this.underlying.safeTransferFrom(initialHolder, this.token.address, firstTokenId, { from: initialHolder });
+
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: ZERO_ADDRESS,
+        to: initialHolder,
+        tokenId: firstTokenId,
+      });
+    })
+  })
+
   describe('_recover', function () {
     it('works if there is something to recover', async function () {
-      await this.underlying.safeTransferFrom(initialHolder, this.token.address, firstTokenId, { from: initialHolder });
+      // Should use `transferFrom` to avoid `onERC721Received` minting
+      await this.underlying.transferFrom(initialHolder, this.token.address, firstTokenId, { from: initialHolder });
 
       const { tx } = await this.token.recover(anotherAccount, firstTokenId);
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {

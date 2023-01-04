@@ -25,9 +25,9 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * @dev Allow a user to deposit underlying tokens and mint the corresponding tokenIds.
      */
     function depositFor(address account, uint256[] memory tokenIds) public virtual returns (bool) {
+        bytes memory data = abi.encode(account);
         for (uint256 i = 0; i < tokenIds.length; ++i) {
-            underlying.safeTransferFrom(_msgSender(), address(this), tokenIds[i]);
-            _safeMint(account, tokenIds[i]);
+            underlying.safeTransferFrom(_msgSender(), address(this), tokenIds[i], data);
         }
         return true;
     }
@@ -37,11 +37,29 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      */
     function withdrawTo(address account, uint256[] memory tokenIds) public virtual returns (bool) {
         for (uint256 i = 0; i < tokenIds.length; ++i) {
-            require(_isApprovedOrOwner(_msgSender(), tokenIds[i]), "ERC721: caller is not token owner or approved");
+            require(_isApprovedOrOwner(_msgSender(), tokenIds[i]), "ERC721Wrapper: caller is not token owner or approved");
             _burn(tokenIds[i]);
             underlying.safeTransferFrom(address(this), account, tokenIds[i]);
         }
         return true;
+    }
+
+    /**
+     * @dev Overrides {IERC721Receiver-onERC721Received} to allow minting on direct ERC721 transfers to
+     * this contract.
+     * 
+     * WARNING: Doesn't work with unsafe transfers (eg. {IERC721-transferFrom}). Use {ERC721Wrapper-_recover}
+     * for recovering in that scenario.
+     */
+    function onERC721Received(
+        address,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) public override returns (bytes4) {
+        require(msg.sender == address(underlying));
+        _safeMint(data.length == 0 ? from : abi.decode(data, (address)), tokenId);
+        return IERC721Receiver.onERC721Received.selector;
     }
 
     /**
