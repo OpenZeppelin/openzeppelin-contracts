@@ -36,3 +36,7 @@ Only critical severity bug fixes will be backported to past major releases.
 | < 2.0   | :x:                     | :x:                  |
 
 Note as well that the Solidity language itself only guarantees security updates for the latest release.
+
+## Legal
+
+Smart contracts are a nascent techology and carry a high level of technical risk and uncertainty.  OpenZeppelin Contracts is made available under the MIT License, which disclaims all warranties in relation to the project and which limits the liability of those that contribute and maintain the project, including OpenZeppelin. Your use of the project is also governed by the terms found at www.openzeppelin.com/tos (the "Terms"). As set out in the Terms, you are solely responsible for any use of OpenZeppelin Contracts and you assume all risks associated with any such use. This Security Policy in no way evidences or represents an on-going duty by any contributor, including OpenZeppelin, to correct any flaws or alert you to all or any of the potential risks of utilizing the project.

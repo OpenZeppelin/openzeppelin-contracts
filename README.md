@@ -73,7 +73,9 @@ The engineering guidelines we follow to ensure project quality can be found in [
 
 Past audits can be found in [`audits/`](./audits).
 
-Using OpenZeppelin Contracts code is not a substitute for a security audit. Developers should use common sense and be extremely careful when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problems you might experience.
+Smart contracts are a nascent techology and carry a high level of technical risk and uncertainty. Although OpenZeppelin is well known for its security audits, using OpenZeppelin Contracts is not a substitute for a security audit.
+
+OpenZeppelin Contracts is made available under the MIT License, which disclaims all warranties in relation to the project and which limits the liability of those that contribute and maintain the project, including OpenZeppelin. As set out further in the Terms, you acknowledge that you are solely responsible for any use of OpenZeppelin Contracts and you assume all risks associated with any such use.
 
 ## Contribute
 
@@ -83,3 +85,6 @@ OpenZeppelin Contracts exists thanks to its contributors. There are many ways yo
 
 OpenZeppelin Contracts is released under the [MIT License](LICENSE).
 
+## Legal
+
+Your use of this Project is governed by the terms found at www.openzeppelin.com/tos (the "Terms").
