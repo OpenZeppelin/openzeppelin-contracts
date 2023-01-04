@@ -6,8 +6,8 @@ const { batchInBlock } = require('../helpers/txpool');
 
 const $Checkpoints = artifacts.require('$Checkpoints');
 
-const first = (array) => array.length ? array[0] : undefined;
-const last = (array) => array.length ? array[array.length - 1] : undefined;
+const first = array => (array.length ? array[0] : undefined);
+const last = array => (array.length ? array[array.length - 1] : undefined);
 
 contract('Checkpoints', function () {
   beforeEach(async function () {
@@ -15,18 +15,13 @@ contract('Checkpoints', function () {
   });
 
   describe('History checkpoints', function () {
-    const latest = (self, ...args) =>
-      self.methods['$latest_Checkpoints_History(uint256)'](0, ...args);
+    const latest = (self, ...args) => self.methods['$latest_Checkpoints_History(uint256)'](0, ...args);
     const latestCheckpoint = (self, ...args) =>
       self.methods['$latestCheckpoint_Checkpoints_History(uint256)'](0, ...args);
-    const push = (self, ...args) =>
-      self.methods['$push(uint256,uint256)'](0, ...args);
-    const getAtBlock = (self, ...args) =>
-      self.methods['$getAtBlock(uint256,uint256)'](0, ...args);
-    const getAtRecentBlock = (self, ...args) =>
-      self.methods['$getAtProbablyRecentBlock(uint256,uint256)'](0, ...args);
-    const getLength = (self, ...args) =>
-      self.methods['$length_Checkpoints_History(uint256)'](0, ...args);
+    const push = (self, ...args) => self.methods['$push(uint256,uint256)'](0, ...args);
+    const getAtBlock = (self, ...args) => self.methods['$getAtBlock(uint256,uint256)'](0, ...args);
+    const getAtRecentBlock = (self, ...args) => self.methods['$getAtProbablyRecentBlock(uint256,uint256)'](0, ...args);
+    const getLength = (self, ...args) => self.methods['$length_Checkpoints_History(uint256)'](0, ...args);
 
     describe('without checkpoints', function () {
       it('returns zero as latest value', async function () {
@@ -40,8 +35,8 @@ contract('Checkpoints', function () {
 
       it('returns zero as past value', async function () {
         await time.advanceBlock();
-        expect(await getAtBlock(this.mock, await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
-        expect(await getAtRecentBlock(this.mock, await web3.eth.getBlockNumber() - 1)).to.be.bignumber.equal('0');
+        expect(await getAtBlock(this.mock, (await web3.eth.getBlockNumber()) - 1)).to.be.bignumber.equal('0');
+        expect(await getAtRecentBlock(this.mock, (await web3.eth.getBlockNumber()) - 1)).to.be.bignumber.equal('0');
       });
     });
 
@@ -64,7 +59,7 @@ contract('Checkpoints', function () {
         expect(ckpt[2]).to.be.bignumber.equal(web3.utils.toBN('3'));
       });
 
-      for (const getAtBlockVariant of [ getAtBlock, getAtRecentBlock ]) {
+      for (const getAtBlockVariant of [getAtBlock, getAtRecentBlock]) {
         describe(`lookup: ${getAtBlockVariant}`, function () {
           it('returns past values', async function () {
             expect(await getAtBlockVariant(this.mock, this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
@@ -82,7 +77,7 @@ contract('Checkpoints', function () {
             );
 
             await expectRevert(
-              getAtBlockVariant(this.mock, await web3.eth.getBlockNumber() + 1),
+              getAtBlockVariant(this.mock, (await web3.eth.getBlockNumber()) + 1),
               'Checkpoints: block not yet mined',
             );
           });
@@ -118,18 +113,13 @@ contract('Checkpoints', function () {
 
   for (const length of [160, 224]) {
     describe(`Trace${length}`, function () {
-      const latest = (self, ...args) =>
-        self.methods[`$latest_Checkpoints_Trace${length}(uint256)`](0, ...args);
+      const latest = (self, ...args) => self.methods[`$latest_Checkpoints_Trace${length}(uint256)`](0, ...args);
       const latestCheckpoint = (self, ...args) =>
         self.methods[`$latestCheckpoint_Checkpoints_Trace${length}(uint256)`](0, ...args);
-      const push = (self, ...args) =>
-        self.methods[`$push(uint256,uint${256 - length},uint${length})`](0, ...args);
-      const upperLookup = (self, ...args) =>
-        self.methods[`$upperLookup(uint256,uint${256 - length})`](0, ...args);
-      const lowerLookup = (self, ...args) =>
-        self.methods[`$lowerLookup(uint256,uint${256 - length})`](0, ...args);
-      const getLength = (self, ...args) =>
-        self.methods[`$length_Checkpoints_Trace${length}(uint256)`](0, ...args);
+      const push = (self, ...args) => self.methods[`$push(uint256,uint${256 - length},uint${length})`](0, ...args);
+      const upperLookup = (self, ...args) => self.methods[`$upperLookup(uint256,uint${256 - length})`](0, ...args);
+      const lowerLookup = (self, ...args) => self.methods[`$lowerLookup(uint256,uint${256 - length})`](0, ...args);
+      const getLength = (self, ...args) => self.methods[`$length_Checkpoints_Trace${length}(uint256)`](0, ...args);
 
       describe('without checkpoints', function () {
         it('returns zero as latest value', async function () {
@@ -162,8 +152,7 @@ contract('Checkpoints', function () {
         });
 
         it('length', async function () {
-          expect(await getLength(this.mock))
-            .to.be.bignumber.equal(this.checkpoints.length.toString());
+          expect(await getLength(this.mock)).to.be.bignumber.equal(this.checkpoints.length.toString());
         });
 
         it('returns latest value', async function () {

@@ -6,7 +6,7 @@ const ERC20 = artifacts.require('$ERC20');
 const TokenTimelock = artifacts.require('TokenTimelock');
 
 contract('TokenTimelock', function (accounts) {
-  const [ beneficiary ] = accounts;
+  const [beneficiary] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';

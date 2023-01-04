@@ -5,11 +5,11 @@ const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC4626 = artifacts.require('$ERC4626');
 const ERC4626Decimals = artifacts.require('$ERC4626DecimalsMock');
 
-const parseToken = (token) => (new BN(token)).mul(new BN('1000000000000'));
-const parseShare = (share) => (new BN(share)).mul(new BN('1000000000000000000'));
+const parseToken = token => new BN(token).mul(new BN('1000000000000'));
+const parseShare = share => new BN(share).mul(new BN('1000000000000000000'));
 
 contract('ERC4626', function (accounts) {
-  const [ holder, recipient, spender, other, user1, user2 ] = accounts;
+  const [holder, recipient, spender, other, user1, user2] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -31,7 +31,7 @@ contract('ERC4626', function (accounts) {
   });
 
   it('inherit decimals if from asset', async function () {
-    for (const decimals of [ 0, 9, 12, 18, 36 ].map(web3.utils.toBN)) {
+    for (const decimals of [0, 9, 12, 18, 36].map(web3.utils.toBN)) {
       const token = await ERC20Decimals.new('', '', decimals);
       const vault = await ERC4626.new('', '', token.address);
       expect(await vault.decimals()).to.be.bignumber.equal(decimals);

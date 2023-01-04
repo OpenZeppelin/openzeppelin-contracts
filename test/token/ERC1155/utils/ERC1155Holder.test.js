@@ -32,8 +32,9 @@ contract('ERC1155Holder', function (accounts) {
       { from: creator },
     );
 
-    expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[0]))
-      .to.be.bignumber.equal(multiTokenAmounts[0]);
+    expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[0])).to.be.bignumber.equal(
+      multiTokenAmounts[0],
+    );
 
     for (let i = 1; i < multiTokenIds.length; i++) {
       expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[i])).to.be.bignumber.equal(new BN(0));
@@ -43,7 +44,7 @@ contract('ERC1155Holder', function (accounts) {
   it('receives ERC1155 tokens from a multiple IDs', async function () {
     for (let i = 0; i < multiTokenIds.length; i++) {
       expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[i])).to.be.bignumber.equal(new BN(0));
-    };
+    }
 
     await this.multiToken.safeBatchTransferFrom(
       creator,
@@ -55,8 +56,9 @@ contract('ERC1155Holder', function (accounts) {
     );
 
     for (let i = 0; i < multiTokenIds.length; i++) {
-      expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[i]))
-        .to.be.bignumber.equal(multiTokenAmounts[i]);
+      expect(await this.multiToken.balanceOf(this.holder.address, multiTokenIds[i])).to.be.bignumber.equal(
+        multiTokenAmounts[i],
+      );
     }
   });
 });

@@ -5,7 +5,7 @@ const { expect } = require('chai');
 const ERC20Pausable = artifacts.require('$ERC20Pausable');
 
 contract('ERC20Pausable', function (accounts) {
-  const [ holder, recipient, anotherAccount ] = accounts;
+  const [holder, recipient, anotherAccount] = accounts;
 
   const initialSupply = new BN(100);
 
@@ -39,7 +39,8 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to transfer when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevert(this.token.transfer(recipient, initialSupply, { from: holder }),
+        await expectRevert(
+          this.token.transfer(recipient, initialSupply, { from: holder }),
           'ERC20Pausable: token transfer while paused',
         );
       });
@@ -72,8 +73,9 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to transfer from when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevert(this.token.transferFrom(
-          holder, recipient, allowance, { from: anotherAccount }), 'ERC20Pausable: token transfer while paused',
+        await expectRevert(
+          this.token.transferFrom(holder, recipient, allowance, { from: anotherAccount }),
+          'ERC20Pausable: token transfer while paused',
         );
       });
     });
@@ -99,9 +101,7 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to mint when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevert(this.token.$_mint(recipient, amount),
-          'ERC20Pausable: token transfer while paused',
-        );
+        await expectRevert(this.token.$_mint(recipient, amount), 'ERC20Pausable: token transfer while paused');
       });
     });
 
@@ -126,9 +126,7 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to burn when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevert(this.token.$_burn(holder, amount),
-          'ERC20Pausable: token transfer while paused',
-        );
+        await expectRevert(this.token.$_burn(holder, amount), 'ERC20Pausable: token transfer while paused');
       });
     });
   });

@@ -10,12 +10,12 @@ contract('SignedSafeMath', function () {
     this.safeMath = await SignedSafeMath.new();
   });
 
-  async function testCommutative (fn, lhs, rhs, expected) {
+  async function testCommutative(fn, lhs, rhs, expected) {
     expect(await fn(lhs, rhs)).to.be.bignumber.equal(expected);
     expect(await fn(rhs, lhs)).to.be.bignumber.equal(expected);
   }
 
-  async function testFailsCommutative (fn, lhs, rhs) {
+  async function testFailsCommutative(fn, lhs, rhs) {
     await expectRevert.unspecified(fn(lhs, rhs));
     await expectRevert.unspecified(fn(rhs, lhs));
   }

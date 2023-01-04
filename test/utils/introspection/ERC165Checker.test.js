@@ -184,7 +184,7 @@ contract('ERC165Checker', function () {
 
   context('ERC165 and many interfaces supported', function () {
     beforeEach(async function () {
-      this.supportedInterfaces = [ DUMMY_ID, DUMMY_ID_2, DUMMY_ID_3 ];
+      this.supportedInterfaces = [DUMMY_ID, DUMMY_ID_2, DUMMY_ID_3];
       this.target = await ERC165Storage.new();
       await Promise.all(this.supportedInterfaces.map(interfaceId => this.target.$_registerInterface(interfaceId)));
     });
@@ -198,7 +198,7 @@ contract('ERC165Checker', function () {
       for (const interfaceId of this.supportedInterfaces) {
         const supported = await this.mock.$supportsInterface(this.target.address, interfaceId);
         expect(supported).to.equal(true);
-      };
+      }
     });
 
     it('supports all interfaceIds via supportsAllInterfaces', async function () {
@@ -252,7 +252,7 @@ contract('ERC165Checker', function () {
       for (const interfaceId of this.supportedInterfaces) {
         const supported = await this.mock.$supportsERC165InterfaceUnchecked(this.target.address, interfaceId);
         expect(supported).to.equal(true);
-      };
+      }
     });
   });
 
@@ -290,16 +290,13 @@ contract('ERC165Checker', function () {
     const tx1 = await this.mock.$supportsInterface.sendTransaction(this.target.address, DUMMY_ID);
     expect(tx1.receipt.gasUsed).to.be.lessThan(120000); // 3*30k + 21k + some margin
 
-    const tx2 = await this.mock.$getSupportedInterfaces.sendTransaction(
-      this.target.address,
-      [
-        DUMMY_ID,
-        DUMMY_ID_2,
-        DUMMY_ID_3,
-        DUMMY_UNSUPPORTED_ID,
-        DUMMY_UNSUPPORTED_ID_2,
-      ],
-    );
+    const tx2 = await this.mock.$getSupportedInterfaces.sendTransaction(this.target.address, [
+      DUMMY_ID,
+      DUMMY_ID_2,
+      DUMMY_ID_3,
+      DUMMY_UNSUPPORTED_ID,
+      DUMMY_UNSUPPORTED_ID_2,
+    ]);
     expect(tx2.receipt.gasUsed).to.be.lessThan(250000); // (2+5)*30k + 21k + some margin
   });
 });

@@ -7,10 +7,10 @@ const ERC20 = artifacts.require('$ERC20');
 
 const { shouldBehaveLikeVesting } = require('./VestingWallet.behavior');
 
-const min = (...args) => args.slice(1).reduce((x, y) => x.lt(y) ? x : y, args[0]);
+const min = (...args) => args.slice(1).reduce((x, y) => (x.lt(y) ? x : y), args[0]);
 
 contract('VestingWallet', function (accounts) {
-  const [ sender, beneficiary ] = accounts;
+  const [sender, beneficiary] = accounts;
 
   const amount = web3.utils.toBN(web3.utils.toWei('100'));
   const duration = web3.utils.toBN(4 * 365 * 86400); // 4 years
@@ -35,7 +35,9 @@ contract('VestingWallet', function (accounts) {
 
   describe('vesting schedule', function () {
     beforeEach(async function () {
-      this.schedule = Array(64).fill().map((_, i) => web3.utils.toBN(i).mul(duration).divn(60).add(this.start));
+      this.schedule = Array(64)
+        .fill()
+        .map((_, i) => web3.utils.toBN(i).mul(duration).divn(60).add(this.start));
       this.vestingFn = timestamp => min(amount, amount.mul(timestamp.sub(this.start)).div(duration));
     });
 
@@ -52,13 +54,9 @@ contract('VestingWallet', function (accounts) {
     describe('ERC20 vesting', function () {
       beforeEach(async function () {
         this.token = await ERC20.new('Name', 'Symbol');
-        this.getBalance = (account) => this.token.balanceOf(account);
-        this.checkRelease = (receipt, to, value) => expectEvent.inTransaction(
-          receipt.tx,
-          this.token,
-          'Transfer',
-          { from: this.mock.address, to, value },
-        );
+        this.getBalance = account => this.token.balanceOf(account);
+        this.checkRelease = (receipt, to, value) =>
+          expectEvent.inTransaction(receipt.tx, this.token, 'Transfer', { from: this.mock.address, to, value });
 
         await this.token.$_mint(this.mock.address, amount);
       });

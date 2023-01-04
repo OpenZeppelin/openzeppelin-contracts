@@ -16,13 +16,10 @@ const rawParams = {
   strParam: 'These are my params',
 };
 
-const encodedParams = web3.eth.abi.encodeParameters(
-  [ 'uint256', 'string' ],
-  Object.values(rawParams),
-);
+const encodedParams = web3.eth.abi.encodeParameters(['uint256', 'string'], Object.values(rawParams));
 
 contract('GovernorWithParams', function (accounts) {
-  const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
+  const [owner, proposer, voter1, voter2, voter3, voter4] = accounts;
 
   const name = 'OZ-Governor';
   const version = '1';
@@ -50,13 +47,16 @@ contract('GovernorWithParams', function (accounts) {
     await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.proposal = this.helper.setProposal([
-      {
-        target: this.receiver.address,
-        value,
-        data: this.receiver.contract.methods.mockFunction().encodeABI(),
-      },
-    ], '<proposal description>');
+    this.proposal = this.helper.setProposal(
+      [
+        {
+          target: this.receiver.address,
+          value,
+          data: this.receiver.contract.methods.mockFunction().encodeABI(),
+        },
+      ],
+      '<proposal description>',
+    );
   });
 
   it('deployment check', async function () {
@@ -89,11 +89,14 @@ contract('GovernorWithParams', function (accounts) {
 
     const weight = new BN(web3.utils.toWei('7')).sub(rawParams.uintParam);
 
-    const tx = await this.helper.vote({
-      support: Enums.VoteType.For,
-      reason: 'no particular reason',
-      params: encodedParams,
-    }, { from: voter2 });
+    const tx = await this.helper.vote(
+      {
+        support: Enums.VoteType.For,
+        reason: 'no particular reason',
+        params: encodedParams,
+      },
+      { from: voter2 },
+    );
 
     expectEvent(tx, 'CountParams', { ...rawParams });
     expectEvent(tx, 'VoteCastWithParams', {
@@ -113,10 +116,9 @@ contract('GovernorWithParams', function (accounts) {
     const voterBySig = Wallet.generate();
     const voterBySigAddress = web3.utils.toChecksumAddress(voterBySig.getAddressString());
 
-    const signature = async (message) => {
-      return fromRpcSig(ethSigUtil.signTypedMessage(
-        voterBySig.getPrivateKey(),
-        {
+    const signature = async message => {
+      return fromRpcSig(
+        ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), {
           data: {
             types: {
               EIP712Domain,
@@ -131,8 +133,8 @@ contract('GovernorWithParams', function (accounts) {
             primaryType: 'ExtendedBallot',
             message,
           },
-        },
-      ));
+        }),
+      );
     };
 
     await this.token.delegate(voterBySigAddress, { from: voter2 });

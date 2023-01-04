@@ -8,7 +8,7 @@ const cp = require('child_process');
 
 setVersion('contracts/package.json');
 
-function setVersion (file) {
+function setVersion(file) {
   const json = JSON.parse(fs.readFileSync(file));
   json.version = process.env.npm_package_version;
   fs.writeFileSync(file, JSON.stringify(json, null, 2) + '\n');

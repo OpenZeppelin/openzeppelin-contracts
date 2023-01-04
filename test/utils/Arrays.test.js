@@ -89,9 +89,27 @@ contract('Arrays', function () {
 
   describe('unsafeAccess', function () {
     for (const { type, artifact, elements } of [
-      { type: 'address', artifact: AddressArraysMock, elements: Array(10).fill().map(() => web3.utils.randomHex(20)) },
-      { type: 'bytes32', artifact: Bytes32ArraysMock, elements: Array(10).fill().map(() => web3.utils.randomHex(32)) },
-      { type: 'uint256', artifact: Uint256ArraysMock, elements: Array(10).fill().map(() => web3.utils.randomHex(32)) },
+      {
+        type: 'address',
+        artifact: AddressArraysMock,
+        elements: Array(10)
+          .fill()
+          .map(() => web3.utils.randomHex(20)),
+      },
+      {
+        type: 'bytes32',
+        artifact: Bytes32ArraysMock,
+        elements: Array(10)
+          .fill()
+          .map(() => web3.utils.randomHex(32)),
+      },
+      {
+        type: 'uint256',
+        artifact: Uint256ArraysMock,
+        elements: Array(10)
+          .fill()
+          .map(() => web3.utils.randomHex(32)),
+      },
     ]) {
       it(type, async function () {
         const contract = await artifact.new(elements);

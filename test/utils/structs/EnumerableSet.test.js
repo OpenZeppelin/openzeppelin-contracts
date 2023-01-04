@@ -3,8 +3,13 @@ const { mapValues } = require('../../helpers/map-values');
 
 const { shouldBehaveLikeSet } = require('./EnumerableSet.behavior');
 
-const getMethods = (ms) => {
-  return mapValues(ms, m => (self, ...args) => self.methods[m](0, ...args));
+const getMethods = ms => {
+  return mapValues(
+    ms,
+    m =>
+      (self, ...args) =>
+        self.methods[m](0, ...args),
+  );
 };
 
 contract('EnumerableSet', function (accounts) {
@@ -15,7 +20,7 @@ contract('EnumerableSet', function (accounts) {
   // Bytes32Set
   describe('EnumerableBytes32Set', function () {
     shouldBehaveLikeSet(
-      [ '0xdeadbeef', '0x0123456789', '0x42424242' ].map(e => e.padEnd(66, '0')),
+      ['0xdeadbeef', '0x0123456789', '0x42424242'].map(e => e.padEnd(66, '0')),
       getMethods({
         add: '$add(uint256,bytes32)',
         remove: '$remove(uint256,bytes32)',
@@ -53,7 +58,7 @@ contract('EnumerableSet', function (accounts) {
   // UintSet
   describe('EnumerableUintSet', function () {
     shouldBehaveLikeSet(
-      [ 1234, 5678, 9101112 ].map(e => web3.utils.toBN(e)),
+      [1234, 5678, 9101112].map(e => web3.utils.toBN(e)),
       getMethods({
         add: '$add(uint256,uint256)',
         remove: '$remove(uint256,uint256)',

@@ -7,7 +7,7 @@ const DEFAULT_ADMIN_ROLE = '0x00000000000000000000000000000000000000000000000000
 const ROLE = web3.utils.soliditySha3('ROLE');
 const OTHER_ROLE = web3.utils.soliditySha3('OTHER_ROLE');
 
-function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, otherAdmin) {
+function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, otherAdmin) {
   shouldSupportInterfaces(['AccessControl']);
 
   describe('default admin', function () {
@@ -15,11 +15,11 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
       expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, admin)).to.equal(true);
     });
 
-    it('other roles\'s admin is the default admin role', async function () {
+    it("other roles's admin is the default admin role", async function () {
       expect(await this.accessControl.getRoleAdmin(ROLE)).to.equal(DEFAULT_ADMIN_ROLE);
     });
 
-    it('default admin role\'s admin is itself', async function () {
+    it("default admin role's admin is itself", async function () {
       expect(await this.accessControl.getRoleAdmin(DEFAULT_ADMIN_ROLE)).to.equal(DEFAULT_ADMIN_ROLE);
     });
   });
@@ -125,7 +125,7 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
       await this.accessControl.grantRole(OTHER_ROLE, otherAdmin, { from: admin });
     });
 
-    it('a role\'s admin role can be changed', async function () {
+    it("a role's admin role can be changed", async function () {
       expect(await this.accessControl.getRoleAdmin(ROLE)).to.equal(OTHER_ROLE);
     });
 
@@ -140,14 +140,14 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
       expectEvent(receipt, 'RoleRevoked', { account: authorized, role: ROLE, sender: otherAdmin });
     });
 
-    it('a role\'s previous admins no longer grant roles', async function () {
+    it("a role's previous admins no longer grant roles", async function () {
       await expectRevert(
         this.accessControl.grantRole(ROLE, authorized, { from: admin }),
         `${errorPrefix}: account ${admin.toLowerCase()} is missing role ${OTHER_ROLE}`,
       );
     });
 
-    it('a role\'s previous admins no longer revoke roles', async function () {
+    it("a role's previous admins no longer revoke roles", async function () {
       await expectRevert(
         this.accessControl.revokeRole(ROLE, authorized, { from: admin }),
         `${errorPrefix}: account ${admin.toLowerCase()} is missing role ${OTHER_ROLE}`,
@@ -164,14 +164,14 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
       await this.accessControl.methods['$_checkRole(bytes32)'](ROLE, { from: authorized });
     });
 
-    it('revert if sender doesn\'t have role #1', async function () {
+    it("revert if sender doesn't have role #1", async function () {
       await expectRevert(
         this.accessControl.methods['$_checkRole(bytes32)'](ROLE, { from: other }),
         `${errorPrefix}: account ${other.toLowerCase()} is missing role ${ROLE}`,
       );
     });
 
-    it('revert if sender doesn\'t have role #2', async function () {
+    it("revert if sender doesn't have role #2", async function () {
       await expectRevert(
         this.accessControl.methods['$_checkRole(bytes32)'](OTHER_ROLE, { from: authorized }),
         `${errorPrefix}: account ${authorized.toLowerCase()} is missing role ${OTHER_ROLE}`,
@@ -180,7 +180,7 @@ function shouldBehaveLikeAccessControl (errorPrefix, admin, authorized, other, o
   });
 }
 
-function shouldBehaveLikeAccessControlEnumerable (errorPrefix, admin, authorized, other, otherAdmin, otherAuthorized) {
+function shouldBehaveLikeAccessControlEnumerable(errorPrefix, admin, authorized, other, otherAdmin, otherAuthorized) {
   shouldSupportInterfaces(['AccessControlEnumerable']);
 
   describe('enumerating', function () {

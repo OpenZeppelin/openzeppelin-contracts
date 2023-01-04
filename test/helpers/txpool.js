@@ -3,20 +3,18 @@ const { promisify } = require('util');
 
 const queue = promisify(setImmediate);
 
-async function countPendingTransactions () {
-  return parseInt(
-    await network.provider.send('eth_getBlockTransactionCountByNumber', ['pending']),
-  );
+async function countPendingTransactions() {
+  return parseInt(await network.provider.send('eth_getBlockTransactionCountByNumber', ['pending']));
 }
 
-async function batchInBlock (txs) {
+async function batchInBlock(txs) {
   try {
     // disable auto-mining
     await network.provider.send('evm_setAutomine', [false]);
     // send all transactions
     const promises = txs.map(fn => fn());
     // wait for node to have all pending transactions
-    while (txs.length > await countPendingTransactions()) {
+    while (txs.length > (await countPendingTransactions())) {
       await queue();
     }
     // mine one block

@@ -9,7 +9,7 @@ const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC20Wrapper = artifacts.require('$ERC20Wrapper');
 
 contract('ERC20', function (accounts) {
-  const [ initialHolder, recipient, anotherAccount ] = accounts;
+  const [initialHolder, recipient, anotherAccount] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';

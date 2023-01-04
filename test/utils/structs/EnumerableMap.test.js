@@ -5,12 +5,17 @@ const EnumerableMap = artifacts.require('$EnumerableMap');
 
 const { shouldBehaveLikeMap } = require('./EnumerableMap.behavior');
 
-const getMethods = (ms) => {
-  return mapValues(ms, m => (self, ...args) => self.methods[m](0, ...args));
+const getMethods = ms => {
+  return mapValues(
+    ms,
+    m =>
+      (self, ...args) =>
+        self.methods[m](0, ...args),
+  );
 };
 
 contract('EnumerableMap', function (accounts) {
-  const [ accountA, accountB, accountC ] = accounts;
+  const [accountA, accountB, accountC] = accounts;
 
   const keyA = new BN('7891');
   const keyB = new BN('451');
@@ -27,8 +32,8 @@ contract('EnumerableMap', function (accounts) {
   // AddressToUintMap
   describe('AddressToUintMap', function () {
     shouldBehaveLikeMap(
-      [ accountA, accountB, accountC ],
-      [ keyA, keyB, keyC ],
+      [accountA, accountB, accountC],
+      [keyA, keyB, keyC],
       new BN('0'),
       getMethods({
         set: '$set(uint256,address,uint256)',
@@ -51,8 +56,8 @@ contract('EnumerableMap', function (accounts) {
   // UintToAddressMap
   describe('UintToAddressMap', function () {
     shouldBehaveLikeMap(
-      [ keyA, keyB, keyC ],
-      [ accountA, accountB, accountC ],
+      [keyA, keyB, keyC],
+      [accountA, accountB, accountC],
       constants.ZERO_ADDRESS,
       getMethods({
         set: '$set(uint256,uint256,address)',
@@ -75,8 +80,8 @@ contract('EnumerableMap', function (accounts) {
   // Bytes32ToBytes32Map
   describe('Bytes32ToBytes32Map', function () {
     shouldBehaveLikeMap(
-      [ keyA, keyB, keyC ].map(k => '0x' + k.toString(16).padEnd(64, '0')),
-      [ bytesA, bytesB, bytesC ],
+      [keyA, keyB, keyC].map(k => '0x' + k.toString(16).padEnd(64, '0')),
+      [bytesA, bytesB, bytesC],
       constants.ZERO_BYTES32,
       getMethods({
         set: '$set(uint256,bytes32,bytes32)',
@@ -99,8 +104,8 @@ contract('EnumerableMap', function (accounts) {
   // UintToUintMap
   describe('UintToUintMap', function () {
     shouldBehaveLikeMap(
-      [ keyA, keyB, keyC ],
-      [ keyA, keyB, keyC ].map(k => k.add(new BN('1332'))),
+      [keyA, keyB, keyC],
+      [keyA, keyB, keyC].map(k => k.add(new BN('1332'))),
       new BN('0'),
       getMethods({
         set: '$set(uint256,uint256,uint256)',
@@ -123,8 +128,8 @@ contract('EnumerableMap', function (accounts) {
   // Bytes32ToUintMap
   describe('Bytes32ToUintMap', function () {
     shouldBehaveLikeMap(
-      [ bytesA, bytesB, bytesC ],
-      [ keyA, keyB, keyC ],
+      [bytesA, bytesB, bytesC],
+      [keyA, keyB, keyC],
       new BN('0'),
       getMethods({
         set: '$set(uint256,bytes32,uint256)',

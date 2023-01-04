@@ -4,7 +4,7 @@ const ERC721Holder = artifacts.require('ERC721Holder');
 const ERC721 = artifacts.require('$ERC721');
 
 contract('ERC721Holder', function (accounts) {
-  const [ owner ] = accounts;
+  const [owner] = accounts;
 
   const name = 'Non Fungible Token';
   const symbol = 'NFT';

@@ -13,7 +13,7 @@ if (gitStatus.length > 0) {
 const { version } = require('../../package.json');
 
 // Get latest tag according to semver.
-const [ tag ] = run('git', 'tag')
+const [tag] = run('git', 'tag')
   .split(/\r?\n/)
   .filter(semver.coerce) // check version can be processed
   .filter(v => semver.lt(semver.coerce(v), version)) // only consider older tags, ignore current prereleases
