@@ -103,9 +103,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
           });
 
           it('upgrades to the requested implementation', async function () {
-            const implementation = await this.proxy.implementation.call({
-              from: proxyAdminAddress,
-            });
+            const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
             expect(implementation).to.be.equal(this.behavior.address);
           });
 
@@ -138,9 +136,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
         describe('when the sender is not the admin', function () {
           it('reverts', async function () {
             await expectRevert.unspecified(
-              this.proxy.upgradeToAndCall(this.behavior.address, initializeData, {
-                from: anotherAccount,
-              }),
+              this.proxy.upgradeToAndCall(this.behavior.address, initializeData, { from: anotherAccount }),
             );
           });
         });
@@ -151,9 +147,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
         it('reverts', async function () {
           await expectRevert.unspecified(
-            this.proxy.upgradeToAndCall(this.behavior.address, initializeData, {
-              from: proxyAdminAddress,
-            }),
+            this.proxy.upgradeToAndCall(this.behavior.address, initializeData, { from: proxyAdminAddress }),
           );
         });
       });
@@ -174,9 +168,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
           });
 
           it('upgrades to the requested version and emits an event', async function () {
-            const implementation = await this.proxy.implementation.call({
-              from: proxyAdminAddress,
-            });
+            const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
             expect(implementation).to.be.equal(this.behaviorV1.address);
             expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV1.address });
           });
@@ -204,9 +196,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
             });
 
             it('upgrades to the requested version and emits an event', async function () {
-              const implementation = await this.proxy.implementation.call({
-                from: proxyAdminAddress,
-              });
+              const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
               expect(implementation).to.be.equal(this.behaviorV2.address);
               expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV2.address });
             });
@@ -237,9 +227,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
               });
 
               it('upgrades to the requested version and emits an event', async function () {
-                const implementation = await this.proxy.implementation.call({
-                  from: proxyAdminAddress,
-                });
+                const implementation = await this.proxy.implementation.call({ from: proxyAdminAddress });
                 expect(implementation).to.be.equal(this.behaviorV3.address);
                 expectEvent(this.receipt, 'Upgraded', { implementation: this.behaviorV3.address });
               });
@@ -330,9 +318,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     beforeEach('creating proxy', async function () {
       const initializeData = Buffer.from('');
       this.impl = await ClashingImplementation.new();
-      this.proxy = await createProxy(this.impl.address, proxyAdminAddress, initializeData, {
-        from: proxyAdminOwner,
-      });
+      this.proxy = await createProxy(this.impl.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
       this.clashing = new ClashingImplementation(this.proxy.address);
     });
@@ -362,9 +348,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
     it('should add new function', async () => {
       const instance1 = await Implementation1.new();
-      const proxy = await createProxy(instance1.address, proxyAdminAddress, initializeData, {
-        from: proxyAdminOwner,
-      });
+      const proxy = await createProxy(instance1.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
       const proxyInstance1 = new Implementation1(proxy.address);
       await proxyInstance1.setValue(42);
@@ -379,9 +363,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
     it('should remove function', async () => {
       const instance2 = await Implementation2.new();
-      const proxy = await createProxy(instance2.address, proxyAdminAddress, initializeData, {
-        from: proxyAdminOwner,
-      });
+      const proxy = await createProxy(instance2.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
       const proxyInstance2 = new Implementation2(proxy.address);
       await proxyInstance2.setValue(42);
@@ -397,9 +379,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
     it('should change function signature', async () => {
       const instance1 = await Implementation1.new();
-      const proxy = await createProxy(instance1.address, proxyAdminAddress, initializeData, {
-        from: proxyAdminOwner,
-      });
+      const proxy = await createProxy(instance1.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
       const proxyInstance1 = new Implementation1(proxy.address);
       await proxyInstance1.setValue(42);
@@ -415,9 +395,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     it('should add fallback function', async () => {
       const initializeData = Buffer.from('');
       const instance1 = await Implementation1.new();
-      const proxy = await createProxy(instance1.address, proxyAdminAddress, initializeData, {
-        from: proxyAdminOwner,
-      });
+      const proxy = await createProxy(instance1.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
       const instance4 = await Implementation4.new();
       await proxy.upgradeTo(instance4.address, { from: proxyAdminAddress });
@@ -432,9 +410,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
     it('should remove fallback function', async () => {
       const instance4 = await Implementation4.new();
-      const proxy = await createProxy(instance4.address, proxyAdminAddress, initializeData, {
-        from: proxyAdminOwner,
-      });
+      const proxy = await createProxy(instance4.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
 
       const instance2 = await Implementation2.new();
       await proxy.upgradeTo(instance2.address, { from: proxyAdminAddress });

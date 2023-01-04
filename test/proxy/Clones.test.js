@@ -14,12 +14,7 @@ contract('Clones', function (accounts) {
       const factory = await Clones.new();
       const receipt = await factory.$clone(implementation);
       const address = receipt.logs.find(({ event }) => event === 'return$clone').args.instance;
-      await web3.eth.sendTransaction({
-        from: deployer,
-        to: address,
-        value: opts.value,
-        data: initData,
-      });
+      await web3.eth.sendTransaction({ from: deployer, to: address, value: opts.value, data: initData });
       return { address };
     });
   });
@@ -30,12 +25,7 @@ contract('Clones', function (accounts) {
       const factory = await Clones.new();
       const receipt = await factory.$cloneDeterministic(implementation, salt);
       const address = receipt.logs.find(({ event }) => event === 'return$cloneDeterministic').args.instance;
-      await web3.eth.sendTransaction({
-        from: deployer,
-        to: address,
-        value: opts.value,
-        data: initData,
-      });
+      await web3.eth.sendTransaction({ from: deployer, to: address, value: opts.value, data: initData });
       return { address };
     });
 

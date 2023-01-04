@@ -93,10 +93,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
 
         it('reverts', async function () {
           await expectRevert.unspecified(
-            createProxy(this.implementation, proxyAdminAddress, initializeData, {
-              from: proxyCreator,
-              value,
-            }),
+            createProxy(this.implementation, proxyAdminAddress, initializeData, { from: proxyCreator, value }),
           );
         });
       });
@@ -168,10 +165,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
 
         it('reverts', async function () {
           await expectRevert.unspecified(
-            createProxy(this.implementation, proxyAdminAddress, initializeData, {
-              from: proxyCreator,
-              value,
-            }),
+            createProxy(this.implementation, proxyAdminAddress, initializeData, { from: proxyCreator, value }),
           );
         });
       });
@@ -222,9 +216,7 @@ module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, 
 
       it('reverts', async function () {
         await expectRevert(
-          createProxy(this.implementation, proxyAdminAddress, initializeData, {
-            from: proxyCreator,
-          }),
+          createProxy(this.implementation, proxyAdminAddress, initializeData, { from: proxyCreator }),
           'DummyImplementation reverted',
         );
       });

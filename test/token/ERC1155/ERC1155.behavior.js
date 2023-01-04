@@ -145,11 +145,7 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
       });
 
       it('emits an ApprovalForAll log', function () {
-        expectEvent(receipt, 'ApprovalForAll', {
-          account: multiTokenHolder,
-          operator: proxy,
-          approved: true,
-        });
+        expectEvent(receipt, 'ApprovalForAll', { account: multiTokenHolder, operator: proxy, approved: true });
       });
 
       it('can unset approval for an operator', async function () {

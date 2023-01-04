@@ -38,9 +38,7 @@ contract('ERC1155', function (accounts) {
 
       context('with minted tokens', function () {
         beforeEach(async function () {
-          this.receipt = await this.token.$_mint(tokenHolder, tokenId, mintAmount, data, {
-            from: operator,
-          });
+          this.receipt = await this.token.$_mint(tokenHolder, tokenId, mintAmount, data, { from: operator });
         });
 
         it('emits a TransferSingle event', function () {
@@ -128,9 +126,7 @@ contract('ERC1155', function (accounts) {
       context('with minted-then-burnt tokens', function () {
         beforeEach(async function () {
           await this.token.$_mint(tokenHolder, tokenId, mintAmount, data);
-          this.receipt = await this.token.$_burn(tokenHolder, tokenId, burnAmount, {
-            from: operator,
-          });
+          this.receipt = await this.token.$_burn(tokenHolder, tokenId, burnAmount, { from: operator });
         });
 
         it('emits a TransferSingle event', function () {

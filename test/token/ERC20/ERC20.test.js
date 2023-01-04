@@ -77,9 +77,7 @@ contract('ERC20', function (accounts) {
           });
 
           it('decreases the spender allowance subtracting the requested amount', async function () {
-            await this.token.decreaseAllowance(spender, approvedAmount.subn(1), {
-              from: initialHolder,
-            });
+            await this.token.decreaseAllowance(spender, approvedAmount.subn(1), { from: initialHolder });
 
             expect(await this.token.allowance(initialHolder, spender)).to.be.bignumber.equal('1');
           });
@@ -91,9 +89,7 @@ contract('ERC20', function (accounts) {
 
           it('reverts when more than the full allowance is removed', async function () {
             await expectRevert(
-              this.token.decreaseAllowance(spender, approvedAmount.addn(1), {
-                from: initialHolder,
-              }),
+              this.token.decreaseAllowance(spender, approvedAmount.addn(1), { from: initialHolder }),
               'ERC20: decreased allowance below zero',
             );
           });
@@ -265,10 +261,7 @@ contract('ERC20', function (accounts) {
           });
 
           it('emits Transfer event', async function () {
-            const event = expectEvent(this.receipt, 'Transfer', {
-              from: initialHolder,
-              to: ZERO_ADDRESS,
-            });
+            const event = expectEvent(this.receipt, 'Transfer', { from: initialHolder, to: ZERO_ADDRESS });
 
             expect(event.args.value).to.be.bignumber.equal(amount);
           });

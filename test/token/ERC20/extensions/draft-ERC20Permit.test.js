@@ -35,12 +35,7 @@ contract('ERC20Permit', function (accounts) {
 
   it('domain separator', async function () {
     expect(await this.token.DOMAIN_SEPARATOR()).to.equal(
-      await domainSeparator({
-        name,
-        version,
-        chainId: this.chainId,
-        verifyingContract: this.token.address,
-      }),
+      await domainSeparator({ name, version, chainId: this.chainId, verifyingContract: this.token.address }),
     );
   });
 

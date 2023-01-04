@@ -212,9 +212,7 @@ function shouldBehaveLikeVotes() {
       it('call', async function () {
         expect(await this.votes.delegates(this.account1)).to.be.equal(this.account1);
 
-        const { receipt } = await this.votes.delegate(this.account1Delegatee, {
-          from: this.account1,
-        });
+        const { receipt } = await this.votes.delegate(this.account1Delegatee, { from: this.account1 });
         expectEvent(receipt, 'DelegateChanged', {
           delegator: this.account1,
           fromDelegate: this.account1,

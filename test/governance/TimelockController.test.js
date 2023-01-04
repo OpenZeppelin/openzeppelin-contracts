@@ -80,9 +80,7 @@ contract('TimelockController', function (accounts) {
   });
 
   it('optional admin', async function () {
-    const mock = await TimelockController.new(MINDELAY, [proposer], [executor], ZERO_ADDRESS, {
-      from: other,
-    });
+    const mock = await TimelockController.new(MINDELAY, [proposer], [executor], ZERO_ADDRESS, { from: other });
 
     expect(await mock.hasRole(TIMELOCK_ADMIN_ROLE, admin)).to.be.equal(false);
     expect(await mock.hasRole(TIMELOCK_ADMIN_ROLE, other)).to.be.equal(false);
@@ -726,10 +724,7 @@ contract('TimelockController', function (accounts) {
         operation.salt,
         { from: executor },
       );
-      expectEvent(receipt, 'MinDelayChange', {
-        newDuration: newDelay.toString(),
-        oldDuration: MINDELAY,
-      });
+      expectEvent(receipt, 'MinDelayChange', { newDuration: newDelay.toString(), oldDuration: MINDELAY });
 
       expect(await this.mock.getMinDelay()).to.be.bignumber.equal(newDelay);
     });

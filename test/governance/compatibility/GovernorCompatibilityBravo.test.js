@@ -200,14 +200,8 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
     await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
     await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
-    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', {
-      a: '17',
-      b: '42',
-    });
-    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', {
-      a: '18',
-      b: '43',
-    });
+    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', { a: '17', b: '42' });
+    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', { a: '18', b: '43' });
   });
 
   describe('should revert', function () {

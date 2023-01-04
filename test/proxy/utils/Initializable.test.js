@@ -139,9 +139,7 @@ contract('Initializable', function () {
     it('constructor initialization emits event', async function () {
       const contract = await ConstructorInitializableMock.new();
 
-      await expectEvent.inTransaction(contract.transactionHash, contract, 'Initialized', {
-        version: '1',
-      });
+      await expectEvent.inTransaction(contract.transactionHash, contract, 'Initialized', { version: '1' });
     });
 
     it('initialization emits event', async function () {

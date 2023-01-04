@@ -207,11 +207,7 @@ function shouldBehaveLikeERC20Transfer(errorPrefix, from, to, balance, transfer)
       });
 
       it('emits a transfer event', async function () {
-        expectEvent(await transfer.call(this, from, to, amount), 'Transfer', {
-          from,
-          to,
-          value: amount,
-        });
+        expectEvent(await transfer.call(this, from, to, amount), 'Transfer', { from, to, value: amount });
       });
     });
 
@@ -227,11 +223,7 @@ function shouldBehaveLikeERC20Transfer(errorPrefix, from, to, balance, transfer)
       });
 
       it('emits a transfer event', async function () {
-        expectEvent(await transfer.call(this, from, to, amount), 'Transfer', {
-          from,
-          to,
-          value: amount,
-        });
+        expectEvent(await transfer.call(this, from, to, amount), 'Transfer', { from, to, value: amount });
       });
     });
   });

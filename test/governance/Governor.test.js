@@ -506,10 +506,7 @@ contract('Governor', function (accounts) {
       await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
       await this.helper.waitForDeadline();
 
-      expectEvent(await this.helper.execute(), 'VotingDelaySet', {
-        oldVotingDelay: '4',
-        newVotingDelay: '0',
-      });
+      expectEvent(await this.helper.execute(), 'VotingDelaySet', { oldVotingDelay: '4', newVotingDelay: '0' });
 
       expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
     });
@@ -530,10 +527,7 @@ contract('Governor', function (accounts) {
       await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
       await this.helper.waitForDeadline();
 
-      expectEvent(await this.helper.execute(), 'VotingPeriodSet', {
-        oldVotingPeriod: '16',
-        newVotingPeriod: '32',
-      });
+      expectEvent(await this.helper.execute(), 'VotingPeriodSet', { oldVotingPeriod: '16', newVotingPeriod: '32' });
 
       expect(await this.mock.votingPeriod()).to.be.bignumber.equal('32');
     });

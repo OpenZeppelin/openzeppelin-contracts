@@ -50,9 +50,7 @@ contract('ProxyAdmin', function (accounts) {
     });
 
     it('changes proxy admin', async function () {
-      await this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, {
-        from: proxyAdminOwner,
-      });
+      await this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: proxyAdminOwner });
       expect(await this.proxy.admin.call({ from: newAdmin })).to.eq(newAdmin);
     });
   });
@@ -72,9 +70,7 @@ contract('ProxyAdmin', function (accounts) {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {
         await expectRevert(
-          this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, {
-            from: anotherAccount,
-          }),
+          this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: anotherAccount }),
           'caller is not the owner',
         );
       });
@@ -82,9 +78,7 @@ contract('ProxyAdmin', function (accounts) {
 
     context('with authorized account', function () {
       it('upgrades implementation', async function () {
-        await this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, {
-          from: proxyAdminOwner,
-        });
+        await this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: proxyAdminOwner });
         const implementationAddress = await this.proxyAdmin.getProxyImplementation(this.proxy.address);
         expect(implementationAddress).to.be.equal(this.implementationV2.address);
       });

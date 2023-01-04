@@ -39,12 +39,7 @@ contract('ERC20Votes', function (accounts) {
 
   it('domain separator', async function () {
     expect(await this.token.DOMAIN_SEPARATOR()).to.equal(
-      await domainSeparator({
-        name,
-        version,
-        chainId: this.chainId,
-        verifyingContract: this.token.address,
-      }),
+      await domainSeparator({ name, version, chainId: this.chainId, verifyingContract: this.token.address }),
     );
   });
 
@@ -315,11 +310,7 @@ contract('ERC20Votes', function (accounts) {
 
       const { receipt } = await this.token.transfer(recipient, 1, { from: holder });
       expectEvent(receipt, 'Transfer', { from: holder, to: recipient, value: '1' });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: recipient,
-        previousBalance: '0',
-        newBalance: '1',
-      });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
       expect(
@@ -343,11 +334,7 @@ contract('ERC20Votes', function (accounts) {
         previousBalance: supply,
         newBalance: supply.subn(1),
       });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: recipient,
-        previousBalance: '0',
-        newBalance: '1',
-      });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: recipient, previousBalance: '0', newBalance: '1' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
       expect(

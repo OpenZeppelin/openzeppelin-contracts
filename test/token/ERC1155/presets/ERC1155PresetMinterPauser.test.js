@@ -49,9 +49,7 @@ contract('ERC1155PresetMinterPauser', function (accounts) {
 
   describe('minting', function () {
     it('deployer can mint tokens', async function () {
-      const receipt = await this.token.mint(other, firstTokenId, firstTokenIdAmount, '0x', {
-        from: deployer,
-      });
+      const receipt = await this.token.mint(other, firstTokenId, firstTokenIdAmount, '0x', { from: deployer });
       expectEvent(receipt, 'TransferSingle', {
         operator: deployer,
         from: ZERO_ADDRESS,
@@ -143,9 +141,7 @@ contract('ERC1155PresetMinterPauser', function (accounts) {
     it('holders can burn their tokens', async function () {
       await this.token.mint(other, firstTokenId, firstTokenIdAmount, '0x', { from: deployer });
 
-      const receipt = await this.token.burn(other, firstTokenId, firstTokenIdAmount.subn(1), {
-        from: other,
-      });
+      const receipt = await this.token.burn(other, firstTokenId, firstTokenIdAmount.subn(1), { from: other });
       expectEvent(receipt, 'TransferSingle', {
         operator: other,
         from: other,

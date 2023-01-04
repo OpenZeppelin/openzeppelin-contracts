@@ -28,9 +28,7 @@ contract('AccessControl', function (accounts) {
   describe('CrossChain enabled', function () {
     beforeEach(async function () {
       await this.accessControl.grantRole(ROLE, accounts[0], { from: accounts[0] });
-      await this.accessControl.grantRole(crossChainRoleAlias(ROLE), accounts[1], {
-        from: accounts[0],
-      });
+      await this.accessControl.grantRole(crossChainRoleAlias(ROLE), accounts[1], { from: accounts[0] });
     });
 
     it('check alliassing', async function () {

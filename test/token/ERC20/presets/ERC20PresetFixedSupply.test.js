@@ -15,9 +15,7 @@ contract('ERC20PresetFixedSupply', function (accounts) {
   const amount = new BN('10000');
 
   before(async function () {
-    this.token = await ERC20PresetFixedSupply.new(name, symbol, initialSupply, owner, {
-      from: deployer,
-    });
+    this.token = await ERC20PresetFixedSupply.new(name, symbol, initialSupply, owner, { from: deployer });
   });
 
   it('deployer has the balance equal to initial supply', async function () {

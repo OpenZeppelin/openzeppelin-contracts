@@ -37,10 +37,7 @@ contract('MerkleProof', function () {
 
     it('returns false for an invalid Merkle proof', async function () {
       const correctElements = ['a', 'b', 'c'];
-      const correctMerkleTree = new MerkleTree(correctElements, keccak256, {
-        hashLeaves: true,
-        sortPairs: true,
-      });
+      const correctMerkleTree = new MerkleTree(correctElements, keccak256, { hashLeaves: true, sortPairs: true });
 
       const correctRoot = correctMerkleTree.getHexRoot();
 

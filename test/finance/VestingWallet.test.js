@@ -56,11 +56,7 @@ contract('VestingWallet', function (accounts) {
         this.token = await ERC20.new('Name', 'Symbol');
         this.getBalance = account => this.token.balanceOf(account);
         this.checkRelease = (receipt, to, value) =>
-          expectEvent.inTransaction(receipt.tx, this.token, 'Transfer', {
-            from: this.mock.address,
-            to,
-            value,
-          });
+          expectEvent.inTransaction(receipt.tx, this.token, 'Transfer', { from: this.mock.address, to, value });
 
         await this.token.$_mint(this.mock.address, amount);
       });

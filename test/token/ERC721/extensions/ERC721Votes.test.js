@@ -45,9 +45,7 @@ contract('ERC721Votes', function (accounts) {
     });
 
     it('no delegation', async function () {
-      const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, {
-        from: account1,
-      });
+      const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, { from: account1 });
       expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: this.NFT0 });
       expectEvent.notEmitted(receipt, 'DelegateVotesChanged');
 
@@ -58,15 +56,9 @@ contract('ERC721Votes', function (accounts) {
     it('sender delegation', async function () {
       await this.votes.delegate(account1, { from: account1 });
 
-      const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, {
-        from: account1,
-      });
+      const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, { from: account1 });
       expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: this.NFT0 });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: account1,
-        previousBalance: '1',
-        newBalance: '0',
-      });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousBalance: '1', newBalance: '0' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
       expect(
@@ -82,15 +74,9 @@ contract('ERC721Votes', function (accounts) {
     it('receiver delegation', async function () {
       await this.votes.delegate(account2, { from: account2 });
 
-      const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, {
-        from: account1,
-      });
+      const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, { from: account1 });
       expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: this.NFT0 });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: account2,
-        previousBalance: '0',
-        newBalance: '1',
-      });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousBalance: '0', newBalance: '1' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
       expect(
@@ -107,20 +93,10 @@ contract('ERC721Votes', function (accounts) {
       await this.votes.delegate(account1, { from: account1 });
       await this.votes.delegate(account2, { from: account2 });
 
-      const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, {
-        from: account1,
-      });
+      const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, { from: account1 });
       expectEvent(receipt, 'Transfer', { from: account1, to: account2, tokenId: this.NFT0 });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: account1,
-        previousBalance: '1',
-        newBalance: '0',
-      });
-      expectEvent(receipt, 'DelegateVotesChanged', {
-        delegate: account2,
-        previousBalance: '0',
-        newBalance: '1',
-      });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: account1, previousBalance: '1', newBalance: '0' });
+      expectEvent(receipt, 'DelegateVotesChanged', { delegate: account2, previousBalance: '0', newBalance: '1' });
 
       const { logIndex: transferLogIndex } = receipt.logs.find(({ event }) => event == 'Transfer');
       expect(
@@ -136,9 +112,7 @@ contract('ERC721Votes', function (accounts) {
     it('returns the same total supply on transfers', async function () {
       await this.votes.delegate(account1, { from: account1 });
 
-      const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, {
-        from: account1,
-      });
+      const { receipt } = await this.votes.transferFrom(account1, account2, this.NFT0, { from: account1 });
 
       await time.advanceBlock();
       await time.advanceBlock();

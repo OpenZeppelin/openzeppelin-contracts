@@ -32,11 +32,7 @@ function shouldBehaveLikeRegularContext(sender) {
 
     it('returns the transaction sender when from another contract', async function () {
       const { tx } = await this.caller.callData(this.context.address, integerValue, stringValue);
-      await expectEvent.inTransaction(tx, ContextMock, 'Data', {
-        data: callData,
-        integerValue,
-        stringValue,
-      });
+      await expectEvent.inTransaction(tx, ContextMock, 'Data', { data: callData, integerValue, stringValue });
     });
   });
 }

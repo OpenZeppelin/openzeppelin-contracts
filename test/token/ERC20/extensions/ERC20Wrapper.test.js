@@ -52,9 +52,7 @@ contract('ERC20', function (accounts) {
   describe('deposit', function () {
     it('valid', async function () {
       await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });
-      const { tx } = await this.token.depositFor(initialHolder, initialSupply, {
-        from: initialHolder,
-      });
+      const { tx } = await this.token.depositFor(initialHolder, initialSupply, { from: initialHolder });
       await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: initialHolder,
         to: this.token.address,
@@ -84,9 +82,7 @@ contract('ERC20', function (accounts) {
 
     it('to other account', async function () {
       await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });
-      const { tx } = await this.token.depositFor(anotherAccount, initialSupply, {
-        from: initialHolder,
-      });
+      const { tx } = await this.token.depositFor(anotherAccount, initialSupply, { from: initialHolder });
       await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: initialHolder,
         to: this.token.address,
@@ -130,9 +126,7 @@ contract('ERC20', function (accounts) {
     });
 
     it('entire balance', async function () {
-      const { tx } = await this.token.withdrawTo(initialHolder, initialSupply, {
-        from: initialHolder,
-      });
+      const { tx } = await this.token.withdrawTo(initialHolder, initialSupply, { from: initialHolder });
       await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: this.token.address,
         to: initialHolder,
@@ -146,9 +140,7 @@ contract('ERC20', function (accounts) {
     });
 
     it('to other account', async function () {
-      const { tx } = await this.token.withdrawTo(anotherAccount, initialSupply, {
-        from: initialHolder,
-      });
+      const { tx } = await this.token.withdrawTo(anotherAccount, initialSupply, { from: initialHolder });
       await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
         from: this.token.address,
         to: anotherAccount,

@@ -65,12 +65,7 @@ contract('SafeERC20', function (accounts) {
       this.data = {
         primaryType: 'Permit',
         types: { EIP712Domain, Permit },
-        domain: {
-          name: 'ERC20PermitNoRevertMock',
-          version: '1',
-          chainId,
-          verifyingContract: this.token.address,
-        },
+        domain: { name: 'ERC20PermitNoRevertMock', version: '1', chainId, verifyingContract: this.token.address },
         message: { owner, spender, value: '42', nonce: '0', deadline: constants.MAX_UINT256 },
       };
       this.signature = fromRpcSig(ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data: this.data }));

@@ -17,9 +17,7 @@ contract('ERC721PresetMinterPauserAutoId', function (accounts) {
   const MINTER_ROLE = web3.utils.soliditySha3('MINTER_ROLE');
 
   beforeEach(async function () {
-    this.token = await ERC721PresetMinterPauserAutoId.new(name, symbol, baseURI, {
-      from: deployer,
-    });
+    this.token = await ERC721PresetMinterPauserAutoId.new(name, symbol, baseURI, { from: deployer });
   });
 
   shouldSupportInterfaces(['ERC721', 'ERC721Enumerable', 'AccessControl', 'AccessControlEnumerable']);

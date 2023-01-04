@@ -47,9 +47,7 @@ class Report {
 
     const deployments = update.info.deployments
       .map(contract =>
-        Object.assign(contract, {
-          previousVersion: ref.info.deployments.find(({ name }) => name === contract.name),
-        }),
+        Object.assign(contract, { previousVersion: ref.info.deployments.find(({ name }) => name === contract.name) }),
       )
       .filter(contract => contract.gasData?.length && contract.previousVersion?.gasData?.length)
       .flatMap(contract => [
