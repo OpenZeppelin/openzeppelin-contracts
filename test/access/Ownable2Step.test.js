@@ -2,7 +2,7 @@ const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-hel
 const { ZERO_ADDRESS } = constants;
 const { expect } = require('chai');
 
-const Ownable2Step = artifacts.require('Ownable2StepMock');
+const Ownable2Step = artifacts.require('$Ownable2Step');
 
 contract('Ownable2Step', function (accounts) {
   const [owner, accountA, accountB] = accounts;

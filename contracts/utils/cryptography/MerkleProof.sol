@@ -24,11 +24,7 @@ library MerkleProof {
      * sibling hashes on the branch from the leaf to the root of the tree. Each
      * pair of leaves and each pair of pre-images are assumed to be sorted.
      */
-    function verify(
-        bytes32[] memory proof,
-        bytes32 root,
-        bytes32 leaf
-    ) internal pure returns (bool) {
+    function verify(bytes32[] memory proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
         return processProof(proof, leaf) == root;
     }
 
@@ -37,11 +33,7 @@ library MerkleProof {
      *
      * _Available since v4.7._
      */
-    function verifyCalldata(
-        bytes32[] calldata proof,
-        bytes32 root,
-        bytes32 leaf
-    ) internal pure returns (bool) {
+    function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) internal pure returns (bool) {
         return processProofCalldata(proof, leaf) == root;
     }
 
@@ -143,7 +135,7 @@ library MerkleProof {
         // At each step, we compute the next hash using two values:
         // - a value from the "main queue". If not all leaves have been consumed, we get the next leaf, otherwise we
         //   get the next hash.
-        // - depending on the flag, either another value for the "main queue" (merging branches) or an element from the
+        // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
@@ -154,7 +146,9 @@ library MerkleProof {
         }
 
         if (totalHashes > 0) {
-            return hashes[totalHashes - 1];
+            unchecked {
+                return hashes[totalHashes - 1];
+            }
         } else if (leavesLen > 0) {
             return leaves[0];
         } else {
@@ -193,7 +187,7 @@ library MerkleProof {
         // At each step, we compute the next hash using two values:
         // - a value from the "main queue". If not all leaves have been consumed, we get the next leaf, otherwise we
         //   get the next hash.
-        // - depending on the flag, either another value for the "main queue" (merging branches) or an element from the
+        // - depending on the flag, either another value from the "main queue" (merging branches) or an element from the
         //   `proof` array.
         for (uint256 i = 0; i < totalHashes; i++) {
             bytes32 a = leafPos < leavesLen ? leaves[leafPos++] : hashes[hashPos++];
@@ -204,7 +198,9 @@ library MerkleProof {
         }
 
         if (totalHashes > 0) {
-            return hashes[totalHashes - 1];
+            unchecked {
+                return hashes[totalHashes - 1];
+            }
         } else if (leavesLen > 0) {
             return leaves[0];
         } else {

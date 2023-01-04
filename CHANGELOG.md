@@ -2,11 +2,16 @@
 
 ## Unreleased
 
+ * Reformatted codebase with latest version of Prettier Solidity. ([#3898](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3898))
  * `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
  * `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
  * `Initializable`: optimize `_disableInitializers` by using `!=` instead of `<`. ([#3787](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3787))
  * `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
  * `ERC721Wrapper`: add a new extension of the `ERC721` token which wraps an underlying token. Deposit and withdraw guarantee that the ownership of each token is backed by a corresponding underlying token with the same identifier. ([#3863](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3863))
+ * `Strings`: add `equal` method. ([#3774](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3774))
+ * `Strings`: add `toString` method for signed integers. ([#3773](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3773))
+ * `MerkleProof`: optimize by using unchecked arithmetic. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
+ * `EnumerableMap`: add a `keys()` function that returns an array containing all the keys. ([#3920](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3920))
 
 ### Deprecations
 

@@ -16,17 +16,20 @@ const Delegation = [
 
 const version = '1';
 
-function shouldBehaveLikeVotes () {
+function shouldBehaveLikeVotes() {
   describe('run votes workflow', function () {
     it('initial nonce is 0', async function () {
       expect(await this.votes.nonces(this.account1)).to.be.bignumber.equal('0');
     });
 
     it('domain separator', async function () {
-      expect(
-        await this.votes.DOMAIN_SEPARATOR(),
-      ).to.equal(
-        await domainSeparator(this.name, version, this.chainId, this.votes.address),
+      expect(await this.votes.DOMAIN_SEPARATOR()).to.equal(
+        await domainSeparator({
+          name: this.name,
+          version,
+          chainId: this.chainId,
+          verifyingContract: this.votes.address,
+        }),
       );
     });
 
@@ -45,18 +48,20 @@ function shouldBehaveLikeVotes () {
       });
 
       beforeEach(async function () {
-        await this.votes.mint(delegatorAddress, this.NFT0);
+        await this.votes.$_mint(delegatorAddress, this.NFT0);
       });
 
       it('accept signed delegation', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+        const { v, r, s } = fromRpcSig(
+          ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }),
+          ),
+        );
 
         expect(await this.votes.delegates(delegatorAddress)).to.be.equal(ZERO_ADDRESS);
 
@@ -81,14 +86,16 @@ function shouldBehaveLikeVotes () {
       });
 
       it('rejects reused signature', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+        const { v, r, s } = fromRpcSig(
+          ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }),
+          ),
+        );
 
         await this.votes.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
 
@@ -99,14 +106,16 @@ function shouldBehaveLikeVotes () {
       });
 
       it('rejects bad delegatee', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+        const { v, r, s } = fromRpcSig(
+          ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }),
+          ),
+        );
 
         const receipt = await this.votes.delegateBySig(this.account1Delegatee, nonce, MAX_UINT256, v, r, s);
         const { args } = receipt.logs.find(({ event }) => event === 'DelegateChanged');
@@ -116,14 +125,16 @@ function shouldBehaveLikeVotes () {
       });
 
       it('rejects bad nonce', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            delegatee: delegatorAddress,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+        const { v, r, s } = fromRpcSig(
+          ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }),
+          ),
+        );
         await expectRevert(
           this.votes.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
           'Votes: invalid nonce',
@@ -132,14 +143,16 @@ function shouldBehaveLikeVotes () {
 
       it('rejects expired permit', async function () {
         const expiry = (await time.latest()) - time.duration.weeks(1);
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            delegatee: delegatorAddress,
-            nonce,
-            expiry,
-          }),
-        ));
+        const { v, r, s } = fromRpcSig(
+          ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              delegatee: delegatorAddress,
+              nonce,
+              expiry,
+            }),
+          ),
+        );
 
         await expectRevert(
           this.votes.delegateBySig(delegatorAddress, nonce, expiry, v, r, s),
@@ -151,7 +164,7 @@ function shouldBehaveLikeVotes () {
     describe('set delegation', function () {
       describe('call', function () {
         it('delegation with tokens', async function () {
-          await this.votes.mint(this.account1, this.NFT0);
+          await this.votes.$_mint(this.account1, this.NFT0);
           expect(await this.votes.delegates(this.account1)).to.be.equal(ZERO_ADDRESS);
 
           const { receipt } = await this.votes.delegate(this.account1, { from: this.account1 });
@@ -192,7 +205,7 @@ function shouldBehaveLikeVotes () {
 
     describe('change delegation', function () {
       beforeEach(async function () {
-        await this.votes.mint(this.account1, this.NFT0);
+        await this.votes.$_mint(this.account1, this.NFT0);
         await this.votes.delegate(this.account1, { from: this.account1 });
       });
 
@@ -234,10 +247,7 @@ function shouldBehaveLikeVotes () {
       });
 
       it('reverts if block number >= current block', async function () {
-        await expectRevert(
-          this.votes.getPastTotalSupply(5e10),
-          'block not yet mined',
-        );
+        await expectRevert(this.votes.getPastTotalSupply(5e10), 'block not yet mined');
       });
 
       it('returns 0 if there are no checkpoints', async function () {
@@ -245,7 +255,7 @@ function shouldBehaveLikeVotes () {
       });
 
       it('returns the latest block if >= last checkpoint block', async function () {
-        const t1 = await this.votes.mint(this.account1, this.NFT0);
+        const t1 = await this.votes.$_mint(this.account1, this.NFT0);
         await time.advanceBlock();
         await time.advanceBlock();
 
@@ -255,7 +265,7 @@ function shouldBehaveLikeVotes () {
 
       it('returns zero if < first checkpoint block', async function () {
         await time.advanceBlock();
-        const t2 = await this.votes.mint(this.account1, this.NFT1);
+        const t2 = await this.votes.$_mint(this.account1, this.NFT1);
         await time.advanceBlock();
         await time.advanceBlock();
 
@@ -264,19 +274,19 @@ function shouldBehaveLikeVotes () {
       });
 
       it('generally returns the voting balance at the appropriate checkpoint', async function () {
-        const t1 = await this.votes.mint(this.account1, this.NFT1);
+        const t1 = await this.votes.$_mint(this.account1, this.NFT1);
         await time.advanceBlock();
         await time.advanceBlock();
-        const t2 = await this.votes.burn(this.NFT1);
+        const t2 = await this.votes.$_burn(this.NFT1);
         await time.advanceBlock();
         await time.advanceBlock();
-        const t3 = await this.votes.mint(this.account1, this.NFT2);
+        const t3 = await this.votes.$_mint(this.account1, this.NFT2);
         await time.advanceBlock();
         await time.advanceBlock();
-        const t4 = await this.votes.burn(this.NFT2);
+        const t4 = await this.votes.$_burn(this.NFT2);
         await time.advanceBlock();
         await time.advanceBlock();
-        const t5 = await this.votes.mint(this.account1, this.NFT3);
+        const t5 = await this.votes.$_mint(this.account1, this.NFT3);
         await time.advanceBlock();
         await time.advanceBlock();
 
@@ -298,18 +308,15 @@ function shouldBehaveLikeVotes () {
     // https://github.com/compound-finance/compound-protocol/blob/master/tests/Governance/CompTest.js.
     describe('Compound test suite', function () {
       beforeEach(async function () {
-        await this.votes.mint(this.account1, this.NFT0);
-        await this.votes.mint(this.account1, this.NFT1);
-        await this.votes.mint(this.account1, this.NFT2);
-        await this.votes.mint(this.account1, this.NFT3);
+        await this.votes.$_mint(this.account1, this.NFT0);
+        await this.votes.$_mint(this.account1, this.NFT1);
+        await this.votes.$_mint(this.account1, this.NFT2);
+        await this.votes.$_mint(this.account1, this.NFT3);
       });
 
       describe('getPastVotes', function () {
         it('reverts if block number >= current block', async function () {
-          await expectRevert(
-            this.votes.getPastVotes(this.account2, 5e10),
-            'block not yet mined',
-          );
+          await expectRevert(this.votes.getPastVotes(this.account2, 5e10), 'block not yet mined');
         });
 
         it('returns 0 if there are no checkpoints', async function () {

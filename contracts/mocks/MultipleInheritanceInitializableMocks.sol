@@ -16,7 +16,7 @@ import "../proxy/utils/Initializable.sol";
 //      -- Child --
 
 /**
- * Sample base intializable contract that is a human
+ * Sample base initializable contract that is a human
  */
 contract SampleHuman is Initializable {
     bool public isHuman;
@@ -37,7 +37,7 @@ contract SampleHuman is Initializable {
 }
 
 /**
- * Sample base intializable contract that defines a field mother
+ * Sample base initializable contract that defines a field mother
  */
 contract SampleMother is Initializable, SampleHuman {
     uint256 public mother;
@@ -59,7 +59,7 @@ contract SampleMother is Initializable, SampleHuman {
 }
 
 /**
- * Sample base intializable contract that defines a field gramps
+ * Sample base initializable contract that defines a field gramps
  */
 contract SampleGramps is Initializable, SampleHuman {
     string public gramps;
@@ -81,7 +81,7 @@ contract SampleGramps is Initializable, SampleHuman {
 }
 
 /**
- * Sample base intializable contract that defines a field father and extends from gramps
+ * Sample base initializable contract that defines a field father and extends from gramps
  */
 contract SampleFather is Initializable, SampleGramps {
     uint256 public father;
@@ -108,12 +108,7 @@ contract SampleFather is Initializable, SampleGramps {
 contract SampleChild is Initializable, SampleMother, SampleFather {
     uint256 public child;
 
-    function initialize(
-        uint256 _mother,
-        string memory _gramps,
-        uint256 _father,
-        uint256 _child
-    ) public initializer {
+    function initialize(uint256 _mother, string memory _gramps, uint256 _father, uint256 _child) public initializer {
         __SampleChild_init(_mother, _gramps, _father, _child);
     }
 

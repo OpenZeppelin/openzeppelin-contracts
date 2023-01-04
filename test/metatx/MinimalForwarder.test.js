@@ -5,6 +5,8 @@ const { EIP712Domain } = require('../helpers/eip712');
 const { expectRevert, constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
+const { getChainId } = require('../helpers/chainid');
+
 const MinimalForwarder = artifacts.require('MinimalForwarder');
 const CallReceiverMock = artifacts.require('CallReceiverMock');
 
@@ -17,7 +19,7 @@ contract('MinimalForwarder', function (accounts) {
     this.domain = {
       name,
       version,
-      chainId: await web3.eth.getChainId(),
+      chainId: await getChainId(),
       verifyingContract: this.forwarder.address,
     };
     this.types = {
@@ -45,24 +47,21 @@ contract('MinimalForwarder', function (accounts) {
         nonce: Number(await this.forwarder.getNonce(this.sender)),
         data: '0x',
       };
-      this.sign = () => ethSigUtil.signTypedMessage(
-        this.wallet.getPrivateKey(),
-        {
+      this.sign = () =>
+        ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), {
           data: {
             types: this.types,
             domain: this.domain,
             primaryType: 'ForwardRequest',
             message: this.req,
           },
-        },
-      );
+        });
     });
 
     context('verify', function () {
       context('valid signature', function () {
         beforeEach(async function () {
-          expect(await this.forwarder.getNonce(this.req.from))
-            .to.be.bignumber.equal(web3.utils.toBN(this.req.nonce));
+          expect(await this.forwarder.getNonce(this.req.from)).to.be.bignumber.equal(web3.utils.toBN(this.req.nonce));
         });
 
         it('success', async function () {
@@ -70,37 +69,34 @@ contract('MinimalForwarder', function (accounts) {
         });
 
         afterEach(async function () {
-          expect(await this.forwarder.getNonce(this.req.from))
-            .to.be.bignumber.equal(web3.utils.toBN(this.req.nonce));
+          expect(await this.forwarder.getNonce(this.req.from)).to.be.bignumber.equal(web3.utils.toBN(this.req.nonce));
         });
       });
 
       context('invalid signature', function () {
         it('tampered from', async function () {
-          expect(await this.forwarder.verify({ ...this.req, from: accounts[0] }, this.sign()))
-            .to.be.equal(false);
+          expect(await this.forwarder.verify({ ...this.req, from: accounts[0] }, this.sign())).to.be.equal(false);
         });
         it('tampered to', async function () {
-          expect(await this.forwarder.verify({ ...this.req, to: accounts[0] }, this.sign()))
-            .to.be.equal(false);
+          expect(await this.forwarder.verify({ ...this.req, to: accounts[0] }, this.sign())).to.be.equal(false);
         });
         it('tampered value', async function () {
-          expect(await this.forwarder.verify({ ...this.req, value: web3.utils.toWei('1') }, this.sign()))
-            .to.be.equal(false);
+          expect(await this.forwarder.verify({ ...this.req, value: web3.utils.toWei('1') }, this.sign())).to.be.equal(
+            false,
+          );
         });
         it('tampered nonce', async function () {
-          expect(await this.forwarder.verify({ ...this.req, nonce: this.req.nonce + 1 }, this.sign()))
-            .to.be.equal(false);
+          expect(await this.forwarder.verify({ ...this.req, nonce: this.req.nonce + 1 }, this.sign())).to.be.equal(
+            false,
+          );
         });
         it('tampered data', async function () {
-          expect(await this.forwarder.verify({ ...this.req, data: '0x1742' }, this.sign()))
-            .to.be.equal(false);
+          expect(await this.forwarder.verify({ ...this.req, data: '0x1742' }, this.sign())).to.be.equal(false);
         });
         it('tampered signature', async function () {
           const tamperedsign = web3.utils.hexToBytes(this.sign());
           tamperedsign[42] ^= 0xff;
-          expect(await this.forwarder.verify(this.req, web3.utils.bytesToHex(tamperedsign)))
-            .to.be.equal(false);
+          expect(await this.forwarder.verify(this.req, web3.utils.bytesToHex(tamperedsign))).to.be.equal(false);
         });
       });
     });
@@ -108,8 +104,7 @@ contract('MinimalForwarder', function (accounts) {
     context('execute', function () {
       context('valid signature', function () {
         beforeEach(async function () {
-          expect(await this.forwarder.getNonce(this.req.from))
-            .to.be.bignumber.equal(web3.utils.toBN(this.req.nonce));
+          expect(await this.forwarder.getNonce(this.req.from)).to.be.bignumber.equal(web3.utils.toBN(this.req.nonce));
         });
 
         it('success', async function () {
@@ -117,8 +112,9 @@ contract('MinimalForwarder', function (accounts) {
         });
 
         afterEach(async function () {
-          expect(await this.forwarder.getNonce(this.req.from))
-            .to.be.bignumber.equal(web3.utils.toBN(this.req.nonce + 1));
+          expect(await this.forwarder.getNonce(this.req.from)).to.be.bignumber.equal(
+            web3.utils.toBN(this.req.nonce + 1),
+          );
         });
       });
 
@@ -170,9 +166,7 @@ contract('MinimalForwarder', function (accounts) {
         this.req.data = receiver.contract.methods.mockFunctionOutOfGas().encodeABI();
         this.req.gas = 1000000;
 
-        await expectRevert.assertion(
-          this.forwarder.execute(this.req, this.sign(), { gas: gasAvailable }),
-        );
+        await expectRevert.assertion(this.forwarder.execute(this.req, this.sign(), { gas: gasAvailable }));
 
         const { transactions } = await web3.eth.getBlock('latest');
         const { gasUsed } = await web3.eth.getTransactionReceipt(transactions[0]);
