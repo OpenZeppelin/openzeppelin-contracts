@@ -7,8 +7,7 @@
     {
       "files": "*.sol",
       "options": {
-        "singleQuote": false,
-        "printWidth": 120
+        "singleQuote": false
       }
     }
   ]
