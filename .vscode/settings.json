@@ -1,0 +1,6 @@
+{
+    "files.exclude": {
+        "": true
+    },
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true
+}
