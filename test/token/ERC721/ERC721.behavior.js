@@ -407,7 +407,6 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
           it('reverts', async function () {
             const revertingReceiver = await ERC721ReceiverMock.new(RECEIVER_MAGIC_VALUE, Error.Panic);
             await expectRevert.unspecified(this.token.$_safeMint(revertingReceiver.address, tokenId));
-            await expectRevert.unspecified(this.token.safeMint(revertingReceiver.address, tokenId));
           });
         });
 
