@@ -287,6 +287,46 @@ contract('ERC20', function (accounts) {
     });
   });
 
+  describe('_update', function () {
+    const amount = initialSupply + 1;
+    it('from is the zero address', async function () {
+      const totalSupply = await this.token.totalSupply();
+      const newSupply = totalSupply.add(new BN(amount));
+      await this.token.update(ZERO_ADDRESS, recipient, amount);
+      
+      expect(await this.token.totalSupply()).to.be.bignumber.equal(newSupply);
+      expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(amount);
+    });
+
+    it('to is the zero address', async function () {
+      const totalSupply = await this.token.totalSupply();
+      const burnAmount = await this.token.balanceOf(initialHolder);
+      await this.token.update(initialHolder, ZERO_ADDRESS, burnAmount);
+      
+      expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply.sub(burnAmount));
+      expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(new BN(0));
+    }); 
+
+    describe('from and to are the zero address', function () {
+      it('total supply not affected', async function () {
+        const totalSupply = await this.token.totalSupply();
+
+        await this.token.update(ZERO_ADDRESS, ZERO_ADDRESS, amount);
+        
+        expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply);
+      });
+
+      it('emits event', async function () {
+        expectEvent(
+          await this.token.update(ZERO_ADDRESS, ZERO_ADDRESS, amount),
+          'Transfer',
+          { from: ZERO_ADDRESS, to: ZERO_ADDRESS, value: amount },
+        );
+      });
+
+    });
+  });
+
   describe('_transfer', function () {
     shouldBehaveLikeERC20Transfer('ERC20', initialHolder, recipient, initialSupply, function (from, to, amount) {
       return this.token.transferInternal(from, to, amount);

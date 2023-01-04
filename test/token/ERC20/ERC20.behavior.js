@@ -178,17 +178,6 @@ function shouldBehaveLikeERC20 (errorPrefix, initialSupply, initialHolder, recip
         );
       });
     });
-
-    describe('when the token owner and the recipient are the zero address', function () {
-      const amount = 0;
-
-      it('reverts', async function () {
-        await expectRevert(
-          this.token.transferFrom(ZERO_ADDRESS, ZERO_ADDRESS, amount, { from: spender }),
-          'from the zero address',
-        );
-      });
-    });
   });
 
   describe('approve', function () {
