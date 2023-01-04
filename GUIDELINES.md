@@ -2,19 +2,23 @@
 
 ## Testing
 
-Code must be thoroughly tested with unit tests, and the tests must be of good quality.
+Code must be thoroughly tested with quality unit tests.
 
-We defer to the [Moloch Testing Guide](https://github.com/MolochVentures/moloch/tree/master/test#readme) for specific recommendations, though not all of it is relevant here. Quoting from its introduction:
+We defer to the [Moloch Testing Guide](https://github.com/MolochVentures/moloch/tree/master/test#readme) for specific recommendations, though not all of it is relevant here. Note the introduction:
 
 > Tests should be written, not only to verify correctness of the target code, but to be comprehensively reviewed by other programmers. Therefore, for mission critical Solidity code, the quality of the tests are just as important (if not more so) than the code itself, and should be written with the highest standards of clarity and elegance.
 
-Every addition or change to the code must come with relevant and comprehensive tests, except refactors, which should avoid simultaneous changes to tests.
+Every addition or change to the code must come with relevant and comprehensive tests.
 
-The test suite should run automatically for every change in the repository, and all tests must pass before a pull request is merged. Flaky tests are not acceptable.
+Refactors should avoid simultaneous changes to tests.
 
-The test suite must be analyzed for coverage and kept as close to 100% as possible, which should be enforced in pull requests.
+Flaky tests are not acceptable.
 
-For some functionality unit tests may be insufficient and complementary techniques should be used:
+The test suite should run automatically for every change in the repository, and in pull requests tests must pass before merging.
+
+The test suite coverage must be kept as close to 100% as possible, enforced in pull requests.
+
+In some cases unit tests may be insufficient and complementary techniques should be used:
 
 1. Property-based tests (aka. fuzzing) for math-heavy code.
 2. Formal verification for state machines.
