@@ -26,9 +26,12 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      */
     function depositFor(address account, uint256[] memory tokenIds) public virtual returns (bool) {
         bytes memory data = abi.encode(account);
-        for (uint256 i = 0; i < tokenIds.length; ++i) {
+
+        uint256 length = tokenIds.length;
+        for (uint256 i = 0; i < length; ++i) {
             underlying.safeTransferFrom(_msgSender(), address(this), tokenIds[i], data);
         }
+
         return true;
     }
 
@@ -36,14 +39,17 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * @dev Allow a user to burn wrapped tokens and withdraw the corresponding tokenIds of the underlying tokens.
      */
     function withdrawTo(address account, uint256[] memory tokenIds) public virtual returns (bool) {
-        for (uint256 i = 0; i < tokenIds.length; ++i) {
+        uint256 length = tokenIds.length;
+        for (uint256 i = 0; i < length; ++i) {
+            uint256 tokenId = tokenIds[i];
             require(
-                _isApprovedOrOwner(_msgSender(), tokenIds[i]),
+                _isApprovedOrOwner(_msgSender(), tokenId),
                 "ERC721Wrapper: caller is not token owner or approved"
             );
-            _burn(tokenIds[i]);
-            underlying.safeTransferFrom(address(this), account, tokenIds[i]);
+            _burn(tokenId);
+            underlying.safeTransferFrom(address(this), account, tokenId);
         }
+
         return true;
     }
 
