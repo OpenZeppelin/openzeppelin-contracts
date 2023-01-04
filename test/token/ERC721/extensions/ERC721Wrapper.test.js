@@ -165,7 +165,10 @@ contract('ERC721Wrapper', function (accounts) {
     });
 
     it("doesn't work for a non-owner nor approved", async function () {
-      await expectRevert(this.token.withdrawTo(initialHolder, [firstTokenId], { from: anotherAccount }), "ERC721Wrapper: caller is not token owner or approved");
+      await expectRevert(
+        this.token.withdrawTo(initialHolder, [firstTokenId], { from: anotherAccount }),
+        'ERC721Wrapper: caller is not token owner or approved',
+      );
     });
 
     it('works with multiple tokens', async function () {
@@ -202,15 +205,17 @@ contract('ERC721Wrapper', function (accounts) {
   describe('onERC721Received', function () {
     it('mints a token upon receival', async function () {
       // `safeTransferFrom` guarantees `onERC721Received` check
-      const { tx } = await this.underlying.safeTransferFrom(initialHolder, this.token.address, firstTokenId, { from: initialHolder });
+      const { tx } = await this.underlying.safeTransferFrom(initialHolder, this.token.address, firstTokenId, {
+        from: initialHolder,
+      });
 
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: ZERO_ADDRESS,
         to: initialHolder,
         tokenId: firstTokenId,
       });
-    })
-  })
+    });
+  });
 
   describe('_recover', function () {
     it('works if there is something to recover', async function () {
