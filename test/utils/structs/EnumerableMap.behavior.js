@@ -37,9 +37,7 @@ function shouldBehaveLikeMap(keys, values, zeroValue, methods, events) {
     );
 
     // This also checks that both arrays have the same length
-    expect(
-      (await methods.keys(map)).map(k => k.toString()),
-    ).to.have.same.members(
+    expect((await methods.keys(map)).map(k => k.toString())).to.have.same.members(
       keys.map(key => key.toString()),
     );
   }
