@@ -1,12 +1,12 @@
 const { contract } = require('hardhat');
 const { BN, expectEvent, constants, expectRevert } = require('@openzeppelin/test-helpers');
-const ERC721WrapperMock = artifacts.require('ERC721WrapperMock');
-const ERC721Mock = artifacts.require('ERC721Mock');
+const ERC721WrapperMock = artifacts.require('$ERC721WrapperMock');
+const ERC721 = artifacts.require('$ERC721');
 const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');
 
 const { ZERO_ADDRESS } = constants;
 
-contract('ERC721Wrapper', function (accounts) {
+contract('ERC721WrapperMock', function (accounts) {
   const [initialHolder, anotherAccount, approvedAccount] = accounts;
 
   const name = 'My Token';
@@ -15,11 +15,11 @@ contract('ERC721Wrapper', function (accounts) {
   const secondTokenId = new BN(2);
 
   beforeEach(async function () {
-    this.underlying = await ERC721Mock.new(name, symbol);
+    this.underlying = await ERC721.new(name, symbol);
     this.token = await ERC721WrapperMock.new(this.underlying.address, `Wrapped ${name}`, `W${symbol}`);
 
-    await this.underlying.safeMint(initialHolder, firstTokenId);
-    await this.underlying.safeMint(initialHolder, secondTokenId);
+    await this.underlying.$_safeMint(initialHolder, firstTokenId);
+    await this.underlying.$_safeMint(initialHolder, secondTokenId);
   });
 
   it('has a name', async function () {
@@ -222,7 +222,7 @@ contract('ERC721Wrapper', function (accounts) {
       // Should use `transferFrom` to avoid `onERC721Received` minting
       await this.underlying.transferFrom(initialHolder, this.token.address, firstTokenId, { from: initialHolder });
 
-      const { tx } = await this.token.recover(anotherAccount, firstTokenId);
+      const { tx } = await this.token.$_recover(anotherAccount, firstTokenId);
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: ZERO_ADDRESS,
         to: anotherAccount,
@@ -231,7 +231,7 @@ contract('ERC721Wrapper', function (accounts) {
     });
 
     it('reverts if there is nothing to recover', async function () {
-      await expectRevert(this.token.recover(initialHolder, firstTokenId), 'ERC721Wrapper: wrapper is not token owner');
+      await expectRevert(this.token.$_recover(initialHolder, firstTokenId), 'ERC721Wrapper: wrapper is not token owner');
     });
   });
 
