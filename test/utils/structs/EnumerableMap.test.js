@@ -44,6 +44,7 @@ contract('EnumerableMap', function (accounts) {
         length: '$length_EnumerableMap_AddressToUintMap(uint256)',
         at: '$at_EnumerableMap_AddressToUintMap(uint256,uint256)',
         contains: '$contains(uint256,address)',
+        keys: '$keys_EnumerableMap_AddressToUintMap(uint256)',
       }),
       {
         setReturn: 'return$set_EnumerableMap_AddressToUintMap_address_uint256',
@@ -67,6 +68,7 @@ contract('EnumerableMap', function (accounts) {
         length: '$length_EnumerableMap_UintToAddressMap(uint256)',
         at: '$at_EnumerableMap_UintToAddressMap(uint256,uint256)',
         contains: '$contains_EnumerableMap_UintToAddressMap(uint256,uint256)',
+        keys: '$keys_EnumerableMap_UintToAddressMap(uint256)',
       }),
       {
         setReturn: 'return$set_EnumerableMap_UintToAddressMap_uint256_address',
@@ -90,6 +92,7 @@ contract('EnumerableMap', function (accounts) {
         length: '$length_EnumerableMap_Bytes32ToBytes32Map(uint256)',
         at: '$at_EnumerableMap_Bytes32ToBytes32Map(uint256,uint256)',
         contains: '$contains_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)',
+        keys: '$keys_EnumerableMap_Bytes32ToBytes32Map(uint256)',
       }),
       {
         setReturn: 'return$set_EnumerableMap_Bytes32ToBytes32Map_bytes32_bytes32',
@@ -113,6 +116,7 @@ contract('EnumerableMap', function (accounts) {
         length: '$length_EnumerableMap_UintToUintMap(uint256)',
         at: '$at_EnumerableMap_UintToUintMap(uint256,uint256)',
         contains: '$contains_EnumerableMap_UintToUintMap(uint256,uint256)',
+        keys: '$keys_EnumerableMap_UintToUintMap(uint256)',
       }),
       {
         setReturn: 'return$set_EnumerableMap_UintToUintMap_uint256_uint256',
@@ -136,6 +140,7 @@ contract('EnumerableMap', function (accounts) {
         length: '$length_EnumerableMap_Bytes32ToUintMap(uint256)',
         at: '$at_EnumerableMap_Bytes32ToUintMap(uint256,uint256)',
         contains: '$contains_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)',
+        keys: '$keys_EnumerableMap_Bytes32ToUintMap(uint256)',
       }),
       {
         setReturn: 'return$set_EnumerableMap_Bytes32ToUintMap_bytes32_uint256',
