@@ -1,12 +1,12 @@
 const { contract } = require('hardhat');
 const { BN, expectEvent, constants, expectRevert } = require('@openzeppelin/test-helpers');
-const ERC721WrapperMock = artifacts.require('$ERC721WrapperMock');
+const ERC721Wrapper = artifacts.require('$ERC721Wrapper');
 const ERC721 = artifacts.require('$ERC721');
 const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');
 
 const { ZERO_ADDRESS } = constants;
 
-contract('ERC721WrapperMock', function (accounts) {
+contract('ERC721Wrapper', function (accounts) {
   const [initialHolder, anotherAccount, approvedAccount] = accounts;
 
   const name = 'My Token';
@@ -16,7 +16,7 @@ contract('ERC721WrapperMock', function (accounts) {
 
   beforeEach(async function () {
     this.underlying = await ERC721.new(name, symbol);
-    this.token = await ERC721WrapperMock.new(this.underlying.address, `Wrapped ${name}`, `W${symbol}`);
+    this.token = await ERC721Wrapper.new(`Wrapped ${name}`, `W${symbol}`, this.underlying.address);
 
     await this.underlying.$_safeMint(initialHolder, firstTokenId);
     await this.underlying.$_safeMint(initialHolder, secondTokenId);
