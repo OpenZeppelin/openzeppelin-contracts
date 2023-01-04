@@ -27,10 +27,7 @@ contract('Votes', function (accounts) {
     });
 
     it('reverts if block number >= current block', async function () {
-      await expectRevert(
-        this.votes.getPastTotalSupply(this.tx3.receipt.blockNumber + 1),
-        'Votes: block not yet mined',
-      );
+      await expectRevert(this.votes.getPastTotalSupply(this.tx3.receipt.blockNumber + 1), 'Votes: block not yet mined');
     });
 
     it('delegates', async function () {

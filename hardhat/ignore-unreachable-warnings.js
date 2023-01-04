@@ -18,10 +18,7 @@ task(TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE, async (params, _, runSu
   const job = await runSuper(params);
   // If the file is in the unreachable directory, we make a copy of the config and mark it, which will cause it to get
   // compiled separately (along with the other marked files).
-  if (
-    params.file.sourceName.startsWith('contracts/mocks/') &&
-    /\bunreachable\b/.test(params.file.sourceName)
-  ) {
+  if (params.file.sourceName.startsWith('contracts/mocks/') && /\bunreachable\b/.test(params.file.sourceName)) {
     const originalConfig = job.solidityConfig;
     let markedConfig = markedCache.get(originalConfig);
     if (markedConfig === undefined) {
@@ -41,9 +38,7 @@ task(TASK_COMPILE_SOLIDITY_COMPILE, async (params, _, runSuper) => {
   if (marked) {
     result.output = {
       ...result.output,
-      errors: result.output.errors?.filter(
-        e => e.severity !== 'warning' || e.errorCode !== W_UNREACHABLE_CODE,
-      ),
+      errors: result.output.errors?.filter(e => e.severity !== 'warning' || e.errorCode !== W_UNREACHABLE_CODE),
     };
   }
   return result;

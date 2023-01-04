@@ -26,11 +26,7 @@ function shouldBehaveLikeReceiver(sender = randomAddress()) {
   });
 
   it('should grant access to cross-chain call from the owner', async function () {
-    await this.bridge.call(
-      await this.receiver.owner(),
-      this.receiver,
-      'crossChainOwnerRestricted()',
-    );
+    await this.bridge.call(await this.receiver.owner(), this.receiver, 'crossChainOwnerRestricted()');
   });
 }
 

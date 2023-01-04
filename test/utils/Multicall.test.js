@@ -31,9 +31,7 @@ contract('Multicall', function (accounts) {
     const MulticallTest = artifacts.require('MulticallTest');
     const multicallTest = await MulticallTest.new({ from: deployer });
     await this.multicallToken.transfer(multicallTest.address, amount, { from: deployer });
-    expect(await this.multicallToken.balanceOf(multicallTest.address)).to.be.bignumber.equal(
-      new BN(amount),
-    );
+    expect(await this.multicallToken.balanceOf(multicallTest.address)).to.be.bignumber.equal(new BN(amount));
 
     const recipients = [alice, bob];
     const amounts = [amount / 2, amount / 3].map(n => new BN(n));

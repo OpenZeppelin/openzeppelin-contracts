@@ -23,9 +23,7 @@ module.exports = function shouldBehaveLikeClone(createClone) {
   describe('initialization without parameters', function () {
     describe('non payable', function () {
       const expectedInitializedValue = 10;
-      const initializeData = new DummyImplementation('').contract.methods[
-        'initializeNonPayable()'
-      ]().encodeABI();
+      const initializeData = new DummyImplementation('').contract.methods['initializeNonPayable()']().encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -42,18 +40,14 @@ module.exports = function shouldBehaveLikeClone(createClone) {
         const value = 10e5;
 
         it('reverts', async function () {
-          await expectRevert.unspecified(
-            createClone(this.implementation, initializeData, { value }),
-          );
+          await expectRevert.unspecified(createClone(this.implementation, initializeData, { value }));
         });
       });
     });
 
     describe('payable', function () {
       const expectedInitializedValue = 100;
-      const initializeData = new DummyImplementation('').contract.methods[
-        'initializePayable()'
-      ]().encodeABI();
+      const initializeData = new DummyImplementation('').contract.methods['initializePayable()']().encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -103,9 +97,7 @@ module.exports = function shouldBehaveLikeClone(createClone) {
         const value = 10e5;
 
         it('reverts', async function () {
-          await expectRevert.unspecified(
-            createClone(this.implementation, initializeData, { value }),
-          );
+          await expectRevert.unspecified(createClone(this.implementation, initializeData, { value }));
         });
       });
     });

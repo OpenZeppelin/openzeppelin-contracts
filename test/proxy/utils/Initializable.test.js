@@ -40,19 +40,13 @@ contract('Initializable', function () {
       });
 
       it('initializer does not run again', async function () {
-        await expectRevert(
-          this.contract.initialize(),
-          'Initializable: contract is already initialized',
-        );
+        await expectRevert(this.contract.initialize(), 'Initializable: contract is already initialized');
       });
     });
 
     describe('nested under an initializer', function () {
       it('initializer modifier reverts', async function () {
-        await expectRevert(
-          this.contract.initializerNested(),
-          'Initializable: contract is already initialized',
-        );
+        await expectRevert(this.contract.initializerNested(), 'Initializable: contract is already initialized');
       });
 
       it('onlyInitializing modifier succeeds', async function () {
@@ -62,10 +56,7 @@ contract('Initializable', function () {
     });
 
     it('cannot call onlyInitializable function outside the scope of an initializable function', async function () {
-      await expectRevert(
-        this.contract.initializeOnlyInitializing(),
-        'Initializable: contract is not initializing',
-      );
+      await expectRevert(this.contract.initializeOnlyInitializing(), 'Initializable: contract is not initializing');
     });
   });
 
@@ -107,18 +98,9 @@ contract('Initializable', function () {
 
     it('cannot nest reinitializers', async function () {
       expect(await this.contract.counter()).to.be.bignumber.equal('0');
-      await expectRevert(
-        this.contract.nestedReinitialize(2, 2),
-        'Initializable: contract is already initialized',
-      );
-      await expectRevert(
-        this.contract.nestedReinitialize(2, 3),
-        'Initializable: contract is already initialized',
-      );
-      await expectRevert(
-        this.contract.nestedReinitialize(3, 2),
-        'Initializable: contract is already initialized',
-      );
+      await expectRevert(this.contract.nestedReinitialize(2, 2), 'Initializable: contract is already initialized');
+      await expectRevert(this.contract.nestedReinitialize(2, 3), 'Initializable: contract is already initialized');
+      await expectRevert(this.contract.nestedReinitialize(3, 2), 'Initializable: contract is already initialized');
     });
 
     it('can chain reinitializers', async function () {
@@ -137,27 +119,18 @@ contract('Initializable', function () {
     describe('contract locking', function () {
       it('prevents initialization', async function () {
         await this.contract.disableInitializers();
-        await expectRevert(
-          this.contract.initialize(),
-          'Initializable: contract is already initialized',
-        );
+        await expectRevert(this.contract.initialize(), 'Initializable: contract is already initialized');
       });
 
       it('prevents re-initialization', async function () {
         await this.contract.disableInitializers();
-        await expectRevert(
-          this.contract.reinitialize(255),
-          'Initializable: contract is already initialized',
-        );
+        await expectRevert(this.contract.reinitialize(255), 'Initializable: contract is already initialized');
       });
 
       it('can lock contract after initialization', async function () {
         await this.contract.initialize();
         await this.contract.disableInitializers();
-        await expectRevert(
-          this.contract.reinitialize(255),
-          'Initializable: contract is already initialized',
-        );
+        await expectRevert(this.contract.reinitialize(255), 'Initializable: contract is already initialized');
       });
     });
   });

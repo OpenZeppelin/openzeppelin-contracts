@@ -73,9 +73,7 @@ contract('SafeERC20', function (accounts) {
         },
         message: { owner, spender, value: '42', nonce: '0', deadline: constants.MAX_UINT256 },
       };
-      this.signature = fromRpcSig(
-        ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data: this.data }),
-      );
+      this.signature = fromRpcSig(ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data: this.data }));
     });
 
     it('accepts owner signature', async function () {
@@ -94,9 +92,7 @@ contract('SafeERC20', function (accounts) {
       );
 
       expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
-      expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(
-        this.data.message.value,
-      );
+      expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(this.data.message.value);
     });
 
     it('revert on reused signature', async function () {
@@ -180,10 +176,7 @@ contract('SafeERC20', function (accounts) {
 
 function shouldRevertOnAllCalls(reason) {
   it('reverts on transfer', async function () {
-    await expectRevert(
-      this.mock.$safeTransfer(this.token.address, constants.ZERO_ADDRESS, 0),
-      reason,
-    );
+    await expectRevert(this.mock.$safeTransfer(this.token.address, constants.ZERO_ADDRESS, 0), reason);
   });
 
   it('reverts on transferFrom', async function () {
@@ -194,24 +187,17 @@ function shouldRevertOnAllCalls(reason) {
   });
 
   it('reverts on approve', async function () {
-    await expectRevert(
-      this.mock.$safeApprove(this.token.address, constants.ZERO_ADDRESS, 0),
-      reason,
-    );
+    await expectRevert(this.mock.$safeApprove(this.token.address, constants.ZERO_ADDRESS, 0), reason);
   });
 
   it('reverts on increaseAllowance', async function () {
     // [TODO] make sure it's reverting for the right reason
-    await expectRevert.unspecified(
-      this.mock.$safeIncreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 0),
-    );
+    await expectRevert.unspecified(this.mock.$safeIncreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 0));
   });
 
   it('reverts on decreaseAllowance', async function () {
     // [TODO] make sure it's reverting for the right reason
-    await expectRevert.unspecified(
-      this.mock.$safeDecreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 0),
-    );
+    await expectRevert.unspecified(this.mock.$safeDecreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 0));
   });
 }
 
@@ -221,12 +207,7 @@ function shouldOnlyRevertOnErrors() {
   });
 
   it("doesn't revert on transferFrom", async function () {
-    await this.mock.$safeTransferFrom(
-      this.token.address,
-      this.mock.address,
-      constants.ZERO_ADDRESS,
-      0,
-    );
+    await this.mock.$safeTransferFrom(this.token.address, this.mock.address, constants.ZERO_ADDRESS, 0);
   });
 
   describe('approvals', function () {

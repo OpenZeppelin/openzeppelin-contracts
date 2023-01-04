@@ -143,12 +143,8 @@ contract('ERC721Votes', function (accounts) {
       await time.advanceBlock();
       await time.advanceBlock();
 
-      expect(await this.votes.getPastTotalSupply(receipt.blockNumber - 1)).to.be.bignumber.equal(
-        '1',
-      );
-      expect(await this.votes.getPastTotalSupply(receipt.blockNumber + 1)).to.be.bignumber.equal(
-        '1',
-      );
+      expect(await this.votes.getPastTotalSupply(receipt.blockNumber - 1)).to.be.bignumber.equal('1');
+      expect(await this.votes.getPastTotalSupply(receipt.blockNumber + 1)).to.be.bignumber.equal('1');
 
       this.account1Votes = '0';
       this.account2Votes = '0';
@@ -174,33 +170,15 @@ contract('ERC721Votes', function (accounts) {
       await time.advanceBlock();
       await time.advanceBlock();
 
-      expect(
-        await this.votes.getPastVotes(other1, t1.receipt.blockNumber - 1),
-      ).to.be.bignumber.equal('0');
-      expect(await this.votes.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal(
-        total,
-      );
-      expect(
-        await this.votes.getPastVotes(other1, t1.receipt.blockNumber + 1),
-      ).to.be.bignumber.equal(total);
-      expect(await this.votes.getPastVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal(
-        '3',
-      );
-      expect(
-        await this.votes.getPastVotes(other1, t2.receipt.blockNumber + 1),
-      ).to.be.bignumber.equal('3');
-      expect(await this.votes.getPastVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal(
-        '2',
-      );
-      expect(
-        await this.votes.getPastVotes(other1, t3.receipt.blockNumber + 1),
-      ).to.be.bignumber.equal('2');
-      expect(await this.votes.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal(
-        '3',
-      );
-      expect(
-        await this.votes.getPastVotes(other1, t4.receipt.blockNumber + 1),
-      ).to.be.bignumber.equal('3');
+      expect(await this.votes.getPastVotes(other1, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+      expect(await this.votes.getPastVotes(other1, t1.receipt.blockNumber)).to.be.bignumber.equal(total);
+      expect(await this.votes.getPastVotes(other1, t1.receipt.blockNumber + 1)).to.be.bignumber.equal(total);
+      expect(await this.votes.getPastVotes(other1, t2.receipt.blockNumber)).to.be.bignumber.equal('3');
+      expect(await this.votes.getPastVotes(other1, t2.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
+      expect(await this.votes.getPastVotes(other1, t3.receipt.blockNumber)).to.be.bignumber.equal('2');
+      expect(await this.votes.getPastVotes(other1, t3.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
+      expect(await this.votes.getPastVotes(other1, t4.receipt.blockNumber)).to.be.bignumber.equal('3');
+      expect(await this.votes.getPastVotes(other1, t4.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
 
       this.account1Votes = '0';
       this.account2Votes = '0';
@@ -213,12 +191,8 @@ contract('ERC721Votes', function (accounts) {
       // need to advance 2 blocks to see the effect of a transfer on "getPastVotes"
       const blockNumber = await time.latestBlock();
       await time.advanceBlock();
-      expect(await this.votes.getPastVotes(account1, blockNumber)).to.be.bignumber.equal(
-        this.account1Votes,
-      );
-      expect(await this.votes.getPastVotes(account2, blockNumber)).to.be.bignumber.equal(
-        this.account2Votes,
-      );
+      expect(await this.votes.getPastVotes(account1, blockNumber)).to.be.bignumber.equal(this.account1Votes);
+      expect(await this.votes.getPastVotes(account2, blockNumber)).to.be.bignumber.equal(this.account2Votes);
     });
   });
 

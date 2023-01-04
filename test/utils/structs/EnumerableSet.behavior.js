@@ -18,14 +18,10 @@ function shouldBehaveLikeSet(values, methods, events) {
         .fill()
         .map((_, index) => methods.at(set, index)),
     );
-    expect(indexedValues.map(v => v.toString())).to.have.same.members(
-      values.map(v => v.toString()),
-    );
+    expect(indexedValues.map(v => v.toString())).to.have.same.members(values.map(v => v.toString()));
 
     const returnedValues = await methods.values(set);
-    expect(returnedValues.map(v => v.toString())).to.have.same.members(
-      values.map(v => v.toString()),
-    );
+    expect(returnedValues.map(v => v.toString())).to.have.same.members(values.map(v => v.toString()));
   }
 
   it('starts empty', async function () {

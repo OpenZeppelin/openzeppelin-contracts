@@ -102,10 +102,7 @@ contract('ERC20Permit', function (accounts) {
       const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
       const { v, r, s } = fromRpcSig(signature);
 
-      await expectRevert(
-        this.token.permit(owner, spender, value, deadline, v, r, s),
-        'ERC20Permit: expired deadline',
-      );
+      await expectRevert(this.token.permit(owner, spender, value, deadline, v, r, s), 'ERC20Permit: expired deadline');
     });
   });
 });

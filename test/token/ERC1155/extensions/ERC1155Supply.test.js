@@ -61,9 +61,7 @@ contract('ERC1155Supply', function (accounts) {
 
       it('totalSupply', async function () {
         expect(await this.token.totalSupply(firstTokenId)).to.be.bignumber.equal(firstTokenAmount);
-        expect(await this.token.totalSupply(secondTokenId)).to.be.bignumber.equal(
-          secondTokenAmount,
-        );
+        expect(await this.token.totalSupply(secondTokenId)).to.be.bignumber.equal(secondTokenAmount);
       });
     });
   });
@@ -92,11 +90,7 @@ contract('ERC1155Supply', function (accounts) {
           [firstTokenAmount, secondTokenAmount],
           '0x',
         );
-        await this.token.$_burnBatch(
-          holder,
-          [firstTokenId, secondTokenId],
-          [firstTokenAmount, secondTokenAmount],
-        );
+        await this.token.$_burnBatch(holder, [firstTokenId, secondTokenId], [firstTokenAmount, secondTokenAmount]);
       });
 
       it('exist', async function () {

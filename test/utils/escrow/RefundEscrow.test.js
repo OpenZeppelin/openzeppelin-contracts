@@ -1,10 +1,4 @@
-const {
-  balance,
-  constants,
-  ether,
-  expectEvent,
-  expectRevert,
-} = require('@openzeppelin/test-helpers');
+const { balance, constants, ether, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
@@ -43,10 +37,7 @@ contract('RefundEscrow', function (accounts) {
 
       it('does not refund refundees', async function () {
         await this.escrow.deposit(refundee1, { from: owner, value: amount });
-        await expectRevert(
-          this.escrow.withdraw(refundee1),
-          'ConditionalEscrow: payee is not allowed to withdraw',
-        );
+        await expectRevert(this.escrow.withdraw(refundee1), 'ConditionalEscrow: payee is not allowed to withdraw');
       });
 
       it('does not allow beneficiary withdrawal', async function () {
@@ -59,10 +50,7 @@ contract('RefundEscrow', function (accounts) {
     });
 
     it('only the owner can enter closed state', async function () {
-      await expectRevert(
-        this.escrow.close({ from: beneficiary }),
-        'Ownable: caller is not the owner',
-      );
+      await expectRevert(this.escrow.close({ from: beneficiary }), 'Ownable: caller is not the owner');
 
       const receipt = await this.escrow.close({ from: owner });
       expectEvent(receipt, 'RefundsClosed');
@@ -70,9 +58,7 @@ contract('RefundEscrow', function (accounts) {
 
     context('closed state', function () {
       beforeEach(async function () {
-        await Promise.all(
-          refundees.map(refundee => this.escrow.deposit(refundee, { from: owner, value: amount })),
-        );
+        await Promise.all(refundees.map(refundee => this.escrow.deposit(refundee, { from: owner, value: amount })));
 
         await this.escrow.close({ from: owner });
       });
@@ -85,10 +71,7 @@ contract('RefundEscrow', function (accounts) {
       });
 
       it('does not refund refundees', async function () {
-        await expectRevert(
-          this.escrow.withdraw(refundee1),
-          'ConditionalEscrow: payee is not allowed to withdraw',
-        );
+        await expectRevert(this.escrow.withdraw(refundee1), 'ConditionalEscrow: payee is not allowed to withdraw');
       });
 
       it('allows beneficiary withdrawal', async function () {
@@ -105,18 +88,12 @@ contract('RefundEscrow', function (accounts) {
       });
 
       it('prevents re-entering the closed state', async function () {
-        await expectRevert(
-          this.escrow.close({ from: owner }),
-          'RefundEscrow: can only close while active',
-        );
+        await expectRevert(this.escrow.close({ from: owner }), 'RefundEscrow: can only close while active');
       });
     });
 
     it('only the owner can enter refund state', async function () {
-      await expectRevert(
-        this.escrow.enableRefunds({ from: beneficiary }),
-        'Ownable: caller is not the owner',
-      );
+      await expectRevert(this.escrow.enableRefunds({ from: beneficiary }), 'Ownable: caller is not the owner');
 
       const receipt = await this.escrow.enableRefunds({ from: owner });
       expectEvent(receipt, 'RefundsEnabled');
@@ -124,9 +101,7 @@ contract('RefundEscrow', function (accounts) {
 
     context('refund state', function () {
       beforeEach(async function () {
-        await Promise.all(
-          refundees.map(refundee => this.escrow.deposit(refundee, { from: owner, value: amount })),
-        );
+        await Promise.all(refundees.map(refundee => this.escrow.deposit(refundee, { from: owner, value: amount })));
 
         await this.escrow.enableRefunds({ from: owner });
       });
@@ -154,10 +129,7 @@ contract('RefundEscrow', function (accounts) {
       });
 
       it('prevents entering the closed state', async function () {
-        await expectRevert(
-          this.escrow.close({ from: owner }),
-          'RefundEscrow: can only close while active',
-        );
+        await expectRevert(this.escrow.close({ from: owner }), 'RefundEscrow: can only close while active');
       });
 
       it('prevents re-entering the refund state', async function () {

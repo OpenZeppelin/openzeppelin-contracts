@@ -3,9 +3,7 @@ const { expect } = require('chai');
 
 const ERC721ConsecutiveMock = artifacts.require('$ERC721ConsecutiveMock');
 const ERC721ConsecutiveEnumerableMock = artifacts.require('$ERC721ConsecutiveEnumerableMock');
-const ERC721ConsecutiveNoConstructorMintMock = artifacts.require(
-  '$ERC721ConsecutiveNoConstructorMintMock',
-);
+const ERC721ConsecutiveNoConstructorMintMock = artifacts.require('$ERC721ConsecutiveNoConstructorMintMock');
 
 contract('ERC721Consecutive', function (accounts) {
   const [user1, user2, user3, receiver] = accounts;
@@ -66,9 +64,7 @@ contract('ERC721Consecutive', function (accounts) {
             .map(({ amount }) => amount)
             .reduce((a, b) => a + b, 0);
 
-          expect(await this.token.balanceOf(account)).to.be.bignumber.equal(
-            web3.utils.toBN(balance),
-          );
+          expect(await this.token.balanceOf(account)).to.be.bignumber.equal(web3.utils.toBN(balance));
 
           // If not delegated at construction, check before + do delegation
           if (!delegates.includes(account)) {
@@ -78,9 +74,7 @@ contract('ERC721Consecutive', function (accounts) {
           }
 
           // At this point all accounts should have delegated
-          expect(await this.token.getVotes(account)).to.be.bignumber.equal(
-            web3.utils.toBN(balance),
-          );
+          expect(await this.token.getVotes(account)).to.be.bignumber.equal(web3.utils.toBN(balance));
         }
       });
     });

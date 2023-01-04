@@ -22,31 +22,19 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
   context('EOA account', function () {
     it('with matching signer and signature', async function () {
       expect(
-        await this.signaturechecker.$isValidSignatureNow(
-          signer,
-          toEthSignedMessageHash(TEST_MESSAGE),
-          this.signature,
-        ),
+        await this.signaturechecker.$isValidSignatureNow(signer, toEthSignedMessageHash(TEST_MESSAGE), this.signature),
       ).to.equal(true);
     });
 
     it('with invalid signer', async function () {
       expect(
-        await this.signaturechecker.$isValidSignatureNow(
-          other,
-          toEthSignedMessageHash(TEST_MESSAGE),
-          this.signature,
-        ),
+        await this.signaturechecker.$isValidSignatureNow(other, toEthSignedMessageHash(TEST_MESSAGE), this.signature),
       ).to.equal(false);
     });
 
     it('with invalid signature', async function () {
       expect(
-        await this.signaturechecker.$isValidSignatureNow(
-          signer,
-          toEthSignedMessageHash(WRONG_MESSAGE),
-          this.signature,
-        ),
+        await this.signaturechecker.$isValidSignatureNow(signer, toEthSignedMessageHash(WRONG_MESSAGE), this.signature),
       ).to.equal(false);
     });
   });

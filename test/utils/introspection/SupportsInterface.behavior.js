@@ -15,11 +15,7 @@ const INTERFACES = {
     'safeTransferFrom(address,address,uint256)',
     'safeTransferFrom(address,address,uint256,bytes)',
   ],
-  ERC721Enumerable: [
-    'totalSupply()',
-    'tokenOfOwnerByIndex(address,uint256)',
-    'tokenByIndex(uint256)',
-  ],
+  ERC721Enumerable: ['totalSupply()', 'tokenOfOwnerByIndex(address,uint256)', 'tokenByIndex(uint256)'],
   ERC721Metadata: ['name()', 'symbol()', 'tokenURI(uint256)'],
   ERC1155: [
     'balanceOf(address,uint256)',
@@ -82,11 +78,7 @@ const INTERFACES = {
     'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
     'castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)',
   ],
-  GovernorTimelock: [
-    'timelock()',
-    'proposalEta(uint256)',
-    'queue(address[],uint256[],bytes[],bytes32)',
-  ],
+  GovernorTimelock: ['timelock()', 'proposalEta(uint256)', 'queue(address[],uint256[],bytes[],bytes32)'],
   ERC2981: ['royaltyInfo(uint256,uint256)'],
 };
 
@@ -109,9 +101,7 @@ function shouldSupportInterfaces(interfaces = []) {
     it('supportsInterface uses less than 30k gas', async function () {
       for (const k of interfaces) {
         const interfaceId = INTERFACE_IDS[k];
-        expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(
-          30000,
-        );
+        expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
       }
     });
 
@@ -126,9 +116,7 @@ function shouldSupportInterfaces(interfaces = []) {
       for (const k of interfaces) {
         for (const fnName of INTERFACES[k]) {
           const fnSig = FN_SIGNATURES[fnName];
-          expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(
-            1,
-          );
+          expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1);
         }
       }
     });

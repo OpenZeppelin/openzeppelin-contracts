@@ -92,20 +92,14 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       });
 
       describe('when the call does not fail', function () {
-        const initializeData = new InitializableMock('').contract.methods[
-          'initializeWithX(uint256)'
-        ](42).encodeABI();
+        const initializeData = new InitializableMock('').contract.methods['initializeWithX(uint256)'](42).encodeABI();
 
         describe('when the sender is the admin', function () {
           const from = proxyAdminAddress;
           const value = 1e5;
 
           beforeEach(async function () {
-            this.receipt = await this.proxy.upgradeToAndCall(
-              this.behavior.address,
-              initializeData,
-              { from, value },
-            );
+            this.receipt = await this.proxy.upgradeToAndCall(this.behavior.address, initializeData, { from, value });
           });
 
           it('upgrades to the requested implementation', async function () {
@@ -171,18 +165,12 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
         const value = 1e5;
 
         describe('when upgrading to V1', function () {
-          const v1MigrationData = new MigratableMockV1('').contract.methods
-            .initialize(42)
-            .encodeABI();
+          const v1MigrationData = new MigratableMockV1('').contract.methods.initialize(42).encodeABI();
 
           beforeEach(async function () {
             this.behaviorV1 = await MigratableMockV1.new();
             this.balancePreviousV1 = new BN(await web3.eth.getBalance(this.proxyAddress));
-            this.receipt = await this.proxy.upgradeToAndCall(
-              this.behaviorV1.address,
-              v1MigrationData,
-              { from, value },
-            );
+            this.receipt = await this.proxy.upgradeToAndCall(this.behaviorV1.address, v1MigrationData, { from, value });
           });
 
           it('upgrades to the requested version and emits an event', async function () {
@@ -204,21 +192,15 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
           });
 
           describe('when upgrading to V2', function () {
-            const v2MigrationData = new MigratableMockV2('').contract.methods
-              .migrate(10, 42)
-              .encodeABI();
+            const v2MigrationData = new MigratableMockV2('').contract.methods.migrate(10, 42).encodeABI();
 
             beforeEach(async function () {
               this.behaviorV2 = await MigratableMockV2.new();
               this.balancePreviousV2 = new BN(await web3.eth.getBalance(this.proxyAddress));
-              this.receipt = await this.proxy.upgradeToAndCall(
-                this.behaviorV2.address,
-                v2MigrationData,
-                {
-                  from,
-                  value,
-                },
-              );
+              this.receipt = await this.proxy.upgradeToAndCall(this.behaviorV2.address, v2MigrationData, {
+                from,
+                value,
+              });
             });
 
             it('upgrades to the requested version and emits an event', async function () {
@@ -243,21 +225,15 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
             });
 
             describe('when upgrading to V3', function () {
-              const v3MigrationData = new MigratableMockV3('').contract.methods[
-                'migrate()'
-              ]().encodeABI();
+              const v3MigrationData = new MigratableMockV3('').contract.methods['migrate()']().encodeABI();
 
               beforeEach(async function () {
                 this.behaviorV3 = await MigratableMockV3.new();
                 this.balancePreviousV3 = new BN(await web3.eth.getBalance(this.proxyAddress));
-                this.receipt = await this.proxy.upgradeToAndCall(
-                  this.behaviorV3.address,
-                  v3MigrationData,
-                  {
-                    from,
-                    value,
-                  },
-                );
+                this.receipt = await this.proxy.upgradeToAndCall(this.behaviorV3.address, v3MigrationData, {
+                  from,
+                  value,
+                });
               });
 
               it('upgrades to the requested version and emits an event', async function () {
@@ -290,12 +266,8 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
         it('reverts', async function () {
           const behaviorV1 = await MigratableMockV1.new();
-          const v1MigrationData = new MigratableMockV1('').contract.methods
-            .initialize(42)
-            .encodeABI();
-          await expectRevert.unspecified(
-            this.proxy.upgradeToAndCall(behaviorV1.address, v1MigrationData, { from }),
-          );
+          const v1MigrationData = new MigratableMockV1('').contract.methods.initialize(42).encodeABI();
+          await expectRevert.unspecified(this.proxy.upgradeToAndCall(behaviorV1.address, v1MigrationData, { from }));
         });
       });
     });
@@ -325,9 +297,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
       describe('when the sender is not the admin', function () {
         it('reverts', async function () {
-          await expectRevert.unspecified(
-            this.proxy.changeAdmin(newAdmin, { from: anotherAccount }),
-          );
+          await expectRevert.unspecified(this.proxy.changeAdmin(newAdmin, { from: anotherAccount }));
         });
       });
     });
@@ -470,9 +440,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       await proxy.upgradeTo(instance2.address, { from: proxyAdminAddress });
 
       const data = '0x';
-      await expectRevert.unspecified(
-        web3.eth.sendTransaction({ to: proxy.address, from: anotherAccount, data }),
-      );
+      await expectRevert.unspecified(web3.eth.sendTransaction({ to: proxy.address, from: anotherAccount, data }));
 
       const proxyInstance2 = new Implementation2(proxy.address);
       const res = await proxyInstance2.getValue();

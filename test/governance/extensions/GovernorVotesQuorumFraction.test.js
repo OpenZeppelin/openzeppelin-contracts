@@ -32,22 +32,10 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
     await this.token.$_mint(owner, tokenSupply);
-    await this.helper.delegate(
-      { token: this.token, to: voter1, value: web3.utils.toWei('10') },
-      { from: owner },
-    );
-    await this.helper.delegate(
-      { token: this.token, to: voter2, value: web3.utils.toWei('7') },
-      { from: owner },
-    );
-    await this.helper.delegate(
-      { token: this.token, to: voter3, value: web3.utils.toWei('5') },
-      { from: owner },
-    );
-    await this.helper.delegate(
-      { token: this.token, to: voter4, value: web3.utils.toWei('2') },
-      { from: owner },
-    );
+    await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
+    await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
     this.proposal = this.helper.setProposal(
@@ -70,9 +58,9 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
     expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
     expect(await this.mock.quorumNumerator()).to.be.bignumber.equal(ratio);
     expect(await this.mock.quorumDenominator()).to.be.bignumber.equal('100');
-    expect(
-      await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1))),
-    ).to.be.bignumber.equal(tokenSupply.mul(ratio).divn(100));
+    expect(await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1)))).to.be.bignumber.equal(
+      tokenSupply.mul(ratio).divn(100),
+    );
   });
 
   it('quroum reached', async function () {
@@ -121,15 +109,15 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
       expect(await this.mock.quorumDenominator()).to.be.bignumber.equal('100');
 
       // it takes one block for the new quorum to take effect
-      expect(
-        await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1))),
-      ).to.be.bignumber.equal(tokenSupply.mul(ratio).divn(100));
+      expect(await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1)))).to.be.bignumber.equal(
+        tokenSupply.mul(ratio).divn(100),
+      );
 
       await time.advanceBlock();
 
-      expect(
-        await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1))),
-      ).to.be.bignumber.equal(tokenSupply.mul(newRatio).divn(100));
+      expect(await time.latestBlock().then(blockNumber => this.mock.quorum(blockNumber.subn(1)))).to.be.bignumber.equal(
+        tokenSupply.mul(newRatio).divn(100),
+      );
     });
 
     it('cannot updateQuorumNumerator over the maximum', async function () {
@@ -148,10 +136,7 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
       await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
       await this.helper.waitForDeadline();
 
-      await expectRevert(
-        this.helper.execute(),
-        'GovernorVotesQuorumFraction: quorumNumerator over quorumDenominator',
-      );
+      await expectRevert(this.helper.execute(), 'GovernorVotesQuorumFraction: quorumNumerator over quorumDenominator');
     });
   });
 });

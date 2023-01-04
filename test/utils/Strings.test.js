@@ -34,9 +34,7 @@ contract('Strings', function () {
     describe('uint256', function () {
       it('converts MAX_UINT256', async function () {
         const value = constants.MAX_UINT256;
-        expect(await this.strings.methods['$toString(uint256)'](value)).to.equal(
-          value.toString(10),
-        );
+        expect(await this.strings.methods['$toString(uint256)'](value)).to.equal(value.toString(10));
       });
 
       for (const value of values) {
@@ -64,9 +62,7 @@ contract('Strings', function () {
 
         it(`convert negative ${value}`, async function () {
           const negated = new BN(value).neg();
-          expect(await this.strings.methods['$toString(int256)'](negated)).to.equal(
-            negated.toString(10),
-          );
+          expect(await this.strings.methods['$toString(int256)'](negated)).to.equal(negated.toString(10));
         });
       }
     });
@@ -103,9 +99,9 @@ contract('Strings', function () {
     });
 
     it('converts MAX_UINT256', async function () {
-      expect(
-        await this.strings.methods['$toHexString(uint256,uint256)'](constants.MAX_UINT256, 32),
-      ).to.equal(web3.utils.toHex(constants.MAX_UINT256));
+      expect(await this.strings.methods['$toHexString(uint256,uint256)'](constants.MAX_UINT256, 32)).to.equal(
+        web3.utils.toHex(constants.MAX_UINT256),
+      );
     });
   });
 

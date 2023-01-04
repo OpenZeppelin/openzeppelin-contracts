@@ -20,9 +20,7 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
     });
 
     it("default admin role's admin is itself", async function () {
-      expect(await this.accessControl.getRoleAdmin(DEFAULT_ADMIN_ROLE)).to.equal(
-        DEFAULT_ADMIN_ROLE,
-      );
+      expect(await this.accessControl.getRoleAdmin(DEFAULT_ADMIN_ROLE)).to.equal(DEFAULT_ADMIN_ROLE);
     });
   });
 
@@ -190,14 +188,7 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
   });
 }
 
-function shouldBehaveLikeAccessControlEnumerable(
-  errorPrefix,
-  admin,
-  authorized,
-  other,
-  otherAdmin,
-  otherAuthorized,
-) {
+function shouldBehaveLikeAccessControlEnumerable(errorPrefix, admin, authorized, other, otherAdmin, otherAuthorized) {
   shouldSupportInterfaces(['AccessControlEnumerable']);
 
   describe('enumerating', function () {

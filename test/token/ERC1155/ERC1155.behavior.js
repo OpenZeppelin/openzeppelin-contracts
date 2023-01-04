@@ -7,14 +7,7 @@ const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsI
 
 const ERC1155ReceiverMock = artifacts.require('ERC1155ReceiverMock');
 
-function shouldBehaveLikeERC1155([
-  minter,
-  firstTokenHolder,
-  secondTokenHolder,
-  multiTokenHolder,
-  recipient,
-  proxy,
-]) {
+function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, multiTokenHolder, recipient, proxy]) {
   const firstTokenId = new BN(1);
   const secondTokenId = new BN(2);
   const unknownTokenId = new BN(3);
@@ -36,17 +29,11 @@ function shouldBehaveLikeERC1155([
 
       context("when accounts don't own tokens", function () {
         it('returns zero for given addresses', async function () {
-          expect(await this.token.balanceOf(firstTokenHolder, firstTokenId)).to.be.bignumber.equal(
-            '0',
-          );
+          expect(await this.token.balanceOf(firstTokenHolder, firstTokenId)).to.be.bignumber.equal('0');
 
-          expect(
-            await this.token.balanceOf(secondTokenHolder, secondTokenId),
-          ).to.be.bignumber.equal('0');
+          expect(await this.token.balanceOf(secondTokenHolder, secondTokenId)).to.be.bignumber.equal('0');
 
-          expect(
-            await this.token.balanceOf(firstTokenHolder, unknownTokenId),
-          ).to.be.bignumber.equal('0');
+          expect(await this.token.balanceOf(firstTokenHolder, unknownTokenId)).to.be.bignumber.equal('0');
         });
       });
 
@@ -61,17 +48,11 @@ function shouldBehaveLikeERC1155([
         });
 
         it('returns the amount of tokens owned by the given addresses', async function () {
-          expect(await this.token.balanceOf(firstTokenHolder, firstTokenId)).to.be.bignumber.equal(
-            firstAmount,
-          );
+          expect(await this.token.balanceOf(firstTokenHolder, firstTokenId)).to.be.bignumber.equal(firstAmount);
 
-          expect(
-            await this.token.balanceOf(secondTokenHolder, secondTokenId),
-          ).to.be.bignumber.equal(secondAmount);
+          expect(await this.token.balanceOf(secondTokenHolder, secondTokenId)).to.be.bignumber.equal(secondAmount);
 
-          expect(
-            await this.token.balanceOf(firstTokenHolder, unknownTokenId),
-          ).to.be.bignumber.equal('0');
+          expect(await this.token.balanceOf(firstTokenHolder, unknownTokenId)).to.be.bignumber.equal('0');
         });
       });
     });
@@ -196,32 +177,18 @@ function shouldBehaveLikeERC1155([
 
       it('reverts when transferring more than balance', async function () {
         await expectRevert(
-          this.token.safeTransferFrom(
-            multiTokenHolder,
-            recipient,
-            firstTokenId,
-            firstAmount.addn(1),
-            '0x',
-            {
-              from: multiTokenHolder,
-            },
-          ),
+          this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstAmount.addn(1), '0x', {
+            from: multiTokenHolder,
+          }),
           'ERC1155: insufficient balance for transfer',
         );
       });
 
       it('reverts when transferring to zero address', async function () {
         await expectRevert(
-          this.token.safeTransferFrom(
-            multiTokenHolder,
-            ZERO_ADDRESS,
-            firstTokenId,
-            firstAmount,
-            '0x',
-            {
-              from: multiTokenHolder,
-            },
-          ),
+          this.token.safeTransferFrom(multiTokenHolder, ZERO_ADDRESS, firstTokenId, firstAmount, '0x', {
+            from: multiTokenHolder,
+          }),
           'ERC1155: transfer to the zero address',
         );
       });
@@ -287,16 +254,9 @@ function shouldBehaveLikeERC1155([
 
           it('reverts', async function () {
             await expectRevert(
-              this.token.safeTransferFrom(
-                multiTokenHolder,
-                recipient,
-                firstTokenId,
-                firstAmount,
-                '0x',
-                {
-                  from: proxy,
-                },
-              ),
+              this.token.safeTransferFrom(multiTokenHolder, recipient, firstTokenId, firstAmount, '0x', {
+                from: proxy,
+              }),
               'ERC1155: caller is not token owner or approved',
             );
           });
@@ -367,18 +327,13 @@ function shouldBehaveLikeERC1155([
           });
 
           it('calls onERC1155Received', async function () {
-            await expectEvent.inTransaction(
-              this.transferReceipt.tx,
-              ERC1155ReceiverMock,
-              'Received',
-              {
-                operator: multiTokenHolder,
-                from: multiTokenHolder,
-                id: firstTokenId,
-                value: firstAmount,
-                data: null,
-              },
-            );
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'Received', {
+              operator: multiTokenHolder,
+              from: multiTokenHolder,
+              id: firstTokenId,
+              value: firstAmount,
+              data: null,
+            });
           });
         });
 
@@ -405,44 +360,27 @@ function shouldBehaveLikeERC1155([
           });
 
           it('calls onERC1155Received', async function () {
-            await expectEvent.inTransaction(
-              this.transferReceipt.tx,
-              ERC1155ReceiverMock,
-              'Received',
-              {
-                operator: multiTokenHolder,
-                from: multiTokenHolder,
-                id: firstTokenId,
-                value: firstAmount,
-                data,
-              },
-            );
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'Received', {
+              operator: multiTokenHolder,
+              from: multiTokenHolder,
+              id: firstTokenId,
+              value: firstAmount,
+              data,
+            });
           });
         });
       });
 
       context('to a receiver contract returning unexpected value', function () {
         beforeEach(async function () {
-          this.receiver = await ERC1155ReceiverMock.new(
-            '0x00c0ffee',
-            false,
-            RECEIVER_BATCH_MAGIC_VALUE,
-            false,
-          );
+          this.receiver = await ERC1155ReceiverMock.new('0x00c0ffee', false, RECEIVER_BATCH_MAGIC_VALUE, false);
         });
 
         it('reverts', async function () {
           await expectRevert(
-            this.token.safeTransferFrom(
-              multiTokenHolder,
-              this.receiver.address,
-              firstTokenId,
-              firstAmount,
-              '0x',
-              {
-                from: multiTokenHolder,
-              },
-            ),
+            this.token.safeTransferFrom(multiTokenHolder, this.receiver.address, firstTokenId, firstAmount, '0x', {
+              from: multiTokenHolder,
+            }),
             'ERC1155: ERC1155Receiver rejected tokens',
           );
         });
@@ -460,16 +398,9 @@ function shouldBehaveLikeERC1155([
 
         it('reverts', async function () {
           await expectRevert(
-            this.token.safeTransferFrom(
-              multiTokenHolder,
-              this.receiver.address,
-              firstTokenId,
-              firstAmount,
-              '0x',
-              {
-                from: multiTokenHolder,
-              },
-            ),
+            this.token.safeTransferFrom(multiTokenHolder, this.receiver.address, firstTokenId, firstAmount, '0x', {
+              from: multiTokenHolder,
+            }),
             'ERC1155ReceiverMock: reverting on receive',
           );
         });
@@ -479,16 +410,9 @@ function shouldBehaveLikeERC1155([
         it('reverts', async function () {
           const invalidReceiver = this.token;
           await expectRevert.unspecified(
-            this.token.safeTransferFrom(
-              multiTokenHolder,
-              invalidReceiver.address,
-              firstTokenId,
-              firstAmount,
-              '0x',
-              {
-                from: multiTokenHolder,
-              },
-            ),
+            this.token.safeTransferFrom(multiTokenHolder, invalidReceiver.address, firstTokenId, firstAmount, '0x', {
+              from: multiTokenHolder,
+            }),
           );
         });
       });
@@ -560,20 +484,14 @@ function shouldBehaveLikeERC1155([
 
       function batchTransferWasSuccessful({ operator, from, ids, values }) {
         it('debits transferred balances from sender', async function () {
-          const newBalances = await this.token.balanceOfBatch(
-            new Array(ids.length).fill(from),
-            ids,
-          );
+          const newBalances = await this.token.balanceOfBatch(new Array(ids.length).fill(from), ids);
           for (const newBalance of newBalances) {
             expect(newBalance).to.be.a.bignumber.equal('0');
           }
         });
 
         it('credits transferred balances to receiver', async function () {
-          const newBalances = await this.token.balanceOfBatch(
-            new Array(ids.length).fill(this.toWhom),
-            ids,
-          );
+          const newBalances = await this.token.balanceOfBatch(new Array(ids.length).fill(this.toWhom), ids);
           for (let i = 0; i < newBalances.length; i++) {
             expect(newBalances[i]).to.be.a.bignumber.equal(values[i]);
           }
@@ -694,18 +612,13 @@ function shouldBehaveLikeERC1155([
           });
 
           it('calls onERC1155BatchReceived', async function () {
-            await expectEvent.inTransaction(
-              this.transferReceipt.tx,
-              ERC1155ReceiverMock,
-              'BatchReceived',
-              {
-                operator: multiTokenHolder,
-                from: multiTokenHolder,
-                // ids: [firstTokenId, secondTokenId],
-                // values: [firstAmount, secondAmount],
-                data: null,
-              },
-            );
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'BatchReceived', {
+              operator: multiTokenHolder,
+              from: multiTokenHolder,
+              // ids: [firstTokenId, secondTokenId],
+              // values: [firstAmount, secondAmount],
+              data: null,
+            });
           });
         });
 
@@ -732,18 +645,13 @@ function shouldBehaveLikeERC1155([
           });
 
           it('calls onERC1155Received', async function () {
-            await expectEvent.inTransaction(
-              this.transferReceipt.tx,
-              ERC1155ReceiverMock,
-              'BatchReceived',
-              {
-                operator: multiTokenHolder,
-                from: multiTokenHolder,
-                // ids: [firstTokenId, secondTokenId],
-                // values: [firstAmount, secondAmount],
-                data,
-              },
-            );
+            await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'BatchReceived', {
+              operator: multiTokenHolder,
+              from: multiTokenHolder,
+              // ids: [firstTokenId, secondTokenId],
+              // values: [firstAmount, secondAmount],
+              data,
+            });
           });
         });
       });
@@ -827,18 +735,13 @@ function shouldBehaveLikeERC1155([
         });
 
         it('calls onERC1155BatchReceived', async function () {
-          await expectEvent.inTransaction(
-            this.transferReceipt.tx,
-            ERC1155ReceiverMock,
-            'BatchReceived',
-            {
-              operator: multiTokenHolder,
-              from: multiTokenHolder,
-              // ids: [firstTokenId, secondTokenId],
-              // values: [firstAmount, secondAmount],
-              data: null,
-            },
-          );
+          await expectEvent.inTransaction(this.transferReceipt.tx, ERC1155ReceiverMock, 'BatchReceived', {
+            operator: multiTokenHolder,
+            from: multiTokenHolder,
+            // ids: [firstTokenId, secondTokenId],
+            // values: [firstAmount, secondAmount],
+            data: null,
+          });
         });
       });
 

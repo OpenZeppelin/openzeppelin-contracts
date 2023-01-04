@@ -36,11 +36,7 @@ async function domainSeparator({ name, version, chainId, verifyingContract }) {
 
 async function hashTypedData(domain, structHash) {
   return domainSeparator(domain).then(separator =>
-    bufferToHexString(
-      keccak256(
-        Buffer.concat(['0x1901', separator, structHash].map(str => hexStringToBuffer(str))),
-      ),
-    ),
+    bufferToHexString(keccak256(Buffer.concat(['0x1901', separator, structHash].map(str => hexStringToBuffer(str))))),
   );
 }
 

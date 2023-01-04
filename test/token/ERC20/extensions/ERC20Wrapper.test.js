@@ -24,9 +24,7 @@ contract('ERC20', function (accounts) {
   });
 
   afterEach(async function () {
-    expect(await this.underlying.balanceOf(this.token.address)).to.be.bignumber.equal(
-      await this.token.totalSupply(),
-    );
+    expect(await this.underlying.balanceOf(this.token.address)).to.be.bignumber.equal(await this.token.totalSupply());
   });
 
   it('has a name', async function () {

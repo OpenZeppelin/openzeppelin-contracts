@@ -22,9 +22,7 @@ function shouldBehaveLikeRegularContext(sender) {
     let callData;
 
     beforeEach(async function () {
-      callData = this.context.contract.methods
-        .msgData(integerValue.toString(), stringValue)
-        .encodeABI();
+      callData = this.context.contract.methods.msgData(integerValue.toString(), stringValue).encodeABI();
     });
 
     it('returns the transaction data when called from an EOA', async function () {

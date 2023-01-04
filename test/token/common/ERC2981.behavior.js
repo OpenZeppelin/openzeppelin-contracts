@@ -60,10 +60,7 @@ function shouldBehaveLikeERC2981() {
     });
 
     it('reverts if invalid parameters', async function () {
-      await expectRevert(
-        this.token.$_setDefaultRoyalty(ZERO_ADDRESS, royaltyFraction),
-        'ERC2981: invalid receiver',
-      );
+      await expectRevert(this.token.$_setDefaultRoyalty(ZERO_ADDRESS, royaltyFraction), 'ERC2981: invalid receiver');
 
       await expectRevert(
         this.token.$_setDefaultRoyalty(this.account1, new BN('11000')),

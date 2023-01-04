@@ -1,8 +1,6 @@
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
-const {
-  shouldSupportInterfaces,
-} = require('../../../utils/introspection/SupportsInterface.behavior');
+const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
 
 const { expect } = require('chai');
 
@@ -24,12 +22,7 @@ contract('ERC721PresetMinterPauserAutoId', function (accounts) {
     });
   });
 
-  shouldSupportInterfaces([
-    'ERC721',
-    'ERC721Enumerable',
-    'AccessControl',
-    'AccessControlEnumerable',
-  ]);
+  shouldSupportInterfaces(['ERC721', 'ERC721Enumerable', 'AccessControl', 'AccessControlEnumerable']);
 
   it('token has correct name', async function () {
     expect(await this.token.name()).to.equal(name);
@@ -94,10 +87,7 @@ contract('ERC721PresetMinterPauserAutoId', function (accounts) {
     it('cannot mint while paused', async function () {
       await this.token.pause({ from: deployer });
 
-      await expectRevert(
-        this.token.mint(other, { from: deployer }),
-        'ERC721Pausable: token transfer while paused',
-      );
+      await expectRevert(this.token.mint(other, { from: deployer }), 'ERC721Pausable: token transfer while paused');
     });
 
     it('other accounts cannot pause', async function () {

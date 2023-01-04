@@ -142,17 +142,11 @@ contract('SafeCast', async function () {
     });
 
     it(`reverts when casting INT256_MAX + 1 (${maxInt256.addn(1)})`, async function () {
-      await expectRevert(
-        this.safeCast.$toInt256(maxInt256.addn(1)),
-        "SafeCast: value doesn't fit in an int256",
-      );
+      await expectRevert(this.safeCast.$toInt256(maxInt256.addn(1)), "SafeCast: value doesn't fit in an int256");
     });
 
     it(`reverts when casting UINT256_MAX (${maxUint256})`, async function () {
-      await expectRevert(
-        this.safeCast.$toInt256(maxUint256),
-        "SafeCast: value doesn't fit in an int256",
-      );
+      await expectRevert(this.safeCast.$toInt256(maxUint256), "SafeCast: value doesn't fit in an int256");
     });
   });
 });

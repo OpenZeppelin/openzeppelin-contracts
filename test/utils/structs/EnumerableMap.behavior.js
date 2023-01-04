@@ -10,15 +10,13 @@ function shouldBehaveLikeMap(keys, values, zeroValue, methods, events) {
   async function expectMembersMatch(map, keys, values) {
     expect(keys.length).to.equal(values.length);
 
-    await Promise.all(
-      keys.map(async key => expect(await methods.contains(map, key)).to.equal(true)),
-    );
+    await Promise.all(keys.map(async key => expect(await methods.contains(map, key)).to.equal(true)));
 
     expect(await methods.length(map)).to.bignumber.equal(keys.length.toString());
 
-    expect(
-      (await Promise.all(keys.map(key => methods.get(map, key)))).map(k => k.toString()),
-    ).to.have.same.members(values.map(value => value.toString()));
+    expect((await Promise.all(keys.map(key => methods.get(map, key)))).map(k => k.toString())).to.have.same.members(
+      values.map(value => value.toString()),
+    );
 
     // To compare key-value pairs, we zip keys and values, and convert BNs to
     // strings to workaround Chai limitations when dealing with nested arrays
@@ -37,9 +35,7 @@ function shouldBehaveLikeMap(keys, values, zeroValue, methods, events) {
     );
 
     // This also checks that both arrays have the same length
-    expect((await methods.keys(map)).map(k => k.toString())).to.have.same.members(
-      keys.map(key => key.toString()),
-    );
+    expect((await methods.keys(map)).map(k => k.toString())).to.have.same.members(keys.map(key => key.toString()));
   }
 
   it('starts empty', async function () {
@@ -151,9 +147,7 @@ function shouldBehaveLikeMap(keys, values, zeroValue, methods, events) {
 
     describe('get', function () {
       it('existing value', async function () {
-        expect(await methods.get(this.map, keyA).then(r => r.toString())).to.be.equal(
-          valueA.toString(),
-        );
+        expect(await methods.get(this.map, keyA).then(r => r.toString())).to.be.equal(valueA.toString());
       });
       it('missing value', async function () {
         await expectRevert(methods.get(this.map, keyB), 'EnumerableMap: nonexistent key');
@@ -162,17 +156,12 @@ function shouldBehaveLikeMap(keys, values, zeroValue, methods, events) {
 
     describe('get with message', function () {
       it('existing value', async function () {
-        expect(
-          await methods
-            .getWithMessage(this.map, keyA, 'custom error string')
-            .then(r => r.toString()),
-        ).to.be.equal(valueA.toString());
+        expect(await methods.getWithMessage(this.map, keyA, 'custom error string').then(r => r.toString())).to.be.equal(
+          valueA.toString(),
+        );
       });
       it('missing value', async function () {
-        await expectRevert(
-          methods.getWithMessage(this.map, keyB, 'custom error string'),
-          'custom error string',
-        );
+        await expectRevert(methods.getWithMessage(this.map, keyB, 'custom error string'), 'custom error string');
       });
     });
 
