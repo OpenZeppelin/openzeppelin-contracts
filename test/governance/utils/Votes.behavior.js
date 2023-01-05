@@ -265,16 +265,30 @@ function shouldBehaveLikeVotes () {
       });
 
       it('generally returns the voting balance at the appropriate checkpoint', async function () {
+        // get method signatures
+        // - parse function name and args
+        // - find the first function with name 'burn' that as one of the supported signatures
+        // - keep the args
+        const burnArgs = Object.keys(this.votes.methods)
+          .map(method => method.match(/^(?<name>\w+)\((?<args>(\w+,?)+)\)$/)?.groups)
+          .find(method => method?.name === 'burn' && ['uint256', 'address,uint256'].includes(method?.args))
+          .args;
+
+        const burnPrefix = {
+          'uint256': [],
+          'address,uint256': [this.account1],
+        }[burnArgs];
+
         const t1 = await this.votes.mint(this.account1, this.token1);
         await time.advanceBlock();
         await time.advanceBlock();
-        const t2 = await this.votes.burn(this.account1, this.token1);
+        const t2 = await this.votes.burn(...burnPrefix, this.token1);
         await time.advanceBlock();
         await time.advanceBlock();
         const t3 = await this.votes.mint(this.account1, this.token2);
         await time.advanceBlock();
         await time.advanceBlock();
-        const t4 = await this.votes.burn(this.account1, this.token2);
+        const t4 = await this.votes.burn(...burnPrefix, this.token2);
         await time.advanceBlock();
         await time.advanceBlock();
         const t5 = await this.votes.mint(this.account1, this.token3);
