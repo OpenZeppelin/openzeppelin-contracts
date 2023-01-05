@@ -288,7 +288,8 @@ contract('ERC20', function (accounts) {
   });
 
   describe('_update', function () {
-    const amount = initialSupply + 1;
+    const amount = 1;
+    
     it('from is the zero address', async function () {
       const totalSupply = await this.token.totalSupply();
       const newSupply = totalSupply.add(new BN(amount));
