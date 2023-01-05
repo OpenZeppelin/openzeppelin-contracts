@@ -253,10 +253,10 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
         await this.votes.mint(accounts[1], tokens[0]);
         await time.advanceBlock();
         await time.advanceBlock();
-        await this.votes.burn(... fungible ? [accounts[1]] : [], tokens[0]);
+        await this.votes.burn(...fungible ? [accounts[1]] : [], tokens[0]);
         await time.advanceBlock();
 
-        expect(await this.votes.getPastTotalSupply(blockNumber    )).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(blockNumber)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastTotalSupply(blockNumber + 1)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastTotalSupply(blockNumber + 2)).to.be.bignumber.equal(getWeight(tokens[0]));
         expect(await this.votes.getPastTotalSupply(blockNumber + 3)).to.be.bignumber.equal(getWeight(tokens[0]));
@@ -272,13 +272,13 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
         await time.advanceBlock();
         await this.votes.mint(accounts[1], tokens[1]); // mint 1
         await time.advanceBlock();
-        await this.votes.burn(... fungible ? [accounts[1]] : [], tokens[1]); // burn 1
+        await this.votes.burn(...fungible ? [accounts[1]] : [], tokens[1]); // burn 1
         await time.advanceBlock();
         await this.votes.mint(accounts[1], tokens[2]); // mint 2
         await time.advanceBlock();
-        await this.votes.burn(... fungible ? [accounts[1]] : [], tokens[0]); // burn 0
+        await this.votes.burn(...fungible ? [accounts[1]] : [], tokens[0]); // burn 0
         await time.advanceBlock();
-        await this.votes.burn(... fungible ? [accounts[1]] : [], tokens[2]); // burn 2
+        await this.votes.burn(...fungible ? [accounts[1]] : [], tokens[2]); // burn 2
         await time.advanceBlock();
 
         const weight = tokens.map(getWeight);

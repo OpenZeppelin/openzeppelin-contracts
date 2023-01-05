@@ -9,7 +9,6 @@ const {
 const Votes = artifacts.require('VotesMock');
 
 contract('Votes', function (accounts) {
-
   const [ account1, account2, account3 ] = accounts;
   const tokens = [
     '10000000000000000000000000',
@@ -59,10 +58,20 @@ contract('Votes', function (accounts) {
 
       await this.votes.delegate(account2, account1);
 
-      expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(this.amounts[account1].add(this.amounts[account2]));
+      expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(
+        this.amounts[account1].add(this.amounts[account2]),
+      );
       expect(await this.votes.getVotes(account2)).to.be.bignumber.equal('0');
       expect(await this.votes.delegates(account1)).to.be.equal(account1);
       expect(await this.votes.delegates(account2)).to.be.equal(account1);
+    });
+
+    it('cross delegates', async function () {
+      await this.votes.delegate(account1, account2);
+      await this.votes.delegate(account2, account1);
+
+      expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(this.amounts[account2]);
+      expect(await this.votes.getVotes(account2)).to.be.bignumber.equal(this.amounts[account1]);
     });
 
     it('returns total amount of votes', async function () {
