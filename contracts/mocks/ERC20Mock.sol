@@ -40,7 +40,11 @@ contract ERC20Mock is ERC20 {
     }
 
     // Exposed for testing purposes
-    function update(address from, address to, uint256 amount) public {
+    function update(
+        address from,
+        address to,
+        uint256 amount
+    ) public {
         _update(from, to, amount);
     }
 }

@@ -293,7 +293,7 @@ contract('ERC20', function (accounts) {
       const totalSupply = await this.token.totalSupply();
       const newSupply = totalSupply.add(new BN(amount));
       await this.token.update(ZERO_ADDRESS, recipient, amount);
-      
+
       expect(await this.token.totalSupply()).to.be.bignumber.equal(newSupply);
       expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(amount);
     });
@@ -302,17 +302,17 @@ contract('ERC20', function (accounts) {
       const totalSupply = await this.token.totalSupply();
       const burnAmount = await this.token.balanceOf(initialHolder);
       await this.token.update(initialHolder, ZERO_ADDRESS, burnAmount);
-      
+
       expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply.sub(burnAmount));
       expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(new BN(0));
-    }); 
+    });
 
     describe('from and to are the zero address', function () {
       it('total supply not affected', async function () {
         const totalSupply = await this.token.totalSupply();
 
         await this.token.update(ZERO_ADDRESS, ZERO_ADDRESS, amount);
-        
+
         expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply);
       });
 
@@ -323,7 +323,6 @@ contract('ERC20', function (accounts) {
           { from: ZERO_ADDRESS, to: ZERO_ADDRESS, value: amount },
         );
       });
-
     });
   });
 
