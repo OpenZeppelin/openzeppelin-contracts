@@ -7,7 +7,11 @@ import "../token/ERC721/extensions/ERC721Royalty.sol";
 contract ERC721RoyaltyMock is ERC721Royalty {
     constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
 
-    function setTokenRoyalty(uint256 tokenId, address recipient, uint96 fraction) public {
+    function setTokenRoyalty(
+        uint256 tokenId,
+        address recipient,
+        uint96 fraction
+    ) public {
         _setTokenRoyalty(tokenId, recipient, fraction);
     }
 

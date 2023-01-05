@@ -47,15 +47,27 @@ contract SafeMathMock {
         return SafeMath.mod(a, b);
     }
 
-    function subWithMessage(uint256 a, uint256 b, string memory errorMessage) public pure returns (uint256) {
+    function subWithMessage(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) public pure returns (uint256) {
         return SafeMath.sub(a, b, errorMessage);
     }
 
-    function divWithMessage(uint256 a, uint256 b, string memory errorMessage) public pure returns (uint256) {
+    function divWithMessage(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) public pure returns (uint256) {
         return SafeMath.div(a, b, errorMessage);
     }
 
-    function modWithMessage(uint256 a, uint256 b, string memory errorMessage) public pure returns (uint256) {
+    function modWithMessage(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) public pure returns (uint256) {
         return SafeMath.mod(a, b, errorMessage);
     }
 
