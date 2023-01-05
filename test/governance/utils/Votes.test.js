@@ -10,12 +10,11 @@ const Votes = artifacts.require('VotesMock');
 
 contract('Votes', function (accounts) {
   const [ account1, account2, account3 ] = accounts;
-  const tokens = [
-    '10000000000000000000000000',
-    '10',
-    '20',
-    '30',
-  ].map(web3.utils.toBN);
+  const amounts = {
+    [account1]: web3.utils.toBN('10000000000000000000000000'),
+    [account2]: web3.utils.toBN('10'),
+    [account3]: web3.utils.toBN('20'),
+  };
 
   beforeEach(async function () {
     this.name = 'My Vote';
@@ -28,12 +27,7 @@ contract('Votes', function (accounts) {
 
   describe('performs voting operations', function () {
     beforeEach(async function () {
-      this.amounts = {
-        [account1]: web3.utils.toBN(1),
-        [account2]: web3.utils.toBN(17),
-        [account3]: web3.utils.toBN(42),
-      };
-      this.txs = await Promise.all(Object.entries(this.amounts).map(kv => this.votes.mint(...kv)));
+      this.txs = await Promise.all(Object.entries(amounts).map(kv => this.votes.mint(...kv)));
     });
 
     it('reverts if block number >= current block', async function () {
@@ -51,16 +45,14 @@ contract('Votes', function (accounts) {
 
       await this.votes.delegate(account1, account1);
 
-      expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(this.amounts[account1]);
+      expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(amounts[account1]);
       expect(await this.votes.getVotes(account2)).to.be.bignumber.equal('0');
       expect(await this.votes.delegates(account1)).to.be.equal(account1);
       expect(await this.votes.delegates(account2)).to.be.equal(constants.ZERO_ADDRESS);
 
       await this.votes.delegate(account2, account1);
 
-      expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(
-        this.amounts[account1].add(this.amounts[account2]),
-      );
+      expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(amounts[account1].add(amounts[account2]));
       expect(await this.votes.getVotes(account2)).to.be.bignumber.equal('0');
       expect(await this.votes.delegates(account1)).to.be.equal(account1);
       expect(await this.votes.delegates(account2)).to.be.equal(account1);
@@ -70,12 +62,12 @@ contract('Votes', function (accounts) {
       await this.votes.delegate(account1, account2);
       await this.votes.delegate(account2, account1);
 
-      expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(this.amounts[account2]);
-      expect(await this.votes.getVotes(account2)).to.be.bignumber.equal(this.amounts[account1]);
+      expect(await this.votes.getVotes(account1)).to.be.bignumber.equal(amounts[account2]);
+      expect(await this.votes.getVotes(account2)).to.be.bignumber.equal(amounts[account1]);
     });
 
     it('returns total amount of votes', async function () {
-      const totalSupply = Object.values(this.amounts).reduce((acc, value) => acc.add(value), web3.utils.toBN(0));
+      const totalSupply = Object.values(amounts).reduce((acc, value) => acc.add(value), web3.utils.toBN(0));
       expect(await this.votes.getTotalSupply()).to.be.bignumber.equal(totalSupply);
     });
   });
@@ -85,6 +77,6 @@ contract('Votes', function (accounts) {
       this.chainId = await this.votes.getChainId();
     });
 
-    shouldBehaveLikeVotes(accounts, tokens);
+    shouldBehaveLikeVotes(accounts, Object.values(amounts));
   });
 });
