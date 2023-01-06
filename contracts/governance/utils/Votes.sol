@@ -29,17 +29,25 @@ import "./IVotes.sol";
  * _Available since v4.5._
  */
 abstract contract Votes is IVotes, Context, EIP712 {
-    using Checkpoints for Checkpoints.History;
+    using Checkpoints for Checkpoints.Trace224;
     using Counters for Counters.Counter;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping(address => address) private _delegation;
-    mapping(address => Checkpoints.History) private _delegateCheckpoints;
-    Checkpoints.History private _totalCheckpoints;
+    mapping(address => Checkpoints.Trace224) private _delegateCheckpoints;
+    Checkpoints.Trace224 private _totalCheckpoints;
 
     mapping(address => Counters.Counter) private _nonces;
+
+    /**
+     * @dev Clock used for flagging checkpoints. Can be overriden to implement timestamp based checkpoints (and voting).
+     * See EIP 5805.
+     */
+    function clock() public view virtual returns (uint256) {
+        return block.number;
+    }
 
     /**
      * @dev Returns the current amount of votes that `account` has.
@@ -55,8 +63,9 @@ abstract contract Votes is IVotes, Context, EIP712 {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return _delegateCheckpoints[account].getAtProbablyRecentBlock(blockNumber);
+    function getPastVotes(address account, uint256 timepoint) public view virtual override returns (uint256) {
+        require(timepoint < clock(), "Votes: future lookup");
+        return _delegateCheckpoints[account].upperLookup(SafeCast.toUint32(timepoint)); // optimistic ?
     }
 
     /**
@@ -70,9 +79,9 @@ abstract contract Votes is IVotes, Context, EIP712 {
      *
      * - `blockNumber` must have been already mined
      */
-    function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
-        require(blockNumber < block.number, "Votes: block not yet mined");
-        return _totalCheckpoints.getAtProbablyRecentBlock(blockNumber);
+    function getPastTotalSupply(uint256 timepoint) public view virtual override returns (uint256) {
+        require(timepoint < clock(), "Votes: future lookup");
+        return _totalCheckpoints.upperLookup(SafeCast.toUint32(timepoint)); // optimistic ?
     }
 
     /**
@@ -138,10 +147,10 @@ abstract contract Votes is IVotes, Context, EIP712 {
      */
     function _transferVotingUnits(address from, address to, uint256 amount) internal virtual {
         if (from == address(0)) {
-            _totalCheckpoints.push(_add, amount);
+            _push(_totalCheckpoints, _add, SafeCast.toUint224(amount));
         }
         if (to == address(0)) {
-            _totalCheckpoints.push(_subtract, amount);
+            _push(_totalCheckpoints, _subtract, SafeCast.toUint224(amount));
         }
         _moveDelegateVotes(delegates(from), delegates(to), amount);
     }
@@ -152,21 +161,37 @@ abstract contract Votes is IVotes, Context, EIP712 {
     function _moveDelegateVotes(address from, address to, uint256 amount) private {
         if (from != to && amount > 0) {
             if (from != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(_subtract, amount);
+                (uint256 oldValue, uint256 newValue) = _push(
+                    _delegateCheckpoints[from],
+                    _subtract,
+                    SafeCast.toUint224(amount)
+                );
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
             if (to != address(0)) {
-                (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(_add, amount);
+                (uint256 oldValue, uint256 newValue) = _push(
+                    _delegateCheckpoints[to],
+                    _add,
+                    SafeCast.toUint224(amount)
+                );
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
         }
     }
 
-    function _add(uint256 a, uint256 b) private pure returns (uint256) {
+    function _push(
+        Checkpoints.Trace224 storage store,
+        function(uint224, uint224) view returns (uint224) op,
+        uint224 delta
+    ) private returns (uint224, uint224) {
+        return store.push(SafeCast.toUint32(clock()), op(store.latest(), delta));
+    }
+
+    function _add(uint224 a, uint224 b) private pure returns (uint224) {
         return a + b;
     }
 
-    function _subtract(uint256 a, uint256 b) private pure returns (uint256) {
+    function _subtract(uint224 a, uint224 b) private pure returns (uint224) {
         return a - b;
     }
 
