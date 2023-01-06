@@ -64,7 +64,11 @@ interface IERC1820Registry {
      * queried for support, unless `implementer` is the caller. See
      * {IERC1820Implementer-canImplementInterfaceForAddress}.
      */
-    function setInterfaceImplementer(address account, bytes32 _interfaceHash, address implementer) external;
+    function setInterfaceImplementer(
+        address account,
+        bytes32 _interfaceHash,
+        address implementer
+    ) external;
 
     /**
      * @dev Returns the implementer of `interfaceHash` for `account`. If no such

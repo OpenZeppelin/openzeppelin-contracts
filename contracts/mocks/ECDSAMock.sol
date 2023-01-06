@@ -13,12 +13,21 @@ contract ECDSAMock {
     }
 
     // solhint-disable-next-line func-name-mixedcase
-    function recover_v_r_s(bytes32 hash, uint8 v, bytes32 r, bytes32 s) public pure returns (address) {
+    function recover_v_r_s(
+        bytes32 hash,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public pure returns (address) {
         return hash.recover(v, r, s);
     }
 
     // solhint-disable-next-line func-name-mixedcase
-    function recover_r_vs(bytes32 hash, bytes32 r, bytes32 vs) public pure returns (address) {
+    function recover_r_vs(
+        bytes32 hash,
+        bytes32 r,
+        bytes32 vs
+    ) public pure returns (address) {
         return hash.recover(r, vs);
     }
 

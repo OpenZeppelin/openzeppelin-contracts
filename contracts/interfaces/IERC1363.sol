@@ -38,7 +38,11 @@ interface IERC1363 is IERC165, IERC20 {
      * @param data bytes Additional data with no specified format, sent in call to `to`
      * @return true unless throwing
      */
-    function transferAndCall(address to, uint256 value, bytes memory data) external returns (bool);
+    function transferAndCall(
+        address to,
+        uint256 value,
+        bytes memory data
+    ) external returns (bool);
 
     /**
      * @dev Transfer tokens from one address to another and then call `onTransferReceived` on receiver
@@ -47,7 +51,11 @@ interface IERC1363 is IERC165, IERC20 {
      * @param value uint256 The amount of tokens to be transferred
      * @return true unless throwing
      */
-    function transferFromAndCall(address from, address to, uint256 value) external returns (bool);
+    function transferFromAndCall(
+        address from,
+        address to,
+        uint256 value
+    ) external returns (bool);
 
     /**
      * @dev Transfer tokens from one address to another and then call `onTransferReceived` on receiver
@@ -57,7 +65,12 @@ interface IERC1363 is IERC165, IERC20 {
      * @param data bytes Additional data with no specified format, sent in call to `to`
      * @return true unless throwing
      */
-    function transferFromAndCall(address from, address to, uint256 value, bytes memory data) external returns (bool);
+    function transferFromAndCall(
+        address from,
+        address to,
+        uint256 value,
+        bytes memory data
+    ) external returns (bool);
 
     /**
      * @dev Approve the passed address to spend the specified amount of tokens on behalf of msg.sender
@@ -74,5 +87,9 @@ interface IERC1363 is IERC165, IERC20 {
      * @param value uint256 The amount of tokens to be spent
      * @param data bytes Additional data with no specified format, sent in call to `spender`
      */
-    function approveAndCall(address spender, uint256 value, bytes memory data) external returns (bool);
+    function approveAndCall(
+        address spender,
+        uint256 value,
+        bytes memory data
+    ) external returns (bool);
 }

@@ -70,16 +70,16 @@ contract MathTest is Test {
             assertFalse(rounding == Math.Rounding.Up);
             assertTrue(_powerOf2Bigger(result + 1, input));
         } else {
-            assertEq(2 ** result, input);
+            assertEq(2**result, input);
         }
     }
 
     function _powerOf2Bigger(uint256 value, uint256 ref) private pure returns (bool) {
-        return value >= 256 || 2 ** value > ref; // 2**256 overflows uint256
+        return value >= 256 || 2**value > ref; // 2**256 overflows uint256
     }
 
     function _powerOf2Smaller(uint256 value, uint256 ref) private pure returns (bool) {
-        return 2 ** value < ref;
+        return 2**value < ref;
     }
 
     // LOG10
@@ -97,16 +97,16 @@ contract MathTest is Test {
             assertFalse(rounding == Math.Rounding.Up);
             assertTrue(_powerOf10Bigger(result + 1, input));
         } else {
-            assertEq(10 ** result, input);
+            assertEq(10**result, input);
         }
     }
 
     function _powerOf10Bigger(uint256 value, uint256 ref) private pure returns (bool) {
-        return value >= 78 || 10 ** value > ref; // 10**78 overflows uint256
+        return value >= 78 || 10**value > ref; // 10**78 overflows uint256
     }
 
     function _powerOf10Smaller(uint256 value, uint256 ref) private pure returns (bool) {
-        return 10 ** value < ref;
+        return 10**value < ref;
     }
 
     // LOG256
@@ -124,20 +124,24 @@ contract MathTest is Test {
             assertFalse(rounding == Math.Rounding.Up);
             assertTrue(_powerOf256Bigger(result + 1, input));
         } else {
-            assertEq(256 ** result, input);
+            assertEq(256**result, input);
         }
     }
 
     function _powerOf256Bigger(uint256 value, uint256 ref) private pure returns (bool) {
-        return value >= 32 || 256 ** value > ref; // 256**32 overflows uint256
+        return value >= 32 || 256**value > ref; // 256**32 overflows uint256
     }
 
     function _powerOf256Smaller(uint256 value, uint256 ref) private pure returns (bool) {
-        return 256 ** value < ref;
+        return 256**value < ref;
     }
 
     // MULDIV
-    function testMulDiv(uint256 x, uint256 y, uint256 d) public {
+    function testMulDiv(
+        uint256 x,
+        uint256 y,
+        uint256 d
+    ) public {
         // Full precision for x * y
         (uint256 xyHi, uint256 xyLo) = _mulHighLow(x, y);
 
@@ -159,7 +163,11 @@ contract MathTest is Test {
         assertEq(xyLo, qdRemLo);
     }
 
-    function testMulDivDomain(uint256 x, uint256 y, uint256 d) public {
+    function testMulDivDomain(
+        uint256 x,
+        uint256 y,
+        uint256 d
+    ) public {
         (uint256 xyHi, ) = _mulHighLow(x, y);
 
         // Violate {testMulDiv} assumption (covers d is 0 and result overflow)
@@ -172,7 +180,11 @@ contract MathTest is Test {
     }
 
     // External call
-    function muldiv(uint256 x, uint256 y, uint256 d) external pure returns (uint256) {
+    function muldiv(
+        uint256 x,
+        uint256 y,
+        uint256 d
+    ) external pure returns (uint256) {
         return Math.mulDiv(x, y, d);
     }
 
@@ -182,7 +194,11 @@ contract MathTest is Test {
         return Math.Rounding(r);
     }
 
-    function _mulmod(uint256 x, uint256 y, uint256 z) private pure returns (uint256 r) {
+    function _mulmod(
+        uint256 x,
+        uint256 y,
+        uint256 z
+    ) private pure returns (uint256 r) {
         assembly {
             r := mulmod(x, y, z)
         }

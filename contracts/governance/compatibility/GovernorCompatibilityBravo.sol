@@ -118,10 +118,11 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     /**
      * @dev Encodes calldatas with optional function signature.
      */
-    function _encodeCalldata(
-        string[] memory signatures,
-        bytes[] memory calldatas
-    ) private pure returns (bytes[] memory) {
+    function _encodeCalldata(string[] memory signatures, bytes[] memory calldatas)
+        private
+        pure
+        returns (bytes[] memory)
+    {
         bytes[] memory fullcalldatas = new bytes[](calldatas.length);
 
         for (uint256 i = 0; i < signatures.length; ++i) {
@@ -162,9 +163,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     /**
      * @dev See {IGovernorCompatibilityBravo-proposals}.
      */
-    function proposals(
-        uint256 proposalId
-    )
+    function proposals(uint256 proposalId)
         public
         view
         virtual
@@ -201,9 +200,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     /**
      * @dev See {IGovernorCompatibilityBravo-getActions}.
      */
-    function getActions(
-        uint256 proposalId
-    )
+    function getActions(uint256 proposalId)
         public
         view
         virtual
