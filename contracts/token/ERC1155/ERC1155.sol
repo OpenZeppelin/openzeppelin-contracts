@@ -186,9 +186,11 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             }
         }
         if (ids.length == 1) {
-            emit TransferSingle(operator, from, to, ids[0], amounts[0]);
+            uint256 id = ids[0];
+            uint256 amount = amounts[0];
+            emit TransferSingle(operator, from, to, id, amount);
             if (to != address(0)) {
-                _doSafeTransferAcceptanceCheck(operator, from, to, ids[0], amounts[0], data);
+                _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
             }
         } else {
             emit TransferBatch(operator, from, to, ids, amounts);
