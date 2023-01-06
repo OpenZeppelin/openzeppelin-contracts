@@ -50,7 +50,9 @@ abstract contract IGovernorCompatibilityBravo is IGovernor {
     /**
      * @dev Part of the Governor Bravo's interface: _"The official record of all proposals ever proposed"_.
      */
-    function proposals(uint256)
+    function proposals(
+        uint256
+    )
         public
         view
         virtual
@@ -96,7 +98,9 @@ abstract contract IGovernorCompatibilityBravo is IGovernor {
     /**
      * @dev Part of the Governor Bravo's interface: _"Gets actions of a proposal"_.
      */
-    function getActions(uint256 proposalId)
+    function getActions(
+        uint256 proposalId
+    )
         public
         view
         virtual

@@ -29,11 +29,7 @@ contract TokenTimelock {
      * `beneficiary_` when {release} is invoked after `releaseTime_`. The release time is specified as a Unix timestamp
      * (in seconds).
      */
-    constructor(
-        IERC20 token_,
-        address beneficiary_,
-        uint256 releaseTime_
-    ) {
+    constructor(IERC20 token_, address beneficiary_, uint256 releaseTime_) {
         require(releaseTime_ > block.timestamp, "TokenTimelock: release time is before current time");
         _token = token_;
         _beneficiary = beneficiary_;

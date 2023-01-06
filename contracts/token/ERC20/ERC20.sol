@@ -154,11 +154,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - the caller must have allowance for ``from``'s tokens of at least
      * `amount`.
      */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 amount
-    ) public virtual override returns (bool) {
+    function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
         _transfer(from, to, amount);
@@ -218,11 +214,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * NOTE: This function is not virtual, {_update} should be overridden instead.
      */
-    function _transfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal {
+    function _transfer(address from, address to, uint256 amount) internal {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
         _update(from, to, amount);
@@ -234,11 +226,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * Emits a {Transfer} event.
      */
-    function _update(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {
+    function _update(address from, address to, uint256 amount) internal virtual {
         if (from == address(0)) {
             _totalSupply += amount;
             unchecked {
@@ -306,11 +294,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `owner` cannot be the zero address.
      * - `spender` cannot be the zero address.
      */
-    function _approve(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {
+    function _approve(address owner, address spender, uint256 amount) internal virtual {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
 
@@ -326,11 +310,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      *
      * Might emit an {Approval} event.
      */
-    function _spendAllowance(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {
+    function _spendAllowance(address owner, address spender, uint256 amount) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);
         if (currentAllowance != type(uint256).max) {
             require(currentAllowance >= amount, "ERC20: insufficient allowance");
