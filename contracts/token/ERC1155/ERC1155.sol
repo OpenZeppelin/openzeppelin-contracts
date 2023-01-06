@@ -170,11 +170,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
-            uint256 fromBalance = _balances[id][from];
-            if (to == address(0)) {
-                require(fromBalance >= amount, "ERC1155: burn amount exceeds balance");
-            }
             if (from != address(0)) {
+                uint256 fromBalance = _balances[id][from];
                 require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
                 unchecked {
                     _balances[id][from] = fromBalance - amount;
