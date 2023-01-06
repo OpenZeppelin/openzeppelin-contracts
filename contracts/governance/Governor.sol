@@ -212,7 +212,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
 
     /**
-     * @dev Get the voting weight of `account` at a specific `blockNumber`, for a vote as described by `params`.
+     * @dev Get the voting weight of `account` at a specific `timepoint`, for a vote as described by `params`.
      */
     function _getVotes(
         address account,
@@ -398,8 +398,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     /**
      * @dev See {IGovernor-getVotes}.
      */
-    function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return _getVotes(account, blockNumber, _defaultParams());
+    function getVotes(address account, uint256 timepoint) public view virtual override returns (uint256) {
+        return _getVotes(account, timepoint, _defaultParams());
     }
 
     /**
@@ -407,10 +407,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      */
     function getVotesWithParams(
         address account,
-        uint256 blockNumber,
+        uint256 timepoint,
         bytes memory params
     ) public view virtual override returns (uint256) {
-        return _getVotes(account, blockNumber, params);
+        return _getVotes(account, timepoint, params);
     }
 
     /**

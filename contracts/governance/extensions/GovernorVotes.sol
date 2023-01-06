@@ -34,9 +34,9 @@ abstract contract GovernorVotes is Governor {
      */
     function _getVotes(
         address account,
-        uint256 blockNumber,
+        uint256 timepoint,
         bytes memory /*params*/
     ) internal view virtual override returns (uint256) {
-        return token.getPastVotes(account, blockNumber);
+        return token.getPastVotes(account, timepoint);
     }
 }

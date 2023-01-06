@@ -164,27 +164,27 @@ abstract contract IGovernor is IERC165 {
      * @notice module:user-config
      * @dev Minimum number of cast voted required for a proposal to be successful.
      *
-     * Note: The `blockNumber` parameter corresponds to the snapshot used for counting vote. This allows to scale the
+     * Note: The `timepoint` parameter corresponds to the snapshot used for counting vote. This allows to scale the
      * quorum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
      */
-    function quorum(uint256 blockNumber) public view virtual returns (uint256);
+    function quorum(uint256 timepoint) public view virtual returns (uint256);
 
     /**
      * @notice module:reputation
-     * @dev Voting power of an `account` at a specific `blockNumber`.
+     * @dev Voting power of an `account` at a specific `timepoint`.
      *
      * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
      * multiple), {ERC20Votes} tokens.
      */
-    function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256);
+    function getVotes(address account, uint256 timepoint) public view virtual returns (uint256);
 
     /**
      * @notice module:reputation
-     * @dev Voting power of an `account` at a specific `blockNumber` given additional encoded parameters.
+     * @dev Voting power of an `account` at a specific `timepoint` given additional encoded parameters.
      */
     function getVotesWithParams(
         address account,
-        uint256 blockNumber,
+        uint256 timepoint,
         bytes memory params
     ) public view virtual returns (uint256);
 
