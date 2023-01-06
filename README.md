@@ -69,7 +69,7 @@ This project is maintained by [OpenZeppelin](https://openzeppelin.com) with the 
 
 The security policy is detailed in [`SECURITY.md`](./SECURITY.md), and specifies how you can report security vulnerabilities, which versions will receive security patches, and how to stay informed about them. We run a [bug bounty program on Immunefi](https://immunefi.com/bounty/openzeppelin) to reward the responsible disclosure of vulnerabilities.
 
-The engineering guidelines we follow to ensure project quality can be found in [`GUIDELINES.md`](./GUIDELINES.md).
+The engineering guidelines we follow to promote project quality can be found in [`GUIDELINES.md`](./GUIDELINES.md).
 
 Past audits can be found in [`audits/`](./audits).
 
