@@ -23,11 +23,9 @@ library SignatureChecker {
      */
     function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
         (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(hash, signature);
-        if (error == ECDSA.RecoverError.NoError && recovered == signer) {
-            return true;
-        }
-
-        return isValidERC1271SignatureNow(signer,hash,signature);
+        
+        return (error == ECDSA.RecoverError.NoError && recovered == signer)
+            || isValidERC1271SignatureNow(signer,hash,signature);
     }
 
 
