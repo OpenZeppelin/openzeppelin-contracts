@@ -120,11 +120,7 @@ abstract contract ERC20Snapshot is ERC20 {
 
     // Update balance and/or total supply snapshots before the values are modified. This is executed
     // for _mint, _burn, and _transfer operations.
-    function _update(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual override {
+    function _update(address from, address to, uint256 amount) internal virtual override {
         if (from == address(0)) {
             // mint
             _updateAccountSnapshot(to);

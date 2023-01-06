@@ -96,12 +96,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     /**
      * @dev See {ERC721-_update}. Burning of tokens that have been sequentially minted must be explicit. Restricts normal minting during construction.
      */
-    function _update(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override {
+    function _update(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual override {
         if (from == address(0) && batchSize == 1) {
             // Using {ERC721Consecutive} prevents using {_mint} during construction in favor of {_mintConsecutive}.
             // After construction, {_mintConsecutive} is no longer available and {_mint} becomes available.
