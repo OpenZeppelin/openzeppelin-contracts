@@ -82,6 +82,12 @@ abstract contract IGovernor is IERC165 {
     function version() public view virtual returns (string memory);
 
     /**
+     * @notice module:core
+     * @dev See EIP 5805.
+     */
+    function clock() public view virtual returns (uint256);
+
+    /**
      * @notice module:voting
      * @dev A description of the possible `support` values for {castVote} and the way these votes are counted, meant to
      * be consumed by UIs to show correct vote options and interpret the results. The string is a URL-encoded sequence of

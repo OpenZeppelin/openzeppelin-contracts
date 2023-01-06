@@ -103,7 +103,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         ProposalDetails storage details = _proposalDetails[proposalId];
 
         require(
-            _msgSender() == details.proposer || getVotes(details.proposer, block.number - 1) < proposalThreshold(),
+            _msgSender() == details.proposer || getVotes(details.proposer, clock() - 1) < proposalThreshold(),
             "GovernorBravo: proposer above threshold"
         );
 
@@ -230,7 +230,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
      * @dev See {IGovernorCompatibilityBravo-quorumVotes}.
      */
     function quorumVotes() public view virtual override returns (uint256) {
-        return quorum(block.number - 1);
+        return quorum(clock() - 1);
     }
 
     // ==================================================== Voting ====================================================

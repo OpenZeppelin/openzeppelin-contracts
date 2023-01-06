@@ -19,6 +19,17 @@ abstract contract GovernorVotes is Governor {
     }
 
     /**
+     * See EIP 5805.
+     */
+    function clock() public view virtual override returns (uint256) {
+        try token.clock() returns (uint256 timepoint) {
+            return timepoint;
+        } catch {
+            return block.number;
+        }
+    }
+
+    /**
      * Read the voting weight from the token's built in snapshot mechanism (see {Governor-_getVotes}).
      */
     function _getVotes(

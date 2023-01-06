@@ -22,10 +22,9 @@ import "../../vendor/compound/ICompoundTimelock.sol";
  */
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     using SafeCast for uint256;
-    using Timers for Timers.Timestamp;
 
     struct ProposalTimelock {
-        Timers.Timestamp timer;
+        uint256 timer; // retyped from Timers.Timestamp
     }
 
     ICompoundTimelock private _timelock;
@@ -82,7 +81,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      * @dev Public accessor to check the eta of a queued proposal
      */
     function proposalEta(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposalTimelocks[proposalId].timer.getDeadline();
+        return _proposalTimelocks[proposalId].timer;
     }
 
     /**
@@ -99,7 +98,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful");
 
         uint256 eta = block.timestamp + _timelock.delay();
-        _proposalTimelocks[proposalId].timer.setDeadline(eta.toUint64());
+        _proposalTimelocks[proposalId].timer = eta;
+
         for (uint256 i = 0; i < targets.length; ++i) {
             require(
                 !_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta))),
@@ -148,7 +148,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
             for (uint256 i = 0; i < targets.length; ++i) {
                 _timelock.cancelTransaction(targets[i], values[i], "", calldatas[i], eta);
             }
-            _proposalTimelocks[proposalId].timer.reset();
+            delete _proposalTimelocks[proposalId].timer;
         }
 
         return proposalId;
