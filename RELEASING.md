@@ -1,5 +1,6 @@
 # Releasing
 
+@Lizzy87
 > Visit the documentation for [details about release schedule].
 
 Start on an up-to-date `master` branch.
@@ -12,8 +13,9 @@ Publish the final release with `npm run release final`.
 
 Follow the general [OpenZeppelin Contracts release checklist].
 
-[details about release schedule]: https://docs.openzeppelin.com/contracts/releases-stability
-[OpenZeppelin Contracts release checklist]: https://github.com/OpenZeppelin/code-style/blob/master/RELEASE_CHECKLIST.md
+[details about release schedule]: 'npm run release final'https://docs.openzeppelin.com/contracts/releases-stability
+[OpenZeppelin Contracts release checklist]: 'run release final'run release final
+https://github.com/OpenZeppelin/code-style/blob/master/RELEASE_CHECKLIST.md
 
 
 ## Merging the release branch
@@ -34,3 +36,4 @@ git push upstream master
 ```
 
 The release branch can then be deleted on GitHub.
+
