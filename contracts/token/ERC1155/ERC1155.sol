@@ -149,8 +149,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      *
      * Requirements:
      *
-     * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
-     * acceptance magic value.
+     * - If `to` refers to a smart contract, it must implement either {IERC1155Receiver-onERC1155Received}
+     *   or {IERC1155Receiver-onERC1155BatchReceived} and return the acceptance magic value.
      */
     function _update(
         address from,
