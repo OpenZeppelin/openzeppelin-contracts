@@ -293,14 +293,14 @@ contract('ERC20', function (accounts) {
     it('from is the zero address', async function () {
       const balanceBefore = await this.token.balanceOf(initialHolder);
       const totalSupply = await this.token.totalSupply();
-      
+
       expectEvent(
         await this.token.update(ZERO_ADDRESS, initialHolder, amount),
         'Transfer',
         { from: ZERO_ADDRESS, to: initialHolder, value: amount },
       );
       expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply.add(amount));
-      expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(balanceBefore.add(amount));
+      expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(balanceBefore.add(amount));
     });
 
     it('to is the zero address', async function () {
@@ -312,7 +312,7 @@ contract('ERC20', function (accounts) {
         'Transfer',
         { from: initialHolder, to: ZERO_ADDRESS, value: amount },
       );
-      expect(await this.token.totalSupply()).to.be.bignumber.equal(newSupply.sub(amount));
+      expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply.sub(amount));
       expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(balanceBefore.sub(amount));
     });
 
