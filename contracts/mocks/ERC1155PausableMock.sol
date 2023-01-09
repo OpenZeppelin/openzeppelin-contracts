@@ -22,7 +22,7 @@ contract ERC1155PausableMock is ERC1155Mock, ERC1155Pausable {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual override(ERC1155, ERC1155Pausable) {
+    ) internal override(ERC1155, ERC1155Pausable) {
         super._update(from, to, ids, amounts, data);
     }
 }
