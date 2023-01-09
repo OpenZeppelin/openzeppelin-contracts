@@ -145,7 +145,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev Transfers `amount` tokens of token type `id` from `from` to `to`. Will mint (or burn) if `from` (or `to`) is the zero address.
      *
-     * Emits a {TransferSingle} event if only one transfer is done, and {TransferBatch} event for multiple transfer operations.
+     * Emits a {TransferSingle} event if the arrays contain one element, and {TransferBatch} otherwise.
      *
      * Requirements:
      *
