@@ -179,6 +179,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
                 _balances[id][to] += amount;
             }
         }
+
         if (ids.length == 1) {
             uint256 id = ids[0];
             uint256 amount = amounts[0];
