@@ -231,7 +231,10 @@ contract('ERC721Wrapper', function (accounts) {
     });
 
     it('reverts if there is nothing to recover', async function () {
-      await expectRevert(this.token.$_recover(initialHolder, firstTokenId), 'ERC721Wrapper: wrapper is not token owner');
+      await expectRevert(
+        this.token.$_recover(initialHolder, firstTokenId),
+        'ERC721Wrapper: wrapper is not token owner',
+      );
     });
   });
 
