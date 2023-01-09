@@ -291,28 +291,29 @@ contract('ERC20', function (accounts) {
     const amount = new BN(1);
 
     it('from is the zero address', async function () {
+      const balanceBefore = await this.token.balanceOf(initialHolder);
       const totalSupply = await this.token.totalSupply();
-      const newSupply = totalSupply.add(new BN(amount));
-
+      
       expectEvent(
-        await this.token.update(ZERO_ADDRESS, recipient, amount),
+        await this.token.update(ZERO_ADDRESS, initialHolder, amount),
         'Transfer',
-        { from: ZERO_ADDRESS, to: recipient, value: amount },
+        { from: ZERO_ADDRESS, to: initialHolder, value: amount },
       );
-      expect(await this.token.totalSupply()).to.be.bignumber.equal(newSupply);
-      expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(amount);
+      expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply.add(amount));
+      expect(await this.token.balanceOf(recipient)).to.be.bignumber.equal(balanceBefore.add(amount));
     });
 
     it('to is the zero address', async function () {
+      const balanceBefore = await this.token.balanceOf(initialHolder);
       const totalSupply = await this.token.totalSupply();
-      const burnAmount = await this.token.balanceOf(initialHolder);
+
       expectEvent(
-        await this.token.update(initialHolder, ZERO_ADDRESS, burnAmount),
+        await this.token.update(initialHolder, ZERO_ADDRESS, amount),
         'Transfer',
-        { from: initialHolder, to: ZERO_ADDRESS, value: burnAmount },
+        { from: initialHolder, to: ZERO_ADDRESS, value: amount },
       );
-      expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply.sub(burnAmount));
-      expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(new BN(0));
+      expect(await this.token.totalSupply()).to.be.bignumber.equal(newSupply.sub(amount));
+      expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(balanceBefore.sub(amount));
     });
 
     it('from and to are the zero address', async function () {
