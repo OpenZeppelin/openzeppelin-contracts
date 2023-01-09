@@ -7,6 +7,7 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 const { EIP712Domain, domainSeparator } = require('../../helpers/eip712');
+const { clockFromReceipt } = require('../../helpers/time');
 
 const Delegation = [
   { name: 'delegatee', type: 'address' },
@@ -16,7 +17,7 @@ const Delegation = [
 
 const version = '1';
 
-function shouldBehaveLikeVotes() {
+function shouldBehaveLikeVotes(mode = 'blockNumber') {
   describe('run votes workflow', function () {
     it('initial nonce is 0', async function () {
       expect(await this.votes.nonces(this.account1)).to.be.bignumber.equal('0');
@@ -66,6 +67,8 @@ function shouldBehaveLikeVotes() {
         expect(await this.votes.delegates(delegatorAddress)).to.be.equal(ZERO_ADDRESS);
 
         const { receipt } = await this.votes.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
+        const timepoint = await clockFromReceipt[mode](receipt);
+
         expectEvent(receipt, 'DelegateChanged', {
           delegator: delegatorAddress,
           fromDelegate: ZERO_ADDRESS,
@@ -80,9 +83,9 @@ function shouldBehaveLikeVotes() {
         expect(await this.votes.delegates(delegatorAddress)).to.be.equal(delegatorAddress);
 
         expect(await this.votes.getVotes(delegatorAddress)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastVotes(delegatorAddress, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastVotes(delegatorAddress, timepoint - 1)).to.be.bignumber.equal('0');
         await time.advanceBlock();
-        expect(await this.votes.getPastVotes(delegatorAddress, receipt.blockNumber)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastVotes(delegatorAddress, timepoint)).to.be.bignumber.equal('1');
       });
 
       it('rejects reused signature', async function () {
@@ -168,6 +171,8 @@ function shouldBehaveLikeVotes() {
           expect(await this.votes.delegates(this.account1)).to.be.equal(ZERO_ADDRESS);
 
           const { receipt } = await this.votes.delegate(this.account1, { from: this.account1 });
+          const timepoint = await clockFromReceipt[mode](receipt);
+
           expectEvent(receipt, 'DelegateChanged', {
             delegator: this.account1,
             fromDelegate: ZERO_ADDRESS,
@@ -182,9 +187,9 @@ function shouldBehaveLikeVotes() {
           expect(await this.votes.delegates(this.account1)).to.be.equal(this.account1);
 
           expect(await this.votes.getVotes(this.account1)).to.be.bignumber.equal('1');
-          expect(await this.votes.getPastVotes(this.account1, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+          expect(await this.votes.getPastVotes(this.account1, timepoint - 1)).to.be.bignumber.equal('0');
           await time.advanceBlock();
-          expect(await this.votes.getPastVotes(this.account1, receipt.blockNumber)).to.be.bignumber.equal('1');
+          expect(await this.votes.getPastVotes(this.account1, timepoint)).to.be.bignumber.equal('1');
         });
 
         it('delegation without tokens', async function () {
@@ -213,6 +218,8 @@ function shouldBehaveLikeVotes() {
         expect(await this.votes.delegates(this.account1)).to.be.equal(this.account1);
 
         const { receipt } = await this.votes.delegate(this.account1Delegatee, { from: this.account1 });
+        const timepoint = await clockFromReceipt[mode](receipt);
+
         expectEvent(receipt, 'DelegateChanged', {
           delegator: this.account1,
           fromDelegate: this.account1,
@@ -228,16 +235,16 @@ function shouldBehaveLikeVotes() {
           previousBalance: '0',
           newBalance: '1',
         });
-        const prevBlock = receipt.blockNumber - 1;
+
         expect(await this.votes.delegates(this.account1)).to.be.equal(this.account1Delegatee);
 
         expect(await this.votes.getVotes(this.account1)).to.be.bignumber.equal('0');
         expect(await this.votes.getVotes(this.account1Delegatee)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastVotes(this.account1, receipt.blockNumber - 1)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastVotes(this.account1Delegatee, prevBlock)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastVotes(this.account1, timepoint - 1)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastVotes(this.account1Delegatee, timepoint - 1)).to.be.bignumber.equal('0');
         await time.advanceBlock();
-        expect(await this.votes.getPastVotes(this.account1, receipt.blockNumber)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastVotes(this.account1Delegatee, receipt.blockNumber)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastVotes(this.account1, timepoint)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastVotes(this.account1Delegatee, timepoint)).to.be.bignumber.equal('1');
       });
     });
 
@@ -247,7 +254,7 @@ function shouldBehaveLikeVotes() {
       });
 
       it('reverts if block number >= current block', async function () {
-        await expectRevert(this.votes.getPastTotalSupply(5e10), 'block not yet mined');
+        await expectRevert(this.votes.getPastTotalSupply(5e10), 'future lookup');
       });
 
       it('returns 0 if there are no checkpoints', async function () {
@@ -255,22 +262,24 @@ function shouldBehaveLikeVotes() {
       });
 
       it('returns the latest block if >= last checkpoint block', async function () {
-        const t1 = await this.votes.$_mint(this.account1, this.NFT0);
+        const { receipt } = await this.votes.$_mint(this.account1, this.NFT0);
+        const timepoint = await clockFromReceipt[mode](receipt);
         await time.advanceBlock();
         await time.advanceBlock();
 
-        expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(timepoint - 1)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(timepoint + 1)).to.be.bignumber.equal('1');
       });
 
       it('returns zero if < first checkpoint block', async function () {
         await time.advanceBlock();
-        const t2 = await this.votes.$_mint(this.account1, this.NFT1);
+        const { receipt } = await this.votes.$_mint(this.account1, this.NFT1);
+        const timepoint = await clockFromReceipt[mode](receipt);
         await time.advanceBlock();
         await time.advanceBlock();
 
-        expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(timepoint - 1)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(timepoint + 1)).to.be.bignumber.equal('1');
       });
 
       it('generally returns the voting balance at the appropriate checkpoint', async function () {
@@ -290,17 +299,23 @@ function shouldBehaveLikeVotes() {
         await time.advanceBlock();
         await time.advanceBlock();
 
-        expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(t1.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t2.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t3.receipt.blockNumber)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(t3.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(t4.receipt.blockNumber)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t4.receipt.blockNumber + 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(t5.receipt.blockNumber)).to.be.bignumber.equal('1');
-        expect(await this.votes.getPastTotalSupply(t5.receipt.blockNumber + 1)).to.be.bignumber.equal('1');
+        t1.timepoint = await clockFromReceipt[mode](t1.receipt);
+        t2.timepoint = await clockFromReceipt[mode](t2.receipt);
+        t3.timepoint = await clockFromReceipt[mode](t3.receipt);
+        t4.timepoint = await clockFromReceipt[mode](t4.receipt);
+        t5.timepoint = await clockFromReceipt[mode](t5.receipt);
+
+        expect(await this.votes.getPastTotalSupply(t1.timepoint - 1)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(t1.timepoint)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(t1.timepoint + 1)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(t2.timepoint)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(t2.timepoint + 1)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(t3.timepoint)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(t3.timepoint + 1)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(t4.timepoint)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(t4.timepoint + 1)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastTotalSupply(t5.timepoint)).to.be.bignumber.equal('1');
+        expect(await this.votes.getPastTotalSupply(t5.timepoint + 1)).to.be.bignumber.equal('1');
       });
     });
 
@@ -316,7 +331,7 @@ function shouldBehaveLikeVotes() {
 
       describe('getPastVotes', function () {
         it('reverts if block number >= current block', async function () {
-          await expectRevert(this.votes.getPastVotes(this.account2, 5e10), 'block not yet mined');
+          await expectRevert(this.votes.getPastVotes(this.account2, 5e10), 'future lookup');
         });
 
         it('returns 0 if there are no checkpoints', async function () {
@@ -324,22 +339,24 @@ function shouldBehaveLikeVotes() {
         });
 
         it('returns the latest block if >= last checkpoint block', async function () {
-          const t1 = await this.votes.delegate(this.account2, { from: this.account1 });
+          const { receipt } = await this.votes.delegate(this.account2, { from: this.account1 });
+          const timepoint = await clockFromReceipt[mode](receipt);
           await time.advanceBlock();
           await time.advanceBlock();
+
           const latest = await this.votes.getVotes(this.account2);
-          const nextBlock = t1.receipt.blockNumber + 1;
-          expect(await this.votes.getPastVotes(this.account2, t1.receipt.blockNumber)).to.be.bignumber.equal(latest);
-          expect(await this.votes.getPastVotes(this.account2, nextBlock)).to.be.bignumber.equal(latest);
+          expect(await this.votes.getPastVotes(this.account2, timepoint)).to.be.bignumber.equal(latest);
+          expect(await this.votes.getPastVotes(this.account2, timepoint + 1)).to.be.bignumber.equal(latest);
         });
 
         it('returns zero if < first checkpoint block', async function () {
           await time.advanceBlock();
-          const t1 = await this.votes.delegate(this.account2, { from: this.account1 });
+          const { receipt } = await this.votes.delegate(this.account2, { from: this.account1 });
+          const timepoint = await clockFromReceipt[mode](receipt);
           await time.advanceBlock();
           await time.advanceBlock();
 
-          expect(await this.votes.getPastVotes(this.account2, t1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+          expect(await this.votes.getPastVotes(this.account2, timepoint - 1)).to.be.bignumber.equal('0');
         });
       });
     });

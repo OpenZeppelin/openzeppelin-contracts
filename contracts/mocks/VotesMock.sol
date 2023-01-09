@@ -32,3 +32,9 @@ abstract contract VotesMock is Votes {
         _transferVotingUnits(owner, address(0), 1);
     }
 }
+
+abstract contract VotesTimestampMock is VotesMock {
+    function clock() public view override returns (uint256) {
+        return block.timestamp;
+    }
+}

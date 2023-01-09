@@ -8,30 +8,21 @@ const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
-const MODES = [
-  {
-    type: 'block number',
-    artifact: artifacts.require('$ERC20Votes'),
-    clock: () => web3.eth.getBlock('latest').then(block => block.number),
-    clockFromReceipt: receipt => Promise.resolve(receipt.blockNumber),
-  },
-  {
-    type: 'block timestamp',
-    artifact: artifacts.require('$ERC20VotesTimestampMock'),
-    clock: () => web3.eth.getBlock('latest').then(block => block.timestamp),
-    clockFromReceipt: receipt => web3.eth.getBlock(receipt.blockNumber).then(block => block.timestamp),
-  },
-];
-
 const { batchInBlock } = require('../../../helpers/txpool');
 const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
 const { getChainId } = require('../../../helpers/chainid');
+const { clock, clockFromReceipt } = require('../../../helpers/time');
 
 const Delegation = [
   { name: 'delegatee', type: 'address' },
   { name: 'nonce', type: 'uint256' },
   { name: 'expiry', type: 'uint256' },
 ];
+
+const MODES = {
+  blockNumber: artifacts.require('$ERC20Votes'),
+  timestamp: artifacts.require('$ERC20VotesTimestampMock'),
+};
 
 contract('ERC20Votes', function (accounts) {
   const [holder, recipient, holderDelegatee, other1, other2] = accounts;
@@ -41,15 +32,15 @@ contract('ERC20Votes', function (accounts) {
   const version = '1';
   const supply = new BN('10000000000000000000000000');
 
-  for (const mode of MODES)
-    describe(`vote with ${mode.type}`, function () {
+  for (const [mode, artifact] of Object.entries(MODES)) {
+    describe(`vote with ${mode}`, function () {
       beforeEach(async function () {
         this.chainId = await getChainId();
-        this.token = await mode.artifact.new(name, symbol, name);
+        this.token = await artifact.new(name, symbol, name);
       });
 
       it('clock is correct', async function () {
-        expect(await this.token.clock()).to.be.bignumber.equal(await mode.clock().then(web3.utils.toBN));
+        expect(await this.token.clock()).to.be.bignumber.equal(await clock[mode]().then(web3.utils.toBN));
       });
 
       it('initial nonce is 0', async function () {
@@ -72,7 +63,7 @@ contract('ERC20Votes', function (accounts) {
         for (let i = 0; i < 6; i++) {
           await this.token.$_mint(holder, 1);
         }
-        const block = await mode.clock();
+        const block = await clock[mode]();
         expect(await this.token.numCheckpoints(holder)).to.be.bignumber.equal('6');
         // recent
         expect(await this.token.getPastVotes(holder, block - 1)).to.be.bignumber.equal('5');
@@ -87,7 +78,7 @@ contract('ERC20Votes', function (accounts) {
             expect(await this.token.delegates(holder)).to.be.equal(ZERO_ADDRESS);
 
             const { receipt } = await this.token.delegate(holder, { from: holder });
-            const timepoint = await mode.clockFromReceipt(receipt);
+            const timepoint = await clockFromReceipt[mode](receipt);
 
             expectEvent(receipt, 'DelegateChanged', {
               delegator: holder,
@@ -103,9 +94,9 @@ contract('ERC20Votes', function (accounts) {
             expect(await this.token.delegates(holder)).to.be.equal(holder);
 
             expect(await this.token.getVotes(holder)).to.be.bignumber.equal(supply);
-            expect(await this.token.getPastVotes(holder, (await timepoint) - 1)).to.be.bignumber.equal('0');
+            expect(await this.token.getPastVotes(holder, timepoint - 1)).to.be.bignumber.equal('0');
             await time.advanceBlock();
-            expect(await this.token.getPastVotes(holder, await timepoint)).to.be.bignumber.equal(supply);
+            expect(await this.token.getPastVotes(holder, timepoint)).to.be.bignumber.equal(supply);
           });
 
           it('delegation without balance', async function () {
@@ -156,7 +147,7 @@ contract('ERC20Votes', function (accounts) {
             expect(await this.token.delegates(delegatorAddress)).to.be.equal(ZERO_ADDRESS);
 
             const { receipt } = await this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
-            const timepoint = await mode.clockFromReceipt(receipt);
+            const timepoint = await clockFromReceipt[mode](receipt);
 
             expectEvent(receipt, 'DelegateChanged', {
               delegator: delegatorAddress,
@@ -264,7 +255,7 @@ contract('ERC20Votes', function (accounts) {
           expect(await this.token.delegates(holder)).to.be.equal(holder);
 
           const { receipt } = await this.token.delegate(holderDelegatee, { from: holder });
-          const timepoint = await mode.clockFromReceipt(receipt);
+          const timepoint = await clockFromReceipt[mode](receipt);
 
           expectEvent(receipt, 'DelegateChanged', {
             delegator: holder,
@@ -377,7 +368,7 @@ contract('ERC20Votes', function (accounts) {
           expect(await this.token.getVotes(recipient)).to.be.bignumber.equal(this.recipientVotes);
 
           // need to advance 2 blocks to see the effect of a transfer on "getPastVotes"
-          const timepoint = await mode.clock();
+          const timepoint = await clock[mode]();
           await time.advanceBlock();
           expect(await this.token.getPastVotes(holder, timepoint)).to.be.bignumber.equal(this.holderVotes);
           expect(await this.token.getPastVotes(recipient, timepoint)).to.be.bignumber.equal(this.recipientVotes);
@@ -402,19 +393,19 @@ contract('ERC20Votes', function (accounts) {
             expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('0');
 
             const t1 = await this.token.delegate(other1, { from: recipient });
-            t1.timepoint = await mode.clockFromReceipt(t1.receipt);
+            t1.timepoint = await clockFromReceipt[mode](t1.receipt);
             expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
 
             const t2 = await this.token.transfer(other2, 10, { from: recipient });
-            t2.timepoint = await mode.clockFromReceipt(t2.receipt);
+            t2.timepoint = await clockFromReceipt[mode](t2.receipt);
             expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
 
             const t3 = await this.token.transfer(other2, 10, { from: recipient });
-            t3.timepoint = await mode.clockFromReceipt(t3.receipt);
+            t3.timepoint = await clockFromReceipt[mode](t3.receipt);
             expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('3');
 
             const t4 = await this.token.transfer(recipient, 20, { from: holder });
-            t4.timepoint = await mode.clockFromReceipt(t4.receipt);
+            t4.timepoint = await clockFromReceipt[mode](t4.receipt);
             expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('4');
 
             expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([t1.timepoint.toString(), '100']);
@@ -438,17 +429,15 @@ contract('ERC20Votes', function (accounts) {
               () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
               () => this.token.transfer(other2, 10, { from: recipient, gas: 100000 }),
             ]);
-            t1.timepoint = await mode.clockFromReceipt(t1.receipt);
-            t2.timepoint = await mode.clockFromReceipt(t2.receipt);
-            t3.timepoint = await mode.clockFromReceipt(t3.receipt);
+            t1.timepoint = await clockFromReceipt[mode](t1.receipt);
+            t2.timepoint = await clockFromReceipt[mode](t2.receipt);
+            t3.timepoint = await clockFromReceipt[mode](t3.receipt);
 
             expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
             expect(await this.token.checkpoints(other1, 0)).to.be.deep.equal([t1.timepoint.toString(), '80']);
-            // expectReve(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ '0', '0' ]); // Reverts due to array overflow check
-            // expect(await this.token.checkpoints(other1, 2)).to.be.deep.equal([ '0', '0' ]); // Reverts due to array overflow check
 
             const t4 = await this.token.transfer(recipient, 20, { from: holder });
-            t4.timepoint = await mode.clockFromReceipt(t4.receipt);
+            t4.timepoint = await clockFromReceipt[mode](t4.receipt);
 
             expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
             expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([t4.timepoint.toString(), '100']);
@@ -466,7 +455,7 @@ contract('ERC20Votes', function (accounts) {
 
           it('returns the latest block if >= last checkpoint block', async function () {
             const { receipt } = await this.token.delegate(other1, { from: holder });
-            const timepoint = await mode.clockFromReceipt(receipt);
+            const timepoint = await clockFromReceipt[mode](receipt);
             await time.advanceBlock();
             await time.advanceBlock();
 
@@ -481,7 +470,7 @@ contract('ERC20Votes', function (accounts) {
           it('returns zero if < first checkpoint block', async function () {
             await time.advanceBlock();
             const { receipt } = await this.token.delegate(other1, { from: holder });
-            const timepoint = await mode.clockFromReceipt(receipt);
+            const timepoint = await clockFromReceipt[mode](receipt);
             await time.advanceBlock();
             await time.advanceBlock();
 
@@ -505,10 +494,10 @@ contract('ERC20Votes', function (accounts) {
             await time.advanceBlock();
             await time.advanceBlock();
 
-            t1.timepoint = await mode.clockFromReceipt(t1.receipt);
-            t2.timepoint = await mode.clockFromReceipt(t2.receipt);
-            t3.timepoint = await mode.clockFromReceipt(t3.receipt);
-            t4.timepoint = await mode.clockFromReceipt(t4.receipt);
+            t1.timepoint = await clockFromReceipt[mode](t1.receipt);
+            t2.timepoint = await clockFromReceipt[mode](t2.receipt);
+            t3.timepoint = await clockFromReceipt[mode](t3.receipt);
+            t4.timepoint = await clockFromReceipt[mode](t4.receipt);
 
             expect(await this.token.getPastVotes(other1, t1.timepoint - 1)).to.be.bignumber.equal('0');
             expect(await this.token.getPastVotes(other1, t1.timepoint)).to.be.bignumber.equal(
@@ -554,7 +543,7 @@ contract('ERC20Votes', function (accounts) {
 
         it('returns the latest block if >= last checkpoint block', async function () {
           const { receipt } = await this.token.$_mint(holder, supply);
-          const timepoint = await mode.clockFromReceipt(receipt);
+          const timepoint = await clockFromReceipt[mode](receipt);
 
           await time.advanceBlock();
           await time.advanceBlock();
@@ -566,7 +555,7 @@ contract('ERC20Votes', function (accounts) {
         it('returns zero if < first checkpoint block', async function () {
           await time.advanceBlock();
           const { receipt } = await this.token.$_mint(holder, supply);
-          const timepoint = await mode.clockFromReceipt(receipt);
+          const timepoint = await clockFromReceipt[mode](receipt);
           await time.advanceBlock();
           await time.advanceBlock();
 
@@ -590,10 +579,10 @@ contract('ERC20Votes', function (accounts) {
           await time.advanceBlock();
           await time.advanceBlock();
 
-          t1.timepoint = await mode.clockFromReceipt(t1.receipt);
-          t2.timepoint = await mode.clockFromReceipt(t2.receipt);
-          t3.timepoint = await mode.clockFromReceipt(t3.receipt);
-          t4.timepoint = await mode.clockFromReceipt(t4.receipt);
+          t1.timepoint = await clockFromReceipt[mode](t1.receipt);
+          t2.timepoint = await clockFromReceipt[mode](t2.receipt);
+          t3.timepoint = await clockFromReceipt[mode](t3.receipt);
+          t4.timepoint = await clockFromReceipt[mode](t4.receipt);
 
           expect(await this.token.getPastTotalSupply(t1.timepoint - 1)).to.be.bignumber.equal('0');
           expect(await this.token.getPastTotalSupply(t1.timepoint)).to.be.bignumber.equal('10000000000000000000000000');
@@ -615,4 +604,5 @@ contract('ERC20Votes', function (accounts) {
         });
       });
     });
+  }
 });
