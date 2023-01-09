@@ -49,6 +49,10 @@ contract('ERC20Votes', function (accounts) {
       this.token = await mode.artifact.new(name, symbol, name);
     });
 
+    it('clock is correct', async function () {
+      expect(await this.token.clock()).to.be.bignumber.equal(await mode.clock().then(web3.utils.toBN));
+    });
+
     it('initial nonce is 0', async function () {
       expect(await this.token.nonces(holder)).to.be.bignumber.equal('0');
     });
