@@ -97,9 +97,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
                 this.castVoteWithReasonAndParamsBySig.selector ^
                 this.getVotesWithParams.selector ^
                 this.clock.selector) ||
-            interfaceId ==
-            (type(IGovernor).interfaceId ^
-                this.clock.selector) ||
+            interfaceId == (type(IGovernor).interfaceId ^ this.clock.selector) ||
             interfaceId == type(IGovernor).interfaceId ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
@@ -214,11 +212,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     /**
      * @dev Get the voting weight of `account` at a specific `timepoint`, for a vote as described by `params`.
      */
-    function _getVotes(
-        address account,
-        uint256 timepoint,
-        bytes memory params
-    ) internal view virtual returns (uint256);
+    function _getVotes(address account, uint256 timepoint, bytes memory params) internal view virtual returns (uint256);
 
     /**
      * @dev Register a vote for `proposalId` by `account` with a given `support`, voting `weight` and voting `params`.

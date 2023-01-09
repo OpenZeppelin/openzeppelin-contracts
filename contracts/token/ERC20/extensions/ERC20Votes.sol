@@ -256,9 +256,7 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
             if (pos > 0 && oldCkpt.fromBlock == clock()) {
                 _unsafeAccess(ckpts, pos - 1).votes = SafeCast.toUint224(newWeight);
             } else {
-                ckpts.push(
-                    Checkpoint({fromBlock: SafeCast.toUint32(clock()), votes: SafeCast.toUint224(newWeight)})
-                );
+                ckpts.push(Checkpoint({fromBlock: SafeCast.toUint32(clock()), votes: SafeCast.toUint224(newWeight)}));
             }
         }
     }
