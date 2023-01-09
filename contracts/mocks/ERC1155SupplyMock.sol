@@ -14,7 +14,7 @@ contract ERC1155SupplyMock is ERC1155Mock, ERC1155Supply {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual override(ERC1155, ERC1155Supply) {
+    ) internal override(ERC1155, ERC1155Supply) {
         super._update(from, to, ids, amounts, data);
     }
 }
