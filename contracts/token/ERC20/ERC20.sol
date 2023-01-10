@@ -252,6 +252,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
         if (to == address(0)) {
             unchecked {
+                // Overflow not possible: amount <= totalSupply.
                 _totalSupply -= amount;
             }
         } else {
