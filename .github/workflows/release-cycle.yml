@@ -1,0 +1,157 @@
+name: Release Cycle
+
+on:
+  push:
+    branches:
+      - release-v*
+  workflow_dispatch: {}
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  check_state:
+    environment: Release Cycle
+    name: Check state
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - id: check_publish_ready
+        name: Check if ready for publishing
+        run: |
+          CHANGESETS_QUANTITY=$(node -p -e "require('@changesets/read').default(process.cwd()).then(changesets => console.log(changesets.length))" | tail -n 1)
+          echo "changesets=$CHANGESETS_QUANTITY" >> $GITHUB_OUTPUT
+    outputs:
+      start_release_candidate: ${{ github.ref_name == 'master' && github.event_name == 'workflow_dispatch' }}
+      changesets_pr: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'push' }}
+      promote_to_final: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'workflow_dispatch' }}
+      publish: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.check_publish_ready.outputs.changesets == '0' }}
+  start_release_candidate:
+    needs: check_state
+    environment: Release Cycle
+    name: Start new release branch with release candidate
+    if: ${{ needs.check_state.outputs.start_release_candidate == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }} # Needed so release cycle triggers when pushing
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: bash scripts/git-user-config.sh
+      - name: Set changeset status location
+        run: |
+          CHANGESETS_STATUS_JSON=$(node -p -e "require('path').relative(__dirname, '$RUNNER_TEMP/status.json')")
+          echo "CHANGESETS_STATUS_JSON=$CHANGESETS_STATUS_JSON" >> $GITHUB_ENV
+      - name: Get changeset status
+        run: npx changeset status --output="$CHANGESETS_STATUS_JSON"
+      - name: Get new version
+        run: |
+          RELEASES=$(node -p -e "require('$CHANGESETS_STATUS_JSON').releases")
+          if [ $(node -p -e "$RELEASES.length") != 1 ]; then
+            echo "::error file=$CHANGESETS_STATUS_JSON::The status doesn't contain only 1 release"
+            exit 1;
+          fi;
+          NEW_VERSION=$(node -p -e "($RELEASES)[0].newVersion")
+          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+      - name: Open branch
+        run: |
+          BRANCH_SUFFIX=$(echo $NEW_VERSION | awk -F'.' '{ print $1"."$2 }')
+          RELEASE_BRANCH=release-v$BRANCH_SUFFIX
+          git checkout -b $RELEASE_BRANCH
+      - name: Enter in prerelease state
+        run: |
+          npx changeset pre enter rc
+          git add .
+          git commit -m "Start release candidate"
+          git push --all origin
+  changesets_pr:
+    needs: check_state
+    environment: Release Cycle
+    name: Changesets PR
+    if: ${{ needs.check_state.outputs.changesets_pr == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Set release title
+        env:
+          BRANCH_NAME: ${{ github.ref_name }}
+        run: |
+          BRANCH_VERSION=$(npx semver -c $(echo $BRANCH_NAME | sed "s/release-v//g"))
+          PACKAGE_JSON_NEXT_PATCH=$(npx semver -i $(node -p -e "require('./package.json').version"))
+          NEXT_VERSION=$(npx semver $BRANCH_VERSION $PACKAGE_JSON_NEXT_PATCH | tail -n 1)
+          echo "TITLE=Release v${NEXT_VERSION}" >> $GITHUB_ENV
+      - name: Create PR
+        uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: npm run version
+          title: ${{ env.TITLE }}
+          commit: ${{ env.TITLE }}
+  promote_to_final:
+    needs: check_state
+    environment: Release Cycle
+    name: Promote to final release
+    if: ${{ needs.check_state.outputs.promote_to_final == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }} # Needed so release cycle triggers when pushing
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: bash scripts/git-user-config.sh
+      - name: Exit prerelease state if needed
+        run: |
+          PRERELEASE=$(node -p -e 'require("@changesets/pre").readPreState(process.cwd()).then(prestate => console.log(prestate?.mode == "pre"))' | tail -n 1)
+          if [ $PRERELEASE != "false" ]; then
+            npx changeset pre exit rc
+            git add .
+            git commit -m "Exit release candidate"
+            git push --all origin
+          fi
+      - name: Create PR back to master
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: '${{ github.ref_name }}',
+              base: 'master',
+              title: '${{ format('Merge {0} branch', github.ref_name) }}'
+            });
+  publish:
+    needs: check_state
+    environment: npm
+    name: Publish to npm
+    if: ${{ needs.check_state.outputs.publish == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: bash scripts/git-user-config.sh
+      - name: Tag
+        run: npx changeset tag
+      - name: Publish to npm
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > $HOME/.npmrc
+          npm publish
+      - name: Upload tags
+        run: git push --tags
+      - name: Create Github Release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${require('./package.json').version}`
+            });
