@@ -109,19 +109,19 @@ function migrateToV48() public reinitializer(2) {
 }
 ```
 
-## 4.7.3
+## 4.7.3 (2022-08-10)
 
 ### Breaking changes
 
 - `ECDSA`: `recover(bytes32,bytes)` and `tryRecover(bytes32,bytes)` no longer accept compact signatures to prevent malleability. Compact signature support remains available using `recover(bytes32,bytes32,bytes32)` and `tryRecover(bytes32,bytes32,bytes32)`.
 
-## 4.7.2
+## 4.7.2 (2022-07-25)
 
 - `LibArbitrumL2`, `CrossChainEnabledArbitrumL2`: Fixed detection of cross-chain calls for EOAs. Previously, calls from EOAs would be classified as cross-chain calls. ([#3578](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3578))
 - `GovernorVotesQuorumFraction`: Fixed quorum updates so they do not affect past proposals that failed due to lack of quorum. ([#3561](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3561))
 - `ERC165Checker`: Added protection against large returndata. ([#3587](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3587))
 
-## 4.7.1
+## 4.7.1 (2022-07-18)
 
 - `SignatureChecker`: Fix an issue that causes `isValidSignatureNow` to revert when the target contract returns ill-encoded data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
 - `ERC165Checker`: Fix an issue that causes `supportsInterface` to revert when the target contract returns ill-encoded data. ([#3552](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3552))
@@ -258,7 +258,7 @@ It is no longer possible to call an `initializer`-protected function from within
 - `Governor`: enable receiving Ether when a Timelock contract is not used. ([#2849](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
 - `GovernorTimelockCompound`: fix ability to use Ether stored in the Timelock contract. ([#2849](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/2849))
 
-## 4.3.3
+## 4.3.3 (2021-11-08)
 
 - `ERC1155Supply`: Handle `totalSupply` changes by hooking into `_beforeTokenTransfer` to ensure consistency of balances and supply during `IERC1155Receiver.onERC1155Received` calls.
 
@@ -365,7 +365,8 @@ Make sure you're using git or another version control system to be able to recov
 
 Some further changes have been done between the different beta iterations. Transitions made during this period are configured in the `migrate-imports` script. Consequently, you can upgrade from any previous 4.0-beta.x version using the same script as described in the _How to upgrade from 3.x_ section.
 
-## 3.4.2
+## 3.4.2 (2021-07-24)
+
 
 - `TimelockController`: Add additional isOperationReady check.
 
