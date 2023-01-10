@@ -251,7 +251,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         }
 
         if (to == address(0)) {
-            _totalSupply -= amount;
+            unchecked {
+                _totalSupply -= amount;
+            }
         } else {
             unchecked {
                 // Overflow not possible: balance + amount is at most totalSupply, which we know fits into a uint256.
