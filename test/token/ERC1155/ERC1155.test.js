@@ -120,7 +120,7 @@ contract('ERC1155', function (accounts) {
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
           this.token.burn(tokenHolder, tokenId, mintAmount),
-          'ERC1155: burn amount exceeds balance',
+          'ERC1155: insufficient balance for transfer',
         );
       });
 
@@ -135,7 +135,7 @@ contract('ERC1155', function (accounts) {
 
         await expectRevert(
           this.token.burn(tokenHolder, tokenId, mintAmount.addn(1)),
-          'ERC1155: burn amount exceeds balance',
+          'ERC1155: insufficient balance for transfer',
         );
       });
 
@@ -192,7 +192,7 @@ contract('ERC1155', function (accounts) {
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
           this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts),
-          'ERC1155: burn amount exceeds balance',
+          'ERC1155: insufficient balance for transfer',
         );
       });
 
