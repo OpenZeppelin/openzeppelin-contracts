@@ -99,14 +99,12 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
           newBalance: weight,
         });
 
-        const prevBlock = receipt.blockNumber - 1;
-
         expect(await this.votes.delegates(accounts[1])).to.be.equal(accounts[2]);
         expect(await this.votes.getVotes(accounts[1])).to.be.bignumber.equal('0');
         expect(await this.votes.getVotes(accounts[2])).to.be.bignumber.equal(weight);
 
         expect(await this.votes.getPastVotes(accounts[1], receipt.blockNumber - 1)).to.be.bignumber.equal(weight);
-        expect(await this.votes.getPastVotes(accounts[2], prevBlock)).to.be.bignumber.equal('0');
+        expect(await this.votes.getPastVotes(accounts[2], receipt.blockNumber - 1)).to.be.bignumber.equal('0');
         await time.advanceBlock();
         expect(await this.votes.getPastVotes(accounts[1], receipt.blockNumber)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastVotes(accounts[2], receipt.blockNumber)).to.be.bignumber.equal(weight);
@@ -247,38 +245,20 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
         expect(await this.votes.getPastTotalSupply(0)).to.be.bignumber.equal('0');
       });
 
-      it('generally returns the voting balance at the appropriate checkpoint #1', async function () {
-        const blockNumber = await time.latestBlock().then(Number);
-        await time.advanceBlock();
-        await this.votes.mint(accounts[1], tokens[0]);
-        await time.advanceBlock();
-        await time.advanceBlock();
-        await this.votes.burn(...fungible ? [accounts[1]] : [], tokens[0]);
-        await time.advanceBlock();
-
-        expect(await this.votes.getPastTotalSupply(blockNumber)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(blockNumber + 1)).to.be.bignumber.equal('0');
-        expect(await this.votes.getPastTotalSupply(blockNumber + 2)).to.be.bignumber.equal(getWeight(tokens[0]));
-        expect(await this.votes.getPastTotalSupply(blockNumber + 3)).to.be.bignumber.equal(getWeight(tokens[0]));
-        expect(await this.votes.getPastTotalSupply(blockNumber + 4)).to.be.bignumber.equal(getWeight(tokens[0]));
-        expect(await this.votes.getPastTotalSupply(blockNumber + 5)).to.be.bignumber.equal('0');
-        await expectRevert(this.votes.getPastTotalSupply(blockNumber + 6), 'Votes: block not yet mined');
-      });
-
-      it('generally returns the voting balance at the appropriate checkpoint #2', async function () {
-        const blockNumber = await time.latestBlock().then(Number);
+      it('returns the correct checkpointed total supply', async function () {
+        const blockNumber = Number(await time.latestBlock());
 
         await this.votes.mint(accounts[1], tokens[0]); // mint 0
         await time.advanceBlock();
         await this.votes.mint(accounts[1], tokens[1]); // mint 1
         await time.advanceBlock();
-        await this.votes.burn(...fungible ? [accounts[1]] : [], tokens[1]); // burn 1
+        await this.votes.burn(...(fungible ? [accounts[1]] : []), tokens[1]); // burn 1
         await time.advanceBlock();
         await this.votes.mint(accounts[1], tokens[2]); // mint 2
         await time.advanceBlock();
-        await this.votes.burn(...fungible ? [accounts[1]] : [], tokens[0]); // burn 0
+        await this.votes.burn(...(fungible ? [accounts[1]] : []), tokens[0]); // burn 0
         await time.advanceBlock();
-        await this.votes.burn(...fungible ? [accounts[1]] : [], tokens[2]); // burn 2
+        await this.votes.burn(...(fungible ? [accounts[1]] : []), tokens[2]); // burn 2
         await time.advanceBlock();
 
         const weight = tokens.map(getWeight);
@@ -299,7 +279,7 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
       });
     });
 
-    // The following tests are a adaptation of
+    // The following tests are an adaptation of
     // https://github.com/compound-finance/compound-protocol/blob/master/tests/Governance/CompTest.js.
     describe('Compound test suite', function () {
       beforeEach(async function () {
