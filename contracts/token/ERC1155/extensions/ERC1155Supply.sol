@@ -31,18 +31,15 @@ abstract contract ERC1155Supply is ERC1155 {
     }
 
     /**
-     * @dev See {ERC1155-_beforeTokenTransfer}.
+     * @dev See {ERC1155-_update}.
      */
-    function _beforeTokenTransfer(
-        address operator,
+    function _update(
         address from,
         address to,
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual override {
-        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
-
         if (from == address(0)) {
             for (uint256 i = 0; i < ids.length; ++i) {
                 _totalSupply[ids[i]] += amounts[i];
@@ -60,5 +57,6 @@ abstract contract ERC1155Supply is ERC1155 {
                 }
             }
         }
+        super._update(from, to, ids, amounts, data);
     }
 }

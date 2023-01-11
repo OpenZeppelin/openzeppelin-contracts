@@ -229,25 +229,23 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function _update(address from, address to, uint256 amount) internal virtual {
         if (from == address(0)) {
             _totalSupply += amount;
-            unchecked {
-                // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
-                _balances[to] += amount;
-            }
-        } else if (to == address(0)) {
-            uint256 fromBalance = _balances[from];
-            require(fromBalance >= amount, "ERC20: burn amount exceeds balance");
-            _totalSupply -= amount;
-            unchecked {
-                // Overflow not possible: amount <= fromBalance <= totalSupply.
-                _balances[from] = fromBalance - amount;
-            }
         } else {
             uint256 fromBalance = _balances[from];
             require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
             unchecked {
+                // Overflow not possible: amount <= fromBalance <= totalSupply.
                 _balances[from] = fromBalance - amount;
-                // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
-                // decrementing then incrementing.
+            }
+        }
+
+        if (to == address(0)) {
+            unchecked {
+                // Overflow not possible: amount <= totalSupply or amount <= fromBalance <= totalSupply.
+                _totalSupply -= amount;
+            }
+        } else {
+            unchecked {
+                // Overflow not possible: balance + amount is at most totalSupply, which we know fits into a uint256.
                 _balances[to] += amount;
             }
         }

@@ -1,3 +1,6 @@
+> **Warning**
+> Version 5.0 is under active development. The code in this branch is not recommended for use.
+
 # <img src="logo.svg" alt="OpenZeppelin" height="40px">
 
 [![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://docs.openzeppelin.com/contracts)
