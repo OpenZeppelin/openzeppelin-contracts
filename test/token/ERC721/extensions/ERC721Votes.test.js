@@ -16,7 +16,7 @@ contract('ERC721Votes', function (accounts) {
     '10',
     '20',
     '30',
-  ].map(web3.utils.toBN);
+  ].map(n => web3.utils.toBN(n));
 
   beforeEach(async function () {
     this.votes = await ERC721VotesMock.new(name, symbol);
