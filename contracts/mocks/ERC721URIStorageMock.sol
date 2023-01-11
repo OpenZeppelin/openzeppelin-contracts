@@ -41,11 +41,7 @@ contract ERC721URIStorageMock is ERC721URIStorage {
         _safeMint(to, tokenId);
     }
 
-    function safeMint(
-        address to,
-        uint256 tokenId,
-        bytes memory _data
-    ) public {
+    function safeMint(address to, uint256 tokenId, bytes memory _data) public {
         _safeMint(to, tokenId, _data);
     }
 

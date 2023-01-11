@@ -27,11 +27,7 @@ contract ERC721Mock is ERC721 {
         _safeMint(to, tokenId);
     }
 
-    function safeMint(
-        address to,
-        uint256 tokenId,
-        bytes memory _data
-    ) public {
+    function safeMint(address to, uint256 tokenId, bytes memory _data) public {
         _safeMint(to, tokenId, _data);
     }
 

@@ -5,19 +5,11 @@ pragma solidity ^0.8.0;
 import "../utils/cryptography/MerkleProof.sol";
 
 contract MerkleProofWrapper {
-    function verify(
-        bytes32[] memory proof,
-        bytes32 root,
-        bytes32 leaf
-    ) public pure returns (bool) {
+    function verify(bytes32[] memory proof, bytes32 root, bytes32 leaf) public pure returns (bool) {
         return MerkleProof.verify(proof, root, leaf);
     }
 
-    function verifyCalldata(
-        bytes32[] calldata proof,
-        bytes32 root,
-        bytes32 leaf
-    ) public pure returns (bool) {
+    function verifyCalldata(bytes32[] calldata proof, bytes32 root, bytes32 leaf) public pure returns (bool) {
         return MerkleProof.verifyCalldata(proof, root, leaf);
     }
 
