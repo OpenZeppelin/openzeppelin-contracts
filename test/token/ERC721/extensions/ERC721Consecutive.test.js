@@ -63,8 +63,8 @@ contract('ERC721Consecutive', function (accounts) {
         for (const account of accounts) {
           const balance = sum(
             ...batches
-            .filter(({ receiver }) => receiver === account)
-            .map(n => n.amount)
+              .filter(({ receiver }) => receiver === account)
+              .map(n => n.amount),
           );
 
           expect(await this.token.balanceOf(account))
