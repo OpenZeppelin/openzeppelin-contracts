@@ -1,6 +1,6 @@
 const { constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const math = require('../../helpers/math');
+const { BNsum } = require('../../helpers/math');
 
 require('array.prototype.at/auto');
 
@@ -72,7 +72,7 @@ contract('Votes', function (accounts) {
     });
 
     it('returns total amount of votes', async function () {
-      const totalSupply = math.BNsum(Object.values(amounts));
+      const totalSupply = BNsum(...Object.values(amounts));
       expect(await this.votes.getTotalSupply()).to.be.bignumber.equal(totalSupply);
     });
   });
