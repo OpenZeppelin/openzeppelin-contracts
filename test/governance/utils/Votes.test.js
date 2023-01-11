@@ -29,7 +29,10 @@ contract('Votes', function (accounts) {
 
   describe('performs voting operations', function () {
     beforeEach(async function () {
-      this.txs = await Promise.all(Object.entries(amounts).map(kv => this.votes.mint(...kv)));
+      this.txs = [];
+      for (const [account, amount] of Object.entries(amounts)) {
+        this.txs.push(await this.votes.mint(account, amount));
+      }
     });
 
     it('reverts if block number >= current block', async function () {
