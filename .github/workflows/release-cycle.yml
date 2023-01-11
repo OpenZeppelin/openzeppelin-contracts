@@ -92,7 +92,7 @@ jobs:
           version: npm run version
           title: ${{ env.TITLE }}
           commit: ${{ env.TITLE }}
-          description: | # Wait for support on this
+          body: | # Wait for support on this
             This is an automated PR for releasing ${{ github.repository }}
             Check [CHANGELOG.md](${{ github.repository }}/CHANGELOG.md)
   promote_to_final:
@@ -117,17 +117,6 @@ jobs:
             git commit -m "Exit release candidate"
             git push --all origin
           fi
-      - name: Create PR back to master
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: '${{ github.ref_name }}',
-              base: 'master',
-              title: '${{ format('Merge {0} branch', github.ref_name) }}'
-            });
   publish:
     needs: check_state
     environment: npm
@@ -158,3 +147,19 @@ jobs:
               repo: context.repo.repo,
               tag_name: `v${require('./package.json').version}`
             });
+      - name: Create PR back to master
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { readPreState } = require("@changesets/pre");
+            const prestate = await readPreState(process.cwd());
+            // Only create if prestate doesn't exist
+            if (!prestate) {  
+              github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head: '${{ github.ref_name }}',
+                base: 'master',
+                title: '${{ format('Merge {0} branch', github.ref_name) }}'
+              });
+            }
