@@ -6,7 +6,6 @@ pragma solidity ^0.8.0;
 import "./IERC721.sol";
 import "./IERC721Receiver.sol";
 import "./extensions/IERC721Metadata.sol";
-import "../../utils/Address.sol";
 import "../../utils/Context.sol";
 import "../../utils/Strings.sol";
 import "../../utils/introspection/ERC165.sol";
@@ -17,7 +16,6 @@ import "../../utils/introspection/ERC165.sol";
  * {ERC721Enumerable}.
  */
 contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
-    using Address for address;
     using Strings for uint256;
 
     // Token name
@@ -402,7 +400,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 tokenId,
         bytes memory data
     ) private returns (bool) {
-        if (to.isContract()) {
+        if (to.code.length > 0) {
             try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, data) returns (bytes4 retval) {
                 return retval == IERC721Receiver.onERC721Received.selector;
             } catch (bytes memory reason) {
