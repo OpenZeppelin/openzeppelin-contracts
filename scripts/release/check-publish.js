@@ -19,4 +19,4 @@ async function readChangesetState(cwd = process.cwd()) {
   };
 }
 
-readChangesetState().then(({ changesets }) => console.log(!!changesets.length));
+readChangesetState().then(({ changesets }) => console.log(!changesets.length));
