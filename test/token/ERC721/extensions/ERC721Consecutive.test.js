@@ -64,7 +64,7 @@ contract('ERC721Consecutive', function (accounts) {
           const balance = sum(
             ...batches
               .filter(({ receiver }) => receiver === account)
-              .map(n => n.amount),
+              .map(({ amount }) => amount),
           );
 
           expect(await this.token.balanceOf(account))
@@ -143,7 +143,7 @@ contract('ERC721Consecutive', function (accounts) {
       });
 
       it('tokens can be burned and re-minted #2', async function () {
-        const tokenId = web3.utils.toBN(sum(...batches.map(n => n.amount)));
+        const tokenId = web3.utils.toBN(sum(...batches.map(({ amount }) => amount)));
 
         expect(await this.token.exists(tokenId)).to.be.equal(false);
         await expectRevert(this.token.ownerOf(tokenId), 'ERC721: invalid token ID');
