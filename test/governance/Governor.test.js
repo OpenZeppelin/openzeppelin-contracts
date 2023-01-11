@@ -1,4 +1,4 @@
-const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
@@ -15,7 +15,7 @@ const CallReceiver = artifacts.require('CallReceiverMock');
 const ERC721 = artifacts.require('$ERC721');
 const ERC1155 = artifacts.require('$ERC1155');
 
-const MODES = {
+const TOKENS = {
   blockNumber: artifacts.require('$ERC20Votes'),
   timestamp: artifacts.require('$ERC20VotesTimestampMock'),
 };
@@ -28,15 +28,15 @@ contract('Governor', function (accounts) {
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
-  const votingDelay = new BN(4);
-  const votingPeriod = new BN(16);
+  const votingDelay = web3.utils.toBN(4);
+  const votingPeriod = web3.utils.toBN(16);
   const value = web3.utils.toWei('1');
 
-  for (const [mode, artifact] of Object.entries(MODES)) {
+  for (const [mode, Token] of Object.entries(TOKENS)) {
     describe(`using ${mode} voting token`, function () {
       beforeEach(async function () {
         this.chainId = await web3.eth.getChainId();
-        this.token = await artifact.new(tokenName, tokenSymbol, tokenName);
+        this.token = await Token.new(tokenName, tokenSymbol, tokenName);
         this.mock = await Governor.new(
           name, // name
           votingDelay, // initialVotingDelay
@@ -253,7 +253,7 @@ contract('Governor', function (accounts) {
             await this.helper.propose();
             await this.helper.waitForSnapshot();
             await expectRevert(
-              this.helper.vote({ support: new BN('255') }),
+              this.helper.vote({ support: web3.utils.toBN('255') }),
               'GovernorVotingSimple: invalid value for enum VoteType',
             );
           });
@@ -592,7 +592,7 @@ contract('Governor', function (accounts) {
         describe('ERC721', function () {
           const name = 'Non Fungible Token';
           const symbol = 'NFT';
-          const tokenId = new BN(1);
+          const tokenId = web3.utils.toBN(1);
 
           beforeEach(async function () {
             this.token = await ERC721.new(name, symbol);
@@ -607,9 +607,9 @@ contract('Governor', function (accounts) {
         describe('ERC1155', function () {
           const uri = 'https://token-cdn-domain/{id}.json';
           const tokenIds = {
-            1: new BN(1000),
-            2: new BN(2000),
-            3: new BN(3000),
+            1: web3.utils.toBN(1000),
+            2: web3.utils.toBN(2000),
+            3: web3.utils.toBN(3000),
           };
 
           beforeEach(async function () {
