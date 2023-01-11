@@ -29,8 +29,9 @@ import "../../utils/math/SafeCast.sol";
  *
  * _Available since v4.5._
  */
-abstract contract Votes is IVotes, Context, EIP712, Nonces {
+abstract contract Votes is IVotes, Context, EIP712 {
     using Checkpoints for Checkpoints.History;
+    using Nonces for Nonces.Data;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -38,6 +39,7 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
     mapping(address => address) private _delegation;
     mapping(address => Checkpoints.History) private _delegateCheckpoints;
     Checkpoints.History private _totalCheckpoints;
+    Nonces.Data private _nonces;
 
     /**
      * @dev Returns the current amount of votes that `account` has.
@@ -81,6 +83,13 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
     }
 
     /**
+     * @dev Returns the delegation nonce for `owner`.
+     */
+    function delegationNonces(address owner) public view virtual override returns (uint256) {
+        return _nonces.nonces(owner);
+    }
+
+    /**
      * @dev Returns the delegate that `account` has chosen.
      */
     function delegates(address account) public view virtual override returns (address) {
@@ -113,7 +122,7 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
             r,
             s
         );
-        require(nonce == _useNonce(signer), "Votes: invalid nonce");
+        require(nonce == _nonces.useNonce(signer), "Votes: invalid nonce");
         _delegate(signer, delegatee);
     }
 
