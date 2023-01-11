@@ -12,7 +12,11 @@ abstract contract BaseRelayMock {
 
     address internal _currentSender;
 
-    function relayAs(address target, bytes calldata data, address sender) external virtual {
+    function relayAs(
+        address target,
+        bytes calldata data,
+        address sender
+    ) external virtual {
         address previousSender = _currentSender;
 
         _currentSender = sender;
@@ -88,7 +92,11 @@ contract BridgeOptimismMock is BaseRelayMock {
  * Polygon
  */
 contract BridgePolygonChildMock is BaseRelayMock {
-    function relayAs(address target, bytes calldata data, address sender) external override {
+    function relayAs(
+        address target,
+        bytes calldata data,
+        address sender
+    ) external override {
         IFxMessageProcessor(target).processMessageFromRoot(0, sender, data);
     }
 }

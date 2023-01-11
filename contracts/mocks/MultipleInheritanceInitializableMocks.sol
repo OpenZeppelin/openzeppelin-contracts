@@ -108,7 +108,12 @@ contract SampleFather is Initializable, SampleGramps {
 contract SampleChild is Initializable, SampleMother, SampleFather {
     uint256 public child;
 
-    function initialize(uint256 _mother, string memory _gramps, uint256 _father, uint256 _child) public initializer {
+    function initialize(
+        uint256 _mother,
+        string memory _gramps,
+        uint256 _father,
+        uint256 _child
+    ) public initializer {
         __SampleChild_init(_mother, _gramps, _father, _child);
     }
 

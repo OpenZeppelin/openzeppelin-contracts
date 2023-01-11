@@ -17,7 +17,11 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
-    function _upgradeToAndCallSecureLegacyV1(address newImplementation, bytes memory data, bool forceCall) internal {
+    function _upgradeToAndCallSecureLegacyV1(
+        address newImplementation,
+        bytes memory data,
+        bool forceCall
+    ) internal {
         address oldImplementation = _getImplementation();
 
         // Initial upgrade and setup call
