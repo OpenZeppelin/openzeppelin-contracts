@@ -10,6 +10,7 @@
  * `ProxyAdmin`: Removed `getProxyAdmin` and `getProxyImplementation` getters. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
  * `ERC20`, `ERC1155`: Deleted `_beforeTokenTransfer` and `_afterTokenTransfer` hooks, added a new internal `_update` function for customizations, and refactored all extensions using those hooks to use `_update` instead. ([#3838](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3838), [#3876](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3876))
  * `ERC165Storage`: Removed this contract in favor of inheritance based approach. ([#3880](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3880))
+ * `Address`: Removed `isContract` because of its ambiguous nature and potential for misuse. ([#3945](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3945))
 
 ### How to upgrade from 4.x
 
