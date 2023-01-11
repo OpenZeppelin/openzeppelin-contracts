@@ -34,6 +34,8 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
     });
 
     describe('delegation', function () {
+      const token = tokens[0];
+
       it('delegation without tokens', async function () {
         expect(await this.votes.delegates(accounts[1])).to.be.equal(ZERO_ADDRESS);
 
@@ -49,8 +51,8 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
       });
 
       it('delegation with tokens', async function () {
-        await this.votes.mint(accounts[1], tokens[0]);
-        const weight = getWeight(tokens[0]);
+        await this.votes.mint(accounts[1], token);
+        const weight = getWeight(token);
 
         expect(await this.votes.delegates(accounts[1])).to.be.equal(ZERO_ADDRESS);
 
@@ -75,8 +77,8 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
 
       it('delegation update', async function () {
         await this.votes.delegate(accounts[1], { from: accounts[1] });
-        await this.votes.mint(accounts[1], tokens[0]);
-        const weight = getWeight(tokens[0]);
+        await this.votes.mint(accounts[1], token);
+        const weight = getWeight(token);
 
         expect(await this.votes.delegates(accounts[1])).to.be.equal(accounts[1]);
         expect(await this.votes.getVotes(accounts[1])).to.be.bignumber.equal(weight);
@@ -109,123 +111,123 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
         expect(await this.votes.getPastVotes(accounts[1], receipt.blockNumber)).to.be.bignumber.equal('0');
         expect(await this.votes.getPastVotes(accounts[2], receipt.blockNumber)).to.be.bignumber.equal(weight);
       });
-    });
 
-    describe('delegation with signature', function () {
-      const delegator = Wallet.generate();
-      const [delegatee, other] = accounts;
-      const nonce = 0;
-      delegator.address = web3.utils.toChecksumAddress(delegator.getAddressString());
+      describe('with signature', function () {
+        const delegator = Wallet.generate();
+        const [delegatee, other] = accounts;
+        const nonce = 0;
+        delegator.address = web3.utils.toChecksumAddress(delegator.getAddressString());
 
-      const buildData = (chainId, verifyingContract, name, message) => ({
-        data: {
-          primaryType: 'Delegation',
-          types: { EIP712Domain, Delegation },
-          domain: { name, version, chainId, verifyingContract },
-          message,
-        },
-      });
-
-      it('accept signed delegation', async function () {
-        await this.votes.mint(delegator.address, tokens[0]);
-        const weight = getWeight(tokens[0]);
-
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            delegatee,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
-
-        expect(await this.votes.delegates(delegator.address)).to.be.equal(ZERO_ADDRESS);
-
-        const { receipt } = await this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s);
-        expectEvent(receipt, 'DelegateChanged', {
-          delegator: delegator.address,
-          fromDelegate: ZERO_ADDRESS,
-          toDelegate: delegatee,
-        });
-        expectEvent(receipt, 'DelegateVotesChanged', {
-          delegate: delegatee,
-          previousBalance: '0',
-          newBalance: weight,
+        const buildData = (chainId, verifyingContract, name, message) => ({
+          data: {
+            primaryType: 'Delegation',
+            types: { EIP712Domain, Delegation },
+            domain: { name, version, chainId, verifyingContract },
+            message,
+          },
         });
 
-        expect(await this.votes.delegates(delegator.address)).to.be.equal(delegatee);
-        expect(await this.votes.getVotes(delegator.address)).to.be.bignumber.equal('0');
-        expect(await this.votes.getVotes(delegatee)).to.be.bignumber.equal(weight);
-        expect(await this.votes.getPastVotes(delegatee, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-        await time.advanceBlock();
-        expect(await this.votes.getPastVotes(delegatee, receipt.blockNumber)).to.be.bignumber.equal(weight);
-      });
+        it('accept signed delegation', async function () {
+          await this.votes.mint(delegator.address, token);
+          const weight = getWeight(token);
 
-      it('rejects reused signature', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            delegatee,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+          const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              delegatee,
+              nonce,
+              expiry: MAX_UINT256,
+            }),
+          ));
 
-        await this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s);
+          expect(await this.votes.delegates(delegator.address)).to.be.equal(ZERO_ADDRESS);
 
-        await expectRevert(
-          this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s),
-          'Votes: invalid nonce',
-        );
-      });
+          const { receipt } = await this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s);
+          expectEvent(receipt, 'DelegateChanged', {
+            delegator: delegator.address,
+            fromDelegate: ZERO_ADDRESS,
+            toDelegate: delegatee,
+          });
+          expectEvent(receipt, 'DelegateVotesChanged', {
+            delegate: delegatee,
+            previousBalance: '0',
+            newBalance: weight,
+          });
 
-      it('rejects bad delegatee', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            delegatee,
-            nonce,
-            expiry: MAX_UINT256,
-          }),
-        ));
+          expect(await this.votes.delegates(delegator.address)).to.be.equal(delegatee);
+          expect(await this.votes.getVotes(delegator.address)).to.be.bignumber.equal('0');
+          expect(await this.votes.getVotes(delegatee)).to.be.bignumber.equal(weight);
+          expect(await this.votes.getPastVotes(delegatee, receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+          await time.advanceBlock();
+          expect(await this.votes.getPastVotes(delegatee, receipt.blockNumber)).to.be.bignumber.equal(weight);
+        });
 
-        const receipt = await this.votes.delegateBySig(other, nonce, MAX_UINT256, v, r, s);
-        const { args } = receipt.logs.find(({ event }) => event === 'DelegateChanged');
-        expect(args.delegator).to.not.be.equal(delegator.address);
-        expect(args.fromDelegate).to.be.equal(ZERO_ADDRESS);
-        expect(args.toDelegate).to.be.equal(other);
-      });
+        it('rejects reused signature', async function () {
+          const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              delegatee,
+              nonce,
+              expiry: MAX_UINT256,
+            }),
+          ));
 
-      it('rejects bad nonce', async function () {
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            delegatee,
-            nonce: nonce + 1,
-            expiry: MAX_UINT256,
-          }),
-        ));
-        await expectRevert(
-          this.votes.delegateBySig(delegatee, nonce + 1, MAX_UINT256, v, r, s),
-          'Votes: invalid nonce',
-        );
-      });
+          await this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s);
 
-      it('rejects expired permit', async function () {
-        const expiry = (await time.latest()) - time.duration.weeks(1);
-        const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-          delegator.getPrivateKey(),
-          buildData(this.chainId, this.votes.address, this.name, {
-            delegatee,
-            nonce,
-            expiry,
-          }),
-        ));
+          await expectRevert(
+            this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s),
+            'Votes: invalid nonce',
+          );
+        });
 
-        await expectRevert(
-          this.votes.delegateBySig(delegatee, nonce, expiry, v, r, s),
-          'Votes: signature expired',
-        );
+        it('rejects bad delegatee', async function () {
+          const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              delegatee,
+              nonce,
+              expiry: MAX_UINT256,
+            }),
+          ));
+
+          const receipt = await this.votes.delegateBySig(other, nonce, MAX_UINT256, v, r, s);
+          const { args } = receipt.logs.find(({ event }) => event === 'DelegateChanged');
+          expect(args.delegator).to.not.be.equal(delegator.address);
+          expect(args.fromDelegate).to.be.equal(ZERO_ADDRESS);
+          expect(args.toDelegate).to.be.equal(other);
+        });
+
+        it('rejects bad nonce', async function () {
+          const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              delegatee,
+              nonce: nonce + 1,
+              expiry: MAX_UINT256,
+            }),
+          ));
+          await expectRevert(
+            this.votes.delegateBySig(delegatee, nonce + 1, MAX_UINT256, v, r, s),
+            'Votes: invalid nonce',
+          );
+        });
+
+        it('rejects expired permit', async function () {
+          const expiry = (await time.latest()) - time.duration.weeks(1);
+          const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
+            delegator.getPrivateKey(),
+            buildData(this.chainId, this.votes.address, this.name, {
+              delegatee,
+              nonce,
+              expiry,
+            }),
+          ));
+
+          await expectRevert(
+            this.votes.delegateBySig(delegatee, nonce, expiry, v, r, s),
+            'Votes: signature expired',
+          );
+        });
       });
     });
 
