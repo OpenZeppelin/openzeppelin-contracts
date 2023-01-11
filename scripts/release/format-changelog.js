@@ -25,7 +25,7 @@ const RELEASE_LINE_REGEX = new RegExp(
 );
 
 // Captures vX.Y.Z or vX.Y.Z-rc.W
-const VERSION_TITLE_REGEX = /\n## (\d\.\d\.\d(-rc\.\d)?)\n/g;
+const VERSION_TITLE_REGEX = /\n## (\d+\.\d+\.\d+(-rc\.\d+)?)\n/g;
 
 const formatted = changelog
   // Remove extra \n
