@@ -1,5 +1,3 @@
-const { web3 } = require("hardhat");
-
 function sum (inputs) {
     let acc = web3.utils.toBN(0);
     for (const n of inputs) {
