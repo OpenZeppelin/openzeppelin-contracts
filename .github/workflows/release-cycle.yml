@@ -20,13 +20,13 @@ jobs:
       - id: check_publish_ready
         name: Check if ready for publishing
         run: |
-          CHANGESETS_QUANTITY=$(node -p -e "require('@changesets/read').default(process.cwd()).then(changesets => console.log(changesets.length))" | tail -n 1)
-          echo "changesets=$CHANGESETS_QUANTITY" >> $GITHUB_OUTPUT
+          SHOULD_PUBLISH=$(node scripts/release/check-publish.js)
+          echo "should_publish=$SHOULD_PUBLISH" >> $GITHUB_OUTPUT
     outputs:
       start_release_candidate: ${{ github.ref_name == 'master' && github.event_name == 'workflow_dispatch' }}
       changesets_pr: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'push' }}
       promote_to_final: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'workflow_dispatch' }}
-      publish: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.check_publish_ready.outputs.changesets == '0' }}
+      publish: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.check_publish_ready.outputs.should_publish == 'true' }}
   start_release_candidate:
     needs: check_state
     environment: Release Cycle
@@ -92,6 +92,9 @@ jobs:
           version: npm run version
           title: ${{ env.TITLE }}
           commit: ${{ env.TITLE }}
+          description: | # Wait for support on this
+            This is an automated PR for releasing ${{ github.repository }}
+            Check [CHANGELOG.md](${{ github.repository }}/CHANGELOG.md)
   promote_to_final:
     needs: check_state
     environment: Release Cycle
