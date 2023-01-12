@@ -13,5 +13,6 @@ jobs:
       - name: Add problem matchers
         run: |
           # https://github.com/rhysd/actionlint/blob/3a2f2c7/docs/usage.md#problem-matchers
-          echo "::add-matcher::.github/actionlint-matcher.json"
+          curl -LO https://raw.githubusercontent.com/rhysd/actionlint/main/.github/actionlint-matcher.json
+          echo "::add-matcher::actionlint-matcher.json"
       - uses: docker://rhysd/actionlint:latest
