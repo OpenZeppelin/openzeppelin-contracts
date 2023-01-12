@@ -310,25 +310,18 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _update(address from, address to, uint256 tokenId, uint256 batchSize) internal virtual {
-        if (batchSize > 1) {
-            if (from != address(0)) {
-                _balances[from] -= batchSize;
-            }
-            if (to != address(0)) {
-                _balances[to] += batchSize;
-            }
-        } else {
+        if (batchSize == 1) {
             if (from != address(0)) {
                 // Clear approvals from the previous owner
                 delete _tokenApprovals[tokenId];
-
+    
                 unchecked {
                     // Cannot overflow, as that would require more tokens to be burned/transferred
                     // out than the owner initially received through minting and transferring in.
                     _balances[from] -= 1;
                 }
             }
-
+    
             if (to != address(0)) {
                 unchecked {
                     // Will not overflow unless all 2**256 token ids are minted to the same owner.
@@ -338,10 +331,18 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
                     _balances[to] += 1;
                 }
             }
-
+    
             _owners[tokenId] = to;
-
+    
             emit Transfer(from, to, tokenId);
+        } else {
+            // here batchSize is potentially 0
+            if (from != address(0)) {
+                _balances[from] -= batchSize;
+            }
+            if (to != address(0)) {
+                _balances[to] += batchSize;
+            }
         }
     }
 

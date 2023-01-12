@@ -102,6 +102,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             // After construction, {_mintConsecutive} is no longer available and {_mint} becomes available.
             require(Address.isContract(address(this)), "ERC721Consecutive: can't mint during construction");
         }
+        // The prior if statement runs before calling update to ensure its not ocurring at construction.
         super._update(from, to, firstTokenId, batchSize);
         if (
             to == address(0) && // if we burn
