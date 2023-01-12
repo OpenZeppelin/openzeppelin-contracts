@@ -348,7 +348,7 @@ contract('ERC20Votes', function (accounts) {
 
         const t1 = await this.token.delegate(other1, { from: recipient });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('1');
-        
+
         const t2 = await this.token.transfer(other2, 10, { from: recipient });
         expect(await this.token.numCheckpoints(other1)).to.be.bignumber.equal('2');
 
@@ -518,17 +518,10 @@ contract('ERC20Votes', function (accounts) {
 
   describe('Voting workflow', function () {
     beforeEach(async function () {
-      this.account1 = holder;
-      this.account1Delegatee = holderDelegatee;
-      this.account2 = recipient;
-      this.name = 'My Token';
-      this.votes = this.token
-      this.token0 = 1;      
-      this.token1 = 1;
-      this.token2 = 1;
-      this.token3 = 1;
+      this.name = name;
+      this.votes = this.token;
     });
 
-    shouldBehaveLikeVotes();
+    shouldBehaveLikeVotes(accounts, [ 1, 17, 42]);
   });
 });

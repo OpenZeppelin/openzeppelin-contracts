@@ -374,7 +374,7 @@ contract('ERC20VotesComp', function (accounts) {
         expect(await this.token.checkpoints(other1, 1)).to.be.deep.equal([ t4.receipt.blockNumber.toString(), '100' ]);
       });
     });
-  
+
     describe('getPriorVotes', function () {
       it('reverts if block number >= current block', async function () {
         await expectRevert(
@@ -497,17 +497,10 @@ contract('ERC20VotesComp', function (accounts) {
 
   describe('Voting workflow', function () {
     beforeEach(async function () {
-      this.account1 = holder;
-      this.account1Delegatee = holderDelegatee;
-      this.account2 = recipient;
-      this.name = 'My Token';
-      this.votes = this.token
-      this.token0 = 1;      
-      this.token1 = 1;
-      this.token2 = 1;
-      this.token3 = 1;
+      this.name = name;
+      this.votes = this.token;
     });
 
-    shouldBehaveLikeVotes();
+    shouldBehaveLikeVotes(accounts, [1, 17, 42]);
   });
 });

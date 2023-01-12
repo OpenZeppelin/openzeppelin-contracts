@@ -1,7 +1,5 @@
-const { BN } = require('@openzeppelin/test-helpers');
-
 function Enum (...options) {
-  return Object.fromEntries(options.map((key, i) => [ key, new BN(i) ]));
+  return Object.fromEntries(options.map((key, i) => [ key, web3.utils.toBN(i) ]));
 }
 
 module.exports = {
