@@ -5,10 +5,10 @@ const { GovernorHelper } = require('../../helpers/governance');
 const Governor = artifacts.require('$GovernorCompMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-const TOKENS = {
-  blockNumber: artifacts.require('$ERC20VotesComp'),
-  timestamp: artifacts.require('$ERC20VotesCompTimestampMock'),
-};
+const TOKENS = [
+  { Token: artifacts.require('$ERC20VotesComp'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20VotesCompTimestampMock'), mode: 'timestamp' },
+];
 
 contract('GovernorComp', function (accounts) {
   const [owner, voter1, voter2, voter3, voter4] = accounts;
@@ -22,8 +22,8 @@ contract('GovernorComp', function (accounts) {
   const votingPeriod = web3.utils.toBN(16);
   const value = web3.utils.toWei('1');
 
-  for (const [mode, Token] of Object.entries(TOKENS)) {
-    describe(`using ${mode} voting token`, function () {
+  for (const { mode, Token } of TOKENS) {
+    describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
         this.owner = owner;
         this.token = await Token.new(tokenName, tokenSymbol, tokenName);

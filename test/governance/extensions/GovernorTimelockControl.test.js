@@ -9,10 +9,10 @@ const Timelock = artifacts.require('TimelockController');
 const Governor = artifacts.require('$GovernorTimelockControlMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-const TOKENS = {
-  blockNumber: artifacts.require('$ERC20Votes'),
-  timestamp: artifacts.require('$ERC20VotesTimestampMock'),
-};
+const TOKENS = [
+  { Token: artifacts.require('$ERC20Votes'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
+];
 
 contract('GovernorTimelockControl', function (accounts) {
   const [owner, voter1, voter2, voter3, voter4, other] = accounts;
@@ -31,14 +31,22 @@ contract('GovernorTimelockControl', function (accounts) {
   const votingPeriod = web3.utils.toBN(16);
   const value = web3.utils.toWei('1');
 
-  for (const [mode, Token] of Object.entries(TOKENS)) {
-    describe(`using ${mode} voting token`, function () {
+  for (const { mode, Token } of TOKENS) {
+    describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
         const [deployer] = await web3.eth.getAccounts();
 
         this.token = await Token.new(tokenName, tokenSymbol, tokenName);
         this.timelock = await Timelock.new(3600, [], [], deployer);
-        this.mock = await Governor.new(name, votingDelay, votingPeriod, 0, this.timelock.address, this.token.address, 0);
+        this.mock = await Governor.new(
+          name,
+          votingDelay,
+          votingPeriod,
+          0,
+          this.timelock.address,
+          this.token.address,
+          0,
+        );
         this.receiver = await CallReceiver.new();
 
         this.helper = new GovernorHelper(this.mock, mode);
@@ -335,7 +343,12 @@ contract('GovernorTimelockControl', function (accounts) {
 
         describe('updateTimelock', function () {
           beforeEach(async function () {
-            this.newTimelock = await Timelock.new(3600, [this.mock.address], [this.mock.address], constants.ZERO_ADDRESS);
+            this.newTimelock = await Timelock.new(
+              3600,
+              [this.mock.address],
+              [this.mock.address],
+              constants.ZERO_ADDRESS,
+            );
           });
 
           it('is protected', async function () {

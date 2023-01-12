@@ -1,4 +1,4 @@
-const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
@@ -7,10 +7,10 @@ const { clockFromReceipt } = require('../../helpers/time');
 const Governor = artifacts.require('$GovernorPreventLateQuorumMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-const TOKENS = {
-  blockNumber: artifacts.require('$ERC20Votes'),
-  timestamp: artifacts.require('$ERC20VotesTimestampMock'),
-};
+const TOKENS = [
+  { Token: artifacts.require('$ERC20Votes'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
+];
 
 contract('GovernorPreventLateQuorum', function (accounts) {
   const [owner, proposer, voter1, voter2, voter3, voter4] = accounts;
@@ -26,8 +26,8 @@ contract('GovernorPreventLateQuorum', function (accounts) {
   const quorum = web3.utils.toWei('1');
   const value = web3.utils.toWei('1');
 
-  for (const [mode, Token] of Object.entries(TOKENS)) {
-    describe(`using ${mode} voting token`, function () {
+  for (const { mode, Token } of TOKENS) {
+    describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
         this.owner = owner;
         this.token = await Token.new(tokenName, tokenSymbol, tokenName);
@@ -97,7 +97,10 @@ contract('GovernorPreventLateQuorum', function (accounts) {
         });
 
         const startBlock = web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay);
-        const endBlock = web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay).add(votingPeriod);
+        const endBlock = web3.utils
+          .toBN(await clockFromReceipt[mode](txPropose.receipt))
+          .add(votingDelay)
+          .add(votingPeriod);
         expect(await this.mock.proposalSnapshot(this.proposal.id)).to.be.bignumber.equal(startBlock);
         expect(await this.mock.proposalDeadline(this.proposal.id)).to.be.bignumber.equal(endBlock);
 
@@ -119,7 +122,10 @@ contract('GovernorPreventLateQuorum', function (accounts) {
 
         // compute original schedule
         const startBlock = web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay);
-        const endBlock = web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay).add(votingPeriod);
+        const endBlock = web3.utils
+          .toBN(await clockFromReceipt[mode](txPropose.receipt))
+          .add(votingDelay)
+          .add(votingPeriod);
         expect(await this.mock.proposalSnapshot(this.proposal.id)).to.be.bignumber.equal(startBlock);
         expect(await this.mock.proposalDeadline(this.proposal.id)).to.be.bignumber.equal(endBlock);
 
@@ -131,7 +137,9 @@ contract('GovernorPreventLateQuorum', function (accounts) {
         expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Active);
 
         // compute new extended schedule
-        const extendedDeadline = web3.utils.toBN(await clockFromReceipt[mode](txVote.receipt)).add(lateQuorumVoteExtension);
+        const extendedDeadline = web3.utils
+          .toBN(await clockFromReceipt[mode](txVote.receipt))
+          .add(lateQuorumVoteExtension);
         expect(await this.mock.proposalSnapshot(this.proposal.id)).to.be.bignumber.equal(startBlock);
         expect(await this.mock.proposalDeadline(this.proposal.id)).to.be.bignumber.equal(extendedDeadline);
 

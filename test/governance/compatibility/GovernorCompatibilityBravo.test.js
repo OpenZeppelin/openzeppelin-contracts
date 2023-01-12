@@ -18,10 +18,10 @@ function makeContractAddress(creator, nonce) {
   );
 }
 
-const TOKENS = {
-  blockNumber: artifacts.require('$ERC20VotesComp'),
-  timestamp: artifacts.require('$ERC20VotesCompTimestampMock'),
-};
+const TOKENS = [
+  { Token: artifacts.require('$ERC20VotesComp'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20VotesCompTimestampMock'), mode: 'timestamp' },
+];
 
 contract('GovernorCompatibilityBravo', function (accounts) {
   const [owner, proposer, voter1, voter2, voter3, voter4, other] = accounts;
@@ -36,8 +36,8 @@ contract('GovernorCompatibilityBravo', function (accounts) {
   const proposalThreshold = web3.utils.toWei('10');
   const value = web3.utils.toWei('1');
 
-  for (const [mode, Token] of Object.entries(TOKENS)) {
-    describe(`using ${mode} voting token`, function () {
+  for (const { mode, Token } of TOKENS) {
+    describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
         const [deployer] = await web3.eth.getAccounts();
 
@@ -164,7 +164,10 @@ contract('GovernorCompatibilityBravo', function (accounts) {
           signatures: this.proposal.signatures.map(() => ''), // this event doesn't contain the proposal detail
           calldatas: this.proposal.fulldata,
           startBlock: web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay),
-          endBlock: web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay).add(votingPeriod),
+          endBlock: web3.utils
+            .toBN(await clockFromReceipt[mode](txPropose.receipt))
+            .add(votingDelay)
+            .add(votingPeriod),
           description: this.proposal.description,
         });
         expectEvent(txExecute, 'ProposalExecuted', { proposalId: this.proposal.id });
@@ -207,14 +210,23 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
         await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
         await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
-        await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', { a: '17', b: '42' });
-        await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', { a: '18', b: '43' });
+        await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', {
+          a: '17',
+          b: '42',
+        });
+        await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', {
+          a: '18',
+          b: '43',
+        });
       });
 
       describe('should revert', function () {
         describe('on propose', function () {
           it('if proposal does not meet proposalThreshold', async function () {
-            await expectRevert(this.helper.propose({ from: other }), 'Governor: proposer votes below proposal threshold');
+            await expectRevert(
+              this.helper.propose({ from: other }),
+              'Governor: proposer votes below proposal threshold',
+            );
           });
         });
 

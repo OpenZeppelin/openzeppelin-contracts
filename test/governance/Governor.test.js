@@ -15,10 +15,11 @@ const CallReceiver = artifacts.require('CallReceiverMock');
 const ERC721 = artifacts.require('$ERC721');
 const ERC1155 = artifacts.require('$ERC1155');
 
-const TOKENS = {
-  blockNumber: artifacts.require('$ERC20Votes'),
-  timestamp: artifacts.require('$ERC20VotesTimestampMock'),
-};
+const TOKENS = [
+  { Token: artifacts.require('$ERC20Votes'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
+  { Token: artifacts.require('$ERC20VotesLegacyMock'), mode: 'blockNumber' },
+];
 
 contract('Governor', function (accounts) {
   const [owner, proposer, voter1, voter2, voter3, voter4] = accounts;
@@ -32,8 +33,8 @@ contract('Governor', function (accounts) {
   const votingPeriod = web3.utils.toBN(16);
   const value = web3.utils.toWei('1');
 
-  for (const [mode, Token] of Object.entries(TOKENS)) {
-    describe(`using ${mode} voting token`, function () {
+  for (const { mode, Token } of TOKENS) {
+    describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
         this.chainId = await web3.eth.getChainId();
         this.token = await Token.new(tokenName, tokenSymbol, tokenName);
@@ -81,7 +82,7 @@ contract('Governor', function (accounts) {
       });
 
       it('clock is correct', async function () {
-        expect(await this.token.clock()).to.be.bignumber.equal(await clock[mode]().then(web3.utils.toBN));
+        expect(await this.mock.clock()).to.be.bignumber.equal(await clock[mode]().then(web3.utils.toBN));
       });
 
       it('nominal workflow', async function () {
@@ -103,7 +104,10 @@ contract('Governor', function (accounts) {
           signatures: this.proposal.signatures,
           calldatas: this.proposal.data,
           startBlock: web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay),
-          endBlock: web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay).add(votingPeriod),
+          endBlock: web3.utils
+            .toBN(await clockFromReceipt[mode](txPropose.receipt))
+            .add(votingDelay)
+            .add(votingPeriod),
           description: this.proposal.description,
         });
 

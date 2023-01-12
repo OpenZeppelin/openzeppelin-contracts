@@ -19,10 +19,10 @@ function makeContractAddress(creator, nonce) {
   );
 }
 
-const TOKENS = {
-  blockNumber: artifacts.require('$ERC20Votes'),
-  timestamp: artifacts.require('$ERC20VotesTimestampMock'),
-};
+const TOKENS = [
+  { Token: artifacts.require('$ERC20Votes'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
+];
 
 contract('GovernorTimelockCompound', function (accounts) {
   const [owner, voter1, voter2, voter3, voter4, other] = accounts;
@@ -36,8 +36,8 @@ contract('GovernorTimelockCompound', function (accounts) {
   const votingPeriod = web3.utils.toBN(16);
   const value = web3.utils.toWei('1');
 
-  for (const [mode, Token] of Object.entries(TOKENS)) {
-    describe(`using ${mode} voting token`, function () {
+  for (const { mode, Token } of TOKENS) {
+    describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
         const [deployer] = await web3.eth.getAccounts();
 
@@ -48,7 +48,15 @@ contract('GovernorTimelockCompound', function (accounts) {
         const predictGovernor = makeContractAddress(deployer, nonce + 1);
 
         this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
-        this.mock = await Governor.new(name, votingDelay, votingPeriod, 0, this.timelock.address, this.token.address, 0);
+        this.mock = await Governor.new(
+          name,
+          votingDelay,
+          votingPeriod,
+          0,
+          this.timelock.address,
+          this.token.address,
+          0,
+        );
         this.receiver = await CallReceiver.new();
 
         this.helper = new GovernorHelper(this.mock, mode);
@@ -134,7 +142,10 @@ contract('GovernorTimelockCompound', function (accounts) {
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
-            await expectRevert(this.helper.queue(), 'GovernorTimelockCompound: identical proposal action already queued');
+            await expectRevert(
+              this.helper.queue(),
+              'GovernorTimelockCompound: identical proposal action already queued',
+            );
             await expectRevert(this.helper.execute(), 'GovernorTimelockCompound: proposal not yet queued');
           });
         });
