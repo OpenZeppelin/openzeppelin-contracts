@@ -20,7 +20,7 @@ jobs:
       - id: changeset_state
         name: Read Changeset state
         run: |
-          echo "changesets=$(node scripts/release/read-changeset-state.js changesets)" >> $GITHUB_OUTPUT
+          echo "changesets=$(node scripts/release/read-changeset-state.js changesets length)" >> $GITHUB_OUTPUT
           echo "preState=$(node scripts/release/read-changeset-state.js preState)" >> $GITHUB_OUTPUT
       - id: check_pr_back
         if: contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.changeset_state.outputs.preState != 'pre'
