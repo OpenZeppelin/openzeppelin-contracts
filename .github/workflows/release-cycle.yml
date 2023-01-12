@@ -177,8 +177,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-          with:
-            fetch-depth: 0 # All branches
+        with:
+          fetch-depth: 0 # All branches
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
