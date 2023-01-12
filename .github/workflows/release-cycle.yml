@@ -15,8 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # To get all tags
       - name: Set up environment
         uses: ./.github/actions/setup
       - id: changeset_state
@@ -24,7 +22,7 @@ jobs:
         run: |
           echo "changesets=$(node scripts/release/read-changeset-state.js changesets length)" >> $GITHUB_OUTPUT
           echo "prestate=$(node scripts/release/read-changeset-state.js preState mode)" >> $GITHUB_OUTPUT
-          echo "packageJsonVersion=$(node -p -e "require('./package.json').version")"
+          echo "packageJsonVersion=$(node -p -e "require('./package.json').version")" >> $GITHUB_OUTPUT
       - id: check_pr_back
         if: contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.changeset_state.outputs.prestate == 'undefined' && !contains(steps.changeset_state.outputs.packageJsonVersion, '-rc.')
         name: Check if PR back to master is required
@@ -97,6 +95,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # To get all tags
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Set release title
@@ -183,7 +183,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # To get all tagspth: 0 # All branches
+          fetch-depth: 0 # All branches
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
