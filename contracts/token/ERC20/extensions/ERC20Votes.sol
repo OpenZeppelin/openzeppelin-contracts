@@ -38,8 +38,8 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
     Checkpoint[] private _totalSupplyCheckpoints;
 
     /**
-     * @dev Clock used for flagging checkpoints. Can be overriden to implement timestamp based checkpoints (and voting).
-     * See EIP 5805.
+     * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).
+     * See EIP-5805.
      */
     function clock() public view virtual returns (uint256) {
         return block.number;

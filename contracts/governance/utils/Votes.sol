@@ -42,8 +42,8 @@ abstract contract Votes is IVotes, Context, EIP712 {
     mapping(address => Counters.Counter) private _nonces;
 
     /**
-     * @dev Clock used for flagging checkpoints. Can be overriden to implement timestamp based checkpoints (and voting).
-     * See EIP 5805.
+     * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).
+     * See EIP-5805.
      */
     function clock() public view virtual returns (uint256) {
         return block.number;
