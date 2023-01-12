@@ -27,6 +27,26 @@ library SignatureChecker {
             return true;
         }
 
+        return _callIsValidSignature(signer, hash, signature);
+    }
+
+    /**
+     * @dev Checks if a signature is valid for a given signer and data hash. If the signer is a smart contract, the
+     * signature is validated against that smart contract using ERC1271, otherwise it's validated using `ECDSA.recover`.
+     *
+     * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
+     * change through time. It could return true at block N and false at block N+1 (or the opposite).
+     */
+    function isValidSignatureNow(address signer, bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal view returns (bool) {
+        (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(hash, v, r, s);
+        if (error == ECDSA.RecoverError.NoError && recovered == signer) {
+            return true;
+        }
+
+        return _callIsValidSignature(signer, hash, abi.encodePacked(r, s, v));
+    }
+
+    function _callIsValidSignature(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
         (bool success, bytes memory result) = signer.staticcall(
             abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)
         );
