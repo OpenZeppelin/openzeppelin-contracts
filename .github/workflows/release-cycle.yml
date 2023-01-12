@@ -24,7 +24,7 @@ jobs:
           echo "prestate=$(node scripts/release/read-changeset-state.js preState mode)" >> $GITHUB_OUTPUT
           echo "packageJsonVersion=$(node -p -e "require('./package.json').version")" >> $GITHUB_OUTPUT
       - id: check_pr_back
-        if: contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.changeset_state.outputs.prestate == 'undefined' && !contains(steps.changeset_state.outputs.packageJsonVersion, '-rc.')
+        if: contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.changeset_state.outputs.prestate == 'undefined' && !contains(steps.changeset_state.outputs.packageJsonVersion, '-rc.') && steps.changeset_state.outputs.changesets == '0'
         name: Check if PR back to master is required
         uses: actions/github-script@v6
         with:
@@ -191,13 +191,14 @@ jobs:
         env:
           RELEASE_BRANCH: ${{ github.ref_name }}
         run: |
-          git push origin -d "merge/$RELEASE_BRANCH" &>/dev/null
-          git checkout -b "merge/$RELEASE_BRANCH"
+          MERGE_BRANCH=merge/$RELEASE_BRANCH
+          if [ `git branch --list $MERGE_BRANCH` ]; then git push origin -d $MERGE_BRANCH; fi;
+          git checkout -b $MERGE_BRANCH
           DELETED_CHANGESETS=$(git diff origin/master --name-only | grep '.changeset/' | grep '.md')
           git merge origin/master -m "Merge master to $RELEASE_BRANCH"
           echo $DELETED_CHANGESETS | while read -r changeset; do rm -f $changeset; done
           git add .
-          git commit -m "Sync changesets with master"
+          git commit --allow-empty -m "Sync changesets with master"
           git push --all
       - name: Create PR back to master
         uses: actions/github-script@v6
