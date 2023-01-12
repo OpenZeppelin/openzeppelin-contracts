@@ -1,0 +1,10 @@
+on:
+  push:
+    branch: main
+    tags:
+      - 'v\d+'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Checking commit '${{ github.event.head_commit.message }}'"
