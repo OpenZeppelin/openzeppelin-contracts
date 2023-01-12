@@ -21,10 +21,10 @@ jobs:
         name: Read Changeset state
         run: |
           echo "changesets=$(node scripts/release/read-changeset-state.js changesets length)" >> $GITHUB_OUTPUT
-          echo "preState=$(node scripts/release/read-changeset-state.js preState)" >> $GITHUB_OUTPUT
+          echo "preState=$(node scripts/release/read-changeset-state.js preState mode)" >> $GITHUB_OUTPUT
       - id: check_pr_back
         if: contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.changeset_state.outputs.preState != 'pre'
-        name: Check if PR back to master exists
+        name: Check if PR back to master is required
         uses: actions/github-script@v6
         with:
           result-encoding: string
@@ -37,14 +37,14 @@ jobs:
               state: 'open'
             });
 
-            return PRs.length;
+            return PRs.length == 0;
 
     outputs:
       start_release_candidate: ${{ github.ref_name == 'master' && github.event_name == 'workflow_dispatch' }}
       changesets_pr: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'push' }}
       promote_to_final: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'workflow_dispatch' }}
       publish: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.changeset_state.outputs.changesets == '0' }}
-      pr_back: ${{ steps.check_pr_back.outputs.result == '0' }}
+      pr_back: ${{ steps.check_pr_back.outputs.result == 'true' }}
 
   start_release_candidate:
     needs: check_state
@@ -187,7 +187,7 @@ jobs:
           RELEASE_BRANCH: ${{ github.ref_name }}
         run: |
           git checkout -b "merge/$RELEASE_BRANCH"
-          DELETED_CHANGESETS=$(git diff release-v1.10 --name-only | grep '.changesets/' | grep '.md')
+          DELETED_CHANGESETS=$(git diff $RELEASE_BRANCH --name-only | grep '.changesets/' | grep '.md')
           git merge master -m "Merge master to $RELEASE_BRANCH"
           echo $DELETED_CHANGESETS | while read -r changeset; do rm $changeset; done
           git add .
