@@ -14,4 +14,4 @@ jobs:
         run: |
           # https://github.com/rhysd/actionlint/blob/3a2f2c7/docs/usage.md#problem-matchers
           echo "::add-matcher::.github/actionlint-matcher.json"
-      - uses: docker://rhysd/actionlint:1.6.22
+      - uses: docker://rhysd/actionlint:latest
