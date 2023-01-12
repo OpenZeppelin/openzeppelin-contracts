@@ -157,8 +157,10 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          cd contracts
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > $HOME/.npmrc
           npm publish
+          cd ..
       - name: Upload tags
         run: git push --tags
       - name: Create Github Release
