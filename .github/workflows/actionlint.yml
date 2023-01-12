@@ -1,0 +1,13 @@
+name: lint workflows
+
+on:
+  pull_request:
+    paths:
+      - '.github/**/*.ya?ml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker://rhysd/actionlint:1.6.22
