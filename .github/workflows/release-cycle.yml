@@ -21,15 +21,16 @@ jobs:
         name: Read Changeset state
         run: |
           echo "changesets=$(node scripts/release/read-changeset-state.js changesets length)" >> $GITHUB_OUTPUT
-          echo "preState=$(node scripts/release/read-changeset-state.js preState mode)" >> $GITHUB_OUTPUT
+          echo "prestate=$(node scripts/release/read-changeset-state.js preState mode)" >> $GITHUB_OUTPUT
+          echo "packageJsonVersion=$(node -p -e "require('./package.json').version")"
       - id: check_pr_back
-        if: contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.changeset_state.outputs.preState != 'pre'
+        if: contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.changeset_state.outputs.prestate == 'undefined' && !contains(steps.changeset_state.outputs.packageJsonVersion, '-rc.')
         name: Check if PR back to master is required
         uses: actions/github-script@v6
         with:
           result-encoding: string
           script: |
-            const PRs = github.rest.pulls.list({
+            const { data: PRs } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
               head: 'merge/${{ github.ref_name }}',
@@ -37,7 +38,7 @@ jobs:
               state: 'open'
             });
 
-            return PRs.length == 0;
+            return (PRs.length === 0).toString();
 
     outputs:
       start_release_candidate: ${{ github.ref_name == 'master' && github.event_name == 'workflow_dispatch' }}
@@ -186,10 +187,11 @@ jobs:
         env:
           RELEASE_BRANCH: ${{ github.ref_name }}
         run: |
+          git push origin -d "merge/$RELEASE_BRANCH" &>/dev/null
           git checkout -b "merge/$RELEASE_BRANCH"
-          DELETED_CHANGESETS=$(git diff $RELEASE_BRANCH --name-only | grep '.changesets/' | grep '.md')
-          git merge master -m "Merge master to $RELEASE_BRANCH"
-          echo $DELETED_CHANGESETS | while read -r changeset; do rm $changeset; done
+          DELETED_CHANGESETS=$(git diff origin/master --name-only | grep '.changeset/' | grep '.md')
+          git merge origin/master -m "Merge master to $RELEASE_BRANCH"
+          echo $DELETED_CHANGESETS | while read -r changeset; do rm -f $changeset; done
           git add .
           git commit -m "Sync changesets with master"
           git push --all
