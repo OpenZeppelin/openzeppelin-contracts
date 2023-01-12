@@ -16,9 +16,9 @@
 
  * `ERC20Permit`: Added the file `IERC20Permit.sol` and `ERC20Permit.sol` and deprecated `draft-IERC20Permit.sol` and `draft-ERC20Permit.sol` since [EIP-2612](https://eips.ethereum.org/EIPS/eip-2612) is no longer a Draft. Developers are encouraged to update their imports. ([#3793](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3793))
 
-## Unreleased
+## 4.8.1
 
- * `ERC4626`: use staticcall instead of call when fetch underlying ERC-20 decimals. ([#3943](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3943))
+ * `ERC4626`: Use staticcall instead of call when fetching underlying ERC-20 decimals. ([#3943](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3943))
 
 ## 4.8.0 (2022-11-08)
 
