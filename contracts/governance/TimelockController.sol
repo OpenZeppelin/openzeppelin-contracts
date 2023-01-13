@@ -311,6 +311,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      *
      * - the caller must have the 'executor' role.
      */
+    // slither-disable-next-line reentrancy-eth
     function executeBatch(
         address[] calldata targets,
         uint256[] calldata values,
