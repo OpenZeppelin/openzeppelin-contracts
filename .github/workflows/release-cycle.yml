@@ -89,7 +89,6 @@ jobs:
 
   changesets_pr:
     needs: check_state
-    environment: Release Cycle
     name: Changesets PR
     if: needs.check_state.outputs.changesets_pr == 'true'
     runs-on: ubuntu-latest
