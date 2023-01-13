@@ -17,7 +17,7 @@ const Delegation = [
 
 const version = '1';
 
-function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
+function shouldBehaveLikeVotes(accounts, tokens, fungible = true) {
   const getWeight = token => web3.utils.toBN(fungible ? token : 1);
 
   describe('run votes workflow', function () {
@@ -26,10 +26,13 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
     });
 
     it('domain separator', async function () {
-      expect(
-        await this.votes.DOMAIN_SEPARATOR(),
-      ).to.equal(
-        await domainSeparator(this.name, version, this.chainId, this.votes.address),
+      expect(await this.votes.DOMAIN_SEPARATOR()).to.equal(
+        await domainSeparator({
+          name: this.name,
+          version,
+          chainId: this.chainId,
+          verifyingContract: this.votes.address,
+        }),
       );
     });
 
@@ -51,7 +54,7 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
       });
 
       it('delegation with tokens', async function () {
-        await this.votes.mint(accounts[1], token);
+        await this.votes.$_mint(accounts[1], token);
         const weight = getWeight(token);
 
         expect(await this.votes.delegates(accounts[1])).to.be.equal(ZERO_ADDRESS);
@@ -77,7 +80,7 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
 
       it('delegation update', async function () {
         await this.votes.delegate(accounts[1], { from: accounts[1] });
-        await this.votes.mint(accounts[1], token);
+        await this.votes.$_mint(accounts[1], token);
         const weight = getWeight(token);
 
         expect(await this.votes.delegates(accounts[1])).to.be.equal(accounts[1]);
@@ -128,17 +131,19 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
         });
 
         it('accept signed delegation', async function () {
-          await this.votes.mint(delegator.address, token);
+          await this.votes.$_mint(delegator.address, token);
           const weight = getWeight(token);
 
-          const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-            delegator.getPrivateKey(),
-            buildData(this.chainId, this.votes.address, this.name, {
-              delegatee,
-              nonce,
-              expiry: MAX_UINT256,
-            }),
-          ));
+          const { v, r, s } = fromRpcSig(
+            ethSigUtil.signTypedMessage(
+              delegator.getPrivateKey(),
+              buildData(this.chainId, this.votes.address, this.name, {
+                delegatee,
+                nonce,
+                expiry: MAX_UINT256,
+              }),
+            ),
+          );
 
           expect(await this.votes.delegates(delegator.address)).to.be.equal(ZERO_ADDRESS);
 
@@ -163,32 +168,33 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
         });
 
         it('rejects reused signature', async function () {
-          const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-            delegator.getPrivateKey(),
-            buildData(this.chainId, this.votes.address, this.name, {
-              delegatee,
-              nonce,
-              expiry: MAX_UINT256,
-            }),
-          ));
+          const { v, r, s } = fromRpcSig(
+            ethSigUtil.signTypedMessage(
+              delegator.getPrivateKey(),
+              buildData(this.chainId, this.votes.address, this.name, {
+                delegatee,
+                nonce,
+                expiry: MAX_UINT256,
+              }),
+            ),
+          );
 
           await this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s);
 
-          await expectRevert(
-            this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s),
-            'Votes: invalid nonce',
-          );
+          await expectRevert(this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s), 'Votes: invalid nonce');
         });
 
         it('rejects bad delegatee', async function () {
-          const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-            delegator.getPrivateKey(),
-            buildData(this.chainId, this.votes.address, this.name, {
-              delegatee,
-              nonce,
-              expiry: MAX_UINT256,
-            }),
-          ));
+          const { v, r, s } = fromRpcSig(
+            ethSigUtil.signTypedMessage(
+              delegator.getPrivateKey(),
+              buildData(this.chainId, this.votes.address, this.name, {
+                delegatee,
+                nonce,
+                expiry: MAX_UINT256,
+              }),
+            ),
+          );
 
           const receipt = await this.votes.delegateBySig(other, nonce, MAX_UINT256, v, r, s);
           const { args } = receipt.logs.find(({ event }) => event === 'DelegateChanged');
@@ -198,14 +204,16 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
         });
 
         it('rejects bad nonce', async function () {
-          const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-            delegator.getPrivateKey(),
-            buildData(this.chainId, this.votes.address, this.name, {
-              delegatee,
-              nonce: nonce + 1,
-              expiry: MAX_UINT256,
-            }),
-          ));
+          const { v, r, s } = fromRpcSig(
+            ethSigUtil.signTypedMessage(
+              delegator.getPrivateKey(),
+              buildData(this.chainId, this.votes.address, this.name, {
+                delegatee,
+                nonce: nonce + 1,
+                expiry: MAX_UINT256,
+              }),
+            ),
+          );
           await expectRevert(
             this.votes.delegateBySig(delegatee, nonce + 1, MAX_UINT256, v, r, s),
             'Votes: invalid nonce',
@@ -214,19 +222,18 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
 
         it('rejects expired permit', async function () {
           const expiry = (await time.latest()) - time.duration.weeks(1);
-          const { v, r, s } = fromRpcSig(ethSigUtil.signTypedMessage(
-            delegator.getPrivateKey(),
-            buildData(this.chainId, this.votes.address, this.name, {
-              delegatee,
-              nonce,
-              expiry,
-            }),
-          ));
-
-          await expectRevert(
-            this.votes.delegateBySig(delegatee, nonce, expiry, v, r, s),
-            'Votes: signature expired',
+          const { v, r, s } = fromRpcSig(
+            ethSigUtil.signTypedMessage(
+              delegator.getPrivateKey(),
+              buildData(this.chainId, this.votes.address, this.name, {
+                delegatee,
+                nonce,
+                expiry,
+              }),
+            ),
           );
+
+          await expectRevert(this.votes.delegateBySig(delegatee, nonce, expiry, v, r, s), 'Votes: signature expired');
         });
       });
     });
@@ -237,10 +244,7 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
       });
 
       it('reverts if block number >= current block', async function () {
-        await expectRevert(
-          this.votes.getPastTotalSupply(5e10),
-          'block not yet mined',
-        );
+        await expectRevert(this.votes.getPastTotalSupply(5e10), 'block not yet mined');
       });
 
       it('returns 0 if there are no checkpoints', async function () {
@@ -250,17 +254,17 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
       it('returns the correct checkpointed total supply', async function () {
         const blockNumber = Number(await time.latestBlock());
 
-        await this.votes.mint(accounts[1], tokens[0]); // mint 0
+        await this.votes.$_mint(accounts[1], tokens[0]); // mint 0
         await time.advanceBlock();
-        await this.votes.mint(accounts[1], tokens[1]); // mint 1
+        await this.votes.$_mint(accounts[1], tokens[1]); // mint 1
         await time.advanceBlock();
-        await this.votes.burn(...(fungible ? [accounts[1]] : []), tokens[1]); // burn 1
+        await this.votes.$_burn(...(fungible ? [accounts[1]] : []), tokens[1]); // burn 1
         await time.advanceBlock();
-        await this.votes.mint(accounts[1], tokens[2]); // mint 2
+        await this.votes.$_mint(accounts[1], tokens[2]); // mint 2
         await time.advanceBlock();
-        await this.votes.burn(...(fungible ? [accounts[1]] : []), tokens[0]); // burn 0
+        await this.votes.$_burn(...(fungible ? [accounts[1]] : []), tokens[0]); // burn 0
         await time.advanceBlock();
-        await this.votes.burn(...(fungible ? [accounts[1]] : []), tokens[2]); // burn 2
+        await this.votes.$_burn(...(fungible ? [accounts[1]] : []), tokens[2]); // burn 2
         await time.advanceBlock();
 
         const weight = tokens.map(getWeight);
@@ -277,7 +281,7 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
         expect(await this.votes.getPastTotalSupply(blockNumber + 9)).to.be.bignumber.equal(weight[2]);
         expect(await this.votes.getPastTotalSupply(blockNumber + 10)).to.be.bignumber.equal(weight[2]);
         expect(await this.votes.getPastTotalSupply(blockNumber + 11)).to.be.bignumber.equal('0');
-        await expectRevert(this.votes.getPastTotalSupply(blockNumber + 12), 'Votes: block not yet mined');
+        await expectRevert(this.votes.getPastTotalSupply(blockNumber + 12), 'Checkpoints: block not yet mined');
       });
     });
 
@@ -285,17 +289,14 @@ function shouldBehaveLikeVotes (accounts, tokens, fungible = true) {
     // https://github.com/compound-finance/compound-protocol/blob/master/tests/Governance/CompTest.js.
     describe('Compound test suite', function () {
       beforeEach(async function () {
-        await this.votes.mint(accounts[1], tokens[0]);
-        await this.votes.mint(accounts[1], tokens[1]);
-        await this.votes.mint(accounts[1], tokens[2]);
+        await this.votes.$_mint(accounts[1], tokens[0]);
+        await this.votes.$_mint(accounts[1], tokens[1]);
+        await this.votes.$_mint(accounts[1], tokens[2]);
       });
 
       describe('getPastVotes', function () {
         it('reverts if block number >= current block', async function () {
-          await expectRevert(
-            this.votes.getPastVotes(accounts[2], 5e10),
-            'block not yet mined',
-          );
+          await expectRevert(this.votes.getPastVotes(accounts[2], 5e10), 'block not yet mined');
         });
 
         it('returns 0 if there are no checkpoints', async function () {

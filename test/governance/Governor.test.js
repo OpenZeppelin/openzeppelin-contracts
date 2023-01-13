@@ -3,22 +3,22 @@ const { expect } = require('chai');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { fromRpcSig } = require('ethereumjs-util');
+
 const Enums = require('../helpers/enums');
+const { getChainId } = require('../helpers/chainid');
 const { EIP712Domain } = require('../helpers/eip712');
 const { GovernorHelper } = require('../helpers/governance');
 
-const {
-  shouldSupportInterfaces,
-} = require('../utils/introspection/SupportsInterface.behavior');
+const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 
-const Token = artifacts.require('ERC20VotesMock');
-const Governor = artifacts.require('GovernorMock');
+const Token = artifacts.require('$ERC20Votes');
+const Governor = artifacts.require('$GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
-const ERC721Mock = artifacts.require('ERC721Mock');
-const ERC1155Mock = artifacts.require('ERC1155Mock');
+const ERC721 = artifacts.require('$ERC721');
+const ERC1155 = artifacts.require('$ERC1155');
 
 contract('Governor', function (accounts) {
-  const [ owner, proposer, voter1, voter2, voter3, voter4 ] = accounts;
+  const [owner, proposer, voter1, voter2, voter3, voter4] = accounts;
   const empty = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
 
   const name = 'OZ-Governor';
@@ -31,36 +31,41 @@ contract('Governor', function (accounts) {
   const value = web3.utils.toWei('1');
 
   beforeEach(async function () {
-    this.chainId = await web3.eth.getChainId();
-    this.token = await Token.new(tokenName, tokenSymbol);
-    this.mock = await Governor.new(name, this.token.address, votingDelay, votingPeriod, 10);
+    this.chainId = await getChainId();
+    this.token = await Token.new(tokenName, tokenSymbol, tokenName, version);
+    this.mock = await Governor.new(
+      name, // name
+      votingDelay, // initialVotingDelay
+      votingPeriod, // initialVotingPeriod
+      0, // initialProposalThreshold
+      this.token.address, // tokenAddress
+      10, // quorumNumeratorValue
+    );
     this.receiver = await CallReceiver.new();
 
     this.helper = new GovernorHelper(this.mock);
 
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
-    await this.token.mint(owner, tokenSupply);
+    await this.token.$_mint(owner, tokenSupply);
     await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
-    this.proposal = this.helper.setProposal([
-      {
-        target: this.receiver.address,
-        data: this.receiver.contract.methods.mockFunction().encodeABI(),
-        value,
-      },
-    ], '<proposal description>');
+    this.proposal = this.helper.setProposal(
+      [
+        {
+          target: this.receiver.address,
+          data: this.receiver.contract.methods.mockFunction().encodeABI(),
+          value,
+        },
+      ],
+      '<proposal description>',
+    );
   });
 
-  shouldSupportInterfaces([
-    'ERC165',
-    'ERC1155Receiver',
-    'Governor',
-    'GovernorWithParams',
-  ]);
+  shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor', 'GovernorWithParams']);
 
   it('deployment check', async function () {
     expect(await this.mock.name()).to.be.equal(name);
@@ -82,21 +87,17 @@ contract('Governor', function (accounts) {
     // Run proposal
     const txPropose = await this.helper.propose({ from: proposer });
 
-    expectEvent(
-      txPropose,
-      'ProposalCreated',
-      {
-        proposalId: this.proposal.id,
-        proposer,
-        targets: this.proposal.targets,
-        // values: this.proposal.values,
-        signatures: this.proposal.signatures,
-        calldatas: this.proposal.data,
-        startBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay),
-        endBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay).add(votingPeriod),
-        description: this.proposal.description,
-      },
-    );
+    expectEvent(txPropose, 'ProposalCreated', {
+      proposalId: this.proposal.id,
+      proposer,
+      targets: this.proposal.targets,
+      // values: this.proposal.values,
+      signatures: this.proposal.signatures,
+      calldatas: this.proposal.data,
+      startBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay),
+      endBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay).add(votingPeriod),
+      description: this.proposal.description,
+    });
 
     await this.helper.waitForSnapshot();
 
@@ -111,51 +112,31 @@ contract('Governor', function (accounts) {
       },
     );
 
-    expectEvent(
-      await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 }),
-      'VoteCast',
-      {
-        voter: voter2,
-        support: Enums.VoteType.For,
-        weight: web3.utils.toWei('7'),
-      },
-    );
+    expectEvent(await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 }), 'VoteCast', {
+      voter: voter2,
+      support: Enums.VoteType.For,
+      weight: web3.utils.toWei('7'),
+    });
 
-    expectEvent(
-      await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 }),
-      'VoteCast',
-      {
-        voter: voter3,
-        support: Enums.VoteType.Against,
-        weight: web3.utils.toWei('5'),
-      },
-    );
+    expectEvent(await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 }), 'VoteCast', {
+      voter: voter3,
+      support: Enums.VoteType.Against,
+      weight: web3.utils.toWei('5'),
+    });
 
-    expectEvent(
-      await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 }),
-      'VoteCast',
-      {
-        voter: voter4,
-        support: Enums.VoteType.Abstain,
-        weight: web3.utils.toWei('2'),
-      },
-    );
+    expectEvent(await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 }), 'VoteCast', {
+      voter: voter4,
+      support: Enums.VoteType.Abstain,
+      weight: web3.utils.toWei('2'),
+    });
 
     await this.helper.waitForDeadline();
 
     const txExecute = await this.helper.execute();
 
-    expectEvent(
-      txExecute,
-      'ProposalExecuted',
-      { proposalId: this.proposal.id },
-    );
+    expectEvent(txExecute, 'ProposalExecuted', { proposalId: this.proposal.id });
 
-    await expectEvent.inTransaction(
-      txExecute.tx,
-      this.receiver,
-      'MockFunctionCalled',
-    );
+    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
 
     // After
     expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
@@ -169,10 +150,9 @@ contract('Governor', function (accounts) {
     const voterBySig = Wallet.generate();
     const voterBySigAddress = web3.utils.toChecksumAddress(voterBySig.getAddressString());
 
-    const signature = async (message) => {
-      return fromRpcSig(ethSigUtil.signTypedMessage(
-        voterBySig.getPrivateKey(),
-        {
+    const signature = async message => {
+      return fromRpcSig(
+        ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), {
           data: {
             types: {
               EIP712Domain,
@@ -185,8 +165,8 @@ contract('Governor', function (accounts) {
             primaryType: 'Ballot',
             message,
           },
-        },
-      ));
+        }),
+      );
     };
 
     await this.token.delegate(voterBySigAddress, { from: voter1 });
@@ -194,11 +174,10 @@ contract('Governor', function (accounts) {
     // Run proposal
     await this.helper.propose();
     await this.helper.waitForSnapshot();
-    expectEvent(
-      await this.helper.vote({ support: Enums.VoteType.For, signature }),
-      'VoteCast',
-      { voter: voterBySigAddress, support: Enums.VoteType.For },
-    );
+    expectEvent(await this.helper.vote({ support: Enums.VoteType.For, signature }), 'VoteCast', {
+      voter: voterBySigAddress,
+      support: Enums.VoteType.For,
+    });
     await this.helper.waitForDeadline();
     await this.helper.execute();
 
@@ -210,12 +189,15 @@ contract('Governor', function (accounts) {
   });
 
   it('send ethers', async function () {
-    this.proposal = this.helper.setProposal([
-      {
-        target: empty,
-        value,
-      },
-    ], '<proposal description>');
+    this.proposal = this.helper.setProposal(
+      [
+        {
+          target: empty,
+          value,
+        },
+      ],
+      '<proposal description>',
+    );
 
     // Before
     expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(value);
@@ -313,12 +295,15 @@ contract('Governor', function (accounts) {
       });
 
       it('if receiver revert without reason', async function () {
-        this.proposal = this.helper.setProposal([
-          {
-            target: this.receiver.address,
-            data: this.receiver.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
-          },
-        ], '<proposal description>');
+        this.proposal = this.helper.setProposal(
+          [
+            {
+              target: this.receiver.address,
+              data: this.receiver.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
+            },
+          ],
+          '<proposal description>',
+        );
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
@@ -328,12 +313,15 @@ contract('Governor', function (accounts) {
       });
 
       it('if receiver revert with reason', async function () {
-        this.proposal = this.helper.setProposal([
-          {
-            target: this.receiver.address,
-            data: this.receiver.contract.methods.mockFunctionRevertsReason().encodeABI(),
-          },
-        ], '<proposal description>');
+        this.proposal = this.helper.setProposal(
+          [
+            {
+              target: this.receiver.address,
+              data: this.receiver.contract.methods.mockFunctionRevertsReason().encodeABI(),
+            },
+          ],
+          '<proposal description>',
+        );
 
         await this.helper.propose();
         await this.helper.waitForSnapshot();
@@ -450,34 +438,43 @@ contract('Governor', function (accounts) {
 
   describe('proposal length', function () {
     it('empty', async function () {
-      this.helper.setProposal([ ], '<proposal description>');
+      this.helper.setProposal([], '<proposal description>');
       await expectRevert(this.helper.propose(), 'Governor: empty proposal');
     });
 
-    it('missmatch #1', async function () {
-      this.helper.setProposal({
-        targets: [ ],
-        values: [ web3.utils.toWei('0') ],
-        data: [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-      }, '<proposal description>');
+    it('mismatch #1', async function () {
+      this.helper.setProposal(
+        {
+          targets: [],
+          values: [web3.utils.toWei('0')],
+          data: [this.receiver.contract.methods.mockFunction().encodeABI()],
+        },
+        '<proposal description>',
+      );
       await expectRevert(this.helper.propose(), 'Governor: invalid proposal length');
     });
 
-    it('missmatch #2', async function () {
-      this.helper.setProposal({
-        targets: [ this.receiver.address ],
-        values: [ ],
-        data: [ this.receiver.contract.methods.mockFunction().encodeABI() ],
-      }, '<proposal description>');
+    it('mismatch #2', async function () {
+      this.helper.setProposal(
+        {
+          targets: [this.receiver.address],
+          values: [],
+          data: [this.receiver.contract.methods.mockFunction().encodeABI()],
+        },
+        '<proposal description>',
+      );
       await expectRevert(this.helper.propose(), 'Governor: invalid proposal length');
     });
 
-    it('missmatch #3', async function () {
-      this.helper.setProposal({
-        targets: [ this.receiver.address ],
-        values: [ web3.utils.toWei('0') ],
-        data: [ ],
-      }, '<proposal description>');
+    it('mismatch #3', async function () {
+      this.helper.setProposal(
+        {
+          targets: [this.receiver.address],
+          values: [web3.utils.toWei('0')],
+          data: [],
+        },
+        '<proposal description>',
+      );
       await expectRevert(this.helper.propose(), 'Governor: invalid proposal length');
     });
   });
@@ -496,56 +493,57 @@ contract('Governor', function (accounts) {
     });
 
     it('can setVotingDelay through governance', async function () {
-      this.helper.setProposal([
-        {
-          target: this.mock.address,
-          data: this.mock.contract.methods.setVotingDelay('0').encodeABI(),
-        },
-      ], '<proposal description>');
+      this.helper.setProposal(
+        [
+          {
+            target: this.mock.address,
+            data: this.mock.contract.methods.setVotingDelay('0').encodeABI(),
+          },
+        ],
+        '<proposal description>',
+      );
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();
       await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
       await this.helper.waitForDeadline();
 
-      expectEvent(
-        await this.helper.execute(),
-        'VotingDelaySet',
-        { oldVotingDelay: '4', newVotingDelay: '0' },
-      );
+      expectEvent(await this.helper.execute(), 'VotingDelaySet', { oldVotingDelay: '4', newVotingDelay: '0' });
 
       expect(await this.mock.votingDelay()).to.be.bignumber.equal('0');
     });
 
     it('can setVotingPeriod through governance', async function () {
-      this.helper.setProposal([
-        {
-          target: this.mock.address,
-          data: this.mock.contract.methods.setVotingPeriod('32').encodeABI(),
-        },
-      ], '<proposal description>');
+      this.helper.setProposal(
+        [
+          {
+            target: this.mock.address,
+            data: this.mock.contract.methods.setVotingPeriod('32').encodeABI(),
+          },
+        ],
+        '<proposal description>',
+      );
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();
       await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
       await this.helper.waitForDeadline();
 
-      expectEvent(
-        await this.helper.execute(),
-        'VotingPeriodSet',
-        { oldVotingPeriod: '16', newVotingPeriod: '32' },
-      );
+      expectEvent(await this.helper.execute(), 'VotingPeriodSet', { oldVotingPeriod: '16', newVotingPeriod: '32' });
 
       expect(await this.mock.votingPeriod()).to.be.bignumber.equal('32');
     });
 
     it('cannot setVotingPeriod to 0 through governance', async function () {
-      this.helper.setProposal([
-        {
-          target: this.mock.address,
-          data: this.mock.contract.methods.setVotingPeriod('0').encodeABI(),
-        },
-      ], '<proposal description>');
+      this.helper.setProposal(
+        [
+          {
+            target: this.mock.address,
+            data: this.mock.contract.methods.setVotingPeriod('0').encodeABI(),
+          },
+        ],
+        '<proposal description>',
+      );
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();
@@ -556,23 +554,25 @@ contract('Governor', function (accounts) {
     });
 
     it('can setProposalThreshold to 0 through governance', async function () {
-      this.helper.setProposal([
-        {
-          target: this.mock.address,
-          data: this.mock.contract.methods.setProposalThreshold('1000000000000000000').encodeABI(),
-        },
-      ], '<proposal description>');
+      this.helper.setProposal(
+        [
+          {
+            target: this.mock.address,
+            data: this.mock.contract.methods.setProposalThreshold('1000000000000000000').encodeABI(),
+          },
+        ],
+        '<proposal description>',
+      );
 
       await this.helper.propose();
       await this.helper.waitForSnapshot();
       await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
       await this.helper.waitForDeadline();
 
-      expectEvent(
-        await this.helper.execute(),
-        'ProposalThresholdSet',
-        { oldProposalThreshold: '0', newProposalThreshold: '1000000000000000000' },
-      );
+      expectEvent(await this.helper.execute(), 'ProposalThresholdSet', {
+        oldProposalThreshold: '0',
+        newProposalThreshold: '1000000000000000000',
+      });
 
       expect(await this.mock.proposalThreshold()).to.be.bignumber.equal('1000000000000000000');
     });
@@ -585,8 +585,8 @@ contract('Governor', function (accounts) {
       const tokenId = new BN(1);
 
       beforeEach(async function () {
-        this.token = await ERC721Mock.new(name, symbol);
-        await this.token.mint(owner, tokenId);
+        this.token = await ERC721.new(name, symbol);
+        await this.token.$_mint(owner, tokenId);
       });
 
       it('can receive an ERC721 safeTransfer', async function () {
@@ -603,8 +603,8 @@ contract('Governor', function (accounts) {
       };
 
       beforeEach(async function () {
-        this.token = await ERC1155Mock.new(uri);
-        await this.token.mintBatch(owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
+        this.token = await ERC1155.new(uri);
+        await this.token.$_mintBatch(owner, Object.keys(tokenIds), Object.values(tokenIds), '0x');
       });
 
       it('can receive ERC1155 safeTransfer', async function () {

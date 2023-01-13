@@ -3,7 +3,7 @@ const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
 
-function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
+function shouldBehaveLikeERC20Burnable(owner, initialBalance, [burner]) {
   describe('burn', function () {
     describe('when the given amount is not greater than balance of the sender', function () {
       context('for a zero amount', function () {
@@ -14,9 +14,9 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
         shouldBurn(new BN(100));
       });
 
-      function shouldBurn (amount) {
+      function shouldBurn(amount) {
         beforeEach(async function () {
-          (this.receipt = await this.token.burn(amount, { from: owner }));
+          this.receipt = await this.token.burn(amount, { from: owner });
         });
 
         it('burns the requested amount', async function () {
@@ -37,9 +37,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
       const amount = initialBalance.addn(1);
 
       it('reverts', async function () {
-        await expectRevert(this.token.burn(amount, { from: owner }),
-          'ERC20: transfer amount exceeds balance',
-        );
+        await expectRevert(this.token.burn(amount, { from: owner }), 'ERC20: transfer amount exceeds balance');
       });
     });
   });
@@ -54,7 +52,7 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
         shouldBurnFrom(new BN(100));
       });
 
-      function shouldBurnFrom (amount) {
+      function shouldBurnFrom(amount) {
         const originalAllowance = amount.muln(3);
 
         beforeEach(async function () {
@@ -85,7 +83,8 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
 
       it('reverts', async function () {
         await this.token.approve(burner, amount, { from: owner });
-        await expectRevert(this.token.burnFrom(owner, amount, { from: burner }),
+        await expectRevert(
+          this.token.burnFrom(owner, amount, { from: burner }),
           'ERC20: transfer amount exceeds balance',
         );
       });
@@ -96,7 +95,8 @@ function shouldBehaveLikeERC20Burnable (owner, initialBalance, [burner]) {
 
       it('reverts', async function () {
         await this.token.approve(burner, allowance, { from: owner });
-        await expectRevert(this.token.burnFrom(owner, allowance.addn(1), { from: burner }),
+        await expectRevert(
+          this.token.burnFrom(owner, allowance.addn(1), { from: burner }),
           'ERC20: insufficient allowance',
         );
       });

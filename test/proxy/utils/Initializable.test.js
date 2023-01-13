@@ -10,7 +10,7 @@ const DisableBad1 = artifacts.require('DisableBad1');
 const DisableBad2 = artifacts.require('DisableBad2');
 const DisableOk = artifacts.require('DisableOk');
 
-contract('Initializable', function (accounts) {
+contract('Initializable', function () {
   describe('basic testing without inheritance', function () {
     beforeEach('deploying', async function () {
       this.contract = await InitializableMock.new();

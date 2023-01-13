@@ -1,17 +1,16 @@
 const { constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+const { getChainId } = require('../../helpers/chainid');
 const { BNsum } = require('../../helpers/math');
 
 require('array.prototype.at/auto');
 
-const {
-  shouldBehaveLikeVotes,
-} = require('./Votes.behavior');
+const { shouldBehaveLikeVotes } = require('./Votes.behavior');
 
-const Votes = artifacts.require('VotesMock');
+const Votes = artifacts.require('$VotesMock');
 
 contract('Votes', function (accounts) {
-  const [ account1, account2, account3 ] = accounts;
+  const [account1, account2, account3] = accounts;
   const amounts = {
     [account1]: web3.utils.toBN('10000000000000000000000000'),
     [account2]: web3.utils.toBN('10'),
@@ -20,7 +19,7 @@ contract('Votes', function (accounts) {
 
   beforeEach(async function () {
     this.name = 'My Vote';
-    this.votes = await Votes.new(this.name);
+    this.votes = await Votes.new(this.name, '1');
   });
 
   it('starts with zero votes', async function () {
@@ -31,14 +30,14 @@ contract('Votes', function (accounts) {
     beforeEach(async function () {
       this.txs = [];
       for (const [account, amount] of Object.entries(amounts)) {
-        this.txs.push(await this.votes.mint(account, amount));
+        this.txs.push(await this.votes.$_mint(account, amount));
       }
     });
 
     it('reverts if block number >= current block', async function () {
       await expectRevert(
         this.votes.getPastTotalSupply(this.txs.at(-1).receipt.blockNumber + 1),
-        'Votes: block not yet mined',
+        'Checkpoints: block not yet mined',
       );
     });
 
@@ -79,7 +78,7 @@ contract('Votes', function (accounts) {
 
   describe('performs voting workflow', function () {
     beforeEach(async function () {
-      this.chainId = await this.votes.getChainId();
+      this.chainId = await getChainId();
     });
 
     shouldBehaveLikeVotes(accounts, Object.values(amounts));

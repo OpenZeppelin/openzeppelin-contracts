@@ -245,9 +245,6 @@ function values(${name} storage set) internal view returns (${type}[] memory) {
 module.exports = format(
   header.trimEnd(),
   'library EnumerableSet {',
-  [
-    defaultSet(),
-    TYPES.map(details => customSet(details).trimEnd()).join('\n\n'),
-  ],
+  [defaultSet(), TYPES.map(details => customSet(details).trimEnd()).join('\n\n')],
   '}',
 );
