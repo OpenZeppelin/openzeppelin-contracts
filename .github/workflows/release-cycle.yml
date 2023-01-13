@@ -48,14 +48,11 @@ jobs:
 
   start_release_candidate:
     needs: check_state
-    environment: Release Cycle
     name: Start new release branch with release candidate
     if: needs.check_state.outputs.start_release_candidate == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_TOKEN }} # Needed so release cycle triggers when pushing
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
@@ -85,6 +82,16 @@ jobs:
           git add .
           git commit -m "Start release candidate"
           git push --all origin
+      - name: Re-run workflow
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'release-cycle.yml',
+              ref: ${{ github.ref_name }},
+            });
 
   changesets_pr:
     needs: check_state
@@ -119,14 +126,11 @@ jobs:
 
   promote_to_final:
     needs: check_state
-    environment: Release Cycle
     name: Promote to final release
     if: needs.check_state.outputs.promote_to_final == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_TOKEN }} # Needed so release cycle triggers when pushing
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
@@ -139,6 +143,16 @@ jobs:
             git commit -m "Exit release candidate"
             git push --all origin
           fi
+      - name: Re-run workflow
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'release-cycle.yml',
+              ref: ${{ github.ref_name }},
+            });
 
   publish:
     needs: check_state
