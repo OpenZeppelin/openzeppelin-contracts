@@ -10,7 +10,6 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   check_state:
-    environment: Release Cycle
     name: Check state
     runs-on: ubuntu-latest
     steps:
