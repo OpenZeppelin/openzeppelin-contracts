@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.8.1
+## 4.8.1 (2023-01-13)
 
  * `ERC4626`: Use staticcall instead of call when fetching underlying ERC-20 decimals. ([#3943](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3943))
 

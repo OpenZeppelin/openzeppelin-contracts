@@ -31,7 +31,7 @@ Functionality that is common to multiple token standards.
 
 [.contract]
 [[ERC2981]]
-=== `++ERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.0/contracts/token/common/ERC2981.sol[{github-icon},role=heading-link]
+=== `++ERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.1/contracts/token/common/ERC2981.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
