@@ -77,8 +77,6 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - uses: crytic/slither-action@v0.2.0
-        with:
-          slither-version: 0.9.2
 
   codespell:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
