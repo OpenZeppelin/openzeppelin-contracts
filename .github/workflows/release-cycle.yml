@@ -143,6 +143,8 @@ jobs:
   publish:
     needs: check_state
     environment: npm
+    permissions:
+      contents: write
     name: Publish to npm
     if: needs.check_state.outputs.publish == 'true'
     runs-on: ubuntu-latest
