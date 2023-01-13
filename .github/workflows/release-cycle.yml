@@ -11,6 +11,8 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   check_state:
     name: Check state
+    permissions:
+      pull-requests: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -49,6 +51,8 @@ jobs:
   start_release_candidate:
     needs: check_state
     name: Start new release branch with release candidate
+    permissions:
+      content: write
     if: needs.check_state.outputs.start_release_candidate == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -95,6 +99,9 @@ jobs:
 
   changesets_pr:
     needs: check_state
+    permissions:
+      contents: write
+      pull-requests: write
     name: Changesets PR
     if: needs.check_state.outputs.changesets_pr == 'true'
     runs-on: ubuntu-latest
@@ -127,6 +134,8 @@ jobs:
   promote_to_final:
     needs: check_state
     name: Promote to final release
+    permissions:
+      contents: write
     if: needs.check_state.outputs.promote_to_final == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -192,6 +201,9 @@ jobs:
   pr_back:
     needs: check_state
     name: Create PR back to master for final releases
+    permissions:
+      contents: write
+      pull-requests: write
     if: needs.check_state.outputs.pr_back == 'true'
     runs-on: ubuntu-latest
     steps:
