@@ -2,7 +2,7 @@
 
 set -o errexit
 
-npx changeset version
+changeset version
 
 scripts/release/format-changelog.js
 scripts/release/synchronize-versions.js
