@@ -9,7 +9,7 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  check_state:
+  state:
     name: Check state
     permissions:
       pull-requests: read
@@ -18,92 +18,48 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up environment
         uses: ./.github/actions/setup
-      - id: changeset_state
-        name: Read Changeset state
-        run: |
-          echo "changesets=$(node scripts/release/read-changeset-state.js changesets length)" >> $GITHUB_OUTPUT
-          echo "prestate=$(node scripts/release/read-changeset-state.js preState mode)" >> $GITHUB_OUTPUT
-          echo "packageJsonVersion=$(node -p -e "require('./package.json').version")" >> $GITHUB_OUTPUT
-      - id: check_pr_back
-        if: contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.changeset_state.outputs.prestate == 'undefined' && !contains(steps.changeset_state.outputs.packageJsonVersion, '-rc.') && steps.changeset_state.outputs.changesets == '0'
-        name: Check if PR back to master is required
+      - name: Check if PR back to master is required
         uses: actions/github-script@v6
         with:
           result-encoding: string
-          script: |
-            const { data: PRs } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: 'merge/${{ github.ref_name }}',
-              base: 'master',
-              state: 'open'
-            });
-
-            return (PRs.length === 0).toString();
-
+          script: require('scripts/release/workflow/state.js')({ github, context, core })
     outputs:
-      start_release_candidate: ${{ github.ref_name == 'master' && github.event_name == 'workflow_dispatch' }}
-      changesets_pr: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'push' }}
-      promote_to_final: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'workflow_dispatch' }}
-      publish: ${{ contains(github.ref_name, 'release-v') && github.event_name == 'push' && steps.changeset_state.outputs.changesets == '0' }}
-      pr_back: ${{ steps.check_pr_back.outputs.result == 'true' }}
+      # Job Flags
+      start: ${{ steps.release_state.outputs.start }}
+      changesets: ${{ steps.release_state.outputs.changesets }}
+      promote: ${{ steps.release_state.outputs.promote }}
+      publish: ${{ steps.release_state.outputs.publish }}
+      merge: ${{ steps.release_state.outputs.merge }}
 
-  start_release_candidate:
-    needs: check_state
+      # Global variables
+      is_prerelease: ${{ steps.release_state.outputs.is_prerelease }}
+
+  start:
+    needs: state
     name: Start new release branch with release candidate
     permissions:
       content: write
-    if: needs.check_state.outputs.start_release_candidate == 'true'
+    if: needs.state.outputs.start == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
-      - name: Set changeset status location
-        run: |
-          CHANGESETS_STATUS_JSON=$(node -p -e "require('path').relative(__dirname, '$RUNNER_TEMP/status.json')")
-          echo "CHANGESETS_STATUS_JSON=$CHANGESETS_STATUS_JSON" >> $GITHUB_ENV
-      - name: Get changeset status
-        run: npx changeset status --output="$CHANGESETS_STATUS_JSON"
-      - name: Get new version
-        run: |
-          RELEASES=$(node -p -e "require('$CHANGESETS_STATUS_JSON').releases")
-          if [ $(node -p -e "$RELEASES.length") != 1 ]; then
-            echo "::error file=$CHANGESETS_STATUS_JSON::The status doesn't contain only 1 release"
-            exit 1;
-          fi;
-          NEW_VERSION=$(node -p -e "($RELEASES)[0].newVersion")
-          echo "NEW_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
-      - name: Open branch
-        run: |
-          BRANCH_SUFFIX=$(echo $NEW_VERSION | awk -F'.' '{ print $1"."$2 }')
-          RELEASE_BRANCH=release-v$BRANCH_SUFFIX
-          git checkout -b $RELEASE_BRANCH
-      - name: Enter in prerelease state
-        run: |
-          npx changeset pre enter rc
-          git add .
-          git commit -m "Start release candidate"
-          git push --all origin
+      - name: Create branch with release candidate
+        run: bash scripts/release/workflow/start.sh
       - name: Re-run workflow
         uses: actions/github-script@v6
         with:
-          script: |
-            github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'release-cycle.yml',
-              ref: ${{ github.ref_name }},
-            });
+          script: require('scripts/release/workflow/rerun.js')({ github })
 
-  changesets_pr:
-    needs: check_state
+  changesets:
+    needs: state
+    name: Changesets PR
     permissions:
       contents: write
       pull-requests: write
-    name: Changesets PR
-    if: needs.check_state.outputs.changesets_pr == 'true'
+    if: needs.state.outputs.changesets == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -112,13 +68,10 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Set release title
-        env:
-          BRANCH_NAME: ${{ github.ref_name }}
-        run: |
-          BRANCH_VERSION=$(npx semver -c $(echo $BRANCH_NAME | sed "s/release-v//g"))
-          PACKAGE_JSON_NEXT_PATCH=$(npx semver -i $(node -p -e "require('./package.json').version"))
-          NEXT_VERSION=$(npx semver $BRANCH_VERSION $PACKAGE_JSON_NEXT_PATCH | tail -n 1)
-          echo "TITLE=Release v${NEXT_VERSION}" >> $GITHUB_ENV
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          script: require('scripts/release/workflow/set-changesets-pr-title.js')({ core })
       - name: Create PR
         uses: changesets/action@v1
         env:
@@ -131,12 +84,12 @@ jobs:
             This is an automated PR for releasing ${{ github.repository }}
             Check [CHANGELOG.md](${{ github.repository }}/CHANGELOG.md)
 
-  promote_to_final:
-    needs: check_state
+  promote:
+    needs: state
     name: Promote to final release
     permissions:
       contents: write
-    if: needs.check_state.outputs.promote_to_final == 'true'
+    if: needs.state.outputs.promote == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -144,50 +97,31 @@ jobs:
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
       - name: Exit prerelease state if needed
-        run: |
-          PRERELEASE=$(node -p -e 'require("@changesets/pre").readPreState(process.cwd()).then(prestate => console.log(prestate?.mode == "pre"))' | tail -n 1)
-          if [ $PRERELEASE != "false" ]; then
-            npx changeset pre exit rc
-            git add .
-            git commit -m "Exit release candidate"
-            git push --all origin
-          fi
+        run: bash scripts/release/workflow/exit-prerelease.sh
+        env:
+          PRERELEASE: ${{ needs.state.outputs.promote.is_prerelease }}
       - name: Re-run workflow
         uses: actions/github-script@v6
         with:
-          script: |
-            github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'release-cycle.yml',
-              ref: ${{ github.ref_name }},
-            });
+          script: require('scripts/release/workflow/rerun.js')({ github })
 
   publish:
-    needs: check_state
+    needs: state
+    name: Publish to npm
     environment: npm
     permissions:
       contents: write
-    name: Publish to npm
-    if: needs.check_state.outputs.publish == 'true'
+    if: needs.state.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
-      - name: Tag
-        run: npx changeset tag
-      - name: Publish to npm
+      - name: Tag and publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          cd contracts
-          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > $HOME/.npmrc
-          npm publish
-          cd ..
-      - name: Upload tags
-        run: git push --tags
+        run: bash scripts/release/workflow/publish.sh
       - name: Create Github Release
         uses: actions/github-script@v6
         with:
@@ -198,13 +132,13 @@ jobs:
               tag_name: `v${require('./package.json').version}`
             });
 
-  pr_back:
-    needs: check_state
+  merge:
+    needs: state
     name: Create PR back to master for final releases
     permissions:
       contents: write
       pull-requests: write
-    if: needs.check_state.outputs.pr_back == 'true'
+    if: needs.state.outputs.merge == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -213,19 +147,8 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
-      - name: Create branch if needed
-        env:
-          RELEASE_BRANCH: ${{ github.ref_name }}
-        run: |
-          MERGE_BRANCH=merge/$RELEASE_BRANCH
-          if [ `git branch --list $MERGE_BRANCH` ]; then git push origin -d $MERGE_BRANCH; fi;
-          git checkout -b $MERGE_BRANCH
-          DELETED_CHANGESETS=$(git diff origin/master --name-only | grep '.changeset/' | grep '.md')
-          git merge origin/master -m "Merge master to $RELEASE_BRANCH"
-          echo $DELETED_CHANGESETS | while read -r changeset; do rm -f $changeset; done
-          git add .
-          git commit --allow-empty -m "Sync changesets with master"
-          git push --all
+      - name: Create branch to merge
+        run: bash scripts/release/workflow/prepare-release-merge.sh
       - name: Create PR back to master
         uses: actions/github-script@v6
         with:
