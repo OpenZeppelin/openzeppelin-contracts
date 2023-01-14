@@ -92,7 +92,7 @@ const pathUpdates = {
   'token/ERC20/extensions/draft-IERC20Permit.sol': 'token/ERC20/extensions/IERC20Permit.sol',
 };
 
-async function main (paths = [ 'contracts' ]) {
+async function main(paths = ['contracts']) {
   const files = await listFilesRecursively(paths, /\.sol$/);
 
   const updatedFiles = [];
@@ -112,7 +112,7 @@ async function main (paths = [ 'contracts' ]) {
   }
 }
 
-async function listFilesRecursively (paths, filter) {
+async function listFilesRecursively(paths, filter) {
   const queue = paths;
   const files = [];
 
@@ -133,7 +133,7 @@ async function listFilesRecursively (paths, filter) {
   return files;
 }
 
-async function updateFile (file, update) {
+async function updateFile(file, update) {
   const content = await fs.readFile(file, 'utf8');
   const updatedContent = update(content);
   if (updatedContent !== content) {
@@ -144,8 +144,8 @@ async function updateFile (file, update) {
   }
 }
 
-function updateImportPaths (source) {
-  for (const [ oldPath, newPath ] of Object.entries(pathUpdates)) {
+function updateImportPaths(source) {
+  for (const [oldPath, newPath] of Object.entries(pathUpdates)) {
     source = source.replace(
       path.join('@openzeppelin/contracts', oldPath),
       path.join('@openzeppelin/contracts', newPath),
@@ -159,7 +159,7 @@ function updateImportPaths (source) {
   return source;
 }
 
-function getUpgradeablePath (file) {
+function getUpgradeablePath(file) {
   const { dir, name, ext } = path.parse(file);
   const upgradeableName = name + 'Upgradeable';
   return path.format({ dir, ext, name: upgradeableName });

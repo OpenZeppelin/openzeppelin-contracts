@@ -1,17 +1,18 @@
 const { BN } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
 
-const Token = artifacts.require('ERC20VotesCompMock');
-const Governor = artifacts.require('GovernorCompMock');
+const Token = artifacts.require('$ERC20VotesComp');
+const Governor = artifacts.require('$GovernorCompMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 contract('GovernorComp', function (accounts) {
-  const [ owner, voter1, voter2, voter3, voter4 ] = accounts;
+  const [owner, voter1, voter2, voter3, voter4] = accounts;
 
   const name = 'OZ-Governor';
-  // const version = '1';
+  const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
@@ -21,7 +22,7 @@ contract('GovernorComp', function (accounts) {
 
   beforeEach(async function () {
     this.owner = owner;
-    this.token = await Token.new(tokenName, tokenSymbol);
+    this.token = await Token.new(tokenName, tokenSymbol, tokenName, version);
     this.mock = await Governor.new(name, this.token.address);
     this.receiver = await CallReceiver.new();
 
@@ -29,20 +30,23 @@ contract('GovernorComp', function (accounts) {
 
     await web3.eth.sendTransaction({ from: owner, to: this.mock.address, value });
 
-    await this.token.mint(owner, tokenSupply);
+    await this.token.$_mint(owner, tokenSupply);
     await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.proposal = this.helper.setProposal([
-      {
-        target: this.receiver.address,
-        value,
-        data: this.receiver.contract.methods.mockFunction().encodeABI(),
-      },
-    ], '<proposal description>');
+    this.proposal = this.helper.setProposal(
+      [
+        {
+          target: this.receiver.address,
+          value,
+          data: this.receiver.contract.methods.mockFunction().encodeABI(),
+        },
+      ],
+      '<proposal description>',
+    );
   });
 
   it('deployment check', async function () {

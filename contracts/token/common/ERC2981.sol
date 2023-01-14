@@ -40,14 +40,14 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     /**
      * @inheritdoc IERC2981
      */
-    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) public view virtual override returns (address, uint256) {
-        RoyaltyInfo memory royalty = _tokenRoyaltyInfo[_tokenId];
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual override returns (address, uint256) {
+        RoyaltyInfo memory royalty = _tokenRoyaltyInfo[tokenId];
 
         if (royalty.receiver == address(0)) {
             royalty = _defaultRoyaltyInfo;
         }
 
-        uint256 royaltyAmount = (_salePrice * royalty.royaltyFraction) / _feeDenominator();
+        uint256 royaltyAmount = (salePrice * royalty.royaltyFraction) / _feeDenominator();
 
         return (royalty.receiver, royaltyAmount);
     }
