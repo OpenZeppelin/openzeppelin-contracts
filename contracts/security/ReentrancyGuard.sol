@@ -72,6 +72,7 @@ abstract contract ReentrancyGuard {
      * `nonReentrant` function in the call stack.
      */
     function _reentrancyGuardEntered() internal view returns (bool) {
-        return _status == _ENTERED;
+        //equal  _status == _ENTERED
+        return iszero(xor(_status,_ENTERED)); 
     }
 }
