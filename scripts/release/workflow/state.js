@@ -28,7 +28,7 @@ module.exports = async ({ github, context, core }) => {
   const refName = process.env.GITHUB_REF_NAME;
 
   // Static pre conditions
-  const pendingChangesets = !!state?.changesets.length;
+  const pendingChangesets = !!state?.changesets?.length;
   const prerelease = state.preState?.mode === 'pre';
   const isMaster = refName === 'master';
   const isReleaseBranch = refName.includes('release-v*');
