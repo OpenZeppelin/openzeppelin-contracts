@@ -63,7 +63,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      *
      * Emits an {Upgraded} event.
      */
-    function upgradeTo(address newImplementation) external virtual onlyProxy {
+    function upgradeTo(address newImplementation) public virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
         _upgradeToAndCallUUPS(newImplementation, new bytes(0), false);
     }
@@ -76,7 +76,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      *
      * Emits an {Upgraded} event.
      */
-    function upgradeToAndCall(address newImplementation, bytes memory data) external payable virtual onlyProxy {
+    function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
         _upgradeToAndCallUUPS(newImplementation, data, true);
     }
