@@ -737,9 +737,9 @@ Those methods should be performed separately.
 
 [.contract-item]
 [[IERC4626-Deposit-address-address-uint256-uint256-]]
-==== `[.contract-item-name]#++Deposit++#++(address sender, address owner, uint256 assets, uint256 shares)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Deposit++#++(address indexed sender, address indexed owner, uint256 assets, uint256 shares)++` [.item-kind]#event#
 
 [.contract-item]
 [[IERC4626-Withdraw-address-address-address-uint256-uint256-]]
-==== `[.contract-item-name]#++Withdraw++#++(address sender, address receiver, address owner, uint256 assets, uint256 shares)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Withdraw++#++(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)++` [.item-kind]#event#
 

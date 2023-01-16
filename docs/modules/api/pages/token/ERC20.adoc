@@ -647,7 +647,7 @@ Emits a {Transfer} event.
 
 [.contract-item]
 [[IERC20-Transfer-address-address-uint256-]]
-==== `[.contract-item-name]#++Transfer++#++(address from, address to, uint256 value)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Transfer++#++(address indexed from, address indexed to, uint256 value)++` [.item-kind]#event#
 
 Emitted when `value` tokens are moved from one account (`from`) to
 another (`to`).
@@ -656,7 +656,7 @@ Note that `value` may be zero.
 
 [.contract-item]
 [[IERC20-Approval-address-address-uint256-]]
-==== `[.contract-item-name]#++Approval++#++(address owner, address spender, uint256 value)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Approval++#++(address indexed owner, address indexed spender, uint256 value)++` [.item-kind]#event#
 
 Emitted when the allowance of a `spender` for an `owner` is set by
 a call to {approve}. `value` is the new allowance.

@@ -497,7 +497,7 @@ Emits a {BeaconUpgraded} event.
 
 [.contract-item]
 [[ERC1967Upgrade-Upgraded-address-]]
-==== `[.contract-item-name]#++Upgraded++#++(address implementation)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Upgraded++#++(address indexed implementation)++` [.item-kind]#event#
 
 Emitted when the implementation is upgraded.
 
@@ -509,7 +509,7 @@ Emitted when the admin account has changed.
 
 [.contract-item]
 [[ERC1967Upgrade-BeaconUpgraded-address-]]
-==== `[.contract-item-name]#++BeaconUpgraded++#++(address beacon)++` [.item-kind]#event#
+==== `[.contract-item-name]#++BeaconUpgraded++#++(address indexed beacon)++` [.item-kind]#event#
 
 Emitted when the beacon is upgraded.
 
@@ -1006,7 +1006,7 @@ Requirements:
 
 [.contract-item]
 [[UpgradeableBeacon-Upgraded-address-]]
-==== `[.contract-item-name]#++Upgraded++#++(address implementation)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Upgraded++#++(address indexed implementation)++` [.item-kind]#event#
 
 Emitted when the implementation returned by the beacon is changed.
 

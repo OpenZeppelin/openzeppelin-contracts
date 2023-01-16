@@ -1086,7 +1086,7 @@ Emitted when a proposal is executed.
 
 [.contract-item]
 [[IGovernor-VoteCast-address-uint256-uint8-uint256-string-]]
-==== `[.contract-item-name]#++VoteCast++#++(address voter, uint256 proposalId, uint8 support, uint256 weight, string reason)++` [.item-kind]#event#
+==== `[.contract-item-name]#++VoteCast++#++(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason)++` [.item-kind]#event#
 
 Emitted when a vote is cast without params.
 
@@ -1094,7 +1094,7 @@ Note: `support` values should be seen as buckets. Their interpretation depends o
 
 [.contract-item]
 [[IGovernor-VoteCastWithParams-address-uint256-uint8-uint256-string-bytes-]]
-==== `[.contract-item-name]#++VoteCastWithParams++#++(address voter, uint256 proposalId, uint8 support, uint256 weight, string reason, bytes params)++` [.item-kind]#event#
+==== `[.contract-item-name]#++VoteCastWithParams++#++(address indexed voter, uint256 proposalId, uint8 support, uint256 weight, string reason, bytes params)++` [.item-kind]#event#
 
 Emitted when a vote is cast with params.
 
@@ -2999,7 +2999,7 @@ Emits a {LateQuorumVoteExtensionSet} event.
 
 [.contract-item]
 [[GovernorPreventLateQuorum-ProposalExtended-uint256-uint64-]]
-==== `[.contract-item-name]#++ProposalExtended++#++(uint256 proposalId, uint64 extendedDeadline)++` [.item-kind]#event#
+==== `[.contract-item-name]#++ProposalExtended++#++(uint256 indexed proposalId, uint64 extendedDeadline)++` [.item-kind]#event#
 
 Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
 
@@ -3930,19 +3930,19 @@ See {IERC1155Receiver-onERC1155BatchReceived}.
 
 [.contract-item]
 [[TimelockController-CallScheduled-bytes32-uint256-address-uint256-bytes-bytes32-uint256-]]
-==== `[.contract-item-name]#++CallScheduled++#++(bytes32 id, uint256 index, address target, uint256 value, bytes data, bytes32 predecessor, uint256 delay)++` [.item-kind]#event#
+==== `[.contract-item-name]#++CallScheduled++#++(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data, bytes32 predecessor, uint256 delay)++` [.item-kind]#event#
 
 Emitted when a call is scheduled as part of operation `id`.
 
 [.contract-item]
 [[TimelockController-CallExecuted-bytes32-uint256-address-uint256-bytes-]]
-==== `[.contract-item-name]#++CallExecuted++#++(bytes32 id, uint256 index, address target, uint256 value, bytes data)++` [.item-kind]#event#
+==== `[.contract-item-name]#++CallExecuted++#++(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data)++` [.item-kind]#event#
 
 Emitted when a call is performed as part of operation `id`.
 
 [.contract-item]
 [[TimelockController-Cancelled-bytes32-]]
-==== `[.contract-item-name]#++Cancelled++#++(bytes32 id)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Cancelled++#++(bytes32 indexed id)++` [.item-kind]#event#
 
 Emitted when operation `id` is cancelled.
 

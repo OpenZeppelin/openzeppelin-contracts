@@ -213,7 +213,7 @@ Internal function without access restriction.
 
 [.contract-item]
 [[Ownable-OwnershipTransferred-address-address-]]
-==== `[.contract-item-name]#++OwnershipTransferred++#++(address previousOwner, address newOwner)++` [.item-kind]#event#
+==== `[.contract-item-name]#++OwnershipTransferred++#++(address indexed previousOwner, address indexed newOwner)++` [.item-kind]#event#
 
 :_pendingOwner: pass:normal[xref:#Ownable2Step-_pendingOwner-address[`++_pendingOwner++`]]
 :OwnershipTransferStarted: pass:normal[xref:#Ownable2Step-OwnershipTransferStarted-address-address-[`++OwnershipTransferStarted++`]]
@@ -296,7 +296,7 @@ The new owner accepts the ownership transfer.
 
 [.contract-item]
 [[Ownable2Step-OwnershipTransferStarted-address-address-]]
-==== `[.contract-item-name]#++OwnershipTransferStarted++#++(address previousOwner, address newOwner)++` [.item-kind]#event#
+==== `[.contract-item-name]#++OwnershipTransferStarted++#++(address indexed previousOwner, address indexed newOwner)++` [.item-kind]#event#
 
 :RoleAdminChanged: pass:normal[xref:#IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-[`++RoleAdminChanged++`]]
 :RoleGranted: pass:normal[xref:#IAccessControl-RoleGranted-bytes32-address-address-[`++RoleGranted++`]]
@@ -397,7 +397,7 @@ Requirements:
 
 [.contract-item]
 [[IAccessControl-RoleAdminChanged-bytes32-bytes32-bytes32-]]
-==== `[.contract-item-name]#++RoleAdminChanged++#++(bytes32 role, bytes32 previousAdminRole, bytes32 newAdminRole)++` [.item-kind]#event#
+==== `[.contract-item-name]#++RoleAdminChanged++#++(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)++` [.item-kind]#event#
 
 Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
 
@@ -408,7 +408,7 @@ _Available since v3.1._
 
 [.contract-item]
 [[IAccessControl-RoleGranted-bytes32-address-address-]]
-==== `[.contract-item-name]#++RoleGranted++#++(bytes32 role, address account, address sender)++` [.item-kind]#event#
+==== `[.contract-item-name]#++RoleGranted++#++(bytes32 indexed role, address indexed account, address indexed sender)++` [.item-kind]#event#
 
 Emitted when `account` is granted `role`.
 
@@ -417,7 +417,7 @@ bearer except when using {AccessControl-_setupRole}.
 
 [.contract-item]
 [[IAccessControl-RoleRevoked-bytes32-address-address-]]
-==== `[.contract-item-name]#++RoleRevoked++#++(bytes32 role, address account, address sender)++` [.item-kind]#event#
+==== `[.contract-item-name]#++RoleRevoked++#++(bytes32 indexed role, address indexed account, address indexed sender)++` [.item-kind]#event#
 
 Emitted when `account` is revoked `role`.
 

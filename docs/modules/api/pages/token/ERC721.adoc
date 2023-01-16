@@ -677,19 +677,19 @@ See {setApprovalForAll}
 
 [.contract-item]
 [[IERC721-Transfer-address-address-uint256-]]
-==== `[.contract-item-name]#++Transfer++#++(address from, address to, uint256 tokenId)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Transfer++#++(address indexed from, address indexed to, uint256 indexed tokenId)++` [.item-kind]#event#
 
 Emitted when `tokenId` token is transferred from `from` to `to`.
 
 [.contract-item]
 [[IERC721-Approval-address-address-uint256-]]
-==== `[.contract-item-name]#++Approval++#++(address owner, address approved, uint256 tokenId)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Approval++#++(address indexed owner, address indexed approved, uint256 indexed tokenId)++` [.item-kind]#event#
 
 Emitted when `owner` enables `approved` to manage the `tokenId` token.
 
 [.contract-item]
 [[IERC721-ApprovalForAll-address-address-bool-]]
-==== `[.contract-item-name]#++ApprovalForAll++#++(address owner, address operator, bool approved)++` [.item-kind]#event#
+==== `[.contract-item-name]#++ApprovalForAll++#++(address indexed owner, address indexed operator, bool approved)++` [.item-kind]#event#
 
 Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
 

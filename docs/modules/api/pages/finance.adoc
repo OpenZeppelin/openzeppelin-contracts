@@ -236,7 +236,7 @@ contract.
 
 [.contract-item]
 [[PaymentSplitter-ERC20PaymentReleased-contract-IERC20-address-uint256-]]
-==== `[.contract-item-name]#++ERC20PaymentReleased++#++(contract IERC20 token, address to, uint256 amount)++` [.item-kind]#event#
+==== `[.contract-item-name]#++ERC20PaymentReleased++#++(contract IERC20 indexed token, address to, uint256 amount)++` [.item-kind]#event#
 
 [.contract-item]
 [[PaymentSplitter-PaymentReceived-address-uint256-]]
@@ -405,5 +405,5 @@ an asset given its total historical allocation.
 
 [.contract-item]
 [[VestingWallet-ERC20Released-address-uint256-]]
-==== `[.contract-item-name]#++ERC20Released++#++(address token, uint256 amount)++` [.item-kind]#event#
+==== `[.contract-item-name]#++ERC20Released++#++(address indexed token, uint256 amount)++` [.item-kind]#event#
 

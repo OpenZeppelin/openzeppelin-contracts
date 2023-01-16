@@ -2568,11 +2568,11 @@ checks-effects-interactions pattern or using {ReentrancyGuard}.
 
 [.contract-item]
 [[Escrow-Deposited-address-uint256-]]
-==== `[.contract-item-name]#++Deposited++#++(address payee, uint256 weiAmount)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Deposited++#++(address indexed payee, uint256 weiAmount)++` [.item-kind]#event#
 
 [.contract-item]
 [[Escrow-Withdrawn-address-uint256-]]
-==== `[.contract-item-name]#++Withdrawn++#++(address payee, uint256 weiAmount)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Withdrawn++#++(address indexed payee, uint256 weiAmount)++` [.item-kind]#event#
 
 :State: pass:normal[xref:#RefundEscrow-State[`++State++`]]
 :RefundsClosed: pass:normal[xref:#RefundEscrow-RefundsClosed--[`++RefundsClosed++`]]
@@ -3069,11 +3069,11 @@ https://eips.ethereum.org/EIPS/eip-1820#interface-name[section of the EIP].
 
 [.contract-item]
 [[IERC1820Registry-InterfaceImplementerSet-address-bytes32-address-]]
-==== `[.contract-item-name]#++InterfaceImplementerSet++#++(address account, bytes32 interfaceHash, address implementer)++` [.item-kind]#event#
+==== `[.contract-item-name]#++InterfaceImplementerSet++#++(address indexed account, bytes32 indexed interfaceHash, address indexed implementer)++` [.item-kind]#event#
 
 [.contract-item]
 [[IERC1820Registry-ManagerChanged-address-address-]]
-==== `[.contract-item-name]#++ManagerChanged++#++(address account, address newManager)++` [.item-kind]#event#
+==== `[.contract-item-name]#++ManagerChanged++#++(address indexed account, address indexed newManager)++` [.item-kind]#event#
 
 :canImplementInterfaceForAddress: pass:normal[xref:#IERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-[`++canImplementInterfaceForAddress++`]]
 

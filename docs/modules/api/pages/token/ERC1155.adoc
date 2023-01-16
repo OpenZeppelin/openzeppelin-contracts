@@ -390,27 +390,27 @@ acceptance magic value.
 
 [.contract-item]
 [[IERC1155-TransferSingle-address-address-address-uint256-uint256-]]
-==== `[.contract-item-name]#++TransferSingle++#++(address operator, address from, address to, uint256 id, uint256 value)++` [.item-kind]#event#
+==== `[.contract-item-name]#++TransferSingle++#++(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value)++` [.item-kind]#event#
 
 Emitted when `value` tokens of token type `id` are transferred from `from` to `to` by `operator`.
 
 [.contract-item]
 [[IERC1155-TransferBatch-address-address-address-uint256---uint256---]]
-==== `[.contract-item-name]#++TransferBatch++#++(address operator, address from, address to, uint256[] ids, uint256[] values)++` [.item-kind]#event#
+==== `[.contract-item-name]#++TransferBatch++#++(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values)++` [.item-kind]#event#
 
 Equivalent to multiple {TransferSingle} events, where `operator`, `from` and `to` are the same for all
 transfers.
 
 [.contract-item]
 [[IERC1155-ApprovalForAll-address-address-bool-]]
-==== `[.contract-item-name]#++ApprovalForAll++#++(address account, address operator, bool approved)++` [.item-kind]#event#
+==== `[.contract-item-name]#++ApprovalForAll++#++(address indexed account, address indexed operator, bool approved)++` [.item-kind]#event#
 
 Emitted when `account` grants or revokes permission to `operator` to transfer their tokens, according to
 `approved`.
 
 [.contract-item]
 [[IERC1155-URI-string-uint256-]]
-==== `[.contract-item-name]#++URI++#++(string value, uint256 id)++` [.item-kind]#event#
+==== `[.contract-item-name]#++URI++#++(string value, uint256 indexed id)++` [.item-kind]#event#
 
 Emitted when the URI for token type `id` changes to `value`, if it is a non-programmatic URI.
 

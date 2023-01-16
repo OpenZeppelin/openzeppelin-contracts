@@ -391,7 +391,7 @@ Requirements
 
 [.contract-item]
 [[IERC777-Minted-address-address-uint256-bytes-bytes-]]
-==== `[.contract-item-name]#++Minted++#++(address operator, address to, uint256 amount, bytes data, bytes operatorData)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Minted++#++(address indexed operator, address indexed to, uint256 amount, bytes data, bytes operatorData)++` [.item-kind]#event#
 
 Emitted when `amount` tokens are created by `operator` and assigned to `to`.
 
@@ -399,7 +399,7 @@ Note that some additional user `data` and `operatorData` can be logged in the ev
 
 [.contract-item]
 [[IERC777-Burned-address-address-uint256-bytes-bytes-]]
-==== `[.contract-item-name]#++Burned++#++(address operator, address from, uint256 amount, bytes data, bytes operatorData)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Burned++#++(address indexed operator, address indexed from, uint256 amount, bytes data, bytes operatorData)++` [.item-kind]#event#
 
 Emitted when `operator` destroys `amount` tokens from `account`.
 
@@ -407,19 +407,19 @@ Note that some additional user `data` and `operatorData` can be logged in the ev
 
 [.contract-item]
 [[IERC777-AuthorizedOperator-address-address-]]
-==== `[.contract-item-name]#++AuthorizedOperator++#++(address operator, address tokenHolder)++` [.item-kind]#event#
+==== `[.contract-item-name]#++AuthorizedOperator++#++(address indexed operator, address indexed tokenHolder)++` [.item-kind]#event#
 
 Emitted when `operator` is made operator for `tokenHolder`.
 
 [.contract-item]
 [[IERC777-RevokedOperator-address-address-]]
-==== `[.contract-item-name]#++RevokedOperator++#++(address operator, address tokenHolder)++` [.item-kind]#event#
+==== `[.contract-item-name]#++RevokedOperator++#++(address indexed operator, address indexed tokenHolder)++` [.item-kind]#event#
 
 Emitted when `operator` is revoked its operator status for `tokenHolder`.
 
 [.contract-item]
 [[IERC777-Sent-address-address-address-uint256-bytes-bytes-]]
-==== `[.contract-item-name]#++Sent++#++(address operator, address from, address to, uint256 amount, bytes data, bytes operatorData)++` [.item-kind]#event#
+==== `[.contract-item-name]#++Sent++#++(address indexed operator, address indexed from, address indexed to, uint256 amount, bytes data, bytes operatorData)++` [.item-kind]#event#
 
 :_ERC1820_REGISTRY: pass:normal[xref:#ERC777-_ERC1820_REGISTRY-contract-IERC1820Registry[`++_ERC1820_REGISTRY++`]]
 :_balances: pass:normal[xref:#ERC777-_balances-mapping-address----uint256-[`++_balances++`]]
