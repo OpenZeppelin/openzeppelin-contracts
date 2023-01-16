@@ -33,6 +33,7 @@ jobs:
 
       # Global variables
       is_prerelease: ${{ steps.release_state.outputs.is_prerelease }}
+      version: ${{ steps.release_state.outputs.version }}
 
   start:
     needs: state
@@ -64,7 +65,7 @@ jobs:
       - name: Exit prerelease state if needed
         run: bash scripts/release/workflow/exit-prerelease.sh
         env:
-          PRERELEASE: ${{ needs.state.outputs.promote.is_prerelease }}
+          PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
 
   changesets:
     needs: [state, start, promote]
@@ -97,8 +98,28 @@ jobs:
             This is an automated PR for releasing ${{ github.repository }}
             Check [CHANGELOG.md](${{ github.repository }}/CHANGELOG.md)
 
-  publish:
+  pack:
     needs: state
+    name: Pack npm dist
+    if: needs.state.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - id: pack
+        name: Pack
+        run: bash scripts/release/workflow/pack.sh
+      - name: Save next packed version
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.repository }}-${{ needs.state.outputs.version }}
+          path: contracts/${{ step.pack.outputs.tarball }}
+    outputs:
+      tarball: ${{ steps.pack.outputs.tarball }}
+
+  publish:
+    needs: pack
     name: Publish to npm
     environment: npm
     permissions:
@@ -110,10 +131,16 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
-      - name: Tag and publish
+      - name: Download next packed version
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.repository }}-${{ needs.state.outputs.version }}
+          path: contracts/
+      - name: Publish and tag
+        run: bash scripts/release/workflow/publish.sh
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: bash scripts/release/workflow/publish.sh
+          TARBALL: ${{ needs.pack.outputs.tarball }}
       - name: Create Github Release
         uses: actions/github-script@v6
         with:

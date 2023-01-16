@@ -64,4 +64,5 @@ module.exports = async ({ github, context, core }) => {
 
   // Global Variables
   core.setOutput('is_prerelease', prerelease);
+  core.setOutput('version', version);
 };

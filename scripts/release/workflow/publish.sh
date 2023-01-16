@@ -2,15 +2,14 @@
 
 set -o errexit
 
-# Tag
+publish() {
+  cd contracts
+  ## Intentionally escape \$ to avoid interpolation and to write the token to disk/
+  echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc 
+  npm publish $TARBALL
+  cd ..
+}
+
 npx changeset tag
-
-# Publish to npm
-cd contracts
-## Intentionally escape \$ to avoid interpolation and to write the token to disk/
-echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc 
-npm publish
-cd ..
-
-# Push tags
+publish
 git push --tags
