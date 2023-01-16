@@ -8,7 +8,7 @@ const run = cmd => execSync(cmd, { stdio: 'inherit' });
 // This can be run from `master` in the `start` workflow
 // We assume branch is already created, so we optionally switch
 const checkoutToReleaseBranch = () => {
-  const [{ major, minor }] = read(`git --no-pager branch -r -l 'origin/release-v*'`)
+  const [{ major, minor }] = read(`git --no-pager branch -l 'origin/release-v*'`)
     .replace(/origin\/.*release-v(.+)/g, '$1') // release-vX.Y -> X.Y
     .split(/\r?\n/)
     .filter(coerce) // Filter only valid versions
