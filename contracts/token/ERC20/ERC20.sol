@@ -17,6 +17,9 @@ import "../../utils/Context.sol";
  * https://forum.openzeppelin.com/t/how-to-implement-erc20-supply-mechanisms/226[How
  * to implement supply mechanisms].
  *
+ * The default value of {decimals} is 18. To change this, you should override
+ * this function so it returns a different value.
+ *
  * We have followed general OpenZeppelin Contracts guidelines: functions revert
  * instead returning `false` on failure. This behavior is nonetheless
  * conventional and does not conflict with the expectations of ERC20
@@ -43,9 +46,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     /**
      * @dev Sets the values for {name} and {symbol}.
-     *
-     * The default value of {decimals} is 18. To select a different value for
-     * {decimals} you should overload it.
      *
      * All two of these values are immutable: they can only be set once during
      * construction.
@@ -76,8 +76,8 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * be displayed to a user as `5.05` (`505 / 10 ** 2`).
      *
      * Tokens usually opt for a value of 18, imitating the relationship between
-     * Ether and Wei. This is the value {ERC20} uses, unless this function is
-     * overridden;
+     * Ether and Wei. This is the default value returned by this function, unless
+     * it's overridden.
      *
      * NOTE: This information is only used for _display_ purposes: it in
      * no way affects any of the arithmetic of the contract, including
@@ -229,25 +229,23 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function _update(address from, address to, uint256 amount) internal virtual {
         if (from == address(0)) {
             _totalSupply += amount;
-            unchecked {
-                // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
-                _balances[to] += amount;
-            }
-        } else if (to == address(0)) {
-            uint256 fromBalance = _balances[from];
-            require(fromBalance >= amount, "ERC20: burn amount exceeds balance");
-            _totalSupply -= amount;
-            unchecked {
-                // Overflow not possible: amount <= fromBalance <= totalSupply.
-                _balances[from] = fromBalance - amount;
-            }
         } else {
             uint256 fromBalance = _balances[from];
             require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
             unchecked {
+                // Overflow not possible: amount <= fromBalance <= totalSupply.
                 _balances[from] = fromBalance - amount;
-                // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
-                // decrementing then incrementing.
+            }
+        }
+
+        if (to == address(0)) {
+            unchecked {
+                // Overflow not possible: amount <= totalSupply or amount <= fromBalance <= totalSupply.
+                _totalSupply -= amount;
+            }
+        } else {
+            unchecked {
+                // Overflow not possible: balance + amount is at most totalSupply, which we know fits into a uint256.
                 _balances[to] += amount;
             }
         }

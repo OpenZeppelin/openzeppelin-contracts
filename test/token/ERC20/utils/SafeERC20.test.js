@@ -1,23 +1,28 @@
 const { constants, expectRevert } = require('@openzeppelin/test-helpers');
 
+const SafeERC20 = artifacts.require('$SafeERC20');
 const ERC20ReturnFalseMock = artifacts.require('ERC20ReturnFalseMock');
 const ERC20ReturnTrueMock = artifacts.require('ERC20ReturnTrueMock');
 const ERC20NoReturnMock = artifacts.require('ERC20NoReturnMock');
 const ERC20PermitNoRevertMock = artifacts.require('ERC20PermitNoRevertMock');
-const SafeERC20Wrapper = artifacts.require('SafeERC20Wrapper');
 
 const { EIP712Domain, Permit } = require('../../../helpers/eip712');
+const { getChainId } = require('../../../helpers/chainid');
 
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 contract('SafeERC20', function (accounts) {
-  const [ hasNoCode ] = accounts;
+  const [hasNoCode] = accounts;
+
+  before(async function () {
+    this.mock = await SafeERC20.new();
+  });
 
   describe('with address that has no contract code', function () {
     beforeEach(async function () {
-      this.wrapper = await SafeERC20Wrapper.new(hasNoCode);
+      this.token = { address: hasNoCode };
     });
 
     shouldRevertOnAllCalls('Address: call to non-contract');
@@ -25,7 +30,7 @@ contract('SafeERC20', function (accounts) {
 
   describe('with token that returns false on all calls', function () {
     beforeEach(async function () {
-      this.wrapper = await SafeERC20Wrapper.new((await ERC20ReturnFalseMock.new()).address);
+      this.token = await ERC20ReturnFalseMock.new();
     });
 
     shouldRevertOnAllCalls('SafeERC20: ERC20 operation did not succeed');
@@ -33,7 +38,7 @@ contract('SafeERC20', function (accounts) {
 
   describe('with token that returns true on all calls', function () {
     beforeEach(async function () {
-      this.wrapper = await SafeERC20Wrapper.new((await ERC20ReturnTrueMock.new()).address);
+      this.token = await ERC20ReturnTrueMock.new();
     });
 
     shouldOnlyRevertOnErrors();
@@ -41,22 +46,21 @@ contract('SafeERC20', function (accounts) {
 
   describe('with token that returns no boolean values', function () {
     beforeEach(async function () {
-      this.wrapper = await SafeERC20Wrapper.new((await ERC20NoReturnMock.new()).address);
+      this.token = await ERC20NoReturnMock.new();
     });
 
     shouldOnlyRevertOnErrors();
   });
 
-  describe('with token that doesn\'t revert on invalid permit', function () {
+  describe("with token that doesn't revert on invalid permit", function () {
     const wallet = Wallet.generate();
     const owner = wallet.getAddressString();
     const spender = hasNoCode;
 
     beforeEach(async function () {
-      this.token = await ERC20PermitNoRevertMock.new();
-      this.wrapper = await SafeERC20Wrapper.new(this.token.address);
+      const chainId = await getChainId();
 
-      const chainId = await this.token.getChainId();
+      this.token = await ERC20PermitNoRevertMock.new();
 
       this.data = {
         primaryType: 'Permit',
@@ -71,7 +75,8 @@ contract('SafeERC20', function (accounts) {
       expect(await this.token.nonces(owner)).to.be.bignumber.equal('0');
       expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal('0');
 
-      await this.wrapper.permit(
+      await this.mock.$safePermit(
+        this.token.address,
         this.data.message.owner,
         this.data.message.spender,
         this.data.message.value,
@@ -88,7 +93,8 @@ contract('SafeERC20', function (accounts) {
     it('revert on reused signature', async function () {
       expect(await this.token.nonces(owner)).to.be.bignumber.equal('0');
       // use valid signature and consume nounce
-      await this.wrapper.permit(
+      await this.mock.$safePermit(
+        this.token.address,
         this.data.message.owner,
         this.data.message.spender,
         this.data.message.value,
@@ -111,7 +117,8 @@ contract('SafeERC20', function (accounts) {
       expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
       // invalid call revert when called through the SafeERC20 library
       await expectRevert(
-        this.wrapper.permit(
+        this.mock.$safePermit(
+          this.token.address,
           this.data.message.owner,
           this.data.message.spender,
           this.data.message.value,
@@ -146,7 +153,8 @@ contract('SafeERC20', function (accounts) {
 
       // invalid call revert when called through the SafeERC20 library
       await expectRevert(
-        this.wrapper.permit(
+        this.mock.$safePermit(
+          this.token.address,
           this.data.message.owner,
           this.data.message.spender,
           this.data.message.value,
@@ -161,60 +169,63 @@ contract('SafeERC20', function (accounts) {
   });
 });
 
-function shouldRevertOnAllCalls (reason) {
+function shouldRevertOnAllCalls(reason) {
   it('reverts on transfer', async function () {
-    await expectRevert(this.wrapper.transfer(), reason);
+    await expectRevert(this.mock.$safeTransfer(this.token.address, constants.ZERO_ADDRESS, 0), reason);
   });
 
   it('reverts on transferFrom', async function () {
-    await expectRevert(this.wrapper.transferFrom(), reason);
+    await expectRevert(
+      this.mock.$safeTransferFrom(this.token.address, this.mock.address, constants.ZERO_ADDRESS, 0),
+      reason,
+    );
   });
 
   it('reverts on approve', async function () {
-    await expectRevert(this.wrapper.approve(0), reason);
+    await expectRevert(this.mock.$safeApprove(this.token.address, constants.ZERO_ADDRESS, 0), reason);
   });
 
   it('reverts on increaseAllowance', async function () {
     // [TODO] make sure it's reverting for the right reason
-    await expectRevert.unspecified(this.wrapper.increaseAllowance(0));
+    await expectRevert.unspecified(this.mock.$safeIncreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 0));
   });
 
   it('reverts on decreaseAllowance', async function () {
     // [TODO] make sure it's reverting for the right reason
-    await expectRevert.unspecified(this.wrapper.decreaseAllowance(0));
+    await expectRevert.unspecified(this.mock.$safeDecreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 0));
   });
 }
 
-function shouldOnlyRevertOnErrors () {
-  it('doesn\'t revert on transfer', async function () {
-    await this.wrapper.transfer();
+function shouldOnlyRevertOnErrors() {
+  it("doesn't revert on transfer", async function () {
+    await this.mock.$safeTransfer(this.token.address, constants.ZERO_ADDRESS, 0);
   });
 
-  it('doesn\'t revert on transferFrom', async function () {
-    await this.wrapper.transferFrom();
+  it("doesn't revert on transferFrom", async function () {
+    await this.mock.$safeTransferFrom(this.token.address, this.mock.address, constants.ZERO_ADDRESS, 0);
   });
 
   describe('approvals', function () {
     context('with zero allowance', function () {
       beforeEach(async function () {
-        await this.wrapper.setAllowance(0);
+        await this.token.setAllowance(this.mock.address, 0);
       });
 
-      it('doesn\'t revert when approving a non-zero allowance', async function () {
-        await this.wrapper.approve(100);
+      it("doesn't revert when approving a non-zero allowance", async function () {
+        await this.mock.$safeApprove(this.token.address, constants.ZERO_ADDRESS, 100);
       });
 
-      it('doesn\'t revert when approving a zero allowance', async function () {
-        await this.wrapper.approve(0);
+      it("doesn't revert when approving a zero allowance", async function () {
+        await this.mock.$safeApprove(this.token.address, constants.ZERO_ADDRESS, 0);
       });
 
-      it('doesn\'t revert when increasing the allowance', async function () {
-        await this.wrapper.increaseAllowance(10);
+      it("doesn't revert when increasing the allowance", async function () {
+        await this.mock.$safeIncreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 10);
       });
 
       it('reverts when decreasing the allowance', async function () {
         await expectRevert(
-          this.wrapper.decreaseAllowance(10),
+          this.mock.$safeDecreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 10),
           'SafeERC20: decreased allowance below zero',
         );
       });
@@ -222,31 +233,31 @@ function shouldOnlyRevertOnErrors () {
 
     context('with non-zero allowance', function () {
       beforeEach(async function () {
-        await this.wrapper.setAllowance(100);
+        await this.token.setAllowance(this.mock.address, 100);
       });
 
       it('reverts when approving a non-zero allowance', async function () {
         await expectRevert(
-          this.wrapper.approve(20),
+          this.mock.$safeApprove(this.token.address, constants.ZERO_ADDRESS, 20),
           'SafeERC20: approve from non-zero to non-zero allowance',
         );
       });
 
-      it('doesn\'t revert when approving a zero allowance', async function () {
-        await this.wrapper.approve(0);
+      it("doesn't revert when approving a zero allowance", async function () {
+        await this.mock.$safeApprove(this.token.address, constants.ZERO_ADDRESS, 0);
       });
 
-      it('doesn\'t revert when increasing the allowance', async function () {
-        await this.wrapper.increaseAllowance(10);
+      it("doesn't revert when increasing the allowance", async function () {
+        await this.mock.$safeIncreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 10);
       });
 
-      it('doesn\'t revert when decreasing the allowance to a positive value', async function () {
-        await this.wrapper.decreaseAllowance(50);
+      it("doesn't revert when decreasing the allowance to a positive value", async function () {
+        await this.mock.$safeDecreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 50);
       });
 
       it('reverts when decreasing the allowance to a negative value', async function () {
         await expectRevert(
-          this.wrapper.decreaseAllowance(200),
+          this.mock.$safeDecreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 200),
           'SafeERC20: decreased allowance below zero',
         );
       });
