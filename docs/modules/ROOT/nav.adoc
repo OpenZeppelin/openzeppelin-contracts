@@ -20,4 +20,4 @@
 
 * xref:utilities.adoc[Utilities]
 
-* xref:knowledge.adoc[Knowledge]
+* xref:fag.adoc[FAQ]
