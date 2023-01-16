@@ -141,6 +141,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           TARBALL: ${{ needs.pack.outputs.tarball }}
+          PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
       - name: Create Github Release
         uses: actions/github-script@v6
         with:
