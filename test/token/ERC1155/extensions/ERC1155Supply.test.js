@@ -25,7 +25,8 @@ contract('ERC1155Supply', function (accounts) {
     });
 
     it('totalSupply', async function () {
-      expect(await this.token.totalSupply(firstTokenId)).to.be.bignumber.equal('0');
+      expect(await this.token.methods['totalSupply(uint256)'](firstTokenId)).to.be.bignumber.equal('0');
+      expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal('0');
     });
   });
 
@@ -40,7 +41,8 @@ contract('ERC1155Supply', function (accounts) {
       });
 
       it('totalSupply', async function () {
-        expect(await this.token.totalSupply(firstTokenId)).to.be.bignumber.equal(firstTokenAmount);
+        expect(await this.token.methods['totalSupply(uint256)'](firstTokenId)).to.be.bignumber.equal(firstTokenAmount);
+        expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal(firstTokenAmount);
       });
     });
 
@@ -60,8 +62,9 @@ contract('ERC1155Supply', function (accounts) {
       });
 
       it('totalSupply', async function () {
-        expect(await this.token.totalSupply(firstTokenId)).to.be.bignumber.equal(firstTokenAmount);
-        expect(await this.token.totalSupply(secondTokenId)).to.be.bignumber.equal(secondTokenAmount);
+        expect(await this.token.methods['totalSupply(uint256)'](firstTokenId)).to.be.bignumber.equal(firstTokenAmount);
+        expect(await this.token.methods['totalSupply(uint256)'](secondTokenId)).to.be.bignumber.equal(secondTokenAmount);
+        expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal(firstTokenAmount.add(secondTokenAmount));
       });
     });
   });
@@ -78,7 +81,8 @@ contract('ERC1155Supply', function (accounts) {
       });
 
       it('totalSupply', async function () {
-        expect(await this.token.totalSupply(firstTokenId)).to.be.bignumber.equal('0');
+        expect(await this.token.methods['totalSupply(uint256)'](firstTokenId)).to.be.bignumber.equal('0');
+        expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal('0');
       });
     });
 
@@ -99,8 +103,9 @@ contract('ERC1155Supply', function (accounts) {
       });
 
       it('totalSupply', async function () {
-        expect(await this.token.totalSupply(firstTokenId)).to.be.bignumber.equal('0');
-        expect(await this.token.totalSupply(secondTokenId)).to.be.bignumber.equal('0');
+        expect(await this.token.methods['totalSupply(uint256)'](firstTokenId)).to.be.bignumber.equal('0');
+        expect(await this.token.methods['totalSupply(uint256)'](secondTokenId)).to.be.bignumber.equal('0');
+        expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal('0');
       });
     });
   });
