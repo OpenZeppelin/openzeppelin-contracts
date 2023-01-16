@@ -49,16 +49,16 @@ module.exports = async ({ github, context, core }) => {
 
   // Job Flags
   const shouldRunStart = isMaster && isWorkflowDispatch;
-  const shouldRunChangesets = isReleaseBranch && isPush;
   const shouldRunPromote = isReleaseBranch && isWorkflowDispatch;
+  const shouldRunChangesets = shouldRunPromote || shouldRunStart || (isReleaseBranch && isPush);
   const shouldRunPublish = isReleaseBranch && isPush && !pendingChangesets;
   const shouldRunMerge =
     isReleaseBranch && isPush && !prerelease && isCurrentFinalVersion && !pendingChangesets && prBackExists;
 
   // Jobs to trigger
   core.setOutput('start', shouldRunStart);
-  core.setOutput('changesets', shouldRunChangesets);
   core.setOutput('promote', shouldRunPromote);
+  core.setOutput('changesets', shouldRunChangesets);
   core.setOutput('publish', shouldRunPublish);
   core.setOutput('merge', shouldRunMerge);
 

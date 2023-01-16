@@ -48,18 +48,31 @@ jobs:
       - run: bash scripts/git-user-config.sh
       - name: Create branch with release candidate
         run: bash scripts/release/workflow/start.sh
-      - name: Re-run workflow
-        uses: actions/github-script@v6
-        with:
-          script: require('scripts/release/workflow/rerun.js')({ github })
+
+  promote:
+    needs: state
+    name: Promote to final release
+    permissions:
+      contents: write
+    if: needs.state.outputs.promote == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - run: bash scripts/git-user-config.sh
+      - name: Exit prerelease state if needed
+        run: bash scripts/release/workflow/exit-prerelease.sh
+        env:
+          PRERELEASE: ${{ needs.state.outputs.promote.is_prerelease }}
 
   changesets:
-    needs: state
+    needs: [state, start, promote]
     name: Changesets PR
     permissions:
       contents: write
       pull-requests: write
-    if: needs.state.outputs.changesets == 'true'
+    if: ${{ always() && needs.state.outputs.changesets == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -83,27 +96,6 @@ jobs:
           body: | # Wait for support on this
             This is an automated PR for releasing ${{ github.repository }}
             Check [CHANGELOG.md](${{ github.repository }}/CHANGELOG.md)
-
-  promote:
-    needs: state
-    name: Promote to final release
-    permissions:
-      contents: write
-    if: needs.state.outputs.promote == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up environment
-        uses: ./.github/actions/setup
-      - run: bash scripts/git-user-config.sh
-      - name: Exit prerelease state if needed
-        run: bash scripts/release/workflow/exit-prerelease.sh
-        env:
-          PRERELEASE: ${{ needs.state.outputs.promote.is_prerelease }}
-      - name: Re-run workflow
-        uses: actions/github-script@v6
-        with:
-          script: require('scripts/release/workflow/rerun.js')({ github })
 
   publish:
     needs: state
