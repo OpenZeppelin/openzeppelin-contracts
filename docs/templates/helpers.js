@@ -9,8 +9,7 @@ module.exports['readme-path'] = opts => {
 module.exports.names = params => params.map(p => p.name).join(', ');
 
 module.exports['typed-params'] = params => {
-  if (params == undefined) return [];
-  return params.map(p => `${p.type}${p.indexed ? ' indexed' : ''}${p.name ? ' ' + p.name : ''}`).join(', ');
+  return params?.map(p => `${p.type}${p.indexed ? ' indexed' : ''}${p.name ? ' ' + p.name : ''}`).join(', ');
 };
 
 const slug = (module.exports.slug = str => {
