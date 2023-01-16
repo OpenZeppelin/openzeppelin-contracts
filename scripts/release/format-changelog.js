@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-// Sets the changelog output to the format used in this repo.
-// It also includes adding date to the new release
+// Adjusts the format of the changelog that changesets generates.
 // This is run automatically when npm version is run.
 
 const fs = require('fs');
@@ -28,7 +27,7 @@ const RELEASE_LINE_REGEX = new RegExp(
 const VERSION_TITLE_REGEX = /\n## (\d+\.\d+\.\d+(-rc\.\d+)?)\n/g;
 
 const formatted = changelog
-  // Remove extra \n
+  // Remove extra whitespace between items
   .replace(/\n- (\[.*)/g, '- $1')
   // Format each release line
   .replace(RELEASE_LINE_REGEX, (_, PRNumber, PRUrl, title) => {
