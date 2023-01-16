@@ -7,7 +7,8 @@ npx changeset tag
 
 # Publish to npm
 cd contracts
-echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > $HOME/.npmrc
+## Intentionally escape \$ to avoid interpolation and to write the token to disk/
+echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc 
 npm publish
 cd ..
 
