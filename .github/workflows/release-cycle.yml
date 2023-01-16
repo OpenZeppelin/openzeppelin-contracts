@@ -145,12 +145,7 @@ jobs:
       - name: Create Github Release
         uses: actions/github-script@v6
         with:
-          script: |
-            github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: `v${require('./package.json').version}`
-            });
+          script: require('scripts/release/workflow/github-release.js')({ github, context })
 
   merge:
     needs: state
