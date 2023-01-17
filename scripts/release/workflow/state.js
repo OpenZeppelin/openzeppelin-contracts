@@ -39,7 +39,7 @@ module.exports = async ({ github, context, core }) => {
 
   function setOutput(key, value) {
     core.info(`State ${key} = ${value}`);
-    core.setOutput('start', shouldRunStart);
+    core.setOutput(key, value);
   }
 
   // Jobs to trigger
