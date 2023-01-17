@@ -31,7 +31,7 @@ module.exports = async ({ github, context, core }) => {
   const pendingChangesets = !!state?.changesets?.length;
   const prerelease = state.preState?.mode === 'pre';
   const isMaster = refName === 'master';
-  const isReleaseBranch = refName.includes('release-v*');
+  const isReleaseBranch = refName.includes('release-v');
   const isWorkflowDispatch = context.eventName === 'workflow_dispatch';
   const isPush = context.eventName === 'push';
   const isCurrentFinalVersion = !version.includes('-rc.');
@@ -55,14 +55,19 @@ module.exports = async ({ github, context, core }) => {
   const shouldRunMerge =
     isReleaseBranch && isPush && !prerelease && isCurrentFinalVersion && !pendingChangesets && prBackExists;
 
+  function setOutput(key, value) {
+    core.info(`State variable ${key} set to ${value}`);
+    core.setOutput('start', shouldRunStart);
+  }
+
   // Jobs to trigger
-  core.setOutput('start', shouldRunStart);
-  core.setOutput('promote', shouldRunPromote);
-  core.setOutput('changesets', shouldRunChangesets);
-  core.setOutput('publish', shouldRunPublish);
-  core.setOutput('merge', shouldRunMerge);
+  setOutput('start', shouldRunStart);
+  setOutput('promote', shouldRunPromote);
+  setOutput('changesets', shouldRunChangesets);
+  setOutput('publish', shouldRunPublish);
+  setOutput('merge', shouldRunMerge);
 
   // Global Variables
-  core.setOutput('is_prerelease', prerelease);
-  core.setOutput('version', version);
+  setOutput('is_prerelease', prerelease);
+  setOutput('version', version);
 };
