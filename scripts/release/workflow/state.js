@@ -32,13 +32,13 @@ module.exports = async ({ github, context, core }) => {
   // Job Flags
   const shouldRunStart = isMaster && isWorkflowDispatch;
   const shouldRunPromote = isReleaseBranch && isWorkflowDispatch;
-  const shouldRunChangesets = shouldRunPromote || shouldRunStart || (isReleaseBranch && isPush);
+  const shouldRunChangesets = isReleaseBranch && isPush;
   const shouldRunPublish = isReleaseBranch && isPush && !pendingChangesets;
   const shouldRunMerge =
     isReleaseBranch && isPush && !prerelease && isCurrentFinalVersion && !pendingChangesets && prBackExists;
 
   function setOutput(key, value) {
-    core.info(`State variable ${key} set to ${value}`);
+    core.info(`State ${key} = ${value}`);
     core.setOutput('start', shouldRunStart);
   }
 

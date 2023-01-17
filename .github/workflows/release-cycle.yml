@@ -50,6 +50,10 @@ jobs:
       - run: bash scripts/git-user-config.sh
       - name: Create branch with release candidate
         run: bash scripts/release/workflow/start.sh
+      - name: Re-run workflow
+        uses: actions/github-script@v6
+        with:
+          script: require('scripts/release/workflow/rerun.js')({ github })
 
   promote:
     needs: state
@@ -67,14 +71,19 @@ jobs:
         run: bash scripts/release/workflow/exit-prerelease.sh
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
+      - name: Re-run workflow
+        uses: actions/github-script@v6
+        with:
+          script: require('scripts/release/workflow/rerun.js')({ github })
+
 
   changesets:
-    needs: [state, start, promote]
+    needs: state
     name: Changesets PR
     permissions:
       contents: write
       pull-requests: write
-    if: ${{ always() && needs.state.outputs.changesets == 'true' }}
+    if: needs.state.outputs.changesets == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -95,7 +104,7 @@ jobs:
           version: npm run version
           title: ${{ env.TITLE }}
           commit: ${{ env.TITLE }}
-          body: | # Wait for support on this
+          body: | # Wait for support on this https://github.com/changesets/action/pull/250
             This is an automated PR for releasing ${{ github.repository }}
             Check [CHANGELOG.md](${{ github.repository }}/CHANGELOG.md)
 
