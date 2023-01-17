@@ -4,7 +4,4 @@ module.exports = ({ github, context }) =>
     repo: context.repo.repo,
     workflow_id: 'release-cycle.yml',
     ref: process.env.REF || process.env.GITHUB_REF_NAME,
-    inputs: {
-      rerun: "true",
-    },
   });
