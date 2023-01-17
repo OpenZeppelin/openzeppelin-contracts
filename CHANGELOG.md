@@ -55,7 +55,7 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
  * `Strings`: add `toString` method for signed integers. ([#3773](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3773))
  * `MerkleProof`: optimize by using unchecked arithmetic. ([#3869](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3869))
  * `EnumerableMap`: add a `keys()` function that returns an array containing all the keys. ([#3920](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3920))
- * `ERC1155Supply`: add a `totalSupply()` function that returns the total amount of token circulating. ([#3962](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3962))
+ * `ERC1155Supply`: add a `totalSupply()` function that returns the total amount of token circulating, this change will restrict the total tokens minted accross all ids to 2**256-1 . ([#3962](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3962))
 
 ### Deprecations
 

@@ -15,7 +15,7 @@ import "../ERC1155.sol";
  */
 abstract contract ERC1155Supply is ERC1155 {
     mapping(uint256 => uint256) private _totalSupply;
-    uint private _totalSupplyAll;
+    uint256 private _totalSupplyAll;
 
     /**
      * @dev Total amount of tokens in with a given id.
