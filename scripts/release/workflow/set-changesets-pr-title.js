@@ -33,7 +33,5 @@ module.exports = async ({ core }) => {
   const packageJsonNextPatch = inc(version, 'patch');
   const [nextVersion] = rsort([branchPatch0, packageJsonNextPatch], false);
 
-  core.exportVariable(`TITLE=Release v${nextVersion}`);
+  core.exportVariable('TITLE', `Release v${nextVersion}`);
 };
-
-checkoutToReleaseBranch();
