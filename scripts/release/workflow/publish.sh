@@ -6,28 +6,6 @@ package_name() {
   echo "$(node --print --eval "require('./package.json').name")"
 }
 
-latest_npm_version() { 
-  echo "$(npm info "$package_name" version)"
-}
-
-package_json_version() {
-  echo "$(node --print --eval "require('./package.json').name")"
-}
-
-dist_tag() {
-  if [ "$PRERELEASE" = "true" ]; then
-    echo "next"
-  else
-    if [ `npx semver -r ">$package_json_version" $latest_npm_version` = "" ]; then
-      echo "latest"
-    else
-      # This is a patch for an older version
-      # npm can't publish without a tag
-      echo "tmp"
-    fi
-  fi
-}
-
 publish() {
   cd contracts
 
@@ -35,11 +13,11 @@ publish() {
   echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
 
   # Actual publish
-  npm publish "$TARBALL" --tag "$dist_tag"
+  npm publish "$TARBALL" --tag "$TAG"
 
-  if [ "$dist_tag" = "tmp" ]; then
+  if [ "$TAG" = "tmp" ]; then
     # Remove tmp tag
-    npm dist-tag rm "$package_name" "$dist_tag"
+    npm dist-tag rm "$package_name" "$TAG"
   fi
 
   cd ..

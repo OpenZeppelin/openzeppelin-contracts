@@ -99,29 +99,9 @@ jobs:
             This is an automated PR for releasing ${{ github.repository }}
             Check [CHANGELOG.md](${{ github.repository }}/CHANGELOG.md)
 
-  pack:
+  publish:
     needs: state
     name: Pack npm dist
-    if: needs.state.outputs.publish == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up environment
-        uses: ./.github/actions/setup
-      - id: pack
-        name: Pack
-        run: bash scripts/release/workflow/pack.sh
-      - name: Save next packed version
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ github.repository }}-${{ needs.state.outputs.version }}
-          path: contracts/${{ steps.pack.outputs.tarball }}
-    outputs:
-      tarball: ${{ steps.pack.outputs.tarball }}
-
-  publish:
-    needs: [state, pack]
-    name: Publish to npm
     environment: npm
     permissions:
       contents: write
@@ -131,18 +111,15 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up environment
         uses: ./.github/actions/setup
-      - run: bash scripts/git-user-config.sh
-      - name: Download next packed version
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ github.repository }}-${{ needs.state.outputs.version }}
-          path: contracts/
+      - id: pack
+        name: Pack
+        run: bash scripts/release/workflow/pack.sh
       - name: Publish and tag
         run: bash scripts/release/workflow/publish.sh
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          TARBALL: ${{ needs.pack.outputs.tarball }}
-          PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+          TAG: ${{ steps.pack.outputs.tag }}
       - name: Create Github Release
         uses: actions/github-script@v6
         with:
