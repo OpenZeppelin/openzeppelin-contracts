@@ -42,6 +42,10 @@ jobs:
         uses: ./.github/actions/gas-compare
         with:
           token: ${{ github.token }}
+      - name: Check storage layout
+        uses: ./.github/actions/storage-layout
+        with:
+          token: ${{ github.token }}
 
   foundry-tests:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
