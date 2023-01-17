@@ -6,6 +6,9 @@ const { getStorageUpgradeReport } = require('@openzeppelin/upgrades-core/dist/st
 
 const { ref, head } = require('yargs').argv;
 
+const skipPath = ['contracts/mocks/', 'contracts-exposed/'];
+const skipKind = ['interface', 'library'];
+
 function extractLayouts (file) {
   const layout = {};
   const { input, output } = require(file);
@@ -14,12 +17,12 @@ function extractLayouts (file) {
   const deref = astDereferencer(output);
 
   for (const src in output.contracts) {
-    if (src.startsWith('contracts/mocks/') || src.startsWith('contracts-exposed/')) {
+    if (skipPath.some(prefix => src.startsWith(prefix))) {
       continue;
     }
 
     for (const contractDef of findAll('ContractDefinition', output.sources[src].ast)) {
-      if ([ 'interface', 'library' ].includes(contractDef.contractKind)) {
+      if (skipKind.includes(contractDef.contractKind)) {
         continue;
       }
 
