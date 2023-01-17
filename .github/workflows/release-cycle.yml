@@ -53,7 +53,7 @@ jobs:
       - name: Re-run workflow
         uses: actions/github-script@v6
         with:
-          script: require('scripts/release/workflow/rerun.js')({ github })
+          script: await require('./scripts/release/workflow/rerun.js')({ github })
 
   promote:
     needs: state
@@ -74,7 +74,7 @@ jobs:
       - name: Re-run workflow
         uses: actions/github-script@v6
         with:
-          script: require('scripts/release/workflow/rerun.js')({ github })
+          script: await require('./scripts/release/workflow/rerun.js')({ github })
 
 
   changesets:
