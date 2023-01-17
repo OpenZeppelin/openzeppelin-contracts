@@ -23,16 +23,16 @@ module.exports = async ({ github, context, core }) => {
   setOutput('version', version);
 };
 
-function shouldRunStart({ isMaster, isWorkflowDispatch, isRerun }) {
-  return isMaster && isWorkflowDispatch && !isRerun;
+function shouldRunStart({ isMaster, isWorkflowDispatch, botRun }) {
+  return isMaster && isWorkflowDispatch && !botRun;
 }
 
-function shouldRunPromote({ isReleaseBranch, isWorkflowDispatch, isRerun }) {
-  return isReleaseBranch && isWorkflowDispatch && !isRerun;
+function shouldRunPromote({ isReleaseBranch, isWorkflowDispatch, botRun }) {
+  return isReleaseBranch && isWorkflowDispatch && !botRun;
 }
 
-function shouldRunChangesets({ isReleaseBranch, isPush, isRerun }) {
-  return (isReleaseBranch && isPush) || isRerun;
+function shouldRunChangesets({ isReleaseBranch, isPush, isWorkflowDispatch, botRun }) {
+  return (isReleaseBranch && isPush) || (isReleaseBranch && isWorkflowDispatch && botRun);
 }
 
 function shouldRunPublish({ isReleaseBranch, isPush, hasPendingChangesets }) {
@@ -53,6 +53,7 @@ function shouldRunMerge({
 async function getState({ github, context, core }) {
   // Variables not in the context
   const refName = process.env.GITHUB_REF_NAME;
+  const botRun = process.env.TRIGGERING_ACTOR === 'github-actions[bot]';
 
   const { changesets, preState } = await readChangesetState();
 
@@ -66,7 +67,7 @@ async function getState({ github, context, core }) {
     isWorkflowDispatch: context.eventName === 'workflow_dispatch',
     isPush: context.eventName === 'push',
     isCurrentFinalVersion: !version.includes('-rc.'),
-    isRerun: core.getInput('rerun') === 'true',
+    botRun,
   };
 
   // Async vars

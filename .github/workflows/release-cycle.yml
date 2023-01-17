@@ -4,13 +4,7 @@ on:
   push:
     branches:
       - release-v*
-  workflow_dispatch:
-    inputs:
-      rerun:
-        description: 'Set to true if it is a rerun. DO NOT MANUALLY SET'
-        required: false
-        type: boolean
-        default: false
+  workflow_dispatch: {}
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -27,6 +21,8 @@ jobs:
       - id: state
         name: Get state
         uses: actions/github-script@v6
+        env:
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
         with:
           result-encoding: string
           script: await require('./scripts/release/workflow/state.js')({ github, context, core })
@@ -44,7 +40,7 @@ jobs:
 
   start:
     needs: state
-    name: Start new release branch with release candidate
+    name: Start new release candidate
     permissions:
       contents: write
       actions: write
@@ -120,7 +116,7 @@ jobs:
 
   publish:
     needs: state
-    name: Pack npm dist
+    name: Publish to npm
     environment: npm
     permissions:
       contents: write
@@ -146,7 +142,7 @@ jobs:
 
   merge:
     needs: state
-    name: Create PR back to master for final releases
+    name: Release PR back to master
     permissions:
       contents: write
       pull-requests: write
