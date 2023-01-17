@@ -9,7 +9,7 @@ const { ref, head } = require('yargs').argv;
 const skipPath = ['contracts/mocks/', 'contracts-exposed/'];
 const skipKind = ['interface', 'library'];
 
-function extractLayouts (file) {
+function extractLayouts(file) {
   const layout = {};
   const { input, output } = require(file);
 
