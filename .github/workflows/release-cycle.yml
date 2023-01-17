@@ -49,10 +49,13 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
-      - name: Create branch with release candidate
+      - id: start
+        name: Create branch with release candidate
         run: bash scripts/release/workflow/start.sh
       - name: Re-run workflow
         uses: actions/github-script@v6
+        env:
+          REF: ${{ steps.start.outputs.branch }}
         with:
           script: await require('./scripts/release/workflow/rerun.js')({ github, context })
 

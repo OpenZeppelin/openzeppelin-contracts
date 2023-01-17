@@ -20,6 +20,9 @@ BRANCH_SUFFIX="$(jq -r '.releases[0].newVersion | gsub("\\.\\d+$"; "")' $CHANGES
 RELEASE_BRANCH=release-v$BRANCH_SUFFIX
 git checkout -b $RELEASE_BRANCH
 
+# Output branch
+echo "branch=$RELEASE_BRANCH" >> $GITHUB_OUTPUT
+
 # Enter in prerelease state
 npx changeset pre enter rc
 git add .
