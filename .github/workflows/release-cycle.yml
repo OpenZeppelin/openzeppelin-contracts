@@ -4,7 +4,13 @@ on:
   push:
     branches:
       - release-v*
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      rerun:
+        description: 'Set to true if it is a rerun. DO NOT MANUALLY SET'
+        required: false
+        type: boolean
+        default: false
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -80,7 +86,6 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: await require('./scripts/release/workflow/rerun.js')({ github, context })
-
 
   changesets:
     needs: state

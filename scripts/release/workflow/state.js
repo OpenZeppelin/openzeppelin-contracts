@@ -17,6 +17,7 @@ module.exports = async ({ github, context, core }) => {
   const isWorkflowDispatch = context.eventName === 'workflow_dispatch';
   const isPush = context.eventName === 'push';
   const isCurrentFinalVersion = !version.includes('-rc.');
+  const isRerun = !!core.getInput('rerun');
 
   // Async pre conditions
   const { data: prs } = await github.rest.pulls.list({
@@ -30,8 +31,8 @@ module.exports = async ({ github, context, core }) => {
   const prBackExists = prs.length === 0;
 
   // Job Flags
-  const shouldRunStart = isMaster && isWorkflowDispatch;
-  const shouldRunPromote = isReleaseBranch && isWorkflowDispatch;
+  const shouldRunStart = isMaster && isWorkflowDispatch && !isRerun;
+  const shouldRunPromote = isReleaseBranch && isWorkflowDispatch && !isRerun;
   const shouldRunChangesets = isReleaseBranch && isPush;
   const shouldRunPublish = isReleaseBranch && isPush && !pendingChangesets;
   const shouldRunMerge =
