@@ -41,6 +41,7 @@ jobs:
     name: Start new release branch with release candidate
     permissions:
       contents: write
+      actions: write
     if: needs.state.outputs.start == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -60,6 +61,7 @@ jobs:
     name: Promote to final release
     permissions:
       contents: write
+      actions: write
     if: needs.state.outputs.promote == 'true'
     runs-on: ubuntu-latest
     steps:
