@@ -62,8 +62,7 @@ async function readChangesetState(cwd = process.cwd()) {
   let changesets = await readChangesets(cwd);
 
   if (isInPreMode) {
-    const changesetsToFilter = new Set(preState.changesets);
-    changesets = changesets.filter(x => !changesetsToFilter.has(x.id));
+    changesets = changesets.filter(x => !preState.changesets.includes(x.id));
   }
 
   return {
