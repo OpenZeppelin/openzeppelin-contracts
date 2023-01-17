@@ -1,6 +1,8 @@
-const { BN } = require('@openzeppelin/test-helpers');
+const { BN, constants } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
+
+const { ZERO_ADDRESS } = constants;
 
 const ERC1155Supply = artifacts.require('$ERC1155Supply');
 
@@ -111,6 +113,15 @@ contract('ERC1155Supply', function (accounts) {
         expect(await this.token.methods['totalSupply(uint256)'](secondTokenId)).to.be.bignumber.equal('0');
         expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal('0');
       });
+    });
+  });
+
+  context('total supply of token', function () {
+    it('totalSupply unaffected by no-op', async function () {
+      this.token.safeTransferFrom(ZERO_ADDRESS, ZERO_ADDRESS, firstTokenId, firstTokenAmount, '0x', {
+        from: ZERO_ADDRESS,
+      });
+      expect(await this.token.methods['totalSupply()']()).to.be.bignumber.equal('0');
     });
   });
 });

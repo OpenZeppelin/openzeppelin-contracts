@@ -15,7 +15,7 @@ import "../ERC1155.sol";
  */
 abstract contract ERC1155Supply is ERC1155 {
     mapping(uint256 => uint256) private _totalSupply;
-    uint256 private _totalSupplyAll;
+    uint private _totalSupplyAll;
 
     /**
      * @dev Total amount of tokens in with a given id.
@@ -48,16 +48,18 @@ abstract contract ERC1155Supply is ERC1155 {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual override {
-        uint256 totalAmount;
         if (from == address(0)) {
+            uint256 totalMintAmount = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
-                _totalSupply[ids[i]] += amounts[i];
-                totalAmount += amounts[i];
+                uint256 amount = amounts[i];
+                _totalSupply[ids[i]] += amount;
+                totalMintAmount += amount;
             }
-            _totalSupplyAll += totalAmount;
+            _totalSupplyAll += totalMintAmount;
         }
 
         if (to == address(0)) {
+            uint256 totalBurnAmount = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
                 uint256 id = ids[i];
                 uint256 amount = amounts[i];
@@ -65,10 +67,12 @@ abstract contract ERC1155Supply is ERC1155 {
                 require(supply >= amount, "ERC1155: burn amount exceeds totalSupply");
                 unchecked {
                     _totalSupply[id] = supply - amount;
-                    totalAmount += amount;
+                    totalBurnAmount += amount;
                 }
             }
-            _totalSupplyAll -= totalAmount;
+            unchecked {
+                _totalSupplyAll -= totalBurnAmount;
+            }
         }
         super._update(from, to, ids, amounts, data);
     }
