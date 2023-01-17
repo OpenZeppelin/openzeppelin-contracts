@@ -15,7 +15,7 @@ publish() {
 
   if [ "$TAG" = "tmp" ]; then
     # Remove tmp tag
-    npm dist-tag rm "$package_name" "$TAG"
+    npm dist-tag rm "$(package_name)" "$TAG"
   fi
 }
 
