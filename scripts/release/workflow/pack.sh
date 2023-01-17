@@ -27,7 +27,7 @@ dist_tag() {
 }
 
 cd contracts
-TARBALL="$(npm pack)"
+TARBALL="$(npm pack | tee /dev/stderr | tail -1)"
 echo "tarball=./contracts/$TARBALL" >> $GITHUB_OUTPUT
 echo "tag=$(dist_tag)" >> $GITHUB_OUTPUT
 cd ..
