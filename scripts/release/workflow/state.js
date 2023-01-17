@@ -4,39 +4,7 @@ const { join } = require('path');
 const { version } = require(join(__dirname, '../../../package.json'));
 
 module.exports = async ({ github, context, core }) => {
-  const state = await readChangesetState();
-
-  // Variables not in the context
-  const refName = process.env.GITHUB_REF_NAME;
-
-  // Static pre conditions
-  const pendingChangesets = state.changesets.length > 0;
-  const prerelease = state.preState?.mode === 'pre';
-  const isMaster = refName === 'master';
-  const isReleaseBranch = refName.startsWith('release-v');
-  const isWorkflowDispatch = context.eventName === 'workflow_dispatch';
-  const isPush = context.eventName === 'push';
-  const isCurrentFinalVersion = !version.includes('-rc.');
-  const isRerun = !!core.getInput('rerun');
-
-  // Async pre conditions
-  const { data: prs } = await github.rest.pulls.list({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    head: `${context.repo.owner}:merge/${refName}`,
-    base: 'master',
-    state: 'open',
-  });
-
-  const prBackExists = prs.length === 0;
-
-  // Job Flags
-  const shouldRunStart = isMaster && isWorkflowDispatch && !isRerun;
-  const shouldRunPromote = isReleaseBranch && isWorkflowDispatch && !isRerun;
-  const shouldRunChangesets = (isReleaseBranch && isPush) || isRerun;
-  const shouldRunPublish = isReleaseBranch && isPush && !pendingChangesets;
-  const shouldRunMerge =
-    isReleaseBranch && isPush && !prerelease && isCurrentFinalVersion && !pendingChangesets && prBackExists;
+  const state = await getState({ github, context, core });
 
   function setOutput(key, value) {
     core.info(`State ${key} = ${value}`);
@@ -44,16 +12,77 @@ module.exports = async ({ github, context, core }) => {
   }
 
   // Jobs to trigger
-  setOutput('start', shouldRunStart);
-  setOutput('promote', shouldRunPromote);
-  setOutput('changesets', shouldRunChangesets);
-  setOutput('publish', shouldRunPublish);
-  setOutput('merge', shouldRunMerge);
+  setOutput('start', shouldRunStart(state));
+  setOutput('promote', shouldRunPromote(state));
+  setOutput('changesets', shouldRunChangesets(state));
+  setOutput('publish', shouldRunPublish(state));
+  setOutput('merge', shouldRunMerge(state));
 
   // Global Variables
-  setOutput('is_prerelease', prerelease);
+  setOutput('is_prerelease', state.prerelease);
   setOutput('version', version);
 };
+
+function shouldRunStart({ isMaster, isWorkflowDispatch, isRerun }) {
+  return isMaster && isWorkflowDispatch && !isRerun;
+}
+
+function shouldRunPromote({ isReleaseBranch, isWorkflowDispatch, isRerun }) {
+  return isReleaseBranch && isWorkflowDispatch && !isRerun;
+}
+
+function shouldRunChangesets({ isReleaseBranch, isPush, isRerun }) {
+  return (isReleaseBranch && isPush) || isRerun;
+}
+
+function shouldRunPublish({ isReleaseBranch, isPush, hasPendingChangesets }) {
+  return isReleaseBranch && isPush && !hasPendingChangesets;
+}
+
+function shouldRunMerge({
+  isReleaseBranch,
+  isPush,
+  prerelease,
+  isCurrentFinalVersion,
+  hasPendingChangesets,
+  prBackExists,
+}) {
+  return isReleaseBranch && isPush && !prerelease && isCurrentFinalVersion && !hasPendingChangesets && prBackExists;
+}
+
+async function getState({ github, context, core }) {
+  // Variables not in the context
+  const refName = process.env.GITHUB_REF_NAME;
+
+  // Async information needed
+  const { changesets, preState } = await readChangesetState();
+  const { data: prs } = await github.rest.pulls.list({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    head: `${context.repo.owner}:merge/${state.refName}`,
+    base: 'master',
+    state: 'open',
+  });
+
+  // State definition
+  const state = {
+    refName,
+    hasPendingChangesets: changesets.length > 0,
+    prerelease: preState?.mode === 'pre',
+    isMaster: refName === 'master',
+    isReleaseBranch: refName.startsWith('release-v'),
+    isWorkflowDispatch: context.eventName === 'workflow_dispatch',
+    isPush: context.eventName === 'push',
+    isCurrentFinalVersion: !version.includes('-rc.'),
+    isRerun: !!core.getInput('rerun'),
+    prBackExists: prs.length === 0,
+  };
+
+  // Log every state value in debug mode
+  if (core.isDebug()) for (const [key, value] of Object.entries(state)) core.debug(`${key}: ${value}`);
+
+  return state;
+}
 
 // From https://github.com/changesets/action/blob/v1.4.1/src/readChangesetState.ts
 async function readChangesetState(cwd = process.cwd()) {
