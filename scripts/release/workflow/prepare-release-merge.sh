@@ -12,7 +12,7 @@ if [ `git branch --list $MERGE_BRANCH` ]; then git push origin -d $MERGE_BRANCH;
 git checkout -b $MERGE_BRANCH
 
 # Get deleted changesets in this branch that might conflict with master
-DELETED_CHANGESETS=$(git diff origin/master --name-only | grep '.changeset/' | grep '.md')
+DELETED_CHANGESETS="$(git diff origin/master --name-only | grep '.changeset/' | grep '.md')"
 
 # Merge master, which will take those files cherry-picked
 git merge origin/master -m "Merge master to $GITHUB_REF_NAME"
