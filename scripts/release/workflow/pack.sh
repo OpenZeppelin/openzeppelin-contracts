@@ -7,11 +7,11 @@ latest_npm_version() {
 }
 
 package_json_name() {
-  echo "$(node --print --eval "require('./package.json').name")"
+  echo "$(node --print --eval "require('./contracts/package.json').name")"
 }
 
 package_json_version() {
-  echo "$(node --print --eval "require('./package.json').version")"
+  echo "$(node --print --eval "require('./contracts/package.json').version")"
 }
 
 dist_tag() {
