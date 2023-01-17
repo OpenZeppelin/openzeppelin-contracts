@@ -16,7 +16,7 @@ if [ "$(jq '.releases | length' "$CHANGESETS_STATUS_JSON")" != 1 ]; then
 fi;
 
 # Create branch
-BRANCH_SUFFIX="$(jq -r '.releases[0].newVersion | gsub("\\.\\d+$"; "")')"
+BRANCH_SUFFIX="$(jq -r '.releases[0].newVersion | gsub("\\.\\d+$"; "")' $CHANGESETS_STATUS_JSON)"
 RELEASE_BRANCH=release-v$BRANCH_SUFFIX
 git checkout -b $RELEASE_BRANCH
 
