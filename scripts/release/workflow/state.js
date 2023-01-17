@@ -54,17 +54,9 @@ async function getState({ github, context, core }) {
   // Variables not in the context
   const refName = process.env.GITHUB_REF_NAME;
 
-  // Async information needed
   const { changesets, preState } = await readChangesetState();
-  const { data: prs } = await github.rest.pulls.list({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    head: `${context.repo.owner}:merge/${state.refName}`,
-    base: 'master',
-    state: 'open',
-  });
 
-  // State definition
+  // Static vars
   const state = {
     refName,
     hasPendingChangesets: changesets.length > 0,
@@ -74,9 +66,19 @@ async function getState({ github, context, core }) {
     isWorkflowDispatch: context.eventName === 'workflow_dispatch',
     isPush: context.eventName === 'push',
     isCurrentFinalVersion: !version.includes('-rc.'),
-    isRerun: !!core.getInput('rerun'),
-    prBackExists: prs.length === 0,
+    isRerun: core.getInput('rerun') === 'true',
   };
+
+  // Async vars
+  const { data: prs } = await github.rest.pulls.list({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    head: `${context.repo.owner}:merge/${state.refName}`,
+    base: 'master',
+    state: 'open',
+  });
+
+  state.prBackExists = prs.length === 0;
 
   // Log every state value in debug mode
   if (core.isDebug()) for (const [key, value] of Object.entries(state)) core.debug(`${key}: ${value}`);
