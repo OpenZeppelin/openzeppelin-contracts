@@ -2,8 +2,7 @@ const { findAll } = require('solidity-ast/utils');
 const { astDereferencer } = require('@openzeppelin/upgrades-core/dist/ast-dereferencer');
 const { solcInputOutputDecoder } = require('@openzeppelin/upgrades-core/dist/src-decoder');
 const { extractStorageLayout } = require('@openzeppelin/upgrades-core/dist/storage/extract');
-const { StorageLayoutComparator } = require('@openzeppelin/upgrades-core/dist/storage/compare');
-const { LayoutCompatibilityReport } = require('@openzeppelin/upgrades-core/dist/storage/report');
+const { getStorageUpgradeReport } = require('@openzeppelin/upgrades-core/dist/storage');
 
 const { ref, head } = require('yargs').argv;
 
@@ -15,7 +14,7 @@ function extractLayouts (file) {
   const deref = astDereferencer(output);
 
   for (const src in output.contracts) {
-    if (src.startsWith('contracts/mocks/')) {
+    if (src.startsWith('contracts/mocks/') || src.startsWith('contracts-exposed/')) {
       continue;
     }
 
@@ -29,7 +28,7 @@ function extractLayouts (file) {
         decoder,
         deref,
         output.contracts[src][contractDef.name].storageLayout,
-      ).storage;
+      );
     }
   }
   return layout;
@@ -38,20 +37,15 @@ function extractLayouts (file) {
 const oldLayout = extractLayouts(ref);
 const newLayout = extractLayouts(head);
 
-for (const id in oldLayout) {
-  if (id in newLayout) {
-    const comparator = new StorageLayoutComparator();
-    const report = new LayoutCompatibilityReport(comparator.layoutLevenshtein(
-      oldLayout[id],
-      newLayout[id],
-      { allowAppend: false },
-    ));
+for (const name in oldLayout) {
+  if (name in newLayout) {
+    const report = getStorageUpgradeReport(oldLayout[name], newLayout[name], {});
     if (!report.ok) {
-      console.log(`ERROR: Storage incompatibility in ${id}`);
+      console.log(`ERROR: Storage incompatibility in ${name}`);
       console.log(report.explain());
       process.exitCode = 1;
     }
   } else {
-    console.log(`WARNING: ${id} is missing from the current branch`);
+    console.log(`WARNING: ${name} is missing from the current branch`);
   }
 }
