@@ -11,5 +11,5 @@ function setVersion(from, to) {
   const fromJson = JSON.parse(fs.readFileSync(from));
   const toJson = JSON.parse(fs.readFileSync(to));
   toJson.version = fromJson.version;
-  fs.writeFileSync(toJson, JSON.stringify(toJson, null, 2) + '\n');
+  fs.writeFileSync(to, JSON.stringify(toJson, null, 2) + '\n');
 }
