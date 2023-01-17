@@ -3,7 +3,11 @@
 set -euo pipefail
 
 latest_npm_version() { 
-  echo "$(npm info "$package_name" version)"
+  echo "$(npm info "$(package_json_name)" version)"
+}
+
+package_json_name() {
+  echo "$(node --print --eval "require('./package.json').name")"
 }
 
 package_json_version() {

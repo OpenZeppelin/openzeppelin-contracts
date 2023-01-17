@@ -5,10 +5,11 @@
 
 const fs = require('fs');
 
-setVersion('contracts/package.json');
+setVersion('package.json', 'contracts/package.json');
 
-function setVersion(file) {
-  const json = JSON.parse(fs.readFileSync(file));
-  json.version = process.env.npm_package_version;
-  fs.writeFileSync(file, JSON.stringify(json, null, 2) + '\n');
+function setVersion(from, to) {
+  const fromJson = JSON.parse(fs.readFileSync(from));
+  const toJson = JSON.parse(fs.readFileSync(to));
+  toJson.version = fromJson.version;
+  fs.writeFileSync(toJson, JSON.stringify(toJson, null, 2) + '\n');
 }

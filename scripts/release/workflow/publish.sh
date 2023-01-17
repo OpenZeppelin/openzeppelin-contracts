@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-package_name() {
+package_json_name() {
   echo "$(node --print --eval "require('./package.json').name")"
 }
 
@@ -15,7 +15,7 @@ publish() {
 
   if [ "$TAG" = "tmp" ]; then
     # Remove tmp tag
-    npm dist-tag rm "$(package_name)" "$TAG"
+    npm dist-tag rm "$(package_json_name)" "$TAG"
   fi
 }
 

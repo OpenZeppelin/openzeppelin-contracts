@@ -129,6 +129,8 @@ jobs:
       - id: pack
         name: Pack
         run: bash scripts/release/workflow/pack.sh
+        env:
+          PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
       - name: Publish and tag
         run: bash scripts/release/workflow/publish.sh
         env:
