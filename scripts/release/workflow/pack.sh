@@ -25,6 +25,6 @@ dist_tag() {
 cd contracts
 npm pack
 TARBALL="$(ls | grep "$GITHUB_REPOSITORY-.*.tgz")"
-echo "tarball=$TARBALL" >> $GITHUB_OUTPUT
+echo "tarball=./contracts/$TARBALL" >> $GITHUB_OUTPUT
 echo "tag=$dist_tag" >> $GITHUB_OUTPUT
 cd ..

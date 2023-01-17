@@ -7,9 +7,7 @@ package_name() {
 }
 
 publish() {
-  cd contracts
-
-  ## Intentionally escape $ to avoid interpolation and to write the token to disk
+  # Intentionally escape $ to avoid interpolation and to write the token to disk
   echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
 
   # Actual publish
@@ -19,8 +17,6 @@ publish() {
     # Remove tmp tag
     npm dist-tag rm "$package_name" "$TAG"
   fi
-
-  cd ..
 }
 
 npx changeset tag
