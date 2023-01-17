@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -o errexit
+set -euo pipefail
 
 # Set changeset status location
 # This is needed because `changeset status --output` only works with relative routes

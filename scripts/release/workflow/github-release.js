@@ -2,6 +2,17 @@ const { readFileSync } = require('fs');
 const { join } = require('path');
 const { version } = require(join(__dirname, '../../../package.json'));
 
+module.exports = async ({ github, context }) => {
+  const changelog = readFileSync('CHANGELOG.md', 'utf8');
+
+  github.rest.repos.createRelease({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    tag_name: 'v${{ needs.state.outputs.version }}',
+    body: extractSection(changelog, version),
+  });
+};
+
 // From https://github.com/frangio/extract-changelog/blob/master/src/utils/word-regexp.ts
 function makeWordRegExp(word) {
   const start = word.length > 0 && /\b/.test(word[0]) ? '\\b' : '';
@@ -33,14 +44,3 @@ function extractSection(document, wantedHeading) {
     return document.slice(start.index + start[0].length, end?.index);
   }
 }
-
-module.exports = async ({ github, context }) => {
-  const changelog = readFileSync('CHANGELOG.md', 'utf8');
-
-  github.rest.repos.createRelease({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    tag_name: 'v${{ needs.state.outputs.version }}',
-    body: extractSection(changelog, version),
-  });
-};

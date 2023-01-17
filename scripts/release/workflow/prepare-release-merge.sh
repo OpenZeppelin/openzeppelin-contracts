@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -o errexit
+set -euo pipefail
 
 # Define merge branch name
 MERGE_BRANCH=merge/$GITHUB_REF_NAME

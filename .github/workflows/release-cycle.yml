@@ -23,7 +23,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           result-encoding: string
-          script: require('./scripts/release/workflow/state.js')({ github, context, core })
+          script: await require('./scripts/release/workflow/state.js')({ github, context, core })
     outputs:
       # Job Flags
       start: ${{ steps.state.outputs.start }}
@@ -86,7 +86,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           result-encoding: string
-          script: require('./scripts/release/workflow/set-changesets-pr-title.js')({ core })
+          script: await require('./scripts/release/workflow/set-changesets-pr-title.js')({ core })
       - name: Create PR
         uses: changesets/action@v1
         env:
@@ -146,7 +146,7 @@ jobs:
       - name: Create Github Release
         uses: actions/github-script@v6
         with:
-          script: require('./scripts/release/workflow/github-release.js')({ github, context })
+          script: await require('./scripts/release/workflow/github-release.js')({ github, context })
 
   merge:
     needs: state
@@ -169,7 +169,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            github.rest.pulls.create({
+            await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               head: 'merge/${{ github.ref_name }}',

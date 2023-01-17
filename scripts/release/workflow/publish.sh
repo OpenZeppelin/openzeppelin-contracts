@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -o errexit
+set -euo pipefail
 
 package_name() {
   echo $(node --print --eval "require('./package.json').name")
@@ -15,7 +15,7 @@ package_json_version() {
 }
 
 dist_tag() {
-  if [ $PRERELEASE = "true" ]; then
+  if [ "$PRERELEASE" = "true" ]; then
     echo "next"
   else
     if [ `npx semver -r ">$package_json_version" $latest_npm_version` = "" ]; then
@@ -35,7 +35,7 @@ publish() {
   echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
 
   # Actual publish
-  npm publish $TARBALL --tag "$dist_tag"
+  npm publish "$TARBALL" --tag "$dist_tag"
 
   if [ "$dist_tag" = "tmp" ]; then
     # Remove tmp tag
