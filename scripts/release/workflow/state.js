@@ -17,7 +17,7 @@ module.exports = async ({ github, context, core }) => {
   const isWorkflowDispatch = context.eventName === 'workflow_dispatch';
   const isPush = context.eventName === 'push';
   const isCurrentFinalVersion = !version.includes('-rc.');
-  const isRerun = core.getInput('rerun');
+  const isRerun = !!core.getInput('rerun');
 
   // Async pre conditions
   const { data: prs } = await github.rest.pulls.list({
