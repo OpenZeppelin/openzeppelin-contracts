@@ -19,6 +19,6 @@ rm -f "${DELETED_CHANGESETS[@]}"
 
 git add .changeset/
 
-# Allow empty here since it can be no changes if `rm -f` failed for all changesets
+# Allow empty here since there may be no changes if `rm -f` failed for all changesets
 git commit --allow-empty -m "Sync changesets with master"
 git push origin "$MERGE_BRANCH" -f
