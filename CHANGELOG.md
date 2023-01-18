@@ -12,6 +12,7 @@
  * `MerkleProof`: optimize by using unchecked arithmetic. ([#3869](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3869))
  * `EnumerableMap`: add a `keys()` function that returns an array containing all the keys. ([#3920](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3920))
  * `Ownable2Step`: make `acceptOwnership` public virtual to enable usecases that require overriding it. ([#3960](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3960))
+ * `Multicall`: annotate `multicall` function as upgrade safe to not raise a flag for its delegatecall. ([#3961](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3961))
 
 ### Deprecations
 
