@@ -13,8 +13,6 @@ import "../../utils/StorageSlot.sol";
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] slots.
  *
  * _Available since v4.1._
- *
- * @custom:oz-upgrades-unsafe-allow delegatecall
  */
 abstract contract ERC1967Upgrade {
     // This is the keccak-256 hash of "eip1967.proxy.rollback" subtracted by 1
@@ -61,6 +59,8 @@ abstract contract ERC1967Upgrade {
      * @dev Perform implementation upgrade with additional setup call.
      *
      * Emits an {Upgraded} event.
+     *
+     * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
     function _upgradeToAndCall(address newImplementation, bytes memory data, bool forceCall) internal {
         _upgradeTo(newImplementation);
@@ -162,6 +162,8 @@ abstract contract ERC1967Upgrade {
      * not upgrade the implementation contained in the beacon (see {UpgradeableBeacon-_setImplementation} for that).
      *
      * Emits a {BeaconUpgraded} event.
+     *
+     * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
     function _upgradeBeaconToAndCall(address newBeacon, bytes memory data, bool forceCall) internal {
         _setBeacon(newBeacon);
