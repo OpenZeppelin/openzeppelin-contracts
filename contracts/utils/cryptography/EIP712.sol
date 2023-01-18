@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/EIP712.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.8;
 
 import "./ECDSA.sol";
 import "../../interfaces/ERC5267.sol";
@@ -56,14 +56,12 @@ abstract contract EIP712 is ERC5267 {
      * contract upgrade].
      */
     constructor(string memory name, string memory version) {
-        bytes32 hashedName = keccak256(bytes(name));
-        bytes32 hashedVersion = keccak256(bytes(version));
         _NAME = name;
         _VERSION = version;
-        _HASHED_NAME = hashedName;
-        _HASHED_VERSION = hashedVersion;
+        _HASHED_NAME = keccak256(bytes(name));
+        _HASHED_VERSION = keccak256(bytes(version));
         _CACHED_CHAIN_ID = block.chainid;
-        _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator(_TYPE_HASH, hashedName, hashedVersion);
+        _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator();
         _CACHED_THIS = address(this);
     }
 
@@ -74,16 +72,12 @@ abstract contract EIP712 is ERC5267 {
         if (address(this) == _CACHED_THIS && block.chainid == _CACHED_CHAIN_ID) {
             return _CACHED_DOMAIN_SEPARATOR;
         } else {
-            return _buildDomainSeparator(_TYPE_HASH, _HASHED_NAME, _HASHED_VERSION);
+            return _buildDomainSeparator();
         }
     }
 
-    function _buildDomainSeparator(
-        bytes32 typeHash,
-        bytes32 nameHash,
-        bytes32 versionHash
-    ) private view returns (bytes32) {
-        return keccak256(abi.encode(typeHash, nameHash, versionHash, block.chainid, address(this)));
+    function _buildDomainSeparator() private view returns (bytes32) {
+        return keccak256(abi.encode(_TYPE_HASH, _HASHED_NAME, _HASHED_VERSION, block.chainid, address(this)));
     }
 
     /**
