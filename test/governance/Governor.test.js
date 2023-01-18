@@ -4,7 +4,7 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { fromRpcSig } = require('ethereumjs-util');
 const Enums = require('../helpers/enums');
-const { EIP712Domain } = require('../helpers/eip712');
+const { getDomain, domainType } = require('../helpers/eip712');
 const { GovernorHelper } = require('../helpers/governance');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
@@ -148,24 +148,21 @@ contract('Governor', function (accounts) {
     const voterBySig = Wallet.generate();
     const voterBySigAddress = web3.utils.toChecksumAddress(voterBySig.getAddressString());
 
-    const signature = async message => {
-      return fromRpcSig(
-        ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), {
-          data: {
-            types: {
-              EIP712Domain,
-              Ballot: [
-                { name: 'proposalId', type: 'uint256' },
-                { name: 'support', type: 'uint8' },
-              ],
-            },
-            domain: { name, version, chainId: this.chainId, verifyingContract: this.mock.address },
-            primaryType: 'Ballot',
-            message,
-          },
-        }),
-      );
-    };
+    const signature = (contract, message) => getDomain(contract)
+    .then(domain => ({
+      primaryType: 'Ballot',
+      types: {
+        EIP712Domain: domainType(domain),
+        Ballot: [
+          { name: 'proposalId', type: 'uint256' },
+          { name: 'support', type: 'uint8' },
+        ],
+      },
+      domain,
+      message,
+    }))
+    .then(data => ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), { data }))
+    .then(fromRpcSig);
 
     await this.token.delegate(voterBySigAddress, { from: voter1 });
 

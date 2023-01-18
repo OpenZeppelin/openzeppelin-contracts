@@ -79,7 +79,7 @@ class GovernorHelper {
       ? // if signature, and either params or reason →
         vote.params || vote.reason
         ? vote
-            .signature({
+            .signature(this.governor, {
               proposalId: proposal.id,
               support: vote.support,
               reason: vote.reason || '',
@@ -91,7 +91,7 @@ class GovernorHelper {
               ),
             )
         : vote
-            .signature({
+            .signature(this.governor, {
               proposalId: proposal.id,
               support: vote.support,
             })
