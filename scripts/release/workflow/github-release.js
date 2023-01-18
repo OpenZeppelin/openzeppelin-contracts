@@ -8,7 +8,7 @@ module.exports = async ({ github, context }) => {
   github.rest.repos.createRelease({
     owner: context.repo.owner,
     repo: context.repo.repo,
-    tag_name: `v${process.env.VERSION}`,
+    tag_name: `v${version}`,
     body: extractSection(changelog, version),
     prerelease: process.env.PRERELEASE === 'true',
   });

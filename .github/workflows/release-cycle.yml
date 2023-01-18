@@ -36,7 +36,6 @@ jobs:
 
       # Global variables
       is_prerelease: ${{ steps.state.outputs.is_prerelease }}
-      version: ${{ steps.state.outputs.version }}
 
   start:
     needs: state
@@ -140,7 +139,6 @@ jobs:
       - name: Create Github Release
         uses: actions/github-script@v6
         env:
-          VERSION: ${{ needs.state.outputs.version }}
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
         with:
           script: await require('./scripts/release/workflow/github-release.js')({ github, context })

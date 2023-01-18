@@ -20,7 +20,6 @@ module.exports = async ({ github, context, core }) => {
 
   // Global Variables
   setOutput('is_prerelease', state.prerelease);
-  setOutput('version', version);
 };
 
 function shouldRunStart({ isMaster, isWorkflowDispatch, botRun }) {
