@@ -74,7 +74,7 @@ jobs:
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
       - name: Exit prerelease state
-        if: needs.state.outputs.is_prerelease
+        if: needs.state.outputs.is_prerelease == 'true'
         run: bash scripts/release/workflow/exit-prerelease.sh
       - name: Re-run workflow
         uses: actions/github-script@v6
