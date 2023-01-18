@@ -38,7 +38,8 @@ abstract contract EIP712 is ERC5267 {
 
     bytes32 private immutable _HASHED_NAME;
     bytes32 private immutable _HASHED_VERSION;
-    bytes32 private immutable _TYPE_HASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+    bytes32 private immutable _TYPE_HASH =
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
     /* solhint-enable var-name-mixedcase */
 
@@ -107,23 +108,29 @@ abstract contract EIP712 is ERC5267 {
     /**
      * @dev See {EIP-5267}.
      */
-    function eip712Domain() public view virtual override returns (
-        bytes1 fields,
-        string memory name,
-        string memory version,
-        uint256 chainId,
-        address verifyingContract,
-        bytes32 salt,
-        uint256[] memory extensions
-    ) {
+    function eip712Domain()
+        public
+        view
+        virtual
+        override
+        returns (
+            bytes1 fields,
+            string memory name,
+            string memory version,
+            uint256 chainId,
+            address verifyingContract,
+            bytes32 salt,
+            uint256[] memory extensions
+        )
+    {
         return (
-          hex"0f", // 01111
-          _NAME,
-          _VERSION,
-          block.chainid,
-          address(this),
-          bytes32(0),
-          new uint256[](0)
-      );
+            hex"0f", // 01111
+            _NAME,
+            _VERSION,
+            block.chainid,
+            address(this),
+            bytes32(0),
+            new uint256[](0)
+        );
     }
 }

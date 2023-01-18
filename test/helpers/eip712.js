@@ -29,7 +29,7 @@ async function getDomain(contract) {
   const { fields, name, version, chainId, verifyingContract, salt, extensions } = await contract.eip712Domain();
 
   if (extensions.length > 0) {
-    throw Error("Extensions not implemented");
+    throw Error('Extensions not implemented');
   }
 
   const domain = { name, version, chainId, verifyingContract, salt };
@@ -48,11 +48,7 @@ function domainType(domain) {
 
 async function domainSeparator(domain) {
   return bufferToHexString(
-    ethSigUtil.TypedDataUtils.hashStruct(
-      'EIP712Domain',
-      domain,
-      { EIP712Domain: domainType(domain) },
-    ),
+    ethSigUtil.TypedDataUtils.hashStruct('EIP712Domain', domain, { EIP712Domain: domainType(domain) }),
   );
 }
 

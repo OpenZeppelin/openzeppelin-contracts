@@ -12,13 +12,16 @@ interface ERC5267 {
      * @dev returns the fields and values that describe the domain separator used by this contract for EIP-712
      * signature.
      */
-    function eip712Domain() external view returns (
-        bytes1 fields,
-        string memory name,
-        string memory version,
-        uint256 chainId,
-        address verifyingContract,
-        bytes32 salt,
-        uint256[] memory extensions
-    );
+    function eip712Domain()
+        external
+        view
+        returns (
+            bytes1 fields,
+            string memory name,
+            string memory version,
+            uint256 chainId,
+            address verifyingContract,
+            bytes32 salt,
+            uint256[] memory extensions
+        );
 }

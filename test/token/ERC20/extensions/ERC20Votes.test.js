@@ -38,9 +38,7 @@ contract('ERC20Votes', function (accounts) {
   });
 
   it('domain separator', async function () {
-    expect(await this.token.DOMAIN_SEPARATOR()).to.equal(
-      await getDomain(this.token).then(domainSeparator),
-    );
+    expect(await this.token.DOMAIN_SEPARATOR()).to.equal(await getDomain(this.token).then(domainSeparator));
   });
 
   it('minting restriction', async function () {
@@ -107,12 +105,13 @@ contract('ERC20Votes', function (accounts) {
       const delegatorAddress = web3.utils.toChecksumAddress(delegator.getAddressString());
       const nonce = 0;
 
-      const buildData = (contract, message) => getDomain(contract).then(domain => ({
-        primaryType: 'Delegation',
-        types: { EIP712Domain: domainType(domain), Delegation },
-        domain,
-        message,
-      }));
+      const buildData = (contract, message) =>
+        getDomain(contract).then(domain => ({
+          primaryType: 'Delegation',
+          types: { EIP712Domain: domainType(domain), Delegation },
+          domain,
+          message,
+        }));
 
       beforeEach(async function () {
         await this.token.$_mint(delegatorAddress, supply);
@@ -124,8 +123,8 @@ contract('ERC20Votes', function (accounts) {
           nonce,
           expiry: MAX_UINT256,
         })
-        .then(data => ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data }))
-        .then(fromRpcSig);
+          .then(data => ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data }))
+          .then(fromRpcSig);
 
         expect(await this.token.delegates(delegatorAddress)).to.be.equal(ZERO_ADDRESS);
 
@@ -155,8 +154,8 @@ contract('ERC20Votes', function (accounts) {
           nonce,
           expiry: MAX_UINT256,
         })
-        .then(data => ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data }))
-        .then(fromRpcSig);
+          .then(data => ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data }))
+          .then(fromRpcSig);
 
         await this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
 
@@ -172,8 +171,8 @@ contract('ERC20Votes', function (accounts) {
           nonce,
           expiry: MAX_UINT256,
         })
-        .then(data => ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data }))
-        .then(fromRpcSig);
+          .then(data => ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data }))
+          .then(fromRpcSig);
 
         const receipt = await this.token.delegateBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
         const { args } = receipt.logs.find(({ event }) => event == 'DelegateChanged');
@@ -188,8 +187,8 @@ contract('ERC20Votes', function (accounts) {
           nonce,
           expiry: MAX_UINT256,
         })
-        .then(data => ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data }))
-        .then(fromRpcSig);
+          .then(data => ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data }))
+          .then(fromRpcSig);
 
         await expectRevert(
           this.token.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
@@ -205,8 +204,8 @@ contract('ERC20Votes', function (accounts) {
           nonce,
           expiry,
         })
-        .then(data => ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data }))
-        .then(fromRpcSig);
+          .then(data => ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data }))
+          .then(fromRpcSig);
 
         await expectRevert(
           this.token.delegateBySig(delegatorAddress, nonce, expiry, v, r, s),

@@ -7,7 +7,6 @@ const ERC20NoReturnMock = artifacts.require('ERC20NoReturnMock');
 const ERC20PermitNoRevertMock = artifacts.require('ERC20PermitNoRevertMock');
 
 const { getDomain, domainType, Permit } = require('../../../helpers/eip712');
-const { getChainId } = require('../../../helpers/chainid');
 
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');

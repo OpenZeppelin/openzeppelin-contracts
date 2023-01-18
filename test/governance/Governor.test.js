@@ -20,7 +20,7 @@ contract('Governor', function (accounts) {
   const empty = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
 
   const name = 'OZ-Governor';
-  const version = '1';
+  // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
@@ -148,21 +148,22 @@ contract('Governor', function (accounts) {
     const voterBySig = Wallet.generate();
     const voterBySigAddress = web3.utils.toChecksumAddress(voterBySig.getAddressString());
 
-    const signature = (contract, message) => getDomain(contract)
-    .then(domain => ({
-      primaryType: 'Ballot',
-      types: {
-        EIP712Domain: domainType(domain),
-        Ballot: [
-          { name: 'proposalId', type: 'uint256' },
-          { name: 'support', type: 'uint8' },
-        ],
-      },
-      domain,
-      message,
-    }))
-    .then(data => ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), { data }))
-    .then(fromRpcSig);
+    const signature = (contract, message) =>
+      getDomain(contract)
+        .then(domain => ({
+          primaryType: 'Ballot',
+          types: {
+            EIP712Domain: domainType(domain),
+            Ballot: [
+              { name: 'proposalId', type: 'uint256' },
+              { name: 'support', type: 'uint8' },
+            ],
+          },
+          domain,
+          message,
+        }))
+        .then(data => ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), { data }))
+        .then(fromRpcSig);
 
     await this.token.delegate(voterBySigAddress, { from: voter1 });
 
