@@ -10,6 +10,7 @@
  * `ProxyAdmin`: Removed `getProxyAdmin` and `getProxyImplementation` getters. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
  * `ERC20`, `ERC1155`: Deleted `_beforeTokenTransfer` and `_afterTokenTransfer` hooks, added a new internal `_update` function for customizations, and refactored all extensions using those hooks to use `_update` instead. ([#3838](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3838), [#3876](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3876))
  * `ERC165Storage`: Removed this contract in favor of inheritance based approach. ([#3880](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3880))
+  * `ERC1155Supply`: add a `totalSupply()` function that returns the total amount of token circulating, this change will restrict the total tokens minted across all ids to 2**256-1 . ([#3962](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3962))
 
 ### How to upgrade from 4.x
 
@@ -53,9 +54,9 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
  * `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
  * `Strings`: add `equal` method. ([#3774](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3774))
  * `Strings`: add `toString` method for signed integers. ([#3773](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3773))
- * `MerkleProof`: optimize by using unchecked arithmetic. ([#3869](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3869))
+ * `MerkleProof`: optimize by using unchecked arithmetic. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
  * `EnumerableMap`: add a `keys()` function that returns an array containing all the keys. ([#3920](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3920))
- * `ERC1155Supply`: add a `totalSupply()` function that returns the total amount of token circulating, this change will restrict the total tokens minted across all ids to 2**256-1 . ([#3962](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3962))
+
 
 ### Deprecations
 
