@@ -21,4 +21,4 @@ git add .changeset/
 
 # Allow empty here since there may be no changes if `rm -f` failed for all changesets
 git commit --allow-empty -m "Sync changesets with master"
-git push origin "$MERGE_BRANCH" -f
+git push -f origin "$MERGE_BRANCH"
