@@ -12,7 +12,7 @@ git checkout -B "$MERGE_BRANCH" "$GITHUB_REF_NAME"
 readarray -t DELETED_CHANGESETS < <(git diff origin/master --name-only -- '.changeset/*.md')
 
 # Merge master, which will take those files cherry-picked
-git merge origin/master -m "Merge master to $GITHUB_REF_NAME"
+git merge origin/master -m "Merge master to $GITHUB_REF_NAME" -X theirs
 
 # Remove the originally deleted changesets to correctly sync with master
 rm -f "${DELETED_CHANGESETS[@]}"
