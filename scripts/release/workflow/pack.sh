@@ -2,22 +2,14 @@
 
 set -euo pipefail
 
-latest_npm_version() { 
-  echo "$(npm info "$(package_json_name)" version)"
-}
-
-package_json_name() {
-  echo "$(node --print --eval "require('./contracts/package.json').name")"
-}
-
-package_json_version() {
-  echo "$(node --print --eval "require('./contracts/package.json').version")"
-}
-
 dist_tag() {
+  PACKAGE_JSON_NAME="$(jq -r .name ./contracts/package.json)"
+  LATEST_NPM_VERSION="$(npm info "$PACKAGE_JSON_NAME" version)"
+  PACKAGE_JSON_VERSION="$(jq -r .version ./contracts/package.json)"
+  
   if [ "$PRERELEASE" = "true" ]; then
     echo "next"
-  elif [ "$(npx semver -r ">$(package_json_version)" "$(latest_npm_version)")" = "" ]; then
+  elif npx semver -r ">$LATEST_NPM_VERSION" "$PACKAGE_JSON_VERSION" > /dev/null; then
     echo "latest"
   else
     # This is a patch for an older version
@@ -28,6 +20,6 @@ dist_tag() {
 
 cd contracts
 TARBALL="$(npm pack | tee /dev/stderr | tail -1)"
-echo "tarball=./contracts/$TARBALL" >> $GITHUB_OUTPUT
+echo "tarball=$(pwd)/$TARBALL" >> $GITHUB_OUTPUT
 echo "tag=$(dist_tag)" >> $GITHUB_OUTPUT
 cd ..

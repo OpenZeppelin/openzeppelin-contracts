@@ -17,8 +17,8 @@ fi;
 
 # Create branch
 BRANCH_SUFFIX="$(jq -r '.releases[0].newVersion | gsub("\\.\\d+$"; "")' $CHANGESETS_STATUS_JSON)"
-RELEASE_BRANCH=release-v$BRANCH_SUFFIX
-git checkout -b $RELEASE_BRANCH
+RELEASE_BRANCH="release-v$BRANCH_SUFFIX"
+git checkout -b "$RELEASE_BRANCH"
 
 # Output branch
 echo "branch=$RELEASE_BRANCH" >> $GITHUB_OUTPUT
@@ -29,4 +29,4 @@ git add .
 git commit -m "Start release candidate"
 
 # Push branch
-git push --all origin
+git push origin "$RELEASE_BRANCH"

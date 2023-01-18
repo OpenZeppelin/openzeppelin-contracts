@@ -2,23 +2,18 @@
 
 set -euo pipefail
 
-package_json_name() {
-  echo "$(node --print --eval "require('./contracts/package.json').name")"
-}
-
-publish() {
-  # Intentionally escape $ to avoid interpolation and to write the token to disk
-  echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
-
-  # Actual publish
-  npm publish "$TARBALL" --tag "$TAG"
-
-  if [ "$TAG" = "tmp" ]; then
-    # Remove tmp tag
-    npm dist-tag rm "$(package_json_name)" "$TAG"
-  fi
-}
-
 npx changeset tag
-publish
+
+# Intentionally escape $ to avoid interpolation and writing the token to disk
+echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+
+# Actual publish
+npm publish "$TARBALL" --tag "$TAG"
+
+if [ "$TAG" = "tmp" ]; then
+  # Remove tmp tag
+  PACKAGE_JSON_NAME="$(tar xfO "$TARBALL" package/package.json | jq -r .name)"
+  npm dist-tag rm "$PACKAGE_JSON_NAME" "$TAG"
+fi
+
 git push --tags
