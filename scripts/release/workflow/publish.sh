@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-npx changeset tag
-
 # Intentionally escape $ to avoid interpolation and writing the token to disk
 echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
 
@@ -15,5 +13,3 @@ if [ "$TAG" = "tmp" ]; then
   PACKAGE_JSON_NAME="$(tar xfO "$TARBALL" package/package.json | jq -r .name)"
   npm dist-tag rm "$PACKAGE_JSON_NAME" "$TAG"
 fi
-
-git push --tags
