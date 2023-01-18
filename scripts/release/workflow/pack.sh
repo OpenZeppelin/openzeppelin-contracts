@@ -3,9 +3,9 @@
 set -euo pipefail
 
 dist_tag() {
-  PACKAGE_JSON_NAME="$(jq -r .name ./contracts/package.json)"
+  PACKAGE_JSON_NAME="$(jq -r .name ./package.json)"
   LATEST_NPM_VERSION="$(npm info "$PACKAGE_JSON_NAME" version)"
-  PACKAGE_JSON_VERSION="$(jq -r .version ./contracts/package.json)"
+  PACKAGE_JSON_VERSION="$(jq -r .version ./package.json)"
   
   if [ "$PRERELEASE" = "true" ]; then
     echo "next"
