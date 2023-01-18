@@ -73,10 +73,9 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: bash scripts/git-user-config.sh
-      - name: Exit prerelease state if needed
+      - name: Exit prerelease state
+        if: needs.state.outputs.is_prerelease
         run: bash scripts/release/workflow/exit-prerelease.sh
-        env:
-          PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
       - name: Re-run workflow
         uses: actions/github-script@v6
         with:
