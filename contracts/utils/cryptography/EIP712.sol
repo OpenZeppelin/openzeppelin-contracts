@@ -4,6 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "./ECDSA.sol";
+import "../../interfaces/ERC5267.sol";
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-712[EIP 712] is a standard for hashing and signing of typed structured data.
@@ -24,7 +25,7 @@ import "./ECDSA.sol";
  *
  * _Available since v3.4._
  */
-abstract contract EIP712 {
+abstract contract EIP712 is ERC5267 {
     /* solhint-disable var-name-mixedcase */
     // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
     // invalidate the cached domain separator if the chain id changes.
@@ -32,9 +33,12 @@ abstract contract EIP712 {
     uint256 private immutable _CACHED_CHAIN_ID;
     address private immutable _CACHED_THIS;
 
+    string private _NAME;
+    string private _VERSION;
+
     bytes32 private immutable _HASHED_NAME;
     bytes32 private immutable _HASHED_VERSION;
-    bytes32 private immutable _TYPE_HASH;
+    bytes32 private immutable _TYPE_HASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
     /* solhint-enable var-name-mixedcase */
 
@@ -53,15 +57,13 @@ abstract contract EIP712 {
     constructor(string memory name, string memory version) {
         bytes32 hashedName = keccak256(bytes(name));
         bytes32 hashedVersion = keccak256(bytes(version));
-        bytes32 typeHash = keccak256(
-            "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-        );
+        _NAME = name;
+        _VERSION = version;
         _HASHED_NAME = hashedName;
         _HASHED_VERSION = hashedVersion;
         _CACHED_CHAIN_ID = block.chainid;
-        _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator(typeHash, hashedName, hashedVersion);
+        _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator(_TYPE_HASH, hashedName, hashedVersion);
         _CACHED_THIS = address(this);
-        _TYPE_HASH = typeHash;
     }
 
     /**
@@ -100,5 +102,28 @@ abstract contract EIP712 {
      */
     function _hashTypedDataV4(bytes32 structHash) internal view virtual returns (bytes32) {
         return ECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
+    }
+
+    /**
+     * @dev See {EIP-5267}.
+     */
+    function eip712Domain() public view virtual override returns (
+        bytes1 fields,
+        string memory name,
+        string memory version,
+        uint256 chainId,
+        address verifyingContract,
+        bytes32 salt,
+        uint256[] memory extensions
+    ) {
+        return (
+          hex"0f", // 01111
+          _NAME,
+          _VERSION,
+          block.chainid,
+          address(this),
+          bytes32(0),
+          new uint256[](0)
+      );
     }
 }
