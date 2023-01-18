@@ -11,7 +11,7 @@
  * `Strings`: add `toString` method for signed integers. ([#3773](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3773))
  * `MerkleProof`: optimize by using unchecked arithmetic. ([#3869](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3869))
  * `EnumerableMap`: add a `keys()` function that returns an array containing all the keys. ([#3920](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3920))
- * `Multicall`: annotate `multicall` function as upgrade safe to not raise a flag for its delegate call. ([#3961](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3961))
+ * `Multicall`: annotate `multicall` function as upgrade safe to not raise a flag for its delegatecall. ([#3961](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3961))
 
 ### Deprecations
 
