@@ -83,7 +83,7 @@ jobs:
 
   changesets:
     needs: state
-    name: Changesets PR
+    name: Update PR to release
     permissions:
       contents: write
       pull-requests: write
@@ -149,7 +149,7 @@ jobs:
 
   merge:
     needs: state
-    name: Release PR back to master
+    name: Create PR back to master
     permissions:
       contents: write
       pull-requests: write
