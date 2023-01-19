@@ -341,7 +341,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
         expect(value).to.be.equal('0x0000000000000000000000000000000011111142');
       });
 
-
       it('when sender is proxy admin value should not be accepted', async function () {
         await expectRevert.unspecified(this.proxy.admin.call({ from: proxyAdminAddress, value: 1 }));
       });
