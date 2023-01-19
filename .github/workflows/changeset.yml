@@ -20,6 +20,8 @@ jobs:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'ignore-changeset') }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # To include github.base_ref, so changesets doesn't fail
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Check changeset
