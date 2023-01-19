@@ -31,14 +31,14 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
 
     IERC20 private immutable _asset;
-    uint8 private immutable _decimals;
+    uint8 private immutable _underlyingDecimals;
 
     /**
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
      */
     constructor(IERC20 asset_) {
         (bool success, uint8 assetDecimals) = _tryGetAssetDecimals(asset_);
-        _decimals = success ? assetDecimals : super.decimals();
+        _underlyingDecimals = success ? assetDecimals : 18;
         _asset = asset_;
     }
 
@@ -65,7 +65,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * See {IERC20Metadata-decimals}.
      */
     function decimals() public view virtual override(IERC20Metadata, ERC20) returns (uint8) {
-        return _decimals;
+        return _underlyingDecimals + _decimalsOffset();
     }
 
     /** @dev See {IERC4626-asset}. */
@@ -90,7 +90,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4626-maxDeposit}. */
     function maxDeposit(address) public view virtual override returns (uint256) {
-        return _isVaultHealthy() ? type(uint256).max : 0;
+        return type(uint256).max;
     }
 
     /** @dev See {IERC4626-maxMint}. */
@@ -179,44 +179,14 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * would represent an infinite amount of shares.
      */
     function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256) {
-        uint256 supply = totalSupply();
-        return
-            (assets == 0 || supply == 0)
-                ? _initialConvertToShares(assets, rounding)
-                : assets.mulDiv(supply, totalAssets(), rounding);
-    }
-
-    /**
-     * @dev Internal conversion function (from assets to shares) to apply when the vault is empty.
-     *
-     * NOTE: Make sure to keep this function consistent with {_initialConvertToAssets} when overriding it.
-     */
-    function _initialConvertToShares(
-        uint256 assets,
-        Math.Rounding /*rounding*/
-    ) internal view virtual returns (uint256 shares) {
-        return assets;
+        return assets.mulDiv(totalSupply() + 10 ** _decimalsOffset(), totalAssets() + 1, rounding);
     }
 
     /**
      * @dev Internal conversion function (from shares to assets) with support for rounding direction.
      */
     function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256) {
-        uint256 supply = totalSupply();
-        return
-            (supply == 0) ? _initialConvertToAssets(shares, rounding) : shares.mulDiv(totalAssets(), supply, rounding);
-    }
-
-    /**
-     * @dev Internal conversion function (from shares to assets) to apply when the vault is empty.
-     *
-     * NOTE: Make sure to keep this function consistent with {_initialConvertToShares} when overriding it.
-     */
-    function _initialConvertToAssets(
-        uint256 shares,
-        Math.Rounding /*rounding*/
-    ) internal view virtual returns (uint256) {
-        return shares;
+        return shares.mulDiv(totalAssets() + 1, totalSupply() + 10 ** _decimalsOffset(), rounding);
     }
 
     /**
@@ -262,10 +232,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         emit Withdraw(caller, receiver, owner, assets, shares);
     }
 
-    /**
-     * @dev Checks if vault is "healthy" in the sense of having assets backing the circulating shares.
-     */
-    function _isVaultHealthy() private view returns (bool) {
-        return totalAssets() > 0 || totalSupply() == 0;
+    function _decimalsOffset() internal view virtual returns (uint8) {
+        return 0;
     }
 }
