@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`ERC1967Upgrade`: remove the existing, contract-wide, oz-upgrades-unsafe-allow natspec.
+`ERC1967Upgrade`: removed contract-wide `oz-upgrades-unsafe-allow delegatecall` annotation, replaced by granular annotation in `UUPSUpgradeable`.
