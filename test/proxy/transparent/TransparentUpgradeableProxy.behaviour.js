@@ -330,14 +330,24 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       );
     });
 
-    context('when function names clash', function () {
+    describe('when function names clash', function () {
       it('when sender is proxy admin should run the proxy function', async function () {
-        const value = await this.proxy.admin.call({ from: proxyAdminAddress });
+        const value = await this.proxy.admin.call({ from: proxyAdminAddress, value: 0 });
         expect(value).to.be.equal(proxyAdminAddress);
       });
 
       it('when sender is other should delegate to implementation', async function () {
-        const value = await this.proxy.admin.call({ from: anotherAccount });
+        const value = await this.proxy.admin.call({ from: anotherAccount, value: 0 });
+        expect(value).to.be.equal('0x0000000000000000000000000000000011111142');
+      });
+
+
+      it('when sender is proxy admin value should not be accepted', async function () {
+        await expectRevert.unspecified(this.proxy.admin.call({ from: proxyAdminAddress, value: 1 }));
+      });
+
+      it('when sender is other value should be accepted', async function () {
+        const value = await this.proxy.admin.call({ from: anotherAccount, value: 1 });
         expect(value).to.be.equal('0x0000000000000000000000000000000011111142');
       });
     });
