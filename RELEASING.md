@@ -18,7 +18,7 @@ Eg:
 - Updates to a release candidate are published as `vX.Y.0-rc.Z`
 - Updates to final releases are published as `vX.Y.Z`
 
-The process is higlighted in the following diagram:
+The process is highlighted in the following diagram:
 
 > **Note**
 > The `changeset-release-*/release-vX.Y` branches happen in a single `changesets-release/release-vX.Y` branch, but they're all kept for informational purposes
