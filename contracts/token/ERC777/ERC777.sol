@@ -496,7 +496,7 @@ contract ERC777 is Context, IERC777, IERC20 {
 
     /**
      * @dev Hook that is called before any token transfer. This includes
-     * calls to {send}, {transfer}, {operatorSend}, minting and burning.
+     * calls to {send}, {transfer}, {operatorSend}, {transferFrom}, minting and burning.
      *
      * Calling conditions:
      *
