@@ -449,14 +449,14 @@ contract('Governor', function (accounts) {
       it('after proposal - restricted to proposer', async function () {
         await this.helper.propose();
 
-        await expectRevert(this.helper.cancel(true, { from: owner }), "Governor: only proposer can cancel");
+        await expectRevert(this.helper.cancel(true, { from: owner }), 'Governor: only proposer can cancel');
       });
 
       it('after vote started', async function () {
         await this.helper.propose();
         await this.helper.waitForSnapshot(1); // snapshot + 1 block
 
-        await expectRevert(this.helper.cancel(true), "Governor: too late to cancel");
+        await expectRevert(this.helper.cancel(true), 'Governor: too late to cancel');
       });
 
       it('after vote', async function () {
@@ -464,7 +464,7 @@ contract('Governor', function (accounts) {
         await this.helper.waitForSnapshot();
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
 
-        await expectRevert(this.helper.cancel(true), "Governor: too late to cancel");
+        await expectRevert(this.helper.cancel(true), 'Governor: too late to cancel');
       });
 
       it('after deadline', async function () {
@@ -473,7 +473,7 @@ contract('Governor', function (accounts) {
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
         await this.helper.waitForDeadline();
 
-        await expectRevert(this.helper.cancel(true), "Governor: too late to cancel");
+        await expectRevert(this.helper.cancel(true), 'Governor: too late to cancel');
       });
 
       it('after execution', async function () {
@@ -483,11 +483,10 @@ contract('Governor', function (accounts) {
         await this.helper.waitForDeadline();
         await this.helper.execute();
 
-        await expectRevert(this.helper.cancel(true), "Governor: too late to cancel");
+        await expectRevert(this.helper.cancel(true), 'Governor: too late to cancel');
       });
     });
   });
-
 
   describe('proposal length', function () {
     it('empty', async function () {
