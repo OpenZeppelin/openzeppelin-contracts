@@ -107,12 +107,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
             "GovernorBravo: proposer above threshold"
         );
 
-        _cancel(
-            details.targets,
-            details.values,
-            _encodeCalldata(details.signatures, details.calldatas),
-            details.descriptionHash
-        );
+        _cancel(proposalId);
     }
 
     /**
