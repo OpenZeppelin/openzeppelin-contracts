@@ -1,19 +1,16 @@
 const { time } = require('@openzeppelin/test-helpers');
 
-const clock = () => web3.eth.getBlock('latest').then(block => block.number);
-clock.blockNumber = clock;
-clock.timestamp = () => web3.eth.getBlock('latest').then(block => block.timestamp);
-
-const clockFromReceipt = receipt => Promise.resolve(receipt.blockNumber);
-clockFromReceipt.blockNumber = clockFromReceipt;
-clockFromReceipt.timestamp = receipt => web3.eth.getBlock(receipt.blockNumber).then(block => block.timestamp);
-
-const forward = time.advanceBlockTo;
-forward.blockNumber = forward;
-forward.timestamp = time.increaseTo;
-
 module.exports = {
-  clock,
-  clockFromReceipt,
-  forward,
+  clock: {
+    blockNumber: () => web3.eth.getBlock('latest').then(block => block.number),
+    timestamp: () => web3.eth.getBlock('latest').then(block => block.timestamp),
+  },
+  clockFromReceipt: {
+    blockNumber: receipt => Promise.resolve(receipt.blockNumber),
+    timestamp: receipt => web3.eth.getBlock(receipt.blockNumber).then(block => block.timestamp),
+  },
+  forward: {
+    blockNumber: time.advanceBlockTo,
+    timestamp: time.increaseTo,
+  },
 };
