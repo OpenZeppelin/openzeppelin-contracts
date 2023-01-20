@@ -62,10 +62,10 @@ class GovernorHelper {
         );
   }
 
-  cancel(opts = null) {
+  cancel(usePublic = false, opts = null) {
     const proposal = this.currentProposal;
 
-    return proposal.useCompatibilityInterface
+    return (proposal.useCompatibilityInterface || usePublic)
       ? this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts))
       : this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
           ...concatOpts(proposal.shortProposal, opts),
