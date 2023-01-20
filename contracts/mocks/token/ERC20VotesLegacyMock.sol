@@ -26,13 +26,6 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     Checkpoint[] private _totalSupplyCheckpoints;
 
     /**
-     * @dev added to please the compiler, reverts (like if it was absent)
-     */
-    function clock() public pure override returns (uint256) {
-        revert();
-    }
-
-    /**
      * @dev Get the `pos`-th checkpoint for `account`.
      */
     function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoint memory) {

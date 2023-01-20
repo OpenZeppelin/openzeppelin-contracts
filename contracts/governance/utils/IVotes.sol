@@ -19,12 +19,6 @@ interface IVotes {
     event DelegateVotesChanged(address indexed delegate, uint256 previousBalance, uint256 newBalance);
 
     /**
-     * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).
-     * See EIP-5805.
-     */
-    function clock() external view returns (uint256);
-
-    /**
      * @dev Returns the current amount of votes that `account` has.
      */
     function getVotes(address account) external view returns (uint256);

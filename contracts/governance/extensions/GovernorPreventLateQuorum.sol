@@ -62,7 +62,7 @@ abstract contract GovernorPreventLateQuorum is Governor {
         uint256 result = super._castVote(proposalId, account, support, reason, params);
 
         if (_extendedDeadlines[proposalId] == 0 && _quorumReached(proposalId)) {
-            uint64 extendedDeadline = clock().toUint64() + lateQuorumVoteExtension();
+            uint64 extendedDeadline = clock() + lateQuorumVoteExtension();
 
             if (extendedDeadline > proposalDeadline(proposalId)) {
                 emit ProposalExtended(proposalId, extendedDeadline);

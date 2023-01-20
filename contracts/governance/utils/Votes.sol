@@ -2,11 +2,11 @@
 // OpenZeppelin Contracts (last updated v4.8.0) (governance/utils/Votes.sol)
 pragma solidity ^0.8.0;
 
+import "../../interfaces/IERC5805.sol";
 import "../../utils/Context.sol";
 import "../../utils/Counters.sol";
 import "../../utils/Checkpoints.sol";
 import "../../utils/cryptography/EIP712.sol";
-import "./IVotes.sol";
 
 /**
  * @dev This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
@@ -28,7 +28,7 @@ import "./IVotes.sol";
  *
  * _Available since v4.5._
  */
-abstract contract Votes is IVotes, Context, EIP712 {
+abstract contract Votes is IERC5805, Context, EIP712 {
     using Checkpoints for Checkpoints.Trace224;
     using Counters for Counters.Counter;
 
@@ -43,10 +43,19 @@ abstract contract Votes is IVotes, Context, EIP712 {
 
     /**
      * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).
-     * See EIP-5805.
      */
-    function clock() public view virtual returns (uint256) {
-        return block.number;
+    function clock() public view virtual override returns (uint48) {
+        return uint48(block.number);
+    }
+
+    /**
+     * @dev Description of the clock
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual override returns (string memory) {
+        // Check that the clock was not modified
+        require(clock() == block.number);
+        return "mode=blocknumber&from=default";
     }
 
     /**

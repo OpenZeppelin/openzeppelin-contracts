@@ -34,7 +34,12 @@ abstract contract VotesMock is Votes {
 }
 
 abstract contract VotesTimestampMock is VotesMock {
-    function clock() public view override returns (uint256) {
-        return block.timestamp;
+    function clock() public view override returns (uint48) {
+        return uint48(block.timestamp);
+    }
+
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual override returns (string memory) {
+        return "mode=timestamp";
     }
 }

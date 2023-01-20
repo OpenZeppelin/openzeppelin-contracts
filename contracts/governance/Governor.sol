@@ -96,8 +96,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
                 this.castVoteWithReasonAndParams.selector ^
                 this.castVoteWithReasonAndParamsBySig.selector ^
                 this.getVotesWithParams.selector ^
-                this.clock.selector) ||
-            interfaceId == (type(IGovernor).interfaceId ^ this.clock.selector) ||
+                this.clock.selector ^
+                this.CLOCK_MODE.selector) ||
+            interfaceId == (type(IGovernor).interfaceId ^ this.clock.selector ^ this.CLOCK_MODE.selector) ||
             interfaceId == type(IGovernor).interfaceId ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);

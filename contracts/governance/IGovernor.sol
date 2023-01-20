@@ -85,7 +85,14 @@ abstract contract IGovernor is IERC165 {
      * @notice module:core
      * @dev See EIP 5805.
      */
-    function clock() public view virtual returns (uint256);
+    function clock() public view virtual returns (uint48);
+
+    /**
+     * @notice module:core
+     * @dev See EIP 5805.
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual returns (string memory);
 
     /**
      * @notice module:voting
@@ -110,7 +117,7 @@ abstract contract IGovernor is IERC165 {
      * JavaScript class.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function COUNTING_MODE() public pure virtual returns (string memory);
+    function COUNTING_MODE() public view virtual returns (string memory);
 
     /**
      * @notice module:core

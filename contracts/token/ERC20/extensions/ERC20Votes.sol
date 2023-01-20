@@ -4,8 +4,8 @@
 pragma solidity ^0.8.0;
 
 import "./ERC20Permit.sol";
+import "../../../interfaces/IERC5805.sol";
 import "../../../utils/math/Math.sol";
-import "../../../governance/utils/IVotes.sol";
 import "../../../utils/math/SafeCast.sol";
 import "../../../utils/cryptography/ECDSA.sol";
 
@@ -24,7 +24,7 @@ import "../../../utils/cryptography/ECDSA.sol";
  *
  * _Available since v4.2._
  */
-abstract contract ERC20Votes is IVotes, ERC20Permit {
+abstract contract ERC20Votes is IERC5805, ERC20Permit {
     struct Checkpoint {
         uint32 fromBlock;
         uint224 votes;
@@ -39,10 +39,19 @@ abstract contract ERC20Votes is IVotes, ERC20Permit {
 
     /**
      * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).
-     * See EIP-5805.
      */
-    function clock() public view virtual returns (uint256) {
-        return block.number;
+    function clock() public view virtual override returns (uint48) {
+        return uint48(block.number);
+    }
+
+    /**
+     * @dev Description of the clock
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual override returns (string memory) {
+        // Check that the clock was not modified
+        require(clock() == block.number);
+        return "mode=blocknumber&from=default";
     }
 
     /**

@@ -113,7 +113,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         }
 
         // Set new quorum for future proposals
-        _quorumNumeratorHistory.push(clock().toUint32(), newQuorumNumerator.toUint224());
+        _quorumNumeratorHistory.push(uint256(clock()).toUint32(), newQuorumNumerator.toUint224());
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
     }

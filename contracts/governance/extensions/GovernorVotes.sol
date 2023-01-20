@@ -4,7 +4,7 @@
 pragma solidity ^0.8.0;
 
 import "../Governor.sol";
-import "../utils/IVotes.sol";
+import "../../interfaces/IERC5805.sol";
 
 /**
  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes} token.
@@ -12,20 +12,32 @@ import "../utils/IVotes.sol";
  * _Available since v4.3._
  */
 abstract contract GovernorVotes is Governor {
-    IVotes public immutable token;
+    IERC5805 public immutable token;
 
     constructor(IVotes tokenAddress) {
-        token = tokenAddress;
+        token = IERC5805(address(tokenAddress));
     }
 
     /**
      * See EIP 5805.
      */
-    function clock() public view virtual override returns (uint256) {
-        try token.clock() returns (uint256 timepoint) {
+    function clock() public view virtual override returns (uint48) {
+        try token.clock() returns (uint48 timepoint) {
             return timepoint;
         } catch {
-            return block.number;
+            return uint48(block.number);
+        }
+    }
+
+    /**
+     * See EIP 5805.
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual override returns (string memory) {
+        try token.CLOCK_MODE() returns (string memory clockmode) {
+            return clockmode;
+        } catch {
+            return "mode=blocknumber&from=default";
         }
     }
 
