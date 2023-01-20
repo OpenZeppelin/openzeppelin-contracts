@@ -40,6 +40,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         Timers.BlockNumber voteEnd;
         bool executed;
         bool canceled;
+        address proposer;
     }
 
     string private _name;
@@ -95,9 +96,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return
             interfaceId ==
             (type(IGovernor).interfaceId ^
+                this.cancel.selector ^
                 this.castVoteWithReasonAndParams.selector ^
                 this.castVoteWithReasonAndParamsBySig.selector ^
                 this.getVotesWithParams.selector) ||
+            interfaceId ==
+            (type(IGovernor).interfaceId ^
+                this.cancel.selector) ||
             interfaceId == type(IGovernor).interfaceId ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
@@ -248,8 +253,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
+        address proposer = _msgSender();
+
         require(
-            getVotes(_msgSender(), block.number - 1) >= proposalThreshold(),
+            getVotes(proposer, block.number - 1) >= proposalThreshold(),
             "Governor: proposer votes below proposal threshold"
         );
 
@@ -267,10 +274,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
 
         proposal.voteStart.setDeadline(snapshot);
         proposal.voteEnd.setDeadline(deadline);
+        proposal.proposer = proposer;
 
         emit ProposalCreated(
             proposalId,
-            _msgSender(),
+            proposer,
             targets,
             values,
             new string[](targets.length),
@@ -308,6 +316,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         _afterExecute(proposalId, targets, values, calldatas, descriptionHash);
 
         return proposalId;
+    }
+
+    /**
+     * @dev See {IGovernor-cancel}.
+     */
+    function cancel(uint256 proposalId) public virtual override {
+        require(state(proposalId) == ProposalState.Pending, "Governor: too late to cancel");
+        require(_msgSender() == _proposals[proposalId].proposer, "Governor: only proposer can cancel");
+        _cancel(proposalId);
     }
 
     /**
@@ -375,7 +392,16 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual returns (uint256) {
-        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        return _cancel(hashProposal(targets, values, calldatas, descriptionHash));
+    }
+
+    /**
+     * @dev Internal cancel mechanism: locks up the proposal timer, preventing it from being re-submitted. Marks it as
+     * canceled to allow distinguishing it from executed proposals.
+     *
+     * Emits a {IGovernor-ProposalCanceled} event.
+     */
+    function _cancel(uint256 proposalId) internal virtual returns (uint256) {
         ProposalState status = state(proposalId);
 
         require(

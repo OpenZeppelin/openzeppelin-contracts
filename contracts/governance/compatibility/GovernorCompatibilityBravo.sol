@@ -99,7 +99,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         );
     }
 
-    function cancel(uint256 proposalId) public virtual override {
+    function cancel(uint256 proposalId) public virtual override(IGovernor, Governor) {
         ProposalDetails storage details = _proposalDetails[proposalId];
 
         require(
