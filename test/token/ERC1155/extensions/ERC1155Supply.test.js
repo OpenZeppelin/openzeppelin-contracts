@@ -116,8 +116,8 @@ contract('ERC1155Supply', function (accounts) {
     });
   });
 
-  context('total supply of token', function () {
-    it('totalSupply unaffected by no-op', async function () {
+  context('other', function () {
+    it('supply unaffected by no-op', async function () {
       this.token.safeTransferFrom(ZERO_ADDRESS, ZERO_ADDRESS, firstTokenId, firstTokenAmount, '0x', {
         from: ZERO_ADDRESS,
       });
