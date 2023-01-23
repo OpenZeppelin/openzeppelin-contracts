@@ -70,7 +70,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         string memory description
     ) public virtual override returns (uint256) {
         _storeProposal(_msgSender(), targets, values, signatures, calldatas, description);
-        return propose(targets, values, _encodeCalldata(signatures, calldatas), description);
+        return super.propose(targets, values, _encodeCalldata(signatures, calldatas), description);
     }
 
     /**
