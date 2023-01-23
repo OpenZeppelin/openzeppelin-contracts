@@ -6,8 +6,8 @@ for contract in certora/harnesses/Wizard*.sol;
 do
     for spec in certora/specs/*.spec;
     do      
-        contractFile=$(basename $contract)
-        specFile=$(basename $spec)
+        contractFile="$(basename $contract)"
+        specFile="$(basename $spec)"
         if [[ "${specFile%.*}" != "RulesInProgress" ]];
         then
             echo "Processing ${contractFile%.*} with $specFile"

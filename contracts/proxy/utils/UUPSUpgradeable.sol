@@ -62,6 +62,8 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * Calls {_authorizeUpgrade}.
      *
      * Emits an {Upgraded} event.
+     *
+     * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
     function upgradeTo(address newImplementation) external virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
@@ -75,6 +77,8 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * Calls {_authorizeUpgrade}.
      *
      * Emits an {Upgraded} event.
+     *
+     * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
     function upgradeToAndCall(address newImplementation, bytes memory data) external payable virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
