@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 import "./IERC20.sol";
 import "./extensions/IERC20Metadata.sol";
 import "../../utils/Context.sol";
+import "../../utils/math/SafeMath.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -35,6 +36,8 @@ import "../../utils/Context.sol";
  * allowances. See {IERC20-approve}.
  */
 contract ERC20 is Context, IERC20, IERC20Metadata {
+    using SafeMath for uint256;
+
     mapping(address => uint256) private _balances;
 
     mapping(address => mapping(address => uint256)) private _allowances;
@@ -230,12 +233,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         if (from == address(0)) {
             _totalSupply += amount;
         } else {
-            uint256 fromBalance = _balances[from];
-            require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
-            unchecked {
-                // Overflow not possible: amount <= fromBalance <= totalSupply.
-                _balances[from] = fromBalance - amount;
-            }
+            _balances[from] = _balances[from].sub(amount, "ERC20: transfer amount exceeds balance");
         }
 
         if (to == address(0)) {
