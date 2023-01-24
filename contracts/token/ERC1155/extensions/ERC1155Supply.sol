@@ -65,13 +65,15 @@ abstract contract ERC1155Supply is ERC1155 {
                 uint256 amount = amounts[i];
                 uint256 supply = _totalSupply[id];
                 require(supply >= amount, "ERC1155: burn amount exceeds totalSupply");
-                // Overflow not possible: sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll <= 2*256-1
                 unchecked {
+                    // Overflow not possible: amounts[i] <= totalSupply(i)
                     _totalSupply[id] = supply - amount;
+                    // Overflow not possible: sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll
                     totalBurnAmount += amount;
                 }
             }
             unchecked {
+                // Overflow not possible: totalBurnAmount = sum(amounts[i]) <= sum(totalSupply(i)) <= totalSupplyAll
                 _totalSupplyAll -= totalBurnAmount;
             }
         }
