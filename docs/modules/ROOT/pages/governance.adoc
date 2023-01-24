@@ -119,7 +119,7 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
 }
 ```
 
-NOTE:The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]. NFT tokens that don't provide this functionality can be wrapped into a voting token isn't a combination of xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] and xref:api:token/ERC721Wrapper.adoc#ERC721Wrapper[`ERC721Wrapper`].
+NOTE:The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]. ERC721 tokens that don't provide this functionality can be wrapped into a voting tokens using a combination of xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] and xref:api:token/ERC721Wrapper.adoc#ERC721Wrapper[`ERC721Wrapper`].
 
 === Governor
 
