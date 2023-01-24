@@ -37,8 +37,6 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
 
     /**
      * @dev Allow a user to burn wrapped tokens and withdraw the corresponding tokenIds of the underlying tokens.
-     *
-     * WARNING: Overriding {ERC712-_burn} or {ERC721-_isApprovedOrOwner} might make this function vulnerable to reentrancy.
      */
     function withdrawTo(address account, uint256[] memory tokenIds) public virtual returns (bool) {
         uint256 length = tokenIds.length;
