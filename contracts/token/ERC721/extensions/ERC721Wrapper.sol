@@ -37,6 +37,8 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
 
     /**
      * @dev Allow a user to burn wrapped tokens and withdraw the corresponding tokenIds of the underlying tokens.
+     *
+     * WARNING: Overriding {ERC712-_burn} or {ERC721-_isApprovedOrOwner} might make this function vulnerable to reentrancy.
      */
     function withdrawTo(address account, uint256[] memory tokenIds) public virtual returns (bool) {
         uint256 length = tokenIds.length;
@@ -44,6 +46,9 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
             uint256 tokenId = tokenIds[i];
             require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Wrapper: caller is not token owner or approved");
             _burn(tokenId);
+            // Checks were already performed at this point, and there's no way to retake ownership or approval from
+            // the wrapped tokenId after this point, so it's safe to remove the reentrancy check for the next line.
+            // slither-disable-next-line reentrancy-no-eth
             underlying.safeTransferFrom(address(this), account, tokenId);
         }
 
