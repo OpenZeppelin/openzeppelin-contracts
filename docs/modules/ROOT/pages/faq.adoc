@@ -1,4 +1,6 @@
-Can I restrict a function to EOAs only?
+= Frequently Asked Questions
+
+== Can I restrict a function to EOAs only?
 
 When calling external addresses from your contract it is unsafe to assume that an address is an externally-owned account (EOA) and not a contract. Preventing calls from contracts is highly discouraged. It breaks composability, breaks support for smart wallets like Gnosis Safe, and does not provide security since it can be circumvented by calling from a contract constructor. 
 
