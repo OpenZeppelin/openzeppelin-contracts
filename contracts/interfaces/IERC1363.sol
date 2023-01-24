@@ -12,7 +12,6 @@ import "./IERC165.sol";
  *
  * Defines a interface for ERC20 tokens that supports executing recipient
  * code after `transfer` or `transferFrom`, or spender code after `approve`.
- * Contracts that want to accept ERC1363 must implement the {}
  */
 interface IERC1363 is IERC165, IERC20 {
     /*
