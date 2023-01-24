@@ -24,7 +24,7 @@ import "../../utils/Address.sol";
  *         __ERC20_init("MyToken", "MTK");
  *     }
  * }
- * 
+ *
  * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {
  *     function initializeV2() reinitializer(2) public {
  *         __ERC20Permit_init("MyToken");
