@@ -158,6 +158,11 @@ contract('TimelockController', function (accounts) {
             delay: MINDELAY,
           });
 
+          expectEvent(receipt, 'ProposalSalt', {
+            proposalId: this.operation.id,
+            salt: salt,
+          });
+
           const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
           expect(await this.mock.getTimestamp(this.operation.id)).to.be.bignumber.equal(
@@ -344,7 +349,7 @@ contract('TimelockController', function (accounts) {
           );
         });
 
-        it('proposer can schedule', async function () {
+        it.only('proposer can schedule', async function () {
           const receipt = await this.mock.scheduleBatch(
             this.operation.targets,
             this.operation.values,
@@ -363,6 +368,11 @@ contract('TimelockController', function (accounts) {
               data: this.operation.payloads[i],
               predecessor: this.operation.predecessor,
               delay: MINDELAY,
+            });
+
+            expectEvent(receipt, 'ProposalSalt', {
+              proposalId: this.operation.id,
+              salt: salt,
             });
           }
 
