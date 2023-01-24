@@ -119,7 +119,7 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
 }
 ```
 
-NOTE: Voting power could be determined in different ways: multiple ERC20 tokens, ERC721 tokens, sybil resistant identities, etc. All of these options are potentially supported by writing a custom Votes module for your Governor. The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`].
+NOTE: Voting power could be determined in different ways: multiple ERC20 tokens, ERC721 tokens, sybil resistant identities, etc. All of these options are potentially supported by writing a custom Votes module for your Governor. The other sources of voting power available in OpenZeppelin Contracts currently are xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] and xref:api:token/ERC721Wrapper.adoc#ERC721Wrapper[`ERC721Wrapper`].
 
 === Governor
 
