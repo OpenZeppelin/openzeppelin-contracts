@@ -22,7 +22,7 @@ pragma solidity ^0.8.0;
  * (O(1)).
  * - Elements are enumerated in O(n). No guarantees are made on the ordering.
  *
- * \`\`\`
+ * \`\`\`solidity
  * contract Example {
  *     // Add the library methods
  *     using EnumerableSet for EnumerableSet.AddressSet;
