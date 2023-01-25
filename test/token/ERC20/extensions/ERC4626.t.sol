@@ -15,22 +15,4 @@ contract ERC4626StdTest is ERC4626Test {
         _vaultMayBeEmpty = false;
         _unlimitedAmount = true;
     }
-
-    // solhint-disable-next-line func-name-mixedcase
-    function test_RT_mint_withdraw(ERC4626Test.Init memory init, uint256 shares) public override {
-        // There is an edge case where we currently behave different than the property tests,
-        // when all assets are lost to negative yield.
-
-        // Sum all initially deposited assets.
-        int256 initAssets = 0;
-        for (uint256 i = 0; i < init.share.length; i++) {
-            vm.assume(init.share[i] <= uint256(type(int256).max - initAssets));
-            initAssets += SafeCast.toInt256(init.share[i]);
-        }
-
-        // Reject tests where the yield loses all assets from the vault.
-        vm.assume(init.yield > -initAssets);
-
-        super.test_RT_mint_withdraw(init, shares);
-    }
 }
