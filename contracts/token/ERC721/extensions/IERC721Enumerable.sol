@@ -3,18 +3,13 @@
 
 pragma solidity ^0.8.0;
 
-import "../IERC721.sol";
+import "./IERC721Supply.sol";
 
 /**
  * @title ERC-721 Non-Fungible Token Standard, optional enumeration extension
  * @dev See https://eips.ethereum.org/EIPS/eip-721
  */
-interface IERC721Enumerable is IERC721 {
-    /**
-     * @dev Returns the total amount of tokens stored by the contract.
-     */
-    function totalSupply() external view returns (uint256);
-
+interface IERC721Enumerable is IERC721Supply {
     /**
      * @dev Returns a token ID owned by `owner` at a given `index` of its token list.
      * Use along with {balanceOf} to enumerate all of ``owner``'s tokens.
