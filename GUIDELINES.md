@@ -62,6 +62,18 @@ Some other examples of automation are:
 - Looking for common security vulnerabilities or errors in our code (eg. reentrancy analysis).
 - Keeping dependencies up to date and monitoring for vulnerable dependencies.
 
+## Pull requests
+
+Pull requests are squash-merged to keep the `master` branch history clean. The title of the pull request becomes the commit message, so it should be written in a consistent format:
+
+1) Begin with a capital letter.
+2) Do not end with a period.
+3) Write in the imperative: "Add feature X" and not "Adds feature X" or "Added feature X".
+
+This repository does not follow conventional commits, so do not prefix the title with "fix:" or "feat:".
+
+Branch names don't matter, and commit messages within a pull request mostly don't matter either, although they can help the review process.
+
 # Solidity Conventions
 
 In addition to the official Solidity Style Guide we have a number of other conventions that must be followed.
