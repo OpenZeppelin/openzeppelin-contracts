@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC777/ERC777.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.1;
 
 import "./IERC777.sol";
 import "./IERC777Recipient.sol";
@@ -472,7 +472,10 @@ contract ERC777 is Context, IERC777, IERC20 {
         if (implementer != address(0)) {
             IERC777Recipient(implementer).tokensReceived(operator, from, to, amount, userData, operatorData);
         } else if (requireReceptionAck) {
-            require(!to.isContract(), "ERC777: token recipient contract has no implementer for ERC777TokensRecipient");
+            require(
+                to.code.length == 0,
+                "ERC777: token recipient contract has no implementer for ERC777TokensRecipient"
+            );
         }
     }
 

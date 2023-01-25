@@ -3,10 +3,11 @@
 
 # <img src="logo.svg" alt="OpenZeppelin" height="40px">
 
-[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-blue)](https://docs.openzeppelin.com/contracts)
 [![NPM Package](https://img.shields.io/npm/v/@openzeppelin/contracts.svg)](https://www.npmjs.org/package/@openzeppelin/contracts)
 [![Coverage Status](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts/graph/badge.svg)](https://codecov.io/gh/OpenZeppelin/openzeppelin-contracts)
-[![gitpoap badge](https://public-api.gitpoap.io/v1/repo/OpenZeppelin/openzeppelin-contracts/badge)](https://www.gitpoap.io/gh/OpenZeppelin/openzeppelin-contracts)
+[![GitPOAPs](https://public-api.gitpoap.io/v1/repo/OpenZeppelin/openzeppelin-contracts/badge)](https://www.gitpoap.io/gh/OpenZeppelin/openzeppelin-contracts)
+[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-yellow)](https://docs.openzeppelin.com/contracts)
+[![Forum](https://img.shields.io/badge/forum-%F0%9F%92%AC-yellow)](https://docs.openzeppelin.com/contracts)
 
 **A library for secure smart contract development.** Build on a solid foundation of community-vetted code.
 
@@ -22,7 +23,7 @@
 
 ### Installation
 
-```console
+```
 $ npm install @openzeppelin/contracts
 ```
 
@@ -55,7 +56,6 @@ The guides in the [documentation site](https://docs.openzeppelin.com/contracts) 
 
 * [Access Control](https://docs.openzeppelin.com/contracts/access-control): decide who can perform each of the actions on your system.
 * [Tokens](https://docs.openzeppelin.com/contracts/tokens): create tradeable assets or collectives, and distribute them via [Crowdsales](https://docs.openzeppelin.com/contracts/crowdsales).
-* [Gas Station Network](https://docs.openzeppelin.com/contracts/gsn): let your users interact with your contracts without having to pay for gas themselves.
 * [Utilities](https://docs.openzeppelin.com/contracts/utilities): generic useful tools including non-overflowing math, signature verification, and trustless paying systems.
 
 The [full API](https://docs.openzeppelin.com/contracts/api/token/ERC20) is also thoroughly documented, and serves as a great reference when developing your smart contract application. You can also ask for help or follow Contracts's development in the [community forum](https://forum.openzeppelin.com).
@@ -68,15 +68,17 @@ Finally, you may want to take a look at the [guides on our blog](https://blog.op
 
 ## Security
 
-This project is maintained by [OpenZeppelin](https://openzeppelin.com), and developed following our high standards for code quality and security. OpenZeppelin Contracts is meant to provide tested and community-audited code, but please use common sense when doing anything that deals with real money! We take no responsibility for your implementation decisions and any security problems you might experience.
+This project is maintained by [OpenZeppelin](https://openzeppelin.com) with the goal of providing a secure and reliable library of smart contract components for the ecosystem. We address security through risk management in various areas such as engineering and open source best practices, scoping and API design, multi-layered review processes, and incident response preparedness.
 
-The core development principles and strategies that OpenZeppelin Contracts is based on include: security in depth, simple and modular code, clarity-driven naming conventions, comprehensive unit testing, pre-and-post-condition sanity checks, code consistency, and regular audits.
+The security policy is detailed in [`SECURITY.md`](./SECURITY.md), and specifies how you can report security vulnerabilities, which versions will receive security patches, and how to stay informed about them. We run a [bug bounty program on Immunefi](https://immunefi.com/bounty/openzeppelin) to reward the responsible disclosure of vulnerabilities.
 
-The latest audit was done on October 2018 on version 2.0.0.
+The engineering guidelines we follow to promote project quality can be found in [`GUIDELINES.md`](./GUIDELINES.md).
 
-We have a [**bug bounty program** on Immunefi](https://www.immunefi.com/bounty/openzeppelin). Please report any security issues you find through the Immunefi dashboard, or reach out to security@openzeppelin.com.
+Past audits can be found in [`audits/`](./audits).
 
-Critical bug fixes will be backported to past major releases.
+Smart contracts are a nascent techology and carry a high level of technical risk and uncertainty. Although OpenZeppelin is well known for its security audits, using OpenZeppelin Contracts is not a substitute for a security audit.
+
+OpenZeppelin Contracts is made available under the MIT License, which disclaims all warranties in relation to the project and which limits the liability of those that contribute and maintain the project, including OpenZeppelin. As set out further in the Terms, you acknowledge that you are solely responsible for any use of OpenZeppelin Contracts and you assume all risks associated with any such use.
 
 ## Contribute
 
@@ -85,3 +87,7 @@ OpenZeppelin Contracts exists thanks to its contributors. There are many ways yo
 ## License
 
 OpenZeppelin Contracts is released under the [MIT License](LICENSE).
+
+## Legal
+
+Your use of this Project is governed by the terms found at www.openzeppelin.com/tos (the "Terms").
