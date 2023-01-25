@@ -159,7 +159,7 @@ contract('TimelockController', function (accounts) {
           });
 
           expectEvent(receipt, 'ProposalSalt', {
-            proposalId: this.operation.id,
+            id: this.operation.id,
             salt: this.operation.salt,
           });
 
@@ -384,7 +384,7 @@ contract('TimelockController', function (accounts) {
             });
 
             expectEvent(receipt, 'ProposalSalt', {
-              proposalId: this.operation.id,
+              id: this.operation.id,
               salt: this.operation.salt,
             });
           }
