@@ -3,14 +3,15 @@
 
 pragma solidity ^0.8.0;
 
-import "../utils/introspection/ERC165.sol";
+import "../interfaces/IERC165.sol";
+import "../interfaces/IERC6372.sol";
 
 /**
  * @dev Interface of the {Governor} core.
  *
  * _Available since v4.3._
  */
-abstract contract IGovernor is IERC165 {
+abstract contract IGovernor is IERC165, IERC6372 {
     enum ProposalState {
         Pending,
         Active,
@@ -83,16 +84,16 @@ abstract contract IGovernor is IERC165 {
 
     /**
      * @notice module:core
-     * @dev See EIP 5805.
+     * @dev See EIP-6372.
      */
-    function clock() public view virtual returns (uint48);
+    function clock() public view virtual override returns (uint48);
 
     /**
      * @notice module:core
-     * @dev See EIP 5805.
+     * @dev See EIP-6372.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public view virtual returns (string memory);
+    function CLOCK_MODE() public view virtual override returns (string memory);
 
     /**
      * @notice module:voting
