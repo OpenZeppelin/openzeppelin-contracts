@@ -72,6 +72,8 @@ Pull requests are squash-merged to keep the `master` branch history clean. The t
 
 This repository does not follow conventional commits, so do not prefix the title with "fix:" or "feat:".
 
+Work in progress pull requests should be submitted as Drafts and should not be prefixed with "WIP:".
+
 Branch names don't matter, and commit messages within a pull request mostly don't matter either, although they can help the review process.
 
 # Solidity Conventions
