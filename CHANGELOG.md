@@ -1,15 +1,5 @@
 # Changelog
 
- * `TimelockController`: Changed the role architecture to use `DEFAULT_ADMIN_ROLE` as the admin for all roles, instead of the bespoke `TIMELOCK_ADMIN_ROLE` that was used previously. This aligns with the general recommendation for `AccessControl` and makes the addition of new roles easier. Accordingly, the `admin` parameter and timelock will now be granted `DEFAULT_ADMIN_ROLE` instead of `TIMELOCK_ADMIN_ROLE`. ([#3799](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3799))
- * `ERC20Votes`: Changed internal vote accounting to reusable `Votes` module previously used by `ERC721Votes`. Removed implicit `ERC20Permit` inheritance. [#3816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3816)
- * `Nonces`: Added a new contract to keep track of user nonces. Used for signatures in `ERC20Permit`, `ERC20Votes`, and `ERC721Votes`. ([#3816](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3816))
- * Removed presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/).
- * `TransparentUpgradeableProxy`: Removed `admin` and `implementation` getters, which were only callable by the proxy owner and thus not very useful. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
- * `ProxyAdmin`: Removed `getProxyAdmin` and `getProxyImplementation` getters. ([#3820](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3820))
- * `ERC20`, `ERC1155`: Deleted `_beforeTokenTransfer` and `_afterTokenTransfer` hooks, added a new internal `_update` function for customizations, and refactored all extensions using those hooks to use `_update` instead. ([#3838](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3838), [#3876](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3876))
- * `ERC165Storage`: Removed this contract in favor of inheritance based approach. ([#3880](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3880))
- * `ERC1155Supply`: add a `totalSupply()` function that returns the total amount of token circulating, this change will restrict the total tokens minted across all ids to 2**256-1 . ([#3962](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3962))
-
 ### How to upgrade from 4.x
 
 #### ERC20, ERC721, and ERC1155
