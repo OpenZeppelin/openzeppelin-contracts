@@ -72,7 +72,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
 
 * Internal or private state variables or functions should have an underscore prefix.
 
-  ```
+  ```solidity
   contract TestContract {
       uint256 private _privateVar;
       uint256 internal _internalVar;
@@ -84,7 +84,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
 * Events should be emitted immediately after the state change that they
   represent, and should be named in the past tense.
 
-  ```
+  ```solidity
   function _burn(address who, uint256 value) internal {
       super._burn(who, value);
       emit TokensBurned(who, value);
@@ -96,7 +96,7 @@ In addition to the official Solidity Style Guide we have a number of other conve
   
 * Interface names should have a capital I prefix.
 
-  ```
+  ```solidity
   interface IERC777 {
   ```
 
