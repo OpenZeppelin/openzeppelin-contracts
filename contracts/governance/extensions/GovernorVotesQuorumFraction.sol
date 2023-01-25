@@ -18,6 +18,8 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
     using Checkpoints for Checkpoints.Trace224;
 
     uint256 private _quorumNumerator; // DEPRECATED
+
+    /// @custom:oz-retyped-from Checkpoints.History
     Checkpoints.Trace224 private _quorumNumeratorHistory;
 
     event QuorumNumeratorUpdated(uint256 oldQuorumNumerator, uint256 newQuorumNumerator);

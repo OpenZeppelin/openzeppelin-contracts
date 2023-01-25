@@ -21,7 +21,9 @@ abstract contract GovernorPreventLateQuorum is Governor {
     using SafeCast for uint256;
 
     uint64 private _voteExtension;
-    mapping(uint256 => uint256) private _extendedDeadlines; // retyped from Timers.BlockNumber
+
+    /// @custom:oz-retyped-from mapping(address => struct Timers.BlockNumber)
+    mapping(uint256 => uint256) private _extendedDeadlines;
 
     /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
     event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);

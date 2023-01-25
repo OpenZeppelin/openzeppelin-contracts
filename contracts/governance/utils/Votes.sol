@@ -37,8 +37,9 @@ abstract contract Votes is IERC5805, Context, EIP712 {
 
     mapping(address => address) private _delegation;
 
-    /// @custom:oz-retyped-from mapping(address => Checkpoints.History)
+    /// @custom:oz-retyped-from mapping(address => struct Checkpoints.History)
     mapping(address => Checkpoints.Trace224) private _delegateCheckpoints;
+
     /// @custom:oz-retyped-from Checkpoints.History
     Checkpoints.Trace224 private _totalCheckpoints;
 
