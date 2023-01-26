@@ -62,14 +62,17 @@ class GovernorHelper {
         );
   }
 
-  cancel(usePublic = false, opts = null) {
+  cancel(visibility = 'external', opts = null) {
     const proposal = this.currentProposal;
 
-    return proposal.useCompatibilityInterface || usePublic
-      ? this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts))
-      : this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
-          ...concatOpts(proposal.shortProposal, opts),
-        );
+    switch (visibility) {
+      case 'external':
+        return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
+      case 'internal':
+        return this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](...concatOpts(proposal.shortProposal, opts));
+      default:
+        throw new Error(`unsuported visibility "${visibility}"`);
+    }
   }
 
   vote(vote = {}, opts = null) {
