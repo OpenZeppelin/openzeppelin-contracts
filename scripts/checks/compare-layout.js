@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('fs');
 const { getStorageUpgradeReport } = require('@openzeppelin/upgrades-core/dist/storage');
 
 const { ref, head } = require('yargs').argv;

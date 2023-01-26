@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs = require('fs');
 const { findAll } = require('solidity-ast/utils');
 const { astDereferencer } = require('@openzeppelin/upgrades-core/dist/ast-dereferencer');
 const { solcInputOutputDecoder } = require('@openzeppelin/upgrades-core/dist/src-decoder');
