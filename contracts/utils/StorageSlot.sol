@@ -12,7 +12,7 @@ pragma solidity ^0.8.0;
  * The functions in this library return Slot structs that contain a `value` member that can be used to read or write.
  *
  * Example usage to set ERC1967 implementation slot:
- * ```
+ * ```solidity
  * contract ERC1967 {
  *     bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
  *
