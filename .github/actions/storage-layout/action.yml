@@ -10,40 +10,35 @@ inputs:
   out_artifacts:
     description: artifacts to read
     required: false
-    default: ${{ github.ref_name }}.buildinfo.json
+    default: ${{ github.ref_name }}.layout.json
   ref_artifacts:
     description: artifacts to read from
     required: false
-    default: ${{ github.base_ref }}.buildinfo.json
+    default: ${{ github.base_ref }}.layout.json
 
 runs:
   using: composite
   steps:
+    - name: Extract layout
+      run: |
+        node scripts/checks/extract-layout.js ${{ inputs.artifacts }} > ${{ inputs.out_artifacts }}
+      shell: bash
     - name: Download reference artifacts
       if: github.event_name == 'pull_request'
       run: |
         RUN_ID=`gh run list --repo ${{ github.repository }} --branch ${{ github.base_ref }} --workflow ${{ github.workflow }} --limit 100 --json 'conclusion,databaseId,event' --jq 'map(select(.conclusion=="success" and .event!="pull_request"))[0].databaseId'`
-        gh run download ${RUN_ID} --repo ${{ github.repository }} -n buildinfo
+        gh run download ${RUN_ID} --repo ${{ github.repository }} -n layout
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
       shell: bash
-      continue-on-error: true
-      id: reference
-    - name: Compare storage
-      if: steps.reference.outcome == 'success' && github.event_name == 'pull_request'
+    - name: Compare layouts
+      if: github.event_name == 'pull_request'
       run: |
-        node scripts/checks/layout-rebuild-and-compare.js --head ${{ inputs.artifacts }} ${{ inputs.ref_artifacts }} >> $GITHUB_STEP_SUMMARY
-      env:
-        STYLE: markdown
-      shell: bash
-    - name: Rename artifacts for upload
-      if: github.event_name != 'pull_request'
-      run: |
-        mv ${{ inputs.artifacts }} ${{ inputs.out_artifacts }}
+        node scripts/checks/layout-rebuild-and-compare.js --head $${{ inputs.out_artifacts }} --ref ${{ inputs.ref_artifacts }} >> $GITHUB_STEP_SUMMARY
       shell: bash
     - name: Save artifacts
       if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@v3
       with:
-        name: buildinfo
+        name: layout
         path: ${{ inputs.out_artifacts }}
