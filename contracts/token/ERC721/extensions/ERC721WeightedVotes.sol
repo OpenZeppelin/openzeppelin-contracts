@@ -19,6 +19,7 @@ import "./IERC721Supply.sol";
  */
 abstract contract ERC721WeightedVotes is ERC721, Votes, IERC721Supply {
 
+    function totalSupply() public view virtual override returns (uint256);
     function _votesPerToken() internal pure virtual returns (uint256) { return 1; }
     /**
      * @dev See {ERC721-_afterTokenTransfer}. Adjusts votes when tokens are transferred.
@@ -31,17 +32,22 @@ abstract contract ERC721WeightedVotes is ERC721, Votes, IERC721Supply {
         uint256 firstTokenId,
         uint256 batchSize
     ) internal virtual override {
-        _transferVotingUnits(from, to, batchSize * _votesPerToken());
+        _transferVotingUnits(from, to, _getVotesForToken(firstTokenId, batchSize));
         super._afterTokenTransfer(from, to, firstTokenId, batchSize);
     }
-
-    function totalSupply() public view virtual override returns (uint256);
 
     /**
      * @dev Returns the balance of `account`.
      */
     function _getVotingUnits(address account) internal view virtual override returns (uint256) {
         return balanceOf(account) * _votesPerToken();
+    }
+
+    /**
+     * @dev Returns the vote amounts sequential token batches enumerating from the first token
+     */
+    function _getVotesForToken(uint256 firstTokenId, uint256 batchSize) internal view virtual returns (uint256) {
+       return batchSize * _votesPerToken();
     }
 
     function _mint(address to, uint256 tokenId) internal override virtual {
