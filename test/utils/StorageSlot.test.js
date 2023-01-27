@@ -110,7 +110,7 @@ contract('StorageSlot', function (accounts) {
 
   describe('string storage slot', function () {
     beforeEach(async function () {
-      this.value = "lorem ipsum";
+      this.value = 'lorem ipsum';
     });
 
     it('set', async function () {
@@ -134,7 +134,7 @@ contract('StorageSlot', function (accounts) {
 
   describe('string storage pointer', function () {
     beforeEach(async function () {
-      this.value = "lorem ipsum";
+      this.value = 'lorem ipsum';
     });
 
     it('set', async function () {
