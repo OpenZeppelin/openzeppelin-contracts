@@ -52,7 +52,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     event CallExecuted(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
 
     /**
-     * @dev Emitted when new proposal is scheduled when salt is not zero.
+     * @dev Emitted when new proposal is scheduled with non-zero salt.
      */
     event CallSalt(bytes32 indexed id, bytes32 salt);
 
