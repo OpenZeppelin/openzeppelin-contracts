@@ -42,6 +42,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
 
     string private _name;
 
+    /// @custom:oz-retyped-from mapping(uint256 => Governor.ProposalCore)
     mapping(uint256 => ProposalCore) private _proposals;
 
     // This queue keeps track of the governor operating on itself. Calls to functions protected by the

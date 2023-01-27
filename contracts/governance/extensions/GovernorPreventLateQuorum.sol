@@ -22,7 +22,7 @@ abstract contract GovernorPreventLateQuorum is Governor {
 
     uint64 private _voteExtension;
 
-    /// @custom:oz-retyped-from mapping(address => struct Timers.BlockNumber)
+    /// @custom:oz-retyped-from mapping(uint256 => Timers.BlockNumber)
     mapping(uint256 => uint256) private _extendedDeadlines;
 
     /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.

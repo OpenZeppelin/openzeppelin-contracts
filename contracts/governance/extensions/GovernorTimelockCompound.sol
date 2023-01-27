@@ -25,7 +25,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
     ICompoundTimelock private _timelock;
 
-    /// @custom:oz-retyped-from mapping(address => struct Timers.Timestamp)
+    /// @custom:oz-retyped-from mapping(uint256 => Timers.Timestamp)
     mapping(uint256 => uint256) private _proposalTimelocks;
 
     /**
