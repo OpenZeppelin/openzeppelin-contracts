@@ -27,6 +27,7 @@ pragma solidity ^0.8.0;
  *     }
  * }
  * ```
+ *
  * _Available since v4.1 for `address`, `bool`, `bytes32`, `uint256`._
  * _Available since v4.9 for `string`, `bytes`._
  */

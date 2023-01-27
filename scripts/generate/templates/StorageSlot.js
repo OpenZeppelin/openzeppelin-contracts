@@ -44,6 +44,7 @@ pragma solidity ^0.8.0;
  *     }
  * }
  * \`\`\`
+ *
 ${VERSIONS.map(s => ` * ${s}`).join('\n')}
  */
 `;
