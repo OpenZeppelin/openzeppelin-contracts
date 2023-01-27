@@ -13,7 +13,7 @@ const TYPES = [
 
 const VERSIONS = unique(TYPES.map(t => t.version)).map(version => ({
   version,
-  types: TYPES.filter(t => t.version == version).map(t => t.type),
+  types: TYPES.filter(t => t.version == version),
 }));
 
 const header = `\
@@ -42,7 +42,7 @@ pragma solidity ^0.8.0;
  *     }
  * }
  * \`\`\`
-${VERSIONS.map(v => ` * _Available since v${v.version} for ${v.types.map(t => `\`${t}\``).join(', ')}._ `).join('\n')}
+${VERSIONS.map(v => ` * _Available since v${v.version} for ${v.types.map(t => `\`${t.type}\``).join(', ')}._ `).join('\n')}
  */
 `;
 
