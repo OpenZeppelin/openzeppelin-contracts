@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-`TimelockController`: Add the `ProposalSalt` event to emit on operation schedule.
+`TimelockController`: Add the `CallSalt` event to emit on operation schedule.

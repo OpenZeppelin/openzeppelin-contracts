@@ -158,7 +158,7 @@ contract('TimelockController', function (accounts) {
             delay: MINDELAY,
           });
 
-          expectEvent(receipt, 'ProposalSalt', {
+          expectEvent(receipt, 'CallSalt', {
             id: this.operation.id,
             salt: this.operation.salt,
           });
@@ -235,7 +235,7 @@ contract('TimelockController', function (accounts) {
             MINDELAY,
             { from: proposer },
           );
-          expectEvent.notEmitted(receipt, 'ProposalSalt');
+          expectEvent.notEmitted(receipt, 'CallSalt');
         });
       });
 
@@ -383,7 +383,7 @@ contract('TimelockController', function (accounts) {
               delay: MINDELAY,
             });
 
-            expectEvent(receipt, 'ProposalSalt', {
+            expectEvent(receipt, 'CallSalt', {
               id: this.operation.id,
               salt: this.operation.salt,
             });
