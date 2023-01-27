@@ -14,9 +14,9 @@ import "../../../security/Pausable.sol";
  * event of a large bug.
  *
  * WARNING: Using it requires securely exposing and adding access control to both
- * {Pausable-_pause} and {Pausable-_unpause} internal functions since {Pausable} is 
- * intended to be used through inheritance. This is done in order to allow both 
- * {AccessControl} and {Ownable} pause restriction mechanisms. Not doing so will 
+ * {Pausable-_pause} and {Pausable-_unpause} internal functions since {Pausable} is
+ * intended to be used through inheritance. This is done in order to allow both
+ * {AccessControl} and {Ownable} pause restriction mechanisms. Not doing so will
  * make the contract unpausable.
  */
 abstract contract ERC20Pausable is ERC20, Pausable {
