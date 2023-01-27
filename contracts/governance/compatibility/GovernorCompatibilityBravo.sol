@@ -99,7 +99,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         );
     }
 
-    function cancel(uint256 proposalId) public virtual override {
+    function cancel(uint256 proposalId) public virtual override(IGovernor, Governor) {
         ProposalDetails storage details = _proposalDetails[proposalId];
 
         require(
@@ -107,12 +107,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
             "GovernorBravo: proposer above threshold"
         );
 
-        _cancel(
-            details.targets,
-            details.values,
-            _encodeCalldata(details.signatures, details.calldatas),
-            details.descriptionHash
-        );
+        _cancel(proposalId);
     }
 
     /**
