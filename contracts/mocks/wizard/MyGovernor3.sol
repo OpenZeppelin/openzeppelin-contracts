@@ -54,6 +54,10 @@ contract MyGovernor is
         return super.propose(targets, values, calldatas, description);
     }
 
+    function cancel(uint256 proposalId) public override(Governor, GovernorCompatibilityBravo, IGovernor) {
+        super.cancel(proposalId);
+    }
+
     function _execute(
         uint256 proposalId,
         address[] memory targets,

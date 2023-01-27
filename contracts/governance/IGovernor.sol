@@ -231,6 +231,14 @@ abstract contract IGovernor is IERC165, IERC6372 {
     ) public payable virtual returns (uint256 proposalId);
 
     /**
+     * @dev Cancel a proposal. This is restricted to Pending proposal (before the vote starts) and is restricted to
+     * the proposal's proposer.
+     *
+     * Emits a {ProposalCanceled} event.
+     */
+    function cancel(uint256 proposalId) public virtual;
+
+    /**
      * @dev Cast a vote
      *
      * Emits a {VoteCast} event.

@@ -76,6 +76,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up environment
         uses: ./.github/actions/setup
+      - run: rm foundry.toml
       - uses: crytic/slither-action@v0.2.0
 
   codespell:
@@ -87,4 +88,4 @@ jobs:
         uses: codespell-project/actions-codespell@v1.0
         with:
           check_filenames: true
-          skip: package-lock.json
+          skip: package-lock.json,*.pdf

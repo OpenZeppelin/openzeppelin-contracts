@@ -210,7 +210,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
           await this.helper.waitForDeadline();
 
-          expectEvent(await this.helper.cancel(), 'ProposalCanceled', { proposalId: this.proposal.id });
+          expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
 
           expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
           await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
@@ -223,7 +223,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           await this.helper.waitForDeadline();
           await this.helper.queue();
 
-          expectEvent(await this.helper.cancel(), 'ProposalCanceled', { proposalId: this.proposal.id });
+          expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
 
           expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
           await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
