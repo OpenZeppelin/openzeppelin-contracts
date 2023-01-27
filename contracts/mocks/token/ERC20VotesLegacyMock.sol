@@ -10,7 +10,6 @@ import "../../utils/cryptography/ECDSA.sol";
 
 /**
  * @dev Copied from the master branch at commit 86de1e8b6c3fa6b4efa4a5435869d2521be0f5f5
- * A reverting `clock()` function is added to please the compiler
  */
 abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     struct Checkpoint {
