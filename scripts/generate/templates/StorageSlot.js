@@ -3,16 +3,18 @@ const format = require('../format-lines');
 const { capitalize, unique } = require('../../helpers');
 
 const TYPES = [
-  { type: 'address',  isValueType: true,                  version: '4.1' },
-  { type: 'bool',     isValueType: true, name: 'Boolean', version: '4.1' },
-  { type: 'bytes32',  isValueType: true,                  version: '4.1' },
-  { type: 'uint256',  isValueType: true,                  version: '4.1' },
-  { type: 'string',   isValueType: false,                 version: '4.9' },
-  { type: 'bytes',    isValueType: false,                 version: '4.9' },
-].map(type => Object.assign(type, { struct: (type.name ?? capitalize(type.type)) + 'Slot' }))
+  { type: 'address', isValueType: true, version: '4.1' },
+  { type: 'bool', isValueType: true, name: 'Boolean', version: '4.1' },
+  { type: 'bytes32', isValueType: true, version: '4.1' },
+  { type: 'uint256', isValueType: true, version: '4.1' },
+  { type: 'string', isValueType: false, version: '4.9' },
+  { type: 'bytes', isValueType: false, version: '4.9' },
+].map(type => Object.assign(type, { struct: (type.name ?? capitalize(type.type)) + 'Slot' }));
 
-const VERSIONS = unique(TYPES.map(t => t.version))
-  .map(version => ({ version, types: TYPES.filter(t => t.version == version).map(t => t.type) }));
+const VERSIONS = unique(TYPES.map(t => t.version)).map(version => ({
+  version,
+  types: TYPES.filter(t => t.version == version).map(t => t.type),
+}));
 
 const header = `\
 pragma solidity ^0.8.0;
@@ -50,7 +52,7 @@ struct ${type.struct} {
 }
 `;
 
-const accessor = type => `\
+const get = type => `\
 /**
  * @dev Returns an \`${type.struct}\` with member \`value\` located at \`slot\`.
  */
@@ -62,7 +64,7 @@ function get${type.struct}(bytes32 slot) internal pure returns (${type.struct} s
 }
 `;
 
-const accessorPtr = type => `\
+const getStorage = type => `\
 /**
  * @dev Returns an \`${type.struct}\` representation of the ${type.type} storage pointer \`store\`.
  */
@@ -78,12 +80,6 @@ function get${type.struct}(${type.type} storage store) internal pure returns (${
 module.exports = format(
   header.trimEnd(),
   'library StorageSlot {',
-  [
-    ...TYPES.map(struct),
-    ...TYPES.flatMap(type => [
-        accessor(type),
-        !type.isValueType ? accessorPtr(type) : ''
-      ]),
-  ],
+  [...TYPES.map(struct), ...TYPES.flatMap(type => [get(type), type.isValueType ? '' : getStorage(type)])],
   '}',
 );
