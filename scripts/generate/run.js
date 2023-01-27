@@ -18,6 +18,7 @@ for (const [file, template] of Object.entries({
   'utils/structs/EnumerableSet.sol': './templates/EnumerableSet.js',
   'utils/structs/EnumerableMap.sol': './templates/EnumerableMap.js',
   'utils/Checkpoints.sol': './templates/Checkpoints.js',
+  'utils/StorageSlot.sol': './templates/StorageSlot.js',
 })) {
   const script = path.relative(path.join(__dirname, '../..'), __filename);
   const input = path.join(path.dirname(script), template);
