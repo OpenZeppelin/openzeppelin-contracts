@@ -106,6 +106,9 @@ contract('GovernorTimelockControl', function (accounts) {
 
     expectEvent(txQueue, 'ProposalQueued', { proposalId: this.proposal.id });
     await expectEvent.inTransaction(txQueue.tx, this.timelock, 'CallScheduled', { id: this.proposal.timelockid });
+    await expectEvent.inTransaction(txQueue.tx, this.timelock, 'CallSalt', {
+      id: this.proposal.timelockid,
+    });
 
     expectEvent(txExecute, 'ProposalExecuted', { proposalId: this.proposal.id });
     await expectEvent.inTransaction(txExecute.tx, this.timelock, 'CallExecuted', { id: this.proposal.timelockid });
