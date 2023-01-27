@@ -12,6 +12,11 @@ import "../../../security/Pausable.sol";
  * Useful for scenarios such as preventing trades until the end of an evaluation
  * period, or having an emergency switch for freezing all token transfers in the
  * event of a large bug.
+ *
+ * WARNING: Using it requires securely exposing both {Pausable-_pause} and
+ * {Pausable-_unpause} internal functions since {Pausable} is intended to be used
+ * through inheritance. This is done in order to allow both {AccessControl} and
+ * {Ownable} restricted pause mechanisms. Not doing so will make the contract unpausable.
  */
 abstract contract ERC20Pausable is ERC20, Pausable {
     /**
