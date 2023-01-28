@@ -114,4 +114,11 @@ In addition to the official Solidity Style Guide we have a number of other conve
   interface IERC777 {
   ```
 
+* Contracts not intended to be used standalone should be marked abstract
+  so they are required to be inherited to other contracts.
+
+  ```solidity
+  abstract contract AccessControl is ..., {
+  ```
+
 * Unchecked arithmetic blocks should contain comments explaining why overflow is guaranteed not to happen. If the reason is immediately apparent from the line above the unchecked block, the comment may be omitted.
