@@ -66,6 +66,10 @@ abstract contract GovernorCompatibilityBravoMock is
         return super.execute(targets, values, calldatas, salt);
     }
 
+    function cancel(uint256 proposalId) public override(Governor, GovernorCompatibilityBravo, IGovernor) {
+        super.cancel(proposalId);
+    }
+
     function _execute(
         uint256 proposalId,
         address[] memory targets,
