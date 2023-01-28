@@ -198,10 +198,10 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     }
 
     /**
-     * @dev Checks if a {delayUntil} has been set and met.
+     * @dev Checks if a {delayedUntil} has been set and met.
      */
     function _adminTransferIsUnlocked() private view returns (bool) {
         uint48 delayedUntilTimestamp = delayedUntil();
-        return delayedUntilTimestamp > 0 && delayedUntilTimestamp > block.timestamp;
+        return delayedUntilTimestamp > 0 && delayedUntilTimestamp < block.timestamp;
     }
 }

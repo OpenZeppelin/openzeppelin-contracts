@@ -291,7 +291,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, admin, newA
       // possiblty creating false positives (eg. expect revert for incorrect caller but getting it
       // from a badly expected delayed until)
       correctPendingAdmin = newAdmin;
-      correctIncreaseTo = (await time.latest()).add(delay).subn(1);
+      correctIncreaseTo = (await time.latest()).add(delay).addn(1);
 
       await this.accessControl.beginAdminTransfer(correctPendingAdmin, { from: admin });
     });
@@ -341,7 +341,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, admin, newA
       let incorrectIncreaseTo;
 
       beforeEach(async function () {
-        incorrectIncreaseTo = correctIncreaseTo.addn(1);
+        incorrectIncreaseTo = correctIncreaseTo.subn(1);
       });
 
       it('should revert if block.timestamp is equal to delayed until', async function () {
@@ -353,7 +353,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, admin, newA
       });
 
       it('should revert if block.timestamp is less to delayed until', async function () {
-        await time.increaseTo(incorrectIncreaseTo.addn(1));
+        await time.increaseTo(incorrectIncreaseTo.subn(1));
         await expectRevert(
           this.accessControl.acceptAdminTransfer({ from: correctPendingAdmin }),
           `${errorPrefix}: delay must be met and caller must be pending admin`,
@@ -386,7 +386,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, admin, newA
     let from = admin;
 
     beforeEach(async function () {
-      correctIncreaseTo = (await time.latest()).add(delay).subn(1);
+      correctIncreaseTo = (await time.latest()).add(delay).addn(1);
       await this.accessControl.beginAdminTransfer(ZERO_ADDRESS, { from });
     });
 
@@ -436,7 +436,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, admin, newA
       let incorrectIncreaseTo;
 
       beforeEach(async function () {
-        incorrectIncreaseTo = correctIncreaseTo.addn(1);
+        incorrectIncreaseTo = correctIncreaseTo.subn(1);
       });
 
       it('reverts if block.timestamp is equal to delayed until', async function () {
@@ -448,7 +448,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, admin, newA
       });
 
       it('reverts if block.timestamp is less to delayed until', async function () {
-        await time.increaseTo(incorrectIncreaseTo.addn(1));
+        await time.increaseTo(incorrectIncreaseTo.subn(1));
         await expectRevert(
           this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, admin, { from }),
           `${errorPrefix}: admin can only renounce in two delayed steps`,
