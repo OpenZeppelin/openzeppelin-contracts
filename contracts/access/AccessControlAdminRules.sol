@@ -51,7 +51,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
 
     /**
      * @dev Sets the initial values the internal delay and {owner}.
-     * 
+     *
      * The `delay` value is immutable. It can only be set at the constructor.
      */
     constructor(uint48 delay, address initialAdmin) {
