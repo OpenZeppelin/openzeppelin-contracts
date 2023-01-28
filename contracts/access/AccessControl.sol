@@ -44,7 +44,7 @@ import "../utils/introspection/ERC165.sol";
  *
  * WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
  * grant and revoke this role. Extra precautions should be taken to secure
- * accounts that have been granted it.
+ * accounts that have been granted it. See {AccessControlAdminRules}
  */
 abstract contract AccessControl is Context, IAccessControl, ERC165 {
     struct RoleData {

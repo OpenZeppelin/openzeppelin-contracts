@@ -9,7 +9,7 @@ import "../utils/math/SafeCast.sol";
 
 /**
  * @dev Extension of {AccessControl} that allows to specify special rules to manage
- * the `DEFAULT_ADMIN_ROLE`´s owner, which is a sensitive role with special permissions
+ * the `DEFAULT_ADMIN_ROLE` 's owner, which is a sensitive role with special permissions
  * over other valid roles that may potentially have rights.
  *
  * If a specific role doesn't have an `adminRole` assigned, the holder of the
@@ -18,12 +18,26 @@ import "../utils/math/SafeCast.sol";
  *
  * This contract implements the following risk mitigations on top of the AccessControl implementation:
  *
- * - Only one account holds the `DEFAULT_ADMIN_ROLE` at every time after construction except when renounced.
- * - Enforce a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account. Even when it's been renounced.
- * - Enforce a configurable delay between the two steps, with the ability to cancel in between. Even after the timer has passed to avoid locking it forever.
- * - The `DEFAULT_ADMIN_ROLE`'s admin can be only held by itself.
+ * * Only one account holds the `DEFAULT_ADMIN_ROLE` at every time after construction except when renounced.
+ * * Enforce a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.
+ *   - Even when it's been renounced.
+ * * Enforce a configurable delay between the two steps, with the ability to cancel in between.
+ *   - Even after the timer has passed to avoid locking it forever.
+ * * The `DEFAULT_ADMIN_ROLE` 's admin can be only held by itself.
  *
- * NOTE: `delay` is only configurable in the constructor to avoid issues related with handling delay management during the transfer is pending to be completed.
+ * Once you understand what the {constructor} parameters, you can use this reference implementation:
+ *
+ * ```solidity
+ * contract MyToken is AccessControlAdminRules {
+ *   constructor() AccessControlAdminRules(
+ *     60 * 60 * 24, // 3 days
+ *     _msgSender() // Explicit initial `DEFAULT_ADMIN_ROLE` holder
+ *    ) {}
+ *}
+ * ```
+ *
+ * NOTE: The `delay` is only configurable in the constructor to avoid issues related with handling
+ * delay management during the transfer is pending to be completed.
  *
  * _Available since v4.9._
  */
@@ -36,13 +50,12 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     address private _pendingAdmin;
 
     /**
-     * @dev Sets the values for {name} and {symbol}.
-     *
-     * All two of these values are immutable: they can only be set once during
-     * construction.
+     * @dev Sets the initial values the internal delay and {owner}.
+     * 
+     * The `delay` value is immutable. It can only be set at the constructor.
      */
-    constructor(uint48 initialDelay, address initialAdmin) {
-        _delay = initialDelay;
+    constructor(uint48 delay, address initialAdmin) {
+        _delay = delay;
         _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);
     }
 
