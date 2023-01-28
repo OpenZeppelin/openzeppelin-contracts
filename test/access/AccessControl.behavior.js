@@ -298,21 +298,21 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, admin, newA
 
     describe('caller is pending admin and delayed until is met', async function () {
       let from;
-      let receipt;
 
       beforeEach(async function () {
         await time.increaseTo(correctIncreaseTo);
         from = correctPendingAdmin;
-        receipt = await this.accessControl.acceptAdminTransfer({ from });
       });
 
       it('accepts a transfer and changes admin', async function () {
+        await this.accessControl.acceptAdminTransfer({ from });
         expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, admin)).to.be.false;
         expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, newAdmin)).to.be.true;
         expect(await this.accessControl.owner()).to.equal(newAdmin);
       });
 
       it('accepts a transfer and emit events', async function () {
+        const receipt = await this.accessControl.acceptAdminTransfer({ from });
         expectEvent(receipt, 'RoleRevoked', {
           role: DEFAULT_ADMIN_ROLE,
           account: admin,
@@ -324,6 +324,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, admin, newA
       });
 
       it('accepts a transfer resetting pending admin and delayed until', async function () {
+        await this.accessControl.acceptAdminTransfer({ from });
         expect(await this.accessControl.delayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
         expect(await this.accessControl.pendingAdmin()).to.equal(ZERO_ADDRESS);
       });
