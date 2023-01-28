@@ -18,7 +18,7 @@ import "../../../security/Pausable.sol";
  * {Pausable-_pause} and {Pausable-_unpause} internal functions, with appropriate
  * access control, e.g. using {AccessControl} or {Ownable}. Not doing so will
  * make the contract unpausable.
- * 
+ *
  * _Available since v3.1._
  */
 abstract contract ERC1155Pausable is ERC1155, Pausable {
