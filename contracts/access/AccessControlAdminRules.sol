@@ -30,7 +30,6 @@ import "../utils/math/SafeCast.sol";
 abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessControl {
     uint48 private immutable _delay;
 
-    bool private _hasAdmin;
     address private _currentAdmin;
     uint48 private _delayedUntil;
 
@@ -45,13 +44,6 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     constructor(uint48 initialDelay, address initialAdmin) {
         _delay = initialDelay;
         _grantRole(DEFAULT_ADMIN_ROLE, initialAdmin);
-    }
-
-    /**
-     * @dev See {IAccessControlAdminRules-hasAdmin}
-     */
-    function hasAdmin() public view virtual returns (bool) {
-        return _hasAdmin;
     }
 
     /**
@@ -86,11 +78,10 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
      * @dev See {IAccessControlAdminRules-beginAdminTransfer}
      */
     function beginAdminTransfer(address newAdmin) public override onlyRole(DEFAULT_ADMIN_ROLE) {
-        uint48 delayedUntilTimestamp = delayedUntil();
-        require(delayedUntilTimestamp == 0, "AdminRules: pending admin already set");
+        require(delayedUntil() == 0, "AccessControl: pending admin already set");
         _delayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
         _pendingAdmin = newAdmin;
-        emit AdminRoleChangeStarted(pendingAdmin(), delayedUntilTimestamp);
+        emit AdminRoleChangeStarted(pendingAdmin(), delayedUntil());
     }
 
     /**
@@ -100,10 +91,11 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
         address pendingAdminOwner = pendingAdmin();
         require(
             _adminTransferIsUnlocked() && _msgSender() == pendingAdminOwner,
-            "AdminRules: delay must be met and caller must be pending admin"
+            "AccessControl: delay must be met and caller must be pending admin"
         );
         _revokeRole(DEFAULT_ADMIN_ROLE, owner());
         _grantRole(DEFAULT_ADMIN_ROLE, pendingAdminOwner);
+        _resetAdminTransfer();
     }
 
     /**
@@ -118,26 +110,23 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
      *
      * For `DEFAULT_ADMIN_ROLE`, only allows renouncing in two steps, so it's required
      * that the {delayedUntil} is met and the pending admin is the zero address.
+     * After its execution, it will not be possible to call `onlyRole(DEFAULT_ADMIN_ROLE)`
+     * functions.
      *
      * For other roles, see {AccessControl-renounceRole}.
      *
-     * May emit a {RoleRevoked} event.
-     *
-     * NOTE: {AccessControl-renounceRole} already checks that caller is `account`.
-     *
      * NOTE: Renouncing `DEFAULT_ADMIN_ROLE` will leave the contract without an owner,
-     * thereby removing any functionality that is only available to the default admin, and the
+     * thereby disabling any functionality that is only available to the default admin, and the
      * possibility of reassigning a non-administrated role.
      */
     function renounceRole(bytes32 role, address account) public override(IAccessControl, AccessControl) {
         if (role == DEFAULT_ADMIN_ROLE) {
             require(
                 pendingAdmin() == address(0) && _adminTransferIsUnlocked(),
-                "AdminRules: admin can only renounce in two steps"
+                "AccessControl: admin can only renounce in two delayed steps"
             );
         }
         super.renounceRole(role, account);
-        _hasAdmin = true; // Force locking forever
     }
 
     /**
@@ -147,7 +136,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
         bytes32 role,
         address account
     ) public override(IAccessControl, AccessControl) onlyRole(getRoleAdmin(role)) {
-        require(role != DEFAULT_ADMIN_ROLE, "AdminRules: can't directly grant admin role");
+        require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly grant admin role");
         super.grantRole(role, account);
     }
 
@@ -158,7 +147,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
         bytes32 role,
         address account
     ) public override(IAccessControl, AccessControl) onlyRole(getRoleAdmin(role)) {
-        require(role != DEFAULT_ADMIN_ROLE, "AdminRules: can't directly revoke admin role");
+        require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly revoke admin role");
         super.revokeRole(role, account);
     }
 
@@ -166,7 +155,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
      * @dev See {AccessControl-_setRoleAdmin}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal override {
-        require(role != DEFAULT_ADMIN_ROLE, "AdminRules: can't override admin's admin");
+        require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't override admin's admin");
         super._setRoleAdmin(role, adminRole);
     }
 
@@ -181,27 +170,21 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
      * NOTE: Exposing this function through another mechanism may make the
      * `DEFAULT_ADMIN_ROLE` assignable again. Make sure to guarantee this is
      * the expected behavior in your implementation.
-     *
-     * May emit a {RoleGranted} event.
      */
     function _grantRole(bytes32 role, address account) internal override {
         if (role == DEFAULT_ADMIN_ROLE) {
-            require(!hasAdmin(), "AdminRules: admin already granted");
-            _hasAdmin = true;
+            require(owner() == address(0), "AccessControl: admin already granted");
+            _currentAdmin = account;
         }
         super._grantRole(role, account);
     }
 
     /**
-     * @dev Revokes `role` from `account`.
-     *
-     * Internal function without access restriction.
-     *
-     * May emit a {RoleRevoked} event.
+     * @dev See {AccessControl-_revokeRole}.
      */
     function _revokeRole(bytes32 role, address account) internal override {
         if (role == DEFAULT_ADMIN_ROLE) {
-            _hasAdmin = false;
+            delete _currentAdmin;
         }
         super._revokeRole(role, account);
     }

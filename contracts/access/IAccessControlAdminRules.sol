@@ -18,12 +18,6 @@ interface IAccessControlAdminRules is IAccessControl {
     event AdminRoleChangeStarted(address indexed newAdmin, uint48 delayedUntil);
 
     /**
-     * @dev Returns a boolean indicating if there's a `DEFAULT_ADMIN_ROLE`'s owner.
-     * `address(0)` shouldn't be considered an owner.
-     */
-    function hasAdmin() external view returns (bool);
-
-    /**
      * @dev Returns the address of the current `DEFAULT_ADMIN_ROLE` owner.
      */
     function owner() external view returns (address);
