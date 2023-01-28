@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-`ERC20Pausable`: Add a warning regarding the missing public pausing functionality
+`ERC*Pausable`: Add note regarding missing public pausing functionality
