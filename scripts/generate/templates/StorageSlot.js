@@ -1,4 +1,3 @@
-// const assert = require('assert');
 const format = require('../format-lines');
 const { capitalize, unique } = require('../../helpers');
 
