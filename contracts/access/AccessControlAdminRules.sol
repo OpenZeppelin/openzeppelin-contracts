@@ -26,7 +26,7 @@ import "../interfaces/draft-IERC5313.sol";
  *   - Even after the timer has passed to avoid locking it forever.
  * * The `DEFAULT_ADMIN_ROLE` 's admin can be only held by itself.
  *
- * Once you understand what the {constructor} parameters, you can use this reference implementation:
+ * Once you understand what the {constructor} parameters are, you can use this reference implementation:
  *
  * ```solidity
  * contract MyToken is AccessControlAdminRules {
