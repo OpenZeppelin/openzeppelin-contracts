@@ -102,7 +102,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
         require(delayedUntil() == 0, "AccessControl: pending admin already set");
         _delayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
         _pendingAdmin = newAdmin;
-        emit AdminRoleChangeStarted(_pendingAdmin, _delayedUntil);
+        emit AdminRoleChangeStarted(pendingAdmin(), delayedUntil());
     }
 
     /**
@@ -222,7 +222,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
      * @dev Checks if a {delayedUntil} has been set and met.
      */
     function _adminTransferIsUnlocked() private view returns (bool) {
-        uint48 delayedUntilTimestamp = _delayedUntil;
+        uint48 delayedUntilTimestamp = delayedUntil();
         return delayedUntilTimestamp > 0 && delayedUntilTimestamp < block.timestamp;
     }
 }
