@@ -13,12 +13,12 @@ import "./IAccessControl.sol";
 interface IAccessControlAdminRules is IAccessControl {
     /**
      * @dev Emitted when an `DEFAULT_ADMIN_ROLE` transfer is started, setting `newAdmin`
-     * as the next owner to be claimed after `delayedUntil` is met.
+     * as the next admin to be claimed after `delayedUntil` is met.
      */
     event AdminRoleChangeStarted(address indexed newAdmin, uint48 delayedUntil);
 
     /**
-     * @dev Returns the address of the current `DEFAULT_ADMIN_ROLE` owner.
+     * @dev Returns the address of the current `DEFAULT_ADMIN_ROLE` holder.
      */
     function admin() external view returns (address);
 
@@ -29,7 +29,7 @@ interface IAccessControlAdminRules is IAccessControl {
     function delayedUntil() external view returns (uint48);
 
     /**
-     * @dev Returns the address of the pending `DEFAULT_ADMIN_ROLE` owner.
+     * @dev Returns the address of the pending `DEFAULT_ADMIN_ROLE` holder.
      */
     function pendingAdmin() external view returns (address);
 
@@ -40,7 +40,7 @@ interface IAccessControlAdminRules is IAccessControl {
      * Requirements:
      *
      * - There shouldn't be another admin transfer in progress. See {cancelAdminTransfer}.
-     * - Can only be called by the current `DEFAULT_ADMIN_ROLE` owner.
+     * - Can only be called by the current `DEFAULT_ADMIN_ROLE` holder.
      *
      * Emits an {AdminRoleChangeStarted}.
      */
@@ -53,7 +53,7 @@ interface IAccessControlAdminRules is IAccessControl {
      *
      * - Caller should be the pending admin.
      * - `DEFAULT_ADMIN_ROLE` should be granted to the caller.
-     * - `DEFAULT_ADMIN_ROLE` should be revoked from the previous owner.
+     * - `DEFAULT_ADMIN_ROLE` should be revoked from the previous holder.
      * - Should allow to call {beginAdminTransfer} again.
      */
     function acceptAdminTransfer() external;
@@ -65,7 +65,7 @@ interface IAccessControlAdminRules is IAccessControl {
      *
      * - Should allow to call {beginAdminTransfer} again.
      * - Can be called even after the timer is met.
-     * - Can only be called by the current `DEFAULT_ADMIN_ROLE` owner.
+     * - Can only be called by the current `DEFAULT_ADMIN_ROLE` holder.
      */
     function cancelAdminTransfer() external;
 }

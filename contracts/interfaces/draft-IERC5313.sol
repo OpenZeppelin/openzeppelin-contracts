@@ -3,7 +3,11 @@
 pragma solidity ^0.8.0;
 
 /**
- * @title EIP-5313 Light Contract Ownership Standard
+ * @dev Interface for the Light Contract Ownership Standard.
+ *
+ * A standardized minimal interface required to identify an account that controls a contract
+ *
+ * _Available since v4.9._
  */
 interface IERC5313 {
     /**

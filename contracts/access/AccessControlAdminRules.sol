@@ -61,7 +61,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     }
 
     /**
-     * @dev See {draft-IERC5313-owner}
+     * @dev See {IERC5313-owner}
      */
     function owner() public view virtual returns (address) {
         return admin();
