@@ -51,7 +51,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     uint48 private _delayedUntil;
 
     /**
-     * @dev Sets the initial values the internal delay and {owner}.
+     * @dev Sets the initial values the internal delay and {admin}.
      *
      * The `delay` value is immutable. It can only be set at the constructor.
      */
