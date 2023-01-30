@@ -39,7 +39,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         address proposer;
         bytes4 __gap_unused0;
         // --- start retyped from Timers.BlockNumber at offset 0x20 ---
-        // start retyped from Timers.BlockNumber at offset 0x20
         uint64 voteEnd;
         bytes24 __gap_unused1;
         // --- Remaining fields starting at offset 0x40 ---------------
