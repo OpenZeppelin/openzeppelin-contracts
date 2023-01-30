@@ -94,7 +94,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
         require(delayedUntil() == 0, "AccessControl: pending admin already set");
         _delayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
         _pendingAdmin = newAdmin;
-        emit AdminRoleChangeStarted(pendingAdmin(), delayedUntil());
+        emit AdminRoleChangeStarted(_pendingAdmin, _delayedUntil);
     }
 
     /**
