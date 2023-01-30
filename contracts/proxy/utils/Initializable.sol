@@ -18,12 +18,13 @@ import "../../utils/Address.sol";
  * For example:
  *
  * [.hljs-theme-light.nopadding]
- * ```
+ * ```solidity
  * contract MyToken is ERC20Upgradeable {
  *     function initialize() initializer public {
  *         __ERC20_init("MyToken", "MTK");
  *     }
  * }
+ *
  * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {
  *     function initializeV2() reinitializer(2) public {
  *         __ERC20Permit_init("MyToken");
@@ -150,14 +151,14 @@ abstract contract Initializable {
     }
 
     /**
-     * @dev Internal function that returns the initialized version. Returns `_initialized`
+     * @dev Returns the highest version that has been initialized. See {reinitializer}.
      */
     function _getInitializedVersion() internal view returns (uint8) {
         return _initialized;
     }
 
     /**
-     * @dev Internal function that returns the initialized version. Returns `_initializing`
+     * @dev Returns `true` if the contract is currently initializing. See {onlyInitializing}.
      */
     function _isInitializing() internal view returns (bool) {
         return _initializing;

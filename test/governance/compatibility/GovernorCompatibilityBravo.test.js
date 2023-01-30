@@ -4,17 +4,22 @@ const RLP = require('rlp');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
 
-const Token = artifacts.require('ERC20VotesCompMock');
+const Token = artifacts.require('$ERC20VotesComp');
 const Timelock = artifacts.require('CompTimelock');
-const Governor = artifacts.require('GovernorCompatibilityBravoMock');
+const Governor = artifacts.require('$GovernorCompatibilityBravoMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
-function makeContractAddress (creator, nonce) {
-  return web3.utils.toChecksumAddress(web3.utils.sha3(RLP.encode([creator, nonce])).slice(12).substring(14));
+function makeContractAddress(creator, nonce) {
+  return web3.utils.toChecksumAddress(
+    web3.utils
+      .sha3(RLP.encode([creator, nonce]))
+      .slice(12)
+      .substring(14),
+  );
 }
 
 contract('GovernorCompatibilityBravo', function (accounts) {
-  const [ owner, proposer, voter1, voter2, voter3, voter4, other ] = accounts;
+  const [owner, proposer, voter1, voter2, voter3, voter4, other] = accounts;
 
   const name = 'OZ-Governor';
   // const version = '1';
@@ -27,9 +32,9 @@ contract('GovernorCompatibilityBravo', function (accounts) {
   const value = web3.utils.toWei('1');
 
   beforeEach(async function () {
-    const [ deployer ] = await web3.eth.getAccounts();
+    const [deployer] = await web3.eth.getAccounts();
 
-    this.token = await Token.new(tokenName, tokenSymbol);
+    this.token = await Token.new(tokenName, tokenSymbol, tokenName);
 
     // Need to predict governance address to set it as timelock admin with a delayed transfer
     const nonce = await web3.eth.getTransactionCount(deployer);
@@ -38,11 +43,11 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     this.timelock = await Timelock.new(predictGovernor, 2 * 86400);
     this.mock = await Governor.new(
       name,
-      this.token.address,
       votingDelay,
       votingPeriod,
       proposalThreshold,
       this.timelock.address,
+      this.token.address,
     );
     this.receiver = await CallReceiver.new();
 
@@ -50,7 +55,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
     await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
 
-    await this.token.mint(owner, tokenSupply);
+    await this.token.$_mint(owner, tokenSupply);
     await this.helper.delegate({ token: this.token, to: proposer, value: proposalThreshold }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
     await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
@@ -58,13 +63,16 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
 
     // default proposal
-    this.proposal = this.helper.setProposal([
-      {
-        target: this.receiver.address,
-        value,
-        signature: 'mockFunction()',
-      },
-    ], '<proposal description>');
+    this.proposal = this.helper.setProposal(
+      [
+        {
+          target: this.receiver.address,
+          value,
+          signature: 'mockFunction()',
+        },
+      ],
+      '<proposal description>',
+    );
   });
 
   it('deployment check', async function () {
@@ -141,34 +149,22 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     expect(voteReceipt4.support).to.be.bignumber.equal(Enums.VoteType.Abstain);
     expect(voteReceipt4.votes).to.be.bignumber.equal(web3.utils.toWei('2'));
 
-    expectEvent(
-      txPropose,
-      'ProposalCreated',
-      {
-        proposalId: this.proposal.id,
-        proposer,
-        targets: this.proposal.targets,
-        // values: this.proposal.values,
-        signatures: this.proposal.signatures.map(() => ''), // this event doesn't contain the proposal detail
-        calldatas: this.proposal.fulldata,
-        startBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay),
-        endBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay).add(votingPeriod),
-        description: this.proposal.description,
-      },
-    );
-    expectEvent(
-      txExecute,
-      'ProposalExecuted',
-      { proposalId: this.proposal.id },
-    );
-    await expectEvent.inTransaction(
-      txExecute.tx,
-      this.receiver,
-      'MockFunctionCalled',
-    );
+    expectEvent(txPropose, 'ProposalCreated', {
+      proposalId: this.proposal.id,
+      proposer,
+      targets: this.proposal.targets,
+      // values: this.proposal.values,
+      signatures: this.proposal.signatures.map(() => ''), // this event doesn't contain the proposal detail
+      calldatas: this.proposal.fulldata,
+      startBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay),
+      endBlock: new BN(txPropose.receipt.blockNumber).add(votingDelay).add(votingPeriod),
+      description: this.proposal.description,
+    });
+    expectEvent(txExecute, 'ProposalExecuted', { proposalId: this.proposal.id });
+    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
   });
 
-  it('double voting is forbiden', async function () {
+  it('double voting is forbidden', async function () {
     await this.helper.propose({ from: proposer });
     await this.helper.waitForSnapshot();
     await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
@@ -180,16 +176,19 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
   it('with function selector and arguments', async function () {
     const target = this.receiver.address;
-    this.helper.setProposal([
-      { target, data: this.receiver.contract.methods.mockFunction().encodeABI() },
-      { target, data: this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI() },
-      { target, signature: 'mockFunctionNonPayable()' },
-      {
-        target,
-        signature: 'mockFunctionWithArgs(uint256,uint256)',
-        data: web3.eth.abi.encodeParameters(['uint256', 'uint256'], [18, 43]),
-      },
-    ], '<proposal description>');
+    this.helper.setProposal(
+      [
+        { target, data: this.receiver.contract.methods.mockFunction().encodeABI() },
+        { target, data: this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI() },
+        { target, signature: 'mockFunctionNonPayable()' },
+        {
+          target,
+          signature: 'mockFunctionWithArgs(uint256,uint256)',
+          data: web3.eth.abi.encodeParameters(['uint256', 'uint256'], [18, 43]),
+        },
+      ],
+      '<proposal description>',
+    );
 
     await this.helper.propose({ from: proposer });
     await this.helper.waitForSnapshot();
@@ -199,37 +198,16 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     await this.helper.waitForEta();
     const txExecute = await this.helper.execute();
 
-    await expectEvent.inTransaction(
-      txExecute.tx,
-      this.receiver,
-      'MockFunctionCalled',
-    );
-    await expectEvent.inTransaction(
-      txExecute.tx,
-      this.receiver,
-      'MockFunctionCalled',
-    );
-    await expectEvent.inTransaction(
-      txExecute.tx,
-      this.receiver,
-      'MockFunctionCalledWithArgs',
-      { a: '17', b: '42' },
-    );
-    await expectEvent.inTransaction(
-      txExecute.tx,
-      this.receiver,
-      'MockFunctionCalledWithArgs',
-      { a: '18', b: '43' },
-    );
+    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
+    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
+    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', { a: '17', b: '42' });
+    await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', { a: '18', b: '43' });
   });
 
   describe('should revert', function () {
     describe('on propose', function () {
       it('if proposal does not meet proposalThreshold', async function () {
-        await expectRevert(
-          this.helper.propose({ from: other }),
-          'Governor: proposer votes below proposal threshold',
-        );
+        await expectRevert(this.helper.propose({ from: other }), 'Governor: proposer votes below proposal threshold');
       });
     });
 
@@ -248,18 +226,18 @@ contract('GovernorCompatibilityBravo', function (accounts) {
   describe('cancel', function () {
     it('proposer can cancel', async function () {
       await this.helper.propose({ from: proposer });
-      await this.helper.cancel({ from: proposer });
+      await this.helper.cancel('external', { from: proposer });
     });
 
     it('anyone can cancel if proposer drop below threshold', async function () {
       await this.helper.propose({ from: proposer });
       await this.token.transfer(voter1, web3.utils.toWei('1'), { from: proposer });
-      await this.helper.cancel();
+      await this.helper.cancel('external');
     });
 
     it('cannot cancel is proposer is still above threshold', async function () {
       await this.helper.propose({ from: proposer });
-      await expectRevert(this.helper.cancel(), 'GovernorBravo: proposer above threshold');
+      await expectRevert(this.helper.cancel('external'), 'GovernorBravo: proposer above threshold');
     });
   });
 });

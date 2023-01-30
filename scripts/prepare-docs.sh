@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -o errexit
+set -euo pipefail
 
 OUTDIR="$(node -p 'require("./docs/config.js").outputDir')"
 

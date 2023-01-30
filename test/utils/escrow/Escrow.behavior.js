@@ -2,7 +2,7 @@ const { balance, ether, expectEvent, expectRevert } = require('@openzeppelin/tes
 
 const { expect } = require('chai');
 
-function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
+function shouldBehaveLikeEscrow(owner, [payee1, payee2]) {
   const amount = ether('42');
 
   describe('as an escrow', function () {
@@ -20,9 +20,7 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
       });
 
       it('only the owner can deposit', async function () {
-        await expectRevert(this.escrow.deposit(payee1, { from: payee2 }),
-          'Ownable: caller is not the owner',
-        );
+        await expectRevert(this.escrow.deposit(payee1, { from: payee2 }), 'Ownable: caller is not the owner');
       });
 
       it('emits a deposited event', async function () {
@@ -72,9 +70,7 @@ function shouldBehaveLikeEscrow (owner, [payee1, payee2]) {
       });
 
       it('only the owner can withdraw', async function () {
-        await expectRevert(this.escrow.withdraw(payee1, { from: payee1 }),
-          'Ownable: caller is not the owner',
-        );
+        await expectRevert(this.escrow.withdraw(payee1, { from: payee1 }), 'Ownable: caller is not the owner');
       });
 
       it('emits a withdrawn event', async function () {

@@ -3,8 +3,6 @@
 pragma solidity ^0.8.0;
 
 contract CallReceiverMock {
-    string public sharedAnswer;
-
     event MockFunctionCalled();
     event MockFunctionCalledWithArgs(uint256 a, uint256 b);
 
@@ -50,8 +48,10 @@ contract CallReceiverMock {
         }
     }
 
-    function mockFunctionWritesStorage() public returns (string memory) {
-        sharedAnswer = "42";
+    function mockFunctionWritesStorage(bytes32 slot, bytes32 value) public returns (string memory) {
+        assembly {
+            sstore(slot, value)
+        }
         return "0x1234";
     }
 }
