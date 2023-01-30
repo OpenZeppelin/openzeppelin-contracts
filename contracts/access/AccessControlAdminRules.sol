@@ -45,9 +45,9 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     uint48 private immutable _delay;
 
     address private _currentAdmin;
-    uint48 private _delayedUntil;
-
     address private _pendingAdmin;
+
+    uint48 private _delayedUntil;
 
     /**
      * @dev Sets the initial values the internal delay and {owner}.
