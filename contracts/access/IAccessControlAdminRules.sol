@@ -20,7 +20,7 @@ interface IAccessControlAdminRules is IAccessControl {
     /**
      * @dev Returns the address of the current `DEFAULT_ADMIN_ROLE` owner.
      */
-    function owner() external view returns (address);
+    function admin() external view returns (address);
 
     /**
      * @dev Returns the timestamp in which the pending admin can claim the

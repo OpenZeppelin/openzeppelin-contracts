@@ -6,6 +6,7 @@ pragma solidity ^0.8.0;
 import "./AccessControl.sol";
 import "./IAccessControlAdminRules.sol";
 import "../utils/math/SafeCast.sol";
+import "../interfaces/draft-IERC5313.sol";
 
 /**
  * @dev Extension of {AccessControl} that allows to specify special rules to manage
@@ -41,7 +42,7 @@ import "../utils/math/SafeCast.sol";
  *
  * _Available since v4.9._
  */
-abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessControl {
+abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313, AccessControl {
     uint48 private immutable _delay;
 
     address private _currentAdmin;
@@ -60,9 +61,16 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     }
 
     /**
-     * @dev See {IAccessControlAdminRules-owner}
+     * @dev See {draft-IERC5313-owner}
      */
     function owner() public view virtual returns (address) {
+        return admin();
+    }
+
+    /**
+     * @dev See {IAccessControlAdminRules-admin}
+     */
+    function admin() public view virtual returns (address) {
         return _currentAdmin;
     }
 
@@ -90,7 +98,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     /**
      * @dev See {IAccessControlAdminRules-beginAdminTransfer}
      */
-    function beginAdminTransfer(address newAdmin) public override onlyRole(DEFAULT_ADMIN_ROLE) {
+    function beginAdminTransfer(address newAdmin) public virtual override onlyRole(DEFAULT_ADMIN_ROLE) {
         require(delayedUntil() == 0, "AccessControl: pending admin already set");
         _delayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
         _pendingAdmin = newAdmin;
@@ -100,13 +108,13 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     /**
      * @dev See {IAccessControlAdminRules-acceptAdminTransfer}
      */
-    function acceptAdminTransfer() public {
+    function acceptAdminTransfer() public virtual {
         address pendingAdminOwner = pendingAdmin();
         require(
             _adminTransferIsUnlocked() && _msgSender() == pendingAdminOwner,
             "AccessControl: delay must be met and caller must be pending admin"
         );
-        _revokeRole(DEFAULT_ADMIN_ROLE, owner());
+        _revokeRole(DEFAULT_ADMIN_ROLE, admin());
         _grantRole(DEFAULT_ADMIN_ROLE, pendingAdminOwner);
         _resetAdminTransfer();
     }
@@ -114,7 +122,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     /**
      * @dev See {IAccessControlAdminRules-cancelAdminTransfer}
      */
-    function cancelAdminTransfer() external override onlyRole(DEFAULT_ADMIN_ROLE) {
+    function cancelAdminTransfer() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _resetAdminTransfer();
     }
 
@@ -132,7 +140,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
      * thereby disabling any functionality that is only available to the default admin, and the
      * possibility of reassigning a non-administrated role.
      */
-    function renounceRole(bytes32 role, address account) public override(IAccessControl, AccessControl) {
+    function renounceRole(bytes32 role, address account) public virtual override(IAccessControl, AccessControl) {
         if (role == DEFAULT_ADMIN_ROLE) {
             require(
                 pendingAdmin() == address(0) && _adminTransferIsUnlocked(),
@@ -148,7 +156,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     function grantRole(
         bytes32 role,
         address account
-    ) public override(IAccessControl, AccessControl) onlyRole(getRoleAdmin(role)) {
+    ) public virtual override(IAccessControl, AccessControl) onlyRole(getRoleAdmin(role)) {
         require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly grant admin role");
         super.grantRole(role, account);
     }
@@ -159,7 +167,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     function revokeRole(
         bytes32 role,
         address account
-    ) public override(IAccessControl, AccessControl) onlyRole(getRoleAdmin(role)) {
+    ) public virtual override(IAccessControl, AccessControl) onlyRole(getRoleAdmin(role)) {
         require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly revoke admin role");
         super.revokeRole(role, account);
     }
@@ -167,7 +175,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     /**
      * @dev See {AccessControl-_setRoleAdmin}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
-    function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal override {
+    function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual override {
         require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't override admin's admin");
         super._setRoleAdmin(role, adminRole);
     }
@@ -184,9 +192,9 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
      * `DEFAULT_ADMIN_ROLE` assignable again. Make sure to guarantee this is
      * the expected behavior in your implementation.
      */
-    function _grantRole(bytes32 role, address account) internal override {
+    function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == DEFAULT_ADMIN_ROLE) {
-            require(owner() == address(0), "AccessControl: admin already granted");
+            require(admin() == address(0), "AccessControl: admin already granted");
             _currentAdmin = account;
         }
         super._grantRole(role, account);
@@ -195,7 +203,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
     /**
      * @dev See {AccessControl-_revokeRole}.
      */
-    function _revokeRole(bytes32 role, address account) internal override {
+    function _revokeRole(bytes32 role, address account) internal virtual override {
         if (role == DEFAULT_ADMIN_ROLE) {
             delete _currentAdmin;
         }
@@ -214,7 +222,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, AccessCon
      * @dev Checks if a {delayedUntil} has been set and met.
      */
     function _adminTransferIsUnlocked() private view returns (bool) {
-        uint48 delayedUntilTimestamp = delayedUntil();
+        uint48 delayedUntilTimestamp = _delayedUntil;
         return delayedUntilTimestamp > 0 && delayedUntilTimestamp < block.timestamp;
     }
 }
