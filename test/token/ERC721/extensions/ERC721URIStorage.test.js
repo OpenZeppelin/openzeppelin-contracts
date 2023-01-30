@@ -39,11 +39,9 @@ contract('ERC721URIStorage', function (accounts) {
     });
 
     it('setting the uri emits an event', async function () {
-      expectEvent(
-        await this.token.$_setTokenURI(firstTokenId, sampleUri),
-        'MetadataUpdate',
-        { _tokenId: firstTokenId },
-      );
+      expectEvent(await this.token.$_setTokenURI(firstTokenId, sampleUri), 'MetadataUpdate', {
+        _tokenId: firstTokenId,
+      });
     });
 
     it('reverts when setting for non existent token id', async function () {
