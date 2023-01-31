@@ -84,7 +84,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:core
-     * @dev See EIP-6372.
+     * @dev See {IERC6372}
      */
     function clock() public view virtual override returns (uint48);
 
@@ -176,7 +176,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @notice module:user-config
      * @dev Minimum number of cast voted required for a proposal to be successful.
      *
-     * Note: The `timepoint` parameter corresponds to the snapshot used for counting vote. This allows to scale the
+     * NOTE: The `timepoint` parameter corresponds to the snapshot used for counting vote. This allows to scale the
      * quorum depending on values such as the totalSupply of a token at this timepoint (see {ERC20Votes}).
      */
     function quorum(uint256 timepoint) public view virtual returns (uint256);
