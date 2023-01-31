@@ -76,6 +76,10 @@
 :xref-IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-: xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:token/ERC1155.adoc#IERC1155Receiver-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
 :IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
+:Pausable-_pause: pass:normal[xref:security.adoc#Pausable-_pause--[`Pausable._pause`]]
+:Pausable-_unpause: pass:normal[xref:security.adoc#Pausable-_unpause--[`Pausable._unpause`]]
+:AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
+:Ownable: pass:normal[xref:access.adoc#Ownable[`Ownable`]]
 :xref-ERC1155Pausable-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-: xref:token/ERC1155.adoc#ERC1155Pausable-_beforeTokenTransfer-address-address-address-uint256---uint256---bytes-
 :xref-Pausable-paused--: xref:security.adoc#Pausable-paused--
 :xref-Pausable-_requireNotPaused--: xref:security.adoc#Pausable-_requireNotPaused--
@@ -909,6 +913,12 @@ ERC1155 token with pausable token transfers, minting and burning.
 Useful for scenarios such as preventing trades until the end of an evaluation
 period, or having an emergency switch for freezing all token transfers in the
 event of a large bug.
+
+IMPORTANT: This contract does not include public pause and unpause functions. In
+addition to inheriting this contract, you must define both functions, invoking the
+{Pausable-_pause} and {Pausable-_unpause} internal functions, with appropriate
+access control, e.g. using {AccessControl} or {Ownable}. Not doing so will
+make the contract unpausable.
 
 _Available since v3.1._
 
