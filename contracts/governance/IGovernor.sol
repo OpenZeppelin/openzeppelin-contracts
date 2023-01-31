@@ -59,7 +59,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @dev Emitted when a vote is cast with params.
      *
      * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
-     * `params` are additional encoded parameters. Their intepepretation also depends on the voting module used.
+     * `params` are additional encoded parameters. Their interpepretation also depends on the voting module used.
      */
     event VoteCastWithParams(
         address indexed voter,
@@ -157,7 +157,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @dev Delay, between the proposal is created and the vote starts. The unit this duration is expressed in depends
      * on the clock (see EIP-6372) this contract uses.
      *
-     * This can be increassed to leave time for users to buy voting power, or delegate it, before the voting of a
+     * This can be increased to leave time for users to buy voting power, or delegate it, before the voting of a
      * proposal starts.
      */
     function votingDelay() public view virtual returns (uint256);

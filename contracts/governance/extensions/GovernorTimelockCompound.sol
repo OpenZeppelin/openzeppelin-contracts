@@ -95,7 +95,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful");
 
         uint256 eta = block.timestamp + _timelock.delay();
-        _proposalTimelocks[proposalId] = eta;
+        _proposalTimelocks[proposalId] = eta.toUint64();
 
         for (uint256 i = 0; i < targets.length; ++i) {
             require(

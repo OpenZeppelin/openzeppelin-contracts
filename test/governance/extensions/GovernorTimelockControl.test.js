@@ -120,6 +120,9 @@ contract('GovernorTimelockControl', function (accounts) {
 
         expectEvent(txQueue, 'ProposalQueued', { proposalId: this.proposal.id });
         await expectEvent.inTransaction(txQueue.tx, this.timelock, 'CallScheduled', { id: this.proposal.timelockid });
+        await expectEvent.inTransaction(txQueue.tx, this.timelock, 'CallSalt', {
+          id: this.proposal.timelockid,
+        });
 
         expectEvent(txExecute, 'ProposalExecuted', { proposalId: this.proposal.id });
         await expectEvent.inTransaction(txExecute.tx, this.timelock, 'CallExecuted', { id: this.proposal.timelockid });
@@ -132,37 +135,297 @@ contract('GovernorTimelockControl', function (accounts) {
             await this.helper.propose();
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+            await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
+            await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter3 });
+            await this.helper.vote({ support: Enums.VoteType.Abstain }, { from: voter4 });
             await this.helper.waitForDeadline();
-            await this.helper.queue();
-            await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
-          });
-        });
+            const txQueue = await this.helper.queue();
+            await this.helper.waitForEta();
+            const txExecute = await this.helper.execute();
 
-        describe('on execute', function () {
-          it('if not queued', async function () {
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-            await this.helper.waitForDeadline(+1);
+            expectEvent(txQueue, 'ProposalQueued', { proposalId: this.proposal.id });
+            await expectEvent.inTransaction(txQueue.tx, this.timelock, 'CallScheduled', {
+              id: this.proposal.timelockid,
+            });
 
-            expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
-
-            await expectRevert(this.helper.execute(), 'TimelockController: operation is not ready');
-          });
-
-          it('if too early', async function () {
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-            await this.helper.waitForDeadline();
-            await this.helper.queue();
-
-            expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
-
-            await expectRevert(this.helper.execute(), 'TimelockController: operation is not ready');
+            expectEvent(txExecute, 'ProposalExecuted', { proposalId: this.proposal.id });
+            await expectEvent.inTransaction(txExecute.tx, this.timelock, 'CallExecuted', {
+              id: this.proposal.timelockid,
+            });
+            await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
           });
 
-          it('if already executed', async function () {
+          describe('should revert', function () {
+            describe('on queue', function () {
+              it('if already queued', async function () {
+                await this.helper.propose();
+                await this.helper.waitForSnapshot();
+                await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+                await this.helper.waitForDeadline();
+                await this.helper.queue();
+                await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
+              });
+            });
+
+            describe('on execute', function () {
+              it('if not queued', async function () {
+                await this.helper.propose();
+                await this.helper.waitForSnapshot();
+                await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+                await this.helper.waitForDeadline(+1);
+
+                expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
+
+                await expectRevert(this.helper.execute(), 'TimelockController: operation is not ready');
+              });
+
+              it('if too early', async function () {
+                await this.helper.propose();
+                await this.helper.waitForSnapshot();
+                await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+                await this.helper.waitForDeadline();
+                await this.helper.queue();
+
+                expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
+
+                await expectRevert(this.helper.execute(), 'TimelockController: operation is not ready');
+              });
+
+              it('if already executed', async function () {
+                await this.helper.propose();
+                await this.helper.waitForSnapshot();
+                await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+                await this.helper.waitForDeadline();
+                await this.helper.queue();
+                await this.helper.waitForEta();
+                await this.helper.execute();
+                await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
+              });
+
+              it('if already executed by another proposer', async function () {
+                await this.helper.propose();
+                await this.helper.waitForSnapshot();
+                await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+                await this.helper.waitForDeadline();
+                await this.helper.queue();
+                await this.helper.waitForEta();
+
+                await this.timelock.executeBatch(
+                  ...this.proposal.shortProposal.slice(0, 3),
+                  '0x0',
+                  this.proposal.shortProposal[3],
+                );
+
+                await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
+              });
+            });
+          });
+
+          describe('cancel', function () {
+            it('cancel before queue prevents scheduling', async function () {
+              await this.helper.propose();
+              await this.helper.waitForSnapshot();
+              await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+              await this.helper.waitForDeadline();
+
+              expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
+
+              expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
+              await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
+            });
+
+            it('cancel after queue prevents executing', async function () {
+              await this.helper.propose();
+              await this.helper.waitForSnapshot();
+              await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+              await this.helper.waitForDeadline();
+              await this.helper.queue();
+
+              expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
+
+              expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
+              await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
+            });
+
+            it('cancel on timelock is reflected on governor', async function () {
+              await this.helper.propose();
+              await this.helper.waitForSnapshot();
+              await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+              await this.helper.waitForDeadline();
+              await this.helper.queue();
+
+              expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
+
+              expectEvent(await this.timelock.cancel(this.proposal.timelockid, { from: owner }), 'Cancelled', {
+                id: this.proposal.timelockid,
+              });
+
+              expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
+            });
+          });
+
+          describe('onlyGovernance', function () {
+            describe('relay', function () {
+              beforeEach(async function () {
+                await this.token.$_mint(this.mock.address, 1);
+              });
+
+              it('is protected', async function () {
+                await expectRevert(
+                  this.mock.relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI()),
+                  'Governor: onlyGovernance',
+                );
+              });
+
+              it('can be executed through governance', async function () {
+                this.helper.setProposal(
+                  [
+                    {
+                      target: this.mock.address,
+                      data: this.mock.contract.methods
+                        .relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI())
+                        .encodeABI(),
+                    },
+                  ],
+                  '<proposal description>',
+                );
+
+                expect(await this.token.balanceOf(this.mock.address), 1);
+                expect(await this.token.balanceOf(other), 0);
+
+                await this.helper.propose();
+                await this.helper.waitForSnapshot();
+                await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+                await this.helper.waitForDeadline();
+                await this.helper.queue();
+                await this.helper.waitForEta();
+                const txExecute = await this.helper.execute();
+
+                expect(await this.token.balanceOf(this.mock.address), 0);
+                expect(await this.token.balanceOf(other), 1);
+
+                expectEvent.inTransaction(txExecute.tx, this.token, 'Transfer', {
+                  from: this.mock.address,
+                  to: other,
+                  value: '1',
+                });
+              });
+
+              it('is payable and can transfer eth to EOA', async function () {
+                const t2g = web3.utils.toBN(128); // timelock to governor
+                const g2o = web3.utils.toBN(100); // governor to eoa (other)
+
+                this.helper.setProposal(
+                  [
+                    {
+                      target: this.mock.address,
+                      value: t2g,
+                      data: this.mock.contract.methods.relay(other, g2o, '0x').encodeABI(),
+                    },
+                  ],
+                  '<proposal description>',
+                );
+
+                expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
+                const timelockBalance = await web3.eth.getBalance(this.timelock.address).then(web3.utils.toBN);
+                const otherBalance = await web3.eth.getBalance(other).then(web3.utils.toBN);
+
+                await this.helper.propose();
+                await this.helper.waitForSnapshot();
+                await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+                await this.helper.waitForDeadline();
+                await this.helper.queue();
+                await this.helper.waitForEta();
+                await this.helper.execute();
+
+                expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(
+                  timelockBalance.sub(t2g),
+                );
+                expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(t2g.sub(g2o));
+                expect(await web3.eth.getBalance(other)).to.be.bignumber.equal(otherBalance.add(g2o));
+              });
+
+              it('protected against other proposers', async function () {
+                await this.timelock.schedule(
+                  this.mock.address,
+                  web3.utils.toWei('0'),
+                  this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI(),
+                  constants.ZERO_BYTES32,
+                  constants.ZERO_BYTES32,
+                  3600,
+                  { from: owner },
+                );
+
+                await time.increase(3600);
+
+                await expectRevert(
+                  this.timelock.execute(
+                    this.mock.address,
+                    web3.utils.toWei('0'),
+                    this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI(),
+                    constants.ZERO_BYTES32,
+                    constants.ZERO_BYTES32,
+                    { from: owner },
+                  ),
+                  'TimelockController: underlying transaction reverted',
+                );
+              });
+            });
+
+            describe('updateTimelock', function () {
+              beforeEach(async function () {
+                this.newTimelock = await Timelock.new(
+                  3600,
+                  [this.mock.address],
+                  [this.mock.address],
+                  constants.ZERO_ADDRESS,
+                );
+              });
+
+              it('is protected', async function () {
+                await expectRevert(this.mock.updateTimelock(this.newTimelock.address), 'Governor: onlyGovernance');
+              });
+
+              it('can be executed through governance to', async function () {
+                this.helper.setProposal(
+                  [
+                    {
+                      target: this.mock.address,
+                      data: this.mock.contract.methods.updateTimelock(this.newTimelock.address).encodeABI(),
+                    },
+                  ],
+                  '<proposal description>',
+                );
+
+                await this.helper.propose();
+                await this.helper.waitForSnapshot();
+                await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
+                await this.helper.waitForDeadline();
+                await this.helper.queue();
+                await this.helper.waitForEta();
+                const txExecute = await this.helper.execute();
+
+                expectEvent(txExecute, 'TimelockChange', {
+                  oldTimelock: this.timelock.address,
+                  newTimelock: this.newTimelock.address,
+                });
+
+                expect(await this.mock.timelock()).to.be.bignumber.equal(this.newTimelock.address);
+              });
+            });
+          });
+
+          it('clear queue of pending governor calls', async function () {
+            this.helper.setProposal(
+              [
+                {
+                  target: this.mock.address,
+                  data: this.mock.contract.methods.nonGovernanceFunction().encodeABI(),
+                },
+              ],
+              '<proposal description>',
+            );
+
             await this.helper.propose();
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
@@ -170,242 +433,12 @@ contract('GovernorTimelockControl', function (accounts) {
             await this.helper.queue();
             await this.helper.waitForEta();
             await this.helper.execute();
-            await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
-          });
 
-          it('if already executed by another proposer', async function () {
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-            await this.helper.waitForDeadline();
-            await this.helper.queue();
-            await this.helper.waitForEta();
-
-            await this.timelock.executeBatch(
-              ...this.proposal.shortProposal.slice(0, 3),
-              '0x0',
-              this.proposal.shortProposal[3],
-            );
-
-            await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
+            // This path clears _governanceCall as part of the afterExecute call,
+            // but we have not way to check that the cleanup actually happened other
+            // then coverage reports.
           });
         });
-      });
-
-      describe('cancel', function () {
-        it('cancel before queue prevents scheduling', async function () {
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-          await this.helper.waitForDeadline();
-
-          expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
-
-          expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-          await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
-        });
-
-        it('cancel after queue prevents executing', async function () {
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-          await this.helper.waitForDeadline();
-          await this.helper.queue();
-
-          expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
-
-          expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-          await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
-        });
-
-        it('cancel on timelock is reflected on governor', async function () {
-          await this.helper.propose();
-          await this.helper.waitForSnapshot();
-          await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-          await this.helper.waitForDeadline();
-          await this.helper.queue();
-
-          expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
-
-          expectEvent(await this.timelock.cancel(this.proposal.timelockid, { from: owner }), 'Cancelled', {
-            id: this.proposal.timelockid,
-          });
-
-          expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-        });
-      });
-
-      describe('onlyGovernance', function () {
-        describe('relay', function () {
-          beforeEach(async function () {
-            await this.token.$_mint(this.mock.address, 1);
-          });
-
-          it('is protected', async function () {
-            await expectRevert(
-              this.mock.relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI()),
-              'Governor: onlyGovernance',
-            );
-          });
-
-          it('can be executed through governance', async function () {
-            this.helper.setProposal(
-              [
-                {
-                  target: this.mock.address,
-                  data: this.mock.contract.methods
-                    .relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI())
-                    .encodeABI(),
-                },
-              ],
-              '<proposal description>',
-            );
-
-            expect(await this.token.balanceOf(this.mock.address), 1);
-            expect(await this.token.balanceOf(other), 0);
-
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-            await this.helper.waitForDeadline();
-            await this.helper.queue();
-            await this.helper.waitForEta();
-            const txExecute = await this.helper.execute();
-
-            expect(await this.token.balanceOf(this.mock.address), 0);
-            expect(await this.token.balanceOf(other), 1);
-
-            expectEvent.inTransaction(txExecute.tx, this.token, 'Transfer', {
-              from: this.mock.address,
-              to: other,
-              value: '1',
-            });
-          });
-
-          it('is payable and can transfer eth to EOA', async function () {
-            const t2g = web3.utils.toBN(128); // timelock to governor
-            const g2o = web3.utils.toBN(100); // governor to eoa (other)
-
-            this.helper.setProposal(
-              [
-                {
-                  target: this.mock.address,
-                  value: t2g,
-                  data: this.mock.contract.methods.relay(other, g2o, '0x').encodeABI(),
-                },
-              ],
-              '<proposal description>',
-            );
-
-            expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(web3.utils.toBN(0));
-            const timelockBalance = await web3.eth.getBalance(this.timelock.address).then(web3.utils.toBN);
-            const otherBalance = await web3.eth.getBalance(other).then(web3.utils.toBN);
-
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-            await this.helper.waitForDeadline();
-            await this.helper.queue();
-            await this.helper.waitForEta();
-            await this.helper.execute();
-
-            expect(await web3.eth.getBalance(this.timelock.address)).to.be.bignumber.equal(timelockBalance.sub(t2g));
-            expect(await web3.eth.getBalance(this.mock.address)).to.be.bignumber.equal(t2g.sub(g2o));
-            expect(await web3.eth.getBalance(other)).to.be.bignumber.equal(otherBalance.add(g2o));
-          });
-
-          it('protected against other proposers', async function () {
-            await this.timelock.schedule(
-              this.mock.address,
-              web3.utils.toWei('0'),
-              this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI(),
-              constants.ZERO_BYTES32,
-              constants.ZERO_BYTES32,
-              3600,
-              { from: owner },
-            );
-
-            await time.increase(3600);
-
-            await expectRevert(
-              this.timelock.execute(
-                this.mock.address,
-                web3.utils.toWei('0'),
-                this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI(),
-                constants.ZERO_BYTES32,
-                constants.ZERO_BYTES32,
-                { from: owner },
-              ),
-              'TimelockController: underlying transaction reverted',
-            );
-          });
-        });
-
-        describe('updateTimelock', function () {
-          beforeEach(async function () {
-            this.newTimelock = await Timelock.new(
-              3600,
-              [this.mock.address],
-              [this.mock.address],
-              constants.ZERO_ADDRESS,
-            );
-          });
-
-          it('is protected', async function () {
-            await expectRevert(this.mock.updateTimelock(this.newTimelock.address), 'Governor: onlyGovernance');
-          });
-
-          it('can be executed through governance to', async function () {
-            this.helper.setProposal(
-              [
-                {
-                  target: this.mock.address,
-                  data: this.mock.contract.methods.updateTimelock(this.newTimelock.address).encodeABI(),
-                },
-              ],
-              '<proposal description>',
-            );
-
-            await this.helper.propose();
-            await this.helper.waitForSnapshot();
-            await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-            await this.helper.waitForDeadline();
-            await this.helper.queue();
-            await this.helper.waitForEta();
-            const txExecute = await this.helper.execute();
-
-            expectEvent(txExecute, 'TimelockChange', {
-              oldTimelock: this.timelock.address,
-              newTimelock: this.newTimelock.address,
-            });
-
-            expect(await this.mock.timelock()).to.be.bignumber.equal(this.newTimelock.address);
-          });
-        });
-      });
-
-      it('clear queue of pending governor calls', async function () {
-        this.helper.setProposal(
-          [
-            {
-              target: this.mock.address,
-              data: this.mock.contract.methods.nonGovernanceFunction().encodeABI(),
-            },
-          ],
-          '<proposal description>',
-        );
-
-        await this.helper.propose();
-        await this.helper.waitForSnapshot();
-        await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await this.helper.waitForDeadline();
-        await this.helper.queue();
-        await this.helper.waitForEta();
-        await this.helper.execute();
-
-        // This path clears _governanceCall as part of the afterExecute call,
-        // but we have not way to check that the cleanup actually happened other
-        // then coverage reports.
       });
     });
   }

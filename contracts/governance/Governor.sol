@@ -275,8 +275,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256 deadline = snapshot + votingPeriod();
 
         _proposals[proposalId].proposer = proposer;
-        _proposals[proposalId].voteStart = snapshot;
-        _proposals[proposalId].voteEnd = deadline;
+        _proposals[proposalId].voteStart = snapshot.toUint64();
+        _proposals[proposalId].voteEnd = deadline.toUint64();
 
         emit ProposalCreated(
             proposalId,
