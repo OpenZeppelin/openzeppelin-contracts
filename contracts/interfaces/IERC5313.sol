@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: CC0-1.0
-// OpenZeppelin Contracts (last updated v4.5.0) (interfaces/draft-IERC5313.sol)
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts (interfaces/IERC5313.sol)
 pragma solidity ^0.8.0;
 
 /**
