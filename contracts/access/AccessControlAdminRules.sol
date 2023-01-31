@@ -111,7 +111,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     function acceptAdminTransfer() public virtual {
         address pendingAdminOwner = pendingAdmin();
         require(
-            _hasTransferDelayPassed() && _msgSender() == pendingAdminOwner,
+            _hasAdminTransferDelayPassed() && _msgSender() == pendingAdminOwner,
             "AccessControl: delay must be met and caller must be pending admin"
         );
         _revokeRole(DEFAULT_ADMIN_ROLE, admin());
@@ -143,7 +143,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     function renounceRole(bytes32 role, address account) public virtual override(IAccessControl, AccessControl) {
         if (role == DEFAULT_ADMIN_ROLE) {
             require(
-                pendingAdmin() == address(0) && _hasTransferDelayPassed(),
+                pendingAdmin() == address(0) && _hasAdminTransferDelayPassed(),
                 "AccessControl: admin can only renounce in two delayed steps"
             );
         }
@@ -221,7 +221,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     /**
      * @dev Checks if a {delayedUntil} has been set and met.
      */
-    function _hasTransferDelayPassed() private view returns (bool) {
+    function _hasAdminTransferDelayPassed() private view returns (bool) {
         uint48 delayedUntilTimestamp = delayedUntil();
         return delayedUntilTimestamp > 0 && delayedUntilTimestamp < block.timestamp;
     }
