@@ -139,29 +139,33 @@ abstract contract IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:core
-     * @dev Block number used to retrieve user's votes and quorum. As per Compound's Comp and OpenZeppelin's
-     * ERC20Votes, the snapshot is performed at the end of this block. Hence, voting for this proposal starts at the
-     * beginning of the following block.
+     * @dev Timepoint used to retrieve user's votes and quorum. If using block number (as per Compound's Comp), the
+     * snapshot is performed at the end of this block. Hence, voting for this proposal starts at the beginning of the
+     * following block.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);
 
     /**
      * @notice module:core
-     * @dev Block number at which votes close. Votes close at the end of this block, so it is possible to cast a vote
-     * during this block.
+     * @dev Timepoint at which votes close. If using block number, votes close at the end of this block, so it is
+     * possible to cast a vote during this block.
      */
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
 
     /**
      * @notice module:user-config
-     * @dev Delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
-     * leave time for users to buy voting power, or delegate it, before the voting of a proposal starts.
+     * @dev Delay, between the proposal is created and the vote starts. The unit this duration is expressed in depends
+     * on the clock (see EIP-6372) this contract uses.
+     *
+     * This can be increassed to leave time for users to buy voting power, or delegate it, before the voting of a
+     * proposal starts.
      */
     function votingDelay() public view virtual returns (uint256);
 
     /**
      * @notice module:user-config
-     * @dev Delay, in number of blocks, between the vote start and vote ends.
+     * @dev Delay, between the vote start and vote ends. The unit this duration is expressed in depends on the clock
+     * (see EIP-6372) this contract uses.
      *
      * NOTE: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
@@ -173,7 +177,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @dev Minimum number of cast voted required for a proposal to be successful.
      *
      * Note: The `timepoint` parameter corresponds to the snapshot used for counting vote. This allows to scale the
-     * quorum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
+     * quorum depending on values such as the totalSupply of a token at this timepoint (see {ERC20Votes}).
      */
     function quorum(uint256 timepoint) public view virtual returns (uint256);
 
@@ -203,8 +207,8 @@ abstract contract IGovernor is IERC165, IERC6372 {
     function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
 
     /**
-     * @dev Create a new proposal. Vote start {IGovernor-votingDelay} blocks after the proposal is created and ends
-     * {IGovernor-votingPeriod} blocks after the voting starts.
+     * @dev Create a new proposal. Vote start after a delay specified by {IGovernor-votingDelay} and lasts for a
+     * duration specified by {IGovernor-votingPeriod}.
      *
      * Emits a {ProposalCreated} event.
      */
