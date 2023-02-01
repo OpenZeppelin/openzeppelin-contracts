@@ -142,10 +142,12 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
         uint256 eta = proposalEta(proposalId);
         if (eta > 0) {
+            // update state first
+            delete _proposalTimelocks[proposalId];
+            // do external call later
             for (uint256 i = 0; i < targets.length; ++i) {
                 _timelock.cancelTransaction(targets[i], values[i], "", calldatas[i], eta);
             }
-            delete _proposalTimelocks[proposalId];
         }
 
         return proposalId;
