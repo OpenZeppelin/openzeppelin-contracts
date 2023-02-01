@@ -37,9 +37,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         // --- start retyped from Timers.BlockNumber at offset 0x00 ---
         uint64 voteStart;
         address proposer;
+        // solhint-disable-next-line var-name-mixedcase
         bytes4 __gap_unused0;
         // --- start retyped from Timers.BlockNumber at offset 0x20 ---
         uint64 voteEnd;
+        // solhint-disable-next-line var-name-mixedcase
         bytes24 __gap_unused1;
         // --- Remaining fields starting at offset 0x40 ---------------
         bool executed;
