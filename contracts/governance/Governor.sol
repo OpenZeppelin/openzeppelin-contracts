@@ -205,6 +205,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
+     * @dev Address of the proposer
+     */
+    function proposalProposer(uint256 proposalId) internal view virtual returns (address) {
+        return _proposals[proposalId].proposer;
+    }
+
+    /**
      * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
      */
     function proposalThreshold() public view virtual returns (uint256) {
