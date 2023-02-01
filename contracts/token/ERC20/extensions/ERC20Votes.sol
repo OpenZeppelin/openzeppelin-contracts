@@ -24,7 +24,7 @@ import "../../../utils/cryptography/ECDSA.sol";
  *
  * _Available since v4.2._
  */
-abstract contract ERC20Votes is IERC5805, ERC20Permit {
+abstract contract ERC20Votes is ERC20Permit, IERC5805 {
     struct Checkpoint {
         uint32 fromBlock;
         uint224 votes;

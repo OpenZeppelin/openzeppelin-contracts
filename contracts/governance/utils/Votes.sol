@@ -28,7 +28,7 @@ import "../../utils/cryptography/EIP712.sol";
  *
  * _Available since v4.5._
  */
-abstract contract Votes is IERC5805, Context, EIP712 {
+abstract contract Votes is Context, EIP712, IERC5805 {
     using Checkpoints for Checkpoints.Trace224;
     using Counters for Counters.Counter;
 
