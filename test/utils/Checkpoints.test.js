@@ -119,7 +119,8 @@ contract('Checkpoints', function () {
       const push = (self, ...args) => self.methods[`$push(uint256,uint${256 - length},uint${length})`](0, ...args);
       const lowerLookup = (self, ...args) => self.methods[`$lowerLookup(uint256,uint${256 - length})`](0, ...args);
       const upperLookup = (self, ...args) => self.methods[`$upperLookup(uint256,uint${256 - length})`](0, ...args);
-      const upperLookupRecent = (self, ...args) => self.methods[`$upperLookupRecent(uint256,uint${256 - length})`](0, ...args);
+      const upperLookupRecent = (self, ...args) =>
+        self.methods[`$upperLookupRecent(uint256,uint${256 - length})`](0, ...args);
       const getLength = (self, ...args) => self.methods[`$length_Checkpoints_Trace${length}(uint256)`](0, ...args);
 
       describe('without checkpoints', function () {
