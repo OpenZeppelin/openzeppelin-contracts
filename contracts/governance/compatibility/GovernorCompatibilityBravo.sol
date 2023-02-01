@@ -100,10 +100,10 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     function cancel(uint256 proposalId) public virtual override(IGovernor, Governor) {
-        ProposalDetails storage details = _proposalDetails[proposalId];
+        address proposer = _proposalDetails[proposalId].proposer;
 
         require(
-            _msgSender() == details.proposer || getVotes(details.proposer, clock() - 1) < proposalThreshold(),
+            _msgSender() == proposer || getVotes(proposer, clock() - 1) < proposalThreshold(),
             "GovernorBravo: proposer above threshold"
         );
 
