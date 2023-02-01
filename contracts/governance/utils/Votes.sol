@@ -79,7 +79,7 @@ abstract contract Votes is IERC5805, Context, EIP712 {
      */
     function getPastVotes(address account, uint256 timepoint) public view virtual override returns (uint256) {
         require(timepoint < clock(), "Votes: future lookup");
-        return _delegateCheckpoints[account].upperLookup(SafeCast.toUint32(timepoint)); // optimistic ?
+        return _delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint32(timepoint));
     }
 
     /**
@@ -96,7 +96,7 @@ abstract contract Votes is IERC5805, Context, EIP712 {
      */
     function getPastTotalSupply(uint256 timepoint) public view virtual override returns (uint256) {
         require(timepoint < clock(), "Votes: future lookup");
-        return _totalCheckpoints.upperLookup(SafeCast.toUint32(timepoint)); // optimistic ?
+        return _totalCheckpoints.upperLookupRecent(SafeCast.toUint32(timepoint));
     }
 
     /**
