@@ -326,7 +326,9 @@ contract ERC777 is Context, IERC777, IERC20 {
 
         // Update state variables
         _totalSupply += amount;
-        _balances[account] += amount;
+        unchecked{
+            _balances[account] += amount;
+        }
 
         _callTokensReceived(operator, address(0), account, amount, userData, operatorData, requireReceptionAck);
 
