@@ -17,7 +17,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
     using SafeCast for uint256;
     using Checkpoints for Checkpoints.Trace224;
 
-    uint256 private _quorumNumerator; // DEPRECATED
+    uint256 private _quorumNumerator; // DEPRECATED in favor of _quorumNumeratorHistory
 
     /// @custom:oz-retyped-from Checkpoints.History
     Checkpoints.Trace224 private _quorumNumeratorHistory;
@@ -59,7 +59,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         }
 
         // Otherwise, do the binary search
-        return _quorumNumeratorHistory.upperLookup(timepoint.toUint32());
+        return _quorumNumeratorHistory.upperLookupRecent(timepoint.toUint32());
     }
 
     /**
