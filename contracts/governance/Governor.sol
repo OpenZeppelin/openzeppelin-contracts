@@ -108,7 +108,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
                 this.castVoteWithReasonAndParamsBySig.selector ^
                 this.getVotesWithParams.selector) ||
             // Previous interface for backwards compatibility
-            interfaceId == (type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ this.cancel.selector ) ||
+            interfaceId == (type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ this.cancel.selector) ||
             interfaceId == type(IGovernor).interfaceId ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
