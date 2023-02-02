@@ -3,6 +3,10 @@ const { expectRevertCustomError } = require('../helpers/customError');
 
 const ShortStrings = artifacts.require('$ShortStrings');
 
+function decode(sstr) {
+  return web3.utils.toUtf8(sstr).slice(0, parseInt(sstr.slice(64), 16));
+}
+
 contract('ShortStrings', function () {
   before(async function () {
     this.mock = await ShortStrings.new();
@@ -13,9 +17,7 @@ contract('ShortStrings', function () {
       it('encode / decode', async function () {
         if (str.length < 32) {
           const encoded = await this.mock.$toShortString(str);
-          const encoded_len = parseInt(encoded.slice(64), 16);
-          const encoded_str = web3.utils.toUtf8(encoded).slice(0, encoded_len);
-          expect(encoded_str).to.be.equal(str);
+          expect(decode(encoded)).to.be.equal(str);
 
           const length = await this.mock.$length(encoded);
           expect(length.toNumber()).to.be.equal(str.length);
