@@ -2,9 +2,16 @@
 
 pragma solidity ^0.8.0;
 
-/// @title EIP-5313 Light Contract Ownership Standard
+/**
+ * @dev Interface for the Light Contract Ownership Standard.
+ *
+ * A standardized minimal interface required to identify an account that controls a contract
+ *
+ * _Available since v4.9._
+ */
 interface IERC5313 {
-    /// @notice Get the address of the owner
-    /// @return The address of the owner
+    /**
+     * @dev Gets the address of the owner.
+     */
     function owner() external view returns (address);
 }
