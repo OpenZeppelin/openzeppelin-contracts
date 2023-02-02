@@ -19,18 +19,19 @@ abstract contract GovernorVotesComp is Governor {
     }
 
     /**
-     * See EIP 5805.
+     * @dev Clock (as specified in EIP-6372) is set to match the token's clock. Fallback to block numbers if the token
+     * does not implement EIP-6372.
      */
     function clock() public view virtual override returns (uint48) {
         try token.clock() returns (uint48 timepoint) {
             return timepoint;
         } catch {
-            return uint48(block.number);
+            return SafeCast.toUint48(block.number);
         }
     }
 
     /**
-     * See EIP 5805.
+     * @dev Machine-readable description of the clock as specified in EIP-6372.
      */
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual override returns (string memory) {
