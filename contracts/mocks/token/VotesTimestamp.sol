@@ -8,7 +8,7 @@ import "../../token/ERC721/extensions/ERC721Votes.sol";
 
 abstract contract ERC20VotesTimestampMock is ERC20Votes {
     function clock() public view virtual override returns (uint48) {
-        return uint48(block.timestamp);
+        return SafeCast.toUint48(block.timestamp);
     }
 
     // solhint-disable-next-line func-name-mixedcase
@@ -19,7 +19,7 @@ abstract contract ERC20VotesTimestampMock is ERC20Votes {
 
 abstract contract ERC20VotesCompTimestampMock is ERC20VotesComp {
     function clock() public view virtual override returns (uint48) {
-        return uint48(block.timestamp);
+        return SafeCast.toUint48(block.timestamp);
     }
 
     // solhint-disable-next-line func-name-mixedcase
@@ -30,7 +30,7 @@ abstract contract ERC20VotesCompTimestampMock is ERC20VotesComp {
 
 abstract contract ERC721VotesTimestampMock is ERC721Votes {
     function clock() public view virtual override returns (uint48) {
-        return uint48(block.timestamp);
+        return SafeCast.toUint48(block.timestamp);
     }
 
     // solhint-disable-next-line func-name-mixedcase
