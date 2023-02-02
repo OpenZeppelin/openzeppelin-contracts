@@ -41,7 +41,7 @@ abstract contract ERC20Votes is ERC20Permit, IERC5805 {
      * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).
      */
     function clock() public view virtual override returns (uint48) {
-        return uint48(block.number);
+        return SafeCast.toUint48(block.number);
     }
 
     /**

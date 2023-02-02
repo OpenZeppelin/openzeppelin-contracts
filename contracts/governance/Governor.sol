@@ -102,13 +102,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return
             interfaceId ==
             (type(IGovernor).interfaceId ^
-                this.cancel.selector ^
                 type(IERC6372).interfaceId ^
+                this.cancel.selector ^
                 this.castVoteWithReasonAndParams.selector ^
                 this.castVoteWithReasonAndParamsBySig.selector ^
                 this.getVotesWithParams.selector) ||
             // Previous interface for backwards compatibility
-            interfaceId == (type(IGovernor).interfaceId ^ this.cancel.selector ^ type(IERC6372).interfaceId) ||
+            interfaceId == (type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ this.cancel.selector ) ||
             interfaceId == type(IGovernor).interfaceId ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
@@ -170,15 +170,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             revert("Governor: unknown proposal id");
         }
 
-        uint256 timepoint = clock();
+        uint256 currentTimepoint = clock();
 
-        if (snapshot >= timepoint) {
+        if (snapshot >= currentTimepoint) {
             return ProposalState.Pending;
         }
 
         uint256 deadline = proposalDeadline(proposalId);
 
-        if (deadline >= timepoint) {
+        if (deadline >= currentTimepoint) {
             return ProposalState.Active;
         }
 
@@ -265,10 +265,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         string memory description
     ) public virtual override returns (uint256) {
         address proposer = _msgSender();
-        uint256 timepoint = clock();
+        uint256 currentTimepoint = clock();
 
         require(
-            getVotes(proposer, timepoint - 1) >= proposalThreshold(),
+            getVotes(proposer, currentTimepoint - 1) >= proposalThreshold(),
             "Governor: proposer votes below proposal threshold"
         );
 
@@ -279,12 +279,18 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         require(targets.length > 0, "Governor: empty proposal");
         require(_proposals[proposalId].proposer == address(0), "Governor: proposal already exists");
 
-        uint256 snapshot = timepoint + votingDelay();
+        uint256 snapshot = currentTimepoint + votingDelay();
         uint256 deadline = snapshot + votingPeriod();
 
-        _proposals[proposalId].proposer = proposer;
-        _proposals[proposalId].voteStart = snapshot.toUint64();
-        _proposals[proposalId].voteEnd = deadline.toUint64();
+        _proposals[proposalId] = ProposalCore({
+            proposer: proposer,
+            voteStart: snapshot.toUint64(),
+            voteEnd: deadline.toUint64(),
+            executed: false,
+            canceled: false,
+            __gap_unused0: 0,
+            __gap_unused1: 0
+        });
 
         emit ProposalCreated(
             proposalId,
