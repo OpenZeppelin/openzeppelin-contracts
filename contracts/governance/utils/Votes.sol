@@ -46,14 +46,15 @@ abstract contract Votes is Context, EIP712, IERC5805 {
     mapping(address => Counters.Counter) private _nonces;
 
     /**
-     * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).
+     * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based
+     * checkpoints (and voting), in which case {CLOCK_MODE} should be overriden as well to match.
      */
     function clock() public view virtual override returns (uint48) {
         return SafeCast.toUint48(block.number);
     }
 
     /**
-     * @dev Description of the clock
+     * @dev Machine-readable description of the clock as specified in EIP-6372.
      */
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual override returns (string memory) {
