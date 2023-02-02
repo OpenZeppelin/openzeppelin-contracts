@@ -106,7 +106,7 @@ The workflow uses different jobs and triggers for performing actions depending o
 - `publish`: Uploads the built package to `npm`. Its execution **requires approval from the maintainers.**
 - `merge`: Creates a Pull Request to merge the release branch back each time a final release has been published.
 
-The way the automation works is outlined in the diagram below:
+The way the automation works is outlined in the diagram below (start from master):
 
 > **Note**
 > The boxes in blue correspond to one of the jobs listed before
