@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`ShortStrings`: New library for handling shortstring storage in immutable variables.
+`ShortStrings`: Added a library for handling short strings in a gas efficient way, with fallback to storage for longer strings.
