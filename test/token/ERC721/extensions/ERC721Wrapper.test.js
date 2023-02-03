@@ -221,14 +221,14 @@ contract('ERC721Wrapper', function (accounts) {
 
   describe('onERC721Received', function () {
     describe('wrapper aware', function () {
-      const INCORRECT_MAGIC_VALUE = bufferToHex(keccakFromString('INCORRECT_MAGIC_VALUE')).slice(0, 10); // Include 0x
-      const WRAPPER_ACCEPT_MAGIC = bufferToHex(keccakFromString('WRAPPER_ACCEPT_MAGIC')).slice(0, 10); // Include 0x
+      const INCORRECT_MAGIC_VALUE = bufferToHex(keccakFromString('INCORRECT_MAGIC_VALUE')).slice(0, 26); // Include 0x
+      const WRAPPER_ACCEPT_MAGIC = bufferToHex(keccakFromString('WRAPPER_ACCEPT_MAGIC')).slice(0, 26); // Include 0x
 
       const magicWithAddresss = ({ magic = WRAPPER_ACCEPT_MAGIC, address }) =>
         web3.utils.encodePacked(
           {
             value: magic,
-            type: 'bytes4',
+            type: 'bytes12',
           },
           {
             value: address,
@@ -279,7 +279,7 @@ contract('ERC721Wrapper', function (accounts) {
             initialHolder,
             this.token.address,
             firstTokenId,
-            WRAPPER_ACCEPT_MAGIC + '01', // Extra data shouldn't be taken as an address
+            WRAPPER_ACCEPT_MAGIC.concat('01'), // Extra data shouldn't be taken as an address
             { from: initialHolder },
           ),
           'ERC721Wrapper: invalid data length',

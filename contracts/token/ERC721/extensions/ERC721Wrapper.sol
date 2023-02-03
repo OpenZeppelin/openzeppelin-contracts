@@ -17,7 +17,8 @@ import "../utils/ERC721Holder.sol";
 abstract contract ERC721Wrapper is ERC721, ERC721Holder {
     IERC721 private immutable _underlying;
 
-    bytes4 private constant _WRAPPER_ACCEPT_MAGIC = bytes4(keccak256("WRAPPER_ACCEPT_MAGIC")); // 0xb125e89d
+    // Kept as bytes12 so it can be packed with an address
+    bytes12 private constant _WRAPPER_ACCEPT_MAGIC = bytes12(keccak256("WRAPPER_ACCEPT_MAGIC")); 
 
     constructor(IERC721 underlyingToken) {
         _underlying = underlyingToken;
@@ -73,7 +74,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
         bytes memory data
     ) public override returns (bytes4) {
         require(
-            msg.sender == address(underlying()) && _WRAPPER_ACCEPT_MAGIC == bytes4(data),
+            msg.sender == address(underlying()) && _WRAPPER_ACCEPT_MAGIC == bytes12(data),
             "ERC721Wrapper: caller is not a wrapper-aware underlying"
         );
         _safeMint(_mintWrappedTo(from, data), tokenId);
@@ -108,7 +109,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * - `_WRAPPER_ACCEPT_MAGIC` must be already validated.
      */
     function _mintWrappedTo(address from, bytes memory data) private pure returns (address) {
-        require(data.length == 24 || data.length == 4, "ERC721Wrapper: invalid data length");
-        return data.length == 24 ? address(bytes20(bytes32(data) << 32)) : from;
+        require(data.length == 32 || data.length == 12, "ERC721Wrapper: invalid data length");
+        return data.length == 32 ? address(bytes20(bytes32(data) << 96)) : from;
     }
 }
