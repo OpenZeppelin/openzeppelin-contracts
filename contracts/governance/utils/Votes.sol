@@ -47,7 +47,7 @@ abstract contract Votes is Context, EIP712, IERC5805 {
 
     /**
      * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based
-     * checkpoints (and voting), in which case {CLOCK_MODE} should be overriden as well to match.
+     * checkpoints (and voting), in which case {CLOCK_MODE} should be overridden as well to match.
      */
     function clock() public view virtual override returns (uint48) {
         return SafeCast.toUint48(block.number);
