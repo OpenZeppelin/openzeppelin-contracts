@@ -4,12 +4,12 @@ pragma solidity ^0.8.8;
 
 import "./StorageSlot.sol";
 
+type ShortString is bytes32;
+
 /**
  * @dev Short string operations.
  */
 library ShortStrings {
-    type ShortString is bytes32;
-
     error StringTooLong(string str);
 
     /**
@@ -55,7 +55,7 @@ library ShortStrings {
             return toShortString(value);
         } else {
             StorageSlot.getStringSlot(store).value = value;
-            return toShortString("");
+            return ShortString.wrap(0);
         }
     }
 
