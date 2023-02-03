@@ -32,7 +32,7 @@ contract('ShortStrings', function () {
 
       it('set / get with fallback', async function () {
         const { logs } = await this.mock.$setWithFallback(str, 0);
-        const { ret0 } = logs.find(({ event }) => event == 'return$setWithFallback').args);
+        const { ret0 } = logs.find(({ event }) => event == 'return$setWithFallback').args;
 
         expect(await this.mock.$toString(ret0)).to.be.equal(str.length < 32 ? str : '');
 
