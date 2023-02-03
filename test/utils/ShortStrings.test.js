@@ -31,12 +31,12 @@ contract('ShortStrings', function () {
       });
 
       it('set / get with fallback', async function () {
-        const { logs } = await this.mock.$setWithFallback(str, 0);
-        const { ret0 } = logs.find(({ event }) => event == 'return$setWithFallback').args;
+        const { logs } = await this.mock.$toShortStringWithFallback(str, 0);
+        const { ret0 } = logs.find(({ event }) => event == 'return$toShortStringWithFallback').args;
 
         expect(await this.mock.$toString(ret0)).to.be.equal(str.length < 32 ? str : '');
 
-        const recovered = await this.mock.$getWithFallback(ret0, 0);
+        const recovered = await this.mock.$toStringWithFallback(ret0, 0);
         expect(recovered).to.be.equal(str);
       });
     });
