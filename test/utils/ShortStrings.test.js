@@ -4,7 +4,8 @@ const { expectRevertCustomError } = require('../helpers/customError');
 const ShortStrings = artifacts.require('$ShortStrings');
 
 function decode(sstr) {
-  return web3.utils.toUtf8(sstr).slice(0, parseInt(sstr.slice(64), 16));
+  const length = parseInt(sstr.slice(64), 16);
+  return web3.utils.toUtf8(sstr).slice(0, length);
 }
 
 contract('ShortStrings', function () {
