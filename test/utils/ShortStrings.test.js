@@ -4,7 +4,8 @@ const { expectRevertCustomError } = require('../helpers/customError');
 const ShortStrings = artifacts.require('$ShortStrings');
 
 function decode(sstr) {
-  return web3.utils.toUtf8(sstr).slice(0, parseInt(sstr.slice(64), 16));
+  const length = parseInt(sstr.slice(64), 16);
+  return web3.utils.toUtf8(sstr).slice(0, length);
 }
 
 contract('ShortStrings', function () {
@@ -30,9 +31,8 @@ contract('ShortStrings', function () {
       });
 
       it('set / get with fallback', async function () {
-        const { ret0 } = await this.mock
-          .$setWithFallback(str, 0)
-          .then(({ logs }) => logs.find(({ event }) => event == 'return$setWithFallback').args);
+        const { logs } = await this.mock.$setWithFallback(str, 0);
+        const { ret0 } = logs.find(({ event }) => event == 'return$setWithFallback').args);
 
         expect(await this.mock.$toString(ret0)).to.be.equal(str.length < 32 ? str : '');
 

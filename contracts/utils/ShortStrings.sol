@@ -7,7 +7,10 @@ import "./StorageSlot.sol";
 type ShortString is bytes32;
 
 /**
- * @dev Short string operations.
+ * @dev This library provides functions to convert short memory strings
+ * into a `ShortString` type that can be used as an immutable variable.
+ * Strings of arbitrary length can be optimized if they are short enough by
+ * the addition of a storage variable used as fallback.
  */
 library ShortStrings {
     error StringTooLong(string str);
