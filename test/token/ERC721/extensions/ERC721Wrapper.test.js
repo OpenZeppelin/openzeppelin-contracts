@@ -249,6 +249,19 @@ contract('ERC721Wrapper', function (accounts) {
         tokenId: firstTokenId,
       });
     });
+
+    it('only allows calls from underlying', async function () {
+      await expectRevert(
+        this.token.onERC721Received(
+          initialHolder,
+          this.token.address,
+          firstTokenId,
+          web3.eth.abi.encodeParameters(['address'], [anotherAccount]),
+          { from: anotherAccount },
+        ),
+        'ERC721Wrapper: caller is not underlying',
+      );
+    });
   });
 
   describe('_recover', function () {

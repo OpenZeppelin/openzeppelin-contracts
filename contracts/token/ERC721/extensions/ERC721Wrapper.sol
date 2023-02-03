@@ -15,10 +15,10 @@ import "../utils/ERC721Holder.sol";
  * _Available since v4.9.0_
  */
 abstract contract ERC721Wrapper is ERC721, ERC721Holder {
-    IERC721 public immutable underlying;
+    IERC721 private immutable _underlying;
 
     constructor(IERC721 underlyingToken) {
-        underlying = underlyingToken;
+        _underlying = underlyingToken;
     }
 
     /**
@@ -29,7 +29,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
 
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
-            underlying.safeTransferFrom(_msgSender(), address(this), tokenIds[i], data);
+            underlying().safeTransferFrom(_msgSender(), address(this), tokenIds[i], data);
         }
 
         return true;
@@ -47,7 +47,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
             // Checks were already performed at this point, and there's no way to retake ownership or approval from
             // the wrapped tokenId after this point, so it's safe to remove the reentrancy check for the next line.
             // slither-disable-next-line reentrancy-no-eth
-            underlying.safeTransferFrom(address(this), account, tokenId);
+            underlying().safeTransferFrom(address(this), account, tokenId);
         }
 
         return true;
@@ -66,7 +66,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
         uint256 tokenId,
         bytes memory data
     ) public override returns (bytes4) {
-        require(msg.sender == address(underlying));
+        require(msg.sender == address(underlying()), "ERC721Wrapper: caller is not underlying");
         _safeMint(data.length == 0 ? from : abi.decode(data, (address)), tokenId);
         return IERC721Receiver.onERC721Received.selector;
     }
@@ -76,8 +76,15 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * function that can be exposed with access control if desired.
      */
     function _recover(address account, uint256 tokenId) internal virtual returns (uint256) {
-        require(underlying.ownerOf(tokenId) == address(this), "ERC721Wrapper: wrapper is not token owner");
+        require(underlying().ownerOf(tokenId) == address(this), "ERC721Wrapper: wrapper is not token owner");
         _safeMint(account, tokenId);
         return tokenId;
+    }
+
+    /**
+     * @dev Returns the underlying token.
+     */
+    function underlying() public view virtual returns (IERC721) {
+        return _underlying;
     }
 }
