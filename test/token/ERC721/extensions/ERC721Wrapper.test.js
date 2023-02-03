@@ -1,5 +1,6 @@
 const { BN, expectEvent, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+const { keccakFromString, bufferToHex } = require('ethereumjs-util');
 
 const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');
 
@@ -219,48 +220,117 @@ contract('ERC721Wrapper', function (accounts) {
   });
 
   describe('onERC721Received', function () {
-    it('mints a token upon receival', async function () {
-      // `safeTransferFrom` guarantees `onERC721Received` check
-      const { tx } = await this.underlying.safeTransferFrom(initialHolder, this.token.address, firstTokenId, {
-        from: initialHolder,
-      });
+    describe('wrapper aware', function () {
+      const INCORRECT_MAGIC_VALUE = bufferToHex(keccakFromString('INCORRECT_MAGIC_VALUE')).slice(0, 10); // Include 0x
+      const WRAPPER_ACCEPT_MAGIC = bufferToHex(keccakFromString('WRAPPER_ACCEPT_MAGIC')).slice(0, 10); // Include 0x
 
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: initialHolder,
-        tokenId: firstTokenId,
-      });
-    });
+      const magicWithAddresss = ({ magic = WRAPPER_ACCEPT_MAGIC, address }) =>
+        web3.utils.encodePacked(
+          {
+            value: magic,
+            type: 'bytes4',
+          },
+          {
+            value: address,
+            type: 'address',
+          },
+        );
 
-    it('mints token to specific holder', async function () {
-      const { tx } = await this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
-        initialHolder,
-        this.token.address,
-        firstTokenId,
-        web3.eth.abi.encodeParameters(['address'], [anotherAccount]),
-        {
-          from: initialHolder,
-        },
-      );
-
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: anotherAccount,
-        tokenId: firstTokenId,
-      });
-    });
-
-    it('only allows calls from underlying', async function () {
-      await expectRevert(
-        this.token.onERC721Received(
+      it('mints a token to sender with only magic value', async function () {
+        // `safeTransferFrom` guarantees `onERC721Received` check
+        const { tx } = await this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
           initialHolder,
           this.token.address,
           firstTokenId,
-          web3.eth.abi.encodeParameters(['address'], [anotherAccount]),
-          { from: anotherAccount },
-        ),
-        'ERC721Wrapper: caller is not underlying',
-      );
+          WRAPPER_ACCEPT_MAGIC,
+          {
+            from: initialHolder,
+          },
+        );
+
+        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+          from: constants.ZERO_ADDRESS,
+          to: initialHolder,
+          tokenId: firstTokenId,
+        });
+      });
+
+      it('mints token to specific holder with address after magic value', async function () {
+        const { tx } = await this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
+          initialHolder,
+          this.token.address,
+          firstTokenId,
+          magicWithAddresss({ address: anotherAccount }),
+          {
+            from: initialHolder,
+          },
+        );
+
+        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+          from: constants.ZERO_ADDRESS,
+          to: anotherAccount,
+          tokenId: firstTokenId,
+        });
+      });
+
+      it('reverts with invalid data length', async function () {
+        await expectRevert(
+          this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
+            initialHolder,
+            this.token.address,
+            firstTokenId,
+            WRAPPER_ACCEPT_MAGIC + '01', // Extra data shouldn't be taken as an address
+            { from: initialHolder },
+          ),
+          'ERC721Wrapper: invalid data length',
+        );
+      });
+
+      it('only allows calls from underlying', async function () {
+        await expectRevert(
+          this.token.onERC721Received(
+            initialHolder,
+            this.token.address,
+            firstTokenId,
+            magicWithAddresss({ address: anotherAccount }), // Correct data
+            { from: anotherAccount },
+          ),
+          'ERC721Wrapper: caller is not a wrapper-aware underlying',
+        );
+      });
+
+      it('reverts with arbitrary 4-bytes-length data', async function () {
+        await expectRevert(
+          this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
+            initialHolder,
+            this.token.address,
+            firstTokenId,
+            INCORRECT_MAGIC_VALUE,
+            {
+              from: initialHolder,
+            },
+          ),
+          "ERC721Wrapper: caller is not a wrapper-aware underlying'",
+        );
+      });
+
+      it('reverts with arbitrary 24-bytes-length data', async function () {
+        await expectRevert(
+          this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
+            initialHolder,
+            this.token.address,
+            firstTokenId,
+            magicWithAddresss({
+              magic: INCORRECT_MAGIC_VALUE,
+              address: anotherAccount,
+            }),
+            {
+              from: initialHolder,
+            },
+          ),
+          "ERC721Wrapper: caller is not a wrapper-aware underlying'",
+        );
+      });
     });
   });
 
