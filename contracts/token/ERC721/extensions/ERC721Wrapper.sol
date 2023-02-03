@@ -18,7 +18,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
     IERC721 private immutable _underlying;
 
     // Kept as bytes12 so it can be packed with an address
-    bytes12 private constant _WRAPPER_ACCEPT_MAGIC = bytes12(keccak256("WRAPPER_ACCEPT_MAGIC")); 
+    bytes12 private constant _WRAPPER_ACCEPT_MAGIC = bytes12(keccak256("WRAPPER_ACCEPT_MAGIC"));
 
     constructor(IERC721 underlyingToken) {
         _underlying = underlyingToken;
