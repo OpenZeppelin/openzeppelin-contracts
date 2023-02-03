@@ -11,6 +11,25 @@ type ShortString is bytes32;
  * into a `ShortString` type that can be used as an immutable variable.
  * Strings of arbitrary length can be optimized if they are short enough by
  * the addition of a storage variable used as fallback.
+ *
+ * Usage example:
+ *
+ * ```solidity
+ * contract Named {
+ *     using ShortStrings for *;
+ *
+ *     ShortString private immutable _name;
+ *     string private _nameFallback;
+ *
+ *     constructor(string memory contractName) {
+ *         _name = contractName.toShortStringWithFallback(_nameFallback);
+ *     }
+ *
+ *     function name() external view returns (string memory) {
+ *         return _name.toStringWithFallback(_nameFallback);
+ *     }
+ * }
+ * ```
  */
 library ShortStrings {
     error StringTooLong(string str);
