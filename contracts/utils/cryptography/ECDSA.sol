@@ -167,9 +167,9 @@ library ECDSA {
         // enforced by the type signature above
         /// @solidity memory-safe-assembly
         assembly {
-            mstore(0, "\x19Ethereum Signed Message:\n32")
-            mstore(28, hash)
-            message := keccak256(0, 60)
+            mstore(0x00, "\x19Ethereum Signed Message:\n32")
+            mstore(0x1c, hash)
+            message := keccak256(0x00, 0x3c)
         }
     }
 
@@ -201,7 +201,7 @@ library ECDSA {
             mstore(ptr, "\x19\x01")
             mstore(add(ptr, 0x02), domainSeparator)
             mstore(add(ptr, 0x22), structHash)
-            data := keccak256(ptr, 66)
+            data := keccak256(ptr, 0x42)
         }
     }
 }
