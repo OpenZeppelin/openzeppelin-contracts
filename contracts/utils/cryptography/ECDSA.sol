@@ -163,6 +163,7 @@ library ECDSA {
      * See {recover}.
      */
     function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32 message) {
+        // 32 is the length in bytes of hash,
         // enforced by the type signature above
         /// @solidity memory-safe-assembly
         assembly {
