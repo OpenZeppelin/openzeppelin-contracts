@@ -34,6 +34,13 @@ abstract contract ERC20Wrapper is ERC20 {
     }
 
     /**
+     * @dev Returns the address of the ERC-20 token deployed with ERC20Wrapper.sol
+     */
+    function underlying() public view returns (IERC20) {
+        return _underlying;
+    }
+
+    /**
      * @dev Allow a user to deposit underlying tokens and mint the corresponding number of wrapped tokens.
      */
     function depositFor(address account, uint256 amount) public virtual returns (bool) {
