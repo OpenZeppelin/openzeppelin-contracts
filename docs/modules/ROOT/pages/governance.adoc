@@ -137,7 +137,7 @@ votingDelay: How long after a proposal is created should voting power be fixed. 
 
 votingPeriod: How long does a proposal remain open to votes.
 
-These parameters are specified in number of blocks. Assuming block time of around 13.14 seconds, we will set votingDelay = 1 day = 6570 blocks, and votingPeriod = 1 week = 45992 blocks.
+These parameters are specified in number of blocks. Assuming block time of around 12 seconds, we will set votingDelay = 1 day = 7200 blocks, and votingPeriod = 1 week = 50400 blocks.
 
 We can optionally set a proposal threshold as well. This restricts proposal creation to accounts who have enough voting power.
 

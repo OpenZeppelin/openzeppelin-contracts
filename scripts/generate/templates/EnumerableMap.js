@@ -25,7 +25,7 @@ import "./EnumerableSet.sol";
  * (O(1)).
  * - Entries are enumerated in O(n). No guarantees are made on the ordering.
  *
- * \`\`\`
+ * \`\`\`solidity
  * contract Example {
  *     // Add the library methods
  *     using EnumerableMap for EnumerableMap.UintToAddressMap;

@@ -66,8 +66,6 @@ contract ModifiedAccessControl is AccessControl {
 
 The `super.revokeRole` statement at the end will invoke ``AccessControl``'s original version of `revokeRole`, the same code that would've run if there were no overrides in place.
 
-NOTE: As of v3.0.0, `view` functions are not `virtual` in OpenZeppelin, and therefore cannot be overridden. We're considering https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2154[lifting this restriction] in an upcoming release. Let us know if this is something you care about!
-
 [[using-hooks]]
 == Using Hooks
 
