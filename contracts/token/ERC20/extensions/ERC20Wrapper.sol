@@ -16,7 +16,7 @@ import "../utils/SafeERC20.sol";
  * _Available since v4.2._
  */
 abstract contract ERC20Wrapper is ERC20 {
-    IERC20 immutable _underlying;
+    IERC20 private immutable _underlying;
 
     constructor(IERC20 underlyingToken) {
         _underlying = underlyingToken;
