@@ -34,7 +34,7 @@ abstract contract ERC20Wrapper is ERC20 {
     }
 
     /**
-     * @dev Returns the address of the ERC-20 token deployed with ERC20Wrapper.sol
+     * @dev Returns the address of the underlying ERC-20 token that is being wrapped.
      */
     function underlying() public view returns (IERC20) {
         return _underlying;
