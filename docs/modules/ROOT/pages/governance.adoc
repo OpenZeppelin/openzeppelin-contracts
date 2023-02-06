@@ -284,9 +284,9 @@ image::tally-vote.png[Voting in Tally]
 
 === Execute the Proposal
 
-Once the voting period is over, if quorum was reached (enough voting power participated) and the majority voted in favor, the proposal is considered successful and can proceed to be executed. This can also be done in Tally in the "Administration Panel" section of a project.
+Once the voting period is over, if quorum was reached (enough voting power participated) and the majority voted in favor, the proposal is considered successful and can proceed to be executed. Once a proposal passes, it can be queued and executed from the same place you voted.
 
-image::tally-admin.png[Administration Panel in Tally]
+image::tally-exec.png[Administration Panel in Tally]
 
 We will see now how to do this manually using Ethers.js.
 
