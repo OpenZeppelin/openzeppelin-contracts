@@ -4,6 +4,7 @@
 pragma solidity ^0.8.8;
 
 import "./ECDSA.sol";
+import "../ShortStrings.sol";
 import "../../interfaces/ERC5267.sol";
 
 /**
@@ -26,6 +27,8 @@ import "../../interfaces/ERC5267.sol";
  * _Available since v3.4._
  */
 abstract contract EIP712 is ERC5267 {
+    using ShortStrings for *;
+
     /* solhint-disable var-name-mixedcase */
     // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
     // invalidate the cached domain separator if the chain id changes.
@@ -33,14 +36,15 @@ abstract contract EIP712 is ERC5267 {
     uint256 private immutable _CACHED_CHAIN_ID;
     address private immutable _CACHED_THIS;
 
-    string private _NAME;
-    string private _VERSION;
-
     bytes32 private immutable _HASHED_NAME;
     bytes32 private immutable _HASHED_VERSION;
     bytes32 private immutable _TYPE_HASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
+    ShortString private immutable _NAME;
+    ShortString private immutable _VERSION;
+    string private _NAME_FALLBACK;
+    string private _VERSION_FALLBACK;
     /* solhint-enable var-name-mixedcase */
 
     /**
@@ -56,8 +60,9 @@ abstract contract EIP712 is ERC5267 {
      * contract upgrade].
      */
     constructor(string memory name, string memory version) {
-        _NAME = name;
-        _VERSION = version;
+        _NAME = name.toShortStringWithFallback(_NAME_FALLBACK);
+        _VERSION = version.toShortStringWithFallback(_VERSION_FALLBACK);
+
         _HASHED_NAME = keccak256(bytes(name));
         _HASHED_VERSION = keccak256(bytes(version));
         _CACHED_CHAIN_ID = block.chainid;
@@ -119,8 +124,8 @@ abstract contract EIP712 is ERC5267 {
     {
         return (
             hex"0f", // 01111
-            _NAME,
-            _VERSION,
+            _NAME.toStringWithFallback(_NAME_FALLBACK),
+            _VERSION.toStringWithFallback(_VERSION_FALLBACK),
             block.chainid,
             address(this),
             bytes32(0),
