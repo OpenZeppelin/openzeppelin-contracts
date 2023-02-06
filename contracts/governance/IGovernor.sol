@@ -33,8 +33,8 @@ abstract contract IGovernor is IERC165, IERC6372 {
         uint256[] values,
         string[] signatures,
         bytes[] calldatas,
-        uint256 startBlock,
-        uint256 endBlock,
+        uint256 voteStart,
+        uint256 voteEnd,
         string description
     );
 

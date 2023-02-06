@@ -167,8 +167,8 @@ contract('GovernorCompatibilityBravo', function (accounts) {
           // values: this.proposal.values,
           signatures: this.proposal.signatures.map(() => ''), // this event doesn't contain the proposal detail
           calldatas: this.proposal.fulldata,
-          startBlock: web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay),
-          endBlock: web3.utils
+          voteStart: web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay),
+          voteEnd: web3.utils
             .toBN(await clockFromReceipt[mode](txPropose.receipt))
             .add(votingDelay)
             .add(votingPeriod),

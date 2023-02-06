@@ -96,13 +96,13 @@ contract('GovernorPreventLateQuorum', function (accounts) {
           expect(results.abstainVotes).to.be.bignumber.equal(web3.utils.toWei('2'));
         });
 
-        const startBlock = web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay);
-        const endBlock = web3.utils
+        const voteStart = web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay);
+        const voteEnd = web3.utils
           .toBN(await clockFromReceipt[mode](txPropose.receipt))
           .add(votingDelay)
           .add(votingPeriod);
-        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.be.bignumber.equal(startBlock);
-        expect(await this.mock.proposalDeadline(this.proposal.id)).to.be.bignumber.equal(endBlock);
+        expect(await this.mock.proposalSnapshot(this.proposal.id)).to.be.bignumber.equal(voteStart);
+        expect(await this.mock.proposalDeadline(this.proposal.id)).to.be.bignumber.equal(voteEnd);
 
         expectEvent(txPropose, 'ProposalCreated', {
           proposalId: this.proposal.id,
@@ -111,8 +111,8 @@ contract('GovernorPreventLateQuorum', function (accounts) {
           // values: this.proposal.values.map(value => web3.utils.toBN(value)),
           signatures: this.proposal.signatures,
           calldatas: this.proposal.data,
-          startBlock,
-          endBlock,
+          voteStart,
+          voteEnd,
           description: this.proposal.description,
         });
       });

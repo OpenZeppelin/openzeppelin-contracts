@@ -102,8 +102,8 @@ contract('Governor', function (accounts) {
           // values: this.proposal.values,
           signatures: this.proposal.signatures,
           calldatas: this.proposal.data,
-          startBlock: web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay),
-          endBlock: web3.utils
+          voteStart: web3.utils.toBN(await clockFromReceipt[mode](txPropose.receipt)).add(votingDelay),
+          voteEnd: web3.utils
             .toBN(await clockFromReceipt[mode](txPropose.receipt))
             .add(votingDelay)
             .add(votingPeriod),
