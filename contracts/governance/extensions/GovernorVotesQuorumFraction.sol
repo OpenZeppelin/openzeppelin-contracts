@@ -70,7 +70,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
     }
 
     /**
-     * @dev Returns the quorum for a block number, in terms of number of votes: `supply * numerator / denominator`.
+     * @dev Returns the quorum for a timepoint, in terms of number of votes: `supply * numerator / denominator`.
      */
     function quorum(uint256 timepoint) public view virtual override returns (uint256) {
         return (token.getPastTotalSupply(timepoint) * quorumNumerator(timepoint)) / quorumDenominator();
