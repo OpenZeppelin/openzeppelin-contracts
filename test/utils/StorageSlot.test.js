@@ -107,4 +107,104 @@ contract('StorageSlot', function (accounts) {
       });
     });
   });
+
+  describe('string storage slot', function () {
+    beforeEach(async function () {
+      this.value = 'lorem ipsum';
+    });
+
+    it('set', async function () {
+      await this.store.setString(slot, this.value);
+    });
+
+    describe('get', function () {
+      beforeEach(async function () {
+        await this.store.setString(slot, this.value);
+      });
+
+      it('from right slot', async function () {
+        expect(await this.store.getString(slot)).to.be.equal(this.value);
+      });
+
+      it('from other slot', async function () {
+        expect(await this.store.getString(otherSlot)).to.be.equal('');
+      });
+    });
+  });
+
+  describe('string storage pointer', function () {
+    beforeEach(async function () {
+      this.value = 'lorem ipsum';
+    });
+
+    it('set', async function () {
+      await this.store.setStringStorage(slot, this.value);
+    });
+
+    describe('get', function () {
+      beforeEach(async function () {
+        await this.store.setStringStorage(slot, this.value);
+      });
+
+      it('from right slot', async function () {
+        expect(await this.store.stringMap(slot)).to.be.equal(this.value);
+        expect(await this.store.getStringStorage(slot)).to.be.equal(this.value);
+      });
+
+      it('from other slot', async function () {
+        expect(await this.store.stringMap(otherSlot)).to.be.equal('');
+        expect(await this.store.getStringStorage(otherSlot)).to.be.equal('');
+      });
+    });
+  });
+
+  describe('bytes storage slot', function () {
+    beforeEach(async function () {
+      this.value = web3.utils.randomHex(128);
+    });
+
+    it('set', async function () {
+      await this.store.setBytes(slot, this.value);
+    });
+
+    describe('get', function () {
+      beforeEach(async function () {
+        await this.store.setBytes(slot, this.value);
+      });
+
+      it('from right slot', async function () {
+        expect(await this.store.getBytes(slot)).to.be.equal(this.value);
+      });
+
+      it('from other slot', async function () {
+        expect(await this.store.getBytes(otherSlot)).to.be.equal(null);
+      });
+    });
+  });
+
+  describe('bytes storage pointer', function () {
+    beforeEach(async function () {
+      this.value = web3.utils.randomHex(128);
+    });
+
+    it('set', async function () {
+      await this.store.setBytesStorage(slot, this.value);
+    });
+
+    describe('get', function () {
+      beforeEach(async function () {
+        await this.store.setBytesStorage(slot, this.value);
+      });
+
+      it('from right slot', async function () {
+        expect(await this.store.bytesMap(slot)).to.be.equal(this.value);
+        expect(await this.store.getBytesStorage(slot)).to.be.equal(this.value);
+      });
+
+      it('from other slot', async function () {
+        expect(await this.store.bytesMap(otherSlot)).to.be.equal(null);
+        expect(await this.store.getBytesStorage(otherSlot)).to.be.equal(null);
+      });
+    });
+  });
 });
