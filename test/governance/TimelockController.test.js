@@ -158,6 +158,11 @@ contract('TimelockController', function (accounts) {
             delay: MINDELAY,
           });
 
+          expectEvent(receipt, 'CallSalt', {
+            id: this.operation.id,
+            salt: this.operation.salt,
+          });
+
           const block = await web3.eth.getBlock(receipt.receipt.blockHash);
 
           expect(await this.mock.getTimestamp(this.operation.id)).to.be.bignumber.equal(
@@ -218,6 +223,19 @@ contract('TimelockController', function (accounts) {
             ),
             'TimelockController: insufficient delay',
           );
+        });
+
+        it('schedule operation with salt zero', async function () {
+          const { receipt } = await this.mock.schedule(
+            this.operation.target,
+            this.operation.value,
+            this.operation.data,
+            this.operation.predecessor,
+            ZERO_BYTES32,
+            MINDELAY,
+            { from: proposer },
+          );
+          expectEvent.notEmitted(receipt, 'CallSalt');
         });
       });
 
@@ -363,6 +381,11 @@ contract('TimelockController', function (accounts) {
               data: this.operation.payloads[i],
               predecessor: this.operation.predecessor,
               delay: MINDELAY,
+            });
+
+            expectEvent(receipt, 'CallSalt', {
+              id: this.operation.id,
+              salt: this.operation.salt,
             });
           }
 
