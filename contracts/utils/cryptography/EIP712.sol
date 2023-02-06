@@ -45,6 +45,7 @@ abstract contract EIP712 is ERC5267 {
     ShortString private immutable _VERSION;
     string private _NAME_FALLBACK;
     string private _VERSION_FALLBACK;
+
     /* solhint-enable var-name-mixedcase */
 
     /**
