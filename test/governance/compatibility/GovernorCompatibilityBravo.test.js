@@ -9,6 +9,8 @@ const Timelock = artifacts.require('CompTimelock');
 const Governor = artifacts.require('$GovernorCompatibilityBravoMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
+const { shouldBehaveLikeEIP6372 } = require('../utils/EIP6372.behavior');
+
 function makeContractAddress(creator, nonce) {
   return web3.utils.toChecksumAddress(
     web3.utils
@@ -19,7 +21,7 @@ function makeContractAddress(creator, nonce) {
 }
 
 const TOKENS = [
-  { Token: artifacts.require('$ERC20VotesComp'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20VotesComp'), mode: 'blocknumber' },
   { Token: artifacts.require('$ERC20VotesCompTimestampMock'), mode: 'timestamp' },
 ];
 
@@ -81,6 +83,8 @@ contract('GovernorCompatibilityBravo', function (accounts) {
           '<proposal description>',
         );
       });
+
+      shouldBehaveLikeEIP6372(mode);
 
       it('deployment check', async function () {
         expect(await this.mock.name()).to.be.equal(name);

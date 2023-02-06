@@ -6,9 +6,10 @@ const { fromRpcSig } = require('ethereumjs-util');
 const Enums = require('../helpers/enums');
 const { EIP712Domain } = require('../helpers/eip712');
 const { GovernorHelper } = require('../helpers/governance');
-const { clock, clockFromReceipt } = require('../helpers/time');
+const { clockFromReceipt } = require('../helpers/time');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
+const { shouldBehaveLikeEIP6372 } = require('./utils/EIP6372.behavior');
 
 const Governor = artifacts.require('$GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
@@ -16,9 +17,9 @@ const ERC721 = artifacts.require('$ERC721');
 const ERC1155 = artifacts.require('$ERC1155');
 
 const TOKENS = [
-  { Token: artifacts.require('$ERC20Votes'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
   { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
-  { Token: artifacts.require('$ERC20VotesLegacyMock'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20VotesLegacyMock'), mode: 'blocknumber' },
 ];
 
 contract('Governor', function (accounts) {
@@ -71,6 +72,7 @@ contract('Governor', function (accounts) {
       });
 
       shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor', 'GovernorWithParams']);
+      shouldBehaveLikeEIP6372(mode);
 
       it('deployment check', async function () {
         expect(await this.mock.name()).to.be.equal(name);
@@ -79,10 +81,6 @@ contract('Governor', function (accounts) {
         expect(await this.mock.votingPeriod()).to.be.bignumber.equal(votingPeriod);
         expect(await this.mock.quorum(0)).to.be.bignumber.equal('0');
         expect(await this.mock.COUNTING_MODE()).to.be.equal('support=bravo&quorum=for,abstain');
-      });
-
-      it('clock is correct', async function () {
-        expect(await this.mock.clock()).to.be.bignumber.equal(await clock[mode]().then(web3.utils.toBN));
       });
 
       it('nominal workflow', async function () {

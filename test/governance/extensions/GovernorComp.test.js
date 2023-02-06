@@ -6,7 +6,7 @@ const Governor = artifacts.require('$GovernorCompMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 const TOKENS = [
-  { Token: artifacts.require('$ERC20VotesComp'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20VotesComp'), mode: 'blocknumber' },
   { Token: artifacts.require('$ERC20VotesCompTimestampMock'), mode: 'timestamp' },
 ];
 

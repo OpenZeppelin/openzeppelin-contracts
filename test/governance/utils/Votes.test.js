@@ -3,12 +3,12 @@ const { expectRevert, BN } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const { getChainId } = require('../../helpers/chainid');
-const { clock, clockFromReceipt } = require('../../helpers/time');
+const { clockFromReceipt } = require('../../helpers/time');
 
 const { shouldBehaveLikeVotes } = require('./Votes.behavior');
 
 const MODES = {
-  blockNumber: artifacts.require('$VotesMock'),
+  blocknumber: artifacts.require('$VotesMock'),
   timestamp: artifacts.require('$VotesTimestampMock'),
 };
 
@@ -20,10 +20,6 @@ contract('Votes', function (accounts) {
       beforeEach(async function () {
         this.name = 'My Vote';
         this.votes = await artifact.new(this.name, '1');
-      });
-
-      it('clock is correct', async function () {
-        expect(await this.votes.clock()).to.be.bignumber.equal(await clock[mode]().then(web3.utils.toBN));
       });
 
       it('starts with zero votes', async function () {
@@ -67,6 +63,7 @@ contract('Votes', function (accounts) {
           this.NFT3 = new BN('30');
         });
 
+        // includes EIP6372 behavior check
         shouldBehaveLikeVotes(mode);
       });
     });

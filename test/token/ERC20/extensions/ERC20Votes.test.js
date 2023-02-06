@@ -13,6 +13,8 @@ const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
 const { getChainId } = require('../../../helpers/chainid');
 const { clock, clockFromReceipt } = require('../../../helpers/time');
 
+const { shouldBehaveLikeEIP6372 } = require('../../../governance/utils/EIP6372.behavior');
+
 const Delegation = [
   { name: 'delegatee', type: 'address' },
   { name: 'nonce', type: 'uint256' },
@@ -20,7 +22,7 @@ const Delegation = [
 ];
 
 const MODES = {
-  blockNumber: artifacts.require('$ERC20Votes'),
+  blocknumber: artifacts.require('$ERC20Votes'),
   timestamp: artifacts.require('$ERC20VotesTimestampMock'),
 };
 
@@ -39,9 +41,7 @@ contract('ERC20Votes', function (accounts) {
         this.token = await artifact.new(name, symbol, name);
       });
 
-      it('clock is correct', async function () {
-        expect(await this.token.clock()).to.be.bignumber.equal(await clock[mode]().then(web3.utils.toBN));
-      });
+      shouldBehaveLikeEIP6372(mode);
 
       it('initial nonce is 0', async function () {
         expect(await this.token.nonces(holder)).to.be.bignumber.equal('0');

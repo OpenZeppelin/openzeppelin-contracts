@@ -8,12 +8,12 @@ const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
-const ERC20VotesComp = artifacts.require('$ERC20VotesComp');
-
 const { batchInBlock } = require('../../../helpers/txpool');
 const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
 const { getChainId } = require('../../../helpers/chainid');
 const { clock, clockFromReceipt } = require('../../../helpers/time');
+
+const { shouldBehaveLikeEIP6372 } = require('../../../governance/utils/EIP6372.behavior');
 
 const Delegation = [
   { name: 'delegatee', type: 'address' },
@@ -22,7 +22,7 @@ const Delegation = [
 ];
 
 const MODES = {
-  blockNumber: artifacts.require('$ERC20VotesComp'),
+  blocknumber: artifacts.require('$ERC20VotesComp'),
   // no timestamp mode for ERC20VotesComp yet
 };
 
@@ -40,6 +40,8 @@ contract('ERC20VotesComp', function (accounts) {
         this.chainId = await getChainId();
         this.token = await artifact.new(name, symbol, name);
       });
+
+      shouldBehaveLikeEIP6372(mode);
 
       it('initial nonce is 0', async function () {
         expect(await this.token.nonces(holder)).to.be.bignumber.equal('0');

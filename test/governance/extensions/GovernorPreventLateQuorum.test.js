@@ -8,7 +8,7 @@ const Governor = artifacts.require('$GovernorPreventLateQuorumMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
 const TOKENS = [
-  { Token: artifacts.require('$ERC20Votes'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
   { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
 ];
 

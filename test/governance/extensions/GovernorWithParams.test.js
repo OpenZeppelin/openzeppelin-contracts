@@ -18,7 +18,7 @@ const rawParams = {
 const encodedParams = web3.eth.abi.encodeParameters(['uint256', 'string'], Object.values(rawParams));
 
 const TOKENS = [
-  { Token: artifacts.require('$ERC20Votes'), mode: 'blockNumber' },
+  { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
   { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
 ];
 

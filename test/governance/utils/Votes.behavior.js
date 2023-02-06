@@ -6,6 +6,8 @@ const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
+const { shouldBehaveLikeEIP6372 } = require('./EIP6372.behavior');
+
 const { EIP712Domain, domainSeparator } = require('../../helpers/eip712');
 const { clockFromReceipt } = require('../../helpers/time');
 
@@ -17,7 +19,9 @@ const Delegation = [
 
 const version = '1';
 
-function shouldBehaveLikeVotes(mode = 'blockNumber') {
+function shouldBehaveLikeVotes(mode = 'blocknumber') {
+  shouldBehaveLikeEIP6372(mode);
+
   describe('run votes workflow', function () {
     it('initial nonce is 0', async function () {
       expect(await this.votes.nonces(this.account1)).to.be.bignumber.equal('0');
