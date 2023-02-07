@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-interface ERC5267 {
+interface IERC5267 {
     /**
      * @dev MAY be emitted to signal that the domain could have changed.
      */

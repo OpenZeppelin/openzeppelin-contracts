@@ -46,7 +46,7 @@ function domainType(domain) {
   return EIP712Domain.filter(({ name }) => domain[name] !== undefined);
 }
 
-async function domainSeparator(domain) {
+function domainSeparator(domain) {
   return bufferToHexString(
     ethSigUtil.TypedDataUtils.hashStruct('EIP712Domain', domain, { EIP712Domain: domainType(domain) }),
   );

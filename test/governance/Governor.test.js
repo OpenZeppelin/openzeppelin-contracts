@@ -20,7 +20,6 @@ contract('Governor', function (accounts) {
   const empty = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
 
   const name = 'OZ-Governor';
-  // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');

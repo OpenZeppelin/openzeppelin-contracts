@@ -22,7 +22,6 @@ contract('GovernorWithParams', function (accounts) {
   const [owner, proposer, voter1, voter2, voter3, voter4] = accounts;
 
   const name = 'OZ-Governor';
-  // const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
