@@ -19,7 +19,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
 
     // Kept as bytes12 so it can be packed with an address
     // Equal to 0xb125e89df18e2ceac5fd2fa8
-    bytes12 private constant _WRAPPER_ACCEPT_MAGIC = bytes12(keccak256("WRAPPER_ACCEPT_MAGIC"));
+    bytes12 private constant WRAPPER_ACCEPT_MAGIC = bytes12(keccak256("WRAPPER_ACCEPT_MAGIC"));
 
     constructor(IERC721 underlyingToken) {
         _underlying = underlyingToken;
@@ -29,7 +29,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * @dev Allow a user to deposit underlying tokens and mint the corresponding tokenIds.
      */
     function depositFor(address account, uint256[] memory tokenIds) public virtual returns (bool) {
-        bytes memory data = abi.encodePacked(_WRAPPER_ACCEPT_MAGIC, account);
+        bytes memory data = abi.encodePacked(WRAPPER_ACCEPT_MAGIC, account);
 
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
@@ -62,7 +62,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * this contract.
      *
      * In case there's data attached, it validates that the sender is aware of this contract's existence and behavior
-     * by checking a magic value (`_WRAPPER_ACCEPT_MAGIC`) in the first 12 bytes. If it also matches, the rest 20
+     * by checking a magic value (`WRAPPER_ACCEPT_MAGIC`) in the first 12 bytes. If it also matches, the rest 20
      * bytes are used as an address to send the tokens to.
      *
      * WARNING: Doesn't work with unsafe transfers (eg. {IERC721-transferFrom}). Use {ERC721Wrapper-_recover}
@@ -75,7 +75,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
         bytes memory data
     ) public override returns (bytes4) {
         require(address(underlying()) == _msgSender(), "ERC721Wrapper: caller is not underlying");
-        if (data.length == 32 && _WRAPPER_ACCEPT_MAGIC == bytes12(data)) {
+        if (data.length == 32 && WRAPPER_ACCEPT_MAGIC == bytes12(data)) {
             from = address(bytes20(bytes32(data) << 96));
         }
         _safeMint(from, tokenId);
