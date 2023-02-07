@@ -5,7 +5,7 @@ pragma solidity ^0.8.8;
 
 import "./ECDSA.sol";
 import "../ShortStrings.sol";
-import "../../interfaces/ERC5267.sol";
+import "../../interfaces/IERC5267.sol";
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-712[EIP 712] is a standard for hashing and signing of typed structured data.
@@ -24,9 +24,15 @@ import "../../interfaces/ERC5267.sol";
  * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
  * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
  *
+ * NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
+ * separator of the implementation contract. This will cause the `_domainSeparatorV4` function to always rebuild the
+ * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
+ *
  * _Available since v3.4._
+ *
+ * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
  */
-abstract contract EIP712 is ERC5267 {
+abstract contract EIP712 is IERC5267 {
     using ShortStrings for *;
 
     /* solhint-disable var-name-mixedcase */
@@ -38,7 +44,7 @@ abstract contract EIP712 is ERC5267 {
 
     bytes32 private immutable _HASHED_NAME;
     bytes32 private immutable _HASHED_VERSION;
-    bytes32 private immutable _TYPE_HASH =
+    bytes32 private constant _TYPE_HASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
     ShortString private immutable _NAME;
