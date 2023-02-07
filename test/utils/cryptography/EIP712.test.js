@@ -40,9 +40,7 @@ contract('EIP712', function (accounts) {
 
   it('hash digest', async function () {
     const structhash = web3.utils.randomHex(32);
-    const expected = await hashTypedData(this.domain, structhash);
-
-    expect(await this.eip712.$_hashTypedDataV4(structhash)).to.be.equal(expected);
+    expect(await this.eip712.$_hashTypedDataV4(structhash)).to.be.equal(hashTypedData(this.domain, structhash));
   });
 
   it('digest', async function () {
