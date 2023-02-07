@@ -1,5 +1,10 @@
 # Changelog
 
+### Breaking changes
+
+- `ERC712`: Addition of ERC5267 support requires UDVT support, which was released in solidity version 0.8.8. This requires a pragma change from `^0.8.0` to `^0.8.8`.
+- `ERC712`: Optimisation of the cache for the upgradeable version affects the way `name` and `version` are set. This is no longer done through an initializer, and is instead part of the implementation's constructor. As a consequence, all proxies using the same implementation will necessarily share the same `name` and `version`. Additionnaly, an implementation upgrade risks changing the EIP712 domain unless the same `name` and `version` are used when deploying the new implementation contract.
+
 ### Deprecations
 
 - `ERC20Permit`: Added the file `IERC20Permit.sol` and `ERC20Permit.sol` and deprecated `draft-IERC20Permit.sol` and `draft-ERC20Permit.sol` since [EIP-2612](https://eips.ethereum.org/EIPS/eip-2612) is no longer a Draft. Developers are encouraged to update their imports. ([#3793](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3793))
