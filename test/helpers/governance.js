@@ -62,14 +62,19 @@ class GovernorHelper {
         );
   }
 
-  cancel(opts = null) {
+  cancel(visibility = 'external', opts = null) {
     const proposal = this.currentProposal;
 
-    return proposal.useCompatibilityInterface
-      ? this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts))
-      : this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
+    switch (visibility) {
+      case 'external':
+        return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
+      case 'internal':
+        return this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
           ...concatOpts(proposal.shortProposal, opts),
         );
+      default:
+        throw new Error(`unsuported visibility "${visibility}"`);
+    }
   }
 
   vote(vote = {}, opts = null) {
@@ -79,7 +84,7 @@ class GovernorHelper {
       ? // if signature, and either params or reason →
         vote.params || vote.reason
         ? vote
-            .signature({
+            .signature(this.governor, {
               proposalId: proposal.id,
               support: vote.support,
               reason: vote.reason || '',
@@ -91,7 +96,7 @@ class GovernorHelper {
               ),
             )
         : vote
-            .signature({
+            .signature(this.governor, {
               proposalId: proposal.id,
               support: vote.support,
             })

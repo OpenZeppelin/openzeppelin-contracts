@@ -13,8 +13,6 @@ import "../../utils/StorageSlot.sol";
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967] slots.
  *
  * _Available since v4.1._
- *
- * @custom:oz-upgrades-unsafe-allow delegatecall
  */
 abstract contract ERC1967Upgrade {
     // This is the keccak-256 hash of "eip1967.proxy.rollback" subtracted by 1

@@ -72,6 +72,7 @@ module.exports = {
         runs: 200,
       },
       viaIR: withOptimizations && argv.ir,
+      outputSelection: { '*': { '*': ['storageLayout'] } },
     },
   },
   warnings: {

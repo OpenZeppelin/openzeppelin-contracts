@@ -101,6 +101,10 @@ library ERC165Checker {
      * @dev Assumes that account contains a contract that supports ERC165, otherwise
      * the behavior of this method is undefined. This precondition can be checked
      * with {supportsERC165}.
+     *
+     * Some precompiled contracts will falsely indicate support for a given interface, so caution
+     * should be exercised when using this function.
+     *
      * Interface identification is specified in ERC-165.
      */
     function supportsERC165InterfaceUnchecked(address account, bytes4 interfaceId) internal view returns (bool) {

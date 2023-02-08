@@ -106,6 +106,8 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 {{Strings}}
 
+{{ShortStrings}}
+
 {{StorageSlot}}
 
 {{Multicall}}
