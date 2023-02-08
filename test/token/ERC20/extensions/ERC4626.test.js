@@ -49,13 +49,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.deposit(parseToken(1), recipient, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
         to: this.vault.address,
         value: parseToken(1),
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: recipient,
         value: parseShare(1),
@@ -68,13 +68,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.mint(parseShare(1), recipient, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
         to: this.vault.address,
         value: parseToken(1),
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: recipient,
         value: parseShare(1),
@@ -87,13 +87,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.withdraw('0', recipient, holder, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: recipient,
         value: '0',
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: holder,
         to: constants.ZERO_ADDRESS,
         value: '0',
@@ -106,13 +106,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.redeem('0', recipient, holder, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: recipient,
         value: '0',
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: holder,
         to: constants.ZERO_ADDRESS,
         value: '0',
@@ -135,13 +135,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.deposit(parseToken(1), recipient, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
         to: this.vault.address,
         value: parseToken(1),
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: recipient,
         value: parseShare(1),
@@ -154,13 +154,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.mint(parseShare(1), recipient, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
         to: this.vault.address,
         value: parseToken(1),
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: recipient,
         value: parseShare(1),
@@ -173,13 +173,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.withdraw('0', recipient, holder, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: recipient,
         value: '0',
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: holder,
         to: constants.ZERO_ADDRESS,
         value: '0',
@@ -192,13 +192,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.redeem('0', recipient, holder, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: recipient,
         value: '0',
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: holder,
         to: constants.ZERO_ADDRESS,
         value: '0',
@@ -221,13 +221,13 @@ contract('ERC4626', function (accounts) {
       // Can deposit 0 (max deposit)
       const { tx } = await this.vault.deposit(0, recipient, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
         to: this.vault.address,
         value: 0,
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: recipient,
         value: 0,
@@ -247,13 +247,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.mint(parseShare(1), recipient, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
         to: this.vault.address,
         value: '0',
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: recipient,
         value: parseShare(1),
@@ -267,13 +267,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.withdraw('0', recipient, holder, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: recipient,
         value: '0',
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: holder,
         to: constants.ZERO_ADDRESS,
         value: '0',
@@ -286,13 +286,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.redeem(parseShare(1), recipient, holder, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: recipient,
         value: '0',
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: holder,
         to: constants.ZERO_ADDRESS,
         value: parseShare(1),
@@ -316,13 +316,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.deposit(parseToken(1), recipient, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
         to: this.vault.address,
         value: parseToken(1),
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: recipient,
         value: parseShare(100),
@@ -335,13 +335,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.mint(parseShare(1), recipient, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
         to: this.vault.address,
         value: parseToken(1).divn(100),
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: recipient,
         value: parseShare(1),
@@ -354,13 +354,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.withdraw(parseToken(1), recipient, holder, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: recipient,
         value: parseToken(1),
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: holder,
         to: constants.ZERO_ADDRESS,
         value: parseShare(100),
@@ -382,13 +382,13 @@ contract('ERC4626', function (accounts) {
 
       const { tx } = await this.vault.redeem(parseShare(100), recipient, holder, { from: holder });
 
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: recipient,
         value: parseToken(1),
       });
 
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: holder,
         to: constants.ZERO_ADDRESS,
         value: parseShare(100),
@@ -420,12 +420,12 @@ contract('ERC4626', function (accounts) {
     // 1. Alice mints 2000 shares (costs 2000 tokens)
     {
       const { tx } = await this.vault.mint(2000, user1, { from: user1 });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: user1,
         to: this.vault.address,
         value: '2000',
       });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: user1,
         value: '2000',
@@ -443,12 +443,12 @@ contract('ERC4626', function (accounts) {
     // 2. Bob deposits 4000 tokens (mints 4000 shares)
     {
       const { tx } = await this.vault.mint(4000, user2, { from: user2 });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: user2,
         to: this.vault.address,
         value: '4000',
       });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: user2,
         value: '4000',
@@ -476,12 +476,12 @@ contract('ERC4626', function (accounts) {
     // 4. Alice deposits 2000 tokens (mints 1333 shares)
     {
       const { tx } = await this.vault.deposit(2000, user1, { from: user1 });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: user1,
         to: this.vault.address,
         value: '2000',
       });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: user1,
         value: '1333',
@@ -500,12 +500,12 @@ contract('ERC4626', function (accounts) {
     // NOTE: Alices's vault assets got rounded up
     {
       const { tx } = await this.vault.mint(2000, user2, { from: user2 });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: user2,
         to: this.vault.address,
         value: '3001',
       });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: user2,
         value: '2000',
@@ -533,12 +533,12 @@ contract('ERC4626', function (accounts) {
     // 7. Alice redeem 1333 shares (2428 assets)
     {
       const { tx } = await this.vault.redeem(1333, user1, user1, { from: user1 });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: user1,
         to: constants.ZERO_ADDRESS,
         value: '1333',
       });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: user1,
         value: '2428',
@@ -555,12 +555,12 @@ contract('ERC4626', function (accounts) {
     // 8. Bob withdraws 2929 assets (1608 shares)
     {
       const { tx } = await this.vault.withdraw(2929, user2, user2, { from: user2 });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: user2,
         to: constants.ZERO_ADDRESS,
         value: '1608',
       });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: user2,
         value: '2929',
@@ -578,12 +578,12 @@ contract('ERC4626', function (accounts) {
     // NOTE: Bob's assets have been rounded back up
     {
       const { tx } = await this.vault.withdraw(3643, user1, user1, { from: user1 });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: user1,
         to: constants.ZERO_ADDRESS,
         value: '2000',
       });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: user1,
         value: '3643',
@@ -600,12 +600,12 @@ contract('ERC4626', function (accounts) {
     // 10. Bob redeem 4392 shares (8001 tokens)
     {
       const { tx } = await this.vault.redeem(4392, user2, user2, { from: user2 });
-      expectEvent.inTransaction(tx, this.vault, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: user2,
         to: constants.ZERO_ADDRESS,
         value: '4392',
       });
-      expectEvent.inTransaction(tx, this.token, 'Transfer', {
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: this.vault.address,
         to: user2,
         value: '8001',
