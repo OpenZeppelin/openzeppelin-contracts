@@ -75,7 +75,8 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
         bytes memory data
     ) public override returns (bytes4) {
         require(address(underlying()) == _msgSender(), "ERC721Wrapper: caller is not underlying");
-        if (data.length == 32 && WRAPPER_ACCEPT_MAGIC == bytes12(data)) {
+        if (data.length > 0) {
+            require(data.length == 32 && WRAPPER_ACCEPT_MAGIC == bytes12(data), "ERC721Wrapper: Invalid data format");
             from = address(bytes20(bytes32(data) << 96));
         }
         _safeMint(from, tokenId);

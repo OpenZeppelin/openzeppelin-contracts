@@ -234,43 +234,6 @@ contract('ERC721Wrapper', function (accounts) {
         },
       );
 
-    it('mints a token to sender with arbitrary data', async function () {
-      // `safeTransferFrom` guarantees `onERC721Received` check
-      const { tx } = await this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
-        initialHolder,
-        this.token.address,
-        firstTokenId,
-        '0x0123',
-        {
-          from: initialHolder,
-        },
-      );
-
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: initialHolder,
-        tokenId: firstTokenId,
-      });
-    });
-
-    it('mints token to specific holder with address after magic value', async function () {
-      const { tx } = await this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
-        initialHolder,
-        this.token.address,
-        firstTokenId,
-        magicWithAddresss(anotherAccount),
-        {
-          from: initialHolder,
-        },
-      );
-
-      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-        from: constants.ZERO_ADDRESS,
-        to: anotherAccount,
-        tokenId: firstTokenId,
-      });
-    });
-
     it('only allows calls from underlying', async function () {
       await expectRevert(
         this.token.onERC721Received(
@@ -282,6 +245,68 @@ contract('ERC721Wrapper', function (accounts) {
         ),
         'ERC721Wrapper: caller is not underlying',
       );
+    });
+
+    describe('when data length is > 0', function () {
+      it('reverts with arbitrary data', async function () {
+        await expectRevert(
+          this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
+            initialHolder,
+            this.token.address,
+            firstTokenId,
+            '0x0123',
+            {
+              from: initialHolder,
+            },
+          ),
+          'ERC721Wrapper: Invalid data format',
+        );
+      });
+
+      it('reverts with the magic value and data length different to 32', async function () {
+        await expectRevert(
+          this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
+            initialHolder,
+            this.token.address,
+            firstTokenId,
+            WRAPPER_ACCEPT_MAGIC, // Reverts for any non-32 bytes value
+            {
+              from: initialHolder,
+            },
+          ),
+          'ERC721Wrapper: Invalid data format',
+        );
+      });
+
+      it('mints token to specific holder with address after magic value', async function () {
+        const { tx } = await this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
+          initialHolder,
+          this.token.address,
+          firstTokenId,
+          magicWithAddresss(anotherAccount),
+          {
+            from: initialHolder,
+          },
+        );
+
+        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+          from: constants.ZERO_ADDRESS,
+          to: anotherAccount,
+          tokenId: firstTokenId,
+        });
+      });
+    });
+
+    it('mints a token to from if no data is specified', async function () {
+      const { tx } = await this.underlying.safeTransferFrom(initialHolder, this.token.address, firstTokenId, {
+        from: initialHolder,
+      });
+
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: constants.ZERO_ADDRESS,
+        to: initialHolder,
+        tokenId: firstTokenId,
+      });
     });
   });
 
