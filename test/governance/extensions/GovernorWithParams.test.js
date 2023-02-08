@@ -4,7 +4,7 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { fromRpcSig } = require('ethereumjs-util');
 const Enums = require('../../helpers/enums');
-const { EIP712Domain } = require('../../helpers/eip712');
+const { getDomain, domainType } = require('../../helpers/eip712');
 const { GovernorHelper } = require('../../helpers/governance');
 
 const Token = artifacts.require('$ERC20VotesComp');
@@ -22,7 +22,6 @@ contract('GovernorWithParams', function (accounts) {
   const [owner, proposer, voter1, voter2, voter3, voter4] = accounts;
 
   const name = 'OZ-Governor';
-  const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
@@ -116,26 +115,24 @@ contract('GovernorWithParams', function (accounts) {
     const voterBySig = Wallet.generate();
     const voterBySigAddress = web3.utils.toChecksumAddress(voterBySig.getAddressString());
 
-    const signature = async message => {
-      return fromRpcSig(
-        ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), {
-          data: {
-            types: {
-              EIP712Domain,
-              ExtendedBallot: [
-                { name: 'proposalId', type: 'uint256' },
-                { name: 'support', type: 'uint8' },
-                { name: 'reason', type: 'string' },
-                { name: 'params', type: 'bytes' },
-              ],
-            },
-            domain: { name, version, chainId: this.chainId, verifyingContract: this.mock.address },
-            primaryType: 'ExtendedBallot',
-            message,
+    const signature = (contract, message) =>
+      getDomain(contract)
+        .then(domain => ({
+          primaryType: 'ExtendedBallot',
+          types: {
+            EIP712Domain: domainType(domain),
+            ExtendedBallot: [
+              { name: 'proposalId', type: 'uint256' },
+              { name: 'support', type: 'uint8' },
+              { name: 'reason', type: 'string' },
+              { name: 'params', type: 'bytes' },
+            ],
           },
-        }),
-      );
-    };
+          domain,
+          message,
+        }))
+        .then(data => ethSigUtil.signTypedMessage(voterBySig.getPrivateKey(), { data }))
+        .then(fromRpcSig);
 
     await this.token.delegate(voterBySigAddress, { from: voter2 });
 
