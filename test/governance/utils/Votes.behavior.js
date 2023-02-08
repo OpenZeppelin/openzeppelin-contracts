@@ -21,7 +21,7 @@ function shouldBehaveLikeVotes() {
     });
 
     it('domain separator', async function () {
-      expect(await this.votes.DOMAIN_SEPARATOR()).to.equal(await getDomain(this.votes).then(domainSeparator));
+      expect(await this.votes.DOMAIN_SEPARATOR()).to.equal(domainSeparator(await getDomain(this.votes)));
     });
 
     describe('delegation with signature', function () {
