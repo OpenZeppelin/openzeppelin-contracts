@@ -224,13 +224,13 @@ contract('ERC4626', function (accounts) {
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: holder,
         to: this.vault.address,
-        value: 0,
+        value: '0',
       });
 
       await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
         from: constants.ZERO_ADDRESS,
         to: recipient,
-        value: 0,
+        value: '0',
       });
 
       // Cannot deposit more than 0
