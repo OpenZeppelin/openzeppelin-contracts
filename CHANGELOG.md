@@ -2,8 +2,8 @@
 
 ### Breaking changes
 
-- `ERC712`: Addition of ERC5267 support requires UDVT support, which was released in solidity version 0.8.8. This requires a pragma change from `^0.8.0` to `^0.8.8`.
-- `ERC712`: Optimisation of the cache for the upgradeable version affects the way `name` and `version` are set. This is no longer done through an initializer, and is instead part of the implementation's constructor. As a consequence, all proxies using the same implementation will necessarily share the same `name` and `version`. Additionally, an implementation upgrade risks changing the EIP712 domain unless the same `name` and `version` are used when deploying the new implementation contract.
+- `EIP712`: Addition of ERC5267 support requires support for user defined value types, which was released in Solidity version 0.8.8. This requires a pragma change from `^0.8.0` to `^0.8.8`.
+- `EIP712`: Optimization of the cache for the upgradeable version affects the way `name` and `version` are set. This is no longer done through an initializer, and is instead part of the implementation's constructor. As a consequence, all proxies using the same implementation will necessarily share the same `name` and `version`. Additionally, an implementation upgrade risks changing the EIP712 domain unless the same `name` and `version` are used when deploying the new implementation contract.
 
 ### Deprecations
 
