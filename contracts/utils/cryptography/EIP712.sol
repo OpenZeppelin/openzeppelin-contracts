@@ -35,22 +35,23 @@ import "../../interfaces/IERC5267.sol";
 abstract contract EIP712 is IERC5267 {
     using ShortStrings for *;
 
-    /* solhint-disable var-name-mixedcase */
-    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
-    // invalidate the cached domain separator if the chain id changes.
-    bytes32 private immutable _CACHED_DOMAIN_SEPARATOR;
-    uint256 private immutable _CACHED_CHAIN_ID;
-    address private immutable _CACHED_THIS;
-
-    bytes32 private immutable _HASHED_NAME;
-    bytes32 private immutable _HASHED_VERSION;
     bytes32 private constant _TYPE_HASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
-    ShortString private immutable _NAME;
-    ShortString private immutable _VERSION;
-    string private _NAME_FALLBACK;
-    string private _VERSION_FALLBACK;
+    /* solhint-disable var-name-mixedcase */
+    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
+    // invalidate the cached domain separator if the chain id changes.
+    bytes32 private immutable _cachedDomainSeparator;
+    uint256 private immutable _cachedChainId;
+    address private immutable _cachedThis;
+
+    ShortString private immutable _name;
+    ShortString private immutable _version;
+    string private _nameFallback;
+    string private _versionFallback;
+
+    bytes32 private immutable _hashedName;
+    bytes32 private immutable _hashedVersion;
 
     /* solhint-enable var-name-mixedcase */
 
@@ -67,29 +68,29 @@ abstract contract EIP712 is IERC5267 {
      * contract upgrade].
      */
     constructor(string memory name, string memory version) {
-        _NAME = name.toShortStringWithFallback(_NAME_FALLBACK);
-        _VERSION = version.toShortStringWithFallback(_VERSION_FALLBACK);
+        _name = name.toShortStringWithFallback(_nameFallback);
+        _version = version.toShortStringWithFallback(_versionFallback);
+        _hashedName = keccak256(bytes(name));
+        _hashedVersion = keccak256(bytes(version));
 
-        _HASHED_NAME = keccak256(bytes(name));
-        _HASHED_VERSION = keccak256(bytes(version));
-        _CACHED_CHAIN_ID = block.chainid;
-        _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator();
-        _CACHED_THIS = address(this);
+        _cachedChainId = block.chainid;
+        _cachedDomainSeparator = _buildDomainSeparator();
+        _cachedThis = address(this);
     }
 
     /**
      * @dev Returns the domain separator for the current chain.
      */
     function _domainSeparatorV4() internal view returns (bytes32) {
-        if (address(this) == _CACHED_THIS && block.chainid == _CACHED_CHAIN_ID) {
-            return _CACHED_DOMAIN_SEPARATOR;
+        if (address(this) == _cachedThis && block.chainid == _cachedChainId) {
+            return _cachedDomainSeparator;
         } else {
             return _buildDomainSeparator();
         }
     }
 
     function _buildDomainSeparator() private view returns (bytes32) {
-        return keccak256(abi.encode(_TYPE_HASH, _HASHED_NAME, _HASHED_VERSION, block.chainid, address(this)));
+        return keccak256(abi.encode(_TYPE_HASH, _hashedName, _hashedVersion, block.chainid, address(this)));
     }
 
     /**
@@ -131,8 +132,8 @@ abstract contract EIP712 is IERC5267 {
     {
         return (
             hex"0f", // 01111
-            _NAME.toStringWithFallback(_NAME_FALLBACK),
-            _VERSION.toStringWithFallback(_VERSION_FALLBACK),
+            _name.toStringWithFallback(_nameFallback),
+            _version.toStringWithFallback(_versionFallback),
             block.chainid,
             address(this),
             bytes32(0),
