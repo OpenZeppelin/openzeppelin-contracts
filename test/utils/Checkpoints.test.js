@@ -201,6 +201,27 @@ contract('Checkpoints', function () {
             expect(await upperLookupRecent(this.mock, i)).to.be.bignumber.equal(value);
           }
         });
+
+        it('upperLookupRecent with more than 5 checkpoints', async function () {
+          const moreCheckpoints = [
+            { key: '12', value: '22' },
+            { key: '13', value: '131' },
+            { key: '17', value: '45' },
+            { key: '19', value: '31452' },
+            { key: '21', value: '0' },
+          ];
+          const allCheckpoints = [].concat(this.checkpoints, moreCheckpoints);
+
+          for (const { key, value } of moreCheckpoints) {
+            await push(this.mock, key, value);
+          }
+
+          for (let i = 0; i < 25; ++i) {
+            const value = last(allCheckpoints.filter(x => i >= x.key))?.value || '0';
+            expect(await upperLookup(this.mock, i)).to.be.bignumber.equal(value);
+            expect(await upperLookupRecent(this.mock, i)).to.be.bignumber.equal(value);
+          }
+        });
       });
     });
   }
