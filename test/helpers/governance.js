@@ -15,7 +15,7 @@ function concatOpts(args, opts = null) {
 }
 
 class GovernorHelper {
-  constructor(governor, mode = 'blockNumber') {
+  constructor(governor, mode = 'blocknumber') {
     this.governor = governor;
     this.mode = mode;
   }
