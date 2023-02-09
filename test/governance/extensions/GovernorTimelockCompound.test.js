@@ -270,7 +270,7 @@ contract('GovernorTimelockCompound', function (accounts) {
             expect(await this.token.balanceOf(this.mock.address), 0);
             expect(await this.token.balanceOf(other), 1);
 
-            expectEvent.inTransaction(txExecute.tx, this.token, 'Transfer', {
+            await expectEvent.inTransaction(txExecute.tx, this.token, 'Transfer', {
               from: this.mock.address,
               to: other,
               value: '1',

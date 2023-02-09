@@ -9,8 +9,7 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 const { batchInBlock } = require('../../../helpers/txpool');
-const { EIP712Domain, domainSeparator } = require('../../../helpers/eip712');
-const { getChainId } = require('../../../helpers/chainid');
+const { getDomain, domainType, domainSeparator } = require('../../../helpers/eip712');
 const { clock, clockFromReceipt } = require('../../../helpers/time');
 
 const { shouldBehaveLikeEIP6372 } = require('../../../governance/utils/EIP6372.behavior');
@@ -31,13 +30,11 @@ contract('ERC20Votes', function (accounts) {
 
   const name = 'My Token';
   const symbol = 'MTKN';
-  const version = '1';
   const supply = new BN('10000000000000000000000000');
 
   for (const [mode, artifact] of Object.entries(MODES)) {
     describe(`vote with ${mode}`, function () {
       beforeEach(async function () {
-        this.chainId = await getChainId();
         this.token = await artifact.new(name, symbol, name);
       });
 
@@ -48,9 +45,7 @@ contract('ERC20Votes', function (accounts) {
       });
 
       it('domain separator', async function () {
-        expect(await this.token.DOMAIN_SEPARATOR()).to.equal(
-          await domainSeparator({ name, version, chainId: this.chainId, verifyingContract: this.token.address }),
-        );
+        expect(await this.token.DOMAIN_SEPARATOR()).to.equal(await getDomain(this.token).then(domainSeparator));
       });
 
       it('minting restriction', async function () {
@@ -119,30 +114,24 @@ contract('ERC20Votes', function (accounts) {
           const delegatorAddress = web3.utils.toChecksumAddress(delegator.getAddressString());
           const nonce = 0;
 
-          const buildData = (chainId, verifyingContract, message) => ({
-            data: {
+          const buildData = (contract, message) =>
+            getDomain(contract).then(domain => ({
               primaryType: 'Delegation',
-              types: { EIP712Domain, Delegation },
-              domain: { name, version, chainId, verifyingContract },
+              types: { EIP712Domain: domainType(domain), Delegation },
+              domain,
               message,
-            },
-          });
+            }));
 
           beforeEach(async function () {
             await this.token.$_mint(delegatorAddress, supply);
           });
 
           it('accept signed delegation', async function () {
-            const { v, r, s } = fromRpcSig(
-              ethSigUtil.signTypedMessage(
-                delegator.getPrivateKey(),
-                buildData(this.chainId, this.token.address, {
-                  delegatee: delegatorAddress,
-                  nonce,
-                  expiry: MAX_UINT256,
-                }),
-              ),
-            );
+            const { v, r, s } = await buildData(this.token, {
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }).then(data => fromRpcSig(ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data })));
 
             expect(await this.token.delegates(delegatorAddress)).to.be.equal(ZERO_ADDRESS);
 
@@ -169,16 +158,11 @@ contract('ERC20Votes', function (accounts) {
           });
 
           it('rejects reused signature', async function () {
-            const { v, r, s } = fromRpcSig(
-              ethSigUtil.signTypedMessage(
-                delegator.getPrivateKey(),
-                buildData(this.chainId, this.token.address, {
-                  delegatee: delegatorAddress,
-                  nonce,
-                  expiry: MAX_UINT256,
-                }),
-              ),
-            );
+            const { v, r, s } = await buildData(this.token, {
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }).then(data => fromRpcSig(ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data })));
 
             await this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
 
@@ -189,16 +173,11 @@ contract('ERC20Votes', function (accounts) {
           });
 
           it('rejects bad delegatee', async function () {
-            const { v, r, s } = fromRpcSig(
-              ethSigUtil.signTypedMessage(
-                delegator.getPrivateKey(),
-                buildData(this.chainId, this.token.address, {
-                  delegatee: delegatorAddress,
-                  nonce,
-                  expiry: MAX_UINT256,
-                }),
-              ),
-            );
+            const { v, r, s } = await buildData(this.token, {
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }).then(data => fromRpcSig(ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data })));
 
             const receipt = await this.token.delegateBySig(holderDelegatee, nonce, MAX_UINT256, v, r, s);
             const { args } = receipt.logs.find(({ event }) => event == 'DelegateChanged');
@@ -208,16 +187,12 @@ contract('ERC20Votes', function (accounts) {
           });
 
           it('rejects bad nonce', async function () {
-            const { v, r, s } = fromRpcSig(
-              ethSigUtil.signTypedMessage(
-                delegator.getPrivateKey(),
-                buildData(this.chainId, this.token.address, {
-                  delegatee: delegatorAddress,
-                  nonce,
-                  expiry: MAX_UINT256,
-                }),
-              ),
-            );
+            const { v, r, s } = await buildData(this.token, {
+              delegatee: delegatorAddress,
+              nonce,
+              expiry: MAX_UINT256,
+            }).then(data => fromRpcSig(ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data })));
+
             await expectRevert(
               this.token.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
               'ERC20Votes: invalid nonce',
@@ -226,16 +201,11 @@ contract('ERC20Votes', function (accounts) {
 
           it('rejects expired permit', async function () {
             const expiry = (await time.latest()) - time.duration.weeks(1);
-            const { v, r, s } = fromRpcSig(
-              ethSigUtil.signTypedMessage(
-                delegator.getPrivateKey(),
-                buildData(this.chainId, this.token.address, {
-                  delegatee: delegatorAddress,
-                  nonce,
-                  expiry,
-                }),
-              ),
-            );
+            const { v, r, s } = await buildData(this.token, {
+              delegatee: delegatorAddress,
+              nonce,
+              expiry,
+            }).then(data => fromRpcSig(ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data })));
 
             await expectRevert(
               this.token.delegateBySig(delegatorAddress, nonce, expiry, v, r, s),
