@@ -196,10 +196,20 @@ contract('ERC721Wrapper', function (accounts) {
         to: initialHolder,
         tokenId: firstTokenId,
       });
+      await expectEvent.inTransaction(tx, this.underlying, 'Transfer', {
+        from: this.token.address,
+        to: initialHolder,
+        tokenId: secondTokenId,
+      });
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: initialHolder,
         to: constants.ZERO_ADDRESS,
         tokenId: firstTokenId,
+      });
+      await expectEvent.inTransaction(tx, this.token, 'Transfer', {
+        from: initialHolder,
+        to: constants.ZERO_ADDRESS,
+        tokenId: secondTokenId,
       });
     });
 
