@@ -6,7 +6,6 @@ const { expect } = require('chai');
 const { getChainId } = require('../../../helpers/chainid');
 
 const { shouldBehaveLikeVotes } = require('../../../governance/utils/Votes.behavior');
-const { shouldBehaveLikeEIP6372 } = require('../../../governance/utils/EIP6372.behavior');
 
 const ERC721Votes = artifacts.require('$ERC721Votes');
 
