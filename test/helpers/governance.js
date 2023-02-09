@@ -1,4 +1,4 @@
-const { time } = require('@openzeppelin/test-helpers');
+const { forward } = require('../helpers/time');
 
 function zip(...args) {
   return Array(Math.max(...args.map(array => array.length)))
@@ -15,8 +15,9 @@ function concatOpts(args, opts = null) {
 }
 
 class GovernorHelper {
-  constructor(governor) {
+  constructor(governor, mode = 'blocknumber') {
     this.governor = governor;
+    this.mode = mode;
   }
 
   delegate(delegation = {}, opts = null) {
@@ -116,21 +117,17 @@ class GovernorHelper {
 
   waitForSnapshot(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor
-      .proposalSnapshot(proposal.id)
-      .then(blockNumber => time.advanceBlockTo(blockNumber.addn(offset)));
+    return this.governor.proposalSnapshot(proposal.id).then(timepoint => forward[this.mode](timepoint.addn(offset)));
   }
 
   waitForDeadline(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor
-      .proposalDeadline(proposal.id)
-      .then(blockNumber => time.advanceBlockTo(blockNumber.addn(offset)));
+    return this.governor.proposalDeadline(proposal.id).then(timepoint => forward[this.mode](timepoint.addn(offset)));
   }
 
   waitForEta(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor.proposalEta(proposal.id).then(timestamp => time.increaseTo(timestamp.addn(offset)));
+    return this.governor.proposalEta(proposal.id).then(timestamp => forward.timestamp(timestamp.addn(offset)));
   }
 
   /**

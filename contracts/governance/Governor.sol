@@ -12,7 +12,6 @@ import "../utils/math/SafeCast.sol";
 import "../utils/structs/DoubleEndedQueue.sol";
 import "../utils/Address.sol";
 import "../utils/Context.sol";
-import "../utils/Timers.sol";
 import "./IGovernor.sol";
 
 /**
@@ -29,22 +28,29 @@ import "./IGovernor.sol";
 abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
     using SafeCast for uint256;
-    using Timers for Timers.BlockNumber;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
     bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
         keccak256("ExtendedBallot(uint256 proposalId,uint8 support,string reason,bytes params)");
 
+    // solhint-disable var-name-mixedcase
     struct ProposalCore {
-        Timers.BlockNumber voteStart;
-        Timers.BlockNumber voteEnd;
+        // --- start retyped from Timers.BlockNumber at offset 0x00 ---
+        uint64 voteStart;
+        address proposer;
+        bytes4 __gap_unused0;
+        // --- start retyped from Timers.BlockNumber at offset 0x20 ---
+        uint64 voteEnd;
+        bytes24 __gap_unused1;
+        // --- Remaining fields starting at offset 0x40 ---------------
         bool executed;
         bool canceled;
-        address proposer;
     }
+    // solhint-enable var-name-mixedcase
 
     string private _name;
 
+    /// @custom:oz-retyped-from mapping(uint256 => Governor.ProposalCore)
     mapping(uint256 => ProposalCore) private _proposals;
 
     // This queue keeps track of the governor operating on itself. Calls to functions protected by the
@@ -96,12 +102,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return
             interfaceId ==
             (type(IGovernor).interfaceId ^
+                type(IERC6372).interfaceId ^
                 this.cancel.selector ^
                 this.castVoteWithReasonAndParams.selector ^
                 this.castVoteWithReasonAndParamsBySig.selector ^
                 this.getVotesWithParams.selector) ||
-            interfaceId == (type(IGovernor).interfaceId ^ this.cancel.selector) ||
-            interfaceId == type(IGovernor).interfaceId ||
+            // Previous interface for backwards compatibility
+            interfaceId == (type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ this.cancel.selector) ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
     }
@@ -162,13 +169,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             revert("Governor: unknown proposal id");
         }
 
-        if (snapshot >= block.number) {
+        uint256 currentTimepoint = clock();
+
+        if (snapshot >= currentTimepoint) {
             return ProposalState.Pending;
         }
 
         uint256 deadline = proposalDeadline(proposalId);
 
-        if (deadline >= block.number) {
+        if (deadline >= currentTimepoint) {
             return ProposalState.Active;
         }
 
@@ -180,24 +189,31 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
+     * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
+     */
+    function proposalThreshold() public view virtual returns (uint256) {
+        return 0;
+    }
+
+    /**
      * @dev See {IGovernor-proposalSnapshot}.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].voteStart.getDeadline();
+        return _proposals[proposalId].voteStart;
     }
 
     /**
      * @dev See {IGovernor-proposalDeadline}.
      */
     function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].voteEnd.getDeadline();
+        return _proposals[proposalId].voteEnd;
     }
 
     /**
-     * @dev Part of the Governor Bravo's interface: _"The number of votes required in order for a voter to become a proposer"_.
+     * @dev Address of the proposer
      */
-    function proposalThreshold() public view virtual returns (uint256) {
-        return 0;
+    function _proposalProposer(uint256 proposalId) internal view virtual returns (address) {
+        return _proposals[proposalId].proposer;
     }
 
     /**
@@ -211,13 +227,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     function _voteSucceeded(uint256 proposalId) internal view virtual returns (bool);
 
     /**
-     * @dev Get the voting weight of `account` at a specific `blockNumber`, for a vote as described by `params`.
+     * @dev Get the voting weight of `account` at a specific `timepoint`, for a vote as described by `params`.
      */
-    function _getVotes(
-        address account,
-        uint256 blockNumber,
-        bytes memory params
-    ) internal view virtual returns (uint256);
+    function _getVotes(address account, uint256 timepoint, bytes memory params) internal view virtual returns (uint256);
 
     /**
      * @dev Register a vote for `proposalId` by `account` with a given `support`, voting `weight` and voting `params`.
@@ -252,9 +264,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         string memory description
     ) public virtual override returns (uint256) {
         address proposer = _msgSender();
+        uint256 currentTimepoint = clock();
 
         require(
-            getVotes(proposer, block.number - 1) >= proposalThreshold(),
+            getVotes(proposer, currentTimepoint - 1) >= proposalThreshold(),
             "Governor: proposer votes below proposal threshold"
         );
 
@@ -263,16 +276,20 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         require(targets.length == values.length, "Governor: invalid proposal length");
         require(targets.length == calldatas.length, "Governor: invalid proposal length");
         require(targets.length > 0, "Governor: empty proposal");
+        require(_proposals[proposalId].proposer == address(0), "Governor: proposal already exists");
 
-        ProposalCore storage proposal = _proposals[proposalId];
-        require(proposal.voteStart.isUnset(), "Governor: proposal already exists");
+        uint256 snapshot = currentTimepoint + votingDelay();
+        uint256 deadline = snapshot + votingPeriod();
 
-        uint64 snapshot = block.number.toUint64() + votingDelay().toUint64();
-        uint64 deadline = snapshot + votingPeriod().toUint64();
-
-        proposal.voteStart.setDeadline(snapshot);
-        proposal.voteEnd.setDeadline(deadline);
-        proposal.proposer = proposer;
+        _proposals[proposalId] = ProposalCore({
+            proposer: proposer,
+            voteStart: snapshot.toUint64(),
+            voteEnd: deadline.toUint64(),
+            executed: false,
+            canceled: false,
+            __gap_unused0: 0,
+            __gap_unused1: 0
+        });
 
         emit ProposalCreated(
             proposalId,
@@ -416,8 +433,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     /**
      * @dev See {IGovernor-getVotes}.
      */
-    function getVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return _getVotes(account, blockNumber, _defaultParams());
+    function getVotes(address account, uint256 timepoint) public view virtual override returns (uint256) {
+        return _getVotes(account, timepoint, _defaultParams());
     }
 
     /**
@@ -425,10 +442,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      */
     function getVotesWithParams(
         address account,
-        uint256 blockNumber,
+        uint256 timepoint,
         bytes memory params
     ) public view virtual override returns (uint256) {
-        return _getVotes(account, blockNumber, params);
+        return _getVotes(account, timepoint, params);
     }
 
     /**
@@ -546,7 +563,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         ProposalCore storage proposal = _proposals[proposalId];
         require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
 
-        uint256 weight = _getVotes(account, proposal.voteStart.getDeadline(), params);
+        uint256 weight = _getVotes(account, proposal.voteStart, params);
         _countVote(proposalId, account, support, weight, params);
 
         if (params.length == 0) {

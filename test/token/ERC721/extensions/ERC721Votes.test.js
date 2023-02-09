@@ -178,6 +178,7 @@ contract('ERC721Votes', function (accounts) {
       this.name = 'My Vote';
     });
 
+    // includes EIP6372 behavior check
     shouldBehaveLikeVotes();
   });
 });

@@ -10,6 +10,14 @@ const { argv } = require('yargs')
       choices: ['shell', 'markdown'],
       default: 'shell',
     },
+    hideEqual: {
+      type: 'boolean',
+      default: true,
+    },
+    strictTesting: {
+      type: 'boolean',
+      default: false,
+    },
   });
 
 // Deduce base tx cost from the percentage denominator
@@ -40,7 +48,7 @@ class Report {
   }
 
   // Compare two reports
-  static compare(update, ref, opts = { hideEqual: true }) {
+  static compare(update, ref, opts = { hideEqual: true, strictTesting: false }) {
     if (JSON.stringify(update.config.metadata) !== JSON.stringify(ref.config.metadata)) {
       throw new Error('Reports produced with non matching metadata');
     }
@@ -70,7 +78,9 @@ class Report {
     const methods = Object.keys(update.info.methods)
       .filter(key => ref.info.methods[key])
       .filter(key => update.info.methods[key].numberOfCalls > 0)
-      .filter(key => update.info.methods[key].numberOfCalls === ref.info.methods[key].numberOfCalls)
+      .filter(
+        key => !opts.strictTesting || update.info.methods[key].numberOfCalls === ref.info.methods[key].numberOfCalls,
+      )
       .map(key => ({
         contract: ref.info.methods[key].contract,
         method: ref.info.methods[key].fnSig,
@@ -220,7 +230,7 @@ function formatCmpMarkdown(rows) {
 }
 
 // MAIN
-const report = Report.compare(Report.load(argv._[0]), Report.load(argv._[1]));
+const report = Report.compare(Report.load(argv._[0]), Report.load(argv._[1]), argv);
 
 switch (argv.style) {
   case 'markdown':

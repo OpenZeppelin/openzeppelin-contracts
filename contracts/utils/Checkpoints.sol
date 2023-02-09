@@ -243,6 +243,31 @@ library Checkpoints {
     }
 
     /**
+     * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key.
+     *
+     * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
+     */
+    function upperLookupRecent(Trace224 storage self, uint32 key) internal view returns (uint224) {
+        uint256 len = self._checkpoints.length;
+
+        uint256 low = 0;
+        uint256 high = len;
+
+        if (len > 5) {
+            uint256 mid = len - Math.sqrt(len);
+            if (key < _unsafeAccess(self._checkpoints, mid)._key) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
+
+        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+    }
+
+    /**
      * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
      */
     function latest(Trace224 storage self) internal view returns (uint224) {
@@ -390,6 +415,31 @@ library Checkpoints {
     function upperLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 len = self._checkpoints.length;
         uint256 pos = _upperBinaryLookup(self._checkpoints, key, 0, len);
+        return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
+    }
+
+    /**
+     * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key.
+     *
+     * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
+     */
+    function upperLookupRecent(Trace160 storage self, uint96 key) internal view returns (uint160) {
+        uint256 len = self._checkpoints.length;
+
+        uint256 low = 0;
+        uint256 high = len;
+
+        if (len > 5) {
+            uint256 mid = len - Math.sqrt(len);
+            if (key < _unsafeAccess(self._checkpoints, mid)._key) {
+                high = mid;
+            } else {
+                low = mid + 1;
+            }
+        }
+
+        uint256 pos = _upperBinaryLookup(self._checkpoints, key, low, high);
+
         return pos == 0 ? 0 : _unsafeAccess(self._checkpoints, pos - 1)._value;
     }
 
