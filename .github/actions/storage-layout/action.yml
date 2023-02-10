@@ -40,7 +40,7 @@ runs:
     - name: Compare layouts
       if: steps.reference.outcome == 'success' && github.event_name == 'pull_request'
       run: |
-        node scripts/checks/compare-layout.js --head ${{ inputs.layout }} --ref ${{ inputs.ref_layout }} >> $GITHUB_STEP_SUMMARY
+        node scripts/checks/compare-layout.js --head ${{ inputs.layout }} --ref ${{ inputs.ref_layout }}
       shell: bash
     - name: Rename artifacts for upload
       if: github.event_name != 'pull_request'
