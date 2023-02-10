@@ -1,3 +1,8 @@
+# Mermaid Diagram: (https://mermaid.live/) 
+#   graph LR
+#     Development -->|D| RC-Unreleased -->|M| RC-Released -->|D| Final-Unreleased -->|M| Final-Released
+#     RC-Released -->|C| RC-Unreleased
+#     Final-Released -->|C| Final-Unreleased
 name: Release Cycle
 
 on:
