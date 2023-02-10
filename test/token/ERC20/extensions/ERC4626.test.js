@@ -144,7 +144,7 @@ contract('ERC4626', function (accounts) {
          * | 6      | 1.000000000000000000 | 0.999999000000000000 |
          * | 18     | 1.000000000000000000 | 0.999999999999999999 |
          *
-         * Attack is possible, but made difficult by the offset. For the attack to be succesfull
+         * Attack is possible, but made difficult by the offset. For the attack to be successful
          * the attacker needs to frontrun a deposit 10**offset times bigger then what the victim
          * was trying to deposit
          */
