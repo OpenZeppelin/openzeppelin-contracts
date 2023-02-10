@@ -17,7 +17,7 @@ import "../../../utils/math/Math.sol";
  * the ERC20 standard. Any additional extensions included along it would affect the "shares" token represented by this
  * contract and not the "assets" token which is an independent contract.
  *
- * NOTE: In empty (or nearly empty) ERC-4626 vaults, deposits are at high risk of being stolen through frontrunning
+ * CAUTION: In empty (or nearly empty) ERC-4626 vaults, deposits are at high risk of being stolen through frontrunning
  * with a "donation" to the vault that inflates the price of a share. This is variously known as a donation or inflation
  * attack and is essentially a problem of slippage. Vault deployers can protect against this attack by making an initial
  * deposit of a non-trivial amount of the asset, such that price manipulation becomes infeasible. Withdrawals may
