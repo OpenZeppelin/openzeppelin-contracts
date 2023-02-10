@@ -188,3 +188,49 @@ await instance.multicall([
     instance.contract.methods.bar().encodeABI()
 ]);
 ----
+
+=== StaticDelegateCall
+
+The `StaticDelegateCall` abstract contract provides emulation of static delegatecalls for implementing view-only functions that execute another contract's code with the calling contract's context. It can be useful in implementing dynamic library support at runtime.
+
+Example:
+[source,solidity]
+----
+// contracts/DynamicGadget.sol
+// SPDX-License-Identifier: MIT
+
+interface IGadget {
+    function compute(uint256 c) external view returns (uint256);
+}
+
+contract GadgetStorage {
+    uint256 internal _x;
+}
+
+contract GadgetImplementationA is GadgetStorage, IGadget {
+    function compute(uint256 c) external view returns (uint256) {
+        return _x * c;
+    }
+}
+
+contract GadgetImplementationB is GadgetStorage, IGadget {
+    function compute(uint256 c) external view returns (uint256) {
+        return _x / c;
+    }
+}
+
+contract DynamicGadget is GadgetStorage, StaticDelegateCall {
+    address private _implementation;
+
+    ...
+
+    function compute(uint256 c) external view returns (uint256) {
+        (bool success, bytes memory result) = _staticDelegateCall(
+            _implementation,
+            abi.encodeCall(IGadget.compute, (c))
+        );
+        require(success);
+        return abi.decode(result, (uint256));
+    }
+}
+----
