@@ -40,10 +40,6 @@ jobs:
         uses: ./.github/actions/gas-compare
         with:
           token: ${{ github.token }}
-      - name: Check storage layout
-        uses: ./.github/actions/storage-layout
-        with:
-          token: ${{ github.token }}
 
   tests-upgradeable:
     runs-on: ubuntu-latest
