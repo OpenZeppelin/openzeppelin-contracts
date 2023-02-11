@@ -1,0 +1,417 @@
+diff --git a/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol b/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol
+index fa099483..d948b412 100644
+--- a/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol
++++ b/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol
+@@ -66,7 +66,17 @@ abstract contract CrossChainEnabledPolygonChild is IFxMessageProcessor, CrossCha
+         if (!_isCrossChain()) revert NotCrossChainCall();
+ 
+         _sender = rootMessageSender;
+-        Address.functionDelegateCall(address(this), data, "cross-chain execution failed");
++        __functionDelegateCall(address(this), data);
+         _sender = DEFAULT_SENDER;
+     }
++
++    // ERC1967Upgrade._functionDelegateCall is private so we reproduce it here.
++    // An extra underscore prevents a name clash error.
++    function __functionDelegateCall(address target, bytes memory data) private returns (bytes memory) {
++        require(Address.isContract(target), "Address: delegate call to non-contract");
++
++        // solhint-disable-next-line avoid-low-level-calls
++        (bool success, bytes memory returndata) = target.delegatecall(data);
++        return Address.verifyCallResult(success, returndata, "Address: low-level delegate call failed");
++    }
+ }
+diff --git a/contracts/finance/VestingWallet.sol b/contracts/finance/VestingWallet.sol
+index fe67eb54..d26ea4e1 100644
+--- a/contracts/finance/VestingWallet.sol
++++ b/contracts/finance/VestingWallet.sol
+@@ -15,6 +15,8 @@ import "../utils/Context.sol";
+  * Any token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
+  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
+  * be immediately releasable.
++ *
++ * @custom:storage-size 52
+  */
+ contract VestingWallet is Context {
+     event EtherReleased(uint256 amount);
+diff --git a/contracts/governance/TimelockControllerWith46Migration.sol b/contracts/governance/TimelockControllerWith46Migration.sol
+new file mode 100644
+index 00000000..3315e7bd
+--- /dev/null
++++ b/contracts/governance/TimelockControllerWith46Migration.sol
+@@ -0,0 +1,39 @@
++// SPDX-License-Identifier: MIT
++// OpenZeppelin Contracts v4.6.0 (governance/TimelockControllerWith46Migration.sol)
++
++pragma solidity ^0.8.0;
++
++import "./TimelockController.sol";
++
++/**
++ * @dev Extension of the TimelockController that includes an additional
++ * function to migrate from OpenZeppelin Upgradeable Contracts <4.6 to >=4.6.
++ *
++ * This migration is necessary to setup administration rights over the new
++ * `CANCELLER_ROLE`.
++ *
++ * The migration is trustless and can be performed by anyone.
++ *
++ * _Available since v4.6._
++ */
++contract TimelockControllerWith46Migration is TimelockController {
++    constructor(
++        uint256 minDelay,
++        address[] memory proposers,
++        address[] memory executors,
++        address admin
++    ) TimelockController(minDelay, proposers, executors, admin) {}
++
++    /**
++     * @dev Migration function. Running it is necessary for upgradeable
++     * instances that were initially setup with code <4.6 and that upgraded
++     * to >=4.6.
++     */
++    function migrateTo46() public virtual {
++        require(
++            getRoleAdmin(PROPOSER_ROLE) == TIMELOCK_ADMIN_ROLE && getRoleAdmin(CANCELLER_ROLE) == DEFAULT_ADMIN_ROLE,
++            "TimelockController: already migrated"
++        );
++        _setRoleAdmin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE);
++    }
++}
+diff --git a/contracts/governance/extensions/GovernorVotes.sol b/contracts/governance/extensions/GovernorVotes.sol
+index b328c25d..68bca95e 100644
+--- a/contracts/governance/extensions/GovernorVotes.sol
++++ b/contracts/governance/extensions/GovernorVotes.sol
+@@ -10,6 +10,8 @@ import "../utils/IVotes.sol";
+  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes} token.
+  *
+  * _Available since v4.3._
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract GovernorVotes is Governor {
+     IVotes public immutable token;
+diff --git a/contracts/governance/extensions/GovernorVotesComp.sol b/contracts/governance/extensions/GovernorVotesComp.sol
+index 8c4a1f8c..0ea4a891 100644
+--- a/contracts/governance/extensions/GovernorVotesComp.sol
++++ b/contracts/governance/extensions/GovernorVotesComp.sol
+@@ -10,6 +10,8 @@ import "../../token/ERC20/extensions/ERC20VotesComp.sol";
+  * @dev Extension of {Governor} for voting weight extraction from a Comp token.
+  *
+  * _Available since v4.3._
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract GovernorVotesComp is Governor {
+     ERC20VotesComp public immutable token;
+diff --git a/contracts/mocks/proxy/UUPSLegacy.sol b/contracts/mocks/proxy/UUPSLegacy.sol
+index 6956f567..6aa10f38 100644
+--- a/contracts/mocks/proxy/UUPSLegacy.sol
++++ b/contracts/mocks/proxy/UUPSLegacy.sol
+@@ -23,7 +23,7 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
+         // Initial upgrade and setup call
+         __setImplementation(newImplementation);
+         if (data.length > 0 || forceCall) {
+-            Address.functionDelegateCall(newImplementation, data);
++            __functionDelegateCall(newImplementation, data);
+         }
+ 
+         // Perform rollback test if not already in progress
+@@ -31,7 +31,7 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
+         if (!rollbackTesting.value) {
+             // Trigger rollback using upgradeTo from the new implementation
+             rollbackTesting.value = true;
+-            Address.functionDelegateCall(
++            __functionDelegateCall(
+                 newImplementation,
+                 abi.encodeWithSignature("upgradeTo(address)", oldImplementation)
+             );
+@@ -51,4 +51,14 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
+     function upgradeToAndCall(address newImplementation, bytes memory data) public payable override {
+         _upgradeToAndCallSecureLegacyV1(newImplementation, data, false);
+     }
++
++    // ERC1967Upgrade._functionDelegateCall is private so we reproduce it here.
++    // An extra underscore prevents a name clash error.
++    function __functionDelegateCall(address target, bytes memory data) private returns (bytes memory) {
++        require(Address.isContract(target), "Address: delegate call to non-contract");
++
++        // solhint-disable-next-line avoid-low-level-calls
++        (bool success, bytes memory returndata) = target.delegatecall(data);
++        return Address.verifyCallResult(success, returndata, "Address: low-level delegate call failed");
++    }
+ }
+diff --git a/contracts/package.json b/contracts/package.json
+index e3e60834..f8ddc1f0 100644
+--- a/contracts/package.json
++++ b/contracts/package.json
+@@ -1,5 +1,5 @@
+ {
+-  "name": "@openzeppelin/contracts",
++  "name": "@openzeppelin/contracts-upgradeable",
+   "description": "Secure Smart Contract library for Solidity",
+   "version": "4.8.0",
+   "files": [
+@@ -13,7 +13,7 @@
+   },
+   "repository": {
+     "type": "git",
+-    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts.git"
++    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable.git"
+   },
+   "keywords": [
+     "solidity",
+@@ -26,7 +26,7 @@
+   "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
+   "license": "MIT",
+   "bugs": {
+-    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
++    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/issues"
+   },
+   "homepage": "https://openzeppelin.com/contracts/"
+ }
+diff --git a/contracts/proxy/ERC1967/ERC1967Upgrade.sol b/contracts/proxy/ERC1967/ERC1967Upgrade.sol
+index 0680f354..ebd83b61 100644
+--- a/contracts/proxy/ERC1967/ERC1967Upgrade.sol
++++ b/contracts/proxy/ERC1967/ERC1967Upgrade.sol
+@@ -63,7 +63,7 @@ abstract contract ERC1967Upgrade {
+     function _upgradeToAndCall(address newImplementation, bytes memory data, bool forceCall) internal {
+         _upgradeTo(newImplementation);
+         if (data.length > 0 || forceCall) {
+-            Address.functionDelegateCall(newImplementation, data);
++            _functionDelegateCall(newImplementation, data);
+         }
+     }
+ 
+@@ -165,7 +165,21 @@ abstract contract ERC1967Upgrade {
+         _setBeacon(newBeacon);
+         emit BeaconUpgraded(newBeacon);
+         if (data.length > 0 || forceCall) {
+-            Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);
++            _functionDelegateCall(IBeacon(newBeacon).implementation(), data);
+         }
+     }
++
++    /**
++     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
++     * but performing a delegate call.
++     *
++     * _Available since v3.4._
++     */
++    function _functionDelegateCall(address target, bytes memory data) private returns (bytes memory) {
++        require(Address.isContract(target), "Address: delegate call to non-contract");
++
++        // solhint-disable-next-line avoid-low-level-calls
++        (bool success, bytes memory returndata) = target.delegatecall(data);
++        return Address.verifyCallResult(success, returndata, "Address: low-level delegate call failed");
++    }
+ }
+diff --git a/contracts/security/PullPayment.sol b/contracts/security/PullPayment.sol
+index 65b4980f..f336592e 100644
+--- a/contracts/security/PullPayment.sol
++++ b/contracts/security/PullPayment.sol
+@@ -22,6 +22,8 @@ import "../utils/escrow/Escrow.sol";
+  * To use, derive from the `PullPayment` contract, and use {_asyncTransfer}
+  * instead of Solidity's `transfer` function. Payees can query their due
+  * payments with {payments}, and retrieve them with {withdrawPayments}.
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract PullPayment {
+     Escrow private immutable _escrow;
+diff --git a/contracts/token/ERC20/extensions/ERC20Capped.sol b/contracts/token/ERC20/extensions/ERC20Capped.sol
+index 16f830d1..9ef98148 100644
+--- a/contracts/token/ERC20/extensions/ERC20Capped.sol
++++ b/contracts/token/ERC20/extensions/ERC20Capped.sol
+@@ -7,6 +7,8 @@ import "../ERC20.sol";
+ 
+ /**
+  * @dev Extension of {ERC20} that adds a cap to the supply of tokens.
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract ERC20Capped is ERC20 {
+     uint256 private immutable _cap;
+diff --git a/contracts/token/ERC20/extensions/ERC20Permit.sol b/contracts/token/ERC20/extensions/ERC20Permit.sol
+index a357199b..9dc8e894 100644
+--- a/contracts/token/ERC20/extensions/ERC20Permit.sol
++++ b/contracts/token/ERC20/extensions/ERC20Permit.sol
+@@ -18,6 +18,8 @@ import "../../../utils/Counters.sol";
+  * need to send a transaction, and thus is not required to hold Ether at all.
+  *
+  * _Available since v3.4._
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
+     using Counters for Counters.Counter;
+diff --git a/contracts/token/ERC20/extensions/ERC20Wrapper.sol b/contracts/token/ERC20/extensions/ERC20Wrapper.sol
+index 8b153ffc..63f7c6ce 100644
+--- a/contracts/token/ERC20/extensions/ERC20Wrapper.sol
++++ b/contracts/token/ERC20/extensions/ERC20Wrapper.sol
+@@ -14,6 +14,8 @@ import "../utils/SafeERC20.sol";
+  * wrapping of an existing "basic" ERC20 into a governance token.
+  *
+  * _Available since v4.2._
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract ERC20Wrapper is ERC20 {
+     IERC20 public immutable underlying;
+diff --git a/contracts/token/ERC20/utils/TokenTimelock.sol b/contracts/token/ERC20/utils/TokenTimelock.sol
+index ed855b7b..3d30f59d 100644
+--- a/contracts/token/ERC20/utils/TokenTimelock.sol
++++ b/contracts/token/ERC20/utils/TokenTimelock.sol
+@@ -11,6 +11,8 @@ import "./SafeERC20.sol";
+  *
+  * Useful for simple vesting schedules like "advisors get all of their tokens
+  * after 1 year".
++ *
++ * @custom:storage-size 53
+  */
+ contract TokenTimelock {
+     using SafeERC20 for IERC20;
+diff --git a/contracts/utils/Address.sol b/contracts/utils/Address.sol
+index 433a866d..64a80d35 100644
+--- a/contracts/utils/Address.sol
++++ b/contracts/utils/Address.sol
+@@ -161,31 +161,6 @@ library Address {
+         return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+     }
+ 
+-    /**
+-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
+-     * but performing a delegate call.
+-     *
+-     * _Available since v3.4._
+-     */
+-    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
+-        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
+-    }
+-
+-    /**
+-     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
+-     * but performing a delegate call.
+-     *
+-     * _Available since v3.4._
+-     */
+-    function functionDelegateCall(
+-        address target,
+-        bytes memory data,
+-        string memory errorMessage
+-    ) internal returns (bytes memory) {
+-        (bool success, bytes memory returndata) = target.delegatecall(data);
+-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+-    }
+-
+     /**
+      * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling
+      * the revert reason or using the provided one) in case of unsuccessful call or if target was not a contract.
+diff --git a/contracts/utils/Multicall.sol b/contracts/utils/Multicall.sol
+index 7470c559..9bcb8605 100644
+--- a/contracts/utils/Multicall.sol
++++ b/contracts/utils/Multicall.sol
+@@ -18,8 +18,22 @@ abstract contract Multicall {
+     function multicall(bytes[] calldata data) external virtual returns (bytes[] memory results) {
+         results = new bytes[](data.length);
+         for (uint256 i = 0; i < data.length; i++) {
+-            results[i] = Address.functionDelegateCall(address(this), data[i]);
++            results[i] = _functionDelegateCall(address(this), data[i]);
+         }
+         return results;
+     }
++
++    /**
++     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
++     * but performing a delegate call.
++     *
++     * _Available since v3.4._
++     */
++    function _functionDelegateCall(address target, bytes memory data) private returns (bytes memory) {
++        require(Address.isContract(target), "Address: delegate call to non-contract");
++
++        // solhint-disable-next-line avoid-low-level-calls
++        (bool success, bytes memory returndata) = target.delegatecall(data);
++        return Address.verifyCallResult(success, returndata, "Address: low-level delegate call failed");
++    }
+ }
+diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
+index eb211a7e..b102c093 100644
+--- a/contracts/utils/cryptography/EIP712.sol
++++ b/contracts/utils/cryptography/EIP712.sol
+@@ -23,18 +23,14 @@ import "./ECDSA.sol";
+  * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
+  *
+  * _Available since v3.4._
++ *
++ * @custom:storage-size 52
+  */
+ abstract contract EIP712 {
+     /* solhint-disable var-name-mixedcase */
+-    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
+-    // invalidate the cached domain separator if the chain id changes.
+-    bytes32 private immutable _CACHED_DOMAIN_SEPARATOR;
+-    uint256 private immutable _CACHED_CHAIN_ID;
+-    address private immutable _CACHED_THIS;
+-
+     bytes32 private immutable _HASHED_NAME;
+     bytes32 private immutable _HASHED_VERSION;
+-    bytes32 private immutable _TYPE_HASH;
++    bytes32 private constant _TYPE_HASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+ 
+     /* solhint-enable var-name-mixedcase */
+ 
+@@ -53,26 +49,15 @@ abstract contract EIP712 {
+     constructor(string memory name, string memory version) {
+         bytes32 hashedName = keccak256(bytes(name));
+         bytes32 hashedVersion = keccak256(bytes(version));
+-        bytes32 typeHash = keccak256(
+-            "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+-        );
+         _HASHED_NAME = hashedName;
+         _HASHED_VERSION = hashedVersion;
+-        _CACHED_CHAIN_ID = block.chainid;
+-        _CACHED_DOMAIN_SEPARATOR = _buildDomainSeparator(typeHash, hashedName, hashedVersion);
+-        _CACHED_THIS = address(this);
+-        _TYPE_HASH = typeHash;
+     }
+ 
+     /**
+      * @dev Returns the domain separator for the current chain.
+      */
+     function _domainSeparatorV4() internal view returns (bytes32) {
+-        if (address(this) == _CACHED_THIS && block.chainid == _CACHED_CHAIN_ID) {
+-            return _CACHED_DOMAIN_SEPARATOR;
+-        } else {
+-            return _buildDomainSeparator(_TYPE_HASH, _HASHED_NAME, _HASHED_VERSION);
+-        }
++        return _buildDomainSeparator(_TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash());
+     }
+ 
+     function _buildDomainSeparator(
+@@ -101,4 +86,24 @@ abstract contract EIP712 {
+     function _hashTypedDataV4(bytes32 structHash) internal view virtual returns (bytes32) {
+         return ECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
+     }
++
++    /**
++     * @dev The hash of the name parameter for the EIP712 domain.
++     *
++     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
++     * are a concern.
++     */
++    function _EIP712NameHash() internal virtual view returns (bytes32) {
++        return _HASHED_NAME;
++    }
++
++    /**
++     * @dev The hash of the version parameter for the EIP712 domain.
++     *
++     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
++     * are a concern.
++     */
++    function _EIP712VersionHash() internal virtual view returns (bytes32) {
++        return _HASHED_VERSION;
++    }
+ }
