@@ -1,8 +1,15 @@
-# Mermaid Diagram: (https://mermaid.live/) 
-#   graph LR
-#     Development -->|D| RC-Unreleased -->|M| RC-Released -->|D| Final-Unreleased -->|M| Final-Released
-#     RC-Released -->|C| RC-Unreleased
-#     Final-Released -->|C| Final-Unreleased
+#  D: Manual Dispatch
+#  M: Merge release PR
+#  C: Commit
+#  ┌───────────┐     ┌─────────────┐     ┌────────────────┐
+#  │Development├──D──►RC-Unreleased├──D──►Final-Unreleased│
+#  └───────────┘     └─┬─────────▲─┘     └─┬────────────▲─┘
+#                      │         │         │            │
+#                      M         C         M            C
+#                      │         │         │            │
+#                     ┌▼─────────┴┐       ┌▼────────────┴┐
+#                     │RC-Released│       │Final-Released│
+#                     └───────────┘       └──────────────┘
 name: Release Cycle
 
 on:
