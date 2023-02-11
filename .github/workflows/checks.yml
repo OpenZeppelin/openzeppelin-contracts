@@ -14,7 +14,6 @@ concurrency:
 
 jobs:
   lint:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -36,7 +35,6 @@ jobs:
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
       - name: Check proceduraly generated contracts are up-to-date
-        if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
         run: npm run test:generation
       - name: Compare gas costs
         uses: ./.github/actions/gas-compare
@@ -47,8 +45,26 @@ jobs:
         with:
           token: ${{ github.token }}
 
-  foundry-tests:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+  tests-upgradeable:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Transpile to upgradeable
+        run: bash scripts/upgradeable/transpile.sh
+      - name: Run tests
+        run: npm run test
+      - name: Check linearisation of the inheritance graph
+        run: npm run test:inheritance
+      - name: Check storage layout
+        uses: ./.github/actions/storage-layout
+        with:
+          token: ${{ github.token }}
+
+  tests-foundry:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -62,7 +78,6 @@ jobs:
         run: forge test -vv
 
   coverage:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -74,7 +89,6 @@ jobs:
       - uses: codecov/codecov-action@v3
 
   slither:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -84,7 +98,6 @@ jobs:
       - uses: crytic/slither-action@v0.2.0
 
   codespell:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
