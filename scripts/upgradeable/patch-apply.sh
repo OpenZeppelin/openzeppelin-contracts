@@ -10,7 +10,7 @@ error() {
   exit 1
 }
 
-if ! git diff --quiet contracts; then
+if ! git diff-files --quiet contracts || ! git diff-index --quiet HEAD contracts; then
   error "Changes in contracts"
 fi
 
