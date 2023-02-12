@@ -3,26 +3,24 @@
 const { internalTask } = require('hardhat/config');
 const { TASK_TEST_GET_TEST_FILES } = require('hardhat/builtin-tasks/task-names');
 
-internalTask(TASK_TEST_GET_TEST_FILES)
-  .setAction(async ({ testFiles }, { config }) => {
-    const globAsync = require('glob');
-    const path = require('path');
-    const { promisify } = require('util');
+internalTask(TASK_TEST_GET_TEST_FILES).setAction(async ({ testFiles }, { config }) => {
+  if (testFiles.length !== 0) {
+    return testFiles;
+  }
 
-    const glob = promisify(globAsync);
+  const globAsync = require('glob');
+  const path = require('path');
+  const { promises: fs } = require('fs');
+  const { promisify } = require('util');
 
-    if (testFiles.length !== 0) {
-      return testFiles;
-    }
+  const glob = promisify(globAsync);
 
-    const proxies = await glob(path.join(config.paths.sources, 'proxy/**/*.sol'));
+  const hasProxies = await fs
+    .access(path.join(config.paths.sources, 'proxy/Proxy.sol'))
+    .then(() => true)
+    .catch(() => false);
 
-    return await glob(
-      path.join(config.paths.tests, '**/*.js'),
-      {
-        ignore: proxies.length > 0
-          ? []
-          : [path.join(config.paths.tests, 'proxy/**/*')]
-      },
-    );
+  return await glob(path.join(config.paths.tests, '**/*.js'), {
+    ignore: hasProxies ? [] : [path.join(config.paths.tests, 'proxy/**/*')],
   });
+});
