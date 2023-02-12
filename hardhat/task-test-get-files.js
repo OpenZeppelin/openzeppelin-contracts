@@ -20,7 +20,17 @@ internalTask(TASK_TEST_GET_TEST_FILES).setAction(async ({ testFiles }, { config 
     .then(() => true)
     .catch(() => false);
 
-  return await glob(path.join(config.paths.tests, '**/*.js'), {
-    ignore: hasProxies ? [] : [path.join(config.paths.tests, 'proxy/**/*')],
+  return await glob('**/*.js', {
+    cwd: config.paths.tests,
+    ignore: hasProxies
+      ? []
+      : [
+          'proxy/ERC1967/ERC1967Proxy.test.js',
+          'proxy/ERC1967/ERC1967Proxy.test.js',
+          'proxy/beacon/BeaconProxy.test.js',
+          'proxy/beacon/UpgradeableBeacon.test.js',
+          'proxy/transparent/ProxyAdmin.test.js',
+          'proxy/transparent/TransparentUpgradeableProxy.test.js',
+        ],
   });
 });
