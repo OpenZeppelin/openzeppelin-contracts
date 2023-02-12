@@ -53,6 +53,8 @@ jobs:
         run: bash scripts/upgradeable/transpile.sh
       - name: Run tests
         run: npm run test
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
       - name: Check storage layout
