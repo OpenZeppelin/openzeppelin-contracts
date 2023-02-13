@@ -99,20 +99,15 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         );
     }
 
-    function cancel(uint256 proposalId) public virtual override {
-        ProposalDetails storage details = _proposalDetails[proposalId];
+    function cancel(uint256 proposalId) public virtual override(IGovernor, Governor) {
+        address proposer = _proposalDetails[proposalId].proposer;
 
         require(
-            _msgSender() == details.proposer || getVotes(details.proposer, block.number - 1) < proposalThreshold(),
+            _msgSender() == proposer || getVotes(proposer, clock() - 1) < proposalThreshold(),
             "GovernorBravo: proposer above threshold"
         );
 
-        _cancel(
-            details.targets,
-            details.values,
-            _encodeCalldata(details.signatures, details.calldatas),
-            details.descriptionHash
-        );
+        _cancel(proposalId);
     }
 
     /**
@@ -230,7 +225,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
      * @dev See {IGovernorCompatibilityBravo-quorumVotes}.
      */
     function quorumVotes() public view virtual override returns (uint256) {
-        return quorum(block.number - 1);
+        return quorum(clock() - 1);
     }
 
     // ==================================================== Voting ====================================================
