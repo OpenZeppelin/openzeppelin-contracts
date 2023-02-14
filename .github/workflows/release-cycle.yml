@@ -161,14 +161,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Download tarball artifact
+        id: artifact
         uses: actions/download-artifact@v3
         with:
           name: ${{ github.ref_name }}.tgz
-          path: ${{ needs.publish.outputs.tarball_path }}
       - name: Check integrity
         run: bash scripts/release/workflow/integrity-check.sh
         env:
-          TARBALL: ${{ needs.publish.outputs.tarball_path }}
+          TARBALL: ${{ steps.artifact.outputs.download-path }}
 
   merge:
     needs: state

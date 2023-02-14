@@ -8,14 +8,13 @@ PACKAGE="$RUNNER_TEMP/package"
 # Extract tarball content into a tmp directory
 tar xf "$TARBALL" -C "$RUNNER_TEMP"
 
+cd "$PACKAGE/contracts"
+
 # Checksum extracted package contracts
-find -s "$PACKAGE/contracts" -type f -exec shasum "{}" \; > "$CHECKSUMS"
+find . -type f -name "*.sol" -exec shasum "{}" \; > "$CHECKSUMS"
 
-# Remove the previously packed version
-rm -rf "$PACKAGE/contracts"
-
-# Replace with original source contracts
-cp -r contracts "$PACKAGE/contracts" 
+# Back to initial directory
+cd "$GITHUB_WORKSPACE/contracts"
 
 # Check
 shasum -c "$CHECKSUMS"
