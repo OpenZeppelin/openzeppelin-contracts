@@ -26,7 +26,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
-      GAS: true
     steps:
       - uses: actions/checkout@v3
       - name: Set up environment
