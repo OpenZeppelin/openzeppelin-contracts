@@ -36,6 +36,7 @@ jobs:
 
       # Global variables
       is_prerelease: ${{ steps.state.outputs.is_prerelease }}
+      version: ${{ steps.state.outputs.version }}
 
   start:
     needs: state
@@ -130,6 +131,11 @@ jobs:
         run: bash scripts/release/workflow/pack.sh
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.repository }}-${{ needs.state.outputs.version }}
+          path: ${{ step.pack.outputs.tarball }}
       - name: Tag
         run: npx changeset tag
       - name: Publish
@@ -146,6 +152,25 @@ jobs:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
         with:
           script: await require('./scripts/release/workflow/github-release.js')({ github, context })
+    outputs:
+      tarball_name: ${{ github.repository }}-${{ needs.state.outputs.version }}
+      tarball_path: ${{ step.pack.outputs.tarball }}
+
+  integrity_check:
+    needs: publish
+    name: Tarball Integrity Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download tarball artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.publish.outputs.tarball_name }}
+          path: ${{ needs.publish.outputs.tarball_path }}
+      - name: Check integrity
+        run: bash scripts/release/workflow/integrity-check.sh
+        env:
+          TARBALL: ${{ needs.publish.outputs.tarball_path }}
 
   merge:
     needs: state

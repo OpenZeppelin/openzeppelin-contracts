@@ -20,6 +20,7 @@ module.exports = async ({ github, context, core }) => {
 
   // Global Variables
   setOutput('is_prerelease', state.prerelease);
+  setOutput('version', version);
 };
 
 function shouldRunStart({ isMaster, isWorkflowDispatch, botRun }) {
@@ -67,6 +68,7 @@ async function getState({ github, context, core }) {
     isPush: context.eventName === 'push',
     isCurrentFinalVersion: !version.includes('-rc.'),
     botRun,
+    version,
   };
 
   // Async vars
