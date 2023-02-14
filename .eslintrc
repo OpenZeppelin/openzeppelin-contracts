@@ -4,6 +4,9 @@
     "eslint:recommended",
     "prettier",
   ],
+  "plugins": [
+    "avoid-then"
+  ],
   "env": {
     "es2022": true,
     "browser": true,
@@ -16,5 +19,8 @@
     "web3": "readonly",
     "extendEnvironment": "readonly",
     "expect": "readonly",
-  }
+  },
+  "rules": {
+    "avoid-then/avoid-then": "error"
+  },
 }
