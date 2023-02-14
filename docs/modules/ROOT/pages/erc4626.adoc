@@ -2,7 +2,7 @@
 
 https://eips.ethereum.org/EIPS/eip-4626[ERC4626] is an extension of xref:erc20.adoc[ERC20] that proposes a standard interface for token vaults. This standard interface can be used by widelly different contracts (include lending markets, aggregators, and intrinsically interest bearing tokens), which brings a number of subtleties. Navigating these potential issues is essential to implementing a compliant and composable token vault.
 
-We prodive a base implementation of ERC4626 that includes a simple vault. This contract is designed in a way that allows developper to easily re-configure the vault's behavior, with minimal overrides, while staying compliant. In this guide, we will discuss some security considerations that affect ERC4626. We will also discuss common customization of the vault.
+We prodive a base implementation of ERC4626 that includes a simple vault. This contract is designed in a way that allows developer to easily re-configure the vault's behavior, with minimal overrides, while staying compliant. In this guide, we will discuss some security considerations that affect ERC4626. We will also discuss common customization of the vault.
 
 [[inflation-attack]]
 == Security concern: Inflation attack
@@ -18,7 +18,7 @@ In other words, the exchange rate can be defined as the slope of the line that p
 
 image::erc4626-rate-linear.png[Exchange rates in linear scale]
 
-When ploted in log-log scale, the rate is defined similarly, but appears differently (because the point (0,0) is infinitelly far away). Rates are represented by "diagonals" lines with different offsets.
+When plotted in log-log scale, the rate is defined similarly, but appears differently (because the point (0,0) is infinitelly far away). Rates are represented by "diagonals" lines with different offsets.
 
 image::erc4626-rate-loglog.png[Exchange rates in logarithmic scale]
 
@@ -46,9 +46,9 @@ The idea of an inflation attack is that an attacker can donate assets to the vau
 
 image::erc4626-attack.png[Inflation attack without protection]
 
-Figure 6 shows how an attacker can manipulate the rate of an empty vault. First the attacker must deposit a small amout of tokens (1 token) and follow up with a donation of 1e5 tokens directly to the vault to move the exchange rate "right". This puts the vault in a state where any deposit smaller than 1e5 would be completelly lost to the vault. Given that the attacker is the only share holders (from its donation), the attacker would steal all the tokens deposited.
+Figure 6 shows how an attacker can manipulate the rate of an empty vault. First the attacker must deposit a small amount of tokens (1 token) and follow up with a donation of 1e5 tokens directly to the vault to move the exchange rate "right". This puts the vault in a state where any deposit smaller than 1e5 would be completely lost to the vault. Given that the attacker is the only share holders (from its donation), the attacker would steal all the tokens deposited.
 
-An attacker would tipically wait for a user to do the first deposit into the vault, and would frontrun that operation with the attack described above. The risk is low, and the size of the "donation" required to manipulate the vault is equivalent to the size of the deposit that is being attacked.
+An attacker would typically wait for a user to do the first deposit into the vault, and would frontrun that operation with the attack described above. The risk is low, and the size of the "donation" required to manipulate the vault is equivalent to the size of the deposit that is being attacked.
 
 In math that gives:
 
@@ -84,16 +84,16 @@ This means a deposit of $du$ will give $\frac{du*de}{de+do}$ shares.
 For the attacker to dilute that deposit to 0 shares, causing the user to lose all its deposit, it must ensure that
 $$\frac{du*de}{de+do} < 1 \iff du < 1 + \frac{do}{de}$$
 
-Using $de = 1$ and $do = du$ is enough. So the attacker only needs $du+1$ assets to perform a sucessfull attack.
+Using $de = 1$ and $do = du$ is enough. So the attacker only needs $du+1$ assets to perform a successful attack.
 
 === Defending with a virtual offset
 
 The defence we propose consists in two part:
 
-- Use an offset between the "precision" of the representation of shares and assets. Said otherwize, we use more decimals places to represent the shares then the underlying token does to represent the assets.
+- Use an offset between the "precision" of the representation of shares and assets. Said otherwise, we use more decimals places to represent the shares then the underlying token does to represent the assets.
 - Include virtual shares and virtual assets in the exchange rate computation. These virtuals assets enforce the conversion rate when the vault is empty.
 
-These two part work together in enforcing the security of the vault. First, the increase precision correspond to a high rate, which we saw is safer as it reduces the rounding error when computing the amount of shares. Second, the virtual assets and shares (in addition to simplifying a lot of the computations) capture part of the donation, making it unprofitable for a developper to perform an attack.
+These two part work together in enforcing the security of the vault. First, the increase precision correspond to a high rate, which we saw is safer as it reduces the rounding error when computing the amount of shares. Second, the virtual assets and shares (in addition to simplifying a lot of the computations) capture part of the donation, making it unprofitable for a developer to perform an attack.
 
 
 Following the previous math definition, we have:
@@ -147,7 +147,7 @@ $$\iff 10^{off} \times du \le loss$$
 - If the offset is 0, the attacker loss is at least equal to the users deposit.
 - If the offset is greater than 0, the attacker will have to suffer losses that are orders of magnitude bigger than the amount of value that can hypothetically be stolen from the user.
 
-This shows that even with an offset of 0, the virtual shares and assets make this attack non profitable for the attacker. Bigger offsets increase the security even further by making any attack on the user extremelly wastefull.
+This shows that even with an offset of 0, the virtual shares and assets make this attack non profitable for the attacker. Bigger offsets increase the security even further by making any attack on the user extremely wasteful.
 
 The following figure show how the offset impacts the initial rate and limits the hability of an attacker with limited fund to inflate it effectivelly.
 
