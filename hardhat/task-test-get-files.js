@@ -1,7 +1,7 @@
-// Ignores the proxy tests after they are removed by the transpiler
-
 const { internalTask } = require('hardhat/config');
 const { TASK_TEST_GET_TEST_FILES } = require('hardhat/builtin-tasks/task-names');
+
+// Modifies `hardhat test` to skip the proxy tests after proxies are removed by the transpiler for upgradeability.
 
 internalTask(TASK_TEST_GET_TEST_FILES).setAction(async ({ testFiles }, { config }) => {
   if (testFiles.length !== 0) {
