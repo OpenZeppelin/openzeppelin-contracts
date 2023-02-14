@@ -67,7 +67,6 @@ async function getState({ github, context, core }) {
     isPush: context.eventName === 'push',
     isCurrentFinalVersion: !version.includes('-rc.'),
     botRun,
-    version,
   };
 
   // Async vars
