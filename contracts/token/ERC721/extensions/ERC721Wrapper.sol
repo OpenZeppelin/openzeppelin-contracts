@@ -27,7 +27,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
     function depositFor(address account, uint256[] memory tokenIds) public virtual returns (bool) {
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
-            underlying().safeTransferFrom(_msgSender(), address(this), tokenIds[i], abi.encodePacked(account));
+            underlying().safeTransferFrom(_msgSender(), address(this), tokenIds[i], data);
         }
 
         return true;
