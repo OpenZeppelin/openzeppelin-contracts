@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-TARBALL=./openzeppelin-solidity-4.8.0.tgz
-RUNNER_TEMP=./certora_package
 CHECKSUMS="$RUNNER_TEMP/checksums.txt"
 PACKAGE="$RUNNER_TEMP/package"
 
