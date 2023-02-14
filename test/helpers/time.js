@@ -2,7 +2,7 @@ const helpers = require('@nomicfoundation/hardhat-network-helpers');
 
 module.exports = {
   clock: {
-    blocknumber: () => helpers.latestBlock(),
+    blocknumber: () => helpers.time.latestBlock(),
     timestamp: () => helpers.time.latest(),
   },
   clockFromReceipt: {
