@@ -154,7 +154,7 @@ jobs:
           script: await require('./scripts/release/workflow/github-release.js')({ github, context })
     outputs:
       tarball_name: ${{ github.repository }}-${{ needs.state.outputs.version }}
-      tarball_path: ${{ step.pack.outputs.tarball }}
+      tarball_path: ${{ steps.pack.outputs.tarball }}
 
   integrity_check:
     needs: publish
