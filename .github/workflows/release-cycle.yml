@@ -133,7 +133,7 @@ jobs:
       - name: Upload tarball artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ format("{1}{2}", github.ref_name, ".tgz") }}
+          name: ${{ format('{1}{2}', github.ref_name, '.tgz') }}
           path: ${{ steps.pack.outputs.tarball }}
       - name: Tag
         run: npx changeset tag
@@ -168,7 +168,7 @@ jobs:
       - name: Check integrity
         run: bash scripts/release/workflow/integrity-check.sh
         env:
-          TARBALL: ${{ format('{1}{2}{3}', steps.artifact.outputs.download-path, github.ref_name, '.tgz') }} 
+          TARBALL: ${{ format('{1}{2}{3}', steps.artifact.outputs.download-path, github.ref_name, '.tgz') }}
 
   merge:
     needs: state
