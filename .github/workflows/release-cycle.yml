@@ -135,7 +135,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ github.repository }}-${{ needs.state.outputs.version }}
-          path: ${{ step.pack.outputs.tarball }}
+          path: ${{ steps.pack.outputs.tarball }}
       - name: Tag
         run: npx changeset tag
       - name: Publish
