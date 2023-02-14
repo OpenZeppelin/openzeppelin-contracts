@@ -25,6 +25,8 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * @dev Allow a user to deposit underlying tokens and mint the corresponding tokenIds.
      */
     function depositFor(address account, uint256[] memory tokenIds) public virtual returns (bool) {
+        bytes memory data = abi.encodePacked(account);
+
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
             underlying().safeTransferFrom(_msgSender(), address(this), tokenIds[i], data);
