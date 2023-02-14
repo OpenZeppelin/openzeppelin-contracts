@@ -2,13 +2,13 @@
 #  M: Merge release PR
 #  C: Commit
 #  ┌───────────┐     ┌─────────────┐     ┌────────────────┐
-#  │Development├──D──►RC-Unreleased├──D──►Final-Unreleased│
-#  └───────────┘     └─┬─────────▲─┘     └─┬────────────▲─┘
-#                      │         │         │            │
-#                      M         C         M            C
-#                      │         │         │            │
-#                     ┌▼─────────┴┐       ┌▼────────────┴┐
-#                     │RC-Released│       │Final-Released│
+#  │Development├──D──►RC-Unreleased│  ┌──►Final-Unreleased│
+#  └───────────┘     └─┬─────────▲─┘  │  └─┬────────────▲─┘
+#                      │         │    │    │            │
+#                      M         C    D    M            C
+#                      │         │    │    │            │
+#                     ┌▼─────────┴┐   │   ┌▼────────────┴┐
+#                     │RC-Released├───┘   │Final-Released│
 #                     └───────────┘       └──────────────┘
 name: Release Cycle
 
