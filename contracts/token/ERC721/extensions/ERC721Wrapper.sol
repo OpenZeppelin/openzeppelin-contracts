@@ -25,11 +25,12 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * @dev Allow a user to deposit underlying tokens and mint the corresponding tokenIds.
      */
     function depositFor(address account, uint256[] memory tokenIds) public virtual returns (bool) {
-        bytes memory data = abi.encodePacked(account);
-
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
-            underlying().safeTransferFrom(_msgSender(), address(this), tokenIds[i], data);
+            uint256 tokenId = tokenIds[i];
+
+            underlying().transferFrom(_msgSender(), address(this), tokenId);
+            _safeMint(account, tokenId);
         }
 
         return true;
@@ -64,16 +65,12 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * for recovering in that scenario.
      */
     function onERC721Received(
-        address operator,
+        address,
         address from,
         uint256 tokenId,
-        bytes memory data
+        bytes memory
     ) public override returns (bytes4) {
         require(address(underlying()) == _msgSender(), "ERC721Wrapper: caller is not underlying");
-        if (data.length > 0) {
-            require(data.length == 20 && operator == address(this), "ERC721Wrapper: Invalid data format");
-            from = address(bytes20(data));
-        }
         _safeMint(from, tokenId);
         return IERC721Receiver.onERC721Received.selector;
     }
