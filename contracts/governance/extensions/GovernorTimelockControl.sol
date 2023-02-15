@@ -132,7 +132,18 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual override returns (uint256) {
-        uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
+        return _cancel(hashProposal(targets, values, calldatas, descriptionHash));
+    }
+
+    /**
+     * @dev Overridden version of the {Governor-_cancel} function to cancel the timelocked proposal if it as already
+     * been queued.
+     */
+    // This function can reenter through the external call to the timelock, but we assume the timelock is trusted and
+    // well behaved (according to TimelockController) and this will not happen.
+    // slither-disable-next-line reentrancy-no-eth
+    function _cancel(uint256 proposalId) internal virtual override returns (uint256) {
+        super._cancel(proposalId);
 
         if (_timelockIds[proposalId] != 0) {
             _timelock.cancel(_timelockIds[proposalId]);
