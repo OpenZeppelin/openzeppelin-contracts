@@ -143,7 +143,9 @@ jobs:
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
       - name: Upload tarball artifact
-        uses: actions/upload-artifact@e9ef242655d12993efdcda9058dee2db83a2cb9b
+        # Replace with actions/upload-artifact@v3 when
+        # https://github.com/actions/download-artifact/pull/194 gets released
+        uses: actions/upload-artifact@e9ef242655d12993efdcda9058dee2db83a2cb9b 
         with:
           name: ${{ github.ref_name }}
           path: ${{ steps.pack.outputs.tarball }}
