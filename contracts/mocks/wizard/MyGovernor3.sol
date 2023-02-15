@@ -77,6 +77,10 @@ contract MyGovernor is
         return super._cancel(targets, values, calldatas, descriptionHash);
     }
 
+    function _cancel(uint256 proposalId) internal override(Governor, GovernorTimelockControl) returns (uint256) {
+        return super._cancel(proposalId);
+    }
+
     function _executor() internal view override(Governor, GovernorTimelockControl) returns (address) {
         return super._executor();
     }
