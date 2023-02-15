@@ -172,7 +172,7 @@ For the attacker to dilute that deposit to 0 shares, causing the user to lose al
 
 This shows that even with an offset of 0, the virtual shares and assets make this attack non profitable for the attacker. Bigger offsets increase the security even further by making any attack on the user extremely wasteful.
 
-The following figure show how the offset impacts the initial rate and limits the hability of an attacker with limited fund to inflate it effectivelly.
+The following figure show how the offset impacts the initial rate and limits the ability of an attacker with limited fund to inflate it effectivelly.
 
 image::erc4626-attack-3a.png[Inflation attack without offset=3]
 stem:[off = 3], stem:[de = 1], stem:[do = 10^5]

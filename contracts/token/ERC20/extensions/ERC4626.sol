@@ -36,7 +36,7 @@ import "../../../utils/math/Math.sol";
  * expensive than it is profitable. More details about the underlying math can be found
  * xref:erc4626.adoc#inflation-attack[here].
  *
- * The drawback of this approach is that the virtual shares do capture (a very small) part of the value being donated
+ * The drawback of this approach is that the virtual shares do capture (a very small) part of the value being accrued
  * to the vault. Also, if the vault experiences losses, the users try to exit the vault, the virtual shares and assets
  * will cause the first user to exit to experience reduced losses in detriment to the last users that will experience
  * bigger losses. Developers willing to revert back to the pre-v4.9 behavior just need to override the
