@@ -27,7 +27,6 @@ jobs:
     env:
       FORCE_COLOR: 1
       NODE_OPTIONS: --max_old_space_size=4096
-      GAS: true
     steps:
       - uses: actions/checkout@v3
       - name: Set up environment
