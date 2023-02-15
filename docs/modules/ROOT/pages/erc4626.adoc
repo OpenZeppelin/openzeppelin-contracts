@@ -1,4 +1,5 @@
 = ERC4626
+:stem: latexmath
 
 https://eips.ethereum.org/EIPS/eip-4626[ERC4626] is an extension of xref:erc20.adoc[ERC20] that proposes a standard interface for token vaults. This standard interface can be used by widelly different contracts (include lending markets, aggregators, and intrinsically interest bearing tokens), which brings a number of subtleties. Navigating these potential issues is essential to implementing a compliant and composable token vault.
 
@@ -52,9 +53,9 @@ An attacker would typically wait for a user to do the first deposit into the vau
 
 In math that gives:
 
-- $de$ the attacker deposit
-- $do$ the attacker donation
-- $du$ the user deposit
+- stem:[de] the attacker deposit
+- stem:[do] the attacker donation
+- stem:[du] the user deposit
 
 [%header,cols=4*]
 |===
@@ -64,27 +65,31 @@ In math that gives:
 | Rate
 
 | initial
-| $0$
-| $0$
+| stem:[0]
+| stem:[0]
 | -
 
 | after attacker's deposit
-| $de$
-| $de$
-| $1$
+| stem:[de]
+| stem:[de]
+| stem:[1]
 
 | after attacker's donation
-| $de+do$
-| $de$
-| $\frac{de}{de+do}$
+| stem:[de+do]
+| stem:[de]
+| stem:[\frac{de}{de+do}]
 |===
 
-This means a deposit of $du$ will give $\frac{du*de}{de+do}$ shares.
+This means a deposit of stem:[du] will give stem:[\frac{du*de}{de+do}] shares.
 
 For the attacker to dilute that deposit to 0 shares, causing the user to lose all its deposit, it must ensure that
-$$\frac{du*de}{de+do} < 1 \iff du < 1 + \frac{do}{de}$$
 
-Using $de = 1$ and $do = du$ is enough. So the attacker only needs $du+1$ assets to perform a successful attack.
+[stem]
+++++
+\frac{du*de}{de+do} < 1 \iff du < 1 + \frac{do}{de}
+++++
+
+Using stem:[de = 1] and stem:[do = du] is enough. So the attacker only needs stem:[du+1] assets to perform a successful attack.
 
 === Defending with a virtual offset
 
@@ -98,10 +103,10 @@ These two part work together in enforcing the security of the vault. First, the 
 
 Following the previous math definition, we have:
 
-- $off$ the vault offset
-- $de$ the attacker deposit
-- $do$ the attacker donation
-- $du$ the user deposit
+- stem:[off] the vault offset
+- stem:[de] the attacker deposit
+- stem:[do] the attacker donation
+- stem:[du] the user deposit
 
 [%header,cols=4*]
 |===
@@ -111,38 +116,56 @@ Following the previous math definition, we have:
 | Rate
 
 | initial
-| $1$
-| $10^{off}$
-| $10^{off}$
+| stem:[1]
+| stem:[10^{off}]
+| stem:[10^{off}]
 
 | after attacker's deposit
-| $1+de$
-| $10^{off} \times (1+de)$
-| $10^{off}$
+| stem:[1+de]
+| stem:[10^{off} \times (1+de)]
+| stem:[10^{off}]
 
 | after attacker's donation
-| $1+de+do$
-| $10^{off} \times (1+de)$
-| $10^{off} \times \frac{1+de}{1+de+do}$
+| stem:[1+de+do]
+| stem:[10^{off} \times (1+de)]
+| stem:[10^{off} \times \frac{1+de}{1+de+do}]
 |===
 
-One important thing to note is that the attacker only owns a fraction $\frac{de}{1+de}$ of the shares, so when doing the donation, he will only be able to recover that fraction $\frac{do*de}{1+de}$ of the donation. The remaining $\frac{do}{1+de}$ are captured by the vault.
+One important thing to note is that the attacker only owns a fraction stem:[\frac{de}{1+de}] of the shares, so when doing the donation, he will only be able to recover that fraction stem:[\frac{do*de}{1+de}] of the donation. The remaining stem:[\frac{do}{1+de}] are captured by the vault.
 
-$$loss = \frac{do}{1+de}$$
+[stem]
+++++
+loss = \frac{do}{1+de}
+++++
 
-When the user deposits $du$, he receives
+When the user deposits stem:[du], he receives
 
-$$10^{off} \times du \times \frac{1+de}{1+de+do}$$
+[stem]
+++++
+10^{off} \times du \times \frac{1+de}{1+de+do}
+++++
 
 For the attacker to dilute that deposit to 0 shares, causing the user to lose all its deposit, it must ensure that
 
-$$10^{off} \times du \times \frac{1+de}{1+de+do} < 1$$
+[stem]
+++++
+10^{off} \times du \times \frac{1+de}{1+de+do} < 1
+++++
 
-$$\iff 10^{off} \times du < \frac{1+de+do}{1+de}$$
+[stem]
+++++
+\iff 10^{off} \times du < \frac{1+de+do}{1+de}
+++++
 
-$$\iff 10^{off} \times du < 1 + \frac{do}{1+de}$$
+[stem]
+++++
+\iff 10^{off} \times du < 1 + \frac{do}{1+de}
+++++
 
-$$\iff 10^{off} \times du \le loss$$
+[stem]
+++++
+\iff 10^{off} \times du \le loss
+++++
 
 - If the offset is 0, the attacker loss is at least equal to the users deposit.
 - If the offset is greater than 0, the attacker will have to suffer losses that are orders of magnitude bigger than the amount of value that can hypothetically be stolen from the user.
@@ -151,14 +174,11 @@ This shows that even with an offset of 0, the virtual shares and assets make thi
 
 The following figure show how the offset impacts the initial rate and limits the hability of an attacker with limited fund to inflate it effectivelly.
 
-$off = 3$, $de = 1$, $do = 10^5$
-
 image::erc4626-attack-3a.png[Inflation attack without offset=3]
-
-$off = 3$, $de = 100$, $do = 10^5$
+stem:[off = 3], stem:[de = 1], stem:[do = 10^5]
 
 image::erc4626-attack-3b.png[Inflation attack without offset=3 and an attacker deposit that limits its loses]
-
-$off = 6$, $de = 1$, $do = 10^5$
+stem:[off = 3], stem:[de = 100], stem:[do = 10^5]
 
 image::erc4626-attack-6.png[Inflation attack without offset=6]
+stem:[off = 6], stem:[de = 1], stem:[do = 10^5]
