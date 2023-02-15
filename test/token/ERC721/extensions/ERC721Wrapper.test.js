@@ -1,6 +1,5 @@
 const { BN, expectEvent, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { keccakFromString, bufferToHex } = require('ethereumjs-util');
 
 const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');
 
@@ -230,27 +229,13 @@ contract('ERC721Wrapper', function (accounts) {
   });
 
   describe('onERC721Received', function () {
-    const WRAPPER_ACCEPT_MAGIC = bufferToHex(keccakFromString('WRAPPER_ACCEPT_MAGIC')).slice(0, 26); // Include 0x
-
-    const magicWithAddresss = address =>
-      web3.utils.encodePacked(
-        {
-          value: WRAPPER_ACCEPT_MAGIC,
-          type: 'bytes12',
-        },
-        {
-          value: address,
-          type: 'address',
-        },
-      );
-
     it('only allows calls from underlying', async function () {
       await expectRevert(
         this.token.onERC721Received(
           initialHolder,
           this.token.address,
           firstTokenId,
-          magicWithAddresss(anotherAccount), // Correct data
+          anotherAccount, // Correct data
           { from: anotherAccount },
         ),
         'ERC721Wrapper: caller is not underlying',
@@ -273,37 +258,19 @@ contract('ERC721Wrapper', function (accounts) {
         );
       });
 
-      it('reverts with the magic value and data length different to 32', async function () {
+      it('reverts with correct data from an untrusted operator', async function () {
         await expectRevert(
           this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
             initialHolder,
             this.token.address,
             firstTokenId,
-            WRAPPER_ACCEPT_MAGIC, // Reverts for any non-32 bytes value
+            anotherAccount,
             {
               from: initialHolder,
             },
           ),
           'ERC721Wrapper: Invalid data format',
         );
-      });
-
-      it('mints token to specific holder with address after magic value', async function () {
-        const { tx } = await this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
-          initialHolder,
-          this.token.address,
-          firstTokenId,
-          magicWithAddresss(anotherAccount),
-          {
-            from: initialHolder,
-          },
-        );
-
-        await expectEvent.inTransaction(tx, this.token, 'Transfer', {
-          from: constants.ZERO_ADDRESS,
-          to: anotherAccount,
-          tokenId: firstTokenId,
-        });
       });
     });
 
