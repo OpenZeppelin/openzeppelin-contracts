@@ -117,8 +117,10 @@ contract('Checkpoints', function () {
       const latestCheckpoint = (self, ...args) =>
         self.methods[`$latestCheckpoint_Checkpoints_Trace${length}(uint256)`](0, ...args);
       const push = (self, ...args) => self.methods[`$push(uint256,uint${256 - length},uint${length})`](0, ...args);
-      const upperLookup = (self, ...args) => self.methods[`$upperLookup(uint256,uint${256 - length})`](0, ...args);
       const lowerLookup = (self, ...args) => self.methods[`$lowerLookup(uint256,uint${256 - length})`](0, ...args);
+      const upperLookup = (self, ...args) => self.methods[`$upperLookup(uint256,uint${256 - length})`](0, ...args);
+      const upperLookupRecent = (self, ...args) =>
+        self.methods[`$upperLookupRecent(uint256,uint${256 - length})`](0, ...args);
       const getLength = (self, ...args) => self.methods[`$length_Checkpoints_Trace${length}(uint256)`](0, ...args);
 
       describe('without checkpoints', function () {
@@ -134,6 +136,7 @@ contract('Checkpoints', function () {
         it('lookup returns 0', async function () {
           expect(await lowerLookup(this.mock, 0)).to.be.bignumber.equal('0');
           expect(await upperLookup(this.mock, 0)).to.be.bignumber.equal('0');
+          expect(await upperLookupRecent(this.mock, 0)).to.be.bignumber.equal('0');
         });
       });
 
@@ -190,11 +193,33 @@ contract('Checkpoints', function () {
           }
         });
 
-        it('upper lookup', async function () {
+        it('upper lookup & upperLookupRecent', async function () {
           for (let i = 0; i < 14; ++i) {
             const value = last(this.checkpoints.filter(x => i >= x.key))?.value || '0';
 
             expect(await upperLookup(this.mock, i)).to.be.bignumber.equal(value);
+            expect(await upperLookupRecent(this.mock, i)).to.be.bignumber.equal(value);
+          }
+        });
+
+        it('upperLookupRecent with more than 5 checkpoints', async function () {
+          const moreCheckpoints = [
+            { key: '12', value: '22' },
+            { key: '13', value: '131' },
+            { key: '17', value: '45' },
+            { key: '19', value: '31452' },
+            { key: '21', value: '0' },
+          ];
+          const allCheckpoints = [].concat(this.checkpoints, moreCheckpoints);
+
+          for (const { key, value } of moreCheckpoints) {
+            await push(this.mock, key, value);
+          }
+
+          for (let i = 0; i < 25; ++i) {
+            const value = last(allCheckpoints.filter(x => i >= x.key))?.value || '0';
+            expect(await upperLookup(this.mock, i)).to.be.bignumber.equal(value);
+            expect(await upperLookupRecent(this.mock, i)).to.be.bignumber.equal(value);
           }
         });
       });

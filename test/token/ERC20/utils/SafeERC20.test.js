@@ -6,8 +6,7 @@ const ERC20ReturnTrueMock = artifacts.require('ERC20ReturnTrueMock');
 const ERC20NoReturnMock = artifacts.require('ERC20NoReturnMock');
 const ERC20PermitNoRevertMock = artifacts.require('ERC20PermitNoRevertMock');
 
-const { EIP712Domain, Permit } = require('../../../helpers/eip712');
-const { getChainId } = require('../../../helpers/chainid');
+const { getDomain, domainType, Permit } = require('../../../helpers/eip712');
 
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
@@ -58,16 +57,15 @@ contract('SafeERC20', function (accounts) {
     const spender = hasNoCode;
 
     beforeEach(async function () {
-      const chainId = await getChainId();
-
       this.token = await ERC20PermitNoRevertMock.new();
 
-      this.data = {
+      this.data = await getDomain(this.token).then(domain => ({
         primaryType: 'Permit',
-        types: { EIP712Domain, Permit },
-        domain: { name: 'ERC20PermitNoRevertMock', version: '1', chainId, verifyingContract: this.token.address },
+        types: { EIP712Domain: domainType(domain), Permit },
+        domain,
         message: { owner, spender, value: '42', nonce: '0', deadline: constants.MAX_UINT256 },
-      };
+      }));
+
       this.signature = fromRpcSig(ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data: this.data }));
     });
 
