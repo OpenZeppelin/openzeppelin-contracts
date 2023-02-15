@@ -133,7 +133,7 @@ jobs:
       - name: Upload tarball artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ format('{0}{1}', github.ref_name, '.tgz') }}
+          name: ${{ github.ref_name }}.tgz
           path: ${{ steps.pack.outputs.tarball }}
       - name: Tag
         run: npx changeset tag
