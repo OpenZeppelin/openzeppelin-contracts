@@ -168,7 +168,7 @@ jobs:
       - name: Check integrity
         run: bash scripts/release/workflow/integrity-check.sh
         env:
-          TARBALL: ${{ format('{0}/{1}{2}', steps.artifact.outputs.download-path, github.ref_name, '.tgz') }}
+          TARBALL: ${{ steps.artifact.outputs.download-path }}/${{ github.ref_name }}.tgz
 
   merge:
     needs: state
