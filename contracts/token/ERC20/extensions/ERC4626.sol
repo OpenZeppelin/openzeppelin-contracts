@@ -32,7 +32,7 @@ import "../../../utils/math/Math.sol";
  * (0) makes it non-profitable, as a result of the value being captured by the virtual shares (out of the attacker's
  * donation) matching the attacker's expected gains. With a larger offset, the attack becomes orders of magnitude more
  * expensive than it is profitable. More details about the underlying math can be found
- * https://docs.openzeppelin.com/contracts/4.x/erc4626#inflation-attack[here].
+ * xref:erc4626.adoc#inflation-attack[here].
  *
  * The drawback of this approach is that the virtual shares do capture (a very small) part of the value being donated
  * to the vault. Also, if the vault experiences losses, the users try to exit the vault, the virtual shares and assets
@@ -40,7 +40,7 @@ import "../../../utils/math/Math.sol";
  * bigger losses. Developers willing to revert back to the pre-v4.9 behavior just need to override the
  * `_convertToShares` and `_convertToAssets` functions.
  *
- * To learn more, check out our https://docs.openzeppelin.com/contracts/4.x/erc4626[ERC-4626 guide].
+ * To learn more, check out our xref:erc4626.adoc[ERC-4626 guide].
  *
  * _Available since v4.7._
  */
