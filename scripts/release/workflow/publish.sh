@@ -15,6 +15,6 @@ delete_tag() {
 
 if [ "$TAG" = tmp ]; then
   delete_tag "$TAG"
-elif ["$TAG" = latest ]; then
+elif [ "$TAG" = latest ]; then
   delete_tag next
 fi
