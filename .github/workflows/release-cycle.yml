@@ -151,8 +151,6 @@ jobs:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
         with:
           script: await require('./scripts/release/workflow/github-release.js')({ github, context })
-    outputs:
-      tarball_path: ${{ steps.pack.outputs.tarball }}
 
   integrity_check:
     needs: publish
