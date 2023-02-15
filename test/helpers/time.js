@@ -1,16 +1,16 @@
-const helpers = require('@nomicfoundation/hardhat-network-helpers');
+const { time } = require('@openzeppelin/test-helpers');
 
 module.exports = {
   clock: {
-    blocknumber: () => helpers.time.latestBlock(),
-    timestamp: () => helpers.time.latest(),
+    blocknumber: () => web3.eth.getBlock('latest').then(block => block.number),
+    timestamp: () => web3.eth.getBlock('latest').then(block => block.timestamp),
   },
   clockFromReceipt: {
     blocknumber: receipt => Promise.resolve(receipt.blockNumber),
     timestamp: receipt => web3.eth.getBlock(receipt.blockNumber).then(block => block.timestamp),
   },
   forward: {
-    blocknumber: helpers.mineUpTo,
-    timestamp: helpers.time.increaseTo,
+    blocknumber: time.advanceBlockTo,
+    timestamp: time.increaseTo,
   },
 };
