@@ -29,6 +29,9 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
         for (uint256 i = 0; i < length; ++i) {
             uint256 tokenId = tokenIds[i];
 
+            // This is an "unsafe" transfer that doesn't call any hook on the receiver. With underlying() being trusted
+            // (by design of this contract) and no other contracts expected to be called from there, we are safe.
+            // slither-disable-next-line reentrancy-no-eth
             underlying().transferFrom(_msgSender(), address(this), tokenId);
             _safeMint(account, tokenId);
         }
