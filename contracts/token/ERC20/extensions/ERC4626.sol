@@ -18,7 +18,7 @@ import "../../../utils/math/Math.sol";
  * contract and not the "assets" token which is an independent contract.
  *
  * [CAUTION]
- * ===
+ * ====
  * In empty (or nearly empty) ERC-4626 vaults, deposits are at high risk of being stolen through frontrunning
  * with a "donation" to the vault that inflates the price of a share. This is variously known as a donation or inflation
  * attack and is essentially a problem of slippage. Vault deployers can protect against this attack by making an initial
@@ -43,7 +43,7 @@ import "../../../utils/math/Math.sol";
  * `_convertToShares` and `_convertToAssets` functions.
  *
  * To learn more, check out our xref:erc4626.adoc[ERC-4626 guide].
- * ===
+ * ====
  *
  * _Available since v4.7._
  */
