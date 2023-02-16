@@ -20,3 +20,5 @@
 * xref:crosschain.adoc[Crosschain]
 
 * xref:utilities.adoc[Utilities]
+
+* xref:subgraphs::index.adoc[Subgraphs]
