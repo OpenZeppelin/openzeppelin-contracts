@@ -261,7 +261,9 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
       const receipt = await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
       const defaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
       expect(await this.accessControl.pendingDefaultAdmin()).to.equal(newDefaultAdmin);
-      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal((await time.latest()).add(delay));
+      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(
+        (await time.latest()).add(delay),
+      );
       expectEvent(receipt, 'DefaultAdminRoleChangeStarted', { newDefaultAdmin, defaultAdminTransferDelayedUntil });
     });
 
