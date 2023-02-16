@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`AccessControlAdminRules`: Add extension to `AccessControl` for adding extra rules to handle the `DEFAULT_ADMIN_ROLE`
+`AccessControlAdminRules`: Add an extension of `AccessControl` with additional security rules for the `DEFAULT_ADMIN_ROLE`.
