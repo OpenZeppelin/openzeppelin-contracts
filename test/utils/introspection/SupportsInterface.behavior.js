@@ -38,12 +38,12 @@ const INTERFACES = {
   ],
   AccessControlEnumerable: ['getRoleMember(bytes32,uint256)', 'getRoleMemberCount(bytes32)'],
   AccessControlAdminRules: [
-    'admin()',
+    'defaultAdmin()',
     'delayedUntil()',
-    'pendingAdmin()',
-    'beginAdminTransfer(address)',
-    'acceptAdminTransfer()',
-    'cancelAdminTransfer()',
+    'pendingDefaultAdmin()',
+    'beginDefaultAdminTransfer(address)',
+    'acceptDefaultAdminTransfer()',
+    'cancelDefaultAdminTransfer()',
   ],
   Governor: [
     'name()',
