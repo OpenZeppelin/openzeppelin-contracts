@@ -53,9 +53,9 @@ An attacker would typically wait for a user to do the first deposit into the vau
 
 In math that gives:
 
-- stem:[de] the attacker deposit
-- stem:[do] the attacker donation
-- stem:[du] the user deposit
+- stem:[a_0] the attacker deposit
+- stem:[a_1] the attacker donation
+- stem:[u] the user deposit
 
 [%header,cols=4*]
 |===
@@ -70,26 +70,26 @@ In math that gives:
 | -
 
 | after attacker's deposit
-| stem:[de]
-| stem:[de]
+| stem:[a_0]
+| stem:[a_0]
 | stem:[1]
 
 | after attacker's donation
-| stem:[de+do]
-| stem:[de]
-| stem:[\frac{de}{de+do}]
+| stem:[a_0+a_1]
+| stem:[a_0]
+| stem:[\frac{a_0}{a_0+a_1}]
 |===
 
-This means a deposit of stem:[du] will give stem:[\frac{du*de}{de+do}] shares.
+This means a deposit of stem:[u] will give stem:[\frac{u \times a_0}{a_0 + a_1}] shares.
 
 For the attacker to dilute that deposit to 0 shares, causing the user to lose all its deposit, it must ensure that
 
 [stem]
 ++++
-\frac{du*de}{de+do} < 1 \iff du < 1 + \frac{do}{de}
+\frac{u \times a_0}{a_0+a_1} < 1 \iff u < 1 + \frac{a_1}{a_0}
 ++++
 
-Using stem:[de = 1] and stem:[do = du] is enough. So the attacker only needs stem:[du+1] assets to perform a successful attack.
+Using stem:[a_0 = 1] and stem:[a_1 = u] is enough. So the attacker only needs stem:[u+1] assets to perform a successful attack.
 
 === Defending with a virtual offset
 
@@ -103,10 +103,10 @@ These two parts work together in enforcing the security of the vault. First, the
 
 Following the previous math definitions, we have:
 
-- stem:[off] the vault offset
-- stem:[de] the attacker deposit
-- stem:[do] the attacker donation
-- stem:[du] the user deposit
+- stem:[\delta] the vault offset
+- stem:[a_0] the attacker deposit
+- stem:[a_1] the attacker donation
+- stem:[u] the user deposit
 
 [%header,cols=4*]
 |===
@@ -117,54 +117,54 @@ Following the previous math definitions, we have:
 
 | initial
 | stem:[1]
-| stem:[10^{off}]
-| stem:[10^{off}]
+| stem:[10^\delta]
+| stem:[10^\delta]
 
 | after attacker's deposit
-| stem:[1+de]
-| stem:[10^{off} \times (1+de)]
-| stem:[10^{off}]
+| stem:[1+a_0]
+| stem:[10^\delta \times (1+a_0)]
+| stem:[10^\delta]
 
 | after attacker's donation
-| stem:[1+de+do]
-| stem:[10^{off} \times (1+de)]
-| stem:[10^{off} \times \frac{1+de}{1+de+do}]
+| stem:[1+a_0+a_1]
+| stem:[10^\delta \times (1+a_0)]
+| stem:[10^\delta \times \frac{1+a_0}{1+a_0+a_1}]
 |===
 
-One important thing to note is that the attacker only owns a fraction stem:[\frac{de}{1+de}] of the shares, so when doing the donation, he will only be able to recover that fraction stem:[\frac{do*de}{1+de}] of the donation. The remaining stem:[\frac{do}{1+de}] are captured by the vault.
+One important thing to note is that the attacker only owns a fraction stem:[\frac{a_0}{1 + a_0}] of the shares, so when doing the donation, he will only be able to recover that fraction stem:[\frac{a_1 \times a_0}{1 + a_0}] of the donation. The remaining stem:[\frac{a_1}{1+a_0}] are captured by the vault.
 
 [stem]
 ++++
-loss = \frac{do}{1+de}
+\mathit{loss} = \frac{a_1}{1+a_0}
 ++++
 
-When the user deposits stem:[du], he receives
+When the user deposits stem:[u], he receives
 
 [stem]
 ++++
-10^{off} \times du \times \frac{1+de}{1+de+do}
+10^\delta \times u \times \frac{1+a_0}{1+a_0+a_1}
 ++++
 
 For the attacker to dilute that deposit to 0 shares, causing the user to lose all its deposit, it must ensure that
 
 [stem]
 ++++
-10^{off} \times du \times \frac{1+de}{1+de+do} < 1
+10^\delta \times u \times \frac{1+a_0}{1+a_0+a_1} < 1
 ++++
 
 [stem]
 ++++
-\iff 10^{off} \times du < \frac{1+de+do}{1+de}
+\iff 10^\delta \times u < \frac{1+a_0+a_1}{1+a_0}
 ++++
 
 [stem]
 ++++
-\iff 10^{off} \times du < 1 + \frac{do}{1+de}
+\iff 10^\delta \times u < 1 + \frac{a_1}{1+a_0}
 ++++
 
 [stem]
 ++++
-\iff 10^{off} \times du \le loss
+\iff 10^\delta \times u \le \mathit{loss}
 ++++
 
 - If the offset is 0, the attacker loss is at least equal to the user's deposit.
@@ -175,10 +175,10 @@ This shows that even with an offset of 0, the virtual shares and assets make thi
 The following figure shows how the offset impacts the initial rate and limits the ability of an attacker with limited funds to inflate it effectively.
 
 image::erc4626-attack-3a.png[Inflation attack without offset=3]
-stem:[off = 3], stem:[de = 1], stem:[do = 10^5]
+stem:[\delta = 3], stem:[a_0 = 1], stem:[a_1 = 10^5]
 
 image::erc4626-attack-3b.png[Inflation attack without offset=3 and an attacker deposit that limits its losses]
-stem:[off = 3], stem:[de = 100], stem:[do = 10^5]
+stem:[\delta = 3], stem:[a_0 = 100], stem:[a_1 = 10^5]
 
 image::erc4626-attack-6.png[Inflation attack without offset=6]
-stem:[off = 6], stem:[de = 1], stem:[do = 10^5]
+stem:[\delta = 6], stem:[a_0 = 1], stem:[a_1 = 10^5]
