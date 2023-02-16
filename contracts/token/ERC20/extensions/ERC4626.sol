@@ -42,7 +42,7 @@ import "../../../utils/math/Math.sol";
  * bigger losses. Developers willing to revert back to the pre-v4.9 behavior just need to override the
  * `_convertToShares` and `_convertToAssets` functions.
  *
- * To learn more, check out our xref:erc4626.adoc[ERC-4626 guide].
+ * To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
  * ====
  *
  * _Available since v4.7._
