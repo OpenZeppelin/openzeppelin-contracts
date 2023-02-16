@@ -115,19 +115,22 @@ class GovernorHelper {
       : this.governor.castVote(...concatOpts([proposal.id, vote.support], opts));
   }
 
-  waitForSnapshot(offset = 0) {
+  async waitForSnapshot(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor.proposalSnapshot(proposal.id).then(timepoint => forward[this.mode](timepoint.addn(offset)));
+    const timepoint = await this.governor.proposalSnapshot(proposal.id);
+    return forward[this.mode](timepoint.addn(offset));
   }
 
-  waitForDeadline(offset = 0) {
+  async waitForDeadline(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor.proposalDeadline(proposal.id).then(timepoint => forward[this.mode](timepoint.addn(offset)));
+    const timepoint = await this.governor.proposalDeadline(proposal.id);
+    return forward[this.mode](timepoint.addn(offset));
   }
 
-  waitForEta(offset = 0) {
+  async waitForEta(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor.proposalEta(proposal.id).then(timestamp => forward.timestamp(timestamp.addn(offset)));
+    const timestamp = await this.governor.proposalEta(proposal.id);
+    return forward.timestamp(timestamp.addn(offset));
   }
 
   /**
