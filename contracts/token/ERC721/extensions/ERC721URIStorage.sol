@@ -39,6 +39,8 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
     /**
      * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
      *
+     * Emits {MetadataUpdate}.
+     *
      * Requirements:
      *
      * - `tokenId` must exist.
