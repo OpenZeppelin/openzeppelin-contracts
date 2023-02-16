@@ -174,7 +174,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     function revokeRole(
         bytes32 role,
         address account
-    ) public virtual override(IAccessControl, AccessControl) onlyRole(getRoleAdmin(role)) {
+    ) public virtual override(IAccessControl, AccessControl) {
         require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly revoke defaultAdmin role");
         super.revokeRole(role, account);
     }
