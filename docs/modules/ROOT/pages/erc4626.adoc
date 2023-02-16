@@ -91,6 +91,15 @@ For the attacker to dilute that deposit to 0 shares, causing the user to lose al
 
 Using stem:[a_0 = 1] and stem:[a_1 = u] is enough. So the attacker only needs stem:[u+1] assets to perform a successful attack.
 
+It is easy to generalise the above results to scenarios where the attacker is going after a smaller fraction the user's deposit. In order to target stem:[\frac{u}{n}], the user needs to suffer rounding of a similar fraction, which means the user must receive at most stem:[n] shares. This results in:
+
+[stem]
+++++
+\frac{u \times a_0}{a_0+a_1} < n \iff \frac{u}{n} < 1 + \frac{a_1}{a_0}
+++++
+
+In this scenario, the attack is stem:[n] times less powerfull (in how much it is stealing) and cost stem:[n] times less to execute. In both cases, the amount of fund the attacker needs to commit is equivalent to its potential winnings.
+
 === Defending with a virtual offset
 
 The defense we propose consists of two parts:
