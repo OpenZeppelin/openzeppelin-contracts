@@ -48,7 +48,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     address private _currentDefaultAdmin;
     address private _pendingDefaultAdmin;
 
-    uint48 private _delayedUntil;
+    uint48 private defaultAadminTransferDelayedUntil;
 
     /**
      * @dev Sets the initial values for {delay} and {defaultAdmin}.
@@ -82,10 +82,10 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     }
 
     /**
-     * @dev See {IAccessControlAdminRules-delayedUntil}.
+     * @dev See {IAccessControlAdminRules-defaultAdminTransferDelayedUntil}.
      */
-    function delayedUntil() public view virtual returns (uint48) {
-        return _delayedUntil;
+    function defaultAdminTransferDelayedUntil() public view virtual returns (uint48) {
+        return defaultAadminTransferDelayedUntil;
     }
 
     /**
@@ -106,10 +106,10 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
      * @dev See {IAccessControlAdminRules-beginDefaultAdminTransfer}
      */
     function beginDefaultAdminTransfer(address newAdmin) public virtual override onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(delayedUntil() == 0, "AccessControl: pending admin already set");
-        _delayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
+        require(defaultAdminTransferDelayedUntil() == 0, "AccessControl: pending admin already set");
+        defaultAadminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
         _pendingDefaultAdmin = newAdmin;
-        emit DefaultAdminRoleChangeStarted(pendingDefaultAdmin(), delayedUntil());
+        emit DefaultAdminRoleChangeStarted(pendingDefaultAdmin(), defaultAdminTransferDelayedUntil());
     }
 
     /**
@@ -137,7 +137,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
      * @dev Revokes `role` from the calling account.
      *
      * For `DEFAULT_ADMIN_ROLE`, only allows renouncing in two steps, so it's required
-     * that the {delayedUntil} is met and the pending default admin is the zero address.
+     * that the {defaultAdminTransferDelayedUntil} is met and the pending default admin is the zero address.
      * After its execution, it will not be possible to call `onlyRole(DEFAULT_ADMIN_ROLE)`
      * functions.
      *
@@ -160,10 +160,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     /**
      * @dev See {AccessControl-grantRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
-    function grantRole(
-        bytes32 role,
-        address account
-    ) public virtual override(IAccessControl, AccessControl) {
+    function grantRole(bytes32 role, address account) public virtual override(IAccessControl, AccessControl) {
         require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly grant defaultAdmin role");
         super.grantRole(role, account);
     }
@@ -171,10 +168,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     /**
      * @dev See {AccessControl-revokeRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
-    function revokeRole(
-        bytes32 role,
-        address account
-    ) public virtual override(IAccessControl, AccessControl) {
+    function revokeRole(bytes32 role, address account) public virtual override(IAccessControl, AccessControl) {
         require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly revoke defaultAdmin role");
         super.revokeRole(role, account);
     }
@@ -222,14 +216,16 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
      */
     function _resetDefaultAdminTransfer() private {
         delete _pendingDefaultAdmin;
-        delete _delayedUntil;
+        delete defaultAadminTransferDelayedUntil;
     }
 
     /**
-     * @dev Checks if a {delayedUntil} has been set and met.
+     * @dev Checks if a {defaultAdminTransferDelayedUntil} has been set and met.
      */
     function _hasDefaultAdminTransferDelayPassed() private view returns (bool) {
-        uint48 delayedUntilTimestamp = delayedUntil();
-        return delayedUntilTimestamp > 0 && delayedUntilTimestamp < block.timestamp;
+        uint48 defaultAdminTransferDelayedUntilTimestamp = defaultAdminTransferDelayedUntil();
+        return
+            defaultAdminTransferDelayedUntilTimestamp > 0 &&
+            defaultAdminTransferDelayedUntilTimestamp < block.timestamp;
     }
 }

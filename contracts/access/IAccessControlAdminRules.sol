@@ -13,9 +13,9 @@ import "./IAccessControl.sol";
 interface IAccessControlAdminRules is IAccessControl {
     /**
      * @dev Emitted when an `DEFAULT_ADMIN_ROLE` transfer is started, setting `newDefaultAdmin`
-     * as the next default admin to be claimed after `delayedUntil` is met.
+     * as the next default admin to be claimed after `defaultAdminTransferDelayedUntil` is met.
      */
-    event DefaultAdminRoleChangeStarted(address indexed newDefaultAdmin, uint48 delayedUntil);
+    event DefaultAdminRoleChangeStarted(address indexed newDefaultAdmin, uint48 defaultAdminTransferDelayedUntil);
 
     /**
      * @dev Returns the address of the current `DEFAULT_ADMIN_ROLE` holder.
@@ -26,7 +26,7 @@ interface IAccessControlAdminRules is IAccessControl {
      * @dev Returns the timestamp in which the pending default admin can claim the
      * `DEFAULT_ADMIN_ROLE`.
      */
-    function delayedUntil() external view returns (uint48);
+    function defaultAdminTransferDelayedUntil() external view returns (uint48);
 
     /**
      * @dev Returns the address of the pending `DEFAULT_ADMIN_ROLE` holder.

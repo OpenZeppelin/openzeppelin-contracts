@@ -215,7 +215,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
   shouldSupportInterfaces(['AccessControlAdminRules']);
 
   it('has a default disabled delayed until', async function () {
-    expect(await this.accessControl.delayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
+    expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
   });
 
   it('has a default pending default admin', async function () {
@@ -259,10 +259,10 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
   describe('begins transfer default admin', async function () {
     it('should set pending default admin and delayed until', async function () {
       const receipt = await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-      const delayedUntil = (await time.latest()).add(delay);
+      const defaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
       expect(await this.accessControl.pendingDefaultAdmin()).to.equal(newDefaultAdmin);
-      expect(await this.accessControl.delayedUntil()).to.be.bignumber.equal((await time.latest()).add(delay));
-      expectEvent(receipt, 'DefaultAdminRoleChangeStarted', { newDefaultAdmin, delayedUntil });
+      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal((await time.latest()).add(delay));
+      expectEvent(receipt, 'DefaultAdminRoleChangeStarted', { newDefaultAdmin, defaultAdminTransferDelayedUntil });
     });
 
     it('should revert if it called by non-admin accounts', async function () {
@@ -325,7 +325,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
 
       it('accepts a transfer resetting pending admin and delayed until', async function () {
         await this.accessControl.acceptDefaultAdminTransfer({ from });
-        expect(await this.accessControl.delayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
+        expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
         expect(await this.accessControl.pendingDefaultAdmin()).to.equal(ZERO_ADDRESS);
       });
     });
@@ -370,7 +370,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
 
     it('resets pending default admin and delayed until', async function () {
       await this.accessControl.cancelDefaultAdminTransfer({ from: defaultAdmin });
-      expect(await this.accessControl.delayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await this.accessControl.pendingDefaultAdmin()).to.equal(ZERO_ADDRESS);
     });
 
