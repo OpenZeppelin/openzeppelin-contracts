@@ -98,7 +98,7 @@ It is easy to generalise the above results to scenarios where the attacker is go
 \frac{u \times a_0}{a_0+a_1} < n \iff \frac{u}{n} < 1 + \frac{a_1}{a_0}
 ++++
 
-In this scenario, the attack is stem:[n] times less powerfull (in how much it is stealing) and cost stem:[n] times less to execute. In both cases, the amount of fund the attacker needs to commit is equivalent to its potential winnings.
+In this scenario, the attack is stem:[n] times less powerful (in how much it is stealing) and cost stem:[n] times less to execute. In both cases, the amount of fund the attacker needs to commit is equivalent to its potential winnings.
 
 === Defending with a virtual offset
 
