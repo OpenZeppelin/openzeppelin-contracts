@@ -5,6 +5,7 @@ const { ZERO_ADDRESS } = constants;
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 
 const ERC721ReceiverMock = artifacts.require('ERC721ReceiverMock');
+const NonERC721ReceiverMock = artifacts.require('CallReceiverMock');
 
 const Error = ['None', 'RevertWithMessage', 'RevertWithoutMessage', 'Panic'].reduce(
   (acc, entry, idx) => Object.assign({ [entry]: idx }, acc),
@@ -316,7 +317,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
 
         describe('to a contract that does not implement the required function', function () {
           it('reverts', async function () {
-            const nonReceiver = this.token;
+            const nonReceiver = await NonERC721ReceiverMock.new();
             await expectRevert(
               this.token.safeTransferFrom(owner, nonReceiver.address, tokenId, { from: owner }),
               'ERC721: transfer to non ERC721Receiver implementer',
@@ -392,7 +393,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
 
         context('to a contract that does not implement the required function', function () {
           it('reverts', async function () {
-            const nonReceiver = this.token;
+            const nonReceiver = await NonERC721ReceiverMock.new();
             await expectRevert(
               this.token.$_safeMint(nonReceiver.address, tokenId),
               'ERC721: transfer to non ERC721Receiver implementer',

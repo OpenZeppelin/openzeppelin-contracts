@@ -1,3 +1,15 @@
+#  D: Manual Dispatch
+#  M: Merge release PR
+#  C: Commit
+#  ┌───────────┐     ┌─────────────┐     ┌────────────────┐
+#  │Development├──D──►RC-Unreleased│  ┌──►Final-Unreleased│
+#  └───────────┘     └─┬─────────▲─┘  │  └─┬────────────▲─┘
+#                      │         │    │    │            │
+#                      M         C    D    M            C
+#                      │         │    │    │            │
+#                     ┌▼─────────┴┐   │   ┌▼────────────┴┐
+#                     │RC-Released├───┘   │Final-Released│
+#                     └───────────┘       └──────────────┘
 name: Release Cycle
 
 on:
@@ -130,6 +142,11 @@ jobs:
         run: bash scripts/release/workflow/pack.sh
         env:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.ref_name }}
+          path: ${{ steps.pack.outputs.tarball }}
       - name: Tag
         run: npx changeset tag
       - name: Publish
@@ -146,6 +163,26 @@ jobs:
           PRERELEASE: ${{ needs.state.outputs.is_prerelease }}
         with:
           script: await require('./scripts/release/workflow/github-release.js')({ github, context })
+    outputs:
+      tarball_name: ${{ steps.pack.outputs.tarball_name }}
+
+  integrity_check:
+    needs: publish
+    name: Tarball Integrity Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download tarball artifact
+        id: artifact
+        # Replace with actions/upload-artifact@v3 when
+        # https://github.com/actions/download-artifact/pull/194 gets released
+        uses: actions/download-artifact@e9ef242655d12993efdcda9058dee2db83a2cb9b
+        with:
+          name: ${{ github.ref_name }}
+      - name: Check integrity
+        run: bash scripts/release/workflow/integrity-check.sh
+        env:
+          TARBALL: ${{ steps.artifact.outputs.download-path }}/${{ needs.publish.outputs.tarball_name }}
 
   merge:
     needs: state
