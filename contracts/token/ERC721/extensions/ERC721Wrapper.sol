@@ -67,7 +67,7 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * WARNING: Doesn't work with unsafe transfers (eg. {IERC721-transferFrom}). Use {ERC721Wrapper-_recover}
      * for recovering in that scenario.
      */
-    function onERC721Received(address, address from, uint256 tokenId, bytes memory) public override returns (bytes4) {
+    function onERC721Received(address, address from, uint256 tokenId, bytes memory) public virtual override returns (bytes4) {
         require(address(underlying()) == _msgSender(), "ERC721Wrapper: caller is not underlying");
         _safeMint(from, tokenId);
         return IERC721Receiver.onERC721Received.selector;
