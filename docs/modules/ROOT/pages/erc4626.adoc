@@ -167,7 +167,7 @@ For the attacker to dilute that deposit to 0 shares, causing the user to lose al
 \iff 10^{off} \times du \le loss
 ++++
 
-- If the offset is 0, the attacker loss is at least equal to the users deposit.
+- If the offset is 0, the attacker loss is at least equal to the user's deposit.
 - If the offset is greater than 0, the attacker will have to suffer losses that are orders of magnitude bigger than the amount of value that can hypothetically be stolen from the user.
 
 This shows that even with an offset of 0, the virtual shares and assets make this attack non profitable for the attacker. Bigger offsets increase the security even further by making any attack on the user extremely wasteful.
