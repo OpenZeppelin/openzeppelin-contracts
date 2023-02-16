@@ -67,6 +67,8 @@ library Math {
 
             // Handle non-overflow cases, 256 by 256 division.
             if (prod1 == 0) {
+                // Will revert if denominator == 0. It is not possible to disable the check for division by zero using the unchecked block.
+                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
                 return prod0 / denominator;
             }
 
