@@ -1,45 +1,45 @@
 = ERC4626
 :stem: latexmath
 
-https://eips.ethereum.org/EIPS/eip-4626[ERC4626] is an extension of xref:erc20.adoc[ERC20] that proposes a standard interface for token vaults. This standard interface can be used by widelly different contracts (include lending markets, aggregators, and intrinsically interest bearing tokens), which brings a number of subtleties. Navigating these potential issues is essential to implementing a compliant and composable token vault.
+https://eips.ethereum.org/EIPS/eip-4626[ERC4626] is an extension of xref:erc20.adoc[ERC20] that proposes a standard interface for token vaults. This standard interface can be used by widely different contracts (including lending markets, aggregators, and intrinsically interest bearing tokens), which brings a number of subtleties. Navigating these potential issues is essential to implementing a compliant and composable token vault.
 
-We prodive a base implementation of ERC4626 that includes a simple vault. This contract is designed in a way that allows developer to easily re-configure the vault's behavior, with minimal overrides, while staying compliant. In this guide, we will discuss some security considerations that affect ERC4626. We will also discuss common customization of the vault.
+We provide a base implementation of ERC4626 that includes a simple vault. This contract is designed in a way that allows developers to easily re-configure the vault's behavior, with minimal overrides, while staying compliant. In this guide, we will discuss some security considerations that affect ERC4626. We will also discuss common customizations of the vault.
 
 [[inflation-attack]]
 == Security concern: Inflation attack
 
 === Visualizing the vault
 
-In exchange for the assets deposited into an ERC4626 vault, a user receives shares. These shares can later be burned to redeem the corresponding underlying assets. The number of shares a user get depend on the amount of assets they put in and on the exchange rate of the vault. This exchange rate is defined by the current liquidity held by the vault.
+In exchange for the assets deposited into an ERC4626 vault, a user receives shares. These shares can later be burned to redeem the corresponding underlying assets. The number of shares a user gets depends on the amount of assets they put in and on the exchange rate of the vault. This exchange rate is defined by the current liquidity held by the vault.
 
-- If a vault has 100 tokens to back 200 shares, than each share is worth 0.5 asset.
-- If a vault has 200 tokens to back 100 shares, than each share is worth 2.0 asset.
+- If a vault has 100 tokens to back 200 shares, then each share is worth 0.5 assets.
+- If a vault has 200 tokens to back 100 shares, then each share is worth 2.0 assets.
 
 In other words, the exchange rate can be defined as the slope of the line that passes through the origin and the current number of assets and shares in the vault. Deposits and withdrawals move the vault in this line.
 
 image::erc4626-rate-linear.png[Exchange rates in linear scale]
 
-When plotted in log-log scale, the rate is defined similarly, but appears differently (because the point (0,0) is infinitelly far away). Rates are represented by "diagonals" lines with different offsets.
+When plotted in log-log scale, the rate is defined similarly, but appears differently (because the point (0,0) is infinitely far away). Rates are represented by "diagonal" lines with different offsets.
 
 image::erc4626-rate-loglog.png[Exchange rates in logarithmic scale]
 
-In such a reprentation, widelly different rates can be clearly visible in the same graph. This wouldn't be the case in linear scale.
+In such a reprentation, widely different rates can be clearly visible in the same graph. This wouldn't be the case in linear scale.
 
 image::erc4626-rate-loglogext.png[More exchange rates in logarithmic scale]
 
 === The attack
 
-When depositing tokens, the number of shares a user gets is rounded down. This rounding takes away value from the user in favor or the vault (i.e. in favor of all the current share holders). This rounding is often negligeable because of the amount at stake. If you deposit 1e9 shares worth of tokens, the rounding will have you lose at most 0.0000001% of your deposit. However if you deposit 10 shares worth of tokens, you could lose 10% of your deposit. Even worst, if you deposit <1 share worth of tokens, then you get 0 shares, and you basically made a donation.
+When depositing tokens, the number of shares a user gets is rounded down. This rounding takes away value from the user in favor or the vault (i.e. in favor of all the current share holders). This rounding is often negligible because of the amount at stake. If you deposit 1e9 shares worth of tokens, the rounding will have you lose at most 0.0000001% of your deposit. However if you deposit 10 shares worth of tokens, you could lose 10% of your deposit. Even worse, if you deposit <1 share worth of tokens, then you get 0 shares, and you basically made a donation.
 
-For a given amount of assets, the more shares you receive the safer you are. If you want to limit your loses to at most 1%, you need to receive at least 100 shares.
+For a given amount of assets, the more shares you receive the safer you are. If you want to limit your losses to at most 1%, you need to receive at least 100 shares.
 
 image::erc4626-deposit.png[Depositing assets]
 
-In the figure we can see that for a given deposit of 500 asset, the number of share we get, and the corresponding rounding loses depend on the exchange rate. If the exchange rate is that of the orange curve, we are getting less than a share, so we lose 100% of our deposit. However, if the exchange rate is that of the green curve, we get 5000 shares, with limits our rounding loses to at most 0.02%.
+In the figure we can see that for a given deposit of 500 assets, the number of shares we get and the corresponding rounding losses depend on the exchange rate. If the exchange rate is that of the orange curve, we are getting less than a share, so we lose 100% of our deposit. However, if the exchange rate is that of the green curve, we get 5000 shares, which limits our rounding losses to at most 0.02%.
 
 image::erc4626-mint.png[Minting shares]
 
-Symmetrically, if we focus on limiting our loses to a maximum of 0.5%, we need to get at least 200 shares. With the green exchange rate that requires just 20 tokens, but with the orange rate that requires 200000 tokens.
+Symmetrically, if we focus on limiting our losses to a maximum of 0.5%, we need to get at least 200 shares. With the green exchange rate that requires just 20 tokens, but with the orange rate that requires 200000 tokens.
 
 We can clearly see that that the blue and green curves correspond to vaults that are safer than the yellow and orange curves.
 
@@ -47,7 +47,7 @@ The idea of an inflation attack is that an attacker can donate assets to the vau
 
 image::erc4626-attack.png[Inflation attack without protection]
 
-Figure 6 shows how an attacker can manipulate the rate of an empty vault. First the attacker must deposit a small amount of tokens (1 token) and follow up with a donation of 1e5 tokens directly to the vault to move the exchange rate "right". This puts the vault in a state where any deposit smaller than 1e5 would be completely lost to the vault. Given that the attacker is the only share holders (from its donation), the attacker would steal all the tokens deposited.
+Figure 6 shows how an attacker can manipulate the rate of an empty vault. First the attacker must deposit a small amount of tokens (1 token) and follow up with a donation of 1e5 tokens directly to the vault to move the exchange rate "right". This puts the vault in a state where any deposit smaller than 1e5 would be completely lost to the vault. Given that the attacker is the only share holder (from their donation), the attacker would steal all the tokens deposited.
 
 An attacker would typically wait for a user to do the first deposit into the vault, and would frontrun that operation with the attack described above. The risk is low, and the size of the "donation" required to manipulate the vault is equivalent to the size of the deposit that is being attacked.
 
@@ -93,15 +93,15 @@ Using stem:[de = 1] and stem:[do = du] is enough. So the attacker only needs ste
 
 === Defending with a virtual offset
 
-The defence we propose consists in two part:
+The defense we propose consists of two parts:
 
-- Use an offset between the "precision" of the representation of shares and assets. Said otherwise, we use more decimals places to represent the shares then the underlying token does to represent the assets.
-- Include virtual shares and virtual assets in the exchange rate computation. These virtuals assets enforce the conversion rate when the vault is empty.
+- Use an offset between the "precision" of the representation of shares and assets. Said otherwise, we use more decimal places to represent the shares than the underlying token does to represent the assets.
+- Include virtual shares and virtual assets in the exchange rate computation. These virtual assets enforce the conversion rate when the vault is empty.
 
-These two part work together in enforcing the security of the vault. First, the increase precision correspond to a high rate, which we saw is safer as it reduces the rounding error when computing the amount of shares. Second, the virtual assets and shares (in addition to simplifying a lot of the computations) capture part of the donation, making it unprofitable for a developer to perform an attack.
+These two parts work together in enforcing the security of the vault. First, the increased precision corresponds to a high rate, which we saw is safer as it reduces the rounding error when computing the amount of shares. Second, the virtual assets and shares (in addition to simplifying a lot of the computations) capture part of the donation, making it unprofitable for a developer to perform an attack.
 
 
-Following the previous math definition, we have:
+Following the previous math definitions, we have:
 
 - stem:[off] the vault offset
 - stem:[de] the attacker deposit
@@ -172,12 +172,12 @@ For the attacker to dilute that deposit to 0 shares, causing the user to lose al
 
 This shows that even with an offset of 0, the virtual shares and assets make this attack non profitable for the attacker. Bigger offsets increase the security even further by making any attack on the user extremely wasteful.
 
-The following figure show how the offset impacts the initial rate and limits the ability of an attacker with limited fund to inflate it effectivelly.
+The following figure shows how the offset impacts the initial rate and limits the ability of an attacker with limited funds to inflate it effectively.
 
 image::erc4626-attack-3a.png[Inflation attack without offset=3]
 stem:[off = 3], stem:[de = 1], stem:[do = 10^5]
 
-image::erc4626-attack-3b.png[Inflation attack without offset=3 and an attacker deposit that limits its loses]
+image::erc4626-attack-3b.png[Inflation attack without offset=3 and an attacker deposit that limits its losses]
 stem:[off = 3], stem:[de = 100], stem:[do = 10^5]
 
 image::erc4626-attack-6.png[Inflation attack without offset=6]
