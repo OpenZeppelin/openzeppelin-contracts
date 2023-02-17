@@ -143,7 +143,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
      *
      * For other roles, see {AccessControl-renounceRole}.
      *
-     * NOTE: Renouncing `DEFAULT_ADMIN_ROLE` will leave the contract without an owner,
+     * NOTE: Renouncing `DEFAULT_ADMIN_ROLE` will leave the contract without a defaultAdmin,
      * thereby disabling any functionality that is only available to the default admin, and the
      * possibility of reassigning a non-administrated role.
      */
@@ -184,7 +184,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     /**
      * @dev Grants `role` to `account`.
      *
-     * For `DEFAULT_ADMIN_ROLE`, it only allows granting if there isn't already a role's owner
+     * For `DEFAULT_ADMIN_ROLE`, it only allows granting if there isn't already a role's holder
      * or if the role has been previously renounced.
      *
      * For other roles, see {AccessControl-renounceRole}.

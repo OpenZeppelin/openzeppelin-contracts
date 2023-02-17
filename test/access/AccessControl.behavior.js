@@ -242,7 +242,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
     );
   });
 
-  it("should revert if defaultAdmin's is changed", async function () {
+  it("should revert if defaultAdmin's admin is changed", async function () {
     await expectRevert(
       this.accessControl.$_setRoleAdmin(DEFAULT_ADMIN_ROLE, defaultAdmin),
       `${errorPrefix}: can't violate defaultAdmin rules`,
@@ -267,7 +267,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
       expectEvent(receipt, 'DefaultAdminRoleChangeStarted', { newDefaultAdmin, defaultAdminTransferDelayedUntil });
     });
 
-    it('should revert if it called by non-admin accounts', async function () {
+    it('should revert if it is called by non-admin accounts', async function () {
       await expectRevert(
         this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: other }),
         `${errorPrefix}: account ${other.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE}`,
@@ -325,14 +325,14 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
         });
       });
 
-      it('accepts a transfer resetting pending admin and delayed until', async function () {
+      it('accepts a transfer resetting pending default admin and delayed until', async function () {
         await this.accessControl.acceptDefaultAdminTransfer({ from });
         expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
         expect(await this.accessControl.pendingDefaultAdmin()).to.equal(ZERO_ADDRESS);
       });
     });
 
-    it('should revert if caller is not pending admin', async function () {
+    it('should revert if caller is not pending default admin', async function () {
       await time.increaseTo(correctIncreaseTo);
       await expectRevert(
         this.accessControl.acceptDefaultAdminTransfer({ from: other }),
@@ -340,7 +340,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
       );
     });
 
-    describe('delayed until not met', async function () {
+    describe('delayedUntil not met', async function () {
       let incorrectIncreaseTo;
 
       beforeEach(async function () {
