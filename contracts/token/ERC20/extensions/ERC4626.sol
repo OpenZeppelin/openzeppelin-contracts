@@ -17,13 +17,33 @@ import "../../../utils/math/Math.sol";
  * the ERC20 standard. Any additional extensions included along it would affect the "shares" token represented by this
  * contract and not the "assets" token which is an independent contract.
  *
- * CAUTION: When the vault is empty or nearly empty, deposits are at high risk of being stolen through frontrunning with
- * a "donation" to the vault that inflates the price of a share. This is variously known as a donation or inflation
+ * [CAUTION]
+ * ====
+ * In empty (or nearly empty) ERC-4626 vaults, deposits are at high risk of being stolen through frontrunning
+ * with a "donation" to the vault that inflates the price of a share. This is variously known as a donation or inflation
  * attack and is essentially a problem of slippage. Vault deployers can protect against this attack by making an initial
  * deposit of a non-trivial amount of the asset, such that price manipulation becomes infeasible. Withdrawals may
- * similarly be affected by slippage. Users can protect against this attack as well unexpected slippage in general by
+ * similarly be affected by slippage. Users can protect against this attack as well as unexpected slippage in general by
  * verifying the amount received is as expected, using a wrapper that performs these checks such as
  * https://github.com/fei-protocol/ERC4626#erc4626router-and-base[ERC4626Router].
+ *
+ * Since v4.9, this implementation uses virtual assets and shares to mitigate that risk. The `_decimalsOffset()`
+ * corresponds to an offset in the decimal representation between the underlying asset's decimals and the vault
+ * decimals. This offset also determines the rate of virtual shares to virtual assets in the vault, which itself
+ * determines the initial exchange rate. While not fully preventing the attack, analysis shows that the default offset
+ * (0) makes it non-profitable, as a result of the value being captured by the virtual shares (out of the attacker's
+ * donation) matching the attacker's expected gains. With a larger offset, the attack becomes orders of magnitude more
+ * expensive than it is profitable. More details about the underlying math can be found
+ * xref:erc4626.adoc#inflation-attack[here].
+ *
+ * The drawback of this approach is that the virtual shares do capture (a very small) part of the value being accrued
+ * to the vault. Also, if the vault experiences losses, the users try to exit the vault, the virtual shares and assets
+ * will cause the first user to exit to experience reduced losses in detriment to the last users that will experience
+ * bigger losses. Developers willing to revert back to the pre-v4.9 behavior just need to override the
+ * `_convertToShares` and `_convertToAssets` functions.
+ *
+ * To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
+ * ====
  *
  * _Available since v4.7._
  */
@@ -31,14 +51,14 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     using Math for uint256;
 
     IERC20 private immutable _asset;
-    uint8 private immutable _decimals;
+    uint8 private immutable _underlyingDecimals;
 
     /**
      * @dev Set the underlying asset contract. This must be an ERC20-compatible contract (ERC20 or ERC777).
      */
     constructor(IERC20 asset_) {
         (bool success, uint8 assetDecimals) = _tryGetAssetDecimals(asset_);
-        _decimals = success ? assetDecimals : super.decimals();
+        _underlyingDecimals = success ? assetDecimals : 18;
         _asset = asset_;
     }
 
@@ -65,7 +85,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * See {IERC20Metadata-decimals}.
      */
     function decimals() public view virtual override(IERC20Metadata, ERC20) returns (uint8) {
-        return _decimals;
+        return _underlyingDecimals + _decimalsOffset();
     }
 
     /** @dev See {IERC4626-asset}. */
@@ -90,7 +110,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4626-maxDeposit}. */
     function maxDeposit(address) public view virtual override returns (uint256) {
-        return _isVaultHealthy() ? type(uint256).max : 0;
+        return type(uint256).max;
     }
 
     /** @dev See {IERC4626-maxMint}. */
@@ -179,44 +199,14 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * would represent an infinite amount of shares.
      */
     function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256) {
-        uint256 supply = totalSupply();
-        return
-            (assets == 0 || supply == 0)
-                ? _initialConvertToShares(assets, rounding)
-                : assets.mulDiv(supply, totalAssets(), rounding);
-    }
-
-    /**
-     * @dev Internal conversion function (from assets to shares) to apply when the vault is empty.
-     *
-     * NOTE: Make sure to keep this function consistent with {_initialConvertToAssets} when overriding it.
-     */
-    function _initialConvertToShares(
-        uint256 assets,
-        Math.Rounding /*rounding*/
-    ) internal view virtual returns (uint256 shares) {
-        return assets;
+        return assets.mulDiv(totalSupply() + 10 ** _decimalsOffset(), totalAssets() + 1, rounding);
     }
 
     /**
      * @dev Internal conversion function (from shares to assets) with support for rounding direction.
      */
     function _convertToAssets(uint256 shares, Math.Rounding rounding) internal view virtual returns (uint256) {
-        uint256 supply = totalSupply();
-        return
-            (supply == 0) ? _initialConvertToAssets(shares, rounding) : shares.mulDiv(totalAssets(), supply, rounding);
-    }
-
-    /**
-     * @dev Internal conversion function (from shares to assets) to apply when the vault is empty.
-     *
-     * NOTE: Make sure to keep this function consistent with {_initialConvertToShares} when overriding it.
-     */
-    function _initialConvertToAssets(
-        uint256 shares,
-        Math.Rounding /*rounding*/
-    ) internal view virtual returns (uint256) {
-        return shares;
+        return shares.mulDiv(totalAssets() + 1, totalSupply() + 10 ** _decimalsOffset(), rounding);
     }
 
     /**
@@ -262,10 +252,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         emit Withdraw(caller, receiver, owner, assets, shares);
     }
 
-    /**
-     * @dev Checks if vault is "healthy" in the sense of having assets backing the circulating shares.
-     */
-    function _isVaultHealthy() private view returns (bool) {
-        return totalAssets() > 0 || totalSupply() == 0;
+    function _decimalsOffset() internal view virtual returns (uint8) {
+        return 0;
     }
 }
