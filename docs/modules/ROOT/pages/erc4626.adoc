@@ -206,7 +206,7 @@ On the other hand, when withdrawing assets, the number given by the user should 
 
 The `Withdraw` event should include the number of shares the users burns (including fees) and the number of assets the user actually receives (after fees are deducted).
 
-The consequence of this design is that both the `Deposit` and `Withdraw` events will describe two different prices. The spread between the "Buy-in" price and the "Exit" price correspong to the fees taken by the vault.
+The consequence of this design is that both the `Deposit` and `Withdraw` events will describe two exchange rates. The spread between the "Buy-in" price and the "Exit" prices correspond to the fees taken by the vault.
 
 The following example describes how fees proportional to the deposited/withdrawn amount can be implemented:
 
