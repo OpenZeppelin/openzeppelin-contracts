@@ -20,8 +20,7 @@ internalTask(TASK_TEST_GET_TEST_FILES).setAction(async ({ testFiles }, { config 
     .then(() => true)
     .catch(() => false);
 
-  return await glob('**/*.js', {
-    cwd: config.paths.tests,
+  return await glob(path.join(config.paths.tests, '**/*.js'), {
     ignore: hasProxies
       ? []
       : [
@@ -31,6 +30,6 @@ internalTask(TASK_TEST_GET_TEST_FILES).setAction(async ({ testFiles }, { config 
           'proxy/beacon/UpgradeableBeacon.test.js',
           'proxy/transparent/ProxyAdmin.test.js',
           'proxy/transparent/TransparentUpgradeableProxy.test.js',
-        ],
+        ].map(p => path.join(config.paths.tests, p)),
   });
 });
