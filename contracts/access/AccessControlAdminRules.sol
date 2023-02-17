@@ -103,10 +103,9 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     }
 
     /**
-     * @dev See {IAccessControlAdminRules-beginDefaultAdminTransfer}
+     * @dev See {IAccessControlAdminRules-beginDefaultAdminTransfer}.
      */
     function beginDefaultAdminTransfer(address newAdmin) public virtual override onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(defaultAdminTransferDelayedUntil() == 0, "AccessControl: pending defaultAdmin already set");
         _defaultAdminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
         _pendingDefaultAdmin = newAdmin;
         emit DefaultAdminRoleChangeStarted(pendingDefaultAdmin(), defaultAdminTransferDelayedUntil());

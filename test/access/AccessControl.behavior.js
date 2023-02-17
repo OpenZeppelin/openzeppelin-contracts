@@ -262,23 +262,36 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
       const defaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
       expect(await this.accessControl.pendingDefaultAdmin()).to.equal(newDefaultAdmin);
       expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(
-        (await time.latest()).add(delay),
+        defaultAdminTransferDelayedUntil,
       );
       expectEvent(receipt, 'DefaultAdminRoleChangeStarted', { newDefaultAdmin, defaultAdminTransferDelayedUntil });
+    });
+
+    it('should be able to begin a transfer again', async function () {
+      // First defaultAdmin transfer started
+      await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
+      const firstDefaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
+      expect(await this.accessControl.pendingDefaultAdmin()).to.equal(newDefaultAdmin);
+      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(
+        firstDefaultAdminTransferDelayedUntil,
+      );
+
+      // Time passes to last minute
+      await time.increaseTo(firstDefaultAdminTransferDelayedUntil.subn(1));
+
+      // defaultAdmin changes its mind and begin again to another address
+      await this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin });
+      const secondDefaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
+      expect(await this.accessControl.pendingDefaultAdmin()).to.equal(other);
+      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(
+        secondDefaultAdminTransferDelayedUntil,
+      );
     });
 
     it('should revert if it is called by non-admin accounts', async function () {
       await expectRevert(
         this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: other }),
         `${errorPrefix}: account ${other.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE}`,
-      );
-    });
-
-    it('should revert if another transfer has started', async function () {
-      await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-      await expectRevert(
-        this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin }),
-        `${errorPrefix}: pending defaultAdmin already set`,
       );
     });
   });
