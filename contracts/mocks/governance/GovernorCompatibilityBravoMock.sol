@@ -75,7 +75,6 @@ abstract contract GovernorCompatibilityBravoMock is
         return super.cancel(targets, values, calldatas, descriptionHash);
     }
 
-
     function _execute(
         uint256 proposalId,
         address[] memory targets,
