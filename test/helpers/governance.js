@@ -72,7 +72,7 @@ class GovernorHelper {
           return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
         } else {
           return this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](
-            ...concatOpts([proposal.id], opts),
+            ...concatOpts(proposal.shortProposal, opts),
           );
         }
       case 'internal':
