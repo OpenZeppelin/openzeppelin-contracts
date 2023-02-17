@@ -4,11 +4,12 @@
 pragma solidity ^0.8.0;
 
 import "../ERC721.sol";
+import "../../../interfaces/IERC4906.sol";
 
 /**
  * @dev ERC721 token with storage based token URI management.
  */
-abstract contract ERC721URIStorage is ERC721 {
+abstract contract ERC721URIStorage is IERC4906, ERC721 {
     using Strings for uint256;
 
     // Optional mapping for token URIs
@@ -38,6 +39,8 @@ abstract contract ERC721URIStorage is ERC721 {
     /**
      * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
      *
+     * Emits {MetadataUpdate}.
+     *
      * Requirements:
      *
      * - `tokenId` must exist.
@@ -45,6 +48,8 @@ abstract contract ERC721URIStorage is ERC721 {
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
         _tokenURIs[tokenId] = _tokenURI;
+
+        emit MetadataUpdate(tokenId);
     }
 
     /**

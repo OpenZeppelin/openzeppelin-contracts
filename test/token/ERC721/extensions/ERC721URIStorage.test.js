@@ -1,4 +1,4 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
@@ -36,6 +36,12 @@ contract('ERC721URIStorage', function (accounts) {
     it('can be set for a token id', async function () {
       await this.token.$_setTokenURI(firstTokenId, sampleUri);
       expect(await this.token.tokenURI(firstTokenId)).to.be.equal(sampleUri);
+    });
+
+    it('setting the uri emits an event', async function () {
+      expectEvent(await this.token.$_setTokenURI(firstTokenId, sampleUri), 'MetadataUpdate', {
+        _tokenId: firstTokenId,
+      });
     });
 
     it('reverts when setting for non existent token id', async function () {
