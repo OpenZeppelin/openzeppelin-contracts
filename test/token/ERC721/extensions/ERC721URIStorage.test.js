@@ -1,6 +1,7 @@
 const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-
 const { expect } = require('chai');
+
+const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
 
 const ERC721URIStorageMock = artifacts.require('$ERC721URIStorageMock');
 
@@ -16,6 +17,8 @@ contract('ERC721URIStorage', function (accounts) {
   beforeEach(async function () {
     this.token = await ERC721URIStorageMock.new(name, symbol);
   });
+
+  shouldSupportInterfaces(['0x49064906']);
 
   describe('token URI', function () {
     beforeEach(async function () {

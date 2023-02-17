@@ -100,20 +100,22 @@ function shouldSupportInterfaces(interfaces = []) {
 
     it('supportsInterface uses less than 30k gas', async function () {
       for (const k of interfaces) {
-        const interfaceId = INTERFACE_IDS[k];
+        const interfaceId = INTERFACE_IDS[k] ?? k;
         expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
       }
     });
 
     it('all interfaces are reported as supported', async function () {
       for (const k of interfaces) {
-        const interfaceId = INTERFACE_IDS[k];
+        const interfaceId = INTERFACE_IDS[k] ?? k;
         expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true);
       }
     });
 
     it('all interface functions are in ABI', async function () {
       for (const k of interfaces) {
+        // skip interfaces for which we don't have a function list
+        if (INTERFACES[k] == undefined) continue;
         for (const fnName of INTERFACES[k]) {
           const fnSig = FN_SIGNATURES[fnName];
           expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1);
