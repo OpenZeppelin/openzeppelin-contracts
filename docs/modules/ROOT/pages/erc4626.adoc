@@ -191,3 +191,99 @@ stem:[\delta = 3], stem:[a_0 = 100], stem:[a_1 = 10^5]
 
 image::erc4626-attack-6.png[Inflation attack without offset=6]
 stem:[\delta = 6], stem:[a_0 = 1], stem:[a_1 = 10^5]
+
+
+[[fees]]
+== Custom behavior: Adding fees to the vault
+
+In an ERC4626 vaults, fees can be captured during the deposit/mint and/or during the withdraw/redeem steps. In both cases it is essential to remain compliant with the ERC4626 requirements with regard to the preview functions.
+
+For example, if calling `deposit(100, receiver)`, the caller should deposit exactly 100 underlying tokens, including fees, and the receiver should receive a number of shares that matches the value returned by `previewDeposit(100)`. Similarly, `previewMint` should account for the fees that the user will have to pay on top of share's cost.
+
+As for the `Deposit` event, we believe it should include the number of assets payed for by the user, including the fees.
+
+On the other hand, when withdrawing assets, the number given by the user should correspond to what he receives. Any fees should be added to the quote (in shares) performed by `previewWithdraw`.
+
+The `Withdraw` event should include the number of shares the users burns (including fees) and the number of assets the user actually receives (after fees are deducted).
+
+The consequence of this design is that both the `Deposit` and `Withdraw` events will describe two different prices. The spread between the "Buy-in" price and the "Exit" price correspong to the fees taken by the vault.
+
+The following example describes how fees proportional to the deposited/withdrawn amount can be implemented:
+
+```solidity
+pragma solidity ^0.8.0;
+
+import "./ERC4626.sol";
+
+abstract contract ERC4626Fees is ERC4626 {
+    using Math for uint256;
+
+    // Fee parameters
+    function _entryFeeBasePoint() internal view virtual returns (uint256) { return 0; }
+    function _entryFeeRecipient() internal view virtual returns (address) { return address(0); }
+    function _exitFeeBasePoint() internal view virtual returns (uint256) { return 0; }
+    function _exitFeeRecipient() internal view virtual returns (address) { return address(0); }
+
+    // Vault behavior override
+    function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
+        uint256 fee = _feeOnTotal(assets, _entryFeeBasePoint());
+        return super.previewDeposit(assets - fee);
+    }
+
+    function previewMint(uint256 shares) public view virtual override returns (uint256) {
+        uint256 assets = super.previewMint(shares);
+        return assets + _feeOnTotal(assets, _entryFeeBasePoint());
+    }
+
+    function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
+        uint256 fee = _feeOnRaw(assets, _exitFeeBasePoint());
+        return super.previewWithdraw(assets + fee);
+    }
+
+    function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
+        uint256 assets = super.previewRedeem(shares);
+        return assets - _feeOnTotal(assets, _exitFeeBasePoint());
+    }
+
+    function _deposit(
+        address caller,
+        address receiver,
+        uint256 assets,
+        uint256 shares
+    ) internal virtual override {
+        uint256 fee = _feeOnTotal(assets, _entryFeeBasePoint());
+        address recipient = _entryFeeRecipient();
+
+        super._deposit(caller, receiver, assets, shares);
+
+        if (fee > 0 && recipient != address(this)) {
+            SafeERC20.safeTransfer(IERC20(asset()), recipient, fee);
+        }
+    }
+
+    function _withdraw(
+        address caller,
+        address receiver,
+        address owner,
+        uint256 assets,
+        uint256 shares
+    ) internal virtual override {
+        uint256 fee = _feeOnRaw(assets, _exitFeeBasePoint());
+        address recipient = _exitFeeRecipient();
+
+        super._withdraw(caller, receiver, owner, assets, shares);
+
+        if (fee > 0 && recipient != address(this)) {
+            SafeERC20.safeTransfer(IERC20(asset()), recipient, fee);
+        }
+    }
+
+    function _feeOnRaw(uint256 assets, uint256 feeBasePoint) private pure returns (uint256) {
+        return assets.mulDiv(feeBasePoint, 1e5, Math.Rounding.Up);
+    }
+
+    function _feeOnTotal(uint256 assets, uint256 feeBasePoint) private pure returns (uint256) {
+        return assets.mulDiv(feeBasePoint, feeBasePoint + 1e5, Math.Rounding.Up);
+    }
+}
+```
