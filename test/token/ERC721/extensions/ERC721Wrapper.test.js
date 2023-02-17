@@ -242,39 +242,7 @@ contract('ERC721Wrapper', function (accounts) {
       );
     });
 
-    describe('when data length is > 0', function () {
-      it('reverts with arbitrary data', async function () {
-        await expectRevert(
-          this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
-            initialHolder,
-            this.token.address,
-            firstTokenId,
-            '0x0123',
-            {
-              from: initialHolder,
-            },
-          ),
-          'ERC721Wrapper: Invalid data format',
-        );
-      });
-
-      it('reverts with correct data from an untrusted operator', async function () {
-        await expectRevert(
-          this.underlying.methods['safeTransferFrom(address,address,uint256,bytes)'](
-            initialHolder,
-            this.token.address,
-            firstTokenId,
-            anotherAccount,
-            {
-              from: initialHolder,
-            },
-          ),
-          'ERC721Wrapper: Invalid data format',
-        );
-      });
-    });
-
-    it('mints a token to from if no data is specified', async function () {
+    it('mints a token to from', async function () {
       const { tx } = await this.underlying.safeTransferFrom(initialHolder, this.token.address, firstTokenId, {
         from: initialHolder,
       });
