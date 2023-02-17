@@ -232,7 +232,7 @@ abstract contract ERC4626Fees is ERC4626 {
 
     function previewMint(uint256 shares) public view virtual override returns (uint256) {
         uint256 assets = super.previewMint(shares);
-        return assets + _feeOnTotal(assets, _entryFeeBasePoint());
+        return assets + _feeOnRaw(assets, _entryFeeBasePoint());
     }
 
     function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
