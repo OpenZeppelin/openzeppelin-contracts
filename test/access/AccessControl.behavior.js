@@ -267,7 +267,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
       expectEvent(receipt, 'DefaultAdminRoleChangeStarted', { newDefaultAdmin, defaultAdminTransferDelayedUntil });
     });
 
-    it('should be able to begin a transfer again', async function () {
+    it('should be able to begin a transfer again before delay pass', async function () {
       // First defaultAdmin transfer started
       await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
       const firstDefaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
@@ -276,8 +276,29 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
         firstDefaultAdminTransferDelayedUntil,
       );
 
-      // Time passes to last minute
+      // Time passes just before delay
       await time.increaseTo(firstDefaultAdminTransferDelayedUntil.subn(1));
+
+      // defaultAdmin changes its mind and begin again to another address
+      await this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin });
+      const secondDefaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
+      expect(await this.accessControl.pendingDefaultAdmin()).to.equal(other);
+      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(
+        secondDefaultAdminTransferDelayedUntil,
+      );
+    });
+
+    it('should be able to begin a transfer again after delay pass if not accepted', async function () {
+      // First defaultAdmin transfer started
+      await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
+      const firstDefaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
+      expect(await this.accessControl.pendingDefaultAdmin()).to.equal(newDefaultAdmin);
+      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(
+        firstDefaultAdminTransferDelayedUntil,
+      );
+
+      // Time passes after delay without acceptance
+      await time.increaseTo(firstDefaultAdminTransferDelayedUntil.addn(1));
 
       // defaultAdmin changes its mind and begin again to another address
       await this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin });
