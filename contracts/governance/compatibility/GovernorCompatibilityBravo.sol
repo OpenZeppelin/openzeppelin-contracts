@@ -77,29 +77,55 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
      * @dev See {IGovernorCompatibilityBravo-queue}.
      */
     function queue(uint256 proposalId) public virtual override {
-        ProposalDetails storage details = _proposalDetails[proposalId];
-        queue(
-            details.targets,
-            details.values,
-            _encodeCalldata(details.signatures, details.calldatas),
-            details.descriptionHash
-        );
+        (
+            address[] memory targets,
+            uint256[] memory values,
+            bytes[] memory calldatas,
+            bytes32 descriptionHash
+        ) = _getProposalParameters(proposalId);
+
+        queue(targets, values, calldatas, descriptionHash);
     }
 
     /**
      * @dev See {IGovernorCompatibilityBravo-execute}.
      */
     function execute(uint256 proposalId) public payable virtual override {
-        ProposalDetails storage details = _proposalDetails[proposalId];
-        execute(
-            details.targets,
-            details.values,
-            _encodeCalldata(details.signatures, details.calldatas),
-            details.descriptionHash
-        );
+        (
+            address[] memory targets,
+            uint256[] memory values,
+            bytes[] memory calldatas,
+            bytes32 descriptionHash
+        ) = _getProposalParameters(proposalId);
+
+        execute(targets, values, calldatas, descriptionHash);
     }
 
-    function cancel(uint256 proposalId) public virtual override(IGovernor, Governor) {
+    /**
+     * @dev Cancel a proposal with GovernorBravo logic.
+     */
+    function cancel(uint256 proposalId) public virtual {
+        (
+            address[] memory targets,
+            uint256[] memory values,
+            bytes[] memory calldatas,
+            bytes32 descriptionHash
+        ) = _getProposalParameters(proposalId);
+
+        cancel(targets, values, calldatas, descriptionHash);
+    }
+
+    /**
+     * @dev Cancel a proposal with GovernorBravo logic. At any moment a proposal can be cancelled, either by the
+     * proposer, or by third parties if the proposer's voting power has dropped below the proposal threshold.
+     */
+    function cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public virtual override(IGovernor, Governor) returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         address proposer = _proposalDetails[proposalId].proposer;
 
         require(
@@ -107,7 +133,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
             "GovernorBravo: proposer above threshold"
         );
 
-        _cancel(proposalId);
+        return _cancel(targets, values, calldatas, descriptionHash);
     }
 
     /**
@@ -126,6 +152,25 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         }
 
         return fullcalldatas;
+    }
+
+    /**
+     * @dev Retrieve proposal parameters by id, with fully encoded calldatas.
+     */
+    function _getProposalParameters(
+        uint256 proposalId
+    )
+        private
+        view
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+    {
+        ProposalDetails storage details = _proposalDetails[proposalId];
+        return (
+            details.targets,
+            details.values,
+            _encodeCalldata(details.signatures, details.calldatas),
+            details.descriptionHash
+        );
     }
 
     /**
