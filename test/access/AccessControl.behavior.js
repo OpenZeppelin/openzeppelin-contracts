@@ -278,7 +278,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
       await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
       await expectRevert(
         this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin }),
-        `${errorPrefix}: pending admin already set`,
+        `${errorPrefix}: pending defaultAdmin already set`,
       );
     });
   });
@@ -336,7 +336,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
       await time.increaseTo(correctIncreaseTo);
       await expectRevert(
         this.accessControl.acceptDefaultAdminTransfer({ from: other }),
-        `${errorPrefix}: delay must be met and caller must be pending admin`,
+        `${errorPrefix}: can't accept defaultAdmin`,
       );
     });
 
@@ -351,7 +351,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
         await time.increaseTo(incorrectIncreaseTo);
         await expectRevert(
           this.accessControl.acceptDefaultAdminTransfer({ from: correctPendingDefaultAdmin }),
-          `${errorPrefix}: delay must be met and caller must be pending admin`,
+          `${errorPrefix}: can't accept defaultAdmin`,
         );
       });
 
@@ -359,7 +359,7 @@ function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmi
         await time.increaseTo(incorrectIncreaseTo.subn(1));
         await expectRevert(
           this.accessControl.acceptDefaultAdminTransfer({ from: correctPendingDefaultAdmin }),
-          `${errorPrefix}: delay must be met and caller must be pending admin`,
+          `${errorPrefix}: can't accept defaultAdmin`,
         );
       });
     });

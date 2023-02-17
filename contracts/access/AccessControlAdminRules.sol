@@ -48,7 +48,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     address private _currentDefaultAdmin;
     address private _pendingDefaultAdmin;
 
-    uint48 private defaultAadminTransferDelayedUntil;
+    uint48 private _defaultAdminTransferDelayedUntil;
 
     /**
      * @dev Sets the initial values for {delay} and {defaultAdmin}.
@@ -85,7 +85,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
      * @dev See {IAccessControlAdminRules-defaultAdminTransferDelayedUntil}.
      */
     function defaultAdminTransferDelayedUntil() public view virtual returns (uint48) {
-        return defaultAadminTransferDelayedUntil;
+        return _defaultAdminTransferDelayedUntil;
     }
 
     /**
@@ -106,8 +106,8 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
      * @dev See {IAccessControlAdminRules-beginDefaultAdminTransfer}
      */
     function beginDefaultAdminTransfer(address newAdmin) public virtual override onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(defaultAdminTransferDelayedUntil() == 0, "AccessControl: pending admin already set");
-        defaultAadminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
+        require(defaultAdminTransferDelayedUntil() == 0, "AccessControl: pending defaultAdmin already set");
+        _defaultAdminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
         _pendingDefaultAdmin = newAdmin;
         emit DefaultAdminRoleChangeStarted(pendingDefaultAdmin(), defaultAdminTransferDelayedUntil());
     }
@@ -119,7 +119,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
         address pendingDefaultAdminHolder = pendingDefaultAdmin();
         require(
             _hasDefaultAdminTransferDelayPassed() && _msgSender() == pendingDefaultAdminHolder,
-            "AccessControl: delay must be met and caller must be pending admin"
+            "AccessControl: can't accept defaultAdmin"
         );
         _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
         _grantRole(DEFAULT_ADMIN_ROLE, pendingDefaultAdminHolder);
@@ -216,7 +216,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
      */
     function _resetDefaultAdminTransfer() private {
         delete _pendingDefaultAdmin;
-        delete defaultAadminTransferDelayedUntil;
+        delete _defaultAdminTransferDelayedUntil;
     }
 
     /**
