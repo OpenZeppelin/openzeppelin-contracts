@@ -211,8 +211,8 @@ function shouldBehaveLikeAccessControlEnumerable(errorPrefix, admin, authorized,
   });
 }
 
-function shouldBehaveLikeAccessControlAdminRules(errorPrefix, delay, defaultAdmin, newDefaultAdmin, other) {
-  shouldSupportInterfaces(['AccessControlAdminRules']);
+function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defaultAdmin, newDefaultAdmin, other) {
+  shouldSupportInterfaces(['AccessControlDefaultAdminRules']);
 
   it('has a default disabled delayed until', async function () {
     expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
@@ -499,5 +499,5 @@ module.exports = {
   DEFAULT_ADMIN_ROLE,
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlEnumerable,
-  shouldBehaveLikeAccessControlAdminRules,
+  shouldBehaveLikeAccessControlDefaultAdminRules,
 };

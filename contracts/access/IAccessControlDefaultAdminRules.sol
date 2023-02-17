@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.9.0 (access/IAccessControlAdminRules.sol)
+// OpenZeppelin Contracts v4.9.0 (access/IAccessControlDefaultAdminRules.sol)
 
 pragma solidity ^0.8.0;
 
 import "./IAccessControl.sol";
 
 /**
- * @dev External interface of AccessControlAdminRules declared to support ERC165 detection.
+ * @dev External interface of AccessControlDefaultAdminRules declared to support ERC165 detection.
  *
  * _Available since v4.9._
  */
-interface IAccessControlAdminRules is IAccessControl {
+interface IAccessControlDefaultAdminRules is IAccessControl {
     /**
      * @dev Emitted when an `DEFAULT_ADMIN_ROLE` transfer is started, setting `newDefaultAdmin`
      * as the next default admin to be claimed after `defaultAdminTransferDelayedUntil` is met.

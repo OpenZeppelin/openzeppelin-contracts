@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (access/AccessControlAdminRules.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (access/AccessControlDefaultAdminRules.sol)
 
 pragma solidity ^0.8.0;
 
 import "./AccessControl.sol";
-import "./IAccessControlAdminRules.sol";
+import "./IAccessControlDefaultAdminRules.sol";
 import "../utils/math/SafeCast.sol";
 import "../interfaces/IERC5313.sol";
 
@@ -29,8 +29,8 @@ import "../interfaces/IERC5313.sol";
  * Example usage:
  *
  * ```solidity
- * contract MyToken is AccessControlAdminRules {
- *   constructor() AccessControlAdminRules(
+ * contract MyToken is AccessControlDefaultAdminRules {
+ *   constructor() AccessControlDefaultAdminRules(
  *     60 * 60 * 24, // 3 days
  *     _msgSender() // Explicit initial `DEFAULT_ADMIN_ROLE` holder
  *    ) {}
@@ -42,7 +42,7 @@ import "../interfaces/IERC5313.sol";
  *
  * _Available since v4.9._
  */
-abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313, AccessControl {
+abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRules, IERC5313, AccessControl {
     uint48 private immutable _delay;
 
     address private _currentDefaultAdmin;
@@ -75,21 +75,21 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     }
 
     /**
-     * @dev See {IAccessControlAdminRules-defaultAdmin}.
+     * @dev See {IAccessControlDefaultAdminRules-defaultAdmin}.
      */
     function defaultAdmin() public view virtual returns (address) {
         return _currentDefaultAdmin;
     }
 
     /**
-     * @dev See {IAccessControlAdminRules-defaultAdminTransferDelayedUntil}.
+     * @dev See {IAccessControlDefaultAdminRules-defaultAdminTransferDelayedUntil}.
      */
     function defaultAdminTransferDelayedUntil() public view virtual returns (uint48) {
         return _defaultAdminTransferDelayedUntil;
     }
 
     /**
-     * @dev See {IAccessControlAdminRules-pendingDefaultAdmin}.
+     * @dev See {IAccessControlDefaultAdminRules-pendingDefaultAdmin}.
      */
     function pendingDefaultAdmin() public view virtual returns (address) {
         return _pendingDefaultAdmin;
@@ -99,11 +99,11 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IAccessControlAdminRules).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IAccessControlDefaultAdminRules).interfaceId || super.supportsInterface(interfaceId);
     }
 
     /**
-     * @dev See {IAccessControlAdminRules-beginDefaultAdminTransfer}.
+     * @dev See {IAccessControlDefaultAdminRules-beginDefaultAdminTransfer}.
      */
     function beginDefaultAdminTransfer(address newAdmin) public virtual override onlyRole(DEFAULT_ADMIN_ROLE) {
         _defaultAdminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
@@ -112,7 +112,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     }
 
     /**
-     * @dev See {IAccessControlAdminRules-acceptDefaultAdminTransfer}
+     * @dev See {IAccessControlDefaultAdminRules-acceptDefaultAdminTransfer}
      */
     function acceptDefaultAdminTransfer() public virtual {
         address pendingDefaultAdminHolder = pendingDefaultAdmin();
@@ -126,7 +126,7 @@ abstract contract AccessControlAdminRules is IAccessControlAdminRules, IERC5313,
     }
 
     /**
-     * @dev See {IAccessControlAdminRules-cancelDefaultAdminTransfer}
+     * @dev See {IAccessControlDefaultAdminRules-cancelDefaultAdminTransfer}
      */
     function cancelDefaultAdminTransfer() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _resetDefaultAdminTransfer();
