@@ -6,6 +6,7 @@ DIRNAME="$(dirname -- "${BASH_SOURCE[0]}")"
 
 bash "$DIRNAME/patch-apply.sh"
 
+npm run clean
 npm run compile
 
 build_info=($(jq -r '.input.sources | keys | if any(test("^contracts/mocks/.*\\bunreachable\\b")) then empty else input_filename end' artifacts/build-info/*))
