@@ -1,26 +1,3 @@
-diff --git a/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol b/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol
-index fa099483..d948b412 100644
---- a/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol
-+++ b/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol
-@@ -66,7 +66,17 @@ abstract contract CrossChainEnabledPolygonChild is IFxMessageProcessor, CrossCha
-         if (!_isCrossChain()) revert NotCrossChainCall();
- 
-         _sender = rootMessageSender;
--        Address.functionDelegateCall(address(this), data, "cross-chain execution failed");
-+        __functionDelegateCall(address(this), data);
-         _sender = DEFAULT_SENDER;
-     }
-+
-+    // ERC1967Upgrade._functionDelegateCall is private so we reproduce it here.
-+    // An extra underscore prevents a name clash error.
-+    function __functionDelegateCall(address target, bytes memory data) private returns (bytes memory) {
-+        require(Address.isContract(target), "Address: delegate call to non-contract");
-+
-+        // solhint-disable-next-line avoid-low-level-calls
-+        (bool success, bytes memory returndata) = target.delegatecall(data);
-+        return Address.verifyCallResult(success, returndata, "Address: low-level delegate call failed");
-+    }
- }
 diff --git a/contracts/finance/VestingWallet.sol b/contracts/finance/VestingWallet.sol
 index fe67eb54..d26ea4e1 100644
 --- a/contracts/finance/VestingWallet.sol
@@ -105,43 +82,6 @@ index 17250ad7..1d26b72e 100644
   */
  abstract contract GovernorVotesComp is Governor {
      ERC20VotesComp public immutable token;
-diff --git a/contracts/mocks/proxy/UUPSLegacy.sol b/contracts/mocks/proxy/UUPSLegacy.sol
-index 6956f567..6aa10f38 100644
---- a/contracts/mocks/proxy/UUPSLegacy.sol
-+++ b/contracts/mocks/proxy/UUPSLegacy.sol
-@@ -23,7 +23,7 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
-         // Initial upgrade and setup call
-         __setImplementation(newImplementation);
-         if (data.length > 0 || forceCall) {
--            Address.functionDelegateCall(newImplementation, data);
-+            __functionDelegateCall(newImplementation, data);
-         }
- 
-         // Perform rollback test if not already in progress
-@@ -31,7 +31,7 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
-         if (!rollbackTesting.value) {
-             // Trigger rollback using upgradeTo from the new implementation
-             rollbackTesting.value = true;
--            Address.functionDelegateCall(
-+            __functionDelegateCall(
-                 newImplementation,
-                 abi.encodeWithSignature("upgradeTo(address)", oldImplementation)
-             );
-@@ -51,4 +51,14 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
-     function upgradeToAndCall(address newImplementation, bytes memory data) public payable override {
-         _upgradeToAndCallSecureLegacyV1(newImplementation, data, false);
-     }
-+
-+    // ERC1967Upgrade._functionDelegateCall is private so we reproduce it here.
-+    // An extra underscore prevents a name clash error.
-+    function __functionDelegateCall(address target, bytes memory data) private returns (bytes memory) {
-+        require(Address.isContract(target), "Address: delegate call to non-contract");
-+
-+        // solhint-disable-next-line avoid-low-level-calls
-+        (bool success, bytes memory returndata) = target.delegatecall(data);
-+        return Address.verifyCallResult(success, returndata, "Address: low-level delegate call failed");
-+    }
- }
 diff --git a/contracts/package.json b/contracts/package.json
 index e3e60834..f8ddc1f0 100644
 --- a/contracts/package.json
@@ -170,42 +110,6 @@ index e3e60834..f8ddc1f0 100644
 +    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/issues"
    },
    "homepage": "https://openzeppelin.com/contracts/"
- }
-diff --git a/contracts/proxy/ERC1967/ERC1967Upgrade.sol b/contracts/proxy/ERC1967/ERC1967Upgrade.sol
-index 0680f354..ebd83b61 100644
---- a/contracts/proxy/ERC1967/ERC1967Upgrade.sol
-+++ b/contracts/proxy/ERC1967/ERC1967Upgrade.sol
-@@ -63,7 +63,7 @@ abstract contract ERC1967Upgrade {
-     function _upgradeToAndCall(address newImplementation, bytes memory data, bool forceCall) internal {
-         _upgradeTo(newImplementation);
-         if (data.length > 0 || forceCall) {
--            Address.functionDelegateCall(newImplementation, data);
-+            _functionDelegateCall(newImplementation, data);
-         }
-     }
- 
-@@ -165,7 +165,21 @@ abstract contract ERC1967Upgrade {
-         _setBeacon(newBeacon);
-         emit BeaconUpgraded(newBeacon);
-         if (data.length > 0 || forceCall) {
--            Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);
-+            _functionDelegateCall(IBeacon(newBeacon).implementation(), data);
-         }
-     }
-+
-+    /**
-+     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
-+     * but performing a delegate call.
-+     *
-+     * _Available since v3.4._
-+     */
-+    function _functionDelegateCall(address target, bytes memory data) private returns (bytes memory) {
-+        require(Address.isContract(target), "Address: delegate call to non-contract");
-+
-+        // solhint-disable-next-line avoid-low-level-calls
-+        (bool success, bytes memory returndata) = target.delegatecall(data);
-+        return Address.verifyCallResult(success, returndata, "Address: low-level delegate call failed");
-+    }
  }
 diff --git a/contracts/security/PullPayment.sol b/contracts/security/PullPayment.sol
 index 65b4980f..f336592e 100644
@@ -272,70 +176,6 @@ index ed855b7b..3d30f59d 100644
   */
  contract TokenTimelock {
      using SafeERC20 for IERC20;
-diff --git a/contracts/utils/Address.sol b/contracts/utils/Address.sol
-index 433a866d..64a80d35 100644
---- a/contracts/utils/Address.sol
-+++ b/contracts/utils/Address.sol
-@@ -161,31 +161,6 @@ library Address {
-         return verifyCallResultFromTarget(target, success, returndata, errorMessage);
-     }
- 
--    /**
--     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
--     * but performing a delegate call.
--     *
--     * _Available since v3.4._
--     */
--    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
--        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
--    }
--
--    /**
--     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
--     * but performing a delegate call.
--     *
--     * _Available since v3.4._
--     */
--    function functionDelegateCall(
--        address target,
--        bytes memory data,
--        string memory errorMessage
--    ) internal returns (bytes memory) {
--        (bool success, bytes memory returndata) = target.delegatecall(data);
--        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
--    }
--
-     /**
-      * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling
-      * the revert reason or using the provided one) in case of unsuccessful call or if target was not a contract.
-diff --git a/contracts/utils/Multicall.sol b/contracts/utils/Multicall.sol
-index 7470c559..9bcb8605 100644
---- a/contracts/utils/Multicall.sol
-+++ b/contracts/utils/Multicall.sol
-@@ -18,8 +18,22 @@ abstract contract Multicall {
-     function multicall(bytes[] calldata data) external virtual returns (bytes[] memory results) {
-         results = new bytes[](data.length);
-         for (uint256 i = 0; i < data.length; i++) {
--            results[i] = Address.functionDelegateCall(address(this), data[i]);
-+            results[i] = _functionDelegateCall(address(this), data[i]);
-         }
-         return results;
-     }
-+
-+    /**
-+     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
-+     * but performing a delegate call.
-+     *
-+     * _Available since v3.4._
-+     */
-+    function _functionDelegateCall(address target, bytes memory data) private returns (bytes memory) {
-+        require(Address.isContract(target), "Address: delegate call to non-contract");
-+
-+        // solhint-disable-next-line avoid-low-level-calls
-+        (bool success, bytes memory returndata) = target.delegatecall(data);
-+        return Address.verifyCallResult(success, returndata, "Address: low-level delegate call failed");
-+    }
- }
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
 index d0e52c39..4a7ff926 100644
 --- a/contracts/utils/cryptography/EIP712.sol
