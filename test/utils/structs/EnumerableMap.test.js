@@ -14,6 +14,9 @@ const getMethods = ms => {
   );
 };
 
+// Get the name of the library. In the transpiled code it will be EnumerableMapUpgradeable.
+const library = EnumerableMap._json.contractName.replace(/^\$/, '');
+
 contract('EnumerableMap', function (accounts) {
   const [accountA, accountB, accountC] = accounts;
 
@@ -41,14 +44,14 @@ contract('EnumerableMap', function (accounts) {
         getWithMessage: '$get(uint256,address,string)',
         tryGet: '$tryGet(uint256,address)',
         remove: '$remove(uint256,address)',
-        length: '$length_EnumerableMap_AddressToUintMap(uint256)',
-        at: '$at_EnumerableMap_AddressToUintMap(uint256,uint256)',
+        length: `$length_${library}_AddressToUintMap(uint256)`,
+        at: `$at_${library}_AddressToUintMap(uint256,uint256)`,
         contains: '$contains(uint256,address)',
-        keys: '$keys_EnumerableMap_AddressToUintMap(uint256)',
+        keys: `$keys_${library}_AddressToUintMap(uint256)`,
       }),
       {
-        setReturn: 'return$set_EnumerableMap_AddressToUintMap_address_uint256',
-        removeReturn: 'return$remove_EnumerableMap_AddressToUintMap_address',
+        setReturn: `return$set_${library}_AddressToUintMap_address_uint256`,
+        removeReturn: `return$remove_${library}_AddressToUintMap_address`,
       },
     );
   });
@@ -61,18 +64,18 @@ contract('EnumerableMap', function (accounts) {
       constants.ZERO_ADDRESS,
       getMethods({
         set: '$set(uint256,uint256,address)',
-        get: '$get_EnumerableMap_UintToAddressMap(uint256,uint256)',
-        getWithMessage: '$get_EnumerableMap_UintToAddressMap(uint256,uint256,string)',
-        tryGet: '$tryGet_EnumerableMap_UintToAddressMap(uint256,uint256)',
-        remove: '$remove_EnumerableMap_UintToAddressMap(uint256,uint256)',
-        length: '$length_EnumerableMap_UintToAddressMap(uint256)',
-        at: '$at_EnumerableMap_UintToAddressMap(uint256,uint256)',
-        contains: '$contains_EnumerableMap_UintToAddressMap(uint256,uint256)',
-        keys: '$keys_EnumerableMap_UintToAddressMap(uint256)',
+        get: `$get_${library}_UintToAddressMap(uint256,uint256)`,
+        getWithMessage: `$get_${library}_UintToAddressMap(uint256,uint256,string)`,
+        tryGet: `$tryGet_${library}_UintToAddressMap(uint256,uint256)`,
+        remove: `$remove_${library}_UintToAddressMap(uint256,uint256)`,
+        length: `$length_${library}_UintToAddressMap(uint256)`,
+        at: `$at_${library}_UintToAddressMap(uint256,uint256)`,
+        contains: `$contains_${library}_UintToAddressMap(uint256,uint256)`,
+        keys: `$keys_${library}_UintToAddressMap(uint256)`,
       }),
       {
-        setReturn: 'return$set_EnumerableMap_UintToAddressMap_uint256_address',
-        removeReturn: 'return$remove_EnumerableMap_UintToAddressMap_uint256',
+        setReturn: `return$set_${library}_UintToAddressMap_uint256_address`,
+        removeReturn: `return$remove_${library}_UintToAddressMap_uint256`,
       },
     );
   });
@@ -85,18 +88,18 @@ contract('EnumerableMap', function (accounts) {
       constants.ZERO_BYTES32,
       getMethods({
         set: '$set(uint256,bytes32,bytes32)',
-        get: '$get_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)',
-        getWithMessage: '$get_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32,string)',
-        tryGet: '$tryGet_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)',
-        remove: '$remove_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)',
-        length: '$length_EnumerableMap_Bytes32ToBytes32Map(uint256)',
-        at: '$at_EnumerableMap_Bytes32ToBytes32Map(uint256,uint256)',
-        contains: '$contains_EnumerableMap_Bytes32ToBytes32Map(uint256,bytes32)',
-        keys: '$keys_EnumerableMap_Bytes32ToBytes32Map(uint256)',
+        get: `$get_${library}_Bytes32ToBytes32Map(uint256,bytes32)`,
+        getWithMessage: `$get_${library}_Bytes32ToBytes32Map(uint256,bytes32,string)`,
+        tryGet: `$tryGet_${library}_Bytes32ToBytes32Map(uint256,bytes32)`,
+        remove: `$remove_${library}_Bytes32ToBytes32Map(uint256,bytes32)`,
+        length: `$length_${library}_Bytes32ToBytes32Map(uint256)`,
+        at: `$at_${library}_Bytes32ToBytes32Map(uint256,uint256)`,
+        contains: `$contains_${library}_Bytes32ToBytes32Map(uint256,bytes32)`,
+        keys: `$keys_${library}_Bytes32ToBytes32Map(uint256)`,
       }),
       {
-        setReturn: 'return$set_EnumerableMap_Bytes32ToBytes32Map_bytes32_bytes32',
-        removeReturn: 'return$remove_EnumerableMap_Bytes32ToBytes32Map_bytes32',
+        setReturn: `return$set_${library}_Bytes32ToBytes32Map_bytes32_bytes32`,
+        removeReturn: `return$remove_${library}_Bytes32ToBytes32Map_bytes32`,
       },
     );
   });
@@ -109,18 +112,18 @@ contract('EnumerableMap', function (accounts) {
       new BN('0'),
       getMethods({
         set: '$set(uint256,uint256,uint256)',
-        get: '$get_EnumerableMap_UintToUintMap(uint256,uint256)',
-        getWithMessage: '$get_EnumerableMap_UintToUintMap(uint256,uint256,string)',
-        tryGet: '$tryGet_EnumerableMap_UintToUintMap(uint256,uint256)',
-        remove: '$remove_EnumerableMap_UintToUintMap(uint256,uint256)',
-        length: '$length_EnumerableMap_UintToUintMap(uint256)',
-        at: '$at_EnumerableMap_UintToUintMap(uint256,uint256)',
-        contains: '$contains_EnumerableMap_UintToUintMap(uint256,uint256)',
-        keys: '$keys_EnumerableMap_UintToUintMap(uint256)',
+        get: `$get_${library}_UintToUintMap(uint256,uint256)`,
+        getWithMessage: `$get_${library}_UintToUintMap(uint256,uint256,string)`,
+        tryGet: `$tryGet_${library}_UintToUintMap(uint256,uint256)`,
+        remove: `$remove_${library}_UintToUintMap(uint256,uint256)`,
+        length: `$length_${library}_UintToUintMap(uint256)`,
+        at: `$at_${library}_UintToUintMap(uint256,uint256)`,
+        contains: `$contains_${library}_UintToUintMap(uint256,uint256)`,
+        keys: `$keys_${library}_UintToUintMap(uint256)`,
       }),
       {
-        setReturn: 'return$set_EnumerableMap_UintToUintMap_uint256_uint256',
-        removeReturn: 'return$remove_EnumerableMap_UintToUintMap_uint256',
+        setReturn: `return$set_${library}_UintToUintMap_uint256_uint256`,
+        removeReturn: `return$remove_${library}_UintToUintMap_uint256`,
       },
     );
   });
@@ -133,18 +136,18 @@ contract('EnumerableMap', function (accounts) {
       new BN('0'),
       getMethods({
         set: '$set(uint256,bytes32,uint256)',
-        get: '$get_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)',
-        getWithMessage: '$get_EnumerableMap_Bytes32ToUintMap(uint256,bytes32,string)',
-        tryGet: '$tryGet_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)',
-        remove: '$remove_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)',
-        length: '$length_EnumerableMap_Bytes32ToUintMap(uint256)',
-        at: '$at_EnumerableMap_Bytes32ToUintMap(uint256,uint256)',
-        contains: '$contains_EnumerableMap_Bytes32ToUintMap(uint256,bytes32)',
-        keys: '$keys_EnumerableMap_Bytes32ToUintMap(uint256)',
+        get: `$get_${library}_Bytes32ToUintMap(uint256,bytes32)`,
+        getWithMessage: `$get_${library}_Bytes32ToUintMap(uint256,bytes32,string)`,
+        tryGet: `$tryGet_${library}_Bytes32ToUintMap(uint256,bytes32)`,
+        remove: `$remove_${library}_Bytes32ToUintMap(uint256,bytes32)`,
+        length: `$length_${library}_Bytes32ToUintMap(uint256)`,
+        at: `$at_${library}_Bytes32ToUintMap(uint256,uint256)`,
+        contains: `$contains_${library}_Bytes32ToUintMap(uint256,bytes32)`,
+        keys: `$keys_${library}_Bytes32ToUintMap(uint256)`,
       }),
       {
-        setReturn: 'return$set_EnumerableMap_Bytes32ToUintMap_bytes32_uint256',
-        removeReturn: 'return$remove_EnumerableMap_Bytes32ToUintMap_bytes32',
+        setReturn: `return$set_${library}_Bytes32ToUintMap_bytes32_uint256`,
+        removeReturn: `return$remove_${library}_Bytes32ToUintMap_bytes32`,
       },
     );
   });

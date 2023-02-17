@@ -12,6 +12,9 @@ const getMethods = ms => {
   );
 };
 
+// Get the name of the library. In the transpiled code it will be EnumerableSetUpgradeable.
+const library = EnumerableSet._json.contractName.replace(/^\$/, '');
+
 contract('EnumerableSet', function (accounts) {
   beforeEach(async function () {
     this.set = await EnumerableSet.new();
@@ -25,13 +28,13 @@ contract('EnumerableSet', function (accounts) {
         add: '$add(uint256,bytes32)',
         remove: '$remove(uint256,bytes32)',
         contains: '$contains(uint256,bytes32)',
-        length: '$length_EnumerableSet_Bytes32Set(uint256)',
-        at: '$at_EnumerableSet_Bytes32Set(uint256,uint256)',
-        values: '$values_EnumerableSet_Bytes32Set(uint256)',
+        length: `$length_${library}_Bytes32Set(uint256)`,
+        at: `$at_${library}_Bytes32Set(uint256,uint256)`,
+        values: `$values_${library}_Bytes32Set(uint256)`,
       }),
       {
-        addReturn: 'return$add_EnumerableSet_Bytes32Set_bytes32',
-        removeReturn: 'return$remove_EnumerableSet_Bytes32Set_bytes32',
+        addReturn: `return$add_${library}_Bytes32Set_bytes32`,
+        removeReturn: `return$remove_${library}_Bytes32Set_bytes32`,
       },
     );
   });
@@ -44,13 +47,13 @@ contract('EnumerableSet', function (accounts) {
         add: '$add(uint256,address)',
         remove: '$remove(uint256,address)',
         contains: '$contains(uint256,address)',
-        length: '$length_EnumerableSet_AddressSet(uint256)',
-        at: '$at_EnumerableSet_AddressSet(uint256,uint256)',
-        values: '$values_EnumerableSet_AddressSet(uint256)',
+        length: `$length_${library}_AddressSet(uint256)`,
+        at: `$at_${library}_AddressSet(uint256,uint256)`,
+        values: `$values_${library}_AddressSet(uint256)`,
       }),
       {
-        addReturn: 'return$add_EnumerableSet_AddressSet_address',
-        removeReturn: 'return$remove_EnumerableSet_AddressSet_address',
+        addReturn: `return$add_${library}_AddressSet_address`,
+        removeReturn: `return$remove_${library}_AddressSet_address`,
       },
     );
   });
@@ -63,13 +66,13 @@ contract('EnumerableSet', function (accounts) {
         add: '$add(uint256,uint256)',
         remove: '$remove(uint256,uint256)',
         contains: '$contains(uint256,uint256)',
-        length: '$length_EnumerableSet_UintSet(uint256)',
-        at: '$at_EnumerableSet_UintSet(uint256,uint256)',
-        values: '$values_EnumerableSet_UintSet(uint256)',
+        length: `$length_${library}_UintSet(uint256)`,
+        at: `$at_${library}_UintSet(uint256,uint256)`,
+        values: `$values_${library}_UintSet(uint256)`,
       }),
       {
-        addReturn: 'return$add_EnumerableSet_UintSet_uint256',
-        removeReturn: 'return$remove_EnumerableSet_UintSet_uint256',
+        addReturn: `return$add_${library}_UintSet_uint256`,
+        removeReturn: `return$remove_${library}_UintSet_uint256`,
       },
     );
   });
