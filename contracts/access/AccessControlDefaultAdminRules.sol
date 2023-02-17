@@ -4,14 +4,13 @@
 pragma solidity ^0.8.0;
 
 import "./AccessControl.sol";
-import "./IAccessControlDefaultAdminRules.sol";
 import "../utils/math/SafeCast.sol";
 import "../interfaces/IERC5313.sol";
 
 /**
  * @dev Extension of {AccessControl} that allows specifying special rules to manage
- * the `DEFAULT_ADMIN_ROLE` 's holder, which is a sensitive role with special permissions
- * over other valid roles that may potentially have rights.
+ * the `DEFAULT_ADMIN_ROLE` holder, which is a sensitive role with special permissions
+ * over other roles that may potentially have privileged rights in the system.
  *
  * If a specific role doesn't have an `adminRole` assigned, the holder of the
  * `DEFAULT_ADMIN_ROLE` will have the ability to manage it, as determined by the
@@ -19,9 +18,8 @@ import "../interfaces/IERC5313.sol";
  *
  * This contract implements the following risk mitigations on top of the {AccessControl} implementation:
  *
- * * Only one account holds the `DEFAULT_ADMIN_ROLE` at every time after construction except when renounced.
+ * * Only one account holds the `DEFAULT_ADMIN_ROLE` at every time after construction except when it's renounced.
  * * Enforce a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.
- *   - Even when it's been renounced.
  * * Enforce a configurable delay between the two steps, with the ability to cancel in between.
  *   - Even after the timer has passed to avoid locking it forever.
  * * The `DEFAULT_ADMIN_ROLE` 's admin can be only itself.
@@ -42,7 +40,7 @@ import "../interfaces/IERC5313.sol";
  *
  * _Available since v4.9._
  */
-abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRules, IERC5313, AccessControl {
+abstract contract AccessControlDefaultAdminRules is IERC5313, AccessControl {
     uint48 private immutable _delay;
 
     address private _currentDefaultAdmin;
@@ -51,7 +49,14 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     uint48 private _defaultAdminTransferDelayedUntil;
 
     /**
-     * @dev Sets the initial values for {delay} and {defaultAdmin}.
+     * @dev Emitted when a `DEFAULT_ADMIN_ROLE` transfer is started, setting `newDefaultAdmin`
+     * as the next default admin, which will have rights to claim the `DEFAULT_ADMIN_ROLE`
+     * after `defaultAdminTransferDelayedUntil` is met.
+     */
+    event DefaultAdminRoleChangeStarted(address indexed newDefaultAdmin, uint48 defaultAdminTransferDelayedUntil);
+
+    /**
+     * @dev Sets the initial values for {delay} in seconds and {defaultAdmin}.
      *
      * The `delay` value is immutable. It can only be set at the constructor.
      */
@@ -75,44 +80,59 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev See {IAccessControlDefaultAdminRules-defaultAdmin}.
+     * @dev Returns the address of the current `DEFAULT_ADMIN_ROLE` holder.
      */
     function defaultAdmin() public view virtual returns (address) {
         return _currentDefaultAdmin;
     }
 
     /**
-     * @dev See {IAccessControlDefaultAdminRules-defaultAdminTransferDelayedUntil}.
-     */
-    function defaultAdminTransferDelayedUntil() public view virtual returns (uint48) {
-        return _defaultAdminTransferDelayedUntil;
-    }
-
-    /**
-     * @dev See {IAccessControlDefaultAdminRules-pendingDefaultAdmin}.
+     * @dev Returns the address of the pending `DEFAULT_ADMIN_ROLE` holder.
      */
     function pendingDefaultAdmin() public view virtual returns (address) {
         return _pendingDefaultAdmin;
     }
 
     /**
-     * @dev See {IERC165-supportsInterface}.
+     * @dev Returns the timestamp after which the pending default admin can claim the `DEFAULT_ADMIN_ROLE`.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IAccessControlDefaultAdminRules).interfaceId || super.supportsInterface(interfaceId);
+    function defaultAdminTransferDelayedUntil() public view virtual returns (uint48) {
+        return _defaultAdminTransferDelayedUntil;
     }
 
     /**
-     * @dev See {IAccessControlDefaultAdminRules-beginDefaultAdminTransfer}.
+     * @dev See {IERC165-supportsInterface}.
      */
-    function beginDefaultAdminTransfer(address newAdmin) public virtual override onlyRole(DEFAULT_ADMIN_ROLE) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return
+            interfaceId == 0x4a02b518 || // type(IAccessControlDefaultAdminRules).interfaceId
+            super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @dev Starts a `DEFAULT_ADMIN_ROLE` transfer by setting a pending default admin
+     * and a timer to be met.
+     *
+     * Requirements:
+     *
+     * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
+     *
+     * Emits a {DefaultAdminRoleChangeStarted}.
+     */
+    function beginDefaultAdminTransfer(address newAdmin) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _defaultAdminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
         _pendingDefaultAdmin = newAdmin;
         emit DefaultAdminRoleChangeStarted(pendingDefaultAdmin(), defaultAdminTransferDelayedUntil());
     }
 
     /**
-     * @dev See {IAccessControlDefaultAdminRules-acceptDefaultAdminTransfer}
+     * @dev Completes a `DEFAULT_ADMIN_ROLE` transfer.
+     *
+     * Requirements:
+     *
+     * - Caller should be the pending default admin.
+     * - `DEFAULT_ADMIN_ROLE` should be granted to the caller.
+     * - `DEFAULT_ADMIN_ROLE` should be revoked from the previous holder.
      */
     function acceptDefaultAdminTransfer() public virtual {
         address pendingDefaultAdminHolder = pendingDefaultAdmin();
@@ -126,7 +146,12 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev See {IAccessControlDefaultAdminRules-cancelDefaultAdminTransfer}
+     * @dev Cancels a `DEFAULT_ADMIN_ROLE` transfer.
+     *
+     * Requirements:
+     *
+     * - Can be called even after the timer is met.
+     * - Can only be called by the current `DEFAULT_ADMIN_ROLE` holder.
      */
     function cancelDefaultAdminTransfer() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _resetDefaultAdminTransfer();
@@ -146,7 +171,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * thereby disabling any functionality that is only available to the default admin, and the
      * possibility of reassigning a non-administrated role.
      */
-    function renounceRole(bytes32 role, address account) public virtual override(IAccessControl, AccessControl) {
+    function renounceRole(bytes32 role, address account) public virtual override {
         if (role == DEFAULT_ADMIN_ROLE) {
             require(
                 pendingDefaultAdmin() == address(0) && _hasDefaultAdminTransferDelayPassed(),
@@ -159,7 +184,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @dev See {AccessControl-grantRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
-    function grantRole(bytes32 role, address account) public virtual override(IAccessControl, AccessControl) {
+    function grantRole(bytes32 role, address account) public virtual override {
         require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly grant defaultAdmin role");
         super.grantRole(role, account);
     }
@@ -167,7 +192,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @dev See {AccessControl-revokeRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
-    function revokeRole(bytes32 role, address account) public virtual override(IAccessControl, AccessControl) {
+    function revokeRole(bytes32 role, address account) public virtual override {
         require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly revoke defaultAdmin role");
         super.revokeRole(role, account);
     }
