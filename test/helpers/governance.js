@@ -63,24 +63,15 @@ class GovernorHelper {
         );
   }
 
-  cancel(visibility = 'external', opts = null) {
+  cancel(opts = null) {
     const proposal = this.currentProposal;
 
-    switch (visibility) {
-      case 'external':
-        if (proposal.useCompatibilityInterface) {
-          return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
-        } else {
-          return this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](
-            ...concatOpts(proposal.shortProposal, opts),
-          );
-        }
-      case 'internal':
-        return this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
-          ...concatOpts(proposal.shortProposal, opts),
-        );
-      default:
-        throw new Error(`unsuported visibility "${visibility}"`);
+    if (proposal.useCompatibilityInterface) {
+      return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
+    } else {
+      return this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](
+        ...concatOpts(proposal.shortProposal, opts),
+      );
     }
   }
 
