@@ -51,6 +51,16 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 contract MyToken is ERC20, ERC20Permit, ERC20Votes {
     constructor() ERC20("MyToken", "MTK") ERC20Permit("MyToken") {}
 
+    // OPTIONAL: overrides IERC6372 functions to make the token & governor timestamp-based
+
+    function clock() public view override returns (uint48) {
+        return uint48(block.timestamp);
+    }
+
+    function CLOCK_MODE() public view override returns (string memory) {
+        return "mode=timestamp";
+    }
+
     // The functions below are overrides required by Solidity.
 
     function _afterTokenTransfer(address from, address to, uint256 amount)
@@ -94,6 +104,16 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
         ERC20Wrapper(wrappedToken)
     {}
 
+    // OPTIONAL: overrides IERC6372 functions to make the token & governor timestamp-based
+
+    function clock() public view override returns (uint48) {
+        return uint48(block.timestamp);
+    }
+
+    function CLOCK_MODE() public view override returns (string memory) {
+        return "mode=timestamp";
+    }
+
     // The functions below are overrides required by Solidity.
 
     function _afterTokenTransfer(address from, address to, uint256 amount)
@@ -119,13 +139,15 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
 }
 ```
 
-NOTE:The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]. ERC721 tokens that don't provide this functionality can be wrapped into a voting tokens using a combination of xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] and xref:api:token/ERC721Wrapper.adoc#ERC721Wrapper[`ERC721Wrapper`].
+NOTE: The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]. ERC721 tokens that don't provide this functionality can be wrapped into a voting tokens using a combination of xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] and xref:api:token/ERC721Wrapper.adoc#ERC721Wrapper[`ERC721Wrapper`].
+
+NOTE: The internal clock used by the token to store voting balances will dictate the operating mode of the governor contract attached to it. By default, block numbers are used. Since v4.9, developpers can override the xref:api:interfaces.adoc#IERC6372[ERC6372] clock to use timestamps instead of block numbers.
 
 === Governor
 
 Initially, we will build a Governor without a timelock. The core logic is given by the Governor contract, but we still need to choose: 1) how voting power is determined, 2) how many votes are needed for quorum, 3) what options people have when casting a vote and how those votes are counted, and 4) what type of token should be used to vote. Each of these aspects is customizable by writing your own module, or more easily choosing one from OpenZeppelin Contracts.
 
-For 1) we will use the GovernorVotes module, which hooks to an IVotes instance to determine the voting power of an account based on the token balance they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token.
+For 1) we will use the GovernorVotes module, which hooks to an IVotes instance to determine the voting power of an account based on the token balance they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token. This module also discovers the clock mode (ERC6372) used by the token and applies it to the governor.
 
 For 2) we will use GovernorVotesQuorumFraction which works together with ERC20Votes to define quorum as a percentage of the total supply at the block a proposal’s voting power is retrieved. This requires a constructor parameter to set the percentage. Most Governors nowadays use 4%, so we will initialize the module with parameter 4 (this indicates the percentage, resulting in 4%).
 
@@ -137,7 +159,7 @@ votingDelay: How long after a proposal is created should voting power be fixed. 
 
 votingPeriod: How long does a proposal remain open to votes.
 
-These parameters are specified in number of blocks. Assuming block time of around 12 seconds, we will set votingDelay = 1 day = 7200 blocks, and votingPeriod = 1 week = 50400 blocks.
+These parameters are specified in the unit defined in the token's clock. The default is number of blocks, but in the example above we overrode it to timestamp. We set votingDelay = 1 day = 86400 seconds, and votingPeriod = 1 week = 604800 seconds. With block numbers, and assuming block time of around 12 seconds, we would have set votingDelay = 1 day = 7200 blocks, and votingPeriod = 1 week = 50400 blocks.
 
 We can optionally set a proposal threshold as well. This restricts proposal creation to accounts who have enough voting power.
 
@@ -160,11 +182,11 @@ contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, Gove
     {}
 
     function votingDelay() public pure override returns (uint256) {
-        return 6575; // 1 day
+        return 86400; // 1 day in seconds (with a token operationg using timestamps)
     }
 
     function votingPeriod() public pure override returns (uint256) {
-        return 46027; // 1 week
+        return 604800; // 1 week in seconds (with a token operationg using timestamps)
     }
 
     function proposalThreshold() public pure override returns (uint256) {
