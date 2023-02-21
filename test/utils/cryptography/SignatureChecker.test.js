@@ -40,44 +40,48 @@ contract('SignatureChecker (ERC1271)', function (accounts) {
   });
 
   context('ERC1271 wallet', function () {
-    it('with matching signer and signature', async function () {
-      expect(
-        await this.signaturechecker.$isValidSignatureNow(
-          this.wallet.address,
-          toEthSignedMessageHash(TEST_MESSAGE),
-          this.signature,
-        ),
-      ).to.equal(true);
-    });
+    for (const signature of ['isValidERC1271SignatureNow', 'isValidSignatureNow']) {
+      context(signature, function () {
+        it('with matching signer and signature', async function () {
+          expect(
+            await this.signaturechecker[`$${signature}`](
+              this.wallet.address,
+              toEthSignedMessageHash(TEST_MESSAGE),
+              this.signature,
+            ),
+          ).to.equal(true);
+        });
 
-    it('with invalid signer', async function () {
-      expect(
-        await this.signaturechecker.$isValidSignatureNow(
-          this.signaturechecker.address,
-          toEthSignedMessageHash(TEST_MESSAGE),
-          this.signature,
-        ),
-      ).to.equal(false);
-    });
+        it('with invalid signer', async function () {
+          expect(
+            await this.signaturechecker[`$${signature}`](
+              this.signaturechecker.address,
+              toEthSignedMessageHash(TEST_MESSAGE),
+              this.signature,
+            ),
+          ).to.equal(false);
+        });
 
-    it('with invalid signature', async function () {
-      expect(
-        await this.signaturechecker.$isValidSignatureNow(
-          this.wallet.address,
-          toEthSignedMessageHash(WRONG_MESSAGE),
-          this.signature,
-        ),
-      ).to.equal(false);
-    });
+        it('with invalid signature', async function () {
+          expect(
+            await this.signaturechecker[`$${signature}`](
+              this.wallet.address,
+              toEthSignedMessageHash(WRONG_MESSAGE),
+              this.signature,
+            ),
+          ).to.equal(false);
+        });
 
-    it('with malicious wallet', async function () {
-      expect(
-        await this.signaturechecker.$isValidSignatureNow(
-          this.malicious.address,
-          toEthSignedMessageHash(TEST_MESSAGE),
-          this.signature,
-        ),
-      ).to.equal(false);
-    });
+        it('with malicious wallet', async function () {
+          expect(
+            await this.signaturechecker[`$${signature}`](
+              this.malicious.address,
+              toEthSignedMessageHash(TEST_MESSAGE),
+              this.signature,
+            ),
+          ).to.equal(false);
+        });
+      });
+    }
   });
 });
