@@ -120,7 +120,7 @@ abstract contract AccessControlDefaultAdminRules is IERC5313, AccessControl {
      * Emits a {DefaultAdminRoleChangeStarted}.
      */
     function beginDefaultAdminTransfer(address newAdmin) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _defaultAdminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + _delay;
+        _defaultAdminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + delay();
         _pendingDefaultAdmin = newAdmin;
         emit DefaultAdminRoleChangeStarted(pendingDefaultAdmin(), defaultAdminTransferDelayedUntil());
     }
