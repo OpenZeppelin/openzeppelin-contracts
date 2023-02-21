@@ -31,7 +31,7 @@ import "../interfaces/IERC5313.sol";
  * contract MyToken is AccessControlDefaultAdminRules {
  *   constructor() AccessControlDefaultAdminRules(
  *     3 days,
- *     _msgSender() // Explicit initial `DEFAULT_ADMIN_ROLE` holder
+ *     msg.sender // Explicit initial `DEFAULT_ADMIN_ROLE` holder
  *    ) {}
  *}
  * ```
