@@ -79,9 +79,10 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /**
-     * @dev Decimals are read from the underlying asset in the constructor and cached. If this fails (e.g., the asset
-     * has not been created yet), the cached value is set to a default obtained by `super.decimals()` (which depends on
-     * inheritance but is most likely 18). Override this function in order to set a guaranteed hardcoded value.
+     * @dev Decimals are computed by adding the decimal offset on top of the underlying asset's decimals. This
+     * "original" value is cached during construction of the vault contract. If this read operation fails (e.g., the
+     * asset has not been created yet), a default of 18 is used to represent the underlying asset's decimals.
+     *
      * See {IERC20Metadata-decimals}.
      */
     function decimals() public view virtual override(IERC20Metadata, ERC20) returns (uint8) {
@@ -194,9 +195,6 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /**
      * @dev Internal conversion function (from assets to shares) with support for rounding direction.
-     *
-     * Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
-     * would represent an infinite amount of shares.
      */
     function _convertToShares(uint256 assets, Math.Rounding rounding) internal view virtual returns (uint256) {
         return assets.mulDiv(totalSupply() + 10 ** _decimalsOffset(), totalAssets() + 1, rounding);
@@ -213,7 +211,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * @dev Deposit/mint common workflow.
      */
     function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual {
-        // If _asset is ERC777, `transferFrom` can trigger a reenterancy BEFORE the transfer happens through the
+        // If _asset is ERC777, `transferFrom` can trigger a reentrancy BEFORE the transfer happens through the
         // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
         // calls the vault, which is assumed not malicious.
         //
