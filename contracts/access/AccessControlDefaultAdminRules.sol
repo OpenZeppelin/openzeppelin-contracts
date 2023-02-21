@@ -29,7 +29,7 @@ import "../interfaces/IERC5313.sol";
  * ```solidity
  * contract MyToken is AccessControlDefaultAdminRules {
  *   constructor() AccessControlDefaultAdminRules(
- *     60 * 60 * 24, // 3 days
+ *     3 days,
  *     _msgSender() // Explicit initial `DEFAULT_ADMIN_ROLE` holder
  *    ) {}
  *}
