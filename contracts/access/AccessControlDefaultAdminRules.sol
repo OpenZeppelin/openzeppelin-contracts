@@ -105,23 +105,15 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function beginDefaultAdminTransfer(address newAdmin) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _defaultAdminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + delay();
-        _pendingDefaultAdmin = newAdmin;
-        emit DefaultAdminRoleChangeStarted(pendingDefaultAdmin(), defaultAdminTransferDelayedUntil());
+        _beginDefaultAdminTransfer(newAdmin);
     }
 
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function acceptDefaultAdminTransfer() public virtual {
-        address pendingDefaultAdminHolder = pendingDefaultAdmin();
-        require(
-            _hasDefaultAdminTransferDelayPassed() && _msgSender() == pendingDefaultAdminHolder,
-            "AccessControl: can't accept defaultAdmin"
-        );
-        _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
-        _grantRole(DEFAULT_ADMIN_ROLE, pendingDefaultAdminHolder);
-        _resetDefaultAdminTransfer();
+        require(_msgSender() == pendingDefaultAdmin(), "AccessControl: can't accept defaultAdmin");
+        _acceptDefaultAdminTransfer();
     }
 
     /**
@@ -197,6 +189,29 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
             _currentDefaultAdmin = account;
         }
         super._grantRole(role, account);
+    }
+
+    /**
+     * @dev See {acceptDefaultAdminTransfer}.
+     *
+     * Internal function without access restriction.
+     */
+    function _acceptDefaultAdminTransfer() internal virtual {
+        require(_hasDefaultAdminTransferDelayPassed(), "AccessControl: delayedUntil not met");
+        _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
+        _grantRole(DEFAULT_ADMIN_ROLE, pendingDefaultAdmin());
+        _resetDefaultAdminTransfer();
+    }
+
+    /**
+     * @dev See {beginDefaultAdminTransfer}.
+     *
+     * Internal function without access restriction.
+     */
+    function _beginDefaultAdminTransfer(address newAdmin) internal virtual {
+        _defaultAdminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + delay();
+        _pendingDefaultAdmin = newAdmin;
+        emit DefaultAdminRoleChangeStarted(pendingDefaultAdmin(), defaultAdminTransferDelayedUntil());
     }
 
     /**

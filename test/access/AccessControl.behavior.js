@@ -385,7 +385,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         await time.increaseTo(incorrectIncreaseTo);
         await expectRevert(
           this.accessControl.acceptDefaultAdminTransfer({ from: correctPendingDefaultAdmin }),
-          `${errorPrefix}: can't accept defaultAdmin`,
+          `${errorPrefix}: delayedUntil not met`,
         );
       });
 
@@ -393,7 +393,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         await time.increaseTo(incorrectIncreaseTo.subn(1));
         await expectRevert(
           this.accessControl.acceptDefaultAdminTransfer({ from: correctPendingDefaultAdmin }),
-          `${errorPrefix}: can't accept defaultAdmin`,
+          `${errorPrefix}: delayedUntil not met`,
         );
       });
     });
