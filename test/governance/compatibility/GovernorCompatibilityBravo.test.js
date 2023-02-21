@@ -255,12 +255,12 @@ contract('GovernorCompatibilityBravo', function (accounts) {
         it('anyone can cancel if proposer drop below threshold', async function () {
           await this.helper.propose({ from: proposer });
           await this.token.transfer(voter1, web3.utils.toWei('1'), { from: proposer });
-          await this.helper.cancel();
+          await this.helper.cancel('external');
         });
 
         it('cannot cancel is proposer is still above threshold', async function () {
           await this.helper.propose({ from: proposer });
-          await expectRevert(this.helper.cancel(), 'GovernorBravo: proposer above threshold');
+          await expectRevert(this.helper.cancel('external'), 'GovernorBravo: proposer above threshold');
         });
       });
     });

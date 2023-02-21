@@ -397,13 +397,13 @@ contract('Governor', function (accounts) {
       describe('cancel', function () {
         describe('internal', function () {
           it('before proposal', async function () {
-            await expectRevert(this.helper.cancel(), 'Governor: unknown proposal id');
+            await expectRevert(this.helper.cancel('internal'), 'Governor: unknown proposal id');
           });
 
           it('after proposal', async function () {
             await this.helper.propose();
 
-            await this.helper.cancel();
+            await this.helper.cancel('internal');
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
             await this.helper.waitForSnapshot();
@@ -418,7 +418,7 @@ contract('Governor', function (accounts) {
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
 
-            await this.helper.cancel();
+            await this.helper.cancel('internal');
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
             await this.helper.waitForDeadline();
@@ -431,7 +431,7 @@ contract('Governor', function (accounts) {
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
 
-            await this.helper.cancel();
+            await this.helper.cancel('internal');
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
             await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
@@ -444,19 +444,19 @@ contract('Governor', function (accounts) {
             await this.helper.waitForDeadline();
             await this.helper.execute();
 
-            await expectRevert(this.helper.cancel(), 'Governor: proposal not active');
+            await expectRevert(this.helper.cancel('internal'), 'Governor: proposal not active');
           });
         });
 
         describe('public', function () {
           it('before proposal', async function () {
-            await expectRevert(this.helper.cancel(), 'Governor: unknown proposal id');
+            await expectRevert(this.helper.cancel('external'), 'Governor: unknown proposal id');
           });
 
           it('after proposal', async function () {
             await this.helper.propose();
 
-            await this.helper.cancel();
+            await this.helper.cancel('external');
           });
 
           it('after proposal - restricted to proposer', async function () {
@@ -469,7 +469,7 @@ contract('Governor', function (accounts) {
             await this.helper.propose();
             await this.helper.waitForSnapshot(1); // snapshot + 1 block
 
-            await expectRevert(this.helper.cancel(), 'Governor: too late to cancel');
+            await expectRevert(this.helper.cancel('external'), 'Governor: too late to cancel');
           });
 
           it('after vote', async function () {
@@ -477,7 +477,7 @@ contract('Governor', function (accounts) {
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
 
-            await expectRevert(this.helper.cancel(), 'Governor: too late to cancel');
+            await expectRevert(this.helper.cancel('external'), 'Governor: too late to cancel');
           });
 
           it('after deadline', async function () {
@@ -486,7 +486,7 @@ contract('Governor', function (accounts) {
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
 
-            await expectRevert(this.helper.cancel(), 'Governor: too late to cancel');
+            await expectRevert(this.helper.cancel('external'), 'Governor: too late to cancel');
           });
 
           it('after execution', async function () {
@@ -496,7 +496,7 @@ contract('Governor', function (accounts) {
             await this.helper.waitForDeadline();
             await this.helper.execute();
 
-            await expectRevert(this.helper.cancel(), 'Governor: too late to cancel');
+            await expectRevert(this.helper.cancel('external'), 'Governor: too late to cancel');
           });
         });
       });
