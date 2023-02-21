@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`SignatureChecker`: add `isValidERC1271SignatureNow` for checking the hash and the signature against a smart contract using ERC1271.
+`SignatureChecker`: Add `isValidERC1271SignatureNow` for checking a signature directly against a smart contract using ERC-1271.
