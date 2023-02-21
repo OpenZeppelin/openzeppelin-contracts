@@ -68,7 +68,7 @@ abstract contract AccessControlDefaultAdminRules is IERC5313, AccessControl {
     /**
      * @dev Returns the delay between each `DEFAULT_ADMIN_ROLE` transfer.
      */
-    function delay() public view returns (uint48) {
+    function delay() public view virtual returns (uint48) {
         return _delay;
     }
 
