@@ -79,9 +79,10 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /**
-     * @dev Decimals are read from the underlying asset in the constructor and cached. If this fails (e.g., the asset
-     * has not been created yet), the cached value is set to a default of 18. Override this function in order to set a
-     * custom hardcoded value.
+     * @dev Decimals are computed by adding the decimal offset on top of the "original" value read from the underlying
+     * asset in the constructor and cached. If this read operation fails (e.g., the asset has not been created yet),
+     * the cached value is set to a default of 18.
+     *
      * See {IERC20Metadata-decimals}.
      */
     function decimals() public view virtual override(IERC20Metadata, ERC20) returns (uint8) {
