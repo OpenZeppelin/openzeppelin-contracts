@@ -22,7 +22,7 @@ import "../interfaces/IERC5313.sol";
  * * Enforce a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.
  * * Enforce a configurable delay between the two steps, with the ability to cancel in between.
  *   - Even after the timer has passed to avoid locking it forever.
- * * The `DEFAULT_ADMIN_ROLE` 's admin can be only itself.
+ * * It is not possible to use another role to manage the `DEFAULT_ADMIN_ROLE`.
  *
  * Example usage:
  *
