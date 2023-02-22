@@ -256,7 +256,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     );
   });
 
-  describe('begins transfer default admin', async function () {
+  describe('begins transfer of default admin', async function () {
     it('should set pending default admin and delayed until', async function () {
       const receipt = await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
       const defaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
