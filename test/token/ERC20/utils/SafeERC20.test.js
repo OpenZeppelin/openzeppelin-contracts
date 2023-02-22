@@ -167,16 +167,19 @@ contract('SafeERC20', function (accounts) {
     });
   });
 
-  describe("with usdt approval beaviour", function () {
+  describe('with usdt approval beaviour', function () {
     beforeEach(async function () {
-      this.token = await ERC20ForceApproveMock.new("FakeUSDT", "FUSDT");
+      this.token = await ERC20ForceApproveMock.new('FakeUSDT', 'FUSDT');
 
       // set initial approval
       await this.mock.$safeApprove(this.token.address, hasNoCode, 100);
     });
 
     it('safeApproval fails to update approval to non-zero', async function () {
-      await expectRevert(this.mock.$safeApprove(this.token.address, hasNoCode, 200), "SafeERC20: approve from non-zero to non-zero allowance");
+      await expectRevert(
+        this.mock.$safeApprove(this.token.address, hasNoCode, 200),
+        'SafeERC20: approve from non-zero to non-zero allowance',
+      );
     });
 
     it('safeApproval can update approval to zero', async function () {

@@ -99,7 +99,9 @@ library SafeERC20 {
         // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
         // we're implementing it ourselves. We cannot use Address.functionCall here since this should return false and
         // not revert is the subcall reverts.
-        if (!Address.isContract(address(token))) { return false; }
+        if (!Address.isContract(address(token))) {
+            return false;
+        }
         (bool success, bytes memory returndata) = address(token).call(data);
         return success && (returndata.length == 0 || abi.decode(returndata, (bool)));
     }
