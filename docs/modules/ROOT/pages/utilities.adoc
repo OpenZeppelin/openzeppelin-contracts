@@ -203,23 +203,17 @@ interface IGadget {
     function compute(uint256 c) external view returns (uint256);
 }
 
-contract GadgetStorage {
+contract GadgetImplementation is IGadget {
     uint256 internal _x;
-}
 
-contract GadgetImplementationA is GadgetStorage, IGadget {
     function compute(uint256 c) external view returns (uint256) {
         return _x * c;
     }
 }
 
-contract GadgetImplementationB is GadgetStorage, IGadget {
-    function compute(uint256 c) external view returns (uint256) {
-        return _x / c;
-    }
-}
+contract DynamicGadget is StaticDelegateCall {
+    uint256 internal _x;
 
-contract DynamicGadget is GadgetStorage, StaticDelegateCall {
     address private _implementation;
 
     ...
