@@ -473,7 +473,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         );
       });
 
-      it('reverts if block.timestamp is less to delayed until', async function () {
+      it('reverts if block.timestamp is less than delayed until', async function () {
         await time.increaseTo(incorrectIncreaseTo.subn(1));
         await expectRevert(
           this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from }),
