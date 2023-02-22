@@ -1,5 +1,5 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const { toEthSignedMessageHash } = require('../../helpers/sign');
+const { toEthSignedMessageHash, toDataWithIntendedValidatorHash } = require('../../helpers/sign');
 
 const { expect } = require('chai');
 
@@ -8,6 +8,7 @@ const ECDSA = artifacts.require('$ECDSA');
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
 const NON_HASH_MESSAGE = '0x' + Buffer.from('abcd').toString('hex');
+const RANDOM_ADDRESS = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
 
 function to2098Format(signature) {
   const long = web3.utils.hexToBytes(signature);
@@ -246,6 +247,14 @@ contract('ECDSA', function (accounts) {
       expect(await this.ecdsa.methods['$toEthSignedMessageHash(bytes)'](NON_HASH_MESSAGE)).to.equal(
         toEthSignedMessageHash(NON_HASH_MESSAGE),
       );
+    });
+  });
+
+  context('toDataWithIntendedValidatorHash', function () {
+    it('returns the hash correctly', async function () {
+      expect(
+        await this.ecdsa.methods['$toDataWithIntendedValidatorHash(address,bytes)'](RANDOM_ADDRESS, NON_HASH_MESSAGE),
+      ).to.equal(toDataWithIntendedValidatorHash(RANDOM_ADDRESS, NON_HASH_MESSAGE));
     });
   });
 });
