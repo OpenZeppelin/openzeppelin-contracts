@@ -51,16 +51,6 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 contract MyToken is ERC20, ERC20Permit, ERC20Votes {
     constructor() ERC20("MyToken", "MTK") ERC20Permit("MyToken") {}
 
-    // OPTIONAL: overrides IERC6372 functions to make the token & governor timestamp-based
-
-    function clock() public view override returns (uint48) {
-        return uint48(block.timestamp);
-    }
-
-    function CLOCK_MODE() public view override returns (string memory) {
-        return "mode=timestamp";
-    }
-
     // The functions below are overrides required by Solidity.
 
     function _afterTokenTransfer(address from, address to, uint256 amount)
@@ -104,16 +94,6 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
         ERC20Wrapper(wrappedToken)
     {}
 
-    // OPTIONAL: overrides IERC6372 functions to make the token & governor timestamp-based
-
-    function clock() public view override returns (uint48) {
-        return uint48(block.timestamp);
-    }
-
-    function CLOCK_MODE() public view override returns (string memory) {
-        return "mode=timestamp";
-    }
-
     // The functions below are overrides required by Solidity.
 
     function _afterTokenTransfer(address from, address to, uint256 amount)
@@ -141,7 +121,7 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
 
 NOTE: The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]. ERC721 tokens that don't provide this functionality can be wrapped into a voting tokens using a combination of xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] and xref:api:token/ERC721Wrapper.adoc#ERC721Wrapper[`ERC721Wrapper`].
 
-NOTE: The internal clock used by the token to store voting balances will dictate the operating mode of the governor contract attached to it. By default, block numbers are used. Since v4.9, developpers can override the xref:api:interfaces.adoc#IERC6372[ERC6372] clock to use timestamps instead of block numbers.
+NOTE: The internal clock used by the token to store voting balances will dictate the operating mode of the governor contract attached to it. By default, block numbers are used. Since v4.9, developers can override the xref:api:interfaces.adoc#IERC6372[IERC6372] clock to use timestamps instead of block numbers.
 
 === Governor
 
@@ -159,7 +139,7 @@ votingDelay: How long after a proposal is created should voting power be fixed. 
 
 votingPeriod: How long does a proposal remain open to votes.
 
-These parameters are specified in the unit defined in the token's clock. The default is number of blocks, but in the example above we overrode it to timestamp. We set votingDelay = 1 day = 86400 seconds, and votingPeriod = 1 week = 604800 seconds. With block numbers, and assuming block time of around 12 seconds, we would have set votingDelay = 1 day = 7200 blocks, and votingPeriod = 1 week = 50400 blocks.
+These parameters are specified in the unit defined in the token's clock. Assuming the token uses block numbers, and assuming block time of around 12 seconds, we will have set votingDelay = 1 day = 7200 blocks, and votingPeriod = 1 week = 50400 blocks.
 
 We can optionally set a proposal threshold as well. This restricts proposal creation to accounts who have enough voting power.
 
@@ -181,15 +161,15 @@ contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, Gove
         GovernorTimelockControl(_timelock)
     {}
 
-    function votingDelay() public pure override returns (uint256) {
-        return 86400; // 1 day in seconds (with a token operationg using timestamps)
+    function votingDelay() public pure virtual override returns (uint256) {
+        return 7200; // 1 day
     }
 
-    function votingPeriod() public pure override returns (uint256) {
-        return 604800; // 1 week in seconds (with a token operationg using timestamps)
+    function votingPeriod() public pure virtual override returns (uint256) {
+        return 50400; // 1 week
     }
 
-    function proposalThreshold() public pure override returns (uint256) {
+    function proposalThreshold() public pure virtual override returns (uint256) {
         return 0;
     }
 
@@ -341,3 +321,53 @@ await governor.execute(
 ```
 
 Executing the proposal will transfer the ERC20 tokens to the chosen recipient. To wrap up: we set up a system where a treasury is controlled by the collective decision of the token holders of a project, and all actions are executed via proposals enforced by on-chain votes.
+
+== Timestamp based governance
+
+=== Motivation
+
+It is sometimes difficult for humans to deal with duration expressed in number of blocks because the mean time between blocks might be inconsistent. That is particularly true of some networks where blocks are beeing produced based on blockchain usage. Using number of blocks can also lead to the governance rules being affected by network upgrades eventually modifying the mean time between blocks.
+
+The difficulty of replacing block numbers with timestamp is that the governor and the token must both use the same format when querying past votes (at a given point in time). If a token is designed around block numbers, it is not possible for a governor to reliably do timestamp based lookups.
+
+Therefore, designing a timestamp based voting system starts with the token.
+
+=== Token
+
+Since v4.9, all voting contracts (including xref:api:token/ERC20.adoc#ERC20Votes[`ERC20Votes`] and xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]) rely on xref:api:interfaces.adoc#IERC6372[IERC6372] for clock management. In order to change from operating with block numbers to operating with timestamps, all that is required is to override the `clock()` function. When doing so, one should not forget to also update the `CLOCK_MODE()` function.
+
+```solidity
+contract MyTokenWithTimestamp is MyToken {
+    // Overrides IERC6372 functions to make the token & governor timestamp-based
+
+    function clock() public view override returns (uint48) {
+        return uint48(block.timestamp);
+    }
+
+    function CLOCK_MODE() public view override returns (string memory) {
+        return "mode=timestamp";
+    }
+}
+```
+
+=== Governor
+
+The governor will automatically detect the clock mode used by the token and adapt to it. There is no need to override anything in the governor contract. However, the clock mode does affect how some values are interpreted. It is therefore necessary to set the `votingDelay()` and `votingPeriod()` accordingly.
+
+```solidity
+contract MyGovernorWithTimestamp is MyGovernor {
+    constructor(IVotes _token, TimelockController _timelock) MyGovernor(_token, _timelock) {}
+
+    function votingDelay() public pure override returns (uint256) {
+        return 86400; // 1 day in seconds
+    }
+
+    function votingPeriod() public pure override returns (uint256) {
+        return 604800; // 1 week in seconds
+    }
+}
+```
+
+=== Disclaimer
+
+Timestamp based voting is a recent feature that was formalized in EIP-6372 and EIP-5805, and introduced in v4.9. At the time this feature is released, governance tooling such as https://www.tally.xyz[Tally] does not support it yet. While support for timestamps should come soon, users can expect invalid reporting of deadlines & durations. This invalid reporting by offchain tools does not affect the onchain security and functionality of the governance contract.
