@@ -416,37 +416,27 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       await this.accessControl.beginDefaultAdminTransfer(ZERO_ADDRESS, { from });
     });
 
-    describe('caller is default admin and delayed until has passed', function () {
-      let receipt;
+    it('it renounces role', async function () {
+      await time.increaseTo(correctIncreaseTo);
+      const receipt = await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, from, { from });
 
-      beforeEach(async function () {
-        await time.increaseTo(correctIncreaseTo);
-        from = defaultAdmin;
-        receipt = await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, from, { from });
+      expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.false;
+      expect(await this.accessControl.hasRole(ZERO_ADDRESS, defaultAdmin)).to.be.false;
+      expectEvent(receipt, 'RoleRevoked', {
+        role: DEFAULT_ADMIN_ROLE,
+        account: from,
       });
+      expect(await this.accessControl.owner()).to.equal(ZERO_ADDRESS);
+    });
 
-      it('renounces role and does not grant it to the ZERO ADDRESS', async function () {
-        expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.false;
-        expect(await this.accessControl.hasRole(ZERO_ADDRESS, defaultAdmin)).to.be.false;
-      });
+    it('allows to recover access using the internal _grantRole', async function () {
+      await time.increaseTo(correctIncreaseTo);
+      await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, from, { from });
 
-      it('emits events', function () {
-        expectEvent(receipt, 'RoleRevoked', {
-          role: DEFAULT_ADMIN_ROLE,
-          account: from,
-        });
-      });
-
-      it('marks the contract as not owned', async function () {
-        expect(await this.accessControl.owner()).to.equal(ZERO_ADDRESS);
-      });
-
-      it('allows to recover access using the internal _grantRole', async function () {
-        const grantRoleReceipt = await this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, other);
-        expectEvent(grantRoleReceipt, 'RoleGranted', {
-          role: DEFAULT_ADMIN_ROLE,
-          account: other,
-        });
+      const grantRoleReceipt = await this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, other);
+      expectEvent(grantRoleReceipt, 'RoleGranted', {
+        role: DEFAULT_ADMIN_ROLE,
+        account: other,
       });
     });
 
