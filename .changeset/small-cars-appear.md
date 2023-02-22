@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-Implement 0x00 version of EIP-191 in ECDSA Library
+`ECDSA`: Add a function `toDataWithIntendedValidatorHash` that encodes data with version 0x00 following EIP-191.
