@@ -13,7 +13,7 @@ import "../interfaces/IERC5313.sol";
  * the `DEFAULT_ADMIN_ROLE` holder, which is a sensitive role with special permissions
  * over other roles that may potentially have privileged rights in the system.
  *
- * If a specific role doesn't have an `adminRole` assigned, the holder of the
+ * If a specific role doesn't have an admin role assigned, the holder of the
  * `DEFAULT_ADMIN_ROLE` will have the ability to grant it and revoke it.
  *
  * This contract implements the following risk mitigations on top of {AccessControl}:
