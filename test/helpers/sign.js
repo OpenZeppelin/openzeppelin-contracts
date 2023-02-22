@@ -7,7 +7,7 @@ function toEthSignedMessageHash(messageHex) {
 /**
  * Create a signed data with intended validator according to the version 0 of EIP-191
  * @param validatorAddress The address of the validator
- * @param dataHex The data to be concatened with the prefix and signed
+ * @param dataHex The data to be concatenated with the prefix and signed
  */
 function toDataWithIntendedValidatorHash(validatorAddress, dataHex) {
   const validatorBuffer = Buffer.from(web3.utils.hexToBytes(validatorAddress));
