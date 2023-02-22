@@ -307,18 +307,12 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   });
 
   describe('accepts transfer admin', function () {
-    let correctPendingDefaultAdmin;
     let delayPassed;
 
     beforeEach(async function () {
-      // Set as correct so they're explicitly needed in revert tests, since conditions
-      // are not mutually exclusive and accidentally an incorrect value will make it revert
-      // possiblty creating false positives (eg. expect revert for incorrect caller but getting it
-      // from a badly expected delayed until)
-      correctPendingDefaultAdmin = newDefaultAdmin;
       delayPassed = (await time.latest()).add(delay).addn(1);
 
-      await this.accessControl.beginDefaultAdminTransfer(correctPendingDefaultAdmin, { from: defaultAdmin });
+      await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
     });
 
     describe('caller is pending default admin and delay has passed', function () {
@@ -326,7 +320,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
       beforeEach(async function () {
         await time.increaseTo(delayPassed);
-        from = correctPendingDefaultAdmin;
+        from = newDefaultAdmin;
       });
 
       it('accepts a transfer and changes default admin', async function () {
@@ -373,7 +367,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       it('should revert if block.timestamp is equal to delayed until', async function () {
         await time.increaseTo(delayNotPassed);
         await expectRevert(
-          this.accessControl.acceptDefaultAdminTransfer({ from: correctPendingDefaultAdmin }),
+          this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin }),
           `${errorPrefix}: transfer delay not met`,
         );
       });
@@ -381,7 +375,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       it('should revert if block.timestamp is less than delayed until', async function () {
         await time.increaseTo(delayNotPassed.subn(1));
         await expectRevert(
-          this.accessControl.acceptDefaultAdminTransfer({ from: correctPendingDefaultAdmin }),
+          this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin }),
           `${errorPrefix}: transfer delay not met`,
         );
       });
