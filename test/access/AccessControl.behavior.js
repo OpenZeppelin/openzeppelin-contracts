@@ -324,14 +324,14 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       });
 
       it('accepts a transfer and changes default admin', async function () {
-        await this.accessControl.acceptDefaultAdminTransfer({ from });
+        const receipt = await this.accessControl.acceptDefaultAdminTransfer({ from });
+
+        // Storage changes
         expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.false;
         expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, newDefaultAdmin)).to.be.true;
         expect(await this.accessControl.owner()).to.equal(newDefaultAdmin);
-      });
 
-      it('accepts a transfer and emit events', async function () {
-        const receipt = await this.accessControl.acceptDefaultAdminTransfer({ from });
+        // Emit events
         expectEvent(receipt, 'RoleRevoked', {
           role: DEFAULT_ADMIN_ROLE,
           account: defaultAdmin,
@@ -340,10 +340,8 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
           role: DEFAULT_ADMIN_ROLE,
           account: newDefaultAdmin,
         });
-      });
 
-      it('accepts a transfer resetting pending default admin and delayed until', async function () {
-        await this.accessControl.acceptDefaultAdminTransfer({ from });
+        // Resets pending default admin and delayed until
         expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
         expect(await this.accessControl.pendingDefaultAdmin()).to.equal(ZERO_ADDRESS);
       });
