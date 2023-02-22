@@ -113,10 +113,7 @@ library SafeERC20 {
         // we're implementing it ourselves. We cannot use {Address-functionCall} here since this should return false
         // and not revert is the subcall reverts.
 
-        if (!Address.isContract(address(token))) {
-            return false;
-        }
         (bool success, bytes memory returndata) = address(token).call(data);
-        return success && (returndata.length == 0 || abi.decode(returndata, (bool)));
+        return success && (returndata.length == 0 || abi.decode(returndata, (bool))) && Address.isContract(address(token));
     }
 }
