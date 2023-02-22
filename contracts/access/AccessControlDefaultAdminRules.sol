@@ -195,7 +195,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _acceptDefaultAdminTransfer() internal virtual {
-        require(_hasDefaultAdminTransferDelayPassed(), "AccessControl: transfer delay not met");
+        require(_hasDefaultAdminTransferDelayPassed(), "AccessControl: transfer delay not passed");
         _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
         _grantRole(DEFAULT_ADMIN_ROLE, pendingDefaultAdmin());
         _resetDefaultAdminTransfer();
@@ -231,7 +231,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev Checks if a {defaultAdminTransferDelayedUntil} has been set and met.
+     * @dev Checks if a {defaultAdminTransferDelayedUntil} has been set and passed.
      */
     function _hasDefaultAdminTransferDelayPassed() private view returns (bool) {
         uint48 delayedUntil = defaultAdminTransferDelayedUntil();

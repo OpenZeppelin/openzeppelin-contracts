@@ -357,7 +357,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       );
     });
 
-    describe('delayedUntil not met', function () {
+    describe('delayedUntil not passed', function () {
       let delayNotPassed;
 
       beforeEach(function () {
@@ -368,7 +368,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         await time.increaseTo(delayNotPassed);
         await expectRevert(
           this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin }),
-          `${errorPrefix}: transfer delay not met`,
+          `${errorPrefix}: transfer delay not passed`,
         );
       });
 
@@ -376,7 +376,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         await time.increaseTo(delayNotPassed.subn(1));
         await expectRevert(
           this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin }),
-          `${errorPrefix}: transfer delay not met`,
+          `${errorPrefix}: transfer delay not passed`,
         );
       });
     });
@@ -461,7 +461,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       );
     });
 
-    describe('delayed until not met', function () {
+    describe('delayed until not passed', function () {
       let delayNotPassed;
 
       beforeEach(function () {

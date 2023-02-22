@@ -40,7 +40,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
 
     /**
      * @dev Starts a `DEFAULT_ADMIN_ROLE` transfer by setting a pending default admin
-     * and a timer to be met.
+     * and a timer to pass.
      *
      * Requirements:
      *
