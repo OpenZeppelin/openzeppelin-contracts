@@ -206,7 +206,7 @@ library ECDSA {
     }
 
     /**
-     * @dev Returns an Ethereum Signed Data with intended validator, created from a 
+     * @dev Returns an Ethereum Signed Data with intended validator, created from a
      * `validator` and `data` according to the version 0 of EIP-191.
      *
      * See {recover}.
