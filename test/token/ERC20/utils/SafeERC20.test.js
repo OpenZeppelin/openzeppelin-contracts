@@ -176,7 +176,6 @@ contract('SafeERC20', function (accounts) {
 
     describe('with initial approval', function () {
       beforeEach(async function () {
-        // set initial approval
         await this.token.$_approve(this.mock.address, spender, 100);
       });
 
