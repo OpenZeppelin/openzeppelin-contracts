@@ -397,6 +397,24 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       await this.accessControl.cancelDefaultAdminTransfer({ from: defaultAdmin });
       expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
       expect(await this.accessControl.pendingDefaultAdmin()).to.equal(ZERO_ADDRESS);
+
+      // Advance until passed delay
+      const increaseTo = (await time.latest()).add(delay).addn(1);
+      await time.increaseTo(increaseTo);
+      
+      // Previous pending default admin should not be able to accept after cancellation.
+      await expectRevert(
+        this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin }),
+        `${errorPrefix}: pending admin must accept`,
+      );
+    });
+
+    it('cancels even after delay has passed', async function () {
+      await this.accessControl.cancelDefaultAdminTransfer({ from: defaultAdmin });
+      const increaseTo = (await time.latest()).add(delay).addn(1);
+      await time.increaseTo(increaseTo);
+      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(await this.accessControl.pendingDefaultAdmin()).to.equal(ZERO_ADDRESS);
     });
 
     it('reverts if called by non default admin accounts', async function () {
