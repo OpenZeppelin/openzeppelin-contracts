@@ -36,13 +36,13 @@ import "../interfaces/IERC5313.sol";
  *}
  * ```
  *
- * NOTE: The `delay` is only configurable in the constructor to avoid issues related with handling
- * delay management during the transfer is pending to be completed.
+ * NOTE: The `defaultAdminDelay` is only configurable in the constructor to avoid issues related with handling
+ * defaultAdminDelay management during the transfer is pending to be completed.
  *
  * _Available since v4.9._
  */
 abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRules, IERC5313, AccessControl {
-    uint48 private immutable _delay;
+    uint48 private immutable _defaultAdminDelay;
 
     address private _currentDefaultAdmin;
     address private _pendingDefaultAdmin;
@@ -50,20 +50,13 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     uint48 private _defaultAdminTransferDelayedUntil;
 
     /**
-     * @dev Sets the initial values for {delay} in seconds and {defaultAdmin}.
+     * @dev Sets the initial values for {defaultAdminDelay} in seconds and {defaultAdmin}.
      *
-     * The `delay` value is immutable. It can only be set at the constructor.
+     * The `defaultAdminDelay` value is immutable. It can only be set at the constructor.
      */
-    constructor(uint48 delay_, address initialDefaultAdmin) {
-        _delay = delay_;
+    constructor(uint48 defaultAdminDelay_, address initialDefaultAdmin) {
+        _defaultAdminDelay = defaultAdminDelay_;
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
-    }
-
-    /**
-     * @dev Returns the delay between each `DEFAULT_ADMIN_ROLE` transfer.
-     */
-    function delay() public view virtual returns (uint48) {
-        return _delay;
     }
 
     /**
@@ -71,6 +64,13 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function owner() public view virtual returns (address) {
         return defaultAdmin();
+    }
+
+    /**
+     * @inheritdoc IAccessControlDefaultAdminRules
+     */
+    function defaultAdminDelay() public view virtual returns (uint48) {
+        return _defaultAdminDelay;
     }
 
     /**
@@ -209,7 +209,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _beginDefaultAdminTransfer(address newAdmin) internal virtual {
-        _defaultAdminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + delay();
+        _defaultAdminTransferDelayedUntil = SafeCast.toUint48(block.timestamp) + defaultAdminDelay();
         _pendingDefaultAdmin = newAdmin;
         emit DefaultAdminRoleChangeStarted(pendingDefaultAdmin(), defaultAdminTransferDelayedUntil());
     }

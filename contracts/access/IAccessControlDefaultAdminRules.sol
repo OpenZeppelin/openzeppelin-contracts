@@ -19,6 +19,11 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     event DefaultAdminRoleChangeStarted(address indexed newDefaultAdmin, uint48 defaultAdminTransferDelayedUntil);
 
     /**
+     * @dev Returns the delay between each `DEFAULT_ADMIN_ROLE` transfer.
+     */
+    function defaultAdminDelay() external view returns (uint48);
+
+    /**
      * @dev Returns the address of the current `DEFAULT_ADMIN_ROLE` holder.
      */
     function defaultAdmin() external view returns (address);
