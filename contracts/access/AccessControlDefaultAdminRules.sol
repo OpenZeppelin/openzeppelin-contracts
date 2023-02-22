@@ -17,7 +17,7 @@ import "../interfaces/IERC5313.sol";
  * `DEFAULT_ADMIN_ROLE` will have the ability to manage it, as determined by the
  * function {getRoleAdmin}'s default value (`address(0)`).
  *
- * This contract implements the following risk mitigations on top of the {AccessControl} implementation:
+ * This contract implements the following risk mitigations on top of {AccessControl}:
  *
  * * Only one account holds the `DEFAULT_ADMIN_ROLE` at every time after construction except when it's renounced.
  * * Enforce a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.
