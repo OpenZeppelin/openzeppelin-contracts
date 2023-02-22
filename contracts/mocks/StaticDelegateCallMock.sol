@@ -28,7 +28,7 @@ contract StaticDelegateCallMock is StaticDelegateCall {
             _implementation,
             abi.encodeCall(StaticDelegateCallImplementationMock.process, (c))
         );
-        if (!success) revert("Implementation reverted");
+        require(success, "Implementation reverted");
         return abi.decode(result, (uint256));
     }
 }
