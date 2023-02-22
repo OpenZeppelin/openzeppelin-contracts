@@ -231,28 +231,28 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   it('should revert if granting default admin role', async function () {
     await expectRevert(
       this.accessControl.grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
-      `${errorPrefix}: can't directly grant defaultAdmin role`,
+      `${errorPrefix}: can't directly grant default admin role`,
     );
   });
 
-  it('should revert if revoking defaultAdmin role', async function () {
+  it('should revert if revoking default admin role', async function () {
     await expectRevert(
       this.accessControl.revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
-      `${errorPrefix}: can't directly revoke defaultAdmin role`,
+      `${errorPrefix}: can't directly revoke default admin role`,
     );
   });
 
   it("should revert if defaultAdmin's admin is changed", async function () {
     await expectRevert(
       this.accessControl.$_setRoleAdmin(DEFAULT_ADMIN_ROLE, defaultAdmin),
-      `${errorPrefix}: can't violate defaultAdmin rules`,
+      `${errorPrefix}: can't violate default admin rules`,
     );
   });
 
   it('should not grant the default admin role twice', async function () {
     await expectRevert(
       this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin),
-      `${errorPrefix}: defaultAdmin already granted`,
+      `${errorPrefix}: default admin already granted`,
     );
   });
 
@@ -385,7 +385,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         await time.increaseTo(incorrectIncreaseTo);
         await expectRevert(
           this.accessControl.acceptDefaultAdminTransfer({ from: correctPendingDefaultAdmin }),
-          `${errorPrefix}: delayedUntil not met`,
+          `${errorPrefix}: transfer delay not met`,
         );
       });
 
@@ -393,7 +393,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         await time.increaseTo(incorrectIncreaseTo.subn(1));
         await expectRevert(
           this.accessControl.acceptDefaultAdminTransfer({ from: correctPendingDefaultAdmin }),
-          `${errorPrefix}: delayedUntil not met`,
+          `${errorPrefix}: transfer delay not met`,
         );
       });
     });
