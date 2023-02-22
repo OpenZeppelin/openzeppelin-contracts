@@ -126,7 +126,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev Revokes `role` from the calling account.
      *
      * For `DEFAULT_ADMIN_ROLE`, only allows renouncing in two steps, so it's required
-     * that the {defaultAdminTransferDelayedUntil} is met and the pending default admin is the zero address.
+     * that the {defaultAdminTransferDelayedUntil} has passed and the pending default admin is the zero address.
      * After its execution, it will not be possible to call `onlyRole(DEFAULT_ADMIN_ROLE)`
      * functions.
      *

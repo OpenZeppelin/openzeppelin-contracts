@@ -14,7 +14,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     /**
      * @dev Emitted when a `DEFAULT_ADMIN_ROLE` transfer is started, setting `newDefaultAdmin`
      * as the next default admin, which will have rights to claim the `DEFAULT_ADMIN_ROLE`
-     * after `defaultAdminTransferDelayedUntil` is met.
+     * after `defaultAdminTransferDelayedUntil` has passed.
      */
     event DefaultAdminRoleChangeStarted(address indexed newDefaultAdmin, uint48 defaultAdminTransferDelayedUntil);
 
@@ -66,7 +66,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * Requirements:
      *
-     * - Can be called even after the timer is met.
+     * - Can be called even after the timer has passed.
      * - Can only be called by the current `DEFAULT_ADMIN_ROLE` holder.
      */
     function cancelDefaultAdminTransfer() external;

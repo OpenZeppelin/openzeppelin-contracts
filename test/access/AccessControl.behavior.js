@@ -416,7 +416,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       await this.accessControl.beginDefaultAdminTransfer(ZERO_ADDRESS, { from });
     });
 
-    describe('caller is default admin and delayed until is met', function () {
+    describe('caller is default admin and delayed until has passed', function () {
       let receipt;
 
       beforeEach(async function () {
