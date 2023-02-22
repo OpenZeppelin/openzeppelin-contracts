@@ -236,9 +236,9 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev Checks if a {defaultAdminTransferDelayedUntil} has been set and met.
      */
     function _hasDefaultAdminTransferDelayPassed() private view returns (bool) {
-        uint48 defaultAdminTransferDelayedUntilTimestamp = defaultAdminTransferDelayedUntil();
+        uint48 delayedUntil = defaultAdminTransferDelayedUntil();
         return
-            defaultAdminTransferDelayedUntilTimestamp > 0 &&
-            defaultAdminTransferDelayedUntilTimestamp < block.timestamp;
+            delayedUntil > 0 &&
+            delayedUntil < block.timestamp;
     }
 }
