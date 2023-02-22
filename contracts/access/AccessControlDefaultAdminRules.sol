@@ -35,8 +35,7 @@ import "../interfaces/IERC5313.sol";
  *}
  * ```
  *
- * NOTE: The `defaultAdminDelay` is only configurable in the constructor to avoid issues related with handling
- * defaultAdminDelay management during the transfer is pending to be completed.
+ * NOTE: The `delay` can only be set in the constructor and is fixed thereafter.
  *
  * _Available since v4.9._
  */
