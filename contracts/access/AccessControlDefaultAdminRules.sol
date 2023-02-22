@@ -14,8 +14,7 @@ import "../interfaces/IERC5313.sol";
  * over other roles that may potentially have privileged rights in the system.
  *
  * If a specific role doesn't have an `adminRole` assigned, the holder of the
- * `DEFAULT_ADMIN_ROLE` will have the ability to manage it, as determined by the
- * function {getRoleAdmin}'s default value (`address(0)`).
+ * `DEFAULT_ADMIN_ROLE` will have the ability to grant it and revoke it.
  *
  * This contract implements the following risk mitigations on top of {AccessControl}:
  *
