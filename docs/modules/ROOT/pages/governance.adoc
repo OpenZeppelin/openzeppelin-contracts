@@ -225,7 +225,6 @@ contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, Gove
         return super.supportsInterface(interfaceId);
     }
 }
-
 ```
 
 === Timelock
@@ -326,9 +325,9 @@ Executing the proposal will transfer the ERC20 tokens to the chosen recipient. T
 
 === Motivation
 
-It is sometimes difficult for humans to deal with duration expressed in number of blocks because the mean time between blocks might be inconsistent. That is particularly true of some networks where blocks are beeing produced based on blockchain usage. Using number of blocks can also lead to the governance rules being affected by network upgrades eventually modifying the mean time between blocks.
+It is sometimes difficult for humans to deal with durations expressed in number of blocks because of inconstistent or unpredictable time between blocks. That is particularly true of some L2 networks where blocks are beeing produced based on blockchain usage. Using number of blocks can also lead to the governance rules being affected by network upgrades eventually modifying the mean time between blocks.
 
-The difficulty of replacing block numbers with timestamp is that the governor and the token must both use the same format when querying past votes (at a given point in time). If a token is designed around block numbers, it is not possible for a governor to reliably do timestamp based lookups.
+The difficulty of replacing block numbers with timestamp is that the governor and the token must both use the same format when querying past votes. If a token is designed around block numbers, it is not possible for a governor to reliably do timestamp based lookups.
 
 Therefore, designing a timestamp based voting system starts with the token.
 
@@ -337,15 +336,47 @@ Therefore, designing a timestamp based voting system starts with the token.
 Since v4.9, all voting contracts (including xref:api:token/ERC20.adoc#ERC20Votes[`ERC20Votes`] and xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]) rely on xref:api:interfaces.adoc#IERC6372[IERC6372] for clock management. In order to change from operating with block numbers to operating with timestamps, all that is required is to override the `clock()` function. When doing so, one should not forget to also update the `CLOCK_MODE()` function.
 
 ```solidity
-contract MyTokenWithTimestamp is MyToken {
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.2;
+
+import "github.com/openzeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import "github.com/openzeppelin/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "github.com/openzeppelin/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Votes.sol";
+
+contract MyToken is ERC20, ERC20Permit, ERC20Votes {
+    constructor() ERC20("MyToken", "MTK") ERC20Permit("MyToken") {}
+
     // Overrides IERC6372 functions to make the token & governor timestamp-based
 
     function clock() public view override returns (uint48) {
         return uint48(block.timestamp);
     }
 
-    function CLOCK_MODE() public view override returns (string memory) {
+    function CLOCK_MODE() public pure override returns (string memory) {
         return "mode=timestamp";
+    }
+
+    // The functions below are overrides required by Solidity.
+
+    function _afterTokenTransfer(address from, address to, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._afterTokenTransfer(from, to, amount);
+    }
+
+    function _mint(address to, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._mint(to, amount);
+    }
+
+    function _burn(address account, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._burn(account, amount);
     }
 }
 ```
@@ -355,16 +386,36 @@ contract MyTokenWithTimestamp is MyToken {
 The governor will automatically detect the clock mode used by the token and adapt to it. There is no need to override anything in the governor contract. However, the clock mode does affect how some values are interpreted. It is therefore necessary to set the `votingDelay()` and `votingPeriod()` accordingly.
 
 ```solidity
-contract MyGovernorWithTimestamp is MyGovernor {
-    constructor(IVotes _token, TimelockController _timelock) MyGovernor(_token, _timelock) {}
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.2;
 
-    function votingDelay() public pure override returns (uint256) {
-        return 86400; // 1 day in seconds
+import "@openzeppelin/contracts/governance/Governor.sol";
+import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+
+contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
+    constructor(IVotes _token, TimelockController _timelock)
+        Governor("MyGovernor")
+        GovernorVotes(_token)
+        GovernorVotesQuorumFraction(4)
+        GovernorTimelockControl(_timelock)
+    {}
+
+    function votingDelay() public pure virtual override returns (uint256) {
+        return 86400; // 1 day
     }
 
-    function votingPeriod() public pure override returns (uint256) {
-        return 604800; // 1 week in seconds
+    function votingPeriod() public pure virtual override returns (uint256) {
+        return 604800; // 1 week
     }
+
+    function proposalThreshold() public pure virtual override returns (uint256) {
+        return 0;
+    }
+
+    // ...
 }
 ```
 
