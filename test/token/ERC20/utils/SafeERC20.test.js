@@ -171,7 +171,7 @@ contract('SafeERC20', function (accounts) {
     const spender = hasNoCode;
 
     beforeEach(async function () {
-      this.token = await ERC20ForceApproveMock.new('FakeUSDT', 'FUSDT');
+      this.token = await ERC20ForceApproveMock.new();
     });
 
     describe('with initial approval', function () {
