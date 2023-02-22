@@ -256,7 +256,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     );
   });
 
-  describe('begins transfer of default admin', async function () {
+  describe('begins transfer of default admin', function () {
     let receipt;
     let defaultAdminTransferDelayedUntil;
 
@@ -306,7 +306,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     });
   });
 
-  describe('accepts transfer admin', async function () {
+  describe('accepts transfer admin', function () {
     let correctPendingDefaultAdmin;
     let correctIncreaseTo;
 
@@ -321,7 +321,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       await this.accessControl.beginDefaultAdminTransfer(correctPendingDefaultAdmin, { from: defaultAdmin });
     });
 
-    describe('caller is pending default admin and delay has passed', async function () {
+    describe('caller is pending default admin and delay has passed', function () {
       let from;
 
       beforeEach(async function () {
@@ -363,10 +363,10 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       );
     });
 
-    describe('delayedUntil not met', async function () {
+    describe('delayedUntil not met', function () {
       let incorrectIncreaseTo;
 
-      beforeEach(async function () {
+      beforeEach(function () {
         incorrectIncreaseTo = correctIncreaseTo.subn(1);
       });
 
@@ -388,7 +388,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     });
   });
 
-  describe('cancel transfer default admin', async function () {
+  describe('cancel transfer default admin', function () {
     beforeEach(async function () {
       await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
     });
@@ -407,7 +407,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     });
   });
 
-  describe('renouncing admin', async function () {
+  describe('renouncing admin', function () {
     let correctIncreaseTo;
     let from = defaultAdmin;
 
@@ -416,7 +416,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       await this.accessControl.beginDefaultAdminTransfer(ZERO_ADDRESS, { from });
     });
 
-    describe('caller is default admin and delayed until is met', async function () {
+    describe('caller is default admin and delayed until is met', function () {
       let receipt;
 
       beforeEach(async function () {
@@ -430,7 +430,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         expect(await this.accessControl.hasRole(ZERO_ADDRESS, defaultAdmin)).to.be.false;
       });
 
-      it('emits events', async function () {
+      it('emits events', function () {
         expectEvent(receipt, 'RoleRevoked', {
           role: DEFAULT_ADMIN_ROLE,
           account: from,
@@ -458,10 +458,10 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       );
     });
 
-    describe('delayed until not met', async function () {
+    describe('delayed until not met', function () {
       let incorrectIncreaseTo;
 
-      beforeEach(async function () {
+      beforeEach(function () {
         incorrectIncreaseTo = correctIncreaseTo.subn(1);
       });
 
