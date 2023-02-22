@@ -325,7 +325,7 @@ Executing the proposal will transfer the ERC20 tokens to the chosen recipient. T
 
 === Motivation
 
-It is sometimes difficult for humans to deal with durations expressed in number of blocks because of inconstistent or unpredictable time between blocks. That is particularly true of some L2 networks where blocks are beeing produced based on blockchain usage. Using number of blocks can also lead to the governance rules being affected by network upgrades eventually modifying the mean time between blocks.
+It is sometimes difficult for humans to deal with durations expressed in number of blocks because of inconstistent or unpredictable time between blocks. That is particularly true of some L2 networks where blocks are being produced based on blockchain usage. Using number of blocks can also lead to the governance rules being affected by network upgrades eventually modifying the mean time between blocks.
 
 The difficulty of replacing block numbers with timestamp is that the governor and the token must both use the same format when querying past votes. If a token is designed around block numbers, it is not possible for a governor to reliably do timestamp based lookups.
 
