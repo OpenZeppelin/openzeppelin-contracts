@@ -257,56 +257,45 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   });
 
   describe('begins transfer of default admin', async function () {
+    let receipt;
+    let defaultAdminTransferDelayedUntil;
+
+    beforeEach('begins admin transfer', async function () {
+      receipt = await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
+      defaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
+    });
+
     it('should set pending default admin and delayed until', async function () {
-      const receipt = await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-      const defaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
       expect(await this.accessControl.pendingDefaultAdmin()).to.equal(newDefaultAdmin);
       expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(
         defaultAdminTransferDelayedUntil,
       );
-      expectEvent(receipt, 'DefaultAdminRoleChangeStarted', { newDefaultAdmin, defaultAdminTransferDelayedUntil });
+      expectEvent(receipt, 'DefaultAdminRoleChangeStarted', {
+        newDefaultAdmin,
+        defaultAdminTransferDelayedUntil,
+      });
     });
 
     it('should be able to begin a transfer again before delay pass', async function () {
-      // First defaultAdmin transfer started
-      await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-      const firstDefaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
-      expect(await this.accessControl.pendingDefaultAdmin()).to.equal(newDefaultAdmin);
-      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(
-        firstDefaultAdminTransferDelayedUntil,
-      );
-
       // Time passes just before delay
-      await time.increaseTo(firstDefaultAdminTransferDelayedUntil.subn(1));
+      await time.increaseTo(defaultAdminTransferDelayedUntil.subn(1));
 
       // defaultAdmin changes its mind and begin again to another address
       await this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin });
-      const secondDefaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
+      const newDelayedUntil = (await time.latest()).add(delay);
       expect(await this.accessControl.pendingDefaultAdmin()).to.equal(other);
-      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(
-        secondDefaultAdminTransferDelayedUntil,
-      );
+      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(newDelayedUntil);
     });
 
     it('should be able to begin a transfer again after delay pass if not accepted', async function () {
-      // First defaultAdmin transfer started
-      await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-      const firstDefaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
-      expect(await this.accessControl.pendingDefaultAdmin()).to.equal(newDefaultAdmin);
-      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(
-        firstDefaultAdminTransferDelayedUntil,
-      );
-
       // Time passes after delay without acceptance
-      await time.increaseTo(firstDefaultAdminTransferDelayedUntil.addn(1));
+      await time.increaseTo(defaultAdminTransferDelayedUntil.addn(1));
 
       // defaultAdmin changes its mind and begin again to another address
       await this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin });
-      const secondDefaultAdminTransferDelayedUntil = (await time.latest()).add(delay);
+      const newDelayedUntil = (await time.latest()).add(delay);
       expect(await this.accessControl.pendingDefaultAdmin()).to.equal(other);
-      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(
-        secondDefaultAdminTransferDelayedUntil,
-      );
+      expect(await this.accessControl.defaultAdminTransferDelayedUntil()).to.be.bignumber.equal(newDelayedUntil);
     });
 
     it('should revert if it is called by non-admin accounts', async function () {
