@@ -18,7 +18,7 @@ import "../interfaces/IERC5313.sol";
  *
  * This contract implements the following risk mitigations on top of {AccessControl}:
  *
- * * Only one account holds the `DEFAULT_ADMIN_ROLE` at every time after construction except when it's renounced.
+ * * Only one account holds the `DEFAULT_ADMIN_ROLE` since deployment until it's potentially renounced.
  * * Enforce a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.
  * * Enforce a configurable delay between the two steps, with the ability to cancel in between.
  *   - Even after the timer has passed to avoid locking it forever.
