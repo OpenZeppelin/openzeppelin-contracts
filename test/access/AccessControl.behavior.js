@@ -332,7 +332,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       await this.accessControl.beginDefaultAdminTransfer(correctPendingDefaultAdmin, { from: defaultAdmin });
     });
 
-    describe('caller is pending default admin and delayed until is met', async function () {
+    describe('caller is pending default admin and delay has passed', async function () {
       let from;
 
       beforeEach(async function () {
