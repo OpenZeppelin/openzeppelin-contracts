@@ -168,34 +168,40 @@ contract('SafeERC20', function (accounts) {
   });
 
   describe('with usdt approval beaviour', function () {
+    const spender = hasNoCode;
+
     beforeEach(async function () {
       this.token = await ERC20ForceApproveMock.new('FakeUSDT', 'FUSDT');
-
-      // set initial approval
-      await this.mock.$safeApprove(this.token.address, hasNoCode, 100);
     });
 
-    it('safeApproval fails to update approval to non-zero', async function () {
-      await expectRevert(
-        this.mock.$safeApprove(this.token.address, hasNoCode, 200),
-        'SafeERC20: approve from non-zero to non-zero allowance',
-      );
-    });
+    describe('with initial approval', function () {
+      beforeEach(async function () {
+        // set initial approval
+        await this.token.$_approve(this.mock.address, spender, 100);
+      });
 
-    it('safeApproval can update approval to zero', async function () {
-      await this.mock.$safeApprove(this.token.address, hasNoCode, 0);
-    });
+      it('safeApproval fails to update approval to non-zero', async function () {
+        await expectRevert(
+          this.mock.$safeApprove(this.token.address, spender, 200),
+          'SafeERC20: approve from non-zero to non-zero allowance',
+        );
+      });
 
-    it('safeApproval can increasse approval', async function () {
-      await this.mock.$safeIncreaseAllowance(this.token.address, hasNoCode, 10);
-    });
+      it('safeApproval can update approval to zero', async function () {
+        await this.mock.$safeApprove(this.token.address, spender, 0);
+      });
 
-    it('safeApproval can decreasse approval', async function () {
-      await this.mock.$safeDecreaseAllowance(this.token.address, hasNoCode, 10);
-    });
+      it('safeApproval can increasse approval', async function () {
+        await this.mock.$safeIncreaseAllowance(this.token.address, spender, 10);
+      });
 
-    it('forceApproval works', async function () {
-      await this.mock.$forceApprove(this.token.address, hasNoCode, 200);
+      it('safeApproval can decreasse approval', async function () {
+        await this.mock.$safeDecreaseAllowance(this.token.address, spender, 10);
+      });
+
+      it('forceApproval works', async function () {
+        await this.mock.$forceApprove(this.token.address, spender, 200);
+      });
     });
   });
 });
@@ -232,6 +238,10 @@ function shouldRevertOnAllCalls(reason) {
   });
 }
 
+// This test is designed to work in conjunction with ERC20ReturnTrueMock, ERC20NoReturnMock, which don't include any
+// proper approval logic. This is why the "with non-zero allowance" case can use `token.setAllowance`. This would not
+// work with a proper ERC20 implementation has the allowance setting would have to be done by the caller of the
+// subsequent calls (this.mock).
 function shouldOnlyRevertOnErrors() {
   it("doesn't revert on transfer", async function () {
     await this.mock.$safeTransfer(this.token.address, constants.ZERO_ADDRESS, 0);
