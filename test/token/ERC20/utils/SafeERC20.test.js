@@ -25,7 +25,7 @@ contract('SafeERC20', function (accounts) {
       this.token = { address: hasNoCode };
     });
 
-    shouldRevertOnAllCalls('SafeERC20: ERC20 operation did not succeed');
+    shouldRevertOnAllCalls('Address: call to non-contract');
   });
 
   describe('with token that returns false on all calls', function () {

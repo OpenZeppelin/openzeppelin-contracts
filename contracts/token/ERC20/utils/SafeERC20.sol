@@ -92,13 +92,27 @@ library SafeERC20 {
      * @param data The call data (encoded using abi.encode or one of its variants).
      */
     function _callOptionalReturn(IERC20 token, bytes memory data) private {
-        require(_callOptionalReturnBool(token, data), "SafeERC20: ERC20 operation did not succeed");
+        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
+        // we're implementing it ourselves. We use {Address-functionCall} to perform this call, which verifies that
+        // the target address contains contract code and also asserts for success in the low-level call.
+
+        bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed");
+        require(returndata.length == 0 || abi.decode(returndata, (bool)), "SafeERC20: ERC20 operation did not succeed");
     }
 
+    /**
+     * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement
+     * on the return value: the return value is optional (but if data is returned, it must not be false).
+     * @param token The token targeted by the call.
+     * @param data The call data (encoded using abi.encode or one of its variants).
+     *
+     * This is a variant of {_callOptionalReturn} that silents catches all reverts and returns a bool instead.
+     */
     function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
         // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
-        // we're implementing it ourselves. We cannot use Address.functionCall here since this should return false and
-        // not revert is the subcall reverts.
+        // we're implementing it ourselves. We cannot use {Address-functionCall} here since this should return false
+        // and not revert is the subcall reverts.
+
         if (!Address.isContract(address(token))) {
             return false;
         }
