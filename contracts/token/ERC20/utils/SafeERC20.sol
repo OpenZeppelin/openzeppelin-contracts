@@ -47,7 +47,7 @@ library SafeERC20 {
 
     function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {
         uint256 newAllowance = token.allowance(address(this), spender) + value;
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+        forceApprove(token, spender, newAllowance);
     }
 
     function safeDecreaseAllowance(IERC20 token, address spender, uint256 value) internal {
@@ -55,8 +55,18 @@ library SafeERC20 {
             uint256 oldAllowance = token.allowance(address(this), spender);
             require(oldAllowance >= value, "SafeERC20: decreased allowance below zero");
             uint256 newAllowance = oldAllowance - value;
-            _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+            forceApprove(token, spender, newAllowance);
         }
+    }
+
+    function forceApprove(IERC20 token, address spender, uint256 value) internal {
+        // solidity has lazy evaluation
+        require(
+            _callOptionalReturnBool(token, abi.encodeWithSelector(token.approve.selector, spender, value)) ||
+                (_callOptionalReturnBool(token, abi.encodeWithSelector(token.approve.selector, spender, 0)) &&
+                    _callOptionalReturnBool(token, abi.encodeWithSelector(token.approve.selector, spender, value))),
+            "SafeERC20: force approve failed"
+        );
     }
 
     function safePermit(
@@ -82,14 +92,15 @@ library SafeERC20 {
      * @param data The call data (encoded using abi.encode or one of its variants).
      */
     function _callOptionalReturn(IERC20 token, bytes memory data) private {
-        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
-        // we're implementing it ourselves. We use {Address-functionCall} to perform this call, which verifies that
-        // the target address contains contract code and also asserts for success in the low-level call.
+        require(_callOptionalReturnBool(token, data), "SafeERC20: ERC20 operation did not succeed");
+    }
 
-        bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed");
-        if (returndata.length > 0) {
-            // Return data is optional
-            require(abi.decode(returndata, (bool)), "SafeERC20: ERC20 operation did not succeed");
-        }
+    function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
+        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
+        // we're implementing it ourselves. We cannot use Address.functionCall here since this should return false and
+        // not revert is the subcall reverts.
+        if (!Address.isContract(address(token))) { return false; }
+        (bool success, bytes memory returndata) = address(token).call(data);
+        return success && (returndata.length == 0 || abi.decode(returndata, (bool)));
     }
 }

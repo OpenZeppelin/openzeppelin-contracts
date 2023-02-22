@@ -5,6 +5,7 @@ const ERC20ReturnFalseMock = artifacts.require('ERC20ReturnFalseMock');
 const ERC20ReturnTrueMock = artifacts.require('ERC20ReturnTrueMock');
 const ERC20NoReturnMock = artifacts.require('ERC20NoReturnMock');
 const ERC20PermitNoRevertMock = artifacts.require('ERC20PermitNoRevertMock');
+const ERC20ForceApproveMock = artifacts.require('$ERC20ForceApproveMock');
 
 const { getDomain, domainType, Permit } = require('../../../helpers/eip712');
 
@@ -24,7 +25,7 @@ contract('SafeERC20', function (accounts) {
       this.token = { address: hasNoCode };
     });
 
-    shouldRevertOnAllCalls('Address: call to non-contract');
+    shouldRevertOnAllCalls('SafeERC20: ERC20 operation did not succeed');
   });
 
   describe('with token that returns false on all calls', function () {
@@ -165,6 +166,35 @@ contract('SafeERC20', function (accounts) {
       );
     });
   });
+
+  describe("with usdt approval beaviour", function () {
+    beforeEach(async function () {
+      this.token = await ERC20ForceApproveMock.new("FakeUSDT", "FUSDT");
+
+      // set initial approval
+      await this.mock.$safeApprove(this.token.address, hasNoCode, 100);
+    });
+
+    it('safeApproval fails to update approval to non-zero', async function () {
+      await expectRevert(this.mock.$safeApprove(this.token.address, hasNoCode, 200), "SafeERC20: approve from non-zero to non-zero allowance");
+    });
+
+    it('safeApproval can update approval to zero', async function () {
+      await this.mock.$safeApprove(this.token.address, hasNoCode, 0);
+    });
+
+    it('safeApproval can increasse approval', async function () {
+      await this.mock.$safeIncreaseAllowance(this.token.address, hasNoCode, 10);
+    });
+
+    it('safeApproval can decreasse approval', async function () {
+      await this.mock.$safeDecreaseAllowance(this.token.address, hasNoCode, 10);
+    });
+
+    it('forceApproval works', async function () {
+      await this.mock.$forceApprove(this.token.address, hasNoCode, 200);
+    });
+  });
 });
 
 function shouldRevertOnAllCalls(reason) {
@@ -192,6 +222,11 @@ function shouldRevertOnAllCalls(reason) {
     // [TODO] make sure it's reverting for the right reason
     await expectRevert.unspecified(this.mock.$safeDecreaseAllowance(this.token.address, constants.ZERO_ADDRESS, 0));
   });
+
+  it('reverts on forceApprove', async function () {
+    // [TODO] make sure it's reverting for the right reason
+    await expectRevert.unspecified(this.mock.$forceApprove(this.token.address, constants.ZERO_ADDRESS, 0));
+  });
 }
 
 function shouldOnlyRevertOnErrors() {
@@ -215,6 +250,14 @@ function shouldOnlyRevertOnErrors() {
 
       it("doesn't revert when approving a zero allowance", async function () {
         await this.mock.$safeApprove(this.token.address, constants.ZERO_ADDRESS, 0);
+      });
+
+      it("doesn't revert when force approving a non-zero allowance", async function () {
+        await this.mock.$forceApprove(this.token.address, constants.ZERO_ADDRESS, 100);
+      });
+
+      it("doesn't revert when force approving a zero allowance", async function () {
+        await this.mock.$forceApprove(this.token.address, constants.ZERO_ADDRESS, 0);
       });
 
       it("doesn't revert when increasing the allowance", async function () {
@@ -243,6 +286,14 @@ function shouldOnlyRevertOnErrors() {
 
       it("doesn't revert when approving a zero allowance", async function () {
         await this.mock.$safeApprove(this.token.address, constants.ZERO_ADDRESS, 0);
+      });
+
+      it("doesn't revert when force approving a non-zero allowance", async function () {
+        await this.mock.$forceApprove(this.token.address, constants.ZERO_ADDRESS, 20);
+      });
+
+      it("doesn't revert when force approving a zero allowance", async function () {
+        await this.mock.$forceApprove(this.token.address, constants.ZERO_ADDRESS, 0);
       });
 
       it("doesn't revert when increasing the allowance", async function () {
