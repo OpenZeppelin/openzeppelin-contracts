@@ -8,7 +8,7 @@ const ECDSA = artifacts.require('$ECDSA');
 const TEST_MESSAGE = web3.utils.sha3('OpenZeppelin');
 const WRONG_MESSAGE = web3.utils.sha3('Nope');
 const NON_HASH_MESSAGE = '0x' + Buffer.from('abcd').toString('hex');
-const RANDOM_ADDRESS = '0xA9d8C83D404d3397aDE08321E7551c8B36dbF4Ab';
+const RANDOM_ADDRESS = web3.utils.toChecksumAddress(web3.utils.randomHex(20));
 
 function to2098Format(signature) {
   const long = web3.utils.hexToBytes(signature);
