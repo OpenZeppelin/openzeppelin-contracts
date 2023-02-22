@@ -370,7 +370,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       await time.increaseTo(correctIncreaseTo);
       await expectRevert(
         this.accessControl.acceptDefaultAdminTransfer({ from: other }),
-        `${errorPrefix}: can't accept defaultAdmin`,
+        `${errorPrefix}: pending admin must accept`,
       );
     });
 
