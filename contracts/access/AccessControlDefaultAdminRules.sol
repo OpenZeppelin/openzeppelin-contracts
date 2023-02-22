@@ -237,8 +237,6 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _hasDefaultAdminTransferDelayPassed() private view returns (bool) {
         uint48 delayedUntil = defaultAdminTransferDelayedUntil();
-        return
-            delayedUntil > 0 &&
-            delayedUntil < block.timestamp;
+        return delayedUntil > 0 && delayedUntil < block.timestamp;
     }
 }
