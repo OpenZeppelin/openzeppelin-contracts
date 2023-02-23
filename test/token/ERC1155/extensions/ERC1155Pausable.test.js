@@ -2,15 +2,15 @@ const { BN, expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC1155PausableMock = artifacts.require('ERC1155PausableMock');
+const ERC1155Pausable = artifacts.require('$ERC1155Pausable');
 
 contract('ERC1155Pausable', function (accounts) {
-  const [ holder, operator, receiver, other ] = accounts;
+  const [holder, operator, receiver, other] = accounts;
 
   const uri = 'https://token.com';
 
   beforeEach(async function () {
-    this.token = await ERC1155PausableMock.new(uri);
+    this.token = await ERC1155Pausable.new(uri);
   });
 
   context('when token is paused', function () {
@@ -22,9 +22,9 @@ contract('ERC1155Pausable', function (accounts) {
 
     beforeEach(async function () {
       await this.token.setApprovalForAll(operator, true, { from: holder });
-      await this.token.mint(holder, firstTokenId, firstTokenAmount, '0x');
+      await this.token.$_mint(holder, firstTokenId, firstTokenAmount, '0x');
 
-      await this.token.pause();
+      await this.token.$_pause();
     });
 
     it('reverts when trying to safeTransferFrom from holder', async function () {
@@ -50,37 +50,37 @@ contract('ERC1155Pausable', function (accounts) {
 
     it('reverts when trying to safeBatchTransferFrom from operator', async function () {
       await expectRevert(
-        this.token.safeBatchTransferFrom(
-          holder, receiver, [firstTokenId], [firstTokenAmount], '0x', { from: operator },
-        ),
+        this.token.safeBatchTransferFrom(holder, receiver, [firstTokenId], [firstTokenAmount], '0x', {
+          from: operator,
+        }),
         'ERC1155Pausable: token transfer while paused',
       );
     });
 
     it('reverts when trying to mint', async function () {
       await expectRevert(
-        this.token.mint(holder, secondTokenId, secondTokenAmount, '0x'),
+        this.token.$_mint(holder, secondTokenId, secondTokenAmount, '0x'),
         'ERC1155Pausable: token transfer while paused',
       );
     });
 
     it('reverts when trying to mintBatch', async function () {
       await expectRevert(
-        this.token.mintBatch(holder, [secondTokenId], [secondTokenAmount], '0x'),
+        this.token.$_mintBatch(holder, [secondTokenId], [secondTokenAmount], '0x'),
         'ERC1155Pausable: token transfer while paused',
       );
     });
 
     it('reverts when trying to burn', async function () {
       await expectRevert(
-        this.token.burn(holder, firstTokenId, firstTokenAmount),
+        this.token.$_burn(holder, firstTokenId, firstTokenAmount),
         'ERC1155Pausable: token transfer while paused',
       );
     });
 
     it('reverts when trying to burnBatch', async function () {
       await expectRevert(
-        this.token.burnBatch(holder, [firstTokenId], [firstTokenAmount]),
+        this.token.$_burnBatch(holder, [firstTokenId], [firstTokenAmount]),
         'ERC1155Pausable: token transfer while paused',
       );
     });

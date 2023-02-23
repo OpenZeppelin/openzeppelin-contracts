@@ -12,11 +12,7 @@ abstract contract BaseRelayMock {
 
     address internal _currentSender;
 
-    function relayAs(
-        address target,
-        bytes calldata data,
-        address sender
-    ) external virtual {
+    function relayAs(address target, bytes calldata data, address sender) external virtual {
         address previousSender = _currentSender;
 
         _currentSender = sender;
@@ -70,12 +66,8 @@ contract BridgeArbitrumL1Outbox {
 }
 
 contract BridgeArbitrumL2Mock is BaseRelayMock {
-    function isTopLevelCall() public view returns (bool) {
+    function wasMyCallersAddressAliased() public view returns (bool) {
         return _currentSender != address(0);
-    }
-
-    function wasMyCallersAddressAliased() public pure returns (bool) {
-        return true;
     }
 
     function myCallersAddressWithoutAliasing() public view returns (address) {
@@ -96,11 +88,7 @@ contract BridgeOptimismMock is BaseRelayMock {
  * Polygon
  */
 contract BridgePolygonChildMock is BaseRelayMock {
-    function relayAs(
-        address target,
-        bytes calldata data,
-        address sender
-    ) external override {
+    function relayAs(address target, bytes calldata data, address sender) external override {
         IFxMessageProcessor(target).processMessageFromRoot(0, sender, data);
     }
 }

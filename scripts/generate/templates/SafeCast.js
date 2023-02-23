@@ -8,55 +8,55 @@ const LENGTHS = range(8, 256, 8).reverse(); // 248 → 8 (in steps of 8)
 // This is used in the docs for each function.
 const version = (selector, length) => {
   switch (selector) {
-  case 'toUint(uint)': {
-    switch (length) {
-    case 8:
-    case 16:
-    case 32:
-    case 64:
-    case 128:
-      return '2.5';
-    case 96:
-    case 224:
-      return '4.2';
-    default:
-      assert(LENGTHS.includes(length));
-      return '4.7';
+    case 'toUint(uint)': {
+      switch (length) {
+        case 8:
+        case 16:
+        case 32:
+        case 64:
+        case 128:
+          return '2.5';
+        case 96:
+        case 224:
+          return '4.2';
+        default:
+          assert(LENGTHS.includes(length));
+          return '4.7';
+      }
     }
-  }
-  case 'toInt(int)': {
-    switch (length) {
-    case 8:
-    case 16:
-    case 32:
-    case 64:
-    case 128:
-      return '3.1';
-    default:
-      assert(LENGTHS.includes(length));
-      return '4.7';
+    case 'toInt(int)': {
+      switch (length) {
+        case 8:
+        case 16:
+        case 32:
+        case 64:
+        case 128:
+          return '3.1';
+        default:
+          assert(LENGTHS.includes(length));
+          return '4.7';
+      }
     }
-  }
-  case 'toUint(int)': {
-    switch (length) {
-    case 256:
-      return '3.0';
+    case 'toUint(int)': {
+      switch (length) {
+        case 256:
+          return '3.0';
+        default:
+          assert(false);
+          return;
+      }
+    }
+    case 'toInt(uint)': {
+      switch (length) {
+        case 256:
+          return '3.0';
+        default:
+          assert(false);
+          return;
+      }
+    }
     default:
       assert(false);
-      return;
-    }
-  }
-  case 'toInt(uint)': {
-    switch (length) {
-    case 256:
-      return '3.0';
-    default:
-      assert(false);
-      return;
-    }
-  }
-  default:
-    assert(false);
   }
 };
 
@@ -114,9 +114,9 @@ const toIntDownCast = length => `\
  *
  * _Available since v${version('toInt(int)', length)}._
  */
-function toInt${length}(int256 value) internal pure returns (int${length}) {
-    require(value >= type(int${length}).min && value <= type(int${length}).max, "SafeCast: value doesn't fit in ${length} bits");
-    return int${length}(value);
+function toInt${length}(int256 value) internal pure returns (int${length} downcasted) {
+    downcasted = int${length}(value);
+    require(downcasted == value, "SafeCast: value doesn't fit in ${length} bits");
 }
 `;
 /* eslint-enable max-len */
@@ -158,11 +158,6 @@ function toUint${length}(int${length} value) internal pure returns (uint${length
 module.exports = format(
   header.trimEnd(),
   'library SafeCast {',
-  [
-    ...LENGTHS.map(size => toUintDownCast(size)),
-    toUint(256),
-    ...LENGTHS.map(size => toIntDownCast(size)),
-    toInt(256).trimEnd(),
-  ],
+  [...LENGTHS.map(toUintDownCast), toUint(256), ...LENGTHS.map(toIntDownCast), toInt(256)],
   '}',
 );

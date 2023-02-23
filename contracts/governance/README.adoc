@@ -20,7 +20,7 @@ For a written walkthrough, check out our guide on xref:ROOT:governance.adoc[How 
 
 Votes modules determine the source of voting power, and sometimes quorum number.
 
-* {GovernorVotes}: Extracts voting weight from an {ERC20Votes} token.
+* {GovernorVotes}: Extracts voting weight from an {ERC20Votes}, or since v4.5 an {ERC721Votes} token.
 
 * {GovernorVotesComp}: Extracts voting weight from a COMP-like or {ERC20VotesComp} token.
 
@@ -46,9 +46,9 @@ Other extensions can customize the behavior or interface in multiple ways.
 
 In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
 
-* <<Governor-votingDelay-,`votingDelay()`>>: Delay (in number of blocks) since the proposal is submitted until voting power is fixed and voting starts. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
-* <<Governor-votingPeriod-,`votingPeriod()`>>: Delay (in number of blocks) since the proposal starts until voting ends.
-* <<Governor-quorum-uint256-,`quorum(uint256 blockNumber)`>>: Quorum required for a proposal to be successful. This function includes a `blockNumber` argument so the quorum can adapt through time, for example, to follow a token's `totalSupply`.
+* <<Governor-votingDelay-,`votingDelay()`>>: Delay (in EIP-6372 clock) since the proposal is submitted until voting power is fixed and voting starts. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
+* <<Governor-votingPeriod-,`votingPeriod()`>>: Delay (in EIP-6372 clock) since the proposal starts until voting ends.
+* <<Governor-quorum-uint256-,`quorum(uint256 timepoint)`>>: Quorum required for a proposal to be successful. This function includes a `timepoint` argument (see EIP-6372) so the quorum can adapt through time, for example, to follow a token's `totalSupply`.
 
 NOTE: Functions of the `Governor` contract do not include access control. If you want to restrict access, you should add these checks by overloading the particular functions. Among these, {Governor-_cancel} is internal by default, and you will have to expose it (with the right access control mechanism) yourself if this function is needed.
 
@@ -118,7 +118,7 @@ Both operations contain:
 
 * *Target*, the address of the smart contract that the timelock should operate on.
 * *Value*, in wei, that should be sent with the transaction. Most of the time this will be 0. Ether can be deposited before-end or passed along when executing the transaction.
-* *Data*, containing the encoded function selector and parameters of the call. This can be produced using a number of tools. For example, a maintenance operation granting role `ROLE` to `ACCOUNT` can be encode using web3js as follows:
+* *Data*, containing the encoded function selector and parameters of the call. This can be produced using a number of tools. For example, a maintenance operation granting role `ROLE` to `ACCOUNT` can be encoded using web3js as follows:
 
 ```javascript
 const data = timelock.contract.methods.grantRole(ROLE, ACCOUNT).encodeABI()
@@ -153,7 +153,7 @@ Operations status can be queried using the functions:
 [[timelock-admin]]
 ===== Admin
 
-The admins are in charge of managing proposers and executors. For the timelock to be self-governed, this role should only be given to the timelock itself. Upon deployment, both the timelock and the deployer have this role. After further configuration and testing, the deployer can renounce this role such that all further maintenance operations have to go through the timelock process.
+The admins are in charge of managing proposers and executors. For the timelock to be self-governed, this role should only be given to the timelock itself. Upon deployment, the admin role can be granted to any address (in addition to the timelock itself). After further configuration and testing, this optional admin should renounce its role such that all further maintenance operations have to go through the timelock process.
 
 This role is identified by the *TIMELOCK_ADMIN_ROLE* value: `0x5f58e3a2316349923ce3780f8d587db2d72378aed66a8261c916544fa6846ca5`
 

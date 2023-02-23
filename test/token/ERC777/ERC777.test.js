@@ -12,16 +12,13 @@ const {
   shouldBehaveLikeERC777SendBurnWithSendHook,
 } = require('./ERC777.behavior');
 
-const {
-  shouldBehaveLikeERC20,
-  shouldBehaveLikeERC20Approve,
-} = require('../ERC20/ERC20.behavior');
+const { shouldBehaveLikeERC20, shouldBehaveLikeERC20Approve } = require('../ERC20/ERC20.behavior');
 
-const ERC777 = artifacts.require('ERC777Mock');
-const ERC777SenderRecipientMock = artifacts.require('ERC777SenderRecipientMock');
+const ERC777 = artifacts.require('$ERC777Mock');
+const ERC777SenderRecipientMock = artifacts.require('$ERC777SenderRecipientMock');
 
 contract('ERC777', function (accounts) {
-  const [ registryFunder, holder, defaultOperatorA, defaultOperatorB, newOperator, anyone ] = accounts;
+  const [registryFunder, holder, defaultOperatorA, defaultOperatorB, newOperator, anyone] = accounts;
 
   const initialSupply = new BN('10000');
   const name = 'ERC777Test';
@@ -37,7 +34,8 @@ contract('ERC777', function (accounts) {
 
   context('with default operators', function () {
     beforeEach(async function () {
-      this.token = await ERC777.new(holder, initialSupply, name, symbol, defaultOperators);
+      this.token = await ERC777.new(name, symbol, defaultOperators);
+      await this.token.$_mint(holder, initialSupply, '0x', '0x');
     });
 
     describe('as an ERC20 token', function () {
@@ -45,12 +43,13 @@ contract('ERC777', function (accounts) {
 
       describe('_approve', function () {
         shouldBehaveLikeERC20Approve('ERC777', holder, anyone, initialSupply, function (owner, spender, amount) {
-          return this.token.approveInternal(owner, spender, amount);
+          return this.token.$_approve(owner, spender, amount);
         });
 
         describe('when the owner is the zero address', function () {
           it('reverts', async function () {
-            await expectRevert(this.token.approveInternal(ZERO_ADDRESS, anyone, initialSupply),
+            await expectRevert(
+              this.token.$_approve(ZERO_ADDRESS, anyone, initialSupply),
               'ERC777: approve from the zero address',
             );
           });
@@ -94,13 +93,15 @@ contract('ERC777', function (accounts) {
       });
 
       it('the ERC777Token interface is registered in the registry', async function () {
-        expect(await this.erc1820.getInterfaceImplementer(this.token.address, web3.utils.soliditySha3('ERC777Token')))
-          .to.equal(this.token.address);
+        expect(
+          await this.erc1820.getInterfaceImplementer(this.token.address, web3.utils.soliditySha3('ERC777Token')),
+        ).to.equal(this.token.address);
       });
 
       it('the ERC20Token interface is registered in the registry', async function () {
-        expect(await this.erc1820.getInterfaceImplementer(this.token.address, web3.utils.soliditySha3('ERC20Token')))
-          .to.equal(this.token.address);
+        expect(
+          await this.erc1820.getInterfaceImplementer(this.token.address, web3.utils.soliditySha3('ERC20Token')),
+        ).to.equal(this.token.address);
       });
     });
 
@@ -184,25 +185,11 @@ contract('ERC777', function (accounts) {
             const operator = defaultOperatorA;
 
             it('without requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(
-                this.recipient,
-                amount,
-                data,
-                operatorData,
-                false,
-                { from: operator },
-              );
+              await this.token.$_mint(this.recipient, amount, data, operatorData, false, { from: operator });
             });
 
             it('with requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(
-                this.recipient,
-                amount,
-                data,
-                operatorData,
-                true,
-                { from: operator },
-              );
+              await this.token.$_mint(this.recipient, amount, data, operatorData, true, { from: operator });
             });
           });
 
@@ -210,25 +197,11 @@ contract('ERC777', function (accounts) {
             const operator = newOperator;
 
             it('without requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(
-                this.recipient,
-                amount,
-                data,
-                operatorData,
-                false,
-                { from: operator },
-              );
+              await this.token.$_mint(this.recipient, amount, data, operatorData, false, { from: operator });
             });
 
             it('with requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(
-                this.recipient,
-                amount,
-                data,
-                operatorData,
-                true,
-                { from: operator },
-              );
+              await this.token.$_mint(this.recipient, amount, data, operatorData, true, { from: operator });
             });
           });
         });
@@ -243,26 +216,12 @@ contract('ERC777', function (accounts) {
             const operator = defaultOperatorA;
 
             it('without requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(
-                this.recipient,
-                amount,
-                data,
-                operatorData,
-                false,
-                { from: operator },
-              );
+              await this.token.$_mint(this.recipient, amount, data, operatorData, false, { from: operator });
             });
 
             it('with requireReceptionAck', async function () {
               await expectRevert(
-                this.token.mintInternalExtended(
-                  this.recipient,
-                  amount,
-                  data,
-                  operatorData,
-                  true,
-                  { from: operator },
-                ),
+                this.token.$_mint(this.recipient, amount, data, operatorData, true, { from: operator }),
                 'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
               );
             });
@@ -272,26 +231,12 @@ contract('ERC777', function (accounts) {
             const operator = newOperator;
 
             it('without requireReceptionAck', async function () {
-              await this.token.mintInternalExtended(
-                this.recipient,
-                amount,
-                data,
-                operatorData,
-                false,
-                { from: operator },
-              );
+              await this.token.$_mint(this.recipient, amount, data, operatorData, false, { from: operator });
             });
 
             it('with requireReceptionAck', async function () {
               await expectRevert(
-                this.token.mintInternalExtended(
-                  this.recipient,
-                  amount,
-                  data,
-                  operatorData,
-                  true,
-                  { from: operator },
-                ),
+                this.token.$_mint(this.recipient, amount, data, operatorData, true, { from: operator }),
                 'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
               );
             });
@@ -307,14 +252,13 @@ contract('ERC777', function (accounts) {
 
       it('reverts when self-authorizing', async function () {
         await expectRevert(
-          this.token.authorizeOperator(holder, { from: holder }), 'ERC777: authorizing self as operator',
+          this.token.authorizeOperator(holder, { from: holder }),
+          'ERC777: authorizing self as operator',
         );
       });
 
       it('reverts when self-revoking', async function () {
-        await expectRevert(
-          this.token.revokeOperator(holder, { from: holder }), 'ERC777: revoking self as operator',
-        );
+        await expectRevert(this.token.revokeOperator(holder, { from: holder }), 'ERC777: revoking self as operator');
       });
 
       it('non-operators can be revoked', async function () {
@@ -443,7 +387,7 @@ contract('ERC777', function (accounts) {
 
             it('mint (internal) reverts', async function () {
               await expectRevert(
-                this.token.mintInternal(this.recipient, amount, data, operatorData, { from: operator }),
+                this.token.$_mint(this.recipient, amount, data, operatorData, true, { from: operator }),
                 'ERC777: token recipient contract has no implementer for ERC777TokensRecipient',
               );
             });
@@ -470,7 +414,8 @@ contract('ERC777', function (accounts) {
 
               await this.erc1820.setInterfaceImplementer(
                 this.recipient,
-                web3.utils.soliditySha3('ERC777TokensRecipient'), this.tokensRecipientImplementer.address,
+                web3.utils.soliditySha3('ERC777TokensRecipient'),
+                this.tokensRecipientImplementer.address,
                 { from: this.recipient },
               );
             });
@@ -518,7 +463,8 @@ contract('ERC777', function (accounts) {
 
             await this.erc1820.setInterfaceImplementer(
               this.sender,
-              web3.utils.soliditySha3('ERC777TokensSender'), this.tokensSenderImplementer.address,
+              web3.utils.soliditySha3('ERC777TokensSender'),
+              this.tokensSenderImplementer.address,
               { from: this.sender },
             );
           });
@@ -567,7 +513,7 @@ contract('ERC777', function (accounts) {
 
   context('with no default operators', function () {
     beforeEach(async function () {
-      this.token = await ERC777.new(holder, initialSupply, name, symbol, []);
+      this.token = await ERC777.new(name, symbol, []);
     });
 
     it('default operators list is empty', async function () {
@@ -581,8 +527,8 @@ contract('ERC777', function (accounts) {
       this.sender = await ERC777SenderRecipientMock.new();
       await this.sender.registerRecipient(this.sender.address);
       await this.sender.registerSender(this.sender.address);
-      this.token = await ERC777.new(holder, initialSupply, name, symbol, []);
-      await this.token.send(this.sender.address, 1, '0x', { from: holder });
+      this.token = await ERC777.new(name, symbol, []);
+      await this.token.$_mint(this.sender.address, 1, '0x', '0x');
     });
 
     it('send', async function () {

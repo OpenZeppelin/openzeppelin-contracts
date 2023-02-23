@@ -1,22 +1,16 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
 
 import "../token/ERC20/extensions/ERC4626.sol";
 
-// mock class using ERC20
 contract ERC4626Mock is ERC4626 {
-    constructor(
-        IERC20Metadata asset,
-        string memory name,
-        string memory symbol
-    ) ERC20(name, symbol) ERC4626(asset) {}
+    constructor(address underlying) ERC20("ERC4626Mock", "E4626M") ERC4626(IERC20(underlying)) {}
 
-    function mockMint(address account, uint256 amount) public {
+    function mint(address account, uint256 amount) external {
         _mint(account, amount);
     }
 
-    function mockBurn(address account, uint256 amount) public {
+    function burn(address account, uint256 amount) external {
         _burn(account, amount);
     }
 }

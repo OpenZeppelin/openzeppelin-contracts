@@ -13,6 +13,10 @@ contract InitializableMock is Initializable {
     bool public onlyInitializingRan;
     uint256 public x;
 
+    function isInitializing() public view returns (bool) {
+        return _isInitializing();
+    }
+
     function initialize() public initializer {
         initializerRan = true;
     }
@@ -74,6 +78,10 @@ contract ChildConstructorInitializableMock is ConstructorInitializableMock {
 
 contract ReinitializerMock is Initializable {
     uint256 public counter;
+
+    function getInitializedVersion() public view returns (uint8) {
+        return _getInitializedVersion();
+    }
 
     function initialize() public initializer {
         doStuff();

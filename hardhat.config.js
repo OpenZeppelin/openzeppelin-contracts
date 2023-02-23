@@ -11,10 +11,6 @@ const path = require('path');
 const argv = require('yargs/yargs')()
   .env('')
   .options({
-    ci: {
-      type: 'boolean',
-      default: false,
-    },
     coverage: {
       type: 'boolean',
       default: false,
@@ -24,10 +20,16 @@ const argv = require('yargs/yargs')()
       type: 'boolean',
       default: false,
     },
+    gasReport: {
+      alias: 'enableGasReportPath',
+      type: 'string',
+      implies: 'gas',
+      default: undefined,
+    },
     mode: {
       alias: 'compileMode',
       type: 'string',
-      choices: [ 'production', 'development' ],
+      choices: ['production', 'development'],
       default: 'development',
     },
     ir: {
@@ -44,20 +46,19 @@ const argv = require('yargs/yargs')()
       alias: 'coinmarketcapApiKey',
       type: 'string',
     },
-  })
-  .argv;
+  }).argv;
 
 require('@nomiclabs/hardhat-truffle5');
+require('hardhat-ignore-warnings');
+require('hardhat-exposed');
 
-if (argv.enableGasReport) {
-  require('hardhat-gas-reporter');
-}
+require('solidity-docgen');
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
 }
 
-const withOptimizations = argv.enableGasReport || argv.compileMode === 'production';
+const withOptimizations = argv.gas || argv.compileMode === 'production';
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -71,6 +72,14 @@ module.exports = {
         runs: 200,
       },
       viaIR: withOptimizations && argv.ir,
+      outputSelection: { '*': { '*': ['storageLayout'] } },
+    },
+  },
+  warnings: {
+    '*': {
+      'code-size': withOptimizations,
+      'unused-param': !argv.coverage, // coverage causes unused-param warnings
+      default: 'error',
     },
   },
   networks: {
@@ -79,12 +88,25 @@ module.exports = {
       allowUnlimitedContractSize: !withOptimizations,
     },
   },
-  gasReporter: {
-    currency: 'USD',
-    outputFile: argv.ci ? 'gas-report.txt' : undefined,
-    coinmarketcap: argv.coinmarketcap,
+  exposed: {
+    exclude: [
+      'vendor/**/*',
+      // overflow clash
+      'utils/Timers.sol',
+    ],
   },
+  docgen: require('./docs/config'),
 };
+
+if (argv.gas) {
+  require('hardhat-gas-reporter');
+  module.exports.gasReporter = {
+    showMethodSig: true,
+    currency: 'USD',
+    outputFile: argv.gasReport,
+    coinmarketcap: argv.coinmarketcap,
+  };
+}
 
 if (argv.coverage) {
   require('solidity-coverage');

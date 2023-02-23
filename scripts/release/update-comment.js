@@ -13,7 +13,7 @@ if (gitStatus.length > 0) {
 const { version } = require('../../package.json');
 
 // Get latest tag according to semver.
-const [ tag ] = run('git', 'tag')
+const [tag] = run('git', 'tag')
   .split(/\r?\n/)
   .filter(semver.coerce) // check version can be processed
   .filter(v => semver.lt(semver.coerce(v), version)) // only consider older tags, ignore current prereleases
@@ -22,7 +22,7 @@ const [ tag ] = run('git', 'tag')
 // Ordering tag → HEAD is important here.
 const files = run('git', 'diff', tag, 'HEAD', '--name-only', 'contracts/**/*.sol')
   .split(/\r?\n/)
-  .filter(file => file && !file.match(/mock/i));
+  .filter(file => file && !file.match(/mock/i) && fs.existsSync(file));
 
 for (const file of files) {
   const current = fs.readFileSync(file, 'utf8');
@@ -32,5 +32,3 @@ for (const file of files) {
   );
   fs.writeFileSync(file, updated);
 }
-
-run('git', 'add', '--update', 'contracts');

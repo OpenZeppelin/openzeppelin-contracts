@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (crosschain/arbitrum/LibArbitrumL2.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (crosschain/arbitrum/LibArbitrumL2.sol)
 
 pragma solidity ^0.8.4;
 
@@ -12,6 +12,11 @@ import "../errors.sol";
  *
  * This version should only be used on L2 to process cross-chain messages
  * originating from L1. For the other side, use {LibArbitrumL1}.
+ *
+ * WARNING: There is currently a bug in Arbitrum that causes this contract to
+ * fail to detect cross-chain calls when deployed behind a proxy. This will be
+ * fixed when the network is upgraded to Arbitrum Nitro, currently scheduled for
+ * August 31st 2022.
  */
 library LibArbitrumL2 {
     /**
@@ -21,7 +26,7 @@ library LibArbitrumL2 {
     address public constant ARBSYS = 0x0000000000000000000000000000000000000064;
 
     function isCrossChain(address arbsys) internal view returns (bool) {
-        return ArbitrumL2_Bridge(arbsys).isTopLevelCall();
+        return ArbitrumL2_Bridge(arbsys).wasMyCallersAddressAliased();
     }
 
     /**
@@ -35,9 +40,6 @@ library LibArbitrumL2 {
     function crossChainSender(address arbsys) internal view returns (address) {
         if (!isCrossChain(arbsys)) revert NotCrossChainCall();
 
-        return
-            ArbitrumL2_Bridge(arbsys).wasMyCallersAddressAliased()
-                ? ArbitrumL2_Bridge(arbsys).myCallersAddressWithoutAliasing()
-                : msg.sender;
+        return ArbitrumL2_Bridge(arbsys).myCallersAddressWithoutAliasing();
     }
 }

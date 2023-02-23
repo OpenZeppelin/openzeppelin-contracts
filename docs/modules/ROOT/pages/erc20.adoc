@@ -78,6 +78,8 @@ transfer(recipient, 5 * (10 ** 18));
 
 [[Presets]]
 == Preset ERC20 contract
-A preset ERC20 is available, xref:api:presets#ERC20PresetMinterPauser[`ERC20PresetMinterPauser`]. It is preset to allow for token minting (create), stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
+A preset ERC20 is available, https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v4.7/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol[`ERC20PresetMinterPauser`]. It is preset to allow for token minting (create), stop all token transfers (pause) and allow holders to burn (destroy) their tokens. The contract uses xref:access-control.adoc[Access Control] to control access to the minting and pausing functionality.  The account that deploys the contract will be granted the minter and pauser roles, as well as the default admin role.
 
 This contract is ready to deploy without having to write any Solidity code.  It can be used as-is for quick prototyping and testing, but is also suitable for production environments.
+
+NOTE: Contract presets are now deprecated in favor of https://wizard.openzeppelin.com[Contracts Wizard] as a more powerful alternative.

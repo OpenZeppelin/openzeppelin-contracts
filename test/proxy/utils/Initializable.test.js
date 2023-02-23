@@ -10,7 +10,7 @@ const DisableBad1 = artifacts.require('DisableBad1');
 const DisableBad2 = artifacts.require('DisableBad2');
 const DisableOk = artifacts.require('DisableOk');
 
-contract('Initializable', function (accounts) {
+contract('Initializable', function () {
   describe('basic testing without inheritance', function () {
     beforeEach('deploying', async function () {
       this.contract = await InitializableMock.new();
@@ -19,6 +19,10 @@ contract('Initializable', function (accounts) {
     describe('before initialize', function () {
       it('initializer has not run', async function () {
         expect(await this.contract.initializerRan()).to.equal(false);
+      });
+
+      it('_initializing returns false before initialization', async function () {
+        expect(await this.contract.isInitializing()).to.equal(false);
       });
     });
 
@@ -29,6 +33,10 @@ contract('Initializable', function (accounts) {
 
       it('initializer has run', async function () {
         expect(await this.contract.initializerRan()).to.equal(true);
+      });
+
+      it('_initializing returns false after initialization', async function () {
+        expect(await this.contract.isInitializing()).to.equal(false);
       });
 
       it('initializer does not run again', async function () {
@@ -99,6 +107,13 @@ contract('Initializable', function (accounts) {
       expect(await this.contract.counter()).to.be.bignumber.equal('0');
       await this.contract.chainReinitialize(2, 3);
       expect(await this.contract.counter()).to.be.bignumber.equal('2');
+    });
+
+    it('_getInitializedVersion returns right version', async function () {
+      await this.contract.initialize();
+      expect(await this.contract.getInitializedVersion()).to.be.bignumber.equal('1');
+      await this.contract.reinitialize(12);
+      expect(await this.contract.getInitializedVersion()).to.be.bignumber.equal('12');
     });
 
     describe('contract locking', function () {
