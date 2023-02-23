@@ -1,21 +1,22 @@
-const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
 
-const ERC1363Mock = artifacts.require('ERC1363Mock');
+const ERC1363Mock = artifacts.require('$ERC1363');
 const ERC1363ReceiverMock = artifacts.require('ERC1363ReceiverMock');
 
 contract('ERC1363', function (accounts) {
   const [ holder, operator, other ] = accounts;
 
-  const initialSupply = new BN(100);
-  const value = new BN(10);
-
   const name = 'My Token';
   const symbol = 'MTKN';
+  const supply = web3.utils.toBN(100);
+  const value = web3.utils.toBN(10);
 
   beforeEach(async function () {
-    this.token = await ERC1363Mock.new(name, symbol, holder, initialSupply);
+    this.token = await ERC1363Mock.new(name, symbol);
     this.receiver = await ERC1363ReceiverMock.new();
+
+    await this.token.$_mint(holder, supply);
   });
 
   shouldSupportInterfaces([
@@ -105,7 +106,7 @@ contract('ERC1363', function (accounts) {
 
   describe('transferFromAndCall', function () {
     beforeEach(async function () {
-      await this.token.approve(operator, initialSupply, { from: holder });
+      await this.token.approve(operator, supply, { from: holder });
     });
 
     it('to EOA', async function () {
