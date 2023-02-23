@@ -25,11 +25,7 @@ contract ERC1363ReceiverMock is IERC1363Receiver, IERC1363Spender {
         return this.onTransferReceived.selector;
     }
 
-    function onApprovalReceived(
-        address owner,
-        uint256 value,
-        bytes memory data
-    ) external override returns (bytes4) {
+    function onApprovalReceived(address owner, uint256 value, bytes memory data) external override returns (bytes4) {
         if (data.length == 1) {
             if (data[0] == 0x00) return bytes4(0);
             if (data[0] == 0x01) revert("onApprovalReceived revert");

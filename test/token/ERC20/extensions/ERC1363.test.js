@@ -5,7 +5,7 @@ const ERC1363Mock = artifacts.require('$ERC1363');
 const ERC1363ReceiverMock = artifacts.require('ERC1363ReceiverMock');
 
 contract('ERC1363', function (accounts) {
-  const [ holder, operator, other ] = accounts;
+  const [holder, operator, other] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -19,19 +19,12 @@ contract('ERC1363', function (accounts) {
     await this.token.$_mint(holder, supply);
   });
 
-  shouldSupportInterfaces([
-    'ERC165',
-    'ERC1363',
-  ]);
+  shouldSupportInterfaces(['ERC165', 'ERC1363']);
 
   describe('transferAndCall', function () {
     it('to EOA', async function () {
       await expectRevert(
-        this.token.methods['transferAndCall(address,uint256)'](
-          other,
-          value,
-          { from: holder },
-        ),
+        this.token.methods['transferAndCall(address,uint256)'](other, value, { from: holder }),
         'function returned an unexpected amount of data',
       );
     });
@@ -77,12 +70,9 @@ contract('ERC1363', function (accounts) {
       });
 
       afterEach(async function () {
-        const txPromise = this.token.methods[this.function](...[
-          this.receiver.address,
-          value,
-          this.data,
-          { from: this.operator },
-        ].filter(Boolean));
+        const txPromise = this.token.methods[this.function](
+          ...[this.receiver.address, value, this.data, { from: this.operator }].filter(Boolean),
+        );
 
         if (this.revert === undefined) {
           const { tx } = await txPromise;
@@ -111,12 +101,7 @@ contract('ERC1363', function (accounts) {
 
     it('to EOA', async function () {
       await expectRevert(
-        this.token.methods['transferFromAndCall(address,address,uint256)'](
-          holder,
-          other,
-          value,
-          { from: operator },
-        ),
+        this.token.methods['transferFromAndCall(address,address,uint256)'](holder, other, value, { from: operator }),
         'function returned an unexpected amount of data',
       );
     });
@@ -168,13 +153,9 @@ contract('ERC1363', function (accounts) {
       });
 
       afterEach(async function () {
-        const txPromise = this.token.methods[this.function](...[
-          this.from,
-          this.receiver.address,
-          value,
-          this.data,
-          { from: this.operator },
-        ].filter(Boolean));
+        const txPromise = this.token.methods[this.function](
+          ...[this.from, this.receiver.address, value, this.data, { from: this.operator }].filter(Boolean),
+        );
 
         if (this.revert === undefined) {
           const { tx } = await txPromise;
@@ -245,12 +226,9 @@ contract('ERC1363', function (accounts) {
       });
 
       afterEach(async function () {
-        const txPromise = this.token.methods[this.function](...[
-          this.receiver.address,
-          value,
-          this.data,
-          { from: this.owner },
-        ].filter(Boolean));
+        const txPromise = this.token.methods[this.function](
+          ...[this.receiver.address, value, this.data, { from: this.owner }].filter(Boolean),
+        );
 
         if (this.revert === undefined) {
           const { tx } = await txPromise;

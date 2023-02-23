@@ -28,11 +28,7 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
     /**
      * @dev See {IERC1363-transferAndCall}.
      */
-    function transferAndCall(
-        address to,
-        uint256 value,
-        bytes memory data
-    ) public override returns (bool) {
+    function transferAndCall(address to, uint256 value, bytes memory data) public override returns (bool) {
         require(transfer(to, value));
         require(
             _checkOnTransferReceived(_msgSender(), _msgSender(), to, value, data),
@@ -44,11 +40,7 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
     /**
      * @dev See {IERC1363-transferFromAndCall}.
      */
-    function transferFromAndCall(
-        address from,
-        address to,
-        uint256 value
-    ) public override returns (bool) {
+    function transferFromAndCall(address from, address to, uint256 value) public override returns (bool) {
         return transferFromAndCall(from, to, value, bytes(""));
     }
 
@@ -79,11 +71,7 @@ abstract contract ERC1363 is IERC1363, ERC20, ERC165 {
     /**
      * @dev See {IERC1363-approveAndCall}.
      */
-    function approveAndCall(
-        address spender,
-        uint256 value,
-        bytes memory data
-    ) public override returns (bool) {
+    function approveAndCall(address spender, uint256 value, bytes memory data) public override returns (bool) {
         require(approve(spender, value));
         require(
             _checkOnApprovalReceived(_msgSender(), spender, value, data),
