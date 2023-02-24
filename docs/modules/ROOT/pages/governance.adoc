@@ -325,15 +325,15 @@ Executing the proposal will transfer the ERC20 tokens to the chosen recipient. T
 
 === Motivation
 
-It is sometimes difficult for humans to deal with durations expressed in number of blocks because of inconstistent or unpredictable time between blocks. That is particularly true of some L2 networks where blocks are being produced based on blockchain usage. Using number of blocks can also lead to the governance rules being affected by network upgrades eventually modifying the mean time between blocks.
+It is sometimes difficult to deal with durations expressed in number of blocks because of inconsistent or unpredictable time between blocks. This is particularly true of some L2 networks where blocks are produced based on blockchain usage. Using number of blocks can also lead to the governance rules being affected by network upgrades that modify the expected time between blocks.
 
-The difficulty of replacing block numbers with timestamp is that the governor and the token must both use the same format when querying past votes. If a token is designed around block numbers, it is not possible for a governor to reliably do timestamp based lookups.
+The difficulty of replacing block numbers with timestamps is that the governor and the token must both use the same format when querying past votes. If a token is designed around block numbers, it is not possible for a governor to reliably do timestamp based lookups.
 
 Therefore, designing a timestamp based voting system starts with the token.
 
 === Token
 
-Since v4.9, all voting contracts (including xref:api:token/ERC20.adoc#ERC20Votes[`ERC20Votes`] and xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]) rely on xref:api:interfaces.adoc#IERC6372[IERC6372] for clock management. In order to change from operating with block numbers to operating with timestamps, all that is required is to override the `clock()` function. When doing so, one should not forget to also update the `CLOCK_MODE()` function.
+Since v4.9, all voting contracts (including xref:api:token/ERC20.adoc#ERC20Votes[`ERC20Votes`] and xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]) rely on xref:api:interfaces.adoc#IERC6372[IERC6372] for clock management. In order to change from operating with block numbers to operating with timestamps, all that is required is to override the `clock()` and `CLOCK_MODE()` functions.
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -404,11 +404,11 @@ contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, Gove
     {}
 
     function votingDelay() public pure virtual override returns (uint256) {
-        return 86400; // 1 day
+        return 1 days;
     }
 
     function votingPeriod() public pure virtual override returns (uint256) {
-        return 604800; // 1 week
+        return 1 weeks;
     }
 
     function proposalThreshold() public pure virtual override returns (uint256) {
