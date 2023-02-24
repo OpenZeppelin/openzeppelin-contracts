@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-Allow return data length >= 32 in SignatureChecker
+`SignatureChecker`: Allow return data length greater than 32 from EIP-1271 signers.
