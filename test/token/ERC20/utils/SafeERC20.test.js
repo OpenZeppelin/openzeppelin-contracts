@@ -182,26 +182,26 @@ contract('SafeERC20', function (accounts) {
         await this.token.$_approve(this.mock.address, spender, 100);
       });
 
-      it('safeApproval fails to update approval to non-zero', async function () {
+      it('safeApprove fails to update approval to non-zero', async function () {
         await expectRevert(
           this.mock.$safeApprove(this.token.address, spender, 200),
           'SafeERC20: approve from non-zero to non-zero allowance',
         );
       });
 
-      it('safeApproval can update approval to zero', async function () {
+      it('safeApprove can update approval to zero', async function () {
         await this.mock.$safeApprove(this.token.address, spender, 0);
       });
 
-      it('safeApproval can increasse approval', async function () {
+      it('safeApprove can increasse approval', async function () {
         await this.mock.$safeIncreaseAllowance(this.token.address, spender, 10);
       });
 
-      it('safeApproval can decreasse approval', async function () {
+      it('safeApprove can decreasse approval', async function () {
         await this.mock.$safeDecreaseAllowance(this.token.address, spender, 10);
       });
 
-      it('forceApproval works', async function () {
+      it('forceApprove works', async function () {
         await this.mock.$forceApprove(this.token.address, spender, 200);
       });
     });
