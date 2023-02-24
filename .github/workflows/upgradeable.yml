@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: app
-        uses: getsentry/action-github-app-token@v1
+        uses: getsentry/action-github-app-token@v2
         with:
           app_id: ${{ secrets.UPGRADEABLE_APP_ID }}
           private_key: ${{ secrets.UPGRADEABLE_APP_PK }}

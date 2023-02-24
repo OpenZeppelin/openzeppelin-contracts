@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
+      NODE_OPTIONS: --max_old_space_size=4096
       GAS: true
     steps:
       - uses: actions/checkout@v3
@@ -40,6 +41,10 @@ jobs:
         run: npm run test:generation
       - name: Compare gas costs
         uses: ./.github/actions/gas-compare
+        with:
+          token: ${{ github.token }}
+      - name: Check storage layout
+        uses: ./.github/actions/storage-layout
         with:
           token: ${{ github.token }}
 
@@ -77,7 +82,7 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: rm foundry.toml
-      - uses: crytic/slither-action@v0.2.0
+      - uses: crytic/slither-action@v0.3.0
 
   codespell:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'

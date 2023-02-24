@@ -52,6 +52,11 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     event CallExecuted(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
 
     /**
+     * @dev Emitted when new proposal is scheduled with non-zero salt.
+     */
+    event CallSalt(bytes32 indexed id, bytes32 salt);
+
+    /**
      * @dev Emitted when operation `id` is cancelled.
      */
     event Cancelled(bytes32 indexed id);
@@ -206,7 +211,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev Schedule an operation containing a single transaction.
      *
-     * Emits a {CallScheduled} event.
+     * Emits events {CallScheduled} and {CallSalt}.
      *
      * Requirements:
      *
@@ -223,12 +228,15 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes32 id = hashOperation(target, value, data, predecessor, salt);
         _schedule(id, delay);
         emit CallScheduled(id, 0, target, value, data, predecessor, delay);
+        if (salt != bytes32(0)) {
+            emit CallSalt(id, salt);
+        }
     }
 
     /**
      * @dev Schedule an operation containing a batch of transactions.
      *
-     * Emits one {CallScheduled} event per transaction in the batch.
+     * Emits a {CallSalt} event and one {CallScheduled} event per transaction in the batch.
      *
      * Requirements:
      *
@@ -249,6 +257,9 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         _schedule(id, delay);
         for (uint256 i = 0; i < targets.length; ++i) {
             emit CallScheduled(id, i, targets[i], values[i], payloads[i], predecessor, delay);
+        }
+        if (salt != bytes32(0)) {
+            emit CallSalt(id, salt);
         }
     }
 

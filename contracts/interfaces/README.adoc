@@ -32,6 +32,11 @@ are useful to interact with third party contracts that implement them.
 - {IERC3156FlashLender}
 - {IERC3156FlashBorrower}
 - {IERC4626}
+- {IERC4906}
+- {IERC5267}
+- {IERC5313}
+- {IERC5805}
+- {IERC6372}
 
 == Detailed ABI
 
@@ -58,3 +63,9 @@ are useful to interact with third party contracts that implement them.
 {{IERC3156FlashBorrower}}
 
 {{IERC4626}}
+
+{{IERC5267}}
+
+{{IERC5805}}
+
+{{IERC6372}}

@@ -1,4 +1,4 @@
-const { time } = require('@openzeppelin/test-helpers');
+const { forward } = require('../helpers/time');
 
 function zip(...args) {
   return Array(Math.max(...args.map(array => array.length)))
@@ -15,8 +15,9 @@ function concatOpts(args, opts = null) {
 }
 
 class GovernorHelper {
-  constructor(governor) {
+  constructor(governor, mode = 'blocknumber') {
     this.governor = governor;
+    this.mode = mode;
   }
 
   delegate(delegation = {}, opts = null) {
@@ -62,14 +63,25 @@ class GovernorHelper {
         );
   }
 
-  cancel(opts = null) {
+  cancel(visibility = 'external', opts = null) {
     const proposal = this.currentProposal;
 
-    return proposal.useCompatibilityInterface
-      ? this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts))
-      : this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
+    switch (visibility) {
+      case 'external':
+        if (proposal.useCompatibilityInterface) {
+          return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
+        } else {
+          return this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](
+            ...concatOpts(proposal.shortProposal, opts),
+          );
+        }
+      case 'internal':
+        return this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
           ...concatOpts(proposal.shortProposal, opts),
         );
+      default:
+        throw new Error(`unsuported visibility "${visibility}"`);
+    }
   }
 
   vote(vote = {}, opts = null) {
@@ -79,7 +91,7 @@ class GovernorHelper {
       ? // if signature, and either params or reason →
         vote.params || vote.reason
         ? vote
-            .signature({
+            .signature(this.governor, {
               proposalId: proposal.id,
               support: vote.support,
               reason: vote.reason || '',
@@ -91,7 +103,7 @@ class GovernorHelper {
               ),
             )
         : vote
-            .signature({
+            .signature(this.governor, {
               proposalId: proposal.id,
               support: vote.support,
             })
@@ -109,23 +121,22 @@ class GovernorHelper {
       : this.governor.castVote(...concatOpts([proposal.id, vote.support], opts));
   }
 
-  waitForSnapshot(offset = 0) {
+  async waitForSnapshot(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor
-      .proposalSnapshot(proposal.id)
-      .then(blockNumber => time.advanceBlockTo(blockNumber.addn(offset)));
+    const timepoint = await this.governor.proposalSnapshot(proposal.id);
+    return forward[this.mode](timepoint.addn(offset));
   }
 
-  waitForDeadline(offset = 0) {
+  async waitForDeadline(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor
-      .proposalDeadline(proposal.id)
-      .then(blockNumber => time.advanceBlockTo(blockNumber.addn(offset)));
+    const timepoint = await this.governor.proposalDeadline(proposal.id);
+    return forward[this.mode](timepoint.addn(offset));
   }
 
-  waitForEta(offset = 0) {
+  async waitForEta(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor.proposalEta(proposal.id).then(timestamp => time.increaseTo(timestamp.addn(offset)));
+    const timestamp = await this.governor.proposalEta(proposal.id);
+    return forward.timestamp(timestamp.addn(offset));
   }
 
   /**
