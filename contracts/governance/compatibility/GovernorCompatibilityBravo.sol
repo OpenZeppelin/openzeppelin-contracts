@@ -63,8 +63,10 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
     /**
      * @dev Alternative interface with separate function signatures. Stores the full proposal and fallback to the
-     * public (possibly overriden) propose. The fallback is done after the full proposal is stored, so the store
-     * operation included in the fallback will be skiped.
+     * public (possibly overridden) propose. The fallback is done after the full proposal is stored, so the store
+     * operation included in the fallback will be skipped. Here we call `propose` and not `super.propose` to make
+     * sure if a child contract override `propose`, whatever code is added their is also executed when calling this
+     * alternative interface.
      *
      * See {IGovernorCompatibilityBravo-propose}.
      */
