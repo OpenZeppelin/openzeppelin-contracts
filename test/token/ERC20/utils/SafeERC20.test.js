@@ -2,7 +2,7 @@ const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-hel
 
 const SafeERC20 = artifacts.require('$SafeERC20');
 const ERC20ReturnFalseMock = artifacts.require('$ERC20ReturnFalseMock');
-const ERC20ReturnTrueMock = artifacts.require('$ERC20ReturnTrueMock');
+const ERC20ReturnTrueMock = artifacts.require('$ERC20'); // default implementation returns true
 const ERC20NoReturnMock = artifacts.require('$ERC20NoReturnMock');
 const ERC20PermitNoRevertMock = artifacts.require('$ERC20PermitNoRevertMock');
 const ERC20ForceApproveMock = artifacts.require('$ERC20ForceApproveMock');
