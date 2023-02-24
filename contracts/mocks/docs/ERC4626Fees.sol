@@ -32,12 +32,7 @@ abstract contract ERC4626Fees is ERC4626 {
     }
 
     /** @dev See {IERC4626-_deposit}. */
-    function _deposit(
-        address caller,
-        address receiver,
-        uint256 assets,
-        uint256 shares
-    ) internal virtual override {
+    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal virtual override {
         uint256 fee = _feeOnTotal(assets, _entryFeeBasePoint());
         address recipient = _entryFeeRecipient();
 
