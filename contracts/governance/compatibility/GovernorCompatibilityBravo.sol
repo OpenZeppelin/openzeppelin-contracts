@@ -55,6 +55,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes[] memory calldatas,
         string memory description
     ) public virtual override(IGovernor, Governor) returns (uint256) {
+        // Stores the proposal details (if not already present) and executes the propose logic from the core.
         _storeProposal(_msgSender(), targets, values, new string[](calldatas.length), calldatas, description);
         return super.propose(targets, values, calldatas, description);
     }
@@ -69,6 +70,10 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
+        // Stores the full proposal and fallback to the public (possibly overridden) propose. The fallback is done
+        // after the full proposal is stored, so the store operation included in the fallback will be skipped. Here we
+        // call `propose` and not `super.propose` to make sure if a child contract override `propose`, whatever code
+        // is added their is also executed when calling this alternative interface.
         _storeProposal(_msgSender(), targets, values, signatures, calldatas, description);
         return propose(targets, values, _encodeCalldata(signatures, calldatas), description);
     }
@@ -174,7 +179,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev Store proposal metadata for later lookup
+     * @dev Store proposal metadata (if not already present) for later lookup.
      */
     function _storeProposal(
         address proposer,
