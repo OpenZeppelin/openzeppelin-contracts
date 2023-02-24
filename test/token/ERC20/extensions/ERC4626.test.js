@@ -4,6 +4,7 @@ const { expect } = require('chai');
 const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC4626 = artifacts.require('$ERC4626');
 const ERC4626OffsetMock = artifacts.require('$ERC4626OffsetMock');
+const ERC4626FeesMock = artifacts.require('$ERC4626FeesMock');
 
 contract('ERC4626', function (accounts) {
   const [holder, recipient, spender, other, user1, user2] = accounts;
@@ -488,6 +489,132 @@ contract('ERC4626', function (accounts) {
       });
     });
   }
+
+  describe('ERC4626Fees', function () {
+    const feeBasePoint = web3.utils.toBN(5e3);
+    const amountWithoutFees = web3.utils.toBN(10000);
+    const fees = amountWithoutFees.mul(feeBasePoint).divn(1e5);
+    const amountWithFees = amountWithoutFees.add(fees);
+
+    describe('input fees', function () {
+      beforeEach(async function () {
+        this.token = await ERC20Decimals.new(name, symbol, 18);
+        this.vault = await ERC4626FeesMock.new(
+          name + ' Vault',
+          symbol + 'V',
+          this.token.address,
+          feeBasePoint,
+          other,
+          0,
+          constants.ZERO_ADDRESS,
+        );
+
+        await this.token.$_mint(holder, constants.MAX_INT256);
+        await this.token.approve(this.vault.address, constants.MAX_INT256, { from: holder });
+      });
+
+      it('deposit', async function () {
+        expect(await this.vault.previewDeposit(amountWithFees)).to.be.bignumber.equal(amountWithoutFees);
+        ({ tx: this.tx } = await this.vault.deposit(amountWithFees, recipient, { from: holder }));
+      });
+
+      it('mint', async function () {
+        expect(await this.vault.previewMint(amountWithoutFees)).to.be.bignumber.equal(amountWithFees);
+        ({ tx: this.tx } = await this.vault.mint(amountWithoutFees, recipient, { from: holder }));
+      });
+
+      afterEach(async function () {
+        // get total
+        await expectEvent.inTransaction(this.tx, this.token, 'Transfer', {
+          from: holder,
+          to: this.vault.address,
+          value: amountWithFees,
+        });
+
+        // redirect fees
+        await expectEvent.inTransaction(this.tx, this.token, 'Transfer', {
+          from: this.vault.address,
+          to: other,
+          value: fees,
+        });
+
+        // mint shares
+        await expectEvent.inTransaction(this.tx, this.vault, 'Transfer', {
+          from: constants.ZERO_ADDRESS,
+          to: recipient,
+          value: amountWithoutFees,
+        });
+
+        // deposit event
+        await expectEvent.inTransaction(this.tx, this.vault, 'Deposit', {
+          sender: holder,
+          owner: recipient,
+          assets: amountWithFees,
+          shares: amountWithoutFees,
+        });
+      });
+    });
+
+    describe('output fees', function () {
+      beforeEach(async function () {
+        this.token = await ERC20Decimals.new(name, symbol, 18);
+        this.vault = await ERC4626FeesMock.new(
+          name + ' Vault',
+          symbol + 'V',
+          this.token.address,
+          0,
+          constants.ZERO_ADDRESS,
+          5e3, // 5%
+          other,
+        );
+
+        await this.token.$_mint(this.vault.address, constants.MAX_INT256);
+        await this.vault.$_mint(holder, constants.MAX_INT256);
+      });
+
+      it('redeem', async function () {
+        expect(await this.vault.previewRedeem(amountWithFees)).to.be.bignumber.equal(amountWithoutFees);
+        ({ tx: this.tx } = await this.vault.redeem(amountWithFees, recipient, holder, { from: holder }));
+      });
+
+      it('withdraw', async function () {
+        expect(await this.vault.previewWithdraw(amountWithoutFees)).to.be.bignumber.equal(amountWithFees);
+        ({ tx: this.tx } = await this.vault.withdraw(amountWithoutFees, recipient, holder, { from: holder }));
+      });
+
+      afterEach(async function () {
+        // withdraw principal
+        await expectEvent.inTransaction(this.tx, this.token, 'Transfer', {
+          from: this.vault.address,
+          to: recipient,
+          value: amountWithoutFees,
+        });
+
+        // redirect fees
+        await expectEvent.inTransaction(this.tx, this.token, 'Transfer', {
+          from: this.vault.address,
+          to: other,
+          value: fees,
+        });
+
+        // mint shares
+        await expectEvent.inTransaction(this.tx, this.vault, 'Transfer', {
+          from: holder,
+          to: constants.ZERO_ADDRESS,
+          value: amountWithFees,
+        });
+
+        // withdraw event
+        await expectEvent.inTransaction(this.tx, this.vault, 'Withdraw', {
+          sender: holder,
+          receiver: recipient,
+          owner: holder,
+          assets: amountWithoutFees,
+          shares: amountWithFees,
+        });
+      });
+    });
+  });
 
   /// Scenario inspired by solmate ERC4626 tests:
   /// https://github.com/transmissions11/solmate/blob/main/src/test/ERC4626.t.sol
