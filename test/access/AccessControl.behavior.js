@@ -312,7 +312,10 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
     beforeEach(async function () {
       await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-      delayPassed = web3.utils.toBN(await time.latest()).add(delay).addn(1);
+      delayPassed = web3.utils
+        .toBN(await time.latest())
+        .add(delay)
+        .addn(1);
     });
 
     describe('caller is pending default admin and delay has passed', function () {
@@ -384,7 +387,10 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
     beforeEach(async function () {
       await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-      delayPassed = web3.utils.toBN(await time.latest()).add(delay).addn(1);
+      delayPassed = web3.utils
+        .toBN(await time.latest())
+        .add(delay)
+        .addn(1);
     });
 
     it('resets pending default admin and delayed until', async function () {
@@ -423,7 +429,10 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
     beforeEach(async function () {
       await this.accessControl.beginDefaultAdminTransfer(ZERO_ADDRESS, { from });
-      delayPassed = web3.utils.toBN(await time.latest()).add(delay).addn(1);
+      delayPassed = web3.utils
+        .toBN(await time.latest())
+        .add(delay)
+        .addn(1);
     });
 
     it('it renounces role', async function () {
