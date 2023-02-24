@@ -177,7 +177,7 @@ contract MathTest is Test {
     }
 
     // Helpers
-    function _asRounding(uint8 r) private returns (Math.Rounding) {
+    function _asRounding(uint8 r) private pure returns (Math.Rounding) {
         vm.assume(r < uint8(type(Math.Rounding).max));
         return Math.Rounding(r);
     }

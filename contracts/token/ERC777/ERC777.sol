@@ -25,6 +25,8 @@ import "../../utils/introspection/IERC1820Registry.sol";
  * Additionally, the {IERC777-granularity} value is hard-coded to `1`, meaning that there
  * are no special restrictions in the amount of tokens that created, moved, or
  * destroyed. This makes integration with ERC20 applications seamless.
+ *
+ * CAUTION: This file is deprecated as of v4.9 and will be removed in the next major release.
  */
 contract ERC777 is Context, IERC777, IERC20 {
     using Address for address;
