@@ -121,13 +121,13 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
 
 NOTE: The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]. ERC721 tokens that don't provide this functionality can be wrapped into a voting tokens using a combination of xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] and xref:api:token/ERC721Wrapper.adoc#ERC721Wrapper[`ERC721Wrapper`].
 
-NOTE: The internal clock used by the token to store voting balances will dictate the operating mode of the governor contract attached to it. By default, block numbers are used. Since v4.9, developers can override the xref:api:interfaces.adoc#IERC6372[IERC6372] clock to use timestamps instead of block numbers.
+NOTE: The internal clock used by the token to store voting balances will dictate the operating mode of the Governor contract attached to it. By default, block numbers are used. Since v4.9, developers can override the xref:api:interfaces.adoc#IERC6372[IERC6372] clock to use timestamps instead of block numbers.
 
 === Governor
 
 Initially, we will build a Governor without a timelock. The core logic is given by the Governor contract, but we still need to choose: 1) how voting power is determined, 2) how many votes are needed for quorum, 3) what options people have when casting a vote and how those votes are counted, and 4) what type of token should be used to vote. Each of these aspects is customizable by writing your own module, or more easily choosing one from OpenZeppelin Contracts.
 
-For 1) we will use the GovernorVotes module, which hooks to an IVotes instance to determine the voting power of an account based on the token balance they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token. This module also discovers the clock mode (ERC6372) used by the token and applies it to the governor.
+For 1) we will use the GovernorVotes module, which hooks to an IVotes instance to determine the voting power of an account based on the token balance they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token. This module also discovers the clock mode (ERC6372) used by the token and applies it to the Governor.
 
 For 2) we will use GovernorVotesQuorumFraction which works together with ERC20Votes to define quorum as a percentage of the total supply at the block a proposal’s voting power is retrieved. This requires a constructor parameter to set the percentage. Most Governors nowadays use 4%, so we will initialize the module with parameter 4 (this indicates the percentage, resulting in 4%).
 
@@ -262,7 +262,7 @@ const grantAmount = ...;
 const transferCalldata = token.interface.encodeFunctionData(‘transfer’, [teamAddress, grantAmount]);
 ```
 
-Now we are ready to call the propose function of the governor. Note that we don’t pass in one array of actions, but instead three arrays corresponding to the list of targets, the list of values, and the list of calldatas. In this case it’s a single action, so it’s simple:
+Now we are ready to call the propose function of the Governor. Note that we don’t pass in one array of actions, but instead three arrays corresponding to the list of targets, the list of values, and the list of calldatas. In this case it’s a single action, so it’s simple:
 
 ```javascript
 await governor.propose(
@@ -306,7 +306,7 @@ await governor.queue(
 );
 ```
 
-This will cause the governor to interact with the timelock contract and queue the actions for execution after the required delay.
+This will cause the Governor to interact with the timelock contract and queue the actions for execution after the required delay.
 
 After enough time has passed (according to the timelock parameters), the proposal can be executed. If there was no timelock to begin with, this step can be ran immediately after the proposal succeeds.
 
@@ -327,7 +327,7 @@ Executing the proposal will transfer the ERC20 tokens to the chosen recipient. T
 
 It is sometimes difficult to deal with durations expressed in number of blocks because of inconsistent or unpredictable time between blocks. This is particularly true of some L2 networks where blocks are produced based on blockchain usage. Using number of blocks can also lead to the governance rules being affected by network upgrades that modify the expected time between blocks.
 
-The difficulty of replacing block numbers with timestamps is that the governor and the token must both use the same format when querying past votes. If a token is designed around block numbers, it is not possible for a governor to reliably do timestamp based lookups.
+The difficulty of replacing block numbers with timestamps is that the Governor and the token must both use the same format when querying past votes. If a token is designed around block numbers, it is not possible for a Governor to reliably do timestamp based lookups.
 
 Therefore, designing a timestamp based voting system starts with the token.
 
@@ -383,7 +383,7 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes {
 
 === Governor
 
-The governor will automatically detect the clock mode used by the token and adapt to it. There is no need to override anything in the governor contract. However, the clock mode does affect how some values are interpreted. It is therefore necessary to set the `votingDelay()` and `votingPeriod()` accordingly.
+The Governor will automatically detect the clock mode used by the token and adapt to it. There is no need to override anything in the Governor contract. However, the clock mode does affect how some values are interpreted. It is therefore necessary to set the `votingDelay()` and `votingPeriod()` accordingly.
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -422,3 +422,5 @@ contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, Gove
 === Disclaimer
 
 Timestamp based voting is a recent feature that was formalized in EIP-6372 and EIP-5805, and introduced in v4.9. At the time this feature is released, governance tooling such as https://www.tally.xyz[Tally] does not support it yet. While support for timestamps should come soon, users can expect invalid reporting of deadlines & durations. This invalid reporting by offchain tools does not affect the onchain security and functionality of the governance contract.
+
+Governors with timestamp support (v4.9 and above) are compatible with old tokens (before v4.9) and will operate in "block number" mode (which is the mode all old tokens operate on). On the other hand, old Governor instances (before v4.9) are not compatible with new tokens operating using timestamps. If you update your token code to use timestamps, make sure to also update your Governor code.
