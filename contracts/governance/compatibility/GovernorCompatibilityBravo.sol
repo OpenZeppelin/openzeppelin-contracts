@@ -47,7 +47,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
     // ============================================== Proposal lifecycle ==============================================
     /**
-     * @dev See {IGovernor-propose}.
+     * @dev Stores the proposal details (if not already present) and execute the propose logic from the core.
+     *
+     * See {IGovernor-propose}.
      */
     function propose(
         address[] memory targets,
@@ -60,7 +62,11 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {IGovernorCompatibilityBravo-propose}.
+     * @dev Alternative interface with separate function signatures. Stores the full proposal and fallback to the
+     * public (possibly overriden) propose. The fallback is done after the full proposal is stored, so the store
+     * operation included in the fallback will be skiped.
+     *
+     * See {IGovernorCompatibilityBravo-propose}.
      */
     function propose(
         address[] memory targets,
@@ -174,7 +180,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev Store proposal metadata for later lookup
+     * @dev Store proposal metadata (if not already present) for later lookup.
      */
     function _storeProposal(
         address proposer,
