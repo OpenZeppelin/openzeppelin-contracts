@@ -47,7 +47,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
     // ============================================== Proposal lifecycle ==============================================
     /**
-     * @dev Stores the proposal details (if not already present) and execute the propose logic from the core.
+     * @dev Stores the proposal details (if not already present) and executes the propose logic from the core.
      *
      * See {IGovernor-propose}.
      */
