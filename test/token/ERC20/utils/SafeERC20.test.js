@@ -194,17 +194,11 @@ contract('SafeERC20', function (accounts) {
       });
 
       it('safeApprove can increase approval', async function () {
-        await expectRevert(
-          this.mock.$safeIncreaseAllowance(this.token.address, spender, 10),
-          'USDT approval failure',
-        );
+        await expectRevert(this.mock.$safeIncreaseAllowance(this.token.address, spender, 10), 'USDT approval failure');
       });
 
       it('safeApprove can decrease approval', async function () {
-        await expectRevert(
-          this.mock.$safeDecreaseAllowance(this.token.address, spender, 10),
-          'USDT approval failure',
-        );
+        await expectRevert(this.mock.$safeDecreaseAllowance(this.token.address, spender, 10), 'USDT approval failure');
       });
 
       it('forceApprove works', async function () {
