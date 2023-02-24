@@ -37,7 +37,7 @@ contract('Ownable', function (accounts) {
   });
 
   describe('renounce ownership', function () {
-    it('loses owner after renouncement', async function () {
+    it('loses ownership after renouncement', async function () {
       const receipt = await this.ownable.renounceOwnership({ from: owner });
       expectEvent(receipt, 'OwnershipTransferred');
 
@@ -46,6 +46,14 @@ contract('Ownable', function (accounts) {
 
     it('prevents non-owners from renouncement', async function () {
       await expectRevert(this.ownable.renounceOwnership({ from: other }), 'Ownable: caller is not the owner');
+    });
+
+    it('allows to recover access using the internal _transferOwnership', async function () {
+      await this.ownable.renounceOwnership({ from: owner });
+      const receipt = await this.ownable.$_transferOwnership(other);
+      expectEvent(receipt, 'OwnershipTransferred');
+
+      expect(await this.ownable.owner()).to.equal(other);
     });
   });
 });
