@@ -46,27 +46,25 @@ library SafeERC20 {
     }
 
     function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {
-        uint256 newAllowance = token.allowance(address(this), spender) + value;
-        forceApprove(token, spender, newAllowance);
+        uint256 oldAllowance = token.allowance(address(this), spender);
+        forceApprove(token, spender, oldAllowance + value);
     }
 
     function safeDecreaseAllowance(IERC20 token, address spender, uint256 value) internal {
         unchecked {
             uint256 oldAllowance = token.allowance(address(this), spender);
             require(oldAllowance >= value, "SafeERC20: decreased allowance below zero");
-            uint256 newAllowance = oldAllowance - value;
-            forceApprove(token, spender, newAllowance);
+            forceApprove(token, spender, oldAllowance - value);
         }
     }
 
     function forceApprove(IERC20 token, address spender, uint256 value) internal {
-        // solidity has lazy evaluation
-        require(
-            _callOptionalReturnBool(token, abi.encodeWithSelector(token.approve.selector, spender, value)) ||
-                (_callOptionalReturnBool(token, abi.encodeWithSelector(token.approve.selector, spender, 0)) &&
-                    _callOptionalReturnBool(token, abi.encodeWithSelector(token.approve.selector, spender, value))),
-            "SafeERC20: force approve failed"
-        );
+        bytes memory approvalCall = abi.encodeWithSelector(token.approve.selector, spender, value);
+
+        if (!_callOptionalReturnBool(token, approvalCall)) {
+            _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, 0));
+            _callOptionalReturn(token, approvalCall);
+        }
     }
 
     function safePermit(
@@ -114,6 +112,7 @@ library SafeERC20 {
         // and not revert is the subcall reverts.
 
         (bool success, bytes memory returndata) = address(token).call(data);
-        return success && (returndata.length == 0 || abi.decode(returndata, (bool))) && Address.isContract(address(token));
+        return
+            success && (returndata.length == 0 || abi.decode(returndata, (bool))) && Address.isContract(address(token));
     }
 }

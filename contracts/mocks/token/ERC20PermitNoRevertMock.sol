@@ -5,9 +5,7 @@ pragma solidity ^0.8.0;
 import "../../token/ERC20/ERC20.sol";
 import "../../token/ERC20/extensions/draft-ERC20Permit.sol";
 
-contract ERC20PermitNoRevertMock is ERC20, ERC20Permit {
-    constructor() ERC20("ERC20PermitNoRevertMock", "ERC20PermitNoRevertMock") ERC20Permit("ERC20PermitNoRevertMock") {}
-
+abstract contract ERC20PermitNoRevertMock is ERC20Permit {
     function permitThatMayRevert(
         address owner,
         address spender,
