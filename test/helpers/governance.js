@@ -68,7 +68,13 @@ class GovernorHelper {
 
     switch (visibility) {
       case 'external':
-        return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
+        if (proposal.useCompatibilityInterface) {
+          return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
+        } else {
+          return this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](
+            ...concatOpts(proposal.shortProposal, opts),
+          );
+        }
       case 'internal':
         return this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
           ...concatOpts(proposal.shortProposal, opts),

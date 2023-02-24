@@ -12,7 +12,7 @@ contract ERC4626StdTest is ERC4626Test {
         _underlying_ = address(new ERC20Mock());
         _vault_ = address(new ERC4626Mock(_underlying_));
         _delta_ = 0;
-        _vaultMayBeEmpty = false;
+        _vaultMayBeEmpty = true;
         _unlimitedAmount = true;
     }
 }

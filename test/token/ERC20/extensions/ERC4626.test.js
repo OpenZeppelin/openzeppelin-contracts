@@ -67,6 +67,13 @@ contract('ERC4626', function (accounts) {
             to: recipient,
             value: parseShare(1),
           });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
+            sender: holder,
+            owner: recipient,
+            assets: parseToken(1),
+            shares: parseShare(1),
+          });
         });
 
         it('mint', async function () {
@@ -85,6 +92,13 @@ contract('ERC4626', function (accounts) {
             from: constants.ZERO_ADDRESS,
             to: recipient,
             value: parseShare(1),
+          });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
+            sender: holder,
+            owner: recipient,
+            assets: parseToken(1),
+            shares: parseShare(1),
           });
         });
 
@@ -105,6 +119,14 @@ contract('ERC4626', function (accounts) {
             to: constants.ZERO_ADDRESS,
             value: '0',
           });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
+            sender: holder,
+            receiver: recipient,
+            owner: holder,
+            assets: '0',
+            shares: '0',
+          });
         });
 
         it('redeem', async function () {
@@ -123,6 +145,14 @@ contract('ERC4626', function (accounts) {
             from: holder,
             to: constants.ZERO_ADDRESS,
             value: '0',
+          });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
+            sender: holder,
+            receiver: recipient,
+            owner: holder,
+            assets: '0',
+            shares: '0',
           });
         });
       });
@@ -172,6 +202,13 @@ contract('ERC4626', function (accounts) {
             to: recipient,
             value: expectedShares,
           });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
+            sender: holder,
+            owner: recipient,
+            assets: depositAssets,
+            shares: expectedShares,
+          });
         });
 
         /**
@@ -208,6 +245,13 @@ contract('ERC4626', function (accounts) {
             to: recipient,
             value: mintShares,
           });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
+            sender: holder,
+            owner: recipient,
+            assets: expectedAssets,
+            shares: mintShares,
+          });
         });
 
         it('withdraw', async function () {
@@ -227,6 +271,14 @@ contract('ERC4626', function (accounts) {
             to: constants.ZERO_ADDRESS,
             value: '0',
           });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
+            sender: holder,
+            receiver: recipient,
+            owner: holder,
+            assets: '0',
+            shares: '0',
+          });
         });
 
         it('redeem', async function () {
@@ -245,6 +297,14 @@ contract('ERC4626', function (accounts) {
             from: holder,
             to: constants.ZERO_ADDRESS,
             value: '0',
+          });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
+            sender: holder,
+            receiver: recipient,
+            owner: holder,
+            assets: '0',
+            shares: '0',
           });
         });
       });
@@ -293,6 +353,13 @@ contract('ERC4626', function (accounts) {
             to: recipient,
             value: expectedShares,
           });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
+            sender: holder,
+            owner: recipient,
+            assets: depositAssets,
+            shares: expectedShares,
+          });
         });
 
         /**
@@ -327,6 +394,13 @@ contract('ERC4626', function (accounts) {
             to: recipient,
             value: mintShares,
           });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Deposit', {
+            sender: holder,
+            owner: recipient,
+            assets: expectedAssets,
+            shares: mintShares,
+          });
         });
 
         it('withdraw', async function () {
@@ -352,6 +426,14 @@ contract('ERC4626', function (accounts) {
             to: constants.ZERO_ADDRESS,
             value: expectedShares,
           });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
+            sender: holder,
+            receiver: recipient,
+            owner: holder,
+            assets: withdrawAssets,
+            shares: expectedShares,
+          });
         });
 
         it('withdraw with approval', async function () {
@@ -364,21 +446,35 @@ contract('ERC4626', function (accounts) {
         });
 
         it('redeem', async function () {
-          expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal(parseShare(100));
-          expect(await this.vault.previewRedeem(parseShare(100))).to.be.bignumber.equal(parseToken(1));
+          const effectiveAssets = await this.vault.totalAssets().then(x => x.add(virtualAssets));
+          const effectiveShares = await this.vault.totalSupply().then(x => x.add(virtualShares));
 
-          const { tx } = await this.vault.redeem(parseShare(100), recipient, holder, { from: holder });
+          const redeemShares = parseShare(100);
+          const expectedAssets = redeemShares.mul(effectiveAssets).div(effectiveShares);
+
+          expect(await this.vault.maxRedeem(holder)).to.be.bignumber.equal(redeemShares);
+          expect(await this.vault.previewRedeem(redeemShares)).to.be.bignumber.equal(expectedAssets);
+
+          const { tx } = await this.vault.redeem(redeemShares, recipient, holder, { from: holder });
 
           await expectEvent.inTransaction(tx, this.token, 'Transfer', {
             from: this.vault.address,
             to: recipient,
-            value: parseToken(1),
+            value: expectedAssets,
           });
 
           await expectEvent.inTransaction(tx, this.vault, 'Transfer', {
             from: holder,
             to: constants.ZERO_ADDRESS,
-            value: parseShare(100),
+            value: redeemShares,
+          });
+
+          await expectEvent.inTransaction(tx, this.vault, 'Withdraw', {
+            sender: holder,
+            receiver: recipient,
+            owner: holder,
+            assets: expectedAssets,
+            shares: redeemShares,
           });
         });
 

@@ -336,10 +336,16 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     /**
      * @dev See {IGovernor-cancel}.
      */
-    function cancel(uint256 proposalId) public virtual override {
+    function cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public virtual override returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         require(state(proposalId) == ProposalState.Pending, "Governor: too late to cancel");
         require(_msgSender() == _proposals[proposalId].proposer, "Governor: only proposer can cancel");
-        _cancel(proposalId);
+        return _cancel(targets, values, calldatas, descriptionHash);
     }
 
     /**
@@ -407,16 +413,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) internal virtual returns (uint256) {
-        return _cancel(hashProposal(targets, values, calldatas, descriptionHash));
-    }
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-    /**
-     * @dev Internal cancel mechanism: locks up the proposal timer, preventing it from being re-submitted. Marks it as
-     * canceled to allow distinguishing it from executed proposals.
-     *
-     * Emits a {IGovernor-ProposalCanceled} event.
-     */
-    function _cancel(uint256 proposalId) internal virtual returns (uint256) {
         ProposalState status = state(proposalId);
 
         require(

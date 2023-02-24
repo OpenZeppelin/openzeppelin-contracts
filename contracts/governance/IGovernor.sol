@@ -235,12 +235,17 @@ abstract contract IGovernor is IERC165, IERC6372 {
     ) public payable virtual returns (uint256 proposalId);
 
     /**
-     * @dev Cancel a proposal. This is restricted to Pending proposal (before the vote starts) and is restricted to
-     * the proposal's proposer.
+     * @dev Cancel a proposal. A proposal is cancellable by the proposer, but only while it is Pending state, i.e.
+     * before the vote starts.
      *
      * Emits a {ProposalCanceled} event.
      */
-    function cancel(uint256 proposalId) public virtual;
+    function cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public virtual returns (uint256 proposalId);
 
     /**
      * @dev Cast a vote
