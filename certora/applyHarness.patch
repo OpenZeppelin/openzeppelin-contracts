@@ -84,7 +84,7 @@ diff -druN governance/TimelockController.sol governance/TimelockController.sol
       * @dev Emitted when a call is scheduled as part of operation `id`.
 diff -druN governance/utils/Votes.sol governance/utils/Votes.sol
 --- governance/utils/Votes.sol	2023-02-27 10:59:32.655891529 +0100
-+++ governance/utils/Votes.sol	2023-02-27 11:58:55.067833070 +0100
++++ governance/utils/Votes.sol	2023-02-27 13:45:38.363620120 +0100
 @@ -35,7 +35,25 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -112,6 +112,13 @@ diff -druN governance/utils/Votes.sol governance/utils/Votes.sol
  
      /// @custom:oz-retyped-from mapping(address => Checkpoints.History)
      mapping(address => Checkpoints.Trace224) private _delegateCheckpoints;
+@@ -240,5 +258,5 @@
+     /**
+      * @dev Must return the voting units held by an account.
+      */
+-    function _getVotingUnits(address) internal view virtual returns (uint256);
++    function _getVotingUnits(address) public view virtual returns (uint256); // HARNESS: internal -> public
+ }
 diff -druN proxy/utils/Initializable.sol proxy/utils/Initializable.sol
 --- proxy/utils/Initializable.sol	2023-02-27 10:59:32.655891529 +0100
 +++ proxy/utils/Initializable.sol	2023-02-27 11:58:55.067833070 +0100
@@ -211,7 +218,7 @@ diff -druN token/ERC20/extensions/ERC20FlashMint.sol token/ERC20/extensions/ERC2
       * implementation returns the address(0) which means the fee amount will be burnt.
 diff -druN token/ERC20/extensions/ERC20Votes.sol token/ERC20/extensions/ERC20Votes.sol
 --- token/ERC20/extensions/ERC20Votes.sol	2023-02-27 10:59:32.655891529 +0100
-+++ token/ERC20/extensions/ERC20Votes.sol	2023-02-27 11:58:55.067833070 +0100
++++ token/ERC20/extensions/ERC20Votes.sol	2023-02-27 11:58:57.244508616 +0100
 @@ -33,8 +33,8 @@
      bytes32 private constant _DELEGATION_TYPEHASH =
          keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");

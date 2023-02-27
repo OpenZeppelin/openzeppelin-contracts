@@ -15,9 +15,6 @@ contract GovernorHarness is
     GovernorVotesQuorumFraction,
     GovernorTimelockControl
 {
-    using SafeCast for uint256;
-    using Timers for Timers.BlockNumber;
-
     constructor(
         IVotes _token,
         TimelockController _timelock,
