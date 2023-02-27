@@ -38,7 +38,7 @@ jobs:
         run: pip install certora-cli
       - name: Install solc
         run: |
-          wget https://github.com/ethereum/solidity/releases/download/v0.8.17/solc-static-linux
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.19/solc-static-linux
           sudo mv solc-static-linux /usr/local/bin/solc
           chmod +x /usr/local/bin/solc
       - name: Verify rule ${{ matrix.params }}
