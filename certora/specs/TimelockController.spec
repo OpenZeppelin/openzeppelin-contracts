@@ -7,7 +7,7 @@ methods {
 
     isOperation(bytes32) returns(bool) envfree
     isOperationPending(bytes32) returns(bool) envfree
-    isOperationReady(bytes32) returns(bool) envfree
+    isOperationReady(bytes32) returns(bool)
     isOperationDone(bytes32) returns(bool) envfree
     getTimestamp(bytes32) returns(uint256) envfree
     getMinDelay() returns(uint256) envfree
@@ -54,7 +54,7 @@ filtered { f -> !f.isView }
 // STATUS - verified
 // `isOperationReady()` correctness check
 invariant readyCheck(env e, bytes32 id)
-    (e.block.timestamp >= getTimestamp(id) && getTimestamp(id) > 1) <=> isOperationReady(id)
+    (e.block.timestamp >= getTimestamp(id) && getTimestamp(id) > 1) <=> isOperationReady(e, id)
 filtered { f -> !f.isView }
 
 // STATUS - verified
@@ -109,7 +109,7 @@ rule unsetPendingTransitionMethods(method f, env e){
 rule readyDoneTransition(method f, env e){
     bytes32 id;
 
-    require isOperationReady(id);
+    require isOperationReady(e, id);
 
     calldataarg args;
     f(e, args);
@@ -189,7 +189,7 @@ rule cannotCallExecute(method f, env e){
     bytes32 id;
 
     hashIdCorrelation(id, target, value, data, predecessor, salt);
-    require isOperationPending(id) && !isOperationReady(id);
+    require isOperationPending(id) && !isOperationReady(e, id);
 
     execute@withrevert(e, target, value, data, predecessor, salt);
 
@@ -219,12 +219,12 @@ rule executeRevertsEffectCheck(method f, env e){
     bytes32 id;
 
     hashIdCorrelation(id, target, value, data, predecessor, salt);
-    require isOperationPending(id) && !isOperationReady(id);
+    require isOperationPending(id) && !isOperationReady(e, id);
 
     execute@withrevert(e, target, value, data, predecessor, salt);
     bool reverted = lastReverted;
 
-    assert lastReverted => isOperationPending(id) && !isOperationReady(id), "you go against execution nature";
+    assert lastReverted => isOperationPending(id) && !isOperationReady(e, id), "you go against execution nature";
 }
 
 
@@ -278,7 +278,7 @@ rule cooldown(method f, env e, env e2){
     calldataarg args;
     f(e, args);
 
-    assert isOperationReady(id) => (e2.block.timestamp - e.block.timestamp >= minDelay), "No rush! When I'm ready, I'm ready";
+    assert isOperationReady(e2, id) => (e2.block.timestamp - e.block.timestamp >= minDelay), "No rush! When I'm ready, I'm ready";
 }
 
 
