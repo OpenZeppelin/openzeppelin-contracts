@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (governance/IGovernor.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (governance/IGovernor.sol)
 
 pragma solidity ^0.8.0;
 
-import "../utils/introspection/ERC165.sol";
+import "../interfaces/IERC165.sol";
+import "../interfaces/IERC6372.sol";
 
 /**
  * @dev Interface of the {Governor} core.
  *
  * _Available since v4.3._
  */
-abstract contract IGovernor is IERC165 {
+abstract contract IGovernor is IERC165, IERC6372 {
     enum ProposalState {
         Pending,
         Active,
@@ -32,8 +33,8 @@ abstract contract IGovernor is IERC165 {
         uint256[] values,
         string[] signatures,
         bytes[] calldatas,
-        uint256 startBlock,
-        uint256 endBlock,
+        uint256 voteStart,
+        uint256 voteEnd,
         string description
     );
 
@@ -58,7 +59,7 @@ abstract contract IGovernor is IERC165 {
      * @dev Emitted when a vote is cast with params.
      *
      * Note: `support` values should be seen as buckets. Their interpretation depends on the voting module used.
-     * `params` are additional encoded parameters. Their intepepretation also depends on the voting module used.
+     * `params` are additional encoded parameters. Their interpepretation also depends on the voting module used.
      */
     event VoteCastWithParams(
         address indexed voter,
@@ -80,6 +81,19 @@ abstract contract IGovernor is IERC165 {
      * @dev Version of the governor instance (used in building the ERC712 domain separator). Default: "1"
      */
     function version() public view virtual returns (string memory);
+
+    /**
+     * @notice module:core
+     * @dev See {IERC6372}
+     */
+    function clock() public view virtual override returns (uint48);
+
+    /**
+     * @notice module:core
+     * @dev See EIP-6372.
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual override returns (string memory);
 
     /**
      * @notice module:voting
@@ -104,7 +118,7 @@ abstract contract IGovernor is IERC165 {
      * JavaScript class.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function COUNTING_MODE() public pure virtual returns (string memory);
+    function COUNTING_MODE() public view virtual returns (string memory);
 
     /**
      * @notice module:core
@@ -125,29 +139,33 @@ abstract contract IGovernor is IERC165 {
 
     /**
      * @notice module:core
-     * @dev Block number used to retrieve user's votes and quorum. As per Compound's Comp and OpenZeppelin's
-     * ERC20Votes, the snapshot is performed at the end of this block. Hence, voting for this proposal starts at the
-     * beginning of the following block.
+     * @dev Timepoint used to retrieve user's votes and quorum. If using block number (as per Compound's Comp), the
+     * snapshot is performed at the end of this block. Hence, voting for this proposal starts at the beginning of the
+     * following block.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual returns (uint256);
 
     /**
      * @notice module:core
-     * @dev Block number at which votes close. Votes close at the end of this block, so it is possible to cast a vote
-     * during this block.
+     * @dev Timepoint at which votes close. If using block number, votes close at the end of this block, so it is
+     * possible to cast a vote during this block.
      */
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
 
     /**
      * @notice module:user-config
-     * @dev Delay, in number of block, between the proposal is created and the vote starts. This can be increassed to
-     * leave time for users to buy voting power, or delegate it, before the voting of a proposal starts.
+     * @dev Delay, between the proposal is created and the vote starts. The unit this duration is expressed in depends
+     * on the clock (see EIP-6372) this contract uses.
+     *
+     * This can be increased to leave time for users to buy voting power, or delegate it, before the voting of a
+     * proposal starts.
      */
     function votingDelay() public view virtual returns (uint256);
 
     /**
      * @notice module:user-config
-     * @dev Delay, in number of blocks, between the vote start and vote ends.
+     * @dev Delay, between the vote start and vote ends. The unit this duration is expressed in depends on the clock
+     * (see EIP-6372) this contract uses.
      *
      * NOTE: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
      * duration compared to the voting delay.
@@ -158,27 +176,27 @@ abstract contract IGovernor is IERC165 {
      * @notice module:user-config
      * @dev Minimum number of cast voted required for a proposal to be successful.
      *
-     * Note: The `blockNumber` parameter corresponds to the snapshot used for counting vote. This allows to scale the
-     * quorum depending on values such as the totalSupply of a token at this block (see {ERC20Votes}).
+     * NOTE: The `timepoint` parameter corresponds to the snapshot used for counting vote. This allows to scale the
+     * quorum depending on values such as the totalSupply of a token at this timepoint (see {ERC20Votes}).
      */
-    function quorum(uint256 blockNumber) public view virtual returns (uint256);
+    function quorum(uint256 timepoint) public view virtual returns (uint256);
 
     /**
      * @notice module:reputation
-     * @dev Voting power of an `account` at a specific `blockNumber`.
+     * @dev Voting power of an `account` at a specific `timepoint`.
      *
      * Note: this can be implemented in a number of ways, for example by reading the delegated balance from one (or
      * multiple), {ERC20Votes} tokens.
      */
-    function getVotes(address account, uint256 blockNumber) public view virtual returns (uint256);
+    function getVotes(address account, uint256 timepoint) public view virtual returns (uint256);
 
     /**
      * @notice module:reputation
-     * @dev Voting power of an `account` at a specific `blockNumber` given additional encoded parameters.
+     * @dev Voting power of an `account` at a specific `timepoint` given additional encoded parameters.
      */
     function getVotesWithParams(
         address account,
-        uint256 blockNumber,
+        uint256 timepoint,
         bytes memory params
     ) public view virtual returns (uint256);
 
@@ -189,8 +207,8 @@ abstract contract IGovernor is IERC165 {
     function hasVoted(uint256 proposalId, address account) public view virtual returns (bool);
 
     /**
-     * @dev Create a new proposal. Vote start {IGovernor-votingDelay} blocks after the proposal is created and ends
-     * {IGovernor-votingPeriod} blocks after the voting starts.
+     * @dev Create a new proposal. Vote start after a delay specified by {IGovernor-votingDelay} and lasts for a
+     * duration specified by {IGovernor-votingPeriod}.
      *
      * Emits a {ProposalCreated} event.
      */
@@ -215,6 +233,19 @@ abstract contract IGovernor is IERC165 {
         bytes[] memory calldatas,
         bytes32 descriptionHash
     ) public payable virtual returns (uint256 proposalId);
+
+    /**
+     * @dev Cancel a proposal. A proposal is cancellable by the proposer, but only while it is Pending state, i.e.
+     * before the vote starts.
+     *
+     * Emits a {ProposalCanceled} event.
+     */
+    function cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public virtual returns (uint256 proposalId);
 
     /**
      * @dev Cast a vote

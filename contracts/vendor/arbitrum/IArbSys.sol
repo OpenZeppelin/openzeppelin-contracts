@@ -1,19 +1,16 @@
-// SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (vendor/arbitrum/IArbSys.sol)
+// Copyright 2021-2022, Offchain Labs, Inc.
+// For license information, see https://github.com/OffchainLabs/nitro/blob/master/LICENSE
+// SPDX-License-Identifier: BUSL-1.1
+// OpenZeppelin Contracts (last updated v4.8.0) (vendor/arbitrum/IArbSys.sol)
+
 pragma solidity >=0.4.21 <0.9.0;
 
 /**
- * @title Precompiled contract that exists in every Arbitrum chain at address(100), 0x0000000000000000000000000000000000000064. Exposes a variety of system-level functionality.
+ * @title System level functionality
+ * @notice For use by contracts to interact with core L2-specific functionality.
+ * Precompiled contract that exists in every Arbitrum chain at address(100), 0x0000000000000000000000000000000000000064.
  */
 interface IArbSys {
-    /**
-     * @notice Get internal version number identifying an ArbOS build
-     * @return version number as int
-     */
-    function arbOSVersion() external pure returns (uint256);
-
-    function arbChainID() external view returns (uint256);
-
     /**
      * @notice Get Arbitrum block number (distinct from L1 block number; Arbitrum genesis block has block number 0)
      * @return block number as int
@@ -21,42 +18,43 @@ interface IArbSys {
     function arbBlockNumber() external view returns (uint256);
 
     /**
-     * @notice Send given amount of Eth to dest from sender.
-     * This is a convenience function, which is equivalent to calling sendTxToL1 with empty calldataForL1.
-     * @param destination recipient address on L1
-     * @return unique identifier for this L2-to-L1 transaction.
+     * @notice Get Arbitrum block hash (reverts unless currentBlockNum-256 <= arbBlockNum < currentBlockNum)
+     * @return block hash
      */
-    function withdrawEth(address destination) external payable returns (uint256);
+    function arbBlockHash(uint256 arbBlockNum) external view returns (bytes32);
 
     /**
-     * @notice Send a transaction to L1
-     * @param destination recipient address on L1
-     * @param calldataForL1 (optional) calldata for L1 contract call
-     * @return a unique identifier for this L2-to-L1 transaction.
+     * @notice Gets the rollup's unique chain identifier
+     * @return Chain identifier as int
      */
-    function sendTxToL1(address destination, bytes calldata calldataForL1) external payable returns (uint256);
+    function arbChainID() external view returns (uint256);
 
     /**
-     * @notice get the number of transactions issued by the given external account or the account sequence number of the given contract
-     * @param account target account
-     * @return the number of transactions issued by the given external account or the account sequence number of the given contract
+     * @notice Get internal version number identifying an ArbOS build
+     * @return version number as int
      */
-    function getTransactionCount(address account) external view returns (uint256);
+    function arbOSVersion() external view returns (uint256);
 
     /**
-     * @notice get the value of target L2 storage slot
-     * This function is only callable from address 0 to prevent contracts from being able to call it
-     * @param account target account
-     * @param index target index of storage slot
-     * @return stotage value for the given account at the given index
+     * @notice Returns 0 since Nitro has no concept of storage gas
+     * @return uint 0
      */
-    function getStorageAt(address account, uint256 index) external view returns (uint256);
+    function getStorageGasAvailable() external view returns (uint256);
 
     /**
-     * @notice check if current call is coming from l1
-     * @return true if the caller of this was called directly from L1
+     * @notice (deprecated) check if current call is top level (meaning it was triggered by an EoA or a L1 contract)
+     * @dev this call has been deprecated and may be removed in a future release
+     * @return true if current execution frame is not a call by another L2 contract
      */
     function isTopLevelCall() external view returns (bool);
+
+    /**
+     * @notice map L1 sender contract address to its L2 alias
+     * @param sender sender address
+     * @param unused argument no longer used
+     * @return aliased sender address
+     */
+    function mapL1SenderContractAddressToL2Alias(address sender, address unused) external pure returns (address);
 
     /**
      * @notice check if the caller (of this caller of this) is an aliased L1 contract address
@@ -71,19 +69,48 @@ interface IArbSys {
     function myCallersAddressWithoutAliasing() external view returns (address);
 
     /**
-     * @notice map L1 sender contract address to its L2 alias
-     * @param sender sender address
-     * @param dest destination address
-     * @return aliased sender address
+     * @notice Send given amount of Eth to dest from sender.
+     * This is a convenience function, which is equivalent to calling sendTxToL1 with empty data.
+     * @param destination recipient address on L1
+     * @return unique identifier for this L2-to-L1 transaction.
      */
-    function mapL1SenderContractAddressToL2Alias(address sender, address dest) external pure returns (address);
+    function withdrawEth(address destination) external payable returns (uint256);
 
     /**
-     * @notice get the caller's amount of available storage gas
-     * @return amount of storage gas available to the caller
+     * @notice Send a transaction to L1
+     * @dev it is not possible to execute on the L1 any L2-to-L1 transaction which contains data
+     * to a contract address without any code (as enforced by the Bridge contract).
+     * @param destination recipient address on L1
+     * @param data (optional) calldata for L1 contract call
+     * @return a unique identifier for this L2-to-L1 transaction.
      */
-    function getStorageGasAvailable() external view returns (uint256);
+    function sendTxToL1(address destination, bytes calldata data) external payable returns (uint256);
 
+    /**
+     * @notice Get send Merkle tree state
+     * @return size number of sends in the history
+     * @return root root hash of the send history
+     * @return partials hashes of partial subtrees in the send history tree
+     */
+    function sendMerkleTreeState() external view returns (uint256 size, bytes32 root, bytes32[] memory partials);
+
+    /**
+     * @notice creates a send txn from L2 to L1
+     * @param position = (level << 192) + leaf = (0 << 192) + leaf = leaf
+     */
+    event L2ToL1Tx(
+        address caller,
+        address indexed destination,
+        uint256 indexed hash,
+        uint256 indexed position,
+        uint256 arbBlockNum,
+        uint256 ethBlockNum,
+        uint256 timestamp,
+        uint256 callvalue,
+        bytes data
+    );
+
+    /// @dev DEPRECATED in favour of the new L2ToL1Tx event above after the nitro upgrade
     event L2ToL1Transaction(
         address caller,
         address indexed destination,
@@ -96,4 +123,12 @@ interface IArbSys {
         uint256 callvalue,
         bytes data
     );
+
+    /**
+     * @notice logs a merkle branch for proof synthesis
+     * @param reserved an index meant only to align the 4th index with L2ToL1Transaction's 4th event
+     * @param hash the merkle hash
+     * @param position = (level << 192) + leaf
+     */
+    event SendMerkleUpdate(uint256 indexed reserved, bytes32 indexed hash, uint256 indexed position);
 }

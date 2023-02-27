@@ -12,6 +12,8 @@ This directory provides ways to restrict who can access the functions of a contr
 
 {{Ownable}}
 
+{{Ownable2Step}}
+
 {{IAccessControl}}
 
 {{AccessControl}}
@@ -21,3 +23,5 @@ This directory provides ways to restrict who can access the functions of a contr
 {{IAccessControlEnumerable}}
 
 {{AccessControlEnumerable}}
+
+{{AccessControlDefaultAdminRules}}

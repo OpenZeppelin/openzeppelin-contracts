@@ -1,5 +1,7 @@
 = ERC777
 
+CAUTION: As of v4.9, OpenZeppelin's implementation of ERC-777 is deprecated and will be removed in the next major release.
+
 Like xref:erc20.adoc[ERC20], ERC777 is a standard for xref:tokens.adoc#different-kinds-of-tokens[_fungible_ tokens], and is focused around allowing more complex interactions when trading tokens. More generally, it brings tokens and Ether closer together by providing the equivalent of a `msg.value` field, but for tokens.
 
 The standard also brings multiple quality-of-life improvements, such as getting rid of the confusion around `decimals`, minting and burning with proper events, among others, but its killer feature is *receive hooks*. A hook is simply a function in a contract that is called when tokens are sent to it, meaning *accounts and contracts can react to receiving tokens*.

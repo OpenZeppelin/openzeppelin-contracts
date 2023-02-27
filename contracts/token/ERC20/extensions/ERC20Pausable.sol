@@ -12,6 +12,12 @@ import "../../../security/Pausable.sol";
  * Useful for scenarios such as preventing trades until the end of an evaluation
  * period, or having an emergency switch for freezing all token transfers in the
  * event of a large bug.
+ *
+ * IMPORTANT: This contract does not include public pause and unpause functions. In
+ * addition to inheriting this contract, you must define both functions, invoking the
+ * {Pausable-_pause} and {Pausable-_unpause} internal functions, with appropriate
+ * access control, e.g. using {AccessControl} or {Ownable}. Not doing so will
+ * make the contract unpausable.
  */
 abstract contract ERC20Pausable is ERC20, Pausable {
     /**
@@ -21,11 +27,7 @@ abstract contract ERC20Pausable is ERC20, Pausable {
      *
      * - the contract must not be paused.
      */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual override {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
 
         require(!paused(), "ERC20Pausable: token transfer while paused");

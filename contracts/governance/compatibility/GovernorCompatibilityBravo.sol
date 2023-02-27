@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (governance/compatibility/GovernorCompatibilityBravo.sol)
+// OpenZeppelin Contracts (last updated v4.8.0) (governance/compatibility/GovernorCompatibilityBravo.sol)
 
 pragma solidity ^0.8.0;
 
@@ -9,10 +9,10 @@ import "../Governor.sol";
 import "./IGovernorCompatibilityBravo.sol";
 
 /**
- * @dev Compatibility layer that implements GovernorBravo compatibility on to of {Governor}.
+ * @dev Compatibility layer that implements GovernorBravo compatibility on top of {Governor}.
  *
  * This compatibility layer includes a voting system and requires a {IGovernorTimelock} compatible module to be added
- * through inheritance. It does not include token bindings, not does it include any variable upgrade patterns.
+ * through inheritance. It does not include token bindings, nor does it include any variable upgrade patterns.
  *
  * NOTE: When using this module, you may need to enable the Solidity optimizer to avoid hitting the contract size limit.
  *
@@ -55,6 +55,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes[] memory calldatas,
         string memory description
     ) public virtual override(IGovernor, Governor) returns (uint256) {
+        // Stores the proposal details (if not already present) and executes the propose logic from the core.
         _storeProposal(_msgSender(), targets, values, new string[](calldatas.length), calldatas, description);
         return super.propose(targets, values, calldatas, description);
     }
@@ -69,6 +70,10 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
+        // Stores the full proposal and fallback to the public (possibly overridden) propose. The fallback is done
+        // after the full proposal is stored, so the store operation included in the fallback will be skipped. Here we
+        // call `propose` and not `super.propose` to make sure if a child contract override `propose`, whatever code
+        // is added their is also executed when calling this alternative interface.
         _storeProposal(_msgSender(), targets, values, signatures, calldatas, description);
         return propose(targets, values, _encodeCalldata(signatures, calldatas), description);
     }
@@ -77,52 +82,72 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
      * @dev See {IGovernorCompatibilityBravo-queue}.
      */
     function queue(uint256 proposalId) public virtual override {
-        ProposalDetails storage details = _proposalDetails[proposalId];
-        queue(
-            details.targets,
-            details.values,
-            _encodeCalldata(details.signatures, details.calldatas),
-            details.descriptionHash
-        );
+        (
+            address[] memory targets,
+            uint256[] memory values,
+            bytes[] memory calldatas,
+            bytes32 descriptionHash
+        ) = _getProposalParameters(proposalId);
+
+        queue(targets, values, calldatas, descriptionHash);
     }
 
     /**
      * @dev See {IGovernorCompatibilityBravo-execute}.
      */
     function execute(uint256 proposalId) public payable virtual override {
-        ProposalDetails storage details = _proposalDetails[proposalId];
-        execute(
-            details.targets,
-            details.values,
-            _encodeCalldata(details.signatures, details.calldatas),
-            details.descriptionHash
-        );
+        (
+            address[] memory targets,
+            uint256[] memory values,
+            bytes[] memory calldatas,
+            bytes32 descriptionHash
+        ) = _getProposalParameters(proposalId);
+
+        execute(targets, values, calldatas, descriptionHash);
     }
 
-    function cancel(uint256 proposalId) public virtual override {
-        ProposalDetails storage details = _proposalDetails[proposalId];
+    /**
+     * @dev Cancel a proposal with GovernorBravo logic.
+     */
+    function cancel(uint256 proposalId) public virtual {
+        (
+            address[] memory targets,
+            uint256[] memory values,
+            bytes[] memory calldatas,
+            bytes32 descriptionHash
+        ) = _getProposalParameters(proposalId);
+
+        cancel(targets, values, calldatas, descriptionHash);
+    }
+
+    /**
+     * @dev Cancel a proposal with GovernorBravo logic. At any moment a proposal can be cancelled, either by the
+     * proposer, or by third parties if the proposer's voting power has dropped below the proposal threshold.
+     */
+    function cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public virtual override(IGovernor, Governor) returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        address proposer = _proposalDetails[proposalId].proposer;
 
         require(
-            _msgSender() == details.proposer || getVotes(details.proposer, block.number - 1) < proposalThreshold(),
+            _msgSender() == proposer || getVotes(proposer, clock() - 1) < proposalThreshold(),
             "GovernorBravo: proposer above threshold"
         );
 
-        _cancel(
-            details.targets,
-            details.values,
-            _encodeCalldata(details.signatures, details.calldatas),
-            details.descriptionHash
-        );
+        return _cancel(targets, values, calldatas, descriptionHash);
     }
 
     /**
      * @dev Encodes calldatas with optional function signature.
      */
-    function _encodeCalldata(string[] memory signatures, bytes[] memory calldatas)
-        private
-        pure
-        returns (bytes[] memory)
-    {
+    function _encodeCalldata(
+        string[] memory signatures,
+        bytes[] memory calldatas
+    ) private pure returns (bytes[] memory) {
         bytes[] memory fullcalldatas = new bytes[](calldatas.length);
 
         for (uint256 i = 0; i < signatures.length; ++i) {
@@ -135,7 +160,26 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev Store proposal metadata for later lookup
+     * @dev Retrieve proposal parameters by id, with fully encoded calldatas.
+     */
+    function _getProposalParameters(
+        uint256 proposalId
+    )
+        private
+        view
+        returns (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
+    {
+        ProposalDetails storage details = _proposalDetails[proposalId];
+        return (
+            details.targets,
+            details.values,
+            _encodeCalldata(details.signatures, details.calldatas),
+            details.descriptionHash
+        );
+    }
+
+    /**
+     * @dev Store proposal metadata (if not already present) for later lookup.
      */
     function _storeProposal(
         address proposer,
@@ -163,7 +207,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     /**
      * @dev See {IGovernorCompatibilityBravo-proposals}.
      */
-    function proposals(uint256 proposalId)
+    function proposals(
+        uint256 proposalId
+    )
         public
         view
         virtual
@@ -200,7 +246,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     /**
      * @dev See {IGovernorCompatibilityBravo-getActions}.
      */
-    function getActions(uint256 proposalId)
+    function getActions(
+        uint256 proposalId
+    )
         public
         view
         virtual
@@ -227,7 +275,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
      * @dev See {IGovernorCompatibilityBravo-quorumVotes}.
      */
     function quorumVotes() public view virtual override returns (uint256) {
-        return quorum(block.number - 1);
+        return quorum(clock() - 1);
     }
 
     // ==================================================== Voting ====================================================
@@ -247,7 +295,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     /**
-     * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be scritly over the againstVotes.
+     * @dev See {Governor-_voteSucceeded}. In this module, the forVotes must be strictly over the againstVotes.
      */
     function _voteSucceeded(uint256 proposalId) internal view virtual override returns (bool) {
         ProposalDetails storage details = _proposalDetails[proposalId];

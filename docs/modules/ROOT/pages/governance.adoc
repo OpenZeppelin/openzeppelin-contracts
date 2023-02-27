@@ -45,7 +45,7 @@ The voting power of each account in our governance setup will be determined by a
 pragma solidity ^0.8.2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
 contract MyToken is ERC20, ERC20Permit, ERC20Votes {
@@ -83,7 +83,7 @@ If your project already has a live token that does not include ERC20Votes and is
 pragma solidity ^0.8.2;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
 
@@ -119,13 +119,15 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
 }
 ```
 
-NOTE: Voting power could be determined in different ways: multiple ERC20 tokens, ERC721 tokens, sybil resistant identities, etc. All of these options are potentially supported by writing a custom Votes module for your Governor. The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`].
+NOTE: The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]. ERC721 tokens that don't provide this functionality can be wrapped into a voting tokens using a combination of xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] and xref:api:token/ERC721Wrapper.adoc#ERC721Wrapper[`ERC721Wrapper`].
+
+NOTE: The internal clock used by the token to store voting balances will dictate the operating mode of the Governor contract attached to it. By default, block numbers are used. Since v4.9, developers can override the xref:api:interfaces.adoc#IERC6372[IERC6372] clock to use timestamps instead of block numbers.
 
 === Governor
 
 Initially, we will build a Governor without a timelock. The core logic is given by the Governor contract, but we still need to choose: 1) how voting power is determined, 2) how many votes are needed for quorum, 3) what options people have when casting a vote and how those votes are counted, and 4) what type of token should be used to vote. Each of these aspects is customizable by writing your own module, or more easily choosing one from OpenZeppelin Contracts.
 
-For 1) we will use the GovernorVotes module, which hooks to an IVotes instance to determine the voting power of an account based on the token balance they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token.
+For 1) we will use the GovernorVotes module, which hooks to an IVotes instance to determine the voting power of an account based on the token balance they hold when a proposal becomes active. This module requires as a constructor parameter the address of the token. This module also discovers the clock mode (ERC6372) used by the token and applies it to the Governor.
 
 For 2) we will use GovernorVotesQuorumFraction which works together with ERC20Votes to define quorum as a percentage of the total supply at the block a proposal’s voting power is retrieved. This requires a constructor parameter to set the percentage. Most Governors nowadays use 4%, so we will initialize the module with parameter 4 (this indicates the percentage, resulting in 4%).
 
@@ -137,7 +139,7 @@ votingDelay: How long after a proposal is created should voting power be fixed. 
 
 votingPeriod: How long does a proposal remain open to votes.
 
-These parameters are specified in number of blocks. Assuming block time of around 13.14 seconds, we will set votingDelay = 1 day = 6570 blocks, and votingPeriod = 1 week = 45992 blocks.
+These parameters are specified in the unit defined in the token's clock. Assuming the token uses block numbers, and assuming block time of around 12 seconds, we will have set votingDelay = 1 day = 7200 blocks, and votingPeriod = 1 week = 50400 blocks.
 
 We can optionally set a proposal threshold as well. This restricts proposal creation to accounts who have enough voting power.
 
@@ -145,11 +147,11 @@ We can optionally set a proposal threshold as well. This restricts proposal crea
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-import "./governance/Governor.sol";
-import "./governance/compatibility/GovernorCompatibilityBravo.sol";
-import "./governance/extensions/GovernorVotes.sol";
-import "./governance/extensions/GovernorVotesQuorumFraction.sol";
-import "./governance/extensions/GovernorTimelockControl.sol";
+import "@openzeppelin/contracts/governance/Governor.sol";
+import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 
 contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
     constructor(IVotes _token, TimelockController _timelock)
@@ -160,11 +162,11 @@ contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, Gove
     {}
 
     function votingDelay() public pure override returns (uint256) {
-        return 6575; // 1 day
+        return 7200; // 1 day
     }
 
     function votingPeriod() public pure override returns (uint256) {
-        return 46027; // 1 week
+        return 50400; // 1 week
     }
 
     function proposalThreshold() public pure override returns (uint256) {
@@ -172,24 +174,6 @@ contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, Gove
     }
 
     // The functions below are overrides required by Solidity.
-
-    function quorum(uint256 blockNumber)
-        public
-        view
-        override(IGovernor, GovernorVotesQuorumFraction)
-        returns (uint256)
-    {
-        return super.quorum(blockNumber);
-    }
-
-    function getVotes(address account, uint256 blockNumber)
-        public
-        view
-        override(IGovernor, GovernorVotes)
-        returns (uint256)
-    {
-        return super.getVotes(account, blockNumber);
-    }
 
     function state(uint256 proposalId)
         public
@@ -241,7 +225,6 @@ contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, Gove
         return super.supportsInterface(interfaceId);
     }
 }
-
 ```
 
 === Timelock
@@ -254,7 +237,7 @@ TimelockController uses an AccessControl setup that we need to understand in ord
 
 - The Proposer role is in charge of queueing operations: this is the role the Governor instance should be granted, and it should likely be the only proposer in the system.
 - The Executor role is in charge of executing already available operations: we can assign this role to the special zero address to allow anyone to execute (if operations can be particularly time sensitive, the Governor should be made Executor instead).
-- Lastly, there is the Admin role, which can grant and revoke the two previous roles: this is a very sensitive role that will be granted automatically to both deployer and timelock itself, but should be renounced by the deployer after setup.
+- Lastly, there is the Admin role, which can grant and revoke the two previous roles: this is a very sensitive role that will be granted automatically to the timelock itself, and optionally to a second account, which can be used for ease of setup but should promptly renounce the role.
 
 == Proposal Lifecycle
 
@@ -279,7 +262,7 @@ const grantAmount = ...;
 const transferCalldata = token.interface.encodeFunctionData(‘transfer’, [teamAddress, grantAmount]);
 ```
 
-Now we are ready to call the propose function of the governor. Note that we don’t pass in one array of actions, but instead three arrays corresponding to the list of targets, the list of values, and the list of calldatas. In this case it’s a single action, so it’s simple:
+Now we are ready to call the propose function of the Governor. Note that we don’t pass in one array of actions, but instead three arrays corresponding to the list of targets, the list of values, and the list of calldatas. In this case it’s a single action, so it’s simple:
 
 ```javascript
 await governor.propose(
@@ -302,9 +285,9 @@ image::tally-vote.png[Voting in Tally]
 
 === Execute the Proposal
 
-Once the voting period is over, if quorum was reached (enough voting power participated) and the majority voted in favor, the proposal is considered successful and can proceed to be executed. This can also be done in Tally in the "Administration Panel" section of a project.
+Once the voting period is over, if quorum was reached (enough voting power participated) and the majority voted in favor, the proposal is considered successful and can proceed to be executed. Once a proposal passes, it can be queued and executed from the same place you voted.
 
-image::tally-admin.png[Administration Panel in Tally]
+image::tally-exec.png[Administration Panel in Tally]
 
 We will see now how to do this manually using Ethers.js.
 
@@ -323,7 +306,7 @@ await governor.queue(
 );
 ```
 
-This will cause the governor to interact with the timelock contract and queue the actions for execution after the required delay.
+This will cause the Governor to interact with the timelock contract and queue the actions for execution after the required delay.
 
 After enough time has passed (according to the timelock parameters), the proposal can be executed. If there was no timelock to begin with, this step can be ran immediately after the proposal succeeds.
 
@@ -337,3 +320,107 @@ await governor.execute(
 ```
 
 Executing the proposal will transfer the ERC20 tokens to the chosen recipient. To wrap up: we set up a system where a treasury is controlled by the collective decision of the token holders of a project, and all actions are executed via proposals enforced by on-chain votes.
+
+== Timestamp based governance
+
+=== Motivation
+
+It is sometimes difficult to deal with durations expressed in number of blocks because of inconsistent or unpredictable time between blocks. This is particularly true of some L2 networks where blocks are produced based on blockchain usage. Using number of blocks can also lead to the governance rules being affected by network upgrades that modify the expected time between blocks.
+
+The difficulty of replacing block numbers with timestamps is that the Governor and the token must both use the same format when querying past votes. If a token is designed around block numbers, it is not possible for a Governor to reliably do timestamp based lookups.
+
+Therefore, designing a timestamp based voting system starts with the token.
+
+=== Token
+
+Since v4.9, all voting contracts (including xref:api:token/ERC20.adoc#ERC20Votes[`ERC20Votes`] and xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]) rely on xref:api:interfaces.adoc#IERC6372[IERC6372] for clock management. In order to change from operating with block numbers to operating with timestamps, all that is required is to override the `clock()` and `CLOCK_MODE()` functions.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.2;
+
+import "github.com/openzeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import "github.com/openzeppelin/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "github.com/openzeppelin/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Votes.sol";
+
+contract MyToken is ERC20, ERC20Permit, ERC20Votes {
+    constructor() ERC20("MyToken", "MTK") ERC20Permit("MyToken") {}
+
+    // Overrides IERC6372 functions to make the token & governor timestamp-based
+
+    function clock() public view override returns (uint48) {
+        return uint48(block.timestamp);
+    }
+
+    function CLOCK_MODE() public pure override returns (string memory) {
+        return "mode=timestamp";
+    }
+
+    // The functions below are overrides required by Solidity.
+
+    function _afterTokenTransfer(address from, address to, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._afterTokenTransfer(from, to, amount);
+    }
+
+    function _mint(address to, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._mint(to, amount);
+    }
+
+    function _burn(address account, uint256 amount)
+        internal
+        override(ERC20, ERC20Votes)
+    {
+        super._burn(account, amount);
+    }
+}
+```
+
+=== Governor
+
+The Governor will automatically detect the clock mode used by the token and adapt to it. There is no need to override anything in the Governor contract. However, the clock mode does affect how some values are interpreted. It is therefore necessary to set the `votingDelay()` and `votingPeriod()` accordingly.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.2;
+
+import "@openzeppelin/contracts/governance/Governor.sol";
+import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+
+contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
+    constructor(IVotes _token, TimelockController _timelock)
+        Governor("MyGovernor")
+        GovernorVotes(_token)
+        GovernorVotesQuorumFraction(4)
+        GovernorTimelockControl(_timelock)
+    {}
+
+    function votingDelay() public pure virtual override returns (uint256) {
+        return 1 days;
+    }
+
+    function votingPeriod() public pure virtual override returns (uint256) {
+        return 1 weeks;
+    }
+
+    function proposalThreshold() public pure virtual override returns (uint256) {
+        return 0;
+    }
+
+    // ...
+}
+```
+
+=== Disclaimer
+
+Timestamp based voting is a recent feature that was formalized in EIP-6372 and EIP-5805, and introduced in v4.9. At the time this feature is released, governance tooling such as https://www.tally.xyz[Tally] does not support it yet. While support for timestamps should come soon, users can expect invalid reporting of deadlines & durations. This invalid reporting by offchain tools does not affect the onchain security and functionality of the governance contract.
+
+Governors with timestamp support (v4.9 and above) are compatible with old tokens (before v4.9) and will operate in "block number" mode (which is the mode all old tokens operate on). On the other hand, old Governor instances (before v4.9) are not compatible with new tokens operating using timestamps. If you update your token code to use timestamps, make sure to also update your Governor code.

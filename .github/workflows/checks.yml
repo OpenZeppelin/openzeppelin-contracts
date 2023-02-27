@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
+      NODE_OPTIONS: --max_old_space_size=4096
       GAS: true
     steps:
       - uses: actions/checkout@v3
@@ -42,8 +43,13 @@ jobs:
         uses: ./.github/actions/gas-compare
         with:
           token: ${{ github.token }}
+      - name: Check storage layout
+        uses: ./.github/actions/storage-layout
+        with:
+          token: ${{ github.token }}
 
   foundry-tests:
+    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -75,7 +81,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up environment
         uses: ./.github/actions/setup
-      - uses: crytic/slither-action@v0.1.1
+      - run: rm foundry.toml
+      - uses: crytic/slither-action@v0.3.0
 
   codespell:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
@@ -86,4 +93,4 @@ jobs:
         uses: codespell-project/actions-codespell@v1.0
         with:
           check_filenames: true
-          skip: package-lock.json
+          skip: package-lock.json,*.pdf

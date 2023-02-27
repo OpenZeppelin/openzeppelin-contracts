@@ -22,7 +22,7 @@ pragma solidity ^0.8.0;
  * (O(1)).
  * - Elements are enumerated in O(n). No guarantees are made on the ordering.
  *
- * \`\`\`
+ * \`\`\`solidity
  * contract Example {
  *     // Add the library methods
  *     using EnumerableSet for EnumerableSet.AddressSet;
@@ -245,9 +245,6 @@ function values(${name} storage set) internal view returns (${type}[] memory) {
 module.exports = format(
   header.trimEnd(),
   'library EnumerableSet {',
-  [
-    defaultSet(),
-    TYPES.map(details => customSet(details).trimEnd()).join('\n\n'),
-  ],
+  [defaultSet(), TYPES.map(details => customSet(details).trimEnd()).join('\n\n')],
   '}',
 );

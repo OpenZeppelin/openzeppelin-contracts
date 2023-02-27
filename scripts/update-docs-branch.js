@@ -1,7 +1,15 @@
 const proc = require('child_process');
 const read = cmd => proc.execSync(cmd, { encoding: 'utf8' }).trim();
-const run = cmd => { proc.execSync(cmd, { stdio: 'inherit' }); };
-const tryRead = cmd => { try { return read(cmd); } catch (e) { return undefined; } };
+const run = cmd => {
+  proc.execSync(cmd, { stdio: 'inherit' });
+};
+const tryRead = cmd => {
+  try {
+    return read(cmd);
+  } catch (e) {
+    return undefined;
+  }
+};
 
 const releaseBranchRegex = /^release-v(?<version>(?<major>\d+)\.(?<minor>\d+)(?:\.(?<patch>\d+))?)$/;
 
@@ -33,7 +41,7 @@ if (!matchingDocsBranches) {
   if (others.length > 0) {
     console.error(
       `Found conflicting ${docsBranch} branches.\n` +
-      'Either local branch is outdated or there are multiple matching remote branches.',
+        'Either local branch is outdated or there are multiple matching remote branches.',
     );
     process.exit(1);
   }

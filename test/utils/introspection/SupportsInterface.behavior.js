@@ -3,9 +3,7 @@ const { makeInterfaceId } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const INTERFACES = {
-  ERC165: [
-    'supportsInterface(bytes4)',
-  ],
+  ERC165: ['supportsInterface(bytes4)'],
   ERC721: [
     'balanceOf(address)',
     'ownerOf(uint256)',
@@ -17,16 +15,8 @@ const INTERFACES = {
     'safeTransferFrom(address,address,uint256)',
     'safeTransferFrom(address,address,uint256,bytes)',
   ],
-  ERC721Enumerable: [
-    'totalSupply()',
-    'tokenOfOwnerByIndex(address,uint256)',
-    'tokenByIndex(uint256)',
-  ],
-  ERC721Metadata: [
-    'name()',
-    'symbol()',
-    'tokenURI(uint256)',
-  ],
+  ERC721Enumerable: ['totalSupply()', 'tokenOfOwnerByIndex(address,uint256)', 'tokenByIndex(uint256)'],
+  ERC721Metadata: ['name()', 'symbol()', 'tokenURI(uint256)'],
   ERC1155: [
     'balanceOf(address,uint256)',
     'balanceOfBatch(address[],uint256[])',
@@ -46,9 +36,15 @@ const INTERFACES = {
     'revokeRole(bytes32,address)',
     'renounceRole(bytes32,address)',
   ],
-  AccessControlEnumerable: [
-    'getRoleMember(bytes32,uint256)',
-    'getRoleMemberCount(bytes32)',
+  AccessControlEnumerable: ['getRoleMember(bytes32,uint256)', 'getRoleMemberCount(bytes32)'],
+  AccessControlDefaultAdminRules: [
+    'defaultAdminDelay()',
+    'defaultAdmin()',
+    'defaultAdminTransferDelayedUntil()',
+    'pendingDefaultAdmin()',
+    'beginDefaultAdminTransfer(address)',
+    'acceptDefaultAdminTransfer()',
+    'cancelDefaultAdminTransfer()',
   ],
   Governor: [
     'name()',
@@ -91,14 +87,8 @@ const INTERFACES = {
     'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
     'castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)',
   ],
-  GovernorTimelock: [
-    'timelock()',
-    'proposalEta(uint256)',
-    'queue(address[],uint256[],bytes[],bytes32)',
-  ],
-  ERC2981: [
-    'royaltyInfo(uint256,uint256)',
-  ],
+  GovernorTimelock: ['timelock()', 'proposalEta(uint256)', 'queue(address[],uint256[],bytes[],bytes32)'],
+  ERC2981: ['royaltyInfo(uint256,uint256)'],
 };
 
 const INTERFACE_IDS = {};
@@ -111,7 +101,7 @@ for (const k of Object.getOwnPropertyNames(INTERFACES)) {
   }
 }
 
-function shouldSupportInterfaces (interfaces = []) {
+function shouldSupportInterfaces(interfaces = []) {
   describe('ERC165', function () {
     beforeEach(function () {
       this.contractUnderTest = this.mock || this.token || this.holder || this.accessControl;
@@ -119,20 +109,22 @@ function shouldSupportInterfaces (interfaces = []) {
 
     it('supportsInterface uses less than 30k gas', async function () {
       for (const k of interfaces) {
-        const interfaceId = INTERFACE_IDS[k];
+        const interfaceId = INTERFACE_IDS[k] ?? k;
         expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
       }
     });
 
     it('all interfaces are reported as supported', async function () {
       for (const k of interfaces) {
-        const interfaceId = INTERFACE_IDS[k];
+        const interfaceId = INTERFACE_IDS[k] ?? k;
         expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true);
       }
     });
 
     it('all interface functions are in ABI', async function () {
       for (const k of interfaces) {
+        // skip interfaces for which we don't have a function list
+        if (INTERFACES[k] === undefined) continue;
         for (const fnName of INTERFACES[k]) {
           const fnSig = FN_SIGNATURES[fnName];
           expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1);
