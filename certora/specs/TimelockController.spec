@@ -1,23 +1,26 @@
 methods {
-    getTimestamp(bytes32) returns(uint256) envfree
-    _DONE_TIMESTAMP() returns(uint256) envfree
     PROPOSER_ROLE() returns(bytes32) envfree
+
+    _DONE_TIMESTAMP() returns(uint256) envfree
     _minDelay() returns(uint256) envfree
-    getMinDelay() returns(uint256) envfree
-    hashOperation(address target, uint256 value, bytes data, bytes32 predecessor, bytes32 salt) returns(bytes32) envfree
+    _checkRole(bytes32) => DISPATCHER(true)
+
     isOperation(bytes32) returns(bool) envfree
     isOperationPending(bytes32) returns(bool) envfree
+    isOperationReady(bytes32) returns(bool) envfree
     isOperationDone(bytes32) returns(bool) envfree
+    getTimestamp(bytes32) returns(uint256) envfree
+    getMinDelay() returns(uint256) envfree
 
-    isOperationReady(bytes32) returns(bool)
-    cancel(bytes32)
+    hashOperation(address, uint256, bytes, bytes32, bytes32) returns(bytes32) envfree
+    hashOperationBatch(address[], uint256[], bytes[], bytes32, bytes32) returns(bytes32) envfree
+
     schedule(address, uint256, bytes, bytes32, bytes32, uint256)
+    scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256)
     execute(address, uint256, bytes, bytes32, bytes32)
-		scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256)
     executeBatch(address[], uint256[], bytes[], bytes32, bytes32)
-    _checkRole(bytes32) => DISPATCHER(true)
+    cancel(bytes32)
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -29,7 +32,6 @@ function hashIdCorrelation(bytes32 id, address target, uint256 value, bytes data
     require data.length < 32;
     require hashOperation(target, value, data, predecessor, salt) == id;
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -97,7 +99,7 @@ rule unsetPendingTransitionMethods(method f, env e){
     calldataarg args;
     f(e, args);
 
-    assert isOperationPending(id) => (f.selector == schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector 
+    assert isOperationPending(id) => (f.selector == schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector
                                 || f.selector == scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector), "Why do we need to follow the schedule?";
 }
 
@@ -112,7 +114,7 @@ rule readyDoneTransition(method f, env e){
     calldataarg args;
     f(e, args);
 
-    assert isOperationDone(id) => f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector  
+    assert isOperationDone(id) => f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector
                                 || f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector , "It's not isOperationDone yet!";
 }
 
@@ -154,7 +156,7 @@ rule doneToNothingTransition(method f, env e){
 // STATUS - verified
 // only TimelockController contract can change minDelay
 rule minDelayOnlyChange(method f, env e){
-    uint256 delayBefore = _minDelay();    
+    uint256 delayBefore = _minDelay();
 
     calldataarg args;
     f(e, args);
@@ -263,7 +265,7 @@ rule onlyProposer(method f, env e) filtered { f -> f.selector == schedule(addres
 
 
 // STATUS - verified
-// if `ready` then has waited minimum period after isOperationPending() 
+// if `ready` then has waited minimum period after isOperationPending()
 rule cooldown(method f, env e, env e2){
     bytes32 id;
     address target; uint256 value; bytes data ;bytes32 predecessor; bytes32 salt; uint256 delay;
@@ -283,7 +285,7 @@ rule cooldown(method f, env e, env e2){
 // STATUS - verified
 // `schedule()` should change only one id's timestamp
 rule scheduleChange(env e){
-    bytes32 id;  bytes32 otherId; 
+    bytes32 id;  bytes32 otherId;
     address target; uint256 value; bytes data ;bytes32 predecessor; bytes32 salt; uint256 delay;
 
     uint256 otherIdTimestampBefore = getTimestamp(otherId);
@@ -299,7 +301,7 @@ rule scheduleChange(env e){
 // STATUS - verified
 // `execute()` should change only one id's timestamp
 rule executeChange(env e){
-    bytes32 id;  bytes32 otherId; 
+    bytes32 id;  bytes32 otherId;
     address target; uint256 value; bytes data ;bytes32 predecessor; bytes32 salt;
     uint256 otherIdTimestampBefore = getTimestamp(otherId);
 
@@ -314,7 +316,7 @@ rule executeChange(env e){
 // STATUS - verified
 // `cancel()` should change only one id's timestamp
 rule cancelChange(env e){
-    bytes32 id;  bytes32 otherId; 
+    bytes32 id;  bytes32 otherId;
 
     uint256 otherIdTimestampBefore = getTimestamp(otherId);
 
