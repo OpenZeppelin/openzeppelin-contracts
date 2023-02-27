@@ -7,5 +7,5 @@ certoraRun \
     --verify TimelockControllerHarness:certora/specs/TimelockController.spec \
     --optimistic_loop \
     --loop_iter 3 \
+    --optimistic_hashing \
     $@
-#    --settings -byteMapHashingPrecision=32 \
