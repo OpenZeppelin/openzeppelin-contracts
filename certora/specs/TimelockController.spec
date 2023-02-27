@@ -11,8 +11,9 @@ methods {
 
     isOperationReady(bytes32) returns(bool)
     cancel(bytes32)
-    schedule(address, uint256, bytes32, bytes32, bytes32, uint256)
+    schedule(address, uint256, bytes, bytes32, bytes32, uint256)
     execute(address, uint256, bytes, bytes32, bytes32)
+		scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256)
     executeBatch(address[], uint256[], bytes[], bytes32, bytes32)
     _checkRole(bytes32) => DISPATCHER(true)
 }
