@@ -17,9 +17,7 @@ contract GovernorFullHarness is
     GovernorVotes,
     GovernorVotesQuorumFraction
 {
-    using SafeCast for uint256;
-    using Timers for Timers.BlockNumber;
-    using Checkpoints for Checkpoints.History;
+    using Checkpoints for Checkpoints.Trace224;
 
     constructor(
         IVotes _token,
@@ -38,7 +36,7 @@ contract GovernorFullHarness is
 
     // variable added to check when _castVote is called
     uint256 public latestCastVoteCall;
-    
+
     // Harness from Votes //
 
     function getPastTotalSupply(uint256 blockNumber) public view returns(uint256) {
@@ -65,15 +63,15 @@ contract GovernorFullHarness is
     }
 
     function getExtendedDeadlineIsUnset(uint256 proposalId) public view returns (bool) {
-        return _extendedDeadlines[proposalId].isUnset();
+        return _extendedDeadlines[proposalId] == 0;
     }
 
     function getExtendedDeadlineIsStarted(uint256 proposalId) public view returns (bool) {
-        return _extendedDeadlines[proposalId].isStarted();
+        return _extendedDeadlines[proposalId] > 0;
     }
 
     function getExtendedDeadline(uint256 proposalId) public view returns (uint64) {
-        return _extendedDeadlines[proposalId].getDeadline();
+        return _extendedDeadlines[proposalId];
     }
 
     // Harness from GovernorCountingSimple //
