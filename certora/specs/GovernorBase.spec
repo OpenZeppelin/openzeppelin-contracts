@@ -179,7 +179,8 @@ invariant noBothExecutedAndCanceled(uint256 pId)
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: No double proposition                                                                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-rule canProposeOnlyOnce(uint256 pId, env e) {
+*/
+rule noDoublePropose(uint256 pId, env e) {
     require proposalCreated(pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; string reason;
@@ -219,6 +220,7 @@ rule immutableFieldsAfterProposalCreation(uint256 pId, env e, method f, calldata
 │ uglyfied the code with no concrete benefit, as it is evident that nothing is happening in the first 2 functions     │
 │ (calling a view function), and we do not desire to check the signature verification.                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
 rule noDoubleVoting(uint256 pId, env e, uint8 sup) {
     bool votedCheck = hasVoted(pId, e.msg.sender);
 

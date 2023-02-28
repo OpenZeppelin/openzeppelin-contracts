@@ -34,9 +34,6 @@ contract GovernorFullHarness is
 
     mapping(uint256 => uint256) public ghost_sum_vote_power_by_id;
 
-    // variable added to check when _castVote is called
-    uint256 public latestCastVoteCall;
-
     // Harness from Votes //
 
     function getPastTotalSupply(uint256 blockNumber) public view returns(uint256) {
@@ -128,9 +125,6 @@ contract GovernorFullHarness is
         string memory reason,
         bytes memory params
     ) internal virtual override(Governor, GovernorPreventLateQuorum) returns (uint256) {
-        // flag for when _castVote is called
-        latestCastVoteCall = block.number;
-
         // added to run GovernorCountingSimple.spec
         uint256 deltaWeight = super._castVote(proposalId, account, support, reason, params);
         ghost_sum_vote_power_by_id[proposalId] += deltaWeight;
