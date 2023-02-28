@@ -11,5 +11,6 @@ certoraRun \
     --verify GovernorHarness:certora/specs/GovernorBase.spec \
     --link GovernorHarness:token=ERC20VotesHarness \
     --optimistic_loop \
+    --optimistic_hashing \
     --settings -copyLoopUnroll=4 \
     $@

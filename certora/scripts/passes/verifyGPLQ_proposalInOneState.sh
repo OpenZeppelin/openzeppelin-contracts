@@ -7,7 +7,8 @@ certoraRun \
     --verify GovernorFullHarness:certora/specs/GovernorPreventLateQuorum.spec \
     --link GovernorFullHarness:token=ERC20VotesHarness \
     --optimistic_loop \
+    --optimistic_hashing \
     --rule proposalInOneState \
-    --settings -t=1000 \
     --loop_iter 1 \
+    --settings -t=1000 \
     $@
