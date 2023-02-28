@@ -234,7 +234,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         // is effectively the current delay. For example, if delay is reduced from 10 days to 3 days, it's needed to wait 7 days
         // before starting the new 3 days delayed transfer suming up to 10 days, which is the current delay.
         uint48 changeDelay = newDefaultAdminDelay >= currentDefaultAdminDelay
-            ? currentDefaultAdminDelay
+            ? newDefaultAdminDelay
             : currentDefaultAdminDelay - newDefaultAdminDelay; // This is 1 in worst-case scenario. Can't be 0.
 
         _defaultAdminDelayChangeSchedule = SafeCast.toUint48(block.timestamp) + changeDelay;

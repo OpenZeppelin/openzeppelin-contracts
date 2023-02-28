@@ -57,13 +57,13 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function defaultAdminTransferSchedule() external view returns (uint48);
 
     /**
-     * @dev Schedules a {defaultAdminDelay} change in a way in which the previous delay is
+     * @dev Schedules a {defaultAdminDelay} change in a way in which the current delay is
      * still guaranteed to be respected.
      *
      * The {defaultAdminDelayChangeSchedule} is defined such that the schedule + a default admin transfer
-     * takes at least the previous {defaultAdminDelay}, following that:
-     * - The schedule is `(previous delay - new delay)` if the delay is reduced.
-     * - The schedule is `(previous delay)` if the delay is increased.
+     * takes at least the current {defaultAdminDelay}, following that:
+     * - The schedule is `block.timstamp + (current delay - new delay)` if the delay is reduced.
+     * - The schedule is `block.timestamp + new delay` if the delay is increased.
      *
      * Requirements:
      *

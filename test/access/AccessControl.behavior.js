@@ -519,7 +519,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
   describe('scheduling a delay change', function () {
     describe('when the delay is increased or equal', function () {
-      it('schedules the delay change to the current delay', function () {
+      it('schedules the delay change to the new delay', function () {
         // TODO
       });
 
