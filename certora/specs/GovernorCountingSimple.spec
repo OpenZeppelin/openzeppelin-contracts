@@ -97,21 +97,21 @@ hook Sstore _proposalVotes [KEY uint256 pId].abstainVotes uint256 votes(uint256 
 /*
  * sum of all votes casted is equal to the sum of voting power of those who voted, per each proposal
  */
-invariant SumOfVotesCastEqualSumOfPowerOfVotedPerProposal(uint256 pId) 
+invariant SumOfVotesCastEqualSumOfPowerOfVotedPerProposal(uint256 pId)
 	tracked_weight(pId) == ghost_sum_vote_power_by_id(pId)
 
 
 /*
  * sum of all votes casted is equal to the sum of voting power of those who voted
  */
-invariant SumOfVotesCastEqualSumOfPowerOfVoted() 
+invariant SumOfVotesCastEqualSumOfPowerOfVoted()
 	sum_tracked_weight() == sum_all_votes_power()
 
 
 /*
 * sum of all votes casted is greater or equal to the sum of voting power of those who voted at a specific proposal
 */
-invariant OneIsNotMoreThanAll(uint256 pId) 
+invariant OneIsNotMoreThanAll(uint256 pId)
 	sum_all_votes_power() >= tracked_weight(pId)
 
 
@@ -127,7 +127,7 @@ invariant OneIsNotMoreThanAll(uint256 pId)
  // the fact that the 3 functions themselves makes no changes, but rather call an internal function to execute.
  // That means that we do not check those 3 functions directly, however for castVote & castVoteWithReason it is quite trivial
  // to understand why this is ok. For castVoteBySig we basically assume that the signature referendum is correct without checking it.
- // We could check each function separately and pass the rule, but that would have uglyfied the code with no concrete 
+ // We could check each function separately and pass the rule, but that would have uglyfied the code with no concrete
  // benefit, as it is evident that nothing is happening in the first 2 functions (calling a view function), and we do not desire to check the signature verification.
 rule noVoteForSomeoneElse(uint256 pId, uint8 sup, method f) {
     env e; calldataarg args;
@@ -135,24 +135,24 @@ rule noVoteForSomeoneElse(uint256 pId, uint8 sup, method f) {
     address voter = e.msg.sender;
     address user;
 
-    bool hasVotedBefore_User = hasVoted(e, pId, user);
+    bool hasVotedBefore_User = hasVoted(pId, user);
 
     castVote@withrevert(e, pId, sup);
     require(!lastReverted);
 
-    bool hasVotedAfter_User = hasVoted(e, pId, user);
+    bool hasVotedAfter_User = hasVoted(pId, user);
 
     assert user != voter => hasVotedBefore_User == hasVotedAfter_User;
 }
 
 
 /*
-* Total voting tally is monotonically non-decreasing in every operation 
+* Total voting tally is monotonically non-decreasing in every operation
 */
 rule votingWeightMonotonicity(method f){
     uint256 votingWeightBefore = sum_tracked_weight();
 
-    env e; 
+    env e;
     calldataarg args;
     f(e, args);
 
@@ -167,12 +167,12 @@ rule votingWeightMonotonicity(method f){
 */
 rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) {
     address acc = e.msg.sender;
-    
+
     uint256 againstBefore = votesAgainst();
     uint256 forBefore = votesFor();
     uint256 abstainBefore = votesAbstain();
 
-    bool hasVotedBefore = hasVoted(e, pId, acc);
+    bool hasVotedBefore = hasVoted(pId, acc);
 
     helperFunctionsWithRevert(pId, f, e);
     require(!lastReverted);
@@ -180,8 +180,8 @@ rule hasVotedCorrelation(uint256 pId, method f, env e, uint256 bn) {
     uint256 againstAfter = votesAgainst();
     uint256 forAfter = votesFor();
     uint256 abstainAfter = votesAbstain();
-    
-    bool hasVotedAfter = hasVoted(e, pId, acc);
+
+    bool hasVotedAfter = hasVoted(pId, acc);
 
     // want all vote categories to not decrease and at least one category to increase
     assert (!hasVotedBefore && hasVotedAfter) => (againstBefore <= againstAfter && forBefore <= forAfter && abstainBefore <= abstainAfter), "no correlation: some category decreased";
