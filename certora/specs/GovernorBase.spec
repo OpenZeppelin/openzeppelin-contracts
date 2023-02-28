@@ -43,21 +43,20 @@ methods {
     voteSucceeded(uint256) returns bool envfree
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////// Definitions /////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Definitions                                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
 
-
-// proposal was created - relation proved in noStartBeforeCreation
 definition proposalCreated(uint256 pId) returns bool =
-    proposalSnapshot(pId) > 0
-    && proposalDeadline(pId) > 0;
+    proposalSnapshot(pId) > 0 && proposalDeadline(pId) > 0;
 
-
-//////////////////////////////////////////////////////////////////////////////
-///////////////////////////// Helper Functions ///////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Helper functions                                                                                                    │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
 function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
     address[] targets; uint256[] values; bytes[] calldatas; string reason; bytes32 descriptionHash;
     uint8 support; uint8 v; bytes32 r; bytes32 s; bytes params;
@@ -110,268 +109,224 @@ function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
 }
 
 /*
- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- ///////////////////////////////////////////////////// State Diagram //////////////////////////////////////////////////////////
- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- //                                                                                                                          //
- //                                                                castVote(s)()                                             //
- //  -------------  propose()  ----------------------  time pass  ---------------       time passes         -----------      //
- // | No Proposal | --------> | Before Start (Delay) | --------> | Voting Period | ----------------------> | execute() |     //
- //  -------------             ----------------------             --------------- -> Executed/Canceled      -----------      //
- //  ------------------------------------------------------------|---------------|-------------------------|-------------->  //
- // t                                                          start            end                     timelock             //
- //                                                                                                                          //
- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: Votes start and end are either initialized (non zero) or uninitialized (zero) simultaneously             │
+│                                                                                                                     │
+│ This invariant assumes that the block number cannot be 0 at any stage of the contract cycle                         │
+│ This is very safe assumption as usually the 0 block is genesis block which is uploaded with data                    │
+│ by the developers and will not be valid to raise proposals (at the current way that block chain is functioning)     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////// Global Valid States /////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
-
-
-/*
- * Start and end date are either initialized (non zero) or uninitialized (zero) simultaneously
- * This invariant assumes that the block number cannot be 0 at any stage of the contract cycle
- * This is very safe assumption as usually the 0 block is genesis block which is uploaded with data
- * by the developers and will not be valid to raise proposals (at the current way that block chain is functioning)
- */
- // To use env with general preserved block disable type checking [--disableLocalTypeChecking]
 invariant startAndEndDatesNonZero(uint256 pId)
-        proposalSnapshot(pId) != 0 <=> proposalDeadline(pId) != 0
-        { preserved with (env e){
-                require e.block.number > 0;
-        }}
-
-
-/*
- * If a proposal is canceled it must have a start and an end date
- */
- // To use env with general preserved block disable type checking [--disableLocalTypeChecking]
-invariant canceledImplyStartAndEndDateNonZero(uint pId)
-        isCanceled(pId) => proposalSnapshot(pId) != 0
-        {preserved with (env e){
-                require e.block.number > 0;
-        }}
-
+    proposalSnapshot(pId) != 0 <=> proposalDeadline(pId) != 0
+    {
+        preserved with (env e) {
+            require e.block.number > 0;
+        }
+    }
 
 /*
- * If a proposal is executed it must have a start and an end date
- */
- // To use env with general preserved block disable type checking [--disableLocalTypeChecking]
-invariant executedImplyStartAndEndDateNonZero(uint pId)
-        isExecuted(pId) => proposalSnapshot(pId) != 0
-        { preserved with (env e){
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: cancel => created                                                                                        │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant canceledImplyCreated(uint pId)
+    isCanceled(pId) => proposalCreated(pId)
+    {
+        preserved with (env e) {
             requireInvariant startAndEndDatesNonZero(pId);
             require e.block.number > 0;
-        }}
-
+        }
+    }
 
 /*
- * A proposal starting block number must be less or equal than the proposal end date
- */
-invariant voteStartBeforeVoteEnd(uint256 pId)
-        // from < to <= because snapshot and deadline can be the same block number if delays are set to 0
-        // This is possible before the integration of GovernorSettings.sol to the system.
-        // After integration of GovernorSettings.sol the invariant expression should be changed from <= to <
-        (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) <= proposalDeadline(pId))
-        // (proposalSnapshot(pId) > 0 =>  proposalSnapshot(pId) <= proposalDeadline(pId))
-        { preserved {
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: executed => created                                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant executedImplyCreated(uint pId)
+    isExecuted(pId) => proposalCreated(pId)
+    {
+        preserved with (env e) {
             requireInvariant startAndEndDatesNonZero(pId);
-        }}
-
+            require e.block.number > 0;
+        }
+    }
 
 /*
- * A proposal cannot be both executed and canceled simultaneously.
- */
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: Votes start before it ends                                                                               │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant voteStartBeforeVoteEnd(uint256 pId)
+    //proposalCreated(pId) => proposalSnapshot(pId) <= proposalDeadline(pId)
+    proposalSnapshot(pId) <= proposalDeadline(pId)
+    {
+        preserved {
+            requireInvariant startAndEndDatesNonZero(pId);
+        }
+    }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: A proposal cannot be both executed and canceled simultaneously                                           │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
 invariant noBothExecutedAndCanceled(uint256 pId)
-        !isExecuted(pId) || !isCanceled(pId)
-
+    !isExecuted(pId) || !isCanceled(pId)
 
 /*
- * A proposal could be executed only if quorum was reached and vote succeeded
- */
-rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
-    bool isExecutedBefore = isExecuted(pId);
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: A proposal could be executed only if quorum was reached and vote succeeded                                    │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f, calldataarg args) {
+    require(!isExecuted(pId));
+
     bool quorumReachedBefore = quorumReached(e, pId);
     bool voteSucceededBefore = voteSucceeded(pId);
 
-    calldataarg args;
     f(e, args);
 
-    bool isExecutedAfter = isExecuted(pId);
-    assert (!isExecutedBefore && isExecutedAfter) => (quorumReachedBefore && voteSucceededBefore), "quorum was changed";
+    assert isExecuted(pId) => (quorumReachedBefore && voteSucceededBefore), "quorum was changed";
 }
 
-///////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////// In-State Rules /////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
-
-//==========================================
-//------------- Voting Period --------------
-//==========================================
-
 /*
- * A user cannot vote twice
- */
- // Checked for castVote only. all 3 castVote functions call _castVote, so the completeness of the verification is counted on
- // the fact that the 3 functions themselves makes no changes, but rather call an internal function to execute.
- // That means that we do not check those 3 functions directly, however for castVote & castVoteWithReason it is quite trivial
- // to understand why this is ok. For castVoteBySig we basically assume that the signature referendum is correct without checking it.
- // We could check each function separately and pass the rule, but that would have uglyfied the code with no concrete
- // benefit, as it is evident that nothing is happening in the first 2 functions (calling a view function), and we do not desire to check the signature verification.
-rule doubleVoting(uint256 pId, uint8 sup, method f) {
-    env e;
-    address user = e.msg.sender;
-    bool votedCheck = hasVoted(pId, user);
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: A user cannot vote twice                                                                                      │
+│                                                                                                                     │
+│ Checked for castVote only. all 3 castVote functions call _castVote, so the completeness of the verification is      │
+│ counted on the fact that the 3 functions themselves makes no changes, but rather call an internal function to       │
+│ execute. That means that we do not check those 3 functions directly, however for castVote & castVoteWithReason it   │
+│ is quite trivial to understand why this is ok. For castVoteBySig we basically assume that the signature referendum  │
+│ is correct without checking it. We could check each function separately and pass the rule, but that would have      │
+│ uglyfied the code with no concrete benefit, as it is evident that nothing is happening in the first 2 functions     │
+│ (calling a view function), and we do not desire to check the signature verification.                                │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+rule noDoubleVoting(uint256 pId, env e, uint8 sup) {
+    bool votedCheck = hasVoted(pId, e.msg.sender);
 
     castVote@withrevert(e, pId, sup);
 
     assert votedCheck => lastReverted, "double voting occurred";
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////// State Transitions Rules //////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
-
-//===========================================
-//-------- Propose() --> End of Time --------
-//===========================================
-
-
 /*
- * Once a proposal is created, voteStart and voteEnd are immutable
- */
-rule immutableFieldsAfterProposalCreation(uint256 pId, method f) {
-    uint256 _voteStart = proposalSnapshot(pId);
-    uint256 _voteEnd = proposalDeadline(pId);
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: Once a proposal is created, voteStart and voteEnd are immutable                                               │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule immutableFieldsAfterProposalCreation(uint256 pId, env e, method f, calldataarg arg) {
+    require proposalCreated(pId);
 
-    require proposalCreated(pId); // startDate > 0
+    uint256 voteStart = proposalSnapshot(pId);
+    uint256 voteEnd = proposalDeadline(pId);
 
-    env e; calldataarg arg;
     f(e, arg);
 
-    uint256 voteStart_ = proposalSnapshot(pId);
-    uint256 voteEnd_ = proposalDeadline(pId);
-    assert _voteStart == voteStart_, "Start date was changed";
-    assert _voteEnd == voteEnd_, "End date was changed";
+    assert voteStart == proposalSnapshot(pId), "Start date was changed";
+    assert voteEnd == proposalDeadline(pId), "End date was changed";
 }
 
-
 /*
- * Voting cannot start at a block number prior to proposal’s creation block number
- */
-rule noStartBeforeCreation(uint256 pId) {
-    uint256 previousStart = proposalSnapshot(pId);
-    // This line makes sure that we see only cases where start date is changed from 0, i.e. creation of proposal
-    // We proved in immutableFieldsAfterProposalCreation that once dates set for proposal, it cannot be changed
-    require !proposalCreated(pId); // previousStart == 0;
-
-    env e; calldataarg args;
-    propose(e, args);
-
-    uint256 newStart = proposalSnapshot(pId);
-    // if created, start is after current block number (creation block)
-    assert(newStart != previousStart => newStart >= e.block.number);
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: Voting cannot start at a block number prior to proposal’s creation block number                               │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule noStartBeforeCreation(uint256 pId, env e, method f, calldataarg args){
+    require !proposalCreated(pId);
+    f(e, args);
+    assert proposalCreated(pId) => proposalSnapshot(pId) >= e.block.number, "starts before proposal";
 }
 
-
-//============================================
-//--- End of Voting Period --> End of Time ---
-//============================================
-
-
 /*
- * A proposal cannot be executed before it ends
- */
- // By induction it cannot be executed before it starts, due to voteStartBeforeVoteEnd
-rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args){
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: A proposal cannot be executed before it ends                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args) {
     require !isExecuted(pId);
     f(e, args);
-    assert isExecuted(pId) => (e.block.number >= proposalDeadline(pId)), "executed before deadline";
-}
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////// Integrity Of Functions (Unit Tests) /////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////// High Level Rules ////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////
-///////////////////////////// Not Categorized Yet //////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-
-/*
- * All proposal specific (non-view) functions should revert if proposal is executed
- */
- // In this rule we show that if a function is executed, i.e. execute() was called on the proposal ID,
- // non of the proposal specific functions can make changes again. In executedOnlyAfterExecuteFunc
- // we connected the executed attribute to the execute() function, showing that only execute() can
- // change it, and that it will always change it.
-rule allFunctionsRevertIfExecuted(method f) filtered { f ->
-    !f.isView && !f.isFallback
-      && f.selector != updateTimelock(address).selector
-      && f.selector != updateQuorumNumerator(uint256).selector
-      && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
-      && f.selector != relay(address,uint256,bytes).selector
-      && f.selector != 0xb9a61961 // __acceptAdmin()
-      && f.selector != onERC721Received(address,address,uint256,bytes).selector
-      && f.selector != onERC1155Received(address,address,uint256,uint256,bytes).selector
-      && f.selector != onERC1155BatchReceived(address,address,uint256[],uint256[],bytes).selector
-} {
-    env e; calldataarg args;
-    uint256 pId;
-    require(isExecuted(pId));
-    requireInvariant noBothExecutedAndCanceled(pId);
-    requireInvariant executedImplyStartAndEndDateNonZero(pId);
-
-    helperFunctionsWithRevert(pId, f, e);
-
-    assert(lastReverted, "Function was not reverted");
+    assert isExecuted(pId) => proposalDeadline(pId) <= e.block.number, "executed before deadline";
 }
 
 /*
- * All proposal specific (non-view) functions should revert if proposal is canceled
- */
-rule allFunctionsRevertIfCanceled(method f) filtered {
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: All proposal specific (non-view) functions should revert if proposal is executed                              │
+│                                                                                                                     │
+│ In this rule we show that if a function is executed, i.e. execute() was called on the proposal ID, non of the       │
+│ proposal specific functions can make changes again. In executedOnlyAfterExecuteFunc we connected the executed       │
+│ attribute to the execute() function, showing that only execute() can change it, and that it will always change it.  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule allFunctionsRevertIfExecuted(uint256 pId, env e, method f, calldataarg args) filtered {
     f -> !f.isView && !f.isFallback
       && f.selector != updateTimelock(address).selector
       && f.selector != updateQuorumNumerator(uint256).selector
-      && f.selector != queue(address[],uint256[],bytes[],bytes32).selector
       && f.selector != relay(address,uint256,bytes).selector
       && f.selector != 0xb9a61961 // __acceptAdmin()
       && f.selector != onERC721Received(address,address,uint256,bytes).selector
       && f.selector != onERC1155Received(address,address,uint256,uint256,bytes).selector
       && f.selector != onERC1155BatchReceived(address,address,uint256[],uint256[],bytes).selector
 } {
-    env e; calldataarg args;
-    uint256 pId;
-    require(isCanceled(pId));
+    require isExecuted(pId);
     requireInvariant noBothExecutedAndCanceled(pId);
-    requireInvariant canceledImplyStartAndEndDateNonZero(pId);
+    requireInvariant executedImplyCreated(pId);
 
     helperFunctionsWithRevert(pId, f, e);
 
-    assert(lastReverted, "Function was not reverted");
+    assert lastReverted, "Function was not reverted";
 }
 
 /*
- * Proposal can be switched to executed only via execute() function
- */
-rule executedOnlyAfterExecuteFunc(address[] targets, uint256[] values, bytes[] calldatas, bytes32 descriptionHash, method f) {
-    env e; calldataarg args;
-    uint256 pId;
-    bool executedBefore = isExecuted(pId);
-    require(!executedBefore);
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: All proposal specific (non-view) functions should revert if proposal is canceled                              │
+│                                                                                                                     │
+│ In this rule we show that if a function is executed, i.e. execute() was called on the proposal ID, non of the       │
+│ proposal specific functions can make changes again. In executedOnlyAfterExecuteFunc we connected the executed       │
+│ attribute to the execute() function, showing that only execute() can change it, and that it will always change it.  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args) filtered {
+    f -> !f.isView && !f.isFallback
+      && f.selector != updateTimelock(address).selector
+      && f.selector != updateQuorumNumerator(uint256).selector
+      && f.selector != relay(address,uint256,bytes).selector
+      && f.selector != 0xb9a61961 // __acceptAdmin()
+      && f.selector != onERC721Received(address,address,uint256,bytes).selector
+      && f.selector != onERC1155Received(address,address,uint256,uint256,bytes).selector
+      && f.selector != onERC1155BatchReceived(address,address,uint256[],uint256[],bytes).selector
+} {
+    require isCanceled(pId);
+    requireInvariant noBothExecutedAndCanceled(pId);
+    requireInvariant canceledImplyCreated(pId);
 
     helperFunctionsWithRevert(pId, f, e);
 
-    bool executedAfter = isExecuted(pId);
-    assert(executedAfter != executedBefore => f.selector == execute(address[], uint256[], bytes[], bytes32).selector, "isExecuted only changes in the execute method");
+    assert lastReverted, "Function was not reverted";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: Proposal can be switched state only by specific functions                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule proposedOnlyAfterProposeFunc(uint256 pId, env e, method f) {
+    bool createdBefore = proposalCreated(pId);
+    bool executedBefore = isExecuted(pId);
+    bool canceledBefore = isCanceled(pId);
+
+    helperFunctionsWithRevert(pId, f, e);
+
+    assert (proposalCreated(pId) != createdBefore)
+        => (createdBefore == false && f.selector == propose(address[], uint256[], bytes[], string).selector),
+        "proposalCreated only changes in the propose method";
+
+    assert (isExecuted(pId) != executedBefore)
+        => (executedBefore == false && f.selector == execute(address[], uint256[], bytes[], bytes32).selector),
+        "isExecuted only changes in the execute method";
+
+    assert (isCanceled(pId) != canceledBefore)
+        => (canceledBefore == false && f.selector == cancel(address[], uint256[], bytes[], bytes32).selector),
+        "isCanceled only changes in the cancel method";
 }
