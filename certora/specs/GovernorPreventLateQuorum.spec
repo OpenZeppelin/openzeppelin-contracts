@@ -33,53 +33,38 @@ methods {
 // Helper Functions                                                           //
 ////////////////////////////////////////////////////////////////////////////////
 
-function setup(env e1, env e2) {
+
+
+function sanity() {
     require getQuorumNumeratorLength() + 1 < max_uint;
-    require e2.block.number >= e1.block.number;
 }
 
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-//// #### Definitions                                                         //
-////////////////////////////////////////////////////////////////////////////////
 
-/// The proposal with proposal id `pId` has a deadline which is extendable.
-definition deadlineExtendable(env e, uint256 pId) returns bool =
-    getExtendedDeadline(pId) == 0 && !quorumReached(e, pId);
-
-/// The proposal with proposal id `pId` has a deadline which has been extended.
-definition deadlineExtended(env e, uint256 pId) returns bool =
-    getExtendedDeadline(pId) > 0 && quorumReached(e, pId);
+definition deadlineExtendable(env e, uint256 pId) returns bool = getExtendedDeadline(pId) == 0;
+definition deadlineExtended(env e, uint256 pId) returns bool = getExtendedDeadline(pId) > 0;
 
 
 
 
 
+invariant deadlineConsistency(env e, uint256 pId)
+    (!quorumReached(e, pId) => deadlineExtendable(pId))
+    &&
+    (deadlineExtended(pId) => quorumReached(e, pId))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-invariant deadlineExtendableConsistency(env e, uint256 pId)
-    !quorumReached(e, pId) => getExtendedDeadline(pId) == 0
-
-invariant deadlineExtendedConsistency(env e, uint256 pId)
-    getExtendedDeadline(pId) > 0 => quorumReached(e, pId)
-
-invariant proposalNotCreatedState(uint256 pId)
-    !proposalCreated(pId) => (getAgainstVotes(pId) == 0 && getAbstainVotes(pId) == 0 && getForVotes(pId) == 0)
+invariant proposalStateConsistencyExtended(uint256 pId)
+    !proposalCreated(pId) => (getAgainstVotes(pId) == 0  && getAbstainVotes(pId) == 0  && getForVotes(pId) == 0)
+    && (proposalProposer(pId) == 0 <=> proposalSnapshot(pId) == 0)
+    && (proposalProposer(pId) == 0 <=> proposalDeadline(pId) == 0)
+    {
+        preserved with (env e) {
+            require e.block.number > 0;
+        }
+    }
 
 
 
@@ -88,9 +73,30 @@ invariant proposalNotCreatedState(uint256 pId)
 
 
 
+/**
+ * If a proposal has reached quorum then the proposal snapshot (start `block.number`) must be non-zero
+ */
+invariant quorumReachedEffect(env e, uint256 pId)
+    (quorumReached(e, pId) && getPastTotalSupply(proposalSnapshot(pId)) > 0) => proposalCreated(pId)
+
+/**
+ * The quorum numerator is always less than or equal to the quorum denominator.
+ */
+invariant quorumRatioLessThanOne(env e, uint256 blockNumber)
+    quorumNumerator(e, blockNumber) <= quorumDenominator()
 
 
-
+/**
+ * If a proposal's deadline has been extended, then the proposal must have been created and reached quorum.
+ */
+invariant cantExtendWhenQuorumUnreached(env e, uint256 pId)
+    getExtendedDeadline(pId) > 0 => (quorumReached(e, pId) && proposalCreated(pId))
+    //{
+    //    preserved with (env e1) {
+    //        require e1.block.number > proposalSnapshot(pId);
+    //        setup(e1, e);
+    //    }
+    //}
 
 
 
@@ -110,6 +116,9 @@ rule quorumReachedCantChange(uint256 pId, env e, method f) filtered { f ->
     && f.selector != relay(address,uint256,bytes).selector
     && !castVoteSubset(f)
 } {
+    sanity(); // not overflowing checkpoint struct
+    require proposalSnapshot(pId) < e.block.number; // vote has started
+
     bool quorumReachedBefore = quorumReached(e, pId);
 
     uint256 newQuorumNumerator;
@@ -193,7 +202,7 @@ rule deadlineChangeEffects(uint256 pId, env e, method f, calldataarg args) filte
     && f.selector != relay(address,uint256,bytes).selector
     && !castVoteSubset(f)
 } {
-    requireInvariant proposalStateConsistency(pId);
+    requireInvariant proposalStateConsistencyExtended(pId);
 
     uint256 deadlineBefore = proposalDeadline(pId);
     bool deadlineExtendedBefore = deadlineExtended(e, pId);
@@ -258,6 +267,15 @@ rule deadlineChangeEffects(uint256 pId, env e, method f, calldataarg args) filte
 
 
 
+
+
+
+
+function setup(env e1, env e2) {
+    require getQuorumNumeratorLength() + 1 < max_uint;
+    require e2.block.number >= e1.block.number;
+}
+
 /// The proposal with proposal id `pId` has not been created.
 definition proposalNotCreated(env e, uint256 pId) returns bool =
     proposalSnapshot(pId) == 0
@@ -276,30 +294,6 @@ definition castVoteSubset(method f) returns bool =
     f.selector == castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector ||
     f.selector == castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32).selector;
 
-
-////////////////////////////////////////////////////////////////////////////////
-//// ### Properties                                                           //
-////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Invariants                                                                 //
-////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
  * A created proposal must be in state `deadlineExtendable` or `deadlineExtended`.
  * @dev We assume the total supply of the voting token is non-zero
@@ -312,57 +306,3 @@ invariant proposalInOneState(env e1, uint256 pId)
             setup(e1, e2);
         }
     }
-
-/**
- * The quorum numerator is always less than or equal to the quorum denominator.
- */
-invariant quorumNumerLTEDenom(env e1, uint256 blockNumber)
-    quorumNumerator(e1, blockNumber) <= quorumDenominator()
-    {
-        preserved with (env e2) {
-            setup(e1, e2);
-        }
-    }
-
-/**
- * The deprecated quorum numerator variable `_quorumNumerator` is always 0 in a contract that is not upgraded.
- */
-invariant deprecatedQuorumStateIsUninitialized()
-    getDeprecatedQuorumNumerator() == 0
-
-/**
- * If a proposal's deadline has been extended, then the proposal must have been created and reached quorum.
- */
-invariant cantExtendWhenQuorumUnreached(env e2, uint256 pId)
-    getExtendedDeadline(pId) > 0 => (quorumReached(e2, pId) && proposalCreated(pId))
-    filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector }
-    {
-        preserved with (env e1) {
-            require e1.block.number > proposalSnapshot(pId);
-            setup(e1, e2);
-        }
-    }
-
-/**
- * The snapshot arrat keeping tracking of quorum numerators must never be uninitialized.
- */
-invariant quorumLengthGt0(env e)
-    getQuorumNumeratorLength() > 0
-    filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector }
-    {
-        preserved {
-            setup(e,e);
-        }
-    }
-
-/**
- * If a proposal has reached quorum then the proposal snapshot (start `block.number`) must be non-zero
- */
-invariant quorumReachedEffect(env e, uint256 pId)
-    quorumReached(e, pId) => proposalCreated(pId)
-//    filtered { f -> !f.isFallback && !f.isView && !castVoteSubset(f) && f.selector != relay(address,uint256,bytes).selector }
-//    {
-//        preserved with (env e2) {
-//            setup(e1, e2);
-//        }
-//    }
