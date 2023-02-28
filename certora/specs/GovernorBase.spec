@@ -3,31 +3,44 @@
 //////////////////////////////////////////////////////////////////////////////
 
 methods {
+    hashProposal(address[],uint256[],bytes[],bytes32) returns uint256 envfree
+    state(uint256) returns uint8
+    proposalThreshold() returns uint256 envfree
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
     proposalDeadline(uint256) returns uint256 envfree // matches proposalVoteEnd
-    hashProposal(address[],uint256[],bytes[],bytes32) returns uint256 envfree
+
+    propose(address[], uint256[], bytes[], string) returns uint256
+    execute(address[], uint256[], bytes[], bytes32) returns uint256
+    cancel(address[], uint256[], bytes[], bytes32) returns uint256
+
+    getVotes(address, uint256) returns uint256 => DISPATCHER(true)
+    getVotesWithParams(address, uint256, bytes) returns uint256 => DISPATCHER(true)
+    castVote(uint256, uint8) returns uint256
+    castVoteWithReason(uint256, uint8, string) returns uint256
+    castVoteWithReasonAndParams(uint256, uint8, string, bytes) returns uint256
+
+    // GovernorTimelockController
+    queue(address[], uint256[], bytes[], bytes32) returns uint256
+
+    // GovernorCountingSimple
+    hasVoted(uint256, address) returns bool envfree
+    updateQuorumNumerator(uint256)
+
+    // harness functions
+    getAgainstVotes(uint256) returns uint256 envfree
+    getAbstainVotes(uint256) returns uint256 envfree
+    getForVotes(uint256) returns uint256 envfree
+    getExecutor(uint256) returns bool envfree
     isExecuted(uint256) returns bool envfree
     isCanceled(uint256) returns bool envfree
-    execute(address[], uint256[], bytes[], bytes32) returns uint256
-    hasVoted(uint256, address) returns bool
-    castVote(uint256, uint8) returns uint256
-    updateQuorumNumerator(uint256)
-    queue(address[], uint256[], bytes[], bytes32) returns uint256
+
+    // full harness functions
+    getPastTotalSupply(uint256) returns uint256 => DISPATCHER(true)
+    /// getPastVotes(address, uint256) returns uint256 => DISPATCHER(true)
 
     // internal functions made public in harness:
     quorumReached(uint256) returns bool
     voteSucceeded(uint256) returns bool envfree
-
-    // function summarization
-    proposalThreshold() returns uint256 envfree
-
-    getVotes(address, uint256) returns uint256 => DISPATCHER(true)
-
-    getPastTotalSupply(uint256) returns uint256 => DISPATCHER(true)
-    getPastVotes(address, uint256) returns uint256 => DISPATCHER(true)
-
-    //scheduleBatch(address[],uint256[],bytes[],bytes32,bytes32,uint256) => DISPATCHER(true)
-    //executeBatch(address[], uint256[], bytes[], bytes32, bytes32) => DISPATCHER(true)
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -48,25 +61,49 @@ definition proposalCreated(uint256 pId) returns bool =
 function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
     address[] targets; uint256[] values; bytes[] calldatas; string reason; bytes32 descriptionHash;
     uint8 support; uint8 v; bytes32 r; bytes32 s; bytes params;
-	if (f.selector == propose(address[], uint256[], bytes[], string).selector) {
-		uint256 result = propose@withrevert(e, targets, values, calldatas, reason);
+
+    if (f.selector == propose(address[], uint256[], bytes[], string).selector)
+    {
+        uint256 result = propose@withrevert(e, targets, values, calldatas, reason);
         require(result == proposalId);
-	} else if (f.selector == execute(address[], uint256[], bytes[], bytes32).selector) {
-		uint256 result = execute@withrevert(e, targets, values, calldatas, descriptionHash);
+    }
+    else if (f.selector == execute(address[], uint256[], bytes[], bytes32).selector)
+    {
+        uint256 result = execute@withrevert(e, targets, values, calldatas, descriptionHash);
         require(result == proposalId);
-	} else if (f.selector == castVote(uint256, uint8).selector) {
-		castVote@withrevert(e, proposalId, support);
-	} else if  (f.selector == castVoteWithReason(uint256, uint8, string).selector) {
+    }
+    else if (f.selector == queue(address[], uint256[], bytes[], bytes32).selector)
+    {
+        uint256 result = queue@withrevert(e, targets, values, calldatas, descriptionHash);
+        require(result == proposalId);
+    }
+    else if (f.selector == cancel(address[], uint256[], bytes[], bytes32).selector)
+    {
+        uint256 result = cancel@withrevert(e, targets, values, calldatas, descriptionHash);
+        require(result == proposalId);
+    }
+    else if (f.selector == castVote(uint256, uint8).selector)
+    {
+        castVote@withrevert(e, proposalId, support);
+    }
+    else if  (f.selector == castVoteWithReason(uint256, uint8, string).selector)
+    {
         castVoteWithReason@withrevert(e, proposalId, support, reason);
-	} else if (f.selector == castVoteBySig(uint256, uint8,uint8, bytes32, bytes32).selector) {
-		castVoteBySig@withrevert(e, proposalId, support, v, r, s);
-    } else if (f.selector == queue(address[], uint256[], bytes[], bytes32).selector) {
-        queue@withrevert(e, targets, values, calldatas, descriptionHash);
-	} else if (f.selector == castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32).selector) {
-        castVoteWithReasonAndParamsBySig@withrevert(e, proposalId, support, reason, params, v, r, s);
-    } else if (f.selector == castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector) {
+    }
+    else if (f.selector == castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector)
+    {
         castVoteWithReasonAndParams@withrevert(e, proposalId, support, reason, params);
-    } else {
+    }
+    else if (f.selector == castVoteBySig(uint256, uint8,uint8, bytes32, bytes32).selector)
+    {
+        castVoteBySig@withrevert(e, proposalId, support, v, r, s);
+    }
+    else if (f.selector == castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32).selector)
+    {
+        castVoteWithReasonAndParamsBySig@withrevert(e, proposalId, support, reason, params, v, r, s);
+    }
+    else
+    {
         calldataarg args;
         f@withrevert(e, args);
     }
@@ -186,7 +223,7 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f){
 rule doubleVoting(uint256 pId, uint8 sup, method f) {
     env e;
     address user = e.msg.sender;
-    bool votedCheck = hasVoted(e, pId, user);
+    bool votedCheck = hasVoted(pId, user);
 
     castVote@withrevert(e, pId, sup);
 
