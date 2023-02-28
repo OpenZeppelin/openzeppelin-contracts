@@ -63,6 +63,10 @@ contract GovernorHarness is
         return _executor();
     }
 
+    function proposalProposer(uint256 proposalId) public view returns (address) {
+        return _proposalProposer(proposalId);
+    }
+
     function isExecuted(uint256 proposalId) public view returns (bool) {
         return _proposals[proposalId].executed;
     }

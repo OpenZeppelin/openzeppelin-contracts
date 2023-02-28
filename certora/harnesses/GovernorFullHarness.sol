@@ -62,14 +62,6 @@ contract GovernorFullHarness is
         return _voteExtension;
     }
 
-    function getExtendedDeadlineIsUnset(uint256 proposalId) public view returns (bool) {
-        return _extendedDeadlines[proposalId] == 0;
-    }
-
-    function getExtendedDeadlineIsStarted(uint256 proposalId) public view returns (bool) {
-        return _extendedDeadlines[proposalId] > 0;
-    }
-
     function getExtendedDeadline(uint256 proposalId) public view returns (uint64) {
         return _extendedDeadlines[proposalId];
     }
@@ -103,6 +95,10 @@ contract GovernorFullHarness is
 
     function getExecutor() public view returns (address) {
         return _executor();
+    }
+
+    function proposalProposer(uint256 proposalId) public view returns (address) {
+        return _proposalProposer(proposalId);
     }
 
     function isExecuted(uint256 proposalId) public view returns (bool) {

@@ -8,6 +8,7 @@ methods {
     proposalThreshold() returns uint256 envfree
     proposalSnapshot(uint256) returns uint256 envfree // matches proposalVoteStart
     proposalDeadline(uint256) returns uint256 envfree // matches proposalVoteEnd
+    proposalProposer(uint256) returns address envfree
 
     propose(address[], uint256[], bytes[], string) returns uint256
     execute(address[], uint256[], bytes[], bytes32) returns uint256
@@ -50,7 +51,7 @@ methods {
 */
 
 definition proposalCreated(uint256 pId) returns bool =
-    proposalSnapshot(pId) > 0 && proposalDeadline(pId) > 0;
+    proposalSnapshot(pId) > 0 && proposalDeadline(pId) > 0 && proposalProposer(pId) != 0;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -64,22 +65,22 @@ function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
     if (f.selector == propose(address[], uint256[], bytes[], string).selector)
     {
         uint256 result = propose@withrevert(e, targets, values, calldatas, reason);
-        require(result == proposalId);
+        require result == proposalId;
     }
     else if (f.selector == execute(address[], uint256[], bytes[], bytes32).selector)
     {
         uint256 result = execute@withrevert(e, targets, values, calldatas, descriptionHash);
-        require(result == proposalId);
+        require result == proposalId;
     }
     else if (f.selector == queue(address[], uint256[], bytes[], bytes32).selector)
     {
         uint256 result = queue@withrevert(e, targets, values, calldatas, descriptionHash);
-        require(result == proposalId);
+        require result == proposalId;
     }
     else if (f.selector == cancel(address[], uint256[], bytes[], bytes32).selector)
     {
         uint256 result = cancel@withrevert(e, targets, values, calldatas, descriptionHash);
-        require(result == proposalId);
+        require result == proposalId;
     }
     else if (f.selector == castVote(uint256, uint8).selector)
     {
@@ -117,8 +118,8 @@ function helperFunctionsWithRevert(uint256 proposalId, method f, env e) {
 │ by the developers and will not be valid to raise proposals (at the current way that block chain is functioning)     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant startAndEndDatesNonZero(uint256 pId)
-    proposalSnapshot(pId) != 0 <=> proposalDeadline(pId) != 0
+invariant proposalStateConsistency(uint256 pId)
+    (proposalProposer(pId) != 0 <=> proposalSnapshot(pId) != 0) && (proposalProposer(pId) != 0 <=> proposalDeadline(pId) != 0)
     {
         preserved with (env e) {
             require e.block.number > 0;
@@ -134,7 +135,7 @@ invariant canceledImplyCreated(uint pId)
     isCanceled(pId) => proposalCreated(pId)
     {
         preserved with (env e) {
-            requireInvariant startAndEndDatesNonZero(pId);
+            requireInvariant proposalStateConsistency(pId);
             require e.block.number > 0;
         }
     }
@@ -148,7 +149,7 @@ invariant executedImplyCreated(uint pId)
     isExecuted(pId) => proposalCreated(pId)
     {
         preserved with (env e) {
-            requireInvariant startAndEndDatesNonZero(pId);
+            requireInvariant proposalStateConsistency(pId);
             require e.block.number > 0;
         }
     }
@@ -159,11 +160,10 @@ invariant executedImplyCreated(uint pId)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant voteStartBeforeVoteEnd(uint256 pId)
-    //proposalCreated(pId) => proposalSnapshot(pId) <= proposalDeadline(pId)
     proposalSnapshot(pId) <= proposalDeadline(pId)
     {
         preserved {
-            requireInvariant startAndEndDatesNonZero(pId);
+            requireInvariant proposalStateConsistency(pId);
         }
     }
 
@@ -177,18 +177,34 @@ invariant noBothExecutedAndCanceled(uint256 pId)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: A proposal could be executed only if quorum was reached and vote succeeded                                    │
+│ Rule: No double proposition                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+rule canProposeOnlyOnce(uint256 pId, env e) {
+    require proposalCreated(pId);
+
+    address[] targets; uint256[] values; bytes[] calldatas; string reason;
+    uint256 result = propose(e, targets, values, calldatas, reason);
+
+    assert result != pId, "double proposal";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: Once a proposal is created, voteStart, voteEnd and proposer are immutable                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f, calldataarg args) {
-    require(!isExecuted(pId));
+rule immutableFieldsAfterProposalCreation(uint256 pId, env e, method f, calldataarg arg) {
+    require proposalCreated(pId);
 
-    bool quorumReachedBefore = quorumReached(e, pId);
-    bool voteSucceededBefore = voteSucceeded(pId);
+    uint256 voteStart = proposalSnapshot(pId);
+    uint256 voteEnd = proposalDeadline(pId);
+    address proposer = proposalProposer(pId);
 
-    f(e, args);
+    f(e, arg);
 
-    assert isExecuted(pId) => (quorumReachedBefore && voteSucceededBefore), "quorum was changed";
+    assert voteStart == proposalSnapshot(pId), "Start date was changed";
+    assert voteEnd == proposalDeadline(pId), "End date was changed";
+    assert proposer == proposalProposer(pId), "Proposer was changed";
 }
 
 /*
@@ -213,19 +229,18 @@ rule noDoubleVoting(uint256 pId, env e, uint8 sup) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: Once a proposal is created, voteStart and voteEnd are immutable                                               │
+│ Rule: A proposal could be executed only if quorum was reached and vote succeeded                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule immutableFieldsAfterProposalCreation(uint256 pId, env e, method f, calldataarg arg) {
-    require proposalCreated(pId);
+rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f, calldataarg args) {
+    require !isExecuted(pId);
 
-    uint256 voteStart = proposalSnapshot(pId);
-    uint256 voteEnd = proposalDeadline(pId);
+    bool quorumReachedBefore = quorumReached(e, pId);
+    bool voteSucceededBefore = voteSucceeded(pId);
 
-    f(e, arg);
+    f(e, args);
 
-    assert voteStart == proposalSnapshot(pId), "Start date was changed";
-    assert voteEnd == proposalDeadline(pId), "End date was changed";
+    assert isExecuted(pId) => (quorumReachedBefore && voteSucceededBefore), "quorum was changed";
 }
 
 /*
@@ -311,7 +326,7 @@ rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args
 │ Rule: Proposal can be switched state only by specific functions                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule proposedOnlyAfterProposeFunc(uint256 pId, env e, method f) {
+rule stateOnlyAfterFunc(uint256 pId, env e, method f) {
     bool createdBefore = proposalCreated(pId);
     bool executedBefore = isExecuted(pId);
     bool canceledBefore = isCanceled(pId);
