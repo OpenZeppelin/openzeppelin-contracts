@@ -69,7 +69,7 @@
     "eth-sig-util": "^3.0.0",
     "ethereumjs-util": "^7.0.7",
     "ethereumjs-wallet": "^1.0.1",
-    "glob": "^8.0.3",
+    "glob": "^9.0.0",
     "graphlib": "^2.1.8",
     "hardhat": "^2.9.1",
     "hardhat-exposed": "^0.3.2",
