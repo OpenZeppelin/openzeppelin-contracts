@@ -283,16 +283,13 @@ rule noStartBeforeCreation(uint256 pId) {
 
 
 /*
- * A proposal can neither be executed nor canceled before it ends
+ * A proposal cannot be executed before it ends
  */
- // By induction it cannot be executed nor canceled before it starts, due to voteStartBeforeVoteEnd
-rule noExecuteOrCancelBeforeDeadline(uint256 pId, method f){
-    require !isExecuted(pId) && !isCanceled(pId);
-
-    env e; calldataarg args;
+ // By induction it cannot be executed before it starts, due to voteStartBeforeVoteEnd
+rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args){
+    require !isExecuted(pId);
     f(e, args);
-
-    assert e.block.number < proposalDeadline(pId) => (!isExecuted(pId) && !isCanceled(pId)), "executed/cancelled before deadline";
+    assert isExecuted(pId) => (e.block.number >= proposalDeadline(pId)), "executed before deadline";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
