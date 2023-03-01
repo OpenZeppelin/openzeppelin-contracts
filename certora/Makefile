@@ -23,7 +23,7 @@ $(DST)/%.sol: FORCE
 
 ###############################################################################
 # Record all difference between $SRC and $DST in patches
-record: $(DIFF) $(patsubst $(DST)_%,$(DIFF)/%.patch, $(subst /,_,$(DSTS)))
+record: $(DIFF) $(patsubst $(DST)_%,$(DIFF)/%.patch,$(subst /,_,$(DSTS)))
 
 # Create the $DIFF folder
 $(DIFF): FORCE
