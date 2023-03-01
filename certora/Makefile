@@ -1,11 +1,10 @@
 default: help
 
-SHELL := /bin/bash -O globstar
 SRC   := ../contracts
 DST   := patched
 DIFF  := diff
-DSTS  := $(shell ls $(DST)/**/*.sol)
-DIFFS := $(shell ls $(DIFF)/*.patch)
+DSTS  := $(shell find $(DST))
+DIFFS := $(shell find $(DIFF))
 
 ###############################################################################
 # Apply all patches in the $DIFF folder to the $DST folder
