@@ -19,7 +19,7 @@ $(DST): FORCE
 # Update a solidity file in the $DST directory using the corresponding patch
 $(DST)/%.sol: FORCE
 	@echo Applying patch to $@
-	@patch -p0 -d $(DST)/ < $(patsubst $(DST)_%,$(DIFF)/%.patch,$(subst /,_,$@))
+	@patch -p0 -d $(DST) < $(patsubst $(DST)_%,$(DIFF)/%.patch,$(subst /,_,$@))
 
 ###############################################################################
 # Record all difference between $SRC and $DST in patches
