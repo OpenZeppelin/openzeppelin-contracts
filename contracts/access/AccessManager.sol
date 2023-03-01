@@ -14,11 +14,12 @@ import "./AccessControlDefaultAdminRules.sol";
 /// the form [specific format TBD, something like "<team role tag> ... <team number (0-255)>"].
 /// 
 /// Contracts in the system are also grouped. These are simply called "contract groups". There can be an arbitrary
-/// number of groups. Each group has a group admin role that is allowed to add new contracts in the system into that
-/// contract group.
+/// number of groups. Each contract can only be in one group at a time. In the simplest setup, each contract is assigned
+/// to its own separate group, but groups can also be shared among similar contracts. Each group has a group admin role
+/// whose members are allowed to add new contracts in the system into that contract group.
 /// 
 /// All contracts in a group share the same permissioning scheme. A permissioning scheme consists of a mapping between
-/// functions and allowed teams. Each function can be allowed for multiple teams, meaning that if a user is in at least
+/// functions and allowed teams. Each function can be allowed to multiple teams, meaning that if a user is in at least
 /// one of the allowed teams they can call that funcion.
 /// 
 /// TODO: Implement AccessMode (from zkSync AllowList) in terms of teams and groups.
