@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - release-v*
+  pull_request: {} # just for the duration of the PR to test, must be removed before merging
   workflow_dispatch: {}
 
 jobs:
@@ -15,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: set-matrix
-        run: echo "name=matrix::$(ls certora/scripts/{,**}/*.sh | grep -v '\WnoCI\W' | jq -Rsc 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+        run: echo "matrix=$(ls certora/scripts/{,**}/*.sh | grep -v '\WnoCI\W' | jq -Rsc 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   verify:
     runs-on: ubuntu-latest
