@@ -1,11 +1,11 @@
 default: help
 
-SRC  := ../contracts
-DST  := patched
-DIFF := diff
-
-DSTS  := $(wildcard $(DST)/**/*.sol)
-DIFFS := $(wildcard $(DIFF)/*.patch)
+SHELL := /bin/bash -O globstar
+SRC   := ../contracts
+DST   := patched
+DIFF  := diff
+DSTS  := $(shell ls $(DST)/**/*.sol)
+DIFFS := $(shell ls $(DIFF)/*.patch)
 
 ###############################################################################
 # Apply all patches in the $DIFF folder to the $DST folder
@@ -52,4 +52,3 @@ clean:
 	git clean -fdX
 
 FORCE: ;
-
