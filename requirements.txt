@@ -1,1 +1,1 @@
-certora-cli==3.0.0
+certora-cli==3.6.3
