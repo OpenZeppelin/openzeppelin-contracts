@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - id: set-matrix
-        run: echo "matrix=$(echo -n certora/scripts/**/*.sh | jq -Rsc 'split(" ")')" >> $GITHUB_OUTPUT
+        run: echo "matrix=$(echo -n certora/scripts/*.sh | jq -Rsc 'split(" ")')" >> $GITHUB_OUTPUT
 
   verify:
     runs-on: ubuntu-latest
