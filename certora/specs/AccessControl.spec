@@ -131,3 +131,4 @@ rule renounceRoleEffect(env e) {
         hasRoleAfter == false && role1 == role2 && account1 == account2
     );
 }
+

@@ -8,7 +8,7 @@ DSTS  := $(wildcard $(DST)/**/*.sol)
 DIFFS := $(wildcard $(DIFF)/*.patch)
 
 ###############################################################################
-# Apply all patchs in the $DIFF folder to the $DST folder
+# Apply all patches in the $DIFF folder to the $DST folder
 apply: $(DST) $(patsubst $(DIFF)/%.patch,$(DST)/%,$(subst _,/,$(DIFFS)))
 
 # Reset the $DST folder
@@ -43,7 +43,7 @@ $(DIFF)/%.patch: FORCE
 ###############################################################################
 help:
 	@echo "usage:"
-	@echo "  make apply:  create $(DST) directory by applying the patchs to $(SRC)"
+	@echo "  make apply:  create $(DST) directory by applying the patches to $(SRC)"
 	@echo "  make record: record the patches capturing the differences between $(SRC) and $(DST)"
 	@echo "  make clean:  remove all generated files (those ignored by git)"
 
