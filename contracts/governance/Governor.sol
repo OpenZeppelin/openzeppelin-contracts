@@ -276,7 +276,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         require(targets.length == values.length, "Governor: invalid proposal length");
         require(targets.length == calldatas.length, "Governor: invalid proposal length");
         require(targets.length > 0, "Governor: empty proposal");
-        require(_proposals[proposalId].proposer == address(0), "Governor: proposal already exists");
+        require(_proposals[proposalId].voteStart == 0, "Governor: proposal already exists");
 
         uint256 snapshot = currentTimepoint + votingDelay();
         uint256 deadline = snapshot + votingPeriod();
