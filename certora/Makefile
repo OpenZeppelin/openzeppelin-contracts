@@ -27,7 +27,7 @@ record: $(DIFF) $(patsubst $(DST)_%,$(DIFF)/%.patch, $(subst /,_,$(DSTS)))
 
 # Create the $DIFF folder
 $(DIFF): FORCE
-  @rm -rf $@
+	@rm -rf $@
 	@mkdir $@
 
 # Create the patch file by comparing the source and the destination
