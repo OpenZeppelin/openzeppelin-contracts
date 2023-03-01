@@ -87,19 +87,23 @@ contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefault
     }
 
     function createTeam(uint8 team, string calldata name) public virtual onlyDefaultAdmin {
-        require(bytes(_teamName[team]).length == 0);
+        require(!_teamExists(team));
         _updateTeam(team, name);
     }
 
     function updateTeam(uint8 team, string calldata name) public virtual onlyDefaultAdmin {
-        require(bytes(_teamName[team]).length > 0);
+        require(_teamExists(team));
         _updateTeam(team, name);
     }
 
     function _updateTeam(uint8 team, string calldata name) internal virtual {
-        require(bytes(name).length > 0);
+        require(_teamExists(team));
         _teamName[team] = name;
         emit TeamUpdated(team, name);
+    }
+
+    function _teamExists(uint8 team) internal virtual returns (bool) {
+        return bytes(_teamName[team]).length > 0;
     }
 
     function getTeamName(uint8 team) public view virtual returns (string memory) {
@@ -114,6 +118,7 @@ contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefault
         super._grantRole(role, user);
         (bool isTeam, uint8 team) = _parseTeamRole(role);
         if (isTeam) {
+            require(_teamExists(team));
             bytes32 mask = bytes32(1 << team);
             _userTeams[user] |= mask;
         }
@@ -123,6 +128,7 @@ contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefault
         super._revokeRole(role, user);
         (bool isTeam, uint8 team) = _parseTeamRole(role);
         if (isTeam) {
+            require(_teamExists(team));
             bytes32 mask = bytes32(1 << team);
             _userTeams[user] &= ~mask;
         }
