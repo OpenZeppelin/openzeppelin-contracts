@@ -72,6 +72,11 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
         _;
     }
 
+    modifier onlyDefaultAdmin {
+        _checkRole(DEFAULT_ADMIN_ROLE);
+        _;
+    }
+
     /**
      * @dev See {IERC165-supportsInterface}.
      */
