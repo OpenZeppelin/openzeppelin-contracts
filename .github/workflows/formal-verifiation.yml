@@ -43,7 +43,7 @@ jobs:
       - name: Verify rule ${{ matrix.params }}
         run: |
           touch certora/applyHarness.patch
-          make -C certora munged
+          make -C certora apply
           bash ${{ matrix.params }}
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
