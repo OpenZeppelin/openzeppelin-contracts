@@ -3,8 +3,9 @@ default: help
 SRC   := ../contracts
 DST   := patched
 DIFF  := diff
-DSTS  := $(shell find $(DST))
-DIFFS := $(shell find $(DIFF))
+SRCS  := $(shell find $(SRC) -type f)
+DSTS  := $(shell find $(DST) -type f)
+DIFFS := $(shell find $(DIFF) -type f)
 
 ###############################################################################
 # Apply all patches in the $DIFF folder to the $DST folder
@@ -22,7 +23,7 @@ $(DST)/%.sol: FORCE
 
 ###############################################################################
 # Record all difference between $SRC and $DST in patches
-record: $(DIFF) $(patsubst $(DST)_%,$(DIFF)/%.patch,$(subst /,_,$(DSTS)))
+record: $(DIFF) $(patsubst %,$(DIFF)/%.patch,$(subst /,_,$(subst $(SRC),,$(SRCS)))) $(patsubst %,$(DIFF)/%.patch,$(subst /,_,$(subst $(DST),,$(DSTS))))
 
 # Create the $DIFF folder
 $(DIFF): FORCE
