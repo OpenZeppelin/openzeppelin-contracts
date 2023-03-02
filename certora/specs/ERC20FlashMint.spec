@@ -6,7 +6,7 @@ methods {
     // non standard ERC3156 functions
     flashFeeReceiver() returns (address) envfree
 
-    // patched - function summaries bellow
+    // patched - function summaries below
     _mint(address account, uint256 amount) => specMint(account, amount)
     _burn(address account, uint256 amount) => specBurn(account, amount)
 }
