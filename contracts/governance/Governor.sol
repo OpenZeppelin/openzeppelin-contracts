@@ -21,7 +21,7 @@ import "./IGovernor.sol";
  *
  * - A counting module must implement {quorum}, {_quorumReached}, {_voteSucceeded} and {_countVote}
  * - A voting module must implement {_getVotes}
- * - Additionally, the {votingPeriod} must also be implemented
+ * - Additionally, {votingPeriod} must also be implemented
  *
  * _Available since v4.3._
  */
