@@ -7,10 +7,9 @@ methods {
     renounceRole(bytes32, address)
 }
 
-
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: only grantRole can grant a role                                                                               │
+│ Identify entrypoints: only grantRole can grant a role                                                               │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyGrantCanGrant(env e, bytes32 role, address account) {
@@ -24,7 +23,7 @@ rule onlyGrantCanGrant(env e, bytes32 role, address account) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: only revokeRole and renounceRole can grant a role                                                             │
+│ Identify entrypoints: only revokeRole and renounceRole can grant a role                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyRevokeAndRenounceCanRevoke(env e, bytes32 role, address account) {
@@ -38,7 +37,7 @@ rule onlyRevokeAndRenounceCanRevoke(env e, bytes32 role, address account) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: only an account with admin role can call grantRole                                                            │
+│ Access restriction: grantRole revert iff caller is not admin of the role                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyAdminCanGrant(env e, bytes32 role, address account) {
@@ -46,12 +45,12 @@ rule onlyAdminCanGrant(env e, bytes32 role, address account) {
 
     grantRole@withrevert(e, role, account);
 
-    assert !lastReverted => isAdmin;
+    assert !lastReverted <=> isAdmin;
 }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: only an account with admin role can call revokeRole                                                           │
+│ Access restriction: revokeRole revert iff caller is not admin of the role                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyAdminCanRevoke(env e, bytes32 role, address account) {
@@ -59,22 +58,23 @@ rule onlyAdminCanRevoke(env e, bytes32 role, address account) {
 
     revokeRole@withrevert(e, role, account);
 
-    assert !lastReverted => isAdmin;
+    assert !lastReverted <=> isAdmin;
 }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: only the affected account can revoke                                                                          │
+│ Access restriction: renounceRole revert iff caller is not the one renouncing                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyUserCanRenounce(env e, bytes32 role, address account) {
     renounceRole@withrevert(e, role, account);
-    assert !lastReverted => account == e.msg.sender;
+
+    assert !lastReverted <=> account == e.msg.sender;
 }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: grantRole only affects the specified user/role combo                                                          │
+│ Function correctness: grantRole only affects the specified user/role combo                                          │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule grantRoleEffect(env e) {
@@ -94,7 +94,7 @@ rule grantRoleEffect(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: revokeRole only affects the specified user/role combo                                                         │
+│ Function correctness: revokeRole only affects the specified user/role combo                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule revokeRoleEffect(env e) {
@@ -114,7 +114,7 @@ rule revokeRoleEffect(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: renounceRole only affects the specified user/role combo                                                       │
+│ Function correctness: renounceRole only affects the specified user/role combo                                       │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule renounceRoleEffect(env e) {
@@ -131,4 +131,3 @@ rule renounceRoleEffect(env e) {
         hasRoleAfter == false && role1 == role2 && account1 == account2
     );
 }
-
