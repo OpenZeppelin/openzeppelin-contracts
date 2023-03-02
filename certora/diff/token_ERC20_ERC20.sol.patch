@@ -1,0 +1,20 @@
+--- token/ERC20/ERC20.sol	2023-02-27 10:59:32.655891529 +0100
++++ token/ERC20/ERC20.sol	2023-03-02 18:11:49.275885065 +0100
+@@ -248,7 +248,7 @@
+      *
+      * - `account` cannot be the zero address.
+      */
+-    function _mint(address account, uint256 amount) internal virtual {
++    function _mint(address account, uint256 amount) public virtual { // FV: expose the internal function
+         require(account != address(0), "ERC20: mint to the zero address");
+ 
+         _beforeTokenTransfer(address(0), account, amount);
+@@ -274,7 +274,7 @@
+      * - `account` cannot be the zero address.
+      * - `account` must have at least `amount` tokens.
+      */
+-    function _burn(address account, uint256 amount) internal virtual {
++    function _burn(address account, uint256 amount) public virtual { // FV: expose the internal function
+         require(account != address(0), "ERC20: burn from the zero address");
+ 
+         _beforeTokenTransfer(account, address(0), amount);
