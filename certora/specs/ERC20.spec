@@ -1,3 +1,4 @@
+import "helpers.spec"
 import "ERC20.methods.spec"
 
 /*
@@ -34,10 +35,9 @@ invariant zeroAddressNoBalance()
 │ Rules: only mint and burn can change total supply                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule noChangeTotalSupply() {
+rule noChangeTotalSupply(env e) {
     requireInvariant totalSupplyIsSumOfBalances();
 
-    env e;
     method f;
     calldataarg args;
 
@@ -54,10 +54,9 @@ rule noChangeTotalSupply() {
 │ Rules: only the token holder or an approved third party can reduce an account's balance                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyAuthorizedCanTransfer() {
+rule onlyAuthorizedCanTransfer(env e) {
     requireInvariant totalSupplyIsSumOfBalances();
 
-    env e;
     method f;
     calldataarg args;
     address account;
@@ -81,10 +80,9 @@ rule onlyAuthorizedCanTransfer() {
 │ Rules: only the token holder (or a permit) can increase allowance. The spender can decrease it by using it          │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyHolderOfSpenderCanChangeAllowance() {
+rule onlyHolderOfSpenderCanChangeAllowance(env e) {
     requireInvariant totalSupplyIsSumOfBalances();
 
-    env e;
     method f;
     calldataarg args;
     address holder;
@@ -117,17 +115,13 @@ rule onlyHolderOfSpenderCanChangeAllowance() {
 │ Rules: mint behavior and side effects                                                                               │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule mint() {
+rule mint(env e) {
     requireInvariant totalSupplyIsSumOfBalances();
+    require nonpayable(e);
 
-    env e;
     address to;
     address other;
     uint256 amount;
-
-    // env: function is not payable
-    require e.msg.sender != 0;
-    require e.msg.value  == 0;
 
     // cache state
     uint256 toBalanceBefore    = balanceOf(to);
@@ -155,17 +149,13 @@ rule mint() {
 │ Rules: burn behavior and side effects                                                                               │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule burn() {
+rule burn(env e) {
     requireInvariant totalSupplyIsSumOfBalances();
+    require nonpayable(e);
 
-    env e;
     address from;
     address other;
     uint256 amount;
-
-    // env: function is not payable
-    require e.msg.sender != 0;
-    require e.msg.value  == 0;
 
     // cache state
     uint256 fromBalanceBefore  = balanceOf(from);
@@ -193,18 +183,14 @@ rule burn() {
 │ Rule: transfer behavior and side effects                                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule transfer() {
+rule transfer(env e) {
     requireInvariant totalSupplyIsSumOfBalances();
+    require nonpayable(e);
 
-    env e;
     address holder = e.msg.sender;
     address recipient;
     address other;
     uint256 amount;
-
-    // env: function is not payable
-    require e.msg.sender != 0;
-    require e.msg.value  == 0;
 
     // cache state
     uint256 holderBalanceBefore    = balanceOf(holder);
@@ -232,19 +218,15 @@ rule transfer() {
 │ Rule: transferFrom behavior and side effects                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule transferFrom() {
+rule transferFrom(env e) {
     requireInvariant totalSupplyIsSumOfBalances();
+    require nonpayable(e);
 
-    env e;
     address spender = e.msg.sender;
     address holder;
     address recipient;
     address other;
     uint256 amount;
-
-    // env: function is not payable
-    require e.msg.sender != 0;
-    require e.msg.value  == 0;
 
     // cache state
     uint256 allowanceBefore        = allowance(holder, spender);
@@ -257,7 +239,7 @@ rule transferFrom() {
 
     // check outcome
     if (lastReverted) {
-        assert holder == 0 || recipient == 0 || amount > holderBalanceBefore || amount > allowanceBefore;
+        assert holder == 0 || recipient == 0 || spender == 0 || amount > holderBalanceBefore || amount > allowanceBefore;
     } else {
         // allowance is valid & updated
         assert allowanceBefore            >= amount;
@@ -277,19 +259,15 @@ rule transferFrom() {
 │ Rule: approve behavior and side effects                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule approve() {
+rule approve(env e) {
     requireInvariant totalSupplyIsSumOfBalances();
+    require nonpayable(e);
 
-    env e;
     address holder = e.msg.sender;
     address spender;
     address otherHolder;
     address otherSpender;
     uint256 amount;
-
-    // env: function is not payable
-    require e.msg.sender != 0;
-    require e.msg.value  == 0;
 
     // cache state
     uint256 otherAllowanceBefore = allowance(otherHolder, otherSpender);
@@ -299,7 +277,7 @@ rule approve() {
 
     // check outcome
     if (lastReverted) {
-        assert spender == 0;
+        assert holder == 0 || spender == 0;
     } else {
         // allowance is updated
         assert allowance(holder, spender) == amount;
@@ -314,19 +292,15 @@ rule approve() {
 │ Rule: increaseAllowance behavior and side effects                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule increaseAllowance() {
+rule increaseAllowance(env e) {
     requireInvariant totalSupplyIsSumOfBalances();
+    require nonpayable(e);
 
-    env e;
     address holder = e.msg.sender;
     address spender;
     address otherHolder;
     address otherSpender;
     uint256 amount;
-
-    // env: function is not payable
-    require e.msg.sender != 0;
-    require e.msg.value  == 0;
 
     // cache state
     uint256 allowanceBefore      = allowance(holder, spender);
@@ -337,7 +311,7 @@ rule increaseAllowance() {
 
     // check outcome
     if (lastReverted) {
-        assert spender == 0 || allowanceBefore + amount > max_uint256;
+        assert holder == 0 || spender == 0 || allowanceBefore + amount > max_uint256;
     } else {
         // allowance is updated
         assert allowance(holder, spender) == allowanceBefore + amount;
@@ -352,19 +326,15 @@ rule increaseAllowance() {
 │ Rule: decreaseAllowance behavior and side effects                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule decreaseAllowance() {
+rule decreaseAllowance(env e) {
     requireInvariant totalSupplyIsSumOfBalances();
+    require nonpayable(e);
 
-    env e;
     address holder = e.msg.sender;
     address spender;
     address otherHolder;
     address otherSpender;
     uint256 amount;
-
-    // env: function is not payable
-    require e.msg.sender != 0;
-    require e.msg.value  == 0;
 
     // cache state
     uint256 allowanceBefore      = allowance(holder, spender);
@@ -375,7 +345,7 @@ rule decreaseAllowance() {
 
     // check outcome
     if (lastReverted) {
-        assert spender == 0 || allowanceBefore < amount;
+        assert holder == 0 || spender == 0 || allowanceBefore < amount;
     } else {
         // allowance is updated
         assert allowance(holder, spender) == allowanceBefore - amount;

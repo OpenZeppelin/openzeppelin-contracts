@@ -1,3 +1,5 @@
+import "helpers.spec"
+
 methods {
     hasRole(bytes32, address) returns(bool) envfree
     getRoleAdmin(bytes32) returns(bytes32) envfree
@@ -41,6 +43,8 @@ rule onlyRevokeAndRenounceCanRevoke(env e, bytes32 role, address account) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyAdminCanGrant(env e, bytes32 role, address account) {
+    require nonpayable(e);
+
     bool isAdmin = hasRole(getRoleAdmin(role), e.msg.sender);
 
     grantRole@withrevert(e, role, account);
@@ -54,6 +58,8 @@ rule onlyAdminCanGrant(env e, bytes32 role, address account) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyAdminCanRevoke(env e, bytes32 role, address account) {
+    require nonpayable(e);
+
     bool isAdmin = hasRole(getRoleAdmin(role), e.msg.sender);
 
     revokeRole@withrevert(e, role, account);
@@ -67,6 +73,8 @@ rule onlyAdminCanRevoke(env e, bytes32 role, address account) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyUserCanRenounce(env e, bytes32 role, address account) {
+    require nonpayable(e);
+
     renounceRole@withrevert(e, role, account);
 
     assert !lastReverted <=> account == e.msg.sender;
