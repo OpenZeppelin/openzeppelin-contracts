@@ -5,7 +5,16 @@ on:
     branches:
       - master
       - release-v*
+  pull_request: {}
   workflow_dispatch: {}
+
+inputs:
+  pip-version:
+    default: '3.10'
+  java-version:
+    default: '11'
+  solc-version:
+    default: '0.8.19'
 
 jobs:
   list-scripts:
@@ -25,18 +34,18 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: ${{ pip-version }}
           cache: 'pip'
       - name: Install java
         uses: actions/setup-java@v1
         with:
-          java-version: '11'
           java-package: 'jre'
+          java-version: ${{ java-version }}
       - name: Install certora
         run: pip install certora-cli
       - name: Install solc
         run: |
-          wget https://github.com/ethereum/solidity/releases/download/v0.8.19/solc-static-linux
+          wget https://github.com/ethereum/solidity/releases/download/v${{ solc-version }}/solc-static-linux
           sudo mv solc-static-linux /usr/local/bin/solc
           chmod +x /usr/local/bin/solc
       - name: Verify rule ${{ matrix.params }}
