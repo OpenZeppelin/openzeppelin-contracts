@@ -229,7 +229,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
 
         uint48 currentDefaultAdminDelay = defaultAdminDelay();
 
-        // Schedules the current delay if the delay is increased.
+        // Schedules the new delay if the delay is increased, this is done so the user can't accidentally set a high new delay.
         // Otherwise, wait the difference between current and new delay to guarantee the delay change schedule + a default admin change
         // is effectively the current delay. For example, if delay is reduced from 10 days to 3 days, it's needed to wait 7 days
         // before starting the new 3 days delayed transfer summing up to 10 days, which is the current delay.
