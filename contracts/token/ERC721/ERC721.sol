@@ -467,18 +467,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256, /* firstTokenId */
+        uint256 firstTokenId,
         uint256 batchSize
-    ) internal virtual {
-        if (batchSize > 1) {
-            if (from != address(0)) {
-                _balances[from] -= batchSize;
-            }
-            if (to != address(0)) {
-                _balances[to] += batchSize;
-            }
-        }
-    }
+    ) internal virtual {}
 
     /**
      * @dev Hook that is called after any token transfer. This includes minting and burning. If {ERC721Consecutive} is
@@ -500,4 +491,16 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         uint256 firstTokenId,
         uint256 batchSize
     ) internal virtual {}
+
+    /**
+     * @dev Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
+     *
+     * WARNING: Anyone calling this MUST ensure that the balances remain consistent with the ownership. The invariant
+     * being that for any address `a` the value returned by `balanceOf(a)` must be equal to the number of tokens such
+     * that `ownerOf(tokenId)` is `a`.
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function __unsafe_increaseBalance(address account, uint256 amount) internal {
+        _balances[account] += amount;
+    }
 }
