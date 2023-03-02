@@ -1,4 +1,3 @@
-// erc20 methods
 methods {
     name()                                returns (string)  envfree => DISPATCHER(true)
     symbol()                              returns (string)  envfree => DISPATCHER(true)
