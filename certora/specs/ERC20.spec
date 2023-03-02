@@ -1,6 +1,6 @@
 import "helpers.spec"
-import "ERC20.methods.spec"
-import "ERC2612.methods.spec"
+import "methods/IERC20.spec"
+import "methods/IERC2612.spec"
 
 methods {
     // non standard ERC20 functions
