@@ -185,7 +185,7 @@ Additionally there are interfaces used to develop contracts that react to token 
 
 [.contract]
 [[IERC777]]
-=== `++IERC777++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.1/contracts/token/ERC777/IERC777.sol[{github-icon},role=heading-link]
+=== `++IERC777++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC777/IERC777.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -465,7 +465,7 @@ Emitted when `operator` is revoked its operator status for `tokenHolder`.
 
 [.contract]
 [[ERC777]]
-=== `++ERC777++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.1/contracts/token/ERC777/ERC777.sol[{github-icon},role=heading-link]
+=== `++ERC777++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC777/ERC777.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -789,7 +789,7 @@ To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hook
 
 [.contract]
 [[IERC777Sender]]
-=== `++IERC777Sender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.1/contracts/token/ERC777/IERC777Sender.sol[{github-icon},role=heading-link]
+=== `++IERC777Sender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC777/IERC777Sender.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -829,7 +829,7 @@ This function may revert to prevent the operation from being executed.
 
 [.contract]
 [[IERC777Recipient]]
-=== `++IERC777Recipient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.1/contracts/token/ERC777/IERC777Recipient.sol[{github-icon},role=heading-link]
+=== `++IERC777Recipient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC777/IERC777Recipient.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -873,7 +873,7 @@ These contracts are preconfigured combinations of features. They can be used thr
 
 [.contract]
 [[ERC777PresetFixedSupply]]
-=== `++ERC777PresetFixedSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.1/contracts/token/ERC777/presets/ERC777PresetFixedSupply.sol[{github-icon},role=heading-link]
+=== `++ERC777PresetFixedSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC777/presets/ERC777PresetFixedSupply.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
