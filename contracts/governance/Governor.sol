@@ -21,7 +21,7 @@ import "./IGovernor.sol";
  *
  * - A counting module must implement {quorum}, {_quorumReached}, {_voteSucceeded} and {_countVote}
  * - A voting module must implement {_getVotes}
- * - Additionally, the {votingPeriod} must also be implemented
+ * - Additionally, {votingPeriod} must also be implemented
  *
  * _Available since v4.3._
  */
@@ -276,7 +276,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         require(targets.length == values.length, "Governor: invalid proposal length");
         require(targets.length == calldatas.length, "Governor: invalid proposal length");
         require(targets.length > 0, "Governor: empty proposal");
-        require(_proposals[proposalId].proposer == address(0), "Governor: proposal already exists");
+        require(_proposals[proposalId].voteStart == 0, "Governor: proposal already exists");
 
         uint256 snapshot = currentTimepoint + votingDelay();
         uint256 deadline = snapshot + votingPeriod();
