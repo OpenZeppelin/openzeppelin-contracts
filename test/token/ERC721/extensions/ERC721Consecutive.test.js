@@ -12,7 +12,8 @@ contract('ERC721Consecutive', function (accounts) {
   const symbol = 'NFT';
   const batches = [
     { receiver: user1, amount: 0 },
-    { receiver: user1, amount: 3 },
+    { receiver: user1, amount: 1 },
+    { receiver: user1, amount: 2 },
     { receiver: user2, amount: 5 },
     { receiver: user3, amount: 0 },
     { receiver: user1, amount: 7 },
