@@ -33,6 +33,7 @@ type ShortString is bytes32;
  */
 library ShortStrings {
     error StringTooLong(string str);
+    error InvalidShortString();
 
     /**
      * @dev Encode a string of at most 31 chars into a `ShortString`.
@@ -44,7 +45,7 @@ library ShortStrings {
         if (bstr.length > 31) {
             revert StringTooLong(str);
         }
-        return ShortString.wrap(bytes32(uint256(bytes32(bstr)) | bstr.length));
+        return ShortString.wrap(bytes32(uint256(bytes32(bstr)) | (bstr.length + 1)));
     }
 
     /**
@@ -66,7 +67,13 @@ library ShortStrings {
      * @dev Return the length of a `ShortString`.
      */
     function length(ShortString sstr) internal pure returns (uint256) {
-        return uint256(ShortString.unwrap(sstr)) & 0xFF;
+        uint256 lengthPlusOne = uint256(ShortString.unwrap(sstr)) & 0xFF;
+        if (lengthPlusOne == 0 || lengthPlusOne > 32) {
+            revert InvalidShortString();
+        }
+        unchecked {
+            return lengthPlusOne - 1;
+        }
     }
 
     /**
@@ -85,7 +92,7 @@ library ShortStrings {
      * @dev Decode a string that was encoded to `ShortString` or written to storage using {setWithFallback}.
      */
     function toStringWithFallback(ShortString value, string storage store) internal pure returns (string memory) {
-        if (length(value) > 0) {
+        if (ShortString.unwrap(value) != bytes32(0)) {
             return toString(value);
         } else {
             return store;
