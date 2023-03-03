@@ -23,7 +23,7 @@ jobs:
 
   list-scripts:
     runs-on: ubuntu-latest
-    # if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'formal-verification')
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:

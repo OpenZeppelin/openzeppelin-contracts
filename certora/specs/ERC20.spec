@@ -144,7 +144,7 @@ rule mint(env e) {
 
     // check outcome
     if (lastReverted) {
-        assert to == 0 || totalSupplyBefore + amount > to_uint256(max_uint256);
+        assert to == 0 || totalSupplyBefore + amount > max_uint256;
     } else {
         // updates balance and totalSupply
         assert balanceOf(to) == toBalanceBefore   + amount;
