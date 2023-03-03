@@ -9,19 +9,13 @@ const { PassThrough } = require('stream');
 const events = require('events');
 const limit = require('p-limit')(MAX_PARALLEL);
 
-console.log(process.cwd());
-
 for (const { spec, contract, files, args = [] } of Object.values(specs)) {
   limit(run, spec, contract, files, args);
 }
 
 // Run certora, aggregate the output and print it at the end
 async function run(spec, contract, files, args = []) {
-  args = [...files, '--verify', `${contract}:certora/specs/${spec}.sol`, '--optimistic_loop', ...args]
-
-  console.log(`+ certoraRun ${args.join(' ')}`);
-
-  const child = proc.spawn('certoraRun', args);
+  const child = proc.spawn('certoraRun', [...files, '--verify', `${contract}:certora/specs/${spec}.spec`, '--optimistic_loop', ...args]);
   const stream = new PassThrough();
   const output = collect(stream);
   child.stdout.pipe(stream, { end: false });
