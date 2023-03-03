@@ -32,7 +32,7 @@ type ShortString is bytes32;
  * ```
  */
 library ShortStrings {
-    bytes32 constant _FALLBACK_SENTINEL = 0x00000000000000000000000000000000000000000000000000000000000000FF;
+    bytes32 private constant _FALLBACK_SENTINEL = 0x00000000000000000000000000000000000000000000000000000000000000FF;
 
     error StringTooLong(string str);
     error InvalidShortString();
