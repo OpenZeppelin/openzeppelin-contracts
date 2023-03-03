@@ -1,4 +1,4 @@
-name: Formal verification
+name: formal verification
 
 on:
   push:
@@ -21,26 +21,13 @@ jobs:
       - name: Apply patches
         run: make -C certora apply
 
-  list-scripts:
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'formal-verification')
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - uses: actions/checkout@v2
-      - id: set-matrix
-        run: echo "matrix=$(echo -n certora/scripts/*.sh | jq -Rsc 'split(" ")')" >> "$GITHUB_OUTPUT"
-
   verify:
     runs-on: ubuntu-latest
-    needs: list-scripts
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        params: ${{ fromJson(needs.list-scripts.outputs.matrix) }}
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'formal-verification')
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - name: Set up environment
+        uses: ./.github/actions/setup
       - name: Install python
         uses: actions/setup-python@v2
         with:
@@ -61,6 +48,6 @@ jobs:
       - name: Verify rule ${{ matrix.params }}
         run: |
           make -C certora apply
-          bash ${{ matrix.params }}
+          node certora/run.js
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
