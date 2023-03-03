@@ -32,7 +32,7 @@ type ShortString is bytes32;
  * ```
  */
 library ShortStrings {
-    bytes32 constant INVALID_SHORT_STRING = 0x00000000000000000000000000000000000000000000000000000000000000FF;
+    bytes32 constant _INVALID_SHORT_STRING = 0x00000000000000000000000000000000000000000000000000000000000000FF;
 
     error StringTooLong(string str);
     error InvalidShortString();
@@ -84,7 +84,7 @@ library ShortStrings {
             return toShortString(value);
         } else {
             StorageSlot.getStringSlot(store).value = value;
-            return ShortString.wrap(INVALID_SHORT_STRING);
+            return ShortString.wrap(_INVALID_SHORT_STRING);
         }
     }
 
@@ -92,7 +92,7 @@ library ShortStrings {
      * @dev Decode a string that was encoded to `ShortString` or written to storage using {setWithFallback}.
      */
     function toStringWithFallback(ShortString value, string storage store) internal pure returns (string memory) {
-        if (ShortString.unwrap(value) != INVALID_SHORT_STRING) {
+        if (ShortString.unwrap(value) != _INVALID_SHORT_STRING) {
             return toString(value);
         } else {
             return store;
