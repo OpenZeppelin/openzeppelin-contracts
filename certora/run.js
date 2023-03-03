@@ -22,7 +22,7 @@ async function run(spec, contract, files, args = []) {
   child.stderr.pipe(stream, { end: false });
   const [code, signal] = await events.once(child, 'exit');
   if (code || signal) {
-    console.error(`Specification ${spec} exited with error ${code || signal}`);
+    console.error(`Specification ${spec} exited with code ${code || signal}`);
     process.exitCode = 1;
   }
   stream.end();
