@@ -14,8 +14,15 @@ env:
   SOLC_VERSION: '0.8.19'
 
 jobs:
+  apply-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply patches
+        run: make -C certora apply
+
   list-scripts:
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -51,8 +58,6 @@ jobs:
           sudo mv solc-static-linux /usr/local/bin/solc
           chmod +x /usr/local/bin/solc
       - name: Verify rule ${{ matrix.params }}
-        run: |
-          make -C certora apply
-          bash ${{ matrix.params }}
+        run: bash ${{ matrix.params }}
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
