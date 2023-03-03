@@ -15,7 +15,7 @@ const { PassThrough } = require('stream');
 const events = require('events');
 const limit = require('p-limit')(MAX_PARALLEL);
 
-let [,, request = '', ...extraOptions] = process.argv;
+let [, , request = '', ...extraOptions] = process.argv;
 if (request.startsWith('-')) {
   extraOptions.unshift(request);
   request = '';
