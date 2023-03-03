@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // USAGE:
-//    node certora/run.js [[CONTRACT_NAME:]SPEC_NAME]
+//    node certora/run.js [[CONTRACT_NAME:]SPEC_NAME] [OPTIONS...]
 // EXAMPLES:
 //    node certora/run.js AccessControl
 //    node certora/run.js AccessControlHarness:AccessControl
@@ -15,31 +15,48 @@ const { PassThrough } = require('stream');
 const events = require('events');
 const limit = require('p-limit')(MAX_PARALLEL);
 
-const [,, request = '', ...extraArgs] = process.argv;
+let [,, request = '', ...extraOptions] = process.argv;
+if (request.startsWith('-')) {
+  extraOptions.unshift(request);
+  request = '';
+}
 const [reqContract, reqSpec] = request.split(':').reverse();
 
-for (const { spec, contract, files, args = [] } of Object.values(specs)) {
+for (const { spec, contract, files, options = [] } of Object.values(specs)) {
   if ((!reqSpec || reqSpec === spec) && (!reqContract || reqContract === contract)) {
-    limit(run, spec, contract, files, [...args, ...extraArgs]);
+    limit(runCertora, spec, contract, files, [...options, ...extraOptions]);
   }
 }
 
 // Run certora, aggregate the output and print it at the end
-async function run(spec, contract, files, args = []) {
-  args = [...files, '--verify', `${contract}:certora/specs/${spec}.spec`, ...args];
+async function runCertora(spec, contract, files, options = []) {
+  const args = [...files, '--verify', `${contract}:certora/specs/${spec}.spec`, ...options];
   const child = proc.spawn('echo', args);
+
   const stream = new PassThrough();
   const output = collect(stream);
+
   child.stdout.pipe(stream, { end: false });
   child.stderr.pipe(stream, { end: false });
+
+  stream.on('data', function logStatusUrl(data) {
+    const url = data.toString('utf8').match(/https:[^ ]*/);
+    if (url?.includes('/jobStatus/')) {
+      console.log(`[${spec}]`, url[0]);
+      stream.off(logStatusUrl);
+    }
+  });
+
   const [code, signal] = await events.once(child, 'exit');
+
   if (code || signal) {
-    console.error(`Specification ${spec} exited with code ${code || signal}`);
+    console.error(`[${spec}] Exited with code ${code || signal}`);
     process.exitCode = 1;
   }
+
   stream.end();
-  const cmd = ['certoraRun', ...args].join(' ');
-  console.log(`+ ${cmd}\n` + (await output));
+
+  console.log(`+ certoraRun ${args.join(' ')}\n` + (await output));
 }
 
 // Collects stream data into a string
