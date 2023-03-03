@@ -11,6 +11,7 @@
   },
   {
     "spec": "ERC20FlashMint",
+    "args": ["--optimistic_loop"],
     "files": [
       "certora/harnesses/ERC20FlashMintHarness.sol",
       "certora/harnesses/ERC3156FlashBorrowerHarness.sol"

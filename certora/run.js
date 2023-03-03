@@ -9,7 +9,7 @@ const { PassThrough } = require('stream');
 const events = require('events');
 const limit = require('p-limit')(MAX_PARALLEL);
 
-for (const { spec, contract, files, args = [] } of Object.values(specs)) {
+for (const { spec, contract, files, args } of Object.values(specs)) {
   limit(run, spec, contract, files, args);
 }
 
@@ -19,7 +19,6 @@ async function run(spec, contract, files, args = []) {
     ...files,
     '--verify',
     `${contract}:certora/specs/${spec}.spec`,
-    '--optimistic_loop',
     ...args,
   ]);
   const stream = new PassThrough();
