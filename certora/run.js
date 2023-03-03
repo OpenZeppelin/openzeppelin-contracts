@@ -4,7 +4,6 @@ const MAX_PARALLEL = 4;
 
 const specs = require(__dirname + '/specs.json');
 
-const fs = require('fs');
 const proc = require('child_process');
 const { PassThrough } = require('stream');
 const events = require('events');
