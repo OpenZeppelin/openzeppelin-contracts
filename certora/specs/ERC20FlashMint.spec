@@ -42,7 +42,7 @@ rule checkMintAndBurn(env e) {
 
     flashLoan(e, receiver, token, amount, data);
 
-    assert trackedMintAmount[receiver] == to_mathint(amount);
-    assert trackedBurnAmount[receiver] == to_mathint(amount + (recipient == 0 ? fees : 0));
+    assert trackedMintAmount[receiver] == amount;
+    assert trackedBurnAmount[receiver] == amount + (recipient == 0 ? fees : 0);
     assert (fees > 0 && recipient != 0) => trackedTransferedAmount[receiver][recipient] == fees;
 }
