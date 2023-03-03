@@ -7,8 +7,9 @@ methods {
     flashFeeReceiver() returns (address) envfree
 
     // patched - function summaries below
-    _mint(address account, uint256 amount) => specMint(account, amount)
-    _burn(address account, uint256 amount) => specBurn(account, amount)
+    _mint(address account, uint256 amount)              => specMint(account, amount)
+    _burn(address account, uint256 amount)              => specBurn(account, amount)
+    _transfer(address from, address to, uint256 amount) => specTransfer(from, to, amount)
 }
 
 /*
@@ -16,12 +17,13 @@ methods {
 │ Ghost: track mint and burns in the CVL                                                                              │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-ghost mapping(address => uint256) trackedMintAmount;
-ghost mapping(address => uint256) trackedBurnAmount;
+ghost mapping(address => uint256)                     trackedMintAmount;
+ghost mapping(address => uint256)                     trackedBurnAmount;
+ghost mapping(address => mapping(address => uint256)) trackedTransferedAmount;
 
-function specMint(address account, uint256 amount) returns bool { trackedMintAmount[account] = amount; return true; }
-function specBurn(address account, uint256 amount) returns bool { trackedBurnAmount[account] = amount; return true; }
-
+function specMint(address account, uint256 amount)              returns bool { trackedMintAmount[account] = amount;        return true; }
+function specBurn(address account, uint256 amount)              returns bool { trackedBurnAmount[account] = amount;        return true; }
+function specTransfer(address from, address to, uint256 amount) returns bool { trackedTransferedAmount[from][to] = amount; return true; }
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: When doing a flashLoan, "amount" is minted and "amount + fee" is burnt                                        │
@@ -33,11 +35,12 @@ rule checkMintAndBurn(env e) {
     uint256 amount;
     bytes data;
 
-    uint256 feeBefore = flashFee(token, amount);
+    uint256 fees = flashFee(token, amount);
     address recipient = flashFeeReceiver();
 
     flashLoan(e, receiver, token, amount, data);
 
-    assert to_mathint(amount)                                    == trackedMintAmount[receiver];
-    assert to_mathint(amount + (recipient == 0 ? feeBefore : 0)) == trackedBurnAmount[receiver];
+    assert trackedMintAmount[receiver] == to_mathint(amount);
+    assert trackedBurnAmount[receiver] == to_mathint(amount + (recipient == 0 ? fees : 0));
+    assert (fees > 0 && recipient != 0) => trackedTransferedAmount[receiver][recipient] == fees;
 }

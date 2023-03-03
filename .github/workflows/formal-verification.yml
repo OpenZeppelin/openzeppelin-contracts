@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - release-v*
+  pull_request: {}
   workflow_dispatch: {}
 
 env:
@@ -25,6 +26,11 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     needs: list-scripts
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        params: ${{ fromJson(needs.list-scripts.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v2
       - name: Install python
@@ -50,8 +56,3 @@ jobs:
           bash ${{ matrix.params }}
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        params: ${{ fromJson(needs.list-scripts.outputs.matrix) }}
