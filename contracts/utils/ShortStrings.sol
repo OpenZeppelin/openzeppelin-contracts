@@ -32,7 +32,10 @@ type ShortString is bytes32;
  * ```
  */
 library ShortStrings {
+    bytes32 private constant _FALLBACK_SENTINEL = 0x00000000000000000000000000000000000000000000000000000000000000FF;
+
     error StringTooLong(string str);
+    error InvalidShortString();
 
     /**
      * @dev Encode a string of at most 31 chars into a `ShortString`.
@@ -66,7 +69,11 @@ library ShortStrings {
      * @dev Return the length of a `ShortString`.
      */
     function length(ShortString sstr) internal pure returns (uint256) {
-        return uint256(ShortString.unwrap(sstr)) & 0xFF;
+        uint256 result = uint256(ShortString.unwrap(sstr)) & 0xFF;
+        if (result > 31) {
+            revert InvalidShortString();
+        }
+        return result;
     }
 
     /**
@@ -77,7 +84,7 @@ library ShortStrings {
             return toShortString(value);
         } else {
             StorageSlot.getStringSlot(store).value = value;
-            return ShortString.wrap(0);
+            return ShortString.wrap(_FALLBACK_SENTINEL);
         }
     }
 
@@ -85,7 +92,7 @@ library ShortStrings {
      * @dev Decode a string that was encoded to `ShortString` or written to storage using {setWithFallback}.
      */
     function toStringWithFallback(ShortString value, string storage store) internal pure returns (string memory) {
-        if (length(value) > 0) {
+        if (ShortString.unwrap(value) != _FALLBACK_SENTINEL) {
             return toString(value);
         } else {
             return store;

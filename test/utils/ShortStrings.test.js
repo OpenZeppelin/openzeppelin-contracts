@@ -3,9 +3,12 @@ const { expectRevertCustomError } = require('../helpers/customError');
 
 const ShortStrings = artifacts.require('$ShortStrings');
 
+function length(sstr) {
+  return parseInt(sstr.slice(64), 16);
+}
+
 function decode(sstr) {
-  const length = parseInt(sstr.slice(64), 16);
-  return web3.utils.toUtf8(sstr).slice(0, length);
+  return web3.utils.toUtf8(sstr).slice(0, length(sstr));
 }
 
 contract('ShortStrings', function () {
@@ -34,7 +37,12 @@ contract('ShortStrings', function () {
         const { logs } = await this.mock.$toShortStringWithFallback(str, 0);
         const { ret0 } = logs.find(({ event }) => event == 'return$toShortStringWithFallback').args;
 
-        expect(await this.mock.$toString(ret0)).to.be.equal(str.length < 32 ? str : '');
+        const promise = this.mock.$toString(ret0);
+        if (str.length < 32) {
+          expect(await promise).to.be.equal(str);
+        } else {
+          await expectRevertCustomError(promise, 'InvalidShortString()');
+        }
 
         const recovered = await this.mock.$toStringWithFallback(ret0, 0);
         expect(recovered).to.be.equal(str);
