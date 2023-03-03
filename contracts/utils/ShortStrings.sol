@@ -45,7 +45,9 @@ library ShortStrings {
         if (bstr.length > 31) {
             revert StringTooLong(str);
         }
-        return ShortString.wrap(bytes32(uint256(bytes32(bstr)) | (bstr.length + 1)));
+        unchecked {
+            return ShortString.wrap(bytes32(uint256(bytes32(bstr)) | (bstr.length + 1)));
+        }
     }
 
     /**
