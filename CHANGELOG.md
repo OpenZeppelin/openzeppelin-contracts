@@ -12,6 +12,10 @@
 - `ERC777`: The `ERC777` token standard is no longer supported by OpenZeppelin. Our implementation is now deprecated and will be removed in the next major release. The corresponding standard interfaces remain available. ([#4066](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4066))
 - `ERC1820Implementer`: The `ERC1820` pseudo-introspection mechanism is no longer supported by OpenZeppelin. Our implementation is now deprecated and will be removed in the next major release. The corresponding standard interfaces remain available. ([#4066](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4066))
 
+## 4.8.2 (2023-03-02)
+
+- `ERC721Consecutive`: Fixed a bug when `_mintConsecutive` is used for batches of size 1 that could lead to balance overflow. Refer to the breaking changes section in the changelog for a note on the behavior of `ERC721._beforeTokenTransfer`.
+
 ### Breaking changes
 
 - `ERC721`: The internal function `_beforeTokenTransfer` no longer updates balances, which it previously did when `batchSize` was greater than 1. This change has no consequence unless a custom ERC721 extension is explicitly invoking `_beforeTokenTransfer`. Balance updates in extensions must now be done explicitly using `__unsafe_increaseBalance`, with a name that indicates that there is an invariant that has to be manually verified.
