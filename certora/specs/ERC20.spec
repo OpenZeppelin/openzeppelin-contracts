@@ -398,7 +398,7 @@ rule permit(env e) {
     // check outcome
     if (lastReverted) {
         // Without formally checking the signature, we can't verify exactly the revert causes
-        assert deadline < e.block.timestamp || true;
+        assert true;
     } else {
         // allowance and nonce are updated
         assert allowance(holder, spender) == amount;
