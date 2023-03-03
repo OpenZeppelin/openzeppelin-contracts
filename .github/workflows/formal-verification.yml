@@ -15,8 +15,10 @@ env:
 
 jobs:
   apply-diff:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Apply patches
         run: make -C certora apply
 
@@ -58,6 +60,8 @@ jobs:
           sudo mv solc-static-linux /usr/local/bin/solc
           chmod +x /usr/local/bin/solc
       - name: Verify rule ${{ matrix.params }}
-        run: bash ${{ matrix.params }}
+        run: |
+          make -C certora apply
+          bash ${{ matrix.params }}
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
