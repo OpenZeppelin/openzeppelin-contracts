@@ -46,13 +46,13 @@ jobs:
         with:
           python-version: ${{ env.PIP_VERSION }}
           cache: 'pip'
+      - name: Install python packages
+        run: pip install -r requirements.txt
       - name: Install java
         uses: actions/setup-java@v1
         with:
           java-package: 'jre'
           java-version: ${{ env.JAVA_VERSION }}
-      - name: Install certora
-        run: pip install certora-cli
       - name: Install solc
         run: |
           wget https://github.com/ethereum/solidity/releases/download/v${{ env.SOLC_VERSION }}/solc-static-linux
