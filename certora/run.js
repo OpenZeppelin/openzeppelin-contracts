@@ -16,7 +16,7 @@ for (const [spec, { files, contract }] of Object.entries(specs)) {
 
 // Run certora, aggregate the output and print it at the end
 async function run(files, contract, spec, args = []) {
-  const child = proc.spawn('echo', [
+  const child = proc.spawn('certoraRun', [
     ...files,
     '--verify',
     `${contract}:${spec}`,
