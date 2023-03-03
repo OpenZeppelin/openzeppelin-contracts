@@ -7,9 +7,9 @@ methods {
     increaseAllowance(address,uint256) returns (bool)
     decreaseAllowance(address,uint256) returns (bool)
 
-    // patched
-    _mint(address,uint256)
-    _burn(address,uint256)
+    // exposed for FV
+    mint(address,uint256)
+    burn(address,uint256)
 }
 
 /*
@@ -56,8 +56,8 @@ rule noChangeTotalSupply(env e) {
     f(e, args);
     uint256 totalSupplyAfter = totalSupply();
 
-    assert (totalSupplyAfter > totalSupplyBefore) => (f.selector == _mint(address,uint256).selector);
-    assert (totalSupplyAfter < totalSupplyBefore) => (f.selector == _burn(address,uint256).selector);
+    assert (totalSupplyAfter > totalSupplyBefore) => (f.selector == mint(address,uint256).selector);
+    assert (totalSupplyAfter < totalSupplyBefore) => (f.selector == burn(address,uint256).selector);
 }
 
 /*
@@ -80,7 +80,7 @@ rule onlyAuthorizedCanTransfer(env e) {
     assert (
         balanceAfter < balanceBefore
     ) => (
-        f.selector == _burn(address,uint256).selector ||
+        f.selector == burn(address,uint256).selector ||
         e.msg.sender == account ||
         balanceBefore - balanceAfter <= allowanceBefore
     );
@@ -140,7 +140,7 @@ rule mint(env e) {
     uint256 totalSupplyBefore  = totalSupply();
 
     // run transaction
-    _mint@withrevert(e, to, amount);
+    mint@withrevert(e, to, amount);
 
     // check outcome
     if (lastReverted) {
@@ -174,7 +174,7 @@ rule burn(env e) {
     uint256 totalSupplyBefore  = totalSupply();
 
     // run transaction
-    _burn@withrevert(e, from, amount);
+    burn@withrevert(e, from, amount);
 
     // check outcome
     if (lastReverted) {
