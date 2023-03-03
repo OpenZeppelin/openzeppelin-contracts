@@ -28,7 +28,7 @@ function specTransfer(address from, address to, uint256 amount) returns bool { t
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: When doing a flashLoan, "amount" is minted and burnt, additionally, the fee is either burnt                   │
-│ (if the fee recipient is 0) or transfered (if the fee recipient is not 0)                                           │
+│ (if the fee recipient is 0) or transferred (if the fee recipient is not 0)                                          │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule checkMintAndBurn(env e) {
