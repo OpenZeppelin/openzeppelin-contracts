@@ -98,4 +98,19 @@ library ShortStrings {
             return store;
         }
     }
+
+    /**
+     * @dev Return the length of a string that was encoded to `ShortString` or written to storage using {setWithFallback}.
+     */
+    function lengthWithFallback(ShortString value, string storage store) internal view returns (uint256) {
+        if (ShortString.unwrap(value) != _FALLBACK_SENTINEL) {
+            return length(value);
+        } else {
+            uint256 result;
+            assembly {
+                result := div(sload(store.slot), 2)
+            }
+            return result;
+        }
+    }
 }
