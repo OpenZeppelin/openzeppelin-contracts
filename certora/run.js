@@ -23,6 +23,7 @@ async function run(files, contract, spec, args = []) {
   const [code, signal] = await events.once(child, 'exit');
   if (code || signal) {
     console.error(`Specification ${spec} exited with error ${code || signal}`);
+    process.exitCode = 1;
   }
   stream.end();
   console.log(await output);
