@@ -15,12 +15,8 @@ for (const { spec, contract, files, args } of Object.values(specs)) {
 
 // Run certora, aggregate the output and print it at the end
 async function run(spec, contract, files, args = []) {
-  const child = proc.spawn('certoraRun', [
-    ...files,
-    '--verify',
-    `${contract}:certora/specs/${spec}.spec`,
-    ...args,
-  ]);
+  args = [...files, '--verify', `${contract}:certora/specs/${spec}.spec`, ...args];
+  const child = proc.spawn('certoraRun', args);
   const stream = new PassThrough();
   const output = collect(stream);
   child.stdout.pipe(stream, { end: false });
@@ -31,7 +27,8 @@ async function run(spec, contract, files, args = []) {
     process.exitCode = 1;
   }
   stream.end();
-  console.log(await output);
+  const cmd = ['certoraRun', ...args].join(' ');
+  console.log(`+ ${cmd}\n\n` + (await output));
 }
 
 // Collects stream data into a string
