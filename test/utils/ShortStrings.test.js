@@ -33,7 +33,7 @@ contract('ShortStrings', function () {
         }
       });
 
-      it.only('set / get with fallback', async function () {
+      it('set / get with fallback', async function () {
         const { logs } = await this.mock.$toShortStringWithFallback(str, 0);
         const { ret0 } = logs.find(({ event }) => event == 'return$toShortStringWithFallback').args;
 
