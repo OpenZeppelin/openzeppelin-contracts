@@ -32,6 +32,8 @@ type ShortString is bytes32;
  * ```
  */
 library ShortStrings {
+    bytes32 constant INVALID_SHORT_STRING = 0x00000000000000000000000000000000000000000000000000000000000000FF;
+
     error StringTooLong(string str);
     error InvalidShortString();
 
@@ -45,9 +47,7 @@ library ShortStrings {
         if (bstr.length > 31) {
             revert StringTooLong(str);
         }
-        unchecked {
-            return ShortString.wrap(bytes32(uint256(bytes32(bstr)) | (bstr.length + 1)));
-        }
+        return ShortString.wrap(bytes32(uint256(bytes32(bstr)) | bstr.length));
     }
 
     /**
@@ -69,13 +69,11 @@ library ShortStrings {
      * @dev Return the length of a `ShortString`.
      */
     function length(ShortString sstr) internal pure returns (uint256) {
-        uint256 lengthPlusOne = uint256(ShortString.unwrap(sstr)) & 0xFF;
-        if (lengthPlusOne == 0 || lengthPlusOne > 32) {
+        uint256 result = uint256(ShortString.unwrap(sstr)) & 0xFF;
+        if (result > 31) {
             revert InvalidShortString();
         }
-        unchecked {
-            return lengthPlusOne - 1;
-        }
+        return result;
     }
 
     /**
@@ -86,7 +84,7 @@ library ShortStrings {
             return toShortString(value);
         } else {
             StorageSlot.getStringSlot(store).value = value;
-            return ShortString.wrap(0);
+            return ShortString.wrap(INVALID_SHORT_STRING);
         }
     }
 
@@ -94,7 +92,7 @@ library ShortStrings {
      * @dev Decode a string that was encoded to `ShortString` or written to storage using {setWithFallback}.
      */
     function toStringWithFallback(ShortString value, string storage store) internal pure returns (string memory) {
-        if (ShortString.unwrap(value) != bytes32(0)) {
+        if (ShortString.unwrap(value) != INVALID_SHORT_STRING) {
             return toString(value);
         } else {
             return store;

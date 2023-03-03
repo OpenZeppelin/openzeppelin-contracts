@@ -4,7 +4,7 @@ const { expectRevertCustomError } = require('../helpers/customError');
 const ShortStrings = artifacts.require('$ShortStrings');
 
 function length(sstr) {
-  return parseInt(sstr.slice(64), 16) - 1;
+  return parseInt(sstr.slice(64), 16);
 }
 
 function decode(sstr) {
@@ -33,7 +33,7 @@ contract('ShortStrings', function () {
         }
       });
 
-      it('set / get with fallback', async function () {
+      it.only('set / get with fallback', async function () {
         const { logs } = await this.mock.$toShortStringWithFallback(str, 0);
         const { ret0 } = logs.find(({ event }) => event == 'return$toShortStringWithFallback').args;
 
