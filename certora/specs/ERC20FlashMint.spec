@@ -24,9 +24,11 @@ ghost mapping(address => mapping(address => uint256)) trackedTransferedAmount;
 function specMint(address account, uint256 amount)              returns bool { trackedMintAmount[account] = amount;        return true; }
 function specBurn(address account, uint256 amount)              returns bool { trackedBurnAmount[account] = amount;        return true; }
 function specTransfer(address from, address to, uint256 amount) returns bool { trackedTransferedAmount[from][to] = amount; return true; }
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: When doing a flashLoan, "amount" is minted and "amount + fee" is burnt                                        │
+│ Rule: When doing a flashLoan, "amount" is minted and burnt, additionally, the fee is either burnt                   │
+│ (if the fee recipient is 0) or transfered (if the fee recipient is not 0)                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule checkMintAndBurn(env e) {
