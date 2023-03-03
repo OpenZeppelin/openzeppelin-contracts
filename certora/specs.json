@@ -6,6 +6,7 @@
   },
   {
     "spec": "ERC20",
+    "args": ["--optimistic_loop"],
     "files": ["certora/harnesses/ERC20PermitHarness.sol"],
     "contract": "ERC20PermitHarness"
   },
