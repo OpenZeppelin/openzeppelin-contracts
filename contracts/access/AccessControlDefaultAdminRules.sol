@@ -40,7 +40,7 @@ import "../interfaces/IERC5313.sol";
  */
 abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRules, IERC5313, AccessControl {
     // Delays
-    uint48 private _curentDefaultAdminDelay;
+    uint48 private _currentDefaultAdminDelay;
     uint48 private _pendingDefaultAdminDelay;
 
     // Admins
@@ -55,7 +55,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev Sets the initial values for {curentDefaultAdminDelay} in seconds and {defaultAdmin} address.
      */
     constructor(uint48 initialDefaultAdminDelay, address initialDefaultAdmin) {
-        _curentDefaultAdminDelay = initialDefaultAdminDelay;
+        _currentDefaultAdminDelay = initialDefaultAdminDelay;
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
     }
 
@@ -70,14 +70,17 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function defaultAdminDelay() public view virtual returns (uint48) {
-        return _curentDefaultAdminDelay;
+        return
+            _hasScheduledPassed(defaultAdminDelayChangeSchedule())
+                ? _pendingDefaultAdminDelay
+                : _currentDefaultAdminDelay;
     }
 
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function pendingDefaultAdminDelay() public view virtual returns (uint48) {
-        return _pendingDefaultAdminDelay;
+        return _hasScheduledPassed(defaultAdminDelayChangeSchedule()) ? 0 : _pendingDefaultAdminDelay;
     }
 
     /**
@@ -168,7 +171,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         if (role == DEFAULT_ADMIN_ROLE) {
             require(
-                pendingDefaultAdmin() == address(0) && _hasDefaultAdminTransferDelayPassed(),
+                pendingDefaultAdmin() == address(0) && _hasScheduledPassed(defaultAdminTransferSchedule()),
                 "AccessControl: only can renounce in two delayed steps"
             );
         }
@@ -225,7 +228,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _scheduleDefaultAdminDelayChange(uint48 newDefaultAdminDelay) internal virtual {
-        require(defaultAdminTransferSchedule() != 0, "AccessControl: default admin transfer pending");
+        require(defaultAdminTransferSchedule() == 0, "AccessControl: default admin transfer pending");
 
         uint48 currentDefaultAdminDelay = defaultAdminDelay();
 
@@ -253,7 +256,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
 
         if (delayChangeSchedule != 0) {
             require(delayChangeSchedule < block.timestamp, "AccessControl: Delay change in progress");
-            _curentDefaultAdminDelay = pendingDefaultAdminDelay();
+            // Must read the raw value to avoid getting a 0 from `pendingDefaultAdminDelay()`
+            _currentDefaultAdminDelay = _pendingDefaultAdminDelay;
             _resetDefaultAdminDelayChange();
         }
 
@@ -268,7 +272,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _acceptDefaultAdminTransfer() internal virtual {
-        require(_hasDefaultAdminTransferDelayPassed(), "AccessControl: transfer delay not passed");
+        require(_hasScheduledPassed(defaultAdminTransferSchedule()), "AccessControl: transfer delay not passed");
         _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
         _grantRole(DEFAULT_ADMIN_ROLE, pendingDefaultAdmin());
         _resetDefaultAdminTransfer();
@@ -303,8 +307,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @dev Checks if a {defaultAdminTransferSchedule} has been set and passed.
      */
-    function _hasDefaultAdminTransferDelayPassed() private view returns (bool) {
-        uint48 schedule = defaultAdminTransferSchedule();
+    function _hasScheduledPassed(uint48 schedule) private view returns (bool) {
         return schedule > 0 && schedule < block.timestamp;
     }
 }

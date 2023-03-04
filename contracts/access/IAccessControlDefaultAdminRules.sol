@@ -26,16 +26,25 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
 
     /**
      * @dev Returns the delay between each `DEFAULT_ADMIN_ROLE` transfer.
+     *
+     * A scheduled delay change will take effect as soon as the schedule passes, returning the new delay.
+     *
+     * WARNING: The delay value can be cancelled by the `DEFAULT_ADMIN_ROLE` owner if no other default admin transfer
+     * has started, which is indicated by a non-zero {defaultAdminDelayChangeSchedule} value.
      */
     function defaultAdminDelay() external view returns (uint48);
 
     /**
      * @dev Returns the pending delay to be set after {defaultAdminDelayChangeSchedule} passes.
+     *
+     * A zero value indicates there's no pending delay. This function will return 0 if a previous
+     * scheduled change has already passed.
      */
     function pendingDefaultAdminDelay() external view returns (uint48);
 
     /**
      * @dev Returns the timestamp after which {pendingDefaultAdminDelay} becomes {defaultAdminDelay}.
+     *
      * A zero value indicates no delay change scheduled.
      */
     function defaultAdminDelayChangeSchedule() external view returns (uint48);
@@ -52,6 +61,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
 
     /**
      * @dev Returns the timestamp after which the pending default admin can claim the `DEFAULT_ADMIN_ROLE`.
+     *
      * A zero value indicates no default admin transfer scheduled.
      */
     function defaultAdminTransferSchedule() external view returns (uint48);
@@ -69,7 +79,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * - No default admin transfer should've been started.
      * - No new default admin transfers should happen before the scheduled change passes.
-     * - (schedule + new admin transfer) is at least the previous delay.
+     * - (schedule + new admin transfer) takes at least the previous delay.
      * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
      */
     function scheduleDefaultAdminDelayChange(uint48 newDefaultAdminDelay) external;
