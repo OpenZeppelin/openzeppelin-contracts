@@ -79,7 +79,7 @@ async function collect(stream) {
   return Buffer.concat(buffers).toString('utf8');
 }
 
-// Formating
+// Formatting
 let hasHeader = false;
 
 function formatRow(...array) {
