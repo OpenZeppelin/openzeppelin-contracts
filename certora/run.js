@@ -42,7 +42,7 @@ async function runCertora(spec, contract, files, options = []) {
   stream.on('data', function logStatusUrl(data) {
     const url = data.toString('utf8').match(/https:\S*/);
     if (url?.[0].includes('/jobStatus/')) {
-      console.log(`- **${spec}** (${contract}) [status](${url[0]}), [summary](${url[0].replace('/jobStatus/', '/output/')})`);
+      writeEntry(spec, contract, url[0]);
       stream.off('data', logStatusUrl);
     }
   });
@@ -67,4 +67,21 @@ async function collect(stream) {
     buffers.push(buf);
   }
   return Buffer.concat(buffers).toString('utf8');
+}
+
+// Formating
+let hasHeader = false;
+
+function formatRow(...array) {
+  return [ '', ...array, ''].join(' | ');
+}
+
+function writeHeader() {
+  console.log(formatRow('spec', 'contract', 'status', 'output'));
+  console.log(formatRow('-', '-', '-', '-'));
+}
+
+function writeEntry(spec, contract, url) {
+  if (!hasHeader) { hasHeader = true; writeHeader(); }
+  console.log(formatRow(spec, contract, url, url.replace('/jobStatus/', '/output/')));
 }
