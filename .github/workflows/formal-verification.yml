@@ -17,7 +17,7 @@ jobs:
   apply-diff:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Apply patches
         run: make -C certora apply
 
@@ -29,14 +29,14 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Install python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PIP_VERSION }}
           cache: 'pip'
       - name: Install python packages
         run: pip install -r requirements.txt
       - name: Install java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-package: 'jre'
           java-version: ${{ env.JAVA_VERSION }}
@@ -48,6 +48,6 @@ jobs:
       - name: Verify specification
         run: |
           make -C certora apply
-          node certora/run.js
+          node certora/run.js | tee -a  $GITHUB_STEP_SUMMARY
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
