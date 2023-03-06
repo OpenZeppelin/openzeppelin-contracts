@@ -88,7 +88,7 @@ function formatRow(...array) {
 
 function writeHeader() {
   console.log(formatRow('spec', 'contract', 'result', 'status', 'output'));
-  console.log(formatRow('-', '-', '-', '-'));
+  console.log(formatRow('-', '-', '-', '-', '-'));
 }
 
 function writeEntry(spec, contract, url) {
