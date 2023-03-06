@@ -56,8 +56,8 @@ rule noChangeTotalSupply(env e) {
     f(e, args);
     uint256 totalSupplyAfter = totalSupply();
 
-    assert (totalSupplyAfter > totalSupplyBefore) => (f.selector == mint(address,uint256).selector);
-    assert (totalSupplyAfter < totalSupplyBefore) => (f.selector == burn(address,uint256).selector);
+    assert totalSupplyAfter > totalSupplyBefore => f.selector == mint(address,uint256).selector;
+    assert totalSupplyAfter < totalSupplyBefore => f.selector == burn(address,uint256).selector;
 }
 
 /*
@@ -257,8 +257,8 @@ rule transferFrom(env e) {
         assert allowance(holder, spender) == (allowanceBefore == max_uint256 ? to_uint256(max_uint256) : allowanceBefore - amount);
 
         // balances of holder and recipient are updated
-        assert balanceOf(holder)          == holderBalanceBefore    - (holder == recipient ? 0 : amount);
-        assert balanceOf(recipient)       == recipientBalanceBefore + (holder == recipient ? 0 : amount);
+        assert balanceOf(holder)    == holderBalanceBefore    - (holder == recipient ? 0 : amount);
+        assert balanceOf(recipient) == recipientBalanceBefore + (holder == recipient ? 0 : amount);
 
         // no other balance is modified
         assert balanceOf(other) != otherBalanceBefore => (other == holder || other == recipient);
