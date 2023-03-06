@@ -3,6 +3,7 @@ const { expect } = require('chai');
 const { time } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
+const { network } = require('hardhat');
 
 const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
 const ROLE = web3.utils.soliditySha3('ROLE');
@@ -214,14 +215,6 @@ function shouldBehaveLikeAccessControlEnumerable(errorPrefix, admin, authorized,
 function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defaultAdmin, newDefaultAdmin, other) {
   shouldSupportInterfaces(['AccessControlDefaultAdminRules']);
 
-  it('has an initial delay', async function () {
-    expect(await this.accessControl.defaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(delay));
-  });
-
-  it('has no initial pending delay', async function () {
-    expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(0));
-  });
-
   it('has a default disabled default admin transfer schedule', async function () {
     expect(await this.accessControl.defaultAdminTransferSchedule()).to.be.bignumber.equal(web3.utils.toBN(0));
   });
@@ -270,6 +263,53 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin),
       `${errorPrefix}: default admin already granted`,
     );
+  });
+
+  describe('default admin delay', function () {
+    it('has an initial delay', async function () {
+      expect(await this.accessControl.defaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(delay));
+    });
+
+    it('pending default admin delay kicks in after schedule is passed', async function () {
+      const newDelay = web3.utils.toBN(time.duration.days(3)).add(delay); // Increased, so it waits the `newDelay`
+      await this.accessControl.scheduleDefaultAdminDelayChange(newDelay, { from: defaultAdmin });
+
+      // Initial value
+      expect(await this.accessControl.defaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(delay));
+
+      // Wait until schedule is met
+      const newSchedule = web3.utils.toBN(await time.latest()).add(newDelay);
+      await time.setNextBlockTimestamp(newSchedule.addn(1));
+      await network.provider.send('evm_mine'); // Mine a block to force the timestamp
+
+      // New value
+      expect(await this.accessControl.defaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(newDelay));
+    });
+  });
+
+  describe('pending default admin delay', function () {
+    it('has no initial pending delay', async function () {
+      expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(0));
+    });
+
+    it('pending default is set and set to 0 after schedule passes', async function () {
+      // Initial value
+      expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(0));
+
+      const newDelay = web3.utils.toBN(time.duration.days(3)).add(delay); // Increased, so it waits the `newDelay`
+      await this.accessControl.scheduleDefaultAdminDelayChange(newDelay, { from: defaultAdmin });
+
+      // Pending value
+      expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.equal(newDelay);
+
+      // Wait until schedule is met
+      const newSchedule = web3.utils.toBN(await time.latest()).add(newDelay);
+      await time.setNextBlockTimestamp(newSchedule.addn(1));
+      await network.provider.send('evm_mine'); // Mine a block to force the timestamp
+
+      // Not pending anymore
+      expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(0));
+    });
   });
 
   describe('begins transfer of default admin', function () {
