@@ -23,7 +23,7 @@ contract('ShortStrings', function () {
           const encoded = await this.mock.$toShortString(str);
           expect(decode(encoded)).to.be.equal(str);
 
-          const length = await this.mock.$length(encoded);
+          const length = await this.mock.$byteLength(encoded);
           expect(length.toNumber()).to.be.equal(str.length);
 
           const decoded = await this.mock.$toString(encoded);
@@ -43,6 +43,9 @@ contract('ShortStrings', function () {
         } else {
           await expectRevertCustomError(promise, 'InvalidShortString()');
         }
+
+        const length = await this.mock.$byteLengthWithFallback(ret0, 0);
+        expect(length.toNumber()).to.be.equal(str.length);
 
         const recovered = await this.mock.$toStringWithFallback(ret0, 0);
         expect(recovered).to.be.equal(str);
