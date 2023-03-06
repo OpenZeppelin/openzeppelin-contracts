@@ -41,8 +41,8 @@ async function runCertora(spec, contract, files, options = []) {
 
   stream.on('data', function logStatusUrl(data) {
     const url = data.toString('utf8').match(/https:\S*/);
-    if (url?.[0].includes('/jobStatus/')) {
-      console.log(`[${spec}]`, url[0]);
+    if (url?.[0].includes('/output/')) {
+      console.log(`### [${spec}](${url[0]})`);
       stream.off('data', logStatusUrl);
     }
   });
@@ -56,7 +56,7 @@ async function runCertora(spec, contract, files, options = []) {
 
   stream.end();
 
-  console.log(`+ certoraRun ${args.join(' ')}\n` + (await output));
+  console.error(`+ certoraRun ${args.join(' ')}\n` + (await output));
 }
 
 // Collects stream data into a string
