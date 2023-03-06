@@ -40,10 +40,13 @@ async function runCertora(spec, contract, files, options = []) {
   child.stderr.pipe(stream, { end: false });
 
   stream.on('data', function logStatusUrl(data) {
-    const url = data.toString('utf8').match(/https:\S*/);
-    if (url?.[0].includes('/jobStatus/')) {
-      writeEntry(spec, contract, url[0]);
-      stream.off('data', logStatusUrl);
+    const urls = data.toString('utf8').match(/https?:\S*/g);
+    for (const url of urls ?? []) {
+      const url = data.toString('utf8').match(/https:\S*/);
+      if (url.includes('/jobStatus/')) {
+        writeEntry(spec, contract, url);
+        stream.off('data', logStatusUrl);
+      }
     }
   });
 
