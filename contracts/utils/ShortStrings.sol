@@ -101,6 +101,7 @@ library ShortStrings {
 
     /**
      * @dev Return the length of a string that was encoded to `ShortString` or written to storage using {setWithFallback}.
+     *
      * WARNING: This will return the "byte length" of the string. This may not reflect the actual length in terms of
      * actual characters as the UTF-8 encoding of a single character can span over multiple bytes.
      */
