@@ -39,23 +39,36 @@ async function runCertora(spec, contract, files, options = []) {
   child.stdout.pipe(stream, { end: false });
   child.stderr.pipe(stream, { end: false });
 
+  // as soon as we have a jobStatus link, print it
   stream.on('data', function logStatusUrl(data) {
     const url = data.toString('utf8').match(/https:\S*/);
     if (url?.[0].includes('/jobStatus/')) {
-      writeEntry(spec, contract, url[0]);
+      console.error(`[${spec}] ${url[0]}`);
       stream.off('data', logStatusUrl);
     }
   });
 
+  // wait for process end
   const [code, signal] = await events.once(child, 'exit');
 
+  // error
   if (code || signal) {
     console.error(`[${spec}] Exited with code ${code || signal}`);
     process.exitCode = 1;
   }
 
+  // get all output
   stream.end();
 
+  // write results in markdown format
+  writeEntry(
+    spec,
+    contract,
+    (code || signal) ? ':x:' : ':heavy_check_mark:',
+    (await output).match(/https:\S*/)[0],
+  );
+
+  // write all details
   console.error(`+ certoraRun ${args.join(' ')}\n` + (await output));
 }
 
@@ -77,7 +90,7 @@ function formatRow(...array) {
 }
 
 function writeHeader() {
-  console.log(formatRow('spec', 'contract', 'status', 'output'));
+  console.log(formatRow('spec', 'contract', 'result', 'status', 'output'));
   console.log(formatRow('-', '-', '-', '-'));
 }
 
