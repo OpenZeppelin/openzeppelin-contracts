@@ -73,7 +73,7 @@ async function collect(stream) {
 let hasHeader = false;
 
 function formatRow(...array) {
-  return [ '', ...array, ''].join(' | ');
+  return ['', ...array, ''].join(' | ');
 }
 
 function writeHeader() {
@@ -82,6 +82,9 @@ function writeHeader() {
 }
 
 function writeEntry(spec, contract, url) {
-  if (!hasHeader) { hasHeader = true; writeHeader(); }
-  console.log(formatRow(spec, contract, url, url.replace('/jobStatus/', '/output/')));
+  if (!hasHeader) {
+    hasHeader = true;
+    writeHeader();
+  }
+  console.log(formatRow(spec, contract, `[link](${url})`, `[link](${url.replace('/jobStatus/', '/output/')})`));
 }
