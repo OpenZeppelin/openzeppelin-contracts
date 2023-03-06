@@ -48,12 +48,12 @@ rule grantRoleEffect(env e) {
     address account1; address account2;
 
     bool isCallerAdmin = hasRole(getRoleAdmin(role2), e.msg.sender);
-
     bool hasRoleBefore = hasRole(role1, account1);
+
     grantRole@withrevert(e, role2, account2);
     assert !lastReverted <=> isCallerAdmin;
-    bool hasRoleAfter = hasRole(role1, account1);
 
+    bool hasRoleAfter = hasRole(role1, account1);
 
     assert (
         hasRoleBefore != hasRoleAfter
@@ -74,10 +74,11 @@ rule revokeRoleEffect(env e) {
     address account1; address account2;
 
     bool isCallerAdmin = hasRole(getRoleAdmin(role2), e.msg.sender);
-
     bool hasRoleBefore = hasRole(role1, account1);
+
     revokeRole@withrevert(e, role2, account2);
     assert !lastReverted <=> isCallerAdmin;
+
     bool hasRoleAfter = hasRole(role1, account1);
 
     assert (
@@ -99,8 +100,10 @@ rule renounceRoleEffect(env e) {
     address account1; address account2;
 
     bool hasRoleBefore = hasRole(role1, account1);
+
     renounceRole@withrevert(e, role2, account2);
     assert !lastReverted <=> account2 == e.msg.sender;
+
     bool hasRoleAfter = hasRole(role1, account1);
 
     assert (
