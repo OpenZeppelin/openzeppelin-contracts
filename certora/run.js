@@ -41,10 +41,12 @@ async function runCertora(spec, contract, files, options = []) {
 
   // as soon as we have a jobStatus link, print it
   stream.on('data', function logStatusUrl(data) {
-    const url = data.toString('utf8').match(/https:\S*/);
-    if (url?.[0].includes('/jobStatus/')) {
-      console.error(`[${spec}] ${url[0]}`);
-      stream.off('data', logStatusUrl);
+    const urls = data.toString('utf8').match(/https?:\S*/g);
+    for (const url of urls ?? []) {
+      if (url.includes('/jobStatus/')) {
+        console.error(`[${spec}] ${url[0]}`);
+        stream.off('data', logStatusUrl);
+      }
     }
   });
 
@@ -61,12 +63,7 @@ async function runCertora(spec, contract, files, options = []) {
   stream.end();
 
   // write results in markdown format
-  writeEntry(
-    spec,
-    contract,
-    (code || signal) ? ':x:' : ':heavy_check_mark:',
-    (await output).match(/https:\S*/)[0],
-  );
+  writeEntry(spec, contract, code || signal ? ':x:' : ':heavy_check_mark:', (await output).match(/https:\S*/)[0]);
 
   // write all details
   console.error(`+ certoraRun ${args.join(' ')}\n` + (await output));
