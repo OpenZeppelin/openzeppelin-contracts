@@ -54,7 +54,7 @@ library ShortStrings {
      * @dev Decode a `ShortString` back to a "normal" string.
      */
     function toString(ShortString sstr) internal pure returns (string memory) {
-        uint256 len = length(sstr);
+        uint256 len = byteLength(sstr);
         // using `new string(len)` would work locally but is not memory safe.
         string memory str = new string(32);
         /// @solidity memory-safe-assembly
@@ -68,7 +68,7 @@ library ShortStrings {
     /**
      * @dev Return the length of a `ShortString`.
      */
-    function length(ShortString sstr) internal pure returns (uint256) {
+    function byteLength(ShortString sstr) internal pure returns (uint256) {
         uint256 result = uint256(ShortString.unwrap(sstr)) & 0xFF;
         if (result > 31) {
             revert InvalidShortString();
@@ -107,7 +107,7 @@ library ShortStrings {
      */
     function byteLengthWithFallback(ShortString value, string storage store) internal view returns (uint256) {
         if (ShortString.unwrap(value) != _FALLBACK_SENTINEL) {
-            return length(value);
+            return byteLength(value);
         } else {
             return bytes(store).length;
         }

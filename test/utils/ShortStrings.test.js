@@ -23,7 +23,7 @@ contract('ShortStrings', function () {
           const encoded = await this.mock.$toShortString(str);
           expect(decode(encoded)).to.be.equal(str);
 
-          const length = await this.mock.$length(encoded);
+          const length = await this.mock.$byteLength(encoded);
           expect(length.toNumber()).to.be.equal(str.length);
 
           const decoded = await this.mock.$toString(encoded);
