@@ -44,7 +44,7 @@ contract('ShortStrings', function () {
           await expectRevertCustomError(promise, 'InvalidShortString()');
         }
 
-        const length = await this.mock.$lengthWithFallback(ret0, 0);
+        const length = await this.mock.$bytesLengthWithFallback(ret0, 0);
         expect(length.toNumber()).to.be.equal(str.length);
 
         const recovered = await this.mock.$toStringWithFallback(ret0, 0);
