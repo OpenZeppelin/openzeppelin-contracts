@@ -44,7 +44,7 @@ async function runCertora(spec, contract, files, options = []) {
     const urls = data.toString('utf8').match(/https?:\S*/g);
     for (const url of urls ?? []) {
       if (url.includes('/jobStatus/')) {
-        console.error(`[${spec}] ${url[0]}`);
+        console.error(`[${spec}] ${url}`);
         stream.off('data', logStatusUrl);
       }
     }
