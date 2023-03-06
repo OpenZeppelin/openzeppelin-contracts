@@ -103,7 +103,7 @@ rule renounceRoleEffect(env e) {
     renounceRole@withrevert(e, role2, account2);
     bool hasRoleAfter = hasRole(role1, account1);
 
-    assert !lastReverted <=> account == e.msg.sender;
+    assert !lastReverted <=> account2 == e.msg.sender;
 
     assert (
         hasRoleBefore != hasRoleAfter
