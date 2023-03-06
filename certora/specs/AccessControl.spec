@@ -10,73 +10,30 @@ methods {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Identify entrypoints: only grantRole can grant a role                                                               │
+│ Identify entrypoints: only grantRole, revokeRole and renounceRole can alter permissions                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyGrantCanGrant(env e, bytes32 role, address account) {
-    require !hasRole(role, account);
-
     method f; calldataarg args;
+
+    bool hasRoleBefore = hasRole(role, account);
     f(e, args);
+    bool hasRoleAfter = hasRole(role, account);
 
-    assert hasRole(role, account) => f.selector == grantRole(bytes32, address).selector;
-}
+    assert (
+        !hasRoleBefore &&
+        hasRoleAfter
+    ) => (
+        f.selector == grantRole(bytes32, address).selector
+    );
 
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Identify entrypoints: only revokeRole and renounceRole can grant a role                                             │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule onlyRevokeAndRenounceCanRevoke(env e, bytes32 role, address account) {
-    require hasRole(role, account);
-
-    method f; calldataarg args;
-    f(e, args);
-
-    assert !hasRole(role, account) => (f.selector == revokeRole(bytes32, address).selector || f.selector == renounceRole(bytes32, address).selector);
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Access restriction: grantRole revert iff caller is not admin of the role                                            │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule onlyAdminCanGrant(env e, bytes32 role, address account) {
-    require nonpayable(e);
-
-    bool isAdmin = hasRole(getRoleAdmin(role), e.msg.sender);
-
-    grantRole@withrevert(e, role, account);
-
-    assert !lastReverted <=> isAdmin;
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Access restriction: revokeRole revert iff caller is not admin of the role                                           │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule onlyAdminCanRevoke(env e, bytes32 role, address account) {
-    require nonpayable(e);
-
-    bool isAdmin = hasRole(getRoleAdmin(role), e.msg.sender);
-
-    revokeRole@withrevert(e, role, account);
-
-    assert !lastReverted <=> isAdmin;
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Access restriction: renounceRole revert iff caller is not the one renouncing                                        │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule onlyUserCanRenounce(env e, bytes32 role, address account) {
-    require nonpayable(e);
-
-    renounceRole@withrevert(e, role, account);
-
-    assert !lastReverted <=> account == e.msg.sender;
+    assert (
+        hasRoleBefore &&
+        !hasRoleAfter
+    ) => (
+        f.selector == revokeRole(bytes32, address).selector ||
+        f.selector == renounceRole(bytes32, address).selector
+    );
 }
 
 /*
@@ -85,12 +42,18 @@ rule onlyUserCanRenounce(env e, bytes32 role, address account) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule grantRoleEffect(env e) {
+    require nonpayable(e);
+
     bytes32 role1; bytes32 role2;
     address account1; address account2;
 
+    bool isCallerAdmin = hasRole(getRoleAdmin(role2), e.msg.sender);
+
     bool hasRoleBefore = hasRole(role1, account1);
-    grantRole(e, role2, account2);
+    grantRole@withrevert(e, role2, account2);
     bool hasRoleAfter = hasRole(role1, account1);
+
+    assert !lastReverted <=> isCallerAdmin;
 
     assert (
         hasRoleBefore != hasRoleAfter
@@ -105,12 +68,18 @@ rule grantRoleEffect(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule revokeRoleEffect(env e) {
+    require nonpayable(e);
+
     bytes32 role1; bytes32 role2;
     address account1; address account2;
 
+    bool isCallerAdmin = hasRole(getRoleAdmin(role2), e.msg.sender);
+
     bool hasRoleBefore = hasRole(role1, account1);
-    revokeRole(e, role2, account2);
+    revokeRole@withrevert(e, role2, account2);
     bool hasRoleAfter = hasRole(role1, account1);
+
+    assert !lastReverted <=> isCallerAdmin;
 
     assert (
         hasRoleBefore != hasRoleAfter
@@ -125,12 +94,16 @@ rule revokeRoleEffect(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule renounceRoleEffect(env e) {
+    require nonpayable(e);
+
     bytes32 role1; bytes32 role2;
     address account1; address account2;
 
     bool hasRoleBefore = hasRole(role1, account1);
-    renounceRole(e, role2, account2);
+    renounceRole@withrevert(e, role2, account2);
     bool hasRoleAfter = hasRole(role1, account1);
+
+    assert !lastReverted <=> account == e.msg.sender;
 
     assert (
         hasRoleBefore != hasRoleAfter
