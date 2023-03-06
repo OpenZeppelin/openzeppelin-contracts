@@ -36,7 +36,7 @@ jobs:
       - name: Install python packages
         run: pip install -r requirements.txt
       - name: Install java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v2
         with:
           java-package: 'jre'
           java-version: ${{ env.JAVA_VERSION }}
