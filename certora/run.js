@@ -46,6 +46,7 @@ async function runCertora(spec, contract, files, options = []) {
       if (url.includes('/jobStatus/')) {
         console.error(`[${spec}] ${url}`);
         stream.off('data', logStatusUrl);
+        break;
       }
     }
   });
