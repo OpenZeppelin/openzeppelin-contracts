@@ -20,7 +20,7 @@ if (request.startsWith('-')) {
   extraOptions.unshift(request);
   request = '';
 }
-const [reqContract, reqSpec] = request.split(':').reverse();
+const [reqSpec, reqContract] = request.split(':').reverse();
 
 for (const { spec, contract, files, options = [] } of Object.values(specs)) {
   if ((!reqSpec || reqSpec === spec) && (!reqContract || reqContract === contract)) {
