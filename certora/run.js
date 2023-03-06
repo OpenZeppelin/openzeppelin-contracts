@@ -63,7 +63,7 @@ async function runCertora(spec, contract, files, options = []) {
   stream.end();
 
   // write results in markdown format
-  writeEntry(spec, contract, code || signal ? ':x:' : ':heavy_check_mark:', (await output).match(/https:\S*/)[0]);
+  writeEntry(spec, contract, code || signal, (await output).match(/https:\S*/)[0]);
 
   // write all details
   console.error(`+ certoraRun ${args.join(' ')}\n` + (await output));
@@ -91,10 +91,18 @@ function writeHeader() {
   console.log(formatRow('-', '-', '-', '-', '-'));
 }
 
-function writeEntry(spec, contract, url) {
+function writeEntry(spec, contract, success, url) {
   if (!hasHeader) {
     hasHeader = true;
     writeHeader();
   }
-  console.log(formatRow(spec, contract, `[link](${url})`, `[link](${url.replace('/jobStatus/', '/output/')})`));
+  console.log(
+    formatRow(
+      spec,
+      contract,
+      success ? ':x:' : ':heavy_check_mark:',
+      `[link](${url})`,
+      `[link](${url.replace('/jobStatus/', '/output/')})`,
+    ),
+  );
 }
