@@ -36,9 +36,9 @@ jobs:
       - name: Install python packages
         run: pip install -r requirements.txt
       - name: Install java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
-          java-package: 'jre'
+          distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
       - name: Install solc
         run: |
