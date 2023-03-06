@@ -48,6 +48,6 @@ jobs:
       - name: Verify specification
         run: |
           make -C certora apply
-          node certora/run.js | tee -a  $GITHUB_STEP_SUMMARY
+          node certora/run.js | tee -a "$GITHUB_STEP_SUMMARY"
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
