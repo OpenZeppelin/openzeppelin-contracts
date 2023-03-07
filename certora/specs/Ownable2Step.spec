@@ -71,8 +71,9 @@ rule onlyCurrentOwnerCanCallOnlyOwner(env e) {
 
     calldataarg args;
     restricted@withrevert(e, args);
+    bool success = !lastReverted;
 
-    assert !lastReverted => e.msg.sender == current, "access control failed";
+    assert success <=> e.msg.sender == current, "access control failed";
 }
 
 /*
