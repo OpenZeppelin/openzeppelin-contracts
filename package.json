@@ -80,7 +80,7 @@
     "lodash.zip": "^4.2.0",
     "merkletreejs": "^0.2.13",
     "micromatch": "^4.0.2",
-    "p-limit": "^3.1.0",
+    "p-limit": "^4.0.0",
     "prettier": "^2.8.1",
     "prettier-plugin-solidity": "^1.1.0",
     "rimraf": "^3.0.2",
