@@ -4,9 +4,9 @@ pragma solidity ^0.8.2;
 import "../patched/proxy/utils/Initializable.sol";
 
 contract InitializableHarness is Initializable {
-    function initialize() public payable initializer {}
-    function reinitialize(uint8 n) public payable reinitializer(n) {}
-    function disable() public payable { _disableInitializers(); }
+    function initialize() public initializer {}
+    function reinitialize(uint8 n) public reinitializer(n) {}
+    function disable() public { _disableInitializers(); }
 
     // Harness
     function version() public view returns (uint8) {

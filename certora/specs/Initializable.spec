@@ -1,3 +1,5 @@
+import "helpers.spec"
+
 methods {
     // initialize, reinitialize, disable
     initialize()
@@ -88,6 +90,7 @@ rule cannotReinitializeOnceDisabled(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule initializeEffects(env e) {
+    require nonpayable(e);
     requireInvariant notInitializing();
 
     bool isUninitializedBefore = isUninitialized();
@@ -105,6 +108,7 @@ rule initializeEffects(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule reinitializeEffects(env e) {
+    require nonpayable(e);
     requireInvariant notInitializing();
 
     uint8 versionBefore = version();
@@ -123,6 +127,7 @@ rule reinitializeEffects(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule disableEffect(env e) {
+    require nonpayable(e);
     requireInvariant notInitializing();
 
     disable@withrevert(e);
