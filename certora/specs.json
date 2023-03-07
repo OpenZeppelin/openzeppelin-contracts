@@ -13,10 +13,13 @@
   {
     "spec": "ERC20FlashMint",
     "contract": "ERC20FlashMintHarness",
-    "files": [
-      "certora/harnesses/ERC20FlashMintHarness.sol",
-      "certora/harnesses/ERC3156FlashBorrowerHarness.sol"
-    ],
+    "files": ["certora/harnesses/ERC20FlashMintHarness.sol", "certora/harnesses/ERC3156FlashBorrowerHarness.sol"],
     "options": ["--optimistic_loop"]
+  },
+  {
+    "spec": "TimelockController",
+    "contract": "TimelockControllerHarness",
+    "files": ["certora/harnesses/TimelockControllerHarness.sol"],
+    "options": ["--optimistic_hashing", "--optimistic_loop"]
   }
 ]
