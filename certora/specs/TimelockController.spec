@@ -150,6 +150,25 @@ rule schedule(env e, bytes32 id) {
     assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
 }
 
+rule scheduleBatch(env e, bytes32 id) {
+    require e.block.timestamp > 1; // Sanity
+
+    address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt; uint256 delay;
+    require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
+
+    bytes32 otherId;
+    uint256 otherTimestamp = getTimestamp(otherId);
+
+    uint8 stateBefore = state(id);
+    scheduleBatch(e, targets, values, payloads, predecessor, salt, delay);
+    uint8 stateAfter = state(id);
+
+    assert stateBefore == UNSET() && stateAfter == PENDING(), "State transition violation";
+    assert getTimestamp(id) == to_uint256(e.block.timestamp + delay), "Proposal timestamp not correctly set";
+    assert delay >= getMinDelay(), "Minimum delay violation";
+    assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
+}
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: execute correctly updates the state                                                                           │
@@ -166,6 +185,24 @@ rule execute(env e, bytes32 id) {
 
     uint8 stateBefore = state(id);
     execute(e, target, value, data, predecessor, salt);
+    uint8 stateAfter = state(id);
+
+    assert stateBefore == PENDING() && stateAfter == DONE(), "State transition violation";
+    assert isOperationReadyBefore, "Execute before ready";
+    assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
+}
+
+rule executeBatch(env e, bytes32 id) {
+    address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt; uint256 delay;
+    require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
+
+    bool isOperationReadyBefore = isOperationReady(e, id);
+
+    bytes32 otherId;
+    uint256 otherTimestamp = getTimestamp(otherId);
+
+    uint8 stateBefore = state(id);
+    executeBatch(e, targets, values, payloads, predecessor, salt);
     uint8 stateAfter = state(id);
 
     assert stateBefore == PENDING() && stateAfter == DONE(), "State transition violation";
