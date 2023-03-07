@@ -84,7 +84,7 @@ rule cannotReinitializeOnceDisabled(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: Initialize correcly sets the version.                                                                         │
+│ Rule: Initialize correctly sets the version.                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule initializeEffects(env e) {
@@ -101,7 +101,7 @@ rule initializeEffects(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: Reinitialize correcly sets the version.                                                                       │
+│ Rule: Reinitialize correctly sets the version.                                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule reinitializeEffects(env e) {
