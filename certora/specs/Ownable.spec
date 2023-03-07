@@ -1,5 +1,5 @@
 import "helpers.spec"
-import "methods/IOwnable2Step.spec"
+import "methods/IOwnable.spec"
 
 methods {
     restricted()
@@ -7,7 +7,7 @@ methods {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Function correctness: transferOwnership sets the pending owner                                                      │
+│ Function correctness: transferOwnership changes ownership                                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule transferOwnership(env e) {
@@ -19,9 +19,8 @@ rule transferOwnership(env e) {
     transferOwnership@withrevert(e, newOwner);
     bool success = !lastReverted;
 
-    assert success <=> e.msg.sender == current, "unauthorized caller";
-    assert success => pendingOwner() == newOwner, "pending owner not set";
-    assert success => owner() == current, "current owner changed";
+    assert success <=> (e.msg.sender == current && newOwner != 0), "unauthorized caller or invalid arg";
+    assert success => owner() == newOwner, "current owner changed";
 }
 
 /*
@@ -38,27 +37,7 @@ rule renounceOwnership(env e) {
     bool success = !lastReverted;
 
     assert success <=> e.msg.sender == current, "unauthorized caller";
-    assert success => pendingOwner() == 0, "pending owner not cleared";
     assert success => owner() == 0, "owner not cleared";
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Function correctness: acceptOwnership changes owner and reset pending owner                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule acceptOwnership(env e){
-    require nonpayable(e);
-
-    address current = owner();
-    address pending = pendingOwner();
-
-    acceptOwnership@withrevert(e);
-    bool success = !lastReverted;
-
-    assert success <=> e.msg.sender == pending, "unauthorized caller";
-    assert success => pendingOwner() == 0, "pending owner not cleared";
-    assert success => owner() == pending, "owner not transferred";
 }
 
 /*
@@ -77,29 +56,20 @@ rule onlyCurrentOwnerCanCallOnlyOwner(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: ownership and pending ownership can only change in specific ways                                              │
+│ Rule: ownership can only change in specific ways                                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule ownerOrPendingOwnerChange(env e, method f) {
+rule onlyOwnerOrPendingOwnerCanChangeOwnership(env e, method f) {
     address oldCurrent = owner();
-    address oldPending = pendingOwner();
 
     calldataarg args;
     f(e, args);
 
     address newCurrent = owner();
-    address newPending = pendingOwner();
 
-    // If owner changes, must be either acceptOwnership or renounceOwnership
+    // If owner changes, must be either transferOwnership or renounceOwnership
     assert oldCurrent != newCurrent => (
-        (e.msg.sender == oldPending && newCurrent == oldPending && newPending == 0 && f.selector == acceptOwnership().selector) ||
-        (e.msg.sender == oldCurrent && newCurrent == 0          && newPending == 0 && f.selector == renounceOwnership().selector)
-    );
-
-    // If pending changes, must be either acceptance or reset
-    assert oldPending != newPending => (
-        (e.msg.sender == oldCurrent && newCurrent == oldCurrent &&                    f.selector == transferOwnership(address).selector) ||
-        (e.msg.sender == oldPending && newCurrent == oldPending && newPending == 0 && f.selector == acceptOwnership().selector) ||
-        (e.msg.sender == oldCurrent && newCurrent == 0          && newPending == 0 && f.selector == renounceOwnership().selector)
+        (e.msg.sender == oldCurrent && newCurrent != 0 && f.selector == transferOwnership(address).selector) ||
+        (e.msg.sender == oldCurrent && newCurrent == 0 && f.selector == renounceOwnership().selector)
     );
 }

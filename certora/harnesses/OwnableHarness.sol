@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.0;
 
-import "../patched/access/Ownable2Step.sol";
+import "../patched/access/Ownable.sol";
 
-contract Ownable2StepHarness is Ownable2Step {
+contract OwnableHarness is Ownable {
   function restricted() external payable onlyOwner {}
 }
