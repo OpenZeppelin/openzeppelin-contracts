@@ -216,12 +216,12 @@ rule onlyExecutor(env e, bytes32 id, method f) filtered { f ->
     f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector ||
     f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
 } {
-    bool isExecutor = hasRole(EXECUTOR_ROLE(), e.msg.sender);
+    bool isExecutorOrOpen = hasRole(EXECUTOR_ROLE(), e.msg.sender) || hasRole(EXECUTOR_ROLE(), 0);
 
     calldataarg args;
     f@withrevert(e, args);
 
-    assert !isExecutor => lastReverted, "Only executor can execute";
+    assert !isExecutorOrOpen => lastReverted, "Only executor can execute";
 }
 
 /*
