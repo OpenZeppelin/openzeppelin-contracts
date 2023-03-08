@@ -68,14 +68,14 @@ function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecesso
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 definition DONE_TIMESTAMP()      returns uint256 = 1;
-definition UNSET()               returns uint8   = 0;
-definition PENDING()             returns uint8   = 1;
-definition DONE()                returns uint8   = 2;
+definition UNSET()               returns uint8   = 0x1;
+definition PENDING()             returns uint8   = 0x2;
+definition DONE()                returns uint8   = 0x4;
 
 definition isUnset(bytes32 id)   returns bool    = !isOperation(id);
 definition isPending(bytes32 id) returns bool    = isOperationPending(id);
 definition isDone(bytes32 id)    returns bool    = isOperationDone(id);
-definition state(bytes32 id)     returns uint8   = isUnset(id) ? UNSET() : isPending(id) ? PENDING() : DONE();
+definition state(bytes32 id)     returns uint8   = (isUnset(id) ? UNSET() : 0) | (isPending(id) ? PENDING() : 0) | (isDone(id) ? DONE() : 0);
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
