@@ -166,7 +166,7 @@ rule minDelayOnlyChange(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: schedule liveliness and effets                                                                                │
+│ Rule: schedule liveness and effects                                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
@@ -204,7 +204,7 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: execute liveliness and effets                                                                                 │
+│ Rule: execute liveness and effects                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
@@ -243,7 +243,7 @@ rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: cancel liveliness and effets                                                                                  │
+│ Rule: cancel liveness and effects                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule cancel(env e, bytes32 id) {
