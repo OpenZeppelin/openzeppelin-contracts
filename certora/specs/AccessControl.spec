@@ -44,22 +44,25 @@ rule onlyGrantCanGrant(env e, bytes32 role, address account) {
 rule grantRoleEffect(env e) {
     require nonpayable(e);
 
-    bytes32 role1; bytes32 role2;
-    address account1; address account2;
+    bytes32 role;
+    bytes32 otherRole;
+    address account;
+    address otherAccount;
 
-    bool isCallerAdmin = hasRole(getRoleAdmin(role2), e.msg.sender);
-    bool hasRoleBefore = hasRole(role1, account1);
+    bool isCallerAdmin = hasRole(getRoleAdmin(role), e.msg.sender);
+    bool hasRoleBefore = hasRole(otherRole, otherAccount);
 
-    grantRole@withrevert(e, role2, account2);
-    assert !lastReverted <=> isCallerAdmin;
+    grantRole@withrevert(e, role, account);
+    bool success = !lastReverted;
 
-    bool hasRoleAfter = hasRole(role1, account1);
+    // liveness
+    assert success <=> isCallerAdmin;
 
-    assert (
-        hasRoleBefore != hasRoleAfter
-    ) => (
-        hasRoleAfter == true && role1 == role2 && account1 == account2
-    );
+    // effect
+    assert success => hasRole(role, account);
+
+    // no side effect
+    assert hasRoleBefore != hasRole(otherRole, otherAccount) => (otherRole == role && otherAccount == account);
 }
 
 /*
@@ -70,22 +73,25 @@ rule grantRoleEffect(env e) {
 rule revokeRoleEffect(env e) {
     require nonpayable(e);
 
-    bytes32 role1; bytes32 role2;
-    address account1; address account2;
+    bytes32 role;
+    bytes32 otherRole;
+    address account;
+    address otherAccount;
 
-    bool isCallerAdmin = hasRole(getRoleAdmin(role2), e.msg.sender);
-    bool hasRoleBefore = hasRole(role1, account1);
+    bool isCallerAdmin = hasRole(getRoleAdmin(role), e.msg.sender);
+    bool hasRoleBefore = hasRole(otherRole, otherAccount);
 
-    revokeRole@withrevert(e, role2, account2);
-    assert !lastReverted <=> isCallerAdmin;
+    revokeRole@withrevert(e, role, account);
+    bool success = !lastReverted;
 
-    bool hasRoleAfter = hasRole(role1, account1);
+    // liveness
+    assert success <=> isCallerAdmin;
 
-    assert (
-        hasRoleBefore != hasRoleAfter
-    ) => (
-        hasRoleAfter == false && role1 == role2 && account1 == account2
-    );
+    // effect
+    assert success => !hasRole(role, account);
+
+    // no side effect
+    assert hasRoleBefore != hasRole(otherRole, otherAccount) => (otherRole == role && otherAccount == account);
 }
 
 /*
@@ -96,19 +102,22 @@ rule revokeRoleEffect(env e) {
 rule renounceRoleEffect(env e) {
     require nonpayable(e);
 
-    bytes32 role1; bytes32 role2;
-    address account1; address account2;
+    bytes32 role;
+    bytes32 otherRole;
+    address account;
+    address otherAccount;
 
-    bool hasRoleBefore = hasRole(role1, account1);
+    bool hasRoleBefore = hasRole(otherRole, otherAccount);
 
-    renounceRole@withrevert(e, role2, account2);
-    assert !lastReverted <=> account2 == e.msg.sender;
+    renounceRole@withrevert(e, role, account);
+    bool success = !lastReverted;
 
-    bool hasRoleAfter = hasRole(role1, account1);
+    // liveness
+    assert success <=> account == e.msg.sender;
 
-    assert (
-        hasRoleBefore != hasRoleAfter
-    ) => (
-        hasRoleAfter == false && role1 == role2 && account1 == account2
-    );
+    // effect
+    assert success => !hasRole(role, account);
+
+    // no side effect
+    assert hasRoleBefore != hasRole(otherRole, otherAccount) => (otherRole == role && otherAccount == account);
 }
