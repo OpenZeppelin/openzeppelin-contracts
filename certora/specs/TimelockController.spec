@@ -46,6 +46,7 @@ function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) {
     }
 }
 
+// Uniformly handle execution of batched and non-batched operations.
 function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecessor) {
     if (f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector) {
         address target; uint256 value; bytes data; bytes32 salt;
