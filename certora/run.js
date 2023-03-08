@@ -102,7 +102,7 @@ function writeEntry(spec, contract, success, url) {
       spec,
       contract,
       success ? ':x:' : ':heavy_check_mark:',
-      url ? `[link](${url})`: 'error',
+      url ? `[link](${url})` : 'error',
       url ? `[link](${url?.replace('/jobStatus/', '/output/')})` : 'error',
     ),
   );
