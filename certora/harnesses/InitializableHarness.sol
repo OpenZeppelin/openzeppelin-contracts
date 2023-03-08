@@ -8,7 +8,6 @@ contract InitializableHarness is Initializable {
     function reinitialize(uint8 n) public reinitializer(n) {}
     function disable() public { _disableInitializers(); }
 
-    // Harness
     function version() public view returns (uint8) {
         return _getInitializedVersion();
     }
