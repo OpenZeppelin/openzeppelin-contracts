@@ -2,9 +2,9 @@ import "helpers.spec"
 
 methods {
     // initialize, reinitialize, disable
-    initialize()
-    reinitialize(uint8)
-    disable()
+    initialize()        envfree
+    reinitialize(uint8) envfree
+    disable()           envfree
 
     // view
     version()      returns uint8 envfree
@@ -49,10 +49,10 @@ rule increasingVersion(env e) {
 │ Rule: Cannot initialize a contract that is already initialized.                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule cannotInitializeTwice(env e) {
+rule cannotInitializeTwice() {
     require isInitialized();
 
-    initialize@withrevert(e);
+    initialize@withrevert();
 
     assert lastReverted, "contract must only be initialized once";
 }
@@ -62,10 +62,10 @@ rule cannotInitializeTwice(env e) {
 │ Rule: Cannot initialize once disabled.                                                                              │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule cannotInitializeOnceDisabled(env e) {
+rule cannotInitializeOnceDisabled() {
     require isDisabled();
 
-    initialize@withrevert(e);
+    initialize@withrevert();
 
     assert lastReverted, "contract is disabled";
 }
@@ -75,11 +75,11 @@ rule cannotInitializeOnceDisabled(env e) {
 │ Rule: Cannot reinitialize once disabled.                                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule cannotReinitializeOnceDisabled(env e) {
+rule cannotReinitializeOnceDisabled() {
     require isDisabled();
 
     uint8 n;
-    reinitialize@withrevert(e, n);
+    reinitialize@withrevert(n);
 
     assert lastReverted, "contract is disabled";
 }
@@ -89,13 +89,12 @@ rule cannotReinitializeOnceDisabled(env e) {
 │ Rule: Initialize correctly sets the version.                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule initializeEffects(env e) {
-    require nonpayable(e);
+rule initializeEffects() {
     requireInvariant notInitializing();
 
     bool isUninitializedBefore = isUninitialized();
 
-    initialize@withrevert(e);
+    initialize@withrevert();
     bool success = !lastReverted;
 
     assert success <=> isUninitializedBefore, "can only initialize uninitialized contracts";
@@ -107,14 +106,13 @@ rule initializeEffects(env e) {
 │ Rule: Reinitialize correctly sets the version.                                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule reinitializeEffects(env e) {
-    require nonpayable(e);
+rule reinitializeEffects() {
     requireInvariant notInitializing();
 
     uint8 versionBefore = version();
 
     uint8 n;
-    reinitialize@withrevert(e, n);
+    reinitialize@withrevert(n);
     bool success = !lastReverted;
 
     assert success <=> versionBefore < n, "can only reinitialize to a latter versions";
@@ -126,11 +124,10 @@ rule reinitializeEffects(env e) {
 │ Rule: Can disable.                                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule disableEffect(env e) {
-    require nonpayable(e);
+rule disableEffect() {
     requireInvariant notInitializing();
 
-    disable@withrevert(e);
+    disable@withrevert();
     bool success = !lastReverted;
 
     assert success,      "call to _disableInitializers failed";
