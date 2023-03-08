@@ -82,17 +82,17 @@ rule depositFor(env e) {
 
     // liveness
     assert success <=> (
-        sender   != 0                           && // invalid sender
-        receiver != 0                           && // invalid receiver
-        amount <= senderUnderlyingBalanceBefore && // deposit doesn't exceed balance
-        amount <= senderUnderlyingAllowanceBefore  // deposit doesn't exceed allowance
+        sender   != 0                             && // invalid sender
+        receiver != 0                             && // invalid receiver
+        amount   <= senderUnderlyingBalanceBefore && // deposit doesn't exceed balance
+        amount   <= senderUnderlyingAllowanceBefore  // deposit doesn't exceed allowance
     );
 
     // effects
-    assert success => balanceOf(receiver)                  == balanceBefore + amount;
-    assert success => totalSupply()                        == supplyBefore  + amount;
-    assert success => underlyingBalanceOf(currentContract) == wrapperUnderlyingBalanceBefore  + amount;
-    assert success => underlyingBalanceOf(sender)          == senderUnderlyingBalanceBefore   - amount;
+    assert success => balanceOf(receiver)                  == balanceBefore                  + amount;
+    assert success => totalSupply()                        == supplyBefore                   + amount;
+    assert success => underlyingBalanceOf(currentContract) == wrapperUnderlyingBalanceBefore + amount;
+    assert success => underlyingBalanceOf(sender)          == senderUnderlyingBalanceBefore  - amount;
 
     // no side effect
     assert underlyingTotalSupply() == underlyingSupplyBefore;
@@ -133,14 +133,14 @@ rule withdrawTo(env e) {
 
     // liveness
     assert success <=> (
-        sender   != 0        && // invalid sender
-        receiver != 0        && // invalid receiver
-        amount <= balanceBefore // withdraw doesn't exceed balance
+        sender   != 0          && // invalid sender
+        receiver != 0          && // invalid receiver
+        amount   <= balanceBefore // withdraw doesn't exceed balance
     );
 
     // effects
-    assert success => balanceOf(sender)                    == balanceBefore - amount;
-    assert success => totalSupply()                        == supplyBefore  - amount;
+    assert success => balanceOf(sender)                    == balanceBefore                   - amount;
+    assert success => totalSupply()                        == supplyBefore                    - amount;
     assert success => underlyingBalanceOf(currentContract) == wrapperUnderlyingBalanceBefore  - (currentContract != receiver ? amount : 0);
     assert success => underlyingBalanceOf(receiver)        == receiverUnderlyingBalanceBefore + (currentContract != receiver ? amount : 0);
 
