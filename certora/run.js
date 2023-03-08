@@ -31,7 +31,7 @@ if (request) {
 }
 
 for (const { spec, contract, files, options = [] } of Object.values(specs)) {
-  limit(runCertora, spec, contract, files, [...options.split(' '), ...extraOptions]);
+  limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...extraOptions]);
 }
 
 // Run certora, aggregate the output and print it at the end
