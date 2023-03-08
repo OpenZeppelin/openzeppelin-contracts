@@ -1,0 +1,22 @@
+[
+  {
+    "spec": "AccessControl",
+    "contract": "AccessControlHarness",
+    "files": ["certora/harnesses/AccessControlHarness.sol"]
+  },
+  {
+    "spec": "ERC20",
+    "contract": "ERC20PermitHarness",
+    "files": ["certora/harnesses/ERC20PermitHarness.sol"],
+    "options": ["--optimistic_loop"]
+  },
+  {
+    "spec": "ERC20FlashMint",
+    "contract": "ERC20FlashMintHarness",
+    "files": [
+      "certora/harnesses/ERC20FlashMintHarness.sol",
+      "certora/harnesses/ERC3156FlashBorrowerHarness.sol"
+    ],
+    "options": ["--optimistic_loop"]
+  }
+]
