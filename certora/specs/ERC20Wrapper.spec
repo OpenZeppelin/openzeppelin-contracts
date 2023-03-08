@@ -33,8 +33,9 @@ function sumOfUnderlyingBalancesLowerThanUnderlyingSupply(address a, address b) 
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant totalSupplyIsSmallerThanUnderlyingBalance()
-    underlyingBalanceOf(currentContract) >= totalSupply() &&
-    underlyingBalanceOf(currentContract) <= underlyingTotalSupply()
+    totalSupply() <= underlyingBalanceOf(currentContract)  &&
+    underlyingBalanceOf(currentContract) <= underlyingTotalSupply() &&
+    underlyingTotalSupply() <= max_uint256
     {
         preserved {
             requireInvariant totalSupplyIsSumOfBalances;
@@ -45,9 +46,6 @@ invariant totalSupplyIsSmallerThanUnderlyingBalance()
             sumOfUnderlyingBalancesLowerThanUnderlyingSupply(e.msg.sender, currentContract);
         }
     }
-
-invariant totalSupplyDoesNotOverflow()
-    totalSupply() <= max_uint256 && underlyingTotalSupply() <= max_uint256
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -67,7 +65,6 @@ rule depositFor(env e) {
     require currentContract != underlying();
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
-    requireInvariant totalSupplyDoesNotOverflow;
     sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, sender);
 
     uint256 balanceBefore                   = balanceOf(receiver);
@@ -120,7 +117,6 @@ rule withdrawTo(env e) {
     require currentContract != underlying();
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
-    requireInvariant totalSupplyDoesNotOverflow;
     sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, receiver);
 
     uint256 balanceBefore                   = balanceOf(sender);
