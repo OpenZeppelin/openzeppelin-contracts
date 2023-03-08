@@ -28,5 +28,10 @@
       "certora/harnesses/ERC3156FlashBorrowerHarness.sol"
     ],
     "options": ["--optimistic_loop"]
+  },
+  {
+    "spec": "Initializable",
+    "contract": "InitializableHarness",
+    "files": ["certora/harnesses/InitializableHarness.sol"]
   }
 ]
