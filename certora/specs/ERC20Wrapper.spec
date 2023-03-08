@@ -46,6 +46,9 @@ invariant totalSupplyIsSmallerThanUnderlyingBalance()
         }
     }
 
+invariant totalSupplyDoesNotOverflow()
+    totalSupply() <= max_uint256 && underlyingTotalSupply() <= max_uint256
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: depositFor liveness and effects                                                                               │
@@ -64,37 +67,40 @@ rule depositFor(env e) {
     require currentContract != underlying();
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
+    requireInvariant totalSupplyDoesNotOverflow;
     sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, sender);
 
-    uint256 balanceBefore                  = balanceOf(receiver);
-    uint256 supplyBefore                   = totalSupply();
-    uint256 underlyingSupplyBefore         = underlyingTotalSupply();
-    uint256 wrapperUnderlyingBalanceBefore = underlyingBalanceOf(currentContract);
-    uint256 senderUnderlyingBalanceBefore  = underlyingBalanceOf(sender);
+    uint256 balanceBefore                   = balanceOf(receiver);
+    uint256 supplyBefore                    = totalSupply();
+    uint256 senderUnderlyingBalanceBefore   = underlyingBalanceOf(sender);
+    uint256 senderUnderlyingAllowanceBefore = underlyingAllowanceToThis(sender);
+    uint256 wrapperUnderlyingBalanceBefore  = underlyingBalanceOf(currentContract);
+    uint256 underlyingSupplyBefore          = underlyingTotalSupply();
 
-    uint256 otherBalanceBefore             = balanceOf(other);
-    uint256 otherUnderlyingBalanceBefore   = underlyingBalanceOf(other);
+    uint256 otherBalanceBefore              = balanceOf(other);
+    uint256 otherUnderlyingBalanceBefore    = underlyingBalanceOf(other);
 
     depositFor@withrevert(e, receiver, amount);
+    bool success = !lastReverted;
 
-    if (lastReverted) {
-        assert (
-            sender   == 0                              || // invalid sender
-            receiver == 0                              || // invalid receiver
-            amount > senderUnderlyingBalanceBefore     || // deposit more than balance
-            amount > underlyingAllowanceToThis(sender) || // deposit more than allowance
-            balanceBefore + amount > max_uint256          // sanity: cannot overflow (bounded by underlying totalSupply)
-        );
-    } else {
-        assert balanceOf(receiver)                  == balanceBefore + amount;
-        assert totalSupply()                        == supplyBefore + amount;
-        assert underlyingTotalSupply()              == underlyingSupplyBefore;
-        assert underlyingBalanceOf(currentContract) == wrapperUnderlyingBalanceBefore + amount;
-        assert underlyingBalanceOf(sender)          == senderUnderlyingBalanceBefore  - amount;
+    // liveness
+    assert success <=> (
+        sender   != 0                           && // invalid sender
+        receiver != 0                           && // invalid receiver
+        amount <= senderUnderlyingBalanceBefore && // deposit doesn't exceed balance
+        amount <= senderUnderlyingAllowanceBefore  // deposit doesn't exceed allowance
+    );
 
-        assert balanceOf(other)           != otherBalanceBefore           => other == receiver;
-        assert underlyingBalanceOf(other) != otherUnderlyingBalanceBefore => (other == sender || other == currentContract);
-    }
+    // effects
+    assert success => balanceOf(receiver)                  == balanceBefore + amount;
+    assert success => totalSupply()                        == supplyBefore  + amount;
+    assert success => underlyingBalanceOf(currentContract) == wrapperUnderlyingBalanceBefore  + amount;
+    assert success => underlyingBalanceOf(sender)          == senderUnderlyingBalanceBefore   - amount;
+
+    // no side effect
+    assert underlyingTotalSupply() == underlyingSupplyBefore;
+    assert balanceOf(other)           != otherBalanceBefore           => other == receiver;
+    assert underlyingBalanceOf(other) != otherUnderlyingBalanceBefore => (other == sender || other == currentContract);
 }
 
 /*
@@ -114,36 +120,38 @@ rule withdrawTo(env e) {
     require currentContract != underlying();
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
+    requireInvariant totalSupplyDoesNotOverflow;
     sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, receiver);
 
     uint256 balanceBefore                   = balanceOf(sender);
     uint256 supplyBefore                    = totalSupply();
-    uint256 underlyingSupplyBefore          = underlyingTotalSupply();
-    uint256 wrapperUnderlyingBalanceBefore  = underlyingBalanceOf(currentContract);
     uint256 receiverUnderlyingBalanceBefore = underlyingBalanceOf(receiver);
+    uint256 wrapperUnderlyingBalanceBefore  = underlyingBalanceOf(currentContract);
+    uint256 underlyingSupplyBefore          = underlyingTotalSupply();
 
     uint256 otherBalanceBefore              = balanceOf(other);
     uint256 otherUnderlyingBalanceBefore    = underlyingBalanceOf(other);
 
     withdrawTo@withrevert(e, receiver, amount);
+    bool success = !lastReverted;
 
-    if (lastReverted) {
-        assert (
-            sender   == 0                                       || // invalid sender
-            receiver == 0                                       || // invalid receiver
-            amount > balanceBefore                              || // withdraw more than balance
-            receiverUnderlyingBalanceBefore + amount > max_uint256 // sanity: cannot overflow (bounded by underlying totalSupply)
-        );
-    } else {
-        assert balanceOf(sender)                    == balanceBefore - amount;
-        assert totalSupply()                        == supplyBefore  - amount;
-        assert underlyingTotalSupply()              == underlyingSupplyBefore;
-        assert underlyingBalanceOf(currentContract) == wrapperUnderlyingBalanceBefore  - (currentContract != receiver ? amount : 0);
-        assert underlyingBalanceOf(receiver)        == receiverUnderlyingBalanceBefore + (currentContract != receiver ? amount : 0);
+    // liveness
+    assert success <=> (
+        sender   != 0        && // invalid sender
+        receiver != 0        && // invalid receiver
+        amount <= balanceBefore // withdraw doesn't exceed balance
+    );
 
-        assert balanceOf(other)           != otherBalanceBefore           => other == sender;
-        assert underlyingBalanceOf(other) != otherUnderlyingBalanceBefore => (other == receiver || other == currentContract);
-    }
+    // effects
+    assert success => balanceOf(sender)                    == balanceBefore - amount;
+    assert success => totalSupply()                        == supplyBefore  - amount;
+    assert success => underlyingBalanceOf(currentContract) == wrapperUnderlyingBalanceBefore  - (currentContract != receiver ? amount : 0);
+    assert success => underlyingBalanceOf(receiver)        == receiverUnderlyingBalanceBefore + (currentContract != receiver ? amount : 0);
+
+    // no side effect
+    assert underlyingTotalSupply() == underlyingSupplyBefore;
+    assert balanceOf(other)           != otherBalanceBefore           => other == sender;
+    assert underlyingBalanceOf(other) != otherUnderlyingBalanceBefore => (other == receiver || other == currentContract);
 }
 
 /*
@@ -170,15 +178,17 @@ rule recover(env e) {
     uint256 otherUnderlyingBalanceBefore = underlyingBalanceOf(other);
 
     recover@withrevert(e, receiver);
+    bool success = !lastReverted;
 
-    if (lastReverted) {
-        assert receiver == 0;
-    } else {
-        assert balanceOf(receiver) == balanceBefore + value;
-        assert totalSupply()       == supplyBefore + value;
-        assert totalSupply()       == underlyingBalanceOf(currentContract);
+    // liveness
+    assert success <=> receiver != 0;
 
-        assert balanceOf(other) != otherBalanceBefore => other == receiver;
-        assert underlyingBalanceOf(other) == otherUnderlyingBalanceBefore;
-    }
+    // effect
+    assert success => balanceOf(receiver) == balanceBefore + value;
+    assert success => totalSupply()       == supplyBefore  + value;
+    assert success => totalSupply()       == underlyingBalanceOf(currentContract);
+
+    // no side effect
+    assert underlyingBalanceOf(other) == otherUnderlyingBalanceBefore;
+    assert balanceOf(other) != otherBalanceBefore => other == receiver;
 }
