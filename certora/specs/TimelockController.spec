@@ -67,6 +67,7 @@ invariant isOperationReadyCheck(env e, bytes32 id)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant stateConsistency(bytes32 id, env e)
+    // Check states are mutually exclusive
     (isUnset(id)   <=> (!isPending(id) && !isDone(id)   )) &&
     (isPending(id) <=> (!isUnset(id)   && !isDone(id)   )) &&
     (isDone(id)    <=> (!isUnset(id)   && !isPending(id))) &&
@@ -74,6 +75,7 @@ invariant stateConsistency(bytes32 id, env e)
     (isUnset(id)   <=> state(id) == UNSET()              ) &&
     (isPending(id) <=> state(id) == PENDING()            ) &&
     (isDone(id)    <=> state(id) == DONE()               ) &&
+    // Check substate
     isOperationReady(e, id) => isPending(id)
     filtered { f -> !f.isView }
 
@@ -250,7 +252,7 @@ rule onlyProposer(env e, bytes32 id, method f) filtered { f ->
 │ Access control: only users with the EXECUTOR_ROLE can call execute or executeBatch                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyExecutor(env e, bytes32 id, method f) filtered { f ->
+rule onlyExecutorOrOpen(env e, bytes32 id, method f) filtered { f ->
     f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector ||
     f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
 } {
@@ -267,13 +269,13 @@ rule onlyExecutor(env e, bytes32 id, method f) filtered { f ->
 │ Access control: only users with the CANCELLER_ROLE can call cancel                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyCanceler(env e, bytes32 id, method f) filtered { f ->
+rule onlyCanceller(env e, bytes32 id, method f) filtered { f ->
     f.selector == cancel(bytes32).selector
 } {
-    bool isCanceler = hasRole(CANCELLER_ROLE(), e.msg.sender);
+    bool isCanceller = hasRole(CANCELLER_ROLE(), e.msg.sender);
 
     calldataarg args;
     f@withrevert(e, args);
 
-    assert !isCanceler => lastReverted, "Only canceler can cancel";
+    assert !isCanceller => lastReverted, "Only canceller can cancel";
 }
