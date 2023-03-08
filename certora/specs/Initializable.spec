@@ -94,18 +94,22 @@ rule cannotReinitializeOnceDisabled() {
 │ Rule: Cannot nest initializers (after construction).                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule cannotNestInitializers() {
-    uint8 n; uint8 m;
-
+rule cannotNestInitializers_v1() {
     nested1@withrevert();
     assert lastReverted, "nested initializers";
+}
 
+rule cannotNestInitializers_v2(uint8 m) {
     nested2@withrevert(m);
     assert lastReverted, "nested initializers";
+}
 
+rule cannotNestInitializers_v3(uint8 n) {
     nested3@withrevert(n);
     assert lastReverted, "nested initializers";
+}
 
+rule cannotNestInitializers_v4(uint8 n, uint8 m) {
     nested4@withrevert(n, m);
     assert lastReverted, "nested initializers";
 }
