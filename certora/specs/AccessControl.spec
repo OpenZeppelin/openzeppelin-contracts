@@ -16,20 +16,20 @@ methods {
 rule onlyGrantCanGrant(env e, bytes32 role, address account) {
     method f; calldataarg args;
 
-    bool hasRoleBefore = hasRole(role, account);
+    bool hasOtherRoleBefore = hasRole(role, account);
     f(e, args);
-    bool hasRoleAfter = hasRole(role, account);
+    bool hasOtherRoleAfter = hasRole(role, account);
 
     assert (
-        !hasRoleBefore &&
-        hasRoleAfter
+        !hasOtherRoleBefore &&
+        hasOtherRoleAfter
     ) => (
         f.selector == grantRole(bytes32, address).selector
     );
 
     assert (
-        hasRoleBefore &&
-        !hasRoleAfter
+        hasOtherRoleBefore &&
+        !hasOtherRoleAfter
     ) => (
         f.selector == revokeRole(bytes32, address).selector ||
         f.selector == renounceRole(bytes32, address).selector
@@ -50,10 +50,12 @@ rule grantRoleEffect(env e) {
     address otherAccount;
 
     bool isCallerAdmin = hasRole(getRoleAdmin(role), e.msg.sender);
-    bool hasRoleBefore = hasRole(otherRole, otherAccount);
+    bool hasOtherRoleBefore = hasRole(otherRole, otherAccount);
 
     grantRole@withrevert(e, role, account);
     bool success = !lastReverted;
+
+    bool hasOtherRoleAfter = hasRole(otherRole, otherAccount);
 
     // liveness
     assert success <=> isCallerAdmin;
@@ -62,7 +64,7 @@ rule grantRoleEffect(env e) {
     assert success => hasRole(role, account);
 
     // no side effect
-    assert hasRoleBefore != hasRole(otherRole, otherAccount) => (otherRole == role && otherAccount == account);
+    assert hasOtherRoleBefore != hasOtherRoleAfter => (role == otherRole && account == otherAccount);
 }
 
 /*
@@ -79,10 +81,12 @@ rule revokeRoleEffect(env e) {
     address otherAccount;
 
     bool isCallerAdmin = hasRole(getRoleAdmin(role), e.msg.sender);
-    bool hasRoleBefore = hasRole(otherRole, otherAccount);
+    bool hasOtherRoleBefore = hasRole(otherRole, otherAccount);
 
     revokeRole@withrevert(e, role, account);
     bool success = !lastReverted;
+
+    bool hasOtherRoleAfter = hasRole(otherRole, otherAccount);
 
     // liveness
     assert success <=> isCallerAdmin;
@@ -91,7 +95,7 @@ rule revokeRoleEffect(env e) {
     assert success => !hasRole(role, account);
 
     // no side effect
-    assert hasRoleBefore != hasRole(otherRole, otherAccount) => (otherRole == role && otherAccount == account);
+    assert hasOtherRoleBefore != hasOtherRoleAfter => (role == otherRole && account == otherAccount);
 }
 
 /*
@@ -107,10 +111,12 @@ rule renounceRoleEffect(env e) {
     address account;
     address otherAccount;
 
-    bool hasRoleBefore = hasRole(otherRole, otherAccount);
+    bool hasOtherRoleBefore = hasRole(otherRole, otherAccount);
 
     renounceRole@withrevert(e, role, account);
     bool success = !lastReverted;
+
+    bool hasOtherRoleAfter = hasRole(otherRole, otherAccount);
 
     // liveness
     assert success <=> account == e.msg.sender;
@@ -119,5 +125,5 @@ rule renounceRoleEffect(env e) {
     assert success => !hasRole(role, account);
 
     // no side effect
-    assert hasRoleBefore != hasRole(otherRole, otherAccount) => (otherRole == role && otherAccount == account);
+    assert hasOtherRoleBefore != hasOtherRoleAfter => (role == otherRole && account == otherAccount);
 }
