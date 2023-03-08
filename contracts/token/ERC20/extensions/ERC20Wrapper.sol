@@ -54,6 +54,7 @@ abstract contract ERC20Wrapper is ERC20 {
 
     /**
      * @dev Allow a user to burn a number of wrapped tokens and withdraw the corresponding number of underlying tokens.
+     */
     function withdrawTo(address account, uint256 amount) public virtual returns (bool) {
         _burn(_msgSender(), amount);
         SafeERC20.safeTransfer(_underlying, account, amount);
