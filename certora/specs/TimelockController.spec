@@ -30,6 +30,7 @@ methods {
 │ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
+// Uniformly handle scheduling of batched and non-batched operations.
 function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) {
     if (f.selector == schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector) {
         address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
@@ -174,9 +175,11 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
     f.selector == scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector
 } {
     require nonpayable(e);
-    require e.block.timestamp > 1; // Sanity
-    require e.block.timestamp + delay < max_uint256; // Sanity
-    require e.block.timestamp + getMinDelay() < max_uint256; // Sanity
+
+    // Basic timestamp assumptions
+    require e.block.timestamp > 1;
+    require e.block.timestamp + delay < max_uint256;
+    require e.block.timestamp + getMinDelay() < max_uint256;
 
     bytes32 otherId; uint256 otherTimestamp = getTimestamp(otherId);
 
