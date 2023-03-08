@@ -1,3 +1,4 @@
+import "helpers.spec"
 import "methods/IAccessControl.spec"
 
 methods {
@@ -26,10 +27,44 @@ methods {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Functions & Definitions                                                                                             │
+│ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
+function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) {
+    if (f.selector == schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector) {
+        address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt;
+        require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
+        schedule@withrevert(e, target, value, data, predecessor, salt, delay);
+    } else if (f.selector == scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector) {
+        address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt;
+        require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
+        scheduleBatch@withrevert(e, targets, values, payloads, predecessor, salt, delay);
+    } else {
+        calldataarg args;
+        f@withrevert(e, args);
+    }
+}
 
+function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecessor) {
+    if (f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector) {
+        address target; uint256 value; bytes data; bytes32 salt;
+        require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
+        execute@withrevert(e, target, value, data, predecessor, salt);
+    } else if (f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector) {
+        address[] targets; uint256[] values; bytes[] payloads; bytes32 salt;
+        require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
+        executeBatch@withrevert(e, targets, values, payloads, predecessor, salt);
+    } else {
+        calldataarg args;
+        f@withrevert(e, args);
+    }
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Definitions                                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
 definition DONE_TIMESTAMP()      returns uint256 = 1;
 definition UNSET()               returns uint8   = 0;
 definition PENDING()             returns uint8   = 1;
@@ -131,151 +166,91 @@ rule minDelayOnlyChange(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: schedule correctly updates the state                                                                          │
+│ Rule: schedule liveliness and effets                                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule schedule(env e, bytes32 id) {
-    require e.block.timestamp > 1; // Sanity
-
-    address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt; uint256 delay;
-    require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
-
-    bytes32 otherId;
-    uint256 otherTimestamp = getTimestamp(otherId);
-
-    uint8 stateBefore = state(id);
-    schedule(e, target, value, data, predecessor, salt, delay);
-    uint8 stateAfter = state(id);
-
-    assert stateBefore == UNSET() && stateAfter == PENDING(), "State transition violation";
-    assert getTimestamp(id) == to_uint256(e.block.timestamp + delay), "Proposal timestamp not correctly set";
-    assert delay >= getMinDelay(), "Minimum delay violation";
-    assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
-}
-
-rule scheduleBatch(env e, bytes32 id) {
-    require e.block.timestamp > 1; // Sanity
-
-    address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt; uint256 delay;
-    require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
-
-    bytes32 otherId;
-    uint256 otherTimestamp = getTimestamp(otherId);
-
-    uint8 stateBefore = state(id);
-    scheduleBatch(e, targets, values, payloads, predecessor, salt, delay);
-    uint8 stateAfter = state(id);
-
-    assert stateBefore == UNSET() && stateAfter == PENDING(), "State transition violation";
-    assert getTimestamp(id) == to_uint256(e.block.timestamp + delay), "Proposal timestamp not correctly set";
-    assert delay >= getMinDelay(), "Minimum delay violation";
-    assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: execute correctly updates the state                                                                           │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule execute(env e, bytes32 id) {
-    address target; uint256 value; bytes data; bytes32 predecessor; bytes32 salt; uint256 delay;
-    require hashOperation(target, value, data, predecessor, salt) == id; // Correlation
-
-    bool isOperationReadyBefore = isOperationReady(e, id);
-
-    bytes32 otherId;
-    uint256 otherTimestamp = getTimestamp(otherId);
-
-    uint8 stateBefore = state(id);
-    execute(e, target, value, data, predecessor, salt);
-    uint8 stateAfter = state(id);
-
-    assert stateBefore == PENDING() && stateAfter == DONE(), "State transition violation";
-    assert isOperationReadyBefore, "Execute before ready";
-    assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
-}
-
-rule executeBatch(env e, bytes32 id) {
-    address[] targets; uint256[] values; bytes[] payloads; bytes32 predecessor; bytes32 salt; uint256 delay;
-    require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
-
-    bool isOperationReadyBefore = isOperationReady(e, id);
-
-    bytes32 otherId;
-    uint256 otherTimestamp = getTimestamp(otherId);
-
-    uint8 stateBefore = state(id);
-    executeBatch(e, targets, values, payloads, predecessor, salt);
-    uint8 stateAfter = state(id);
-
-    assert stateBefore == PENDING() && stateAfter == DONE(), "State transition violation";
-    assert isOperationReadyBefore, "Execute before ready";
-    assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: cancel correctly updates the state                                                                            │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule cancel(env e, bytes32 id) {
-    bytes32 otherId;
-    uint256 otherTimestamp = getTimestamp(otherId);
-
-    uint8 stateBefore = state(id);
-    cancel(e, id);
-    uint8 stateAfter = state(id);
-
-    assert stateBefore == PENDING() && stateAfter == UNSET(), "State transition violation";
-    assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Access control: only users with the PROPOSER_ROLE can call schedule or scheduleBatch                                │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule onlyProposer(env e, bytes32 id, method f) filtered { f ->
+rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
     f.selector == schedule(address, uint256, bytes, bytes32, bytes32, uint256).selector ||
     f.selector == scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256).selector
 } {
-    bool isProposer = hasRole(PROPOSER_ROLE(), e.msg.sender);
+    require nonpayable(e);
+    require e.block.timestamp > 1; // Sanity
+    require e.block.timestamp + delay < max_uint256; // Sanity
+    require e.block.timestamp + getMinDelay() < max_uint256; // Sanity
 
-    calldataarg args;
-    f@withrevert(e, args);
+    bytes32 otherId; uint256 otherTimestamp = getTimestamp(otherId);
 
-    assert !isProposer => lastReverted, "Only proposer can propose";
+    uint8 stateBefore       = state(id);
+    bool  isDelaySufficient = delay >= getMinDelay();
+    bool  isProposerBefore  = hasRole(PROPOSER_ROLE(), e.msg.sender);
+
+    helperScheduleWithRevert(e, f, id, delay);
+
+    if (lastReverted) {
+        assert stateBefore != UNSET() || !isDelaySufficient || !isProposerBefore, "Unexpected revert";
+    } else {
+        assert stateBefore == UNSET() && state(id) == PENDING(), "State transition violation";
+        assert isProposerBefore, "Unauthorized proposal";
+        assert isDelaySufficient, "Minimum delay violation";
+        assert getTimestamp(id) == to_uint256(e.block.timestamp + delay), "Proposal timestamp not correctly set";
+        assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
+    }
 }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Access control: only users with the EXECUTOR_ROLE can call execute or executeBatch                                  │
+│ Rule: execute liveliness and effets                                                                                 │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyExecutorOrOpen(env e, bytes32 id, method f) filtered { f ->
+rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
     f.selector == execute(address, uint256, bytes, bytes32, bytes32).selector ||
     f.selector == executeBatch(address[], uint256[], bytes[], bytes32, bytes32).selector
 } {
-    bool isExecutorOrOpen = hasRole(EXECUTOR_ROLE(), e.msg.sender) || hasRole(EXECUTOR_ROLE(), 0);
+    bytes32 otherId; uint256 otherTimestamp = getTimestamp(otherId);
 
-    calldataarg args;
-    f@withrevert(e, args);
+    uint8 stateBefore            = state(id);
+    bool  isOperationReadyBefore = isOperationReady(e, id);
+    bool  isExecutorOrOpen       = hasRole(EXECUTOR_ROLE(), e.msg.sender) || hasRole(EXECUTOR_ROLE(), 0);
+    bool  predecessorDependency  = predecessor == 0 || isDone(predecessor);
 
-    assert !isExecutorOrOpen => lastReverted, "Only executor can execute";
+    helperExecuteWithRevert(e, f, id, predecessor);
+
+    // The underlying transaction can revert, and that would cause the execution to revert.
+    //
+    // We can check that all non reverting calls meet the requirements in terms of proposal readiness, access control
+    // and predecessor dependency. We can't however guarantee that these requirements being meet ensure liveness of the
+    // proposal, because the proposal can revert for reasons beyond our control.
+    if (lastReverted) {
+        // assert stateBefore != PENDING() || !isOperationReadyBefore || !predecessorDependency || !isExecutorOrOpen, "Unexpected revert";
+        assert true;
+    } else {
+        assert stateBefore == PENDING() && state(id) == DONE(), "State transition violation";
+        assert isExecutorOrOpen, "Unauthorized execute";
+        assert isOperationReadyBefore, "Execute before ready";
+        assert predecessorDependency, "Predecessor dependency violation";
+        assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
+    }
 }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Access control: only users with the CANCELLER_ROLE can call cancel                                                  │
+│ Rule: cancel liveliness and effets                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyCanceller(env e, bytes32 id, method f) filtered { f ->
-    f.selector == cancel(bytes32).selector
-} {
-    bool isCanceller = hasRole(CANCELLER_ROLE(), e.msg.sender);
+rule cancel(env e, bytes32 id) {
+    require nonpayable(e);
 
-    calldataarg args;
-    f@withrevert(e, args);
+    bytes32 otherId; uint256 otherTimestamp = getTimestamp(otherId);
 
-    assert !isCanceller => lastReverted, "Only canceller can cancel";
+    uint8 stateBefore = state(id);
+    bool  isCanceller = hasRole(CANCELLER_ROLE(), e.msg.sender);
+
+    cancel@withrevert(e, id);
+
+    if (lastReverted) {
+        assert stateBefore != PENDING() || !isCanceller, "Unexpected revert";
+    } else {
+        assert stateBefore == PENDING() && state(id) == UNSET(), "State transition violation";
+        assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
+    }
 }
