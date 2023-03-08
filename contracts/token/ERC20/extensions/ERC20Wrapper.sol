@@ -46,7 +46,7 @@ abstract contract ERC20Wrapper is ERC20 {
      */
     function depositFor(address account, uint256 amount) public virtual returns (bool) {
         address sender = _msgSender();
-        require(sender != address(this), "ERC20Wrapper: wrapper cant deposit");
+        require(sender != address(this), "ERC20Wrapper: wrapper can't deposit");
         SafeERC20.safeTransferFrom(_underlying, sender, address(this), amount);
         _mint(account, amount);
         return true;
@@ -54,7 +54,6 @@ abstract contract ERC20Wrapper is ERC20 {
 
     /**
      * @dev Allow a user to burn a number of wrapped tokens and withdraw the corresponding number of underlying tokens.
-     */
     function withdrawTo(address account, uint256 amount) public virtual returns (bool) {
         _burn(_msgSender(), amount);
         SafeERC20.safeTransfer(_underlying, account, amount);
