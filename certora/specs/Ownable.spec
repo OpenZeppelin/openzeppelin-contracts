@@ -25,7 +25,8 @@ rule transferOwnership(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Function correctness: renounceOwnership removes the owner and the pendingOwner                                      │
+│ Function correctness: renounceOwnership removes the owner                                                           │
+
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule renounceOwnership(env e) {

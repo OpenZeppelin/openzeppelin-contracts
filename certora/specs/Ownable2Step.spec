@@ -47,7 +47,8 @@ rule renounceOwnership(env e) {
 │ Function correctness: acceptOwnership changes owner and reset pending owner                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule acceptOwnership(env e){
+rule acceptOwnership(env e) {
+
     require nonpayable(e);
 
     address current = owner();
