@@ -8,7 +8,7 @@
 
 const MAX_PARALLEL = 4;
 
-const specs = require(__dirname + '/specs.json');
+let specs = require(__dirname + '/specs.json');
 
 const proc = require('child_process');
 const { PassThrough } = require('stream');
@@ -20,12 +20,18 @@ if (request.startsWith('-')) {
   extraOptions.unshift(request);
   request = '';
 }
-const [reqSpec, reqContract] = request.split(':').reverse();
+
+if (request) {
+  const [reqSpec, reqContract] = request.split(':').reverse();
+  specs = Object.values(specs).filter(s => reqSpec === s.spec && (!reqContract || reqContract === s.contract));
+  if (specs.length === 0) {
+    console.error(`Error: Requested spec '${request}' not found in specs.json`);
+    process.exit(1);
+  }
+}
 
 for (const { spec, contract, files, options = [] } of Object.values(specs)) {
-  if ((!reqSpec || reqSpec === spec) && (!reqContract || reqContract === contract)) {
-    limit(runCertora, spec, contract, files, [...options, ...extraOptions]);
-  }
+  limit(runCertora, spec, contract, files, [...options, ...extraOptions]);
 }
 
 // Run certora, aggregate the output and print it at the end
