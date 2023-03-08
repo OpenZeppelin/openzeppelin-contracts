@@ -19,12 +19,12 @@ use invariant totalSupplyIsSumOfBalances
 │ Helper: consequence of `totalSupplyIsSumOfBalances` applied to underlying                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-function sumOfUnderlyingBalancesLowerThanUnderlyingSupply(address a, address b) {
-    if (a != b) {
-        require underlyingBalanceOf(a) + underlyingBalanceOf(b) <= underlyingTotalSupply();
-    } else {
-        require underlyingBalanceOf(a) <= underlyingTotalSupply();
-    }
+function underlyingBalancesLowerThanUnderlyingSupply(address a) returns bool {
+    return underlyingBalanceOf(a) <= underlyingTotalSupply();
+}
+
+function sumOfUnderlyingBalancesLowerThanUnderlyingSupply(address a, address b) returns bool {
+    return a != b => underlyingBalanceOf(a) + underlyingBalanceOf(b) <= underlyingTotalSupply();
 }
 
 /*
@@ -39,11 +39,11 @@ invariant totalSupplyIsSmallerThanUnderlyingBalance()
     {
         preserved {
             requireInvariant totalSupplyIsSumOfBalances;
-            require underlyingBalanceOf(currentContract) <= underlyingTotalSupply();
+            require underlyingBalancesLowerThanUnderlyingSupply(currentContract);
         }
         preserved depositFor(address account, uint256 amount) with (env e) {
             require e.msg.sender != currentContract;
-            sumOfUnderlyingBalancesLowerThanUnderlyingSupply(e.msg.sender, currentContract);
+            require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(e.msg.sender, currentContract);
         }
     }
 
@@ -65,7 +65,7 @@ rule depositFor(env e) {
     require currentContract != underlying();
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
-    sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, sender);
+    require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, sender);
 
     uint256 balanceBefore                   = balanceOf(receiver);
     uint256 supplyBefore                    = totalSupply();
@@ -119,7 +119,7 @@ rule withdrawTo(env e) {
     require currentContract != underlying();
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
-    sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, receiver);
+    require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, receiver);
 
     uint256 balanceBefore                   = balanceOf(sender);
     uint256 supplyBefore                    = totalSupply();
