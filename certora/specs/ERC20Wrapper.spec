@@ -89,10 +89,12 @@ rule depositFor(env e) {
     );
 
     // effects
-    assert success => balanceOf(receiver)                  == balanceBefore                  + amount;
-    assert success => totalSupply()                        == supplyBefore                   + amount;
-    assert success => underlyingBalanceOf(currentContract) == wrapperUnderlyingBalanceBefore + amount;
-    assert success => underlyingBalanceOf(sender)          == senderUnderlyingBalanceBefore  - amount;
+    assert success => (
+        balanceOf(receiver) == balanceBefore + amount &&
+        totalSupply() == supplyBefore + amount &&
+        underlyingBalanceOf(currentContract) == wrapperUnderlyingBalanceBefore + amount &&
+        underlyingBalanceOf(sender) == senderUnderlyingBalanceBefore - amount
+    );
 
     // no side effect
     assert underlyingTotalSupply() == underlyingSupplyBefore;
@@ -139,10 +141,12 @@ rule withdrawTo(env e) {
     );
 
     // effects
-    assert success => balanceOf(sender)                    == balanceBefore                   - amount;
-    assert success => totalSupply()                        == supplyBefore                    - amount;
-    assert success => underlyingBalanceOf(currentContract) == wrapperUnderlyingBalanceBefore  - (currentContract != receiver ? amount : 0);
-    assert success => underlyingBalanceOf(receiver)        == receiverUnderlyingBalanceBefore + (currentContract != receiver ? amount : 0);
+    assert success => (
+        balanceOf(sender) == balanceBefore - amount &&
+        totalSupply() == supplyBefore - amount &&
+        underlyingBalanceOf(currentContract) == wrapperUnderlyingBalanceBefore - (currentContract != receiver ? amount : 0) &&
+        underlyingBalanceOf(receiver) == receiverUnderlyingBalanceBefore + (currentContract != receiver ? amount : 0)
+    );
 
     // no side effect
     assert underlyingTotalSupply() == underlyingSupplyBefore;
