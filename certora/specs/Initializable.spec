@@ -6,10 +6,10 @@ methods {
     reinitialize(uint8) envfree
     disable()           envfree
 
-    nested1()            envfree
-    nested2(uint8)       envfree
-    nested3(uint8)       envfree
-    nested4(uint8,uint8) envfree
+    nested_init_init()            envfree
+    nested_init_reinit(uint8)       envfree
+    nested_reinit_init(uint8)       envfree
+    nested_reinit_reinit(uint8,uint8) envfree
 
     // view
     version()      returns uint8 envfree
@@ -94,23 +94,23 @@ rule cannotReinitializeOnceDisabled() {
 │ Rule: Cannot nest initializers (after construction).                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule cannotNestInitializers_v1() {
-    nested1@withrevert();
+rule cannotNestInitializers_init_init() {
+    nested_init_init@withrevert();
     assert lastReverted, "nested initializers";
 }
 
-rule cannotNestInitializers_v2(uint8 m) {
-    nested2@withrevert(m);
+rule cannotNestInitializers_init_reinit(uint8 m) {
+    nested_init_reinit@withrevert(m);
     assert lastReverted, "nested initializers";
 }
 
-rule cannotNestInitializers_v3(uint8 n) {
-    nested3@withrevert(n);
+rule cannotNestInitializers_reinit_init(uint8 n) {
+    nested_reinit_init@withrevert(n);
     assert lastReverted, "nested initializers";
 }
 
-rule cannotNestInitializers_v4(uint8 n, uint8 m) {
-    nested4@withrevert(n, m);
+rule cannotNestInitializers_reinit_reinit(uint8 n, uint8 m) {
+    nested_reinit_reinit@withrevert(n, m);
     assert lastReverted, "nested initializers";
 }
 
