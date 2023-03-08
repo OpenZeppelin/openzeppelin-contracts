@@ -16,20 +16,20 @@ methods {
 rule onlyGrantCanGrant(env e, bytes32 role, address account) {
     method f; calldataarg args;
 
-    bool hasOtherRoleBefore = hasRole(role, account);
+    bool hasRoleBefore = hasRole(role, account);
     f(e, args);
-    bool hasOtherRoleAfter = hasRole(role, account);
+    bool hasRoleAfter = hasRole(role, account);
 
     assert (
-        !hasOtherRoleBefore &&
-        hasOtherRoleAfter
+        !hasRoleBefore &&
+        hasRoleAfter
     ) => (
         f.selector == grantRole(bytes32, address).selector
     );
 
     assert (
-        hasOtherRoleBefore &&
-        !hasOtherRoleAfter
+        hasRoleBefore &&
+        !hasRoleAfter
     ) => (
         f.selector == revokeRole(bytes32, address).selector ||
         f.selector == renounceRole(bytes32, address).selector
