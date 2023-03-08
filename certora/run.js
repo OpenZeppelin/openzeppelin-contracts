@@ -24,7 +24,7 @@ const [reqSpec, reqContract] = request.split(':').reverse();
 
 for (const { spec, contract, files, options = [] } of Object.values(specs)) {
   if ((!reqSpec || reqSpec === spec) && (!reqContract || reqContract === contract)) {
-    limit(runCertora, spec, contract, files, [...options, ...extraOptions]);
+    limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...extraOptions]);
   }
 }
 
@@ -44,7 +44,7 @@ async function runCertora(spec, contract, files, options = []) {
     const urls = data.toString('utf8').match(/https?:\S*/g);
     for (const url of urls ?? []) {
       if (url.includes('/jobStatus/')) {
-        console.error(`[${spec}] ${url}`);
+        console.error(`[${spec}] ${url.replace('/jobStatus/', '/output/')}`);
         stream.off('data', logStatusUrl);
         break;
       }
@@ -64,7 +64,10 @@ async function runCertora(spec, contract, files, options = []) {
   stream.end();
 
   // write results in markdown format
-  writeEntry(spec, contract, code || signal, (await output).match(/https:\S*/)[0]);
+  const url = (await output).match(/https:\S*/)?.[0];
+  if (url) {
+    writeEntry(spec, contract, code || signal, url);
+  }
 
   // write all details
   console.error(`+ certoraRun ${args.join(' ')}\n` + (await output));
@@ -103,7 +106,7 @@ function writeEntry(spec, contract, success, url) {
       contract,
       success ? ':x:' : ':heavy_check_mark:',
       `[link](${url})`,
-      `[link](${url.replace('/jobStatus/', '/output/')})`,
+      `[link](${url?.replace('/jobStatus/', '/output/')})`,
     ),
   );
 }
