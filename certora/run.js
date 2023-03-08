@@ -64,10 +64,7 @@ async function runCertora(spec, contract, files, options = []) {
   stream.end();
 
   // write results in markdown format
-  const url = (await output).match(/https:\S*/)?.[0];
-  if (url) {
-    writeEntry(spec, contract, code || signal, url);
-  }
+  writeEntry(spec, contract, code || signal, (await output).match(/https:\S*/)?.[0]);
 
   // write all details
   console.error(`+ certoraRun ${args.join(' ')}\n` + (await output));
@@ -105,8 +102,8 @@ function writeEntry(spec, contract, success, url) {
       spec,
       contract,
       success ? ':x:' : ':heavy_check_mark:',
-      `[link](${url})`,
-      `[link](${url?.replace('/jobStatus/', '/output/')})`,
+      url ? `[link](${url})`: 'error',
+      url ? `[link](${url?.replace('/jobStatus/', '/output/')})` : 'error',
     ),
   );
 }
