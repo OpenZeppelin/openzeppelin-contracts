@@ -67,12 +67,13 @@ invariant isOperationReadyCheck(env e, bytes32 id)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant stateConsistency(bytes32 id, env e)
-    (isUnset(id)   <=> state(id) == UNSET()              ) &&
-    (isPending(id) <=> state(id) == PENDING()            ) &&
-    (isDone(id)    <=> state(id) == DONE()               ) &&
     (isUnset(id)   <=> (!isPending(id) && !isDone(id)   )) &&
     (isPending(id) <=> (!isUnset(id)   && !isDone(id)   )) &&
     (isDone(id)    <=> (!isUnset(id)   && !isPending(id))) &&
+    // Check that the state helper behaves as expected:
+    (isUnset(id)   <=> state(id) == UNSET()              ) &&
+    (isPending(id) <=> state(id) == PENDING()            ) &&
+    (isDone(id)    <=> state(id) == DONE()               ) &&
     isOperationReady(e, id) => isPending(id)
     filtered { f -> !f.isView }
 
