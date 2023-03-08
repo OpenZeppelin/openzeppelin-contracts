@@ -185,16 +185,21 @@ rule schedule(env e, method f, bytes32 id, uint256 delay) filtered { f ->
     bool  isProposerBefore  = hasRole(PROPOSER_ROLE(), e.msg.sender);
 
     helperScheduleWithRevert(e, f, id, delay);
+    bool success = !lastReverted;
 
-    if (lastReverted) {
-        assert stateBefore != UNSET() || !isDelaySufficient || !isProposerBefore, "Unexpected revert";
-    } else {
-        assert stateBefore == UNSET() && state(id) == PENDING(), "State transition violation";
-        assert isProposerBefore, "Unauthorized proposal";
-        assert isDelaySufficient, "Minimum delay violation";
-        assert getTimestamp(id) == to_uint256(e.block.timestamp + delay), "Proposal timestamp not correctly set";
-        assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
-    }
+    // liveness
+    assert success <=> (
+        stateBefore == UNSET() &&
+        isDelaySufficient &&
+        isProposerBefore
+    );
+
+    // effect
+    assert success => state(id) == PENDING(), "State transition violation";
+    assert success => getTimestamp(id) == to_uint256(e.block.timestamp + delay), "Proposal timestamp not correctly set";
+
+    // no side effect
+    assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
 }
 
 /*
@@ -214,22 +219,26 @@ rule execute(env e, method f, bytes32 id, bytes32 predecessor) filtered { f ->
     bool  predecessorDependency  = predecessor == 0 || isDone(predecessor);
 
     helperExecuteWithRevert(e, f, id, predecessor);
+    bool success = !lastReverted;
 
-    // The underlying transaction can revert, and that would cause the execution to revert.
-    //
-    // We can check that all non reverting calls meet the requirements in terms of proposal readiness, access control
-    // and predecessor dependency. We can't however guarantee that these requirements being meet ensure liveness of the
-    // proposal, because the proposal can revert for reasons beyond our control.
-    if (lastReverted) {
-        // assert stateBefore != PENDING() || !isOperationReadyBefore || !predecessorDependency || !isExecutorOrOpen, "Unexpected revert";
-        assert true;
-    } else {
-        assert stateBefore == PENDING() && state(id) == DONE(), "State transition violation";
-        assert isExecutorOrOpen, "Unauthorized execute";
-        assert isOperationReadyBefore, "Execute before ready";
-        assert predecessorDependency, "Predecessor dependency violation";
-        assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
-    }
+    // The underlying transaction can revert, and that would cause the execution to revert. We can check that all non
+    // reverting calls meet the requirements in terms of proposal readiness, access control and predecessor dependency.
+    // We can't however guarantee that these requirements being meet ensure liveness of the proposal, because the
+    // proposal can revert for reasons beyond our control.
+
+    // liveness, should be `<=>` but can only check `=>` (see comment above)
+    assert success => (
+        stateBefore == PENDING() &&
+        isOperationReadyBefore &&
+        predecessorDependency &&
+        isExecutorOrOpen
+    );
+
+    // effect
+    assert success => state(id) == DONE(), "State transition violation";
+
+    // no side effect
+    assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
 }
 
 /*
@@ -246,11 +255,17 @@ rule cancel(env e, bytes32 id) {
     bool  isCanceller = hasRole(CANCELLER_ROLE(), e.msg.sender);
 
     cancel@withrevert(e, id);
+    bool success = !lastReverted;
 
-    if (lastReverted) {
-        assert stateBefore != PENDING() || !isCanceller, "Unexpected revert";
-    } else {
-        assert stateBefore == PENDING() && state(id) == UNSET(), "State transition violation";
-        assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
-    }
+    // liveness
+    assert success <=> (
+        stateBefore == PENDING() &&
+        isCanceller
+    );
+
+    // effect
+    assert success => state(id) == UNSET(), "State transition violation";
+
+    // no side effect
+    assert otherTimestamp != getTimestamp(otherId) => id == otherId, "Other proposal affected";
 }
