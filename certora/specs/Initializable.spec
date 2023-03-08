@@ -5,6 +5,7 @@ methods {
     initialize()        envfree
     reinitialize(uint8) envfree
     disable()           envfree
+    nested(uint8,uint8) envfree
 
     // view
     version()      returns uint8 envfree
@@ -82,6 +83,18 @@ rule cannotReinitializeOnceDisabled() {
     reinitialize@withrevert(n);
 
     assert lastReverted, "contract is disabled";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: Cannot nest initializers (after construction).                                                                │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule cannotNestInitializers() {
+    uint8 n; uint8 m;
+    nested@withrevert(n, m);
+
+    assert lastReverted, "nested initializers";
 }
 
 /*
