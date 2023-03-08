@@ -184,9 +184,11 @@ rule recover(env e) {
     assert success <=> receiver != 0;
 
     // effect
-    assert success => balanceOf(receiver) == balanceBefore + value;
-    assert success => totalSupply()       == supplyBefore  + value;
-    assert success => totalSupply()       == underlyingBalanceOf(currentContract);
+    assert success => (
+        balanceOf(receiver) == balanceBefore + value &&
+        totalSupply() == supplyBefore + value &&
+        totalSupply() == underlyingBalanceOf(currentContract)
+    );
 
     // no side effect
     assert underlyingBalanceOf(other) == otherUnderlyingBalanceBefore;
