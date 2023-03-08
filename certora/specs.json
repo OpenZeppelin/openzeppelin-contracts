@@ -30,6 +30,18 @@
     "options": ["--optimistic_loop"]
   },
   {
+    "spec": "ERC20Wrapper",
+    "contract": "ERC20WrapperHarness",
+    "files": [
+      "certora/harnesses/ERC20PermitHarness.sol",
+      "certora/harnesses/ERC20WrapperHarness.sol"
+    ],
+    "options": [
+      "--link ERC20WrapperHarness:_underlying=ERC20PermitHarness",
+      "--optimistic_loop"
+    ]
+  },
+  {
     "spec": "Initializable",
     "contract": "InitializableHarness",
     "files": ["certora/harnesses/InitializableHarness.sol"]
