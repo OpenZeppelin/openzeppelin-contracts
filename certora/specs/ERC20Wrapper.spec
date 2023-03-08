@@ -33,7 +33,7 @@ function sumOfUnderlyingBalancesLowerThanUnderlyingSupply(address a, address b) 
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant totalSupplyIsSmallerThanUnderlyingBalance()
-    totalSupply() <= underlyingBalanceOf(currentContract)  &&
+    totalSupply() <= underlyingBalanceOf(currentContract) &&
     underlyingBalanceOf(currentContract) <= underlyingTotalSupply() &&
     underlyingTotalSupply() <= max_uint256
     {
