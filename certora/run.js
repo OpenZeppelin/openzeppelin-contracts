@@ -25,7 +25,7 @@ if (request) {
   const [reqSpec, reqContract] = request.split(':').reverse();
   specs = Object.values(specs).filter(s => reqSpec === s.spec && (!reqContract || reqContract === s.contract));
   if (specs.length === 0) {
-    console.error(`Error: Requested spec '${request}' not found`);
+    console.error(`Error: Requested spec '${request}' not found in specs.json`);
     process.exit(1);
   }
 }
