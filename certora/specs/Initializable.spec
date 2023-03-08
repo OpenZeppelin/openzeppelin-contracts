@@ -5,7 +5,11 @@ methods {
     initialize()        envfree
     reinitialize(uint8) envfree
     disable()           envfree
-    nested(uint8,uint8) envfree
+
+    nested1()            envfree
+    nested2(uint8)       envfree
+    nested3(uint8)       envfree
+    nested4(uint8,uint8) envfree
 
     // view
     version()      returns uint8 envfree
@@ -92,8 +96,17 @@ rule cannotReinitializeOnceDisabled() {
 */
 rule cannotNestInitializers() {
     uint8 n; uint8 m;
-    nested@withrevert(n, m);
 
+    nested1@withrevert();
+    assert lastReverted, "nested initializers";
+
+    nested2@withrevert(m);
+    assert lastReverted, "nested initializers";
+
+    nested3@withrevert(n);
+    assert lastReverted, "nested initializers";
+
+    nested4@withrevert(n, m);
     assert lastReverted, "nested initializers";
 }
 
