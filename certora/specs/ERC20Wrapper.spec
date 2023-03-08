@@ -42,10 +42,12 @@ invariant totalSupplyIsSmallerThanUnderlyingBalance()
             require underlyingBalancesLowerThanUnderlyingSupply(currentContract);
         }
         preserved depositFor(address account, uint256 amount) with (env e) {
-            require e.msg.sender != currentContract;
             require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(e.msg.sender, currentContract);
         }
     }
+
+invariant noSelfWrap()
+    currentContract != underlying()
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -61,8 +63,7 @@ rule depositFor(env e) {
     uint256 amount;
 
     // sanity
-    require currentContract != sender;
-    require currentContract != underlying();
+    requireInvariant noSelfWrap;
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
     require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, sender);
@@ -82,6 +83,7 @@ rule depositFor(env e) {
 
     // liveness
     assert success <=> (
+        sender   != currentContract               && // invalid sender
         sender   != 0                             && // invalid sender
         receiver != 0                             && // invalid receiver
         amount   <= senderUnderlyingBalanceBefore && // deposit doesn't exceed balance
@@ -116,7 +118,7 @@ rule withdrawTo(env e) {
     uint256 amount;
 
     // sanity
-    require currentContract != underlying();
+    requireInvariant noSelfWrap;
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
     require sumOfUnderlyingBalancesLowerThanUnderlyingSupply(currentContract, receiver);
@@ -166,7 +168,7 @@ rule recover(env e) {
     address other;
 
     // sanity
-    require currentContract != underlying();
+    requireInvariant noSelfWrap;
     requireInvariant totalSupplyIsSumOfBalances;
     requireInvariant totalSupplyIsSmallerThanUnderlyingBalance;
 
