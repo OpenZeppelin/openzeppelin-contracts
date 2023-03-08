@@ -47,12 +47,14 @@ rule renounceOwnership(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyCurrentOwnerCanCallOnlyOwner(env e) {
+    require nonpayable(e);
+
     address current = owner();
 
     calldataarg args;
     restricted@withrevert(e, args);
 
-    assert !lastReverted => e.msg.sender == current, "access control failed";
+    assert !lastReverted <=> e.msg.sender == current, "access control failed";
 }
 
 /*
