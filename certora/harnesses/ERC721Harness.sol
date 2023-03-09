@@ -31,7 +31,7 @@ contract ERC721Harness is ERC721 {
         return _ownerOf(tokenId);
     }
 
-    function unsafeGetApproved(uint256 tokenId) internal view returns (address) {
+    function unsafeGetApproved(uint256 tokenId) external view returns (address) {
         return _getApproved(tokenId);
     }
 }

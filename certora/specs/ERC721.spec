@@ -129,8 +129,8 @@ invariant zeroAddressNoBalance()
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant notMintedUnset(uint256 tokenId)
-    !tokenExists(tokenId) <=> unsafeOwnerOf(tokenId) == 0 &&
-    !tokenExists(tokenId) => unsafeGetApproved(tokenId) == 0
+    (!tokenExists(tokenId) <=> unsafeOwnerOf(tokenId) == 0) &&
+    (!tokenExists(tokenId) => unsafeGetApproved(tokenId) == 0)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -148,6 +148,19 @@ rule notMintedRevert(uint256 tokenId) {
     address approved = getApproved@withrevert(tokenId);
     assert exist <=> !lastReverted;
     assert exist => approved == unsafeGetApproved(tokenId);
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: unsafeOwnerOf and unsafeGetApproved don't revert                                                              │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule unsafeDontRevert(uint256 tokenId) {
+    unsafeOwnerOf@withrevert(tokenId);
+    assert !lastReverted;
+
+    unsafeGetApproved@withrevert(tokenId);
+    assert !lastReverted;
 }
 
 /*
@@ -246,9 +259,9 @@ rule ownershipChange(env e, uint256 tokenId) {
 rule approvalChange(env e, uint256 tokenId) {
     method f;
 
-    address approvalBefore = getApproved(tokenId);
+    address approvalBefore = unsafeGetApproved(tokenId);
     helperTokenOperationWithRevert(e, f, tokenId);
-    address approvalAfter  = getApproved(tokenId);
+    address approvalAfter  = unsafeGetApproved(tokenId);
 
     assert approvalBefore != approvalAfter => (
         f.selector == approve(address,uint256).selector ||
@@ -256,7 +269,8 @@ rule approvalChange(env e, uint256 tokenId) {
             (
                 f.selector == transferFrom(address,address,uint256).selector ||
                 f.selector == safeTransferFrom(address,address,uint256).selector ||
-                f.selector == safeTransferFrom(address,address,uint256,bytes).selector
+                f.selector == safeTransferFrom(address,address,uint256,bytes).selector ||
+                f.selector == burn(uint256).selector
             ) && approvalAfter == 0
         )
     );
@@ -299,8 +313,8 @@ rule transferFrom(env e, uint256 tokenId) {
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
     address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
-    address approvalBefore       = getApproved(tokenId);
-    address otherApprovalBefore  = getApproved(otherTokenId);
+    address approvalBefore       = unsafeGetApproved(tokenId);
+    address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
 
     transferFrom@withrevert(e, from, to, tokenId);
     bool success = !lastReverted;
@@ -315,16 +329,16 @@ rule transferFrom(env e, uint256 tokenId) {
 
     // effect
     assert success => (
-        balanceOf(from)        == balanceOfFromBefore - to_uint256(from != to ? 1 : 0) &&
-        balanceOf(to)          == balanceOfToBefore   + to_uint256(from != to ? 1 : 0) &&
-        unsafeOwnerOf(tokenId) == to &&
-        getApproved(tokenId)   == 0
+        balanceOf(from)            == balanceOfFromBefore - to_uint256(from != to ? 1 : 0) &&
+        balanceOf(to)              == balanceOfToBefore   + to_uint256(from != to ? 1 : 0) &&
+        unsafeOwnerOf(tokenId)     == to &&
+        unsafeGetApproved(tokenId) == 0
     );
 
     // no side effect
-    assert balanceOf(otherAccount)     != balanceOfOtherBefore => (otherAccount == from || otherAccount == to);
-    assert unsafeOwnerOf(otherTokenId) != otherOwnerBefore     => otherTokenId == tokenId;
-    assert getApproved(otherTokenId)   != otherApprovalBefore  => otherTokenId == tokenId;
+    assert balanceOf(otherAccount)         != balanceOfOtherBefore => (otherAccount == from || otherAccount == to);
+    assert unsafeOwnerOf(otherTokenId)     != otherOwnerBefore     => otherTokenId == tokenId;
+    assert unsafeGetApproved(otherTokenId) != otherApprovalBefore  => otherTokenId == tokenId;
 }
 
 /*
@@ -395,11 +409,11 @@ rule mint(env e, uint256 tokenId) {
 
     require balanceLimited(to);
 
+    uint256 totalSupplyBefore    = totalSupply();
     uint256 balanceOfToBefore    = balanceOf(to);
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
     address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
-    address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
 
     mint@withrevert(e, to, tokenId);
     bool success = !lastReverted;
@@ -412,15 +426,14 @@ rule mint(env e, uint256 tokenId) {
 
     // effect
     assert success => (
+        totalSupply()              == totalSupplyBefore + 1 &&
         balanceOf(to)              == balanceOfToBefore + 1 &&
-        unsafeOwnerOf(tokenId)     == to &&
-        unsafeGetApproved(tokenId) == 0
+        unsafeOwnerOf(tokenId)     == to
     );
 
     // no side effect
-    assert balanceOf(otherAccount)         != balanceOfOtherBefore => otherAccount == to;
-    assert unsafeOwnerOf(otherTokenId)     != otherOwnerBefore     => otherTokenId == tokenId;
-    assert unsafeGetApproved(otherTokenId) == otherApprovalBefore;
+    assert balanceOf(otherAccount)     != balanceOfOtherBefore => otherAccount == to;
+    assert unsafeOwnerOf(otherTokenId) != otherOwnerBefore     => otherTokenId == tokenId;
 }
 
 /*
@@ -441,11 +454,11 @@ rule safeMint(env e, method f, uint256 tokenId) filtered { f ->
 
     require balanceLimited(to);
 
+    uint256 totalSupplyBefore    = totalSupply();
     uint256 balanceOfToBefore    = balanceOf(to);
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
     address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
-    address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
 
     helperMintWithRevert(e, f, to, tokenId);
     bool success = !lastReverted;
@@ -458,15 +471,14 @@ rule safeMint(env e, method f, uint256 tokenId) filtered { f ->
 
     // effect
     assert success => (
+        totalSupply()              == totalSupplyBefore + 1 &&
         balanceOf(to)              == balanceOfToBefore + 1 &&
-        unsafeOwnerOf(tokenId)     == to &&
-        unsafeGetApproved(tokenId) == 0
+        unsafeOwnerOf(tokenId)     == to
     );
 
     // no side effect
-    assert balanceOf(otherAccount)         != balanceOfOtherBefore => otherAccount == to;
-    assert unsafeOwnerOf(otherTokenId)     != otherOwnerBefore     => otherTokenId == tokenId;
-    assert unsafeGetApproved(otherTokenId) == otherApprovalBefore;
+    assert balanceOf(otherAccount)     != balanceOfOtherBefore => otherAccount == to;
+    assert unsafeOwnerOf(otherTokenId) != otherOwnerBefore     => otherTokenId == tokenId;
 }
 
 /*
@@ -483,6 +495,7 @@ rule burn(env e, uint256 tokenId) {
 
     require ownerHasBalance(tokenId);
 
+    uint256 totalSupplyBefore    = totalSupply();
     uint256 balanceOfFromBefore  = balanceOf(from);
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
@@ -499,6 +512,7 @@ rule burn(env e, uint256 tokenId) {
 
     // effect
     assert success => (
+        totalSupply()              == totalSupplyBefore   - 1 &&
         balanceOf(from)            == balanceOfFromBefore - 1 &&
         unsafeOwnerOf(tokenId)     == 0 &&
         unsafeGetApproved(tokenId) == 0
@@ -518,6 +532,8 @@ rule burn(env e, uint256 tokenId) {
 rule approve(env e, uint256 tokenId) {
     require nonpayable(e);
 
+    address caller = e.msg.sender;
+    address owner = unsafeOwnerOf(tokenId);
     address spender;
     uint256 otherTokenId;
 
@@ -527,7 +543,11 @@ rule approve(env e, uint256 tokenId) {
     bool success = !lastReverted;
 
     // liveness
-    assert success <=> e.msg.sender != unsafeOwnerOf(tokenId);
+    assert success <=> (
+        owner != 0 &&
+        owner != spender &&
+        (owner == caller || isApprovedForAll(owner, caller))
+    );
 
     // effect
     assert success => unsafeGetApproved(tokenId) == spender;
@@ -536,11 +556,34 @@ rule approve(env e, uint256 tokenId) {
     assert unsafeGetApproved(otherTokenId) != otherApprovalBefore  => otherTokenId == tokenId;
 }
 
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: setApprovalForAll behavior and side effects                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule setApprovalForAll(env e) {
+    require nonpayable(e);
 
+    address owner = e.msg.sender;
+    address operator;
+    address otherOwner;
+    address otherOperator;
+    bool    approved;
 
+    bool otherIsApprovedForAllBefore = isApprovedForAll(otherOwner, otherOperator);
 
+    setApprovalForAll@withrevert(e, operator, approved);
+    bool success = !lastReverted;
 
+    // liveness
+    assert success <=> owner != operator;
 
+    // effect
+    assert success => isApprovedForAll(owner, operator) == approved;
 
-
-// rule setApprovalForAll(address,bool)
+    // no side effect
+    assert isApprovedForAll(otherOwner, otherOperator) != otherIsApprovedForAllBefore => (
+        otherOwner    == owner &&
+        otherOperator == operator
+    );
+}
