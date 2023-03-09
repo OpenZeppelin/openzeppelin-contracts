@@ -42,6 +42,12 @@
     ]
   },
   {
+    "spec": "ERC721",
+    "contract": "ERC721Harness",
+    "files": ["certora/harnesses/ERC721Harness.sol"],
+    "options": ["--optimistic_loop"]
+  },
+  {
     "spec": "Initializable",
     "contract": "InitializableHarness",
     "files": ["certora/harnesses/InitializableHarness.sol"]
