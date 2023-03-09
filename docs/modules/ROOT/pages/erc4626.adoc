@@ -102,13 +102,12 @@ In this scenario, the attack is stem:[n] times less powerful (in how much it is 
 
 === Defending with a virtual offset
 
-The defense we propose consists of two parts:
+The defense we propose is based on the approach used in link:https://github.com/boringcrypto/YieldBox[YieldBox]. It consists of two parts:
 
 - Use an offset between the "precision" of the representation of shares and assets. Said otherwise, we use more decimal places to represent the shares than the underlying token does to represent the assets.
 - Include virtual shares and virtual assets in the exchange rate computation. These virtual assets enforce the conversion rate when the vault is empty.
 
 These two parts work together in enforcing the security of the vault. First, the increased precision corresponds to a high rate, which we saw is safer as it reduces the rounding error when computing the amount of shares. Second, the virtual assets and shares (in addition to simplifying a lot of the computations) capture part of the donation, making it unprofitable for a developer to perform an attack.
-
 
 Following the previous math definitions, we have:
 
