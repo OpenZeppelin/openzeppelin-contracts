@@ -7,7 +7,10 @@ methods {
     safeMint(address,uint256)
     safeMint(address,uint256,bytes)
     burn(uint256)
+
     tokenExists(uint256) returns (bool) envfree
+    unsafeOwnerOf(uint256) returns (address) envfree
+    unsafeGetApproved(uint256) returns (address) envfree
 }
 
 /*
@@ -15,14 +18,9 @@ methods {
 │ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-function safeOwnerOf(uint256 tokenId) returns address {
-    address owner = ownerOf@withrevert(tokenId);
-    return lastReverted ? 0 : owner;
-}
-
 // Consequence of totalSupplyIsSumOfBalances
 function ownerHasBalance(uint256 tokenId) returns bool {
-    return safeOwnerOf(tokenId) != 0 => balanceOf(safeOwnerOf(tokenId)) > 0;
+    return unsafeOwnerOf(tokenId) != 0 => balanceOf(unsafeOwnerOf(tokenId)) > 0;
 }
 
 // Could be broken in theory, but not in practice
@@ -127,17 +125,27 @@ invariant zeroAddressNoBalance()
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: tokens that do not exist are not owned and not approved                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant notMintedUnset(uint256 tokenId)
+    !tokenExists(tokenId) <=> unsafeOwnerOf(tokenId) == 0 &&
+    !tokenExists(tokenId) => unsafeGetApproved(tokenId) == 0
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: Exist and ownership are consistent                                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule ownershipConsistency(uint256 tokenId) {
-    bool    exist     = tokenExists(tokenId);
-    address safeOwner = safeOwnerOf(tokenId);
-    address owner     = ownerOf@withrevert(tokenId);
+rule notMintedRevert(uint256 tokenId) {
+    bool exist = tokenExists(tokenId);
 
+    address owner = ownerOf@withrevert(tokenId);
     assert exist <=> !lastReverted;
-    assert exist <=> safeOwner != 0;
-    assert exist  => owner     != 0;
+    assert exist => owner != 0;
+
+    address approved = getApproved@withrevert(tokenId);
+    assert exist <=> !lastReverted;
 }
 
 /*
@@ -207,9 +215,9 @@ rule balanceChange(env e, address account) {
 rule ownershipChange(env e, uint256 tokenId) {
     method f; calldataarg args;
 
-    address ownerBefore = safeOwnerOf(tokenId);
+    address ownerBefore = unsafeOwnerOf(tokenId);
     f(e, args);
-    address ownerAfter  = safeOwnerOf(tokenId);
+    address ownerAfter  = unsafeOwnerOf(tokenId);
 
     assert ownerBefore == 0 && ownerAfter != 0 => (
         f.selector == mint(address,uint256).selector ||
@@ -284,14 +292,14 @@ rule transferFrom(env e, uint256 tokenId) {
 
     uint256 balanceOfFromBefore = balanceOf(from);
     uint256 balanceOfToBefore   = balanceOf(to);
-    address ownerBefore         = safeOwnerOf(tokenId);
+    address ownerBefore         = unsafeOwnerOf(tokenId);
     address approvalBefore      = getApproved(tokenId);
 
     uint256 otherTokenId;
     address otherAccount;
 
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
-    address otherOwnerBefore     = safeOwnerOf(otherTokenId);
+    address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
     address otherApprovalBefore  = getApproved(otherTokenId);
 
     transferFrom@withrevert(e, from, to, tokenId);
@@ -307,16 +315,16 @@ rule transferFrom(env e, uint256 tokenId) {
 
     // effect
     assert success => (
-        balanceOf(from)      == balanceOfFromBefore - to_uint256(from != to ? 1 : 0) &&
-        balanceOf(to)        == balanceOfToBefore   + to_uint256(from != to ? 1 : 0) &&
-        safeOwnerOf(tokenId) == to &&
-        getApproved(tokenId) == 0
+        balanceOf(from)        == balanceOfFromBefore - to_uint256(from != to ? 1 : 0) &&
+        balanceOf(to)          == balanceOfToBefore   + to_uint256(from != to ? 1 : 0) &&
+        unsafeOwnerOf(tokenId) == to &&
+        getApproved(tokenId)   == 0
     );
 
     // no side effect
-    assert balanceOf(otherAccount)   != balanceOfOtherBefore => (otherAccount == from || otherAccount == to);
-    assert safeOwnerOf(otherTokenId) != otherOwnerBefore     => otherTokenId == tokenId;
-    assert getApproved(otherTokenId) != otherApprovalBefore  => otherTokenId == tokenId;
+    assert balanceOf(otherAccount)     != balanceOfOtherBefore => (otherAccount == from || otherAccount == to);
+    assert unsafeOwnerOf(otherTokenId) != otherOwnerBefore     => otherTokenId == tokenId;
+    assert getApproved(otherTokenId)   != otherApprovalBefore  => otherTokenId == tokenId;
 }
 
 /*
@@ -339,15 +347,15 @@ rule safeTransferFrom(env e, method f, uint256 tokenId) filtered { f ->
 
     uint256 balanceOfFromBefore = balanceOf(from);
     uint256 balanceOfToBefore   = balanceOf(to);
-    address ownerBefore         = safeOwnerOf(tokenId);
-    address approvalBefore      = getApproved(tokenId);
+    address ownerBefore         = unsafeOwnerOf(tokenId);
+    address approvalBefore      = unsafeGetApproved(tokenId);
 
     uint256 otherTokenId;
     address otherAccount;
 
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
-    address otherOwnerBefore     = safeOwnerOf(otherTokenId);
-    address otherApprovalBefore  = getApproved(otherTokenId);
+    address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
+    address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
 
     helperTransferWithRevert(e, f, from, to, tokenId);
     bool success = !lastReverted;
@@ -362,16 +370,16 @@ rule safeTransferFrom(env e, method f, uint256 tokenId) filtered { f ->
 
     // effect
     assert success => (
-        balanceOf(from)      == balanceOfFromBefore - to_uint256(from != to ? 1: 0) &&
-        balanceOf(to)        == balanceOfToBefore   + to_uint256(from != to ? 1: 0) &&
-        safeOwnerOf(tokenId) == to &&
-        getApproved(tokenId) == 0
+        balanceOf(from)            == balanceOfFromBefore - to_uint256(from != to ? 1: 0) &&
+        balanceOf(to)              == balanceOfToBefore   + to_uint256(from != to ? 1: 0) &&
+        unsafeOwnerOf(tokenId)     == to &&
+        unsafeGetApproved(tokenId) == 0
     );
 
     // no side effect
-    assert balanceOf(otherAccount)   != balanceOfOtherBefore => (otherAccount == from || otherAccount == to);
-    assert safeOwnerOf(otherTokenId) != otherOwnerBefore     => otherTokenId == tokenId;
-    assert getApproved(otherTokenId) != otherApprovalBefore  => otherTokenId == tokenId;
+    assert balanceOf(otherAccount)         != balanceOfOtherBefore => (otherAccount == from || otherAccount == to);
+    assert unsafeOwnerOf(otherTokenId)     != otherOwnerBefore     => otherTokenId == tokenId;
+    assert unsafeGetApproved(otherTokenId) != otherApprovalBefore  => otherTokenId == tokenId;
 }
 
 /*
@@ -381,20 +389,21 @@ rule safeTransferFrom(env e, method f, uint256 tokenId) filtered { f ->
 */
 rule mint(env e, uint256 tokenId) {
     require nonpayable(e);
+    requireInvariant notMintedUnset(tokenId);
 
     address to;
 
     require balanceLimited(to);
 
     uint256 balanceOfToBefore = balanceOf(to);
-    address ownerBefore       = safeOwnerOf(tokenId);
+    address ownerBefore       = unsafeOwnerOf(tokenId);
 
     uint256 otherTokenId;
     address otherAccount;
 
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
-    address otherOwnerBefore     = safeOwnerOf(otherTokenId);
-    address otherApprovalBefore  = getApproved(otherTokenId);
+    address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
+    address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
 
     mint@withrevert(e, to, tokenId);
     bool success = !lastReverted;
@@ -407,15 +416,15 @@ rule mint(env e, uint256 tokenId) {
 
     // effect
     assert success => (
-        balanceOf(to)        == balanceOfToBefore + 1 &&
-        safeOwnerOf(tokenId) == to
+        balanceOf(to)              == balanceOfToBefore + 1 &&
+        unsafeOwnerOf(tokenId)     == to &&
+        unsafeGetApproved(tokenId) == 0
     );
-    // TODO: check getApproved(tokenId) == 0
 
     // no side effect
-    assert balanceOf(otherAccount)   != balanceOfOtherBefore => otherAccount == to;
-    assert safeOwnerOf(otherTokenId) != otherOwnerBefore     => otherTokenId == tokenId;
-    //assert getApproved(otherTokenId) == otherApprovalBefore;
+    assert balanceOf(otherAccount)         != balanceOfOtherBefore => otherAccount == to;
+    assert unsafeOwnerOf(otherTokenId)     != otherOwnerBefore     => otherTokenId == tokenId;
+    assert unsafeGetApproved(otherTokenId) == otherApprovalBefore;
 }
 
 /*
@@ -428,20 +437,21 @@ rule safeMint(env e, method f, uint256 tokenId) filtered { f ->
     f.selector == safeMint(address,uint256,bytes).selector
 } {
     require nonpayable(e);
+    requireInvariant notMintedUnset(tokenId);
 
     address to;
 
     require balanceLimited(to);
 
     uint256 balanceOfToBefore = balanceOf(to);
-    address ownerBefore       = safeOwnerOf(tokenId);
+    address ownerBefore       = unsafeOwnerOf(tokenId);
 
     uint256 otherTokenId;
     address otherAccount;
 
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
-    address otherOwnerBefore     = safeOwnerOf(otherTokenId);
-    address otherApprovalBefore  = getApproved(otherTokenId);
+    address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
+    address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
 
     helperMintWithRevert(e, f, to, tokenId);
     bool success = !lastReverted;
@@ -454,15 +464,15 @@ rule safeMint(env e, method f, uint256 tokenId) filtered { f ->
 
     // effect
     assert success => (
-        balanceOf(to)        == balanceOfToBefore + 1 &&
-        safeOwnerOf(tokenId) == to
+        balanceOf(to)              == balanceOfToBefore + 1 &&
+        unsafeOwnerOf(tokenId)     == to &&
+        unsafeGetApproved(tokenId) == 0
     );
-    // TODO: getApproved(tokenId) == 0
 
     // no side effect
-    assert balanceOf(otherAccount)   != balanceOfOtherBefore => otherAccount == to;
-    assert safeOwnerOf(otherTokenId) != otherOwnerBefore     => otherTokenId == tokenId;
-    // TODO: assert getApproved(otherTokenId) == otherApprovalBefore;
+    assert balanceOf(otherAccount)         != balanceOfOtherBefore => otherAccount == to;
+    assert unsafeOwnerOf(otherTokenId)     != otherOwnerBefore     => otherTokenId == tokenId;
+    assert unsafeGetApproved(otherTokenId) == otherApprovalBefore;
 }
 
 /*
@@ -473,19 +483,19 @@ rule safeMint(env e, method f, uint256 tokenId) filtered { f ->
 rule burn(env e, uint256 tokenId) {
     require nonpayable(e);
 
-    address from = safeOwnerOf(tokenId);
+    address from = unsafeOwnerOf(tokenId);
 
     require ownerHasBalance(tokenId);
 
     uint256 balanceOfFromBefore = balanceOf(from);
-    address ownerBefore         = safeOwnerOf(tokenId);
+    address ownerBefore         = unsafeOwnerOf(tokenId);
 
     uint256 otherTokenId;
     address otherAccount;
 
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
-    address otherOwnerBefore     = safeOwnerOf(otherTokenId);
-    address otherApprovalBefore  = getApproved(otherTokenId);
+    address otherOwnerBefore     = unsafeOwnerOf(otherTokenId);
+    address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
 
     burn@withrevert(e, tokenId);
     bool success = !lastReverted;
@@ -497,15 +507,15 @@ rule burn(env e, uint256 tokenId) {
 
     // effect
     assert success => (
-        balanceOf(from)      == balanceOfFromBefore - 1 &&
-        safeOwnerOf(tokenId) == 0
+        balanceOf(from)            == balanceOfFromBefore - 1 &&
+        unsafeOwnerOf(tokenId)     == 0 &&
+        unsafeGetApproved(tokenId) == 0
     );
-    // TODO: check getApproved(tokenId) == 0
 
     // no side effect
-    assert balanceOf(otherAccount)   != balanceOfOtherBefore => otherAccount == from;
-    assert safeOwnerOf(otherTokenId) != otherOwnerBefore     => otherTokenId == tokenId;
-    // TODO: assert getApproved(otherTokenId) == otherApprovalBefore;
+    assert balanceOf(otherAccount)         != balanceOfOtherBefore => otherAccount == from;
+    assert unsafeOwnerOf(otherTokenId)     != otherOwnerBefore     => otherTokenId == tokenId;
+    assert unsafeGetApproved(otherTokenId) == otherApprovalBefore;
 }
 
 
