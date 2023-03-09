@@ -30,6 +30,12 @@
     "options": ["--optimistic_loop"]
   },
   {
+    "spec": "ERC20Votes",
+    "contract": "ERC20VotesHarness",
+    "files": ["certora/harnesses/ERC20VotesHarness.sol"],
+    "options": ["--optimistic_loop"]
+  },
+  {
     "spec": "ERC20Wrapper",
     "contract": "ERC20WrapperHarness",
     "files": [

@@ -31,7 +31,8 @@ hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STOR
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant totalSupplyIsSumOfBalances()
-    totalSupply() == sumOfBalances()
+    totalSupply() == sumOfBalances() &&
+    totalSupply() <= max_uint256
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
