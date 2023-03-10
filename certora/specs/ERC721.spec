@@ -149,11 +149,6 @@ invariant balanceOfConsistency(address user)
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: owner of a token must have some balance                                                                  │
-|                                                                                                                     |
-| Note: Ideally, we would like to avoid the additional require, but I don't see how to prove that invariant without   |
-| this assumption. We need the system to understand that the account balance is how many token the account is the     |
-| owner of. Said otherwise, if I'm transferring/burning a token that is not tokenId, then that means I have at least  |
-| 2 tokens (tokenId and tokenId2) and my balance must be >= 2.                                                        |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant ownerHasBalance(uint256 tokenId)
