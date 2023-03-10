@@ -56,11 +56,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         address owner = super._ownerOf(tokenId);
 
         // If token is owned by the core, or beyond consecutive range, return base value
-        if (
-            owner != address(0) ||
-            tokenId > (uint256(type(uint96).max) + _firstConsecutiveId()) ||
-            tokenId < _firstConsecutiveId()
-        ) {
+        if (owner != address(0) || tokenId > type(uint96).max || tokenId < _firstConsecutiveId()) {
             return owner;
         }
 
@@ -148,7 +144,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     }
 
     /**
-     * @dev Used to offset the first token id in {_totalConsecutiveSupply}
+     * @dev Used to offset the first token id in {_nextConsecutiveId}
      */
     function _firstConsecutiveId() internal view virtual returns (uint96) {
         return 0;
