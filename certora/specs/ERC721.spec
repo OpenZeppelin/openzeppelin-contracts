@@ -18,10 +18,6 @@ methods {
 │ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-// Consequence of tokenSupplyIsSumOfBalances
-function ownerHasBalance(uint256 tokenId) returns bool {
-    return unsafeOwnerOf(tokenId) != 0 => balanceOf(unsafeOwnerOf(tokenId)) > 0;
-}
 
 // Could be broken in theory, but not in practice
 function balanceLimited(address account) returns bool {
@@ -88,28 +84,30 @@ function helperMintWithRevert(env e, method f, address to, uint256 tokenId) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Ghost & hooks: sum of all balances                                                                                  │
+│ Ghost & hooks: ownership count                                                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 ghost tokenSupply() returns uint256 {
   init_state axiom tokenSupply() == 0;
 }
 
-ghost ownedByUser(address) returns uint256 {
-    init_state axiom forall address a. ownedByUser(a) == 0;
+ghost mapping(address => uint256) ownedByUser {
+    init_state axiom forall address a. ownedByUser[a] == 0;
 }
 
 hook Sstore _owners[KEY uint256 tokenId] address newOwner (address oldOwner) STORAGE {
     havoc tokenSupply assuming
         tokenSupply@new() == tokenSupply@old() + to_uint256(newOwner != 0 ? 1 : 0) - to_uint256(oldOwner != 0 ? 1 : 0);
 
-    havoc ownedByUser assuming
-        (newOwner != oldOwner) => (
-            ownedByUser@new(oldOwner) == ownedByUser@old(oldOwner) - to_uint256(oldOwner != 0 ? 1 : 0) &&
-            ownedByUser@new(newOwner) == ownedByUser@old(newOwner) + to_uint256(newOwner != 0 ? 1 : 0)
-        );
+    ownedByUser[newOwner] = ownedByUser[newOwner] + to_uint256(newOwner != 0 ? 1 : 0);
+    ownedByUser[oldOwner] = ownedByUser[oldOwner] - to_uint256(oldOwner != 0 ? 1 : 0);
 }
 
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Ghost & hooks: sum of all balances                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
 ghost sumOfBalances() returns uint256 {
   init_state axiom sumOfBalances() == 0;
 }
@@ -118,16 +116,6 @@ hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STOR
     havoc sumOfBalances assuming sumOfBalances@new() == sumOfBalances@old() + newValue - oldValue;
 }
 
-/// TODO
-// From this we should be able to prove an invariant that would induce ownerHasBalance
-//invariant balanceOfConsistency(address user)
-//    ownedByUser(user) == balanceOf(user)
-//    {
-//        preserved {
-//            require balanceLimited(user);
-//        }
-//    }
-
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: tokenSupply is the sum of all balances                                                                   │
@@ -135,6 +123,53 @@ hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STOR
 */
 invariant tokenSupplyIsSumOfBalances()
     tokenSupply() == sumOfBalances()
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: balanceOf is the number of token owned                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant balanceOfConsistency(address user)
+    ownedByUser[user] == balanceOf(user)
+    {
+        preserved {
+            require balanceLimited(user);
+        }
+    }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: owner of a token must have some balance                                                                  │
+|                                                                                                                     |
+| Note: forcing `tokenId == _tokenId` is overly restrictive and should be avoided, but I don't see how to prove that  |
+| invariant without this assumption. We need the system to understand that the account balance is how many token the  |
+| account is the owner of. Said otherwize, if I'm transfering/burning a token that is not tokenId, then the balance   |
+| must be >= 2.                                                                                                       |
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant ownerHasBalance(uint256 tokenId)
+    unsafeOwnerOf(tokenId) != 0 => balanceOf(unsafeOwnerOf(tokenId)) > 0
+    {
+        preserved {
+            requireInvariant balanceOfConsistency(ownerOf(tokenId));
+            require balanceLimited(ownerOf(tokenId));
+        }
+        preserved transferFrom(address from, address to, uint256 _tokenId) with (env e) {
+            require tokenId == _tokenId; // ok ?
+            require balanceLimited(to);
+        }
+        preserved safeTransferFrom(address from, address to, uint256 _tokenId) with (env e) {
+            require tokenId == _tokenId; // ok ?
+            require balanceLimited(to);
+        }
+        preserved safeTransferFrom(address from, address to, uint256 _tokenId, bytes data) with (env e) {
+            require tokenId == _tokenId; // ok ?
+            require balanceLimited(to);
+        }
+        preserved burn(uint256 _tokenId) with (env e) {
+            require tokenId == _tokenId; // ok ?
+        }
+    }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -220,7 +255,7 @@ rule tokenSupplyChange(env e) {
 rule balanceChange(env e, address account) {
     method f; uint256 tokenId;
 
-    require ownerHasBalance(tokenId);
+    requireInvariant ownerHasBalance(tokenId);
     require balanceLimited(account);
 
     uint256 balanceBefore = balanceOf(account);
@@ -328,7 +363,7 @@ rule transferFrom(env e, uint256 tokenId) {
     uint256 otherTokenId;
     address otherAccount;
 
-    require ownerHasBalance(tokenId);
+    requireInvariant ownerHasBalance(tokenId);
     require balanceLimited(to);
 
     uint256 balanceOfFromBefore  = balanceOf(from);
@@ -381,7 +416,7 @@ rule safeTransferFrom(env e, method f, uint256 tokenId) filtered { f ->
     uint256 otherTokenId;
     address otherAccount;
 
-    require ownerHasBalance(tokenId);
+    requireInvariant ownerHasBalance(tokenId);
     require balanceLimited(to);
 
     uint256 balanceOfFromBefore  = balanceOf(from);
@@ -516,7 +551,7 @@ rule burn(env e, uint256 tokenId) {
     uint256 otherTokenId;
     address otherAccount;
 
-    require ownerHasBalance(tokenId);
+    requireInvariant ownerHasBalance(tokenId);
 
     uint256 tokenSupplyBefore    = tokenSupply();
     uint256 balanceOfFromBefore  = balanceOf(from);
