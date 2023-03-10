@@ -28,9 +28,6 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * @dev Returns the delay between each `DEFAULT_ADMIN_ROLE` transfer.
      *
      * A scheduled delay change will take effect as soon as the schedule passes, returning the new delay.
-     *
-     * WARNING: The delay value can be cancelled by the `DEFAULT_ADMIN_ROLE` owner if no other default admin transfer
-     * has started, which is indicated by a non-zero {defaultAdminDelayChangeSchedule} value.
      */
     function defaultAdminDelay() external view returns (uint48);
 
@@ -38,12 +35,15 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * @dev Returns the pending delay to be set after {defaultAdminDelayChangeSchedule} passes.
      *
      * A zero value indicates there's no pending delay. This function will return 0 if a previous
-     * scheduled change has already passed.
+     * scheduled delay change has already passed.
      */
     function pendingDefaultAdminDelay() external view returns (uint48);
 
     /**
      * @dev Returns the timestamp after which {pendingDefaultAdminDelay} becomes {defaultAdminDelay}.
+     *
+     * The value can be in the past if the scheduled has passed but {beginDefaultAdminDelayChange}
+     * hasn't been called.
      *
      * A zero value indicates no delay change scheduled.
      */
@@ -83,7 +83,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * still guaranteed to be respected.
      *
      * The {defaultAdminDelayChangeSchedule} is defined such that the schedule + a default admin transfer
-     * takes at least the current {defaultAdminDelay}, following that:
+     * takes at least the current {defaultAdminDelay} or {increasedDelayWait}, following that:
      * - The schedule is `block.timestamp + {increasedDelayWait}` if the delay is increased.
      * - The schedule is `block.timestamp + (current delay - new delay)` if the delay is reduced.
      *
@@ -93,6 +93,8 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * - No new default admin transfers should happen before the scheduled change passes.
      * - (schedule + new admin transfer) takes at least the previous delay.
      * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
+     * - Only can be called before another delay change takes effect, or after the scheduled change is reset
+     *   by calling {beginDefaultAdminTransfer}.
      */
     function beginDefaultAdminDelayChange(uint48 newDefaultAdminDelay) external;
 
@@ -100,14 +102,15 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * @dev Cancels a scheduled {defaultAdminDelay} change.
      *
      * Requirements:
-     * - Can be called even if the schedule has not passed.
      * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
+     * - Only can be called before another delay change takes effect, or after the scheduled change is reset
+     *   by calling {beginDefaultAdminTransfer}.
      */
     function cancelDefaultAdminDelayChange() external;
 
     /**
      * @dev Starts a `DEFAULT_ADMIN_ROLE` transfer by setting a pending default admin
-     * and a timer to pass.
+     * and a schedule to pass.
      *
      * Requirements:
      *
@@ -133,7 +136,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * Requirements:
      *
-     * - Can be called even after the timer has passed.
+     * - Can be called even after the schedule has passed.
      * - Can only be called by the current `DEFAULT_ADMIN_ROLE` holder.
      */
     function cancelDefaultAdminTransfer() external;

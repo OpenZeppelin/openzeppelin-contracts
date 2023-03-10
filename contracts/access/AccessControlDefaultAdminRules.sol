@@ -158,6 +158,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function cancelDefaultAdminTransfer() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(
+            !_hasScheduledPassed(defaultAdminDelayChangeSchedule()),
+            "AccessControl: can't cancel a passed schedule"
+        );
         _resetDefaultAdminTransfer();
     }
 
@@ -235,6 +239,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _beginDefaultAdminDelayChange(uint48 newDefaultAdminDelay) internal virtual {
+        require(
+            !_hasScheduledPassed(defaultAdminDelayChangeSchedule()),
+            "AccessControl: can't change past scheduled change"
+        );
         require(defaultAdminTransferSchedule() == 0, "AccessControl: default admin transfer pending");
 
         uint48 currentDefaultAdminDelay = defaultAdminDelay();

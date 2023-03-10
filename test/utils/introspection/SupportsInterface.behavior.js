@@ -44,6 +44,7 @@ const INTERFACES = {
     'defaultAdmin()',
     'pendingDefaultAdmin()',
     'defaultAdminTransferSchedule()',
+    'increasedDelayWait()',
     'beginDefaultAdminDelayChange(uint48)',
     'cancelDefaultAdminDelayChange()',
     'beginDefaultAdminTransfer(address)',

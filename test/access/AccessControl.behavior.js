@@ -589,32 +589,14 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
   describe('beginning a delay change', function () {
     describe('when no default admin transfer is pending', function () {
-      let receipt;
-      let newDefaultAdminDelay;
-      let defaultAdminDelaySchedule;
-
-      let delayChangeType;
-
-      afterEach('assert expected values', async function () {
-        expect(await this.accessControl.defaultAdminDelayChangeSchedule()).to.be.bignumber.eq(
-          defaultAdminDelaySchedule,
-        );
-        expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.eq(newDefaultAdminDelay);
-        expectEvent(receipt, 'DefaultAdminDelayChangeStarted', {
-          newDefaultAdminDelay,
-          defaultAdminDelaySchedule,
-        });
-      });
-
-      for ([newDefaultAdminDelay, delayChangeType] of [
+      for (const [newDefaultAdminDelay, delayChangeType] of [
         [web3.utils.toBN(delay).subn(time.duration.days(1)), 'decreased'],
-        [web3.utils.toBN(delay), 'equal'],
         [web3.utils.toBN(delay).addn(time.duration.days(1)), 'increased'],
       ]) {
         describe(`when the delay is ${delayChangeType}`, function () {
-          it('begings the delay change to the new delay', async function () {
+          it('begins the delay change to the new delay', async function () {
             // Begins the change
-            receipt = await this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, {
+            const receipt = await this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, {
               from: defaultAdmin,
             });
 
@@ -623,33 +605,69 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
               ? delay.sub(newDefaultAdminDelay)
               : await this.accessControl.increasedDelayWait();
             const timestamp = web3.utils.toBN(await time.latest());
-            defaultAdminDelaySchedule = timestamp.add(changeDelay);
+            const defaultAdminDelaySchedule = timestamp.add(changeDelay);
+
+            // Assert
+            expect(await this.accessControl.defaultAdminDelayChangeSchedule()).to.be.bignumber.eq(
+              defaultAdminDelaySchedule,
+            );
+            expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.eq(newDefaultAdminDelay);
+            expectEvent(receipt, 'DefaultAdminDelayChangeStarted', {
+              newDefaultAdminDelay,
+              defaultAdminDelaySchedule,
+            });
           });
 
-          describe('schedule again', function () {
-            for (const [offset, when] of [
-              [-1, 'before'],
-              [1, 'after'],
-            ]) {
-              it(`should be able to schedule again ${when} the delay schedule passes`, async function () {
-                // First change
-                await this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, { from: defaultAdmin });
+          describe('scheduling again', function () {
+            it('should succeed before the delay schedule passes', async function () {
+              // First change
+              await this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, { from: defaultAdmin });
 
-                // Wait until the schedule with an offset
-                const schedule = await this.accessControl.defaultAdminDelayChangeSchedule();
-                await time.setNextBlockTimestamp(schedule.toNumber() + offset);
+              // Wait until almost the schedule
+              const schedule = await this.accessControl.defaultAdminDelayChangeSchedule();
+              await time.setNextBlockTimestamp(schedule.subn(1));
 
-                // Default admin changes its mind and begins another delay change
-                newDefaultAdminDelay = newDefaultAdminDelay.addn(time.duration.days(1));
-                receipt = await this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, {
-                  from: defaultAdmin,
-                });
-
-                // Calculate expected values
-                const timestamp = web3.utils.toBN(await time.latest());
-                defaultAdminDelaySchedule = timestamp.add(await this.accessControl.increasedDelayWait());
+              // Default admin changes its mind and begins another delay change
+              const anotherNewDefaultAdminDelay = newDefaultAdminDelay.addn(time.duration.days(2));
+              const receipt = await this.accessControl.beginDefaultAdminDelayChange(anotherNewDefaultAdminDelay, {
+                from: defaultAdmin,
               });
-            }
+
+              // Calculate expected values
+              const timestamp = web3.utils.toBN(await time.latest());
+              const defaultAdminDelaySchedule = timestamp.add(await this.accessControl.increasedDelayWait());
+
+              // Assert
+              expect(await this.accessControl.defaultAdminDelayChangeSchedule()).to.be.bignumber.eq(
+                defaultAdminDelaySchedule,
+              );
+              expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.eq(
+                anotherNewDefaultAdminDelay,
+              );
+              expectEvent(receipt, 'DefaultAdminDelayChangeStarted', {
+                newDefaultAdminDelay: anotherNewDefaultAdminDelay,
+                defaultAdminDelaySchedule,
+              });
+            });
+
+            it('should revert after the delay schedule passes', async function () {
+              // First and only change.
+              await this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, {
+                from: defaultAdmin,
+              });
+
+              // Wait until the schedule has passed
+              const schedule = await this.accessControl.defaultAdminDelayChangeSchedule();
+              await time.setNextBlockTimestamp(schedule.addn(1));
+
+              // Default admin changes its mind and begins another delay change
+              await expectRevert(
+                this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, {
+                  from: defaultAdmin,
+                }),
+                "AccessControl: can't change past scheduled change",
+              );
+            });
           });
         });
       }
