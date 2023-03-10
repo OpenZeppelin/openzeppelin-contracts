@@ -8,7 +8,7 @@
 
 const MAX_PARALLEL = 4;
 
-const specs = require(__dirname + '/specs.json');
+let specs = require(__dirname + '/specs.json');
 
 const proc = require('child_process');
 const { PassThrough } = require('stream');
@@ -20,12 +20,18 @@ if (request.startsWith('-')) {
   extraOptions.unshift(request);
   request = '';
 }
-const [reqSpec, reqContract] = request.split(':').reverse();
+
+if (request) {
+  const [reqSpec, reqContract] = request.split(':').reverse();
+  specs = Object.values(specs).filter(s => reqSpec === s.spec && (!reqContract || reqContract === s.contract));
+  if (specs.length === 0) {
+    console.error(`Error: Requested spec '${request}' not found in specs.json`);
+    process.exit(1);
+  }
+}
 
 for (const { spec, contract, files, options = [] } of Object.values(specs)) {
-  if ((!reqSpec || reqSpec === spec) && (!reqContract || reqContract === contract)) {
-    limit(runCertora, spec, contract, files, [...options, ...extraOptions]);
-  }
+  limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...extraOptions]);
 }
 
 // Run certora, aggregate the output and print it at the end
@@ -44,7 +50,7 @@ async function runCertora(spec, contract, files, options = []) {
     const urls = data.toString('utf8').match(/https?:\S*/g);
     for (const url of urls ?? []) {
       if (url.includes('/jobStatus/')) {
-        console.error(`[${spec}] ${url}`);
+        console.error(`[${spec}] ${url.replace('/jobStatus/', '/output/')}`);
         stream.off('data', logStatusUrl);
         break;
       }
@@ -64,7 +70,7 @@ async function runCertora(spec, contract, files, options = []) {
   stream.end();
 
   // write results in markdown format
-  writeEntry(spec, contract, code || signal, (await output).match(/https:\S*/)[0]);
+  writeEntry(spec, contract, code || signal, (await output).match(/https:\S*/)?.[0]);
 
   // write all details
   console.error(`+ certoraRun ${args.join(' ')}\n` + (await output));
@@ -102,8 +108,8 @@ function writeEntry(spec, contract, success, url) {
       spec,
       contract,
       success ? ':x:' : ':heavy_check_mark:',
-      `[link](${url})`,
-      `[link](${url.replace('/jobStatus/', '/output/')})`,
+      url ? `[link](${url})` : 'error',
+      url ? `[link](${url?.replace('/jobStatus/', '/output/')})` : 'error',
     ),
   );
 }
