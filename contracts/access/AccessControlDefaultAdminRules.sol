@@ -67,6 +67,20 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
+     * @dev Time in seconds to wait before an increased delay change goes into effect. Default to 5 days.
+     *
+     * It's used whenever {beginDefaultAdminDelayChange} is called with a `newDefaultAdminDelay` higher
+     * than the current {defaultAdminDelay}.
+     *
+     * IMPORTANT: Make sure to add a reasonable amount of time while overriding this value, otherwise,
+     * there's a risk of setting a high new delay that goes into effect almost immediately without the
+     * possibility of human intervention in the case of an input error (eg. set miliseconds instead of seconds).
+     */
+    function increasedDelayWait() public view virtual returns (uint48) {
+        return 5 days;
+    }
+
+    /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function defaultAdminDelay() public view virtual returns (uint48) {
@@ -232,17 +246,17 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
 
         uint48 currentDefaultAdminDelay = defaultAdminDelay();
 
-        // Schedules the new delay if the delay is increased, this is done so the user can't accidentally set a high new delay.
-        // Otherwise, wait the difference between current and new delay to guarantee the delay change schedule + a default admin change
+        // Schedules increasedDelayWait() if the delay is increased, this is done so the user has time enough to fix an accidentally high new delay set.
+        // If the delay is reduced, wait the difference between current and new delay to guarantee the delay change schedule + a default admin change
         // is effectively the current delay. For example, if delay is reduced from 10 days to 3 days, it's needed to wait 7 days
         // before starting the new 3 days delayed transfer summing up to 10 days, which is the current delay.
-        uint48 changeDelay = newDefaultAdminDelay >= currentDefaultAdminDelay
-            ? newDefaultAdminDelay
-            : currentDefaultAdminDelay - newDefaultAdminDelay; // This is 1 in worst-case scenario. Can't be 0.
+        uint48 changeDelay = newDefaultAdminDelay > currentDefaultAdminDelay
+            ? increasedDelayWait()
+            : currentDefaultAdminDelay - newDefaultAdminDelay;
 
         _defaultAdminDelayChangeSchedule = SafeCast.toUint48(block.timestamp) + changeDelay;
-
         _pendingDefaultAdminDelay = newDefaultAdminDelay;
+
         emit DefaultAdminDelayChangeStarted(pendingDefaultAdminDelay(), defaultAdminDelayChangeSchedule());
     }
 
@@ -256,7 +270,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
 
         if (delayChangeSchedule != 0) {
             require(delayChangeSchedule < block.timestamp, "AccessControl: Delay change in progress");
-            // Must read the raw value to avoid getting a 0 from `pendingDefaultAdminDelay()`
+            // Must read the raw private value to avoid getting a 0 from `pendingDefaultAdminDelay()`
             _currentDefaultAdminDelay = _pendingDefaultAdminDelay;
             _resetDefaultAdminDelayChange();
         }

@@ -607,9 +607,9 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       });
 
       for ([newDefaultAdminDelay, delayChangeType] of [
+        [web3.utils.toBN(delay).subn(time.duration.days(1)), 'decreased'],
         [web3.utils.toBN(delay), 'equal'],
         [web3.utils.toBN(delay).addn(time.duration.days(1)), 'increased'],
-        [web3.utils.toBN(delay).subn(time.duration.days(1)), 'decreased'],
       ]) {
         describe(`when the delay is ${delayChangeType}`, function () {
           it('begings the delay change to the new delay', async function () {
@@ -619,7 +619,9 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
             });
 
             // Calculate expected values
-            const changeDelay = newDefaultAdminDelay.lt(delay) ? delay.sub(newDefaultAdminDelay) : newDefaultAdminDelay;
+            const changeDelay = newDefaultAdminDelay.lte(delay)
+              ? delay.sub(newDefaultAdminDelay)
+              : await this.accessControl.increasedDelayWait();
             const timestamp = web3.utils.toBN(await time.latest());
             defaultAdminDelaySchedule = timestamp.add(changeDelay);
           });
@@ -645,7 +647,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
                 // Calculate expected values
                 const timestamp = web3.utils.toBN(await time.latest());
-                defaultAdminDelaySchedule = timestamp.add(newDefaultAdminDelay);
+                defaultAdminDelaySchedule = timestamp.add(await this.accessControl.increasedDelayWait());
               });
             }
           });
