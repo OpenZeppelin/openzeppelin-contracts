@@ -141,8 +141,13 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         super._afterTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
+    /**
+     * @dev Used to offset the first token id in {_totalConsecutiveSupply}
+     */
+    function _firstConsecutiveId() internal view virtual returns (uint96) { return 0; }
+
     function _totalConsecutiveSupply() private view returns (uint96) {
         (bool exists, uint96 latestId, ) = _sequentialOwnership.latestCheckpoint();
-        return exists ? latestId + 1 : 0;
+        return exists ? latestId + 1 : _firstConsecutiveId();
     }
 }
