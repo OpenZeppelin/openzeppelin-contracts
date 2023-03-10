@@ -24,36 +24,6 @@ function balanceLimited(address account) returns bool {
     return balanceOf(account) < max_uint256;
 }
 
-function helperTokenOperationWithRevert(env e, method f, uint256 tokenId) {
-    if (f.selector == transferFrom(address,address,uint256).selector) {
-        address from; address to;
-        transferFrom@withrevert(e, from, to, tokenId);
-    } else if (f.selector == safeTransferFrom(address,address,uint256).selector) {
-        address from; address to;
-        safeTransferFrom@withrevert(e, from, to, tokenId);
-    } else if (f.selector == safeTransferFrom(address,address,uint256,bytes).selector) {
-        address from; address to; bytes params;
-        safeTransferFrom@withrevert(e, from, to, tokenId, params);
-    } else if (f.selector == mint(address,uint256).selector) {
-        address to;
-        mint@withrevert(e, to, tokenId);
-    } else if (f.selector == safeMint(address,uint256).selector) {
-        address to;
-        safeMint@withrevert(e, to, tokenId);
-    } else if (f.selector == safeMint(address,uint256,bytes).selector) {
-        address to; bytes params;
-        safeMint@withrevert(e, to, tokenId, params);
-    } else if (f.selector == burn(uint256).selector) {
-        burn@withrevert(e, tokenId);
-    } else if (f.selector == approve(address,uint256).selector) {
-        address spender;
-        approve@withrevert(e, spender, tokenId);
-    } else {
-        calldataarg args;
-        f@withrevert(e, args);
-    }
-}
-
 function helperTransferWithRevert(env e, method f, address from, address to, uint256 tokenId) {
     if (f.selector == transferFrom(address,address,uint256).selector) {
         transferFrom@withrevert(e, from, to, tokenId);
@@ -242,13 +212,13 @@ rule supplyChange(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule balanceChange(env e, address account) {
-    method f; uint256 tokenId;
+    method f; calldataarg args;
 
-    requireInvariant ownerHasBalance(tokenId);
+    requireInvariant balanceOfConsistency(account);
     require balanceLimited(account);
 
     uint256 balanceBefore = balanceOf(account);
-    helperTokenOperationWithRevert(e, f, tokenId);
+    f(e, args);
     uint256 balanceAfter  = balanceOf(account);
 
     // balance can change by at most 1
@@ -304,12 +274,13 @@ rule ownershipChange(env e, uint256 tokenId) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule approvalChange(env e, uint256 tokenId) {
-    method f;
+    method f; calldataarg args;
 
     address approvalBefore = unsafeGetApproved(tokenId);
-    helperTokenOperationWithRevert(e, f, tokenId);
+    f(e, args);
     address approvalAfter  = unsafeGetApproved(tokenId);
 
+    // approve can set any value, other functions reset
     assert approvalBefore != approvalAfter => (
         f.selector == approve(address,uint256).selector ||
         (
