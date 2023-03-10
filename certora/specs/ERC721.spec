@@ -18,7 +18,7 @@ methods {
 │ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-// Consequence of totalSupplyIsSumOfBalances
+// Consequence of tokenSupplyIsSumOfBalances
 function ownerHasBalance(uint256 tokenId) returns bool {
     return unsafeOwnerOf(tokenId) != 0 => balanceOf(unsafeOwnerOf(tokenId)) > 0;
 }
@@ -91,12 +91,23 @@ function helperMintWithRevert(env e, method f, address to, uint256 tokenId) {
 │ Ghost & hooks: sum of all balances                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-ghost totalSupply() returns uint256 {
-  init_state axiom totalSupply() == 0;
+ghost tokenSupply() returns uint256 {
+  init_state axiom tokenSupply() == 0;
+}
+
+ghost ownedByUser(address) returns uint256 {
+    init_state axiom forall address a. ownedByUser(a) == 0;
 }
 
 hook Sstore _owners[KEY uint256 tokenId] address newOwner (address oldOwner) STORAGE {
-    havoc totalSupply assuming totalSupply@new() == totalSupply@old() + to_uint256(newOwner != 0 ? 1 : 0) - to_uint256(oldOwner != 0 ? 1 : 0);
+    havoc tokenSupply assuming
+        tokenSupply@new() == tokenSupply@old() + to_uint256(newOwner != 0 ? 1 : 0) - to_uint256(oldOwner != 0 ? 1 : 0);
+
+    havoc ownedByUser assuming
+        (newOwner != oldOwner) => (
+            ownedByUser@new(oldOwner) == ownedByUser@old(oldOwner) - to_uint256(oldOwner != 0 ? 1 : 0) &&
+            ownedByUser@new(newOwner) == ownedByUser@old(newOwner) + to_uint256(newOwner != 0 ? 1 : 0)
+        );
 }
 
 ghost sumOfBalances() returns uint256 {
@@ -107,21 +118,23 @@ hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STOR
     havoc sumOfBalances assuming sumOfBalances@new() == sumOfBalances@old() + newValue - oldValue;
 }
 
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: totalSupply is the sum of all balances                                                                   │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant totalSupplyIsSumOfBalances()
-    totalSupply() == sumOfBalances()
+/// TODO
+// From this we should be able to prove an invariant that would induce ownerHasBalance
+//invariant balanceOfConsistency(address user)
+//    ownedByUser(user) == balanceOf(user)
+//    {
+//        preserved {
+//            require balanceLimited(user);
+//        }
+//    }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: balance of address(0) is 0                                                                               │
+│ Invariant: tokenSupply is the sum of all balances                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant zeroAddressNoBalance()
-    balanceOf(0) == 0
+invariant tokenSupplyIsSumOfBalances()
+    tokenSupply() == sumOfBalances()
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -165,26 +178,36 @@ rule unsafeDontRevert(uint256 tokenId) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: balance of address(0) is 0                                                                                    │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule zeroAddressBalanceRevert() {
+    balanceOf@withrevert(0);
+    assert lastReverted;
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rules: total supply can only change through mint and burn                                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule totalSupplyChange(env e) {
+rule tokenSupplyChange(env e) {
     method f; calldataarg args;
 
-    uint256 totalSupplyBefore = totalSupply();
+    uint256 tokenSupplyBefore = tokenSupply();
     f(e, args);
-    uint256 totalSupplyAfter = totalSupply();
+    uint256 tokenSupplyAfter = tokenSupply();
 
-    assert totalSupplyAfter > totalSupplyBefore => (
-        totalSupplyAfter == totalSupplyBefore + 1 &&
+    assert tokenSupplyAfter > tokenSupplyBefore => (
+        tokenSupplyAfter == tokenSupplyBefore + 1 &&
         (
             f.selector == mint(address,uint256).selector ||
             f.selector == safeMint(address,uint256).selector ||
             f.selector == safeMint(address,uint256,bytes).selector
         )
     );
-    assert totalSupplyAfter < totalSupplyBefore => (
-        totalSupplyAfter == totalSupplyBefore - 1 &&
+    assert tokenSupplyAfter < tokenSupplyBefore => (
+        tokenSupplyAfter == tokenSupplyBefore - 1 &&
         f.selector == burn(uint256).selector
     );
 }
@@ -409,7 +432,7 @@ rule mint(env e, uint256 tokenId) {
 
     require balanceLimited(to);
 
-    uint256 totalSupplyBefore    = totalSupply();
+    uint256 tokenSupplyBefore    = tokenSupply();
     uint256 balanceOfToBefore    = balanceOf(to);
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
@@ -426,7 +449,7 @@ rule mint(env e, uint256 tokenId) {
 
     // effect
     assert success => (
-        totalSupply()              == totalSupplyBefore + 1 &&
+        tokenSupply()              == tokenSupplyBefore + 1 &&
         balanceOf(to)              == balanceOfToBefore + 1 &&
         unsafeOwnerOf(tokenId)     == to
     );
@@ -454,7 +477,7 @@ rule safeMint(env e, method f, uint256 tokenId) filtered { f ->
 
     require balanceLimited(to);
 
-    uint256 totalSupplyBefore    = totalSupply();
+    uint256 tokenSupplyBefore    = tokenSupply();
     uint256 balanceOfToBefore    = balanceOf(to);
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
@@ -471,7 +494,7 @@ rule safeMint(env e, method f, uint256 tokenId) filtered { f ->
 
     // effect
     assert success => (
-        totalSupply()              == totalSupplyBefore + 1 &&
+        tokenSupply()              == tokenSupplyBefore + 1 &&
         balanceOf(to)              == balanceOfToBefore + 1 &&
         unsafeOwnerOf(tokenId)     == to
     );
@@ -495,7 +518,7 @@ rule burn(env e, uint256 tokenId) {
 
     require ownerHasBalance(tokenId);
 
-    uint256 totalSupplyBefore    = totalSupply();
+    uint256 tokenSupplyBefore    = tokenSupply();
     uint256 balanceOfFromBefore  = balanceOf(from);
     uint256 balanceOfOtherBefore = balanceOf(otherAccount);
     address ownerBefore          = unsafeOwnerOf(tokenId);
@@ -512,7 +535,7 @@ rule burn(env e, uint256 tokenId) {
 
     // effect
     assert success => (
-        totalSupply()              == totalSupplyBefore   - 1 &&
+        tokenSupply()              == tokenSupplyBefore   - 1 &&
         balanceOf(from)            == balanceOfFromBefore - 1 &&
         unsafeOwnerOf(tokenId)     == 0 &&
         unsafeGetApproved(tokenId) == 0
