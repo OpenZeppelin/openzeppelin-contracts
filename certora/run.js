@@ -8,26 +8,27 @@
 
 const MAX_PARALLEL = 4;
 
-let specs = require(__dirname + '/specs.json');
-
 const proc = require('child_process');
 const { PassThrough } = require('stream');
 const events = require('events');
 const limit = require('p-limit')(MAX_PARALLEL);
+
+const strToRegex = str => new RegExp(`^${str.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/[*]/g, '.$&')}$`);
 
 let [, , request = '', ...extraOptions] = process.argv;
 if (request.startsWith('-')) {
   extraOptions.unshift(request);
   request = '';
 }
+const [reqSpec, reqContract] = request.split(':').reverse();
 
-if (request) {
-  const [reqSpec, reqContract] = request.split(':').reverse();
-  specs = Object.values(specs).filter(s => reqSpec === s.spec && (!reqContract || reqContract === s.contract));
-  if (specs.length === 0) {
-    console.error(`Error: Requested spec '${request}' not found in specs.json`);
-    process.exit(1);
-  }
+const specs = require(__dirname + '/specs.js')
+  .filter(entry => !reqSpec || strToRegex(reqSpec).test(entry.spec))
+  .filter(entry => !reqContract || strToRegex(reqContract).test(entry.contract));
+
+if (specs.length === 0) {
+  console.error(`Error: Requested spec '${request}' not found in specs.json`);
+  process.exit(1);
 }
 
 for (const { spec, contract, files, options = [] } of Object.values(specs)) {
