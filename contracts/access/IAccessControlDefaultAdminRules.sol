@@ -97,7 +97,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * - Only can be called before another delay change takes effect, or after the scheduled change is reset
      *   by calling {beginDefaultAdminTransfer}.
      *
-     * Emits a {IAccessControlDefaultAdminRules-DefaultAdminDelayChangeStarted} event.
+     * Emits a DefaultAdminDelayChangeStarted event.
      */
     function beginDefaultAdminDelayChange(uint48 newDefaultAdminDelay) external;
 
@@ -120,7 +120,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
      *
-     * Emits a {IAccessControlDefaultAdminRules-DefaultAdminRoleChangeStarted} event.
+     * Emits a DefaultAdminRoleChangeStarted event.
      */
     function beginDefaultAdminTransfer(address newAdmin) external;
 
