@@ -33,8 +33,7 @@ function helperTransferWithRevert(env e, method f, address from, address to, uin
         bytes params;
         safeTransferFrom@withrevert(e, from, to, tokenId, params);
     } else {
-        calldataarg args;
-        f@withrevert(e, args);
+        require false;
     }
 }
 
@@ -47,8 +46,7 @@ function helperMintWithRevert(env e, method f, address to, uint256 tokenId) {
         bytes params;
         safeMint@withrevert(e, to, tokenId, params);
     } else {
-        calldataarg args;
-        f@withrevert(e, args);
+        require false;
     }
 }
 
