@@ -46,7 +46,12 @@ contract ERC721ConsecutiveTest is Test {
         assertEq(token.balanceOf(receiver), token.totalMinted());
     }
 
-    function test_ownership(address receiver, uint256[] calldata batches, uint256[2] calldata unboundedTokenId, uint96 startingId) public {
+    function test_ownership(
+        address receiver,
+        uint256[] calldata batches,
+        uint256[2] calldata unboundedTokenId,
+        uint96 startingId
+    ) public {
         vm.assume(receiver != address(0));
         vm.assume(startingId < type(uint96).max - 5000);
 
@@ -57,12 +62,21 @@ contract ERC721ConsecutiveTest is Test {
             assertEq(token.ownerOf(validTokenId), receiver);
         }
 
-        uint256 invalidTokenId = bound(unboundedTokenId[1], startingId + token.totalMinted(), startingId + token.totalMinted() + 1);
+        uint256 invalidTokenId = bound(
+            unboundedTokenId[1],
+            startingId + token.totalMinted(),
+            startingId + token.totalMinted() + 1
+        );
         vm.expectRevert();
         token.ownerOf(invalidTokenId);
     }
 
-    function test_burn(address receiver, uint256[] calldata batches, uint256 unboundedTokenId, uint96 startingId) public {
+    function test_burn(
+        address receiver,
+        uint256[] calldata batches,
+        uint256 unboundedTokenId,
+        uint96 startingId
+    ) public {
         vm.assume(receiver != address(0));
         vm.assume(startingId < type(uint96).max - 5000);
 
@@ -143,7 +157,11 @@ contract ERC721ConsecutiveTest is Test {
         batches[0] = bound(unboundedBatches[0], startingTokenId, 5000);
         batches[1] = bound(unboundedBatches[1], startingTokenId, 5000);
 
-        ERC721ConsecutiveTarget token = new ERC721ConsecutiveTarget(toSingleton(receiver), batches, uint96(startingTokenId));
+        ERC721ConsecutiveTarget token = new ERC721ConsecutiveTarget(
+            toSingleton(receiver),
+            batches,
+            uint96(startingTokenId)
+        );
 
         uint256 tokenId0 = bound(unboundedTokenId[0], startingTokenId, batches[0]);
         uint256 tokenId1 = bound(unboundedTokenId[1], startingTokenId, batches[1]);
