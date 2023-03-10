@@ -39,17 +39,17 @@ import "../interfaces/IERC5313.sol";
  * _Available since v4.9._
  */
 abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRules, IERC5313, AccessControl {
-    // Delays
-    uint48 private _currentDefaultAdminDelay;
-    uint48 private _pendingDefaultAdminDelay;
-
-    // Admins
     address private _currentDefaultAdmin;
-    address private _pendingDefaultAdmin;
 
-    // Schedules
-    uint48 private _defaultAdminTransferSchedule; // 0 == unset
+    // Delay change
+    uint48 private _pendingDefaultAdminDelay;
     uint48 private _defaultAdminDelayChangeSchedule; // 0 == unset
+
+    uint48 private _currentDefaultAdminDelay;
+
+    // Admin transfer
+    address private _pendingDefaultAdmin;
+    uint48 private _defaultAdminTransferSchedule; // 0 == unset
 
     /**
      * @dev Sets the initial values for {curentDefaultAdminDelay} in seconds and {defaultAdmin} address.
