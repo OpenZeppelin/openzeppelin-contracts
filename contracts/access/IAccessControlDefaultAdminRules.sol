@@ -91,7 +91,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * - No default admin transfer should've been started.
      * - No new default admin transfers should happen before the scheduled change passes.
-     * - (schedule + new admin transfer) takes at least the previous delay.
+     * - (schedule + new admin transfer) takes at least {defaultAdminDelay} or {increasedDelayWait}.
      * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
      * - Only can be called before another delay change takes effect, or after the scheduled change is reset
      *   by calling {beginDefaultAdminTransfer}.
