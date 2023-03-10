@@ -121,8 +121,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
-    function scheduleDefaultAdminDelayChange(uint48 newDefaultAdminDelay) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _scheduleDefaultAdminDelayChange(newDefaultAdminDelay);
+    function beginDefaultAdminDelayChange(uint48 newDefaultAdminDelay) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        _beginDefaultAdminDelayChange(newDefaultAdminDelay);
     }
 
     /**
@@ -223,11 +223,11 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev See {scheduleDefaultAdminDelayChange}.
+     * @dev See {beginDefaultAdminDelayChange}.
      *
      * Internal function without access restriction.
      */
-    function _scheduleDefaultAdminDelayChange(uint48 newDefaultAdminDelay) internal virtual {
+    function _beginDefaultAdminDelayChange(uint48 newDefaultAdminDelay) internal virtual {
         require(defaultAdminTransferSchedule() == 0, "AccessControl: default admin transfer pending");
 
         uint48 currentDefaultAdminDelay = defaultAdminDelay();

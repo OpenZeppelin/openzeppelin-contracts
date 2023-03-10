@@ -67,7 +67,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function defaultAdminTransferSchedule() external view returns (uint48);
 
     /**
-     * @dev Schedules a {defaultAdminDelay} change in a way in which the current delay is
+     * @dev Begins a {defaultAdminDelay} change in a way in which the current delay is
      * still guaranteed to be respected.
      *
      * The {defaultAdminDelayChangeSchedule} is defined such that the schedule + a default admin transfer
@@ -82,7 +82,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * - (schedule + new admin transfer) takes at least the previous delay.
      * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
      */
-    function scheduleDefaultAdminDelayChange(uint48 newDefaultAdminDelay) external;
+    function beginDefaultAdminDelayChange(uint48 newDefaultAdminDelay) external;
 
     /**
      * @dev Cancels a scheduled {defaultAdminDelay} change.
