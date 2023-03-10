@@ -86,7 +86,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * Emits a {IERC2309-ConsecutiveTransfer} event.
      */
     function _mintConsecutive(address to, uint96 batchSize) internal virtual returns (uint96) {
-        uint96 first = _totalConsecutiveSupply();
+        uint96 first = _nextConsecutiveId();
 
         // minting a batch of size 0 is a no-op
         if (batchSize > 0) {
@@ -137,7 +137,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         if (
             to == address(0) && // if we burn
             firstTokenId >= _firstConsecutiveId() &&
-            firstTokenId - _firstConsecutiveId() < _totalConsecutiveSupply() && // and the tokenId is in the batch range
+            firstTokenId < _nextConsecutiveId() &&
             !_sequentialBurn.get(firstTokenId)
         ) // and the token was never marked as burnt
         {
@@ -154,7 +154,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         return 0;
     }
 
-    function _totalConsecutiveSupply() private view returns (uint96) {
+    function _nextConsecutiveId() private view returns (uint96) {
         (bool exists, uint96 latestId, ) = _sequentialOwnership.latestCheckpoint();
         return exists ? latestId + 1 : _firstConsecutiveId();
     }

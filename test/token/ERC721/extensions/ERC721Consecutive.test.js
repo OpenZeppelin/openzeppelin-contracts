@@ -10,6 +10,7 @@ contract('ERC721Consecutive', function (accounts) {
 
   const name = 'Non Fungible Token';
   const symbol = 'NFT';
+  const offset = 42;
   const batches = [
     { receiver: user1, amount: 0 },
     { receiver: user1, amount: 1 },
@@ -25,6 +26,7 @@ contract('ERC721Consecutive', function (accounts) {
       this.token = await ERC721ConsecutiveMock.new(
         name,
         symbol,
+        offset,
         delegates,
         batches.map(({ receiver }) => receiver),
         batches.map(({ amount }) => amount),
@@ -33,7 +35,7 @@ contract('ERC721Consecutive', function (accounts) {
 
     describe('minting during construction', function () {
       it('events are emitted at construction', async function () {
-        let first = 0;
+        let first = offset;
 
         for (const batch of batches) {
           if (batch.amount > 0) {
@@ -51,10 +53,15 @@ contract('ERC721Consecutive', function (accounts) {
       });
 
       it('ownership is set', async function () {
-        const owners = batches.flatMap(({ receiver, amount }) => Array(amount).fill(receiver));
+        const owners = [
+          ...Array(offset).fill(constants.ZERO_ADDRESS),
+          ...batches.flatMap(({ receiver, amount }) => Array(amount).fill(receiver)),
+        ];
 
         for (const tokenId in owners) {
-          expect(await this.token.ownerOf(tokenId)).to.be.equal(owners[tokenId]);
+          if (owners[tokenId] != constants.ZERO_ADDRESS) {
+            expect(await this.token.ownerOf(tokenId)).to.be.equal(owners[tokenId]);
+          }
         }
       });
 
@@ -101,7 +108,7 @@ contract('ERC721Consecutive', function (accounts) {
       });
 
       it('cannot mint a token that has been batched minted', async function () {
-        const tokenId = batches.reduce((acc, { amount }) => acc + amount, 0) - 1;
+        const tokenId = batches.reduce((acc, { amount }) => acc + amount, offset) - 1;
 
         expect(await this.token.$_exists(tokenId)).to.be.equal(true);
 
@@ -110,32 +117,34 @@ contract('ERC721Consecutive', function (accounts) {
     });
 
     describe('ERC721 behavior', function () {
-      it('core takes over ownership on transfer', async function () {
-        await this.token.transferFrom(user1, receiver, 1, { from: user1 });
+      const tokenId = web3.utils.toBN(offset + 1);
 
-        expect(await this.token.ownerOf(1)).to.be.equal(receiver);
+      it('core takes over ownership on transfer', async function () {
+        await this.token.transferFrom(user1, receiver, tokenId, { from: user1 });
+
+        expect(await this.token.ownerOf(tokenId)).to.be.equal(receiver);
       });
 
       it('tokens can be burned and re-minted #1', async function () {
-        expectEvent(await this.token.$_burn(1, { from: user1 }), 'Transfer', {
+        expectEvent(await this.token.$_burn(tokenId, { from: user1 }), 'Transfer', {
           from: user1,
           to: constants.ZERO_ADDRESS,
-          tokenId: '1',
+          tokenId,
         });
 
-        await expectRevert(this.token.ownerOf(1), 'ERC721: invalid token ID');
+        await expectRevert(this.token.ownerOf(tokenId), 'ERC721: invalid token ID');
 
-        expectEvent(await this.token.$_mint(user2, 1), 'Transfer', {
+        expectEvent(await this.token.$_mint(user2, tokenId), 'Transfer', {
           from: constants.ZERO_ADDRESS,
           to: user2,
-          tokenId: '1',
+          tokenId,
         });
 
-        expect(await this.token.ownerOf(1)).to.be.equal(user2);
+        expect(await this.token.ownerOf(tokenId)).to.be.equal(user2);
       });
 
       it('tokens can be burned and re-minted #2', async function () {
-        const tokenId = batches.reduce((acc, { amount }) => acc.addn(amount), web3.utils.toBN(0));
+        const tokenId = web3.utils.toBN(batches.reduce((acc, { amount }) => acc + amount, offset));
 
         expect(await this.token.$_exists(tokenId)).to.be.equal(false);
         await expectRevert(this.token.ownerOf(tokenId), 'ERC721: invalid token ID');
@@ -172,7 +181,7 @@ contract('ERC721Consecutive', function (accounts) {
   describe('invalid use', function () {
     it('cannot mint a batch larger than 5000', async function () {
       await expectRevert(
-        ERC721ConsecutiveMock.new(name, symbol, [], [user1], ['5001']),
+        ERC721ConsecutiveMock.new(name, symbol, offset, [], [user1], ['5001']),
         'ERC721Consecutive: batch too large',
       );
     });
