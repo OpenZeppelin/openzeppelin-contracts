@@ -11,9 +11,8 @@ const MAX_PARALLEL = 4;
 const proc = require('child_process');
 const { PassThrough } = require('stream');
 const events = require('events');
+const micromatch = require('micromatch');
 const limit = require('p-limit')(MAX_PARALLEL);
-
-const strToRegex = str => new RegExp(`^${str.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/[*]/g, '.$&')}$`);
 
 let [, , request = '', ...extraOptions] = process.argv;
 if (request.startsWith('-')) {
@@ -23,8 +22,8 @@ if (request.startsWith('-')) {
 const [reqSpec, reqContract] = request.split(':').reverse();
 
 const specs = require(__dirname + '/specs.js')
-  .filter(entry => !reqSpec || strToRegex(reqSpec).test(entry.spec))
-  .filter(entry => !reqContract || strToRegex(reqContract).test(entry.contract));
+  .filter(entry => !reqSpec || micromatch(entry.spec, reqSpec))
+  .filter(entry => !reqContract || micromatch(entry.contract, reqContract));
 
 if (specs.length === 0) {
   console.error(`Error: Requested spec '${request}' not found in specs.json`);
