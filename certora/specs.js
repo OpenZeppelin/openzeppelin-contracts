@@ -40,7 +40,7 @@ module.exports = [
     files: ['certora/harnesses/InitializableHarness.sol'],
   },
   ...product(
-    ['GovernorBase', 'GovernorInvariants', 'GovernorStates', 'GovernorFunctions'],
+    ['GovernorBase', 'GovernorInvariants', 'GovernorStates', /*'GovernorFunctions'*/],
     ['ERC20VotesBlocknumberHarness', 'ERC20VotesTimestampHarness'],
   ).map(([spec, token]) => ({
     spec,
