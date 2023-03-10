@@ -138,8 +138,8 @@ invariant tokenSupplyIsSumOfBalances()
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant balanceOfConsistency(address user)
-    ownedByUser[user] == balanceOf(user) &&
-    ownedByUser[user] == ghostBalanceOf[user]
+    balanceOf(user) == ownedByUser[user] &&
+    balanceOf(user) == ghostBalanceOf[user]
     {
         preserved {
             require balanceLimited(user);
