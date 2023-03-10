@@ -289,7 +289,7 @@ rule approvalChange(env e, uint256 tokenId) {
 │ Rules: approval for all tokens can only change through isApprovedForAll.                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule approvedForAll(env e, address owner, address spender) {
+rule approvedForAllChange(env e, address owner, address spender) {
     bool approvedForAllBefore = isApprovedForAll(owner, spender);
     method f; calldataarg args; f(e, args);
     bool approvedForAllAfter  = isApprovedForAll(owner, spender);
