@@ -14,11 +14,11 @@ function toSingleton(address account) pure returns (address[] memory) {
 }
 
 contract ERC721ConsecutiveTarget is StdUtils, ERC721Consecutive {
-    uint96 private immutable firstConsecutiveId;
+    uint96 private immutable _offset;
     uint256 public totalMinted = 0;
 
     constructor(address[] memory receivers, uint256[] memory batches, uint256 startingId) ERC721("", "") {
-        firstConsecutiveId = uint96(startingId);
+        _offset = uint96(startingId);
         for (uint256 i = 0; i < batches.length; i++) {
             address receiver = receivers[i % receivers.length];
             uint96 batchSize = uint96(bound(batches[i], 0, _maxBatchSize()));
@@ -32,7 +32,7 @@ contract ERC721ConsecutiveTarget is StdUtils, ERC721Consecutive {
     }
 
     function _firstConsecutiveId() internal view virtual override returns (uint96) {
-        return firstConsecutiveId;
+        return _offset;
     }
 }
 
