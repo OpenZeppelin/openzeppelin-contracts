@@ -184,10 +184,8 @@ rule zeroAddressBalanceRevert() {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule supplyChange(env e) {
-    method f; calldataarg args;
-
     uint256 supplyBefore = ownedTotal();
-    f(e, args);
+    method f; calldataarg args; f(e, args);
     uint256 supplyAfter = ownedTotal();
 
     assert supplyAfter > supplyBefore => (
@@ -210,13 +208,11 @@ rule supplyChange(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule balanceChange(env e, address account) {
-    method f; calldataarg args;
-
     requireInvariant balanceOfConsistency(account);
     require balanceLimited(account);
 
     uint256 balanceBefore = balanceOf(account);
-    f(e, args);
+    method f; calldataarg args; f(e, args);
     uint256 balanceAfter  = balanceOf(account);
 
     // balance can change by at most 1
@@ -243,10 +239,8 @@ rule balanceChange(env e, address account) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule ownershipChange(env e, uint256 tokenId) {
-    method f; calldataarg args;
-
     address ownerBefore = unsafeOwnerOf(tokenId);
-    f(e, args);
+    method f; calldataarg args; f(e, args);
     address ownerAfter  = unsafeOwnerOf(tokenId);
 
     assert ownerBefore == 0 && ownerAfter != 0 => (
@@ -272,10 +266,8 @@ rule ownershipChange(env e, uint256 tokenId) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule approvalChange(env e, uint256 tokenId) {
-    method f; calldataarg args;
-
     address approvalBefore = unsafeGetApproved(tokenId);
-    f(e, args);
+    method f; calldataarg args; f(e, args);
     address approvalAfter  = unsafeGetApproved(tokenId);
 
     // approve can set any value, other functions reset
@@ -297,11 +289,9 @@ rule approvalChange(env e, uint256 tokenId) {
 │ Rules: approval for all tokens can only change through isApprovedForAll.                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule approvedForAll(env e) {
-    address owner; address spender;
-
+rule approvedForAll(env e, address owner, address spender) {
     bool approvedForAllBefore = isApprovedForAll(owner, spender);
-    method f; calldataarg args;
+    method f; calldataarg args; f(e, args);
     bool approvedForAllAfter  = isApprovedForAll(owner, spender);
 
     assert approvedForAllBefore != approvedForAllAfter => f.selector == setApprovalForAll(address,bool).selector;
@@ -312,12 +302,10 @@ rule approvedForAll(env e) {
 │ Rule: transferFrom behavior and side effects                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule transferFrom(env e, uint256 tokenId) {
+rule transferFrom(env e, address from, address to, uint256 tokenId) {
     require nonpayable(e);
 
     address operator = e.msg.sender;
-    address from;
-    address to;
     uint256 otherTokenId;
     address otherAccount;
 
@@ -362,15 +350,13 @@ rule transferFrom(env e, uint256 tokenId) {
 │ Rule: transferFrom behavior and side effects                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule safeTransferFrom(env e, method f, uint256 tokenId) filtered { f ->
+rule safeTransferFrom(env e, method f, address from, address to, uint256 tokenId) filtered { f ->
     f.selector == safeTransferFrom(address,address,uint256).selector ||
     f.selector == safeTransferFrom(address,address,uint256,bytes).selector
 } {
     require nonpayable(e);
 
     address operator = e.msg.sender;
-    address from;
-    address to;
     uint256 otherTokenId;
     address otherAccount;
 
@@ -415,11 +401,10 @@ rule safeTransferFrom(env e, method f, uint256 tokenId) filtered { f ->
 │ Rule: mint behavior and side effects                                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule mint(env e, uint256 tokenId) {
+rule mint(env e, address to, uint256 tokenId) {
     require nonpayable(e);
     requireInvariant notMintedUnset(tokenId);
 
-    address to;
     uint256 otherTokenId;
     address otherAccount;
 
@@ -457,14 +442,13 @@ rule mint(env e, uint256 tokenId) {
 │ Rule: safeMint behavior and side effects                                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule safeMint(env e, method f, uint256 tokenId) filtered { f ->
+rule safeMint(env e, method f, address to, uint256 tokenId) filtered { f ->
     f.selector == safeMint(address,uint256).selector ||
     f.selector == safeMint(address,uint256,bytes).selector
 } {
     require nonpayable(e);
     requireInvariant notMintedUnset(tokenId);
 
-    address to;
     uint256 otherTokenId;
     address otherAccount;
 
@@ -545,12 +529,11 @@ rule burn(env e, uint256 tokenId) {
 │ Rule: approve behavior and side effects                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule approve(env e, uint256 tokenId) {
+rule approve(env e, address spender, uint256 tokenId) {
     require nonpayable(e);
 
     address caller = e.msg.sender;
     address owner = unsafeOwnerOf(tokenId);
-    address spender;
     uint256 otherTokenId;
 
     address otherApprovalBefore  = unsafeGetApproved(otherTokenId);
@@ -577,14 +560,12 @@ rule approve(env e, uint256 tokenId) {
 │ Rule: setApprovalForAll behavior and side effects                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule setApprovalForAll(env e) {
+rule setApprovalForAll(env e, address operator, bool approved) {
     require nonpayable(e);
 
     address owner = e.msg.sender;
-    address operator;
     address otherOwner;
     address otherOperator;
-    bool    approved;
 
     bool otherIsApprovedForAllBefore = isApprovedForAll(otherOwner, otherOperator);
 
