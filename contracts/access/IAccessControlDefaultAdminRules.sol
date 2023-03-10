@@ -118,7 +118,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
      *
-     * Emits a {DefaultAdminRoleChangeStarted}.
+     * Emits a {DefaultAdminRoleChangeStarted} event.
      */
     function beginDefaultAdminTransfer(address newAdmin) external;
 
