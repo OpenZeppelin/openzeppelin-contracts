@@ -84,6 +84,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * The {defaultAdminDelayChangeSchedule} is defined such that the schedule + a default admin transfer
      * takes at least the current {defaultAdminDelay} or {increasedDelayWait}, following that:
+     * 
      * - The schedule is `block.timestamp + {increasedDelayWait}` if the delay is increased.
      * - The schedule is `block.timestamp + (current delay - new delay)` if the delay is reduced.
      *
@@ -102,6 +103,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * @dev Cancels a scheduled {defaultAdminDelay} change.
      *
      * Requirements:
+     * 
      * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
      * - Only can be called before another delay change takes effect, or after the scheduled change is reset
      *   by calling {beginDefaultAdminTransfer}.
