@@ -179,8 +179,7 @@ rule notMintedRevert(uint256 tokenId) {
 
     address owner = ownerOf@withrevert(tokenId);
     assert exist <=> !lastReverted;
-    assert exist => owner != 0;
-    assert exist => owner == unsafeOwnerOf(tokenId);
+    assert exist => owner == unsafeOwnerOf(tokenId); // notMintedUnset tels us this is non-zero
 
     address approved = getApproved@withrevert(tokenId);
     assert exist <=> !lastReverted;
