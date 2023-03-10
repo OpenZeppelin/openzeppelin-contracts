@@ -79,8 +79,8 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function increasedDelayWait() external view returns (uint48);
 
     /**
-     * @dev Begins a {defaultAdminDelay} change in a way in which the current delay is
-     * still guaranteed to be respected.
+     * @dev Begins a {defaultAdminDelay} change by scheduling the change in a way in which the 
+     * current delay is still guaranteed to be respected.
      *
      * The {defaultAdminDelayChangeSchedule} is defined such that the schedule + a default admin transfer
      * takes at least the current {defaultAdminDelay} or {increasedDelayWait}, following that:
