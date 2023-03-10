@@ -67,13 +67,25 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function defaultAdminTransferSchedule() external view returns (uint48);
 
     /**
+     * @dev Time in seconds to wait before an increased delay change goes into effect. Default to 5 days.
+     *
+     * It's used whenever {beginDefaultAdminDelayChange} is called with a `newDefaultAdminDelay` higher
+     * than the current {defaultAdminDelay}.
+     *
+     * IMPORTANT: Make sure to add a reasonable amount of time while overriding this value, otherwise,
+     * there's a risk of setting a high new delay that goes into effect almost immediately without the
+     * possibility of human intervention in the case of an input error (eg. set miliseconds instead of seconds).
+     */
+    function increasedDelayWait() external view returns (uint48);
+
+    /**
      * @dev Begins a {defaultAdminDelay} change in a way in which the current delay is
      * still guaranteed to be respected.
      *
      * The {defaultAdminDelayChangeSchedule} is defined such that the schedule + a default admin transfer
      * takes at least the current {defaultAdminDelay}, following that:
-     * - The schedule is `block.timstamp + (current delay - new delay)` if the delay is reduced.
-     * - The schedule is `block.timestamp + new delay` if the delay is increased.
+     * - The schedule is `block.timestamp + {increasedDelayWait}` if the delay is increased.
+     * - The schedule is `block.timestamp + (current delay - new delay)` if the delay is reduced.
      *
      * Requirements:
      *

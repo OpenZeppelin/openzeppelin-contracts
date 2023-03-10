@@ -67,20 +67,6 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev Time in seconds to wait before an increased delay change goes into effect. Default to 5 days.
-     *
-     * It's used whenever {beginDefaultAdminDelayChange} is called with a `newDefaultAdminDelay` higher
-     * than the current {defaultAdminDelay}.
-     *
-     * IMPORTANT: Make sure to add a reasonable amount of time while overriding this value, otherwise,
-     * there's a risk of setting a high new delay that goes into effect almost immediately without the
-     * possibility of human intervention in the case of an input error (eg. set miliseconds instead of seconds).
-     */
-    function increasedDelayWait() public view virtual returns (uint48) {
-        return 5 days;
-    }
-
-    /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function defaultAdminDelay() public view virtual returns (uint48) {
@@ -130,6 +116,13 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return interfaceId == type(IAccessControlDefaultAdminRules).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @inheritdoc IAccessControlDefaultAdminRules
+     */
+    function increasedDelayWait() public view virtual returns (uint48) {
+        return 5 days;
     }
 
     /**
