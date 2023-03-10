@@ -96,7 +96,7 @@ contract('ERC721Consecutive', function (accounts) {
       });
 
       it('simple minting is possible after construction', async function () {
-        const tokenId = batches.reduce((acc, { amount }) => acc + amount, 0);
+        const tokenId = batches.reduce((acc, { amount }) => acc + amount, offset);
 
         expect(await this.token.$_exists(tokenId)).to.be.equal(false);
 
