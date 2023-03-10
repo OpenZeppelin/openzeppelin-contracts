@@ -141,33 +141,38 @@ invariant balanceOfConsistency(address user)
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: owner of a token must have some balance                                                                  │
 |                                                                                                                     |
-| Note: forcing `tokenId == _tokenId` is overly restrictive and should be avoided, but I don't see how to prove that  |
-| invariant without this assumption. We need the system to understand that the account balance is how many token the  |
-| account is the owner of. Said otherwise, if I'm transferring/burning a token that is not tokenId, then that means I |
-| have at least 2 tokens (tokenId and _tokenId) and my balance must be >= 2.                                          |
+| Note: Ideally, we would like to avoid the additional require, but I don't see how to prove that invariant without   |
+| this assumption. We need the system to understand that the account balance is how many token the account is the     |
+| owner of. Said otherwise, if I'm transferring/burning a token that is not tokenId, then that means I have at least  |
+| 2 tokens (tokenId and tokenId2) and my balance must be >= 2.                                                        |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant ownerHasBalance(uint256 tokenId)
-    unsafeOwnerOf(tokenId) != 0 => balanceOf(unsafeOwnerOf(tokenId)) > 0
+    balanceOf(ownerOf(tokenId)) > 0
     {
         preserved {
             requireInvariant balanceOfConsistency(ownerOf(tokenId));
             require balanceLimited(ownerOf(tokenId));
         }
-        preserved transferFrom(address from, address to, uint256 _tokenId) with (env e) {
-            require tokenId == _tokenId; // ok ?
+        preserved transferFrom(address from, address to, uint256 tokenId2) with (env e) {
+            // from owns 2 tokens (tokendId and tokenId2)
+            require (tokenId != tokenId2 && ownerOf(tokenId) == from) => balanceOf(from) > 1;
             require balanceLimited(to);
         }
-        preserved safeTransferFrom(address from, address to, uint256 _tokenId) with (env e) {
-            require tokenId == _tokenId; // ok ?
+        preserved safeTransferFrom(address from, address to, uint256 tokenId2) with (env e) {
+            // from owns 2 tokens (tokendId and tokenId2)
+            require (tokenId != tokenId2 && ownerOf(tokenId) == from) => balanceOf(from) > 1;
             require balanceLimited(to);
         }
-        preserved safeTransferFrom(address from, address to, uint256 _tokenId, bytes data) with (env e) {
-            require tokenId == _tokenId; // ok ?
+        preserved safeTransferFrom(address from, address to, uint256 tokenId2, bytes data) with (env e) {
+            // from owns 2 tokens (tokendId and tokenId2)
+            require (tokenId != tokenId2 && ownerOf(tokenId) == from) => balanceOf(from) > 1;
             require balanceLimited(to);
         }
-        preserved burn(uint256 _tokenId) with (env e) {
-            require tokenId == _tokenId; // ok ?
+        preserved burn(uint256 tokenId2) with (env e) {
+            address from = ownerOf(tokenId2);
+            // from owns 2 tokens (tokendId and tokenId2)
+            require (tokenId != tokenId2 && ownerOf(tokenId) == from) => balanceOf(from) > 1;
         }
     }
 
