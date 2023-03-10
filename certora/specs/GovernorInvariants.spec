@@ -21,10 +21,19 @@ invariant createdConsistency(env e, uint256 pId)
     safeState(e, pId) == UNSET() <=> proposalProposer(pId) == 0 &&
     safeState(e, pId) == UNSET() <=> proposalSnapshot(pId) == 0 &&
     safeState(e, pId) == UNSET() <=> proposalDeadline(pId) == 0 &&
-    safeState(e, pId) == UNSET() =>  !isExecuted(pId) &&
-    safeState(e, pId) == UNSET() =>  !isCanceled(pId)
+    safeState(e, pId) == UNSET()  => !isExecuted(pId) &&
+    safeState(e, pId) == UNSET()  => !isCanceled(pId)
     {
         preserved {
+            require clock(e) > 0;
+        }
+    }
+
+invariant createdConsistencyWeak(uint256 pId)
+    proposalProposer(pId) == 0 <=> proposalSnapshot(pId) == 0 &&
+    proposalProposer(pId) == 0 <=> proposalDeadline(pId) == 0
+    {
+        preserved with (env e) {
             require clock(e) > 0;
         }
     }
@@ -37,8 +46,8 @@ invariant createdConsistency(env e, uint256 pId)
 invariant voteStartBeforeVoteEnd(uint256 pId)
     proposalSnapshot(pId) <= proposalDeadline(pId)
     {
-        preserved with (env e) {
-            requireInvariant createdConsistency(e, pId);
+        preserved {
+            requireInvariant createdConsistencyWeak(pId);
         }
     }
 

@@ -99,14 +99,14 @@ rule immutableFieldsAfterProposalCreation(uint256 pId, env e, method f, calldata
     require proposalCreated(pId);
 
     uint256 voteStart = proposalSnapshot(pId);
-    uint256 voteEnd = proposalDeadline(pId);
-    address proposer = proposalProposer(pId);
+    uint256 voteEnd   = proposalDeadline(pId);
+    address proposer  = proposalProposer(pId);
 
     f(e, arg);
 
     assert voteStart == proposalSnapshot(pId), "Start date was changed";
-    assert voteEnd == proposalDeadline(pId), "End date was changed";
-    assert proposer == proposalProposer(pId), "Proposer was changed";
+    assert voteEnd   == proposalDeadline(pId), "End date was changed";
+    assert proposer  == proposalProposer(pId), "Proposer was changed";
 }
 
 /*
@@ -177,21 +177,14 @@ rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args) {
 │ attribute to the execute() function, showing that only execute() can change it, and that it will always change it.  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule allFunctionsRevertIfExecuted(uint256 pId, env e, method f, calldataarg args) filtered {
-    f -> !f.isView && !f.isFallback
-    && f.selector != updateTimelock(address).selector
-    && f.selector != updateQuorumNumerator(uint256).selector
-    && f.selector != relay(address,uint256,bytes).selector
-    && f.selector != 0xb9a61961 // __acceptAdmin()
-    && f.selector != onERC721Received(address,address,uint256,bytes).selector
-    && f.selector != onERC1155Received(address,address,uint256,uint256,bytes).selector
-    && f.selector != onERC1155BatchReceived(address,address,uint256[],uint256[],bytes).selector
-} {
+rule allFunctionsRevertIfExecuted(uint256 pId, env e, method f, calldataarg args)
+    filtered { f -> !skip(f) }
+{
     require isExecuted(pId);
     requireInvariant noBothExecutedAndCanceled(pId);
     requireInvariant executedImplyCreated(pId);
 
-    helperFunctionsWithRevert(pId, f, e);
+    helperFunctionsWithRevert(e, f, pId);
 
     assert lastReverted, "Function was not reverted";
 }
@@ -205,21 +198,14 @@ rule allFunctionsRevertIfExecuted(uint256 pId, env e, method f, calldataarg args
 │ attribute to the execute() function, showing that only execute() can change it, and that it will always change it.  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args) filtered {
-    f -> !f.isView && !f.isFallback
-    && f.selector != updateTimelock(address).selector
-    && f.selector != updateQuorumNumerator(uint256).selector
-    && f.selector != relay(address,uint256,bytes).selector
-    && f.selector != 0xb9a61961 // __acceptAdmin()
-    && f.selector != onERC721Received(address,address,uint256,bytes).selector
-    && f.selector != onERC1155Received(address,address,uint256,uint256,bytes).selector
-    && f.selector != onERC1155BatchReceived(address,address,uint256[],uint256[],bytes).selector
-} {
+rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args)
+    filtered { f -> !skip(f) }
+{
     require isCanceled(pId);
     requireInvariant noBothExecutedAndCanceled(pId);
     requireInvariant canceledImplyCreated(pId);
 
-    helperFunctionsWithRevert(pId, f, e);
+    helperFunctionsWithRevert(e, f, pId);
 
     assert lastReverted, "Function was not reverted";
 }
@@ -234,7 +220,7 @@ rule stateOnlyAfterFunc(uint256 pId, env e, method f) {
     bool executedBefore = isExecuted(pId);
     bool canceledBefore = isCanceled(pId);
 
-    helperFunctionsWithRevert(pId, f, e);
+    helperFunctionsWithRevert(e, f, pId);
 
     assert (proposalCreated(pId) != createdBefore)
         => (createdBefore == false && f.selector == propose(address[], uint256[], bytes[], string).selector),

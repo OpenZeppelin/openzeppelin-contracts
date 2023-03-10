@@ -45,7 +45,7 @@ definition voting(method f) returns bool =
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 function helperVoteWithRevert(env e, method f, uint256 pId, address voter, uint8 support) returns uint256 {
-    string reason; bytes params; uint8 v; bytes32 s; bytes32 r;
+    string reason; bytes params;
 
     if (f.selector == castVote(uint256,uint8).selector)
     {
@@ -64,39 +64,38 @@ function helperVoteWithRevert(env e, method f, uint256 pId, address voter, uint8
     }
     else
     {
-        calldataarg args;
-        f@withrevert(e, args);
+        require false;
         return 0;
     }
 }
 
 function helperFunctionsWithRevert(env e, method f, uint256 pId) {
-    if (f.selector == propose(address[], uint256[], bytes[], string).selector)
+    if (f.selector == propose(address[],uint256[],bytes[],string).selector)
     {
-        address[] targets; uint256[] values; bytes[] calldatas; string description;
-        require pId == propose@withrevert(e, targets, values, calldatas, description);
+        address[] targets; uint256[] values; bytes[] calldatas; string descr;
+        require pId == propose@withrevert(e, targets, values, calldatas, descr);
     }
-    else if (f.selector == queue(address[], uint256[], bytes[], bytes32).selector)
+    else if (f.selector == queue(address[],uint256[],bytes[],bytes32).selector)
     {
-        address[] targets; uint256[] values; bytes[] calldatas; bytes32 description;
-        require pId == queue@withrevert(e, targets, values, calldatas, description);
+        address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+        require pId == queue@withrevert(e, targets, values, calldatas, descrHash);
     }
-    else if (f.selector == execute(address[], uint256[], bytes[], bytes32).selector)
+    else if (f.selector == execute(address[],uint256[],bytes[],bytes32).selector)
     {
-        address[] targets; uint256[] values; bytes[] calldatas; bytes32 description;
-        require pId == execute@withrevert(e, targets, values, calldatas, description);
+        address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+        require pId == execute@withrevert(e, targets, values, calldatas, descrHash);
     }
-    else if (f.selector == cancel(address[], uint256[], bytes[], bytes32).selector)
+    else if (f.selector == cancel(address[],uint256[],bytes[],bytes32).selector)
     {
-        address[] targets; uint256[] values; bytes[] calldatas; bytes32 description;
-        require pId == cancel@withrevert(e, targets, values, calldatas, description);
+        address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+        require pId == cancel@withrevert(e, targets, values, calldatas, descrHash);
     }
-    else if (f.selector == castVote(uint256, uint8).selector)
+    else if (f.selector == castVote(uint256,uint8).selector)
     {
         uint8 support;
         castVote@withrevert(e, pId, support);
     }
-    else if  (f.selector == castVoteWithReason(uint256, uint8, string).selector)
+    else if (f.selector == castVoteWithReason(uint256,uint8,string).selector)
     {
         uint8 support; string reason;
         castVoteWithReason@withrevert(e, pId, support, reason);
@@ -106,7 +105,7 @@ function helperFunctionsWithRevert(env e, method f, uint256 pId) {
         uint8 support; string reason; bytes params;
         castVoteWithReasonAndParams@withrevert(e, pId, support, reason, params);
     }
-    else if (f.selector == castVoteBySig(uint256, uint8,uint8, bytes32, bytes32).selector)
+    else if (f.selector == castVoteBySig(uint256,uint8,uint8,bytes32,bytes32).selector)
     {
         uint8 support; uint8 v; bytes32 r; bytes32 s;
         castVoteBySig@withrevert(e, pId, support, v, r, s);
@@ -118,7 +117,6 @@ function helperFunctionsWithRevert(env e, method f, uint256 pId) {
     }
     else
     {
-        calldataarg args;
-        f@withrevert(e, args);
+        require false;
     }
 }
