@@ -74,7 +74,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * IMPORTANT: Make sure to add a reasonable amount of time while overriding this value, otherwise,
      * there's a risk of setting a high new delay that goes into effect almost immediately without the
-     * possibility of human intervention in the case of an input error (eg. set miliseconds instead of seconds).
+     * possibility of human intervention in the case of an input error (eg. set milliseconds instead of seconds).
      */
     function increasedDelayWait() external view returns (uint48);
 
