@@ -116,6 +116,14 @@ hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STOR
     havoc sumOfBalances assuming sumOfBalances@new() == sumOfBalances@old() + newValue - oldValue;
 }
 
+ghost mapping(address => uint256) ghostBalanceOf {
+    init_state axiom forall address a. ghostBalanceOf[a] == 0;
+}
+
+hook Sload uint256 value _balances[KEY address user] STORAGE {
+    require ghostBalanceOf[user] == value;
+}
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: tokenSupply is the sum of all balances                                                                   │
@@ -130,7 +138,8 @@ invariant tokenSupplyIsSumOfBalances()
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant balanceOfConsistency(address user)
-    ownedByUser[user] == balanceOf(user)
+    ownedByUser[user] == balanceOf(user) &&
+    ownedByUser[user] == ghostBalanceOf[user]
     {
         preserved {
             require balanceLimited(user);
@@ -153,26 +162,6 @@ invariant ownerHasBalance(uint256 tokenId)
         preserved {
             requireInvariant balanceOfConsistency(ownerOf(tokenId));
             require balanceLimited(ownerOf(tokenId));
-        }
-        preserved transferFrom(address from, address to, uint256 tokenId2) with (env e) {
-            // from owns 2 tokens (tokendId and tokenId2)
-            require (tokenId != tokenId2 && ownerOf(tokenId) == from) => balanceOf(from) > 1;
-            require balanceLimited(to);
-        }
-        preserved safeTransferFrom(address from, address to, uint256 tokenId2) with (env e) {
-            // from owns 2 tokens (tokendId and tokenId2)
-            require (tokenId != tokenId2 && ownerOf(tokenId) == from) => balanceOf(from) > 1;
-            require balanceLimited(to);
-        }
-        preserved safeTransferFrom(address from, address to, uint256 tokenId2, bytes data) with (env e) {
-            // from owns 2 tokens (tokendId and tokenId2)
-            require (tokenId != tokenId2 && ownerOf(tokenId) == from) => balanceOf(from) > 1;
-            require balanceLimited(to);
-        }
-        preserved burn(uint256 tokenId2) with (env e) {
-            address from = ownerOf(tokenId2);
-            // from owns 2 tokens (tokendId and tokenId2)
-            require (tokenId != tokenId2 && ownerOf(tokenId) == from) => balanceOf(from) > 1;
         }
     }
 
