@@ -56,11 +56,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         address owner = super._ownerOf(tokenId);
 
         // If token is owned by the core, or beyond consecutive range, return base value
-        if (
-            owner != address(0) ||
-            tokenId > (uint256(type(uint96).max) + _firstConsecutiveId()) ||
-            tokenId < _firstConsecutiveId()
-        ) {
+        if (owner != address(0) || tokenId > type(uint96).max || tokenId < _firstConsecutiveId()) {
             return owner;
         }
 
@@ -86,7 +82,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * Emits a {IERC2309-ConsecutiveTransfer} event.
      */
     function _mintConsecutive(address to, uint96 batchSize) internal virtual returns (uint96) {
-        uint96 first = _totalConsecutiveSupply();
+        uint96 first = _nextConsecutiveId();
 
         // minting a batch of size 0 is a no-op
         if (batchSize > 0) {
@@ -137,7 +133,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         if (
             to == address(0) && // if we burn
             firstTokenId >= _firstConsecutiveId() &&
-            firstTokenId - _firstConsecutiveId() < _totalConsecutiveSupply() && // and the tokenId is in the batch range
+            firstTokenId - _firstConsecutiveId() < _nextConsecutiveId() && // and the tokenId is in the batch range
             !_sequentialBurn.get(firstTokenId)
         ) // and the token was never marked as burnt
         {
@@ -148,13 +144,13 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     }
 
     /**
-     * @dev Used to offset the first token id in {_totalConsecutiveSupply}
+     * @dev Used to offset the first token id in {_nextConsecutiveId}
      */
     function _firstConsecutiveId() internal view virtual returns (uint96) {
         return 0;
     }
 
-    function _totalConsecutiveSupply() private view returns (uint96) {
+    function _nextConsecutiveId() private view returns (uint96) {
         (bool exists, uint96 latestId, ) = _sequentialOwnership.latestCheckpoint();
         return exists ? latestId + 1 : _firstConsecutiveId();
     }
