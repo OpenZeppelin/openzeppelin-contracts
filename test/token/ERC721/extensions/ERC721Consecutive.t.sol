@@ -94,7 +94,7 @@ contract ERC721ConsecutiveTest is Test {
         vm.assume(supply > 0);
 
         // burn a token in [0; supply[
-        uint256 tokenId = bound(unboundedTokenId, 0, supply - 1);
+        uint256 tokenId = bound(unboundedTokenId, startingTokenId, startingTokenId + supply - 1);
         token.burn(tokenId);
 
         // balance should have decreased

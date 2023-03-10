@@ -56,7 +56,11 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         address owner = super._ownerOf(tokenId);
 
         // If token is owned by the core, or beyond consecutive range, return base value
-        if (owner != address(0) || tokenId > type(uint96).max) {
+        if (
+            owner != address(0) ||
+            tokenId > (uint256(type(uint96).max) + _firstConsecutiveId()) ||
+            tokenId < _firstConsecutiveId()
+        ) {
             return owner;
         }
 
@@ -132,9 +136,11 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     ) internal virtual override {
         if (
             to == address(0) && // if we burn
-            firstTokenId < _totalConsecutiveSupply() && // and the tokenId was minted in a batch
-            !_sequentialBurn.get(firstTokenId) // and the token was never marked as burnt
-        ) {
+            firstTokenId >= _firstConsecutiveId() &&
+            firstTokenId - _firstConsecutiveId() < _totalConsecutiveSupply() && // and the tokenId is in the batch range
+            !_sequentialBurn.get(firstTokenId)
+        ) // and the token was never marked as burnt
+        {
             require(batchSize == 1, "ERC721Consecutive: batch burn not supported");
             _sequentialBurn.set(firstTokenId);
         }
