@@ -1,4 +1,3 @@
-/// This helper will be handy when we want to do cross product. Ex: all governor specs on all variations of the clock mode.
 const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [ai, bi].flat())));
 
 module.exports = [
@@ -49,15 +48,18 @@ module.exports = [
     "contract": "InitializableHarness",
     "files": ["certora/harnesses/InitializableHarness.sol"]
   },
-  ...[ "GovernorBase", "GovernorInvariants", "GovernorStates", "GovernorFunctions" ].map(spec => ({
+  ...product(
+    [ "GovernorBase", "GovernorInvariants", "GovernorStates", "GovernorFunctions" ],
+    [ "ERC20VotesBlocknumberHarness", "ERC20VotesTimestampHarness" ],
+  ).map(([ spec, token ]) => ({
     spec,
     "contract": "GovernorHarness",
     "files": [
       "certora/harnesses/GovernorHarness.sol",
-      "certora/harnesses/ERC20VotesHarness.sol"
+      `certora/harnesses/${token}.sol`
     ],
     "options": [
-      "--link GovernorHarness:token=ERC20VotesHarness",
+      `--link GovernorHarness:token=${token}`,
       "--optimistic_loop",
       "--optimistic_hashing"
     ]
