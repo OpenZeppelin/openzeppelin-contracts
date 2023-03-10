@@ -14,8 +14,8 @@ function toSingleton(address account) pure returns (address[] memory) {
 }
 
 contract ERC721ConsecutiveTarget is StdUtils, ERC721Consecutive {
+    uint96 private immutable firstConsecutiveId;
     uint256 public totalMinted = 0;
-    uint96 public firstConsecutiveId = 0;
 
     constructor(address[] memory receivers, uint256[] memory batches, uint256 startingId) ERC721("", "") {
         firstConsecutiveId = uint96(startingId);
