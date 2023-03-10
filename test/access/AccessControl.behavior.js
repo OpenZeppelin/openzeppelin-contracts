@@ -619,7 +619,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
           });
 
           describe('scheduling again', function () {
-            it('should succeed before the delay schedule passes', async function () {
+            it('succeeds before the delay schedule passes', async function () {
               // First change
               await this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, { from: defaultAdmin });
 
@@ -650,7 +650,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
               });
             });
 
-            it('should revert after the delay schedule passes', async function () {
+            it('reverts after the delay schedule passes', async function () {
               // First and only change.
               await this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, {
                 from: defaultAdmin,
@@ -665,7 +665,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
                 this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, {
                   from: defaultAdmin,
                 }),
-                "AccessControl: can't change past scheduled change",
+                `${errorPrefix}: can't change past scheduled change`,
               );
             });
           });
@@ -694,21 +694,29 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   });
 
   describe('cancelling a delay change', function () {
-    for (const [offset, when] of [
-      [-1, 'before'],
-      [1, 'after'],
-    ])
-      it(`resets pending default admin and schedule ${when} delay change schedule passes`, async function () {
-        await this.accessControl.beginDefaultAdminDelayChange(time.duration.days(12), { from: defaultAdmin });
+    it('resets pending default admin and schedule before delay change schedule passes', async function () {
+      await this.accessControl.beginDefaultAdminDelayChange(time.duration.days(12), { from: defaultAdmin });
 
-        const schedule = await this.accessControl.defaultAdminDelayChangeSchedule();
-        await time.setNextBlockTimestamp(schedule.toNumber() + offset);
+      const schedule = await this.accessControl.defaultAdminDelayChangeSchedule();
+      await time.setNextBlockTimestamp(schedule.subn(1));
 
-        await this.accessControl.cancelDefaultAdminDelayChange({ from: defaultAdmin });
+      await this.accessControl.cancelDefaultAdminDelayChange({ from: defaultAdmin });
 
-        expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.eq(web3.utils.toBN(0));
-        expect(await this.accessControl.defaultAdminDelayChangeSchedule()).to.be.bignumber.eq(web3.utils.toBN(0));
-      });
+      expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.eq(web3.utils.toBN(0));
+      expect(await this.accessControl.defaultAdminDelayChangeSchedule()).to.be.bignumber.eq(web3.utils.toBN(0));
+    });
+
+    it('resets pending default admin and schedule after delay change schedule passes', async function () {
+      await this.accessControl.beginDefaultAdminDelayChange(time.duration.days(12), { from: defaultAdmin });
+
+      const schedule = await this.accessControl.defaultAdminDelayChangeSchedule();
+      await time.setNextBlockTimestamp(schedule.addn(1));
+
+      await expectRevert(
+        this.accessControl.cancelDefaultAdminDelayChange({ from: defaultAdmin }),
+        `${errorPrefix}: can't cancel a passed schedule`,
+      );
+    });
 
     it('reverts if called by non default admin accounts', async function () {
       await expectRevert(
