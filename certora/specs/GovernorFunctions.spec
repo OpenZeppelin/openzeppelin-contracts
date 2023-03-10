@@ -95,3 +95,79 @@ rule castVote(uint256 pId, env e, method f)
     assert getForVotes(otherId)          != otherForVotesBefore     => (otherId == pId);
     assert getAbstainVotes(otherId)      != otherAbstainVotesBefore => (otherId == pId);
 }
+
+
+rule queue(uint256 pId, env e) {
+    require nonpayable(e);
+
+    uint256 otherId;
+
+    uint8 stateBefore      = state(e, pId);
+    uint8 otherStateBefore = state(e, otherId);
+
+    address[] targets; uint256[] values; bytes[] calldatas; string reason;
+    require pId == queue@withrevert(e, targets, values, calldatas, reason);
+    bool success = !lastReverted;
+
+    // liveness
+    assert success <=> stateBefore == SUCCEEDED();
+
+    // effect
+    assert success => (
+        state(e, pId) == QUEUED()
+    );
+
+    // no side-effect
+    assert state(e, otherId) != otherStateBefore => otherId == pId;
+}
+
+rule execute(uint256 pId, env e) {
+    require nonpayable(e);
+
+    uint256 otherId;
+
+    uint8 stateBefore      = state(e, pId);
+    uint8 otherStateBefore = state(e, otherId);
+
+    address[] targets; uint256[] values; bytes[] calldatas; string reason;
+    require pId == execute@withrevert(e, targets, values, calldatas, reason);
+    bool success = !lastReverted;
+
+    // liveness: can't check full equivalence because of execution call reverts
+    assert success => (stateBefore == SUCCEEDED() || stateBefore == QUEUED());
+
+    // effect
+    assert success => (
+        state(e, pId) == EXECUTED()
+    );
+
+    // no side-effect
+    assert state(e, otherId) != otherStateBefore => otherId == pId;
+}
+
+rule cancel(uint256 pId, env e) {
+    require nonpayable(e);
+
+    uint256 otherId;
+
+    uint8 stateBefore      = state(e, pId);
+    uint8 otherStateBefore = state(e, otherId);
+
+    address[] targets; uint256[] values; bytes[] calldatas; string reason;
+    require pId == cancel@withrevert(e, targets, values, calldatas, reason);
+    bool success = !lastReverted;
+
+    // liveness
+    assert success <=> (
+        stateBefore == PENDING() &&
+        e.msg.sender == proposalProposer(pId)
+    );
+
+    // effect
+    assert success => (
+        state(e, pId) == CANCELED()
+    );
+
+    // no side-effect
+    assert state(e, otherId) != otherStateBefore => otherId == pId;
+}

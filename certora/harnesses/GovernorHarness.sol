@@ -64,6 +64,10 @@ contract GovernorHarness is
         return _isCanceled(proposalId);
     }
 
+    function governanceCallLength() public view returns (uint256) {
+        return _governanceCallLength();
+    }
+
     // Harness from GovernorCountingSimple
     function getAgainstVotes(uint256 proposalId) public view returns (uint256) {
         (uint256 againstVotes,,) = proposalVotes(proposalId);

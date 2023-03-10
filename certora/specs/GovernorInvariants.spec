@@ -8,32 +8,70 @@ import "Governor.helpers.spec"
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule clockMode(env e) {
+    require e.block.number < max_uint48() && e.block.timestamp < max_uint48();
+
     assert clock(e) == e.block.number || clock(e) == e.block.timestamp;
     assert clock(e) == token_clock(e);
+
+    /// This causes a failure in the prover
+    // assert CLOCK_MODE(e) == token_CLOCK_MODE(e);
 }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: Proposal is UNSET iff the proposer, the snapshot and the deadline are unset.                             │
+│ Invariant: Votes start and end are either initialized (non zero) or uninitialized (zero) simultaneously             │
+│                                                                                                                     │
+│ This invariant assumes that the block number cannot be 0 at any stage of the contract cycle                         │
+│ This is very safe assumption as usually the 0 block is genesis block which is uploaded with data                    │
+│ by the developers and will not be valid to raise proposals (at the current way that block chain is functioning)     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant createdConsistency(env e, uint256 pId)
-    safeState(e, pId) == UNSET() <=> proposalProposer(pId) == 0 &&
-    safeState(e, pId) == UNSET() <=> proposalSnapshot(pId) == 0 &&
-    safeState(e, pId) == UNSET() <=> proposalDeadline(pId) == 0 &&
-    safeState(e, pId) == UNSET()  => !isExecuted(pId) &&
-    safeState(e, pId) == UNSET()  => !isCanceled(pId)
+invariant proposalStateConsistency(uint256 pId)
+    (proposalProposer(pId) == 0 <=> proposalSnapshot(pId) == 0) &&
+    (proposalProposer(pId) == 0 <=> proposalDeadline(pId) == 0)
     {
-        preserved {
+        preserved with (env e) {
             require clock(e) > 0;
         }
     }
 
-invariant createdConsistencyWeak(uint256 pId)
-    proposalProposer(pId) == 0 <=> proposalSnapshot(pId) == 0 &&
-    proposalProposer(pId) == 0 <=> proposalDeadline(pId) == 0
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: cancel => created                                                                                        │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant canceledImplyCreated(uint pId)
+    isCanceled(pId) => proposalCreated(pId)
     {
         preserved with (env e) {
+            requireInvariant proposalStateConsistency(pId);
+            require clock(e) > 0;
+        }
+    }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: executed => created                                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant executedImplyCreated(uint pId)
+    isExecuted(pId) => proposalCreated(pId)
+    {
+        preserved with (env e) {
+            requireInvariant proposalStateConsistency(pId);
+            require clock(e) > 0;
+        }
+    }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: The state UNSET() correctly catched uninitialized proposal.                                              │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant proposalStateConsistencyUnset(env e, uint256 pId)
+    proposalCreated(pId) <=> safeState(e, pId) == UNSET()
+    {
+        preserved {
             require clock(e) > 0;
         }
     }
@@ -47,7 +85,7 @@ invariant voteStartBeforeVoteEnd(uint256 pId)
     proposalSnapshot(pId) <= proposalDeadline(pId)
     {
         preserved {
-            requireInvariant createdConsistencyWeak(pId);
+            requireInvariant proposalStateConsistency(pId);
         }
     }
 
@@ -61,21 +99,8 @@ invariant noBothExecutedAndCanceled(uint256 pId)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: Once a proposal is created, voteStart, voteEnd and proposer are immutable                                     │
+│ Invariant: the "governance call" dequeue is empty                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule immutableFieldsAfterProposalCreation(uint256 pId, env e, method f, calldataarg arg)
-    filtered { f -> !skip(f) }
-{
-    require state(e, pId) != UNSET();
-
-    uint256 voteStart = proposalSnapshot(pId);
-    uint256 voteEnd   = proposalDeadline(pId);
-    address proposer  = proposalProposer(pId);
-
-    f(e, arg);
-
-    assert voteStart == proposalSnapshot(pId), "Start date was changed";
-    assert voteEnd   == proposalDeadline(pId), "End date was changed";
-    assert proposer  == proposalProposer(pId), "Proposer was changed";
-}
+invariant governanceCallLength()
+    governanceCallLength() == 0

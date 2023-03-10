@@ -1,80 +1,11 @@
 import "methods/IGovernor.spec"
 import "Governor.helpers.spec"
+import "GovernorInvariants.spec"
 
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Definitions                                                                                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-
-definition proposalCreated(uint256 pId) returns bool =
-    proposalSnapshot(pId) > 0 && proposalDeadline(pId) > 0 && proposalProposer(pId) != 0;
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: Votes start and end are either initialized (non zero) or uninitialized (zero) simultaneously             │
-│                                                                                                                     │
-│ This invariant assumes that the block number cannot be 0 at any stage of the contract cycle                         │
-│ This is very safe assumption as usually the 0 block is genesis block which is uploaded with data                    │
-│ by the developers and will not be valid to raise proposals (at the current way that block chain is functioning)     │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant proposalStateConsistency(uint256 pId)
-    (proposalProposer(pId) != 0 <=> proposalSnapshot(pId) != 0) && (proposalProposer(pId) != 0 <=> proposalDeadline(pId) != 0)
-    {
-        preserved with (env e) {
-            require clock(e) > 0;
-        }
-    }
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: cancel => created                                                                                        │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant canceledImplyCreated(uint pId)
-    isCanceled(pId) => proposalCreated(pId)
-    {
-        preserved with (env e) {
-            requireInvariant proposalStateConsistency(pId);
-            require clock(e) > 0;
-        }
-    }
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: executed => created                                                                                      │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant executedImplyCreated(uint pId)
-    isExecuted(pId) => proposalCreated(pId)
-    {
-        preserved with (env e) {
-            requireInvariant proposalStateConsistency(pId);
-            require clock(e) > 0;
-        }
-    }
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: Votes start before it ends                                                                               │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant voteStartBeforeVoteEnd(uint256 pId)
-    proposalSnapshot(pId) <= proposalDeadline(pId)
-    {
-        preserved {
-            requireInvariant proposalStateConsistency(pId);
-        }
-    }
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: A proposal cannot be both executed and canceled simultaneously                                           │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant noBothExecutedAndCanceled(uint256 pId)
-    !isExecuted(pId) || !isCanceled(pId)
+use invariant proposalStateConsistency
+use invariant canceledImplyCreated
+use invariant executedImplyCreated
+use invariant noBothExecutedAndCanceled
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -143,7 +74,7 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f, 
 
     f(e, args);
 
-    assert isExecuted(pId) => (quorumReachedBefore && voteSucceededBefore), "quorum was changed";
+    assert isExecuted(pId) => (quorumReachedBefore && voteSucceededBefore), "quorum not met or vote not succesfull";
 }
 
 /*
@@ -216,21 +147,24 @@ rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule stateOnlyAfterFunc(uint256 pId, env e, method f) {
-    bool createdBefore = proposalCreated(pId);
+    bool createdBefore  = proposalCreated(pId);
     bool executedBefore = isExecuted(pId);
     bool canceledBefore = isCanceled(pId);
 
     helperFunctionsWithRevert(e, f, pId);
 
-    assert (proposalCreated(pId) != createdBefore)
-        => (createdBefore == false && f.selector == propose(address[], uint256[], bytes[], string).selector),
-        "proposalCreated only changes in the propose method";
+    assert (proposalCreated(pId) != createdBefore) => (
+        createdBefore == false &&
+        f.selector == propose(address[], uint256[], bytes[], string).selector
+    ), "proposalCreated only changes in the propose method";
 
-    assert (isExecuted(pId) != executedBefore)
-        => (executedBefore == false && f.selector == execute(address[], uint256[], bytes[], bytes32).selector),
-        "isExecuted only changes in the execute method";
+    assert (isExecuted(pId) != executedBefore) => (
+        executedBefore == false &&
+        f.selector == execute(address[], uint256[], bytes[], bytes32).selector
+    ), "isExecuted only changes in the execute method";
 
-    assert (isCanceled(pId) != canceledBefore)
-        => (canceledBefore == false && f.selector == cancel(address[], uint256[], bytes[], bytes32).selector),
-        "isCanceled only changes in the cancel method";
+    assert (isCanceled(pId) != canceledBefore) => (
+        canceledBefore == false &&
+        f.selector == cancel(address[], uint256[], bytes[], bytes32).selector
+    ), "isCanceled only changes in the cancel method";
 }

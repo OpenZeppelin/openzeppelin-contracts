@@ -1,6 +1,7 @@
 const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [ai, bi].flat())));
 
 module.exports = [
+  // AccessControl
   {
     spec: 'AccessControl',
     contract: 'AccessControlHarness',
@@ -16,6 +17,7 @@ module.exports = [
     contract: 'Ownable2StepHarness',
     files: ['certora/harnesses/Ownable2StepHarness.sol'],
   },
+  // Tokens
   {
     spec: 'ERC20',
     contract: 'ERC20PermitHarness',
@@ -34,13 +36,15 @@ module.exports = [
     files: ['certora/harnesses/ERC20PermitHarness.sol', 'certora/harnesses/ERC20WrapperHarness.sol'],
     options: ['--link ERC20WrapperHarness:_underlying=ERC20PermitHarness', '--optimistic_loop'],
   },
+  // Proxy
   {
     spec: 'Initializable',
     contract: 'InitializableHarness',
     files: ['certora/harnesses/InitializableHarness.sol'],
   },
+  // Governor
   ...product(
-    ['GovernorBase', 'GovernorInvariants', 'GovernorStates', /*'GovernorFunctions'*/],
+    ['GovernorInvariants', 'GovernorBaseRules', 'GovernorStates'],
     ['ERC20VotesBlocknumberHarness', 'ERC20VotesTimestampHarness'],
   ).map(([spec, token]) => ({
     spec,
@@ -48,4 +52,14 @@ module.exports = [
     files: ['certora/harnesses/GovernorHarness.sol', `certora/harnesses/${token}.sol`],
     options: [`--link GovernorHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
   })),
+  // WIP part
+  // ...product(
+  //   ['GovernorFunctions'],
+  //   ['ERC20VotesBlocknumberHarness'],
+  // ).map(([spec, token]) => ({
+  //   spec,
+  //   contract: 'GovernorHarness',
+  //   files: ['certora/harnesses/GovernorHarness.sol', `certora/harnesses/${token}.sol`],
+  //   options: [`--link GovernorHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
+  // })),
 ];

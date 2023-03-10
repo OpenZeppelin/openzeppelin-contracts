@@ -1,6 +1,9 @@
 import "helpers.spec"
 import "methods/IGovernor.spec"
 import "Governor.helpers.spec"
+import "GovernorInvariants.spec"
+
+use invariant proposalStateConsistency
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -76,5 +79,47 @@ rule stateTransitionWait(uint256 pId, env e1, env e2) {
         stateBefore == CANCELED()  => false &&
         stateBefore == DEFEATED()  => false &&
         stateBefore == EXECUTED()  => false
+    );
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: State corresponds to the vote timming and results                                                             │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule stateFollowsVoteTimmingAndResult(uint256 pId, env e) {
+    require clock(e) > 0; // Sanity
+    requireInvariant proposalStateConsistency(pId);
+
+    uint8  currentState = state(e, pId);
+    uint48 currentClock = clock(e);
+
+    // Pending = before vote starts
+    assert currentState == PENDING() => (
+        proposalSnapshot(pId) >= currentClock
+    );
+
+    // Active = after vote starts & before vote ends
+    assert currentState == ACTIVE() => (
+        proposalSnapshot(pId) < currentClock &&
+        proposalDeadline(pId) >= currentClock
+    );
+
+    // Succeeded = after vote end, with vote successfull and quorum reached
+    assert currentState == SUCCEEDED() => (
+        proposalDeadline(pId) < currentClock &&
+        (
+            quorumReached(pId) &&
+            voteSucceeded(pId)
+        )
+    );
+
+    // Succeeded = after vote end, with vote not successfull or quorum not reached
+    assert currentState == DEFEATED() => (
+        proposalDeadline(pId) < currentClock &&
+        (
+            !quorumReached(pId) ||
+            !voteSucceeded(pId)
+        )
     );
 }

@@ -1,6 +1,6 @@
 --- governance/Governor.sol	2023-03-07 10:48:47.730155491 +0100
-+++ governance/Governor.sol	2023-03-10 10:13:31.926616811 +0100
-@@ -216,6 +216,16 @@
++++ governance/Governor.sol	2023-03-13 14:07:30.704202049 +0100
+@@ -216,6 +216,21 @@
          return _proposals[proposalId].proposer;
      }
  
@@ -12,6 +12,11 @@
 +    // FV
 +    function _isCanceled(uint256 proposalId) internal view returns (bool) {
 +        return _proposals[proposalId].canceled;
++    }
++
++    // FV
++    function _governanceCallLength() public view returns (uint256) {
++        return _governanceCall.length();
 +    }
 +
      /**

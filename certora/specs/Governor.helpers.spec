@@ -20,6 +20,9 @@ function safeState(env e, uint256 pId) returns uint8 {
     return lastReverted ? UNSET() : result;
 }
 
+definition proposalCreated(uint256 pId) returns bool =
+    proposalSnapshot(pId) > 0 && proposalDeadline(pId) > 0 && proposalProposer(pId) != 0;
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Filters                                                                                                             │

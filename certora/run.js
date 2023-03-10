@@ -22,14 +22,15 @@ if (request.startsWith('-')) {
 const [reqSpec, reqContract] = request.split(':').reverse();
 
 const specs = require(__dirname + '/specs.js')
-  .filter(entry => !reqSpec || micromatch(entry.spec, reqSpec))
-  .filter(entry => !reqContract || micromatch(entry.contract, reqContract));
+  .filter(entry => !reqSpec || micromatch.isMatch(entry.spec, reqSpec))
+  .filter(entry => !reqContract || micromatch.isMatch(entry.contract, reqContract));
 
 if (specs.length === 0) {
   console.error(`Error: Requested spec '${request}' not found in specs.json`);
   process.exit(1);
 }
 
+console.table(specs.map(spec => `${spec.contract}:${spec.spec} ${spec.options.join(' ')}`))
 for (const { spec, contract, files, options = [] } of Object.values(specs)) {
   limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...extraOptions]);
 }
