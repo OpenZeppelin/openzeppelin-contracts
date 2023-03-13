@@ -5,7 +5,12 @@ on:
     branches:
       - master
       - release-v*
-  pull_request: {}
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
   workflow_dispatch: {}
 
 env:
