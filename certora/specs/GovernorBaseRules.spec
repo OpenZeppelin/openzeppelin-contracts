@@ -74,7 +74,7 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f, 
 
     f(e, args);
 
-    assert isExecuted(pId) => (quorumReachedBefore && voteSucceededBefore), "quorum not met or vote not succesfull";
+    assert isExecuted(pId) => (quorumReachedBefore && voteSucceededBefore), "quorum not met or vote not successful";
 }
 
 /*

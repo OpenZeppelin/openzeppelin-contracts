@@ -65,7 +65,7 @@ invariant executedImplyCreated(uint pId)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: The state UNSET() correctly catched uninitialized proposal.                                              │
+│ Invariant: The state UNSET() correctly catch uninitialized proposal.                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant proposalStateConsistencyUnset(env e, uint256 pId)

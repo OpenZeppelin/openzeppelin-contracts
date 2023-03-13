@@ -84,7 +84,7 @@ rule stateTransitionWait(uint256 pId, env e1, env e2) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: State corresponds to the vote timming and results                                                             │
+│ Rule: State corresponds to the vote timing and results                                                              │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule stateFollowsVoteTimmingAndResult(uint256 pId, env e) {
@@ -105,7 +105,7 @@ rule stateFollowsVoteTimmingAndResult(uint256 pId, env e) {
         proposalDeadline(pId) >= currentClock
     );
 
-    // Succeeded = after vote end, with vote successfull and quorum reached
+    // Succeeded = after vote end, with vote successful and quorum reached
     assert currentState == SUCCEEDED() => (
         proposalDeadline(pId) < currentClock &&
         (
@@ -114,7 +114,7 @@ rule stateFollowsVoteTimmingAndResult(uint256 pId, env e) {
         )
     );
 
-    // Succeeded = after vote end, with vote not successfull or quorum not reached
+    // Succeeded = after vote end, with vote not successful or quorum not reached
     assert currentState == DEFEATED() => (
         proposalDeadline(pId) < currentClock &&
         (
