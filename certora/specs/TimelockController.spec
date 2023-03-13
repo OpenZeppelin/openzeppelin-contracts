@@ -56,8 +56,7 @@ function helperExecuteWithRevert(env e, method f, bytes32 id, bytes32 predecesso
         require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
         executeBatch@withrevert(e, targets, values, payloads, predecessor, salt);
     } else {
-        calldataarg args;
-        f@withrevert(e, args);
+        require false;
     }
 }
 
