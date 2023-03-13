@@ -30,7 +30,6 @@ if (specs.length === 0) {
   process.exit(1);
 }
 
-console.table(specs.map(spec => `${spec.contract}:${spec.spec} ${spec.options.join(' ')}`))
 for (const { spec, contract, files, options = [] } of Object.values(specs)) {
   limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...extraOptions]);
 }
