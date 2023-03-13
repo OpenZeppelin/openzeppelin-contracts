@@ -24,7 +24,7 @@
     "spec": "ERC20FlashMint",
     "contract": "ERC20FlashMintHarness",
     "files": [
-      "certora/harnesses/ERC20FlashMintHarness.sol", 
+      "certora/harnesses/ERC20FlashMintHarness.sol",
       "certora/harnesses/ERC3156FlashBorrowerHarness.sol"
     ],
     "options": ["--optimistic_loop"]
