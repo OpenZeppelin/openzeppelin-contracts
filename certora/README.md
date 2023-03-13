@@ -25,7 +25,7 @@ node certora/run.js [[CONTRACT_NAME:]SPEC_NAME] [OPTIONS...]
 
 Where:
 
-- `CONTRACT_NAME` matches the `contract` key in the `./spec.json` file and may be empty. It will run the all matching contracts if not provided.
+- `CONTRACT_NAME` matches the `contract` key in the `./spec.json` file and may be empty. It will run all matching contracts if not provided.
 - `SPEC_NAME` refers to a `spec` key from the `./specs.json` file. It will run every spec if not provided.
 - `OPTIONS` extend the [Certora Prover CLI options](https://docs.certora.com/en/latest/docs/prover/cli/options.html#certora-prover-cli-options) and will respect the preconfigured options in the `specs.json` file.
 
