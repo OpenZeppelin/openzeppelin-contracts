@@ -41,8 +41,7 @@ function helperScheduleWithRevert(env e, method f, bytes32 id, uint256 delay) {
         require hashOperationBatch(targets, values, payloads, predecessor, salt) == id; // Correlation
         scheduleBatch@withrevert(e, targets, values, payloads, predecessor, salt, delay);
     } else {
-        calldataarg args;
-        f@withrevert(e, args);
+        require false;
     }
 }
 
