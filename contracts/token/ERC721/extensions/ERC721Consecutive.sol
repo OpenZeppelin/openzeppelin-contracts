@@ -20,8 +20,8 @@ import "../../../utils/structs/BitMaps.sol";
  * regained after construction. During construction, only batch minting is allowed.
  *
  * IMPORTANT: This extension bypasses the hooks {_beforeTokenTransfer} and {_afterTokenTransfer} for tokens minted in
- * batch. When using this extension, you should consider the {_beforeConsecutiveTokenTransfer} and
- * {_afterConsecutiveTokenTransfer} hooks in addition to {_beforeTokenTransfer} and {_afterTokenTransfer}.
+ * batch. The hooks will be only called once per batch, so you should take `batchSize` parameter into consideration
+ * when relying on hooks.
  *
  * IMPORTANT: When overriding {_afterTokenTransfer}, be careful about call ordering. {ownerOf} may return invalid
  * values during the {_afterTokenTransfer} execution if the super call is not called first. To be safe, execute the
@@ -82,7 +82,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * Emits a {IERC2309-ConsecutiveTransfer} event.
      */
     function _mintConsecutive(address to, uint96 batchSize) internal virtual returns (uint96) {
-        uint96 first = _nextConsecutiveId();
+        uint96 next = _nextConsecutiveId();
 
         // minting a batch of size 0 is a no-op
         if (batchSize > 0) {
@@ -91,29 +91,29 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             require(batchSize <= _maxBatchSize(), "ERC721Consecutive: batch too large");
 
             // hook before
-            _beforeTokenTransfer(address(0), to, first, batchSize);
+            _beforeTokenTransfer(address(0), to, next, batchSize);
 
             // push an ownership checkpoint & emit event
-            uint96 last = first + batchSize - 1;
+            uint96 last = next + batchSize - 1;
             _sequentialOwnership.push(last, uint160(to));
 
             // The invariant required by this function is preserved because the new sequentialOwnership checkpoint
             // is attributing ownership of `batchSize` new tokens to account `to`.
             __unsafe_increaseBalance(to, batchSize);
 
-            emit ConsecutiveTransfer(first, last, address(0), to);
+            emit ConsecutiveTransfer(next, last, address(0), to);
 
             // hook after
-            _afterTokenTransfer(address(0), to, first, batchSize);
+            _afterTokenTransfer(address(0), to, next, batchSize);
         }
 
-        return first;
+        return next;
     }
 
     /**
      * @dev See {ERC721-_mint}. Override version that restricts normal minting to after construction.
      *
-     * Warning: Using {ERC721Consecutive} prevents using {_mint} during construction in favor of {_mintConsecutive}.
+     * WARNING: Using {ERC721Consecutive} prevents using {_mint} during construction in favor of {_mintConsecutive}.
      * After construction, {_mintConsecutive} is no longer available and {_mint} becomes available.
      */
     function _mint(address to, uint256 tokenId) internal virtual override {
@@ -150,6 +150,10 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         return 0;
     }
 
+    /**
+     * @dev Returns the next tokenId to mint using {_mintConsecutive}. It will return {_firstConsecutiveId}
+     * if no consecutive tokenId has been minted before.
+     */
     function _nextConsecutiveId() private view returns (uint96) {
         (bool exists, uint96 latestId, ) = _sequentialOwnership.latestCheckpoint();
         return exists ? latestId + 1 : _firstConsecutiveId();
