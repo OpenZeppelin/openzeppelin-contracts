@@ -1,6 +1,6 @@
 # Running the certora verification tool
 
-These instructions detail the process for running Certora Verification Tool on the OpenZeppelin contracts.
+These instructions detail the process for running Certora Verification Tool on OpenZeppelin Contracts.
 
 Documentation for CVT and the specification language are available [here](https://certora.atlassian.net/wiki/spaces/CPD/overview)
 
