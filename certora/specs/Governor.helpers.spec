@@ -1,4 +1,17 @@
+import "helpers.spec"
 import "methods/IGovernor.spec"
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Sanity                                                                                                              │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+function clockSanity(env e) returns bool {
+    return
+        e.block.number < max_uint48() &&
+        e.block.timestamp < max_uint48() &&
+        clock(e) > 0;
+}
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -16,8 +29,7 @@ definition EXPIRED()    returns uint8 = 6;
 definition EXECUTED()   returns uint8 = 7;
 
 function safeState(env e, uint256 pId) returns uint8 {
-    uint8 result = state@withrevert(e, pId);
-    return lastReverted ? UNSET() : result;
+    return proposalCreated(pId) ? state(e, pId): UNSET();
 }
 
 definition proposalCreated(uint256 pId) returns bool =

@@ -64,6 +64,10 @@ contract GovernorHarness is
         return _isCanceled(proposalId);
     }
 
+    function isQueued(uint256 proposalId) public view returns (bool) {
+        return _proposalQueueId(proposalId) != bytes32(0);
+    }
+
     function governanceCallLength() public view returns (uint256) {
         return _governanceCallLength();
     }

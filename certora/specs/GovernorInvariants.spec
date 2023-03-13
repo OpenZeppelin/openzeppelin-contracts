@@ -8,7 +8,7 @@ import "Governor.helpers.spec"
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule clockMode(env e) {
-    require e.block.number < max_uint48() && e.block.timestamp < max_uint48();
+    require clockSanity(e);
 
     assert clock(e) == e.block.number || clock(e) == e.block.timestamp;
     assert clock(e) == token_clock(e);
@@ -31,7 +31,7 @@ invariant proposalStateConsistency(uint256 pId)
     (proposalProposer(pId) == 0 <=> proposalDeadline(pId) == 0)
     {
         preserved with (env e) {
-            require clock(e) > 0;
+            require clockSanity(e);
         }
     }
 
@@ -44,8 +44,8 @@ invariant canceledImplyCreated(uint pId)
     isCanceled(pId) => proposalCreated(pId)
     {
         preserved with (env e) {
+            require clockSanity(e);
             requireInvariant proposalStateConsistency(pId);
-            require clock(e) > 0;
         }
     }
 
@@ -58,21 +58,22 @@ invariant executedImplyCreated(uint pId)
     isExecuted(pId) => proposalCreated(pId)
     {
         preserved with (env e) {
+            require clockSanity(e);
             requireInvariant proposalStateConsistency(pId);
-            require clock(e) > 0;
         }
     }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: The state UNSET() correctly catch uninitialized proposal.                                                │
+│ Invariant: queued => created                                                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant proposalStateConsistencyUnset(env e, uint256 pId)
-    proposalCreated(pId) <=> safeState(e, pId) == UNSET()
+invariant queuedImplyCreated(uint pId)
+    isQueued(pId) => proposalCreated(pId)
     {
-        preserved {
-            require clock(e) > 0;
+        preserved with (env e) {
+            require clockSanity(e);
+            requireInvariant proposalStateConsistency(pId);
         }
     }
 

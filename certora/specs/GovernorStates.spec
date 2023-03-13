@@ -31,7 +31,7 @@ rule stateConsistency(env e, uint256 pId) {
 rule stateTransitionFn(uint256 pId, env e, method f, calldataarg args)
     filtered { f -> !skip(f) }
 {
-    require clock(e) > 0; // Sanity
+    require clockSanity(e);
 
     uint8 stateBefore = state(e, pId);
     f(e, args);
@@ -64,7 +64,8 @@ rule stateTransitionFn(uint256 pId, env e, method f, calldataarg args)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule stateTransitionWait(uint256 pId, env e1, env e2) {
-    require clock(e1) > 0; // Sanity
+    require clockSanity(e1);
+    require clockSanity(e2);
     require clock(e2) > clock(e1);
 
     uint8 stateBefore = state(e1, pId);
@@ -87,25 +88,25 @@ rule stateTransitionWait(uint256 pId, env e1, env e2) {
 │ Rule: State corresponds to the vote timing and results                                                              │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule stateFollowsVoteTimmingAndResult(uint256 pId, env e) {
-    require clock(e) > 0; // Sanity
+rule stateIsConsistentWithVotes(uint256 pId, env e) {
+    require clockSanity(e);
     requireInvariant proposalStateConsistency(pId);
 
     uint8  currentState = state(e, pId);
     uint48 currentClock = clock(e);
 
-    // Pending = before vote starts
+    // Pending: before vote starts
     assert currentState == PENDING() => (
         proposalSnapshot(pId) >= currentClock
     );
 
-    // Active = after vote starts & before vote ends
+    // Active: after vote starts & before vote ends
     assert currentState == ACTIVE() => (
         proposalSnapshot(pId) < currentClock &&
         proposalDeadline(pId) >= currentClock
     );
 
-    // Succeeded = after vote end, with vote successful and quorum reached
+    // Succeeded: after vote end, with vote successful and quorum reached
     assert currentState == SUCCEEDED() => (
         proposalDeadline(pId) < currentClock &&
         (
@@ -114,7 +115,7 @@ rule stateFollowsVoteTimmingAndResult(uint256 pId, env e) {
         )
     );
 
-    // Succeeded = after vote end, with vote not successful or quorum not reached
+    // Defeated: after vote end, with vote not successful or quorum not reached
     assert currentState == DEFEATED() => (
         proposalDeadline(pId) < currentClock &&
         (

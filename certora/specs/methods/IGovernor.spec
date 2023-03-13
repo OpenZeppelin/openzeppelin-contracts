@@ -39,6 +39,7 @@ methods {
     voteSucceeded(uint256)              returns bool    envfree
     isExecuted(uint256)                 returns bool    envfree
     isCanceled(uint256)                 returns bool    envfree
+    isQueued(uint256)                   returns bool    envfree
     governanceCallLength()              returns uint256 envfree
     getAgainstVotes(uint256)            returns uint256 envfree
     getForVotes(uint256)                returns uint256 envfree

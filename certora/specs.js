@@ -44,22 +44,36 @@ module.exports = [
   },
   // Governor
   ...product(
-    ['GovernorInvariants', 'GovernorBaseRules', 'GovernorStates'],
+    ['GovernorInvariants', 'GovernorBaseRules', 'GovernorChanges', 'GovernorStates'],
     ['ERC20VotesBlocknumberHarness', 'ERC20VotesTimestampHarness'],
   ).map(([spec, token]) => ({
     spec,
     contract: 'GovernorHarness',
-    files: ['certora/harnesses/GovernorHarness.sol', `certora/harnesses/${token}.sol`],
-    options: [`--link GovernorHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
+    files: [
+      'certora/harnesses/GovernorHarness.sol',
+      `certora/harnesses/${token}.sol`,
+    ],
+    options: [
+      `--link GovernorHarness:token=${token}`,
+      '--optimistic_loop',
+      '--optimistic_hashing',
+    ],
   })),
   // WIP part
-  // ...product(
-  //   ['GovernorFunctions'],
-  //   ['ERC20VotesBlocknumberHarness'],
-  // ).map(([spec, token]) => ({
-  //   spec,
-  //   contract: 'GovernorHarness',
-  //   files: ['certora/harnesses/GovernorHarness.sol', `certora/harnesses/${token}.sol`],
-  //   options: [`--link GovernorHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
-  // })),
+  ...product(
+    ['GovernorFunctions'],
+    ['ERC20VotesBlocknumberHarness'],
+  ).map(([spec, token]) => ({
+    spec,
+    contract: 'GovernorHarness',
+    files: [
+      'certora/harnesses/GovernorHarness.sol',
+      `certora/harnesses/${token}.sol`,
+    ],
+    options: [
+      `--link GovernorHarness:token=${token}`,
+      '--optimistic_loop',
+      '--optimistic_hashing',
+    ],
+  })),
 ];
