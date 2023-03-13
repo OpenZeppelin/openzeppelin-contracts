@@ -56,5 +56,5 @@ If the original contracts change, it is possible to create a conflict with the p
 For more information about the `make` scripts available, run:
 
 ```bash
-make -C certore help
+make -C certora help
 ```
