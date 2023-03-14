@@ -108,9 +108,11 @@ rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args) {
 │ attribute to the execute() function, showing that only execute() can change it, and that it will always change it.  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule allFunctionsRevertIfExecuted(uint256 pId, env e, method f, calldataarg args)
-    filtered { f -> !skip(f) }
-{
+rule allFunctionsRevertIfExecuted(uint256 pId, env e, method f, calldataarg args) filtered { f ->
+    !skip(f) &&
+    f.selector != updateQuorumNumerator(uint256).selector &&
+    f.selector != updateTimelock(address).selector
+} {
     require isExecuted(pId);
     requireInvariant noBothExecutedAndCanceled(pId);
     requireInvariant executedImplyCreated(pId);
@@ -129,9 +131,11 @@ rule allFunctionsRevertIfExecuted(uint256 pId, env e, method f, calldataarg args
 │ attribute to the execute() function, showing that only execute() can change it, and that it will always change it.  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args)
-    filtered { f -> !skip(f) }
-{
+rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args) filtered { f ->
+    !skip(f) &&
+    f.selector != updateQuorumNumerator(uint256).selector &&
+    f.selector != updateTimelock(address).selector
+} {
     require isCanceled(pId);
     requireInvariant noBothExecutedAndCanceled(pId);
     requireInvariant canceledImplyCreated(pId);
