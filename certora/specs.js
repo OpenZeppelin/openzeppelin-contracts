@@ -42,6 +42,13 @@ module.exports = [
     contract: 'InitializableHarness',
     files: ['certora/harnesses/InitializableHarness.sol'],
   },
+  // TimelockController
+  {
+    spec: 'TimelockController',
+    contract: 'TimelockControllerHarness',
+    files: ['certora/harnesses/TimelockControllerHarness.sol'],
+    options: ['--optimistic_hashing', '--optimistic_loop']
+  },
   // Governor
   ...product(
     ['GovernorInvariants', 'GovernorBaseRules', 'GovernorChanges', 'GovernorStates'],
