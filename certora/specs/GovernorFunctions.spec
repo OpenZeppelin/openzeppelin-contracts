@@ -123,14 +123,14 @@ rule queue(uint256 pId, env e) {
 
     // effect
     assert success => (
-        state(e, pId) == QUEUED()
+        state(e, pId) == QUEUED() &&
         !queuedBefore &&
         isQueued(pId)
     );
 
     // no side-effect
-    assert state(e, otherId) != otherStateBefore => otherId == pId;
-    assert isQueued(otherId) != queuedBefore     => otherId == pId;
+    assert state(e, otherId) != otherStateBefore  => otherId == pId;
+    assert isQueued(otherId) != otherQueuedBefore => otherId == pId;
 }
 
 /*
