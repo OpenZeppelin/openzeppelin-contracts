@@ -26,14 +26,16 @@ rule noDoublePropose(uint256 pId, env e) {
 │ Rule: Once a proposal is created, voteStart, voteEnd and proposer are immutable                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule immutableFieldsAfterProposalCreation(uint256 pId, env e, method f, calldataarg arg) {
+rule immutableFieldsAfterProposalCreation(uint256 pId, env e, method f, calldataarg args)
+    filtered { f -> !skip(f) }
+{
     require proposalCreated(pId);
 
     uint256 voteStart = proposalSnapshot(pId);
     uint256 voteEnd   = proposalDeadline(pId);
     address proposer  = proposalProposer(pId);
 
-    f(e, arg);
+    f(e, args);
 
     assert voteStart == proposalSnapshot(pId), "Start date was changed";
     assert voteEnd   == proposalDeadline(pId), "End date was changed";
@@ -66,7 +68,9 @@ rule noDoubleVoting(uint256 pId, env e, uint8 sup) {
 │ Rule: A proposal could be executed only if quorum was reached and vote succeeded                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f, calldataarg args) {
+rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f, calldataarg args)
+    filtered { f -> !skip(f) }
+{
     require !isExecuted(pId);
 
     bool quorumReachedBefore = quorumReached(pId);
@@ -82,7 +86,9 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f, 
 │ Rule: Voting cannot start at a block number prior to proposal’s creation block number                               │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule noStartBeforeCreation(uint256 pId, env e, method f, calldataarg args){
+rule noStartBeforeCreation(uint256 pId, env e, method f, calldataarg args)
+    filtered { f -> !skip(f) }
+{
     require !proposalCreated(pId);
     f(e, args);
     assert proposalCreated(pId) => proposalSnapshot(pId) >= clock(e), "starts before proposal";
@@ -93,7 +99,9 @@ rule noStartBeforeCreation(uint256 pId, env e, method f, calldataarg args){
 │ Rule: A proposal cannot be executed before it ends                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args) {
+rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args)
+    filtered { f -> !skip(f) }
+{
     require !isExecuted(pId);
     f(e, args);
     assert isExecuted(pId) => proposalDeadline(pId) <= clock(e), "executed before deadline";
