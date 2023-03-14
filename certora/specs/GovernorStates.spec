@@ -92,35 +92,39 @@ rule stateIsConsistentWithVotes(uint256 pId, env e) {
     require clockSanity(e);
     requireInvariant proposalStateConsistency(pId);
 
-    uint8  currentState = state(e, pId);
-    uint48 currentClock = clock(e);
+    uint48  currentClock  = clock(e);
+    uint8   currentState  = state(e, pId);
+    uint256 snapshot      = proposalSnapshot(pId);
+    uint256 deadline      = proposalDeadline(pId);
+    bool    quorumSuccess = quorumReached(pId);
+    bool    voteSuccess   = voteSucceeded(pId);
 
     // Pending: before vote starts
     assert currentState == PENDING() => (
-        proposalSnapshot(pId) >= currentClock
+        snapshot >= currentClock
     );
 
     // Active: after vote starts & before vote ends
     assert currentState == ACTIVE() => (
-        proposalSnapshot(pId) < currentClock &&
-        proposalDeadline(pId) >= currentClock
+        snapshot < currentClock &&
+        deadline >= currentClock
     );
 
     // Succeeded: after vote end, with vote successful and quorum reached
     assert currentState == SUCCEEDED() => (
-        proposalDeadline(pId) < currentClock &&
+        deadline < currentClock &&
         (
-            quorumReached(pId) &&
-            voteSucceeded(pId)
+            quorumSuccess &&
+            voteSuccess
         )
     );
 
     // Defeated: after vote end, with vote not successful or quorum not reached
     assert currentState == DEFEATED() => (
-        proposalDeadline(pId) < currentClock &&
+        deadline < currentClock &&
         (
-            !quorumReached(pId) ||
-            !voteSucceeded(pId)
+            !quorumSuccess ||
+            !voteSuccess
         )
     );
 }

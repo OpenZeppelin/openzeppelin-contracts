@@ -111,8 +111,8 @@ rule queue(uint256 pId, env e) {
 
     uint8 stateBefore       = state(e, pId);
     uint8 otherStateBefore  = state(e, otherId);
-    bool  queuedBefore      = isQueued(pId)
-    bool  otherQueuedBefore = isQueued(otherId)
+    bool  queuedBefore      = isQueued(pId);
+    bool  otherQueuedBefore = isQueued(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
     require pId == queue@withrevert(e, targets, values, calldatas, descrHash);
@@ -174,8 +174,9 @@ rule cancel(uint256 pId, env e) {
 
     uint256 otherId;
 
-    uint8 stateBefore      = state(e, pId);
-    uint8 otherStateBefore = state(e, otherId);
+    uint8 stateBefore       = state(e, pId);
+    uint8 otherStateBefore  = state(e, otherId);
+    bool  otherQueuedBefore = isQueued(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
     require pId == cancel@withrevert(e, targets, values, calldatas, descrHash);
@@ -189,9 +190,11 @@ rule cancel(uint256 pId, env e) {
 
     // effect
     assert success => (
-        state(e, pId) == CANCELED()
+        state(e, pId) == CANCELED() &&
+        !isQueued(pId) // cancel resets timelockId
     );
 
     // no side-effect
-    assert state(e, otherId) != otherStateBefore => otherId == pId;
+    assert state(e, otherId) != otherStateBefore  => otherId == pId;
+    assert isQueued(otherId) != otherQueuedBefore => otherId == pId;
 }
