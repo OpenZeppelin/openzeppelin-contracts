@@ -54,6 +54,13 @@ definition voting(method f) returns bool =
     f.selector == castVoteWithReason(uint256,uint8,string).selector ||
     f.selector == castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector;
 
+definition votingBySig(method f) returns bool =
+    f.selector == castVoteBySig(uint256,uint8,uint8,bytes32,bytes32).selector ||
+    f.selector == castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32).selector;
+
+definition votingAll(method f) returns bool =
+    voting(f) || votingBySig(f);
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Helper functions                                                                                                    │
@@ -79,7 +86,8 @@ function helperVoteWithRevert(env e, method f, uint256 pId, address voter, uint8
     }
     else
     {
-        require false;
+        calldataarg args;
+        f(e, args);
         return 0;
     }
 }
@@ -132,6 +140,7 @@ function helperFunctionsWithRevert(env e, method f, uint256 pId) {
     }
     else
     {
-        require false;
+        calldataarg args;
+        f(e, args);
     }
 }

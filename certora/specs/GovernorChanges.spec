@@ -22,6 +22,11 @@ rule changes(uint256 pId, env e) {
 
     assert isExecuted(pId)     != isExecutedBefore => (!isExecutedBefore && f.selector == execute(address[],uint256[],bytes[],bytes32).selector);
     assert isCanceled(pId)     != isCanceledBefore => (!isCanceledBefore && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector);
-    assert isQueued(pId)       != isQueuedBefore   => (!isQueuedBefore   && f.selector == queue(address[],uint256[],bytes[],bytes32).selector);
-    assert hasVoted(pId, user) != hasVotedBefore   => (!hasVotedBefore   && voting(f));
+    assert hasVoted(pId, user) != hasVotedBefore   => (!hasVotedBefore   && votingAll(f));
+
+    // queue is cleared on cancel
+    assert isQueued(pId) != isQueuedBefore => (
+        (!isQueuedBefore && f.selector == queue(address[],uint256[],bytes[],bytes32).selector) ||
+        (isQueuedBefore  && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector)
+    );
 }
