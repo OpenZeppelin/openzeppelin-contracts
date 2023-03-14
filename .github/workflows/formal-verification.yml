@@ -18,6 +18,8 @@ env:
   JAVA_VERSION: '11'
   SOLC_VERSION: '0.8.19'
 
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
 jobs:
   apply-diff:
     runs-on: ubuntu-latest
