@@ -45,5 +45,11 @@
     "spec": "Initializable",
     "contract": "InitializableHarness",
     "files": ["certora/harnesses/InitializableHarness.sol"]
+  },
+  {
+    "spec": "TimelockController",
+    "contract": "TimelockControllerHarness",
+    "files": ["certora/harnesses/TimelockControllerHarness.sol"],
+    "options": ["--optimistic_hashing", "--optimistic_loop"]
   }
 ]
