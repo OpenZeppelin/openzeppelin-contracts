@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 import "./ERC1155Receiver.sol";
 
 /**
- * Simple implementation of `ERC1155Receiver` that will allow a contract to hold ERC1155 tokens.
+ * Simple implementation of `ERC1155Holder` that will allow a contract to hold ERC1155 tokens.
  *
  * IMPORTANT: When inheriting this contract, you must include a way to use the received tokens, otherwise they will be
  * stuck.
