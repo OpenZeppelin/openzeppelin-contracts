@@ -68,6 +68,7 @@ definition votingAll(method f) returns bool =
 */
 function helperVoteWithRevert(env e, method f, uint256 pId, address voter, uint8 support) returns uint256 {
     string reason; bytes params;
+    require reason.length >= 0;
 
     if (f.selector == castVote(uint256,uint8).selector)
     {

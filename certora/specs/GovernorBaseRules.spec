@@ -144,31 +144,3 @@ rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args
 
     assert lastReverted, "Function was not reverted";
 }
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: Proposal can be switched state only by specific functions                                                     │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule stateOnlyAfterFunc(uint256 pId, env e, method f) {
-    bool createdBefore  = proposalCreated(pId);
-    bool executedBefore = isExecuted(pId);
-    bool canceledBefore = isCanceled(pId);
-
-    helperFunctionsWithRevert(e, f, pId);
-
-    assert (proposalCreated(pId) != createdBefore) => (
-        createdBefore == false &&
-        f.selector == propose(address[], uint256[], bytes[], string).selector
-    ), "proposalCreated only changes in the propose method";
-
-    assert (isExecuted(pId) != executedBefore) => (
-        executedBefore == false &&
-        f.selector == execute(address[], uint256[], bytes[], bytes32).selector
-    ), "isExecuted only changes in the execute method";
-
-    assert (isCanceled(pId) != canceledBefore) => (
-        canceledBefore == false &&
-        f.selector == cancel(address[], uint256[], bytes[], bytes32).selector
-    ), "isCanceled only changes in the cancel method";
-}

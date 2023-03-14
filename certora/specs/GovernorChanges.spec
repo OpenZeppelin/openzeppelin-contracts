@@ -4,7 +4,7 @@ import "Governor.helpers.spec"
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: internal variables can only change though specific functions calls                                            │
+│ Rule: Proposal can be switched state only by specific functions                                                     │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule changes(uint256 pId, env e) {

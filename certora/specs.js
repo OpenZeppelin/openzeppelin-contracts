@@ -47,7 +47,7 @@ module.exports = [
     spec: 'TimelockController',
     contract: 'TimelockControllerHarness',
     files: ['certora/harnesses/TimelockControllerHarness.sol'],
-    options: ['--optimistic_hashing', '--optimistic_loop']
+    options: ['--optimistic_hashing', '--optimistic_loop'],
   },
   // Governor
   ...product(
