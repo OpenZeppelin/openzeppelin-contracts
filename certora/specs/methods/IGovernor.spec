@@ -2,6 +2,8 @@
 methods {
     name()                                            returns string  envfree
     version()                                         returns string  envfree
+    token()                                           returns address envfree
+    timelock()                                        returns address envfree
     clock()                                           returns uint48
     CLOCK_MODE()                                      returns string
     COUNTING_MODE()                                   returns string  envfree
@@ -16,6 +18,9 @@ methods {
     getVotes(address,uint256)                         returns uint256 envfree
     getVotesWithParams(address,uint256,bytes)         returns uint256 envfree
     hasVoted(uint256,address)                         returns bool    envfree
+    quorumNumerator()                                 returns uint256 envfree
+    quorumNumerator(uint256)                          returns uint256 envfree
+    quorumDenominator()                               returns uint256 envfree
 
     propose(address[],uint256[],bytes[],string)                                        returns uint256
     execute(address[],uint256[],bytes[],bytes32)                                       returns uint256
@@ -27,6 +32,7 @@ methods {
     castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)                                 returns uint256
     castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32) returns uint256
     updateQuorumNumerator(uint256)
+    updateTimelock(address)
 
     // harness
     token_getPastTotalSupply(uint256)   returns uint256 envfree

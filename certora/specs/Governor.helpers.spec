@@ -7,10 +7,23 @@ import "methods/IGovernor.spec"
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 function clockSanity(env e) returns bool {
-    return
-        e.block.number < max_uint48() &&
-        e.block.timestamp < max_uint48() &&
-        clock(e) > 0;
+    return e.block.number    < max_uint48()
+        && e.block.timestamp < max_uint48()
+        && clock(e) > 0;
+}
+
+function validProposal(address[] targets, uint256[] values, bytes[] calldatas) returns bool {
+    return targets.length > 0
+        && targets.length == values.length
+        && targets.length == calldatas.length;
+}
+
+function validString(string s) returns bool {
+    return s.length < 0xffff;
+}
+
+function validBytes(bytes b) returns bool {
+    return b.length < 0xffff;
 }
 
 /*
@@ -18,15 +31,15 @@ function clockSanity(env e) returns bool {
 │ States                                                                                                              │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-definition UNSET()      returns uint8 = 255;
-definition PENDING()    returns uint8 = 0;
-definition ACTIVE()     returns uint8 = 1;
-definition CANCELED()   returns uint8 = 2;
-definition DEFEATED()   returns uint8 = 3;
-definition SUCCEEDED()  returns uint8 = 4;
-definition QUEUED()     returns uint8 = 5;
-definition EXPIRED()    returns uint8 = 6;
-definition EXECUTED()   returns uint8 = 7;
+definition UNSET()     returns uint8 = 255;
+definition PENDING()   returns uint8 = 0;
+definition ACTIVE()    returns uint8 = 1;
+definition CANCELED()  returns uint8 = 2;
+definition DEFEATED()  returns uint8 = 3;
+definition SUCCEEDED() returns uint8 = 4;
+definition QUEUED()    returns uint8 = 5;
+definition EXPIRED()   returns uint8 = 6;
+definition EXECUTED()  returns uint8 = 7;
 
 function safeState(env e, uint256 pId) returns uint8 {
     return proposalCreated(pId) ? state(e, pId): UNSET();
@@ -67,9 +80,6 @@ definition votingAll(method f) returns bool =
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 function helperVoteWithRevert(env e, method f, uint256 pId, address voter, uint8 support) returns uint256 {
-    string reason; bytes params;
-    require reason.length >= 0;
-
     if (f.selector == castVote(uint256,uint8).selector)
     {
         require e.msg.sender == voter;
@@ -77,12 +87,14 @@ function helperVoteWithRevert(env e, method f, uint256 pId, address voter, uint8
     }
     else  if (f.selector == castVoteWithReason(uint256,uint8,string).selector)
     {
-        require e.msg.sender == voter;
+        string reason;
+        require e.msg.sender == voter && validString(reason);
         return castVoteWithReason@withrevert(e, pId, support, reason);
     }
     else  if (f.selector == castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector)
     {
-        require e.msg.sender == voter;
+        string reason; bytes params;
+        require e.msg.sender == voter && validString(reason) && validBytes(params);
         return castVoteWithReasonAndParams@withrevert(e, pId, support, reason, params);
     }
     else

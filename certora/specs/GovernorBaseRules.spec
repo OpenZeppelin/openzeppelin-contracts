@@ -152,3 +152,21 @@ rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args
 
     assert lastReverted, "Function was not reverted";
 }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: Update operation are restricted to executor                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule privilegedUpdate(env e, method f, calldataarg args)
+    filtered { f -> !skip(f) }
+{
+    address executorBefore        = getExecutor();
+    uint256 quorumNumeratorBefore = quorumNumerator();
+    address timelockBefore        = timelock();
+
+    f(e, args);
+
+    assert quorumNumerator() != quorumNumeratorBefore => e.msg.sender == executorBefore;
+    assert timelock()        != timelockBefore        => e.msg.sender == executorBefore;
+}

@@ -20,11 +20,15 @@ rule propose(uint256 pId, env e) {
     address otherProposer    = proposalProposer(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; string descr;
+    require validString(descr);
     require pId == propose@withrevert(e, targets, values, calldatas, descr);
     bool success = !lastReverted;
 
     // liveness & double proposal
-    assert success <=> stateBefore == UNSET();
+    assert success <=> (
+        stateBefore == UNSET() &&
+        validProposal(targets, values, calldatas)
+    );
 
     // effect
     assert success => (

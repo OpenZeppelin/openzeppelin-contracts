@@ -88,21 +88,6 @@ contract GovernorHarness is
         return abstainVotes;
     }
 
-    /// The following functions are overrides required by Solidity added by Certora.
-    // mapping(uint256 => uint256) public ghost_sum_vote_power_by_id;
-    //
-    // function _castVote(
-    //     uint256 proposalId,
-    //     address account,
-    //     uint8 support,
-    //     string memory reason,
-    //     bytes memory params
-    // ) internal virtual override returns (uint256) {
-    //     uint256 deltaWeight = super._castVote(proposalId, account, support, reason, params);
-    //     ghost_sum_vote_power_by_id[proposalId] += deltaWeight;
-    //     return deltaWeight;
-    // }
-
     // The following functions are overrides required by Solidity added by OZ Wizard.
     function votingDelay() public pure override returns (uint256) {
         return 1; // 1 block
