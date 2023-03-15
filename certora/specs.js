@@ -60,7 +60,7 @@ module.exports = [].concat(
     spec,
     contract,
     files: [`certora/harnesses/${contract}.sol`, `certora/harnesses/${token}.sol`],
-    options: [`--link GovernorHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
+    options: [`--link ${contract}:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
   })),
   /// WIP part
   process.env.CI
@@ -70,7 +70,7 @@ module.exports = [].concat(
           spec,
           contract,
           files: [`certora/harnesses/${contract}.sol`, `certora/harnesses/${token}.sol`],
-          options: [`--link GovernorHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
+          options: [`--link ${contract}:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
         }),
       ),
 );
