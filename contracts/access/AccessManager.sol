@@ -33,8 +33,6 @@ interface IAccessManager {
 
     function updateTeam(uint8 team, string calldata name) external;
 
-    function getTeamName(uint8 team) external view returns (string calldata name);
-
     // The result is a bit mask.
     function getUserTeams(address user) external view returns (bytes32 teams);
 
@@ -56,20 +54,10 @@ interface IAccessManager {
     function setContractGroupAdmin(bytes32 group, bytes32 adminRole) external;
 
     function setRoleAdmin(bytes32 role, bytes32 adminRole) external;
-
-    struct EnumeratedTeam {
-        uint8 id;
-        string name;
-    }
-
-    /// Decodes a bit mask into array of team ids and names.
-    /// Meant for user interface purposes.
-    /// Can be used with the outputs of `getUserTeams` and `getFunctionAllowedTeams`.
-    function enumerateTeams(bytes32 teams) external view returns (EnumeratedTeam[] memory);
 }
 
 contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefaultAdminRules */ {
-    mapping (uint8 => string) private _teamName;
+    bytes32 _createdTeams;
     mapping (address => bytes32) private _userTeams;
     mapping (bytes32 => mapping (bytes4 => bytes32)) private _allowedTeams;
     mapping (address => bytes32) private _contractGroup;
@@ -88,26 +76,16 @@ contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefault
 
     function createTeam(uint8 team, string calldata name) public virtual onlyDefaultAdmin {
         require(!_teamExists(team));
-        _updateTeam(team, name);
+        emit TeamUpdated(team, name);
     }
 
     function updateTeam(uint8 team, string calldata name) public virtual onlyDefaultAdmin {
         require(_teamExists(team));
-        _updateTeam(team, name);
-    }
-
-    function _updateTeam(uint8 team, string calldata name) internal virtual {
-        require(_teamExists(team));
-        _teamName[team] = name;
         emit TeamUpdated(team, name);
     }
 
     function _teamExists(uint8 team) internal virtual returns (bool) {
-        return bytes(_teamName[team]).length > 0;
-    }
-
-    function getTeamName(uint8 team) public view virtual returns (string memory) {
-        return _teamName[team];
+        return _getBit(_createdTeams, team);
     }
 
     function getUserTeams(address user) public view virtual returns (bytes32) {
@@ -119,8 +97,7 @@ contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefault
         (bool isTeam, uint8 team) = _parseTeamRole(role);
         if (isTeam) {
             require(_teamExists(team));
-            bytes32 mask = bytes32(1 << team);
-            _userTeams[user] |= mask;
+            _userTeams[user] = _setBit(_userTeams[user], team, true);
         }
     }
 
@@ -129,8 +106,7 @@ contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefault
         (bool isTeam, uint8 team) = _parseTeamRole(role);
         if (isTeam) {
             require(_teamExists(team));
-            bytes32 mask = bytes32(1 << team);
-            _userTeams[user] &= ~mask;
+            _userTeams[user] = _setBit(_userTeams[user], team, false);
         }
     }
 
@@ -145,13 +121,11 @@ contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefault
     }
 
     function addFunctionAllowedTeam(bytes32 group, bytes4 selector, uint8 team) public virtual onlyDefaultAdmin {
-        bytes32 mask = bytes32(1 << uint8(team));
-        _allowedTeams[group][selector] |= mask;
+        _allowedTeams[group][selector] = _setBit(_allowedTeams[group][selector], team, true);
     }
 
     function removeFunctionAllowedTeam(bytes32 group, bytes4 selector, uint8 team) public virtual onlyDefaultAdmin {
-        bytes32 mask = bytes32(1 << uint8(team));
-        _allowedTeams[group][selector] &= ~mask;
+        _allowedTeams[group][selector] = _setBit(_allowedTeams[group][selector], team, false);
     }
 
     function getContractGroup(address target) public view virtual returns (bytes32) {
@@ -191,22 +165,17 @@ contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefault
         _setRoleAdmin(role, adminRole);
     }
 
-    function enumerateTeams(bytes32 roles) public view virtual returns (EnumeratedTeam[] memory) {
-        EnumeratedTeam[] memory roleList = new EnumeratedTeam[](256);
+    function _getBit(bytes32 bitmap, uint8 pos) private pure returns (bool) {
+        bytes32 mask = bytes32(1 << pos);
+        return bitmap & mask > 0;
+    }
 
-        uint nextPos = 0;
-
-        for (uint256 id = 0; id < 256; id += 1) {
-            bytes32 mask = bytes32(1 << id);
-            if (roles & mask != 0) {
-                roleList[nextPos].id = uint8(id);
-                roleList[nextPos].name = getTeamName(uint8(id));
-                nextPos += 1;
-            }
+    function _setBit(bytes32 bitmap, uint8 pos, bool val) private pure returns (bytes32) {
+        bytes32 mask = bytes32(1 << pos);
+        if (val) {
+            return bitmap | mask;
+        } else {
+            return bitmap & ~mask;
         }
-
-        // todo: shrink array to length = nextPos and reset free pointer, if safe to do so
-
-        return roleList;
     }
 }
