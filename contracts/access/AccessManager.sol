@@ -149,12 +149,7 @@ contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefault
     }
 
     function getContractGroupAdmin(bytes32 group) public view virtual returns (bytes32) {
-        bytes32 admin = _groupAdmin[group];
-        if (admin != 0) {
-            return admin;
-        } else {
-            return DEFAULT_ADMIN_ROLE;
-        }
+        return _groupAdmin[group];
     }
 
     function setContractGroupAdmin(bytes32 group, bytes32 adminRole) public virtual onlyDefaultAdmin {
