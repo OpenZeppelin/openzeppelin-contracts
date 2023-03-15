@@ -1,4 +1,4 @@
---- governance/extensions/GovernorPreventLateQuorum.sol	2023-03-07 10:48:47.733488857 +0100
+--- governance/extensions/GovernorPreventLateQuorum.sol	2023-03-15 17:13:06.879632860 +0100
 +++ governance/extensions/GovernorPreventLateQuorum.sol	2023-03-15 14:14:59.121060484 +0100
 @@ -84,6 +84,11 @@
          return _voteExtension;

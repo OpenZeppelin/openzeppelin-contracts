@@ -141,6 +141,9 @@ rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args)
 invariant quorumRatioLessThanOne(uint256 blockNumber)
     quorumNumerator(blockNumber) <= quorumDenominator()
     filtered { f -> !skip(f) }
+    {
+        require quorumNumeratorLength() < max_uint256;
+    }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐

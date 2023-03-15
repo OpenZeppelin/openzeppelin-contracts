@@ -4,6 +4,7 @@ import "Governor.helpers.spec"
 import "GovernorInvariants.spec"
 
 use invariant proposalStateConsistency
+use invariant votesImplySnapshotPassed
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -138,6 +139,7 @@ rule onlyVoteCanChangeQuorumReached(uint256 pId, env e, method f, calldataarg ar
     filtered { f -> !skip(f) }
 {
     require clockSanity(e);
+    requireInvariant votesImplySnapshotPassed(e, pId);
 
     bool quorumReachedBefore = quorumReached(pId);
 
