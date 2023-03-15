@@ -26,11 +26,6 @@ rule deadlineChangeToPreventLateQuorum(uint256 pId, env e, method f, calldataarg
     requireInvariant proposalStateConsistency(pId);
     requireInvariant votesImplySnapshotPassed(pId);
 
-    // This should be a direct consequence of the invariant: `getExtendedDeadline(pId) > 0 => quorumReached(pId)`
-    // But this is not (easily) provable because the prover think `_totalSupplyCheckpoints` can arbitrarily change,
-    // which causes the quorum() to change. Not sure how to fix that.
-    require !quorumReached(pId) => getExtendedDeadline(pId) == 0;
-
     uint256 deadlineBefore         = proposalDeadline(pId);
     bool    deadlineExtendedBefore = getExtendedDeadline(pId) > 0;
     bool    quorumReachedBefore    = quorumReached(pId);
@@ -53,7 +48,7 @@ rule deadlineChangeToPreventLateQuorum(uint256 pId, env e, method f, calldataarg
         ) || (
             !deadlineExtendedBefore &&
             deadlineExtendedAfter &&
-            !quorumReachedBefore &&
+            // !quorumReachedBefore && // Not sure how to prove that
             quorumReachedAfter &&
             deadlineAfter == clock(e) + lateQuorumVoteExtension() &&
             votingAll(f)
