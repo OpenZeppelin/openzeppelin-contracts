@@ -3,9 +3,9 @@ default: help
 SRC   := ../contracts
 DST   := patched
 DIFF  := diff
-SRCS  := $(sh find $(SRC) -type f)
-DSTS  := $(sh find $(DST) -type f)
-DIFFS := $(sh find $(DIFF) -type f)
+SRCS  := $(shell find $(SRC) -type f)
+DSTS  := $(shell find $(DST) -type f)
+DIFFS := $(shell find $(DIFF) -type f)
 
 ###############################################################################
 # Apply all patches in the $DIFF folder to the $DST folder
