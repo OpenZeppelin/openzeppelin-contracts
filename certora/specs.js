@@ -1,6 +1,6 @@
 const product = (...arrays) => arrays.reduce((a, b) => a.flatMap(ai => b.map(bi => [ai, bi].flat())));
 
-module.exports = [
+module.exports = [].concat(
   // AccessControl
   {
     spec: 'AccessControl',
@@ -42,35 +42,34 @@ module.exports = [
     contract: 'InitializableHarness',
     files: ['certora/harnesses/InitializableHarness.sol'],
   },
-  // TimelockController
+  // Governance
   {
     spec: 'TimelockController',
     contract: 'TimelockControllerHarness',
     files: ['certora/harnesses/TimelockControllerHarness.sol'],
     options: ['--optimistic_hashing', '--optimistic_loop'],
   },
-  // Governor
-  ...product(
-    ['GovernorInvariants', 'GovernorBaseRules', 'GovernorChanges', 'GovernorStates'],
+  // Govenor: carthesian product of (spec + harness contract) and (token)
+  product(
+    [].concat(
+      ['GovernorInvariants', 'GovernorBaseRules', 'GovernorChanges', 'GovernorStates'].map(spec => ({
+        contract: 'GovernorHarness',
+        spec,
+      })),
+      ['GovernorPreventLateHarness'].map(spec => ({ contract: 'GovernorPreventLateHarness', spec })),
+    ),
     ['ERC20VotesBlocknumberHarness', 'ERC20VotesTimestampHarness'],
-  ).map(([spec, token]) => ({
+  ).map(([{ contract, spec }, token]) => ({
     spec,
-    contract: 'GovernorHarness',
-    files: ['certora/harnesses/GovernorHarness.sol', `certora/harnesses/${token}.sol`],
+    contract,
+    files: [`certora/harnesses/${contract}.sol`, `certora/harnesses/${token}.sol`],
     options: [`--link GovernorHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
   })),
-  // WIP part
-  ...product(['GovernorFunctions'], ['ERC20VotesBlocknumberHarness']).map(([spec, token]) => ({
-    spec,
-    contract: 'GovernorHarness',
-    files: ['certora/harnesses/GovernorHarness.sol', `certora/harnesses/${token}.sol`],
-    options: [`--link GovernorHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
-  })),
-  // WIP prevent late quorum
-  ...product(['GovernorPreventLateQuorum'], ['ERC20VotesBlocknumberHarness']).map(([spec, token]) => ({
-    spec,
-    contract: 'GovernorPreventLateHarness',
-    files: ['certora/harnesses/GovernorPreventLateHarness.sol', `certora/harnesses/${token}.sol`],
-    options: [`--link GovernorPreventLateHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
-  })),
-];
+  /// WIP part
+  // product(['GovernorFunctions'], ['ERC20VotesBlocknumberHarness']).map(([spec, token]) => ({
+  //   spec,
+  //   contract: 'GovernorHarness',
+  //   files: ['certora/harnesses/GovernorHarness.sol', `certora/harnesses/${token}.sol`],
+  //   options: [`--link GovernorHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
+  // })),
+);
