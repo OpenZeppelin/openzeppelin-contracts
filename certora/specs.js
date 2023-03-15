@@ -49,7 +49,7 @@ module.exports = [].concat(
     files: ['certora/harnesses/TimelockControllerHarness.sol'],
     options: ['--optimistic_hashing', '--optimistic_loop'],
   },
-  // Govenor
+  // Governor
   product(
     [
       ...product(['GovernorHarness'], ['GovernorInvariants', 'GovernorBaseRules', 'GovernorChanges', 'GovernorStates']),
