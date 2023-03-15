@@ -5,6 +5,10 @@ pragma solidity ^0.8.0;
 import "./AccessControl.sol";
 import "./AccessControlDefaultAdminRules.sol";
 
+interface IAuthority {
+    function canCall(address caller, address target, bytes4 selector) external view returns (bool allowed);
+}
+
 /// AccessManager is a central contract that stores the permissions of a system. It is an AccessControl contract, i.e.
 /// it has roles and all the standard functions like `grantRole` and `revokeRole`, but it defines a particular set of
 /// roles, with a particular structure.
@@ -26,9 +30,7 @@ import "./AccessControlDefaultAdminRules.sol";
 ///   - Define the built-in "all" team (#255?) of which everyone is a member.
 ///   - Define a contract group where every function is allowed to the "all" group. (-> AccessMode = Open)
 ///   - Define a contract group where no function is allowed to any group. (-> AccessMode = Closed)
-interface IAccessManager {
-    function canCall(address caller, address target, bytes4 selector) external view returns (bool allowed);
-
+interface IAccessManager is IAuthority {
     function createTeam(uint8 team, string calldata name) external;
 
     function updateTeam(uint8 team, string calldata name) external;
