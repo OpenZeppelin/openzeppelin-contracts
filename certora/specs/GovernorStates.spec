@@ -139,11 +139,11 @@ rule onlyVoteCanChangeQuorumReached(uint256 pId, env e, method f, calldataarg ar
 {
     require clockSanity(e);
 
-    bool quorumReachedBefore = quorumReached(e, pId);
+    bool quorumReachedBefore = quorumReached(pId);
 
     f(e, args);
 
-    assert quorumReached(e, pId) != quorumReachedBefore => (
+    assert quorumReached(pId) != quorumReachedBefore => (
         !quorumReachedBefore &&
         votingAll(f)
     );

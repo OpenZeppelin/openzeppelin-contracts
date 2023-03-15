@@ -77,11 +77,12 @@ rule againstVotesDontCountTowardsQuorum(uint256 pId, env e, method f)
     filtered { f -> voting(f) }
 {
     address voter;
-    uint8   support = 0; // Against
 
-    helperVoteWithRevert(e, f, pId, voter, support);
+    bool quorumReachedBefore = quorumReached(pId);
 
-    assert quorumReached(pId) == quorumBefore, "quorum must not be reached with an against vote";
+    helperVoteWithRevert(e, f, pId, voter, 0); // support 0 = against
+
+    assert quorumReached(pId) == quorumReachedBefore, "quorum must not be reached with an against vote";
 }
 
 /*
@@ -137,14 +138,9 @@ rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args)
 │ Invariant: The quorum numerator is always less than or equal to the quorum denominator                              │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant quorumRatioLessThanOne(env e, uint256 blockNumber)
-    quorumNumerator(e, blockNumber) <= quorumDenominator()
+invariant quorumRatioLessThanOne(uint256 blockNumber)
+    quorumNumerator(blockNumber) <= quorumDenominator()
     filtered { f -> !skip(f) }
-    {
-        preserved {
-            require clockSanity(e);
-        }
-    }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐

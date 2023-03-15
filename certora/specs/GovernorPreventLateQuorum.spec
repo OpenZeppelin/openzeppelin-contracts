@@ -24,7 +24,7 @@ rule deadlineChangeToPreventLateQuorum(uint256 pId, env e, method f, calldataarg
     filtered { f -> !skip(f) }
 {
     requireInvariant proposalStateConsistency(pId);
-    requireInvariant votesImplySnapshotPassed(pId);
+    requireInvariant votesImplySnapshotPassed(e, pId);
 
     // This is not (easily) provable as an invariant because the prover think `_totalSupplyCheckpoints`
     // can arbitrarily change, which causes the quorum() to change. Not sure how to fix that.

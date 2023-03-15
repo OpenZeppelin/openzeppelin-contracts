@@ -53,7 +53,7 @@ module.exports = [].concat(
   product(
     [
       ...product(['GovernorHarness'], ['GovernorInvariants', 'GovernorBaseRules', 'GovernorChanges', 'GovernorStates']),
-      ...product(['GovernorPreventLateHarness'], ['GovernorPreventLateHarness']),
+      ...product(['GovernorPreventLateHarness'], ['GovernorPreventLateQuorum']),
     ],
     ['ERC20VotesBlocknumberHarness', 'ERC20VotesTimestampHarness'],
   ).map(([contract, spec, token]) => ({
