@@ -66,4 +66,11 @@ module.exports = [
     files: ['certora/harnesses/GovernorHarness.sol', `certora/harnesses/${token}.sol`],
     options: [`--link GovernorHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
   })),
+  // WIP prevent late quorum
+  ...product(['GovernorPreventLateQuorum'], ['ERC20VotesBlocknumberHarness']).map(([spec, token]) => ({
+    spec,
+    contract: 'GovernorPreventLateHarness',
+    files: ['certora/harnesses/GovernorPreventLateHarness.sol', `certora/harnesses/${token}.sol`],
+    options: [`--link GovernorPreventLateHarness:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
+  })),
 ];

@@ -55,12 +55,33 @@ rule immutableFieldsAfterProposalCreation(uint256 pId, env e, method f, calldata
 │ (calling a view function), and we do not desire to check the signature verification.                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule noDoubleVoting(uint256 pId, env e, uint8 sup) {
-    bool votedCheck = hasVoted(pId, e.msg.sender);
+rule noDoubleVoting(uint256 pId, env e, method f)
+    filtered { f -> voting(f) }
+{
+    address voter;
+    uint8   support;
 
-    castVote@withrevert(e, pId, sup);
+    bool votedCheck = hasVoted(pId, voter);
+
+    helperVoteWithRevert(e, f, pId, voter, support);
 
     assert votedCheck => lastReverted, "double voting occurred";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: Voting against a proposal does not count towards quorum.                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule againstVotesDontCountTowardsQuorum(uint256 pId, env e, method f)
+    filtered { f -> voting(f) }
+{
+    address voter;
+    uint8   support = 0; // Against
+
+    helperVoteWithRevert(e, f, pId, voter, support);
+
+    assert quorumReached(pId) == quorumBefore, "quorum must not be reached with an against vote";
 }
 
 /*
@@ -90,7 +111,9 @@ rule noStartBeforeCreation(uint256 pId, env e, method f, calldataarg args)
     filtered { f -> !skip(f) }
 {
     require !proposalCreated(pId);
+
     f(e, args);
+
     assert proposalCreated(pId) => proposalSnapshot(pId) >= clock(e), "starts before proposal";
 }
 
@@ -103,9 +126,25 @@ rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args)
     filtered { f -> !skip(f) }
 {
     require !isExecuted(pId);
+
     f(e, args);
+
     assert isExecuted(pId) => proposalDeadline(pId) <= clock(e), "executed before deadline";
 }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: The quorum numerator is always less than or equal to the quorum denominator                              │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant quorumRatioLessThanOne(env e, uint256 blockNumber)
+    quorumNumerator(e, blockNumber) <= quorumDenominator()
+    filtered { f -> !skip(f) }
+    {
+        preserved {
+            require clockSanity(e);
+        }
+    }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐

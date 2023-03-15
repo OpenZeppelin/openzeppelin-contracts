@@ -128,3 +128,23 @@ rule stateIsConsistentWithVotes(uint256 pId, env e) {
         )
     );
 }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: `updateQuorumNumerator` cannot cause quorumReached to change.                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule onlyVoteCanChangeQuorumReached(uint256 pId, env e, method f, calldataarg args)
+    filtered { f -> !skip(f) }
+{
+    require clockSanity(e);
+
+    bool quorumReachedBefore = quorumReached(e, pId);
+
+    f(e, args);
+
+    assert quorumReached(e, pId) != quorumReachedBefore => (
+        !quorumReachedBefore &&
+        votingAll(f)
+    );
+}

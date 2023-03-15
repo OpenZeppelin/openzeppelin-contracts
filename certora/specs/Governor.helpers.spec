@@ -57,7 +57,6 @@ definition skip(method f) returns bool =
     f.isView ||
     f.isFallback ||
     f.selector == relay(address,uint256,bytes).selector ||
-    f.selector == 0xb9a61961 || // __acceptAdmin()
     f.selector == onERC721Received(address,address,uint256,bytes).selector ||
     f.selector == onERC1155Received(address,address,uint256,uint256,bytes).selector ||
     f.selector == onERC1155BatchReceived(address,address,uint256[],uint256[],bytes).selector;

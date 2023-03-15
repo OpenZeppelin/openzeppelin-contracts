@@ -37,6 +37,21 @@ invariant proposalStateConsistency(uint256 pId)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: votes recorded => proposal snapshot is in the past                                                       │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant votesImplySnapshotPassed(env e, uint256 pId)
+    getAgainstVotes(pId) == 0 => proposalSnapshot(pId) < clock(e) &&
+    getForVotes(pId)     == 0 => proposalSnapshot(pId) < clock(e) &&
+    getAbstainVotes(pId) == 0 => proposalSnapshot(pId) < clock(e)
+    {
+        preserved {
+            require clockSanity(e);
+        }
+    }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: cancel => created                                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
