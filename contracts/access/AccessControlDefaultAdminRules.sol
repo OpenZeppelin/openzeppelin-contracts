@@ -68,17 +68,14 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function defaultAdminDelay() public view virtual returns (uint48) {
-        return
-            _hasScheduledPassed(defaultAdminDelayChangeSchedule())
-                ? _pendingDefaultAdminDelay
-                : _currentDefaultAdminDelay;
+        return _hasPassed(defaultAdminDelayChangeSchedule()) ? _pendingDefaultAdminDelay : _currentDefaultAdminDelay;
     }
 
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function pendingDefaultAdminDelay() public view virtual returns (uint48) {
-        return _hasScheduledPassed(defaultAdminDelayChangeSchedule()) ? 0 : _pendingDefaultAdminDelay;
+        return _hasPassed(defaultAdminDelayChangeSchedule()) ? 0 : _pendingDefaultAdminDelay;
     }
 
     /**
@@ -134,10 +131,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function cancelDefaultAdminDelayChange() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(
-            !_hasScheduledPassed(defaultAdminDelayChangeSchedule()),
-            "AccessControl: can't cancel a passed schedule"
-        );
+        require(!_hasPassed(defaultAdminDelayChangeSchedule()), "AccessControl: can't cancel a passed schedule");
         _resetDefaultAdminDelayChange();
     }
 
@@ -180,7 +174,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         if (role == DEFAULT_ADMIN_ROLE) {
             require(
-                pendingDefaultAdmin() == address(0) && _hasScheduledPassed(defaultAdminTransferSchedule()),
+                pendingDefaultAdmin() == address(0) && _hasPassed(defaultAdminTransferSchedule()),
                 "AccessControl: only can renounce in two delayed steps"
             );
         }
@@ -237,10 +231,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _beginDefaultAdminDelayChange(uint48 newDefaultAdminDelay) internal virtual {
-        require(
-            !_hasScheduledPassed(defaultAdminDelayChangeSchedule()),
-            "AccessControl: can't change past scheduled change"
-        );
+        require(!_hasPassed(defaultAdminDelayChangeSchedule()), "AccessControl: can't change past scheduled change");
         require(defaultAdminTransferSchedule() == 0, "AccessControl: default admin transfer pending");
 
         uint48 currentDefaultAdminDelay = defaultAdminDelay();
@@ -285,7 +276,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _acceptDefaultAdminTransfer() internal virtual {
-        require(_hasScheduledPassed(defaultAdminTransferSchedule()), "AccessControl: transfer delay not passed");
+        require(_hasPassed(defaultAdminTransferSchedule()), "AccessControl: transfer delay not passed");
         _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
         _grantRole(DEFAULT_ADMIN_ROLE, pendingDefaultAdmin());
         _resetDefaultAdminTransfer();
@@ -320,7 +311,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @dev Checks if a {defaultAdminTransferSchedule} has been set and passed.
      */
-    function _hasScheduledPassed(uint48 schedule) private view returns (bool) {
+    function _hasPassed(uint48 schedule) private view returns (bool) {
         return schedule > 0 && schedule < block.timestamp;
     }
 }
