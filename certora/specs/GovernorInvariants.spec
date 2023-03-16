@@ -36,18 +36,19 @@ invariant proposalStateConsistency(uint256 pId)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: votes recorded => proposal snapshot is in the past                                                       │
+│ Invariant: votes recorded => created                                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant votesImplySnapshotPassed(env e, uint256 pId)
+invariant votesImplyCreated(uint256 pId)
     (
         getAgainstVotes(pId) > 0 ||
         getForVotes(pId)     > 0 ||
         getAbstainVotes(pId) > 0
-    ) => proposalSnapshot(pId) < clock(e)
+    ) => proposalCreated(pId)
     {
-        preserved with (env e2) {
-            require clock(e) == clock(e2);
+        preserved with (env e) {
+            require clockSanity(e);
+            requireInvariant proposalStateConsistency(pId);
         }
     }
 
@@ -93,7 +94,25 @@ invariant queuedImplyCreated(uint pId)
         }
     }
 
-invariant queuedImplyVoteOver(env e, uint pId)
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: timmings                                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant votesImplySnapshotPassed(env e, uint256 pId)
+    (
+        getAgainstVotes(pId) > 0 ||
+        getForVotes(pId)     > 0 ||
+        getAbstainVotes(pId) > 0
+    ) => proposalSnapshot(pId) < clock(e)
+    {
+        preserved with (env e2) {
+            require clock(e) == clock(e2);
+        }
+    }
+
+invariant queuedImplyDeadlineOver(env e, uint pId)
     isQueued(pId) => proposalDeadline(pId) < clock(e)
     {
         preserved {

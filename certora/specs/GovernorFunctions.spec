@@ -3,7 +3,7 @@ import "Governor.helpers.spec"
 import "GovernorInvariants.spec"
 
 use invariant proposalStateConsistency
-use invariant queuedImplyVoteOver
+use invariant queuedImplyDeadlineOver
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -235,7 +235,7 @@ rule execute_sideeffect(uint256 pId, env e, uint256 otherId) {
 rule cancel_liveness(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
-    requireInvariant queuedImplyVoteOver(e, pId);
+    requireInvariant queuedImplyDeadlineOver(e, pId);
 
     uint8 stateBefore = state(e, pId);
 

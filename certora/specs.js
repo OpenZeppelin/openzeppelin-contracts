@@ -38,9 +38,9 @@ module.exports = [].concat(
   },
   // Security
   {
-    "spec": "Pausable",
-    "contract": "PausableHarness",
-    "files": ["certora/harnesses/PausableHarness.sol"]
+    spec: 'Pausable',
+    contract: 'PausableHarness',
+    files: ['certora/harnesses/PausableHarness.sol'],
   },
   // Proxy
   {
@@ -77,29 +77,26 @@ module.exports = [].concat(
       '--optimistic_hashing',
     ],
   })),
-  /// WIP part
-  process.env.CI
-    ? []
-    : product(
-        ['GovernorHarness'],
-        ['GovernorFunctions'],
-        ['ERC20VotesBlocknumberHarness'],
-        ['propose', 'castVote', 'queue', 'execute', 'cancel'],
-      ).map(([contract, spec, token, fn]) => ({
-        spec,
-        contract,
-        files: [
-          `certora/harnesses/${contract}.sol`,
-          `certora/harnesses/${token}.sol`,
-          `certora/harnesses/TimelockControllerHarness.sol`,
-        ],
-        options: [
-          `--link ${contract}:token=${token}`,
-          `--link ${contract}:_timelock=TimelockControllerHarness`,
-          '--optimistic_loop',
-          '--optimistic_hashing',
-          '--rules',
-          ['liveness', 'effect', 'sideeffect'].map(rule => `${fn}_${rule}`).join(' '),
-        ],
-      })),
+  product(
+    ['GovernorHarness'],
+    ['GovernorFunctions'],
+    ['ERC20VotesBlocknumberHarness'], // 'ERC20VotesTimestampHarness'
+    ['propose', 'castVote', 'queue', 'execute', 'cancel'],
+  ).map(([contract, spec, token, fn]) => ({
+    spec,
+    contract,
+    files: [
+      `certora/harnesses/${contract}.sol`,
+      `certora/harnesses/${token}.sol`,
+      `certora/harnesses/TimelockControllerHarness.sol`,
+    ],
+    options: [
+      `--link ${contract}:token=${token}`,
+      `--link ${contract}:_timelock=TimelockControllerHarness`,
+      '--optimistic_loop',
+      '--optimistic_hashing',
+      '--rules',
+      ...['liveness', 'effect', 'sideeffect'].map(kind => `${fn}_${kind}`),
+    ],
+  })),
 );
