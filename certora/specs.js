@@ -59,18 +59,41 @@ module.exports = [].concat(
   ).map(([contract, spec, token]) => ({
     spec,
     contract,
-    files: [`certora/harnesses/${contract}.sol`, `certora/harnesses/${token}.sol`],
-    options: [`--link ${contract}:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
+    files: [
+      `certora/harnesses/${contract}.sol`,
+      `certora/harnesses/${token}.sol`,
+      `certora/harnesses/TimelockControllerHarness.sol`,
+    ],
+    options: [
+      `--link ${contract}:token=${token}`,
+      `--link ${contract}:_timelock=TimelockControllerHarness`,
+      '--optimistic_loop',
+      '--optimistic_hashing',
+    ],
   })),
   /// WIP part
   process.env.CI
     ? []
-    : product(['GovernorHarness'], ['GovernorFunctions'], ['ERC20VotesBlocknumberHarness']).map(
-        ([contract, spec, token]) => ({
-          spec,
-          contract,
-          files: [`certora/harnesses/${contract}.sol`, `certora/harnesses/${token}.sol`],
-          options: [`--link ${contract}:token=${token}`, '--optimistic_loop', '--optimistic_hashing'],
-        }),
-      ),
+    : product(
+        ['GovernorHarness'],
+        ['GovernorFunctions'],
+        ['ERC20VotesBlocknumberHarness'],
+        ['propose', 'castVote', 'queue', 'execute', 'cancel'],
+      ).map(([contract, spec, token, fn]) => ({
+        spec,
+        contract,
+        files: [
+          `certora/harnesses/${contract}.sol`,
+          `certora/harnesses/${token}.sol`,
+          `certora/harnesses/TimelockControllerHarness.sol`,
+        ],
+        options: [
+          `--link ${contract}:token=${token}`,
+          `--link ${contract}:_timelock=TimelockControllerHarness`,
+          '--optimistic_loop',
+          '--optimistic_hashing',
+          '--rules',
+          ['liveness', 'effect', 'sideeffect'].map(rule => `${fn}_${rule}`).join(' '),
+        ],
+      })),
 );

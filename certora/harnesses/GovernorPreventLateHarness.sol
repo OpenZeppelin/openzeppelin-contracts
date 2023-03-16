@@ -43,6 +43,10 @@ contract GovernorPreventLateHarness is
     }
 
     // Harness from Governor
+    function hashProposal(address[] memory targets,uint256[] memory values,bytes[] memory calldatas,string memory description) public returns (uint256) {
+        return hashProposal(targets, values, calldatas, keccak256(bytes(description)));
+    }
+
     function getExecutor() public view returns (address) {
         return _executor();
     }

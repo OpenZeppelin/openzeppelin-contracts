@@ -1,5 +1,14 @@
 --- governance/extensions/GovernorTimelockControl.sol	2023-03-14 15:48:49.307543354 +0100
-+++ governance/extensions/GovernorTimelockControl.sol	2023-03-14 22:09:12.661420438 +0100
++++ governance/extensions/GovernorTimelockControl.sol	2023-03-16 16:01:13.857331689 +0100
+@@ -24,7 +24,7 @@
+  * _Available since v4.3._
+  */
+ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
+-    TimelockController private _timelock;
++    TimelockController public _timelock; // FV: public for link
+     mapping(uint256 => bytes32) private _timelockIds;
+ 
+     /**
 @@ -84,6 +84,11 @@
          return eta == 1 ? 0 : eta; // _DONE_TIMESTAMP (1) should be replaced with a 0 value
      }

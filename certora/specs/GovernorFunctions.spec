@@ -1,5 +1,4 @@
 import "helpers.spec"
-import "methods/IGovernor.spec"
 import "Governor.helpers.spec"
 
 /*
@@ -14,11 +13,10 @@ rule propose_liveness(uint256 pId, env e) {
     uint8 stateBefore = state(e, pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; string descr;
-    require validString(descr);
-    require targets.length   < 0xffff;
-    require values.length    < 0xffff;
-    require calldatas.length < 0xffff;
-    require pId == propose@withrevert(e, targets, values, calldatas, descr);
+    require pId == hashProposal(targets, values, calldatas, descr);
+    //require validString(descr);
+
+    propose@withrevert(e, targets, values, calldatas, descr);
 
     // liveness & double proposal
     assert !lastReverted <=> (
@@ -32,7 +30,9 @@ rule propose_effect(uint256 pId, env e) {
     require clockSanity(e);
 
     address[] targets; uint256[] values; bytes[] calldatas; string descr;
-    require pId == propose(e, targets, values, calldatas, descr);
+    require pId == hashProposal(targets, values, calldatas, descr);
+
+    propose(e, targets, values, calldatas, descr);
 
     // effect
     assert state(e, pId)         == PENDING();
@@ -53,7 +53,9 @@ rule propose_sideeffect(uint256 pId, env e) {
     address otherProposer    = proposalProposer(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; string descr;
-    require pId == propose(e, targets, values, calldatas, descr);
+    require pId == hashProposal(targets, values, calldatas, descr);
+
+    propose(e, targets, values, calldatas, descr);
 
     // no side-effect
     assert state(e, otherId)         != otherStateBefore => otherId == pId;
@@ -157,10 +159,9 @@ rule queue_liveness(uint256 pId, env e) {
     uint8 stateBefore = state(e, pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require targets.length   < 0xffff;
-    require values.length    < 0xffff;
-    require calldatas.length < 0xffff;
-    require pId == queue@withrevert(e, targets, values, calldatas, descrHash);
+    require pId == hashProposal(targets, values, calldatas, descrHash);
+
+    queue@withrevert(e, targets, values, calldatas, descrHash);
 
     // liveness
     assert !lastReverted <=> stateBefore == SUCCEEDED();
@@ -174,7 +175,9 @@ rule queue_effect(uint256 pId, env e) {
     bool  queuedBefore = isQueued(pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == queue(e, targets, values, calldatas, descrHash);
+    require pId == hashProposal(targets, values, calldatas, descrHash);
+
+    queue(e, targets, values, calldatas, descrHash);
 
     assert state(e, pId) == QUEUED();
     assert isQueued(pId);
@@ -191,7 +194,9 @@ rule queue_sideeffect(uint256 pId, env e) {
     bool  otherQueuedBefore = isQueued(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == queue(e, targets, values, calldatas, descrHash);
+    require pId == hashProposal(targets, values, calldatas, descrHash);
+
+    queue(e, targets, values, calldatas, descrHash);
 
     // no side-effect
     assert state(e, otherId) != otherStateBefore  => otherId == pId;
@@ -210,10 +215,9 @@ rule execute_liveness(uint256 pId, env e) {
     uint8 stateBefore = state(e, pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require targets.length   < 0xffff;
-    require values.length    < 0xffff;
-    require calldatas.length < 0xffff;
-    require pId == execute@withrevert(e, targets, values, calldatas, descrHash);
+    require pId == hashProposal(targets, values, calldatas, descrHash);
+
+    execute@withrevert(e, targets, values, calldatas, descrHash);
 
     // liveness: can't check full equivalence because of execution call reverts
     assert !lastReverted => (stateBefore == SUCCEEDED() || stateBefore == QUEUED());
@@ -224,7 +228,9 @@ rule execute_effect(uint256 pId, env e) {
     require clockSanity(e);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == execute(e, targets, values, calldatas, descrHash);
+    require pId == hashProposal(targets, values, calldatas, descrHash);
+
+    execute(e, targets, values, calldatas, descrHash);
 
     // effect
     assert state(e, pId) == EXECUTED();
@@ -239,7 +245,9 @@ rule execute_sideeffect(uint256 pId, env e) {
     uint8 otherStateBefore = state(e, otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == execute(e, targets, values, calldatas, descrHash);
+    require pId == hashProposal(targets, values, calldatas, descrHash);
+
+    execute(e, targets, values, calldatas, descrHash);
 
     // no side-effect
     assert state(e, otherId) != otherStateBefore => otherId == pId;
@@ -257,10 +265,9 @@ rule cancel_liveness(uint256 pId, env e) {
     uint8 stateBefore = state(e, pId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require targets.length   < 0xffff;
-    require values.length    < 0xffff;
-    require calldatas.length < 0xffff;
-    require pId == cancel@withrevert(e, targets, values, calldatas, descrHash);
+    require pId == hashProposal(targets, values, calldatas, descrHash);
+
+    cancel@withrevert(e, targets, values, calldatas, descrHash);
 
     // liveness
     assert !lastReverted <=> (
@@ -274,7 +281,9 @@ rule cancel_effect(uint256 pId, env e) {
     require clockSanity(e);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == cancel(e, targets, values, calldatas, descrHash);
+    require pId == hashProposal(targets, values, calldatas, descrHash);
+
+    cancel(e, targets, values, calldatas, descrHash);
 
     // effect
     assert state(e, pId) == CANCELED();
@@ -291,7 +300,9 @@ rule cancel_sideeffect(uint256 pId, env e) {
     bool  otherQueuedBefore = isQueued(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == cancel(e, targets, values, calldatas, descrHash);
+    require pId == hashProposal(targets, values, calldatas, descrHash);
+
+    cancel(e, targets, values, calldatas, descrHash);
 
     // no side-effect
     assert state(e, otherId) != otherStateBefore  => otherId == pId;

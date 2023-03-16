@@ -1,5 +1,4 @@
 import "helpers.spec"
-import "methods/IGovernor.spec"
 import "Governor.helpers.spec"
 
 /*

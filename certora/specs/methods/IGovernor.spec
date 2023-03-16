@@ -35,20 +35,21 @@ methods {
     updateTimelock(address)
 
     // harness
-    token_getPastTotalSupply(uint256)   returns uint256 envfree
-    token_getPastVotes(address,uint256) returns uint256 envfree
-    token_clock()                       returns uint48
-    token_CLOCK_MODE()                  returns string
-    getExecutor()                       returns address envfree
-    proposalProposer(uint256)           returns address envfree
-    quorumReached(uint256)              returns bool    envfree
-    voteSucceeded(uint256)              returns bool    envfree
-    isExecuted(uint256)                 returns bool    envfree
-    isCanceled(uint256)                 returns bool    envfree
-    isQueued(uint256)                   returns bool    envfree
-    governanceCallLength()              returns uint256 envfree
-    getAgainstVotes(uint256)            returns uint256 envfree
-    getForVotes(uint256)                returns uint256 envfree
-    getAbstainVotes(uint256)            returns uint256 envfree
-    quorumNumeratorLength()             returns uint256 envfree
+    token_getPastTotalSupply(uint256)                returns uint256 envfree
+    token_getPastVotes(address,uint256)              returns uint256 envfree
+    token_clock()                                    returns uint48
+    token_CLOCK_MODE()                               returns string
+    hashProposal(address[],uint256[],bytes[],string) returns uint256 envfree
+    getExecutor()                                    returns address envfree
+    proposalProposer(uint256)                        returns address envfree
+    quorumReached(uint256)                           returns bool    envfree
+    voteSucceeded(uint256)                           returns bool    envfree
+    isExecuted(uint256)                              returns bool    envfree
+    isCanceled(uint256)                              returns bool    envfree
+    isQueued(uint256)                                returns bool    envfree
+    governanceCallLength()                           returns uint256 envfree
+    getAgainstVotes(uint256)                         returns uint256 envfree
+    getForVotes(uint256)                             returns uint256 envfree
+    getAbstainVotes(uint256)                         returns uint256 envfree
+    quorumNumeratorLength()                          returns uint256 envfree
 }

@@ -1,5 +1,6 @@
 import "helpers.spec"
 import "methods/IGovernor.spec"
+import "methods/ITimelockController.spec"
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -108,22 +109,26 @@ function helperFunctionsWithRevert(env e, method f, uint256 pId) {
     if (f.selector == propose(address[],uint256[],bytes[],string).selector)
     {
         address[] targets; uint256[] values; bytes[] calldatas; string descr;
-        require pId == propose@withrevert(e, targets, values, calldatas, descr);
+        require pId == hashProposal(targets, values, calldatas, descr);
+        propose@withrevert(e, targets, values, calldatas, descr);
     }
     else if (f.selector == queue(address[],uint256[],bytes[],bytes32).selector)
     {
         address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-        require pId == queue@withrevert(e, targets, values, calldatas, descrHash);
+        require pId == hashProposal(targets, values, calldatas, descrHash);
+        queue@withrevert(e, targets, values, calldatas, descrHash);
     }
     else if (f.selector == execute(address[],uint256[],bytes[],bytes32).selector)
     {
         address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-        require pId == execute@withrevert(e, targets, values, calldatas, descrHash);
+        require pId == hashProposal(targets, values, calldatas, descrHash);
+        execute@withrevert(e, targets, values, calldatas, descrHash);
     }
     else if (f.selector == cancel(address[],uint256[],bytes[],bytes32).selector)
     {
         address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-        require pId == cancel@withrevert(e, targets, values, calldatas, descrHash);
+        require pId == hashProposal(targets, values, calldatas, descrHash);
+        cancel@withrevert(e, targets, values, calldatas, descrHash);
     }
     else if (f.selector == castVote(uint256,uint8).selector)
     {

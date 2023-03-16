@@ -1,4 +1,4 @@
-import "methods/IGovernor.spec"
+import "helpers.spec"
 import "Governor.helpers.spec"
 import "GovernorInvariants.spec"
 

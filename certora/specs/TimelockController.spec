@@ -1,29 +1,6 @@
 import "helpers.spec"
 import "methods/IAccessControl.spec"
-
-methods {
-    TIMELOCK_ADMIN_ROLE()       returns (bytes32) envfree
-    PROPOSER_ROLE()             returns (bytes32) envfree
-    EXECUTOR_ROLE()             returns (bytes32) envfree
-    CANCELLER_ROLE()            returns (bytes32) envfree
-    isOperation(bytes32)        returns (bool)    envfree
-    isOperationPending(bytes32) returns (bool)    envfree
-    isOperationReady(bytes32)   returns (bool)
-    isOperationDone(bytes32)    returns (bool)    envfree
-    getTimestamp(bytes32)       returns (uint256) envfree
-    getMinDelay()               returns (uint256) envfree
-
-    hashOperation(address, uint256, bytes, bytes32, bytes32)            returns(bytes32) envfree
-    hashOperationBatch(address[], uint256[], bytes[], bytes32, bytes32) returns(bytes32) envfree
-
-    schedule(address, uint256, bytes, bytes32, bytes32, uint256)
-    scheduleBatch(address[], uint256[], bytes[], bytes32, bytes32, uint256)
-    execute(address, uint256, bytes, bytes32, bytes32)
-    executeBatch(address[], uint256[], bytes[], bytes32, bytes32)
-    cancel(bytes32)
-
-    updateDelay(uint256)
-}
+import "methods/ITimelockController.spec"
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
