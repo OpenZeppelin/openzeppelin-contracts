@@ -35,6 +35,9 @@ interface IAccessManager is IAuthority {
     function setContractOpen(address target) external;
 
     function setContractClosed(address target) external;
+
+    // TODO: Ability to eject a contract. See AccessManaged.setAuthority
+    // function transferContractAuthority(address target) external;
 }
 
 /**

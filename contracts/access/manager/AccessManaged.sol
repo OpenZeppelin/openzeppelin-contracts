@@ -4,6 +4,11 @@ pragma solidity ^0.8.0;
 
 import "./IAuthority.sol";
 
+/**
+ * @dev This contract module makes available a {restricted} modifier. Functions decorated with this modifier will be
+ * permissioned according to an "authority": a contract like {AccessManager} that follows the {IAuthority} interface,
+ * implementing a policy that allows certain callers access to certain functions.
+ */
 contract AccessManaged {
     event AuthorityUpdated(IAuthority indexed oldAuthority, IAuthority indexed newAuthority);
 
