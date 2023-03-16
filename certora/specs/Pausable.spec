@@ -46,7 +46,7 @@ rule unpause(env e) {
     bool pausedAfter = paused();
     
     // liveness
-    assert success <=> pausedBefore, "works if and only if the contract was not paused before";
+    assert success <=> pausedBefore, "works if and only if the contract was paused before";
 
     // effect
     assert success => !pausedAfter, "contract must be unpaused after a successful call";
@@ -56,35 +56,19 @@ rule unpause(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: only _pause can pause                                                                                        │
+│ Rules: only _pause and _unpause can change paused status                                                                                        │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule noPause(env e) {
+rule noPauseChange(env e) {
     method f;
     calldataarg args;
-
-    require !paused();
 
     bool pausedBefore = paused();
     f(e, args);
     bool pausedAfter = paused();
 
-    assert pausedAfter => f.selector == pause().selector, "contract must only be paused by _pause()";
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: only _unpause can unpause                                                                                    │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule noUnpause(env e) {
-    method f;
-    calldataarg args;
-
-    require paused();
-
-    f(e, args);
-    bool pausedAfter = paused();
-
-    assert !pausedAfter => f.selector == unpause().selector, "contract must only be unpaused by _unpause()";
+    assert pausedBefore != pausedAfter => (
+        !pausedAfter && f.selector == unpause().selector ||
+        (pausedAfter && f.selector == pause().selector)
+    ), "contract's paused status can only be changed by _pause() or _unpause()";
 }
