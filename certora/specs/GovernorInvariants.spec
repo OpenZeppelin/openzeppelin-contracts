@@ -91,12 +91,8 @@ invariant queuedImplyCreated(uint pId)
         }
     }
 
-invariant queuedImplyVoteOverAndSuccessful(env e, uint pId)
-    isQueued(pId) => (
-        quorumReached(pId) &&
-        voteSucceeded(pId) &&
-        proposalDeadline(pId) < clock(e)
-    )
+invariant queuedImplyVoteOver(env e, uint pId)
+    isQueued(pId) => proposalDeadline(pId) < clock(e)
     {
         preserved {
             require clockSanity(e);

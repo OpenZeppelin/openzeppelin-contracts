@@ -1,7 +1,7 @@
 import "helpers.spec"
 import "Governor.helpers.spec"
 
-use invariant queuedImplySuccess
+use invariant queuedImplyVoteOver
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -233,7 +233,7 @@ rule execute_sideeffect(uint256 pId, env e, uint256 otherId) {
 rule cancel_liveness(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
-    requireInvariant queuedImplySuccess(pId);
+    requireInvariant queuedImplyVoteOver(pId);
 
     uint8 stateBefore = state(e, pId);
 
