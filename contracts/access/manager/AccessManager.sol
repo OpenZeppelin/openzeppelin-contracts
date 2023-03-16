@@ -56,13 +56,13 @@ interface IAccessManager is IAuthority {
  *
  * All contracts in a group share the same permissioning scheme. A permissioning scheme consists of a mapping between
  * functions and allowed teams. Each function can be allowed to multiple teams, meaning that if a user is in at least
- * one of the allowed teams they can call that funcion.
+ * one of the allowed teams they can call that function.
  *
  * Note that a function in a target contract may become permissioned only when: 1) said contract is {AccessManaged} and
  * is connected to this contract as its manager, and 2) said function is decorated with the `restricted` modifier.
  *
  * There is a special team defined by default named "all" of which all accounts are considered members, and two special
- * contract grups: 1) the "open" team, where all functions are allowed to the "all" team, and 2) the "closed" team,
+ * contract groups: 1) the "open" team, where all functions are allowed to the "all" team, and 2) the "closed" team,
  * where no function is allowed to any team.
  *
  * Permissioning schemes and team and contract group assignments can be configured by the default admin. The contract
@@ -103,7 +103,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Creates a new team with a team number that can be chosen arbitarily but must be unused, and gives it a
+     * @dev Creates a new team with a team number that can be chosen arbitrarily but must be unused, and gives it a
      * human-readable name. The caller must be the default admin.
      *
      * Emits {TeamUpdated}.
