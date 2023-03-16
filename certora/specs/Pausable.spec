@@ -4,7 +4,10 @@ import "methods/IPausable.spec"
 methods {
     pause()
     unpause()
+    onlyWhenPaused()
+    onlyWhenNotPaused()
 }
+
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
