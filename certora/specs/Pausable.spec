@@ -56,7 +56,47 @@ rule unpause(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: only _pause and _unpause can change paused status                                                                                        │
+│ Function correctness: whenPaused modifier can only be called if the contract is paused                              │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule whenPaused(env e) {
+    require nonpayable(e);
+
+    onlyWhenPaused@withrevert(e);
+    bool success = !lastReverted;
+    
+    // liveness
+    assert success <=> paused(), "works if and only if the contract is paused";
+    assert !success <=> !paused(), "fails if and only if the contract is not paused";
+
+    // effect
+
+    // no side effect
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Function correctness: whenNotPaused modifier can only be called if the contract is not paused                       │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule whenNotPaused(env e) {
+    require nonpayable(e);
+    
+    onlyWhenNotPaused@withrevert(e);
+    bool success = !lastReverted;
+    
+    // liveness
+    assert success <=> !paused(), "works if and only if the contract is not paused";
+    assert !success <=> paused(), "fails if and only if the contract is paused";
+
+    // effect
+
+    // no side effect
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rules: only _pause and _unpause can change paused status                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noPauseChange(env e) {

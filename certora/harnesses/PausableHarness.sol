@@ -12,4 +12,8 @@ contract PausableHarness is Pausable {
     function unpause() external {
         _unpause();
     }
+
+    function onlyWhenPaused() external whenPaused {}
+
+    function onlyWhenNotPaused() external whenNotPaused {}
 }
