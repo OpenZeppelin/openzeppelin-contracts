@@ -1,7 +1,7 @@
 import "helpers.spec"
-import "methods/IPausable.spec"
 
 methods {
+    paused() returns (bool) envfree
     pause()
     unpause()
     onlyWhenPaused()
@@ -94,7 +94,6 @@ rule noPauseChange(env e) {
 
     assert pausedBefore != pausedAfter => (
         (!pausedAfter && f.selector == unpause().selector) ||
-
         (pausedAfter && f.selector == pause().selector)
     ), "contract's paused status can only be changed by _pause() or _unpause()";
 }
