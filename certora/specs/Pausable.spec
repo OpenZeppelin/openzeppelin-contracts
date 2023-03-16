@@ -75,16 +75,9 @@ rule whenNotPaused(env e) {
     require nonpayable(e);
     
     onlyWhenNotPaused@withrevert(e);
-    bool success = !lastReverted;
-    
-    // liveness
-    assert success <=> !paused(), "works if and only if the contract is not paused";
-    assert !success <=> paused(), "fails if and only if the contract is paused";
-
-    // effect
-
-    // no side effect
+    assert !lastReverted <=> !paused(), "works if and only if the contract is not paused";
 }
+
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
