@@ -26,7 +26,7 @@ interface IAccessManager is IAuthority {
 
     function getFunctionAllowedTeams(bytes32 group, bytes4 selector) external view returns (bytes32 teams);
 
-    function setFunctionAllowedTeam(bytes32 group, bytes4 selector, uint8 team, bool allowed) external;
+    function setFunctionAllowedTeam(bytes32 group, bytes4[] calldata selectors, uint8 team, bool allowed) external;
 
     function getContractGroup(address target) external view returns (bytes32 group);
 
@@ -180,13 +180,16 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      */
     function setFunctionAllowedTeam(
         bytes32 group,
-        bytes4 selector,
+        bytes4[] calldata selectors,
         uint8 team,
         bool allowed
     ) public virtual onlyDefaultAdmin {
         require(group != 0);
-        _allowedTeams[group][selector] = _setTeam(_allowedTeams[group][selector], team, allowed);
-        emit TeamAllowed(group, selector, team, allowed);
+        for (uint256 i = 0; i < selectors.length; i++) {
+            bytes4 selector = selectors[i];
+            _allowedTeams[group][selector] = _setTeam(_allowedTeams[group][selector], team, allowed);
+            emit TeamAllowed(group, selector, team, allowed);
+        }
     }
 
     /**
