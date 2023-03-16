@@ -2,14 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "./AccessControl.sol";
-import "./AccessControlDefaultAdminRules.sol";
-import "../utils/Create2.sol";
-import "../utils/Address.sol";
-
-interface IAuthority {
-    function canCall(address caller, address target, bytes4 selector) external view returns (bool allowed);
-}
+import "../AccessControl.sol";
+import "../AccessControlDefaultAdminRules.sol";
+import "../../utils/Create2.sol";
+import "./IAuthority.sol";
 
 /// AccessManager is a central contract that stores the permissions of a system. It is an AccessControl contract, i.e.
 /// it has roles and all the standard functions like `grantRole` and `revokeRole`, but it defines a particular set of
@@ -204,57 +200,6 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
             return bitmap | mask;
         } else {
             return bitmap & ~mask;
-        }
-    }
-}
-
-contract AccessManaged {
-    event AuthorityUpdated(IAuthority indexed oldAuthority, IAuthority indexed newAuthority);
-
-    IAuthority private _authority;
-
-    modifier restricted {
-        require(_authority.canCall(msg.sender, address(this), msg.sig));
-        _;
-    }
-
-    constructor(IAuthority initialAuthority) {
-        _authority = initialAuthority;
-    }
-
-    function authority() public virtual view returns (IAuthority) {
-        return _authority;
-    }
-
-    function setAuthority(IAuthority newAuthority) public virtual {
-        require(msg.sender == address(_authority));
-        IAuthority oldAuthority = _authority;
-        _authority = newAuthority;
-        emit AuthorityUpdated(oldAuthority, newAuthority);
-    }
-}
-
-contract AccessManagerAdapter {
-    using Address for address;
-
-    AccessManager private _manager;
-
-    bytes32 private _DEFAULT_ADMIN_ROLE = 0;
-
-    function relay(address target, bytes memory data) external payable {
-        bytes4 sig = bytes4(data);
-        require(_manager.canCall(msg.sender, target, sig) || _manager.hasRole(_DEFAULT_ADMIN_ROLE, msg.sender));
-        (bool ok, bytes memory result) = target.call{value: msg.value}(data);
-        assembly {
-            let result_pointer := add(32, result)
-            let result_size := mload(result)
-            switch ok
-            case true {
-                return(result_pointer, result_size)
-            }
-            default {
-                revert(result_pointer, result_size)
-            }
         }
     }
 }
