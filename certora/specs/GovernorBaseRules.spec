@@ -142,7 +142,9 @@ invariant quorumRatioLessThanOne(uint256 blockNumber)
     quorumNumerator(blockNumber) <= quorumDenominator()
     filtered { f -> !skip(f) }
     {
-        require quorumNumeratorLength() < max_uint256;
+        preserved {
+            require quorumNumeratorLength() < max_uint256;
+        }
     }
 
 /*

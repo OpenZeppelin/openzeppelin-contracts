@@ -149,7 +149,7 @@ rule onlyVoteCanChangeQuorumReached(uint256 pId, env e, method f, calldataarg ar
     f(e, args);
 
     // Needed because the prover doesn't understand the checkpoint properties of the voting token.
-    require clock(e) > snapshot => token_getPastTotalSupply(snapshot) == cache;
+    require clock(e) > snapshot => token_getPastTotalSupply(snapshot) == totalSupply;
 
     assert quorumReached(pId) != quorumReachedBefore => (
         !quorumReachedBefore &&
