@@ -7,36 +7,53 @@ import "Governor.helpers.spec"
 │ Rule: propose effect and liveness. Includes "no double proposition"                                                 │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule propose(uint256 pId, env e) {
+rule propose_liveness(uint256 pId, env e) {
+    require nonpayable(e);
+    require clockSanity(e);
+
+    uint8 stateBefore = state(e, pId);
+
+    address[] targets; uint256[] values; bytes[] calldatas; string descr;
+    require validString(descr);
+    require targets.length   < 0xffff;
+    require values.length    < 0xffff;
+    require calldatas.length < 0xffff;
+    require pId == propose@withrevert(e, targets, values, calldatas, descr);
+
+    // liveness & double proposal
+    assert !lastReverted <=> (
+        stateBefore == UNSET() &&
+        validProposal(targets, values, calldatas)
+    );
+}
+
+rule propose_effect(uint256 pId, env e) {
+    require nonpayable(e);
+    require clockSanity(e);
+
+    address[] targets; uint256[] values; bytes[] calldatas; string descr;
+    require pId == propose(e, targets, values, calldatas, descr);
+
+    // effect
+    assert state(e, pId)         == PENDING();
+    assert proposalProposer(pId) == e.msg.sender;
+    assert proposalSnapshot(pId) == clock(e) + votingDelay();
+    assert proposalDeadline(pId) == clock(e) + votingDelay() + votingPeriod();
+}
+
+rule propose_sideeffect(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
 
     uint256 otherId;
 
-    uint8   stateBefore      = state(e, pId);
     uint8   otherStateBefore = state(e, otherId);
     uint256 otherVoteStart   = proposalSnapshot(otherId);
     uint256 otherVoteEnd     = proposalDeadline(otherId);
     address otherProposer    = proposalProposer(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; string descr;
-    require validString(descr);
-    require pId == propose@withrevert(e, targets, values, calldatas, descr);
-    bool success = !lastReverted;
-
-    // liveness & double proposal
-    assert success <=> (
-        stateBefore == UNSET() &&
-        validProposal(targets, values, calldatas)
-    );
-
-    // effect
-    assert success => (
-        state(e, pId)         == PENDING()    &&
-        proposalProposer(pId) == e.msg.sender &&
-        proposalSnapshot(pId) == clock(e) + votingDelay() &&
-        proposalDeadline(pId) == clock(e) + votingDelay() + votingPeriod()
-    );
+    require pId == propose(e, targets, values, calldatas, descr);
 
     // no side-effect
     assert state(e, otherId)         != otherStateBefore => otherId == pId;
@@ -50,7 +67,59 @@ rule propose(uint256 pId, env e) {
 │ Rule: votes effect and liveness. Includes "A user cannot vote twice"                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule castVote(uint256 pId, env e, method f)
+rule castVote_liveness(uint256 pId, env e, method f)
+    filtered { f -> voting(f) }
+{
+    require nonpayable(e);
+    require clockSanity(e);
+
+    uint8   support;
+    address voter;
+
+    uint8   stateBefore    = state(e, pId);
+    bool    hasVotedBefore = hasVoted(pId, voter);
+    uint256 voterWeight    = token_getPastVotes(voter, proposalSnapshot(pId));
+
+    // voting weight overflow check
+    require getAgainstVotes(pId) + voterWeight <= max_uint256;
+    require getForVotes(pId)     + voterWeight <= max_uint256;
+    require getAbstainVotes(pId) + voterWeight <= max_uint256;
+
+    helperVoteWithRevert(e, f, pId, voter, support);
+
+    assert !lastReverted <=> (
+        stateBefore == ACTIVE() &&
+        !hasVotedBefore &&
+        (support == 0 || support == 1 || support == 2)
+    );
+}
+
+rule castVote_effect(uint256 pId, env e, method f)
+    filtered { f -> voting(f) }
+{
+    require nonpayable(e);
+    require clockSanity(e);
+
+    uint8   support;
+    address voter;
+
+    uint256 againstVotesBefore = getAgainstVotes(pId);
+    uint256 forVotesBefore     = getForVotes(pId);
+    uint256 abstainVotesBefore = getAbstainVotes(pId);
+    uint256 voterWeight        = token_getPastVotes(voter, proposalSnapshot(pId));
+
+    uint256 weight = helperVoteWithRevert(e, f, pId, voter, support);
+    require !lastReverted;
+
+    assert state(e, pId)        == ACTIVE();
+    assert voterWeight          == weight;
+    assert getAgainstVotes(pId) == againstVotesBefore + (support == 0 ? weight : 0);
+    assert getForVotes(pId)     == forVotesBefore     + (support == 1 ? weight : 0);
+    assert getAbstainVotes(pId) == abstainVotesBefore + (support == 2 ? weight : 0);
+    assert hasVoted(pId, voter);
+}
+
+rule castVote_sideeffect(uint256 pId, env e, method f)
     filtered { f -> voting(f) }
 {
     require nonpayable(e);
@@ -61,39 +130,13 @@ rule castVote(uint256 pId, env e, method f)
     address otherVoter;
     uint256 otherId;
 
-    uint8   stateBefore             = state(e, pId);
-    bool    hasVotedBefore          = hasVoted(pId, voter);
     bool    otherVotedBefore        = hasVoted(otherId, otherVoter);
-    uint256 againstVotesBefore      = getAgainstVotes(pId);
-    uint256 forVotesBefore          = getForVotes(pId);
-    uint256 abstainVotesBefore      = getAbstainVotes(pId);
     uint256 otherAgainstVotesBefore = getAgainstVotes(otherId);
     uint256 otherForVotesBefore     = getForVotes(otherId);
     uint256 otherAbstainVotesBefore = getAbstainVotes(otherId);
 
-    // voting weight overflow check
-    uint256 voterWeight = token_getPastVotes(voter, proposalSnapshot(pId));
-    require againstVotesBefore + voterWeight <= max_uint256;
-    require forVotesBefore     + voterWeight <= max_uint256;
-    require abstainVotesBefore + voterWeight <= max_uint256;
-
-    uint256 weight = helperVoteWithRevert(e, f, pId, voter, support);
-    bool success = !lastReverted;
-
-    assert success <=> (
-        stateBefore == ACTIVE() &&
-        !hasVotedBefore &&
-        (support == 0 || support == 1 || support == 2)
-    );
-
-    assert success => (
-        state(e, pId)        == ACTIVE() &&
-        voterWeight          == weight &&
-        getAgainstVotes(pId) == againstVotesBefore + (support == 0 ? weight : 0) &&
-        getForVotes(pId)     == forVotesBefore     + (support == 1 ? weight : 0) &&
-        getAbstainVotes(pId) == abstainVotesBefore + (support == 2 ? weight : 0) &&
-        hasVoted(pId, voter)
-    );
+    helperVoteWithRevert(e, f, pId, voter, support);
+    require !lastReverted;
 
     // no side-effect
     assert hasVoted(otherId, otherVoter) != otherVotedBefore        => (otherId == pId && otherVoter == voter);
@@ -107,30 +150,48 @@ rule castVote(uint256 pId, env e, method f)
 │ Rule: queue effect and liveness.                                                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule queue(uint256 pId, env e) {
+rule queue_liveness(uint256 pId, env e) {
+    require nonpayable(e);
+    require clockSanity(e);
+
+    uint8 stateBefore = state(e, pId);
+
+    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+    require targets.length   < 0xffff;
+    require values.length    < 0xffff;
+    require calldatas.length < 0xffff;
+    require pId == queue@withrevert(e, targets, values, calldatas, descrHash);
+
+    // liveness
+    assert !lastReverted <=> stateBefore == SUCCEEDED();
+}
+
+rule queue_effect(uint256 pId, env e) {
+    require nonpayable(e);
+    require clockSanity(e);
+
+    uint8 stateBefore  = state(e, pId);
+    bool  queuedBefore = isQueued(pId);
+
+    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+    require pId == queue(e, targets, values, calldatas, descrHash);
+
+    assert state(e, pId) == QUEUED();
+    assert isQueued(pId);
+    assert !queuedBefore;
+}
+
+rule queue_sideeffect(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
 
     uint256 otherId;
 
-    uint8 stateBefore       = state(e, pId);
     uint8 otherStateBefore  = state(e, otherId);
-    bool  queuedBefore      = isQueued(pId);
     bool  otherQueuedBefore = isQueued(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == queue@withrevert(e, targets, values, calldatas, descrHash);
-    bool success = !lastReverted;
-
-    // liveness
-    assert success <=> stateBefore == SUCCEEDED();
-
-    // effect
-    assert success => (
-        state(e, pId) == QUEUED() &&
-        !queuedBefore &&
-        isQueued(pId)
-    );
+    require pId == queue(e, targets, values, calldatas, descrHash);
 
     // no side-effect
     assert state(e, otherId) != otherStateBefore  => otherId == pId;
@@ -142,26 +203,43 @@ rule queue(uint256 pId, env e) {
 │ Rule: execute effect and liveness.                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule execute(uint256 pId, env e) {
+rule execute_liveness(uint256 pId, env e) {
+    require nonpayable(e);
+    require clockSanity(e);
+
+    uint8 stateBefore = state(e, pId);
+
+    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+    require targets.length   < 0xffff;
+    require values.length    < 0xffff;
+    require calldatas.length < 0xffff;
+    require pId == execute@withrevert(e, targets, values, calldatas, descrHash);
+
+    // liveness: can't check full equivalence because of execution call reverts
+    assert !lastReverted => (stateBefore == SUCCEEDED() || stateBefore == QUEUED());
+}
+
+rule execute_effect(uint256 pId, env e) {
+    require nonpayable(e);
+    require clockSanity(e);
+
+    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+    require pId == execute(e, targets, values, calldatas, descrHash);
+
+    // effect
+    assert state(e, pId) == EXECUTED();
+}
+
+rule execute_sideeffect(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
 
     uint256 otherId;
 
-    uint8 stateBefore      = state(e, pId);
     uint8 otherStateBefore = state(e, otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == execute@withrevert(e, targets, values, calldatas, descrHash);
-    bool success = !lastReverted;
-
-    // liveness: can't check full equivalence because of execution call reverts
-    assert success => (stateBefore == SUCCEEDED() || stateBefore == QUEUED());
-
-    // effect
-    assert success => (
-        state(e, pId) == EXECUTED()
-    );
+    require pId == execute(e, targets, values, calldatas, descrHash);
 
     // no side-effect
     assert state(e, otherId) != otherStateBefore => otherId == pId;
@@ -172,31 +250,48 @@ rule execute(uint256 pId, env e) {
 │ Rule: cancel (public) effect and liveness.                                                                          │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule cancel(uint256 pId, env e) {
+rule cancel_liveness(uint256 pId, env e) {
+    require nonpayable(e);
+    require clockSanity(e);
+
+    uint8 stateBefore = state(e, pId);
+
+    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+    require targets.length   < 0xffff;
+    require values.length    < 0xffff;
+    require calldatas.length < 0xffff;
+    require pId == cancel@withrevert(e, targets, values, calldatas, descrHash);
+
+    // liveness
+    assert !lastReverted <=> (
+        stateBefore == PENDING() &&
+        e.msg.sender == proposalProposer(pId)
+    );
+}
+
+rule cancel_effect(uint256 pId, env e) {
+    require nonpayable(e);
+    require clockSanity(e);
+
+    address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
+    require pId == cancel(e, targets, values, calldatas, descrHash);
+
+    // effect
+    assert state(e, pId) == CANCELED();
+    assert !isQueued(pId); // cancel resets timelockId
+}
+
+rule cancel_sideeffect(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
 
     uint256 otherId;
 
-    uint8 stateBefore       = state(e, pId);
     uint8 otherStateBefore  = state(e, otherId);
     bool  otherQueuedBefore = isQueued(otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
-    require pId == cancel@withrevert(e, targets, values, calldatas, descrHash);
-    bool success = !lastReverted;
-
-    // liveness
-    assert success <=> (
-        stateBefore == PENDING() &&
-        e.msg.sender == proposalProposer(pId)
-    );
-
-    // effect
-    assert success => (
-        state(e, pId) == CANCELED() &&
-        !isQueued(pId) // cancel resets timelockId
-    );
+    require pId == cancel(e, targets, values, calldatas, descrHash);
 
     // no side-effect
     assert state(e, otherId) != otherStateBefore  => otherId == pId;
