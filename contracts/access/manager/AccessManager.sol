@@ -267,7 +267,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * This role id starts with the ASCII characters `team:`, followed by zeroes, and ends with the single byte
      * corresponding to the team number.
      */
-    function _encodeTeamRole(uint8 team) internal virtual returns (bytes32) {
+    function _encodeTeamRole(uint8 team) internal virtual view returns (bytes32) {
         return bytes32("team:") | bytes32(uint256(team));
     }
 
