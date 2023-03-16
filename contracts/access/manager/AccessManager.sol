@@ -13,16 +13,27 @@ interface IAccessManager is IAuthority {
     event ContractGroupUpdated(address indexed target, bytes32 indexed group);
 
     function createTeam(uint8 team, string calldata name) external;
+
     function updateTeamName(uint8 team, string calldata name) external;
+
     function getUserTeams(address user) external view returns (bytes32 teams);
+
     function grantTeam(address user, uint8 team) external;
+
     function revokeTeam(address user, uint8 team) external;
+
     function renounceTeam(address user, uint8 team) external;
+
     function getFunctionAllowedTeams(bytes32 group, bytes4 selector) external view returns (bytes32 teams);
+
     function setFunctionAllowedTeam(bytes32 group, bytes4 selector, uint8 team, bool allowed) external;
+
     function getContractGroup(address target) external view returns (bytes32 group);
+
     function setContractGroup(address target, bytes32 group) external;
+
     function setContractOpen(address target) external;
+
     function setContractClosed(address target) external;
 }
 
@@ -30,16 +41,16 @@ interface IAccessManager is IAuthority {
  * @dev AccessManager is a central contract that stores the permissions of a system. It is an AccessControl contract,
  * i.e. it has roles and all the standard functions like `grantRole` and `revokeRole`, but it defines a particular set
  * of roles, with a particular structure.
- * 
+ *
  * Users are grouped in "teams". Teams must be created before users can be assigned into them, up to a maximum of 255
  * teams. A user can be assigned to multiple teams. Each team defines an AccessControl role, identified by a role id
  * that starts with the ASCII characters `team:`, followed by zeroes, and ending with the single byte corresponding to
  * the team number.
- * 
+ *
  * Contracts in the system are grouped as well. These are simply called "contract groups". There can be an arbitrary
  * number of groups. Each contract can only be in one group at a time. In the simplest setup, each contract is assigned
  * to its own separate group, but groups can also be shared among similar contracts.
- * 
+ *
  * All contracts in a group share the same permissioning scheme. A permissioning scheme consists of a mapping between
  * functions and allowed teams. Each function can be allowed to multiple teams, meaning that if a user is in at least
  * one of the allowed teams they can call that funcion.
@@ -58,9 +69,9 @@ interface IAccessManager is IAuthority {
  */
 contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     bytes32 _createdTeams;
-    mapping (address => bytes32) private _userTeams;
-    mapping (bytes32 => mapping (bytes4 => bytes32)) private _allowedTeams;
-    mapping (address => bytes32) private _contractGroup;
+    mapping(address => bytes32) private _userTeams;
+    mapping(bytes32 => mapping(bytes4 => bytes32)) private _allowedTeams;
+    mapping(address => bytes32) private _contractGroup;
 
     uint8 private constant _TEAM_ALL = 255;
     bytes32 private constant _GROUP_UNSET = 0;
@@ -73,9 +84,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     constructor(
         uint48 initialDefaultAdminDelay,
         address initialDefaultAdmin
-    )
-        AccessControlDefaultAdminRules(initialDefaultAdminDelay, initialDefaultAdmin)
-    {
+    ) AccessControlDefaultAdminRules(initialDefaultAdminDelay, initialDefaultAdmin) {
         createTeam(_TEAM_ALL, "all");
     }
 
@@ -166,7 +175,12 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Changes whether a team is allowed to call a function selector on contracts belonging to a group, according
      * to the `allowed` argument. The caller must be the default admin.
      */
-    function setFunctionAllowedTeam(bytes32 group, bytes4 selector, uint8 team, bool allowed) public virtual onlyDefaultAdmin {
+    function setFunctionAllowedTeam(
+        bytes32 group,
+        bytes4 selector,
+        uint8 team,
+        bool allowed
+    ) public virtual onlyDefaultAdmin {
         require(group != 0);
         _allowedTeams[group][selector] = _setTeam(_allowedTeams[group][selector], team, allowed);
         emit TeamAllowed(group, selector, team, allowed);

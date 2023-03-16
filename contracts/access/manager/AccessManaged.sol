@@ -9,7 +9,7 @@ contract AccessManaged {
 
     IAuthority private _authority;
 
-    modifier restricted {
+    modifier restricted() {
         require(_authority.canCall(msg.sender, address(this), msg.sig));
         _;
     }
@@ -18,7 +18,7 @@ contract AccessManaged {
         _authority = initialAuthority;
     }
 
-    function authority() public virtual view returns (IAuthority) {
+    function authority() public view virtual returns (IAuthority) {
         return _authority;
     }
 
