@@ -8,7 +8,6 @@ methods {
     onlyWhenNotPaused()
 }
 
-
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Function correctness: _pause pauses the contract                                                                    │
@@ -65,7 +64,6 @@ rule whenPaused(env e) {
     assert !lastReverted <=> paused(), "works if and only if the contract is paused";
 }
 
-
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Function correctness: whenNotPaused modifier can only be called if the contract is not paused                       │
@@ -77,7 +75,6 @@ rule whenNotPaused(env e) {
     onlyWhenNotPaused@withrevert(e);
     assert !lastReverted <=> !paused(), "works if and only if the contract is not paused";
 }
-
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
