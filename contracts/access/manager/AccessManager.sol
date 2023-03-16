@@ -80,7 +80,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Returns true if the caller can call on the target the function identified by a function selector.
+     * @dev Returns true if the caller can invoke on a target the function identified by a function selector.
      * Entrypoint for {AccessManaged} contracts.
      */
     function canCall(address caller, address target, bytes4 selector) public view returns (bool) {
