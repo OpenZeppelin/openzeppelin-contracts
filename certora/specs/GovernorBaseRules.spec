@@ -138,8 +138,8 @@ rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args)
 │ Invariant: The quorum numerator is always less than or equal to the quorum denominator                              │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant quorumRatioLessThanOne(uint256 blockNumber)
-    quorumNumerator(blockNumber) <= quorumDenominator()
+invariant quorumRatioLessThanOne()
+    quorumNumerator() <= quorumDenominator()
     filtered { f -> !skip(f) }
     {
         preserved {

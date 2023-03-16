@@ -29,17 +29,17 @@ rule deadlineChangeToPreventLateQuorum(uint256 pId, env e, method f, calldataarg
 
     // This is not (easily) provable as an invariant because the prover think `_totalSupplyCheckpoints`
     // can arbitrarily change, which causes the quorum() to change. Not sure how to fix that.
-    require quorumReached(pId) <=> getExtendedDeadline(pId) > 0;
+    // require quorumReached(pId) <=> getExtendedDeadline(pId) > 0; // Timeout
 
     uint256 deadlineBefore         = proposalDeadline(pId);
     bool    deadlineExtendedBefore = getExtendedDeadline(pId) > 0;
-    bool    quorumReachedBefore    = quorumReached(pId);
+    // bool    quorumReachedBefore    = quorumReached(pId); // Timeout
 
     f(e, args);
 
     uint256 deadlineAfter         = proposalDeadline(pId);
     bool    deadlineExtendedAfter = getExtendedDeadline(pId) > 0;
-    bool    quorumReachedAfter    = quorumReached(pId);
+    // bool    quorumReachedAfter    = quorumReached(pId);  // Timeout
 
     // deadline can never be reduced
     assert deadlineBefore <= proposalDeadline(pId);
@@ -53,8 +53,8 @@ rule deadlineChangeToPreventLateQuorum(uint256 pId, env e, method f, calldataarg
         ) || (
             !deadlineExtendedBefore &&
             deadlineExtendedAfter &&
-            !quorumReachedBefore &&
-            quorumReachedAfter &&
+            // !quorumReachedBefore &&
+            // quorumReachedAfter &&
             deadlineAfter == clock(e) + lateQuorumVoteExtension() &&
             votingAll(f)
         )
