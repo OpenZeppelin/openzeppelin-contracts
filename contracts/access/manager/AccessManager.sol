@@ -61,9 +61,9 @@ interface IAccessManager is IAuthority {
  * Note that a function in a target contract may become permissioned only when: 1) said contract is {AccessManaged} and
  * is connected to this contract as its manager, and 2) said function is decorated with the `restricted` modifier.
  *
- * There is a special team defined by default named "all" of which all accounts are considered members, and two special
- * contract groups: 1) the "open" group, where all functions are allowed to the "all" team, and 2) the "closed" group,
- * where no function is allowed to any team.
+ * There is a special team defined by default named "public" of which all accounts are automatically members, and two
+ * special contract groups: 1) the "open" group, where all functions are allowed to the "public" team, and 2) the
+ * "closed" group, where no function is allowed to any team.
  *
  * Permissioning schemes and team and contract group assignments can be configured by the default admin. The contract
  * includes {AccessControlDefaultAdminRules} by default to enforce security rules on this account. Additionally, it is
@@ -76,7 +76,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     mapping(bytes32 => mapping(bytes4 => bytes32)) private _allowedTeams;
     mapping(address => bytes32) private _contractGroup;
 
-    uint8 private constant _TEAM_ALL = 255;
+    uint8 private constant _TEAM_PUBLIC = 255;
     bytes32 private constant _GROUP_UNSET = 0;
     bytes32 private constant _GROUP_OPEN = "group:open";
     bytes32 private constant _GROUP_CLOSED = "group:closed";
@@ -88,7 +88,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         uint48 initialDefaultAdminDelay,
         address initialDefaultAdmin
     ) AccessControlDefaultAdminRules(initialDefaultAdminDelay, initialDefaultAdmin) {
-        createTeam(_TEAM_ALL, "all");
+        createTeam(_TEAM_PUBLIC, "public");
     }
 
     /**
@@ -118,7 +118,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Updates an existing team's name. The caller must be the default admin.
      */
     function updateTeamName(uint8 team, string calldata name) public virtual onlyDefaultAdmin {
-        require(team != _TEAM_ALL && _teamExists(team));
+        require(team != _TEAM_PUBLIC && _teamExists(team));
         emit TeamUpdated(team, name);
     }
 
@@ -127,7 +127,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * counting from least significant bit.
      */
     function getUserTeams(address user) public view virtual returns (bytes32) {
-        return _userTeams[user] | _teamMask(_TEAM_ALL);
+        return _userTeams[user] | _teamMask(_TEAM_PUBLIC);
     }
 
     /**
@@ -166,7 +166,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      */
     function getFunctionAllowedTeams(bytes32 group, bytes4 selector) public view virtual returns (bytes32) {
         if (group == _GROUP_OPEN) {
-            return _teamMask(_TEAM_ALL);
+            return _teamMask(_TEAM_PUBLIC);
         } else if (group == _GROUP_CLOSED) {
             return 0;
         } else {
@@ -256,7 +256,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         (bool isTeam, uint8 team) = _decodeTeamRole(role);
         if (isTeam) {
             require(_teamExists(team));
-            require(team != _TEAM_ALL);
+            require(team != _TEAM_PUBLIC);
             _userTeams[user] = _setTeam(_userTeams[user], team, false);
         }
     }
