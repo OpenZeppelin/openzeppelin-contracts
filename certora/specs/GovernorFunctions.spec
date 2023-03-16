@@ -1,6 +1,8 @@
 import "helpers.spec"
 import "Governor.helpers.spec"
 
+use invariant queuedImplySuccess
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: propose effect and liveness. Includes "no double proposition"                                                 │
@@ -26,9 +28,6 @@ rule propose_liveness(uint256 pId, env e) {
 }
 
 rule propose_effect(uint256 pId, env e) {
-    require nonpayable(e);
-    require clockSanity(e);
-
     address[] targets; uint256[] values; bytes[] calldatas; string descr;
     require pId == hashProposal(targets, values, calldatas, descr);
 
@@ -41,12 +40,7 @@ rule propose_effect(uint256 pId, env e) {
     assert proposalDeadline(pId) == clock(e) + votingDelay() + votingPeriod();
 }
 
-rule propose_sideeffect(uint256 pId, env e) {
-    require nonpayable(e);
-    require clockSanity(e);
-
-    uint256 otherId;
-
+rule propose_sideeffect(uint256 pId, env e, uint256 otherId) {
     uint8   otherStateBefore = state(e, otherId);
     uint256 otherVoteStart   = proposalSnapshot(otherId);
     uint256 otherVoteEnd     = proposalDeadline(otherId);
@@ -99,9 +93,6 @@ rule castVote_liveness(uint256 pId, env e, method f)
 rule castVote_effect(uint256 pId, env e, method f)
     filtered { f -> voting(f) }
 {
-    require nonpayable(e);
-    require clockSanity(e);
-
     uint8   support;
     address voter;
 
@@ -124,9 +115,6 @@ rule castVote_effect(uint256 pId, env e, method f)
 rule castVote_sideeffect(uint256 pId, env e, method f)
     filtered { f -> voting(f) }
 {
-    require nonpayable(e);
-    require clockSanity(e);
-
     uint8   support;
     address voter;
     address otherVoter;
@@ -168,9 +156,6 @@ rule queue_liveness(uint256 pId, env e) {
 }
 
 rule queue_effect(uint256 pId, env e) {
-    require nonpayable(e);
-    require clockSanity(e);
-
     uint8 stateBefore  = state(e, pId);
     bool  queuedBefore = isQueued(pId);
 
@@ -184,12 +169,7 @@ rule queue_effect(uint256 pId, env e) {
     assert !queuedBefore;
 }
 
-rule queue_sideeffect(uint256 pId, env e) {
-    require nonpayable(e);
-    require clockSanity(e);
-
-    uint256 otherId;
-
+rule queue_sideeffect(uint256 pId, env e, uint256 otherId) {
     uint8 otherStateBefore  = state(e, otherId);
     bool  otherQueuedBefore = isQueued(otherId);
 
@@ -224,9 +204,6 @@ rule execute_liveness(uint256 pId, env e) {
 }
 
 rule execute_effect(uint256 pId, env e) {
-    require nonpayable(e);
-    require clockSanity(e);
-
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
     require pId == hashProposal(targets, values, calldatas, descrHash);
 
@@ -236,12 +213,7 @@ rule execute_effect(uint256 pId, env e) {
     assert state(e, pId) == EXECUTED();
 }
 
-rule execute_sideeffect(uint256 pId, env e) {
-    require nonpayable(e);
-    require clockSanity(e);
-
-    uint256 otherId;
-
+rule execute_sideeffect(uint256 pId, env e, uint256 otherId) {
     uint8 otherStateBefore = state(e, otherId);
 
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
@@ -261,6 +233,7 @@ rule execute_sideeffect(uint256 pId, env e) {
 rule cancel_liveness(uint256 pId, env e) {
     require nonpayable(e);
     require clockSanity(e);
+    requireInvariant queuedImplySuccess(pId);
 
     uint8 stateBefore = state(e, pId);
 
@@ -277,9 +250,6 @@ rule cancel_liveness(uint256 pId, env e) {
 }
 
 rule cancel_effect(uint256 pId, env e) {
-    require nonpayable(e);
-    require clockSanity(e);
-
     address[] targets; uint256[] values; bytes[] calldatas; bytes32 descrHash;
     require pId == hashProposal(targets, values, calldatas, descrHash);
 
@@ -290,12 +260,7 @@ rule cancel_effect(uint256 pId, env e) {
     assert !isQueued(pId); // cancel resets timelockId
 }
 
-rule cancel_sideeffect(uint256 pId, env e) {
-    require nonpayable(e);
-    require clockSanity(e);
-
-    uint256 otherId;
-
+rule cancel_sideeffect(uint256 pId, env e, uint256 otherId) {
     uint8 otherStateBefore  = state(e, otherId);
     bool  otherQueuedBefore = isQueued(otherId);
 

@@ -40,9 +40,9 @@ invariant proposalStateConsistency(uint256 pId)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant votesImplySnapshotPassed(env e, uint256 pId)
-    getAgainstVotes(pId) > 0 => proposalSnapshot(pId) <= clock(e) &&
-    getForVotes(pId)     > 0 => proposalSnapshot(pId) <= clock(e) &&
-    getAbstainVotes(pId) > 0 => proposalSnapshot(pId) <= clock(e)
+    (getAgainstVotes(pId) > 0 => proposalSnapshot(pId) <= clock(e)) &&
+    (getForVotes(pId)     > 0 => proposalSnapshot(pId) <= clock(e)) &&
+    (getAbstainVotes(pId) > 0 => proposalSnapshot(pId) <= clock(e))
     {
         preserved {
             require clockSanity(e);
@@ -86,6 +86,19 @@ invariant queuedImplyCreated(uint pId)
     isQueued(pId) => proposalCreated(pId)
     {
         preserved with (env e) {
+            require clockSanity(e);
+            requireInvariant proposalStateConsistency(pId);
+        }
+    }
+
+invariant queuedImplyVoteOverAndSuccessful(env e, uint pId)
+    isQueued(pId) => (
+        quorumReached(pId) &&
+        voteSucceeded(pId) &&
+        proposalDeadline(pId) < clock(e)
+    )
+    {
+        preserved {
             require clockSanity(e);
             requireInvariant proposalStateConsistency(pId);
         }
