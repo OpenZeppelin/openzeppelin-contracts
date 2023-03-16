@@ -36,6 +36,12 @@ module.exports = [].concat(
     files: ['certora/harnesses/ERC20PermitHarness.sol', 'certora/harnesses/ERC20WrapperHarness.sol'],
     options: ['--link ERC20WrapperHarness:_underlying=ERC20PermitHarness', '--optimistic_loop'],
   },
+  // Security
+  {
+    "spec": "Pausable",
+    "contract": "PausableHarness",
+    "files": ["certora/harnesses/PausableHarness.sol"]
+  },
   // Proxy
   {
     spec: 'Initializable',
