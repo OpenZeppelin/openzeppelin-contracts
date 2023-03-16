@@ -29,8 +29,6 @@ rule pause(env e) {
 
     // effect
     assert success => pausedAfter, "contract must be paused after a successful call";
-
-    // no side effect
 }
 
 /*
@@ -53,8 +51,6 @@ rule unpause(env e) {
 
     // effect
     assert success => !pausedAfter, "contract must be unpaused after a successful call";
-
-    // no side effect
 }
 
 /*
@@ -66,16 +62,9 @@ rule whenPaused(env e) {
     require nonpayable(e);
 
     onlyWhenPaused@withrevert(e);
-    bool success = !lastReverted;
-    
-    // liveness
-    assert success <=> paused(), "works if and only if the contract is paused";
-    assert !success <=> !paused(), "fails if and only if the contract is not paused";
-
-    // effect
-
-    // no side effect
+    assert !lastReverted <=> paused(), "works if and only if the contract is paused";
 }
+
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -111,7 +100,8 @@ rule noPauseChange(env e) {
     bool pausedAfter = paused();
 
     assert pausedBefore != pausedAfter => (
-        !pausedAfter && f.selector == unpause().selector ||
+        (!pausedAfter && f.selector == unpause().selector) ||
+
         (pausedAfter && f.selector == pause().selector)
     ), "contract's paused status can only be changed by _pause() or _unpause()";
 }
