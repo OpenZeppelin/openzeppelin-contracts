@@ -22,13 +22,12 @@ rule pause(env e) {
     bool pausedAfter = paused();
     
     // liveness
-    assert success => !pausedBefore, "unpause call must succeed if the contract was unpaused before";
+    assert success <=> !pausedBefore, "works if and only if the contract was not paused before";
 
     // effect
-    assert success => (pausedBefore != pausedAfter && pausedAfter == true), "contract must be paused after a successful call";
+    assert success => pausedAfter, "contract must be paused after a successful call";
 
     // no side effect
-    assert !success => (pausedBefore == pausedAfter && pausedAfter == true), "contract must kept paused after a failed call";
 }
 
 /*
@@ -47,13 +46,12 @@ rule unpause(env e) {
     bool pausedAfter = paused();
     
     // liveness
-    assert success => pausedBefore, "pause call must succeed if the contract was paused before";
+    assert success <=> pausedBefore, "works if and only if the contract was not paused before";
 
     // effect
-    assert success => (pausedBefore != pausedAfter && pausedAfter == false), "contract must be unpaused after a successful call";
+    assert success => !pausedAfter, "contract must be unpaused after a successful call";
 
     // no side effect
-    assert !success => (pausedBefore == pausedAfter && pausedAfter == false), "contract must kept unpaused after a failed call";
 }
 
 /*
@@ -71,7 +69,7 @@ rule noPause(env e) {
     f(e, args);
     bool pausedAfter = paused();
 
-    assert pausedBefore != pausedAfter => f.selector == pause().selector, "contract must only be paused by _pause()";
+    assert pausedAfter => f.selector == pause().selector, "contract must only be paused by _pause()";
 }
 
 /*
@@ -85,9 +83,8 @@ rule noUnpause(env e) {
 
     require paused();
 
-    bool pausedBefore = paused();
     f(e, args);
     bool pausedAfter = paused();
 
-    assert pausedBefore != pausedAfter => f.selector == unpause().selector, "contract must only be unpaused by _unpause()";
+    assert !pausedAfter => f.selector == unpause().selector, "contract must only be unpaused by _unpause()";
 }
