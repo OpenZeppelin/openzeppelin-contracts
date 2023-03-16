@@ -62,7 +62,7 @@ interface IAccessManager is IAuthority {
  * is connected to this contract as its manager, and 2) said function is decorated with the `restricted` modifier.
  *
  * There is a special team defined by default named "all" of which all accounts are considered members, and two special
- * contract groups: 1) the "open" team, where all functions are allowed to the "all" team, and 2) the "closed" team,
+ * contract groups: 1) the "open" group, where all functions are allowed to the "all" team, and 2) the "closed" group,
  * where no function is allowed to any team.
  *
  * Permissioning schemes and team and contract group assignments can be configured by the default admin. The contract
