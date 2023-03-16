@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 
 import "./AccessControl.sol";
 import "./AccessControlDefaultAdminRules.sol";
+import "../utils/Create2.sol";
+import "../utils/Address.sol";
 
 interface IAuthority {
     function canCall(address caller, address target, bytes4 selector) external view returns (bool allowed);
@@ -25,49 +27,58 @@ interface IAuthority {
 /// All contracts in a group share the same permissioning scheme. A permissioning scheme consists of a mapping between
 /// functions and allowed teams. Each function can be allowed to multiple teams, meaning that if a user is in at least
 /// one of the allowed teams they can call that funcion.
-/// 
-/// TODO: Implement AccessMode (from zkSync AllowList) in terms of teams and groups.
-///   - Define the built-in "all" team (#255?) of which everyone is a member.
-///   - Define a contract group where every function is allowed to the "all" group. (-> AccessMode = Open)
-///   - Define a contract group where no function is allowed to any group. (-> AccessMode = Closed)
 interface IAccessManager is IAuthority {
+    event TeamNameUpdated(uint8 indexed team, string name);
+
+    event TeamAllowed(bytes32 indexed group, bytes4 indexed selector, uint8 indexed team, bool allowed);
+
+    event ContractGroupUpdated(address indexed target, bytes32 indexed group);
+
     function createTeam(uint8 team, string calldata name) external;
 
-    function updateTeam(uint8 team, string calldata name) external;
+    function updateTeamName(uint8 team, string calldata name) external;
 
     // The result is a bit mask.
     function getUserTeams(address user) external view returns (bytes32 teams);
 
+    function grantTeam(address user, uint8 team) external;
+
+    function revokeTeam(address user, uint8 team) external;
+
+    function renounceTeam(address user, uint8 team) external;
+
     // The result is a bit mask.
     function getFunctionAllowedTeams(bytes32 group, bytes4 selector) external view returns (bytes32 teams);
 
-    function addFunctionAllowedTeam(bytes32 group, bytes4 selector, uint8 team) external;
-
-    function removeFunctionAllowedTeam(bytes32 group, bytes4 selector, uint8 team) external;
+    function setFunctionAllowedTeam(bytes32 group, bytes4 selector, uint8 team, bool allowed) external;
 
     function getContractGroup(address target) external view returns (bytes32 group);
 
     function setContractGroup(address target, bytes32 group) external;
 
-    function setInitialContractGroup(address target, bytes32 group) external;
+    function setContractOpen(address target) external;
 
-    function getContractGroupAdmin(bytes32 group) external view returns (bytes32 adminRole);
-
-    function setContractGroupAdmin(bytes32 group, bytes32 adminRole) external;
-
-    function setRoleAdmin(bytes32 role, bytes32 adminRole) external;
+    function setContractClosed(address target) external;
 }
 
-contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefaultAdminRules */ {
+contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     bytes32 _createdTeams;
     mapping (address => bytes32) private _userTeams;
     mapping (bytes32 => mapping (bytes4 => bytes32)) private _allowedTeams;
     mapping (address => bytes32) private _contractGroup;
-    mapping (bytes32 => bytes32) private _groupAdmin;
 
-    event TeamUpdated(uint8 indexed team, string name);
-    event ContractGroupAdminUpdated(bytes32 indexed group, bytes32 indexed adminRole);
-    event TargetGroupUpdated(address indexed target, bytes32 indexed group);
+    uint8 private constant _TEAM_ALL = 255;
+    bytes32 private constant _GROUP_OPEN = "group:open";
+    bytes32 private constant _GROUP_CLOSED = "group:closed";
+
+    constructor(
+        uint48 initialDefaultAdminDelay,
+        address initialDefaultAdmin
+    )
+        AccessControlDefaultAdminRules(initialDefaultAdminDelay, initialDefaultAdmin)
+    {
+        createTeam(_TEAM_ALL, "all");
+    }
 
     function canCall(address caller, address target, bytes4 selector) public view returns (bool) {
         bytes32 group = getContractGroup(target);
@@ -76,58 +87,50 @@ contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefault
         return callerTeams & allowedTeams != 0;
     }
 
-    function createTeam(uint8 team, string calldata name) public virtual onlyDefaultAdmin {
+    function createTeam(uint8 team, string memory name) public virtual onlyDefaultAdmin {
         require(!_teamExists(team));
-        emit TeamUpdated(team, name);
+        _setTeam(_createdTeams, team, true);
+        emit TeamNameUpdated(team, name);
     }
 
-    function updateTeam(uint8 team, string calldata name) public virtual onlyDefaultAdmin {
-        require(_teamExists(team));
-        emit TeamUpdated(team, name);
+    function updateTeamName(uint8 team, string calldata name) public virtual onlyDefaultAdmin {
+        require(team != _TEAM_ALL && _teamExists(team));
+        emit TeamNameUpdated(team, name);
     }
 
     function _teamExists(uint8 team) internal virtual returns (bool) {
-        return _getBit(_createdTeams, team);
+        return _getTeam(_createdTeams, team);
     }
 
     function getUserTeams(address user) public view virtual returns (bytes32) {
-        return _userTeams[user];
+        return _userTeams[user] | _teamMask(_TEAM_ALL);
     }
 
-    function _grantRole(bytes32 role, address user) internal virtual override {
-        super._grantRole(role, user);
-        (bool isTeam, uint8 team) = _parseTeamRole(role);
-        if (isTeam) {
-            require(_teamExists(team));
-            _userTeams[user] = _setBit(_userTeams[user], team, true);
-        }
+    function grantTeam(address user, uint8 team) public virtual {
+        grantRole(_encodeTeamRole(team), user);
     }
 
-    function _revokeRole(bytes32 role, address user) internal virtual override {
-        super._revokeRole(role, user);
-        (bool isTeam, uint8 team) = _parseTeamRole(role);
-        if (isTeam) {
-            require(_teamExists(team));
-            _userTeams[user] = _setBit(_userTeams[user], team, false);
-        }
+    function revokeTeam(address user, uint8 team) public virtual {
+        revokeRole(_encodeTeamRole(team), user);
     }
 
-    function _parseTeamRole(bytes32 role) internal virtual returns (bool, uint8) {
-        bool isTeam = bytes1(role) == hex"01";
-        uint8 team = uint8(uint256(role & hex"ff"));
-        return (isTeam, team);
+    function renounceTeam(address user, uint8 team) public virtual {
+        renounceRole(_encodeTeamRole(team), user);
     }
 
     function getFunctionAllowedTeams(bytes32 group, bytes4 selector) public view virtual returns (bytes32) {
-        return _allowedTeams[group][selector];
+        if (group == _GROUP_OPEN) {
+            return _teamMask(_TEAM_ALL);
+        } else if (group == _GROUP_CLOSED) {
+            return 0;
+        } else {
+            return _allowedTeams[group][selector];
+        }
     }
 
-    function addFunctionAllowedTeam(bytes32 group, bytes4 selector, uint8 team) public virtual onlyDefaultAdmin {
-        _allowedTeams[group][selector] = _setBit(_allowedTeams[group][selector], team, true);
-    }
-
-    function removeFunctionAllowedTeam(bytes32 group, bytes4 selector, uint8 team) public virtual onlyDefaultAdmin {
-        _allowedTeams[group][selector] = _setBit(_allowedTeams[group][selector], team, false);
+    function setFunctionAllowedTeam(bytes32 group, bytes4 selector, uint8 team, bool allowed) public virtual onlyDefaultAdmin {
+        _allowedTeams[group][selector] = _setTeam(_allowedTeams[group][selector], team, allowed);
+        emit TeamAllowed(group, selector, team, allowed);
     }
 
     function getContractGroup(address target) public view virtual returns (bytes32) {
@@ -135,44 +138,123 @@ contract AccessManager is IAccessManager, AccessControl /*, AccessControlDefault
     }
 
     function setContractGroup(address target, bytes32 group) public virtual onlyDefaultAdmin {
+        require(!_isSpecialGroup(group));
         _contractGroup[target] = group;
+        emit ContractGroupUpdated(target, group);
     }
 
-    function setInitialContractGroup(address target, bytes32 group) public virtual {
-        _checkRole(getContractGroupAdmin(group));
-
-        require(group != 0); // todo: make group optional, default to target-specific group
-        require(_contractGroup[target] == 0);
+    function setContractOpen(address target) public virtual onlyDefaultAdmin {
+        bytes32 group = _GROUP_OPEN;
         _contractGroup[target] = group;
-
-        emit TargetGroupUpdated(target, group);
+        emit ContractGroupUpdated(target, group);
     }
 
-    function getContractGroupAdmin(bytes32 group) public view virtual returns (bytes32) {
-        return _groupAdmin[group];
+    function setContractClosed(address target) public virtual onlyDefaultAdmin {
+        bytes32 group = _GROUP_CLOSED;
+        _contractGroup[target] = group;
+        emit ContractGroupUpdated(target, group);
     }
 
-    function setContractGroupAdmin(bytes32 group, bytes32 adminRole) public virtual onlyDefaultAdmin {
-        _groupAdmin[group] = adminRole;
-        emit ContractGroupAdminUpdated(group, adminRole);
+    function _grantRole(bytes32 role, address user) internal virtual override {
+        super._grantRole(role, user);
+        (bool isTeam, uint8 team) = _decodeTeamRole(role);
+        if (isTeam) {
+            require(_teamExists(team));
+            _userTeams[user] = _setTeam(_userTeams[user], team, true);
+        }
     }
 
-    function setRoleAdmin(bytes32 role, bytes32 adminRole) public virtual onlyDefaultAdmin {
-        // todo: validate that the roles "exist"?
-        _setRoleAdmin(role, adminRole);
+    function _revokeRole(bytes32 role, address user) internal virtual override {
+        super._revokeRole(role, user);
+        (bool isTeam, uint8 team) = _decodeTeamRole(role);
+        if (isTeam) {
+            require(_teamExists(team));
+            require(team != _TEAM_ALL);
+            _userTeams[user] = _setTeam(_userTeams[user], team, false);
+        }
     }
 
-    function _getBit(bytes32 bitmap, uint8 pos) private pure returns (bool) {
-        bytes32 mask = bytes32(1 << pos);
-        return bitmap & mask > 0;
+    function _encodeTeamRole(uint8 role) internal virtual returns (bytes32) {
+        return bytes32("team:") | bytes32(uint256(role));
     }
 
-    function _setBit(bytes32 bitmap, uint8 pos, bool val) private pure returns (bytes32) {
-        bytes32 mask = bytes32(1 << pos);
-        if (val) {
+    function _decodeTeamRole(bytes32 role) internal virtual returns (bool, uint8) {
+        bytes32 tagMask = hex"ffffffff";
+        bytes32 teamMask = hex"ff";
+        bool isTeam = (role & tagMask) == bytes32("team:");
+        uint8 team = uint8(uint256(role & teamMask));
+        return (isTeam, team);
+    }
+
+    function _isSpecialGroup(bytes32 group) private pure returns (bool) {
+        return group == _GROUP_OPEN || group == _GROUP_CLOSED;
+    }
+
+    function _teamMask(uint8 team) private pure returns (bytes32) {
+        return bytes32(1 << team);
+    }
+
+    function _getTeam(bytes32 bitmap, uint8 team) private pure returns (bool) {
+        return bitmap & _teamMask(team) > 0;
+    }
+
+    function _setTeam(bytes32 bitmap, uint8 team, bool value) private pure returns (bytes32) {
+        bytes32 mask = _teamMask(team);
+        if (value) {
             return bitmap | mask;
         } else {
             return bitmap & ~mask;
+        }
+    }
+}
+
+contract AccessManaged {
+    event AuthorityUpdated(IAuthority indexed oldAuthority, IAuthority indexed newAuthority);
+
+    IAuthority private _authority;
+
+    modifier restricted {
+        require(_authority.canCall(msg.sender, address(this), msg.sig));
+        _;
+    }
+
+    constructor(IAuthority initialAuthority) {
+        _authority = initialAuthority;
+    }
+
+    function authority() public virtual view returns (IAuthority) {
+        return _authority;
+    }
+
+    function setAuthority(IAuthority newAuthority) public virtual {
+        require(msg.sender == address(_authority));
+        IAuthority oldAuthority = _authority;
+        _authority = newAuthority;
+        emit AuthorityUpdated(oldAuthority, newAuthority);
+    }
+}
+
+contract AccessManagerAdapter {
+    using Address for address;
+
+    AccessManager private _manager;
+
+    bytes32 private _DEFAULT_ADMIN_ROLE = 0;
+
+    function relay(address target, bytes memory data) external payable {
+        bytes4 sig = bytes4(data);
+        require(_manager.canCall(msg.sender, target, sig) || _manager.hasRole(_DEFAULT_ADMIN_ROLE, msg.sender));
+        (bool ok, bytes memory result) = target.call{value: msg.value}(data);
+        assembly {
+            let result_pointer := add(32, result)
+            let result_size := mload(result)
+            switch ok
+            case true {
+                return(result_pointer, result_size)
+            }
+            default {
+                revert(result_pointer, result_size)
+            }
         }
     }
 }
