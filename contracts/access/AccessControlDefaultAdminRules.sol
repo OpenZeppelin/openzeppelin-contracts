@@ -37,12 +37,11 @@ import "../interfaces/IERC5313.sol";
  * _Available since v4.9._
  */
 abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRules, IERC5313, AccessControl {
-    address private _currentDefaultAdmin;
-
     // pending delay pair read/written together frequently
     uint48 private _pendingDelay;
     uint48 private _pendingDelaySchedule; // 0 == unset
 
+    address private _currentDefaultAdmin;
     uint48 private _currentDelay;
 
     // pending admin pair read/written together frequently
