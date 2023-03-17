@@ -73,6 +73,10 @@ interface IAccessManager is IAuthority {
  * includes {AccessControlDefaultAdminRules} by default to enforce security rules on this account. Additionally, it is
  * expected that the account will be highly secured (e.g., a multisig or a well-configured DAO) as all the permissions
  * of the managed system can be modified by it.
+ *
+ * NOTE: Some of the functions in this contract, such as {getUserTeams}, return a `bytes32` bitmap to succintly
+ * represent a set of teams. In a bitmap, bit `n` (counting from the least significant bit) will be 1 if and only if
+ * the team with number `n` is in the set.
  */
 contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     bytes32 _createdTeams;
@@ -134,8 +138,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Returns a bitmap of the teams the user is a member of. Bit `n` is set if the user is in team `n`,
-     * counting from least significant bit.
+     * @dev Returns a bitmap of the teams the user is a member of. See note on bitmaps above.
      */
     function getUserTeams(address user) public view virtual returns (bytes32) {
         return _userTeams[user] | _teamMask(_TEAM_PUBLIC);
@@ -171,17 +174,23 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         renounceRole(_encodeTeamRole(team), user);
     }
 
+    /**
+     * @dev Returns a bitmap of the teams that are allowed to call a function of a target contract. If the target
+     * contract is in a group, the group's permissions are returned.
+     */
     function getFunctionAllowedTeams(address target, bytes4 selector) public view virtual returns (bytes32) {
         return _getFunctionAllowedTeams(getContractGroup(target), selector);
     }
 
+    /**
+     * @dev Returns a bitmap of the teams that are allowed to call a function of a group of contracts.
+     */
     function getFunctionAllowedTeams(string calldata group, bytes4 selector) public view virtual returns (bytes32) {
         return _getFunctionAllowedTeams(_encodeCustomGroup(group), selector);
     }
 
     /**
-     * @dev Returns a bitmap of the teams that are allowed to call a function selector on contracts belonging to a
-     * group. Bit `n` is set if team `n` is allowed, counting from least significant bit.
+     * @dev Returns a bitmap of the teams that are allowed to call a function selector of a contract group.
      */
     function _getFunctionAllowedTeams(bytes32 group, bytes4 selector) internal view virtual returns (bytes32) {
         if (group == _GROUP_OPEN) {
@@ -193,6 +202,10 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         }
     }
 
+    /**
+     * @dev Changes whether a team is allowed to call a function of a contract group, according to the `allowed`
+     * argument. The caller must be the default admin.
+     */
     function setFunctionAllowedTeam(
         address target,
         bytes4[] calldata selectors,
@@ -203,6 +216,10 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         _setFunctionAllowedTeam(_encodeIsolateGroup(target), selectors, team, allowed);
     }
 
+    /**
+     * @dev Changes whether a team is allowed to call a function of a contract group, according to the `allowed`
+     * argument. The caller must be the default admin.
+     */
     function setFunctionAllowedTeam(
         string calldata group,
         bytes4[] calldata selectors,
@@ -213,8 +230,8 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Changes whether a team is allowed to call a function selector on contracts belonging to a group, according
-     * to the `allowed` argument. The caller must be the default admin.
+     * @dev Changes whether a team is allowed to call a function of a contract group, according to the `allowed`
+     * argument. The caller must be the default admin.
      */
     function _setFunctionAllowedTeam(
         bytes32 group,
