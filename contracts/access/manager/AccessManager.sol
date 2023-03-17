@@ -108,6 +108,9 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Creates a new team with a team number that can be chosen arbitrarily but must be unused, and gives it a
      * human-readable name. The caller must be the default admin.
      *
+     * Team numbers are not auto-incremented in order to avoid race conditions, but administrators can safely use
+     * sequential numbers.
+     *
      * Emits {TeamUpdated}.
      */
     function createTeam(uint8 team, string memory name) public virtual onlyDefaultAdmin {
