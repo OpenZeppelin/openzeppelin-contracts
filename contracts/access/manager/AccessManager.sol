@@ -283,11 +283,10 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Decodes a role id into a team, if it is a role id of the kind returned by {_encodeTeamRole}.
      */
     function _decodeTeamRole(bytes32 role) internal virtual returns (bool, uint8) {
-        bytes32 tagMask = hex"ffffffff";
-        bytes32 teamMask = hex"ff";
-        bool isTeam = (role & tagMask) == bytes32("team:");
-        uint8 team = uint8(uint256(role & teamMask));
-        return (isTeam, team);
+        bytes32 tagMask = ~bytes32(uint256(0xff));
+        bytes32 tag = role & tagMask;
+        uint8 team  = uint8(role[31]);
+        return (tag == bytes32("team:"), team);
     }
 
     /**
