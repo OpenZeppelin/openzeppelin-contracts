@@ -113,7 +113,6 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         return callerTeams & allowedTeams != 0;
     }
 
-    // TODO: consider sanitizing name
     /**
      * @dev Creates a new team with a team number that can be chosen arbitrarily but must be unused, and gives it a
      * human-readable name. The caller must be the default admin.
