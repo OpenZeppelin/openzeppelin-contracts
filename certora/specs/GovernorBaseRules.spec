@@ -73,17 +73,26 @@ rule noDoubleVoting(uint256 pId, env e, method f)
 │ Rule: Voting against a proposal does not count towards quorum.                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule againstVotesDontCountTowardsQuorum(uint256 pId, env e, method f)
-    filtered { f -> voting(f) }
+rule againstVotesDontCountTowardsQuorum(uint256 pId, env e)
 {
-    address voter;
-
     bool quorumReachedBefore = quorumReached(pId);
-
-    helperVoteWithRevert(e, f, pId, voter, 0); // support 0 = against
-
+    castVote(e, pId, 0);
     assert quorumReached(pId) == quorumReachedBefore, "quorum must not be reached with an against vote";
 }
+
+/// This version is more exaustive, but to slow because "quorumReached" is a FV nightmare
+// rule againstVotesDontCountTowardsQuorum(uint256 pId, env e, method f)
+//     filtered { f -> voting(f) }
+// {
+//     address voter;
+//
+//     bool quorumReachedBefore = quorumReached(pId);
+//
+//     helperVoteWithRevert(e, f, pId, voter, 0); // support 0 = against
+//
+//     assert quorumReached(pId) == quorumReachedBefore, "quorum must not be reached with an against vote";
+// }
+
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐

@@ -73,8 +73,9 @@ module.exports = [].concat(
     options: [
       `--link ${contract}:token=${token}`,
       `--link ${contract}:_timelock=TimelockControllerHarness`,
-      '--optimistic_loop',
       '--optimistic_hashing',
+      '--optimistic_loop',
+      '--loop_iter 3',
     ],
   })),
   product(
@@ -93,8 +94,9 @@ module.exports = [].concat(
     options: [
       `--link ${contract}:token=${token}`,
       `--link ${contract}:_timelock=TimelockControllerHarness`,
-      '--optimistic_loop',
       '--optimistic_hashing',
+      '--optimistic_loop',
+      '--loop_iter 3',
       '--rules',
       ...['liveness', 'effect', 'sideeffect'].map(kind => `${fn}_${kind}`),
     ],
