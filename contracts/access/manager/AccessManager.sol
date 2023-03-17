@@ -9,7 +9,9 @@ import "./IAuthority.sol";
 
 interface IAccessManager is IAuthority {
     event TeamUpdated(uint8 indexed team, string name);
+
     event TeamAllowed(bytes32 indexed group, bytes4 indexed selector, uint8 indexed team, bool allowed);
+
     event ContractGroupUpdated(address indexed target, bytes32 indexed group);
 
     function createTeam(uint8 team, string calldata name) external;
