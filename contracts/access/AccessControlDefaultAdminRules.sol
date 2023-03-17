@@ -37,11 +37,15 @@ import "../interfaces/IERC5313.sol";
  * _Available since v4.9._
  */
 abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRules, IERC5313, AccessControl {
-    uint48 private _currentDelay;
+    address private _currentDefaultAdmin;
+
+    // pending delay pair read/written together frequently
     uint48 private _pendingDelay;
     uint48 private _pendingDelaySchedule; // 0 == unset
 
-    address private _currentDefaultAdmin;
+    uint48 private _currentDelay;
+
+    // pending admin pair read/written together frequently
     address private _pendingDefaultAdmin;
     uint48 private _pendingDefaultAdminSchedule; // 0 == unset
 
@@ -282,7 +286,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @dev Sets a pending delay into effect if its delay has passed
      */
-    function _materializeDefaultAdminChange() private {
+    function _materializeDefaultAdminTransfer() private {
         uint48 delaySchedule = _pendingDelaySchedule;
         if (_isSet(delaySchedule) && _hasPassed(delaySchedule)) _currentDelay = _pendingDelay;
     }
@@ -291,7 +295,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev Resets the pending default admin and delayed until.
      */
     function _resetDefaultAdminDelayChange() private {
-        _materializeDefaultAdminChange();
+        _materializeDefaultAdminTransfer();
 
         delete _pendingDelay;
         delete _pendingDelaySchedule;
