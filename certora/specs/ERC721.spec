@@ -95,7 +95,7 @@ hook Sload uint256 value _balances[KEY address user] STORAGE {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: ownedTotal is the sum of all balances                                                                   │
+│ Invariant: ownedTotal is the sum of all balances                                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant ownedTotalIsSumOfBalances()
@@ -103,7 +103,7 @@ invariant ownedTotalIsSumOfBalances()
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: balanceOf is the number of token owned                                                                   │
+│ Invariant: balanceOf is the number of tokens owned                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant balanceOfConsistency(address user)
@@ -144,11 +144,11 @@ invariant notMintedUnset(uint256 tokenId)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule notMintedRevert(uint256 tokenId) {
-    bool exist = tokenExists(tokenId);
+    bool exists = tokenExists(tokenId);
 
     address owner = ownerOf@withrevert(tokenId);
-    assert exist <=> !lastReverted;
-    assert exist => owner == unsafeOwnerOf(tokenId); // notMintedUnset tels us this is non-zero
+    assert exists <=> !lastReverted;
+    assert exists => owner == unsafeOwnerOf(tokenId); // notMintedUnset tells us this is non-zero
 
     address approved = getApproved@withrevert(tokenId);
     assert exist <=> !lastReverted;
@@ -262,7 +262,7 @@ rule ownershipChange(env e, uint256 tokenId) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: token approval can only change through approve or transfers (implicitelly).                                  │
+│ Rules: token approval can only change through approve or transfers (implicitly).                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule approvalChange(env e, uint256 tokenId) {
@@ -347,7 +347,7 @@ rule transferFrom(env e, address from, address to, uint256 tokenId) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: transferFrom behavior and side effects                                                                        │
+│ Rule: safeTransferFrom behavior and side effects                                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule safeTransferFrom(env e, method f, address from, address to, uint256 tokenId) filtered { f ->
