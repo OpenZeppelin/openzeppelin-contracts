@@ -118,7 +118,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function rollbackDefaultAdminDelay() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _resetDefaultAdminDelayChange();
+        _rollbackDefaultAdminDelay();
     }
 
     /**
@@ -250,7 +250,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _beginDefaultAdminTransfer(address newAdmin) internal virtual {
         (, uint48 delaySchedule) = pendingDefaultAdminDelay();
-        if (_isSet(delaySchedule)) _resetDefaultAdminDelayChange();
+        if (_isSet(delaySchedule)) _rollbackDefaultAdminDelay();
 
         _pendingDefaultAdminSchedule = SafeCast.toUint48(block.timestamp) + defaultAdminDelay();
         _pendingDefaultAdmin = newAdmin;
@@ -293,7 +293,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @dev Resets the pending default admin and delayed until.
      */
-    function _resetDefaultAdminDelayChange() private {
+    function _rollbackDefaultAdminDelay() private {
         _materializeDefaultAdminTransfer();
 
         delete _pendingDelay;
