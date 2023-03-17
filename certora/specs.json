@@ -44,7 +44,7 @@
   {
     "spec": "ERC721",
     "contract": "ERC721Harness",
-    "files": ["certora/harnesses/ERC721Harness.sol"],
+    "files": ["certora/harnesses/ERC721Harness.sol", "certora/harnesses/ERC721ReceiverHarness.sol"],
     "options": ["--optimistic_loop"]
   },
   {

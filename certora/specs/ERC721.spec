@@ -31,6 +31,7 @@ function helperTransferWithRevert(env e, method f, address from, address to, uin
         safeTransferFrom@withrevert(e, from, to, tokenId);
     } else if (f.selector == safeTransferFrom(address,address,uint256,bytes).selector) {
         bytes params;
+        require params.length < 0xffff;
         safeTransferFrom@withrevert(e, from, to, tokenId, params);
     } else {
         require false;
@@ -44,6 +45,7 @@ function helperMintWithRevert(env e, method f, address to, uint256 tokenId) {
         safeMint@withrevert(e, to, tokenId);
     } else if (f.selector == safeMint(address,uint256,bytes).selector) {
         bytes params;
+        require params.length < 0xffff;
         safeMint@withrevert(e, to, tokenId, params);
     } else {
         require false;
@@ -144,15 +146,17 @@ invariant notMintedUnset(uint256 tokenId)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule notMintedRevert(uint256 tokenId) {
-    bool exists = tokenExists(tokenId);
+    requireInvariant notMintedUnset(tokenId);
+
+    bool e = tokenExists(tokenId);
 
     address owner = ownerOf@withrevert(tokenId);
-    assert exists <=> !lastReverted;
-    assert exists => owner == unsafeOwnerOf(tokenId); // notMintedUnset tells us this is non-zero
+    assert e <=> !lastReverted;
+    assert e => owner == unsafeOwnerOf(tokenId); // notMintedUnset tells us this is non-zero
 
     address approved = getApproved@withrevert(tokenId);
-    assert exist <=> !lastReverted;
-    assert exist => approved == unsafeGetApproved(tokenId);
+    assert e <=> !lastReverted;
+    assert e => approved == unsafeGetApproved(tokenId);
 }
 
 /*
@@ -374,8 +378,7 @@ rule safeTransferFrom(env e, method f, address from, address to, uint256 tokenId
     helperTransferWithRevert(e, f, from, to, tokenId);
     bool success = !lastReverted;
 
-    // liveness: "safe" transfers can revert because of the receiver hook failing. Cannot prove lifeness here.
-    assert success => (
+    assert success <=> (
         from == ownerBefore &&
         from != 0 &&
         to   != 0 &&
@@ -463,8 +466,7 @@ rule safeMint(env e, method f, address to, uint256 tokenId) filtered { f ->
     helperMintWithRevert(e, f, to, tokenId);
     bool success = !lastReverted;
 
-    // liveness: "safe" transfers can revert because of the receiver hook failing. Cannot prove lifeness here.
-    assert success => (
+    assert success <=> (
         ownerBefore == 0 &&
         to != 0
     );

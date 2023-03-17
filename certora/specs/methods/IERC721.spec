@@ -14,4 +14,7 @@ methods {
     name()                                          returns (string)          => DISPATCHER(true)
     symbol()                                        returns (string)          => DISPATCHER(true)
     tokenURI(uint256)                               returns (string)          => DISPATCHER(true)
+
+    // IERC721Receiver
+    onERC721Received(address,address,uint256,bytes) returns (bytes4)          => DISPATCHER(true)
 }
