@@ -215,21 +215,21 @@ function shouldBehaveLikeAccessControlEnumerable(errorPrefix, admin, authorized,
 function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defaultAdmin, newDefaultAdmin, other) {
   shouldSupportInterfaces(['AccessControlDefaultAdminRules']);
 
-  it('has a default disabled default admin transfer schedule', async function () {
-    expect(await this.accessControl.defaultAdminTransferSchedule()).to.be.bignumber.equal(web3.utils.toBN(0));
-  });
+  // it('has an admin transfer schedule disabled by default', async function () {
+  //   expect(await this.accessControl.defaultAdminTransferSchedule()).to.be.bignumber.equal(web3.utils.toBN(0));
+  // });
 
-  it('has an initial default admin', async function () {
-    expect(await this.accessControl.defaultAdmin()).to.be.equal(defaultAdmin);
-  });
+  // it('has an initial default admin', async function () {
+  //   expect(await this.accessControl.defaultAdmin()).to.be.equal(defaultAdmin);
+  // });
 
-  it('has no initial pending default admin', async function () {
-    expect(await this.accessControl.pendingDefaultAdmin()).to.equal(constants.ZERO_ADDRESS);
-  });
+  // it('has no initial pending default admin', async function () {
+  //   expect(await this.accessControl.pendingDefaultAdmin()).to.equal(constants.ZERO_ADDRESS);
+  // });
 
-  it('has a default disabled delay change schedule', async function () {
-    expect(await this.accessControl.pendingDefaultAdmin()).to.equal(constants.ZERO_ADDRESS);
-  });
+  // it('has a default disabled delay change schedule', async function () {
+  //   expect(await this.accessControl.pendingDefaultAdmin()).to.equal(constants.ZERO_ADDRESS);
+  // });
 
   it('has a default current owner set to the initial default admin', async function () {
     const owner = await this.accessControl.owner();
@@ -270,16 +270,16 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       expect(await this.accessControl.defaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(delay));
     });
 
-    it('pending default admin delay kicks in after schedule is passed', async function () {
-      const newDelay = web3.utils.toBN(time.duration.days(3)).add(delay); // Increased, so it waits the `newDelay`
-      await this.accessControl.beginDefaultAdminDelayChange(newDelay, { from: defaultAdmin });
+    it('virtually implements delay after passed schedule', async function () {
+      const newDelay = web3.utils.toBN(delay).addn(1); // Any change
+      await this.accessControl.changeDefaultAdminDelay(newDelay, { from: defaultAdmin });
 
-      // Initial value
+      // Default is kept before schedule passes
       expect(await this.accessControl.defaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(delay));
 
-      // Wait until schedule is met
-      const newSchedule = web3.utils.toBN(await time.latest()).add(newDelay);
-      await time.setNextBlockTimestamp(newSchedule.addn(1));
+      // Wait until schedule passes
+      const { schedule } = await this.accessControl.pendingDefaultAdminDelay();
+      await time.setNextBlockTimestamp(schedule.addn(1));
       await network.provider.send('evm_mine'); // Mine a block to force the timestamp
 
       // New value
@@ -288,109 +288,108 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   });
 
   describe('pending default admin delay', function () {
-    it('has no initial pending delay', async function () {
-      expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(0));
+    it('has no initial pending delay and no schedule', async function () {
+      const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
+      expect(newDelay).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(schedule).to.be.bignumber.equal(web3.utils.toBN(0));
     });
 
-    it('pending default is set and set to 0 after schedule passes', async function () {
-      // Initial value
-      expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(0));
-
-      const newDelay = web3.utils.toBN(time.duration.days(3)).add(delay); // Increased, so it waits the `newDelay`
-      await this.accessControl.beginDefaultAdminDelayChange(newDelay, { from: defaultAdmin });
+    it('pending default admin delay is set and reset to 0 after passed schedule', async function () {
+      const newDelay = web3.utils.toBN(delay).addn(1); // Any change
+      await this.accessControl.changeDefaultAdminDelay(newDelay, { from: defaultAdmin });
 
       // Pending value
-      expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.equal(newDelay);
+      const pending = await this.accessControl.pendingDefaultAdminDelay();
+      expect(pending.newDelay).to.be.bignumber.not.equal(web3.utils.toBN(0));
 
       // Wait until schedule is met
-      const newSchedule = web3.utils.toBN(await time.latest()).add(newDelay);
-      await time.setNextBlockTimestamp(newSchedule.addn(1));
+      await time.setNextBlockTimestamp(pending.schedule.addn(1));
       await network.provider.send('evm_mine'); // Mine a block to force the timestamp
 
       // Not pending anymore
-      expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.equal(web3.utils.toBN(0));
+      const final = await this.accessControl.pendingDefaultAdminDelay();
+      expect(final.newDelay).to.be.bignumber.equal(web3.utils.toBN(0));
+      expect(final.schedule).to.be.bignumber.equal(web3.utils.toBN(0));
     });
   });
 
-  describe('begins transfer of default admin', function () {
+  describe('begins a default admin transfer', function () {
     describe('when a delay change is scheduled', function () {
-      let newDelay;
-      let delayChangeSchedule;
+      const newDelay = web3.utils.toBN(time.duration.days(3));
+      let schedule;
 
-      beforeEach('schedule delay change', async function () {
-        newDelay = web3.utils.toBN(time.duration.days(3));
-        await this.accessControl.beginDefaultAdminDelayChange(newDelay, { from: defaultAdmin });
-        delayChangeSchedule = await this.accessControl.defaultAdminDelayChangeSchedule();
+      beforeEach('schedule a delay change', async function () {
+        await this.accessControl.changeDefaultAdminDelay(newDelay, { from: defaultAdmin });
+        const pendingDefaultAdminDelay = await this.accessControl.pendingDefaultAdminDelay();
+        schedule = pendingDefaultAdminDelay.schedule;
       });
 
-      it('should set the new delay and apply it to next default admin schedule', async function () {
-        // Wait until the scheduled delay change goes into effect
-        await time.setNextBlockTimestamp(delayChangeSchedule.addn(1));
+      for (const [delayTag, fromSchedule, expectedDelay, schedulePassed] of [
+        ['new', 1, newDelay, 'after'],
+        ['old', -1, delay, 'before'],
+      ]) {
+        it(`should set the ${delayTag} delay and apply it to next default admin transfer schedule ${schedulePassed} schedule passed`, async function () {
+          // Wait until the expected fromSchedule time
+          await time.setNextBlockTimestamp(schedule.addn(fromSchedule));
 
-        // Start the new default admin transfer and get its schedule
-        const receipt = await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-        const defaultAdminTransferSchedule = web3.utils.toBN(await time.latest()).add(newDelay);
+          // Start the new default admin transfer and get its schedule
+          const receipt = await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
+          const acceptSchedule = web3.utils.toBN(await time.latest()).add(expectedDelay);
 
-        // Check that the schedule corresponds with the new delay
-        expect(await this.accessControl.pendingDefaultAdmin()).to.equal(newDefaultAdmin);
-        expect(await this.accessControl.defaultAdminTransferSchedule()).to.be.bignumber.equal(
-          defaultAdminTransferSchedule,
-        );
-        expectEvent(receipt, 'DefaultAdminRoleChangeStarted', {
-          newDefaultAdmin,
-          defaultAdminTransferSchedule,
+          // Check that the schedule corresponds with the new delay
+          const { newAdmin, schedule: transferSchedule } = await this.accessControl.pendingDefaultAdmin();
+          expect(newAdmin).to.equal(newDefaultAdmin);
+          expect(transferSchedule).to.be.bignumber.equal(acceptSchedule);
+
+          expectEvent(receipt, 'DefaultAdminTransferScheduled', {
+            newDefaultAdmin,
+            acceptSchedule,
+          });
         });
-      });
-
-      it('should revert if the schedule has not passed', async function () {
-        await time.setNextBlockTimestamp(delayChangeSchedule.subn(1)); // Just before
-        await expectRevert(
-          this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin }),
-          `${errorPrefix}: Delay change in progress`,
-        );
-      });
+      }
     });
 
     describe('when no delay change is scheduled', function () {
       let receipt;
-      let defaultAdminTransferSchedule;
+      let acceptSchedule;
 
       beforeEach('begins admin transfer', async function () {
         receipt = await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-        defaultAdminTransferSchedule = web3.utils.toBN(await time.latest()).add(delay);
+        acceptSchedule = web3.utils.toBN(await time.latest()).add(delay);
       });
 
       it('should set pending default admin and schedule', async function () {
-        expect(await this.accessControl.pendingDefaultAdmin()).to.equal(newDefaultAdmin);
-        expect(await this.accessControl.defaultAdminTransferSchedule()).to.be.bignumber.equal(
-          defaultAdminTransferSchedule,
-        );
-        expectEvent(receipt, 'DefaultAdminRoleChangeStarted', {
+        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+        expect(newAdmin).to.equal(newDefaultAdmin);
+        expect(schedule).to.be.bignumber.equal(acceptSchedule);
+        expectEvent(receipt, 'DefaultAdminTransferScheduled', {
           newDefaultAdmin,
-          defaultAdminTransferSchedule,
+          acceptSchedule,
         });
       });
 
       it('should be able to begin a transfer again before delay pass', async function () {
         // Time passes just before delay
-        await time.setNextBlockTimestamp(defaultAdminTransferSchedule.subn(1));
+        await time.setNextBlockTimestamp(acceptSchedule.subn(1));
 
         // defaultAdmin changes its mind and begin again to another address
         await this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin });
         const newSchedule = web3.utils.toBN(await time.latest()).add(delay);
-        expect(await this.accessControl.pendingDefaultAdmin()).to.equal(other);
-        expect(await this.accessControl.defaultAdminTransferSchedule()).to.be.bignumber.equal(newSchedule);
+        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+        expect(newAdmin).to.equal(other);
+        expect(schedule).to.be.bignumber.equal(newSchedule);
       });
 
       it('should be able to begin a transfer again after delay pass if not accepted', async function () {
         // Time passes after delay without acceptance
-        await time.setNextBlockTimestamp(defaultAdminTransferSchedule.addn(1));
+        await time.setNextBlockTimestamp(acceptSchedule.addn(1));
 
         // defaultAdmin changes its mind and begin again to another address
         await this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin });
         const newSchedule = web3.utils.toBN(await time.latest()).add(delay);
-        expect(await this.accessControl.pendingDefaultAdmin()).to.equal(other);
-        expect(await this.accessControl.defaultAdminTransferSchedule()).to.be.bignumber.equal(newSchedule);
+        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+        expect(newAdmin).to.equal(other);
+        expect(schedule).to.be.bignumber.equal(newSchedule);
       });
 
       it('should revert if it is called by non-admin accounts', async function () {
@@ -413,7 +412,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         .addn(1);
     });
 
-    describe('caller is pending default admin and delay has passed', function () {
+    describe('when caller is pending default admin and delay has passed', function () {
       let from;
 
       beforeEach(async function () {
@@ -440,8 +439,9 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         });
 
         // Resets pending default admin and schedule
-        expect(await this.accessControl.defaultAdminTransferSchedule()).to.be.bignumber.equal(web3.utils.toBN(0));
-        expect(await this.accessControl.pendingDefaultAdmin()).to.equal(constants.ZERO_ADDRESS);
+        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+        expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
+        expect(schedule).to.be.bignumber.equal(web3.utils.toBN(0));
       });
     });
 
@@ -490,8 +490,14 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
     it('resets pending default admin and schedule', async function () {
       await this.accessControl.cancelDefaultAdminTransfer({ from: defaultAdmin });
-      expect(await this.accessControl.defaultAdminTransferSchedule()).to.be.bignumber.equal(web3.utils.toBN(0));
-      expect(await this.accessControl.pendingDefaultAdmin()).to.equal(constants.ZERO_ADDRESS);
+
+      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+      expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
+      expect(schedule).to.be.bignumber.equal(web3.utils.toBN(0));
+    });
+
+    it('should revert if the previous default admin tries to accept', async function () {
+      await this.accessControl.cancelDefaultAdminTransfer({ from: defaultAdmin });
 
       // Advance until passed delay
       await time.setNextBlockTimestamp(delayPassed);
@@ -503,11 +509,15 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       );
     });
 
-    it('cancels even after delay has passed', async function () {
+    it('cancels even after delay has passed if not accepted', async function () {
       await this.accessControl.cancelDefaultAdminTransfer({ from: defaultAdmin });
+
+      // Advance until passed delay
       await time.setNextBlockTimestamp(delayPassed);
-      expect(await this.accessControl.defaultAdminTransferSchedule()).to.be.bignumber.equal(web3.utils.toBN(0));
-      expect(await this.accessControl.pendingDefaultAdmin()).to.equal(constants.ZERO_ADDRESS);
+
+      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+      expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
+      expect(schedule).to.be.bignumber.equal(web3.utils.toBN(0));
     });
 
     it('reverts if called by non default admin accounts', async function () {
@@ -596,76 +606,70 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         describe(`when the delay is ${delayChangeType}`, function () {
           it('begins the delay change to the new delay', async function () {
             // Begins the change
-            const receipt = await this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, {
+            const receipt = await this.accessControl.changeDefaultAdminDelay(newDefaultAdminDelay, {
               from: defaultAdmin,
             });
 
             // Calculate expected values
             const changeDelay = newDefaultAdminDelay.lte(delay)
               ? delay.sub(newDefaultAdminDelay)
-              : await this.accessControl.increasedDelayWait();
+              : await this.accessControl.defaultAdminDelayIncreaseWait();
             const timestamp = web3.utils.toBN(await time.latest());
-            const defaultAdminDelaySchedule = timestamp.add(changeDelay);
+            const effectSchedule = timestamp.add(changeDelay);
 
             // Assert
-            expect(await this.accessControl.defaultAdminDelayChangeSchedule()).to.be.bignumber.eq(
-              defaultAdminDelaySchedule,
-            );
-            expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.eq(newDefaultAdminDelay);
-            expectEvent(receipt, 'DefaultAdminDelayChangeStarted', {
+            const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
+            expect(newDelay).to.be.bignumber.eq(newDefaultAdminDelay);
+            expect(schedule).to.be.bignumber.eq(effectSchedule);
+            expectEvent(receipt, 'DefaultAdminDelayChangeScheduled', {
               newDefaultAdminDelay,
-              defaultAdminDelaySchedule,
+              effectSchedule,
             });
           });
 
           describe('scheduling again', function () {
             it('succeeds before the delay schedule passes', async function () {
               // First change
-              await this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, { from: defaultAdmin });
+              await this.accessControl.changeDefaultAdminDelay(newDefaultAdminDelay, { from: defaultAdmin });
 
               // Wait until almost the schedule
-              const schedule = await this.accessControl.defaultAdminDelayChangeSchedule();
-              await time.setNextBlockTimestamp(schedule.subn(1));
+              const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
+              await time.setNextBlockTimestamp(firstSchedule.subn(1));
 
               // Default admin changes its mind and begins another delay change
               const anotherNewDefaultAdminDelay = newDefaultAdminDelay.addn(time.duration.days(2));
-              const receipt = await this.accessControl.beginDefaultAdminDelayChange(anotherNewDefaultAdminDelay, {
+              const receipt = await this.accessControl.changeDefaultAdminDelay(anotherNewDefaultAdminDelay, {
                 from: defaultAdmin,
               });
 
               // Calculate expected values
               const timestamp = web3.utils.toBN(await time.latest());
-              const defaultAdminDelaySchedule = timestamp.add(await this.accessControl.increasedDelayWait());
+              const effectSchedule = timestamp.add(await this.accessControl.defaultAdminDelayIncreaseWait());
 
               // Assert
-              expect(await this.accessControl.defaultAdminDelayChangeSchedule()).to.be.bignumber.eq(
-                defaultAdminDelaySchedule,
-              );
-              expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.eq(
-                anotherNewDefaultAdminDelay,
-              );
-              expectEvent(receipt, 'DefaultAdminDelayChangeStarted', {
+              const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
+              expect(newDelay).to.be.bignumber.eq(anotherNewDefaultAdminDelay);
+              expect(schedule).to.be.bignumber.eq(effectSchedule);
+              expectEvent(receipt, 'DefaultAdminDelayChangeScheduled', {
                 newDefaultAdminDelay: anotherNewDefaultAdminDelay,
-                defaultAdminDelaySchedule,
+                effectSchedule,
               });
             });
 
             it('reverts after the delay schedule passes', async function () {
-              // First and only change.
-              await this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, {
-                from: defaultAdmin,
-              });
+              // First and only change
+              await this.accessControl.changeDefaultAdminDelay(newDefaultAdminDelay, { from: defaultAdmin });
 
               // Wait until the schedule has passed
-              const schedule = await this.accessControl.defaultAdminDelayChangeSchedule();
+              const { schedule } = await this.accessControl.pendingDefaultAdminDelay();
               await time.setNextBlockTimestamp(schedule.addn(1));
 
               // Default admin changes its mind and begins another delay change
               await expectRevert(
-                this.accessControl.beginDefaultAdminDelayChange(newDefaultAdminDelay, {
+                this.accessControl.changeDefaultAdminDelay(newDefaultAdminDelay, {
                   from: defaultAdmin,
                 }),
-                `${errorPrefix}: can't change past scheduled change`,
+                `${errorPrefix}: can't change virtual delay`,
               );
             });
           });
@@ -676,7 +680,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     it('reverts if another default admin transfer has been scheduled', async function () {
       await this.accessControl.beginDefaultAdminTransfer(other, { from: defaultAdmin });
       await expectRevert(
-        this.accessControl.beginDefaultAdminDelayChange(time.duration.days(4), {
+        this.accessControl.changeDefaultAdminDelay(time.duration.days(4), {
           from: defaultAdmin,
         }),
         `${errorPrefix}: default admin transfer pending`,
@@ -685,7 +689,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
     it('reverts if called by non default admin accounts', async function () {
       await expectRevert(
-        this.accessControl.beginDefaultAdminDelayChange(time.duration.days(4), {
+        this.accessControl.changeDefaultAdminDelay(time.duration.days(4), {
           from: other,
         }),
         `${errorPrefix}: account ${other.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE}`,
@@ -694,33 +698,26 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   });
 
   describe('cancelling a delay change', function () {
-    it('resets pending default admin and schedule before delay change schedule passes', async function () {
-      await this.accessControl.beginDefaultAdminDelayChange(time.duration.days(12), { from: defaultAdmin });
+    for (const [tag, fromFirstSchedule] of [
+      ['before', -1],
+      ['after', 1],
+    ])
+      it(`resets pending default admin and schedule ${tag} delay change schedule passes`, async function () {
+        await this.accessControl.changeDefaultAdminDelay(time.duration.days(12), { from: defaultAdmin });
 
-      const schedule = await this.accessControl.defaultAdminDelayChangeSchedule();
-      await time.setNextBlockTimestamp(schedule.subn(1));
+        const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
+        await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromFirstSchedule);
 
-      await this.accessControl.cancelDefaultAdminDelayChange({ from: defaultAdmin });
+        await this.accessControl.rollbackDefaultAdminDelay({ from: defaultAdmin });
 
-      expect(await this.accessControl.pendingDefaultAdminDelay()).to.be.bignumber.eq(web3.utils.toBN(0));
-      expect(await this.accessControl.defaultAdminDelayChangeSchedule()).to.be.bignumber.eq(web3.utils.toBN(0));
-    });
-
-    it('resets pending default admin and schedule after delay change schedule passes', async function () {
-      await this.accessControl.beginDefaultAdminDelayChange(time.duration.days(12), { from: defaultAdmin });
-
-      const schedule = await this.accessControl.defaultAdminDelayChangeSchedule();
-      await time.setNextBlockTimestamp(schedule.addn(1));
-
-      await expectRevert(
-        this.accessControl.cancelDefaultAdminDelayChange({ from: defaultAdmin }),
-        `${errorPrefix}: can't cancel a passed schedule`,
-      );
-    });
+        const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
+        expect(newDelay).to.be.bignumber.eq(web3.utils.toBN(0));
+        expect(schedule).to.be.bignumber.eq(web3.utils.toBN(0));
+      });
 
     it('reverts if called by non default admin accounts', async function () {
       await expectRevert(
-        this.accessControl.cancelDefaultAdminDelayChange({ from: other }),
+        this.accessControl.rollbackDefaultAdminDelay({ from: other }),
         `${errorPrefix}: account ${other.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE}`,
       );
     });

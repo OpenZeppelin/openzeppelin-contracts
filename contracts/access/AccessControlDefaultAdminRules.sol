@@ -31,29 +31,25 @@ import "../interfaces/IERC5313.sol";
  *     3 days,
  *     msg.sender // Explicit initial `DEFAULT_ADMIN_ROLE` holder
  *    ) {}
- *}
+ * }
  * ```
  *
  * _Available since v4.9._
  */
 abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRules, IERC5313, AccessControl {
-    uint48 private _currentDefaultAdminDelay;
-
-    // Delay change
-    uint48 private _pendingDefaultAdminDelay;
-    uint48 private _defaultAdminDelayChangeSchedule; // 0 == unset
+    uint48 private _currentDelay;
+    uint48 private _pendingDelay;
+    uint48 private _pendingDelaySchedule; // 0 == unset
 
     address private _currentDefaultAdmin;
-
-    // Admin transfer
     address private _pendingDefaultAdmin;
-    uint48 private _defaultAdminTransferSchedule; // 0 == unset
+    uint48 private _pendingDefaultAdminSchedule; // 0 == unset
 
     /**
      * @dev Sets the initial values for {defaultAdminDelay} in seconds and {defaultAdmin} address.
      */
     constructor(uint48 initialDefaultAdminDelay, address initialDefaultAdmin) {
-        _currentDefaultAdminDelay = initialDefaultAdminDelay;
+        _currentDelay = initialDefaultAdminDelay;
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
     }
 
@@ -68,21 +64,16 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function defaultAdminDelay() public view virtual returns (uint48) {
-        return _hasPassed(defaultAdminDelayChangeSchedule()) ? _pendingDefaultAdminDelay : _currentDefaultAdminDelay;
+        uint48 schedule = _pendingDelaySchedule;
+        return (_isSet(schedule) && _hasPassed(schedule)) ? _pendingDelay : _currentDelay;
     }
 
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
-    function pendingDefaultAdminDelay() public view virtual returns (uint48) {
-        return _hasPassed(defaultAdminDelayChangeSchedule()) ? 0 : _pendingDefaultAdminDelay;
-    }
-
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
-    function defaultAdminDelayChangeSchedule() public view virtual returns (uint48) {
-        return _defaultAdminDelayChangeSchedule;
+    function pendingDefaultAdminDelay() public view virtual returns (uint48 newDelay, uint48 schedule) {
+        schedule = _pendingDelaySchedule;
+        return (_isSet(schedule) && !_hasPassed(schedule)) ? (_pendingDelay, schedule) : (0, 0);
     }
 
     /**
@@ -95,15 +86,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
-    function pendingDefaultAdmin() public view virtual returns (address) {
-        return _pendingDefaultAdmin;
-    }
-
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
-    function defaultAdminTransferSchedule() public view virtual returns (uint48) {
-        return _defaultAdminTransferSchedule;
+    function pendingDefaultAdmin() public view virtual returns (address newAdmin, uint48 schedule) {
+        return (_pendingDefaultAdmin, _pendingDefaultAdminSchedule);
     }
 
     /**
@@ -116,22 +100,21 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
-    function increasedDelayWait() public view virtual returns (uint48) {
+    function defaultAdminDelayIncreaseWait() public view virtual returns (uint48) {
         return 5 days;
     }
 
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
-    function beginDefaultAdminDelayChange(uint48 newDefaultAdminDelay) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _beginDefaultAdminDelayChange(newDefaultAdminDelay);
+    function changeDefaultAdminDelay(uint48 newDefaultAdminDelay) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        _changeDefaultAdminDelay(newDefaultAdminDelay);
     }
 
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
-    function cancelDefaultAdminDelayChange() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(!_hasPassed(defaultAdminDelayChangeSchedule()), "AccessControl: can't cancel a passed schedule");
+    function rollbackDefaultAdminDelay() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _resetDefaultAdminDelayChange();
     }
 
@@ -146,7 +129,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function acceptDefaultAdminTransfer() public virtual {
-        require(_msgSender() == pendingDefaultAdmin(), "AccessControl: pending admin must accept");
+        (address newDefaultAdmin, ) = pendingDefaultAdmin();
+        require(_msgSender() == newDefaultAdmin, "AccessControl: pending admin must accept");
         _acceptDefaultAdminTransfer();
     }
 
@@ -173,8 +157,9 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         if (role == DEFAULT_ADMIN_ROLE) {
+            (address newDefaultAdmin, uint48 schedule) = pendingDefaultAdmin();
             require(
-                pendingDefaultAdmin() == address(0) && _hasPassed(defaultAdminTransferSchedule()),
+                newDefaultAdmin == address(0) && _isSet(schedule) && _hasPassed(schedule),
                 "AccessControl: only can renounce in two delayed steps"
             );
         }
@@ -226,28 +211,33 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev See {beginDefaultAdminDelayChange}.
+     * @dev See {changeDefaultAdminDelay}.
      *
      * Internal function without access restriction.
      */
-    function _beginDefaultAdminDelayChange(uint48 newDefaultAdminDelay) internal virtual {
-        require(!_hasPassed(defaultAdminDelayChangeSchedule()), "AccessControl: can't change past scheduled change");
-        require(defaultAdminTransferSchedule() == 0, "AccessControl: default admin transfer pending");
+    function _changeDefaultAdminDelay(uint48 newDefaultAdminDelay) internal virtual {
+        uint48 delaySchedule = _pendingDelaySchedule;
+        require(!_isSet(delaySchedule) || !_hasPassed(delaySchedule), "AccessControl: can't change virtual delay");
 
-        uint48 currentDefaultAdminDelay = defaultAdminDelay();
+        (, uint48 transferSchedule) = pendingDefaultAdmin();
+        require(!_isSet(transferSchedule), "AccessControl: default admin transfer pending");
 
-        // Schedules increasedDelayWait() if the delay is increased, this is done so the user has time enough to fix an accidentally high new delay set.
+        uint48 currentDelay = defaultAdminDelay();
+
+        // Schedules defaultAdminDelayIncreaseWait() if the delay is increased, this is done so the user has time enough to fix an accidentally high new delay set.
         // If the delay is reduced, wait the difference between current and new delay to guarantee the delay change schedule + a default admin change
         // is effectively the current delay. For example, if delay is reduced from 10 days to 3 days, it's needed to wait 7 days
         // before starting the new 3 days delayed transfer summing up to 10 days, which is the current delay.
-        uint48 changeDelay = newDefaultAdminDelay > currentDefaultAdminDelay
-            ? increasedDelayWait()
-            : currentDefaultAdminDelay - newDefaultAdminDelay;
+        uint48 changeDelay = newDefaultAdminDelay > currentDelay
+            ? defaultAdminDelayIncreaseWait()
+            : currentDelay - newDefaultAdminDelay;
 
-        _defaultAdminDelayChangeSchedule = SafeCast.toUint48(block.timestamp) + changeDelay;
-        _pendingDefaultAdminDelay = newDefaultAdminDelay;
+        _pendingDelaySchedule = SafeCast.toUint48(block.timestamp) + changeDelay;
+        _pendingDelay = newDefaultAdminDelay;
 
-        emit DefaultAdminDelayChangeStarted(pendingDefaultAdminDelay(), defaultAdminDelayChangeSchedule());
+        uint48 newDelay;
+        (newDelay, delaySchedule) = pendingDefaultAdminDelay();
+        emit DefaultAdminDelayChangeScheduled(newDelay, delaySchedule);
     }
 
     /**
@@ -256,18 +246,14 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _beginDefaultAdminTransfer(address newAdmin) internal virtual {
-        uint48 delayChangeSchedule = defaultAdminDelayChangeSchedule();
+        (, uint48 delaySchedule) = pendingDefaultAdminDelay();
+        if (_isSet(delaySchedule)) _resetDefaultAdminDelayChange();
 
-        if (delayChangeSchedule != 0) {
-            require(delayChangeSchedule < block.timestamp, "AccessControl: Delay change in progress");
-            // Must read the raw private value to avoid getting a 0 from `pendingDefaultAdminDelay()`
-            _currentDefaultAdminDelay = _pendingDefaultAdminDelay;
-            _resetDefaultAdminDelayChange();
-        }
-
-        _defaultAdminTransferSchedule = SafeCast.toUint48(block.timestamp) + defaultAdminDelay();
+        _pendingDefaultAdminSchedule = SafeCast.toUint48(block.timestamp) + defaultAdminDelay();
         _pendingDefaultAdmin = newAdmin;
-        emit DefaultAdminRoleChangeStarted(pendingDefaultAdmin(), defaultAdminTransferSchedule());
+
+        (address newDefaultAdmin, uint48 transferSchedule) = pendingDefaultAdmin();
+        emit DefaultAdminTransferScheduled(newDefaultAdmin, transferSchedule);
     }
 
     /**
@@ -276,9 +262,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _acceptDefaultAdminTransfer() internal virtual {
-        require(_hasPassed(defaultAdminTransferSchedule()), "AccessControl: transfer delay not passed");
+        (address newDefaultAdmin, uint48 schedule) = pendingDefaultAdmin();
+        require(_isSet(schedule) && _hasPassed(schedule), "AccessControl: transfer delay not passed");
         _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
-        _grantRole(DEFAULT_ADMIN_ROLE, pendingDefaultAdmin());
+        _grantRole(DEFAULT_ADMIN_ROLE, newDefaultAdmin);
         _resetDefaultAdminTransfer();
     }
 
@@ -296,8 +283,13 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev Resets the pending default admin and delayed until.
      */
     function _resetDefaultAdminDelayChange() private {
-        delete _pendingDefaultAdminDelay;
-        delete _defaultAdminDelayChangeSchedule;
+        // Materialize virtual delay
+        uint48 delaySchedule = _pendingDelaySchedule;
+        if (_isSet(delaySchedule) && _hasPassed(delaySchedule)) _currentDelay = _pendingDelay;
+
+        // Actual reset
+        delete _pendingDelay;
+        delete _pendingDelaySchedule;
     }
 
     /**
@@ -305,13 +297,14 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _resetDefaultAdminTransfer() private {
         delete _pendingDefaultAdmin;
-        delete _defaultAdminTransferSchedule;
+        delete _pendingDefaultAdminSchedule;
     }
 
-    /**
-     * @dev Checks if a {defaultAdminTransferSchedule} has been set and passed.
-     */
     function _hasPassed(uint48 schedule) private view returns (bool) {
-        return schedule > 0 && schedule < block.timestamp;
+        return schedule < block.timestamp;
+    }
+
+    function _isSet(uint48 schedule) private pure returns (bool) {
+        return schedule != 0;
     }
 }
