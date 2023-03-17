@@ -26,9 +26,11 @@ interface IAccessManager is IAuthority {
 
     function renounceTeam(address user, uint8 team) external;
 
-    function getFunctionAllowedTeams(bytes32 group, bytes4 selector) external view returns (bytes32 teams);
+    function getFunctionAllowedTeams(address target, bytes4 selector) external view returns (bytes32 teams);
+    function getFunctionAllowedTeams(string calldata group, bytes4 selector) external view returns (bytes32 teams);
 
-    function setFunctionAllowedTeam(bytes32 group, bytes4[] calldata selectors, uint8 team, bool allowed) external;
+    function setFunctionAllowedTeam(address target, bytes4[] calldata selectors, uint8 team, bool allowed) external;
+    function setFunctionAllowedTeam(string calldata group, bytes4[] calldata selectors, uint8 team, bool allowed) external;
 
     function getContractGroup(address target) external view returns (bytes32 group);
 
@@ -52,7 +54,7 @@ interface IAccessManager is IAuthority {
  * that starts with the ASCII characters `team:`, followed by zeroes, and ending with the single byte corresponding to
  * the team number.
  *
- * Contracts in the system are grouped as well. These are simply called "contract groups". There can be an arbitrary
+ * Contracts in the system may be grouped as well. These are simply called "contract groups". There can be an arbitrary
  * number of groups. Each contract can only be in one group at a time. In the simplest setup, each contract is assigned
  * to its own separate group, but groups can also be shared among similar contracts.
  *
@@ -79,9 +81,13 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     mapping(address => bytes32) private _contractGroup;
 
     uint8 private constant _TEAM_PUBLIC = 255;
+
     bytes32 private constant _GROUP_UNSET = 0;
     bytes32 private constant _GROUP_OPEN = "group:open";
     bytes32 private constant _GROUP_CLOSED = "group:closed";
+
+    bytes14 private constant _GROUP_ISOLATE_PREFIX = "group:isolate:";
+    bytes13 private constant _GROUP_CUSTOM_PREFIX = "group:custom:";
 
     /**
      * @dev Initializes an AccessManager with initial default admin and transfer delay.
@@ -98,12 +104,12 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * Entrypoint for {AccessManaged} contracts.
      */
     function canCall(address caller, address target, bytes4 selector) public view returns (bool) {
-        bytes32 group = getContractGroup(target);
-        bytes32 allowedTeams = getFunctionAllowedTeams(group, selector);
+        bytes32 allowedTeams = getFunctionAllowedTeams(target, selector);
         bytes32 callerTeams = getUserTeams(caller);
         return callerTeams & allowedTeams != 0;
     }
 
+    // TODO: consider sanitizing name
     /**
      * @dev Creates a new team with a team number that can be chosen arbitrarily but must be unused, and gives it a
      * human-readable name. The caller must be the default admin.
@@ -165,11 +171,19 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         renounceRole(_encodeTeamRole(team), user);
     }
 
+    function getFunctionAllowedTeams(address target, bytes4 selector) public view virtual returns (bytes32) {
+        return _getFunctionAllowedTeams(getContractGroup(target), selector);
+    }
+
+    function getFunctionAllowedTeams(string calldata group, bytes4 selector) public view virtual returns (bytes32) {
+        return _getFunctionAllowedTeams(_encodeCustomGroup(group), selector);
+    }
+
     /**
      * @dev Returns a bitmap of the teams that are allowed to call a function selector on contracts belonging to a
      * group. Bit `n` is set if team `n` is allowed, counting from least significant bit.
      */
-    function getFunctionAllowedTeams(bytes32 group, bytes4 selector) public view virtual returns (bytes32) {
+    function _getFunctionAllowedTeams(bytes32 group, bytes4 selector) internal view virtual returns (bytes32) {
         if (group == _GROUP_OPEN) {
             return _teamMask(_TEAM_PUBLIC);
         } else if (group == _GROUP_CLOSED) {
@@ -179,16 +193,35 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         }
     }
 
+    function setFunctionAllowedTeam(
+        address target,
+        bytes4[] calldata selectors,
+        uint8 team,
+        bool allowed
+    ) public virtual {
+        require(_contractGroup[target] == 0);
+        _setFunctionAllowedTeam(_encodeIsolateGroup(target), selectors, team, allowed);
+    }
+
+    function setFunctionAllowedTeam(
+        string calldata group,
+        bytes4[] calldata selectors,
+        uint8 team,
+        bool allowed
+    ) public virtual {
+        _setFunctionAllowedTeam(_encodeCustomGroup(group), selectors, team, allowed);
+    }
+
     /**
      * @dev Changes whether a team is allowed to call a function selector on contracts belonging to a group, according
      * to the `allowed` argument. The caller must be the default admin.
      */
-    function setFunctionAllowedTeam(
+    function _setFunctionAllowedTeam(
         bytes32 group,
         bytes4[] calldata selectors,
         uint8 team,
         bool allowed
-    ) public virtual onlyDefaultAdmin {
+    ) internal virtual onlyDefaultAdmin {
         require(group != 0);
         for (uint256 i = 0; i < selectors.length; i++) {
             bytes4 selector = selectors[i];
@@ -201,7 +234,12 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Returns the contract group that the target contract currently belongs to. May be 0 if not set.
      */
     function getContractGroup(address target) public view virtual returns (bytes32) {
-        return _contractGroup[target];
+        bytes32 group = _contractGroup[target];
+        if (group == 0) {
+            return _encodeIsolateGroup(target);
+        } else {
+            return group;
+        }
     }
 
     /**
@@ -290,10 +328,29 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
+     * @dev Returns the isolate group id for a target contract.
+     *
+     * The group id consists of the ASCII characters `group:isolate:` followed by the contract address bytes.
+     */
+    function _encodeIsolateGroup(address target) internal virtual pure returns (bytes32) {
+        return _GROUP_ISOLATE_PREFIX | (bytes20(target) >> _GROUP_ISOLATE_PREFIX.length);
+    }
+
+    /**
+     * @dev Returns the isolate group id for a target contract.
+     *
+     * The group id consists of the ASCII characters `group:custom:` followed by the group name.
+     */
+    function _encodeCustomGroup(string calldata name) internal virtual pure returns (bytes32) {
+        require(bytes(name).length + _GROUP_CUSTOM_PREFIX.length < 32);
+        return _GROUP_CUSTOM_PREFIX | (bytes32(bytes(name)) >> _GROUP_CUSTOM_PREFIX.length);
+    }
+
+    /**
      * @dev Returns true if the group is one of "open", "closed", or unset (zero).
      */
     function _isSpecialGroup(bytes32 group) private pure returns (bool) {
-        return group == _GROUP_UNSET || group == _GROUP_OPEN || group == _GROUP_CLOSED;
+        return group == _GROUP_OPEN || group == _GROUP_CLOSED;
     }
 
     /**
