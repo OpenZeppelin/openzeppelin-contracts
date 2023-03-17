@@ -67,4 +67,5 @@ contracts-exposed
 # Certora
 .certora*
 .last_confs
+certora_*
 .zip-output-url.txt
