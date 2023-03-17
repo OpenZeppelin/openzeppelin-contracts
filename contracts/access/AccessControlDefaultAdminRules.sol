@@ -285,7 +285,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @dev Sets a pending delay into effect if its delay has passed
      */
-    function _materializeDefaultAdminTransfer() private {
+    function _materializeDefaultAdminDelayChange() private {
         uint48 delaySchedule = _pendingDelaySchedule;
         if (_isSet(delaySchedule) && _hasPassed(delaySchedule)) _currentDelay = _pendingDelay;
     }
@@ -294,7 +294,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev Resets the pending default admin and delayed until.
      */
     function _rollbackDefaultAdminDelay() private {
-        _materializeDefaultAdminTransfer();
+        _materializeDefaultAdminDelayChange();
 
         delete _pendingDelay;
         delete _pendingDelaySchedule;
