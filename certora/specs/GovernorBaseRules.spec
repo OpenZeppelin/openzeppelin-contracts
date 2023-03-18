@@ -80,7 +80,7 @@ rule againstVotesDontCountTowardsQuorum(uint256 pId, env e)
     assert quorumReached(pId) == quorumReachedBefore, "quorum must not be reached with an against vote";
 }
 
-/// This version is more exaustive, but to slow because "quorumReached" is a FV nightmare
+/// This version is more exhaustive, but to slow because "quorumReached" is a FV nightmare
 // rule againstVotesDontCountTowardsQuorum(uint256 pId, env e, method f)
 //     filtered { f -> voting(f) }
 // {
