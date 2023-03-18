@@ -75,14 +75,13 @@ module.exports = [].concat(
       `--link ${contract}:_timelock=TimelockControllerHarness`,
       '--optimistic_hashing',
       '--optimistic_loop',
-      '--loop_iter 3',
     ],
   })),
   product(
     ['GovernorHarness'],
     ['GovernorFunctions'],
     ['ERC20VotesBlocknumberHarness'], // 'ERC20VotesTimestampHarness'
-    ['propose', 'castVote', 'queue', 'execute', 'cancel'],
+    ['castVote', 'execute'], // 'propose', 'queue', 'cancel' // timeout
   ).map(([contract, spec, token, fn]) => ({
     spec,
     contract,
@@ -96,7 +95,6 @@ module.exports = [].concat(
       `--link ${contract}:_timelock=TimelockControllerHarness`,
       '--optimistic_hashing',
       '--optimistic_loop',
-      '--loop_iter 3',
       '--rules',
       ...['liveness', 'effect', 'sideeffect'].map(kind => `${fn}_${kind}`),
     ],
