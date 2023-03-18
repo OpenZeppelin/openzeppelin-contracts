@@ -80,8 +80,8 @@ module.exports = [].concat(
   product(
     ['GovernorHarness'],
     ['GovernorFunctions'],
-    ['ERC20VotesBlocknumberHarness'], // 'ERC20VotesTimestampHarness'
-    ['castVote', 'execute'], // 'propose', 'queue', 'cancel' // timeout
+    ['ERC20VotesBlocknumberHarness', 'ERC20VotesTimestampHarness'],
+    ['castVote', 'execute'], // 'propose', 'queue', 'cancel' // these rules timeout/fail
   ).map(([contract, spec, token, fn]) => ({
     spec,
     contract,
