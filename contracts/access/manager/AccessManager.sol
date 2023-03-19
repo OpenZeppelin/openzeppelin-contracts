@@ -18,6 +18,8 @@ interface IAccessManager is IAuthority {
 
     function updateTeamName(uint8 team, string calldata name) external;
 
+    function hasTeam(uint8 team) external view returns (bool);
+
     function getUserTeams(address user) external view returns (bytes32 teams);
 
     function grantTeam(address user, uint8 team) external;
@@ -32,9 +34,9 @@ interface IAccessManager is IAuthority {
     function setFunctionAllowedTeam(address target, bytes4[] calldata selectors, uint8 team, bool allowed) external;
     function setFunctionAllowedTeam(string calldata group, bytes4[] calldata selectors, uint8 team, bool allowed) external;
 
-    function getContractGroup(address target) external view returns (bytes32 group);
+    function getContractGroup(address target) external view returns (bytes32);
 
-    function setContractGroup(address target, bytes32 group) external;
+    function setContractGroup(address target, string calldata groupName) external;
 
     function setContractOpen(address target) external;
 
@@ -100,7 +102,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         uint48 initialDefaultAdminDelay,
         address initialDefaultAdmin
     ) AccessControlDefaultAdminRules(initialDefaultAdminDelay, initialDefaultAdmin) {
-        createTeam(_TEAM_PUBLIC, "public");
+        _createTeam(_TEAM_PUBLIC, "public");
     }
 
     /**
@@ -123,17 +125,22 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * Emits {TeamUpdated}.
      */
     function createTeam(uint8 team, string memory name) public virtual onlyDefaultAdmin {
-        require(!_teamExists(team));
-        _setTeam(_createdTeams, team, true);
-        emit TeamUpdated(team, name);
+        _createTeam(team, name);
     }
 
     /**
      * @dev Updates an existing team's name. The caller must be the default admin.
      */
-    function updateTeamName(uint8 team, string calldata name) public virtual onlyDefaultAdmin {
-        require(team != _TEAM_PUBLIC && _teamExists(team));
+    function updateTeamName(uint8 team, string memory name) public virtual onlyDefaultAdmin {
+        require(team != _TEAM_PUBLIC && hasTeam(team));
         emit TeamUpdated(team, name);
+    }
+
+    /**
+     * @dev Returns true if the team has already been created via {createTeam}.
+     */
+    function hasTeam(uint8 team) public virtual view returns (bool) {
+        return _getTeam(_createdTeams, team);
     }
 
     /**
@@ -241,23 +248,25 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         require(group != 0);
         for (uint256 i = 0; i < selectors.length; i++) {
             bytes4 selector = selectors[i];
-            _allowedTeams[group][selector] = _setTeam(_allowedTeams[group][selector], team, allowed);
+            _allowedTeams[group][selector] = _withUpdatedTeam(_allowedTeams[group][selector], team, allowed);
             emit TeamAllowed(group, selector, team, allowed);
         }
     }
 
     /**
-     * @dev Returns the contract group that the target contract currently belongs to. May be 0 if not set.
+     * @dev Returns the group of the target contract, which may be its isolate group (the default), a custom group, or
+     * the open or closed groups.
      */
     function getContractGroup(address target) public view virtual returns (bytes32) {
         bytes32 group = _contractGroup[target];
-        if (group == 0) {
+        if (group == _GROUP_UNSET) {
             return _encodeIsolateGroup(target);
         } else {
             return group;
         }
     }
 
+    // TODO: filter open/closed?
     /**
      * @dev Sets the contract group that the target belongs to. The caller must be the default admin.
      *
@@ -265,8 +274,8 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * Accounts that were previously able to call permissioned functions on the target contract may no longer be
      * allowed, and new sets of account may be allowed after this operation.
      */
-    function setContractGroup(address target, bytes32 group) public virtual onlyDefaultAdmin {
-        require(!_isSpecialGroup(group));
+    function setContractGroup(address target, string calldata groupName) public virtual onlyDefaultAdmin {
+        bytes32 group = _encodeCustomGroup(groupName);
         _contractGroup[target] = group;
         emit ContractGroupUpdated(target, group);
     }
@@ -292,10 +301,14 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Returns true if the team has already been created via {createTeam}.
+     * @dev Creates a new team.
+     *
+     * Emits {TeamUpdated}.
      */
-    function _teamExists(uint8 team) internal virtual returns (bool) {
-        return _getTeam(_createdTeams, team);
+    function _createTeam(uint8 team, string memory name) internal virtual {
+        require(!hasTeam(team));
+        _createdTeams = _withUpdatedTeam(_createdTeams, team, true);
+        emit TeamUpdated(team, name);
     }
 
     /**
@@ -305,8 +318,8 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         super._grantRole(role, user);
         (bool isTeam, uint8 team) = _decodeTeamRole(role);
         if (isTeam) {
-            require(_teamExists(team));
-            _userTeams[user] = _setTeam(_userTeams[user], team, true);
+            require(hasTeam(team));
+            _userTeams[user] = _withUpdatedTeam(_userTeams[user], team, true);
         }
     }
 
@@ -317,9 +330,9 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         super._revokeRole(role, user);
         (bool isTeam, uint8 team) = _decodeTeamRole(role);
         if (isTeam) {
-            require(_teamExists(team));
+            require(hasTeam(team));
             require(team != _TEAM_PUBLIC);
-            _userTeams[user] = _setTeam(_userTeams[user], team, false);
+            _userTeams[user] = _withUpdatedTeam(_userTeams[user], team, false);
         }
     }
 
@@ -329,14 +342,14 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * This role id starts with the ASCII characters `team:`, followed by zeroes, and ends with the single byte
      * corresponding to the team number.
      */
-    function _encodeTeamRole(uint8 team) internal virtual view returns (bytes32) {
+    function _encodeTeamRole(uint8 team) internal virtual pure returns (bytes32) {
         return bytes32("team:") | bytes32(uint256(team));
     }
 
     /**
      * @dev Decodes a role id into a team, if it is a role id of the kind returned by {_encodeTeamRole}.
      */
-    function _decodeTeamRole(bytes32 role) internal virtual returns (bool, uint8) {
+    function _decodeTeamRole(bytes32 role) internal virtual pure returns (bool, uint8) {
         bytes32 tagMask = ~bytes32(uint256(0xff));
         bytes32 tag = role & tagMask;
         uint8 team  = uint8(role[31]);
@@ -353,13 +366,31 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Returns the isolate group id for a target contract.
+     * @dev Returns the custom group id for a given group name.
      *
      * The group id consists of the ASCII characters `group:custom:` followed by the group name.
      */
-    function _encodeCustomGroup(string calldata name) internal virtual pure returns (bytes32) {
-        require(bytes(name).length + _GROUP_CUSTOM_PREFIX.length < 32);
-        return _GROUP_CUSTOM_PREFIX | (bytes32(bytes(name)) >> _GROUP_CUSTOM_PREFIX.length);
+    function _encodeCustomGroup(string calldata groupName) internal virtual pure returns (bytes32) {
+        require(!_containsNullBytes(bytes32(bytes(groupName)), bytes(groupName).length));
+        require(bytes(groupName).length + _GROUP_CUSTOM_PREFIX.length < 31);
+        return _GROUP_CUSTOM_PREFIX | (bytes32(bytes(groupName)) >> _GROUP_CUSTOM_PREFIX.length);
+    }
+
+    /**
+     * @dev Returns the custom group id for a given group name.
+     *
+     * The group id consists of the ASCII characters `group:custom:` followed by the group name.
+     */
+    function _decodeCustomGroup(bytes32 group) internal virtual pure returns (string memory) {
+        string memory name = new string(32);
+        uint256 nameLength = uint256(group) & 0xff;
+        bytes32 nameBytes = group << _GROUP_CUSTOM_PREFIX.length;
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(name, nameLength)
+            mstore(add(name, 0x20), nameBytes)
+        }
+        return name;
     }
 
     /**
@@ -384,14 +415,44 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Changes the value of the team number bit in a bitmap.
+     * @dev Returns a new team bitmap where a specific team was updated.
      */
-    function _setTeam(bytes32 bitmap, uint8 team, bool value) private pure returns (bytes32) {
+    function _withUpdatedTeam(bytes32 bitmap, uint8 team, bool value) private pure returns (bytes32) {
         bytes32 mask = _teamMask(team);
         if (value) {
             return bitmap | mask;
         } else {
             return bitmap & ~mask;
         }
+    }
+
+    /**
+     * @dev Returns true if the word contains any NUL bytes in the highest `scope` bytes. `scope` must be at most 32.
+     */
+    function _containsNullBytes(bytes32 word, uint256 scope) private pure returns (bool) {
+        // We will operate on every byte of the word simultaneously
+        // We visualize the 8 bits of each byte as word[i] = 01234567
+
+        // Take bitwise OR of all bits in each byte 
+        word |= word >> 4; // word[i] = 01234567 | ____0123 = ____abcd
+        word |= word >> 2; // word[i] = ____abcd | ______ab = ______xy
+        word |= word >> 1; // word[i] = ______xy | _______x = _______z
+
+        // z is 1 iff any bit of word[i] is 1
+
+        // Every byte in `low` is 0x01
+        bytes32 low = hex"0101010101010101010101010101010101010101010101010101010101010101";
+
+        // Select the lowest bit only and take its complement
+        word &= low; // word[i] = 0000000z
+        word ^= low; // word[i] = 0000000Z (Z = ~z)
+
+        // Ignore anything past the scope
+        unchecked {
+            word >>= 32 - scope;
+        }
+
+        // If any byte in scope was 0x00 it will now contain 00000001
+        return word != 0;
     }
 }
