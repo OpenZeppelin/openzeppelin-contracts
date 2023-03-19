@@ -8,31 +8,31 @@ import "../../utils/Create2.sol";
 import "./IAuthority.sol";
 
 interface IAccessManager is IAuthority {
-    event TeamUpdated(uint8 indexed team, string name);
+    event BadgeUpdated(uint8 indexed badge, string name);
 
-    event TeamAllowed(bytes32 indexed group, bytes4 indexed selector, uint8 indexed team, bool allowed);
+    event BadgeAllowed(bytes32 indexed group, bytes4 indexed selector, uint8 indexed badge, bool allowed);
 
     event ContractGroupUpdated(address indexed target, bytes32 indexed group);
 
-    function createTeam(uint8 team, string calldata name) external;
+    function createBadge(uint8 badge, string calldata name) external;
 
-    function updateTeamName(uint8 team, string calldata name) external;
+    function updateBadgeName(uint8 badge, string calldata name) external;
 
-    function hasTeam(uint8 team) external view returns (bool);
+    function hasBadge(uint8 badge) external view returns (bool);
 
-    function getUserTeams(address user) external view returns (bytes32 teams);
+    function getUserBadges(address user) external view returns (bytes32 badges);
 
-    function grantTeam(address user, uint8 team) external;
+    function grantBadge(address user, uint8 badge) external;
 
-    function revokeTeam(address user, uint8 team) external;
+    function revokeBadge(address user, uint8 badge) external;
 
-    function renounceTeam(address user, uint8 team) external;
+    function renounceBadge(address user, uint8 badge) external;
 
-    function getFunctionAllowedTeams(address target, bytes4 selector) external view returns (bytes32 teams);
-    function getFunctionAllowedTeams(string calldata group, bytes4 selector) external view returns (bytes32 teams);
+    function getFunctionAllowedBadges(address target, bytes4 selector) external view returns (bytes32 badges);
+    function getFunctionAllowedBadges(string calldata group, bytes4 selector) external view returns (bytes32 badges);
 
-    function setFunctionAllowedTeam(address target, bytes4[] calldata selectors, uint8 team, bool allowed) external;
-    function setFunctionAllowedTeam(string calldata group, bytes4[] calldata selectors, uint8 team, bool allowed) external;
+    function setFunctionAllowedBadge(address target, bytes4[] calldata selectors, uint8 badge, bool allowed) external;
+    function setFunctionAllowedBadge(string calldata group, bytes4[] calldata selectors, uint8 badge, bool allowed) external;
 
     function getContractGroup(address target) external view returns (bytes32);
 
@@ -51,42 +51,42 @@ interface IAccessManager is IAuthority {
  * i.e. it has roles and all the standard functions like `grantRole` and `revokeRole`, but it defines a particular set
  * of roles, with a particular structure.
  *
- * Users are grouped in "teams". Teams must be created before users can be assigned into them, up to a maximum of 255
- * teams. A user can be assigned to multiple teams. Each team defines an AccessControl role, identified by a role id
- * that starts with the ASCII characters `team:`, followed by zeroes, and ending with the single byte corresponding to
- * the team number.
+ * Users are granted "badges". Badges must be created before they can be granted, with a maximum of 255 created badges.
+ * A user can be granted multiple badges. Each badge defines an AccessControl role, identified by a role id that starts
+ * with the ASCII characters `badge:`, followed by zeroes, and ending with the single byte corresponding to the badge
+ * number.
  *
  * Contracts in the system may be grouped as well. These are simply called "contract groups". There can be an arbitrary
  * number of groups. Each contract can only be in one group at a time. In the simplest setup, each contract is assigned
  * to its own separate group, but groups can also be shared among similar contracts.
  *
  * All contracts in a group share the same permissioning scheme. A permissioning scheme consists of a mapping between
- * functions and allowed teams. Each function can be allowed to multiple teams, meaning that if a user is in at least
- * one of the allowed teams they can call that function.
+ * functions and allowed badges. Each function can be allowed to multiple badges, meaning that if a user has at least
+ * one of the allowed badges they can call that function.
  *
  * Note that a function in a target contract may become permissioned only when: 1) said contract is {AccessManaged} and
  * is connected to this contract as its manager, and 2) said function is decorated with the `restricted` modifier.
  *
- * There is a special team defined by default named "public" of which all accounts are automatically members, and two
- * special contract groups: 1) the "open" group, where all functions are allowed to the "public" team, and 2) the
- * "closed" group, where no function is allowed to any team.
+ * There is a special badge defined by default named "public" which all accounts automatically have, and two special
+ * contract groups: 1) the "open" group, where all functions are allowed to the "public" badge, and 2) the "closed"
+ * group, where no function is allowed to any badge.
  *
- * Permissioning schemes and team and contract group assignments can be configured by the default admin. The contract
+ * Permissioning schemes and badge and contract group assignments can be configured by the default admin. The contract
  * includes {AccessControlDefaultAdminRules} by default to enforce security rules on this account. Additionally, it is
  * expected that the account will be highly secured (e.g., a multisig or a well-configured DAO) as all the permissions
  * of the managed system can be modified by it.
  *
- * NOTE: Some of the functions in this contract, such as {getUserTeams}, return a `bytes32` bitmap to succintly
- * represent a set of teams. In a bitmap, bit `n` (counting from the least significant bit) will be 1 if and only if
- * the team with number `n` is in the set.
+ * NOTE: Some of the functions in this contract, such as {getUserBadges}, return a `bytes32` bitmap to succintly
+ * represent a set of badges. In a bitmap, bit `n` (counting from the least significant bit) will be 1 if and only if
+ * the badge with number `n` is in the set.
  */
 contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
-    bytes32 _createdTeams;
-    mapping(address => bytes32) private _userTeams;
-    mapping(bytes32 => mapping(bytes4 => bytes32)) private _allowedTeams;
+    bytes32 _createdBadges;
+    mapping(address => bytes32) private _userBadges;
+    mapping(bytes32 => mapping(bytes4 => bytes32)) private _allowedBadges;
     mapping(address => bytes32) private _contractGroup;
 
-    uint8 private constant _TEAM_PUBLIC = 255;
+    uint8 private constant _BADGE_PUBLIC = 255;
 
     bytes32 private constant _GROUP_UNSET = 0;
     bytes32 private constant _GROUP_OPEN = "group:open";
@@ -102,7 +102,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         uint48 initialDefaultAdminDelay,
         address initialDefaultAdmin
     ) AccessControlDefaultAdminRules(initialDefaultAdminDelay, initialDefaultAdmin) {
-        _createTeam(_TEAM_PUBLIC, "public");
+        _createBadge(_BADGE_PUBLIC, "public");
     }
 
     /**
@@ -110,146 +110,146 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * Entrypoint for {AccessManaged} contracts.
      */
     function canCall(address caller, address target, bytes4 selector) public view returns (bool) {
-        bytes32 allowedTeams = getFunctionAllowedTeams(target, selector);
-        bytes32 callerTeams = getUserTeams(caller);
-        return callerTeams & allowedTeams != 0;
+        bytes32 allowedBadges = getFunctionAllowedBadges(target, selector);
+        bytes32 callerBadges = getUserBadges(caller);
+        return callerBadges & allowedBadges != 0;
     }
 
     /**
-     * @dev Creates a new team with a team number that can be chosen arbitrarily but must be unused, and gives it a
+     * @dev Creates a new badge with a badge number that can be chosen arbitrarily but must be unused, and gives it a
      * human-readable name. The caller must be the default admin.
      *
-     * Team numbers are not auto-incremented in order to avoid race conditions, but administrators can safely use
+     * Badge numbers are not auto-incremented in order to avoid race conditions, but administrators can safely use
      * sequential numbers.
      *
-     * Emits {TeamUpdated}.
+     * Emits {BadgeUpdated}.
      */
-    function createTeam(uint8 team, string memory name) public virtual onlyDefaultAdmin {
-        _createTeam(team, name);
+    function createBadge(uint8 badge, string memory name) public virtual onlyDefaultAdmin {
+        _createBadge(badge, name);
     }
 
     /**
-     * @dev Updates an existing team's name. The caller must be the default admin.
+     * @dev Updates an existing badge's name. The caller must be the default admin.
      */
-    function updateTeamName(uint8 team, string memory name) public virtual onlyDefaultAdmin {
-        require(team != _TEAM_PUBLIC && hasTeam(team));
-        emit TeamUpdated(team, name);
+    function updateBadgeName(uint8 badge, string memory name) public virtual onlyDefaultAdmin {
+        require(badge != _BADGE_PUBLIC && hasBadge(badge));
+        emit BadgeUpdated(badge, name);
     }
 
     /**
-     * @dev Returns true if the team has already been created via {createTeam}.
+     * @dev Returns true if the badge has already been created via {createBadge}.
      */
-    function hasTeam(uint8 team) public virtual view returns (bool) {
-        return _getTeam(_createdTeams, team);
+    function hasBadge(uint8 badge) public virtual view returns (bool) {
+        return _getBadge(_createdBadges, badge);
     }
 
     /**
-     * @dev Returns a bitmap of the teams the user is a member of. See note on bitmaps above.
+     * @dev Returns a bitmap of the badges the user has. See note on bitmaps above.
      */
-    function getUserTeams(address user) public view virtual returns (bytes32) {
-        return _userTeams[user] | _teamMask(_TEAM_PUBLIC);
+    function getUserBadges(address user) public view virtual returns (bytes32) {
+        return _userBadges[user] | _badgeMask(_BADGE_PUBLIC);
     }
 
     /**
-     * @dev Adds a user to a team.
+     * @dev Grants a user a badge.
      *
-     * Emits {RoleGranted} with the role id of the team, if not previously a member.
+     * Emits {RoleGranted} with the role id of the badge, if wasn't already held by the user.
      */
-    function grantTeam(address user, uint8 team) public virtual {
+    function grantBadge(address user, uint8 badge) public virtual {
         // grantRole checks that msg.sender is admin for the role
-        grantRole(_encodeTeamRole(team), user);
+        grantRole(_encodeBadgeRole(badge), user);
     }
 
     /**
-     * @dev Removes a user from a team.
+     * @dev Removes a badge from a user.
      *
-     * Emits {RoleRevoked} with the role id of the team, if previously a member.
+     * Emits {RoleRevoked} with the role id of the badge, if previously held by the user.
      */
-    function revokeTeam(address user, uint8 team) public virtual {
+    function revokeBadge(address user, uint8 badge) public virtual {
         // revokeRole checks that msg.sender is admin for the role
-        revokeRole(_encodeTeamRole(team), user);
+        revokeRole(_encodeBadgeRole(badge), user);
     }
 
     /**
-     * @dev Renounces a user from a team.
+     * @dev Allows a user to renounce a badge.
      *
-     * Emits {RoleRevoked} with the role id of the team, if previously a member.
+     * Emits {RoleRevoked} with the role id of the badge, if previously held by the user.
      */
-    function renounceTeam(address user, uint8 team) public virtual {
+    function renounceBadge(address user, uint8 badge) public virtual {
         // renounceRole checks that msg.sender is user
-        renounceRole(_encodeTeamRole(team), user);
+        renounceRole(_encodeBadgeRole(badge), user);
     }
 
     /**
-     * @dev Returns a bitmap of the teams that are allowed to call a function of a target contract. If the target
+     * @dev Returns a bitmap of the badges that are allowed to call a function of a target contract. If the target
      * contract is in a group, the group's permissions are returned.
      */
-    function getFunctionAllowedTeams(address target, bytes4 selector) public view virtual returns (bytes32) {
-        return _getFunctionAllowedTeams(getContractGroup(target), selector);
+    function getFunctionAllowedBadges(address target, bytes4 selector) public view virtual returns (bytes32) {
+        return _getFunctionAllowedBadges(getContractGroup(target), selector);
     }
 
     /**
-     * @dev Returns a bitmap of the teams that are allowed to call a function of a group of contracts.
+     * @dev Returns a bitmap of the badges that are allowed to call a function of a group of contracts.
      */
-    function getFunctionAllowedTeams(string calldata group, bytes4 selector) public view virtual returns (bytes32) {
-        return _getFunctionAllowedTeams(_encodeCustomGroup(group), selector);
+    function getFunctionAllowedBadges(string calldata group, bytes4 selector) public view virtual returns (bytes32) {
+        return _getFunctionAllowedBadges(_encodeCustomGroup(group), selector);
     }
 
     /**
-     * @dev Returns a bitmap of the teams that are allowed to call a function selector of a contract group.
+     * @dev Returns a bitmap of the badges that are allowed to call a function selector of a contract group.
      */
-    function _getFunctionAllowedTeams(bytes32 group, bytes4 selector) internal view virtual returns (bytes32) {
+    function _getFunctionAllowedBadges(bytes32 group, bytes4 selector) internal view virtual returns (bytes32) {
         if (group == _GROUP_OPEN) {
-            return _teamMask(_TEAM_PUBLIC);
+            return _badgeMask(_BADGE_PUBLIC);
         } else if (group == _GROUP_CLOSED) {
             return 0;
         } else {
-            return _allowedTeams[group][selector];
+            return _allowedBadges[group][selector];
         }
     }
 
     /**
-     * @dev Changes whether a team is allowed to call a function of a contract group, according to the `allowed`
+     * @dev Changes whether a badge is allowed to call a function of a contract group, according to the `allowed`
      * argument. The caller must be the default admin.
      */
-    function setFunctionAllowedTeam(
+    function setFunctionAllowedBadge(
         address target,
         bytes4[] calldata selectors,
-        uint8 team,
+        uint8 badge,
         bool allowed
     ) public virtual {
         require(_contractGroup[target] == 0);
-        _setFunctionAllowedTeam(_encodeIsolateGroup(target), selectors, team, allowed);
+        _setFunctionAllowedBadge(_encodeIsolateGroup(target), selectors, badge, allowed);
     }
 
     /**
-     * @dev Changes whether a team is allowed to call a function of a contract group, according to the `allowed`
+     * @dev Changes whether a badge is allowed to call a function of a contract group, according to the `allowed`
      * argument. The caller must be the default admin.
      */
-    function setFunctionAllowedTeam(
+    function setFunctionAllowedBadge(
         string calldata group,
         bytes4[] calldata selectors,
-        uint8 team,
+        uint8 badge,
         bool allowed
     ) public virtual {
-        _setFunctionAllowedTeam(_encodeCustomGroup(group), selectors, team, allowed);
+        _setFunctionAllowedBadge(_encodeCustomGroup(group), selectors, badge, allowed);
     }
 
     /**
-     * @dev Changes whether a team is allowed to call a function of a contract group, according to the `allowed`
+     * @dev Changes whether a badge is allowed to call a function of a contract group, according to the `allowed`
      * argument. The caller must be the default admin.
      */
-    function _setFunctionAllowedTeam(
+    function _setFunctionAllowedBadge(
         bytes32 group,
         bytes4[] calldata selectors,
-        uint8 team,
+        uint8 badge,
         bool allowed
     ) internal virtual onlyDefaultAdmin {
         require(group != 0);
         for (uint256 i = 0; i < selectors.length; i++) {
             bytes4 selector = selectors[i];
-            _allowedTeams[group][selector] = _withUpdatedTeam(_allowedTeams[group][selector], team, allowed);
-            emit TeamAllowed(group, selector, team, allowed);
+            _allowedBadges[group][selector] = _withUpdatedBadge(_allowedBadges[group][selector], badge, allowed);
+            emit BadgeAllowed(group, selector, badge, allowed);
         }
     }
 
@@ -270,7 +270,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     /**
      * @dev Sets the contract group that the target belongs to. The caller must be the default admin.
      *
-     * CAUTION: This is a batch operation that will immediately switch the mapping of functions to allowed teams.
+     * CAUTION: This is a batch operation that will immediately switch the mapping of functions to allowed badges.
      * Accounts that were previously able to call permissioned functions on the target contract may no longer be
      * allowed, and new sets of account may be allowed after this operation.
      */
@@ -301,59 +301,59 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Creates a new team.
+     * @dev Creates a new badge.
      *
-     * Emits {TeamUpdated}.
+     * Emits {BadgeUpdated}.
      */
-    function _createTeam(uint8 team, string memory name) internal virtual {
-        require(!hasTeam(team));
-        _createdTeams = _withUpdatedTeam(_createdTeams, team, true);
-        emit TeamUpdated(team, name);
+    function _createBadge(uint8 badge, string memory name) internal virtual {
+        require(!hasBadge(badge));
+        _createdBadges = _withUpdatedBadge(_createdBadges, badge, true);
+        emit BadgeUpdated(badge, name);
     }
 
     /**
-     * @dev Augmented version of {AccessControl-_grantRole} that keeps track of user team bitmaps.
+     * @dev Augmented version of {AccessControl-_grantRole} that keeps track of user badge bitmaps.
      */
     function _grantRole(bytes32 role, address user) internal virtual override {
         super._grantRole(role, user);
-        (bool isTeam, uint8 team) = _decodeTeamRole(role);
-        if (isTeam) {
-            require(hasTeam(team));
-            _userTeams[user] = _withUpdatedTeam(_userTeams[user], team, true);
+        (bool isBadge, uint8 badge) = _decodeBadgeRole(role);
+        if (isBadge) {
+            require(hasBadge(badge));
+            _userBadges[user] = _withUpdatedBadge(_userBadges[user], badge, true);
         }
     }
 
     /**
-     * @dev Augmented version of {AccessControl-_revokeRole} that keeps track of user team bitmaps.
+     * @dev Augmented version of {AccessControl-_revokeRole} that keeps track of user badge bitmaps.
      */
     function _revokeRole(bytes32 role, address user) internal virtual override {
         super._revokeRole(role, user);
-        (bool isTeam, uint8 team) = _decodeTeamRole(role);
-        if (isTeam) {
-            require(hasTeam(team));
-            require(team != _TEAM_PUBLIC);
-            _userTeams[user] = _withUpdatedTeam(_userTeams[user], team, false);
+        (bool isBadge, uint8 badge) = _decodeBadgeRole(role);
+        if (isBadge) {
+            require(hasBadge(badge));
+            require(badge != _BADGE_PUBLIC);
+            _userBadges[user] = _withUpdatedBadge(_userBadges[user], badge, false);
         }
     }
 
     /**
-     * @dev Returns the {AccessControl} role id that corresponds to a team.
+     * @dev Returns the {AccessControl} role id that corresponds to a badge.
      *
-     * This role id starts with the ASCII characters `team:`, followed by zeroes, and ends with the single byte
-     * corresponding to the team number.
+     * This role id starts with the ASCII characters `badge:`, followed by zeroes, and ends with the single byte
+     * corresponding to the badge number.
      */
-    function _encodeTeamRole(uint8 team) internal virtual pure returns (bytes32) {
-        return bytes32("team:") | bytes32(uint256(team));
+    function _encodeBadgeRole(uint8 badge) internal virtual pure returns (bytes32) {
+        return bytes32("badge:") | bytes32(uint256(badge));
     }
 
     /**
-     * @dev Decodes a role id into a team, if it is a role id of the kind returned by {_encodeTeamRole}.
+     * @dev Decodes a role id into a badge, if it is a role id of the kind returned by {_encodeBadgeRole}.
      */
-    function _decodeTeamRole(bytes32 role) internal virtual pure returns (bool, uint8) {
+    function _decodeBadgeRole(bytes32 role) internal virtual pure returns (bool, uint8) {
         bytes32 tagMask = ~bytes32(uint256(0xff));
         bytes32 tag = role & tagMask;
-        uint8 team  = uint8(role[31]);
-        return (tag == bytes32("team:"), team);
+        uint8 badge  = uint8(role[31]);
+        return (tag == bytes32("badge:"), badge);
     }
 
     /**
@@ -401,24 +401,24 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Returns a bit mask where the only non-zero bit is the team number bit.
+     * @dev Returns a bit mask where the only non-zero bit is the badge number bit.
      */
-    function _teamMask(uint8 team) private pure returns (bytes32) {
-        return bytes32(1 << team);
+    function _badgeMask(uint8 badge) private pure returns (bytes32) {
+        return bytes32(1 << badge);
     }
 
     /**
-     * @dev Returns the value of the team number bit in a bitmap.
+     * @dev Returns the value of the badge number bit in a bitmap.
      */
-    function _getTeam(bytes32 bitmap, uint8 team) private pure returns (bool) {
-        return bitmap & _teamMask(team) > 0;
+    function _getBadge(bytes32 bitmap, uint8 badge) private pure returns (bool) {
+        return bitmap & _badgeMask(badge) > 0;
     }
 
     /**
-     * @dev Returns a new team bitmap where a specific team was updated.
+     * @dev Returns a new badge bitmap where a specific badge was updated.
      */
-    function _withUpdatedTeam(bytes32 bitmap, uint8 team, bool value) private pure returns (bytes32) {
-        bytes32 mask = _teamMask(team);
+    function _withUpdatedBadge(bytes32 bitmap, uint8 badge, bool value) private pure returns (bytes32) {
+        bytes32 mask = _badgeMask(badge);
         if (value) {
             return bitmap | mask;
         } else {
