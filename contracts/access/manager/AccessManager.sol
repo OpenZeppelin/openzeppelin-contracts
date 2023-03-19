@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import "../AccessControl.sol";
 import "../AccessControlDefaultAdminRules.sol";
-import "../../utils/Create2.sol";
 import "./IAuthority.sol";
 
 interface IAccessManager is IAuthority {
