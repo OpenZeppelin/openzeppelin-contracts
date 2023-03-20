@@ -91,7 +91,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     bytes32 private constant _GROUP_OPEN = "group:open";
     bytes32 private constant _GROUP_CLOSED = "group:closed";
 
-    bytes14 private constant _GROUP_ISOLATE_PREFIX = "group:isolate:";
+    bytes14 private constant _GROUP_SOLO_PREFIX = "group:solo:";
     bytes13 private constant _GROUP_CUSTOM_PREFIX = "group:custom:";
 
     /**
@@ -218,7 +218,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         bool allowed
     ) public virtual {
         require(_contractGroup[target] == 0);
-        _setFunctionAllowedBadge(_encodeIsolateGroup(target), selectors, badge, allowed);
+        _setFunctionAllowedBadge(_encodeSoloGroup(target), selectors, badge, allowed);
     }
 
     /**
@@ -253,13 +253,13 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Returns the group of the target contract, which may be its isolate group (the default), a custom group, or
+     * @dev Returns the group of the target contract, which may be its solo group (the default), a custom group, or
      * the open or closed groups.
      */
     function getContractGroup(address target) public view virtual returns (bytes32) {
         bytes32 group = _contractGroup[target];
         if (group == _GROUP_UNSET) {
-            return _encodeIsolateGroup(target);
+            return _encodeSoloGroup(target);
         } else {
             return group;
         }
@@ -356,12 +356,12 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Returns the isolate group id for a target contract.
+     * @dev Returns the solo group id for a target contract.
      *
-     * The group id consists of the ASCII characters `group:isolate:` followed by the contract address bytes.
+     * The group id consists of the ASCII characters `group:solo:` followed by the contract address bytes.
      */
-    function _encodeIsolateGroup(address target) internal virtual pure returns (bytes32) {
-        return _GROUP_ISOLATE_PREFIX | (bytes20(target) >> _GROUP_ISOLATE_PREFIX.length);
+    function _encodeSoloGroup(address target) internal virtual pure returns (bytes32) {
+        return _GROUP_SOLO_PREFIX | (bytes32(bytes20(target)) >> (_GROUP_SOLO_PREFIX.length << 3));
     }
 
     /**
@@ -372,7 +372,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     function _encodeCustomGroup(string calldata groupName) internal virtual pure returns (bytes32) {
         require(!_containsNullBytes(bytes32(bytes(groupName)), bytes(groupName).length));
         require(bytes(groupName).length + _GROUP_CUSTOM_PREFIX.length < 31);
-        return _GROUP_CUSTOM_PREFIX | (bytes32(bytes(groupName)) >> _GROUP_CUSTOM_PREFIX.length);
+        return _GROUP_CUSTOM_PREFIX | (bytes32(bytes(groupName)) >> (_GROUP_CUSTOM_PREFIX.length << 3));
     }
 
     /**
