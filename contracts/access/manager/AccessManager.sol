@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../AccessControl.sol";
 import "../AccessControlDefaultAdminRules.sol";
@@ -81,9 +81,9 @@ interface IAccessManager is IAuthority {
  */
 contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     bytes32 _createdBadges;
-    mapping(address => bytes32) private _userBadges;
-    mapping(bytes32 => mapping(bytes4 => bytes32)) private _allowedBadges;
-    mapping(address => bytes32) private _contractGroup;
+    mapping(address user => bytes32 badges) private _userBadges;
+    mapping(bytes32 group => mapping(bytes4 selector => bytes32 badges)) private _allowedBadges;
+    mapping(address target => bytes32 group) private _contractGroup;
 
     uint8 private constant _BADGE_PUBLIC = 255;
 
