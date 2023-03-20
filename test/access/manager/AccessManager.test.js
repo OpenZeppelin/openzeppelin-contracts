@@ -1,5 +1,8 @@
-const { expectEvent, expectRevert, time: { duration } } = require('@openzeppelin/test-helpers');
-const helpers = require('@nomicfoundation/hardhat-network-helpers');
+const {
+  expectEvent,
+  expectRevert,
+  time: { duration },
+} = require('@openzeppelin/test-helpers');
 
 const AccessManager = artifacts.require('AccessManager');
 const AccessManaged = artifacts.require('$AccessManagedMock');
@@ -56,10 +59,7 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2]) {
       });
 
       it('non-admin cannot create badges', async function () {
-        await expectRevert(
-          this.manager.createBadge(badge, name, { from: nonAdmin }),
-          'missing role',
-        );
+        await expectRevert(this.manager.createBadge(badge, name, { from: nonAdmin }), 'missing role');
       });
     });
 
@@ -74,10 +74,7 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2]) {
       });
 
       it('non-admin cannot update badge', async function () {
-        await expectRevert(
-          this.manager.updateBadgeName(badge, name, { from: nonAdmin }),
-          'missing role',
-        );
+        await expectRevert(this.manager.updateBadgeName(badge, name, { from: nonAdmin }), 'missing role');
       });
     });
 
@@ -94,10 +91,7 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2]) {
       });
 
       it('non-admin cannot grant badge', async function () {
-        await expectRevert(
-          this.manager.grantBadge(user1, badge, { from: nonAdmin }),
-          'missing role',
-        );
+        await expectRevert(this.manager.grantBadge(user1, badge, { from: nonAdmin }), 'missing role');
       });
     });
 
@@ -114,10 +108,7 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2]) {
       });
 
       it('non-admin cannot revoke badge', async function () {
-        await expectRevert(
-          this.manager.revokeBadge(user1, badge, { from: nonAdmin }),
-          'missing role',
-        );
+        await expectRevert(this.manager.revokeBadge(user1, badge, { from: nonAdmin }), 'missing role');
       });
 
       it('user can renounce badge', async function () {
@@ -164,7 +155,6 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2]) {
     const badge = '1';
     const badgeHolder = user1;
     const selector = web3.eth.abi.encodeFunctionSignature('restrictedFunction()');
-    const otherSelector = web3.eth.abi.encodeFunctionSignature('other()');
 
     beforeEach('deploying managed contract', async function () {
       await this.manager.createBadge(badge, '', { from: admin });
@@ -173,7 +163,13 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2]) {
     });
 
     it('allow', async function () {
-      await this.manager.methods['setFunctionAllowedBadge(address,bytes4[],uint8,bool)'](this.managed.address, [selector], badge, true, { from: admin });
+      await this.manager.methods['setFunctionAllowedBadge(address,bytes4[],uint8,bool)'](
+        this.managed.address,
+        [selector],
+        badge,
+        true,
+        { from: admin },
+      );
       const restricted = await this.managed.restrictedFunction({ from: badgeHolder });
       expectEvent(restricted, 'RestrictedRan');
     });

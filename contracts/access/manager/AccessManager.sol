@@ -28,10 +28,17 @@ interface IAccessManager is IAuthority {
     function renounceBadge(address user, uint8 badge) external;
 
     function getFunctionAllowedBadges(address target, bytes4 selector) external view returns (bytes32 badges);
+
     function getFunctionAllowedBadges(string calldata group, bytes4 selector) external view returns (bytes32 badges);
 
     function setFunctionAllowedBadge(address target, bytes4[] calldata selectors, uint8 badge, bool allowed) external;
-    function setFunctionAllowedBadge(string calldata group, bytes4[] calldata selectors, uint8 badge, bool allowed) external;
+
+    function setFunctionAllowedBadge(
+        string calldata group,
+        bytes4[] calldata selectors,
+        uint8 badge,
+        bool allowed
+    ) external;
 
     function getContractGroup(address target) external view returns (bytes32);
 
@@ -138,7 +145,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     /**
      * @dev Returns true if the badge has already been created via {createBadge}.
      */
-    function hasBadge(uint8 badge) public virtual view returns (bool) {
+    function hasBadge(uint8 badge) public view virtual returns (bool) {
         return _getBadge(_createdBadges, badge);
     }
 
@@ -341,17 +348,17 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * This role id starts with the ASCII characters `badge:`, followed by zeroes, and ends with the single byte
      * corresponding to the badge number.
      */
-    function _encodeBadgeRole(uint8 badge) internal virtual pure returns (bytes32) {
+    function _encodeBadgeRole(uint8 badge) internal pure virtual returns (bytes32) {
         return bytes32("badge:") | bytes32(uint256(badge));
     }
 
     /**
      * @dev Decodes a role id into a badge, if it is a role id of the kind returned by {_encodeBadgeRole}.
      */
-    function _decodeBadgeRole(bytes32 role) internal virtual pure returns (bool, uint8) {
+    function _decodeBadgeRole(bytes32 role) internal pure virtual returns (bool, uint8) {
         bytes32 tagMask = ~bytes32(uint256(0xff));
         bytes32 tag = role & tagMask;
-        uint8 badge  = uint8(role[31]);
+        uint8 badge = uint8(role[31]);
         return (tag == bytes32("badge:"), badge);
     }
 
@@ -360,7 +367,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      *
      * The group id consists of the ASCII characters `group:solo:` followed by the contract address bytes.
      */
-    function _encodeSoloGroup(address target) internal virtual pure returns (bytes32) {
+    function _encodeSoloGroup(address target) internal pure virtual returns (bytes32) {
         return _GROUP_SOLO_PREFIX | (bytes32(bytes20(target)) >> (_GROUP_SOLO_PREFIX.length << 3));
     }
 
@@ -369,7 +376,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      *
      * The group id consists of the ASCII characters `group:custom:` followed by the group name.
      */
-    function _encodeCustomGroup(string calldata groupName) internal virtual pure returns (bytes32) {
+    function _encodeCustomGroup(string calldata groupName) internal pure virtual returns (bytes32) {
         require(!_containsNullBytes(bytes32(bytes(groupName)), bytes(groupName).length));
         require(bytes(groupName).length + _GROUP_CUSTOM_PREFIX.length < 31);
         return _GROUP_CUSTOM_PREFIX | (bytes32(bytes(groupName)) >> (_GROUP_CUSTOM_PREFIX.length << 3));
@@ -380,7 +387,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      *
      * The group id consists of the ASCII characters `group:custom:` followed by the group name.
      */
-    function _decodeCustomGroup(bytes32 group) internal virtual pure returns (string memory) {
+    function _decodeCustomGroup(bytes32 group) internal pure virtual returns (string memory) {
         string memory name = new string(32);
         uint256 nameLength = uint256(group) & 0xff;
         bytes32 nameBytes = group << _GROUP_CUSTOM_PREFIX.length;
@@ -432,7 +439,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         // We will operate on every byte of the word simultaneously
         // We visualize the 8 bits of each byte as word[i] = 01234567
 
-        // Take bitwise OR of all bits in each byte 
+        // Take bitwise OR of all bits in each byte
         word |= word >> 4; // word[i] = 01234567 | ____0123 = ____abcd
         word |= word >> 2; // word[i] = ____abcd | ______ab = ______xy
         word |= word >> 1; // word[i] = ______xy | _______x = _______z
