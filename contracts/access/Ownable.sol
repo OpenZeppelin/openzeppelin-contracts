@@ -43,6 +43,14 @@ abstract contract Ownable is Context {
     function owner() public view virtual returns (address) {
         return _owner;
     }
+    
+    /**
+     * @dev Returns true if the caller is the current owner.
+     */
+    function isOwner() public view returns(bool) {
+        return _msgSender() == _owner;
+    }
+
 
     /**
      * @dev Throws if the sender is not the owner.
