@@ -2,7 +2,7 @@ const { expectEvent, expectRevert, time: { duration } } = require('@openzeppelin
 const helpers = require('@nomicfoundation/hardhat-network-helpers');
 
 const AccessManager = artifacts.require('$AccessManager');
-const AccessManaged = artifacts.require('$AccessManaged');
+const AccessManagedMock = artifacts.require('$AccessManagedMock');
 
 const badgeUtils = {
   mask: badge => 1n << BigInt(badge),

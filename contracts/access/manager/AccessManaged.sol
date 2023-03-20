@@ -15,12 +15,12 @@ contract AccessManaged {
     IAuthority private _authority;
 
     modifier restricted() {
-        require(_authority.canCall(msg.sender, address(this), msg.sig));
+        require(_authority.canCall(msg.sender, address(this), msg.sig), "AccessManaged: authority rejected");
         _;
     }
 
     constructor(IAuthority initialAuthority) {
-        _authority = initialAuthority;
+        _setAuthority(initialAuthority);
     }
 
     function authority() public view virtual returns (IAuthority) {
@@ -28,7 +28,11 @@ contract AccessManaged {
     }
 
     function setAuthority(IAuthority newAuthority) public virtual {
-        require(msg.sender == address(_authority));
+        require(msg.sender == address(_authority), "AccessManaged: not current authority");
+        _setAuthority(newAuthority);
+    }
+
+    function _setAuthority(IAuthority newAuthority) internal virtual {
         IAuthority oldAuthority = _authority;
         _authority = newAuthority;
         emit AuthorityUpdated(oldAuthority, newAuthority);
