@@ -6,14 +6,14 @@ import "../access/manager/IAuthority.sol";
 import "../access/manager/AccessManaged.sol";
 
 contract SimpleAuthority is IAuthority {
-    address allowedCaller;
-    address allowedTarget;
-    bytes4 allowedSelector;
+    address _allowedCaller;
+    address _allowedTarget;
+    bytes4 _allowedSelector;
 
-    function setAllowed(address _allowedCaller, address _allowedTarget, bytes4 _allowedSelector) public {
-        allowedCaller = _allowedCaller;
-        allowedTarget = _allowedTarget;
-        allowedSelector = _allowedSelector;
+    function setAllowed(address allowedCaller, address allowedTarget, bytes4 allowedSelector) public {
+        _allowedCaller = allowedCaller;
+        _allowedTarget = allowedTarget;
+        _allowedSelector = allowedSelector;
     }
 
     function canCall(address caller, address target, bytes4 selector) external view override returns (bool) {

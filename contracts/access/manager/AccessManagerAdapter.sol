@@ -22,7 +22,7 @@ contract AccessManagerAdapter {
 
     AccessManager private _manager;
 
-    bytes32 private _DEFAULT_ADMIN_ROLE = 0;
+    bytes32 private constant _DEFAULT_ADMIN_ROLE = 0;
 
     /**
      * @dev Initializes an adapter connected to an AccessManager instance.
