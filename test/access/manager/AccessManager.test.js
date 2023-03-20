@@ -1,8 +1,8 @@
 const { expectEvent, expectRevert, time: { duration } } = require('@openzeppelin/test-helpers');
 const helpers = require('@nomicfoundation/hardhat-network-helpers');
 
-const AccessManager = artifacts.require('$AccessManager');
-const AccessManagedMock = artifacts.require('$AccessManagedMock');
+const AccessManager = artifacts.require('AccessManager');
+const AccessManaged = artifacts.require('$AccessManagedMock');
 
 const badgeUtils = {
   mask: badge => 1n << BigInt(badge),
@@ -18,7 +18,6 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2]) {
   beforeEach('deploy', async function () {
     this.delay = duration.days(1);
     this.manager = await AccessManager.new(this.delay, admin);
-    this.managed = await AccessManaged.new(this.manager.address);
   });
 
   it('configures default admin rules', async function () {
@@ -159,5 +158,28 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2]) {
         expect(await getBadges()).to.equal('0x8000000000000000000000000000000000000000000000000000000000010003');
       });
     });
+  });
+
+  describe('allowing', function () {
+    const badge = '1';
+    const badgeHolder = user1;
+    const selector = web3.eth.abi.encodeFunctionSignature('restrictedFunction()');
+    const otherSelector = web3.eth.abi.encodeFunctionSignature('other()');
+
+    beforeEach('deploying managed contract', async function () {
+      await this.manager.createBadge(badge, '', { from: admin });
+      await this.manager.grantBadge(badgeHolder, badge, { from: admin });
+      this.managed = await AccessManaged.new(this.manager.address);
+    });
+
+    it('allow', async function () {
+      await this.manager.methods['setFunctionAllowedBadge(address,bytes4[],uint8,bool)'](this.managed.address, [selector], badge, true, { from: admin });
+      const restricted = await this.managed.restrictedFunction({ from: badgeHolder });
+      expectEvent(restricted, 'RestrictedRan');
+    });
+  });
+
+  describe('groups', function () {
+    // TODO
   });
 });
