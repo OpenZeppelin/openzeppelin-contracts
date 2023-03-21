@@ -7,14 +7,14 @@ const {
 const AccessManager = artifacts.require('AccessManager');
 const AccessManaged = artifacts.require('$AccessManagedMock');
 
-const badgeUtils = {
-  mask: badge => 1n << BigInt(badge),
+const groupUtils = {
+  mask: group => 1n << BigInt(group),
   decodeBitmap: hexBitmap => {
     const m = BigInt(hexBitmap);
-    const allBadges = new Array(256).fill().map((_, i) => i.toString());
-    return allBadges.filter(i => (m & badgeUtils.mask(i)) !== 0n);
+    const allGroups = new Array(256).fill().map((_, i) => i.toString());
+    return allGroups.filter(i => (m & groupUtils.mask(i)) !== 0n);
   },
-  role: badge => web3.utils.asciiToHex('badge:').padEnd(64, '0') + badge.toString(16).padStart(2, '0'),
+  role: group => web3.utils.asciiToHex('group:').padEnd(64, '0') + group.toString(16).padStart(2, '0'),
 };
 
 contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthority]) {
@@ -28,149 +28,149 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
     expect(await this.manager.defaultAdminDelay()).to.be.bignumber.equal(this.delay);
   });
 
-  describe('badges', function () {
-    const badge = '0';
+  describe('groups', function () {
+    const group = '0';
     const name = 'dao';
-    const otherBadge = '1';
+    const otherGroup = '1';
     const otherName = 'council';
 
-    describe('public badge', function () {
-      const publicBadge = '255';
+    describe('public group', function () {
+      const publicGroup = '255';
 
       it('is created automatically', async function () {
-        await expectEvent.inConstruction(this.manager, 'BadgeUpdated', {
-          badge: publicBadge,
+        await expectEvent.inConstruction(this.manager, 'GroupUpdated', {
+          group: publicGroup,
           name: 'public',
         });
       });
 
       it('includes all users automatically', async function () {
-        const badges = badgeUtils.decodeBitmap(await this.manager.getUserBadges(user1));
-        expect(badges).to.include(publicBadge);
+        const groups = groupUtils.decodeBitmap(await this.manager.getUserGroups(user1));
+        expect(groups).to.include(publicGroup);
       });
     });
 
     describe('creating', function () {
-      it('admin can create badges', async function () {
-        const created = await this.manager.createBadge(badge, name, { from: admin });
-        expectEvent(created, 'BadgeUpdated', { badge, name });
-        expect(await this.manager.hasBadge(badge)).to.equal(true);
-        expect(await this.manager.hasBadge(otherBadge)).to.equal(false);
+      it('admin can create groups', async function () {
+        const created = await this.manager.createGroup(group, name, { from: admin });
+        expectEvent(created, 'GroupUpdated', { group, name });
+        expect(await this.manager.hasGroup(group)).to.equal(true);
+        expect(await this.manager.hasGroup(otherGroup)).to.equal(false);
       });
 
-      it('non-admin cannot create badges', async function () {
-        await expectRevert(this.manager.createBadge(badge, name, { from: nonAdmin }), 'missing role');
+      it('non-admin cannot create groups', async function () {
+        await expectRevert(this.manager.createGroup(group, name, { from: nonAdmin }), 'missing role');
       });
     });
 
     describe('updating', function () {
-      beforeEach('create badge', async function () {
-        await this.manager.createBadge(badge, name, { from: admin });
+      beforeEach('create group', async function () {
+        await this.manager.createGroup(group, name, { from: admin });
       });
 
-      it('admin can update badge', async function () {
-        const updated = await this.manager.updateBadgeName(badge, otherName, { from: admin });
-        expectEvent(updated, 'BadgeUpdated', { badge, name: otherName });
+      it('admin can update group', async function () {
+        const updated = await this.manager.updateGroupName(group, otherName, { from: admin });
+        expectEvent(updated, 'GroupUpdated', { group, name: otherName });
       });
 
-      it('non-admin cannot update badge', async function () {
-        await expectRevert(this.manager.updateBadgeName(badge, name, { from: nonAdmin }), 'missing role');
+      it('non-admin cannot update group', async function () {
+        await expectRevert(this.manager.updateGroupName(group, name, { from: nonAdmin }), 'missing role');
       });
     });
 
     describe('granting', function () {
-      beforeEach('create badge', async function () {
-        await this.manager.createBadge(badge, name, { from: admin });
+      beforeEach('create group', async function () {
+        await this.manager.createGroup(group, name, { from: admin });
       });
 
-      it('admin can grant badge', async function () {
-        const granted = await this.manager.grantBadge(user1, badge, { from: admin });
-        expectEvent(granted, 'RoleGranted', { account: user1, role: badgeUtils.role(badge) });
-        const badges = badgeUtils.decodeBitmap(await this.manager.getUserBadges(user1));
-        expect(badges).to.include(badge);
+      it('admin can grant group', async function () {
+        const granted = await this.manager.grantGroup(user1, group, { from: admin });
+        expectEvent(granted, 'RoleGranted', { account: user1, role: groupUtils.role(group) });
+        const groups = groupUtils.decodeBitmap(await this.manager.getUserGroups(user1));
+        expect(groups).to.include(group);
       });
 
-      it('non-admin cannot grant badge', async function () {
-        await expectRevert(this.manager.grantBadge(user1, badge, { from: nonAdmin }), 'missing role');
+      it('non-admin cannot grant group', async function () {
+        await expectRevert(this.manager.grantGroup(user1, group, { from: nonAdmin }), 'missing role');
       });
     });
 
     describe('revoking & renouncing', function () {
-      beforeEach('create and grant badge', async function () {
-        await this.manager.createBadge(badge, name, { from: admin });
-        await this.manager.grantBadge(user1, badge, { from: admin });
+      beforeEach('create and grant group', async function () {
+        await this.manager.createGroup(group, name, { from: admin });
+        await this.manager.grantGroup(user1, group, { from: admin });
       });
 
-      it('admin can revoke badge', async function () {
-        await this.manager.revokeBadge(user1, badge, { from: admin });
-        const badges = badgeUtils.decodeBitmap(await this.manager.getUserBadges(user1));
-        expect(badges).to.not.include(badge);
+      it('admin can revoke group', async function () {
+        await this.manager.revokeGroup(user1, group, { from: admin });
+        const groups = groupUtils.decodeBitmap(await this.manager.getUserGroups(user1));
+        expect(groups).to.not.include(group);
       });
 
-      it('non-admin cannot revoke badge', async function () {
-        await expectRevert(this.manager.revokeBadge(user1, badge, { from: nonAdmin }), 'missing role');
+      it('non-admin cannot revoke group', async function () {
+        await expectRevert(this.manager.revokeGroup(user1, group, { from: nonAdmin }), 'missing role');
       });
 
-      it('user can renounce badge', async function () {
-        await this.manager.renounceBadge(user1, badge, { from: user1 });
-        const badges = badgeUtils.decodeBitmap(await this.manager.getUserBadges(user1));
-        expect(badges).to.not.include(badge);
+      it('user can renounce group', async function () {
+        await this.manager.renounceGroup(user1, group, { from: user1 });
+        const groups = groupUtils.decodeBitmap(await this.manager.getUserGroups(user1));
+        expect(groups).to.not.include(group);
       });
 
-      it(`user cannot renounce other user's badges`, async function () {
+      it(`user cannot renounce other user's groups`, async function () {
         await expectRevert(
-          this.manager.renounceBadge(user1, badge, { from: user2 }),
+          this.manager.renounceGroup(user1, group, { from: user2 }),
           'can only renounce roles for self',
         );
         await expectRevert(
-          this.manager.renounceBadge(user2, badge, { from: user1 }),
+          this.manager.renounceGroup(user2, group, { from: user1 }),
           'can only renounce roles for self',
         );
       });
     });
 
     describe('querying', function () {
-      it('returns expected badges', async function () {
-        const getBadges = () => this.manager.getUserBadges(user1);
+      it('returns expected groups', async function () {
+        const getGroups = () => this.manager.getUserGroups(user1);
 
-        // only public badge initially
-        expect(await getBadges()).to.equal('0x8000000000000000000000000000000000000000000000000000000000000000');
+        // only public group initially
+        expect(await getGroups()).to.equal('0x8000000000000000000000000000000000000000000000000000000000000000');
 
-        await this.manager.createBadge('0', '0', { from: admin });
-        await this.manager.grantBadge(user1, '0', { from: admin });
-        expect(await getBadges()).to.equal('0x8000000000000000000000000000000000000000000000000000000000000001');
+        await this.manager.createGroup('0', '0', { from: admin });
+        await this.manager.grantGroup(user1, '0', { from: admin });
+        expect(await getGroups()).to.equal('0x8000000000000000000000000000000000000000000000000000000000000001');
 
-        await this.manager.createBadge('1', '1', { from: admin });
-        await this.manager.grantBadge(user1, '1', { from: admin });
-        expect(await getBadges()).to.equal('0x8000000000000000000000000000000000000000000000000000000000000003');
+        await this.manager.createGroup('1', '1', { from: admin });
+        await this.manager.grantGroup(user1, '1', { from: admin });
+        expect(await getGroups()).to.equal('0x8000000000000000000000000000000000000000000000000000000000000003');
 
-        await this.manager.createBadge('16', '16', { from: admin });
-        await this.manager.grantBadge(user1, '16', { from: admin });
-        expect(await getBadges()).to.equal('0x8000000000000000000000000000000000000000000000000000000000010003');
+        await this.manager.createGroup('16', '16', { from: admin });
+        await this.manager.grantGroup(user1, '16', { from: admin });
+        expect(await getGroups()).to.equal('0x8000000000000000000000000000000000000000000000000000000000010003');
       });
     });
   });
 
   describe('allowing', function () {
-    const badge = '1';
-    const badgeHolder = user1;
+    const group = '1';
+    const groupMember = user1;
     const selector = web3.eth.abi.encodeFunctionSignature('restrictedFunction()');
 
     beforeEach('deploying managed contract', async function () {
-      await this.manager.createBadge(badge, '', { from: admin });
-      await this.manager.grantBadge(badgeHolder, badge, { from: admin });
+      await this.manager.createGroup(group, '', { from: admin });
+      await this.manager.grantGroup(groupMember, group, { from: admin });
       this.managed = await AccessManaged.new(this.manager.address);
     });
 
     it('allow', async function () {
-      await this.manager.methods['setFunctionAllowedBadge(address,bytes4[],uint8,bool)'](
+      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
         this.managed.address,
         [selector],
-        badge,
+        group,
         true,
         { from: admin },
       );
-      const restricted = await this.managed.restrictedFunction({ from: badgeHolder });
+      const restricted = await this.managed.restrictedFunction({ from: groupMember });
       expectEvent(restricted, 'RestrictedRan');
     });
   });
