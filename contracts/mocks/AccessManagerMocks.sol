@@ -17,7 +17,7 @@ contract SimpleAuthority is IAuthority {
     }
 
     function canCall(address caller, address target, bytes4 selector) external view override returns (bool) {
-        return caller == allowedCaller && target == allowedTarget && selector == allowedSelector;
+        return caller == _allowedCaller && target == _allowedTarget && selector == _allowedSelector;
     }
 }
 
