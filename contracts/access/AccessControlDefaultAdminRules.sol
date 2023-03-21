@@ -224,6 +224,29 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
+     * @dev Setter of the tuple for pending delay and its schedule.
+     *
+     * May emit a DefaultAdminDelayChangeCanceled event.
+     */
+    function _setPendingDelay(uint48 newDelay, uint48 newSchedule) internal virtual {
+        uint48 oldSchedule = _pendingDelaySchedule;
+        bool set = _isScheduleSet(oldSchedule);
+        bool passed = _hasSchedulePassed(oldSchedule);
+
+        if (set && passed) {
+            _currentDelay = _pendingDelay; // Materialize a virtual delay
+        }
+
+        _pendingDelay = newDelay;
+        _pendingDelaySchedule = newSchedule;
+
+        if (set && !passed) {
+            // Emit for implicit cancelations when another delay was scheduled.
+            emit DefaultAdminDelayChangeCanceled();
+        }
+    }
+
+    /**
      * @dev See {AccessControl-_setRoleAdmin}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual override {
@@ -298,19 +321,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _changeDefaultAdminDelay(uint48 newDelay) internal virtual {
-        (, uint48 oldSchedule) = pendingDefaultAdminDelay();
         uint48 newSchedule = SafeCast.toUint48(block.timestamp) + _delayChangeWait(newDelay);
-
-        _pendingDelay = newDelay;
-        _pendingDelaySchedule = newSchedule;
-
-        // An `oldSchedule` from `pendingDefaultAdminDelay()` is only set if it hasn't passed
-        // So this is equivalent to a `_isScheduleSet(_pendingDelaySchedule) && !_hasSchedulePassed(_pendingDelaySchedule)`
-        if (_isScheduleSet(oldSchedule)) {
-            // Emit for implicit cancelations when another delay was scheduled.
-            emit DefaultAdminDelayChangeCanceled();
-        }
-
+        _setPendingDelay(newDelay, newSchedule);
         emit DefaultAdminDelayChangeScheduled(newDelay, newSchedule);
     }
 
@@ -320,20 +332,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _rollbackDefaultAdminDelay() internal virtual {
-        uint48 delaySchedule = _pendingDelaySchedule;
-        bool set = _isScheduleSet(delaySchedule);
-        bool passed = _hasSchedulePassed(delaySchedule);
-
-        if (set && passed) {
-            _currentDelay = _pendingDelay; // Materialize a virtual delay
-        }
-
-        delete _pendingDelay;
-        delete _pendingDelaySchedule;
-
-        if (set && !passed) {
-            emit DefaultAdminDelayChangeCanceled();
-        }
+        _setPendingDelay(0, 0);
     }
 
     /**
