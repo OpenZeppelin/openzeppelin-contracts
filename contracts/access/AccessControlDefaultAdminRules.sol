@@ -218,7 +218,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
 
         // An `oldSchedule` from `pendingDefaultAdmin()` is only set if it hasn't been accepted.
         if (_isScheduleSet(oldSchedule)) {
-            // Emit for implicit cancelations when another default admin was scheduled.
+            // Emit for implicit cancellations when another default admin was scheduled.
             emit DefaultAdminTransferCanceled();
         }
     }
@@ -241,7 +241,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         _pendingDelaySchedule = newSchedule;
 
         if (set && !passed) {
-            // Emit for implicit cancelations when another delay was scheduled.
+            // Emit for implicit cancellations when another delay was scheduled.
             emit DefaultAdminDelayChangeCanceled();
         }
     }
