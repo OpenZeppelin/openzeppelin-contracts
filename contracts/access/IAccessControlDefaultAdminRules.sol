@@ -40,7 +40,8 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function defaultAdmin() external view returns (address);
 
     /**
-     * @dev Returns a tuple where `newAdmin` will be the new {defaultAdmin} after its `schedule` passes.
+     * @dev Returns a tuple of `newAdmin` and `schedule`.
+     * The former will be the new {defaultAdmin} after the latter passes.
      *
      * A zero value in both indicates there's no pending admin transfer.
      *
@@ -69,7 +70,8 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function defaultAdminDelay() external view returns (uint48);
 
     /**
-     * @dev Returns a tuple where `newDelay` will be the new {defaultAdminDelay} after its `schedule` passes.
+     * @dev Returns a tuple of `newDelay` and `schedule`.
+     * The former will be the new {defaultAdminDelay} after the latter passes.
      *
      * A zero value in both indicates there's no pending delay change.
      *

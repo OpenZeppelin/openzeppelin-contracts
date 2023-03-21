@@ -184,6 +184,15 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         super.revokeRole(role, account);
     }
 
+    /**
+     * @dev Returns the amount of seconds to wait after the `newDefaultAdminDelay` will
+     * become the new {defaultAdminDelay}.
+     *
+     * The value returned guarantees that if the delay is reduced, it will go into effect
+     * after a wait that honors the previously set delay.
+     *
+     * See {defaultAdminDelayIncreaseWait}.
+     */
     function _delayChangeWait(uint48 newDefaultAdminDelay) internal view returns (uint48) {
         uint48 currentDelay = defaultAdminDelay();
 
@@ -196,7 +205,9 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev
+     * @dev Setter of the tuple for pending admin and its schedule.
+     *
+     * May emit a DefaultAdminTransferCanceled event.
      */
     function _setPendingDefaultAdmin(address newAdmin, uint48 newSchedule) internal virtual {
         (, uint48 oldSchedule) = pendingDefaultAdmin();
@@ -316,10 +327,16 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         if (set && !passed) emit DefaultAdminDelayChangeCanceled();
     }
 
+    /**
+     * @dev Defines if an `schedule` is considered passed. For consistency purposes.
+     */
     function _hasPassed(uint48 schedule) private view returns (bool) {
         return schedule < block.timestamp;
     }
 
+    /**
+     * @dev Defines if an `schedule` is considered set.
+     */
     function _isSet(uint48 schedule) private pure returns (bool) {
         return schedule != 0;
     }
