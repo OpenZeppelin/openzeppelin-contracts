@@ -49,10 +49,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     uint48 private _pendingDefaultAdminSchedule; // 0 == unset
 
     /**
-     * @dev Sets the initial values for {defaultAdminDelay} in seconds and {defaultAdmin} address.
+     * @dev Sets the initial values for {defaultAdminDelay} and {defaultAdmin} address.
      */
-    constructor(uint48 initialDefaultAdminDelay, address initialDefaultAdmin) {
-        _currentDelay = initialDefaultAdminDelay;
+    constructor(uint48 initialDelay, address initialDefaultAdmin) {
+        _currentDelay = initialDelay;
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
     }
 
@@ -141,22 +141,21 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function cancelDefaultAdminTransfer() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _resetDefaultAdminTransfer();
+        _cancelDefaultAdminTransfer();
     }
 
     /**
-     * @dev Revokes `role` from the calling account.
+     * @dev See {AccessControl-renounceRole}.
      *
-     * For `DEFAULT_ADMIN_ROLE`, only allows renouncing in two steps, so it's required
-     * that the {defaultAdminTransferSchedule} has passed and the pending default admin is the zero address.
-     * After its execution, it will not be possible to call `onlyRole(DEFAULT_ADMIN_ROLE)`
-     * functions.
+     * For the `DEFAULT_ADMIN_ROLE`, it only allows renouncing in two steps by first calling
+     * {beginDefaultAdminTransfer} to the `address(0)`, so it's required that the {pendingDefaultAdmin} schedule
+     * has also passed when calling this function.
      *
-     * For other roles, see {AccessControl-renounceRole}.
+     * After its execution, it will not be possible to call `onlyRole(DEFAULT_ADMIN_ROLE)` functions.
      *
-     * NOTE: Renouncing `DEFAULT_ADMIN_ROLE` will leave the contract without a defaultAdmin,
-     * thereby disabling any functionality that is only available to the default admin, and the
-     * possibility of reassigning a non-administrated role.
+     * NOTE: Renouncing `DEFAULT_ADMIN_ROLE` will leave the contract without a {defaultAdmin},
+     * thereby disabling any functionality that is only available for it, and the possibility of reassigning a
+     * non-administrated role.
      */
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         if (role == DEFAULT_ADMIN_ROLE) {
@@ -194,16 +193,13 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev Grants `role` to `account`.
+     * @dev See {AccessControl-renounceRole}.
      *
-     * For `DEFAULT_ADMIN_ROLE`, it only allows granting if there isn't already a role's holder
-     * or if the role has been previously renounced.
+     * For `DEFAULT_ADMIN_ROLE`, it only allows granting if there isn't already a {defaultAdmin} or if the
+     * role has been previously renounced.
      *
-     * For other roles, see {AccessControl-renounceRole}.
-     *
-     * NOTE: Exposing this function through another mechanism may make the
-     * `DEFAULT_ADMIN_ROLE` assignable again. Make sure to guarantee this is
-     * the expected behavior in your implementation.
+     * NOTE: Exposing this function through another mechanism may make the `DEFAULT_ADMIN_ROLE`
+     * assignable again. Make sure to guarantee this is the expected behavior in your implementation.
      */
     function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == DEFAULT_ADMIN_ROLE) {
@@ -211,65 +207,6 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
             _currentDefaultAdmin = account;
         }
         super._grantRole(role, account);
-    }
-
-    /**
-     * @dev See {changeDefaultAdminDelay}.
-     *
-     * Internal function without access restriction.
-     */
-    function _changeDefaultAdminDelay(uint48 newDefaultAdminDelay) internal virtual {
-        uint48 delaySchedule = _pendingDelaySchedule;
-        require(!_isSet(delaySchedule) || !_hasPassed(delaySchedule), "AccessControl: can't change virtual delay");
-
-        (, uint48 transferSchedule) = pendingDefaultAdmin();
-        require(!_isSet(transferSchedule), "AccessControl: default admin transfer pending");
-
-        uint48 currentDelay = defaultAdminDelay();
-
-        // Schedules defaultAdminDelayIncreaseWait() if the delay is increased, this is done so the user has time enough to fix an accidentally high new delay set.
-        // If the delay is reduced, wait the difference between current and new delay to guarantee the delay change schedule + a default admin change
-        // is effectively the current delay. For example, if delay is reduced from 10 days to 3 days, it's needed to wait 7 days
-        // before starting the new 3 days delayed transfer summing up to 10 days, which is the current delay.
-        uint48 changeDelay = newDefaultAdminDelay > currentDelay
-            ? defaultAdminDelayIncreaseWait()
-            : currentDelay - newDefaultAdminDelay;
-
-        _pendingDelaySchedule = SafeCast.toUint48(block.timestamp) + changeDelay;
-        _pendingDelay = newDefaultAdminDelay;
-
-        uint48 newDelay;
-        (newDelay, delaySchedule) = pendingDefaultAdminDelay();
-        emit DefaultAdminDelayChangeScheduled(newDelay, delaySchedule);
-    }
-
-    /**
-     * @dev See {beginDefaultAdminTransfer}.
-     *
-     * Internal function without access restriction.
-     */
-    function _beginDefaultAdminTransfer(address newAdmin) internal virtual {
-        (, uint48 delaySchedule) = pendingDefaultAdminDelay();
-        if (_isSet(delaySchedule)) _rollbackDefaultAdminDelay();
-
-        _pendingDefaultAdminSchedule = SafeCast.toUint48(block.timestamp) + defaultAdminDelay();
-        _pendingDefaultAdmin = newAdmin;
-
-        (address newDefaultAdmin, uint48 transferSchedule) = pendingDefaultAdmin();
-        emit DefaultAdminTransferScheduled(newDefaultAdmin, transferSchedule);
-    }
-
-    /**
-     * @dev See {acceptDefaultAdminTransfer}.
-     *
-     * Internal function without access restriction.
-     */
-    function _acceptDefaultAdminTransfer() internal virtual {
-        (address newDefaultAdmin, uint48 schedule) = pendingDefaultAdmin();
-        require(_isSet(schedule) && _hasPassed(schedule), "AccessControl: transfer delay not passed");
-        _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
-        _grantRole(DEFAULT_ADMIN_ROLE, newDefaultAdmin);
-        _resetDefaultAdminTransfer();
     }
 
     /**
@@ -283,29 +220,100 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev Sets a pending delay into effect if its delay has passed
+     * @dev See {changeDefaultAdminDelay}.
+     *
+     * Internal function without access restriction.
      */
-    function _materializeDefaultAdminDelayChange() private {
-        uint48 delaySchedule = _pendingDelaySchedule;
-        if (_isSet(delaySchedule) && _hasPassed(delaySchedule)) _currentDelay = _pendingDelay;
+    function _changeDefaultAdminDelay(uint48 newDelay) internal virtual {
+        (, uint48 oldSchedule) = pendingDefaultAdminDelay();
+        uint48 newSchedule = SafeCast.toUint48(block.timestamp) + _delayChangeWait(newDelay);
+
+        _pendingDelay = newDelay;
+        _pendingDelaySchedule = newSchedule;
+
+        // An `oldSchedule` from `pendingDefaultAdminDelay()` is only set if it hasn't passed
+        // So this is equivalent to a `_isSet(_pendingDelaySchedule) && !_hasPassed(_pendingDelaySchedule)`
+        if (_isSet(oldSchedule))
+            // Emit for implicit cancelations when another delay was scheduled.
+            emit DefaultAdminDelayChangeCanceled();
+
+        emit DefaultAdminDelayChangeScheduled(newDelay, newSchedule);
     }
 
     /**
-     * @dev Resets the pending default admin and delayed until.
+     * @dev See {rollbackDefaultAdminDelay}.
+     *
+     * Internal function without access restriction.
      */
-    function _rollbackDefaultAdminDelay() private {
-        _materializeDefaultAdminDelayChange();
+    function _rollbackDefaultAdminDelay() internal virtual {
+        uint48 delaySchedule = _pendingDelaySchedule;
+        bool set = _isSet(delaySchedule);
+        bool passed = _hasPassed(delaySchedule);
 
+        if (set && passed) _currentDelay = _pendingDelay; // Materialize a virtual delay
         delete _pendingDelay;
         delete _pendingDelaySchedule;
+        if (set && !passed) emit DefaultAdminDelayChangeCanceled();
     }
 
     /**
-     * @dev Resets the pending default admin and delayed until.
+     * @dev See {beginDefaultAdminTransfer}.
+     *
+     * Internal function without access restriction.
      */
-    function _resetDefaultAdminTransfer() private {
+    function _beginDefaultAdminTransfer(address newAdmin) internal virtual {
+        uint48 newSchedule = SafeCast.toUint48(block.timestamp) + defaultAdminDelay();
+        _setPendingDefaultAdmin(newAdmin, newSchedule);
+        emit DefaultAdminTransferScheduled(newAdmin, newSchedule);
+    }
+
+    /**
+     * @dev See {acceptDefaultAdminTransfer}.
+     *
+     * Internal function without access restriction.
+     */
+    function _acceptDefaultAdminTransfer() internal virtual {
+        (address newAdmin, uint48 schedule) = pendingDefaultAdmin();
+        require(_isSet(schedule) && _hasPassed(schedule), "AccessControl: transfer delay not passed");
+        _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
+        _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
         delete _pendingDefaultAdmin;
         delete _pendingDefaultAdminSchedule;
+    }
+
+    /**
+     * @dev See {cancelDefaultAdminTransfer}.
+     *
+     * Internal function without access restriction.
+     */
+    function _cancelDefaultAdminTransfer() internal virtual {
+        _setPendingDefaultAdmin(address(0), 0);
+    }
+
+    /**
+     * @dev
+     */
+    function _setPendingDefaultAdmin(address newAdmin, uint48 newSchedule) internal virtual {
+        (, uint48 oldSchedule) = pendingDefaultAdmin();
+
+        _pendingDefaultAdmin = newAdmin;
+        _pendingDefaultAdminSchedule = newSchedule;
+
+        // An `oldSchedule` from `pendingDefaultAdmin()` is only set if it hasn't been accepted.
+        if (_isSet(oldSchedule))
+            // Emit for implicit cancelations when another default admin was scheduled.
+            emit DefaultAdminTransferCanceled();
+    }
+
+    function _delayChangeWait(uint48 newDefaultAdminDelay) internal view returns (uint48) {
+        uint48 currentDelay = defaultAdminDelay();
+
+        // Schedules defaultAdminDelayIncreaseWait() if the delay is increased, this is done so the user has time enough to fix an accidentally high new delay set.
+        // If the delay is reduced, wait the difference between current and new delay to guarantee the delay change schedule + a default admin change
+        // is effectively the current delay. For example, if delay is reduced from 10 days to 3 days, it's needed to wait 7 days
+        // before starting the new 3 days delayed transfer summing up to 10 days, which is the current delay.
+        return
+            newDefaultAdminDelay > currentDelay ? defaultAdminDelayIncreaseWait() : currentDelay - newDefaultAdminDelay;
     }
 
     function _hasPassed(uint48 schedule) private view returns (bool) {

@@ -12,42 +12,43 @@ import "./IAccessControl.sol";
  */
 interface IAccessControlDefaultAdminRules is IAccessControl {
     /**
-     * @dev Emitted when a {defaultAdminDelay} change is started, setting `newDefaultAdminDelay` as the next
-     * delay to be applied between default admin transfer after `defaultAdminDelaySchedule` has passed.
+     * @dev Emitted when a {defaultAdminDelay} change is started, setting `newDelay` as the next
+     * delay to be applied between default admin transfer after `effectSchedule` has passed.
      */
-    event DefaultAdminDelayChangeScheduled(uint48 newDefaultAdminDelay, uint48 effectSchedule);
+    event DefaultAdminDelayChangeScheduled(uint48 newDelay, uint48 effectSchedule);
 
     /**
-     * @dev Emitted when a `DEFAULT_ADMIN_ROLE` transfer is started, setting `newDefaultAdmin`
-     * as the next default admin, which will have rights to claim the `DEFAULT_ADMIN_ROLE`
-     * after {defaultAdminTransferSchedule} has passed.
+     * @dev Emitted when a {pendingDefaultAdminDelay} is reset if its schedule didn't pass.
      */
-    event DefaultAdminTransferScheduled(address indexed newDefaultAdmin, uint48 acceptSchedule);
+    event DefaultAdminDelayChangeCanceled();
 
     /**
-     * @dev Returns the delay between each `DEFAULT_ADMIN_ROLE` transfer.
+     * @dev Emitted when a {defaultAdmin} transfer is started, setting `newAdmin` as the next
+     * address to become the {defaultAdmin} by calling {acceptDefaultAdminTransfer} only after `acceptSchedule`
+     * passes.
+     */
+    event DefaultAdminTransferScheduled(address indexed newAdmin, uint48 acceptSchedule);
+
+    /**
+     * @dev Emitted when a {pendingDefaultAdmin} is reset if it was never accepted, regardless of its schedule.
+     */
+    event DefaultAdminTransferCanceled();
+
+    /**
+     * @dev Returns the delay between each {defaultAdmin} transfer.
      *
      * A scheduled delay change will take effect as soon as the schedule passes, returning the new delay.
      */
     function defaultAdminDelay() external view returns (uint48);
 
     /**
-     * @dev Returns the pending delay to be set after {defaultAdminDelayChangeSchedule} passes.
+     * @dev Returns a tuple where `newDelay` will be the new {defaultAdminDelay} after its `schedule` passes.
      *
-     * A zero value indicates there's no pending delay. This function will return 0 if a previous
-     * scheduled delay change has already passed.
+     * A zero value in both indicates there's no pending delay change.
+     *
+     * NOTE: A zero value only for `newDelay` means that the next {defaultAdminDelay} will be zero.
      */
-    function pendingDefaultAdminDelay() external view returns (uint48, uint48);
-
-    /**
-     * @dev Returns the timestamp after which {pendingDefaultAdminDelay} becomes {defaultAdminDelay}.
-     *
-     * The value can be in the past if the scheduled has passed but {changeDefaultAdminDelay}
-     * hasn't been called.
-     *
-     * A zero value indicates no delay change scheduled.
-     */
-    // function defaultAdminDelayChangeSchedule() external view returns (uint48);
+    function pendingDefaultAdminDelay() external view returns (uint48 newDelay, uint48 schedule);
 
     /**
      * @dev Returns the address of the current `DEFAULT_ADMIN_ROLE` holder.
@@ -55,21 +56,19 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function defaultAdmin() external view returns (address);
 
     /**
-     * @dev Returns the address of the pending `DEFAULT_ADMIN_ROLE` holder.
+     * @dev Returns a tuple where `newAdmin` will be the new {defaultAdmin} after its `schedule` passes.
+     *
+     * A zero value in both indicates there's no pending admin transfer.
+     *
+     * NOTE: A zero value only for `newAdmin` means that {defaultAdmin} is being renounced.
      */
-    function pendingDefaultAdmin() external view returns (address, uint48);
+    function pendingDefaultAdmin() external view returns (address newAdmin, uint48 schedule);
 
     /**
-     * @dev Returns the timestamp after which the pending default admin can claim the `DEFAULT_ADMIN_ROLE`.
+     * @dev Time in seconds to wait before a delay is increased after calling {changeDefaultAdminDelay}.
+     * Default to 5 days.
      *
-     * A zero value indicates no default admin transfer scheduled.
-     */
-    // function defaultAdminTransferSchedule() external view returns (uint48);
-
-    /**
-     * @dev Time in seconds to wait before an increased delay change goes into effect. Default to 5 days.
-     *
-     * It's used whenever {changeDefaultAdminDelay} is called with a `newDefaultAdminDelay` higher
+     * Used whenever {changeDefaultAdminDelay} is called with a `newDelay` higher
      * than the current {defaultAdminDelay}.
      *
      * IMPORTANT: Make sure to add a reasonable amount of time while overriding this value, otherwise,
@@ -82,66 +81,66 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * @dev Begins a {defaultAdminDelay} change by scheduling the change in a way in which the
      * current delay is still guaranteed to be respected.
      *
-     * The {defaultAdminDelayChangeSchedule} is defined such that the schedule + a default admin transfer
-     * takes at least the current {defaultAdminDelay} or {defaultAdminDelayIncreaseWait}, following that:
+     * The {defaultAdminDelayChangeSchedule} is defined such that `(its schedule + a delayed default admin transfer)`
+     * takes at least the current {defaultAdminDelay}, following that:
      *
-     * - The schedule is `block.timestamp + {defaultAdminDelayIncreaseWait}` if the delay is increased.
      * - The schedule is `block.timestamp + (current delay - new delay)` if the delay is reduced.
+     * - The schedule is `block.timestamp + {defaultAdminDelayIncreaseWait}` if the delay is increased.
+     *
+     * A {pendingDefaultAdminDelay} that never got into effect will be canceled in favor of a new scheduled change.
      *
      * Requirements:
      *
-     * - No default admin transfer should've been started.
-     * - No new default admin transfers should happen before the scheduled change passes.
-     * - (schedule + new admin transfer) takes at least {defaultAdminDelay} or {defaultAdminDelayIncreaseWait}.
-     * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
-     * - Only can be called before another delay change takes effect, or after the scheduled change is reset
-     *   by calling {beginDefaultAdminTransfer}.
+     * - Only can be called by the current {defaultAdmin}.
      *
-     * Emits a DefaultAdminDelayChangeScheduled event.
+     * Emits a DefaultAdminDelayChangeScheduled event and may emit a DefaultAdminDelayChangeCanceled event.
      */
-    function changeDefaultAdminDelay(uint48 newDefaultAdminDelay) external;
+    function changeDefaultAdminDelay(uint48 newDelay) external;
 
     /**
-     * @dev Cancels a scheduled {defaultAdminDelay} change.
+     * @dev Cancels a scheduled {defaultAdminDelay} change if its schedule hasn't passed.
      *
      * Requirements:
      *
-     * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
-     * - Only can be called before another delay change takes effect, or after the scheduled change is reset
-     *   by calling {beginDefaultAdminTransfer}.
+     * - Only can be called by the current {defaultAdmin}.
+     *
+     * May emit a DefaultAdminDelayChangeCanceled event.
      */
     function rollbackDefaultAdminDelay() external;
 
     /**
-     * @dev Starts a `DEFAULT_ADMIN_ROLE` transfer by setting a pending default admin
-     * and a schedule to pass.
+     * @dev Starts a {defaultAdmin} transfer by setting {pendingDefaultAdmin} with a {defaultAdminDelay} schedule.
      *
      * Requirements:
      *
-     * - Only can be called by the current `DEFAULT_ADMIN_ROLE` holder.
+     * - Only can be called by the current {defaultAdmin}.
      *
      * Emits a DefaultAdminRoleChangeStarted event.
      */
     function beginDefaultAdminTransfer(address newAdmin) external;
 
     /**
-     * @dev Completes a `DEFAULT_ADMIN_ROLE` transfer.
+     * @dev Completes a {defaultAdmin} transfer.
+     *
+     * - `DEFAULT_ADMIN_ROLE` should be granted to the caller.
+     * - `DEFAULT_ADMIN_ROLE` should be revoked from the previous holder.
      *
      * Requirements:
      *
-     * - Caller should be the pending default admin.
-     * - `DEFAULT_ADMIN_ROLE` should be granted to the caller.
-     * - `DEFAULT_ADMIN_ROLE` should be revoked from the previous holder.
+     * - Only can be called by the {pendingDefaultAdmin}'s `newAdmin` and if its `scheduled` has passed.
      */
     function acceptDefaultAdminTransfer() external;
 
     /**
-     * @dev Cancels a `DEFAULT_ADMIN_ROLE` transfer.
+     * @dev Cancels a {defaultAdmin} transfer if there was a {pendingDefaultAdmin}.
+     *
+     * A {pendingDefaultAdmin} not yet accepted can also be cancelled with this function.
      *
      * Requirements:
      *
-     * - Can be called even after the schedule has passed.
-     * - Can only be called by the current `DEFAULT_ADMIN_ROLE` holder.
+     * - Only can be called by the current {defaultAdmin}.
+     *
+     * May emit a DefaultAdminTransferCanceled event.
      */
     function cancelDefaultAdminTransfer() external;
 }
