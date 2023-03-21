@@ -217,9 +217,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         _pendingDefaultAdminSchedule = newSchedule;
 
         // An `oldSchedule` from `pendingDefaultAdmin()` is only set if it hasn't been accepted.
-        if (_isScheduleSet(oldSchedule))
+        if (_isScheduleSet(oldSchedule)) {
             // Emit for implicit cancelations when another default admin was scheduled.
             emit DefaultAdminTransferCanceled();
+        }
     }
 
     /**
@@ -305,9 +306,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
 
         // An `oldSchedule` from `pendingDefaultAdminDelay()` is only set if it hasn't passed
         // So this is equivalent to a `_isScheduleSet(_pendingDelaySchedule) && !_hasSchedulePassed(_pendingDelaySchedule)`
-        if (_isScheduleSet(oldSchedule))
+        if (_isScheduleSet(oldSchedule)) {
             // Emit for implicit cancelations when another delay was scheduled.
             emit DefaultAdminDelayChangeCanceled();
+        }
 
         emit DefaultAdminDelayChangeScheduled(newDelay, newSchedule);
     }
@@ -322,10 +324,16 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         bool set = _isScheduleSet(delaySchedule);
         bool passed = _hasSchedulePassed(delaySchedule);
 
-        if (set && passed) _currentDelay = _pendingDelay; // Materialize a virtual delay
+        if (set && passed) {
+            _currentDelay = _pendingDelay; // Materialize a virtual delay
+        }
+
         delete _pendingDelay;
         delete _pendingDelaySchedule;
-        if (set && !passed) emit DefaultAdminDelayChangeCanceled();
+
+        if (set && !passed) {
+            emit DefaultAdminDelayChangeCanceled();
+        }
     }
 
     /**
