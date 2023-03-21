@@ -82,9 +82,14 @@ interface IAccessManager is IAuthority {
 contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     bytes32 _createdGroups;
 
-    mapping(address user => bytes32 groups) private _userGroups;
-    mapping(address target => mapping(bytes4 selector => bytes32 groups)) private _allowedGroups;
-    mapping(address target => RestrictedMode mode) private _contractMode;
+    // user -> groups
+    mapping(address => bytes32) private _userGroups;
+
+    // target -> selector -> groups
+    mapping(address => mapping(bytes4 => bytes32)) private _allowedGroups;
+
+    // target -> mode
+    mapping(address => RestrictedMode) private _contractMode;
 
     uint8 private constant _GROUP_PUBLIC = 255;
 
