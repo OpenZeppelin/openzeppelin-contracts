@@ -17,7 +17,7 @@ const badgeUtils = {
   role: badge => web3.utils.asciiToHex('badge:').padEnd(64, '0') + badge.toString(16).padStart(2, '0'),
 };
 
-contract('AccessManager', function ([admin, nonAdmin, user1, user2]) {
+contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthority]) {
   beforeEach('deploy', async function () {
     this.delay = duration.days(1);
     this.manager = await AccessManager.new(this.delay, admin);
@@ -177,5 +177,23 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2]) {
 
   describe('modes', function () {
     // TODO
+  });
+
+  describe('transfering authority', function () {
+    beforeEach('deploying managed contract', async function () {
+      this.managed = await AccessManaged.new(this.manager.address);
+    });
+
+    it('admin can transfer authority', async function () {
+      await this.manager.transferContractAuthority(this.managed.address, otherAuthority, { from: admin });
+      expect(await this.managed.authority()).to.equal(otherAuthority);
+    });
+
+    it('non-admin cannot transfer authority', async function () {
+      await expectRevert(
+        this.manager.transferContractAuthority(this.managed.address, otherAuthority, { from: nonAdmin }),
+        'missing role',
+      );
+    });
   });
 });

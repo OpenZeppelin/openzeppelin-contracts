@@ -5,6 +5,7 @@ pragma solidity ^0.8.18;
 import "../AccessControl.sol";
 import "../AccessControlDefaultAdminRules.sol";
 import "./IAuthority.sol";
+import "./AccessManaged.sol";
 
 interface IAccessManager is IAuthority {
     enum RestrictedMode {
@@ -43,8 +44,7 @@ interface IAccessManager is IAuthority {
 
     function setContractClosed(address target) external;
 
-    // TODO: Ability to eject a contract. See AccessManaged.setAuthority
-    // function transferContractAuthority(address target, address newAuthority) external;
+    function transferContractAuthority(address target, address newAuthority) external;
 }
 
 /**
@@ -227,6 +227,13 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     function setContractClosed(address target) public virtual onlyDefaultAdmin {
         _contractMode[target] = RestrictedMode.Closed;
         emit RestrictedModeUpdated(target, RestrictedMode.Closed);
+    }
+
+    /**
+     * @dev Transfers a target contract onto a new authority. The caller must be the default admin.
+     */
+    function transferContractAuthority(address target, address newAuthority) onlyDefaultAdmin public virtual {
+        AccessManaged(target).setAuthority(IAuthority(newAuthority));
     }
 
     /**
