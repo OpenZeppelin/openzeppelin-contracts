@@ -82,7 +82,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function defaultAdminDelay() public view virtual returns (uint48) {
         uint48 schedule = _pendingDelaySchedule;
-        return (_isSet(schedule) && _hasPassed(schedule)) ? _pendingDelay : _currentDelay;
+        return (_isScheduleSet(schedule) && _hasSchedulePassed(schedule)) ? _pendingDelay : _currentDelay;
     }
 
     /**
@@ -90,7 +90,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function pendingDefaultAdminDelay() public view virtual returns (uint48 newDelay, uint48 schedule) {
         schedule = _pendingDelaySchedule;
-        return (_isSet(schedule) && !_hasPassed(schedule)) ? (_pendingDelay, schedule) : (0, 0);
+        return (_isScheduleSet(schedule) && !_hasSchedulePassed(schedule)) ? (_pendingDelay, schedule) : (0, 0);
     }
 
     /**
@@ -161,7 +161,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         if (role == DEFAULT_ADMIN_ROLE) {
             (address newDefaultAdmin, uint48 schedule) = pendingDefaultAdmin();
             require(
-                newDefaultAdmin == address(0) && _isSet(schedule) && _hasPassed(schedule),
+                newDefaultAdmin == address(0) && _isScheduleSet(schedule) && _hasSchedulePassed(schedule),
                 "AccessControl: only can renounce in two delayed steps"
             );
         }
@@ -216,7 +216,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         _pendingDefaultAdminSchedule = newSchedule;
 
         // An `oldSchedule` from `pendingDefaultAdmin()` is only set if it hasn't been accepted.
-        if (_isSet(oldSchedule))
+        if (_isScheduleSet(oldSchedule))
             // Emit for implicit cancelations when another default admin was scheduled.
             emit DefaultAdminTransferCanceled();
     }
@@ -274,7 +274,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _acceptDefaultAdminTransfer() internal virtual {
         (address newAdmin, uint48 schedule) = pendingDefaultAdmin();
-        require(_isSet(schedule) && _hasPassed(schedule), "AccessControl: transfer delay not passed");
+        require(_isScheduleSet(schedule) && _hasSchedulePassed(schedule), "AccessControl: transfer delay not passed");
         _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
         _grantRole(DEFAULT_ADMIN_ROLE, newAdmin);
         delete _pendingDefaultAdmin;
@@ -303,8 +303,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         _pendingDelaySchedule = newSchedule;
 
         // An `oldSchedule` from `pendingDefaultAdminDelay()` is only set if it hasn't passed
-        // So this is equivalent to a `_isSet(_pendingDelaySchedule) && !_hasPassed(_pendingDelaySchedule)`
-        if (_isSet(oldSchedule))
+        // So this is equivalent to a `_isScheduleSet(_pendingDelaySchedule) && !_hasSchedulePassed(_pendingDelaySchedule)`
+        if (_isScheduleSet(oldSchedule))
             // Emit for implicit cancelations when another delay was scheduled.
             emit DefaultAdminDelayChangeCanceled();
 
@@ -318,8 +318,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _rollbackDefaultAdminDelay() internal virtual {
         uint48 delaySchedule = _pendingDelaySchedule;
-        bool set = _isSet(delaySchedule);
-        bool passed = _hasPassed(delaySchedule);
+        bool set = _isScheduleSet(delaySchedule);
+        bool passed = _hasSchedulePassed(delaySchedule);
 
         if (set && passed) _currentDelay = _pendingDelay; // Materialize a virtual delay
         delete _pendingDelay;
@@ -330,14 +330,14 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @dev Defines if an `schedule` is considered passed. For consistency purposes.
      */
-    function _hasPassed(uint48 schedule) private view returns (bool) {
+    function _hasSchedulePassed(uint48 schedule) private view returns (bool) {
         return schedule < block.timestamp;
     }
 
     /**
      * @dev Defines if an `schedule` is considered set.
      */
-    function _isSet(uint48 schedule) private pure returns (bool) {
+    function _isScheduleSet(uint48 schedule) private pure returns (bool) {
         return schedule != 0;
     }
 }
