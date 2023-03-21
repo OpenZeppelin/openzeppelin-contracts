@@ -282,7 +282,6 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         // Wait after schedule
         const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
         await time.setNextBlockTimestamp(firstSchedule.addn(1));
-        await network.provider.send('evm_mine'); // Mine a block to force the timestamp
 
         // Accepts
         await this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin });
