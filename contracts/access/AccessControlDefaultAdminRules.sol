@@ -194,7 +194,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      *
      * See {defaultAdminDelayIncreaseWait}.
      */
-    function _delayChangeWait(uint48 newDefaultAdminDelay) internal view returns (uint48) {
+    function _delayChangeWait(uint48 newDefaultAdminDelay) internal view virtual returns (uint48) {
         uint48 currentDelay = defaultAdminDelay();
 
         // Schedules defaultAdminDelayIncreaseWait() if the delay is increased, this is done so the user has time enough to fix an accidentally high new delay set.
