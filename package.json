@@ -12,7 +12,7 @@
   },
   "scripts": {
     "compile": "hardhat compile",
-    "coverage": "env COVERAGE=true hardhat coverage --testfiles \"test/access/accesscontroldefaultadminrules.test.js\"",
+    "coverage": "env COVERAGE=true hardhat coverage",
     "docs": "npm run prepare-docs && oz-docs",
     "docs:watch": "oz-docs watch contracts docs/templates docs/config.js",
     "prepare-docs": "scripts/prepare-docs.sh",
