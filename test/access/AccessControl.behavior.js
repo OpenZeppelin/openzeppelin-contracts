@@ -442,12 +442,12 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
           expect(newAdmin).to.equal(other);
           expect(schedule).to.be.bignumber.equal(newSchedule);
 
-          // Cancelation is always emitted since it was never accepted
+          // Cancellation is always emitted since it was never accepted
           expectEvent(receipt, 'DefaultAdminTransferCanceled');
         });
       }
 
-      it('should not emit a cancelation event if the new default admin accepted', async function () {
+      it('should not emit a cancellation event if the new default admin accepted', async function () {
         // Wait until the acceptSchedule has passed
         await time.setNextBlockTimestamp(acceptSchedule.addn(1));
 
@@ -601,7 +601,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         // Advance until passed delay
         await time.setNextBlockTimestamp(acceptSchedule.addn(1));
 
-        // Previous pending default admin should not be able to accept after cancelation.
+        // Previous pending default admin should not be able to accept after cancellation.
         await expectRevert(
           this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin }),
           `${errorPrefix}: pending admin must accept`,
@@ -764,7 +764,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
             });
 
             const emit = passed ? 'not emit' : 'emit';
-            it(`should ${emit} a cancelation event ${tag} the delay schedule passes`, async function () {
+            it(`should ${emit} a cancellation event ${tag} the delay schedule passes`, async function () {
               // Wait until schedule + fromSchedule
               const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
               await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
@@ -817,7 +817,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         });
 
         const emit = passed ? 'not emit' : 'emit';
-        it(`should ${emit} a cancelation event ${tag} the delay schedule passes`, async function () {
+        it(`should ${emit} a cancellation event ${tag} the delay schedule passes`, async function () {
           // Wait until schedule + fromSchedule
           const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdminDelay();
           await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
