@@ -21,6 +21,7 @@ import "../interfaces/IERC5313.sol";
  * * Only one account holds the `DEFAULT_ADMIN_ROLE` since deployment until it's potentially renounced.
  * * Enforces a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.
  * * Enforces a configurable delay between the two steps, with the ability to cancel before the transfer is accepted.
+ * * The delay can be changed by scheduling, see {changeDefaultAdminDelay}.
  * * It is not possible to use another role to manage the `DEFAULT_ADMIN_ROLE`.
  *
  * Example usage:
