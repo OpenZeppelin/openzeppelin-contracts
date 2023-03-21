@@ -249,6 +249,51 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     });
   }
 
+  describe('pendingDefaultAdmin()', function () {
+    it('returns 0 if no pending default admin transfer', async function () {
+      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+      expect(newAdmin).to.eq(ZERO_ADDRESS);
+      expect(schedule).to.be.bignumber.eq(ZERO);
+    });
+
+    describe('when there is a scheduled default admin transfer', function () {
+      beforeEach('begins admin transfer', async function () {
+        await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
+      });
+
+      for (const [fromSchedule, tag] of [
+        [-1, 'before'],
+        [0, 'exactly when'],
+        [1, 'after'],
+      ]) {
+        it(`returns pending admin and delay ${tag} delay schedule passes if not accepted`, async function () {
+          // Wait until schedule + fromSchedule
+          const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
+          await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
+          await network.provider.send('evm_mine'); // Mine a block to force the timestamp
+
+          const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+          expect(newAdmin).to.eq(newDefaultAdmin);
+          expect(schedule).to.be.bignumber.eq(firstSchedule);
+        });
+      }
+
+      it('returns 0 after delay schedule passes and the transfer was accepted', async function () {
+        // Wait after schedule
+        const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
+        await time.setNextBlockTimestamp(firstSchedule.addn(1));
+        await network.provider.send('evm_mine'); // Mine a block to force the timestamp
+
+        // Accepts
+        await this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin });
+
+        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+        expect(newAdmin).to.eq(ZERO_ADDRESS);
+        expect(schedule).to.be.bignumber.eq(ZERO);
+      });
+    });
+  });
+
   describe('defaultAdminDelay()', function () {
     it('returns the current delay', async function () {
       expect(await this.accessControl.defaultAdminDelay()).to.be.bignumber.eq(delay);
@@ -312,48 +357,11 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     });
   });
 
-  describe('pendingDefaultAdmin()', function () {
-    it('returns 0 if no pending default admin transfer', async function () {
-      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-      expect(newAdmin).to.eq(ZERO_ADDRESS);
-      expect(schedule).to.be.bignumber.eq(ZERO);
-    });
-
-    describe('when there is a scheduled default admin transfer', function () {
-      beforeEach('begins admin transfer', async function () {
-        await this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: defaultAdmin });
-      });
-
-      for (const [fromSchedule, tag] of [
-        [-1, 'before'],
-        [0, 'exactly when'],
-        [1, 'after'],
-      ]) {
-        it(`returns pending admin and delay ${tag} delay schedule passes if not accepted`, async function () {
-          // Wait until schedule + fromSchedule
-          const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
-          await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
-          await network.provider.send('evm_mine'); // Mine a block to force the timestamp
-
-          const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-          expect(newAdmin).to.eq(newDefaultAdmin);
-          expect(schedule).to.be.bignumber.eq(firstSchedule);
-        });
-      }
-
-      it('returns 0 after delay schedule passes and the transfer was accepted', async function () {
-        // Wait after schedule
-        const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
-        await time.setNextBlockTimestamp(firstSchedule.addn(1));
-        await network.provider.send('evm_mine'); // Mine a block to force the timestamp
-
-        // Accepts
-        await this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin });
-
-        const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
-        expect(newAdmin).to.eq(ZERO_ADDRESS);
-        expect(schedule).to.be.bignumber.eq(ZERO);
-      });
+  describe('defaultAdminDelayIncreaseWait()', function () {
+    it('should return 5 (default)', async function () {
+      expect(await this.accessControl.defaultAdminDelayIncreaseWait()).to.be.bignumber.eq(
+        web3.utils.toBN(time.duration.days(5)),
+      );
     });
   });
 

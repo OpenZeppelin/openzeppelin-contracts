@@ -12,17 +12,6 @@ import "./IAccessControl.sol";
  */
 interface IAccessControlDefaultAdminRules is IAccessControl {
     /**
-     * @dev Emitted when a {defaultAdminDelay} change is started, setting `newDelay` as the next
-     * delay to be applied between default admin transfer after `effectSchedule` has passed.
-     */
-    event DefaultAdminDelayChangeScheduled(uint48 newDelay, uint48 effectSchedule);
-
-    /**
-     * @dev Emitted when a {pendingDefaultAdminDelay} is reset if its schedule didn't pass.
-     */
-    event DefaultAdminDelayChangeCanceled();
-
-    /**
      * @dev Emitted when a {defaultAdmin} transfer is started, setting `newAdmin` as the next
      * address to become the {defaultAdmin} by calling {acceptDefaultAdminTransfer} only after `acceptSchedule`
      * passes.
@@ -35,20 +24,15 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     event DefaultAdminTransferCanceled();
 
     /**
-     * @dev Returns the delay between each {defaultAdmin} transfer.
-     *
-     * A scheduled delay change will take effect as soon as the schedule passes, returning the new delay.
+     * @dev Emitted when a {defaultAdminDelay} change is started, setting `newDelay` as the next
+     * delay to be applied between default admin transfer after `effectSchedule` has passed.
      */
-    function defaultAdminDelay() external view returns (uint48);
+    event DefaultAdminDelayChangeScheduled(uint48 newDelay, uint48 effectSchedule);
 
     /**
-     * @dev Returns a tuple where `newDelay` will be the new {defaultAdminDelay} after its `schedule` passes.
-     *
-     * A zero value in both indicates there's no pending delay change.
-     *
-     * NOTE: A zero value only for `newDelay` means that the next {defaultAdminDelay} will be zero.
+     * @dev Emitted when a {pendingDefaultAdminDelay} is reset if its schedule didn't pass.
      */
-    function pendingDefaultAdminDelay() external view returns (uint48 newDelay, uint48 schedule);
+    event DefaultAdminDelayChangeCanceled();
 
     /**
      * @dev Returns the address of the current `DEFAULT_ADMIN_ROLE` holder.
@@ -78,35 +62,20 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function defaultAdminDelayIncreaseWait() external view returns (uint48);
 
     /**
-     * @dev Begins a {defaultAdminDelay} change by scheduling the change in a way in which the
-     * current delay is still guaranteed to be respected.
+     * @dev Returns the delay between each {defaultAdmin} transfer.
      *
-     * The {defaultAdminDelayChangeSchedule} is defined such that `(its schedule + a delayed default admin transfer)`
-     * takes at least the current {defaultAdminDelay}, following that:
-     *
-     * - The schedule is `block.timestamp + (current delay - new delay)` if the delay is reduced.
-     * - The schedule is `block.timestamp + {defaultAdminDelayIncreaseWait}` if the delay is increased.
-     *
-     * A {pendingDefaultAdminDelay} that never got into effect will be canceled in favor of a new scheduled change.
-     *
-     * Requirements:
-     *
-     * - Only can be called by the current {defaultAdmin}.
-     *
-     * Emits a DefaultAdminDelayChangeScheduled event and may emit a DefaultAdminDelayChangeCanceled event.
+     * A scheduled delay change will take effect as soon as the schedule passes, returning the new delay.
      */
-    function changeDefaultAdminDelay(uint48 newDelay) external;
+    function defaultAdminDelay() external view returns (uint48);
 
     /**
-     * @dev Cancels a scheduled {defaultAdminDelay} change if its schedule hasn't passed.
+     * @dev Returns a tuple where `newDelay` will be the new {defaultAdminDelay} after its `schedule` passes.
      *
-     * Requirements:
+     * A zero value in both indicates there's no pending delay change.
      *
-     * - Only can be called by the current {defaultAdmin}.
-     *
-     * May emit a DefaultAdminDelayChangeCanceled event.
+     * NOTE: A zero value only for `newDelay` means that the next {defaultAdminDelay} will be zero.
      */
-    function rollbackDefaultAdminDelay() external;
+    function pendingDefaultAdminDelay() external view returns (uint48 newDelay, uint48 schedule);
 
     /**
      * @dev Starts a {defaultAdmin} transfer by setting {pendingDefaultAdmin} with a {defaultAdminDelay} schedule.
@@ -143,4 +112,35 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * May emit a DefaultAdminTransferCanceled event.
      */
     function cancelDefaultAdminTransfer() external;
+
+    /**
+     * @dev Begins a {defaultAdminDelay} change by scheduling the change in a way in which the
+     * current delay is still guaranteed to be respected.
+     *
+     * The {defaultAdminDelayChangeSchedule} is defined such that `(its schedule + a delayed default admin transfer)`
+     * takes at least the current {defaultAdminDelay}, following that:
+     *
+     * - The schedule is `block.timestamp + (current delay - new delay)` if the delay is reduced.
+     * - The schedule is `block.timestamp + {defaultAdminDelayIncreaseWait}` if the delay is increased.
+     *
+     * A {pendingDefaultAdminDelay} that never got into effect will be canceled in favor of a new scheduled change.
+     *
+     * Requirements:
+     *
+     * - Only can be called by the current {defaultAdmin}.
+     *
+     * Emits a DefaultAdminDelayChangeScheduled event and may emit a DefaultAdminDelayChangeCanceled event.
+     */
+    function changeDefaultAdminDelay(uint48 newDelay) external;
+
+    /**
+     * @dev Cancels a scheduled {defaultAdminDelay} change if its schedule hasn't passed.
+     *
+     * Requirements:
+     *
+     * - Only can be called by the current {defaultAdmin}.
+     *
+     * May emit a DefaultAdminDelayChangeCanceled event.
+     */
+    function rollbackDefaultAdminDelay() external;
 }
