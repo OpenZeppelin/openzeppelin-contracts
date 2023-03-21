@@ -1,5 +1,10 @@
 [
   {
+    "spec": "Pausable",
+    "contract": "PausableHarness",
+    "files": ["certora/harnesses/PausableHarness.sol"]
+  },
+  {
     "spec": "AccessControl",
     "contract": "AccessControlHarness",
     "files": ["certora/harnesses/AccessControlHarness.sol"]
