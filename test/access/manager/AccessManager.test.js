@@ -3,6 +3,7 @@ const {
   expectRevert,
   time: { duration },
 } = require('@openzeppelin/test-helpers');
+const { RestrictedMode } = require('../../helpers/enums');
 
 const AccessManager = artifacts.require('AccessManager');
 const AccessManaged = artifacts.require('$AccessManagedMock');
@@ -16,6 +17,8 @@ const groupUtils = {
   },
   role: group => web3.utils.asciiToHex('group:').padEnd(64, '0') + group.toString(16).padStart(2, '0'),
 };
+
+const PUBLIC_GROUP = '255';
 
 contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthority]) {
   beforeEach('deploy', async function () {
@@ -35,18 +38,16 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
     const otherName = 'council';
 
     describe('public group', function () {
-      const publicGroup = '255';
-
       it('is created automatically', async function () {
         await expectEvent.inConstruction(this.manager, 'GroupUpdated', {
-          group: publicGroup,
+          group: PUBLIC_GROUP,
           name: 'public',
         });
       });
 
       it('includes all users automatically', async function () {
         const groups = groupUtils.decodeBitmap(await this.manager.getUserGroups(user1));
-        expect(groups).to.include(publicGroup);
+        expect(groups).to.include(PUBLIC_GROUP);
       });
     });
 
@@ -176,7 +177,66 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
   });
 
   describe('modes', function () {
-    // TODO
+    const group = '1';
+    const selector = web3.eth.abi.encodeFunctionSignature('restrictedFunction()');
+
+    beforeEach('deploying managed contract', async function () {
+      this.managed = await AccessManaged.new(this.manager.address);
+      await this.manager.createGroup('1', 'a group', { from: admin });
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, true, { from: admin });
+    });
+
+    it('custom mode is default', async function () {
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(RestrictedMode.Custom);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
+      expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
+    });
+
+    it('open mode', async function () {
+      const receipt = await this.manager.setContractModeOpen(this.managed.address, { from: admin });
+      expectEvent(receipt, 'RestrictedModeUpdated', {
+        target: this.managed.address,
+        mode: RestrictedMode.Open,
+      });
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(RestrictedMode.Open);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
+      expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([PUBLIC_GROUP]);
+    });
+
+    it('closed mode', async function () {
+      const receipt = await this.manager.setContractModeClosed(this.managed.address, { from: admin });
+      expectEvent(receipt, 'RestrictedModeUpdated', {
+        target: this.managed.address,
+        mode: RestrictedMode.Closed,
+      });
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(RestrictedMode.Closed);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
+      expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([]);
+    });
+
+    it('mode cycle', async function () {
+      await this.manager.setContractModeOpen(this.managed.address, { from: admin });
+      await this.manager.setContractModeClosed(this.managed.address, { from: admin });
+      await this.manager.setContractModeCustom(this.managed.address, { from: admin });
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(RestrictedMode.Custom);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
+      expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
+    });
+
+    it('non-admin cannot change mode', async function () {
+      await expectRevert(
+        this.manager.setContractModeCustom(this.managed.address),
+        'missing role',
+      );
+      await expectRevert(
+        this.manager.setContractModeOpen(this.managed.address),
+        'missing role',
+      );
+      await expectRevert(
+        this.manager.setContractModeClosed(this.managed.address),
+        'missing role',
+      );
+    });
   });
 
   describe('transfering authority', function () {

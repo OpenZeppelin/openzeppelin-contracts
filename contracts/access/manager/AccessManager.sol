@@ -40,9 +40,11 @@ interface IAccessManager is IAuthority {
 
     function getContractMode(address target) external view returns (RestrictedMode);
 
-    function setContractOpen(address target) external;
+    function setContractModeCustom(address target) external;
 
-    function setContractClosed(address target) external;
+    function setContractModeOpen(address target) external;
+
+    function setContractModeClosed(address target) external;
 
     function transferContractAuthority(address target, address newAuthority) external;
 }
@@ -212,10 +214,19 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
+     * @dev Sets the target contract to be in custom restricted mode. All restricted functions in the target contract
+     * will follow the group-based restrictions defined by the AccessManager. The caller must be the default admin.
+     */
+    function setContractModeCustom(address target) public virtual onlyDefaultAdmin {
+        _contractMode[target] = RestrictedMode.Custom;
+        emit RestrictedModeUpdated(target, RestrictedMode.Custom);
+    }
+
+    /**
      * @dev Sets the target contract to be in "open" mode. All restricted functions in the target contract will become
      * callable by anyone. The caller must be the default admin.
      */
-    function setContractOpen(address target) public virtual onlyDefaultAdmin {
+    function setContractModeOpen(address target) public virtual onlyDefaultAdmin {
         _contractMode[target] = RestrictedMode.Open;
         emit RestrictedModeUpdated(target, RestrictedMode.Open);
     }
@@ -224,7 +235,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Sets the target contract to be in "closed" mode. All restricted functions in the target contract will be
      * closed down and disallowed to all. The caller must be the default admin.
      */
-    function setContractClosed(address target) public virtual onlyDefaultAdmin {
+    function setContractModeClosed(address target) public virtual onlyDefaultAdmin {
         _contractMode[target] = RestrictedMode.Closed;
         emit RestrictedModeUpdated(target, RestrictedMode.Closed);
     }
