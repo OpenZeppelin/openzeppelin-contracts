@@ -335,7 +335,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev Defines if an `schedule` is considered set.
+     * @dev Defines if an `schedule` is considered set. For consistency purposes.
      */
     function _isScheduleSet(uint48 schedule) private pure returns (bool) {
         return schedule != 0;

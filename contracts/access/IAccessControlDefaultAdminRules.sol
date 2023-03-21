@@ -119,7 +119,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * @dev Begins a {defaultAdminDelay} change by scheduling the change in a way in which the
      * current delay is still guaranteed to be respected.
      *
-     * The {defaultAdminDelayChangeSchedule} is defined such that `(its schedule + a delayed default admin transfer)`
+     * The {pendingDefaultAdminDelay}'s schedule is defined such that `(its schedule + a delayed default admin transfer)`
      * takes at least the current {defaultAdminDelay}, following that:
      *
      * - The schedule is `block.timestamp + (current delay - new delay)` if the delay is reduced.
