@@ -7,11 +7,17 @@ import "../AccessControlDefaultAdminRules.sol";
 import "./IAuthority.sol";
 
 interface IAccessManager is IAuthority {
+    enum RestrictedMode {
+        Custom,
+        Closed,
+        Open
+    }
+
     event BadgeUpdated(uint8 indexed badge, string name);
 
-    event BadgeAllowed(bytes32 indexed group, bytes4 indexed selector, uint8 indexed badge, bool allowed);
+    event BadgeAllowed(address indexed target, bytes4 indexed selector, uint8 indexed badge, bool allowed);
 
-    event ContractGroupUpdated(address indexed target, bytes32 indexed group);
+    event RestrictedModeUpdated(address indexed target, RestrictedMode indexed mode);
 
     function createBadge(uint8 badge, string calldata name) external;
 
@@ -29,20 +35,9 @@ interface IAccessManager is IAuthority {
 
     function getFunctionAllowedBadges(address target, bytes4 selector) external view returns (bytes32 badges);
 
-    function getFunctionAllowedBadges(string calldata group, bytes4 selector) external view returns (bytes32 badges);
-
     function setFunctionAllowedBadge(address target, bytes4[] calldata selectors, uint8 badge, bool allowed) external;
 
-    function setFunctionAllowedBadge(
-        string calldata group,
-        bytes4[] calldata selectors,
-        uint8 badge,
-        bool allowed
-    ) external;
-
-    function getContractGroup(address target) external view returns (bytes32);
-
-    function setContractGroup(address target, string calldata groupName) external;
+    function getContractMode(address target) external view returns (RestrictedMode);
 
     function setContractOpen(address target) external;
 
@@ -53,53 +48,43 @@ interface IAccessManager is IAuthority {
 }
 
 /**
- * @dev AccessManager is a central contract that stores the permissions of a system. It is an AccessControl contract,
- * i.e. it has roles and all the standard functions like `grantRole` and `revokeRole`, but it defines a particular set
- * of roles, with a particular structure.
+ * @dev AccessManager is a central contract to store the permissions of a system.
  *
- * Users are granted "badges". Badges must be created before they can be granted, with a maximum of 255 created badges.
- * A user can be granted multiple badges. Each badge defines an AccessControl role, identified by a role id that starts
- * with the ASCII characters `badge:`, followed by zeroes, and ending with the single byte corresponding to the badge
- * number.
+ * The smart contracts under the control of an AccessManager instance will have a set of "restricted" functions, and the
+ * exact details of how access is restricted for each of those functions is configurable by the admins of the instance.
+ * These restrictions are expressed in terms of "badges".
  *
- * Contracts in the system may be grouped as well. These are simply called "contract groups". There can be an arbitrary
- * number of groups. Each contract can only be in one group at a time. In the simplest setup, each contract is assigned
- * to its own separate group, but groups can also be shared among similar contracts.
+ * An AccessManager instance will define a set of badges. Each of them must be created before they can be granted, with
+ * a maximum of 255 created badges. Users can be granted any number of these badges. Each of them defines an
+ * AccessControl role, and may confer access to some of the restricted functions in the system, as configured by admins
+ * through the use of {setFunctionAllowedBadge}.
  *
- * All contracts in a group share the same permissioning scheme. A permissioning scheme consists of a mapping between
- * functions and allowed badges. Each function can be allowed to multiple badges, meaning that if a user has at least
- * one of the allowed badges they can call that function.
+ * Note that a function in a target contract may become permissioned in this way only when: 1) said contract is
+ * {AccessManaged} and is connected to this contract as its manager, and 2) said function is decorated with the
+ * `restricted` modifier.
  *
- * Note that a function in a target contract may become permissioned only when: 1) said contract is {AccessManaged} and
- * is connected to this contract as its manager, and 2) said function is decorated with the `restricted` modifier.
+ * There is a special badge defined by default named "public" which all accounts automatically have.
  *
- * There is a special badge defined by default named "public" which all accounts automatically have, and two special
- * contract groups: 1) the "open" group, where all functions are allowed to the "public" badge, and 2) the "closed"
- * group, where no function is allowed to any badge.
+ * Contracts can also be configured in two special modes: 1) the "open" mode, where all functions are allowed to the
+ * "public" badge, and 2) the "closed" mode, where no function is allowed to any badge.
  *
- * Permissioning schemes and badge and contract group assignments can be configured by the default admin. The contract
- * includes {AccessControlDefaultAdminRules} by default to enforce security rules on this account. Additionally, it is
- * expected that the account will be highly secured (e.g., a multisig or a well-configured DAO) as all the permissions
- * of the managed system can be modified by it.
+ * Since all the permissions of the managed system can be modified by the admins of this instance, it is expected that
+ * it will be highly secured (e.g., a multisig or a well-configured DAO). Additionally, {AccessControlDefaultAdminRules}
+ * is included to enforce security rules on this account.
  *
  * NOTE: Some of the functions in this contract, such as {getUserBadges}, return a `bytes32` bitmap to succintly
  * represent a set of badges. In a bitmap, bit `n` (counting from the least significant bit) will be 1 if and only if
- * the badge with number `n` is in the set.
+ * the badge with number `n` is in the set. For example, the hex value `0x05` represents the set of the two badges
+ * numbered 0 and 2.
  */
 contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     bytes32 _createdBadges;
+
     mapping(address user => bytes32 badges) private _userBadges;
-    mapping(bytes32 group => mapping(bytes4 selector => bytes32 badges)) private _allowedBadges;
-    mapping(address target => bytes32 group) private _contractGroup;
+    mapping(address target => mapping(bytes4 selector => bytes32 badges)) private _allowedBadges;
+    mapping(address target => RestrictedMode mode) private _contractMode;
 
     uint8 private constant _BADGE_PUBLIC = 255;
-
-    bytes32 private constant _GROUP_UNSET = 0;
-    bytes32 private constant _GROUP_OPEN = "group:open";
-    bytes32 private constant _GROUP_CLOSED = "group:closed";
-
-    bytes14 private constant _GROUP_SOLO_PREFIX = "group:solo:";
-    bytes13 private constant _GROUP_CUSTOM_PREFIX = "group:custom:";
 
     /**
      * @dev Initializes an AccessManager with initial default admin and transfer delay.
@@ -188,35 +173,22 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
 
     /**
      * @dev Returns a bitmap of the badges that are allowed to call a function of a target contract. If the target
-     * contract is in a group, the group's permissions are returned.
+     * contract is in open or closed mode it will be reflected in the return value.
      */
     function getFunctionAllowedBadges(address target, bytes4 selector) public view virtual returns (bytes32) {
-        return _getFunctionAllowedBadges(getContractGroup(target), selector);
-    }
-
-    /**
-     * @dev Returns a bitmap of the badges that are allowed to call a function of a group of contracts.
-     */
-    function getFunctionAllowedBadges(string calldata group, bytes4 selector) public view virtual returns (bytes32) {
-        return _getFunctionAllowedBadges(_encodeCustomGroup(group), selector);
-    }
-
-    /**
-     * @dev Returns a bitmap of the badges that are allowed to call a function selector of a contract group.
-     */
-    function _getFunctionAllowedBadges(bytes32 group, bytes4 selector) internal view virtual returns (bytes32) {
-        if (group == _GROUP_OPEN) {
+        RestrictedMode mode = getContractMode(target);
+        if (mode == RestrictedMode.Open) {
             return _badgeMask(_BADGE_PUBLIC);
-        } else if (group == _GROUP_CLOSED) {
+        } else if (mode == RestrictedMode.Closed) {
             return 0;
         } else {
-            return _allowedBadges[group][selector];
+            return _allowedBadges[target][selector];
         }
     }
 
     /**
-     * @dev Changes whether a badge is allowed to call a function of a contract group, according to the `allowed`
-     * argument. The caller must be the default admin.
+     * @dev Changes whether a badge is allowed to call a function of a contract, according to the `allowed` argument.
+     * The caller must be the default admin.
      */
     function setFunctionAllowedBadge(
         address target,
@@ -224,86 +196,37 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         uint8 badge,
         bool allowed
     ) public virtual {
-        require(_contractGroup[target] == 0);
-        _setFunctionAllowedBadge(_encodeSoloGroup(target), selectors, badge, allowed);
-    }
-
-    /**
-     * @dev Changes whether a badge is allowed to call a function of a contract group, according to the `allowed`
-     * argument. The caller must be the default admin.
-     */
-    function setFunctionAllowedBadge(
-        string calldata group,
-        bytes4[] calldata selectors,
-        uint8 badge,
-        bool allowed
-    ) public virtual {
-        _setFunctionAllowedBadge(_encodeCustomGroup(group), selectors, badge, allowed);
-    }
-
-    /**
-     * @dev Changes whether a badge is allowed to call a function of a contract group, according to the `allowed`
-     * argument. The caller must be the default admin.
-     */
-    function _setFunctionAllowedBadge(
-        bytes32 group,
-        bytes4[] calldata selectors,
-        uint8 badge,
-        bool allowed
-    ) internal virtual onlyDefaultAdmin {
-        require(group != 0);
+        require(_contractMode[target] == RestrictedMode.Custom);
         for (uint256 i = 0; i < selectors.length; i++) {
             bytes4 selector = selectors[i];
-            _allowedBadges[group][selector] = _withUpdatedBadge(_allowedBadges[group][selector], badge, allowed);
-            emit BadgeAllowed(group, selector, badge, allowed);
+            _allowedBadges[target][selector] = _withUpdatedBadge(_allowedBadges[target][selector], badge, allowed);
+            emit BadgeAllowed(target, selector, badge, allowed);
         }
     }
 
     /**
-     * @dev Returns the group of the target contract, which may be its solo group (the default), a custom group, or
-     * the open or closed groups.
+     * @dev Returns the mode of the target contract, which may be custom (`0`), closed (`1`), or open (`2`).
      */
-    function getContractGroup(address target) public view virtual returns (bytes32) {
-        bytes32 group = _contractGroup[target];
-        if (group == _GROUP_UNSET) {
-            return _encodeSoloGroup(target);
-        } else {
-            return group;
-        }
-    }
-
-    // TODO: filter open/closed?
-    /**
-     * @dev Sets the contract group that the target belongs to. The caller must be the default admin.
-     *
-     * CAUTION: This is a batch operation that will immediately switch the mapping of functions to allowed badges.
-     * Accounts that were previously able to call permissioned functions on the target contract may no longer be
-     * allowed, and new sets of account may be allowed after this operation.
-     */
-    function setContractGroup(address target, string calldata groupName) public virtual onlyDefaultAdmin {
-        bytes32 group = _encodeCustomGroup(groupName);
-        _contractGroup[target] = group;
-        emit ContractGroupUpdated(target, group);
+    function getContractMode(address target) public view virtual returns (RestrictedMode) {
+        return _contractMode[target];
     }
 
     /**
-     * @dev Sets the target contract to be in the "open" group. All restricted functions in the target contract will
-     * become callable by anyone. The caller must be the default admin.
+     * @dev Sets the target contract to be in "open" mode. All restricted functions in the target contract will become
+     * callable by anyone. The caller must be the default admin.
      */
     function setContractOpen(address target) public virtual onlyDefaultAdmin {
-        bytes32 group = _GROUP_OPEN;
-        _contractGroup[target] = group;
-        emit ContractGroupUpdated(target, group);
+        _contractMode[target] = RestrictedMode.Open;
+        emit RestrictedModeUpdated(target, RestrictedMode.Open);
     }
 
     /**
-     * @dev Sets the target contract to be in the "closed" group. All restricted functions in the target contract will
-     * be closed down and disallowed to all. The caller must be the default admin.
+     * @dev Sets the target contract to be in "closed" mode. All restricted functions in the target contract will be
+     * closed down and disallowed to all. The caller must be the default admin.
      */
     function setContractClosed(address target) public virtual onlyDefaultAdmin {
-        bytes32 group = _GROUP_CLOSED;
-        _contractGroup[target] = group;
-        emit ContractGroupUpdated(target, group);
+        _contractMode[target] = RestrictedMode.Closed;
+        emit RestrictedModeUpdated(target, RestrictedMode.Closed);
     }
 
     /**
@@ -363,50 +286,6 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     }
 
     /**
-     * @dev Returns the solo group id for a target contract.
-     *
-     * The group id consists of the ASCII characters `group:solo:` followed by the contract address bytes.
-     */
-    function _encodeSoloGroup(address target) internal pure virtual returns (bytes32) {
-        return _GROUP_SOLO_PREFIX | (bytes32(bytes20(target)) >> (_GROUP_SOLO_PREFIX.length << 3));
-    }
-
-    /**
-     * @dev Returns the custom group id for a given group name.
-     *
-     * The group id consists of the ASCII characters `group:custom:` followed by the group name.
-     */
-    function _encodeCustomGroup(string calldata groupName) internal pure virtual returns (bytes32) {
-        require(!_containsNullBytes(bytes32(bytes(groupName)), bytes(groupName).length));
-        require(bytes(groupName).length + _GROUP_CUSTOM_PREFIX.length < 31);
-        return _GROUP_CUSTOM_PREFIX | (bytes32(bytes(groupName)) >> (_GROUP_CUSTOM_PREFIX.length << 3));
-    }
-
-    /**
-     * @dev Returns the custom group id for a given group name.
-     *
-     * The group id consists of the ASCII characters `group:custom:` followed by the group name.
-     */
-    function _decodeCustomGroup(bytes32 group) internal pure virtual returns (string memory) {
-        string memory name = new string(32);
-        uint256 nameLength = uint256(group) & 0xff;
-        bytes32 nameBytes = group << _GROUP_CUSTOM_PREFIX.length;
-        /// @solidity memory-safe-assembly
-        assembly {
-            mstore(name, nameLength)
-            mstore(add(name, 0x20), nameBytes)
-        }
-        return name;
-    }
-
-    /**
-     * @dev Returns true if the group is one of "open", "closed", or unset (zero).
-     */
-    function _isSpecialGroup(bytes32 group) private pure returns (bool) {
-        return group == _GROUP_OPEN || group == _GROUP_CLOSED;
-    }
-
-    /**
      * @dev Returns a bit mask where the only non-zero bit is the badge number bit.
      */
     function _badgeMask(uint8 badge) private pure returns (bytes32) {
@@ -430,35 +309,5 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         } else {
             return bitmap & ~mask;
         }
-    }
-
-    /**
-     * @dev Returns true if the word contains any NUL bytes in the highest `scope` bytes. `scope` must be at most 32.
-     */
-    function _containsNullBytes(bytes32 word, uint256 scope) private pure returns (bool) {
-        // We will operate on every byte of the word simultaneously
-        // We visualize the 8 bits of each byte as word[i] = 01234567
-
-        // Take bitwise OR of all bits in each byte
-        word |= word >> 4; // word[i] = 01234567 | ____0123 = ____abcd
-        word |= word >> 2; // word[i] = ____abcd | ______ab = ______xy
-        word |= word >> 1; // word[i] = ______xy | _______x = _______z
-
-        // z is 1 iff any bit of word[i] is 1
-
-        // Every byte in `low` is 0x01
-        bytes32 low = hex"0101010101010101010101010101010101010101010101010101010101010101";
-
-        // Select the lowest bit only and take its complement
-        word &= low; // word[i] = 0000000z
-        word ^= low; // word[i] = 0000000Z (Z = ~z)
-
-        // Ignore anything past the scope
-        unchecked {
-            word >>= 32 - scope;
-        }
-
-        // If any byte in scope was 0x00 it will now contain 00000001
-        return word != 0;
     }
 }

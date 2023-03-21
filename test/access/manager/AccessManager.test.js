@@ -175,7 +175,7 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2]) {
     });
   });
 
-  describe('groups', function () {
+  describe('modes', function () {
     // TODO
   });
 });
