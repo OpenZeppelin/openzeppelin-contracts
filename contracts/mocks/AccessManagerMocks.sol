@@ -24,11 +24,11 @@ contract SimpleAuthority is IAuthority {
 abstract contract AccessManagedMock is AccessManaged {
     event RestrictedRan();
 
-    function restrictedFunction() public restricted {
+    function restrictedFunction() external restricted {
         emit RestrictedRan();
     }
 
-    function otherRestrictedFunction() public restricted {
+    function otherRestrictedFunction() external restricted {
         emit RestrictedRan();
     }
 }
