@@ -24,7 +24,7 @@ contract AccessManaged {
      * [IMPORTANT]
      * ====
      * In general, this modifier should only be used on `external` functions. It is okay to use it on `public` functions
-     * that are used as external entry points and are not called internally. Unless you know what you're oding, it
+     * that are used as external entry points and are not called internally. Unless you know what you're doing, it
      * should never be used on `internal` functions. Failure to follow these rules can have critical security
      * implications! This is because the permissions are determined by the function that entered the contract, i.e. the
      * function at the bottom of the call stack, and not the function where the modifier is visible in the source code.
