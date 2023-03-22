@@ -224,13 +224,20 @@ contract('AccessManager', function (accounts) {
     });
 
     it('single selector', async function () {
-      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      const receipt = await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
         this.managed.address,
         [selector],
         group,
         true,
         { from: admin },
       );
+
+      expectEvent(receipt, 'GroupAllowed', {
+        target: this.managed.address,
+        selector: selector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4
+        group,
+        allowed: true,
+      });
 
       const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
@@ -248,13 +255,27 @@ contract('AccessManager', function (accounts) {
     });
 
     it('multiple selectors', async function () {
-      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      const receipt = await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
         this.managed.address,
         [selector, otherSelector],
         group,
         true,
         { from: admin },
       );
+
+      expectEvent(receipt, 'GroupAllowed', {
+        target: this.managed.address,
+        selector: selector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4
+        group,
+        allowed: true,
+      });
+
+      expectEvent(receipt, 'GroupAllowed', {
+        target: this.managed.address,
+        selector: otherSelector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4
+        group,
+        allowed: true,
+      });
 
       const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
@@ -331,13 +352,20 @@ contract('AccessManager', function (accounts) {
     });
 
     it('single selector', async function () {
-      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      const receipt = await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
         this.managed.address,
         [selector],
         group,
         false,
         { from: admin },
       );
+
+      expectEvent(receipt, 'GroupAllowed', {
+        target: this.managed.address,
+        selector: selector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4,
+        group,
+        allowed: false,
+      });
 
       const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([]);
@@ -352,13 +380,27 @@ contract('AccessManager', function (accounts) {
     });
 
     it('multiple selectors', async function () {
-      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      const receipt = await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
         this.managed.address,
         [selector, otherSelector],
         group,
         false,
         { from: admin },
       );
+
+      expectEvent(receipt, 'GroupAllowed', {
+        target: this.managed.address,
+        selector: selector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4
+        group,
+        allowed: false,
+      });
+
+      expectEvent(receipt, 'GroupAllowed', {
+        target: this.managed.address,
+        selector: otherSelector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4
+        group,
+        allowed: false,
+      });
 
       const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([]);
