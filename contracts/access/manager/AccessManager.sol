@@ -77,7 +77,7 @@ interface IAccessManager is IAuthority {
  * NOTE: Some of the functions in this contract, such as {getUserGroups}, return a `bytes32` bitmap to succintly
  * represent a set of groups. In a bitmap, bit `n` (counting from the least significant bit) will be 1 if and only if
  * the group with number `n` is in the set. For example, the hex value `0x05` represents the set of the two groups
- * numbered 0 and 2.
+ * numbered 0 and 2 from its binary equivalence `0b101`
  */
 contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     bytes32 _createdGroups;
