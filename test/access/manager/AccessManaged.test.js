@@ -23,7 +23,7 @@ contract('AccessManaged', function (accounts) {
       const managed = await AccessManaged.new(authority);
       const set = await managed.setAuthority(other, { from: authority });
       expectEvent(set, 'AuthorityUpdated', {
-        oldAuthority: authority,
+        sender: authority,
         newAuthority: other,
       });
       expect(await managed.authority()).to.equal(other);
