@@ -66,6 +66,11 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
       it('non-admin cannot create groups', async function () {
         await expectRevert(this.manager.createGroup(group, name, { from: nonAdmin }), 'missing role');
       });
+
+      it('cannot recreate a group', async function () {
+        await this.manager.createGroup(group, name, { from: admin });
+        await expectRevert(this.manager.createGroup(group, name, { from: admin }), 'AccessManager: existing group');
+      });
     });
 
     describe('updating', function () {
@@ -80,6 +85,20 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
 
       it('non-admin cannot update group', async function () {
         await expectRevert(this.manager.updateGroupName(group, name, { from: nonAdmin }), 'missing role');
+      });
+
+      it('cannot update built in group', async function () {
+        await expectRevert(
+          this.manager.updateGroupName(PUBLIC_GROUP, name, { from: admin }),
+          'AccessManager: built-in group',
+        );
+      });
+
+      it('cannot update nonexistent group', async function () {
+        await expectRevert(
+          this.manager.updateGroupName(otherGroup, name, { from: admin }),
+          'AccessManager: unknown group',
+        );
       });
     });
 
@@ -97,6 +116,10 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
 
       it('non-admin cannot grant group', async function () {
         await expectRevert(this.manager.grantGroup(user1, group, { from: nonAdmin }), 'missing role');
+      });
+
+      it('cannot grant nonexistent group', async function () {
+        await expectRevert(this.manager.grantGroup(user1, otherGroup, { from: admin }), 'AccessManager: unknown group');
       });
     });
 
@@ -130,6 +153,24 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
         await expectRevert(
           this.manager.renounceGroup(user2, group, { from: user1 }),
           'can only renounce roles for self',
+        );
+      });
+
+      it('cannot revoke public group', async function () {
+        await expectRevert(
+          this.manager.revokeGroup(user1, PUBLIC_GROUP, { from: admin }),
+          'AccessManager: irrevocable group',
+        );
+      });
+
+      it('cannot revoke nonexistent group', async function () {
+        await expectRevert(
+          this.manager.revokeGroup(user1, otherGroup, { from: admin }),
+          'AccessManager: unknown group',
+        );
+        await expectRevert(
+          this.manager.renounceGroup(user1, otherGroup, { from: user1 }),
+          'AccessManager: unknown group',
         );
       });
     });

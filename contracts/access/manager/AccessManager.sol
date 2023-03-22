@@ -130,7 +130,8 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Updates an existing group's name. The caller must be the default admin.
      */
     function updateGroupName(uint8 group, string memory name) public virtual onlyDefaultAdmin {
-        require(group != _GROUP_PUBLIC && hasGroup(group));
+        require(group != _GROUP_PUBLIC, "AccessManager: built-in group");
+        require(hasGroup(group), "AccessManager: unknown group");
         emit GroupUpdated(group, name);
     }
 
@@ -255,7 +256,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * Emits {GroupUpdated}.
      */
     function _createGroup(uint8 group, string memory name) internal virtual {
-        require(!hasGroup(group));
+        require(!hasGroup(group), "AccessManager: existing group");
         _createdGroups = _withUpdatedGroup(_createdGroups, group, true);
         emit GroupUpdated(group, name);
     }
@@ -267,7 +268,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         super._grantRole(role, user);
         (bool isGroup, uint8 group) = _decodeGroupRole(role);
         if (isGroup) {
-            require(hasGroup(group));
+            require(hasGroup(group), "AccessManager: unknown group");
             _userGroups[user] = _withUpdatedGroup(_userGroups[user], group, true);
         }
     }
@@ -279,8 +280,8 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         super._revokeRole(role, user);
         (bool isGroup, uint8 group) = _decodeGroupRole(role);
         if (isGroup) {
-            require(hasGroup(group));
-            require(group != _GROUP_PUBLIC);
+            require(hasGroup(group), "AccessManager: unknown group");
+            require(group != _GROUP_PUBLIC, "AccessManager: irrevocable group");
             _userGroups[user] = _withUpdatedGroup(_userGroups[user], group, false);
         }
     }
