@@ -200,7 +200,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         bytes4[] calldata selectors,
         uint8 group,
         bool allowed
-    ) public virtual {
+    ) public virtual onlyDefaultAdmin {
         require(_contractMode[target] == RestrictedMode.Custom, "AccessManager: target in special mode");
         for (uint256 i = 0; i < selectors.length; i++) {
             bytes4 selector = selectors[i];
