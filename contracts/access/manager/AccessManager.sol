@@ -221,8 +221,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * will follow the group-based restrictions defined by the AccessManager. The caller must be the default admin.
      */
     function setContractModeCustom(address target) public virtual onlyDefaultAdmin {
-        _contractMode[target] = RestrictedMode.Custom;
-        emit RestrictedModeUpdated(target, RestrictedMode.Custom);
+        _setContractMode(target, RestrictedMode.Custom);
     }
 
     /**
@@ -230,8 +229,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * callable by anyone. The caller must be the default admin.
      */
     function setContractModeOpen(address target) public virtual onlyDefaultAdmin {
-        _contractMode[target] = RestrictedMode.Open;
-        emit RestrictedModeUpdated(target, RestrictedMode.Open);
+        _setContractMode(target, RestrictedMode.Open);
     }
 
     /**
@@ -239,8 +237,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * closed down and disallowed to all. The caller must be the default admin.
      */
     function setContractModeClosed(address target) public virtual onlyDefaultAdmin {
-        _contractMode[target] = RestrictedMode.Closed;
-        emit RestrictedModeUpdated(target, RestrictedMode.Closed);
+        _setContractMode(target, RestrictedMode.Closed);
     }
 
     /**
@@ -284,6 +281,14 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
             require(group != _GROUP_PUBLIC, "AccessManager: irrevocable group");
             _userGroups[user] = _withUpdatedGroup(_userGroups[user], group, false);
         }
+    }
+
+    /**
+     * @dev Sets the restricted mode of a target contract.
+     */
+    function _setContractMode(address target, RestrictedMode mode) internal virtual {
+        _contractMode[target] = mode;
+        emit RestrictedModeUpdated(target, mode);
     }
 
     /**
