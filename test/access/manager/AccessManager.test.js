@@ -228,18 +228,9 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
     });
 
     it('non-admin cannot change mode', async function () {
-      await expectRevert(
-        this.manager.setContractModeCustom(this.managed.address),
-        'missing role',
-      );
-      await expectRevert(
-        this.manager.setContractModeOpen(this.managed.address),
-        'missing role',
-      );
-      await expectRevert(
-        this.manager.setContractModeClosed(this.managed.address),
-        'missing role',
-      );
+      await expectRevert(this.manager.setContractModeCustom(this.managed.address), 'missing role');
+      await expectRevert(this.manager.setContractModeOpen(this.managed.address), 'missing role');
+      await expectRevert(this.manager.setContractModeClosed(this.managed.address), 'missing role');
     });
   });
 
