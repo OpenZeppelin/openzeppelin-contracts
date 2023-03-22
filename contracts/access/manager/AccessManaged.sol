@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.0;
 
+import "../../utils/Context.sol";
 import "./IAuthority.sol";
 
 /**
@@ -12,8 +13,8 @@ import "./IAuthority.sol";
  * IMPORTANT: The `restricted` modifier should never be used on `internal` functions, judiciously used in `public`
  * functions, and ideally only used in `external` functions. See {restricted}.
  */
-contract AccessManaged {
-    event AuthorityUpdated(IAuthority indexed oldAuthority, IAuthority indexed newAuthority);
+contract AccessManaged is Context {
+    event AuthorityUpdated(address indexed sender, IAuthority indexed newAuthority);
 
     IAuthority private _authority;
 
@@ -31,7 +32,7 @@ contract AccessManaged {
      * ====
      */
     modifier restricted() {
-        _checkCanCall(msg.sender, msg.sig);
+        _checkCanCall(_msgSender(), msg.sig);
         _;
     }
 
@@ -53,7 +54,7 @@ contract AccessManaged {
      * @dev Transfers control to a new authority. The caller must be the current authority.
      */
     function setAuthority(IAuthority newAuthority) public virtual {
-        require(msg.sender == address(_authority), "AccessManaged: not current authority");
+        require(_msgSender() == address(_authority), "AccessManaged: not current authority");
         _setAuthority(newAuthority);
     }
 
@@ -61,9 +62,8 @@ contract AccessManaged {
      * @dev Transfers control to a new authority. Internal function with no access restriction.
      */
     function _setAuthority(IAuthority newAuthority) internal virtual {
-        IAuthority oldAuthority = _authority;
         _authority = newAuthority;
-        emit AuthorityUpdated(oldAuthority, newAuthority);
+        emit AuthorityUpdated(_msgSender(), newAuthority);
     }
 
     /**
