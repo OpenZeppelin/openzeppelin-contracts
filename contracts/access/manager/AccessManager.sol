@@ -306,11 +306,11 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     /**
      * @dev Decodes a role id into a group, if it is a role id of the kind returned by {_encodeGroupRole}.
      */
-    function _decodeGroupRole(bytes32 role) internal pure virtual returns (bool, uint8) {
+    function _decodeGroupRole(bytes32 role) internal pure virtual returns (bool isGroup, uint8 group) {
         bytes32 tagMask = ~bytes32(uint256(0xff));
         bytes32 tag = role & tagMask;
-        uint8 group = uint8(role[31]);
-        return (tag == bytes32("group:"), group);
+        isGroup = tag == bytes32("group:");
+        group = uint8(role[31]);
     }
 
     /**
