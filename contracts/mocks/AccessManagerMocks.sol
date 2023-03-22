@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.13;
 
 import "../access/manager/IAuthority.sol";
 import "../access/manager/AccessManaged.sol";
