@@ -38,7 +38,7 @@ contract('AccessManaged', function (accounts) {
   describe('restricted', function () {
     const selector = web3.eth.abi.encodeFunctionSignature('restrictedFunction()');
 
-    it('allows if authority says true', async function () {
+    it('allows if authority returns true', async function () {
       const authority = await SimpleAuthority.new();
       const managed = await AccessManaged.new(authority.address);
       await authority.setAllowed(user, managed.address, selector);
@@ -46,7 +46,7 @@ contract('AccessManaged', function (accounts) {
       expectEvent(restricted, 'RestrictedRan');
     });
 
-    it('reverts if authority says false', async function () {
+    it('reverts if authority returns false', async function () {
       const authority = await SimpleAuthority.new();
       const managed = await AccessManaged.new(authority.address);
       await expectRevert(managed.restrictedFunction({ from: user }), 'AccessManaged: authority rejected');

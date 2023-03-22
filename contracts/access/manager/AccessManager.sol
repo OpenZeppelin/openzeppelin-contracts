@@ -107,7 +107,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Returns true if the caller can invoke on a target the function identified by a function selector.
      * Entrypoint for {AccessManaged} contracts.
      */
-    function canCall(address caller, address target, bytes4 selector) public view returns (bool) {
+    function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool) {
         bytes32 allowedGroups = getFunctionAllowedGroups(target, selector);
         bytes32 callerGroups = getUserGroups(caller);
         return callerGroups & allowedGroups != 0;
