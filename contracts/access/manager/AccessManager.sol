@@ -242,7 +242,10 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     /**
      * @dev Transfers a target contract onto a new authority. The caller must be the default admin.
      */
-    function transferContractAuthority(address target, address newAuthority) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+    function transferContractAuthority(
+        address target,
+        address newAuthority
+    ) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         AccessManaged(target).setAuthority(IAuthority(newAuthority));
     }
 
