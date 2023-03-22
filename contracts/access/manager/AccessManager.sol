@@ -7,7 +7,7 @@ import "../AccessControlDefaultAdminRules.sol";
 import "./IAuthority.sol";
 import "./AccessManaged.sol";
 
-interface IAccessManager is IAuthority {
+interface IAccessManager is IAuthority, IAccessControlDefaultAdminRules {
     enum AccessMode {
         Custom,
         Closed,
