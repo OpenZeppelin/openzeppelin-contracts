@@ -290,31 +290,25 @@ contract('AccessManager', function (accounts) {
       expectEvent(restricted, 'RestrictedRan');
     });
 
-    it('reject open target', async function () {
+    it('works on open target', async function () {
       await this.manager.setContractModeOpen(this.managed.address, { from: admin });
-      await expectRevert(
-        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
-          this.managed.address,
-          [selector],
-          group,
-          true,
-          { from: admin },
-        ),
-        'AccessManager: target in special mode',
+      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+        this.managed.address,
+        [selector],
+        group,
+        false,
+        { from: admin },
       );
     });
 
-    it('reject closed target', async function () {
+    it('works on closed target', async function () {
       await this.manager.setContractModeClosed(this.managed.address, { from: admin });
-      await expectRevert(
-        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
-          this.managed.address,
-          [selector],
-          group,
-          true,
-          { from: admin },
-        ),
-        'AccessManager: target in special mode',
+      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+        this.managed.address,
+        [selector],
+        group,
+        false,
+        { from: admin },
       );
     });
   });
@@ -415,31 +409,25 @@ contract('AccessManager', function (accounts) {
       );
     });
 
-    it('reject open target', async function () {
+    it('works on open target', async function () {
       await this.manager.setContractModeOpen(this.managed.address, { from: admin });
-      await expectRevert(
-        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
-          this.managed.address,
-          [selector],
-          group,
-          true,
-          { from: admin },
-        ),
-        'AccessManager: target in special mode',
+      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+        this.managed.address,
+        [selector],
+        group,
+        false,
+        { from: admin },
       );
     });
 
-    it('reject closed target', async function () {
+    it('works on closed target', async function () {
       await this.manager.setContractModeClosed(this.managed.address, { from: admin });
-      await expectRevert(
-        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
-          this.managed.address,
-          [selector],
-          group,
-          true,
-          { from: admin },
-        ),
-        'AccessManager: target in special mode',
+      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+        this.managed.address,
+        [selector],
+        group,
+        false,
+        { from: admin },
       );
     });
   });
