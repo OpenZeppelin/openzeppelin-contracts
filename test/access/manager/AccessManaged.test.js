@@ -8,7 +8,7 @@ const AccessManaged = artifacts.require('$AccessManagedMock');
 const SimpleAuthority = artifacts.require('SimpleAuthority');
 
 contract('AccessManaged', function (accounts) {
-    const [authority, other, user] = accounts;
+  const [authority, other, user] = accounts;
   it('construction', async function () {
     const managed = await AccessManaged.new(authority);
     expectEvent.inConstruction(managed, 'AuthorityUpdated', {

@@ -25,7 +25,7 @@ const groupUtils = {
 const PUBLIC_GROUP = '255';
 
 contract('AccessManager', function (accounts) {
-    const [admin, nonAdmin, user1, user2, otherAuthority] = accounts;
+  const [admin, nonAdmin, user1, user2, otherAuthority] = accounts;
   beforeEach('deploy', async function () {
     this.delay = duration.days(1);
     this.manager = await AccessManager.new(this.delay, admin);
@@ -212,25 +212,15 @@ contract('AccessManager', function (accounts) {
 
     it('non-admin cannot change allowed groups', async function () {
       await expectRevert(
-        this.manager.setFunctionAllowedGroup(
-          this.managed.address,
-          [selector],
-          group,
-          true,
-          { from: nonAdmin },
-        ),
+        this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, true, { from: nonAdmin }),
         'missing role',
       );
     });
 
     it('single selector', async function () {
-      const receipt = await this.manager.setFunctionAllowedGroup(
-        this.managed.address,
-        [selector],
-        group,
-        true,
-        { from: admin },
-      );
+      const receipt = await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, true, {
+        from: admin,
+      });
 
       expectEvent(receipt, 'GroupAllowed', {
         target: this.managed.address,
@@ -292,24 +282,12 @@ contract('AccessManager', function (accounts) {
 
     it('works on open target', async function () {
       await this.manager.setContractModeOpen(this.managed.address, { from: admin });
-      await this.manager.setFunctionAllowedGroup(
-        this.managed.address,
-        [selector],
-        group,
-        false,
-        { from: admin },
-      );
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, { from: admin });
     });
 
     it('works on closed target', async function () {
       await this.manager.setContractModeClosed(this.managed.address, { from: admin });
-      await this.manager.setFunctionAllowedGroup(
-        this.managed.address,
-        [selector],
-        group,
-        false,
-        { from: admin },
-      );
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, { from: admin });
     });
   });
 
@@ -323,36 +301,22 @@ contract('AccessManager', function (accounts) {
       await this.manager.createGroup(group, '', { from: admin });
       await this.manager.grantGroup(groupMember, group, { from: admin });
       this.managed = await AccessManaged.new(this.manager.address);
-      await this.manager.setFunctionAllowedGroup(
-        this.managed.address,
-        [selector, otherSelector],
-        group,
-        true,
-        { from: admin },
-      );
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector, otherSelector], group, true, {
+        from: admin,
+      });
     });
 
     it('non-admin cannot change disallowed groups', async function () {
       await expectRevert(
-        this.manager.setFunctionAllowedGroup(
-          this.managed.address,
-          [selector],
-          group,
-          false,
-          { from: nonAdmin },
-        ),
+        this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, { from: nonAdmin }),
         'missing role',
       );
     });
 
     it('single selector', async function () {
-      const receipt = await this.manager.setFunctionAllowedGroup(
-        this.managed.address,
-        [selector],
-        group,
-        false,
-        { from: admin },
-      );
+      const receipt = await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, {
+        from: admin,
+      });
 
       expectEvent(receipt, 'GroupAllowed', {
         target: this.managed.address,
@@ -411,24 +375,12 @@ contract('AccessManager', function (accounts) {
 
     it('works on open target', async function () {
       await this.manager.setContractModeOpen(this.managed.address, { from: admin });
-      await this.manager.setFunctionAllowedGroup(
-        this.managed.address,
-        [selector],
-        group,
-        false,
-        { from: admin },
-      );
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, { from: admin });
     });
 
     it('works on closed target', async function () {
       await this.manager.setContractModeClosed(this.managed.address, { from: admin });
-      await this.manager.setFunctionAllowedGroup(
-        this.managed.address,
-        [selector],
-        group,
-        false,
-        { from: admin },
-      );
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, { from: admin });
     });
   });
 
