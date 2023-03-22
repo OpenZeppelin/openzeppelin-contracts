@@ -211,13 +211,13 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
 
     it('non-admin cannot change allowed groups', async function () {
       await expectRevert(
-          this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
-            this.managed.address,
-            [selector],
-            group,
-            true,
-            { from: nonAdmin },
-          ),
+        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+          this.managed.address,
+          [selector],
+          group,
+          true,
+          { from: nonAdmin },
+        ),
         'missing role',
       );
     });
@@ -318,13 +318,13 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
 
     it('non-admin cannot change disallowed groups', async function () {
       await expectRevert(
-          this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
-            this.managed.address,
-            [selector],
-            group,
-            false,
-            { from: nonAdmin },
-          ),
+        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+          this.managed.address,
+          [selector],
+          group,
+          false,
+          { from: nonAdmin },
+        ),
         'missing role',
       );
     });
