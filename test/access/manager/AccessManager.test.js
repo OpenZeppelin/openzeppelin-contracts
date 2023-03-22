@@ -212,7 +212,7 @@ contract('AccessManager', function (accounts) {
 
     it('non-admin cannot change allowed groups', async function () {
       await expectRevert(
-        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+        this.manager.setFunctionAllowedGroup(
           this.managed.address,
           [selector],
           group,
@@ -224,7 +224,7 @@ contract('AccessManager', function (accounts) {
     });
 
     it('single selector', async function () {
-      const receipt = await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      const receipt = await this.manager.setFunctionAllowedGroup(
         this.managed.address,
         [selector],
         group,
@@ -255,7 +255,7 @@ contract('AccessManager', function (accounts) {
     });
 
     it('multiple selectors', async function () {
-      const receipt = await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      const receipt = await this.manager.setFunctionAllowedGroup(
         this.managed.address,
         [selector, otherSelector],
         group,
@@ -292,7 +292,7 @@ contract('AccessManager', function (accounts) {
 
     it('works on open target', async function () {
       await this.manager.setContractModeOpen(this.managed.address, { from: admin });
-      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      await this.manager.setFunctionAllowedGroup(
         this.managed.address,
         [selector],
         group,
@@ -303,7 +303,7 @@ contract('AccessManager', function (accounts) {
 
     it('works on closed target', async function () {
       await this.manager.setContractModeClosed(this.managed.address, { from: admin });
-      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      await this.manager.setFunctionAllowedGroup(
         this.managed.address,
         [selector],
         group,
@@ -323,7 +323,7 @@ contract('AccessManager', function (accounts) {
       await this.manager.createGroup(group, '', { from: admin });
       await this.manager.grantGroup(groupMember, group, { from: admin });
       this.managed = await AccessManaged.new(this.manager.address);
-      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      await this.manager.setFunctionAllowedGroup(
         this.managed.address,
         [selector, otherSelector],
         group,
@@ -334,7 +334,7 @@ contract('AccessManager', function (accounts) {
 
     it('non-admin cannot change disallowed groups', async function () {
       await expectRevert(
-        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+        this.manager.setFunctionAllowedGroup(
           this.managed.address,
           [selector],
           group,
@@ -346,7 +346,7 @@ contract('AccessManager', function (accounts) {
     });
 
     it('single selector', async function () {
-      const receipt = await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      const receipt = await this.manager.setFunctionAllowedGroup(
         this.managed.address,
         [selector],
         group,
@@ -374,7 +374,7 @@ contract('AccessManager', function (accounts) {
     });
 
     it('multiple selectors', async function () {
-      const receipt = await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      const receipt = await this.manager.setFunctionAllowedGroup(
         this.managed.address,
         [selector, otherSelector],
         group,
@@ -411,7 +411,7 @@ contract('AccessManager', function (accounts) {
 
     it('works on open target', async function () {
       await this.manager.setContractModeOpen(this.managed.address, { from: admin });
-      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      await this.manager.setFunctionAllowedGroup(
         this.managed.address,
         [selector],
         group,
@@ -422,7 +422,7 @@ contract('AccessManager', function (accounts) {
 
     it('works on closed target', async function () {
       await this.manager.setContractModeClosed(this.managed.address, { from: admin });
-      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+      await this.manager.setFunctionAllowedGroup(
         this.managed.address,
         [selector],
         group,
