@@ -28,11 +28,11 @@ interface IAccessManager is IAuthority {
 
     function getUserGroups(address user) external view returns (bytes32 groups);
 
-    function grantGroup(address user, uint8 group) external;
+    function grantGroup(uint8 group, address user) external;
 
-    function revokeGroup(address user, uint8 group) external;
+    function revokeGroup(uint8 group, address user) external;
 
-    function renounceGroup(address user, uint8 group) external;
+    function renounceGroup(uint8 group, address user) external;
 
     function getFunctionAllowedGroups(address target, bytes4 selector) external view returns (bytes32 groups);
 
@@ -154,7 +154,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      *
      * Emits {RoleGranted} with the role id of the group, if wasn't already held by the user.
      */
-    function grantGroup(address user, uint8 group) public virtual {
+    function grantGroup(uint8 group, address user) public virtual {
         grantRole(_encodeGroupRole(group), user); // will check msg.sender
     }
 
@@ -163,7 +163,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      *
      * Emits {RoleRevoked} with the role id of the group, if previously held by the user.
      */
-    function revokeGroup(address user, uint8 group) public virtual {
+    function revokeGroup(uint8 group, address user) public virtual {
         revokeRole(_encodeGroupRole(group), user); // will check msg.sender
     }
 
@@ -172,7 +172,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      *
      * Emits {RoleRevoked} with the role id of the group, if previously held by the user.
      */
-    function renounceGroup(address user, uint8 group) public virtual {
+    function renounceGroup(uint8 group, address user) public virtual {
         renounceRole(_encodeGroupRole(group), user); // will check msg.sender
     }
 

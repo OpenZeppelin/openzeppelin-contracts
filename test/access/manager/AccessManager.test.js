@@ -109,68 +109,68 @@ contract('AccessManager', function (accounts) {
       });
 
       it('admin can grant group', async function () {
-        const granted = await this.manager.grantGroup(user1, group, { from: admin });
+        const granted = await this.manager.grantGroup(group, user1, { from: admin });
         expectEvent(granted, 'RoleGranted', { account: user1, role: groupUtils.role(group) });
         const groups = groupUtils.decodeBitmap(await this.manager.getUserGroups(user1));
         expect(groups).to.include(group);
       });
 
       it('non-admin cannot grant group', async function () {
-        await expectRevert(this.manager.grantGroup(user1, group, { from: nonAdmin }), 'missing role');
+        await expectRevert(this.manager.grantGroup(group, user1, { from: nonAdmin }), 'missing role');
       });
 
       it('cannot grant nonexistent group', async function () {
-        await expectRevert(this.manager.grantGroup(user1, otherGroup, { from: admin }), 'AccessManager: unknown group');
+        await expectRevert(this.manager.grantGroup(otherGroup, user1, { from: admin }), 'AccessManager: unknown group');
       });
     });
 
     describe('revoking & renouncing', function () {
       beforeEach('create and grant group', async function () {
         await this.manager.createGroup(group, name, { from: admin });
-        await this.manager.grantGroup(user1, group, { from: admin });
+        await this.manager.grantGroup(group, user1, { from: admin });
       });
 
       it('admin can revoke group', async function () {
-        await this.manager.revokeGroup(user1, group, { from: admin });
+        await this.manager.revokeGroup(group, user1, { from: admin });
         const groups = groupUtils.decodeBitmap(await this.manager.getUserGroups(user1));
         expect(groups).to.not.include(group);
       });
 
       it('non-admin cannot revoke group', async function () {
-        await expectRevert(this.manager.revokeGroup(user1, group, { from: nonAdmin }), 'missing role');
+        await expectRevert(this.manager.revokeGroup(group, user1, { from: nonAdmin }), 'missing role');
       });
 
       it('user can renounce group', async function () {
-        await this.manager.renounceGroup(user1, group, { from: user1 });
+        await this.manager.renounceGroup(group, user1, { from: user1 });
         const groups = groupUtils.decodeBitmap(await this.manager.getUserGroups(user1));
         expect(groups).to.not.include(group);
       });
 
       it(`user cannot renounce other user's groups`, async function () {
         await expectRevert(
-          this.manager.renounceGroup(user1, group, { from: user2 }),
+          this.manager.renounceGroup(group, user1, { from: user2 }),
           'can only renounce roles for self',
         );
         await expectRevert(
-          this.manager.renounceGroup(user2, group, { from: user1 }),
+          this.manager.renounceGroup(group, user2, { from: user1 }),
           'can only renounce roles for self',
         );
       });
 
       it('cannot revoke public group', async function () {
         await expectRevert(
-          this.manager.revokeGroup(user1, PUBLIC_GROUP, { from: admin }),
+          this.manager.revokeGroup(PUBLIC_GROUP, user1, { from: admin }),
           'AccessManager: irrevocable group',
         );
       });
 
       it('cannot revoke nonexistent group', async function () {
         await expectRevert(
-          this.manager.revokeGroup(user1, otherGroup, { from: admin }),
+          this.manager.revokeGroup(otherGroup, user1, { from: admin }),
           'AccessManager: unknown group',
         );
         await expectRevert(
-          this.manager.renounceGroup(user1, otherGroup, { from: user1 }),
+          this.manager.renounceGroup(otherGroup, user1, { from: user1 }),
           'AccessManager: unknown group',
         );
       });
@@ -184,15 +184,15 @@ contract('AccessManager', function (accounts) {
         expect(await getGroups()).to.equal('0x8000000000000000000000000000000000000000000000000000000000000000');
 
         await this.manager.createGroup('0', '0', { from: admin });
-        await this.manager.grantGroup(user1, '0', { from: admin });
+        await this.manager.grantGroup('0', user1, { from: admin });
         expect(await getGroups()).to.equal('0x8000000000000000000000000000000000000000000000000000000000000001');
 
         await this.manager.createGroup('1', '1', { from: admin });
-        await this.manager.grantGroup(user1, '1', { from: admin });
+        await this.manager.grantGroup('1', user1, { from: admin });
         expect(await getGroups()).to.equal('0x8000000000000000000000000000000000000000000000000000000000000003');
 
         await this.manager.createGroup('16', '16', { from: admin });
-        await this.manager.grantGroup(user1, '16', { from: admin });
+        await this.manager.grantGroup('16', user1, { from: admin });
         expect(await getGroups()).to.equal('0x8000000000000000000000000000000000000000000000000000000000010003');
       });
     });
@@ -206,7 +206,7 @@ contract('AccessManager', function (accounts) {
 
     beforeEach('deploying managed contract', async function () {
       await this.manager.createGroup(group, '', { from: admin });
-      await this.manager.grantGroup(groupMember, group, { from: admin });
+      await this.manager.grantGroup(group, groupMember, { from: admin });
       this.managed = await AccessManaged.new(this.manager.address);
     });
 
@@ -299,7 +299,7 @@ contract('AccessManager', function (accounts) {
 
     beforeEach('deploying managed contract', async function () {
       await this.manager.createGroup(group, '', { from: admin });
-      await this.manager.grantGroup(groupMember, group, { from: admin });
+      await this.manager.grantGroup(group, groupMember, { from: admin });
       this.managed = await AccessManaged.new(this.manager.address);
       await this.manager.setFunctionAllowedGroup(this.managed.address, [selector, otherSelector], group, true, {
         from: admin,
@@ -461,7 +461,7 @@ contract('AccessManager', function (accounts) {
 
     beforeEach('deploying adapter', async function () {
       await this.manager.createGroup(group, 'a group', { from: admin });
-      await this.manager.grantGroup(user1, group, { from: admin });
+      await this.manager.grantGroup(group, user1, { from: admin });
       this.adapter = await AccessManagerAdapter.new(this.manager.address);
     });
 
