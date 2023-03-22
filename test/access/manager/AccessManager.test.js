@@ -6,7 +6,11 @@ const {
 const { RestrictedMode } = require('../../helpers/enums');
 
 const AccessManager = artifacts.require('AccessManager');
+const AccessManagerAdapter = artifacts.require('AccessManagerAdapter');
 const AccessManaged = artifacts.require('$AccessManagedMock');
+
+const Ownable = artifacts.require('$Ownable');
+const AccessControl = artifacts.require('$AccessControl');
 
 const groupUtils = {
   mask: group => 1n << BigInt(group),
@@ -254,6 +258,54 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
         this.manager.transferContractAuthority(this.managed.address, otherAuthority, { from: nonAdmin }),
         'missing role',
       );
+    });
+  });
+
+  describe('adapter', function () {
+    const group = '0';
+
+    beforeEach('deploying adapter', async function () {
+      await this.manager.createGroup(group, 'a group', { from: admin });
+      await this.manager.grantGroup(user1, group, { from: admin });
+      this.adapter = await AccessManagerAdapter.new(this.manager.address);
+    });
+
+    it('with ownable', async function () {
+      const target = await Ownable.new();
+      await target.transferOwnership(this.adapter.address);
+
+      const { data } = await target.$_checkOwner.request();
+      const selector = data.slice(0, 10);
+
+      await expectRevert(
+        this.adapter.relay(target.address, data, { from: user1 }),
+        'AccessManagerAdapter: caller not allowed',
+      );
+
+      await this.manager.setFunctionAllowedGroup(target.address, [selector], group, true, { from: admin });
+      await this.adapter.relay(target.address, data, { from: user1 });
+    });
+
+    it('with access control', async function () {
+      const ROLE = web3.utils.soliditySha3('ROLE');
+      const target = await AccessControl.new();
+      await target.$_grantRole(ROLE, this.adapter.address);
+
+      const { data } = await target.$_checkRole.request(ROLE);
+      const selector = data.slice(0, 10);
+
+      await expectRevert(
+        this.adapter.relay(target.address, data, { from: user1 }),
+        'AccessManagerAdapter: caller not allowed',
+      );
+
+      await this.manager.setFunctionAllowedGroup(target.address, [selector], group, true, { from: admin });
+      await this.adapter.relay(target.address, data, { from: user1 });
+    });
+
+    it('transfer authority', async function () {
+      await this.manager.transferContractAuthority(this.adapter.address, otherAuthority, { from: admin });
+      expect(await this.adapter.authority()).to.equal(otherAuthority);
     });
   });
 });

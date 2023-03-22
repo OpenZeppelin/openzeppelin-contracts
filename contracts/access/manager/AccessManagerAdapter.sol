@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./AccessManager.sol";
+import "./AccessManaged.sol";
 import "../../utils/Address.sol";
 
 /**
@@ -17,19 +18,13 @@ import "../../utils/Address.sol";
  * Permissioned interactions with thus migrated contracts must go through the adapter's {relay} function and will
  * proceed if the function is allowed for the caller in the AccessManager instance.
  */
-contract AccessManagerAdapter {
-    using Address for address;
-
-    AccessManager private _manager;
-
+contract AccessManagerAdapter is AccessManaged {
     bytes32 private constant _DEFAULT_ADMIN_ROLE = 0;
 
     /**
      * @dev Initializes an adapter connected to an AccessManager instance.
      */
-    constructor(AccessManager manager) {
-        _manager = manager;
-    }
+    constructor(AccessManager manager) AccessManaged(manager) {}
 
     /**
      * @dev Relays a function call to the target contract. The call will be relayed if the AccessManager allows the
@@ -39,7 +34,11 @@ contract AccessManagerAdapter {
      */
     function relay(address target, bytes memory data) external payable {
         bytes4 sig = bytes4(data);
-        require(_manager.canCall(msg.sender, target, sig) || _manager.hasRole(_DEFAULT_ADMIN_ROLE, msg.sender));
+        AccessManager manager = AccessManager(address(authority()));
+        require(
+            manager.canCall(msg.sender, target, sig) || manager.hasRole(_DEFAULT_ADMIN_ROLE, msg.sender),
+            "AccessManagerAdapter: caller not allowed"
+        );
         (bool ok, bytes memory result) = target.call{value: msg.value}(data);
         assembly {
             let result_pointer := add(32, result)
