@@ -122,14 +122,14 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      *
      * Emits {GroupUpdated}.
      */
-    function createGroup(uint8 group, string memory name) public virtual onlyDefaultAdmin {
+    function createGroup(uint8 group, string memory name) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _createGroup(group, name);
     }
 
     /**
      * @dev Updates an existing group's name. The caller must be the default admin.
      */
-    function updateGroupName(uint8 group, string memory name) public virtual onlyDefaultAdmin {
+    function updateGroupName(uint8 group, string memory name) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         require(group != _GROUP_PUBLIC, "AccessManager: built-in group");
         require(hasGroup(group), "AccessManager: unknown group");
         emit GroupUpdated(group, name);
@@ -200,7 +200,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         bytes4[] calldata selectors,
         uint8 group,
         bool allowed
-    ) public virtual onlyDefaultAdmin {
+    ) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         for (uint256 i = 0; i < selectors.length; i++) {
             bytes4 selector = selectors[i];
             _allowedGroups[target][selector] = _withUpdatedGroup(_allowedGroups[target][selector], group, allowed);
@@ -219,7 +219,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Sets the target contract to be in custom restricted mode. All restricted functions in the target contract
      * will follow the group-based restrictions defined by the AccessManager. The caller must be the default admin.
      */
-    function setContractModeCustom(address target) public virtual onlyDefaultAdmin {
+    function setContractModeCustom(address target) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _setContractMode(target, RestrictedMode.Custom);
     }
 
@@ -227,7 +227,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Sets the target contract to be in "open" mode. All restricted functions in the target contract will become
      * callable by anyone. The caller must be the default admin.
      */
-    function setContractModeOpen(address target) public virtual onlyDefaultAdmin {
+    function setContractModeOpen(address target) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _setContractMode(target, RestrictedMode.Open);
     }
 
@@ -235,14 +235,14 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Sets the target contract to be in "closed" mode. All restricted functions in the target contract will be
      * closed down and disallowed to all. The caller must be the default admin.
      */
-    function setContractModeClosed(address target) public virtual onlyDefaultAdmin {
+    function setContractModeClosed(address target) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _setContractMode(target, RestrictedMode.Closed);
     }
 
     /**
      * @dev Transfers a target contract onto a new authority. The caller must be the default admin.
      */
-    function transferContractAuthority(address target, address newAuthority) public virtual onlyDefaultAdmin {
+    function transferContractAuthority(address target, address newAuthority) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         AccessManaged(target).setAuthority(IAuthority(newAuthority));
     }
 
