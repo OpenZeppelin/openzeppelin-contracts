@@ -154,8 +154,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * Emits {RoleGranted} with the role id of the group, if wasn't already held by the user.
      */
     function grantGroup(address user, uint8 group) public virtual {
-        // grantRole checks that msg.sender is admin for the role
-        grantRole(_encodeGroupRole(group), user);
+        grantRole(_encodeGroupRole(group), user); // will check msg.sender
     }
 
     /**
@@ -164,8 +163,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * Emits {RoleRevoked} with the role id of the group, if previously held by the user.
      */
     function revokeGroup(address user, uint8 group) public virtual {
-        // revokeRole checks that msg.sender is admin for the role
-        revokeRole(_encodeGroupRole(group), user);
+        revokeRole(_encodeGroupRole(group), user); // will check msg.sender
     }
 
     /**
@@ -174,8 +172,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * Emits {RoleRevoked} with the role id of the group, if previously held by the user.
      */
     function renounceGroup(address user, uint8 group) public virtual {
-        // renounceRole checks that msg.sender is user
-        renounceRole(_encodeGroupRole(group), user);
+        renounceRole(_encodeGroupRole(group), user); // will check msg.sender
     }
 
     /**
