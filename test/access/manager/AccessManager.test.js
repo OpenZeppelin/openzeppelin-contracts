@@ -24,7 +24,8 @@ const groupUtils = {
 
 const PUBLIC_GROUP = '255';
 
-contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthority]) {
+contract('AccessManager', function (accounts) {
+    const [admin, nonAdmin, user1, user2, otherAuthority] = accounts;
   beforeEach('deploy', async function () {
     this.delay = duration.days(1);
     this.manager = await AccessManager.new(this.delay, admin);
