@@ -27,4 +27,8 @@ abstract contract AccessManagedMock is AccessManaged {
     function restrictedFunction() public restricted {
         emit RestrictedRan();
     }
+
+    function otherRestrictedFunction() public restricted {
+        emit RestrictedRan();
+    }
 }

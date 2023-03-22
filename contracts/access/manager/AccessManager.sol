@@ -201,7 +201,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         uint8 group,
         bool allowed
     ) public virtual {
-        require(_contractMode[target] == RestrictedMode.Custom);
+        require(_contractMode[target] == RestrictedMode.Custom, "AccessManager: target in special mode");
         for (uint256 i = 0; i < selectors.length; i++) {
             bytes4 selector = selectors[i];
             _allowedGroups[target][selector] = _withUpdatedGroup(_allowedGroups[target][selector], group, allowed);

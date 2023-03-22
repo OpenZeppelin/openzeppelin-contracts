@@ -201,6 +201,7 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
     const group = '1';
     const groupMember = user1;
     const selector = web3.eth.abi.encodeFunctionSignature('restrictedFunction()');
+    const otherSelector = web3.eth.abi.encodeFunctionSignature('otherRestrictedFunction()');
 
     beforeEach('deploying managed contract', async function () {
       await this.manager.createGroup(group, '', { from: admin });
@@ -208,7 +209,7 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
       this.managed = await AccessManaged.new(this.manager.address);
     });
 
-    it('allow', async function () {
+    it('single selector', async function () {
       await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
         this.managed.address,
         [selector],
@@ -216,9 +217,158 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
         true,
         { from: admin },
       );
+
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
+      expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
+
+      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, otherSelector);
+      expect(groupUtils.decodeBitmap(otherAllowedGroups)).to.deep.equal([]);
+
       const restricted = await this.managed.restrictedFunction({ from: groupMember });
       expectEvent(restricted, 'RestrictedRan');
+
+      await expectRevert(this.managed.otherRestrictedFunction({ from: groupMember }), 'AccessManaged: authority rejected');
     });
+
+    it('multiple selectors', async function () {
+      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+        this.managed.address,
+        [selector, otherSelector],
+        group,
+        true,
+        { from: admin },
+      );
+
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
+      expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
+
+      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, otherSelector);
+      expect(groupUtils.decodeBitmap(otherAllowedGroups)).to.deep.equal([group]);
+
+      const restricted = await this.managed.restrictedFunction({ from: groupMember });
+      expectEvent(restricted, 'RestrictedRan');
+
+      const otherRestricted = await this.managed.otherRestrictedFunction({ from: groupMember });
+      expectEvent(restricted, 'RestrictedRan');
+    });
+
+    it('reject open target', async function () {
+      await this.manager.setContractModeOpen(this.managed.address, { from: admin });
+      await expectRevert(
+        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+          this.managed.address,
+          [selector],
+          group,
+          true,
+          { from: admin },
+        ),
+        'AccessManager: target in special mode',
+      );
+    });
+
+    it('reject closed target', async function () {
+      await this.manager.setContractModeClosed(this.managed.address, { from: admin });
+      await expectRevert(
+        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+          this.managed.address,
+          [selector],
+          group,
+          true,
+          { from: admin },
+        ),
+        'AccessManager: target in special mode',
+      );
+    });
+
+  });
+
+  describe('disallowing', function () {
+    const group = '1';
+    const groupMember = user1;
+    const selector = web3.eth.abi.encodeFunctionSignature('restrictedFunction()');
+    const otherSelector = web3.eth.abi.encodeFunctionSignature('otherRestrictedFunction()');
+
+    beforeEach('deploying managed contract', async function () {
+      await this.manager.createGroup(group, '', { from: admin });
+      await this.manager.grantGroup(groupMember, group, { from: admin });
+      this.managed = await AccessManaged.new(this.manager.address);
+      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+        this.managed.address,
+        [selector, otherSelector],
+        group,
+        true,
+        { from: admin },
+      );
+    });
+
+    it('single selector', async function () {
+      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+        this.managed.address,
+        [selector],
+        group,
+        false,
+        { from: admin },
+      );
+
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
+      expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([]);
+
+      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, otherSelector);
+      expect(groupUtils.decodeBitmap(otherAllowedGroups)).to.deep.equal([group]);
+
+      await expectRevert(this.managed.restrictedFunction({ from: groupMember }), 'AccessManaged: authority rejected');
+
+      const otherRestricted = await this.managed.otherRestrictedFunction({ from: groupMember });
+      expectEvent(otherRestricted, 'RestrictedRan');
+    });
+
+    it('multiple selectors', async function () {
+      await this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+        this.managed.address,
+        [selector, otherSelector],
+        group,
+        false,
+        { from: admin },
+      );
+
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
+      expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([]);
+
+      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, otherSelector);
+      expect(groupUtils.decodeBitmap(otherAllowedGroups)).to.deep.equal([]);
+
+      await expectRevert(this.managed.restrictedFunction({ from: groupMember }), 'AccessManaged: authority rejected');
+      await expectRevert(this.managed.otherRestrictedFunction({ from: groupMember }), 'AccessManaged: authority rejected');
+    });
+
+    it('reject open target', async function () {
+      await this.manager.setContractModeOpen(this.managed.address, { from: admin });
+      await expectRevert(
+        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+          this.managed.address,
+          [selector],
+          group,
+          true,
+          { from: admin },
+        ),
+        'AccessManager: target in special mode',
+      );
+    });
+
+    it('reject closed target', async function () {
+      await this.manager.setContractModeClosed(this.managed.address, { from: admin });
+      await expectRevert(
+        this.manager.methods['setFunctionAllowedGroup(address,bytes4[],uint8,bool)'](
+          this.managed.address,
+          [selector],
+          group,
+          true,
+          { from: admin },
+        ),
+        'AccessManager: target in special mode',
+      );
+    });
+
   });
 
   describe('modes', function () {
