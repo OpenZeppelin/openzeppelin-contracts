@@ -91,7 +91,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     // target -> mode
     mapping(address => RestrictedMode) private _contractMode;
 
-    uint8 private constant _GROUP_PUBLIC = 255;
+    uint8 private constant _GROUP_PUBLIC = type(uint8).max;
 
     /**
      * @dev Initializes an AccessManager with initial default admin and transfer delay.
