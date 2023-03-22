@@ -8,7 +8,7 @@ import "./IAuthority.sol";
 import "./AccessManaged.sol";
 
 interface IAccessManager is IAuthority {
-    enum RestrictedMode {
+    enum AccessMode {
         Custom,
         Closed,
         Open
@@ -18,7 +18,7 @@ interface IAccessManager is IAuthority {
 
     event GroupAllowed(address indexed target, bytes4 indexed selector, uint8 indexed group, bool allowed);
 
-    event RestrictedModeUpdated(address indexed target, RestrictedMode indexed mode);
+    event AccessModeUpdated(address indexed target, AccessMode indexed mode);
 
     function createGroup(uint8 group, string calldata name) external;
 
@@ -38,7 +38,7 @@ interface IAccessManager is IAuthority {
 
     function setFunctionAllowedGroup(address target, bytes4[] calldata selectors, uint8 group, bool allowed) external;
 
-    function getContractMode(address target) external view returns (RestrictedMode);
+    function getContractMode(address target) external view returns (AccessMode);
 
     function setContractModeCustom(address target) external;
 
@@ -89,7 +89,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     mapping(address => mapping(bytes4 => bytes32)) private _allowedGroups;
 
     // target -> mode
-    mapping(address => RestrictedMode) private _contractMode;
+    mapping(address => AccessMode) private _contractMode;
 
     uint8 private constant _GROUP_PUBLIC = type(uint8).max;
 
@@ -181,10 +181,10 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * contract is in open or closed mode it will be reflected in the return value.
      */
     function getFunctionAllowedGroups(address target, bytes4 selector) public view virtual returns (bytes32) {
-        RestrictedMode mode = getContractMode(target);
-        if (mode == RestrictedMode.Open) {
+        AccessMode mode = getContractMode(target);
+        if (mode == AccessMode.Open) {
             return _groupMask(_GROUP_PUBLIC);
-        } else if (mode == RestrictedMode.Closed) {
+        } else if (mode == AccessMode.Closed) {
             return 0;
         } else {
             return _allowedGroups[target][selector];
@@ -211,7 +211,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     /**
      * @dev Returns the mode of the target contract, which may be custom (`0`), closed (`1`), or open (`2`).
      */
-    function getContractMode(address target) public view virtual returns (RestrictedMode) {
+    function getContractMode(address target) public view virtual returns (AccessMode) {
         return _contractMode[target];
     }
 
@@ -220,7 +220,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * will follow the group-based restrictions defined by the AccessManager. The caller must be the default admin.
      */
     function setContractModeCustom(address target) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _setContractMode(target, RestrictedMode.Custom);
+        _setContractMode(target, AccessMode.Custom);
     }
 
     /**
@@ -228,7 +228,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * callable by anyone. The caller must be the default admin.
      */
     function setContractModeOpen(address target) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _setContractMode(target, RestrictedMode.Open);
+        _setContractMode(target, AccessMode.Open);
     }
 
     /**
@@ -236,7 +236,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * closed down and disallowed to all. The caller must be the default admin.
      */
     function setContractModeClosed(address target) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _setContractMode(target, RestrictedMode.Closed);
+        _setContractMode(target, AccessMode.Closed);
     }
 
     /**
@@ -288,9 +288,9 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
     /**
      * @dev Sets the restricted mode of a target contract.
      */
-    function _setContractMode(address target, RestrictedMode mode) internal virtual {
+    function _setContractMode(address target, AccessMode mode) internal virtual {
         _contractMode[target] = mode;
-        emit RestrictedModeUpdated(target, mode);
+        emit AccessModeUpdated(target, mode);
     }
 
     /**

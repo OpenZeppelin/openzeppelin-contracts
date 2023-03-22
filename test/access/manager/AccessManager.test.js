@@ -3,7 +3,7 @@ const {
   expectRevert,
   time: { duration },
 } = require('@openzeppelin/test-helpers');
-const { RestrictedMode } = require('../../helpers/enums');
+const { AccessMode } = require('../../helpers/enums');
 
 const AccessManager = artifacts.require('AccessManager');
 const AccessManagerAdapter = artifacts.require('AccessManagerAdapter');
@@ -395,29 +395,29 @@ contract('AccessManager', function (accounts) {
     });
 
     it('custom mode is default', async function () {
-      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(RestrictedMode.Custom);
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(AccessMode.Custom);
       const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
     });
 
     it('open mode', async function () {
       const receipt = await this.manager.setContractModeOpen(this.managed.address, { from: admin });
-      expectEvent(receipt, 'RestrictedModeUpdated', {
+      expectEvent(receipt, 'AccessModeUpdated', {
         target: this.managed.address,
-        mode: RestrictedMode.Open,
+        mode: AccessMode.Open,
       });
-      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(RestrictedMode.Open);
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(AccessMode.Open);
       const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([PUBLIC_GROUP]);
     });
 
     it('closed mode', async function () {
       const receipt = await this.manager.setContractModeClosed(this.managed.address, { from: admin });
-      expectEvent(receipt, 'RestrictedModeUpdated', {
+      expectEvent(receipt, 'AccessModeUpdated', {
         target: this.managed.address,
-        mode: RestrictedMode.Closed,
+        mode: AccessMode.Closed,
       });
-      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(RestrictedMode.Closed);
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(AccessMode.Closed);
       const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([]);
     });
@@ -426,7 +426,7 @@ contract('AccessManager', function (accounts) {
       await this.manager.setContractModeOpen(this.managed.address, { from: admin });
       await this.manager.setContractModeClosed(this.managed.address, { from: admin });
       await this.manager.setContractModeCustom(this.managed.address, { from: admin });
-      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(RestrictedMode.Custom);
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(AccessMode.Custom);
       const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
     });
