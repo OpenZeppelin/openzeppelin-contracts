@@ -227,7 +227,10 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
       const restricted = await this.managed.restrictedFunction({ from: groupMember });
       expectEvent(restricted, 'RestrictedRan');
 
-      await expectRevert(this.managed.otherRestrictedFunction({ from: groupMember }), 'AccessManaged: authority rejected');
+      await expectRevert(
+        this.managed.otherRestrictedFunction({ from: groupMember }),
+        'AccessManaged: authority rejected',
+      );
     });
 
     it('multiple selectors', async function () {
@@ -248,7 +251,7 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
       const restricted = await this.managed.restrictedFunction({ from: groupMember });
       expectEvent(restricted, 'RestrictedRan');
 
-      const otherRestricted = await this.managed.otherRestrictedFunction({ from: groupMember });
+      await this.managed.otherRestrictedFunction({ from: groupMember });
       expectEvent(restricted, 'RestrictedRan');
     });
 
@@ -279,7 +282,6 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
         'AccessManager: target in special mode',
       );
     });
-
   });
 
   describe('disallowing', function () {
@@ -338,7 +340,10 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
       expect(groupUtils.decodeBitmap(otherAllowedGroups)).to.deep.equal([]);
 
       await expectRevert(this.managed.restrictedFunction({ from: groupMember }), 'AccessManaged: authority rejected');
-      await expectRevert(this.managed.otherRestrictedFunction({ from: groupMember }), 'AccessManaged: authority rejected');
+      await expectRevert(
+        this.managed.otherRestrictedFunction({ from: groupMember }),
+        'AccessManaged: authority rejected',
+      );
     });
 
     it('reject open target', async function () {
@@ -368,7 +373,6 @@ contract('AccessManager', function ([admin, nonAdmin, user1, user2, otherAuthori
         'AccessManager: target in special mode',
       );
     });
-
   });
 
   describe('modes', function () {
