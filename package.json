@@ -86,6 +86,7 @@
     "rimraf": "^3.0.2",
     "semver": "^7.3.5",
     "solhint": "^3.3.6",
+    "solhint-plugin-ozcontracts": "1.0.2",
     "solidity-ast": "^0.4.25",
     "solidity-coverage": "^0.8.0",
     "solidity-docgen": "^0.6.0-beta.29",

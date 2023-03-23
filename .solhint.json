@@ -1,4 +1,7 @@
 {
+  "plugins": [
+    "ozcontracts"
+  ],
   "rules": {
     "no-unused-vars": "error",
     "const-name-snakecase": "error",
@@ -9,6 +12,7 @@
     "modifier-name-mixedcase": "error",
     "private-vars-leading-underscore": "error",
     "var-name-mixedcase": "error",
-    "imports-on-top": "error"
+    "imports-on-top": "error",
+    "ozcontracts/oz-contracts-custom": "error"
   }
 }
