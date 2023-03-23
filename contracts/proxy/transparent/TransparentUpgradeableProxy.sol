@@ -50,19 +50,23 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      */
     function _fallback() internal virtual override {
         if (msg.sender == _getAdmin()) {
+            bytes memory ret;
             bytes4 selector = msg.sig;
             if (selector == ITransparentUpgradeableProxy.admin.selector) {
-                _internalAdmin();
+                ret = _dispatchAdmin();
             } else if (selector == ITransparentUpgradeableProxy.implementation.selector) {
-                _internalImplementation();
+                ret = _dispatchImplementation();
             } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
-                _internalChangeAdmin();
+                ret = _dispatchChangeAdmin();
             } else if (selector == ITransparentUpgradeableProxy.upgradeTo.selector) {
-                _internalUpgradeTo();
+                ret = _dispatchUpgradeTo();
             } else if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
-                _internalUpgradeToAndCall();
+                ret = _dispatchUpgradeToAndCall();
             } else {
                 revert('TransparentUpgradeableProxy: admin cannot fallback to proxy target');
+            }
+            assembly {
+                return(add(ret, 0x20), mload(ret))
             }
         } else {
             super._fallback();
@@ -76,13 +80,11 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
      * `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
      */
-    function _internalAdmin() private {
+    function _dispatchAdmin() private returns (bytes memory) {
         _requireZeroValue();
+
         address admin = _getAdmin();
-        assembly {
-            mstore(0x00, admin)
-            return(0, 0x20)
-        }
+        return abi.encode(admin);
     }
 
     /**
@@ -92,34 +94,35 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
      * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
      */
-    function _internalImplementation() private {
+    function _dispatchImplementation() private returns (bytes memory) {
         _requireZeroValue();
 
         address implementation = _implementation();
-        assembly {
-            mstore(0x00, implementation)
-            return(0, 0x20)
-        }
+        return abi.encode(implementation);
     }
 
     /**
      * @dev Changes the admin of the proxy.
      */
-    function _internalChangeAdmin() private {
+    function _dispatchChangeAdmin() private returns (bytes memory) {
         _requireZeroValue();
 
         address newAdmin = abi.decode(msg.data[4:], (address));
         _changeAdmin(newAdmin);
+
+        return "";
     }
 
     /**
      * @dev Upgrade the implementation of the proxy.
      */
-    function _internalUpgradeTo() private {
+    function _dispatchUpgradeTo() private returns (bytes memory) {
         _requireZeroValue();
 
         address newImplementation = abi.decode(msg.data[4:], (address));
         _upgradeToAndCall(newImplementation, bytes(""), false);
+
+        return "";
     }
 
     /**
@@ -127,9 +130,11 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
      * proxied contract.
      */
-    function _internalUpgradeToAndCall() private {
+    function _dispatchUpgradeToAndCall() private returns (bytes memory) {
         (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
         _upgradeToAndCall(newImplementation, data, true);
+
+        return "";
     }
 
     /**
