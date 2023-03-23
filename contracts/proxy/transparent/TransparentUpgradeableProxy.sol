@@ -46,62 +46,55 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev Modifier used internally that will delegate the call to the implementation unless the sender is the admin.
+     * @dev If caller is the admin process the call internally, otherwize transparently fallback to the proxy behavior
      */
-    modifier ifAdmin() {
+    function _fallback() internal virtual override {
         if (msg.sender == _getAdmin()) {
-            _;
+            bytes4 selector = msg.sig;
+            if (selector == ITransparentUpgradeableProxy.admin.selector) {
+                // Returns the current admin.
+                //
+                // TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
+                // https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
+                // `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
+                _requireZeroValue();
+                address admin = _getAdmin();
+                assembly {
+                    mstore(0x00, admin)
+                    return(0, 0x20)
+                }
+            } else if (selector == ITransparentUpgradeableProxy.implementation.selector) {
+                // Returns the current implementation.
+                // TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
+                // https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
+                // `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+                _requireZeroValue();
+                address implementation = _implementation();
+                assembly {
+                    mstore(0x00, implementation)
+                    return(0, 0x20)
+                }
+            } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
+                // Changes the admin of the proxy.
+                _requireZeroValue();
+                address newAdmin = abi.decode(msg.data[4:], (address));
+                _changeAdmin(newAdmin);
+            } else if (selector == ITransparentUpgradeableProxy.upgradeTo.selector) {
+                // Upgrade the implementation of the proxy.
+                _requireZeroValue();
+                address newImplementation = abi.decode(msg.data[4:], (address));
+                _upgradeToAndCall(newImplementation, bytes(""), false);
+            } else if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
+                // Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
+                // by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
+                // proxied contract.
+                (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
+                _upgradeToAndCall(newImplementation, data, true);
+            } else {
+                revert('TransparentUpgradeableProxy: admin cannot fallback to proxy target');
+            }
         } else {
             super._fallback();
-        }
-    }
-
-    /**
-     * @dev TODO
-     */
-    function _fallback() internal virtual override ifAdmin {
-        bytes4 selector = msg.sig;
-        if (selector == ITransparentUpgradeableProxy.admin.selector) {
-            // Returns the current admin.
-            //
-            // TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
-            // https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
-            // `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
-            _requireZeroValue();
-            address admin = _getAdmin();
-            assembly {
-                mstore(0x00, admin)
-                return(0, 0x20)
-            }
-        } else if (selector == ITransparentUpgradeableProxy.implementation.selector) {
-            // Returns the current implementation.
-            // TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
-            // https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
-            // `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
-            _requireZeroValue();
-            address implementation = _implementation();
-            assembly {
-                mstore(0x00, implementation)
-                return(0, 0x20)
-            }
-        } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
-            // Changes the admin of the proxy.
-            _requireZeroValue();
-            address newAdmin = abi.decode(msg.data[4:], (address));
-            _changeAdmin(newAdmin);
-        } else if (selector == ITransparentUpgradeableProxy.upgradeTo.selector) {
-            // Upgrade the implementation of the proxy.
-            _requireZeroValue();
-            address newImplementation = abi.decode(msg.data[4:], (address));
-            _upgradeToAndCall(newImplementation, bytes(""), false);
-        } else if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
-            // Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
-            // by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
-            // proxied contract.
-            (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
-            _upgradeToAndCall(newImplementation, data, true);
-        } else {
-            revert('TransparentUpgradeableProxy: admin cannot fallback to proxy target');
         }
     }
 
