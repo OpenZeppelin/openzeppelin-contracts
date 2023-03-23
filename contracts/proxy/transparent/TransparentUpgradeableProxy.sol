@@ -52,16 +52,16 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
         if (msg.sender == _getAdmin()) {
             bytes memory ret;
             bytes4 selector = msg.sig;
-            if (selector == ITransparentUpgradeableProxy.admin.selector) {
-                ret = _dispatchAdmin();
-            } else if (selector == ITransparentUpgradeableProxy.implementation.selector) {
-                ret = _dispatchImplementation();
-            } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
-                ret = _dispatchChangeAdmin();
-            } else if (selector == ITransparentUpgradeableProxy.upgradeTo.selector) {
+            if (selector == ITransparentUpgradeableProxy.upgradeTo.selector) {
                 ret = _dispatchUpgradeTo();
             } else if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
                 ret = _dispatchUpgradeToAndCall();
+            } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
+                ret = _dispatchChangeAdmin();
+            } else if (selector == ITransparentUpgradeableProxy.admin.selector) {
+                ret = _dispatchAdmin();
+            } else if (selector == ITransparentUpgradeableProxy.implementation.selector) {
+                ret = _dispatchImplementation();
             } else {
                 revert('TransparentUpgradeableProxy: admin cannot fallback to proxy target');
             }
