@@ -70,7 +70,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * Returns the current admin.
+     * @dev Returns the current admin.
      *
      * TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
      * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
