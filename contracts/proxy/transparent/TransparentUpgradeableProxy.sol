@@ -52,50 +52,84 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
         if (msg.sender == _getAdmin()) {
             bytes4 selector = msg.sig;
             if (selector == ITransparentUpgradeableProxy.admin.selector) {
-                // Returns the current admin.
-                //
-                // TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
-                // https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
-                // `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
-                _requireZeroValue();
-                address admin = _getAdmin();
-                assembly {
-                    mstore(0x00, admin)
-                    return(0, 0x20)
-                }
+                _internalAdmin();
             } else if (selector == ITransparentUpgradeableProxy.implementation.selector) {
-                // Returns the current implementation.
-                // TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
-                // https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
-                // `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
-                _requireZeroValue();
-                address implementation = _implementation();
-                assembly {
-                    mstore(0x00, implementation)
-                    return(0, 0x20)
-                }
+                _internalImplementation();
             } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
-                // Changes the admin of the proxy.
-                _requireZeroValue();
-                address newAdmin = abi.decode(msg.data[4:], (address));
-                _changeAdmin(newAdmin);
+                _internalChangeAdmin();
             } else if (selector == ITransparentUpgradeableProxy.upgradeTo.selector) {
-                // Upgrade the implementation of the proxy.
-                _requireZeroValue();
-                address newImplementation = abi.decode(msg.data[4:], (address));
-                _upgradeToAndCall(newImplementation, bytes(""), false);
+                _internalUpgradeTo();
             } else if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
-                // Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
-                // by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
-                // proxied contract.
-                (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
-                _upgradeToAndCall(newImplementation, data, true);
+                _internalUpgradeToAndCall();
             } else {
                 revert('TransparentUpgradeableProxy: admin cannot fallback to proxy target');
             }
         } else {
             super._fallback();
         }
+    }
+
+    /**
+     * Returns the current admin.
+     *
+     * TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
+     * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
+     * `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
+     */
+    function _internalAdmin() private {
+        _requireZeroValue();
+        address admin = _getAdmin();
+        assembly {
+            mstore(0x00, admin)
+            return(0, 0x20)
+        }
+    }
+
+    /**
+     * @dev Returns the current implementation.
+     *
+     * TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
+     * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
+     * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
+     */
+    function _internalImplementation() private {
+        _requireZeroValue();
+
+        address implementation = _implementation();
+        assembly {
+            mstore(0x00, implementation)
+            return(0, 0x20)
+        }
+    }
+
+    /**
+     * @dev Changes the admin of the proxy.
+     */
+    function _internalChangeAdmin() private {
+        _requireZeroValue();
+
+        address newAdmin = abi.decode(msg.data[4:], (address));
+        _changeAdmin(newAdmin);
+    }
+
+    /**
+     * @dev Upgrade the implementation of the proxy.
+     */
+    function _internalUpgradeTo() private {
+        _requireZeroValue();
+
+        address newImplementation = abi.decode(msg.data[4:], (address));
+        _upgradeToAndCall(newImplementation, bytes(""), false);
+    }
+
+    /**
+     * @dev Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
+     * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
+     * proxied contract.
+     */
+    function _internalUpgradeToAndCall() private {
+        (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
+        _upgradeToAndCall(newImplementation, data, true);
     }
 
     /**
