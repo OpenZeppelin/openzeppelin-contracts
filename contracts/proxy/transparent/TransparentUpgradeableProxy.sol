@@ -8,8 +8,8 @@ import "../ERC1967/ERC1967Proxy.sol";
 interface ITransparentUpgradeableProxy {
     event Upgraded(address indexed implementation);
     event AdminChanged(address previousAdmin, address newAdmin);
-    function admin() external returns (address);
-    function implementation() external returns (address);
+    function admin() external view returns (address);
+    function implementation() external view returns (address);
     function changeAdmin(address) external;
     function upgradeTo(address) external;
     function upgradeToAndCall(address, bytes memory) payable external;
