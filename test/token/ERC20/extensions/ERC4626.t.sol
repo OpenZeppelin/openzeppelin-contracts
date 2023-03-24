@@ -19,10 +19,10 @@ contract ERC4626VaultOffsetMock is ERC4626OffsetMock {
 }
 
 contract ERC4626StdTest is ERC4626Test {
-    ERC20 private underlying = new ERC20Mock();
+    ERC20 private _underlying = new ERC20Mock();
 
     function setUp() public override {
-        _underlying_ = address(underlying);
+        _underlying_ = address(_underlying);
         _vault_ = address(new ERC4626Mock(_underlying_));
         _delta_ = 0;
         _vaultMayBeEmpty = true;
@@ -33,9 +33,9 @@ contract ERC4626StdTest is ERC4626Test {
      * @dev Check the case where calculated `decimals` value overflows the `uint8` type.
      */
     function testFuzzDecimalsOverflow(uint8 offset) public {
-        /// @dev Remember that the `underlying` exhibits a `decimals` value of 18.
+        /// @dev Remember that the `_underlying` exhibits a `decimals` value of 18.
         offset = uint8(bound(uint256(offset), 238, uint256(type(uint8).max)));
-        ERC4626VaultOffsetMock erc4626VaultOffsetMock = new ERC4626VaultOffsetMock(underlying, offset);
+        ERC4626VaultOffsetMock erc4626VaultOffsetMock = new ERC4626VaultOffsetMock(_underlying, offset);
         vm.expectRevert();
         erc4626VaultOffsetMock.decimals();
     }
