@@ -148,7 +148,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * to take effect. Default to 5 days.
      *
      * With the purpose of avoiding doubly delayed transfers (waiting the new delay to start another delayed transfer),
-     * an increased delay can relax the effect schedule, however, when the original delay is low, waiting only the old
+     * an increased delay can have its effect schedule relaxed, however, when the original delay is low, waiting only the old
      * one can pose a risk of accidentally locking the contract (i.e. increasing from 1 second to 10 years).
      *
      * For both avoiding double-delayed transfers or fast-effect increases, this function can be configured for a custom
