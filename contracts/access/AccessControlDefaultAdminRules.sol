@@ -127,13 +127,6 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
-    function defaultAdminDelayIncreaseWait() public view virtual returns (uint48) {
-        return 5 days;
-    }
-
-    /**
-     * @inheritdoc IAccessControlDefaultAdminRules
-     */
     function changeDefaultAdminDelay(uint48 newDefaultAdminDelay) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _changeDefaultAdminDelay(newDefaultAdminDelay);
     }
@@ -143,6 +136,13 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function rollbackDefaultAdminDelay() public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         _rollbackDefaultAdminDelay();
+    }
+
+    /**
+     * @inheritdoc IAccessControlDefaultAdminRules
+     */
+    function defaultAdminDelayIncreaseWait() public view virtual returns (uint48) {
+        return 5 days;
     }
 
     /**
