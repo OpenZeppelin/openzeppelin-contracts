@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- `ERC4626`: Improved test coverage by adding further unit tests covering the internal function `_tryGetAssetDecimals` and an overflow test for `decimals`. ([#]())
+- `ERC4626`: Improved test coverage by adding further unit tests covering the internal function `_tryGetAssetDecimals` and an overflow test for `decimals`. ([#4134](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4134))
 
 ### Breaking changes
 
