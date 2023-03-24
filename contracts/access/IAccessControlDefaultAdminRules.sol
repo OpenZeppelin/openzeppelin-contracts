@@ -50,7 +50,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function pendingDefaultAdmin() external view returns (address newAdmin, uint48 schedule);
 
     /**
-     * @dev Time in seconds to wait before a delay is increased after calling {changeDefaultAdminDelay}.
+     * @dev Time in seconds for a change to {defaultAdminDelay} (that is scheduled using changeDefaultAdminDelay}) to take effect.
      * Default to 5 days.
      *
      * Used whenever {changeDefaultAdminDelay} is called with a `newDelay` higher
