@@ -45,7 +45,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * After the `schedule` passes, the `newAdmin` will be able to accept the {defaultAdmin} role
      * by calling {acceptDefaultAdminTransfer}, completing the role transfer.
      *
-     * A zero value only in `acceptSchedule` indicates there's no pending admin transfer.
+     * A zero value only in `acceptSchedule` indicates no pending admin transfer.
      *
      * NOTE: A zero address `newAdmin` means that {defaultAdmin} is being renounced.
      */
@@ -57,18 +57,18 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * This delay will be added to the current timestamp when calling {beginDefaultAdminTransfer} to set
      * the acceptance schedule.
      *
-     * NOTE: If a delay change has been schedule, it will take effect as soon as the schedule passes, making this
-     * function return the new delay. See {changeDefaultAdminDelay}.
+     * NOTE: If a delay change has been scheduled, it will take effect as soon as the schedule passes, making this
+     * function returns the new delay. See {changeDefaultAdminDelay}.
      */
     function defaultAdminDelay() external view returns (uint48);
 
     /**
-     * @dev Returns a tuple of `newDelay` and and an effect `schedule`.
+     * @dev Returns a tuple of `newDelay` and an effect `schedule`.
      *
      * After the `schedule` passes, the `newDelay` will get into effect immediately for every
      * new {defaultAdmin} transfer started with {beginDefaultAdminTransfer}.
      *
-     * A zero value only in `effectSchedule` indicates there's no pending delay change.
+     * A zero value only in `effectSchedule` indicates no pending delay change.
      *
      * NOTE: A zero value only for `newDelay` means that the next {defaultAdminDelay}
      * will be zero after the effect schedule.
