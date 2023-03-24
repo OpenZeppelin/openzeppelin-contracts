@@ -34,7 +34,8 @@ function helperTransferWithRevert(env e, method f, address from, address to, uin
         require params.length < 0xffff;
         safeTransferFrom@withrevert(e, from, to, tokenId, params);
     } else {
-        require false;
+        calldataarg args;
+        f@withrevert(e, args);
     }
 }
 
