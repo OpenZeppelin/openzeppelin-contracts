@@ -206,47 +206,6 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev Setter of the tuple for pending admin and its schedule.
-     *
-     * May emit a DefaultAdminTransferCanceled event.
-     */
-    function _setPendingDefaultAdmin(address newAdmin, uint48 newSchedule) internal virtual {
-        (, uint48 oldSchedule) = pendingDefaultAdmin();
-
-        _pendingDefaultAdmin = newAdmin;
-        _pendingDefaultAdminSchedule = newSchedule;
-
-        // An `oldSchedule` from `pendingDefaultAdmin()` is only set if it hasn't been accepted.
-        if (_isScheduleSet(oldSchedule)) {
-            // Emit for implicit cancellations when another default admin was scheduled.
-            emit DefaultAdminTransferCanceled();
-        }
-    }
-
-    /**
-     * @dev Setter of the tuple for pending delay and its schedule.
-     *
-     * May emit a DefaultAdminDelayChangeCanceled event.
-     */
-    function _setPendingDelay(uint48 newDelay, uint48 newSchedule) internal virtual {
-        uint48 oldSchedule = _pendingDelaySchedule;
-        bool set = _isScheduleSet(oldSchedule);
-        bool passed = _hasSchedulePassed(oldSchedule);
-
-        if (set && passed) {
-            _currentDelay = _pendingDelay; // Materialize a virtual delay
-        }
-
-        _pendingDelay = newDelay;
-        _pendingDelaySchedule = newSchedule;
-
-        if (set && !passed) {
-            // Emit for implicit cancellations when another delay was scheduled.
-            emit DefaultAdminDelayChangeCanceled();
-        }
-    }
-
-    /**
      * @dev See {AccessControl-_setRoleAdmin}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual override {
@@ -333,6 +292,47 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _rollbackDefaultAdminDelay() internal virtual {
         _setPendingDelay(0, 0);
+    }
+
+    /**
+     * @dev Setter of the tuple for pending admin and its schedule.
+     *
+     * May emit a DefaultAdminTransferCanceled event.
+     */
+    function _setPendingDefaultAdmin(address newAdmin, uint48 newSchedule) private {
+        (, uint48 oldSchedule) = pendingDefaultAdmin();
+
+        _pendingDefaultAdmin = newAdmin;
+        _pendingDefaultAdminSchedule = newSchedule;
+
+        // An `oldSchedule` from `pendingDefaultAdmin()` is only set if it hasn't been accepted.
+        if (_isScheduleSet(oldSchedule)) {
+            // Emit for implicit cancellations when another default admin was scheduled.
+            emit DefaultAdminTransferCanceled();
+        }
+    }
+
+    /**
+     * @dev Setter of the tuple for pending delay and its schedule.
+     *
+     * May emit a DefaultAdminDelayChangeCanceled event.
+     */
+    function _setPendingDelay(uint48 newDelay, uint48 newSchedule) private {
+        uint48 oldSchedule = _pendingDelaySchedule;
+        bool set = _isScheduleSet(oldSchedule);
+        bool passed = _hasSchedulePassed(oldSchedule);
+
+        if (set && passed) {
+            _currentDelay = _pendingDelay; // Materialize a virtual delay
+        }
+
+        _pendingDelay = newDelay;
+        _pendingDelaySchedule = newSchedule;
+
+        if (set && !passed) {
+            // Emit for implicit cancellations when another delay was scheduled.
+            emit DefaultAdminDelayChangeCanceled();
+        }
     }
 
     /**
