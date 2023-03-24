@@ -23,10 +23,8 @@ contract('ERC4626', function (accounts) {
   });
 
   it('asset has not yet been created', async function () {
-    for (let i = 0; i < 6; i++) {
-      const vault = await ERC4626.new('', '', accounts[i]);
-      expect(await vault.decimals()).to.be.bignumber.equal(decimals);
-    }
+    const vault = await ERC4626.new('', '', other);
+    expect(await vault.decimals()).to.be.bignumber.equal(decimals);
   });
 
   it('underlying excess decimals', async function () {
