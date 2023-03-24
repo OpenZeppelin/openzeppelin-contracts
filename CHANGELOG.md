@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `ERC4626`: Improved test coverage by adding further unit tests covering the internal function `_tryGetAssetDecimals` and an overflow test for `decimals`. ([#]())
+
 ### Breaking changes
 
 - `EIP712`: Addition of ERC5267 support requires support for user defined value types, which was released in Solidity version 0.8.8. This requires a pragma change from `^0.8.0` to `^0.8.8`.
