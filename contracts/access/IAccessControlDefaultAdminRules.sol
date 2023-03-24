@@ -57,7 +57,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * This delay will be added to the current timestamp when calling {beginDefaultAdminTransfer} to set
      * the acceptance schedule.
      *
-     * NOTE: If delay change has been schedule, it will take effect as soon as the schedule passes, making this
+     * NOTE: If a delay change has been schedule, it will take effect as soon as the schedule passes, making this
      * function return the new delay. See {changeDefaultAdminDelay}.
      */
     function defaultAdminDelay() external view returns (uint48);
