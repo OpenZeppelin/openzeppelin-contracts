@@ -346,20 +346,19 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _setPendingDelay(uint48 newDelay, uint48 newSchedule) private {
         uint48 oldSchedule = _pendingDelaySchedule;
-        bool set = _isScheduleSet(oldSchedule);
-        bool passed = _hasSchedulePassed(oldSchedule);
 
-        if (set && passed) {
-            _currentDelay = _pendingDelay; // Materialize a virtual delay
+        if (_isScheduleSet(oldSchedule)) {
+            if (_hasSchedulePassed(oldSchedule)) {
+                // Materialize a virtual delay
+                _currentDelay = _pendingDelay;
+            } else {
+                // Emit for implicit cancellations when another delay was scheduled.
+                emit DefaultAdminDelayChangeCanceled();
+            }
         }
 
         _pendingDelay = newDelay;
         _pendingDelaySchedule = newSchedule;
-
-        if (set && !passed) {
-            // Emit for implicit cancellations when another delay was scheduled.
-            emit DefaultAdminDelayChangeCanceled();
-        }
     }
 
     ///
