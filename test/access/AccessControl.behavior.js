@@ -1,5 +1,6 @@
-const { expectEvent, expectRevert, constants } = require('@openzeppelin/test-helpers');
+const { expectEvent, expectRevert, constants, BN } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+
 const { time } = require('@nomicfoundation/hardhat-network-helpers');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
@@ -357,7 +358,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   });
 
   describe('defaultAdminDelayIncreaseWait()', function () {
-    it('should return 5 (default)', async function () {
+    it('should return 5 days (default)', async function () {
       expect(await this.accessControl.defaultAdminDelayIncreaseWait()).to.be.bignumber.eq(
         web3.utils.toBN(time.duration.days(5)),
       );
@@ -460,7 +461,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     });
 
     describe('when there is a pending delay', function () {
-      const newDelay = web3.utils.toBN(time.duration.days(3));
+      const newDelay = web3.utils.toBN(time.duration.hours(3));
 
       beforeEach('schedule a delay change', async function () {
         await this.accessControl.changeDefaultAdminDelay(newDelay, { from: defaultAdmin });
@@ -691,7 +692,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   describe('changes delay', function () {
     it('reverts if called by non default admin accounts', async function () {
       await expectRevert(
-        this.accessControl.changeDefaultAdminDelay(time.duration.days(4), {
+        this.accessControl.changeDefaultAdminDelay(time.duration.hours(4), {
           from: other,
         }),
         `${errorPrefix}: account ${other.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE}`,
@@ -699,8 +700,9 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     });
 
     for (const [newDefaultAdminDelay, delayChangeType] of [
-      [web3.utils.toBN(delay).subn(time.duration.days(1)), 'decreased'],
-      [web3.utils.toBN(delay).addn(time.duration.days(1)), 'increased'],
+      [web3.utils.toBN(delay).subn(time.duration.hours(1)), 'decreased'],
+      [web3.utils.toBN(delay).addn(time.duration.hours(1)), 'increased'],
+      [web3.utils.toBN(delay).addn(time.duration.days(5)), 'increased to more than 5 days'],
     ]) {
       describe(`when the delay is ${delayChangeType}`, function () {
         it('begins the delay change to the new delay', async function () {
@@ -710,9 +712,10 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
           });
 
           // Calculate expected values
+          const cap = await this.accessControl.defaultAdminDelayIncreaseWait();
           const changeDelay = newDefaultAdminDelay.lte(delay)
             ? delay.sub(newDefaultAdminDelay)
-            : await this.accessControl.defaultAdminDelayIncreaseWait();
+            : BN.min(newDefaultAdminDelay, cap);
           const timestamp = web3.utils.toBN(await time.latest());
           const effectSchedule = timestamp.add(changeDelay);
 
@@ -744,14 +747,15 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
               await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
 
               // Default admin changes its mind and begins another delay change
-              const anotherNewDefaultAdminDelay = newDefaultAdminDelay.addn(time.duration.days(2));
+              const anotherNewDefaultAdminDelay = newDefaultAdminDelay.addn(time.duration.hours(2));
               const receipt = await this.accessControl.changeDefaultAdminDelay(anotherNewDefaultAdminDelay, {
                 from: defaultAdmin,
               });
 
               // Calculate expected values
+              const cap = await this.accessControl.defaultAdminDelayIncreaseWait();
               const timestamp = web3.utils.toBN(await time.latest());
-              const effectSchedule = timestamp.add(await this.accessControl.defaultAdminDelayIncreaseWait());
+              const effectSchedule = timestamp.add(BN.min(cap, anotherNewDefaultAdminDelay));
 
               // Assert
               const { newDelay, schedule } = await this.accessControl.pendingDefaultAdminDelay();
@@ -770,7 +774,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
               await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
 
               // Default admin changes its mind and begins another delay change
-              const anotherNewDefaultAdminDelay = newDefaultAdminDelay.addn(time.duration.days(2));
+              const anotherNewDefaultAdminDelay = newDefaultAdminDelay.addn(time.duration.hours(2));
               const receipt = await this.accessControl.changeDefaultAdminDelay(anotherNewDefaultAdminDelay, {
                 from: defaultAdmin,
               });
@@ -794,7 +798,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
     describe('when there is a pending delay', function () {
       beforeEach('set pending delay', async function () {
-        await this.accessControl.changeDefaultAdminDelay(time.duration.days(12), { from: defaultAdmin });
+        await this.accessControl.changeDefaultAdminDelay(time.duration.hours(12), { from: defaultAdmin });
       });
 
       for (const [fromSchedule, tag] of [
