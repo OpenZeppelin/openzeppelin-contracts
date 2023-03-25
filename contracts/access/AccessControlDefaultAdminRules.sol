@@ -72,7 +72,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     ///
-    /// Overide AccessControl role management
+    /// Override AccessControl role management
     ///
 
     /**
