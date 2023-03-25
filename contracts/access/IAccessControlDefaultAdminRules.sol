@@ -160,7 +160,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * to take effect. Default to 5 days.
      *
      * When the {defaultAdminDelay} is scheduled to be increased, it goes into effect after the new delay has passed with
-     * the purpose of giving enough time for reverting any accidental change (i.e. using miliseconds instead of seconds) 
+     * the purpose of giving enough time for reverting any accidental change (i.e. using milliseconds instead of seconds) 
      * that may lock the contract. However, to avoid excessive schedules, the wait is capped by this function and it can
      * be overrode for a custom {defaultAdminDelay} increase scheduling.
      *
