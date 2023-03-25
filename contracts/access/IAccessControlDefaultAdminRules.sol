@@ -40,7 +40,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function defaultAdmin() external view returns (address);
 
     /**
-     * @dev Returns a tuple of a `newAdmin` and an acceptance `schedule`.
+     * @dev Returns a tuple of a `newAdmin` and an accept schedule.
      *
      * After the `schedule` passes, the `newAdmin` will be able to accept the {defaultAdmin} role
      * by calling {acceptDefaultAdminTransfer}, completing the role transfer.
@@ -63,7 +63,7 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function defaultAdminDelay() external view returns (uint48);
 
     /**
-     * @dev Returns a tuple of `newDelay` and an effect `schedule`.
+     * @dev Returns a tuple of `newDelay` and an effect schedule.
      *
      * After the `schedule` passes, the `newDelay` will get into effect immediately for every
      * new {defaultAdmin} transfer started with {beginDefaultAdminTransfer}.
@@ -130,8 +130,9 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      *
      * The schedule is designed for two scenarios:
      *
-     * - When the delay is changed for a larger one, the schedule is `block.timestamp + (current delay - new delay)`
-     * - When the delay is changed for a shorter one, the schedule is `block.timestamp + {defaultAdminDelayIncreaseWait}`
+     * - When the delay is changed for a larger one the schedule is `block.timestamp + newDelay` capped by
+     * {defaultAdminDelayIncreaseWait}.
+     * - When the delay is changed for a shorter one, the schedule is `block.timestamp + (current delay - new delay)`.
      *
      * A {pendingDefaultAdminDelay} that never got into effect will be canceled in favor of a new scheduled change.
      *
@@ -155,15 +156,13 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function rollbackDefaultAdminDelay() external;
 
     /**
-     * @dev Time in seconds for an increase to {defaultAdminDelay} (that is scheduled using {changeDefaultAdminDelay})
+     * @dev Maximum time in seconds for an increase to {defaultAdminDelay} (that is scheduled using {changeDefaultAdminDelay})
      * to take effect. Default to 5 days.
      *
-     * With the purpose of avoiding doubly delayed transfers (waiting the new delay to start another delayed transfer),
-     * an increased delay can have its effect schedule relaxed, however, when the original delay is low, waiting only the old
-     * one can pose a risk of accidentally locking the contract (i.e. increasing from 1 second to 10 years).
-     *
-     * For both avoiding double-delayed transfers or fast-effect increases, this function can be configured for a custom
-     * {defaultAdminDelay} increase scheduling.
+     * When the {defaultAdminDelay} is scheduled to be increased, it goes into effect after the new delay has passed with
+     * the purpose of giving enough time for reverting any accidental change (i.e. using miliseconds instead of seconds) 
+     * that may lock the contract. However, to avoid excessive schedules, the wait is capped by this function and it can
+     * be overrode for a custom {defaultAdminDelay} increase scheduling.
      *
      * IMPORTANT: Make sure to add a reasonable amount of time while overriding this value, otherwise,
      * there's a risk of setting a high new delay that goes into effect almost immediately without the
