@@ -259,8 +259,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     /**
      * @inheritdoc IAccessControlDefaultAdminRules
      */
-    function changeDefaultAdminDelay(uint48 newDefaultAdminDelay) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        _changeDefaultAdminDelay(newDefaultAdminDelay);
+    function changeDefaultAdminDelay(uint48 newDelay) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        _changeDefaultAdminDelay(newDelay);
     }
 
     /**
@@ -291,7 +291,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev Returns the amount of seconds to wait after the `newDefaultAdminDelay` will
+     * @dev Returns the amount of seconds to wait after the `newDelay` will
      * become the new {defaultAdminDelay}.
      *
      * The value returned guarantees that if the delay is reduced, it will go into effect
@@ -299,7 +299,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      *
      * See {defaultAdminDelayIncreaseWait}.
      */
-    function _delayChangeWait(uint48 newDefaultAdminDelay) internal view virtual returns (uint48) {
+    function _delayChangeWait(uint48 newDelay) internal view virtual returns (uint48) {
         uint48 currentDelay = defaultAdminDelay();
 
         // When increasing the delay, we schedule the delay change to occur after a period of "new delay" has passed, up
@@ -312,9 +312,9 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
         // that an admin transfer cannot be made faster than "current delay" at the time the delay change is scheduled.
         // For example, if decreasing from 10 days to 3 days, the new delay will come into effect after 7 days.
         return
-            newDefaultAdminDelay > currentDelay
-                ? uint48(Math.min(newDefaultAdminDelay, defaultAdminDelayIncreaseWait())) // no need to safecast, both inputs are uint48
-                : currentDelay - newDefaultAdminDelay;
+            newDelay > currentDelay
+                ? uint48(Math.min(newDelay, defaultAdminDelayIncreaseWait())) // no need to safecast, both inputs are uint48
+                : currentDelay - newDelay;
     }
 
     ///
