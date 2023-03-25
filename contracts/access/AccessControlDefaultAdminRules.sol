@@ -302,12 +302,19 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     function _delayChangeWait(uint48 newDefaultAdminDelay) internal view virtual returns (uint48) {
         uint48 currentDelay = defaultAdminDelay();
 
-        // Schedules defaultAdminDelayIncreaseWait() if the delay is increased, this is done so the user has time enough to fix an accidentally high new delay set.
-        // If the delay is reduced, wait the difference between current and new delay to guarantee the delay change schedule + a default admin change
-        // is effectively the current delay. For example, if delay is reduced from 10 days to 3 days, it's needed to wait 7 days
-        // before starting the new 3 days delayed transfer summing up to 10 days, which is the current delay.
+        // When increasing the delay, we schedule the delay change to occur after a period of "new delay" has passed, up
+        // to a maximum given by defaultAdminDelayIncreaseWait, by default 5 days. For example, if increasing from 1 day
+        // to 3 days, the new delay will come into effect after 3 days. If increasing from 1 day to 10 days, the new
+        // delay will come into effect after 5 days. The 5 day wait period is intended to be able to fix an error like
+        // using milliseconds instead of seconds.
+        //
+        // When decreasing the delay, we wait the difference between "current delay" and "new delay". This guarantees
+        // that an admin transfer cannot be made faster than "current delay" at the time the delay change is scheduled.
+        // For example, if decreasing from 10 days to 3 days, the new delay will come into effect after 7 days.
         return
-            newDefaultAdminDelay > currentDelay ? defaultAdminDelayIncreaseWait() : currentDelay - newDefaultAdminDelay;
+            newDefaultAdminDelay > currentDelay
+                ? uint48(Math.min(newDefaultAdminDelay, defaultAdminDelayIncreaseWait())) // no need to safecast, both inputs are uint48
+                : currentDelay - newDefaultAdminDelay;
     }
 
     ///
