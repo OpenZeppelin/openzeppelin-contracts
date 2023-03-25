@@ -88,6 +88,19 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function beginDefaultAdminTransfer(address newAdmin) external;
 
     /**
+     * @dev Cancels a {defaultAdmin} transfer previously started with {beginDefaultAdminTransfer}.
+     *
+     * A {pendingDefaultAdmin} not yet accepted can also be cancelled with this function.
+     *
+     * Requirements:
+     *
+     * - Only can be called by the current {defaultAdmin}.
+     *
+     * May emit a DefaultAdminTransferCanceled event.
+     */
+    function cancelDefaultAdminTransfer() external;
+
+    /**
      * @dev Completes a {defaultAdmin} transfer previously started with {beginDefaultAdminTransfer}.
      *
      * After calling the function:
@@ -102,19 +115,6 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * - The {pendingDefaultAdmin}'s `acceptSchedule` should've passed.
      */
     function acceptDefaultAdminTransfer() external;
-
-    /**
-     * @dev Cancels a {defaultAdmin} transfer previously started with {beginDefaultAdminTransfer}.
-     *
-     * A {pendingDefaultAdmin} not yet accepted can also be cancelled with this function.
-     *
-     * Requirements:
-     *
-     * - Only can be called by the current {defaultAdmin}.
-     *
-     * May emit a DefaultAdminTransferCanceled event.
-     */
-    function cancelDefaultAdminTransfer() external;
 
     /**
      * @dev Initiates a {defaultAdminDelay} update by setting a {pendingDefaultAdminDelay} scheduled for getting
@@ -144,6 +144,17 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     function changeDefaultAdminDelay(uint48 newDelay) external;
 
     /**
+     * @dev Cancels a scheduled {defaultAdminDelay} change.
+     *
+     * Requirements:
+     *
+     * - Only can be called by the current {defaultAdmin}.
+     *
+     * May emit a DefaultAdminDelayChangeCanceled event.
+     */
+    function rollbackDefaultAdminDelay() external;
+
+    /**
      * @dev Time in seconds for an increase to {defaultAdminDelay} (that is scheduled using {changeDefaultAdminDelay})
      * to take effect. Default to 5 days.
      *
@@ -159,15 +170,4 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
      * possibility of human intervention in the case of an input error (eg. set milliseconds instead of seconds).
      */
     function defaultAdminDelayIncreaseWait() external view returns (uint48);
-
-    /**
-     * @dev Cancels a scheduled {defaultAdminDelay} change.
-     *
-     * Requirements:
-     *
-     * - Only can be called by the current {defaultAdmin}.
-     *
-     * May emit a DefaultAdminDelayChangeCanceled event.
-     */
-    function rollbackDefaultAdminDelay() external;
 }
