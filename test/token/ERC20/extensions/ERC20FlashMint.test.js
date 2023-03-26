@@ -7,6 +7,8 @@ const { MAX_UINT256, ZERO_ADDRESS } = constants;
 const ERC20FlashMintMock = artifacts.require('$ERC20FlashMintMock');
 const ERC3156FlashBorrowerMock = artifacts.require('ERC3156FlashBorrowerMock');
 
+const CUSTOM_ERROR = 'reverted with custom error ';
+
 contract('ERC20FlashMint', function (accounts) {
   const [initialHolder, other, anotherAccount] = accounts;
 
@@ -89,7 +91,7 @@ contract('ERC20FlashMint', function (accounts) {
       const receiver = await ERC3156FlashBorrowerMock.new(true, false);
       await expectRevert(
         this.token.flashLoan(receiver.address, this.token.address, loanAmount, '0x'),
-        'ERC20: insufficient allowance',
+        CUSTOM_ERROR + `'ERC20InsufficientAllowance("${this.token.address}", 0, ${loanAmount})'`,
       );
     });
 
@@ -98,7 +100,7 @@ contract('ERC20FlashMint', function (accounts) {
       const data = this.token.contract.methods.transfer(other, 10).encodeABI();
       await expectRevert(
         this.token.flashLoan(receiver.address, this.token.address, loanAmount, data),
-        'ERC20: burn amount exceeds balance',
+        CUSTOM_ERROR + `'ERC20InsufficientBalance("${receiver.address}", ${loanAmount.addn(-10)}, ${loanAmount})'`,
       );
     });
 

@@ -8,6 +8,8 @@ const NotAnERC20 = artifacts.require('CallReceiverMock');
 const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC20Wrapper = artifacts.require('$ERC20Wrapper');
 
+const CUSTOM_ERROR = 'reverted with custom error ';
+
 contract('ERC20', function (accounts) {
   const [initialHolder, recipient, anotherAccount] = accounts;
 
@@ -68,7 +70,7 @@ contract('ERC20', function (accounts) {
     it('missing approval', async function () {
       await expectRevert(
         this.token.depositFor(initialHolder, initialSupply, { from: initialHolder }),
-        'ERC20: insufficient allowance',
+        CUSTOM_ERROR + `'ERC20InsufficientAllowance("${this.token.address}", 0, ${initialSupply})'`,
       );
     });
 
@@ -76,7 +78,7 @@ contract('ERC20', function (accounts) {
       await this.underlying.approve(this.token.address, MAX_UINT256, { from: initialHolder });
       await expectRevert(
         this.token.depositFor(initialHolder, MAX_UINT256, { from: initialHolder }),
-        'ERC20: transfer amount exceeds balance',
+        CUSTOM_ERROR + `'ERC20InsufficientBalance("${initialHolder}", ${initialSupply}, ${MAX_UINT256})'`,
       );
     });
 
@@ -105,7 +107,7 @@ contract('ERC20', function (accounts) {
     it('missing balance', async function () {
       await expectRevert(
         this.token.withdrawTo(initialHolder, MAX_UINT256, { from: initialHolder }),
-        'ERC20: burn amount exceeds balance',
+        CUSTOM_ERROR + `'ERC20InsufficientBalance("${initialHolder}", ${initialSupply}, ${MAX_UINT256})'`,
       );
     });
 

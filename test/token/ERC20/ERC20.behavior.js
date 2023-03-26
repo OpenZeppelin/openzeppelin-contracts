@@ -2,6 +2,8 @@ const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test
 const { expect } = require('chai');
 const { ZERO_ADDRESS, MAX_UINT256 } = constants;
 
+const CUSTOM_ERROR = 'reverted with custom error ';
+
 function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipient, anotherAccount) {
   describe('total supply', function () {
     it('returns the total amount of tokens', async function () {
@@ -87,7 +89,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
             it('reverts', async function () {
               await expectRevert(
                 this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
-                `${errorPrefix}: transfer amount exceeds balance`,
+                CUSTOM_ERROR + `'${errorPrefix}InsufficientBalance("${tokenOwner}", ${initialSupply - 1}, ${amount})'`,
               );
             });
           });
@@ -106,7 +108,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
             it('reverts', async function () {
               await expectRevert(
                 this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
-                `${errorPrefix}: insufficient allowance`,
+                CUSTOM_ERROR + `'${errorPrefix}InsufficientAllowance("${spender}", ${initialSupply - 1}, ${amount})'`,
               );
             });
           });
@@ -121,7 +123,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
             it('reverts', async function () {
               await expectRevert(
                 this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
-                `${errorPrefix}: transfer amount exceeds balance`,
+                CUSTOM_ERROR + `'${errorPrefix}InsufficientBalance("${tokenOwner}", ${initialSupply - 2}, ${amount})'`,
               );
             });
           });
@@ -155,7 +157,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
         it('reverts', async function () {
           await expectRevert(
             this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
-            `${errorPrefix}: transfer to the zero address`,
+            CUSTOM_ERROR + `'${errorPrefix}InvalidReceiver("${to}")'`,
           );
         });
       });
@@ -167,7 +169,10 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
       const to = recipient;
 
       it('reverts', async function () {
-        await expectRevert(this.token.transferFrom(tokenOwner, to, amount, { from: spender }), 'from the zero address');
+        await expectRevert(
+          this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
+          CUSTOM_ERROR + `'${errorPrefix}InvalidApprover("${tokenOwner}")'`,
+        );
       });
     });
   });
@@ -191,7 +196,10 @@ function shouldBehaveLikeERC20Transfer(errorPrefix, from, to, balance, transfer)
       const amount = balance.addn(1);
 
       it('reverts', async function () {
-        await expectRevert(transfer.call(this, from, to, amount), `${errorPrefix}: transfer amount exceeds balance`);
+        await expectRevert(
+          transfer.call(this, from, to, amount),
+          CUSTOM_ERROR + `'${errorPrefix}InsufficientBalance("${from}", ${balance}, ${amount})'`,
+        );
       });
     });
 
@@ -232,7 +240,7 @@ function shouldBehaveLikeERC20Transfer(errorPrefix, from, to, balance, transfer)
     it('reverts', async function () {
       await expectRevert(
         transfer.call(this, from, ZERO_ADDRESS, balance),
-        `${errorPrefix}: transfer to the zero address`,
+        CUSTOM_ERROR + `'${errorPrefix}InvalidReceiver("${ZERO_ADDRESS}")'`,
       );
     });
   });
@@ -309,7 +317,7 @@ function shouldBehaveLikeERC20Approve(errorPrefix, owner, spender, supply, appro
     it('reverts', async function () {
       await expectRevert(
         approve.call(this, owner, ZERO_ADDRESS, supply),
-        `${errorPrefix}: approve to the zero address`,
+        CUSTOM_ERROR + `'${errorPrefix}InvalidSpender("${ZERO_ADDRESS}")'`,
       );
     });
   });
