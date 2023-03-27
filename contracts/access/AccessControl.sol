@@ -8,6 +8,13 @@ import "../utils/Context.sol";
 import "../utils/Strings.sol";
 import "../utils/introspection/ERC165.sol";
 
+/** @dev Custom errors introduced in solidity 0.8.4 */
+
+error AccessControlCanOnlyRenounceRolesForSelf(address sender, bytes32 role);
+error AccessControlInvalidReceiver(address receiver, bytes32 role);
+error AccessControlInvalidGranter(address granter, bytes32 role);
+error AccessControlMissingRole(address account, bytes32 role);
+
 /**
  * @dev Contract module that allows children to implement role-based access
  * control mechanisms. This is a lightweight version that doesn't allow enumerating role
@@ -95,6 +102,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * _Available since v4.6._
      */
     function _checkRole(bytes32 role) internal view virtual {
+        if (msg.sender == address(0x0)) revert AccessControlInvalidGranter(msg.sender, role);
+
         _checkRole(role, _msgSender());
     }
 
@@ -107,16 +116,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      */
     function _checkRole(bytes32 role, address account) internal view virtual {
         if (!hasRole(role, account)) {
-            revert(
-                string(
-                    abi.encodePacked(
-                        "AccessControl: account ",
-                        Strings.toHexString(account),
-                        " is missing role ",
-                        Strings.toHexString(uint256(role), 32)
-                    )
-                )
-            );
+            revert AccessControlMissingRole(account, role);
         }
     }
 
@@ -178,7 +178,9 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * May emit a {RoleRevoked} event.
      */
     function renounceRole(bytes32 role, address account) public virtual override {
-        require(account == _msgSender(), "AccessControl: can only renounce roles for self");
+        if (account != _msgSender()) {
+            revert AccessControlCanOnlyRenounceRolesForSelf(_msgSender(), role);
+        }
 
         _revokeRole(role, account);
     }
@@ -204,6 +206,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * NOTE: This function is deprecated in favor of {_grantRole}.
      */
     function _setupRole(bytes32 role, address account) internal virtual {
+        if (account == address(0)) {
+            revert AccessControlInvalidReceiver(account, role);
+        }
+
         _grantRole(role, account);
     }
 
@@ -226,6 +232,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * May emit a {RoleGranted} event.
      */
     function _grantRole(bytes32 role, address account) internal virtual {
+        if (account == address(0)) {
+            revert AccessControlInvalidReceiver(account, role);
+        }
+
         if (!hasRole(role, account)) {
             _roles[role].members[account] = true;
             emit RoleGranted(role, account, _msgSender());
@@ -240,6 +250,10 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * May emit a {RoleRevoked} event.
      */
     function _revokeRole(bytes32 role, address account) internal virtual {
+        if (account == address(0)) {
+            revert AccessControlInvalidReceiver(account, role);
+        }
+
         if (hasRole(role, account)) {
             _roles[role].members[account] = false;
             emit RoleRevoked(role, account, _msgSender());

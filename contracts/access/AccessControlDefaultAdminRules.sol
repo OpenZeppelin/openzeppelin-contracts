@@ -8,6 +8,16 @@ import "./IAccessControlDefaultAdminRules.sol";
 import "../utils/math/SafeCast.sol";
 import "../interfaces/IERC5313.sol";
 
+/** @dev Custom errors introduced in solidity 0.8.4 */
+
+error AccessControlPendingAdmin(address pendingAdmin);
+error AccessControlRenounceOnlyTwoSteps();
+error AccessControlCantDirectlyGrantAdmin();
+error AccessControlCantDirectlyRevokeAdmin();
+error AccessControlCantViolateDefaultAdmin();
+error AccessControlCantGrantAdminTwice();
+error AccessControlTransferControlDelayNotPassed();
+
 /**
  * @dev Extension of {AccessControl} that allows specifying special rules to manage
  * the `DEFAULT_ADMIN_ROLE` holder, which is a sensitive role with special permissions
@@ -110,7 +120,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @inheritdoc IAccessControlDefaultAdminRules
      */
     function acceptDefaultAdminTransfer() public virtual {
-        require(_msgSender() == pendingDefaultAdmin(), "AccessControl: pending admin must accept");
+        if (msg.sender != _pendingDefaultAdmin) {
+            revert AccessControlPendingAdmin(pendingDefaultAdmin());
+        }
+
         _acceptDefaultAdminTransfer();
     }
 
@@ -137,10 +150,9 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         if (role == DEFAULT_ADMIN_ROLE) {
-            require(
-                pendingDefaultAdmin() == address(0) && _hasDefaultAdminTransferDelayPassed(),
-                "AccessControl: only can renounce in two delayed steps"
-            );
+            if (pendingDefaultAdmin() != address(0) && !_hasDefaultAdminTransferDelayPassed()) {
+                revert AccessControlRenounceOnlyTwoSteps();
+            }
         }
         super.renounceRole(role, account);
     }
@@ -149,7 +161,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev See {AccessControl-grantRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
     function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
-        require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly grant default admin role");
+        if (role == DEFAULT_ADMIN_ROLE) {
+            revert AccessControlCantDirectlyGrantAdmin();
+        }
+
         super.grantRole(role, account);
     }
 
@@ -157,7 +172,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev See {AccessControl-revokeRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
-        require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly revoke default admin role");
+        if (role == DEFAULT_ADMIN_ROLE) {
+            revert AccessControlCantDirectlyRevokeAdmin();
+        }
+
         super.revokeRole(role, account);
     }
 
@@ -165,7 +183,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev See {AccessControl-_setRoleAdmin}. Reverts for `DEFAULT_ADMIN_ROLE`.
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual override {
-        require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't violate default admin rules");
+        if (role == DEFAULT_ADMIN_ROLE) {
+            revert AccessControlCantViolateDefaultAdmin();
+        }
+
         super._setRoleAdmin(role, adminRole);
     }
 
@@ -183,7 +204,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == DEFAULT_ADMIN_ROLE) {
-            require(defaultAdmin() == address(0), "AccessControl: default admin already granted");
+            if (defaultAdmin() != address(0)) {
+                revert AccessControlCantGrantAdminTwice();
+            }
+
             _currentDefaultAdmin = account;
         }
         super._grantRole(role, account);
@@ -195,7 +219,10 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * Internal function without access restriction.
      */
     function _acceptDefaultAdminTransfer() internal virtual {
-        require(_hasDefaultAdminTransferDelayPassed(), "AccessControl: transfer delay not passed");
+        if (!_hasDefaultAdminTransferDelayPassed()) {
+            revert AccessControlTransferControlDelayNotPassed();
+        }
+
         _revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin());
         _grantRole(DEFAULT_ADMIN_ROLE, pendingDefaultAdmin());
         _resetDefaultAdminTransfer();

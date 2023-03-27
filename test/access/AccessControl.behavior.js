@@ -9,6 +9,8 @@ const DEFAULT_ADMIN_ROLE = '0x00000000000000000000000000000000000000000000000000
 const ROLE = web3.utils.soliditySha3('ROLE');
 const OTHER_ROLE = web3.utils.soliditySha3('OTHER_ROLE');
 
+const CUSTOM_ERROR = 'VM Exception while processing transaction: reverted with custom error ';
+
 function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, otherAdmin) {
   shouldSupportInterfaces(['AccessControl']);
 
@@ -34,7 +36,7 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
     it('non-admin cannot grant role to other accounts', async function () {
       await expectRevert(
         this.accessControl.grantRole(ROLE, authorized, { from: other }),
-        `${errorPrefix}: account ${other.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE}`,
+        CUSTOM_ERROR + `'AccessControlMissingRole("${other}", "${DEFAULT_ADMIN_ROLE}")'`,
       );
     });
 
@@ -68,7 +70,7 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
       it('non-admin cannot revoke role', async function () {
         await expectRevert(
           this.accessControl.revokeRole(ROLE, authorized, { from: other }),
-          `${errorPrefix}: account ${other.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE}`,
+          CUSTOM_ERROR + `'AccessControlMissingRole("${other}", "${DEFAULT_ADMIN_ROLE}")'`,
         );
       });
 
@@ -102,7 +104,7 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
       it('only the sender can renounce their roles', async function () {
         await expectRevert(
           this.accessControl.renounceRole(ROLE, authorized, { from: admin }),
-          `${errorPrefix}: can only renounce roles for self`,
+          CUSTOM_ERROR + `'AccessControlCanOnlyRenounceRolesForSelf("${admin}", "${ROLE}")'`,
         );
       });
 
@@ -145,14 +147,14 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
     it("a role's previous admins no longer grant roles", async function () {
       await expectRevert(
         this.accessControl.grantRole(ROLE, authorized, { from: admin }),
-        `${errorPrefix}: account ${admin.toLowerCase()} is missing role ${OTHER_ROLE}`,
+        CUSTOM_ERROR + `'AccessControlMissingRole("${admin}", "${OTHER_ROLE}")'`,
       );
     });
 
     it("a role's previous admins no longer revoke roles", async function () {
       await expectRevert(
         this.accessControl.revokeRole(ROLE, authorized, { from: admin }),
-        `${errorPrefix}: account ${admin.toLowerCase()} is missing role ${OTHER_ROLE}`,
+        CUSTOM_ERROR + `'AccessControlMissingRole("${admin}", "${OTHER_ROLE}")'`,
       );
     });
   });
@@ -169,14 +171,14 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
     it("revert if sender doesn't have role #1", async function () {
       await expectRevert(
         this.accessControl.methods['$_checkRole(bytes32)'](ROLE, { from: other }),
-        `${errorPrefix}: account ${other.toLowerCase()} is missing role ${ROLE}`,
+        CUSTOM_ERROR + `'AccessControlMissingRole("${other}", "${ROLE}")'`,
       );
     });
 
     it("revert if sender doesn't have role #2", async function () {
       await expectRevert(
         this.accessControl.methods['$_checkRole(bytes32)'](OTHER_ROLE, { from: authorized }),
-        `${errorPrefix}: account ${authorized.toLowerCase()} is missing role ${OTHER_ROLE}`,
+        CUSTOM_ERROR + `'AccessControlMissingRole("${authorized}", "${OTHER_ROLE}")'`,
       );
     });
   });
@@ -232,7 +234,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   it('should revert if granting default admin role', async function () {
     await expectRevert(
       this.accessControl.grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
-      `${errorPrefix}: can't directly grant default admin role`,
+      CUSTOM_ERROR + `'AccessControlMissingRole("${defaultAdmin}", "${ROLE}")'`,
     );
   });
 
@@ -302,7 +304,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     it('should revert if it is called by non-admin accounts', async function () {
       await expectRevert(
         this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: other }),
-        `${errorPrefix}: account ${other.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE}`,
+        CUSTOM_ERROR + `'AccessControlMissingRole("${other}", "${DEFAULT_ADMIN_ROLE}")'`,
       );
     });
   });
@@ -418,7 +420,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     it('reverts if called by non default admin accounts', async function () {
       await expectRevert(
         this.accessControl.cancelDefaultAdminTransfer({ from: other }),
-        `${errorPrefix}: account ${other.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE}`,
+        CUSTOM_ERROR + `'AccessControlMissingRole("${other}", "${DEFAULT_ADMIN_ROLE}")'`,
       );
     });
   });
@@ -463,7 +465,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       await time.setNextBlockTimestamp(delayPassed);
       await expectRevert(
         this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from }),
-        `${errorPrefix}: can only renounce roles for self`,
+        CUSTOM_ERROR + `'AccessControlCanOnlyRenounceRolesForSelf("${from}", "${DEFAULT_ADMIN_ROLE}")'`,
       );
     });
 

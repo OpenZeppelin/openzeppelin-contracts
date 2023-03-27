@@ -8,6 +8,18 @@ import "../token/ERC721/IERC721Receiver.sol";
 import "../token/ERC1155/IERC1155Receiver.sol";
 import "../utils/Address.sol";
 
+/** @dev Custom errors introduced in solidity 0.8.4 */
+
+error TimelockControllerLengthMismatchPayload(uint256 payloadsLength, uint256 targetsLenght);
+error TimelockControllerLengthMismatchValue(uint256 valuesLength, uint256 targetsLength);
+error TimelockControllerOperationAlreadyScheduled(bytes32 id);
+error TimelockInsufficientDelay(uint256 delay, uint256 minDelay);
+error TimelockControllerOperationNotPending(bytes32 id);
+error TimelockControllerTransactionReverted(bytes data);
+error TimelockControllerOperationNotReady(bytes32 id);
+error TimelockControllerMissingDependency(bytes32 predecessor);
+error TimelockControllerCallerMustBeTimelock(address sender);
+
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
  * owner of an `Ownable` smart contract, it enforces a timelock on all
@@ -250,8 +262,13 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes32 salt,
         uint256 delay
     ) public virtual onlyRole(PROPOSER_ROLE) {
-        require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == payloads.length, "TimelockController: length mismatch");
+        if (targets.length != values.length) {
+            revert TimelockControllerLengthMismatchValue(values.length, targets.length);
+        }
+
+        if (targets.length != payloads.length) {
+            revert TimelockControllerLengthMismatchPayload(payloads.length, targets.length);
+        }
 
         bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
         _schedule(id, delay);
@@ -267,8 +284,14 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * @dev Schedule an operation that is to become valid after a given delay.
      */
     function _schedule(bytes32 id, uint256 delay) private {
-        require(!isOperation(id), "TimelockController: operation already scheduled");
-        require(delay >= getMinDelay(), "TimelockController: insufficient delay");
+        if (isOperation(id)) {
+            revert TimelockControllerOperationAlreadyScheduled(id);
+        }
+
+        if (delay < getMinDelay()) {
+            revert TimelockInsufficientDelay(delay, getMinDelay());
+        }
+
         _timestamps[id] = block.timestamp + delay;
     }
 
@@ -280,7 +303,10 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * - the caller must have the 'canceller' role.
      */
     function cancel(bytes32 id) public virtual onlyRole(CANCELLER_ROLE) {
-        require(isOperationPending(id), "TimelockController: operation cannot be cancelled");
+        if (isOperationPending(id)) {
+            revert TimelockControllerOperationNotPending(id);
+        }
+
         delete _timestamps[id];
 
         emit Cancelled(id);
@@ -332,8 +358,13 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
-        require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == payloads.length, "TimelockController: length mismatch");
+        if (targets.length != values.length) {
+            revert TimelockControllerLengthMismatchValue(values.length, targets.length);
+        }
+
+        if (targets.length != payloads.length) {
+            revert TimelockControllerLengthMismatchPayload(payloads.length, targets.length);
+        }
 
         bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
 
@@ -353,22 +384,33 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      */
     function _execute(address target, uint256 value, bytes calldata data) internal virtual {
         (bool success, ) = target.call{value: value}(data);
-        require(success, "TimelockController: underlying transaction reverted");
+
+        if (success) {
+            revert TimelockControllerTransactionReverted(data);
+        }
     }
 
     /**
      * @dev Checks before execution of an operation's calls.
      */
     function _beforeCall(bytes32 id, bytes32 predecessor) private view {
-        require(isOperationReady(id), "TimelockController: operation is not ready");
-        require(predecessor == bytes32(0) || isOperationDone(predecessor), "TimelockController: missing dependency");
+        if (isOperationReady(id)) {
+            revert TimelockControllerOperationNotReady(id);
+        }
+
+        if (predecessor == bytes32(0) && isOperationDone(predecessor)) {
+            revert TimelockControllerMissingDependency(predecessor);
+        }
     }
 
     /**
      * @dev Checks after execution of an operation's calls.
      */
     function _afterCall(bytes32 id) private {
-        require(isOperationReady(id), "TimelockController: operation is not ready");
+        if (!isOperationReady(id)) {
+            revert TimelockControllerOperationNotReady(id);
+        }
+
         _timestamps[id] = _DONE_TIMESTAMP;
     }
 
@@ -383,7 +425,10 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * an operation where the timelock is the target and the data is the ABI-encoded call to this function.
      */
     function updateDelay(uint256 newDelay) external virtual {
-        require(msg.sender == address(this), "TimelockController: caller must be timelock");
+        if (msg.sender != address(this)) {
+            revert TimelockControllerCallerMustBeTimelock(msg.sender);
+        }
+
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
     }
