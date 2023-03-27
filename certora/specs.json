@@ -1,5 +1,10 @@
 [
   {
+    "spec": "Pausable",
+    "contract": "PausableHarness",
+    "files": ["certora/harnesses/PausableHarness.sol"]
+  },
+  {
     "spec": "AccessControl",
     "contract": "AccessControlHarness",
     "files": ["certora/harnesses/AccessControlHarness.sol"]
@@ -45,5 +50,11 @@
     "spec": "Initializable",
     "contract": "InitializableHarness",
     "files": ["certora/harnesses/InitializableHarness.sol"]
+  },
+  {
+    "spec": "TimelockController",
+    "contract": "TimelockControllerHarness",
+    "files": ["certora/harnesses/TimelockControllerHarness.sol"],
+    "options": ["--optimistic_hashing", "--optimistic_loop"]
   }
 ]

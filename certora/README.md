@@ -1,56 +1,60 @@
 # Running the certora verification tool
 
-These instructions detail the process for running CVT on the OpenZeppelin (Wizard/Governor) contracts.
+These instructions detail the process for running Certora Verification Tool on OpenZeppelin Contracts.
 
-Documentation for CVT and the specification language are available
-[here](https://certora.atlassian.net/wiki/spaces/CPD/overview)
+Documentation for CVT and the specification language are available [here](https://certora.atlassian.net/wiki/spaces/CPD/overview).
+
+## Prerequisites
+
+Follow the [Certora installation guide](https://docs.certora.com/en/latest/docs/user-guide/getting-started/install.html) in order to get the Certora Prover Package and the `solc` executable folder in your path.
+
+> **Note**
+> An API Key is required for local testing. Although the prover will run on a Github Actions' CI environment on selected Pull Requests.
 
 ## Running the verification
 
-The scripts in the `certora/scripts` directory are used to submit verification
-jobs to the Certora verification service. After the job is complete, the results will be available on
-[the Certora portal](https://vaas-stg.certora.com/).
+The Certora Verification Tool proves specs for contracts, which are defined by the `./specs.json` file along with their pre-configured options.
 
-These scripts should be run from the root directory; for example by running
+The verification script `./run.js` is used to submit verification jobs to the Certora Verification service.
 
+You can run it from the root of the repository with the following command:
+
+```bash
+node certora/run.js [[CONTRACT_NAME:]SPEC_NAME] [OPTIONS...]
 ```
-sh certora/scripts/verifyAll.sh <meaningful comment>
-```
 
-The most important of these is `verifyAll.sh`, which checks
-all of the harnessed contracts (`certora/harness/Wizard*.sol`) against all of
-the specifications (`certora/spec/*.spec`).
+Where:
 
-The other scripts run a subset of the specifications or the contracts.  You can
-verify different contracts or specifications by changing the `--verify` option,
-and you can run a single rule or method with the `--rule` or `--method` option.
+- `CONTRACT_NAME` matches the `contract` key in the `./spec.json` file and may be empty. It will run all matching contracts if not provided.
+- `SPEC_NAME` refers to a `spec` key from the `./specs.json` file. It will run every spec if not provided.
+- `OPTIONS` extend the [Certora Prover CLI options](https://docs.certora.com/en/latest/docs/prover/cli/options.html#certora-prover-cli-options) and will respect the preconfigured options in the `specs.json` file.
 
-For example, to verify the `WizardFirstPriority` contract against the
-`GovernorCountingSimple` specification, you could change the `--verify` line of
-the `WizardControlFirstPriortity.sh` script to:
+> **Note**
+> A single spec may be configured to run for multiple contracts, whereas a single contract may run multiple specs.
 
-```
---verify WizardFirstPriority:certora/specs/GovernorCountingSimple.spec \
+Example usage:
+
+```bash
+node certora/run.js AccessControl # Run the AccessControl spec against every contract implementing it
 ```
 
 ## Adapting to changes in the contracts
 
-Some of our rules require the code to be simplified in various ways. Our
-primary tool for performing these simplifications is to run verification on a
-contract that extends the original contracts and overrides some of the methods.
-These "harness" contracts can be found in the `certora/harness` directory.
+Some of our rules require the code to be simplified in various ways. Our primary tool for performing these simplifications is to run verification on a contract that extends the original contracts and overrides some of the methods. These "harness" contracts can be found in the `certora/harness` directory.
 
-This pattern does require some modifications to the original code: some methods
-need to be made virtual or public, for example. These changes are handled by
-applying a patch to the code before verification.
+This pattern does require some modifications to the original code: some methods need to be made virtual or public, for example. These changes are handled by applying a patch
+to the code before verification by running:
 
-When one of the `verify` scripts is executed, it first applies the patch file
-`certora/applyHarness.patch` to the `contracts` directory, placing the output
-in the `certora/munged` directory. We then verify the contracts in the
-`certora/munged` directory.
+```bash
+make -C certora apply
+```
 
-If the original contracts change, it is possible to create a conflict with the
-patch. In this case, the verify scripts will report an error message and output
-rejected changes in the `munged` directory. After merging the changes, run
-`make record` in the `certora` directory; this will regenerate the patch file,
-which can then be checked into git.
+Before running the `certora/run.js` script, it's required to apply the corresponding patches to the `contracts` directory, placing the output in the `certora/patched` directory. Then, the contracts are verified by running the verification for the `certora/patched` directory.
+
+If the original contracts change, it is possible to create a conflict with the patch. In this case, the verify scripts will report an error message and output rejected changes in the `patched` directory. After merging the changes, run `make record` in the `certora` directory; this will regenerate the patch file, which can then be checked into git.
+
+For more information about the `make` scripts available, run:
+
+```bash
+make -C certora help
+```
