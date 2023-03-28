@@ -129,6 +129,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * After its execution, it will not be possible to call `onlyRole(DEFAULT_ADMIN_ROLE)`
      * functions.
      *
+     * Can't renounce to the zero address.
+     *
      * For other roles, see {AccessControl-renounceRole}.
      *
      * NOTE: Renouncing `DEFAULT_ADMIN_ROLE` will leave the contract without a defaultAdmin,
@@ -136,6 +138,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * possibility of reassigning a non-administrated role.
      */
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
+        require(account != address(0), "AccessControl: account is the zero address");
         if (role == DEFAULT_ADMIN_ROLE) {
             require(
                 pendingDefaultAdmin() == address(0) && _hasDefaultAdminTransferDelayPassed(),
@@ -146,17 +149,19 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     }
 
     /**
-     * @dev See {AccessControl-grantRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
+     * @dev See {AccessControl-grantRole}. Reverts for `DEFAULT_ADMIN_ROLE` and zero address.
      */
     function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
+        require(account != address(0), "AccessControl: account is the zero address");
         require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly grant default admin role");
         super.grantRole(role, account);
     }
 
     /**
-     * @dev See {AccessControl-revokeRole}. Reverts for `DEFAULT_ADMIN_ROLE`.
+     * @dev See {AccessControl-revokeRole}. Reverts for `DEFAULT_ADMIN_ROLE` and zero address.
      */
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
+        require(account != address(0), "AccessControl: account is the zero address");
         require(role != DEFAULT_ADMIN_ROLE, "AccessControl: can't directly revoke default admin role");
         super.revokeRole(role, account);
     }

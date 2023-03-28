@@ -63,7 +63,9 @@ contract('GovernorTimelockControl', function (accounts) {
         await this.timelock.grantRole(PROPOSER_ROLE, owner);
         await this.timelock.grantRole(CANCELLER_ROLE, this.mock.address);
         await this.timelock.grantRole(CANCELLER_ROLE, owner);
-        await this.timelock.grantRole(EXECUTOR_ROLE, constants.ZERO_ADDRESS);
+        await this.timelock.grantRole(EXECUTOR_ROLE, this.mock.address);
+        await this.timelock.grantRole(EXECUTOR_ROLE, owner);
+        await this.timelock.grantRole(EXECUTOR_ROLE, deployer);
         await this.timelock.revokeRole(TIMELOCK_ADMIN_ROLE, deployer);
 
         await this.token.$_mint(owner, tokenSupply);

@@ -31,6 +31,13 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
       await this.accessControl.grantRole(ROLE, authorized, { from: admin });
     });
 
+    it('cannot grant role to zero account', async function () {
+      await expectRevert(
+        this.accessControl.grantRole(ROLE, ZERO_ADDRESS, { from: admin }),
+        `${errorPrefix}: account is the zero address`,
+      );
+    });
+
     it('non-admin cannot grant role to other accounts', async function () {
       await expectRevert(
         this.accessControl.grantRole(ROLE, authorized, { from: other }),
@@ -56,6 +63,13 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
     context('with granted role', function () {
       beforeEach(async function () {
         await this.accessControl.grantRole(ROLE, authorized, { from: admin });
+      });
+
+      it('cannot revoke role from zero account', async function () {
+        await expectRevert(
+          this.accessControl.revokeRole(ROLE, ZERO_ADDRESS, { from: admin }),
+          `${errorPrefix}: account is the zero address`,
+        );
       });
 
       it('admin can revoke role', async function () {
@@ -129,6 +143,13 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
 
     it("a role's admin role can be changed", async function () {
       expect(await this.accessControl.getRoleAdmin(ROLE)).to.equal(OTHER_ROLE);
+    });
+
+    it('cannot grant role to zero account', async function () {
+      await expectRevert(
+        this.accessControl.grantRole(ROLE, ZERO_ADDRESS, { from: otherAdmin }),
+        `${errorPrefix}: account is the zero address`,
+      );
     });
 
     it('the new admin can grant roles', async function () {

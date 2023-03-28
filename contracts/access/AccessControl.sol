@@ -133,8 +133,8 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
     /**
      * @dev Grants `role` to `account`.
      *
-     * If `account` had not been already granted `role`, emits a {RoleGranted}
-     * event.
+     * If `account` had not been already granted `role`, and it's not the
+     * zero address emits a {RoleGranted} event.
      *
      * Requirements:
      *
@@ -143,8 +143,14 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * May emit a {RoleGranted} event.
      */
     function grantRole(bytes32 role, address account) public virtual override onlyRole(getRoleAdmin(role)) {
+        require(account != address(0), "AccessControl: account is the zero address");
+
         _grantRole(role, account);
     }
+
+    /**
+     * @dev Grants
+     */
 
     /**
      * @dev Revokes `role` from `account`.
@@ -154,10 +160,13 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Requirements:
      *
      * - the caller must have ``role``'s admin role.
+     * - the account must not be the zero address.
      *
      * May emit a {RoleRevoked} event.
      */
     function revokeRole(bytes32 role, address account) public virtual override onlyRole(getRoleAdmin(role)) {
+        require(account != address(0), "AccessControl: account is the zero address");
+
         _revokeRole(role, account);
     }
 
@@ -174,10 +183,12 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      * Requirements:
      *
      * - the caller must be `account`.
+     * - the account must not be the zero address.
      *
      * May emit a {RoleRevoked} event.
      */
     function renounceRole(bytes32 role, address account) public virtual override {
+        require(account != address(0), "AccessControl: account is the zero address");
         require(account == _msgSender(), "AccessControl: can only renounce roles for self");
 
         _revokeRole(role, account);
