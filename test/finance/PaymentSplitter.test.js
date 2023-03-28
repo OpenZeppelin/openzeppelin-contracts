@@ -68,6 +68,10 @@ contract('PaymentSplitter', function (accounts) {
       );
     });
 
+    it('returns payees length', async function () {
+      expect(await this.contract.getPayeesLength()).to.be.bignumber.equal('3');
+    });
+
     describe('accepts payments', function () {
       it('Ether', async function () {
         await send.ether(owner, this.contract.address, amount);

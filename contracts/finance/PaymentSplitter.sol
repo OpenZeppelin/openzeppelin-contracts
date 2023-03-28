@@ -185,6 +185,16 @@ contract PaymentSplitter is Context {
     }
 
     /**
+     *
+     * @dev getter for payees length.
+     *
+     */
+
+    function getPayeesLength() public view returns (uint256) {
+        return _payees.length;
+    }
+
+    /**
      * @dev internal logic for computing the pending payment of an `account` given the token historical balances and
      * already released amounts.
      */
