@@ -44,6 +44,15 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
     }
 
     /**
+     * @dev gets the tokenURI of 'tokenId' without the baseURI
+     *
+     */
+
+    function _getPureTokenURI(uint256 tokenId) internal view virtual returns (string memory) {
+        return _tokenURIs[tokenId];
+    }
+
+    /**
      * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
      *
      * Emits {MetadataUpdate}.

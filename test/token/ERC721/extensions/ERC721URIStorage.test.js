@@ -96,5 +96,11 @@ contract('ERC721URIStorage', function (accounts) {
       expect(await this.token.$_exists(firstTokenId)).to.equal(false);
       await expectRevert(this.token.tokenURI(firstTokenId), 'ERC721: invalid token ID');
     });
+
+    it('returns the pure base URI', async function () {
+      await this.token.setBaseURI(baseURI);
+
+      expect(await this.token.$_baseURI()).to.be.equal(baseURI);
+    });
   });
 });
