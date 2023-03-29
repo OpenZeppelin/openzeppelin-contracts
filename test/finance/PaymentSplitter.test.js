@@ -69,7 +69,7 @@ contract('PaymentSplitter', function (accounts) {
     });
 
     it('returns payees length', async function () {
-      expect(await this.contract.getPayeesLength()).to.be.bignumber.equal('3');
+      expect(await this.contract.totalPayees()).to.be.bignumber.equal('3');
     });
 
     describe('accepts payments', function () {
