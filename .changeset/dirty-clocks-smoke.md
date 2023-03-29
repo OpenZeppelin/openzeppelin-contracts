@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`PaymentSplitter`: Add `getPayeesLength()` function returning the 
+`PaymentSplitter`: Add `totalPayees()` function returning the length of the `_payees` array

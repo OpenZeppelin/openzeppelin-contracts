@@ -93,6 +93,13 @@ contract PaymentSplitter is Context {
     }
 
     /**
+     * @dev Getter for the amount of payees.
+     */
+    function totalPayees() public view returns (uint256) {
+        return _payees.length;
+    }
+
+    /**
      * @dev Getter for the amount of shares held by an account.
      */
     function shares(address account) public view returns (uint256) {
@@ -182,13 +189,6 @@ contract PaymentSplitter is Context {
 
         SafeERC20.safeTransfer(token, account, payment);
         emit ERC20PaymentReleased(token, account, payment);
-    }
-
-/**
- * @dev Getter for the amount of payees.
- */
-    function getPayeesLength() public view returns (uint256) {
-        return _payees.length;
     }
 
     /**
