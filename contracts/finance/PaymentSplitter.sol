@@ -184,12 +184,9 @@ contract PaymentSplitter is Context {
         emit ERC20PaymentReleased(token, account, payment);
     }
 
-    /**
-     *
-     * @dev getter for payees length.
-     *
-     */
-
+/**
+ * @dev Getter for the amount of payees.
+ */
     function getPayeesLength() public view returns (uint256) {
         return _payees.length;
     }
