@@ -13,16 +13,10 @@ function getVersion(path) {
   }
 }
 
-for (const [file, template] of Object.entries({
-  'utils/math/SafeCast.sol': './templates/SafeCast.js',
-  'utils/structs/EnumerableSet.sol': './templates/EnumerableSet.js',
-  'utils/structs/EnumerableMap.sol': './templates/EnumerableMap.js',
-  'utils/Checkpoints.sol': './templates/Checkpoints.js',
-  'utils/StorageSlot.sol': './templates/StorageSlot.js',
-})) {
+function generateFromTemplate(file, template, outputPrefix = '') {
   const script = path.relative(path.join(__dirname, '../..'), __filename);
   const input = path.join(path.dirname(script), template);
-  const output = `./contracts/${file}`;
+  const output = path.join(outputPrefix, file);
   const version = getVersion(output);
   const content = format(
     '// SPDX-License-Identifier: MIT',
@@ -34,4 +28,22 @@ for (const [file, template] of Object.entries({
 
   fs.writeFileSync(output, content);
   cp.execFileSync('prettier', ['--write', output]);
+}
+
+// Contracts
+for (const [file, template] of Object.entries({
+  'utils/math/SafeCast.sol': './templates/SafeCast.js',
+  'utils/structs/EnumerableSet.sol': './templates/EnumerableSet.js',
+  'utils/structs/EnumerableMap.sol': './templates/EnumerableMap.js',
+  'utils/Checkpoints.sol': './templates/Checkpoints.js',
+  'utils/StorageSlot.sol': './templates/StorageSlot.js',
+})) {
+  generateFromTemplate(file, template, './contracts/');
+}
+
+// Tests
+for (const [file, template] of Object.entries({
+  'utils/Checkpoints.t.sol': './templates/tests/Checkpoints.js',
+})) {
+  generateFromTemplate(file, template, './test/');
 }
