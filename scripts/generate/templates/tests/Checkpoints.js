@@ -12,20 +12,11 @@ import "../../contracts/utils/Checkpoints.sol";
 
 /* eslint-disable max-len */
 const common = ({ structType, keyType, valueType }) => `\
-using Checkpoints for ${structType};
+using Checkpoints for Checkpoints.${structType};
 
-Checkpoints.${structType}[] internal _data;
-
-// setup
-function setUp() public {
-    _data.push();
-}
+Checkpoints.${structType} internal instance;
 
 // helpers
-function get() internal view returns (Checkpoints.${structType} storage) {
-    return _data[_data.length - 1];
-}
-
 function bound_${keyType}(${keyType} x, ${keyType} min, ${keyType} max) internal view returns (${keyType}) {
     return ${keyType}(bound(uint256(x), uint256(min), uint256(max)));
 }
@@ -40,7 +31,6 @@ function prepareKeys(${keyType}[] memory keys, ${keyType} maxSpread) private vie
 }
 
 function assertLatestCheckpoint(
-    Checkpoints.${structType} storage instance,
     bool exist,
     ${keyType} key,
     ${valueType} value
@@ -58,13 +48,10 @@ function testPush(${keyType}[] memory keys, ${valueType}[] memory values) public
     vm.assume(values.length > 0);
     prepareKeys(keys, 64);
 
-    // get instance
-    Checkpoints.${structType} storage instance = get();
-
     // initial state
     assertTrue(instance.length() == 0);
     assertTrue(instance.latest() == 0);
-    assertLatestCheckpoint(instance, false, 0, 0);
+    assertLatestCheckpoint(false, 0, 0);
 
     ${keyType} duplicates = 0;
     for (${keyType} i = 0; i < keys.length; ++i) {
@@ -78,7 +65,7 @@ function testPush(${keyType}[] memory keys, ${valueType}[] memory values) public
         // check length & latest
         assertTrue(instance.length() == i + 1 - duplicates);
         assertTrue(instance.latest() == value);
-        assertLatestCheckpoint(instance, true, key, value);
+        assertLatestCheckpoint(true, key, value);
     }
 }
 
@@ -88,9 +75,6 @@ function testLookup(${keyType}[] memory keys, ${valueType}[] memory values, ${ke
 
     ${keyType} lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
     lookup = bound_${keyType}(lookup, 0, lastKey + 64);
-
-    // get instance
-    Checkpoints.${structType} storage instance = get();
 
     ${valueType} upper = 0;
     ${valueType} lower = 0;
@@ -127,13 +111,10 @@ function testPush(uint32[] memory keys, uint224[] memory values) public {
     vm.assume(values.length > 0);
     prepareKeys(keys, 64);
 
-    // get instance
-    Checkpoints.History storage instance = get();
-
     // initial state
     assertTrue(instance.length() == 0);
     assertTrue(instance.latest() == 0);
-    assertLatestCheckpoint(instance, false, 0, 0);
+    assertLatestCheckpoint(false, 0, 0);
 
     uint32 duplicates = 0;
     for (uint32 i = 0; i < keys.length; ++i) {
@@ -148,7 +129,7 @@ function testPush(uint32[] memory keys, uint224[] memory values) public {
         // check length & latest
         assertTrue(instance.length() == i + 1 - duplicates);
         assertTrue(instance.latest() == value);
-        assertLatestCheckpoint(instance, true, key, value);
+        assertLatestCheckpoint(true, key, value);
     }
 }
 
@@ -161,11 +142,7 @@ function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup
     vm.assume(lastKey > 0);
     lookup = bound_uint32(lookup, 0, lastKey - 1);
 
-    // get instance
-    Checkpoints.History storage instance = get();
-
     uint224 upper = 0;
-
     for (uint32 i = 0; i < keys.length; ++i) {
         uint32 key = keys[i];
         uint224 value = values[i % values.length];

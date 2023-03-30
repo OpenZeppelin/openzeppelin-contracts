@@ -7,20 +7,11 @@ import "forge-std/Test.sol";
 import "../../contracts/utils/Checkpoints.sol";
 
 contract CheckpointsHistoryTest is Test {
-    using Checkpoints for History;
+    using Checkpoints for Checkpoints.History;
 
-    Checkpoints.History[] internal _data;
-
-    // setup
-    function setUp() public {
-        _data.push();
-    }
+    Checkpoints.History internal instance;
 
     // helpers
-    function get() internal view returns (Checkpoints.History storage) {
-        return _data[_data.length - 1];
-    }
-
     function bound_uint32(uint32 x, uint32 min, uint32 max) internal view returns (uint32) {
         return uint32(bound(uint256(x), uint256(min), uint256(max)));
     }
@@ -34,12 +25,7 @@ contract CheckpointsHistoryTest is Test {
         }
     }
 
-    function assertLatestCheckpoint(
-        Checkpoints.History storage instance,
-        bool exist,
-        uint32 key,
-        uint224 value
-    ) internal {
+    function assertLatestCheckpoint(bool exist, uint32 key, uint224 value) internal {
         (bool _exist, uint32 _key, uint224 _value) = instance.latestCheckpoint();
         assertTrue(_exist == exist);
         assertTrue(_key == key);
@@ -51,13 +37,10 @@ contract CheckpointsHistoryTest is Test {
         vm.assume(values.length > 0);
         prepareKeys(keys, 64);
 
-        // get instance
-        Checkpoints.History storage instance = get();
-
         // initial state
         assertTrue(instance.length() == 0);
         assertTrue(instance.latest() == 0);
-        assertLatestCheckpoint(instance, false, 0, 0);
+        assertLatestCheckpoint(false, 0, 0);
 
         uint32 duplicates = 0;
         for (uint32 i = 0; i < keys.length; ++i) {
@@ -72,7 +55,7 @@ contract CheckpointsHistoryTest is Test {
             // check length & latest
             assertTrue(instance.length() == i + 1 - duplicates);
             assertTrue(instance.latest() == value);
-            assertLatestCheckpoint(instance, true, key, value);
+            assertLatestCheckpoint(true, key, value);
         }
     }
 
@@ -85,11 +68,7 @@ contract CheckpointsHistoryTest is Test {
         vm.assume(lastKey > 0);
         lookup = bound_uint32(lookup, 0, lastKey - 1);
 
-        // get instance
-        Checkpoints.History storage instance = get();
-
         uint224 upper = 0;
-
         for (uint32 i = 0; i < keys.length; ++i) {
             uint32 key = keys[i];
             uint224 value = values[i % values.length];
@@ -120,20 +99,11 @@ contract CheckpointsHistoryTest is Test {
 }
 
 contract CheckpointsTrace224Test is Test {
-    using Checkpoints for Trace224;
+    using Checkpoints for Checkpoints.Trace224;
 
-    Checkpoints.Trace224[] internal _data;
-
-    // setup
-    function setUp() public {
-        _data.push();
-    }
+    Checkpoints.Trace224 internal instance;
 
     // helpers
-    function get() internal view returns (Checkpoints.Trace224 storage) {
-        return _data[_data.length - 1];
-    }
-
     function bound_uint32(uint32 x, uint32 min, uint32 max) internal view returns (uint32) {
         return uint32(bound(uint256(x), uint256(min), uint256(max)));
     }
@@ -147,12 +117,7 @@ contract CheckpointsTrace224Test is Test {
         }
     }
 
-    function assertLatestCheckpoint(
-        Checkpoints.Trace224 storage instance,
-        bool exist,
-        uint32 key,
-        uint224 value
-    ) internal {
+    function assertLatestCheckpoint(bool exist, uint32 key, uint224 value) internal {
         (bool _exist, uint32 _key, uint224 _value) = instance.latestCheckpoint();
         assertTrue(_exist == exist);
         assertTrue(_key == key);
@@ -164,13 +129,10 @@ contract CheckpointsTrace224Test is Test {
         vm.assume(values.length > 0);
         prepareKeys(keys, 64);
 
-        // get instance
-        Checkpoints.Trace224 storage instance = get();
-
         // initial state
         assertTrue(instance.length() == 0);
         assertTrue(instance.latest() == 0);
-        assertLatestCheckpoint(instance, false, 0, 0);
+        assertLatestCheckpoint(false, 0, 0);
 
         uint32 duplicates = 0;
         for (uint32 i = 0; i < keys.length; ++i) {
@@ -184,7 +146,7 @@ contract CheckpointsTrace224Test is Test {
             // check length & latest
             assertTrue(instance.length() == i + 1 - duplicates);
             assertTrue(instance.latest() == value);
-            assertLatestCheckpoint(instance, true, key, value);
+            assertLatestCheckpoint(true, key, value);
         }
     }
 
@@ -194,9 +156,6 @@ contract CheckpointsTrace224Test is Test {
 
         uint32 lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
         lookup = bound_uint32(lookup, 0, lastKey + 64);
-
-        // get instance
-        Checkpoints.Trace224 storage instance = get();
 
         uint224 upper = 0;
         uint224 lower = 0;
@@ -228,20 +187,11 @@ contract CheckpointsTrace224Test is Test {
 }
 
 contract CheckpointsTrace160Test is Test {
-    using Checkpoints for Trace160;
+    using Checkpoints for Checkpoints.Trace160;
 
-    Checkpoints.Trace160[] internal _data;
-
-    // setup
-    function setUp() public {
-        _data.push();
-    }
+    Checkpoints.Trace160 internal instance;
 
     // helpers
-    function get() internal view returns (Checkpoints.Trace160 storage) {
-        return _data[_data.length - 1];
-    }
-
     function bound_uint96(uint96 x, uint96 min, uint96 max) internal view returns (uint96) {
         return uint96(bound(uint256(x), uint256(min), uint256(max)));
     }
@@ -255,12 +205,7 @@ contract CheckpointsTrace160Test is Test {
         }
     }
 
-    function assertLatestCheckpoint(
-        Checkpoints.Trace160 storage instance,
-        bool exist,
-        uint96 key,
-        uint160 value
-    ) internal {
+    function assertLatestCheckpoint(bool exist, uint96 key, uint160 value) internal {
         (bool _exist, uint96 _key, uint160 _value) = instance.latestCheckpoint();
         assertTrue(_exist == exist);
         assertTrue(_key == key);
@@ -272,13 +217,10 @@ contract CheckpointsTrace160Test is Test {
         vm.assume(values.length > 0);
         prepareKeys(keys, 64);
 
-        // get instance
-        Checkpoints.Trace160 storage instance = get();
-
         // initial state
         assertTrue(instance.length() == 0);
         assertTrue(instance.latest() == 0);
-        assertLatestCheckpoint(instance, false, 0, 0);
+        assertLatestCheckpoint(false, 0, 0);
 
         uint96 duplicates = 0;
         for (uint96 i = 0; i < keys.length; ++i) {
@@ -292,7 +234,7 @@ contract CheckpointsTrace160Test is Test {
             // check length & latest
             assertTrue(instance.length() == i + 1 - duplicates);
             assertTrue(instance.latest() == value);
-            assertLatestCheckpoint(instance, true, key, value);
+            assertLatestCheckpoint(true, key, value);
         }
     }
 
@@ -302,9 +244,6 @@ contract CheckpointsTrace160Test is Test {
 
         uint96 lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
         lookup = bound_uint96(lookup, 0, lastKey + 64);
-
-        // get instance
-        Checkpoints.Trace160 storage instance = get();
 
         uint160 upper = 0;
         uint160 lower = 0;
