@@ -42,7 +42,7 @@ function assertLatestCheckpoint(
 }
 `;
 
-const traceXXX = ({ structType, keyType, valueType }) => `\
+const traceXXX = ({ keyType, valueType }) => `\
 // tests
 function testPush(${keyType}[] memory keys, ${valueType}[] memory values) public {
     vm.assume(values.length > 0);
