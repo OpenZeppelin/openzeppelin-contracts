@@ -81,7 +81,31 @@ invariant lengthConsistency()
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant outOfBoundsDefault(int128 key)
-    key < begin() && key >= end() && at_(to_uint256(key)) == 0
+    (
+        key < begin() &&  // Is before beginning
+        key >= end() // Is after ending
+    ) => at_(to_uint256(key)) == 0
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: empty() is length 0 and no element exists                                                                │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant emptiness(int128 key)
+    empty() <=> length() == 0 && at_(to_uint256(key)) == 0
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: front() and back() point to the [begin, end) range limits                                                │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant pointerCorrectness()
+    back() == at_(to_uint256(begin())) && front() == at_(to_uint256(end()) - 1)
+    {
+        preserved {
+            requireInvariant boundariesConsistency;
+        }
+    }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -89,19 +113,19 @@ invariant outOfBoundsDefault(int128 key)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pushFront {
+    // Sanity
     requireInvariant boundariesConsistency;
-
+    
     bytes32 value;
 
     int128 beginBefore = begin();
     int128 beginNext = beginBefore - 1;
-
-    bytes32 valueBefore = at_(0);
+    bytes32 frontBefore = front();
 
     pushFront@withrevert(value);
 
     int128 beginAfter = begin();
-    bytes32 valueAfter = at_(0);
+    bytes32 frontAfter = front();
 
     bool success = !lastReverted;
 
@@ -109,10 +133,13 @@ rule pushFront {
     assert success;
 
     // effect
-    assert success => valueAfter == value && beginAfter == beginNext, "value set, and begin adjusted";
+    assert success => (
+        frontAfter == value && // Front set to value
+        beginAfter == beginNext // Begin is adjusted
+    ), "front set to value and begin is adjusted";
 
     // no side effect
-    assert valueBefore == valueAfter => valueBefore == value, "value doesn't change only if it was already set";
+    assert frontBefore == frontAfter <=> frontBefore == value, "front doesn't change only if it was already set";
 }
 
 /*
@@ -121,19 +148,19 @@ rule pushFront {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pushBack {
+    // Sanity
     requireInvariant boundariesConsistency;
 
     bytes32 value;
 
     int128 endBefore = end();
     int128 endNext = endBefore + 1;
-    
-    bytes32 valueBefore = at_(to_uint256(end() - 1));
+    bytes32 backBefore = back();
 
     pushBack@withrevert(value);
 
     int128 endAfter = end();
-    bytes32 valueAfter = at_(to_uint256(end() - 1));
+    bytes32 backAfter = back();
 
     bool success = !lastReverted;
 
@@ -141,9 +168,73 @@ rule pushBack {
     assert success;
 
     // effect
-    assert success => valueAfter == value && endAfter == endNext, "value set, and end adjusted";
+    assert success => (
+        backAfter == value && // Back set to true
+        endAfter == endNext // End is adjusted
+    ), "back set to value and begin is adjusted";
 
     // no side effect
-    assert valueBefore == valueAfter => valueBefore == value, "value doesn't change only if it was already set";
+    assert backBefore == backAfter <=> backBefore == value, "back doesn't change only if it was already set";
 }
 
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Function correctness: popFront removes an element from the beginning of the queue                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule popFront {
+    requireInvariant boundariesConsistency;
+    bytes32 value;
+    require !empty();
+
+    int128 beginBefore = begin();
+    int128 beginNext = beginBefore + 1;
+    bytes32 frontBefore = front();
+
+    popFront@withrevert();
+
+    int128 beginAfter = begin();
+    bytes32 frontAfter = front();
+
+    bool success = !lastReverted;
+
+    // liveness
+    assert success;
+
+    // effect
+    assert success => beginAfter == beginNext, "begin is adjusted ";
+
+    // no side effect
+    assert frontBefore == frontAfter <=> frontBefore == value, "front doesn't change only if it was already set";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Function correctness: popBack removes an element from the end of the queue                                          │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule popBack {
+    requireInvariant boundariesConsistency;
+    bytes32 value;
+    require !empty();
+
+    int128 endBefore = end();
+    int128 endNext = endBefore - 1;
+    bytes32 backBefore = back();
+
+    popBack@withrevert();
+
+    int128 endAfter = end();
+    bytes32 backAfter = back();
+
+    bool success = !lastReverted;
+
+    // liveness
+    assert success;
+
+    // effect
+    assert success => endAfter == endNext, "begin is adjusted ";
+
+    // no side effect
+    assert backBefore == backAfter <=> backBefore == value, "back doesn't change only if it was already set";
+}
