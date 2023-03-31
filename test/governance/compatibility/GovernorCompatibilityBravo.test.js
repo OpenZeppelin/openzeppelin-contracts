@@ -224,6 +224,35 @@ contract('GovernorCompatibilityBravo', function (accounts) {
         });
       });
 
+      it('compatibility interface with empty signatures array', async function () {
+        const target = this.receiver.address;
+        this.helper.setProposal(
+          [
+            { target, data: this.receiver.contract.methods.mockFunction().encodeABI() },
+            { target, data: this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI() },
+          ],
+          '<proposal description>',
+          true // force compatibility interface
+        );
+
+        // replace `signatures` array that is ['', ..., ''] with an empty array
+        this.helper.currentProposal.fullProposal[2] = [];
+
+        await this.helper.propose({ from: proposer });
+        await this.helper.waitForSnapshot();
+        await this.helper.vote({ support: Enums.VoteType.For, reason: 'This is nice' }, { from: voter1 });
+        await this.helper.waitForDeadline();
+        await this.helper.queue();
+        await this.helper.waitForEta();
+        const txExecute = await this.helper.execute();
+
+        await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
+        await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalledWithArgs', {
+          a: '17',
+          b: '42',
+        });
+      });
+
       describe('should revert', function () {
         describe('on propose', function () {
           it('if proposal does not meet proposalThreshold', async function () {

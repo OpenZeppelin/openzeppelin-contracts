@@ -144,17 +144,17 @@ class GovernorHelper {
    * 1) an array of objects [{ target, value, data, signature? }]
    * 2) an object of arrays { targets: [], values: [], data: [], signatures?: [] }
    */
-  setProposal(actions, description) {
+  setProposal(actions, description, forceCompatibilityInterface = false) {
     let targets, values, signatures, data, useCompatibilityInterface;
 
     if (Array.isArray(actions)) {
-      useCompatibilityInterface = actions.some(a => 'signature' in a);
+      useCompatibilityInterface = actions.some(a => 'signature' in a) || forceCompatibilityInterface;
       targets = actions.map(a => a.target);
       values = actions.map(a => a.value || '0');
       signatures = actions.map(a => a.signature || '');
       data = actions.map(a => a.data || '0x');
     } else {
-      useCompatibilityInterface = Array.isArray(actions.signatures);
+      useCompatibilityInterface = Array.isArray(actions.signatures) || forceCompatibilityInterface;
       ({ targets, values, signatures = [], data } = actions);
     }
 

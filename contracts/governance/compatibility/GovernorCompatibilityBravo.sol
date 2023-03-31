@@ -150,8 +150,11 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     ) private pure returns (bytes[] memory) {
         bytes[] memory fullcalldatas = new bytes[](calldatas.length);
 
-        for (uint256 i = 0; i < signatures.length; ++i) {
-            fullcalldatas[i] = bytes(signatures[i]).length == 0
+        bool noSignatures = signatures.length == 0;
+        require(noSignatures || signatures.length == calldatas.length, "GovernorBravo: invalid signatures length");
+
+        for (uint256 i = 0; i < fullcalldatas.length; ++i) {
+            fullcalldatas[i] = (noSignatures || bytes(signatures[i]).length == 0)
                 ? calldatas[i]
                 : abi.encodePacked(bytes4(keccak256(bytes(signatures[i]))), calldatas[i]);
         }
