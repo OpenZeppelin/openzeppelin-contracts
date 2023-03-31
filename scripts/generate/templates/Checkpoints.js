@@ -1,5 +1,5 @@
 const format = require('../format-lines');
-const { opts, legacyOpts } = require('./Checkpoints.opts.js');
+const { OPTS, LEGACY_OPTS } = require('./Checkpoints.opts.js');
 
 // TEMPLATE
 const header = `\
@@ -294,11 +294,11 @@ module.exports = format(
   'library Checkpoints {',
   [
     // Legacy types & functions
-    types(legacyOpts),
-    legacyOperations(legacyOpts),
-    common(legacyOpts),
+    types(LEGACY_OPTS),
+    legacyOperations(LEGACY_OPTS),
+    common(LEGACY_OPTS),
     // New flavors
-    ...opts.flatMap(o => [types(o), operations(o), common(o)]),
+    ...OPTS.flatMap(opts => [types(opts), operations(opts), common(opts)]),
   ],
   '}',
 );

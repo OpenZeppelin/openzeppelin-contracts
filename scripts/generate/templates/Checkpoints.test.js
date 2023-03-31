@@ -1,6 +1,6 @@
 const format = require('../format-lines');
 const { capitalize } = require('../../helpers');
-const { opts, legacyOpts } = require('./Checkpoints.opts.js');
+const { OPTS, LEGACY_OPTS } = require('./Checkpoints.opts.js');
 
 // TEMPLATE
 const header = `\
@@ -50,7 +50,7 @@ function _assertLatestCheckpoint(
 }
 `;
 
-const traceXXX = opts => `\
+const testTrace = opts => `\
 // tests
 function testPush(
     ${opts.keyTypeName}[] memory keys,
@@ -64,7 +64,7 @@ function testPush(
     assertTrue(_ckpts.latest() == 0);
     _assertLatestCheckpoint(false, 0, 0);
 
-    ${opts.keyTypeName} duplicates = 0;
+    uint256 duplicates = 0;
     for (${opts.keyTypeName} i = 0; i < keys.length; ++i) {
         ${opts.keyTypeName} key = keys[i];
         ${opts.valueTypeName} value = values[i % values.length];
@@ -94,7 +94,7 @@ function testLookup(
     ${opts.valueTypeName} upper = 0;
     ${opts.valueTypeName} lower = 0;
     ${opts.keyTypeName} lowerKey = type(${opts.keyTypeName}).max;
-    for (${opts.keyTypeName} i = 0; i < keys.length; ++i) {
+    for (uint256 i = 0; i < keys.length; ++i) {
         ${opts.keyTypeName} key = keys[i];
         ${opts.valueTypeName} value = values[i % values.length];
 
@@ -120,9 +120,12 @@ function testLookup(
 }
 `;
 
-const history = () => `\
+const testHistory = opts => `\
 // tests
-function testPush(uint32[] memory keys, uint224[] memory values) public {
+function testPush(
+    ${opts.keyTypeName}[] memory keys,
+    ${opts.valueTypeName}[] memory values
+) public {
     vm.assume(values.length > 0);
     _prepareKeys(keys, 64);
 
@@ -131,10 +134,10 @@ function testPush(uint32[] memory keys, uint224[] memory values) public {
     assertTrue(_ckpts.latest() == 0);
     _assertLatestCheckpoint(false, 0, 0);
 
-    uint32 duplicates = 0;
-    for (uint32 i = 0; i < keys.length; ++i) {
-        uint32 key = keys[i];
-        uint224 value = values[i % values.length];
+    uint256 duplicates = 0;
+    for (uint256 i = 0; i < keys.length; ++i) {
+        ${opts.keyTypeName} key = keys[i];
+        ${opts.valueTypeName} value = values[i % values.length];
         if (i > 0 && key == keys[i - 1]) ++duplicates;
 
         // push
@@ -148,19 +151,23 @@ function testPush(uint32[] memory keys, uint224[] memory values) public {
     }
 }
 
-function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup) public {
+function testLookup(
+    ${opts.keyTypeName}[] memory keys,
+    ${opts.valueTypeName}[] memory values,
+    ${opts.keyTypeName} lookup
+) public {
     vm.assume(keys.length > 0);
     vm.assume(values.length > 0);
     _prepareKeys(keys, 64);
 
-    uint32 lastKey = keys[keys.length - 1];
+    ${opts.keyTypeName} lastKey = keys[keys.length - 1];
     vm.assume(lastKey > 0);
-    lookup = _boundUint32(lookup, 0, lastKey - 1);
+    lookup = _bound${capitalize(opts.keyTypeName)}(lookup, 0, lastKey - 1);
 
-    uint224 upper = 0;
-    for (uint32 i = 0; i < keys.length; ++i) {
-        uint32 key = keys[i];
-        uint224 value = values[i % values.length];
+    ${opts.valueTypeName} upper = 0;
+    for (uint256 i = 0; i < keys.length; ++i) {
+        ${opts.keyTypeName} key = keys[i];
+        ${opts.valueTypeName} value = values[i % values.length];
 
         // push
         vm.roll(key);
@@ -188,13 +195,13 @@ function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup
 module.exports = format(
   header,
   // HISTORY
-  'contract CheckpointsHistoryTest is Test {',
-  [common(legacyOpts), history()],
+  `contract Checkpoints${LEGACY_OPTS.historyTypeName}Test is Test {`,
+  [common(LEGACY_OPTS), testHistory(LEGACY_OPTS)],
   '}',
   // TRACEXXX
-  ...opts.flatMap(o => [
-    `contract Checkpoints${o.historyTypeName}Test is Test {`,
-    [common(o), traceXXX(o)],
+  ...OPTS.flatMap(opts => [
+    `contract Checkpoints${opts.historyTypeName}Test is Test {`,
+    [common(opts), testTrace(opts)],
     '}',
   ]),
 );

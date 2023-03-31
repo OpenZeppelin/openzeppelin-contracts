@@ -43,8 +43,8 @@ contract CheckpointsHistoryTest is Test {
         assertTrue(_ckpts.latest() == 0);
         _assertLatestCheckpoint(false, 0, 0);
 
-        uint32 duplicates = 0;
-        for (uint32 i = 0; i < keys.length; ++i) {
+        uint256 duplicates = 0;
+        for (uint256 i = 0; i < keys.length; ++i) {
             uint32 key = keys[i];
             uint224 value = values[i % values.length];
             if (i > 0 && key == keys[i - 1]) ++duplicates;
@@ -70,7 +70,7 @@ contract CheckpointsHistoryTest is Test {
         lookup = _boundUint32(lookup, 0, lastKey - 1);
 
         uint224 upper = 0;
-        for (uint32 i = 0; i < keys.length; ++i) {
+        for (uint256 i = 0; i < keys.length; ++i) {
             uint32 key = keys[i];
             uint224 value = values[i % values.length];
 
@@ -135,7 +135,7 @@ contract CheckpointsTrace224Test is Test {
         assertTrue(_ckpts.latest() == 0);
         _assertLatestCheckpoint(false, 0, 0);
 
-        uint32 duplicates = 0;
+        uint256 duplicates = 0;
         for (uint32 i = 0; i < keys.length; ++i) {
             uint32 key = keys[i];
             uint224 value = values[i % values.length];
@@ -161,7 +161,7 @@ contract CheckpointsTrace224Test is Test {
         uint224 upper = 0;
         uint224 lower = 0;
         uint32 lowerKey = type(uint32).max;
-        for (uint32 i = 0; i < keys.length; ++i) {
+        for (uint256 i = 0; i < keys.length; ++i) {
             uint32 key = keys[i];
             uint224 value = values[i % values.length];
 
@@ -223,7 +223,7 @@ contract CheckpointsTrace160Test is Test {
         assertTrue(_ckpts.latest() == 0);
         _assertLatestCheckpoint(false, 0, 0);
 
-        uint96 duplicates = 0;
+        uint256 duplicates = 0;
         for (uint96 i = 0; i < keys.length; ++i) {
             uint96 key = keys[i];
             uint160 value = values[i % values.length];
@@ -249,7 +249,7 @@ contract CheckpointsTrace160Test is Test {
         uint160 upper = 0;
         uint160 lower = 0;
         uint96 lowerKey = type(uint96).max;
-        for (uint96 i = 0; i < keys.length; ++i) {
+        for (uint256 i = 0; i < keys.length; ++i) {
             uint96 key = keys[i];
             uint160 value = values[i % values.length];
 
