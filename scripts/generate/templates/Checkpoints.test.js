@@ -31,7 +31,7 @@ function _prepareKeys(
     ${opts.keyTypeName} maxSpread
 ) internal view {
     ${opts.keyTypeName} lastKey = 0;
-    for (${opts.keyTypeName} i = 0; i < keys.length; ++i) {
+    for (uint256 i = 0; i < keys.length; ++i) {
         ${opts.keyTypeName} key = _bound${capitalize(opts.keyTypeName)}(keys[i], lastKey, lastKey + maxSpread);
         keys[i] = key;
         lastKey = key;
@@ -65,7 +65,7 @@ function testPush(
     _assertLatestCheckpoint(false, 0, 0);
 
     uint256 duplicates = 0;
-    for (${opts.keyTypeName} i = 0; i < keys.length; ++i) {
+    for (uint256 i = 0; i < keys.length; ++i) {
         ${opts.keyTypeName} key = keys[i];
         ${opts.valueTypeName} value = values[i % values.length];
         if (i > 0 && key == keys[i-1]) ++duplicates;

@@ -19,7 +19,7 @@ contract CheckpointsHistoryTest is Test {
 
     function _prepareKeys(uint32[] memory keys, uint32 maxSpread) internal view {
         uint32 lastKey = 0;
-        for (uint32 i = 0; i < keys.length; ++i) {
+        for (uint256 i = 0; i < keys.length; ++i) {
             uint32 key = _boundUint32(keys[i], lastKey, lastKey + maxSpread);
             keys[i] = key;
             lastKey = key;
@@ -111,7 +111,7 @@ contract CheckpointsTrace224Test is Test {
 
     function _prepareKeys(uint32[] memory keys, uint32 maxSpread) internal view {
         uint32 lastKey = 0;
-        for (uint32 i = 0; i < keys.length; ++i) {
+        for (uint256 i = 0; i < keys.length; ++i) {
             uint32 key = _boundUint32(keys[i], lastKey, lastKey + maxSpread);
             keys[i] = key;
             lastKey = key;
@@ -136,7 +136,7 @@ contract CheckpointsTrace224Test is Test {
         _assertLatestCheckpoint(false, 0, 0);
 
         uint256 duplicates = 0;
-        for (uint32 i = 0; i < keys.length; ++i) {
+        for (uint256 i = 0; i < keys.length; ++i) {
             uint32 key = keys[i];
             uint224 value = values[i % values.length];
             if (i > 0 && key == keys[i - 1]) ++duplicates;
@@ -199,7 +199,7 @@ contract CheckpointsTrace160Test is Test {
 
     function _prepareKeys(uint96[] memory keys, uint96 maxSpread) internal view {
         uint96 lastKey = 0;
-        for (uint96 i = 0; i < keys.length; ++i) {
+        for (uint256 i = 0; i < keys.length; ++i) {
             uint96 key = _boundUint96(keys[i], lastKey, lastKey + maxSpread);
             keys[i] = key;
             lastKey = key;
@@ -224,7 +224,7 @@ contract CheckpointsTrace160Test is Test {
         _assertLatestCheckpoint(false, 0, 0);
 
         uint256 duplicates = 0;
-        for (uint96 i = 0; i < keys.length; ++i) {
+        for (uint256 i = 0; i < keys.length; ++i) {
             uint96 key = keys[i];
             uint160 value = values[i % values.length];
             if (i > 0 && key == keys[i - 1]) ++duplicates;
