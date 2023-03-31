@@ -232,7 +232,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
             { target, data: this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI() },
           ],
           '<proposal description>',
-          true // force compatibility interface
+          true, // force compatibility interface
         );
 
         // replace `signatures` array that is ['', ..., ''] with an empty array
