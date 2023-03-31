@@ -43,7 +43,7 @@ for (const [file, template] of Object.entries({
 
 // Tests
 for (const [file, template] of Object.entries({
-  'utils/Checkpoints.t.sol': './templates/tests/Checkpoints.js',
+  'utils/Checkpoints.t.sol': './templates/Checkpoints.test.js',
 })) {
   generateFromTemplate(file, template, './test/');
 }

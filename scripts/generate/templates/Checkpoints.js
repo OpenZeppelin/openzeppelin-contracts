@@ -1,26 +1,5 @@
 const format = require('../format-lines');
-
-// OPTIONS
-const defaultOpts = size => ({
-  historyTypeName: `Trace${size}`,
-  checkpointTypeName: `Checkpoint${size}`,
-  checkpointFieldName: '_checkpoints',
-  keyTypeName: `uint${256 - size}`,
-  keyFieldName: '_key',
-  valueTypeName: `uint${size}`,
-  valueFieldName: '_value',
-});
-
-const VALUE_SIZES = [224, 160];
-
-const OPTS = VALUE_SIZES.map(size => defaultOpts(size));
-
-const LEGACY_OPTS = {
-  ...defaultOpts(224),
-  historyTypeName: 'History',
-  checkpointTypeName: 'Checkpoint',
-  keyFieldName: '_blockNumber',
-};
+const { opts, legacyOpts } = require('./Checkpoints.opts.js');
 
 // TEMPLATE
 const header = `\
@@ -315,11 +294,11 @@ module.exports = format(
   'library Checkpoints {',
   [
     // Legacy types & functions
-    types(LEGACY_OPTS),
-    legacyOperations(LEGACY_OPTS),
-    common(LEGACY_OPTS),
+    types(legacyOpts),
+    legacyOperations(legacyOpts),
+    common(legacyOpts),
     // New flavors
-    ...OPTS.flatMap(opts => [types(opts), operations(opts), common(opts)]),
+    ...opts.flatMap(o => [types(o), operations(o), common(o)]),
   ],
   '}',
 );

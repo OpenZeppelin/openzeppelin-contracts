@@ -1,7 +1,6 @@
-const format = require('../../format-lines');
-const { capitalize } = require('../../../helpers');
-
-const VALUE_SIZES = [224, 160];
+const format = require('../format-lines');
+const { capitalize } = require('../../helpers');
+const { opts, legacyOpts } = require('./Checkpoints.opts.js');
 
 // TEMPLATE
 const header = `\
@@ -13,20 +12,27 @@ import "../../contracts/utils/math/SafeCast.sol";
 `;
 
 /* eslint-disable max-len */
-const common = ({ structType, keyType, valueType }) => `\
-using Checkpoints for Checkpoints.${structType};
+const common = opts => `\
+using Checkpoints for Checkpoints.${opts.historyTypeName};
 
-Checkpoints.${structType} internal _ckpts;
+Checkpoints.${opts.historyTypeName} internal _ckpts;
 
 // helpers
-function _bound${capitalize(keyType)}(${keyType} x, ${keyType} min, ${keyType} max) internal view returns (${keyType}) {
-    return SafeCast.to${capitalize(keyType)}(bound(uint256(x), uint256(min), uint256(max)));
+function _bound${capitalize(opts.keyTypeName)}(
+    ${opts.keyTypeName} x,
+    ${opts.keyTypeName} min,
+    ${opts.keyTypeName} max
+) internal view returns (${opts.keyTypeName}) {
+    return SafeCast.to${capitalize(opts.keyTypeName)}(bound(uint256(x), uint256(min), uint256(max)));
 }
 
-function _prepareKeys(${keyType}[] memory keys, ${keyType} maxSpread) internal view {
-    ${keyType} lastKey = 0;
-    for (${keyType} i = 0; i < keys.length; ++i) {
-        ${keyType} key = _bound${capitalize(keyType)}(keys[i], lastKey, lastKey + maxSpread);
+function _prepareKeys(
+    ${opts.keyTypeName}[] memory keys,
+    ${opts.keyTypeName} maxSpread
+) internal view {
+    ${opts.keyTypeName} lastKey = 0;
+    for (${opts.keyTypeName} i = 0; i < keys.length; ++i) {
+        ${opts.keyTypeName} key = _bound${capitalize(opts.keyTypeName)}(keys[i], lastKey, lastKey + maxSpread);
         keys[i] = key;
         lastKey = key;
     }
@@ -34,19 +40,22 @@ function _prepareKeys(${keyType}[] memory keys, ${keyType} maxSpread) internal v
 
 function _assertLatestCheckpoint(
     bool exist,
-    ${keyType} key,
-    ${valueType} value
+    ${opts.keyTypeName} key,
+    ${opts.valueTypeName} value
 ) internal {
-    (bool _exist, ${keyType} _key, ${valueType} _value) = _ckpts.latestCheckpoint();
+    (bool _exist, ${opts.keyTypeName} _key, ${opts.valueTypeName} _value) = _ckpts.latestCheckpoint();
     assertTrue(_exist == exist);
     assertTrue(_key == key);
     assertTrue(_value == value);
 }
 `;
 
-const traceXXX = ({ keyType, valueType }) => `\
+const traceXXX = opts => `\
 // tests
-function testPush(${keyType}[] memory keys, ${valueType}[] memory values) public {
+function testPush(
+    ${opts.keyTypeName}[] memory keys,
+    ${opts.valueTypeName}[] memory values
+) public {
     vm.assume(values.length > 0);
     _prepareKeys(keys, 64);
 
@@ -55,10 +64,10 @@ function testPush(${keyType}[] memory keys, ${valueType}[] memory values) public
     assertTrue(_ckpts.latest() == 0);
     _assertLatestCheckpoint(false, 0, 0);
 
-    ${keyType} duplicates = 0;
-    for (${keyType} i = 0; i < keys.length; ++i) {
-        ${keyType} key = keys[i];
-        ${valueType} value = values[i % values.length];
+    ${opts.keyTypeName} duplicates = 0;
+    for (${opts.keyTypeName} i = 0; i < keys.length; ++i) {
+        ${opts.keyTypeName} key = keys[i];
+        ${opts.valueTypeName} value = values[i % values.length];
         if (i > 0 && key == keys[i-1]) ++duplicates;
 
         // push
@@ -71,19 +80,23 @@ function testPush(${keyType}[] memory keys, ${valueType}[] memory values) public
     }
 }
 
-function testLookup(${keyType}[] memory keys, ${valueType}[] memory values, ${keyType} lookup) public {
+function testLookup(
+    ${opts.keyTypeName}[] memory keys,
+    ${opts.valueTypeName}[] memory values,
+    ${opts.keyTypeName} lookup
+) public {
     vm.assume(values.length > 0);
     _prepareKeys(keys, 64);
 
-    ${keyType} lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
-    lookup = _bound${capitalize(keyType)}(lookup, 0, lastKey + 64);
+    ${opts.keyTypeName} lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
+    lookup = _bound${capitalize(opts.keyTypeName)}(lookup, 0, lastKey + 64);
 
-    ${valueType} upper = 0;
-    ${valueType} lower = 0;
-    ${keyType} lowerKey = type(${keyType}).max;
-    for (${keyType} i = 0; i < keys.length; ++i) {
-        ${keyType} key = keys[i];
-        ${valueType} value = values[i % values.length];
+    ${opts.valueTypeName} upper = 0;
+    ${opts.valueTypeName} lower = 0;
+    ${opts.keyTypeName} lowerKey = type(${opts.keyTypeName}).max;
+    for (${opts.keyTypeName} i = 0; i < keys.length; ++i) {
+        ${opts.keyTypeName} key = keys[i];
+        ${opts.valueTypeName} value = values[i % values.length];
 
         // push
         _ckpts.push(key, value);
@@ -176,15 +189,12 @@ module.exports = format(
   header,
   // HISTORY
   'contract CheckpointsHistoryTest is Test {',
-  [common({ structType: 'History', keyType: 'uint32', valueType: 'uint224' }), history()],
+  [common(legacyOpts), history()],
   '}',
   // TRACEXXX
-  ...VALUE_SIZES.flatMap(length => [
-    `contract CheckpointsTrace${length}Test is Test {`,
-    [
-      common({ structType: `Trace${length}`, keyType: `uint${256 - length}`, valueType: `uint${length}` }),
-      traceXXX({ structType: `Trace${length}`, keyType: `uint${256 - length}`, valueType: `uint${length}` }),
-    ],
+  ...opts.flatMap(o => [
+    `contract Checkpoints${o.historyTypeName}Test is Test {`,
+    [common(o), traceXXX(o)],
     '}',
   ]),
 );
