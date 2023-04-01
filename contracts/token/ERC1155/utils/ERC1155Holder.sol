@@ -19,7 +19,7 @@ contract ERC1155Holder is ERC1155Receiver {
         address,
         uint256,
         uint256,
-        bytes memory
+        bytes calldata
     ) public virtual override returns (bytes4) {
         return this.onERC1155Received.selector;
     }
@@ -27,9 +27,9 @@ contract ERC1155Holder is ERC1155Receiver {
     function onERC1155BatchReceived(
         address,
         address,
-        uint256[] memory,
-        uint256[] memory,
-        bytes memory
+        uint256[] calldata,
+        uint256[] calldata,
+        bytes calldata
     ) public virtual override returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
     }

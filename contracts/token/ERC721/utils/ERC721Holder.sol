@@ -17,7 +17,7 @@ contract ERC721Holder is IERC721Receiver {
      *
      * Always returns `IERC721Receiver.onERC721Received.selector`.
      */
-    function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes calldata) public virtual override returns (bytes4) {
         return this.onERC721Received.selector;
     }
 }
