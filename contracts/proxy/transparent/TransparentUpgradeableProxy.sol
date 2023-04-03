@@ -46,7 +46,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev If caller is the admin process the call internally, otherwize transparently fallback to the proxy behavior
+     * @dev If caller is the admin process the call internally, otherwise transparently fallback to the proxy behavior
      */
     function _fallback() internal virtual override {
         if (msg.sender == _getAdmin()) {
