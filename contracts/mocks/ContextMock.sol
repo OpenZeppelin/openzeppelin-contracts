@@ -13,7 +13,7 @@ contract ContextMock is Context {
 
     event Data(bytes data, uint256 integerValue, string stringValue);
 
-    function msgData(uint256 integerValue, string memory stringValue) public {
+    function msgData(uint256 integerValue, string calldata stringValue) public {
         emit Data(_msgData(), integerValue, stringValue);
     }
 }
@@ -23,7 +23,7 @@ contract ContextMockCaller {
         context.msgSender();
     }
 
-    function callData(ContextMock context, uint256 integerValue, string memory stringValue) public {
+    function callData(ContextMock context, uint256 integerValue, string calldata stringValue) public {
         context.msgData(integerValue, stringValue);
     }
 }
