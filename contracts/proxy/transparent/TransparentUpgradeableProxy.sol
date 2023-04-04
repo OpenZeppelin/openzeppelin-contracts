@@ -13,10 +13,14 @@ import "../ERC1967/ERC1967Proxy.sol";
  */
 interface ITransparentUpgradeableProxy is IERC1967 {
     function admin() external view returns (address);
+
     function implementation() external view returns (address);
+
     function changeAdmin(address) external;
+
     function upgradeTo(address) external;
-    function upgradeToAndCall(address, bytes memory) payable external;
+
+    function upgradeToAndCall(address, bytes memory) external payable;
 }
 
 /**
@@ -88,7 +92,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
             } else if (selector == ITransparentUpgradeableProxy.implementation.selector) {
                 ret = _dispatchImplementation();
             } else {
-                revert('TransparentUpgradeableProxy: admin cannot fallback to proxy target');
+                revert("TransparentUpgradeableProxy: admin cannot fallback to proxy target");
             }
             assembly {
                 return(add(ret, 0x20), mload(ret))
