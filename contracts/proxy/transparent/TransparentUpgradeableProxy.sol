@@ -121,6 +121,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
 
     /**
      * @dev Changes the admin of the proxy.
+     *
+     * Emits an {AdminChanged} event.
      */
     function _dispatchChangeAdmin() private returns (bytes memory) {
         _requireZeroValue();
