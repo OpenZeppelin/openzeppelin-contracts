@@ -5,9 +5,13 @@ pragma solidity ^0.8.0;
 
 import "../ERC1967/ERC1967Proxy.sol";
 
-interface ITransparentUpgradeableProxy {
-    event Upgraded(address indexed implementation);
-    event AdminChanged(address previousAdmin, address newAdmin);
+/**
+ * @dev Interface for the {TransparentUpgradeableProxy}. This is usefull because {TransparentUpgradeableProxy} uses a
+ * custom call-routing mechanism, the compiler is unaware of the functions being exposed, and cannot list them. Also
+ * {TransparentUpgradeableProxy} does not inherit from this interface because its implemented in a way that the
+ * compiler doesn't understand and cannot verify.
+ */
+interface ITransparentUpgradeableProxy is IERC1967 {
     function admin() external view returns (address);
     function implementation() external view returns (address);
     function changeAdmin(address) external;
@@ -43,6 +47,20 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      */
     constructor(address _logic, address admin_, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
         _changeAdmin(admin_);
+    }
+
+    /**
+     * @dev Modifier used internally that will delegate the call to the implementation unless the sender is the admin.
+     *
+     * CAUTION: this modifier is deprecated, as it could cause issues if the modified function as arguments, and the
+     * implementation provide a function with a similar selector.
+     */
+    modifier ifAdmin() {
+        if (msg.sender == _getAdmin()) {
+            _;
+        } else {
+            _fallback();
+        }
     }
 
     /**
