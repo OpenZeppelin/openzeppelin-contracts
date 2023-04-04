@@ -114,7 +114,7 @@ rule pushFront {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: pushFront preverses the previous values in the queue with a +1 offset                                         │
+│ Rule: pushFront preserves the previous values in the queue with a +1 offset                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pushFrontConsistency {
@@ -160,7 +160,7 @@ rule pushBack {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: pushBack preverses the previous values in the queue                                                           │
+│ Rule: pushBack preserves the previous values in the queue                                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pushBackConsistency {
@@ -365,13 +365,13 @@ rule noLengthChange(env e) {
     assert lengthAfter > lengthBefore => (
         f.selector == pushFront(bytes32).selector ||
         f.selector == pushBack(bytes32).selector
-    ), "length increases only with push operatons";
+    ), "length increases only with push operations";
     
     assert lengthAfter < lengthBefore => (
         f.selector == popBack().selector ||
         f.selector == popFront().selector ||
         f.selector == clear().selector
-    ), "length decreases only with clear/pop operatons";
+    ), "length decreases only with clear/pop operations";
 
     assert (
         lengthAfter - lengthBefore != 1 &&
