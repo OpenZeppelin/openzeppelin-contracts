@@ -83,6 +83,8 @@ jobs:
         uses: ./.github/actions/setup
       - run: rm foundry.toml
       - uses: crytic/slither-action@v0.3.0
+        with:
+          node-version: 18
 
   codespell:
     if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
