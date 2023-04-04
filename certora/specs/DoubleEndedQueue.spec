@@ -63,9 +63,23 @@ invariant lengthConsistency()
 │ Invariant: empty() is length 0 and no element exists                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant emptiness(uint256 idx)
+invariant emptiness()
     empty() <=> (length() == 0 && begin() == end())
     { preserved { require boundedQueue(); } }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: front points to the first index and back points to the last one                                          │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant queueEndings()
+    at_(length() - 1) == back() && at_(0) == front()
+    { 
+        preserved { 
+            requireInvariant boundariesConsistency(); 
+            require boundedQueue(); 
+        } 
+    }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -287,7 +301,7 @@ rule clear {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: front/back access reverts only if the queue is empty                                                      │
+│ Rule: front/back access reverts only if the queue is empty                                                          │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyEmptyRevert(env e) {
