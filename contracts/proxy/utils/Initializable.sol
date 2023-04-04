@@ -56,16 +56,29 @@ import "../../utils/Address.sol";
  * ====
  */
 abstract contract Initializable {
-    /**
-     * @dev Indicates that the contract has been initialized.
-     * @custom:oz-retyped-from bool
-     */
-    uint8 private _initialized;
 
-    /**
-     * @dev Indicates that the contract is in the process of being initialized.
-     */
-    bool private _initializing;
+    //keccak initializable.contract
+    bytes32 internal constant _INIT_SLOT = 0x0661e19ed1eed4f71f20e347897401b0c2f04e9d31514d6c9e8e4e49f8172a84;
+
+    struct InitInfo {
+        /**
+         * @dev Indicates that the contract has been initialized.
+         * @custom:oz-retyped-from bool
+         */
+        uint8 _initialized;
+
+        /**
+         * @dev Indicates that the contract is in the process of being initialized.
+         */
+        bool _initializing;
+    }
+
+    function getInitInfoSlot(bytes32 slot) internal pure returns (InitInfo storage r) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            r.slot := slot
+        }
+    }
 
     /**
      * @dev Triggered when the contract has been initialized or reinitialized.
@@ -82,18 +95,22 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier initializer() {
+        InitInfo storage info = getInitInfoSlot(_INIT_SLOT);
+        bool _initializing = info._initializing;
+        uint8 _initialized = info._initialized;
+
         bool isTopLevelCall = !_initializing;
         require(
             (isTopLevelCall && _initialized < 1) || (!Address.isContract(address(this)) && _initialized == 1),
             "Initializable: contract is already initialized"
         );
-        _initialized = 1;
+        info._initialized = 1;
         if (isTopLevelCall) {
-            _initializing = true;
+            info._initializing = true;
         }
         _;
         if (isTopLevelCall) {
-            _initializing = false;
+            info._initializing = false;
             emit Initialized(1);
         }
     }
@@ -117,11 +134,15 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier reinitializer(uint8 version) {
+        InitInfo storage info = getInitInfoSlot(_INIT_SLOT);
+        bool _initializing = info._initializing;
+        uint8 _initialized = info._initialized;
+
         require(!_initializing && _initialized < version, "Initializable: contract is already initialized");
-        _initialized = version;
-        _initializing = true;
+        info._initialized = version;
+        info._initializing = true;
         _;
-        _initializing = false;
+        info._initializing = false;
         emit Initialized(version);
     }
 
@@ -130,6 +151,8 @@ abstract contract Initializable {
      * {initializer} and {reinitializer} modifiers, directly or indirectly.
      */
     modifier onlyInitializing() {
+        InitInfo storage info = getInitInfoSlot(_INIT_SLOT);
+        bool _initializing = info._initializing;
         require(_initializing, "Initializable: contract is not initializing");
         _;
     }
@@ -143,9 +166,12 @@ abstract contract Initializable {
      * Emits an {Initialized} event the first time it is successfully executed.
      */
     function _disableInitializers() internal virtual {
+        InitInfo storage info = getInitInfoSlot(_INIT_SLOT);
+        bool _initializing = info._initializing;
+        uint8 _initialized = info._initialized;
         require(!_initializing, "Initializable: contract is initializing");
         if (_initialized != type(uint8).max) {
-            _initialized = type(uint8).max;
+            info._initialized = type(uint8).max;
             emit Initialized(type(uint8).max);
         }
     }
@@ -154,6 +180,8 @@ abstract contract Initializable {
      * @dev Returns the highest version that has been initialized. See {reinitializer}.
      */
     function _getInitializedVersion() internal view returns (uint8) {
+        InitInfo storage info = getInitInfoSlot(_INIT_SLOT);
+        uint8 _initialized = info._initialized;
         return _initialized;
     }
 
@@ -161,6 +189,8 @@ abstract contract Initializable {
      * @dev Returns `true` if the contract is currently initializing. See {onlyInitializing}.
      */
     function _isInitializing() internal view returns (bool) {
+        InitInfo storage info = getInitInfoSlot(_INIT_SLOT);
+        bool _initializing = info._initializing;
         return _initializing;
     }
 }
