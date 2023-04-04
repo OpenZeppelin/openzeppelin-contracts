@@ -5,7 +5,6 @@ const { getSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc196
 const { expect } = require('chai');
 const { web3 } = require('hardhat');
 
-const Proxy = artifacts.require('Proxy');
 const Implementation1 = artifacts.require('Implementation1');
 const Implementation2 = artifacts.require('Implementation2');
 const Implementation3 = artifacts.require('Implementation3');
