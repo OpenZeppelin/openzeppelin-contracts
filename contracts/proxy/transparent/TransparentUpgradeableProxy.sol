@@ -59,8 +59,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Modifier used internally that will delegate the call to the implementation unless the sender is the admin.
      *
-     * CAUTION: this modifier is deprecated, as it could cause issues if the modified function as arguments, and the
-     * implementation provide a function with a similar selector.
+     * CAUTION: This modifier is deprecated, as it could cause issues if the modified function has arguments, and the
+     * implementation provides a function with the same selector.
      */
     modifier ifAdmin() {
         if (msg.sender == _getAdmin()) {
