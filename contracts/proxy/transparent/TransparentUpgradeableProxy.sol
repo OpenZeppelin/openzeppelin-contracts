@@ -40,12 +40,12 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  *
- * WARNING: this contract does not inherit from {ITransparentUpgradeableProxy}, and the admin function implicitly
+ * WARNING: This contract does not inherit from {ITransparentUpgradeableProxy}, and the admin function is implicitly
  * implemented using a custom call-routing mechanism in `_fallback`. Consequently, the compiler will not produce an
  * ABI for this contract. Also, if you inherit from this contract and add additional functions, the compiler will not
- * check that there are no selector conflicts. Selector clash between any new function and the functions declared in
- * {ITransparentUpgradeableProxy} will be resolved in favor of the new one. This could render the admin operation
- * inaccessible, with could prevent upgradeability.
+ * check that there are no selector conflicts. A selector clash between any new function and the functions declared in
+ * {ITransparentUpgradeableProxy} will be resolved in favor of the new one. This could render the admin operations
+ * inaccessible, which could prevent upgradeability.
  */
 contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
