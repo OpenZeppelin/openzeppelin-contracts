@@ -111,7 +111,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function approve(address to, uint256 tokenId) public virtual override {
         address owner = ERC721.ownerOf(tokenId);
-        
 
         require(
             _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
