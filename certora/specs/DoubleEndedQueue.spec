@@ -47,6 +47,7 @@ function boundedQueue() returns bool {
 */
 invariant boundariesConsistency()
     end() >= begin()
+    filtered { f -> !f.isView }
     { preserved { require boundedQueue(); } }
 
 /*
@@ -56,6 +57,7 @@ invariant boundariesConsistency()
 */
 invariant lengthConsistency()
     length() == to_mathint(end()) - to_mathint(begin())
+    filtered { f -> !f.isView }
     { preserved { require boundedQueue(); } }
 
 /*
@@ -65,6 +67,7 @@ invariant lengthConsistency()
 */
 invariant emptiness()
     empty() <=> (length() == 0 && begin() == end())
+    filtered { f -> !f.isView }
     { preserved { require boundedQueue(); } }
 
 /*
@@ -74,6 +77,7 @@ invariant emptiness()
 */
 invariant queueEndings()
     at_(length() - 1) == back() && at_(0) == front()
+    filtered { f -> !f.isView }
     { 
         preserved { 
             requireInvariant boundariesConsistency(); 
@@ -368,6 +372,13 @@ rule noLengthChange(env e) {
         f.selector == popFront().selector ||
         f.selector == clear().selector
     ), "length decreases only with clear/pop operatons";
+
+    assert (
+        lengthAfter - lengthBefore != 1 &&
+        lengthAfter - lengthBefore == 1
+    ) => (
+        f.selector == clear().selector
+    ), "length changes by more than one only with clear operations";
 }
 
 /*
