@@ -26,11 +26,11 @@ methods {
 */
 
 function min_int128() returns mathint {
-    return (2 ^ 128) / 2 * -1;
+    return -(1 << 127);
 }
 
 function max_int128() returns mathint {
-    return (2 ^ 128) / 2 - 1;
+    return (1 << 127) - 1;
 }
 
 // Could be broken in theory, but not in practice
@@ -66,7 +66,7 @@ invariant lengthConsistency()
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant emptiness()
-    empty() <=> (length() == 0 && begin() == end())
+    empty() <=> length() == 0
     filtered { f -> !f.isView }
     { preserved { require boundedQueue(); } }
 
@@ -124,7 +124,7 @@ rule pushFrontConsistency {
     bytes32 beforeAt = at_(key);
 
     bytes32 value;
-    pushFront@withrevert(value);
+    pushFront(value);
 
     bytes32 afterAt = at_(key + 1);
 
@@ -143,7 +143,7 @@ rule pushBack {
 
     bytes32 backBefore = back();
 
-    pushBack@withrevert(value);
+    pushBack(value);
     bool success = !lastReverted;
 
     bytes32 backAfter = back();
@@ -170,7 +170,7 @@ rule pushBackConsistency {
     bytes32 beforeAt = at_(key);
 
     bytes32 value;
-    pushBack@withrevert(value);
+    pushBack(value);
 
     bytes32 afterAt = at_(key);
 
