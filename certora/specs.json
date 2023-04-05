@@ -52,6 +52,11 @@
     "files": ["certora/harnesses/InitializableHarness.sol"]
   },
   {
+    "spec": "EnumerableSet",
+    "contract": "EnumerableSetHarness",
+    "files": ["certora/harnesses/EnumerableSetHarness.sol"]
+  },
+  {
     "spec": "TimelockController",
     "contract": "TimelockControllerHarness",
     "files": ["certora/harnesses/TimelockControllerHarness.sol"],
