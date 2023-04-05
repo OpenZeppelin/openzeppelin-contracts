@@ -3,8 +3,8 @@ const { ZERO_ADDRESS } = constants;
 const { getSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
 
 const { expect } = require('chai');
+const { web3 } = require('hardhat');
 
-const Proxy = artifacts.require('Proxy');
 const Implementation1 = artifacts.require('Implementation1');
 const Implementation2 = artifacts.require('Implementation2');
 const Implementation3 = artifacts.require('Implementation3');
@@ -122,13 +122,11 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
             expect(balance.toString()).to.be.bignumber.equal(value.toString());
           });
 
-          it.skip('uses the storage of the proxy', async function () {
+          it('uses the storage of the proxy', async function () {
             // storage layout should look as follows:
-            //  - 0: Initializable storage
-            //  - 1-50: Initailizable reserved storage (50 slots)
-            //  - 51: initializerRan
-            //  - 52: x
-            const storedValue = await Proxy.at(this.proxyAddress).getStorageAt(52);
+            //  - 0: Initializable storage ++ initializerRan ++ onlyInitializingRan
+            //  - 1: x
+            const storedValue = await web3.eth.getStorageAt(this.proxyAddress, 1);
             expect(parseInt(storedValue)).to.eq(42);
           });
         });
