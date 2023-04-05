@@ -23,14 +23,6 @@ function sanity() returns bool {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: at only returns values for index that are in scope. Equivalent to say "at revert if index >= length"     │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant outOfBound(uint256 index)
-    at_(index) >= 0 => length() < index
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: A value can only be stored at a single location                                                          │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
@@ -91,6 +83,17 @@ rule stateChange(env e, bytes32 key) {
         f.selector == add(bytes32).selector ||
         f.selector == remove(bytes32).selector
     );
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: at only returns values for index that are in scope.                                                           │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule outOfBound(uint256 index) {
+    at_@withrevert(index);
+
+    assert lastReverted <=> length() <= index;
 }
 
 /*
