@@ -201,21 +201,6 @@ rule popFront {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: front is previous at(1) after calling popFront                                                                │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule popFrontExpected {
-    requireInvariant boundariesConsistency();
-    require boundedQueue();
-    
-    bytes32 nextFront = at_(1);
-    popFront@withrevert();
-
-    assert !lastReverted <=> front() == nextFront, "front is adjusted";
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: at(x) is preserved and offset to at(x - 1) after calling popFront                                             |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
@@ -256,21 +241,6 @@ rule popBack {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: back is previous at(length - 2) after calling popBack                                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule popBackExpected {
-    requireInvariant boundariesConsistency();
-    require boundedQueue();
-    
-    bytes32 nextBack = at_(length() - 2);
-    popBack@withrevert();
-
-    assert !lastReverted => back() == nextBack, "back is adjusted";
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: at(x) is preserved after calling popBack                                                                     |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
@@ -300,7 +270,7 @@ rule clear {
     assert success, "never reverts";
     
     // effect
-    assert success <=> length() == 0, "sets length to 0";
+    assert length() == 0, "sets length to 0";
 }
 
 /*
@@ -334,7 +304,7 @@ rule onlyEmptyRevert(env e) {
 │ Rule: at(key) only reverts if key is out of bounds                                                                  |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyOutOfBoundsRevert(env e) {
+rule onlyOutOfBoundsRevert {
     requireInvariant boundariesConsistency();
     require boundedQueue();
 
@@ -359,7 +329,7 @@ rule noLengthChange(env e) {
     calldataarg args;
 
     uint256 lengthBefore = length();
-    f@withrevert(e, args);
+    f(e, args);
     uint256 lengthAfter = length();
 
     assert lengthAfter > lengthBefore => (
@@ -395,7 +365,7 @@ rule noDataChange(env e) {
 
     uint256 key;
     bytes32 atBefore = at_(key);
-    f@withrevert(e, args);
+    f(e, args);
     bytes32 atAfter = at_(key);
 
     assert atAfter != atBefore => (
