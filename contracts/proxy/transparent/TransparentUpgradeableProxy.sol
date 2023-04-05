@@ -8,7 +8,7 @@ import "../ERC1967/ERC1967Proxy.sol";
 /**
  * @dev Interface for the {TransparentUpgradeableProxy}. This is useful because {TransparentUpgradeableProxy} uses a
  * custom call-routing mechanism, the compiler is unaware of the functions being exposed, and cannot list them. Also
- * {TransparentUpgradeableProxy} does not inherit from this interface because its implemented in a way that the
+ * {TransparentUpgradeableProxy} does not inherit from this interface because it's implemented in a way that the
  * compiler doesn't understand and cannot verify.
  */
 interface ITransparentUpgradeableProxy is IERC1967 {
