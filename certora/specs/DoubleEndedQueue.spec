@@ -291,7 +291,7 @@ rule onlyEmptyRevert(env e) {
         (f.selector == back().selector && emptyBefore) ||
         (f.selector == popFront().selector  && emptyBefore) ||
         (f.selector == popBack().selector  && emptyBefore) ||
-        f.selector == at_()
+        f.selector == at_(uint256).selector
     ), "only revert if empty or out of bounds";
 }
 
@@ -356,9 +356,8 @@ rule noDataChange(env e) {
 
     assert atAfter != atBefore => (
         f.selector == clear().selector || // Although doesn't change values, outters are symbolic, so `* != *`
-        f.selector == popBack().selector ||
+        (f.selector == popBack().selector && key == length()) || // at_ only changes if it's left out, becoming symbolic 
         f.selector == popFront().selector ||
-        f.selector == pushBack(bytes32).selector ||
         f.selector == pushFront(bytes32).selector
     ), "values of the queue are only changed by a clear, pop or push operation";
 }
