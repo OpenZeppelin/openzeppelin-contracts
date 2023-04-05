@@ -35,9 +35,9 @@
 :xref-Proxy-fallback--: xref:proxy.adoc#Proxy-fallback--
 :xref-Proxy-receive--: xref:proxy.adoc#Proxy-receive--
 :xref-Proxy-_beforeFallback--: xref:proxy.adoc#Proxy-_beforeFallback--
-:xref-ERC1967Upgrade-Upgraded-address-: xref:proxy.adoc#ERC1967Upgrade-Upgraded-address-
-:xref-ERC1967Upgrade-AdminChanged-address-address-: xref:proxy.adoc#ERC1967Upgrade-AdminChanged-address-address-
-:xref-ERC1967Upgrade-BeaconUpgraded-address-: xref:proxy.adoc#ERC1967Upgrade-BeaconUpgraded-address-
+:xref-IERC1967-Upgraded-address-: xref:interfaces.adoc#IERC1967-Upgraded-address-
+:xref-IERC1967-AdminChanged-address-address-: xref:interfaces.adoc#IERC1967-AdminChanged-address-address-
+:xref-IERC1967-BeaconUpgraded-address-: xref:interfaces.adoc#IERC1967-BeaconUpgraded-address-
 :xref-ERC1967Upgrade-_getImplementation--: xref:proxy.adoc#ERC1967Upgrade-_getImplementation--
 :xref-ERC1967Upgrade-_upgradeTo-address-: xref:proxy.adoc#ERC1967Upgrade-_upgradeTo-address-
 :xref-ERC1967Upgrade-_upgradeToAndCall-address-bytes-bool-: xref:proxy.adoc#ERC1967Upgrade-_upgradeToAndCall-address-bytes-bool-
@@ -46,20 +46,17 @@
 :xref-ERC1967Upgrade-_changeAdmin-address-: xref:proxy.adoc#ERC1967Upgrade-_changeAdmin-address-
 :xref-ERC1967Upgrade-_getBeacon--: xref:proxy.adoc#ERC1967Upgrade-_getBeacon--
 :xref-ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-: xref:proxy.adoc#ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-
-:xref-ERC1967Upgrade-Upgraded-address-: xref:proxy.adoc#ERC1967Upgrade-Upgraded-address-
-:xref-ERC1967Upgrade-AdminChanged-address-address-: xref:proxy.adoc#ERC1967Upgrade-AdminChanged-address-address-
-:xref-ERC1967Upgrade-BeaconUpgraded-address-: xref:proxy.adoc#ERC1967Upgrade-BeaconUpgraded-address-
+:xref-IERC1967-Upgraded-address-: xref:interfaces.adoc#IERC1967-Upgraded-address-
+:xref-IERC1967-AdminChanged-address-address-: xref:interfaces.adoc#IERC1967-AdminChanged-address-address-
+:xref-IERC1967-BeaconUpgraded-address-: xref:interfaces.adoc#IERC1967-BeaconUpgraded-address-
 :UpgradeableBeacon-_setImplementation: pass:normal[xref:proxy.adoc#UpgradeableBeacon-_setImplementation-address-[`UpgradeableBeacon._setImplementation`]]
 :ProxyAdmin: pass:normal[xref:proxy.adoc#ProxyAdmin[`ProxyAdmin`]]
+:ITransparentUpgradeableProxy: pass:normal[xref:proxy.adoc#ITransparentUpgradeableProxy[`ITransparentUpgradeableProxy`]]
+:ITransparentUpgradeableProxy: pass:normal[xref:proxy.adoc#ITransparentUpgradeableProxy[`ITransparentUpgradeableProxy`]]
 :xref-TransparentUpgradeableProxy-ifAdmin--: xref:proxy.adoc#TransparentUpgradeableProxy-ifAdmin--
 :xref-TransparentUpgradeableProxy-constructor-address-address-bytes-: xref:proxy.adoc#TransparentUpgradeableProxy-constructor-address-address-bytes-
-:xref-TransparentUpgradeableProxy-admin--: xref:proxy.adoc#TransparentUpgradeableProxy-admin--
-:xref-TransparentUpgradeableProxy-implementation--: xref:proxy.adoc#TransparentUpgradeableProxy-implementation--
-:xref-TransparentUpgradeableProxy-changeAdmin-address-: xref:proxy.adoc#TransparentUpgradeableProxy-changeAdmin-address-
-:xref-TransparentUpgradeableProxy-upgradeTo-address-: xref:proxy.adoc#TransparentUpgradeableProxy-upgradeTo-address-
-:xref-TransparentUpgradeableProxy-upgradeToAndCall-address-bytes-: xref:proxy.adoc#TransparentUpgradeableProxy-upgradeToAndCall-address-bytes-
+:xref-TransparentUpgradeableProxy-_fallback--: xref:proxy.adoc#TransparentUpgradeableProxy-_fallback--
 :xref-TransparentUpgradeableProxy-_admin--: xref:proxy.adoc#TransparentUpgradeableProxy-_admin--
-:xref-TransparentUpgradeableProxy-_beforeFallback--: xref:proxy.adoc#TransparentUpgradeableProxy-_beforeFallback--
 :xref-ERC1967Proxy-_implementation--: xref:proxy.adoc#ERC1967Proxy-_implementation--
 :xref-ERC1967Upgrade-_getImplementation--: xref:proxy.adoc#ERC1967Upgrade-_getImplementation--
 :xref-ERC1967Upgrade-_upgradeTo-address-: xref:proxy.adoc#ERC1967Upgrade-_upgradeTo-address-
@@ -70,34 +67,26 @@
 :xref-ERC1967Upgrade-_getBeacon--: xref:proxy.adoc#ERC1967Upgrade-_getBeacon--
 :xref-ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-: xref:proxy.adoc#ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-
 :xref-Proxy-_delegate-address-: xref:proxy.adoc#Proxy-_delegate-address-
-:xref-Proxy-_fallback--: xref:proxy.adoc#Proxy-_fallback--
 :xref-Proxy-fallback--: xref:proxy.adoc#Proxy-fallback--
 :xref-Proxy-receive--: xref:proxy.adoc#Proxy-receive--
-:xref-ERC1967Upgrade-Upgraded-address-: xref:proxy.adoc#ERC1967Upgrade-Upgraded-address-
-:xref-ERC1967Upgrade-AdminChanged-address-address-: xref:proxy.adoc#ERC1967Upgrade-AdminChanged-address-address-
-:xref-ERC1967Upgrade-BeaconUpgraded-address-: xref:proxy.adoc#ERC1967Upgrade-BeaconUpgraded-address-
+:xref-Proxy-_beforeFallback--: xref:proxy.adoc#Proxy-_beforeFallback--
+:xref-IERC1967-Upgraded-address-: xref:interfaces.adoc#IERC1967-Upgraded-address-
+:xref-IERC1967-AdminChanged-address-address-: xref:interfaces.adoc#IERC1967-AdminChanged-address-address-
+:xref-IERC1967-BeaconUpgraded-address-: xref:interfaces.adoc#IERC1967-BeaconUpgraded-address-
 :ERC1967Proxy-constructor: pass:normal[xref:proxy.adoc#ERC1967Proxy-constructor-address-bytes-[`ERC1967Proxy.constructor`]]
-:ProxyAdmin-getProxyAdmin: pass:normal[xref:proxy.adoc#ProxyAdmin-getProxyAdmin-contract-TransparentUpgradeableProxy-[`ProxyAdmin.getProxyAdmin`]]
-:ProxyAdmin-getProxyImplementation: pass:normal[xref:proxy.adoc#ProxyAdmin-getProxyImplementation-contract-TransparentUpgradeableProxy-[`ProxyAdmin.getProxyImplementation`]]
-:ProxyAdmin-changeProxyAdmin: pass:normal[xref:proxy.adoc#ProxyAdmin-changeProxyAdmin-contract-TransparentUpgradeableProxy-address-[`ProxyAdmin.changeProxyAdmin`]]
-:ProxyAdmin-upgrade: pass:normal[xref:proxy.adoc#ProxyAdmin-upgrade-contract-TransparentUpgradeableProxy-address-[`ProxyAdmin.upgrade`]]
-:ProxyAdmin-upgradeAndCall: pass:normal[xref:proxy.adoc#ProxyAdmin-upgradeAndCall-contract-TransparentUpgradeableProxy-address-bytes-[`ProxyAdmin.upgradeAndCall`]]
-:Proxy-_beforeFallback: pass:normal[xref:proxy.adoc#Proxy-_beforeFallback--[`Proxy._beforeFallback`]]
 :TransparentUpgradeableProxy: pass:normal[xref:proxy.adoc#TransparentUpgradeableProxy[`TransparentUpgradeableProxy`]]
 :TransparentUpgradeableProxy: pass:normal[xref:proxy.adoc#TransparentUpgradeableProxy[`TransparentUpgradeableProxy`]]
-:xref-ProxyAdmin-getProxyImplementation-contract-TransparentUpgradeableProxy-: xref:proxy.adoc#ProxyAdmin-getProxyImplementation-contract-TransparentUpgradeableProxy-
-:xref-ProxyAdmin-getProxyAdmin-contract-TransparentUpgradeableProxy-: xref:proxy.adoc#ProxyAdmin-getProxyAdmin-contract-TransparentUpgradeableProxy-
-:xref-ProxyAdmin-changeProxyAdmin-contract-TransparentUpgradeableProxy-address-: xref:proxy.adoc#ProxyAdmin-changeProxyAdmin-contract-TransparentUpgradeableProxy-address-
-:xref-ProxyAdmin-upgrade-contract-TransparentUpgradeableProxy-address-: xref:proxy.adoc#ProxyAdmin-upgrade-contract-TransparentUpgradeableProxy-address-
-:xref-ProxyAdmin-upgradeAndCall-contract-TransparentUpgradeableProxy-address-bytes-: xref:proxy.adoc#ProxyAdmin-upgradeAndCall-contract-TransparentUpgradeableProxy-address-bytes-
+:xref-ProxyAdmin-getProxyImplementation-contract-ITransparentUpgradeableProxy-: xref:proxy.adoc#ProxyAdmin-getProxyImplementation-contract-ITransparentUpgradeableProxy-
+:xref-ProxyAdmin-getProxyAdmin-contract-ITransparentUpgradeableProxy-: xref:proxy.adoc#ProxyAdmin-getProxyAdmin-contract-ITransparentUpgradeableProxy-
+:xref-ProxyAdmin-changeProxyAdmin-contract-ITransparentUpgradeableProxy-address-: xref:proxy.adoc#ProxyAdmin-changeProxyAdmin-contract-ITransparentUpgradeableProxy-address-
+:xref-ProxyAdmin-upgrade-contract-ITransparentUpgradeableProxy-address-: xref:proxy.adoc#ProxyAdmin-upgrade-contract-ITransparentUpgradeableProxy-address-
+:xref-ProxyAdmin-upgradeAndCall-contract-ITransparentUpgradeableProxy-address-bytes-: xref:proxy.adoc#ProxyAdmin-upgradeAndCall-contract-ITransparentUpgradeableProxy-address-bytes-
 :xref-Ownable-owner--: xref:access.adoc#Ownable-owner--
 :xref-Ownable-_checkOwner--: xref:access.adoc#Ownable-_checkOwner--
 :xref-Ownable-renounceOwnership--: xref:access.adoc#Ownable-renounceOwnership--
 :xref-Ownable-transferOwnership-address-: xref:access.adoc#Ownable-transferOwnership-address-
 :xref-Ownable-_transferOwnership-address-: xref:access.adoc#Ownable-_transferOwnership-address-
 :xref-Ownable-OwnershipTransferred-address-address-: xref:access.adoc#Ownable-OwnershipTransferred-address-address-
-:TransparentUpgradeableProxy-upgradeTo: pass:normal[xref:proxy.adoc#TransparentUpgradeableProxy-upgradeTo-address-[`TransparentUpgradeableProxy.upgradeTo`]]
-:TransparentUpgradeableProxy-upgradeToAndCall: pass:normal[xref:proxy.adoc#TransparentUpgradeableProxy-upgradeToAndCall-address-bytes-[`TransparentUpgradeableProxy.upgradeToAndCall`]]
 :UpgradeableBeacon: pass:normal[xref:proxy.adoc#UpgradeableBeacon[`UpgradeableBeacon`]]
 :xref-BeaconProxy-constructor-address-bytes-: xref:proxy.adoc#BeaconProxy-constructor-address-bytes-
 :xref-BeaconProxy-_beacon--: xref:proxy.adoc#BeaconProxy-_beacon--
@@ -116,9 +105,9 @@
 :xref-Proxy-fallback--: xref:proxy.adoc#Proxy-fallback--
 :xref-Proxy-receive--: xref:proxy.adoc#Proxy-receive--
 :xref-Proxy-_beforeFallback--: xref:proxy.adoc#Proxy-_beforeFallback--
-:xref-ERC1967Upgrade-Upgraded-address-: xref:proxy.adoc#ERC1967Upgrade-Upgraded-address-
-:xref-ERC1967Upgrade-AdminChanged-address-address-: xref:proxy.adoc#ERC1967Upgrade-AdminChanged-address-address-
-:xref-ERC1967Upgrade-BeaconUpgraded-address-: xref:proxy.adoc#ERC1967Upgrade-BeaconUpgraded-address-
+:xref-IERC1967-Upgraded-address-: xref:interfaces.adoc#IERC1967-Upgraded-address-
+:xref-IERC1967-AdminChanged-address-address-: xref:interfaces.adoc#IERC1967-AdminChanged-address-address-
+:xref-IERC1967-BeaconUpgraded-address-: xref:interfaces.adoc#IERC1967-BeaconUpgraded-address-
 :IBeacon: pass:normal[xref:proxy.adoc#IBeacon[`IBeacon`]]
 :BeaconProxy: pass:normal[xref:proxy.adoc#BeaconProxy[`BeaconProxy`]]
 :xref-IBeacon-implementation--: xref:proxy.adoc#IBeacon-implementation--
@@ -163,9 +152,9 @@
 :xref-ERC1967Upgrade-_changeAdmin-address-: xref:proxy.adoc#ERC1967Upgrade-_changeAdmin-address-
 :xref-ERC1967Upgrade-_getBeacon--: xref:proxy.adoc#ERC1967Upgrade-_getBeacon--
 :xref-ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-: xref:proxy.adoc#ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-
-:xref-ERC1967Upgrade-Upgraded-address-: xref:proxy.adoc#ERC1967Upgrade-Upgraded-address-
-:xref-ERC1967Upgrade-AdminChanged-address-address-: xref:proxy.adoc#ERC1967Upgrade-AdminChanged-address-address-
-:xref-ERC1967Upgrade-BeaconUpgraded-address-: xref:proxy.adoc#ERC1967Upgrade-BeaconUpgraded-address-
+:xref-IERC1967-Upgraded-address-: xref:interfaces.adoc#IERC1967-Upgraded-address-
+:xref-IERC1967-AdminChanged-address-address-: xref:interfaces.adoc#IERC1967-AdminChanged-address-address-
+:xref-IERC1967-BeaconUpgraded-address-: xref:interfaces.adoc#IERC1967-BeaconUpgraded-address-
 :Ownable-onlyOwner: pass:normal[xref:access.adoc#Ownable-onlyOwner--[`Ownable.onlyOwner`]]
 = Proxies
 
@@ -341,6 +330,9 @@ implementation behind the proxy.
 * {xref-ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-}[`++_upgradeBeaconToAndCall(newBeacon, data, forceCall)++`]
 
 [.contract-subindex-inherited]
+.IERC1967
+
+[.contract-subindex-inherited]
 .Proxy
 * {xref-Proxy-_delegate-address-}[`++_delegate(implementation)++`]
 * {xref-Proxy-_fallback--}[`++_fallback()++`]
@@ -356,9 +348,12 @@ implementation behind the proxy.
 
 [.contract-subindex-inherited]
 .ERC1967Upgrade
-* {xref-ERC1967Upgrade-Upgraded-address-}[`++Upgraded(implementation)++`]
-* {xref-ERC1967Upgrade-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
-* {xref-ERC1967Upgrade-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
+
+[.contract-subindex-inherited]
+.IERC1967
+* {xref-IERC1967-Upgraded-address-}[`++Upgraded(implementation)++`]
+* {xref-IERC1967-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
+* {xref-IERC1967-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
 
 [.contract-subindex-inherited]
 .Proxy
@@ -382,19 +377,16 @@ Returns the current implementation address.
 
 :_ROLLBACK_SLOT: pass:normal[xref:#ERC1967Upgrade-_ROLLBACK_SLOT-bytes32[`++_ROLLBACK_SLOT++`]]
 :_IMPLEMENTATION_SLOT: pass:normal[xref:#ERC1967Upgrade-_IMPLEMENTATION_SLOT-bytes32[`++_IMPLEMENTATION_SLOT++`]]
-:Upgraded: pass:normal[xref:#ERC1967Upgrade-Upgraded-address-[`++Upgraded++`]]
 :_getImplementation: pass:normal[xref:#ERC1967Upgrade-_getImplementation--[`++_getImplementation++`]]
 :_setImplementation: pass:normal[xref:#ERC1967Upgrade-_setImplementation-address-[`++_setImplementation++`]]
 :_upgradeTo: pass:normal[xref:#ERC1967Upgrade-_upgradeTo-address-[`++_upgradeTo++`]]
 :_upgradeToAndCall: pass:normal[xref:#ERC1967Upgrade-_upgradeToAndCall-address-bytes-bool-[`++_upgradeToAndCall++`]]
 :_upgradeToAndCallUUPS: pass:normal[xref:#ERC1967Upgrade-_upgradeToAndCallUUPS-address-bytes-bool-[`++_upgradeToAndCallUUPS++`]]
 :_ADMIN_SLOT: pass:normal[xref:#ERC1967Upgrade-_ADMIN_SLOT-bytes32[`++_ADMIN_SLOT++`]]
-:AdminChanged: pass:normal[xref:#ERC1967Upgrade-AdminChanged-address-address-[`++AdminChanged++`]]
 :_getAdmin: pass:normal[xref:#ERC1967Upgrade-_getAdmin--[`++_getAdmin++`]]
 :_setAdmin: pass:normal[xref:#ERC1967Upgrade-_setAdmin-address-[`++_setAdmin++`]]
 :_changeAdmin: pass:normal[xref:#ERC1967Upgrade-_changeAdmin-address-[`++_changeAdmin++`]]
 :_BEACON_SLOT: pass:normal[xref:#ERC1967Upgrade-_BEACON_SLOT-bytes32[`++_BEACON_SLOT++`]]
-:BeaconUpgraded: pass:normal[xref:#ERC1967Upgrade-BeaconUpgraded-address-[`++BeaconUpgraded++`]]
 :_getBeacon: pass:normal[xref:#ERC1967Upgrade-_getBeacon--[`++_getBeacon++`]]
 :_setBeacon: pass:normal[xref:#ERC1967Upgrade-_setBeacon-address-[`++_setBeacon++`]]
 :_upgradeBeaconToAndCall: pass:normal[xref:#ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-[`++_upgradeBeaconToAndCall++`]]
@@ -425,14 +417,20 @@ _Available since v4.1._
 * {xref-ERC1967Upgrade-_getBeacon--}[`++_getBeacon()++`]
 * {xref-ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-}[`++_upgradeBeaconToAndCall(newBeacon, data, forceCall)++`]
 
+[.contract-subindex-inherited]
+.IERC1967
+
 --
 
 [.contract-index]
 .Events
 --
-* {xref-ERC1967Upgrade-Upgraded-address-}[`++Upgraded(implementation)++`]
-* {xref-ERC1967Upgrade-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
-* {xref-ERC1967Upgrade-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
+
+[.contract-subindex-inherited]
+.IERC1967
+* {xref-IERC1967-Upgraded-address-}[`++Upgraded(implementation)++`]
+* {xref-IERC1967-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
+* {xref-IERC1967-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
 
 --
 
@@ -495,35 +493,18 @@ not upgrade the implementation contained in the beacon (see {UpgradeableBeacon-_
 
 Emits a {BeaconUpgraded} event.
 
-[.contract-item]
-[[ERC1967Upgrade-Upgraded-address-]]
-==== `[.contract-item-name]#++Upgraded++#++(address indexed implementation)++` [.item-kind]#event#
-
-Emitted when the implementation is upgraded.
-
-[.contract-item]
-[[ERC1967Upgrade-AdminChanged-address-address-]]
-==== `[.contract-item-name]#++AdminChanged++#++(address previousAdmin, address newAdmin)++` [.item-kind]#event#
-
-Emitted when the admin account has changed.
-
-[.contract-item]
-[[ERC1967Upgrade-BeaconUpgraded-address-]]
-==== `[.contract-item-name]#++BeaconUpgraded++#++(address indexed beacon)++` [.item-kind]#event#
-
-Emitted when the beacon is upgraded.
-
 == Transparent Proxy
 
 :constructor: pass:normal[xref:#TransparentUpgradeableProxy-constructor-address-address-bytes-[`++constructor++`]]
 :ifAdmin: pass:normal[xref:#TransparentUpgradeableProxy-ifAdmin--[`++ifAdmin++`]]
-:admin: pass:normal[xref:#TransparentUpgradeableProxy-admin--[`++admin++`]]
-:implementation: pass:normal[xref:#TransparentUpgradeableProxy-implementation--[`++implementation++`]]
-:changeAdmin: pass:normal[xref:#TransparentUpgradeableProxy-changeAdmin-address-[`++changeAdmin++`]]
-:upgradeTo: pass:normal[xref:#TransparentUpgradeableProxy-upgradeTo-address-[`++upgradeTo++`]]
-:upgradeToAndCall: pass:normal[xref:#TransparentUpgradeableProxy-upgradeToAndCall-address-bytes-[`++upgradeToAndCall++`]]
+:_fallback: pass:normal[xref:#TransparentUpgradeableProxy-_fallback--[`++_fallback++`]]
+:_dispatchAdmin: pass:normal[xref:#TransparentUpgradeableProxy-_dispatchAdmin--[`++_dispatchAdmin++`]]
+:_dispatchImplementation: pass:normal[xref:#TransparentUpgradeableProxy-_dispatchImplementation--[`++_dispatchImplementation++`]]
+:_dispatchChangeAdmin: pass:normal[xref:#TransparentUpgradeableProxy-_dispatchChangeAdmin--[`++_dispatchChangeAdmin++`]]
+:_dispatchUpgradeTo: pass:normal[xref:#TransparentUpgradeableProxy-_dispatchUpgradeTo--[`++_dispatchUpgradeTo++`]]
+:_dispatchUpgradeToAndCall: pass:normal[xref:#TransparentUpgradeableProxy-_dispatchUpgradeToAndCall--[`++_dispatchUpgradeToAndCall++`]]
 :_admin: pass:normal[xref:#TransparentUpgradeableProxy-_admin--[`++_admin++`]]
-:_beforeFallback: pass:normal[xref:#TransparentUpgradeableProxy-_beforeFallback--[`++_beforeFallback++`]]
+:_requireZeroValue: pass:normal[xref:#TransparentUpgradeableProxy-_requireZeroValue--[`++_requireZeroValue++`]]
 
 [.contract]
 [[TransparentUpgradeableProxy]]
@@ -554,6 +535,13 @@ to sudden errors when trying to call a function from the proxy implementation.
 Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
 you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
 
+WARNING: This contract does not inherit from {ITransparentUpgradeableProxy}, and the admin function is implicitly
+implemented using a custom call-routing mechanism in `_fallback`. Consequently, the compiler will not produce an
+ABI for this contract. Also, if you inherit from this contract and add additional functions, the compiler will not
+check that there are no selector conflicts. A selector clash between any new function and the functions declared in
+{ITransparentUpgradeableProxy} will be resolved in favor of the new one. This could render the admin operations
+inaccessible, which could prevent upgradeability.
+
 [.contract-index]
 .Modifiers
 --
@@ -564,13 +552,8 @@ you should think of the `ProxyAdmin` instance as the real administrative interfa
 .Functions
 --
 * {xref-TransparentUpgradeableProxy-constructor-address-address-bytes-}[`++constructor(_logic, admin_, _data)++`]
-* {xref-TransparentUpgradeableProxy-admin--}[`++admin()++`]
-* {xref-TransparentUpgradeableProxy-implementation--}[`++implementation()++`]
-* {xref-TransparentUpgradeableProxy-changeAdmin-address-}[`++changeAdmin(newAdmin)++`]
-* {xref-TransparentUpgradeableProxy-upgradeTo-address-}[`++upgradeTo(newImplementation)++`]
-* {xref-TransparentUpgradeableProxy-upgradeToAndCall-address-bytes-}[`++upgradeToAndCall(newImplementation, data)++`]
+* {xref-TransparentUpgradeableProxy-_fallback--}[`++_fallback()++`]
 * {xref-TransparentUpgradeableProxy-_admin--}[`++_admin()++`]
-* {xref-TransparentUpgradeableProxy-_beforeFallback--}[`++_beforeFallback()++`]
 
 [.contract-subindex-inherited]
 .ERC1967Proxy
@@ -588,11 +571,14 @@ you should think of the `ProxyAdmin` instance as the real administrative interfa
 * {xref-ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-}[`++_upgradeBeaconToAndCall(newBeacon, data, forceCall)++`]
 
 [.contract-subindex-inherited]
+.IERC1967
+
+[.contract-subindex-inherited]
 .Proxy
 * {xref-Proxy-_delegate-address-}[`++_delegate(implementation)++`]
-* {xref-Proxy-_fallback--}[`++_fallback()++`]
 * {xref-Proxy-fallback--}[`++fallback()++`]
 * {xref-Proxy-receive--}[`++receive()++`]
+* {xref-Proxy-_beforeFallback--}[`++_beforeFallback()++`]
 
 --
 
@@ -605,9 +591,12 @@ you should think of the `ProxyAdmin` instance as the real administrative interfa
 
 [.contract-subindex-inherited]
 .ERC1967Upgrade
-* {xref-ERC1967Upgrade-Upgraded-address-}[`++Upgraded(implementation)++`]
-* {xref-ERC1967Upgrade-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
-* {xref-ERC1967Upgrade-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
+
+[.contract-subindex-inherited]
+.IERC1967
+* {xref-IERC1967-Upgraded-address-}[`++Upgraded(implementation)++`]
+* {xref-IERC1967-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
+* {xref-IERC1967-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
 
 [.contract-subindex-inherited]
 .Proxy
@@ -620,6 +609,9 @@ you should think of the `ProxyAdmin` instance as the real administrative interfa
 
 Modifier used internally that will delegate the call to the implementation unless the sender is the admin.
 
+CAUTION: This modifier is deprecated, as it could cause issues if the modified function has arguments, and the
+implementation provides a function with the same selector.
+
 [.contract-item]
 [[TransparentUpgradeableProxy-constructor-address-address-bytes-]]
 ==== `[.contract-item-name]#++constructor++#++(address _logic, address admin_, bytes _data)++` [.item-kind]#public#
@@ -628,56 +620,10 @@ Initializes an upgradeable proxy managed by `_admin`, backed by the implementati
 optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
 
 [.contract-item]
-[[TransparentUpgradeableProxy-admin--]]
-==== `[.contract-item-name]#++admin++#++() → address admin_++` [.item-kind]#external#
+[[TransparentUpgradeableProxy-_fallback--]]
+==== `[.contract-item-name]#++_fallback++#++()++` [.item-kind]#internal#
 
-Returns the current admin.
-
-NOTE: Only the admin can call this function. See {ProxyAdmin-getProxyAdmin}.
-
-TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
-https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
-`0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
-
-[.contract-item]
-[[TransparentUpgradeableProxy-implementation--]]
-==== `[.contract-item-name]#++implementation++#++() → address implementation_++` [.item-kind]#external#
-
-Returns the current implementation.
-
-NOTE: Only the admin can call this function. See {ProxyAdmin-getProxyImplementation}.
-
-TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
-https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
-`0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
-
-[.contract-item]
-[[TransparentUpgradeableProxy-changeAdmin-address-]]
-==== `[.contract-item-name]#++changeAdmin++#++(address newAdmin)++` [.item-kind]#external#
-
-Changes the admin of the proxy.
-
-Emits an {AdminChanged} event.
-
-NOTE: Only the admin can call this function. See {ProxyAdmin-changeProxyAdmin}.
-
-[.contract-item]
-[[TransparentUpgradeableProxy-upgradeTo-address-]]
-==== `[.contract-item-name]#++upgradeTo++#++(address newImplementation)++` [.item-kind]#external#
-
-Upgrade the implementation of the proxy.
-
-NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
-
-[.contract-item]
-[[TransparentUpgradeableProxy-upgradeToAndCall-address-bytes-]]
-==== `[.contract-item-name]#++upgradeToAndCall++#++(address newImplementation, bytes data)++` [.item-kind]#external#
-
-Upgrade the implementation of the proxy, and then call a function from the new implementation as specified
-by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
-proxied contract.
-
-NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
+If caller is the admin process the call internally, otherwise transparently fallback to the proxy behavior
 
 [.contract-item]
 [[TransparentUpgradeableProxy-_admin--]]
@@ -685,17 +631,11 @@ NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
 
 Returns the current admin.
 
-[.contract-item]
-[[TransparentUpgradeableProxy-_beforeFallback--]]
-==== `[.contract-item-name]#++_beforeFallback++#++()++` [.item-kind]#internal#
-
-Makes sure the admin cannot access the fallback function. See {Proxy-_beforeFallback}.
-
-:getProxyImplementation: pass:normal[xref:#ProxyAdmin-getProxyImplementation-contract-TransparentUpgradeableProxy-[`++getProxyImplementation++`]]
-:getProxyAdmin: pass:normal[xref:#ProxyAdmin-getProxyAdmin-contract-TransparentUpgradeableProxy-[`++getProxyAdmin++`]]
-:changeProxyAdmin: pass:normal[xref:#ProxyAdmin-changeProxyAdmin-contract-TransparentUpgradeableProxy-address-[`++changeProxyAdmin++`]]
-:upgrade: pass:normal[xref:#ProxyAdmin-upgrade-contract-TransparentUpgradeableProxy-address-[`++upgrade++`]]
-:upgradeAndCall: pass:normal[xref:#ProxyAdmin-upgradeAndCall-contract-TransparentUpgradeableProxy-address-bytes-[`++upgradeAndCall++`]]
+:getProxyImplementation: pass:normal[xref:#ProxyAdmin-getProxyImplementation-contract-ITransparentUpgradeableProxy-[`++getProxyImplementation++`]]
+:getProxyAdmin: pass:normal[xref:#ProxyAdmin-getProxyAdmin-contract-ITransparentUpgradeableProxy-[`++getProxyAdmin++`]]
+:changeProxyAdmin: pass:normal[xref:#ProxyAdmin-changeProxyAdmin-contract-ITransparentUpgradeableProxy-address-[`++changeProxyAdmin++`]]
+:upgrade: pass:normal[xref:#ProxyAdmin-upgrade-contract-ITransparentUpgradeableProxy-address-[`++upgrade++`]]
+:upgradeAndCall: pass:normal[xref:#ProxyAdmin-upgradeAndCall-contract-ITransparentUpgradeableProxy-address-bytes-[`++upgradeAndCall++`]]
 
 [.contract]
 [[ProxyAdmin]]
@@ -712,11 +652,11 @@ explanation of why you would want to use this see the documentation for {Transpa
 [.contract-index]
 .Functions
 --
-* {xref-ProxyAdmin-getProxyImplementation-contract-TransparentUpgradeableProxy-}[`++getProxyImplementation(proxy)++`]
-* {xref-ProxyAdmin-getProxyAdmin-contract-TransparentUpgradeableProxy-}[`++getProxyAdmin(proxy)++`]
-* {xref-ProxyAdmin-changeProxyAdmin-contract-TransparentUpgradeableProxy-address-}[`++changeProxyAdmin(proxy, newAdmin)++`]
-* {xref-ProxyAdmin-upgrade-contract-TransparentUpgradeableProxy-address-}[`++upgrade(proxy, implementation)++`]
-* {xref-ProxyAdmin-upgradeAndCall-contract-TransparentUpgradeableProxy-address-bytes-}[`++upgradeAndCall(proxy, implementation, data)++`]
+* {xref-ProxyAdmin-getProxyImplementation-contract-ITransparentUpgradeableProxy-}[`++getProxyImplementation(proxy)++`]
+* {xref-ProxyAdmin-getProxyAdmin-contract-ITransparentUpgradeableProxy-}[`++getProxyAdmin(proxy)++`]
+* {xref-ProxyAdmin-changeProxyAdmin-contract-ITransparentUpgradeableProxy-address-}[`++changeProxyAdmin(proxy, newAdmin)++`]
+* {xref-ProxyAdmin-upgrade-contract-ITransparentUpgradeableProxy-address-}[`++upgrade(proxy, implementation)++`]
+* {xref-ProxyAdmin-upgradeAndCall-contract-ITransparentUpgradeableProxy-address-bytes-}[`++upgradeAndCall(proxy, implementation, data)++`]
 
 [.contract-subindex-inherited]
 .Ownable
@@ -739,8 +679,8 @@ explanation of why you would want to use this see the documentation for {Transpa
 --
 
 [.contract-item]
-[[ProxyAdmin-getProxyImplementation-contract-TransparentUpgradeableProxy-]]
-==== `[.contract-item-name]#++getProxyImplementation++#++(contract TransparentUpgradeableProxy proxy) → address++` [.item-kind]#public#
+[[ProxyAdmin-getProxyImplementation-contract-ITransparentUpgradeableProxy-]]
+==== `[.contract-item-name]#++getProxyImplementation++#++(contract ITransparentUpgradeableProxy proxy) → address++` [.item-kind]#public#
 
 Returns the current implementation of `proxy`.
 
@@ -749,8 +689,8 @@ Requirements:
 - This contract must be the admin of `proxy`.
 
 [.contract-item]
-[[ProxyAdmin-getProxyAdmin-contract-TransparentUpgradeableProxy-]]
-==== `[.contract-item-name]#++getProxyAdmin++#++(contract TransparentUpgradeableProxy proxy) → address++` [.item-kind]#public#
+[[ProxyAdmin-getProxyAdmin-contract-ITransparentUpgradeableProxy-]]
+==== `[.contract-item-name]#++getProxyAdmin++#++(contract ITransparentUpgradeableProxy proxy) → address++` [.item-kind]#public#
 
 Returns the current admin of `proxy`.
 
@@ -759,8 +699,8 @@ Requirements:
 - This contract must be the admin of `proxy`.
 
 [.contract-item]
-[[ProxyAdmin-changeProxyAdmin-contract-TransparentUpgradeableProxy-address-]]
-==== `[.contract-item-name]#++changeProxyAdmin++#++(contract TransparentUpgradeableProxy proxy, address newAdmin)++` [.item-kind]#public#
+[[ProxyAdmin-changeProxyAdmin-contract-ITransparentUpgradeableProxy-address-]]
+==== `[.contract-item-name]#++changeProxyAdmin++#++(contract ITransparentUpgradeableProxy proxy, address newAdmin)++` [.item-kind]#public#
 
 Changes the admin of `proxy` to `newAdmin`.
 
@@ -769,8 +709,8 @@ Requirements:
 - This contract must be the current admin of `proxy`.
 
 [.contract-item]
-[[ProxyAdmin-upgrade-contract-TransparentUpgradeableProxy-address-]]
-==== `[.contract-item-name]#++upgrade++#++(contract TransparentUpgradeableProxy proxy, address implementation)++` [.item-kind]#public#
+[[ProxyAdmin-upgrade-contract-ITransparentUpgradeableProxy-address-]]
+==== `[.contract-item-name]#++upgrade++#++(contract ITransparentUpgradeableProxy proxy, address implementation)++` [.item-kind]#public#
 
 Upgrades `proxy` to `implementation`. See {TransparentUpgradeableProxy-upgradeTo}.
 
@@ -779,8 +719,8 @@ Requirements:
 - This contract must be the admin of `proxy`.
 
 [.contract-item]
-[[ProxyAdmin-upgradeAndCall-contract-TransparentUpgradeableProxy-address-bytes-]]
-==== `[.contract-item-name]#++upgradeAndCall++#++(contract TransparentUpgradeableProxy proxy, address implementation, bytes data)++` [.item-kind]#public#
+[[ProxyAdmin-upgradeAndCall-contract-ITransparentUpgradeableProxy-address-bytes-]]
+==== `[.contract-item-name]#++upgradeAndCall++#++(contract ITransparentUpgradeableProxy proxy, address implementation, bytes data)++` [.item-kind]#public#
 
 Upgrades `proxy` to `implementation` and calls a function on the new implementation. See
 {TransparentUpgradeableProxy-upgradeToAndCall}.
@@ -832,6 +772,9 @@ _Available since v3.4._
 * {xref-ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-}[`++_upgradeBeaconToAndCall(newBeacon, data, forceCall)++`]
 
 [.contract-subindex-inherited]
+.IERC1967
+
+[.contract-subindex-inherited]
 .Proxy
 * {xref-Proxy-_delegate-address-}[`++_delegate(implementation)++`]
 * {xref-Proxy-_fallback--}[`++_fallback()++`]
@@ -847,9 +790,12 @@ _Available since v3.4._
 
 [.contract-subindex-inherited]
 .ERC1967Upgrade
-* {xref-ERC1967Upgrade-Upgraded-address-}[`++Upgraded(implementation)++`]
-* {xref-ERC1967Upgrade-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
-* {xref-ERC1967Upgrade-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
+
+[.contract-subindex-inherited]
+.IERC1967
+* {xref-IERC1967-Upgraded-address-}[`++Upgraded(implementation)++`]
+* {xref-IERC1967-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
+* {xref-IERC1967-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
 
 [.contract-subindex-inherited]
 .Proxy
@@ -1295,6 +1241,9 @@ _Available since v4.1._
 * {xref-ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-}[`++_upgradeBeaconToAndCall(newBeacon, data, forceCall)++`]
 
 [.contract-subindex-inherited]
+.IERC1967
+
+[.contract-subindex-inherited]
 .IERC1822Proxiable
 
 --
@@ -1305,9 +1254,12 @@ _Available since v4.1._
 
 [.contract-subindex-inherited]
 .ERC1967Upgrade
-* {xref-ERC1967Upgrade-Upgraded-address-}[`++Upgraded(implementation)++`]
-* {xref-ERC1967Upgrade-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
-* {xref-ERC1967Upgrade-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
+
+[.contract-subindex-inherited]
+.IERC1967
+* {xref-IERC1967-Upgraded-address-}[`++Upgraded(implementation)++`]
+* {xref-IERC1967-AdminChanged-address-address-}[`++AdminChanged(previousAdmin, newAdmin)++`]
+* {xref-IERC1967-BeaconUpgraded-address-}[`++BeaconUpgraded(beacon)++`]
 
 [.contract-subindex-inherited]
 .IERC1822Proxiable
