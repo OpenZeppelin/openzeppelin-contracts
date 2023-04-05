@@ -6,6 +6,7 @@ const ImplV1 = artifacts.require('DummyImplementation');
 const ImplV2 = artifacts.require('DummyImplementationV2');
 const ProxyAdmin = artifacts.require('ProxyAdmin');
 const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
+const ITransparentUpgradeableProxy = artifacts.require('ITransparentUpgradeableProxy');
 
 contract('ProxyAdmin', function (accounts) {
   const [proxyAdminOwner, newAdmin, anotherAccount] = accounts;
@@ -18,12 +19,13 @@ contract('ProxyAdmin', function (accounts) {
   beforeEach(async function () {
     const initializeData = Buffer.from('');
     this.proxyAdmin = await ProxyAdmin.new({ from: proxyAdminOwner });
-    this.proxy = await TransparentUpgradeableProxy.new(
+    const proxy = await TransparentUpgradeableProxy.new(
       this.implementationV1.address,
       this.proxyAdmin.address,
       initializeData,
       { from: proxyAdminOwner },
     );
+    this.proxy = await ITransparentUpgradeableProxy.at(proxy.address);
   });
 
   it('has an owner', async function () {
