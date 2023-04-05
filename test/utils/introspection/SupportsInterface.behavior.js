@@ -39,9 +39,12 @@ const INTERFACES = {
   AccessControlEnumerable: ['getRoleMember(bytes32,uint256)', 'getRoleMemberCount(bytes32)'],
   AccessControlDefaultAdminRules: [
     'defaultAdminDelay()',
+    'pendingDefaultAdminDelay()',
     'defaultAdmin()',
-    'defaultAdminTransferDelayedUntil()',
     'pendingDefaultAdmin()',
+    'defaultAdminDelayIncreaseWait()',
+    'changeDefaultAdminDelay(uint48)',
+    'rollbackDefaultAdminDelay()',
     'beginDefaultAdminTransfer(address)',
     'acceptDefaultAdminTransfer()',
     'cancelDefaultAdminTransfer()',
