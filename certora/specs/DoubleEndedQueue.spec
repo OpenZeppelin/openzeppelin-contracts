@@ -90,26 +90,19 @@ invariant queueEndings()
 │ Function correctness: pushFront adds an element at the beginning of the queue                                       │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule pushFront {
+rule pushFront(bytes32 value) {
     require boundedQueue();
+
+    uint256 lengthBefore = length();
     
-    bytes32 value;
-
-    bytes32 frontBefore = front();
-
     pushFront@withrevert(value);
-    bool success = !lastReverted;
-
-    bytes32 frontAfter = front();
-
+    
     // liveness
-    assert success, "never reverts";
-
+    assert !lastReverted, "never reverts";
+    
     // effect
-    assert success => frontAfter == value, "front set to value";
-
-    // no side effect
-    assert frontBefore == frontAfter <=> frontBefore == value, "front doesn't change only if it was already set";
+    assert front() == value, "front set to value";
+    assert length() == lengthBefore + 1, "queue extended";
 }
 
 /*
@@ -136,26 +129,19 @@ rule pushFrontConsistency {
 │ Function correctness: pushBack adds an element at the end of the queue                                              │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule pushBack {
+rule pushBack(bytes32 value) {
     require boundedQueue();
 
-    bytes32 value;
-
-    bytes32 backBefore = back();
-
-    pushBack(value);
-    bool success = !lastReverted;
-
-    bytes32 backAfter = back();
-
+    uint256 lengthBefore = length();
+    
+    pushBack@withrevert(value);
+    
     // liveness
-    assert success, "never reverts";
-
+    assert !lastReverted, "never reverts";
+    
     // effect
-    assert success => backAfter == value, "back set to value";
-
-    // no side effect
-    assert backBefore == backAfter <=> backBefore == value, "back doesn't change only if it was already set";
+    assert back() == value, "back set to value";
+    assert length() == lengthBefore + 1, "queue increased";
 }
 
 /*
@@ -204,17 +190,21 @@ rule popFront {
 │ Rule: at(x) is preserved and offset to at(x - 1) after calling popFront                                             |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule popFrontConsistency {
+rule popFrontConsistency(uint256 key) {
     requireInvariant boundariesConsistency();
     require boundedQueue();
 
-    uint256 key;
+    // Read (any) value that is not the front (this assert the value exist / the queue is long enough)
+    require key > 1;
     bytes32 before = at_(key);
 
-    popFront@withrevert();
-    bool success = !lastReverted;
+    popFront();
+
+    // try to read value
+    bytes32 after = at_@withrevert(key - 1);
     
-    assert !lastReverted <=> before == at_(key - 1), "values are offset and not modified";
+    assert !lastReverted, "value still exists in the queue";
+    assert before == after, "values are offset and not modified";
 }
 
 /*
@@ -244,17 +234,21 @@ rule popBack {
 │ Rule: at(x) is preserved after calling popBack                                                                     |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule popBackConsistency {
+rule popBackConsistency(uint256 key) {
     requireInvariant boundariesConsistency();
     require boundedQueue();
 
-    uint256 key;
+    // Read (any) value that is not the front (this assert the value exist / the queue is long enough)
+    require key < length() - 1;
     bytes32 before = at_(key);
 
-    popBack@withrevert();
-    bool success = !lastReverted;
+    popBack();
+
+    // try to read value
+    bytes32 after = at_@withrevert(key);
     
-    assert !lastReverted <=> before == at_(key), "values are not modified";
+    assert !lastReverted, "value still exists in the queue";
+    assert before == after, "values are offset and not modified";
 }
 
 /*
@@ -332,23 +326,13 @@ rule noLengthChange(env e) {
     f(e, args);
     uint256 lengthAfter = length();
 
-    assert lengthAfter > lengthBefore => (
-        f.selector == pushFront(bytes32).selector ||
-        f.selector == pushBack(bytes32).selector
-    ), "length increases only with push operations";
-    
-    assert lengthAfter < lengthBefore => (
-        f.selector == popBack().selector ||
-        f.selector == popFront().selector ||
-        f.selector == clear().selector
-    ), "length decreases only with clear/pop operations";
-
-    assert (
-        lengthAfter - lengthBefore != 1 &&
-        lengthAfter - lengthBefore == 1
-    ) => (
-        f.selector == clear().selector
-    ), "length changes by more than one only with clear operations";
+    assert lengthAfter != lengthBefore => (
+        (f.selector == pushFront(bytes32).selector && lengthAfter == lengthBefore + 1) ||
+        (f.selector == pushBack(bytes32).selector && lengthAfter == lengthBefore + 1) ||
+        (f.selector == popBack().selector && lengthAfter == lengthBefore - 1) ||
+        (f.selector == popFront().selector && lengthAfter == lengthBefore - 1) ||
+        (f.selector == clear().selector && lengthAfter == 0)
+    ), "length is only affected by clear/pop/push operations";
 }
 
 /*
