@@ -172,17 +172,18 @@ rule popFront {
     requireInvariant boundariesConsistency();
     require boundedQueue();
 
-    bool emptyBefore = empty();
+    uint256 lengthBefore = length();
     bytes32 frontBefore = front@withrevert();
 
     bytes32 popped = popFront@withrevert();
     bool success = !lastReverted;
 
     // liveness
-    assert success <=> !emptyBefore, "only fails if it's empty";
+    assert success <=> lengthBefore != 0, "never reverts if not previously empty";
 
     // effect
     assert success => frontBefore == popped, "previous front is returned";
+    assert success => length() == lengthBefore - 1, "queue decreased";
 }
 
 /*
@@ -216,17 +217,18 @@ rule popBack {
     requireInvariant boundariesConsistency();
     require boundedQueue();
 
-    bool emptyBefore = empty();
+    uint256 lengthBefore = length();
     bytes32 backBefore = back@withrevert();
 
     bytes32 popped = popBack@withrevert();
     bool success = !lastReverted;
 
     // liveness
-    assert success <=> !emptyBefore, "only fails if it's empty";
+    assert success <=> lengthBefore != 0, "never reverts if not previously empty";
 
     // effect
     assert success => backBefore == popped, "previous back is returned";
+    assert success => length() == lengthBefore - 1, "queue decreased";
 }
 
 /*
@@ -283,14 +285,14 @@ rule onlyEmptyRevert(env e) {
     bool emptyBefore = empty();
 
     f@withrevert(e, args);
-    bool success = !lastReverted;
 
-    assert !success && (
-        f.selector == front().selector ||
-        f.selector == back().selector ||
-        f.selector == popFront().selector ||
-        f.selector == popBack().selector
-    ) => emptyBefore, "only revert if empty";
+    assert lastReverted => (
+        (f.selector == front().selector && emptyBefore) ||
+        (f.selector == back().selector && emptyBefore) ||
+        (f.selector == popFront().selector  && emptyBefore) ||
+        (f.selector == popBack().selector  && emptyBefore) ||
+        f.selector == at_()
+    ), "only revert if empty or out of bounds";
 }
 
 /*
