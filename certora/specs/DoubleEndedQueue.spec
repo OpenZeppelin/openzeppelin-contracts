@@ -272,7 +272,7 @@ rule clear {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: front/back access reverts only if the queue is empty                                                          │
+│ Rule: front/back access reverts only if the queue is empty or querying out of bounds                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule onlyEmptyRevert(env e) {
@@ -337,7 +337,7 @@ rule noLengthChange(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: only push/pop can change the value of the values bounded in the queue (outters aren't be cleared)             │
+│ Rule: only push/pop can change values bounded in the queue (outters aren't cleared)                                 │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noDataChange(env e) {
