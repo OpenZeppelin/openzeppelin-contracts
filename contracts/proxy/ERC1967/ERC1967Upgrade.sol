@@ -123,11 +123,6 @@ abstract contract ERC1967Upgrade is IERC1967 {
     bytes32 internal constant _BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
 
     /**
-     * @dev Emitted when the beacon is upgraded.
-     */
-    event BeaconUpgraded(address indexed beacon);
-
-    /**
      * @dev Returns the current beacon.
      */
     function _getBeacon() internal view returns (address) {
