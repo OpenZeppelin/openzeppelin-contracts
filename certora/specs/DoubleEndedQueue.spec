@@ -110,17 +110,18 @@ rule pushFront(bytes32 value) {
 │ Rule: pushFront preserves the previous values in the queue with a +1 offset                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule pushFrontConsistency {
+rule pushFrontConsistency(uint256 key) {
     require boundedQueue();
 
-    uint256 key;
     bytes32 beforeAt = at_(key);
 
     bytes32 value;
     pushFront(value);
 
-    bytes32 afterAt = at_(key + 1);
+    // try to read value
+    bytes32 afterAt = at_@withrevert(key + 1);
 
+    assert !lastReverted, "value still there";
     assert afterAt == beforeAt, "data is preserved";
 }
 
@@ -149,17 +150,18 @@ rule pushBack(bytes32 value) {
 │ Rule: pushBack preserves the previous values in the queue                                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule pushBackConsistency {
+rule pushBackConsistency(uint256 key) {
     require boundedQueue();
 
-    uint256 key;
     bytes32 beforeAt = at_(key);
 
     bytes32 value;
     pushBack(value);
 
-    bytes32 afterAt = at_(key);
+    // try to read value
+    bytes32 afterAt = at_@withrevert(key);
 
+    assert !lastReverted, "value still there";
     assert afterAt == beforeAt, "data is preserved";
 }
 
@@ -260,10 +262,9 @@ rule popBackConsistency(uint256 key) {
 */
 rule clear {
     clear@withrevert();
-    bool success = !lastReverted;
     
     // liveness
-    assert success, "never reverts";
+    assert !lastReverted, "never reverts";
     
     // effect
     assert length() == 0, "sets length to 0";
@@ -300,16 +301,13 @@ rule onlyEmptyRevert(env e) {
 │ Rule: at(key) only reverts if key is out of bounds                                                                  |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyOutOfBoundsRevert {
+rule onlyOutOfBoundsRevert(uint256 key) {
     requireInvariant boundariesConsistency();
     require boundedQueue();
 
-    uint256 key;
-
     at_@withrevert(key);
-    bool success = !lastReverted;
 
-    assert success <=> key < length(), "only reverts if key is out of bounds";
+    assert lastReverted <=> key >= length(), "only reverts if key is out of bounds";
 }
 
 /*
