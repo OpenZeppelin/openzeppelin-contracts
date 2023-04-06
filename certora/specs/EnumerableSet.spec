@@ -30,8 +30,8 @@ invariant indexedContained(uint256 index)
     contains(at_(index))
     {
         preserved {
-            requireInvariant indexConsistency(index);
-            requireInvariant indexConsistency(to_uint256(length() - 1));
+            requireInvariant consistencyIndex(index);
+            requireInvariant consistencyIndex(to_uint256(length() - 1));
         }
     }
 
@@ -54,19 +54,19 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 │ Invariant: index <> value relationship is consistent                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant indexConsistency(uint256 index)
+invariant consistencyIndex(uint256 index)
     _indexOf(at_(index)) == index + 1
     {
         preserved remove(bytes32 key) {
-            requireInvariant indexConsistency(to_uint256(length() - 1));
+            requireInvariant consistencyIndex(to_uint256(length() - 1));
         }
     }
 
-invariant atConsistency(bytes32 key)
+invariant consistencyKey(bytes32 key)
     at_(to_uint256(_indexOf(key) - 1)) == key
     {
         preserved remove(bytes32 otherKey) {
-            requireInvariant atConsistency(otherKey);
+            requireInvariant consistencyKey(otherKey);
             requireInvariant atUniqueness(
                 to_uint256(_indexOf(key) - 1),
                 to_uint256(_indexOf(otherKey) - 1)
@@ -81,7 +81,7 @@ invariant atConsistency(bytes32 key)
 */
 rule stateChange(env e, bytes32 key) {
     require sanity();
-    requireInvariant atConsistency(key);
+    requireInvariant consistencyKey(key);
 
     uint256 lengthBefore   = length();
     bool    containsBefore = contains(key);
@@ -150,8 +150,8 @@ rule add(bytes32 key, bytes32 otherKey) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule remove(bytes32 key, bytes32 otherKey) {
-    requireInvariant atConsistency(key);
-    requireInvariant atConsistency(otherKey);
+    requireInvariant consistencyKey(key);
+    requireInvariant consistencyKey(otherKey);
 
     uint256 lengthBefore        = length();
     bool    containsBefore      = contains(key);
@@ -198,9 +198,9 @@ rule atAdd(bytes32 key, uint256 index) {
 rule atRemove(bytes32 key, uint256 index) {
     uint256 last = to_uint256(length() - 1);
 
-    requireInvariant atConsistency(key);
-    requireInvariant indexConsistency(index);
-    requireInvariant indexConsistency(last);
+    requireInvariant consistencyKey(key);
+    requireInvariant consistencyIndex(index);
+    requireInvariant consistencyIndex(last);
 
     bytes32 atBefore = at_(index);
     bytes32 lastBefore = at_(last);
