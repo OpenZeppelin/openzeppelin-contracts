@@ -47,7 +47,7 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  *
  * NOTE: The real interface of this proxy is that defined in {ITransparentUpgradeableProxy}. This contract does not
- * inherit from that interface, and instead you will see the admin functions are implemented by oddly named functions.
+ * inherit from that interface, and instead you will see some admin functions are implemented by oddly named functions.
  * These functions are designed to match the selectors of {ITransparentUpgradeableProxy}, but without any arguments.
  * This is necessary to fully implement transparency without decoding errors caused by selector clashes between the
  * proxy and the implementation.
@@ -103,8 +103,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Changes the admin of the proxy.
      *
-     * This function's name is designed to have the same selector as {ITransparentUpgradeableProxy-changeAdmin}. This
-     * is so the argument decoding is done manually after the ifAdmin modifier has had a change to proxy the call.
+     * Implements signature `changeAdmin(address)` with the same function selector but manual argument decoding.
+     * See {ITransparentUpgradeableProxy-changeAdmin}.
      *
      * Emits an {AdminChanged} event.
      *
@@ -120,8 +120,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Upgrade the implementation of the proxy.
      *
-     * This function's name is designed to have the same selector as {ITransparentUpgradeableProxy-upgradeTo}. This
-     * is so the argument decoding is done manually after the ifAdmin modifier has had a change to proxy the call.
+     * Implements signature `upgradeTo(address)` with the same function selector but manual argument decoding.
+     * See {ITransparentUpgradeableProxy-upgradeTo}.
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
      */
@@ -137,8 +137,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
      * proxied contract.
      *
-     * This function's name is designed to have the same selector as {ITransparentUpgradeableProxy-upgradeToAndCall}.
-     * This is so the argument decoding is done manually after the ifAdmin modifier has had a change to proxy the call.
+     * Implements signature `upgradeToAndCall(address,bytes)` with the same function selector but manual argument decoding.
+     * See {ITransparentUpgradeableProxy-upgradeToAndCall}.
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
      */
