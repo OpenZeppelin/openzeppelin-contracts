@@ -66,8 +66,6 @@ The current implementation of this security mechanism uses https://eips.ethereum
 
 {{TransparentUpgradeableProxy}}
 
-{{ITransparentUpgradeableProxy}}
-
 {{ProxyAdmin}}
 
 == Beacon

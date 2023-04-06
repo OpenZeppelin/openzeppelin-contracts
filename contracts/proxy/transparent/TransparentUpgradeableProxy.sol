@@ -6,10 +6,10 @@ pragma solidity ^0.8.0;
 import "../ERC1967/ERC1967Proxy.sol";
 
 /**
- * @dev Interface for the {TransparentUpgradeableProxy}. This is useful because {TransparentUpgradeableProxy} uses a
- * custom call-routing mechanism, the compiler is unaware of the functions being exposed, and cannot list them. Also
- * {TransparentUpgradeableProxy} does not inherit from this interface because it's implemented in a way that the
- * compiler doesn't understand and cannot verify.
+ * @dev Interface for {TransparentUpgradeableProxy}. In order to implement transparency, {TransparentUpgradeableProxy}
+ * does not implement this interface directly, and some of its functions are implemented by functions without arguments
+ * that match in function selector. The compiler is unaware that these functions are implemented by
+ * {TransparentUpgradeableProxy} and will not include them in the ABI so this interface must be used to interact with it.
  */
 interface ITransparentUpgradeableProxy is IERC1967 {
     function admin() external view returns (address);
@@ -46,9 +46,9 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  *
- * NOTE: The real interface of this proxy is that defined in {ITransparentUpgradeableProxy}. This contract does not
+ * NOTE: The real interface of this proxy is that defined in `ITransparentUpgradeableProxy`. This contract does not
  * inherit from that interface, and instead you will see some admin functions are implemented by oddly named functions.
- * These functions are designed to match the selectors of {ITransparentUpgradeableProxy}, but without any arguments.
+ * These functions are designed to match the selectors of `ITransparentUpgradeableProxy`, but without any arguments.
  * This is necessary to fully implement transparency without decoding errors caused by selector clashes between the
  * proxy and the implementation.
  */
@@ -103,8 +103,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Changes the admin of the proxy.
      *
-     * Implements signature `changeAdmin(address)` with the same function selector but manual argument decoding.
-     * See {ITransparentUpgradeableProxy-changeAdmin}.
+     * This function must be invoked as `changeAdmin(address newAdmin)`, which has the same function selector.
      *
      * Emits an {AdminChanged} event.
      *
@@ -120,8 +119,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Upgrade the implementation of the proxy.
      *
-     * Implements signature `upgradeTo(address)` with the same function selector but manual argument decoding.
-     * See {ITransparentUpgradeableProxy-upgradeTo}.
+     * This function must be invoked as `upgradeTo(address newImplementation)`, which has the same function selector.
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
      */
@@ -137,8 +135,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
      * proxied contract.
      *
-     * Implements signature `upgradeToAndCall(address,bytes)` with the same function selector but manual argument decoding.
-     * See {ITransparentUpgradeableProxy-upgradeToAndCall}.
+     * This function must be invoked as `upgradeTo(address newImplementation, bytes data)`, which has the same function
+     * selector.
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
      */
