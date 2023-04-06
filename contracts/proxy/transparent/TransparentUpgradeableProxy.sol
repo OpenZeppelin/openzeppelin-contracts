@@ -23,6 +23,8 @@ interface ITransparentUpgradeableProxy is IERC1967 {
     function upgradeToAndCall(address, bytes memory) external payable;
 }
 
+// solhint-disable func-name-mixedcase
+
 /**
  * @dev This contract implements a proxy that is upgradeable by an admin.
  *
