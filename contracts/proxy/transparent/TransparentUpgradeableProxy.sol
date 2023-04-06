@@ -6,6 +6,24 @@ pragma solidity ^0.8.0;
 import "../ERC1967/ERC1967Proxy.sol";
 
 /**
+ * @dev Interface for the {TransparentUpgradeableProxy}. This is useful because {TransparentUpgradeableProxy} uses a
+ * custom call-routing mechanism, the compiler is unaware of the functions being exposed, and cannot list them. Also
+ * {TransparentUpgradeableProxy} does not inherit from this interface because it's implemented in a way that the
+ * compiler doesn't understand and cannot verify.
+ */
+interface ITransparentUpgradeableProxy is IERC1967 {
+    function admin() external view returns (address);
+
+    function implementation() external view returns (address);
+
+    function changeAdmin(address) external;
+
+    function upgradeTo(address) external;
+
+    function upgradeToAndCall(address, bytes memory) external payable;
+}
+
+/**
  * @dev This contract implements a proxy that is upgradeable by an admin.
  *
  * To avoid https://medium.com/nomic-labs-blog/malicious-backdoors-in-ethereum-proxies-62629adf3357[proxy selector
@@ -25,6 +43,12 @@ import "../ERC1967/ERC1967Proxy.sol";
  *
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
+ *
+ * WARNING: This contract does not inherit from {ITransparentUpgradeableProxy}, and the admin functions are
+ * implemented by functions that have signature designed to match the selector of the {ITransparentUpgradeableProxy}
+ * interface, but without any arguments. This allows use to decode the argument manually after the `ifAdmin` modifier
+ * has had a change to forward the call. This is done so that the argument decoding does not fail here in case the
+ * proxy and the implementation have "selector clash".
  */
 contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
@@ -77,22 +101,32 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Changes the admin of the proxy.
      *
+     * This function's name is designed to have the same selector as {ITransparentUpgradeableProxy-changeAdmin}. This
+     * is so the argument decoding is done manually after the ifAdmin modifier has had a change to proxy the call.
+     *
      * Emits an {AdminChanged} event.
      *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-changeProxyAdmin}.
      */
-    function changeAdmin(address newAdmin) external payable virtual ifAdmin {
+    function changeAdmin_277BB5030() external payable virtual ifAdmin {
         _requireZeroValue();
+
+        address newAdmin = abi.decode(msg.data[4:], (address));
         _changeAdmin(newAdmin);
     }
 
     /**
      * @dev Upgrade the implementation of the proxy.
      *
+     * This function's name is designed to have the same selector as {ITransparentUpgradeableProxy-upgradeTo}. This
+     * is so the argument decoding is done manually after the ifAdmin modifier has had a change to proxy the call.
+     *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgrade}.
      */
-    function upgradeTo(address newImplementation) external payable ifAdmin {
+    function upgradeTo_790AA3D() external payable ifAdmin {
         _requireZeroValue();
+
+        address newImplementation = abi.decode(msg.data[4:], (address));
         _upgradeToAndCall(newImplementation, bytes(""), false);
     }
 
@@ -101,9 +135,13 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * by `data`, which should be an encoded function call. This is useful to initialize new storage variables in the
      * proxied contract.
      *
+     * This function's name is designed to have the same selector as {ITransparentUpgradeableProxy-upgradeToAndCall}.
+     * This is so the argument decoding is done manually after the ifAdmin modifier has had a change to proxy the call.
+     *
      * NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.
      */
-    function upgradeToAndCall(address newImplementation, bytes calldata data) external payable ifAdmin {
+    function upgradeToAndCall_23573451() external payable ifAdmin {
+        (address newImplementation, bytes memory data) = abi.decode(msg.data[4:], (address, bytes));
         _upgradeToAndCall(newImplementation, data, true);
     }
 
