@@ -170,7 +170,7 @@ rule getAndTryGet(bytes32 key) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: set key-value to EnumerableSet                                                                               │
+│ Rules: set key-value in EnumerableMap                                                                               │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule set(bytes32 key, bytes32 value, bytes32 otherKey) {
@@ -208,7 +208,7 @@ rule set(bytes32 key, bytes32 value, bytes32 otherKey) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: remove key from EnumerableSet if alredy contained                                                            │
+│ Rules: remove key from EnumerableMap                                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule remove(bytes32 key, bytes32 otherKey) {

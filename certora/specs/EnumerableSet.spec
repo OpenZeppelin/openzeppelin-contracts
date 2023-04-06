@@ -115,7 +115,7 @@ rule outOfBound(uint256 index) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: add key to EnumerableSet if not alredy contained                                                             │
+│ Rules: add key to EnumerableSet if not already contained                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule add(bytes32 key, bytes32 otherKey) {
@@ -146,7 +146,7 @@ rule add(bytes32 key, bytes32 otherKey) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: remove key from EnumerableSet if alredy contained                                                            │
+│ Rules: remove key from EnumerableSet if already contained                                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule remove(bytes32 key, bytes32 otherKey) {
