@@ -46,11 +46,11 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  *
- * WARNING: This contract does not inherit from {ITransparentUpgradeableProxy}, and the admin functions are
- * implemented by functions that have signature designed to match the selector of the {ITransparentUpgradeableProxy}
- * interface, but without any arguments. This allows use to decode the argument manually after the `ifAdmin` modifier
- * has had a change to forward the call. This is done so that the argument decoding does not fail here in case the
- * proxy and the implementation have "selector clash".
+ * NOTE: The real interface of this proxy is that defined in {ITransparentUpgradeableProxy}. This contract does not
+ * inherit from that interface, and instead you will see the admin functions are implemented by oddly named functions.
+ * These functions are designed to match the selectors of {ITransparentUpgradeableProxy}, but without any arguments.
+ * This is necessary to fully implement transparency without decoding errors caused by selector clashes between the
+ * proxy and the implementation.
  */
 contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
