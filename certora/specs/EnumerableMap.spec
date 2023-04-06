@@ -2,11 +2,15 @@ import "helpers.spec"
 
 methods {
     // library
-    add(bytes32)      returns (bool)    envfree
-    remove(bytes32)   returns (bool)    envfree
-    contains(bytes32) returns (bool)    envfree
-    length()          returns (uint256) envfree
-    at_(uint256)      returns (bytes32) envfree
+    set(bytes32,bytes32)     returns (bool)    envfree
+    remove(bytes32)          returns (bool)    envfree
+    contains(bytes32)        returns (bool)    envfree
+    length()                 returns (uint256) envfree
+    at_key(uint256)          returns (bytes32) envfree
+    at_value(uint256)        returns (bytes32) envfree
+    tryGet_contains(bytes32) returns (bool)    envfree
+    tryGet_value(bytes32)    returns (bytes32) envfree
+    get(bytes32)             returns (bytes32) envfree
 
     // FV
     _indexOf(bytes32) returns (uint256) envfree
@@ -23,11 +27,24 @@ function sanity() returns bool {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: the value mapping is empty for keys that are not in the EnumerableMap.                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant noValueIfNotContained(bytes32 key)
+    !contains(key) => tryGet_value(key) == 0
+    {
+        preserved set(bytes32 otherKey, bytes32 someValue) {
+            require sanity();
+        }
+    }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: All indexed keys are contained                                                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant indexedContained(uint256 index)
-    contains(at_(index))
+    contains(at_key(index))
     {
         preserved {
             requireInvariant indexConsistency(index);
@@ -41,7 +58,7 @@ invariant indexedContained(uint256 index)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant atUniqueness(uint256 index1, uint256 index2)
-    index1 == index2 <=> at_(index1) == at_(index2)
+    index1 == index2 <=> at_key(index1) == at_key(index2)
     {
         preserved remove(bytes32 key) {
             requireInvariant atUniqueness(index1, to_uint256(length() - 1));
@@ -55,7 +72,7 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant indexConsistency(uint256 index)
-    _indexOf(at_(index)) == index + 1
+    _indexOf(at_key(index)) == index + 1
     {
         preserved remove(bytes32 key) {
             requireInvariant indexConsistency(to_uint256(length() - 1));
@@ -63,7 +80,7 @@ invariant indexConsistency(uint256 index)
     }
 
 invariant atConsistency(bytes32 key)
-    at_(to_uint256(_indexOf(key) - 1)) == key
+    at_key(to_uint256(_indexOf(key) - 1)) == key
     {
         preserved remove(bytes32 otherKey) {
             requireInvariant atConsistency(otherKey);
@@ -85,20 +102,27 @@ rule stateChange(env e, bytes32 key) {
 
     uint256 lengthBefore   = length();
     bool    containsBefore = contains(key);
+    bytes32 valueBefore    = tryGet_value(key);
 
     method f; calldataarg args; f(e, args);
 
     uint256 lengthAfter   = length();
     bool    containsAfter = contains(key);
+    bytes32 valueAfter    = tryGet_value(key);
 
     assert lengthBefore != lengthAfter => (
-        (f.selector == add(bytes32).selector    && lengthAfter == lengthBefore + 1) ||
-        (f.selector == remove(bytes32).selector && lengthAfter == lengthBefore - 1)
+        (f.selector == set(bytes32,bytes32).selector && lengthAfter == lengthBefore + 1) ||
+        (f.selector == remove(bytes32).selector      && lengthAfter == lengthBefore - 1)
     );
 
     assert containsBefore != containsAfter => (
-        (f.selector == add(bytes32).selector    && containsAfter) ||
-        (f.selector == remove(bytes32).selector && containsBefore)
+        (f.selector == set(bytes32,bytes32).selector && containsAfter) ||
+        (f.selector == remove(bytes32).selector      && !containsAfter)
+    );
+
+    assert valueBefore != valueAfter => (
+        (f.selector == set(bytes32,bytes32).selector && containsAfter) ||
+        (f.selector == remove(bytes32).selector      && !containsAfter && valueAfter == 0)
     );
 }
 
@@ -108,28 +132,62 @@ rule stateChange(env e, bytes32 key) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule outOfBound(uint256 index) {
-    at_@withrevert(index);
+    bool inBound = index < length();
 
-    assert lastReverted <=> length() <= index;
+    bytes32 key = at_key@withrevert(index);
+    assert !lastReverted <=> inBound;
+
+    bytes32 value = at_value@withrevert(index);
+    assert !lastReverted <=> inBound;
+
+    assert inBound => get(key) == value;
 }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: add key to EnumerableSet if not alredy contained                                                             │
+│ Rule: get and tryGet return the expected values.                                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule add(bytes32 key, bytes32 otherKey) {
+rule getAndTryGet(bytes32 key) {
+    requireInvariant noValueIfNotContained(key);
+
+    bool contained = contains@withrevert(key);
+    assert !lastReverted;
+
+    bytes32 value = get@withrevert(key);
+    assert !lastReverted <=> contained;
+
+    bool tryContained = tryGet_contains@withrevert(key);
+    assert !lastReverted;
+
+    bytes32 tryValue = tryGet_value@withrevert(key);
+    assert !lastReverted;
+
+    assert contained == tryContained;
+    assert contained => tryValue == value;
+    assert !contained => tryValue == 0;
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rules: set key-value to EnumerableSet                                                                               │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule set(bytes32 key, bytes32 value, bytes32 otherKey) {
     require sanity();
 
     uint256 lengthBefore        = length();
     bool    containsBefore      = contains(key);
     bool    containsOtherBefore = contains(otherKey);
+    bytes32 otherValueBefore    = tryGet_value(otherKey);
 
-    bool added = add@withrevert(key);
+    bool added = set@withrevert(key, value);
     bool success = !lastReverted;
 
     // liveness & immediate effect
-    assert success && contains(key);
+    assert success
+        && contains(key)
+        && get(key) == value;
 
     // return value: added iff not contained
     assert added <=> !containsBefore;
@@ -138,10 +196,14 @@ rule add(bytes32 key, bytes32 otherKey) {
     assert length() == lengthBefore + to_uint256(added ? 1 : 0);
 
     // effect: add at the end
-    assert added => at_(lengthBefore) == key;
+    assert added => (
+        at_key(lengthBefore) == key &&
+        at_value(lengthBefore) == value
+    );
 
     // side effect: other keys are not affected
     assert containsOtherBefore != contains(otherKey) => (added && key == otherKey);
+    assert otherValueBefore != tryGet_value(otherKey) => key == otherKey;
 }
 
 /*
@@ -156,6 +218,7 @@ rule remove(bytes32 key, bytes32 otherKey) {
     uint256 lengthBefore        = length();
     bool    containsBefore      = contains(key);
     bool    containsOtherBefore = contains(otherKey);
+    bytes32 otherValueBefore    = tryGet_value(otherKey);
 
     bool removed = remove@withrevert(key);
     bool success = !lastReverted;
@@ -171,6 +234,7 @@ rule remove(bytes32 key, bytes32 otherKey) {
 
     // side effect: other keys are not affected
     assert containsOtherBefore != contains(otherKey) => (removed && key == otherKey);
+    assert otherValueBefore != tryGet_value(otherKey) => key == otherKey;
 }
 
 /*
@@ -178,16 +242,25 @@ rule remove(bytes32 key, bytes32 otherKey) {
 │ Rules: when adding a new key, the other keys remain in set, at the same index.                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule atAdd(bytes32 key, uint256 index) {
+rule atSet(bytes32 key, bytes32 value, uint256 index) {
     require sanity();
 
-    bytes32 atBefore = at_(index);
-    add(key);
-    bytes32 atAfter = at_@withrevert(index);
-    bool atAfterSuccess = !lastReverted;
+    bytes32 atKeyBefore = at_key(index);
+    bytes32 atValueBefore = at_value(index);
 
-    assert atAfterSuccess;
-    assert atBefore == atAfter;
+    set(key, value);
+
+    bytes32 atKeyAfter = at_key@withrevert(index);
+    assert !lastReverted;
+
+    bytes32 atValueAfter = at_value@withrevert(index);
+    assert !lastReverted;
+
+    assert atKeyAfter == atKeyBefore;
+    assert atValueAfter != atValueBefore => (
+        key == atKeyBefore &&
+        value == atValueAfter
+    );
 }
 
 /*
@@ -202,22 +275,34 @@ rule atRemove(bytes32 key, uint256 index) {
     requireInvariant indexConsistency(index);
     requireInvariant indexConsistency(last);
 
-    bytes32 atBefore = at_(index);
-    bytes32 lastBefore = at_(last);
+    bytes32 atKeyBefore     = at_key(index);
+    bytes32 atValueBefore   = at_value(index);
+    bytes32 lastKeyBefore   = at_key(last);
+    bytes32 lastValueBefore = at_value(last);
 
     remove(key);
 
-    // can't read last value (length decreased)
-    bytes32 atAfter = at_@withrevert(index);
+    // can't read last value & keys (length decreased)
+    bytes32 atKeyAfter = at_key@withrevert(index);
+    assert lastReverted <=> index == last;
+
+    bytes32 atValueAfter = at_value@withrevert(index);
     assert lastReverted <=> index == last;
 
     // One value that is allowed to change is if previous value was removed,
     // in that case the last value before took its place.
     assert (
         index != last &&
-        atBefore != atAfter
+        atKeyBefore != atKeyAfter
     ) => (
-        atBefore == key &&
-        atAfter == lastBefore
+        atKeyBefore == key &&
+        atKeyAfter == lastKeyBefore
+    );
+
+    assert (
+        index != last &&
+        atValueBefore != atValueAfter
+    ) => (
+        atValueAfter == lastValueBefore
     );
 }
