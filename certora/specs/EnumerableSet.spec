@@ -51,7 +51,11 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: index <> value relationship is consistent                                                                │
+│ Invariant: index <> key relationship is consistent                                                                  │
+│                                                                                                                     │
+│ Note that the two consistencyXxx invariants, put together, prove that at_ and _indexOf are inverse of one another.  │
+│ This proves that we have a bijection between indices (the enumerability part) and keys (the entries that are added  │
+│ and removed from the EnumerableSet).                                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant consistencyIndex(uint256 index)
@@ -76,7 +80,7 @@ invariant consistencyKey(bytes32 key)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: state changes                                                                                                │
+│ Rule: state only changes by adding or removing elements                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule stateChange(env e, bytes32 key) {
@@ -115,7 +119,7 @@ rule outOfBound(uint256 index) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: add key to EnumerableSet if not already contained                                                            │
+│ Rule: add key to EnumerableSet if not already contained                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule add(bytes32 key, bytes32 otherKey) {
@@ -134,8 +138,8 @@ rule add(bytes32 key, bytes32 otherKey) {
     // return value: added iff not contained
     assert added <=> !containsBefore;
 
-    // effect: length increass iff added
-    assert length() == lengthBefore + to_uint256(added ? 1 : 0);
+    // effect: length increases iff added
+    assert length() == lengthBefore + (added ? 1 : 0);
 
     // effect: add at the end
     assert added => at_(lengthBefore) == key;
@@ -146,7 +150,7 @@ rule add(bytes32 key, bytes32 otherKey) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: remove key from EnumerableSet if already contained                                                           │
+│ Rule: remove key from EnumerableSet if already contained                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule remove(bytes32 key, bytes32 otherKey) {
@@ -166,8 +170,8 @@ rule remove(bytes32 key, bytes32 otherKey) {
     // return value: removed iff contained
     assert removed <=> containsBefore;
 
-    // effect: length increass iff removed
-    assert length() == lengthBefore - to_uint256(removed ? 1 : 0);
+    // effect: length decreases iff removed
+    assert length() == lengthBefore - (removed ? 1 : 0);
 
     // side effect: other keys are not affected
     assert containsOtherBefore != contains(otherKey) => (removed && key == otherKey);
@@ -175,10 +179,10 @@ rule remove(bytes32 key, bytes32 otherKey) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: when adding a new key, the other keys remain in set, at the same index.                                      │
+│ Rule: when adding a new key, the other keys remain in set, at the same index.                                       │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule atAdd(bytes32 key, uint256 index) {
+rule addEnumerability(bytes32 key, uint256 index) {
     require sanity();
 
     bytes32 atBefore = at_(index);
@@ -192,11 +196,11 @@ rule atAdd(bytes32 key, uint256 index) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rules: when removing a existing key, the other keys remain in set, at the same index (except for the last one).     │
+│ Rule: when removing a existing key, the other keys remain in set, at the same index (except for the last one).      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule atRemove(bytes32 key, uint256 index) {
-    uint256 last = to_uint256(length() - 1);
+rule removeEnumerability(bytes32 key, uint256 index) {
+    uint256 last = length() - 1;
 
     requireInvariant consistencyKey(key);
     requireInvariant consistencyIndex(index);
