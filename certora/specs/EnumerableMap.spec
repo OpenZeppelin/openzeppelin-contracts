@@ -6,8 +6,8 @@ methods {
     remove(bytes32)          returns (bool)    envfree
     contains(bytes32)        returns (bool)    envfree
     length()                 returns (uint256) envfree
-    at_key(uint256)          returns (bytes32) envfree
-    at_value(uint256)        returns (bytes32) envfree
+    key_at(uint256)          returns (bytes32) envfree
+    value_at(uint256)        returns (bytes32) envfree
     tryGet_contains(bytes32) returns (bool)    envfree
     tryGet_value(bytes32)    returns (bytes32) envfree
     get(bytes32)             returns (bytes32) envfree
@@ -44,7 +44,7 @@ invariant noValueIfNotContained(bytes32 key)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant indexedContained(uint256 index)
-    contains(at_key(index))
+    contains(key_at(index))
     {
         preserved {
             requireInvariant consistencyIndex(index);
@@ -58,7 +58,7 @@ invariant indexedContained(uint256 index)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant atUniqueness(uint256 index1, uint256 index2)
-    index1 == index2 <=> at_key(index1) == at_key(index2)
+    index1 == index2 <=> key_at(index1) == key_at(index2)
     {
         preserved remove(bytes32 key) {
             requireInvariant atUniqueness(index1, to_uint256(length() - 1));
@@ -76,7 +76,7 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant consistencyIndex(uint256 index)
-    _indexOf(at_key(index)) == index + 1
+    _indexOf(key_at(index)) == index + 1
     {
         preserved remove(bytes32 key) {
             requireInvariant consistencyIndex(to_uint256(length() - 1));
@@ -84,7 +84,7 @@ invariant consistencyIndex(uint256 index)
     }
 
 invariant consistencyKey(bytes32 key)
-    at_key(to_uint256(_indexOf(key) - 1)) == key
+    key_at(to_uint256(_indexOf(key) - 1)) == key
     {
         preserved remove(bytes32 otherKey) {
             requireInvariant consistencyKey(otherKey);
@@ -138,10 +138,10 @@ rule stateChange(env e, bytes32 key) {
 rule outOfBound(uint256 index) {
     bool inBound = index < length();
 
-    bytes32 key = at_key@withrevert(index);
+    bytes32 key = key_at@withrevert(index);
     assert !lastReverted <=> inBound;
 
-    bytes32 value = at_value@withrevert(index);
+    bytes32 value = value_at@withrevert(index);
     assert !lastReverted <=> inBound;
 
     assert inBound => get(key) == value;
@@ -201,8 +201,8 @@ rule set(bytes32 key, bytes32 value, bytes32 otherKey) {
 
     // effect: add at the end
     assert added => (
-        at_key(lengthBefore) == key &&
-        at_value(lengthBefore) == value
+        key_at(lengthBefore) == key &&
+        value_at(lengthBefore) == value
     );
 
     // side effect: other keys are not affected
@@ -249,15 +249,15 @@ rule remove(bytes32 key, bytes32 otherKey) {
 rule setEnumerability(bytes32 key, bytes32 value, uint256 index) {
     require sanity();
 
-    bytes32 atKeyBefore = at_key(index);
-    bytes32 atValueBefore = at_value(index);
+    bytes32 atKeyBefore = key_at(index);
+    bytes32 atValueBefore = value_at(index);
 
     set(key, value);
 
-    bytes32 atKeyAfter = at_key@withrevert(index);
+    bytes32 atKeyAfter = key_at@withrevert(index);
     assert !lastReverted;
 
-    bytes32 atValueAfter = at_value@withrevert(index);
+    bytes32 atValueAfter = value_at@withrevert(index);
     assert !lastReverted;
 
     assert atKeyAfter == atKeyBefore;
@@ -279,18 +279,18 @@ rule removeEnumerability(bytes32 key, uint256 index) {
     requireInvariant consistencyIndex(index);
     requireInvariant consistencyIndex(last);
 
-    bytes32 atKeyBefore     = at_key(index);
-    bytes32 atValueBefore   = at_value(index);
-    bytes32 lastKeyBefore   = at_key(last);
-    bytes32 lastValueBefore = at_value(last);
+    bytes32 atKeyBefore     = key_at(index);
+    bytes32 atValueBefore   = value_at(index);
+    bytes32 lastKeyBefore   = key_at(last);
+    bytes32 lastValueBefore = value_at(last);
 
     remove(key);
 
     // can't read last value & keys (length decreased)
-    bytes32 atKeyAfter = at_key@withrevert(index);
+    bytes32 atKeyAfter = key_at@withrevert(index);
     assert lastReverted <=> index == last;
 
-    bytes32 atValueAfter = at_value@withrevert(index);
+    bytes32 atValueAfter = value_at@withrevert(index);
     assert lastReverted <=> index == last;
 
     // One value that is allowed to change is if previous value was removed,
