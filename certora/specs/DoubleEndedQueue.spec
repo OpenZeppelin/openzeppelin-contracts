@@ -110,16 +110,16 @@ rule pushFront(bytes32 value) {
 │ Rule: pushFront preserves the previous values in the queue with a +1 offset                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule pushFrontConsistency(uint256 key) {
+rule pushFrontConsistency(uint256 index) {
     require boundedQueue();
 
-    bytes32 beforeAt = at_(key);
+    bytes32 beforeAt = at_(index);
 
     bytes32 value;
     pushFront(value);
 
     // try to read value
-    bytes32 afterAt = at_@withrevert(key + 1);
+    bytes32 afterAt = at_@withrevert(index + 1);
 
     assert !lastReverted, "value still there";
     assert afterAt == beforeAt, "data is preserved";
@@ -150,16 +150,16 @@ rule pushBack(bytes32 value) {
 │ Rule: pushBack preserves the previous values in the queue                                                           │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule pushBackConsistency(uint256 key) {
+rule pushBackConsistency(uint256 index) {
     require boundedQueue();
 
-    bytes32 beforeAt = at_(key);
+    bytes32 beforeAt = at_(index);
 
     bytes32 value;
     pushBack(value);
 
     // try to read value
-    bytes32 afterAt = at_@withrevert(key);
+    bytes32 afterAt = at_@withrevert(index);
 
     assert !lastReverted, "value still there";
     assert afterAt == beforeAt, "data is preserved";
@@ -193,18 +193,18 @@ rule popFront {
 │ Rule: at(x) is preserved and offset to at(x - 1) after calling popFront                                             |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule popFrontConsistency(uint256 key) {
+rule popFrontConsistency(uint256 index) {
     requireInvariant boundariesConsistency();
     require boundedQueue();
 
     // Read (any) value that is not the front (this asserts the value exists / the queue is long enough)
-    require key > 1;
-    bytes32 before = at_(key);
+    require index > 1;
+    bytes32 before = at_(index);
 
     popFront();
 
     // try to read value
-    bytes32 after = at_@withrevert(key - 1);
+    bytes32 after = at_@withrevert(index - 1);
     
     assert !lastReverted, "value still exists in the queue";
     assert before == after, "values are offset and not modified";
@@ -238,18 +238,18 @@ rule popBack {
 │ Rule: at(x) is preserved after calling popBack                                                                     |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule popBackConsistency(uint256 key) {
+rule popBackConsistency(uint256 index) {
     requireInvariant boundariesConsistency();
     require boundedQueue();
 
     // Read (any) value that is not the back (this asserts the value exists / the queue is long enough)
-    require key < length() - 1;
-    bytes32 before = at_(key);
+    require index < length() - 1;
+    bytes32 before = at_(index);
 
     popBack();
 
     // try to read value
-    bytes32 after = at_@withrevert(key);
+    bytes32 after = at_@withrevert(index);
     
     assert !lastReverted, "value still exists in the queue";
     assert before == after, "values are offset and not modified";
@@ -298,16 +298,16 @@ rule onlyEmptyRevert(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: at(key) only reverts if key is out of bounds                                                                  |
+│ Rule: at(index) only reverts if index is out of bounds                                                                  |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyOutOfBoundsRevert(uint256 key) {
+rule onlyOutOfBoundsRevert(uint256 index) {
     requireInvariant boundariesConsistency();
     require boundedQueue();
 
-    at_@withrevert(key);
+    at_@withrevert(index);
 
-    assert lastReverted <=> key >= length(), "only reverts if key is out of bounds";
+    assert lastReverted <=> index >= length(), "only reverts if index is out of bounds";
 }
 
 /*
@@ -347,16 +347,16 @@ rule noDataChange(env e) {
     method f;
     calldataarg args;
 
-    uint256 key;
-    bytes32 atBefore = at_(key);
+    uint256 index;
+    bytes32 atBefore = at_(index);
     f(e, args);
-    bytes32 atAfter = at_@withrevert(key);
+    bytes32 atAfter = at_@withrevert(index);
     bool atAfterSuccess = !lastReverted;
 
     assert !atAfterSuccess <=> (
         f.selector == clear().selector ||
-        (f.selector == popBack().selector && key == length()) ||
-        (f.selector == popFront().selector && key == length())
+        (f.selector == popBack().selector && index == length()) ||
+        (f.selector == popFront().selector && index == length())
     ), "indexes of the queue are only removed by clear or pop";
 
     assert atAfterSuccess && atAfter != atBefore => (
