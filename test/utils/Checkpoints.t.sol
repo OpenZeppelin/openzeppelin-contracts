@@ -10,6 +10,8 @@ import "../../contracts/utils/math/SafeCast.sol";
 contract CheckpointsHistoryTest is Test {
     using Checkpoints for Checkpoints.History;
 
+    // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function with make sure that
+    // key#n+1 is in the [key#n, key#n + KEY_MAX_GAP] range.
     uint8 internal constant KEY_MAX_GAP = 64;
 
     Checkpoints.History internal _ckpts;
@@ -60,6 +62,16 @@ contract CheckpointsHistoryTest is Test {
             assertEq(_ckpts.latest(), value);
             _assertLatestCheckpoint(true, key, value);
         }
+
+        // Can't push any key in the past
+        if (keys.length > 0) {
+            uint32 lastKey = keys[keys.length - 1];
+            uint32 pastKey = _boundUint32(keys[0], 0, lastKey - 1);
+
+            vm.roll(pastKey);
+            vm.expectRevert();
+            _ckpts.push(values[keys.length % values.length]);
+        }
     }
 
     function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup) public {
@@ -104,6 +116,8 @@ contract CheckpointsHistoryTest is Test {
 contract CheckpointsTrace224Test is Test {
     using Checkpoints for Checkpoints.Trace224;
 
+    // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function with make sure that
+    // key#n+1 is in the [key#n, key#n + KEY_MAX_GAP] range.
     uint8 internal constant KEY_MAX_GAP = 64;
 
     Checkpoints.Trace224 internal _ckpts;
@@ -153,6 +167,14 @@ contract CheckpointsTrace224Test is Test {
             assertEq(_ckpts.latest(), value);
             _assertLatestCheckpoint(true, key, value);
         }
+
+        if (keys.length > 0) {
+            uint32 lastKey = keys[keys.length - 1];
+            uint32 pastKey = _boundUint32(keys[0], 0, lastKey - 1);
+
+            vm.expectRevert();
+            _ckpts.push(pastKey, values[keys.length % values.length]);
+        }
     }
 
     function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup) public {
@@ -195,6 +217,8 @@ contract CheckpointsTrace224Test is Test {
 contract CheckpointsTrace160Test is Test {
     using Checkpoints for Checkpoints.Trace160;
 
+    // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function with make sure that
+    // key#n+1 is in the [key#n, key#n + KEY_MAX_GAP] range.
     uint8 internal constant KEY_MAX_GAP = 64;
 
     Checkpoints.Trace160 internal _ckpts;
@@ -243,6 +267,14 @@ contract CheckpointsTrace160Test is Test {
             assertEq(_ckpts.length(), i + 1 - duplicates);
             assertEq(_ckpts.latest(), value);
             _assertLatestCheckpoint(true, key, value);
+        }
+
+        if (keys.length > 0) {
+            uint96 lastKey = keys[keys.length - 1];
+            uint96 pastKey = _boundUint96(keys[0], 0, lastKey - 1);
+
+            vm.expectRevert();
+            _ckpts.push(pastKey, values[keys.length % values.length]);
         }
     }
 

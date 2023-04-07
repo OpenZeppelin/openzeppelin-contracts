@@ -15,6 +15,8 @@ import "../../contracts/utils/math/SafeCast.sol";
 const common = opts => `\
 using Checkpoints for Checkpoints.${opts.historyTypeName};
 
+// Maximum gap between keys used during the fuzzing tests: the \`_prepareKeys\` function with make sure that
+// key#n+1 is in the [key#n, key#n + KEY_MAX_GAP] range.
 uint8 internal constant KEY_MAX_GAP = 64;
 
 Checkpoints.${opts.historyTypeName} internal _ckpts;
@@ -79,6 +81,14 @@ function testPush(
         assertEq(_ckpts.length(), i + 1 - duplicates);
         assertEq(_ckpts.latest(), value);
         _assertLatestCheckpoint(true, key, value);
+    }
+
+    if (keys.length > 0) {
+        ${opts.keyTypeName} lastKey = keys[keys.length - 1];
+        ${opts.keyTypeName} pastKey = _bound${capitalize(opts.keyTypeName)}(keys[0], 0, lastKey - 1);
+
+        vm.expectRevert();
+        _ckpts.push(pastKey, values[keys.length % values.length]);
     }
 }
 
@@ -151,6 +161,16 @@ function testPush(
         assertEq(_ckpts.length(), i + 1 - duplicates);
         assertEq(_ckpts.latest(), value);
         _assertLatestCheckpoint(true, key, value);
+    }
+
+    // Can't push any key in the past
+    if (keys.length > 0) {
+        ${opts.keyTypeName} lastKey = keys[keys.length - 1];
+        ${opts.keyTypeName} pastKey = _bound${capitalize(opts.keyTypeName)}(keys[0], 0, lastKey - 1);
+
+        vm.roll(pastKey);
+        vm.expectRevert();
+        _ckpts.push(values[keys.length % values.length]);
     }
 }
 
