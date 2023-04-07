@@ -44,7 +44,7 @@ invariant noValueIfNotContained(bytes32 key)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant indexedContained(uint256 index)
-    contains(key_at(index))
+    index < length() => contains(key_at(index))
     {
         preserved {
             requireInvariant consistencyIndex(index);
@@ -76,7 +76,7 @@ invariant atUniqueness(uint256 index1, uint256 index2)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant consistencyIndex(uint256 index)
-    _indexOf(key_at(index)) == index + 1
+    index < length() => _indexOf(key_at(index)) == index + 1
     {
         preserved remove(bytes32 key) {
             requireInvariant consistencyIndex(to_uint256(length() - 1));
@@ -84,7 +84,11 @@ invariant consistencyIndex(uint256 index)
     }
 
 invariant consistencyKey(bytes32 key)
-    key_at(to_uint256(_indexOf(key) - 1)) == key
+    contains(key) => (
+        _indexOf(key) > 0 &&
+        _indexOf(key) <= length() &&
+        key_at(to_uint256(_indexOf(key) - 1)) == key
+    )
     {
         preserved remove(bytes32 otherKey) {
             requireInvariant consistencyKey(otherKey);
@@ -188,26 +192,23 @@ rule set(bytes32 key, bytes32 value, bytes32 otherKey) {
     bool added = set@withrevert(key, value);
     bool success = !lastReverted;
 
-    // liveness & immediate effect
-    assert success
-        && contains(key)
-        && get(key) == value;
+    assert success && contains(key) && get(key) == value,
+        "liveness & immediate effect";
 
-    // return value: added iff not contained
-    assert added <=> !containsBefore;
+    assert added <=> !containsBefore,
+        "return value: added iff not contained";
 
-    // effect: length increases iff added
-    assert length() == lengthBefore + (added ? 1 : 0);
+    assert length() == lengthBefore + to_mathint(added ? 1 : 0),
+        "effect: length increases iff added";
 
-    // effect: add at the end
-    assert added => (
-        key_at(lengthBefore) == key &&
-        value_at(lengthBefore) == value
-    );
+    assert added => (key_at(lengthBefore) == key && value_at(lengthBefore) == value),
+        "effect: add at the end";
 
-    // side effect: other keys are not affected
-    assert containsOtherBefore != contains(otherKey) => (added && key == otherKey);
-    assert otherValueBefore != tryGet_value(otherKey) => key == otherKey;
+    assert containsOtherBefore != contains(otherKey) => (added && key == otherKey),
+        "side effect: other keys are not affected";
+
+    assert otherValueBefore != tryGet_value(otherKey) => key == otherKey,
+        "side effect: values attached to other keys are not affected";
 }
 
 /*
@@ -227,18 +228,20 @@ rule remove(bytes32 key, bytes32 otherKey) {
     bool removed = remove@withrevert(key);
     bool success = !lastReverted;
 
-    // liveness & immediate effect
-    assert success && !contains(key);
+    assert success && !contains(key),
+        "liveness & immediate effect";
 
-    // return value: removed iff contained
-    assert removed <=> containsBefore;
+    assert removed <=> containsBefore,
+        "return value: removed iff contained";
 
-    // effect: length decreases iff removed
-    assert length() == lengthBefore - (removed ? 1 : 0);
+    assert length() == lengthBefore - to_mathint(removed ? 1 : 0),
+        "effect: length decreases iff removed";
 
-    // side effect: other keys are not affected
-    assert containsOtherBefore != contains(otherKey) => (removed && key == otherKey);
-    assert otherValueBefore != tryGet_value(otherKey) => key == otherKey;
+    assert containsOtherBefore != contains(otherKey) => (removed && key == otherKey),
+        "side effect: other keys are not affected";
+
+    assert otherValueBefore != tryGet_value(otherKey) => key == otherKey,
+        "side effect: values attached to other keys are not affected";
 }
 
 /*
