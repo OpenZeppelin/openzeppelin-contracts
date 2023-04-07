@@ -337,7 +337,7 @@ rule noLengthChange(env e) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: only push/pop can change values bounded in the queue (outters aren't cleared)                                 │
+│ Rule: only push/pop can change values bounded in the queue (outside values aren't cleared)                          │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noDataChange(env e) {
@@ -350,12 +350,17 @@ rule noDataChange(env e) {
     uint256 key;
     bytes32 atBefore = at_(key);
     f(e, args);
-    bytes32 atAfter = at_(key);
+    bytes32 atAfter = at_@withrevert(key);
+    bool atAfterSuccess = !lastReverted;
 
-    assert atAfter != atBefore => (
-        f.selector == clear().selector || // Although doesn't change values, outters are symbolic, so `* != *`
-        (f.selector == popBack().selector && key == length()) || // at_ only changes if it's left out, becoming symbolic 
+    assert !atAfterSuccess <=> (
+        f.selector == clear().selector ||
+        (f.selector == popBack().selector && key == length()) ||
+        (f.selector == popFront().selector && key == length())
+    ), "indexes of the queue are only removed by clear or pop";
+
+    assert atAfterSuccess && atAfter != atBefore => (
         f.selector == popFront().selector ||
         f.selector == pushFront(bytes32).selector
-    ), "values of the queue are only changed by a clear, pop or push operation";
+    ), "values of the queue are only changed by popFront or pushFront";
 }
