@@ -11,8 +11,8 @@ contract CheckpointsHistoryTest is Test {
     using Checkpoints for Checkpoints.History;
 
     // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function with make sure that
-    // key#n+1 is in the [key#n, key#n + KEY_MAX_GAP] range.
-    uint8 internal constant KEY_MAX_GAP = 64;
+    // key#n+1 is in the [key#n, key#n + _KEY_MAX_GAP] range.
+    uint8 internal constant _KEY_MAX_GAP = 64;
 
     Checkpoints.History internal _ckpts;
 
@@ -40,7 +40,7 @@ contract CheckpointsHistoryTest is Test {
     // tests
     function testPush(uint32[] memory keys, uint224[] memory values) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
-        _prepareKeys(keys, KEY_MAX_GAP);
+        _prepareKeys(keys, _KEY_MAX_GAP);
 
         // initial state
         assertEq(_ckpts.length(), 0);
@@ -77,7 +77,7 @@ contract CheckpointsHistoryTest is Test {
     function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup) public {
         vm.assume(keys.length > 0);
         vm.assume(values.length > 0 && values.length <= keys.length);
-        _prepareKeys(keys, KEY_MAX_GAP);
+        _prepareKeys(keys, _KEY_MAX_GAP);
 
         uint32 lastKey = keys[keys.length - 1];
         vm.assume(lastKey > 0);
@@ -117,8 +117,8 @@ contract CheckpointsTrace224Test is Test {
     using Checkpoints for Checkpoints.Trace224;
 
     // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function with make sure that
-    // key#n+1 is in the [key#n, key#n + KEY_MAX_GAP] range.
-    uint8 internal constant KEY_MAX_GAP = 64;
+    // key#n+1 is in the [key#n, key#n + _KEY_MAX_GAP] range.
+    uint8 internal constant _KEY_MAX_GAP = 64;
 
     Checkpoints.Trace224 internal _ckpts;
 
@@ -146,7 +146,7 @@ contract CheckpointsTrace224Test is Test {
     // tests
     function testPush(uint32[] memory keys, uint224[] memory values) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
-        _prepareKeys(keys, KEY_MAX_GAP);
+        _prepareKeys(keys, _KEY_MAX_GAP);
 
         // initial state
         assertEq(_ckpts.length(), 0);
@@ -179,10 +179,10 @@ contract CheckpointsTrace224Test is Test {
 
     function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
-        _prepareKeys(keys, KEY_MAX_GAP);
+        _prepareKeys(keys, _KEY_MAX_GAP);
 
         uint32 lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
-        lookup = _boundUint32(lookup, 0, lastKey + KEY_MAX_GAP);
+        lookup = _boundUint32(lookup, 0, lastKey + _KEY_MAX_GAP);
 
         uint224 upper = 0;
         uint224 lower = 0;
@@ -218,8 +218,8 @@ contract CheckpointsTrace160Test is Test {
     using Checkpoints for Checkpoints.Trace160;
 
     // Maximum gap between keys used during the fuzzing tests: the `_prepareKeys` function with make sure that
-    // key#n+1 is in the [key#n, key#n + KEY_MAX_GAP] range.
-    uint8 internal constant KEY_MAX_GAP = 64;
+    // key#n+1 is in the [key#n, key#n + _KEY_MAX_GAP] range.
+    uint8 internal constant _KEY_MAX_GAP = 64;
 
     Checkpoints.Trace160 internal _ckpts;
 
@@ -247,7 +247,7 @@ contract CheckpointsTrace160Test is Test {
     // tests
     function testPush(uint96[] memory keys, uint160[] memory values) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
-        _prepareKeys(keys, KEY_MAX_GAP);
+        _prepareKeys(keys, _KEY_MAX_GAP);
 
         // initial state
         assertEq(_ckpts.length(), 0);
@@ -280,10 +280,10 @@ contract CheckpointsTrace160Test is Test {
 
     function testLookup(uint96[] memory keys, uint160[] memory values, uint96 lookup) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
-        _prepareKeys(keys, KEY_MAX_GAP);
+        _prepareKeys(keys, _KEY_MAX_GAP);
 
         uint96 lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
-        lookup = _boundUint96(lookup, 0, lastKey + KEY_MAX_GAP);
+        lookup = _boundUint96(lookup, 0, lastKey + _KEY_MAX_GAP);
 
         uint160 upper = 0;
         uint160 lower = 0;

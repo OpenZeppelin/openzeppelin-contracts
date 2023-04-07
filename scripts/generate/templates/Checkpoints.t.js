@@ -16,8 +16,8 @@ const common = opts => `\
 using Checkpoints for Checkpoints.${opts.historyTypeName};
 
 // Maximum gap between keys used during the fuzzing tests: the \`_prepareKeys\` function with make sure that
-// key#n+1 is in the [key#n, key#n + KEY_MAX_GAP] range.
-uint8 internal constant KEY_MAX_GAP = 64;
+// key#n+1 is in the [key#n, key#n + _KEY_MAX_GAP] range.
+uint8 internal constant _KEY_MAX_GAP = 64;
 
 Checkpoints.${opts.historyTypeName} internal _ckpts;
 
@@ -61,7 +61,7 @@ function testPush(
     ${opts.valueTypeName}[] memory values
 ) public {
     vm.assume(values.length > 0 && values.length <= keys.length);
-    _prepareKeys(keys, KEY_MAX_GAP);
+    _prepareKeys(keys, _KEY_MAX_GAP);
 
     // initial state
     assertEq(_ckpts.length(), 0);
@@ -98,10 +98,10 @@ function testLookup(
     ${opts.keyTypeName} lookup
 ) public {
     vm.assume(values.length > 0 && values.length <= keys.length);
-    _prepareKeys(keys, KEY_MAX_GAP);
+    _prepareKeys(keys, _KEY_MAX_GAP);
 
     ${opts.keyTypeName} lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
-    lookup = _bound${capitalize(opts.keyTypeName)}(lookup, 0, lastKey + KEY_MAX_GAP);
+    lookup = _bound${capitalize(opts.keyTypeName)}(lookup, 0, lastKey + _KEY_MAX_GAP);
 
     ${opts.valueTypeName} upper = 0;
     ${opts.valueTypeName} lower = 0;
@@ -140,7 +140,7 @@ function testPush(
     ${opts.valueTypeName}[] memory values
 ) public {
     vm.assume(values.length > 0 && values.length <= keys.length);
-    _prepareKeys(keys, KEY_MAX_GAP);
+    _prepareKeys(keys, _KEY_MAX_GAP);
 
     // initial state
     assertEq(_ckpts.length(), 0);
@@ -181,7 +181,7 @@ function testLookup(
 ) public {
     vm.assume(keys.length > 0);
     vm.assume(values.length > 0 && values.length <= keys.length);
-    _prepareKeys(keys, KEY_MAX_GAP);
+    _prepareKeys(keys, _KEY_MAX_GAP);
 
     ${opts.keyTypeName} lastKey = keys[keys.length - 1];
     vm.assume(lastKey > 0);
