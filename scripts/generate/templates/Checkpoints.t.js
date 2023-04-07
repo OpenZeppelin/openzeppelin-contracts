@@ -15,6 +15,8 @@ import "../../contracts/utils/math/SafeCast.sol";
 const common = opts => `\
 using Checkpoints for Checkpoints.${opts.historyTypeName};
 
+uint8 internal constant KEY_MAX_GAP = 64;
+
 Checkpoints.${opts.historyTypeName} internal _ckpts;
 
 // helpers
@@ -44,9 +46,9 @@ function _assertLatestCheckpoint(
     ${opts.valueTypeName} value
 ) internal {
     (bool _exist, ${opts.keyTypeName} _key, ${opts.valueTypeName} _value) = _ckpts.latestCheckpoint();
-    assertTrue(_exist == exist);
-    assertTrue(_key == key);
-    assertTrue(_value == value);
+    assertEq(_exist, exist);
+    assertEq(_key, key);
+    assertEq(_value, value);
 }
 `;
 
@@ -56,12 +58,12 @@ function testPush(
     ${opts.keyTypeName}[] memory keys,
     ${opts.valueTypeName}[] memory values
 ) public {
-    vm.assume(values.length > 0);
-    _prepareKeys(keys, 64);
+    vm.assume(values.length > 0 && values.length <= keys.length);
+    _prepareKeys(keys, KEY_MAX_GAP);
 
     // initial state
-    assertTrue(_ckpts.length() == 0);
-    assertTrue(_ckpts.latest() == 0);
+    assertEq(_ckpts.length(), 0);
+    assertEq(_ckpts.latest(), 0);
     _assertLatestCheckpoint(false, 0, 0);
 
     uint256 duplicates = 0;
@@ -74,8 +76,8 @@ function testPush(
         _ckpts.push(key, value);
 
         // check length & latest
-        assertTrue(_ckpts.length() == i + 1 - duplicates);
-        assertTrue(_ckpts.latest() == value);
+        assertEq(_ckpts.length(), i + 1 - duplicates);
+        assertEq(_ckpts.latest(), value);
         _assertLatestCheckpoint(true, key, value);
     }
 }
@@ -85,11 +87,11 @@ function testLookup(
     ${opts.valueTypeName}[] memory values,
     ${opts.keyTypeName} lookup
 ) public {
-    vm.assume(values.length > 0);
-    _prepareKeys(keys, 64);
+    vm.assume(values.length > 0 && values.length <= keys.length);
+    _prepareKeys(keys, KEY_MAX_GAP);
 
     ${opts.keyTypeName} lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
-    lookup = _bound${capitalize(opts.keyTypeName)}(lookup, 0, lastKey + 64);
+    lookup = _bound${capitalize(opts.keyTypeName)}(lookup, 0, lastKey + KEY_MAX_GAP);
 
     ${opts.valueTypeName} upper = 0;
     ${opts.valueTypeName} lower = 0;
@@ -114,9 +116,9 @@ function testLookup(
     }
 
     // check lookup
-    assertTrue(_ckpts.lowerLookup(lookup) == lower);
-    assertTrue(_ckpts.upperLookup(lookup) == upper);
-    assertTrue(_ckpts.upperLookupRecent(lookup) == upper);
+    assertEq(_ckpts.lowerLookup(lookup), lower);
+    assertEq(_ckpts.upperLookup(lookup), upper);
+    assertEq(_ckpts.upperLookupRecent(lookup), upper);
 }
 `;
 
@@ -126,12 +128,12 @@ function testPush(
     ${opts.keyTypeName}[] memory keys,
     ${opts.valueTypeName}[] memory values
 ) public {
-    vm.assume(values.length > 0);
-    _prepareKeys(keys, 64);
+    vm.assume(values.length > 0 && values.length <= keys.length);
+    _prepareKeys(keys, KEY_MAX_GAP);
 
     // initial state
-    assertTrue(_ckpts.length() == 0);
-    assertTrue(_ckpts.latest() == 0);
+    assertEq(_ckpts.length(), 0);
+    assertEq(_ckpts.latest(), 0);
     _assertLatestCheckpoint(false, 0, 0);
 
     uint256 duplicates = 0;
@@ -145,8 +147,8 @@ function testPush(
         _ckpts.push(value);
 
         // check length & latest
-        assertTrue(_ckpts.length() == i + 1 - duplicates);
-        assertTrue(_ckpts.latest() == value);
+        assertEq(_ckpts.length(), i + 1 - duplicates);
+        assertEq(_ckpts.latest(), value);
         _assertLatestCheckpoint(true, key, value);
     }
 }
@@ -157,8 +159,8 @@ function testLookup(
     ${opts.keyTypeName} lookup
 ) public {
     vm.assume(keys.length > 0);
-    vm.assume(values.length > 0);
-    _prepareKeys(keys, 64);
+    vm.assume(values.length > 0 && values.length <= keys.length);
+    _prepareKeys(keys, KEY_MAX_GAP);
 
     ${opts.keyTypeName} lastKey = keys[keys.length - 1];
     vm.assume(lastKey > 0);
@@ -180,8 +182,8 @@ function testLookup(
     }
 
     // check lookup
-    assertTrue(_ckpts.getAtBlock(lookup) == upper);
-    assertTrue(_ckpts.getAtProbablyRecentBlock(lookup) == upper);
+    assertEq(_ckpts.getAtBlock(lookup), upper);
+    assertEq(_ckpts.getAtProbablyRecentBlock(lookup), upper);
 
     vm.expectRevert(); _ckpts.getAtBlock(lastKey);
     vm.expectRevert(); _ckpts.getAtBlock(lastKey + 1);
