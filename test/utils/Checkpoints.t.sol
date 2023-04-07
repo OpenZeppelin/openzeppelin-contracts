@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// This file was procedurally generated from scripts/generate/templates/Checkpoints.test.js.
+// This file was procedurally generated from scripts/generate/templates/Checkpoints.t.js.
 
 pragma solidity ^0.8.0;
 
@@ -9,6 +9,8 @@ import "../../contracts/utils/math/SafeCast.sol";
 
 contract CheckpointsHistoryTest is Test {
     using Checkpoints for Checkpoints.History;
+
+    uint8 internal constant KEY_MAX_GAP = 64;
 
     Checkpoints.History internal _ckpts;
 
@@ -28,19 +30,19 @@ contract CheckpointsHistoryTest is Test {
 
     function _assertLatestCheckpoint(bool exist, uint32 key, uint224 value) internal {
         (bool _exist, uint32 _key, uint224 _value) = _ckpts.latestCheckpoint();
-        assertTrue(_exist == exist);
-        assertTrue(_key == key);
-        assertTrue(_value == value);
+        assertEq(_exist, exist);
+        assertEq(_key, key);
+        assertEq(_value, value);
     }
 
     // tests
     function testPush(uint32[] memory keys, uint224[] memory values) public {
-        vm.assume(values.length > 0);
-        _prepareKeys(keys, 64);
+        vm.assume(values.length > 0 && values.length <= keys.length);
+        _prepareKeys(keys, KEY_MAX_GAP);
 
         // initial state
-        assertTrue(_ckpts.length() == 0);
-        assertTrue(_ckpts.latest() == 0);
+        assertEq(_ckpts.length(), 0);
+        assertEq(_ckpts.latest(), 0);
         _assertLatestCheckpoint(false, 0, 0);
 
         uint256 duplicates = 0;
@@ -54,16 +56,16 @@ contract CheckpointsHistoryTest is Test {
             _ckpts.push(value);
 
             // check length & latest
-            assertTrue(_ckpts.length() == i + 1 - duplicates);
-            assertTrue(_ckpts.latest() == value);
+            assertEq(_ckpts.length(), i + 1 - duplicates);
+            assertEq(_ckpts.latest(), value);
             _assertLatestCheckpoint(true, key, value);
         }
     }
 
     function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup) public {
         vm.assume(keys.length > 0);
-        vm.assume(values.length > 0);
-        _prepareKeys(keys, 64);
+        vm.assume(values.length > 0 && values.length <= keys.length);
+        _prepareKeys(keys, KEY_MAX_GAP);
 
         uint32 lastKey = keys[keys.length - 1];
         vm.assume(lastKey > 0);
@@ -85,8 +87,8 @@ contract CheckpointsHistoryTest is Test {
         }
 
         // check lookup
-        assertTrue(_ckpts.getAtBlock(lookup) == upper);
-        assertTrue(_ckpts.getAtProbablyRecentBlock(lookup) == upper);
+        assertEq(_ckpts.getAtBlock(lookup), upper);
+        assertEq(_ckpts.getAtProbablyRecentBlock(lookup), upper);
 
         vm.expectRevert();
         _ckpts.getAtBlock(lastKey);
@@ -101,6 +103,8 @@ contract CheckpointsHistoryTest is Test {
 
 contract CheckpointsTrace224Test is Test {
     using Checkpoints for Checkpoints.Trace224;
+
+    uint8 internal constant KEY_MAX_GAP = 64;
 
     Checkpoints.Trace224 internal _ckpts;
 
@@ -120,19 +124,19 @@ contract CheckpointsTrace224Test is Test {
 
     function _assertLatestCheckpoint(bool exist, uint32 key, uint224 value) internal {
         (bool _exist, uint32 _key, uint224 _value) = _ckpts.latestCheckpoint();
-        assertTrue(_exist == exist);
-        assertTrue(_key == key);
-        assertTrue(_value == value);
+        assertEq(_exist, exist);
+        assertEq(_key, key);
+        assertEq(_value, value);
     }
 
     // tests
     function testPush(uint32[] memory keys, uint224[] memory values) public {
-        vm.assume(values.length > 0);
-        _prepareKeys(keys, 64);
+        vm.assume(values.length > 0 && values.length <= keys.length);
+        _prepareKeys(keys, KEY_MAX_GAP);
 
         // initial state
-        assertTrue(_ckpts.length() == 0);
-        assertTrue(_ckpts.latest() == 0);
+        assertEq(_ckpts.length(), 0);
+        assertEq(_ckpts.latest(), 0);
         _assertLatestCheckpoint(false, 0, 0);
 
         uint256 duplicates = 0;
@@ -145,18 +149,18 @@ contract CheckpointsTrace224Test is Test {
             _ckpts.push(key, value);
 
             // check length & latest
-            assertTrue(_ckpts.length() == i + 1 - duplicates);
-            assertTrue(_ckpts.latest() == value);
+            assertEq(_ckpts.length(), i + 1 - duplicates);
+            assertEq(_ckpts.latest(), value);
             _assertLatestCheckpoint(true, key, value);
         }
     }
 
     function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup) public {
-        vm.assume(values.length > 0);
-        _prepareKeys(keys, 64);
+        vm.assume(values.length > 0 && values.length <= keys.length);
+        _prepareKeys(keys, KEY_MAX_GAP);
 
         uint32 lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
-        lookup = _boundUint32(lookup, 0, lastKey + 64);
+        lookup = _boundUint32(lookup, 0, lastKey + KEY_MAX_GAP);
 
         uint224 upper = 0;
         uint224 lower = 0;
@@ -172,6 +176,7 @@ contract CheckpointsTrace224Test is Test {
             if (key <= lookup) {
                 upper = value;
             }
+            // find the first key that is not smaller than the lookup key
             if (key >= lookup && (i == 0 || keys[i - 1] < lookup)) {
                 lowerKey = key;
             }
@@ -181,14 +186,16 @@ contract CheckpointsTrace224Test is Test {
         }
 
         // check lookup
-        assertTrue(_ckpts.lowerLookup(lookup) == lower);
-        assertTrue(_ckpts.upperLookup(lookup) == upper);
-        assertTrue(_ckpts.upperLookupRecent(lookup) == upper);
+        assertEq(_ckpts.lowerLookup(lookup), lower);
+        assertEq(_ckpts.upperLookup(lookup), upper);
+        assertEq(_ckpts.upperLookupRecent(lookup), upper);
     }
 }
 
 contract CheckpointsTrace160Test is Test {
     using Checkpoints for Checkpoints.Trace160;
+
+    uint8 internal constant KEY_MAX_GAP = 64;
 
     Checkpoints.Trace160 internal _ckpts;
 
@@ -208,19 +215,19 @@ contract CheckpointsTrace160Test is Test {
 
     function _assertLatestCheckpoint(bool exist, uint96 key, uint160 value) internal {
         (bool _exist, uint96 _key, uint160 _value) = _ckpts.latestCheckpoint();
-        assertTrue(_exist == exist);
-        assertTrue(_key == key);
-        assertTrue(_value == value);
+        assertEq(_exist, exist);
+        assertEq(_key, key);
+        assertEq(_value, value);
     }
 
     // tests
     function testPush(uint96[] memory keys, uint160[] memory values) public {
-        vm.assume(values.length > 0);
-        _prepareKeys(keys, 64);
+        vm.assume(values.length > 0 && values.length <= keys.length);
+        _prepareKeys(keys, KEY_MAX_GAP);
 
         // initial state
-        assertTrue(_ckpts.length() == 0);
-        assertTrue(_ckpts.latest() == 0);
+        assertEq(_ckpts.length(), 0);
+        assertEq(_ckpts.latest(), 0);
         _assertLatestCheckpoint(false, 0, 0);
 
         uint256 duplicates = 0;
@@ -233,18 +240,18 @@ contract CheckpointsTrace160Test is Test {
             _ckpts.push(key, value);
 
             // check length & latest
-            assertTrue(_ckpts.length() == i + 1 - duplicates);
-            assertTrue(_ckpts.latest() == value);
+            assertEq(_ckpts.length(), i + 1 - duplicates);
+            assertEq(_ckpts.latest(), value);
             _assertLatestCheckpoint(true, key, value);
         }
     }
 
     function testLookup(uint96[] memory keys, uint160[] memory values, uint96 lookup) public {
-        vm.assume(values.length > 0);
-        _prepareKeys(keys, 64);
+        vm.assume(values.length > 0 && values.length <= keys.length);
+        _prepareKeys(keys, KEY_MAX_GAP);
 
         uint96 lastKey = keys.length == 0 ? 0 : keys[keys.length - 1];
-        lookup = _boundUint96(lookup, 0, lastKey + 64);
+        lookup = _boundUint96(lookup, 0, lastKey + KEY_MAX_GAP);
 
         uint160 upper = 0;
         uint160 lower = 0;
@@ -260,6 +267,7 @@ contract CheckpointsTrace160Test is Test {
             if (key <= lookup) {
                 upper = value;
             }
+            // find the first key that is not smaller than the lookup key
             if (key >= lookup && (i == 0 || keys[i - 1] < lookup)) {
                 lowerKey = key;
             }
@@ -269,8 +277,8 @@ contract CheckpointsTrace160Test is Test {
         }
 
         // check lookup
-        assertTrue(_ckpts.lowerLookup(lookup) == lower);
-        assertTrue(_ckpts.upperLookup(lookup) == upper);
-        assertTrue(_ckpts.upperLookupRecent(lookup) == upper);
+        assertEq(_ckpts.lowerLookup(lookup), lower);
+        assertEq(_ckpts.upperLookup(lookup), upper);
+        assertEq(_ckpts.upperLookupRecent(lookup), upper);
     }
 }
