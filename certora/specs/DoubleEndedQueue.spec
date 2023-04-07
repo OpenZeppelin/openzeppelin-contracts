@@ -242,7 +242,7 @@ rule popBackConsistency(uint256 key) {
     requireInvariant boundariesConsistency();
     require boundedQueue();
 
-    // Read (any) value that is not the front (this assert the value exist / the queue is long enough)
+    // Read (any) value that is not the back (this asserts the value exists / the queue is long enough)
     require key < length() - 1;
     bytes32 before = at_(key);
 
