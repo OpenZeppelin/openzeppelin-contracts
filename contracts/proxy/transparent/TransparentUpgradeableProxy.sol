@@ -49,7 +49,7 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * NOTE: The real interface of this proxy is that defined in `ITransparentUpgradeableProxy`. This contract does not
  * inherit from that interface, and instead you will see some admin functions are implemented by oddly named functions.
  * These functions are designed to match the selectors of `ITransparentUpgradeableProxy`, but without any arguments.
- * This is necessary to fully implement transparency without decoding errors caused by selector clashes between the
+ * This is necessary to fully implement transparency without decoding reverts caused by selector clashes between the
  * proxy and the implementation.
  */
 contract TransparentUpgradeableProxy is ERC1967Proxy {
