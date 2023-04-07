@@ -292,7 +292,7 @@ rule onlyEmptyRevert(env e) {
         (f.selector == back().selector && emptyBefore) ||
         (f.selector == popFront().selector  && emptyBefore) ||
         (f.selector == popBack().selector  && emptyBefore) ||
-        f.selector == at_(uint256).selector
+        f.selector == at_(uint256).selector // revert conditions are verified in onlyOutOfBoundsRevert
     ), "only revert if empty or out of bounds";
 }
 
