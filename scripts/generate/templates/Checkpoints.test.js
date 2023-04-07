@@ -105,6 +105,7 @@ function testLookup(
         if (key <= lookup) {
             upper = value;
         }
+        // find the first key that is not smaller than the lookup key
         if (key >= lookup && (i == 0 || keys[i-1] < lookup)) {
             lowerKey = key;
         }
