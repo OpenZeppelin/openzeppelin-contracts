@@ -25,7 +25,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     string private _symbol;
 
     // Mapping from token ID to owner address
-    mapping(uint256 => address) private _owners;
+    mapping(uint256 => address) public _owners;
 
     // Mapping owner address to token count
     mapping(address => uint256) private _balances;
@@ -261,26 +261,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function _mint(address to, uint256 tokenId) internal virtual {
         require(to != address(0), "ERC721: mint to the zero address");
-        require(!_exists(tokenId), "ERC721: token already minted");
-
-        _beforeTokenTransfer(address(0), to, tokenId, 1);
-
-        // Check that tokenId was not minted by `_beforeTokenTransfer` hook
-        require(!_exists(tokenId), "ERC721: token already minted");
-
-        unchecked {
-            // Will not overflow unless all 2**256 token ids are minted to the same owner.
-            // Given that tokens are minted one by one, it is impossible in practice that
-            // this ever happens. Might change if we allow batch minting.
-            // The ERC fails to describe this case.
-            _balances[to] += 1;
-        }
-
-        _owners[tokenId] = to;
-
-        emit Transfer(address(0), to, tokenId);
-
-        _afterTokenTransfer(address(0), to, tokenId, 1);
+        _update(address(0), to, tokenId, false, "");
     }
 
     /**
@@ -415,6 +396,45 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
             }
         } else {
             return true;
+        }
+    }
+    
+    /*
+    * @dev Transfers `tokenId` from `from` to `to`. Will mint (or burn) if `from` (or `to`) is the zero address.
+    *
+    * Emits a {Transfer} event.
+    *
+    * Requirements:
+    *
+    * - If the `safe` flag is set and `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}
+    *   and return the acceptance magic value.
+    */
+    function _update(
+        address from,
+        address to,
+        uint256 tokenId,
+        bool safe,
+        bytes memory data
+    ) internal virtual {
+        if(from == address(0)) {
+            require(!_exists(tokenId), "ERC721: token already minted");
+        } else {
+            require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
+            _balances[from] -= 1;
+        }
+
+        if (to == address(0)) {
+            delete(_owners[tokenId]);
+        } else {
+            _owners[tokenId] = to;
+            _balances[to]   += 1;
+        }
+
+        delete _tokenApprovals[tokenId];
+
+        emit Transfer(from, to, tokenId);
+        if (safe) {
+            _checkOnERC721Received(from, to, tokenId, data);
         }
     }
 

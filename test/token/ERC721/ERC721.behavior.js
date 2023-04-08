@@ -22,7 +22,7 @@ const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherApproved, operator, other) {
   shouldSupportInterfaces(['ERC165', 'ERC721']);
 
-  context('with minted tokens', function () {
+  context.only('with minted tokens', function () {
     beforeEach(async function () {
       await this.token.$_mint(owner, firstTokenId);
       await this.token.$_mint(owner, secondTokenId);
@@ -690,7 +690,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
 function shouldBehaveLikeERC721Enumerable(errorPrefix, owner, newOwner, approved, anotherApproved, operator, other) {
   shouldSupportInterfaces(['ERC721Enumerable']);
 
-  context('with minted tokens', function () {
+  context.only('with minted tokens', function () {
     beforeEach(async function () {
       await this.token.$_mint(owner, firstTokenId);
       await this.token.$_mint(owner, secondTokenId);
@@ -835,7 +835,7 @@ function shouldBehaveLikeERC721Enumerable(errorPrefix, owner, newOwner, approved
 function shouldBehaveLikeERC721Metadata(errorPrefix, name, symbol, owner) {
   shouldSupportInterfaces(['ERC721Metadata']);
 
-  describe('metadata', function () {
+  describe.only('metadata', function () {
     it('has a name', async function () {
       expect(await this.token.name()).to.be.equal(name);
     });

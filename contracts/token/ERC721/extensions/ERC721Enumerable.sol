@@ -53,6 +53,30 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         require(index < ERC721Enumerable.totalSupply(), "ERC721Enumerable: global index out of bounds");
         return _allTokens[index];
     }
+    
+    /**
+     * @dev See {ERC721-_update}.
+     */
+    function _update(
+        address from,
+        address to,
+        uint256 tokenId,
+        bool safe,
+        bytes memory data
+    ) override internal virtual {
+        super._update(from, to, tokenId, safe, data);
+        
+        if (from == address(0)) {
+            _addTokenToAllTokensEnumeration(tokenId);
+        } else if (from != to) {
+            _removeTokenFromOwnerEnumeration(from, tokenId);
+        }
+        if (to == address(0)) {
+            _removeTokenFromAllTokensEnumeration(tokenId);
+        } else if (to != from) {
+            _addTokenToOwnerEnumeration(to, tokenId);
+        }
+    }
 
     /**
      * @dev See {ERC721-_beforeTokenTransfer}.
