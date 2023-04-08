@@ -64,7 +64,6 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         bool safe,
         bytes memory data
     ) override internal virtual {
-        super._update(from, to, tokenId, safe, data);
         
         if (from == address(0)) {
             _addTokenToAllTokensEnumeration(tokenId);
@@ -76,6 +75,8 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         } else if (to != from) {
             _addTokenToOwnerEnumeration(to, tokenId);
         }
+        
+        super._update(from, to, tokenId, safe, data);
     }
 
     /**
