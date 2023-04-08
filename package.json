@@ -22,7 +22,7 @@
     "clean": "hardhat clean && rimraf build contracts/build",
     "prepare": "scripts/prepare.sh",
     "prepack": "scripts/prepack.sh",
-    "generate": "scripts/generate/run.js",
+    "generate": "node scripts/generate/run.js",
     "release": "scripts/release/release.sh",
     "version": "scripts/release/version.sh",
     "test": "hardhat test",

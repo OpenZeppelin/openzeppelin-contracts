@@ -295,10 +295,6 @@ module.exports = format(
   header.trimEnd(),
   'library Checkpoints {',
   [
-    // Legacy types & functions
-    types(LEGACY_OPTS),
-    legacyOperations(LEGACY_OPTS),
-    common(LEGACY_OPTS),
     // New flavors
     ...OPTS.flatMap(opts => [types(opts), operations(opts), common(opts)]),
   ],

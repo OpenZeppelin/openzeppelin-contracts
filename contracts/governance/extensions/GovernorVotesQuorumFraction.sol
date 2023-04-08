@@ -14,10 +14,10 @@ import "../../utils/math/SafeCast.sol";
  * _Available since v4.3._
  */
 abstract contract GovernorVotesQuorumFraction is GovernorVotes {
-    using Checkpoints for Checkpoints.History;
+    using Checkpoints for Checkpoints.Trace224;
 
     uint256 private _quorumNumerator; // DEPRECATED
-    Checkpoints.History private _quorumNumeratorHistory;
+    Checkpoints.Trace224 private _quorumNumeratorHistory;
 
     event QuorumNumeratorUpdated(uint256 oldQuorumNumerator, uint256 newQuorumNumerator);
 
@@ -50,13 +50,14 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         }
 
         // Optimistic search, check the latest checkpoint
-        Checkpoints.Checkpoint memory latest = _quorumNumeratorHistory._checkpoints[length - 1];
-        if (latest._blockNumber <= blockNumber) {
+        Checkpoints.Checkpoint224 memory latest = _quorumNumeratorHistory._checkpoints[length - 1];
+        if (latest._key <= blockNumber) {
             return latest._value;
         }
 
         // Otherwise, do the binary search
-        return _quorumNumeratorHistory.getAtBlock(blockNumber);
+        uint32 key = SafeCast.toUint32(blockNumber); 
+        return _quorumNumeratorHistory.lowerLookup(key);
     }
 
     /**

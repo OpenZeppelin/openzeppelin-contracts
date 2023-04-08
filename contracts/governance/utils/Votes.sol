@@ -30,14 +30,14 @@ import "../../utils/math/SafeCast.sol";
  * _Available since v4.5._
  */
 abstract contract Votes is IVotes, Context, EIP712, Nonces {
-    using Checkpoints for Checkpoints.History;
+    using Checkpoints for Checkpoints.Trace224;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
     mapping(address => address) private _delegation;
-    mapping(address => Checkpoints.History) private _delegateCheckpoints;
-    Checkpoints.History private _totalCheckpoints;
+    mapping(address => Checkpoints.Trace224) private _delegateCheckpoints;
+    Checkpoints.Trace224 private _totalCheckpoints;
 
     /**
      * @dev Returns the current amount of votes that `account` has.
@@ -54,7 +54,8 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
      * - `blockNumber` must have been already mined
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        return _delegateCheckpoints[account].getAtProbablyRecentBlock(blockNumber);
+        uint32 key = SafeCast.toUint32(blockNumber);
+        return _delegateCheckpoints[account].upperLookup(key);
     }
 
     /**
@@ -69,7 +70,8 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
      * - `blockNumber` must have been already mined
      */
     function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
-        return _totalCheckpoints.getAtProbablyRecentBlock(blockNumber);
+        uint32 key = SafeCast.toUint32(blockNumber);
+        return _totalCheckpoints.upperLookup(key);
     }
 
     /**
@@ -169,7 +171,7 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
     /**
      * @dev Get the `pos`-th checkpoint for `account`.
      */
-    function _checkpoints(address account, uint32 pos) internal view virtual returns (Checkpoints.Checkpoint memory) {
+    function _checkpoints(address account, uint32 pos) internal view virtual returns (Checkpoints.Checkpoint224 memory) {
         return _delegateCheckpoints[account].getAtPosition(pos);
     }
 
