@@ -66,52 +66,9 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 
 const legacyOperations = opts => `\
 /**
- * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
- * before it is returned, or zero otherwise. Because the number returned corresponds to that at the end of the
- * block, the requested block number must be in the past, excluding the current block.
- */
-function getAtBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
-    require(blockNumber < block.number, "Checkpoints: block not yet mined");
-    uint32 key = SafeCast.toUint32(blockNumber);
-
-    uint256 len = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
-}
-
-/**
- * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
- * before it is returned, or zero otherwise. Similar to {upperLookup} but optimized for the case when the searched
- * checkpoint is probably "recent", defined as being among the last sqrt(N) checkpoints where N is the number of
- * checkpoints.
- */
-function getAtProbablyRecentBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
-    require(blockNumber < block.number, "Checkpoints: block not yet mined");
-    uint32 key = SafeCast.toUint32(blockNumber);
-
-    uint256 len = self.${opts.checkpointFieldName}.length;
-
-    uint256 low = 0;
-    uint256 high = len;
-
-    if (len > 5) {
-        uint256 mid = len - Math.sqrt(len);
-        if (key < _unsafeAccess(self.${opts.checkpointFieldName}, mid)._blockNumber) {
-            high = mid;
-        } else {
-            low = mid + 1;
-        }
-    }
-
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
-
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
-}
-
-/**
  * @dev Returns checkpoint at given position.
  */
-function getAtPosition(History storage self, uint32 pos) internal view returns (Checkpoint memory) {
+function getAtPosition(${opts.historyTypeName} storage self, uint32 pos) internal view returns (${opts.checkpointTypeName} memory) {
     return self._checkpoints[pos];
 }
 
@@ -135,7 +92,9 @@ function push(
     function(uint256, uint256) view returns (uint256) op,
     uint256 delta
 ) internal returns (uint256, uint256) {
-    return push(self, op(latest(self), delta));
+    uint32 key = SafeCast.toUint32(block.number);
+    ${opts.valueTypeName} value = SafeCast.to${opts.valueTypeNameCap}(op(latest(self), delta));
+    return push(self, key, value);
 }
 `;
 
@@ -278,23 +237,19 @@ const defaultOpts = size => ({
   keyTypeName: `uint${256 - size}`,
   keyFieldName: '_key',
   valueTypeName: `uint${size}`,
+  valueTypeNameCap: `Uint${size}`,
   valueFieldName: '_value',
 });
 
 const OPTS = VALUE_SIZES.map(size => defaultOpts(size));
-
-const LEGACY_OPTS = {
-  ...defaultOpts(224),
-  historyTypeName: 'History',
-  checkpointTypeName: 'Checkpoint',
-  keyFieldName: '_blockNumber',
-};
 
 // GENERATE
 module.exports = format(
   header.trimEnd(),
   'library Checkpoints {',
   [
+    // Legacy function
+    legacyOperations(defaultOpts(224)),
     // New flavors
     ...OPTS.flatMap(opts => [types(opts), operations(opts), common(opts)]),
   ],
