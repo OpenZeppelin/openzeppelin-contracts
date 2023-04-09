@@ -239,8 +239,24 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
     function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
+        _mint(to, tokenId, true, data);
+    }
+    
+    /**
+     * @dev Mints `tokenId` and transfers it to `to`.
+     *
+     * WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
+     *
+     * Requirements:
+     *
+     * - `tokenId` must not exist.
+     * - `to` cannot be the zero address.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _mint(address to, uint256 tokenId, bool safe, bytes memory data) internal virtual {
         require(to != address(0), "ERC721: mint to the zero address");
-        _update(address(0), to, tokenId, true, data);
+        _update(address(0), to, tokenId, safe, data);
     }
 
     /**
@@ -256,8 +272,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      * Emits a {Transfer} event.
      */
     function _mint(address to, uint256 tokenId) internal virtual {
-        require(to != address(0), "ERC721: mint to the zero address");
-        _update(address(0), to, tokenId, false, "");
+        _mint(to, tokenId, false, '');
     }
 
     /**
