@@ -19,14 +19,6 @@ import "../../../utils/structs/BitMaps.sol";
  * Using this extension removes the ability to mint single tokens during contract construction. This ability is
  * regained after construction. During construction, only batch minting is allowed.
  *
- * IMPORTANT: This extension bypasses the hooks {_beforeTokenTransfer} and {_afterTokenTransfer} for tokens minted in
- * batch. When using this extension, you should consider the {_beforeConsecutiveTokenTransfer} and
- * {_afterConsecutiveTokenTransfer} hooks in addition to {_beforeTokenTransfer} and {_afterTokenTransfer}.
- *
- * IMPORTANT: When overriding {_afterTokenTransfer}, be careful about call ordering. {ownerOf} may return invalid
- * values during the {_afterTokenTransfer} execution if the super call is not called first. To be safe, execute the
- * super call before your custom logic.
- *
  * _Available since v4.8._
  */
 abstract contract ERC721Consecutive is IERC2309, ERC721 {

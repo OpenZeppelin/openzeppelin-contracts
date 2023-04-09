@@ -46,7 +46,7 @@ contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable 
         address to,
         uint256 firstTokenId,
         uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Enumerable) {
+    ) internal virtual override(ERC721) {
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
