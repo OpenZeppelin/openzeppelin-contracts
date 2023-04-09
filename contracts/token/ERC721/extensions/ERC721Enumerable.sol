@@ -151,4 +151,12 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         delete _allTokensIndex[tokenId];
         _allTokens.pop();
     }
+
+    function _increaseBalance(
+        address to,
+        uint256 batchSize
+    ) internal virtual override {
+        require(batchSize <= 1, 'ERC721Enumerable: consecutive transfers not supported');
+        super._increaseBalance(to, batchSize);
+    }
 }

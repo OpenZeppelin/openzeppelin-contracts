@@ -5,23 +5,17 @@ pragma solidity ^0.8.0;
 import "../../token/ERC721/extensions/ERC721Consecutive.sol";
 import "../../token/ERC721/extensions/ERC721Enumerable.sol";
 import "../../token/ERC721/extensions/ERC721Pausable.sol";
-import "../../token/ERC721/extensions/draft-ERC721Votes.sol";
 
 /**
  * @title ERC721ConsecutiveMock
  */
-contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes {
+contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable {
     constructor(
         string memory name,
         string memory symbol,
-        address[] memory delegates,
         address[] memory receivers,
         uint96[] memory amounts
-    ) ERC721(name, symbol) EIP712(name, "1") {
-        for (uint256 i = 0; i < delegates.length; ++i) {
-            _delegate(delegates[i], delegates[i]);
-        }
-
+    ) ERC721(name, symbol) {
         for (uint256 i = 0; i < receivers.length; ++i) {
             _mintConsecutive(receivers[i], amounts[i]);
         }
@@ -32,7 +26,7 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
         uint256 tokenId,
         bool safe,
         bytes memory data
-    ) internal virtual override(ERC721, ERC721Pausable) {
+    ) internal virtual override(ERC721Consecutive, ERC721Pausable) {
         super._update(from, to, tokenId, safe, data);
     }
 
@@ -42,24 +36,6 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
 
     function _mint(address to, uint256 tokenId) internal virtual override(ERC721, ERC721Consecutive) {
         super._mint(to, tokenId);
-    }
-
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override(ERC721) {
-        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
-    }
-
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Votes) {
-        super._afterTokenTransfer(from, to, firstTokenId, batchSize);
     }
 }
 

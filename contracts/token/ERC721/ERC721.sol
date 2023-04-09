@@ -406,7 +406,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _increaseBalance(
         address to,
         uint256 batchSize
-    ) internal {
+    ) internal virtual {
         if (batchSize > 0) {
             _balances[to] += batchSize;
         }

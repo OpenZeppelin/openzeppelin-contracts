@@ -109,4 +109,26 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
         (bool exists, uint96 latestId, ) = _sequentialOwnership.latestCheckpoint();
         return exists ? latestId + 1 : 0;
     }
+
+    /**
+     * @dev See {ERC721-_update}. Burning of tokens that have been sequentially minted must be explicit.
+     */
+    function _update(
+        address from,
+        address to,
+        uint256 tokenId,
+        bool safe,
+        bytes memory data
+    ) internal virtual override {
+        super._update(from, to, tokenId, safe, data);
+
+        if (
+            to == address(0) && // if we burn
+            tokenId < _totalConsecutiveSupply() && // and the tokenId was minted in a batch
+            !_sequentialBurn.get(tokenId) // and the token was never marked as burnt
+        ) {
+            _sequentialBurn.set(tokenId);
+        }
+    }
+     
 }

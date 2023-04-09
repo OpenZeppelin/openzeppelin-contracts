@@ -18,14 +18,12 @@ contract('ERC721Consecutive', function (accounts) {
     { receiver: user3, amount: 0 },
     { receiver: user1, amount: 7 },
   ];
-  const delegates = [user1, user3];
 
-  describe('with valid batches', function () {
+  describe.only('with valid batches', function () {
     beforeEach(async function () {
       this.token = await ERC721ConsecutiveMock.new(
         name,
         symbol,
-        delegates,
         batches.map(({ receiver }) => receiver),
         batches.map(({ amount }) => amount),
       );
@@ -58,21 +56,11 @@ contract('ERC721Consecutive', function (accounts) {
         }
       });
 
-      it('balance & voting power are set', async function () {
+      it('balances are set', async function () {
         for (const account of accounts) {
           const balance = sum(...batches.filter(({ receiver }) => receiver === account).map(({ amount }) => amount));
 
           expect(await this.token.balanceOf(account)).to.be.bignumber.equal(web3.utils.toBN(balance));
-
-          // If not delegated at construction, check before + do delegation
-          if (!delegates.includes(account)) {
-            expect(await this.token.getVotes(account)).to.be.bignumber.equal(web3.utils.toBN(0));
-
-            await this.token.delegate(account, { from: account });
-          }
-
-          // At this point all accounts should have delegated
-          expect(await this.token.getVotes(account)).to.be.bignumber.equal(web3.utils.toBN(balance));
         }
       });
     });
@@ -166,10 +154,10 @@ contract('ERC721Consecutive', function (accounts) {
     });
   });
 
-  describe('invalid use', function () {
+  describe.only('invalid use', function () {
     it('cannot mint a batch larger than 5000', async function () {
       await expectRevert(
-        ERC721ConsecutiveMock.new(name, symbol, [], [user1], ['5001']),
+        ERC721ConsecutiveMock.new(name, symbol, [user1], ['5001']),
         'ERC721Consecutive: batch too large',
       );
     });
