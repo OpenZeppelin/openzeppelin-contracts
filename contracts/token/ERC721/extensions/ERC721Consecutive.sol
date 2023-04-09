@@ -130,5 +130,4 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             _sequentialBurn.set(tokenId);
         }
     }
-     
 }

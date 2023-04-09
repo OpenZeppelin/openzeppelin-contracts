@@ -20,6 +20,7 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable {
             _mintConsecutive(receivers[i], amounts[i]);
         }
     }
+
     function _update(
         address from,
         address to,

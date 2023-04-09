@@ -33,7 +33,7 @@ contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable 
         uint256 tokenId,
         bool safe,
         bytes memory data
-    ) override(ERC721Consecutive, ERC721Enumerable) internal virtual {
+    ) internal virtual override(ERC721Consecutive, ERC721Enumerable) {
         super._update(from, to, tokenId, safe, data);
     }
 
@@ -41,10 +41,7 @@ contract ERC721ConsecutiveEnumerableMock is ERC721Consecutive, ERC721Enumerable 
         super._mint(to, tokenId);
     }
 
-    function _increaseBalance(
-        address to,
-        uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Enumerable) {
+    function _increaseBalance(address to, uint256 batchSize) internal virtual override(ERC721, ERC721Enumerable) {
         super._increaseBalance(to, batchSize);
     }
 }

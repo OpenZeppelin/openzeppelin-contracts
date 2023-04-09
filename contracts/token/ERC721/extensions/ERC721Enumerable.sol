@@ -53,7 +53,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         require(index < ERC721Enumerable.totalSupply(), "ERC721Enumerable: global index out of bounds");
         return _allTokens[index];
     }
-    
+
     /**
      * @dev See {ERC721-_update}.
      */
@@ -63,8 +63,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         uint256 tokenId,
         bool safe,
         bytes memory data
-    ) override internal virtual {
-        
+    ) internal virtual override {
         if (from == address(0)) {
             _addTokenToAllTokensEnumeration(tokenId);
         } else if (from != to) {
@@ -75,7 +74,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         } else if (to != from) {
             _addTokenToOwnerEnumeration(to, tokenId);
         }
-        
+
         super._update(from, to, tokenId, safe, data);
     }
 
@@ -152,11 +151,8 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         _allTokens.pop();
     }
 
-    function _increaseBalance(
-        address to,
-        uint256 batchSize
-    ) internal virtual override {
-        require(batchSize <= 1, 'ERC721Enumerable: consecutive transfers not supported');
+    function _increaseBalance(address to, uint256 batchSize) internal virtual override {
+        require(batchSize <= 1, "ERC721Enumerable: consecutive transfers not supported");
         super._increaseBalance(to, batchSize);
     }
 }

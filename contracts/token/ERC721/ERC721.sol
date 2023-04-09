@@ -25,7 +25,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     string private _symbol;
 
     // Mapping from token ID to owner address
-    mapping(uint256 => address) public _owners;
+    mapping(uint256 => address) private _owners;
 
     // Mapping owner address to token count
     mapping(address => uint256) private _balances;
@@ -149,7 +149,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         //solhint-disable-next-line max-line-length
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: caller is not token owner or approved");
 
-        _transfer(from, to, tokenId, false, '');
+        _transfer(from, to, tokenId, false, "");
     }
 
     /**
@@ -273,7 +273,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function _burn(uint256 tokenId) internal virtual {
         address owner = ERC721.ownerOf(tokenId);
-        _update(owner, address(0), tokenId, false, '');
+        _update(owner, address(0), tokenId, false, "");
     }
 
     /**
@@ -354,25 +354,19 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
             return true;
         }
     }
-    
+
     /*
-    * @dev Transfers `tokenId` from `from` to `to`. Will mint (or burn) if `from` (or `to`) is the zero address.
-    *
-    * Emits a {Transfer} event.
-    *
-    * Requirements:
-    *
-    * - If the `safe` flag is set and `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}
-    *   and return the acceptance magic value.
-    */
-    function _update(
-        address from,
-        address to,
-        uint256 tokenId,
-        bool safe,
-        bytes memory data
-    ) internal virtual {
-        if(from == address(0)) {
+     * @dev Transfers `tokenId` from `from` to `to`. Will mint (or burn) if `from` (or `to`) is the zero address.
+     *
+     * Emits a {Transfer} event.
+     *
+     * Requirements:
+     *
+     * - If the `safe` flag is set and `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}
+     *   and return the acceptance magic value.
+     */
+    function _update(address from, address to, uint256 tokenId, bool safe, bytes memory data) internal virtual {
+        if (from == address(0)) {
             require(!_exists(tokenId), "ERC721: token already minted");
         } else {
             require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
@@ -380,33 +374,33 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         }
 
         if (to == address(0)) {
-            delete(_owners[tokenId]);
+            delete (_owners[tokenId]);
         } else {
             _owners[tokenId] = to;
-            _balances[to]   += 1;
+            _balances[to] += 1;
         }
 
         delete _tokenApprovals[tokenId];
 
         emit Transfer(from, to, tokenId);
         if (safe) {
-            require(_checkOnERC721Received(from, to, tokenId, data), "ERC721: transfer to non ERC721Receiver implementer");
+            require(
+                _checkOnERC721Received(from, to, tokenId, data),
+                "ERC721: transfer to non ERC721Receiver implementer"
+            );
         }
     }
-    
+
     /**
      * @dev Hook that is called to increase balance. This includes minting in batch.
      *
      * Calling conditions:
      *
      * - `to` is not zero
-     * 
+     *
      * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
      */
-    function _increaseBalance(
-        address to,
-        uint256 batchSize
-    ) internal virtual {
+    function _increaseBalance(address to, uint256 batchSize) internal virtual {
         if (batchSize > 0) {
             _balances[to] += batchSize;
         }
