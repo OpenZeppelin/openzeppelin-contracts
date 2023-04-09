@@ -19,7 +19,7 @@ contract('ERC721Consecutive', function (accounts) {
     { receiver: user1, amount: 7 },
   ];
 
-  describe.only('with valid batches', function () {
+  describe('with valid batches', function () {
     beforeEach(async function () {
       this.token = await ERC721ConsecutiveMock.new(
         name,
@@ -154,7 +154,7 @@ contract('ERC721Consecutive', function (accounts) {
     });
   });
 
-  describe.only('invalid use', function () {
+  describe('invalid use', function () {
     it('cannot mint a batch larger than 5000', async function () {
       await expectRevert(
         ERC721ConsecutiveMock.new(name, symbol, [user1], ['5001']),
