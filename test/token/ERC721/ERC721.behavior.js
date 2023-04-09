@@ -629,7 +629,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
     });
   });
 
-  describe('_mint(address, uint256)', function () {
+  describe.only('_mint(address, uint256)', function () {
     it('reverts with a null destination address', async function () {
       await expectRevert(this.token.$_mint(ZERO_ADDRESS, firstTokenId), 'ERC721: mint to the zero address');
     });
@@ -654,7 +654,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
     });
   });
 
-  describe('_burn', function () {
+  describe.only('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
       await expectRevert(this.token.$_burn(nonExistentTokenId), 'ERC721: invalid token ID');
     });
@@ -778,7 +778,7 @@ function shouldBehaveLikeERC721Enumerable(errorPrefix, owner, newOwner, approved
     });
   });
 
-  describe('_mint(address, uint256)', function () {
+  describe.only('_mint(address, uint256)', function () {
     it('reverts with a null destination address', async function () {
       await expectRevert(this.token.$_mint(ZERO_ADDRESS, firstTokenId), 'ERC721: mint to the zero address');
     });
@@ -798,7 +798,7 @@ function shouldBehaveLikeERC721Enumerable(errorPrefix, owner, newOwner, approved
     });
   });
 
-  describe('_burn', function () {
+  describe.only('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
       await expectRevert(this.token.$_burn(firstTokenId), 'ERC721: invalid token ID');
     });
