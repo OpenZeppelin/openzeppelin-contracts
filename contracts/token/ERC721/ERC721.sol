@@ -393,6 +393,24 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
             require(_checkOnERC721Received(from, to, tokenId, data), "ERC721: transfer to non ERC721Receiver implementer");
         }
     }
+    
+    /**
+     * @dev Hook that is called to increase balance. This includes minting in batch.
+     *
+     * Calling conditions:
+     *
+     * - `to` is not zero
+     * 
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _increaseBalance(
+        address to,
+        uint256 batchSize
+    ) internal {
+        if (batchSize > 0) {
+            _balances[to] += batchSize;
+        }
+    }
 
     /**
      * @dev Hook that is called before any token transfer. This includes minting and burning. If {ERC721Consecutive} is

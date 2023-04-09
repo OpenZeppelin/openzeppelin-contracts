@@ -90,16 +90,13 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             require(to != address(0), "ERC721Consecutive: mint to the zero address");
             require(batchSize <= _maxBatchSize(), "ERC721Consecutive: batch too large");
 
-            // hook before
-            _beforeTokenTransfer(address(0), to, first, batchSize);
+            // hook increase
+            _increaseBalance(to, batchSize);
 
             // push an ownership checkpoint & emit event
             uint96 last = first + batchSize - 1;
             _sequentialOwnership.push(last, uint160(to));
             emit ConsecutiveTransfer(first, last, address(0), to);
-
-            // hook after
-            _afterTokenTransfer(address(0), to, first, batchSize);
         }
 
         return first;
@@ -114,26 +111,6 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     function _mint(address to, uint256 tokenId) internal virtual override {
         require(address(this).code.length > 0, "ERC721Consecutive: can't mint during construction");
         super._mint(to, tokenId);
-    }
-
-    /**
-     * @dev See {ERC721-_afterTokenTransfer}. Burning of tokens that have been sequentially minted must be explicit.
-     */
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override {
-        if (
-            to == address(0) && // if we burn
-            firstTokenId < _totalConsecutiveSupply() && // and the tokenId was minted in a batch
-            !_sequentialBurn.get(firstTokenId) // and the token was never marked as burnt
-        ) {
-            require(batchSize == 1, "ERC721Consecutive: batch burn not supported");
-            _sequentialBurn.set(firstTokenId);
-        }
-        super._afterTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
     function _totalConsecutiveSupply() private view returns (uint96) {

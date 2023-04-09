@@ -49,7 +49,7 @@ contract ERC721ConsecutiveMock is ERC721Consecutive, ERC721Pausable, ERC721Votes
         address to,
         uint256 firstTokenId,
         uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Votes, ERC721Consecutive) {
+    ) internal virtual override(ERC721, ERC721Votes) {
         super._afterTokenTransfer(from, to, firstTokenId, batchSize);
     }
 }
