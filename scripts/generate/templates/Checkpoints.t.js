@@ -58,7 +58,8 @@ const testTrace = opts => `\
 // tests
 function testPush(
     ${opts.keyTypeName}[] memory keys,
-    ${opts.valueTypeName}[] memory values
+    ${opts.valueTypeName}[] memory values,
+    ${opts.keyTypeName} pastKey
 ) public {
     vm.assume(values.length > 0 && values.length <= keys.length);
     _prepareKeys(keys, _KEY_MAX_GAP);
@@ -85,7 +86,7 @@ function testPush(
 
     if (keys.length > 0) {
         ${opts.keyTypeName} lastKey = keys[keys.length - 1];
-        ${opts.keyTypeName} pastKey = _bound${capitalize(opts.keyTypeName)}(keys[0], 0, lastKey - 1);
+        pastKey = _bound${capitalize(opts.keyTypeName)}(pastKey, 0, lastKey - 1);
 
         vm.expectRevert();
         _ckpts.push(pastKey, values[keys.length % values.length]);
@@ -137,7 +138,8 @@ const testHistory = opts => `\
 // tests
 function testPush(
     ${opts.keyTypeName}[] memory keys,
-    ${opts.valueTypeName}[] memory values
+    ${opts.valueTypeName}[] memory values,
+    ${opts.keyTypeName} pastKey
 ) public {
     vm.assume(values.length > 0 && values.length <= keys.length);
     _prepareKeys(keys, _KEY_MAX_GAP);
@@ -166,7 +168,7 @@ function testPush(
     // Can't push any key in the past
     if (keys.length > 0) {
         ${opts.keyTypeName} lastKey = keys[keys.length - 1];
-        ${opts.keyTypeName} pastKey = _bound${capitalize(opts.keyTypeName)}(keys[0], 0, lastKey - 1);
+        pastKey = _bound${capitalize(opts.keyTypeName)}(pastKey, 0, lastKey - 1);
 
         vm.roll(pastKey);
         vm.expectRevert();

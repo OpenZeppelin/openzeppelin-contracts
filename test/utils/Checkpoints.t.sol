@@ -38,7 +38,7 @@ contract CheckpointsHistoryTest is Test {
     }
 
     // tests
-    function testPush(uint32[] memory keys, uint224[] memory values) public {
+    function testPush(uint32[] memory keys, uint224[] memory values, uint32 pastKey) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
 
@@ -66,7 +66,7 @@ contract CheckpointsHistoryTest is Test {
         // Can't push any key in the past
         if (keys.length > 0) {
             uint32 lastKey = keys[keys.length - 1];
-            uint32 pastKey = _boundUint32(keys[0], 0, lastKey - 1);
+            pastKey = _boundUint32(pastKey, 0, lastKey - 1);
 
             vm.roll(pastKey);
             vm.expectRevert();
@@ -144,7 +144,7 @@ contract CheckpointsTrace224Test is Test {
     }
 
     // tests
-    function testPush(uint32[] memory keys, uint224[] memory values) public {
+    function testPush(uint32[] memory keys, uint224[] memory values, uint32 pastKey) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
 
@@ -170,7 +170,7 @@ contract CheckpointsTrace224Test is Test {
 
         if (keys.length > 0) {
             uint32 lastKey = keys[keys.length - 1];
-            uint32 pastKey = _boundUint32(keys[0], 0, lastKey - 1);
+            pastKey = _boundUint32(pastKey, 0, lastKey - 1);
 
             vm.expectRevert();
             _ckpts.push(pastKey, values[keys.length % values.length]);
@@ -245,7 +245,7 @@ contract CheckpointsTrace160Test is Test {
     }
 
     // tests
-    function testPush(uint96[] memory keys, uint160[] memory values) public {
+    function testPush(uint96[] memory keys, uint160[] memory values, uint96 pastKey) public {
         vm.assume(values.length > 0 && values.length <= keys.length);
         _prepareKeys(keys, _KEY_MAX_GAP);
 
@@ -271,7 +271,7 @@ contract CheckpointsTrace160Test is Test {
 
         if (keys.length > 0) {
             uint96 lastKey = keys[keys.length - 1];
-            uint96 pastKey = _boundUint96(keys[0], 0, lastKey - 1);
+            pastKey = _boundUint96(pastKey, 0, lastKey - 1);
 
             vm.expectRevert();
             _ckpts.push(pastKey, values[keys.length % values.length]);
