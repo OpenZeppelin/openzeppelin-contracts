@@ -16,7 +16,8 @@ contract ShortStringsTest is Test {
         assertEq(input, output);
     }
 
-    function testRoundtripWithFallback(string memory input) external {
+    function testRoundtripWithFallback(string memory input, string memory fallbackInitial) external {
+        _fallback = fallbackInitial;
         ShortString short = ShortStrings.toShortStringWithFallback(input, _fallback);
         string memory output = ShortStrings.toStringWithFallback(short, _fallback);
         assertEq(input, output);
@@ -36,7 +37,8 @@ contract ShortStringsTest is Test {
         assertEq(inputLength, shortLength);
     }
 
-    function testLengthWithFallback(string memory input) external {
+    function testLengthWithFallback(string memory input, string memory fallbackInitial) external {
+        _fallback = fallbackInitial;
         uint256 inputLength = bytes(input).length;
         ShortString short = ShortStrings.toShortStringWithFallback(input, _fallback);
         uint256 shortLength = ShortStrings.byteLengthWithFallback(short, _fallback);
