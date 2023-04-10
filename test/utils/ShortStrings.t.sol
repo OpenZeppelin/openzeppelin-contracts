@@ -9,26 +9,26 @@ import "../../contracts/utils/ShortStrings.sol";
 contract ShortStringsTest is Test {
     string _fallback;
 
-    function test_roundtrip_short(string memory input) external {
+    function testRoundtripShort(string memory input) external {
         vm.assume(_isShort(input));
         ShortString short = ShortStrings.toShortString(input);
         string memory output = ShortStrings.toString(short);
         assertEq(input, output);
     }
 
-    function test_roundtrip_with_fallback(string memory input) external {
+    function testRoundtripWithFallback(string memory input) external {
         ShortString short = ShortStrings.toShortStringWithFallback(input, _fallback);
         string memory output = ShortStrings.toStringWithFallback(short, _fallback);
         assertEq(input, output);
     }
 
-    function test_revert_long(string memory input) external {
+    function testRevertLong(string memory input) external {
         vm.assume(!_isShort(input));
         vm.expectRevert(abi.encodeWithSelector(ShortStrings.StringTooLong.selector, input));
         this.toShortString(input);
     }
 
-    function test_length_short(string memory input) external {
+    function testLengthShort(string memory input) external {
         vm.assume(_isShort(input));
         uint256 inputLength = bytes(input).length;
         ShortString short = ShortStrings.toShortString(input);
@@ -36,7 +36,7 @@ contract ShortStringsTest is Test {
         assertEq(inputLength, shortLength);
     }
 
-    function test_length_with_fallback(string memory input) external {
+    function testLengthWithFallback(string memory input) external {
         uint256 inputLength = bytes(input).length;
         ShortString short = ShortStrings.toShortStringWithFallback(input, _fallback);
         uint256 shortLength = ShortStrings.byteLengthWithFallback(short, _fallback);
