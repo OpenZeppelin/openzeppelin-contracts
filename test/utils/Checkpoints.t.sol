@@ -70,8 +70,13 @@ contract CheckpointsHistoryTest is Test {
 
             vm.roll(pastKey);
             vm.expectRevert();
-            _ckpts.push(values[keys.length % values.length]);
+            this.push(values[keys.length % values.length]);
         }
+    }
+
+    // used to test reverts
+    function push(uint224 value) external {
+        _ckpts.push(value);
     }
 
     function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup) public {
@@ -103,13 +108,23 @@ contract CheckpointsHistoryTest is Test {
         assertEq(_ckpts.getAtProbablyRecentBlock(lookup), upper);
 
         vm.expectRevert();
-        _ckpts.getAtBlock(lastKey);
+        this.getAtBlock(lastKey);
         vm.expectRevert();
-        _ckpts.getAtBlock(lastKey + 1);
+        this.getAtBlock(lastKey + 1);
         vm.expectRevert();
-        _ckpts.getAtProbablyRecentBlock(lastKey);
+        this.getAtProbablyRecentBlock(lastKey);
         vm.expectRevert();
-        _ckpts.getAtProbablyRecentBlock(lastKey + 1);
+        this.getAtProbablyRecentBlock(lastKey + 1);
+    }
+
+    // used to test reverts
+    function getAtBlock(uint32 key) external view {
+        _ckpts.getAtBlock(key);
+    }
+
+    // used to test reverts
+    function getAtProbablyRecentBlock(uint32 key) external view {
+        _ckpts.getAtProbablyRecentBlock(key);
     }
 }
 
@@ -173,8 +188,13 @@ contract CheckpointsTrace224Test is Test {
             pastKey = _boundUint32(pastKey, 0, lastKey - 1);
 
             vm.expectRevert();
-            _ckpts.push(pastKey, values[keys.length % values.length]);
+            this.push(pastKey, values[keys.length % values.length]);
         }
+    }
+
+    // used to test reverts
+    function push(uint32 key, uint224 value) external {
+        _ckpts.push(key, value);
     }
 
     function testLookup(uint32[] memory keys, uint224[] memory values, uint32 lookup) public {
@@ -274,8 +294,13 @@ contract CheckpointsTrace160Test is Test {
             pastKey = _boundUint96(pastKey, 0, lastKey - 1);
 
             vm.expectRevert();
-            _ckpts.push(pastKey, values[keys.length % values.length]);
+            this.push(pastKey, values[keys.length % values.length]);
         }
+    }
+
+    // used to test reverts
+    function push(uint96 key, uint160 value) external {
+        _ckpts.push(key, value);
     }
 
     function testLookup(uint96[] memory keys, uint160[] memory values, uint96 lookup) public {

@@ -89,8 +89,13 @@ function testPush(
         pastKey = _bound${capitalize(opts.keyTypeName)}(pastKey, 0, lastKey - 1);
 
         vm.expectRevert();
-        _ckpts.push(pastKey, values[keys.length % values.length]);
+        this.push(pastKey, values[keys.length % values.length]);
     }
+}
+
+// used to test reverts
+function push(${opts.keyTypeName} key, ${opts.valueTypeName} value) external {
+  _ckpts.push(key, value);
 }
 
 function testLookup(
@@ -172,8 +177,13 @@ function testPush(
 
         vm.roll(pastKey);
         vm.expectRevert();
-        _ckpts.push(values[keys.length % values.length]);
+        this.push(values[keys.length % values.length]);
     }
+}
+
+// used to test reverts
+function push(${opts.valueTypeName} value) external {
+  _ckpts.push(value);
 }
 
 function testLookup(
@@ -208,10 +218,20 @@ function testLookup(
     assertEq(_ckpts.getAtBlock(lookup), upper);
     assertEq(_ckpts.getAtProbablyRecentBlock(lookup), upper);
 
-    vm.expectRevert(); _ckpts.getAtBlock(lastKey);
-    vm.expectRevert(); _ckpts.getAtBlock(lastKey + 1);
-    vm.expectRevert(); _ckpts.getAtProbablyRecentBlock(lastKey);
-    vm.expectRevert(); _ckpts.getAtProbablyRecentBlock(lastKey + 1);
+    vm.expectRevert(); this.getAtBlock(lastKey);
+    vm.expectRevert(); this.getAtBlock(lastKey + 1);
+    vm.expectRevert(); this.getAtProbablyRecentBlock(lastKey);
+    vm.expectRevert(); this.getAtProbablyRecentBlock(lastKey + 1);
+}
+
+// used to test reverts
+function getAtBlock(${opts.keyTypeName} key) external view {
+  _ckpts.getAtBlock(key);
+}
+
+// used to test reverts
+function getAtProbablyRecentBlock(${opts.keyTypeName} key) external view {
+  _ckpts.getAtProbablyRecentBlock(key);
 }
 `;
 /* eslint-enable max-len */
