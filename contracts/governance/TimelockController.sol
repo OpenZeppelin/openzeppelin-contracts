@@ -6,7 +6,6 @@ pragma solidity ^0.8.0;
 import "../access/AccessControl.sol";
 import "../token/ERC721/IERC721Receiver.sol";
 import "../token/ERC1155/IERC1155Receiver.sol";
-import "../utils/Address.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
