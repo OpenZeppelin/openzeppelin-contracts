@@ -293,7 +293,7 @@ contract('AccessManager', function (accounts) {
 
     it('cannot allow nonexistent group', async function () {
       await expectRevert(
-        this.manager.setFunctionAllowedGroup(this.manageable.address, [selector], otherGroup, true, { from: admin }),
+        this.manager.setFunctionAllowedGroup(this.managed.address, [selector], otherGroup, true, { from: admin }),
         'AccessManager: unknown group',
       );
     });
