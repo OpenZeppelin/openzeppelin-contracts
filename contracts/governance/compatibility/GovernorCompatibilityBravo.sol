@@ -109,7 +109,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     /**
      * @dev Cancel a proposal with GovernorBravo logic.
      */
-    function cancel(uint256 proposalId) public virtual {
+    function cancel(uint256 proposalId) public virtual override {
         (
             address[] memory targets,
             uint256[] memory values,
