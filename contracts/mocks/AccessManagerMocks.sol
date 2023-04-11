@@ -3,7 +3,7 @@
 pragma solidity ^0.8.13;
 
 import "../access/manager/IAuthority.sol";
-import "../access/manager/AccessManaged.sol";
+import "../access/manager/AccessManageable.sol";
 
 contract SimpleAuthority is IAuthority {
     address _allowedCaller;
@@ -21,7 +21,7 @@ contract SimpleAuthority is IAuthority {
     }
 }
 
-abstract contract AccessManagedMock is AccessManaged {
+abstract contract AccessManageableMock is AccessManageable {
     event RestrictedRan();
 
     function restrictedFunction() external restricted {

@@ -2,10 +2,9 @@
 
 pragma solidity ^0.8.13;
 
-import "../AccessControl.sol";
 import "../AccessControlDefaultAdminRules.sol";
 import "./IAuthority.sol";
-import "./AccessManaged.sol";
+import "./AccessManageable.sol";
 
 interface IAccessManager is IAuthority, IAccessControlDefaultAdminRules {
     enum AccessMode {
@@ -18,7 +17,7 @@ interface IAccessManager is IAuthority, IAccessControlDefaultAdminRules {
 
     event GroupAllowed(address indexed target, bytes4 indexed selector, uint8 indexed group, bool allowed);
 
-    event AccessModeUpdated(address indexed target, AccessMode indexed mode);
+    event AccessModeUpdated(address indexed target, AccessMode indexed previousMode, AccessMode indexed mode);
 
     function createGroup(uint8 group, string calldata name) external;
 
@@ -62,7 +61,7 @@ interface IAccessManager is IAuthority, IAccessControlDefaultAdminRules {
  * through the use of {setFunctionAllowedGroup}.
  *
  * Note that a function in a target contract may become permissioned in this way only when: 1) said contract is
- * {AccessManaged} and is connected to this contract as its manager, and 2) said function is decorated with the
+ * {AccessManageable} and is connected to this contract as its manager, and 2) said function is decorated with the
  * `restricted` modifier.
  *
  * There is a special group defined by default named "public" which all accounts automatically have.
@@ -80,7 +79,7 @@ interface IAccessManager is IAuthority, IAccessControlDefaultAdminRules {
  * numbered 0 and 2 from its binary equivalence `0b101`
  */
 contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
-    bytes32 _createdGroups;
+    bytes32 private _createdGroups;
 
     // user -> groups
     mapping(address => bytes32) private _userGroups;
@@ -105,7 +104,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
 
     /**
      * @dev Returns true if the caller can invoke on a target the function identified by a function selector.
-     * Entrypoint for {AccessManaged} contracts.
+     * Entrypoint for {AccessManageable} contracts.
      */
     function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool) {
         bytes32 allowedGroups = getFunctionAllowedGroups(target, selector);
@@ -201,6 +200,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         uint8 group,
         bool allowed
     ) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(hasGroup(group), "AccessManager: unknown group");
         for (uint256 i = 0; i < selectors.length; i++) {
             bytes4 selector = selectors[i];
             _allowedGroups[target][selector] = _withUpdatedGroup(_allowedGroups[target][selector], group, allowed);
@@ -246,7 +246,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         address target,
         address newAuthority
     ) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        AccessManaged(target).setAuthority(IAuthority(newAuthority));
+        AccessManageable(target).setAuthority(IAuthority(newAuthority));
     }
 
     /**
@@ -289,8 +289,9 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Sets the restricted mode of a target contract.
      */
     function _setContractMode(address target, AccessMode mode) internal virtual {
+        AccessMode previousMode = _contractMode[target];
         _contractMode[target] = mode;
-        emit AccessModeUpdated(target, mode);
+        emit AccessModeUpdated(target, previousMode, mode);
     }
 
     /**
