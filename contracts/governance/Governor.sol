@@ -90,7 +90,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * @dev Function to receive ETH that will be handled by the governor (disabled if executor is a third party contract)
      */
     receive() external payable virtual {
-        require(_executor() == address(this));
+        require(_executor() == address(this), "Governor: must send to executor");
     }
 
     /**
