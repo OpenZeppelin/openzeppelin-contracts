@@ -211,7 +211,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev Schedule an operation containing a single transaction.
      *
-     * Emits events {CallScheduled} and {CallSalt}.
+     * Emits {CallSalt} if salt is nonzero, and {CallScheduled}.
      *
      * Requirements:
      *
@@ -236,7 +236,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev Schedule an operation containing a batch of transactions.
      *
-     * Emits a {CallSalt} event and one {CallScheduled} event per transaction in the batch.
+     * Emits {CallSalt} if salt is nonzero, and one {CallScheduled} event per transaction in the batch.
      *
      * Requirements:
      *
