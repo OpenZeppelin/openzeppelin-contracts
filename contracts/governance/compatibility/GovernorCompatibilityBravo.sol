@@ -238,9 +238,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         againstVotes = details.againstVotes;
         abstainVotes = details.abstainVotes;
 
-        ProposalState status = state(proposalId);
-        canceled = status == ProposalState.Canceled;
-        executed = status == ProposalState.Executed;
+        ProposalState currentState = state(proposalId);
+        canceled = currentState == ProposalState.Canceled;
+        executed = currentState == ProposalState.Executed;
     }
 
     /**

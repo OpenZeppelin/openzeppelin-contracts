@@ -322,9 +322,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     ) public payable virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        ProposalState status = state(proposalId);
+        ProposalState currentState = state(proposalId);
         require(
-            status == ProposalState.Succeeded || status == ProposalState.Queued,
+            currentState == ProposalState.Succeeded || currentState == ProposalState.Queued,
             "Governor: proposal not successful"
         );
         _proposals[proposalId].executed = true;
@@ -420,10 +420,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     ) internal virtual returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        ProposalState status = state(proposalId);
+        ProposalState currentState = state(proposalId);
 
         require(
-            status != ProposalState.Canceled && status != ProposalState.Expired && status != ProposalState.Executed,
+            currentState != ProposalState.Canceled && currentState != ProposalState.Expired && currentState != ProposalState.Executed,
             "Governor: proposal not active"
         );
         _proposals[proposalId].canceled = true;

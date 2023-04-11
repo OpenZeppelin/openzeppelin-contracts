@@ -49,15 +49,15 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
      * @dev Overridden version of the {Governor-state} function with added support for the `Queued` and `Expired` status.
      */
     function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
-        ProposalState status = super.state(proposalId);
+        ProposalState currentState = super.state(proposalId);
 
-        if (status != ProposalState.Succeeded) {
-            return status;
+        if (currentState != ProposalState.Succeeded) {
+            return currentState;
         }
 
         uint256 eta = proposalEta(proposalId);
         if (eta == 0) {
-            return status;
+            return currentState;
         } else if (block.timestamp >= eta + _timelock.GRACE_PERIOD()) {
             return ProposalState.Expired;
         } else {
