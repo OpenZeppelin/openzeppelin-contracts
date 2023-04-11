@@ -27,7 +27,6 @@ import "./IGovernor.sol";
  */
 abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
-    using SafeCast for uint256;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
     bytes32 public constant EXTENDED_BALLOT_TYPEHASH =
@@ -289,8 +288,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
 
         _proposals[proposalId] = ProposalCore({
             proposer: proposer,
-            voteStart: snapshot.toUint64(),
-            voteEnd: deadline.toUint64(),
+            voteStart: SafeCast.toUint64(snapshot),
+            voteEnd: SafeCast.toUint64(deadline),
             executed: false,
             canceled: false,
             __gap_unused0: 0,

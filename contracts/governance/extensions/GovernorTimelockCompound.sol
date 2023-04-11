@@ -21,8 +21,6 @@ import "../../vendor/compound/ICompoundTimelock.sol";
  * _Available since v4.3._
  */
 abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
-    using SafeCast for uint256;
-
     ICompoundTimelock private _timelock;
 
     /// @custom:oz-retyped-from mapping(uint256 => GovernorTimelockCompound.ProposalTimelock)
@@ -95,7 +93,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful");
 
         uint256 eta = block.timestamp + _timelock.delay();
-        _proposalTimelocks[proposalId] = eta.toUint64();
+        _proposalTimelocks[proposalId] = SafeCast.toUint64(eta);
 
         for (uint256 i = 0; i < targets.length; ++i) {
             require(

@@ -18,8 +18,6 @@ import "../../utils/math/Math.sol";
  * _Available since v4.5._
  */
 abstract contract GovernorPreventLateQuorum is Governor {
-    using SafeCast for uint256;
-
     uint64 private _voteExtension;
 
     /// @custom:oz-retyped-from mapping(uint256 => Timers.BlockNumber)
