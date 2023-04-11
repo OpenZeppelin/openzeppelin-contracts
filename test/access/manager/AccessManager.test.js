@@ -7,7 +7,7 @@ const { AccessMode } = require('../../helpers/enums');
 
 const AccessManager = artifacts.require('AccessManager');
 const AccessManagerAdapter = artifacts.require('AccessManagerAdapter');
-const AccessManageable = artifacts.require('$AccessManageableMock');
+const AccessManaged = artifacts.require('$AccessManagedMock');
 
 const Ownable = artifacts.require('$Ownable');
 const AccessControl = artifacts.require('$AccessControl');
@@ -205,49 +205,49 @@ contract('AccessManager', function (accounts) {
     const selector = web3.eth.abi.encodeFunctionSignature('restrictedFunction()');
     const otherSelector = web3.eth.abi.encodeFunctionSignature('otherRestrictedFunction()');
 
-    beforeEach('deploying manageable contract', async function () {
+    beforeEach('deploying managed contract', async function () {
       await this.manager.createGroup(group, '', { from: admin });
       await this.manager.grantGroup(group, groupMember, { from: admin });
-      this.manageable = await AccessManageable.new(this.manager.address);
+      this.managed = await AccessManaged.new(this.manager.address);
     });
 
     it('non-admin cannot change allowed groups', async function () {
       await expectRevert(
-        this.manager.setFunctionAllowedGroup(this.manageable.address, [selector], group, true, { from: nonAdmin }),
+        this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, true, { from: nonAdmin }),
         'missing role',
       );
     });
 
     it('single selector', async function () {
-      const receipt = await this.manager.setFunctionAllowedGroup(this.manageable.address, [selector], group, true, {
+      const receipt = await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, true, {
         from: admin,
       });
 
       expectEvent(receipt, 'GroupAllowed', {
-        target: this.manageable.address,
+        target: this.managed.address,
         selector: selector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4
         group,
         allowed: true,
       });
 
-      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, selector);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
 
-      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, otherSelector);
+      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, otherSelector);
       expect(groupUtils.decodeBitmap(otherAllowedGroups)).to.deep.equal([]);
 
-      const restricted = await this.manageable.restrictedFunction({ from: groupMember });
+      const restricted = await this.managed.restrictedFunction({ from: groupMember });
       expectEvent(restricted, 'RestrictedRan');
 
       await expectRevert(
-        this.manageable.otherRestrictedFunction({ from: groupMember }),
-        'AccessManageable: authority rejected',
+        this.managed.otherRestrictedFunction({ from: groupMember }),
+        'AccessManaged: authority rejected',
       );
     });
 
     it('multiple selectors', async function () {
       const receipt = await this.manager.setFunctionAllowedGroup(
-        this.manageable.address,
+        this.managed.address,
         [selector, otherSelector],
         group,
         true,
@@ -255,40 +255,40 @@ contract('AccessManager', function (accounts) {
       );
 
       expectEvent(receipt, 'GroupAllowed', {
-        target: this.manageable.address,
+        target: this.managed.address,
         selector: selector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4
         group,
         allowed: true,
       });
 
       expectEvent(receipt, 'GroupAllowed', {
-        target: this.manageable.address,
+        target: this.managed.address,
         selector: otherSelector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4
         group,
         allowed: true,
       });
 
-      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, selector);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
 
-      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, otherSelector);
+      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, otherSelector);
       expect(groupUtils.decodeBitmap(otherAllowedGroups)).to.deep.equal([group]);
 
-      const restricted = await this.manageable.restrictedFunction({ from: groupMember });
+      const restricted = await this.managed.restrictedFunction({ from: groupMember });
       expectEvent(restricted, 'RestrictedRan');
 
-      await this.manageable.otherRestrictedFunction({ from: groupMember });
+      await this.managed.otherRestrictedFunction({ from: groupMember });
       expectEvent(restricted, 'RestrictedRan');
     });
 
     it('works on open target', async function () {
-      await this.manager.setContractModeOpen(this.manageable.address, { from: admin });
-      await this.manager.setFunctionAllowedGroup(this.manageable.address, [selector], group, false, { from: admin });
+      await this.manager.setContractModeOpen(this.managed.address, { from: admin });
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, { from: admin });
     });
 
     it('works on closed target', async function () {
-      await this.manager.setContractModeClosed(this.manageable.address, { from: admin });
-      await this.manager.setFunctionAllowedGroup(this.manageable.address, [selector], group, false, { from: admin });
+      await this.manager.setContractModeClosed(this.managed.address, { from: admin });
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, { from: admin });
     });
 
     it('cannot allow nonexistent group', async function () {
@@ -305,52 +305,49 @@ contract('AccessManager', function (accounts) {
     const selector = web3.eth.abi.encodeFunctionSignature('restrictedFunction()');
     const otherSelector = web3.eth.abi.encodeFunctionSignature('otherRestrictedFunction()');
 
-    beforeEach('deploying manageable contract', async function () {
+    beforeEach('deploying managed contract', async function () {
       await this.manager.createGroup(group, '', { from: admin });
       await this.manager.grantGroup(group, groupMember, { from: admin });
-      this.manageable = await AccessManageable.new(this.manager.address);
-      await this.manager.setFunctionAllowedGroup(this.manageable.address, [selector, otherSelector], group, true, {
+      this.managed = await AccessManaged.new(this.manager.address);
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector, otherSelector], group, true, {
         from: admin,
       });
     });
 
     it('non-admin cannot change disallowed groups', async function () {
       await expectRevert(
-        this.manager.setFunctionAllowedGroup(this.manageable.address, [selector], group, false, { from: nonAdmin }),
+        this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, { from: nonAdmin }),
         'missing role',
       );
     });
 
     it('single selector', async function () {
-      const receipt = await this.manager.setFunctionAllowedGroup(this.manageable.address, [selector], group, false, {
+      const receipt = await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, {
         from: admin,
       });
 
       expectEvent(receipt, 'GroupAllowed', {
-        target: this.manageable.address,
+        target: this.managed.address,
         selector: selector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4,
         group,
         allowed: false,
       });
 
-      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, selector);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([]);
 
-      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, otherSelector);
+      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, otherSelector);
       expect(groupUtils.decodeBitmap(otherAllowedGroups)).to.deep.equal([group]);
 
-      await expectRevert(
-        this.manageable.restrictedFunction({ from: groupMember }),
-        'AccessManageable: authority rejected',
-      );
+      await expectRevert(this.managed.restrictedFunction({ from: groupMember }), 'AccessManaged: authority rejected');
 
-      const otherRestricted = await this.manageable.otherRestrictedFunction({ from: groupMember });
+      const otherRestricted = await this.managed.otherRestrictedFunction({ from: groupMember });
       expectEvent(otherRestricted, 'RestrictedRan');
     });
 
     it('multiple selectors', async function () {
       const receipt = await this.manager.setFunctionAllowedGroup(
-        this.manageable.address,
+        this.managed.address,
         [selector, otherSelector],
         group,
         false,
@@ -358,43 +355,40 @@ contract('AccessManager', function (accounts) {
       );
 
       expectEvent(receipt, 'GroupAllowed', {
-        target: this.manageable.address,
+        target: this.managed.address,
         selector: selector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4
         group,
         allowed: false,
       });
 
       expectEvent(receipt, 'GroupAllowed', {
-        target: this.manageable.address,
+        target: this.managed.address,
         selector: otherSelector.padEnd(66, '0'), // there seems to be a bug in decoding the indexed bytes4
         group,
         allowed: false,
       });
 
-      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, selector);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([]);
 
-      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, otherSelector);
+      const otherAllowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, otherSelector);
       expect(groupUtils.decodeBitmap(otherAllowedGroups)).to.deep.equal([]);
 
+      await expectRevert(this.managed.restrictedFunction({ from: groupMember }), 'AccessManaged: authority rejected');
       await expectRevert(
-        this.manageable.restrictedFunction({ from: groupMember }),
-        'AccessManageable: authority rejected',
-      );
-      await expectRevert(
-        this.manageable.otherRestrictedFunction({ from: groupMember }),
-        'AccessManageable: authority rejected',
+        this.managed.otherRestrictedFunction({ from: groupMember }),
+        'AccessManaged: authority rejected',
       );
     });
 
     it('works on open target', async function () {
-      await this.manager.setContractModeOpen(this.manageable.address, { from: admin });
-      await this.manager.setFunctionAllowedGroup(this.manageable.address, [selector], group, false, { from: admin });
+      await this.manager.setContractModeOpen(this.managed.address, { from: admin });
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, { from: admin });
     });
 
     it('works on closed target', async function () {
-      await this.manager.setContractModeClosed(this.manageable.address, { from: admin });
-      await this.manager.setFunctionAllowedGroup(this.manageable.address, [selector], group, false, { from: admin });
+      await this.manager.setContractModeClosed(this.managed.address, { from: admin });
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, { from: admin });
     });
   });
 
@@ -402,73 +396,69 @@ contract('AccessManager', function (accounts) {
     const group = '1';
     const selector = web3.eth.abi.encodeFunctionSignature('restrictedFunction()');
 
-    beforeEach('deploying manageable contract', async function () {
-      this.manageable = await AccessManageable.new(this.manager.address);
+    beforeEach('deploying managed contract', async function () {
+      this.managed = await AccessManaged.new(this.manager.address);
       await this.manager.createGroup('1', 'a group', { from: admin });
-      await this.manager.setFunctionAllowedGroup(this.manageable.address, [selector], group, true, { from: admin });
+      await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, true, { from: admin });
     });
 
     it('custom mode is default', async function () {
-      expect(await this.manager.getContractMode(this.manageable.address)).to.bignumber.equal(AccessMode.Custom);
-      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, selector);
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(AccessMode.Custom);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
     });
 
     it('open mode', async function () {
-      const previousMode = await this.manager.getContractMode(this.manageable.address);
-      const receipt = await this.manager.setContractModeOpen(this.manageable.address, { from: admin });
+      const receipt = await this.manager.setContractModeOpen(this.managed.address, { from: admin });
       expectEvent(receipt, 'AccessModeUpdated', {
-        target: this.manageable.address,
-        previousMode,
+        target: this.managed.address,
         mode: AccessMode.Open,
       });
-      expect(await this.manager.getContractMode(this.manageable.address)).to.bignumber.equal(AccessMode.Open);
-      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, selector);
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(AccessMode.Open);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([PUBLIC_GROUP]);
     });
 
     it('closed mode', async function () {
-      const previousMode = await this.manager.getContractMode(this.manageable.address);
-      const receipt = await this.manager.setContractModeClosed(this.manageable.address, { from: admin });
+      const receipt = await this.manager.setContractModeClosed(this.managed.address, { from: admin });
       expectEvent(receipt, 'AccessModeUpdated', {
-        target: this.manageable.address,
-        previousMode,
+        target: this.managed.address,
         mode: AccessMode.Closed,
       });
-      expect(await this.manager.getContractMode(this.manageable.address)).to.bignumber.equal(AccessMode.Closed);
-      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, selector);
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(AccessMode.Closed);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([]);
     });
 
     it('mode cycle', async function () {
-      await this.manager.setContractModeOpen(this.manageable.address, { from: admin });
-      await this.manager.setContractModeClosed(this.manageable.address, { from: admin });
-      await this.manager.setContractModeCustom(this.manageable.address, { from: admin });
-      expect(await this.manager.getContractMode(this.manageable.address)).to.bignumber.equal(AccessMode.Custom);
-      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.manageable.address, selector);
+      await this.manager.setContractModeOpen(this.managed.address, { from: admin });
+      await this.manager.setContractModeClosed(this.managed.address, { from: admin });
+      await this.manager.setContractModeCustom(this.managed.address, { from: admin });
+      expect(await this.manager.getContractMode(this.managed.address)).to.bignumber.equal(AccessMode.Custom);
+      const allowedGroups = await this.manager.getFunctionAllowedGroups(this.managed.address, selector);
       expect(groupUtils.decodeBitmap(allowedGroups)).to.deep.equal([group]);
     });
 
     it('non-admin cannot change mode', async function () {
-      await expectRevert(this.manager.setContractModeCustom(this.manageable.address), 'missing role');
-      await expectRevert(this.manager.setContractModeOpen(this.manageable.address), 'missing role');
-      await expectRevert(this.manager.setContractModeClosed(this.manageable.address), 'missing role');
+      await expectRevert(this.manager.setContractModeCustom(this.managed.address), 'missing role');
+      await expectRevert(this.manager.setContractModeOpen(this.managed.address), 'missing role');
+      await expectRevert(this.manager.setContractModeClosed(this.managed.address), 'missing role');
     });
   });
 
   describe('transfering authority', function () {
-    beforeEach('deploying manageable contract', async function () {
-      this.manageable = await AccessManageable.new(this.manager.address);
+    beforeEach('deploying managed contract', async function () {
+      this.managed = await AccessManaged.new(this.manager.address);
     });
 
     it('admin can transfer authority', async function () {
-      await this.manager.transferContractAuthority(this.manageable.address, otherAuthority, { from: admin });
-      expect(await this.manageable.authority()).to.equal(otherAuthority);
+      await this.manager.transferContractAuthority(this.managed.address, otherAuthority, { from: admin });
+      expect(await this.managed.authority()).to.equal(otherAuthority);
     });
 
     it('non-admin cannot transfer authority', async function () {
       await expectRevert(
-        this.manager.transferContractAuthority(this.manageable.address, otherAuthority, { from: nonAdmin }),
+        this.manager.transferContractAuthority(this.managed.address, otherAuthority, { from: nonAdmin }),
         'missing role',
       );
     });

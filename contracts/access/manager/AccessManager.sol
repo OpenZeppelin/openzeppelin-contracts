@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 
 import "../AccessControlDefaultAdminRules.sol";
 import "./IAuthority.sol";
-import "./AccessManageable.sol";
+import "./AccessManaged.sol";
 
 interface IAccessManager is IAuthority, IAccessControlDefaultAdminRules {
     enum AccessMode {
@@ -61,7 +61,7 @@ interface IAccessManager is IAuthority, IAccessControlDefaultAdminRules {
  * through the use of {setFunctionAllowedGroup}.
  *
  * Note that a function in a target contract may become permissioned in this way only when: 1) said contract is
- * {AccessManageable} and is connected to this contract as its manager, and 2) said function is decorated with the
+ * {AccessManaged} and is connected to this contract as its manager, and 2) said function is decorated with the
  * `restricted` modifier.
  *
  * There is a special group defined by default named "public" which all accounts automatically have.
@@ -104,7 +104,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
 
     /**
      * @dev Returns true if the caller can invoke on a target the function identified by a function selector.
-     * Entrypoint for {AccessManageable} contracts.
+     * Entrypoint for {AccessManaged} contracts.
      */
     function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool) {
         bytes32 allowedGroups = getFunctionAllowedGroups(target, selector);
@@ -246,7 +246,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         address target,
         address newAuthority
     ) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
-        AccessManageable(target).setAuthority(IAuthority(newAuthority));
+        AccessManaged(target).setAuthority(IAuthority(newAuthority));
     }
 
     /**

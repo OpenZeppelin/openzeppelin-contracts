@@ -3,7 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "./AccessManager.sol";
-import "./AccessManageable.sol";
+import "./AccessManaged.sol";
 
 /**
  * @dev This contract can be used to migrate existing {Ownable} or {AccessControl} contracts into an {AccessManager}
@@ -17,13 +17,13 @@ import "./AccessManageable.sol";
  * Permissioned interactions with thus migrated contracts must go through the adapter's {relay} function and will
  * proceed if the function is allowed for the caller in the AccessManager instance.
  */
-contract AccessManagerAdapter is AccessManageable {
+contract AccessManagerAdapter is AccessManaged {
     bytes32 private constant _DEFAULT_ADMIN_ROLE = 0;
 
     /**
      * @dev Initializes an adapter connected to an AccessManager instance.
      */
-    constructor(AccessManager manager) AccessManageable(manager) {}
+    constructor(AccessManager manager) AccessManaged(manager) {}
 
     /**
      * @dev Relays a function call to the target contract. The call will be relayed if the AccessManager allows the

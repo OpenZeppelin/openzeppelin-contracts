@@ -13,7 +13,7 @@ import "./IAuthority.sol";
  * IMPORTANT: The `restricted` modifier should never be used on `internal` functions, judiciously used in `public`
  * functions, and ideally only used in `external` functions. See {restricted}.
  */
-contract AccessManageable is Context {
+contract AccessManaged is Context {
     event AuthorityUpdated(address indexed sender, IAuthority indexed newAuthority);
 
     IAuthority private _authority;
@@ -67,7 +67,7 @@ contract AccessManageable is Context {
      * @dev Transfers control to a new authority. The caller must be the current authority.
      */
     function setAuthority(IAuthority newAuthority) public virtual {
-        require(_msgSender() == address(_authority), "AccessManageable: not current authority");
+        require(_msgSender() == address(_authority), "AccessManaged: not current authority");
         _setAuthority(newAuthority);
     }
 
@@ -83,6 +83,6 @@ contract AccessManageable is Context {
      * @dev Reverts if the caller is not allowed to call the function identified by a selector.
      */
     function _checkCanCall(address caller, bytes4 selector) internal view virtual {
-        require(_authority.canCall(caller, address(this), selector), "AccessManageable: authority rejected");
+        require(_authority.canCall(caller, address(this), selector), "AccessManaged: authority rejected");
     }
 }
