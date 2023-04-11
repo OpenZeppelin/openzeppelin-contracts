@@ -97,7 +97,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * @dev See {IERC165-supportsInterface}. The inter
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
-        bytes4 governorCancelId = this.cancel.selector;
+        bytes4 governorCancelId = this.cancel.selector ^ this.proposalProposer.selector;
+
         bytes4 governorParamsId = this.castVoteWithReasonAndParams.selector ^
                 this.castVoteWithReasonAndParamsBySig.selector ^
                 this.getVotesWithParams.selector;
@@ -215,9 +216,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
-     * @dev Address of the proposer
+     * @dev Returns the account that created a given proposal.
      */
-    function _proposalProposer(uint256 proposalId) internal view virtual returns (address) {
+    function proposalProposer(uint256 proposalId) public view virtual override returns (address) {
         return _proposals[proposalId].proposer;
     }
 

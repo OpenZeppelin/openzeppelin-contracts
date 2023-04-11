@@ -91,6 +91,7 @@ const INTERFACES = {
     'castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)',
   ],
   GovernorCancel: [
+    'proposalProposer(uint256)',
     'cancel(address[],uint256[],bytes[],bytes32)',
   ],
   GovernorTimelock: ['timelock()', 'proposalEta(uint256)', 'queue(address[],uint256[],bytes[],bytes32)'],
