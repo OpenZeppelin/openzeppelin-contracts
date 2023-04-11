@@ -17,7 +17,7 @@ interface IAccessManager is IAuthority, IAccessControlDefaultAdminRules {
 
     event GroupAllowed(address indexed target, bytes4 indexed selector, uint8 indexed group, bool allowed);
 
-    event AccessModeUpdated(address indexed target, AccessMode indexed previousMode, AccessMode indexed mode);
+    event AccessModeUpdated(address indexed target, AccessMode previousMode, AccessMode indexed mode);
 
     function createGroup(uint8 group, string calldata name) external;
 

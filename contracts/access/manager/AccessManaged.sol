@@ -36,9 +36,9 @@ contract AccessManaged is Context {
      * Selector collisions are mitigated by scoping permissions per contract, but some edge cases must be considered:
      *
      * * If the https://docs.soliditylang.org/en/latest/contracts.html#receive-ether-function[`receive()`] function is restricted,
-     * any other function with a `bytes4(0)` selector will share permissions with `receive()`.
+     * any other function with a `0x00000000` selector will share permissions with `receive()`.
      * * Similarly, if there's no `receive()` function but a `fallback()` instead, the fallback might be called with empty `calldata`,
-     * sharing the `bytes4(0)` selector permissions as well.
+     * sharing the `0x00000000` selector permissions as well.
      * * For any other selector, if the restricted function is set on an upgradeable contract, an upgrade may remove the restricted
      * function and replace it with a new method whose selector replaces the last one, keeping the previous permissions.
      * ====
