@@ -103,19 +103,19 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             this.getVotesWithParams.selector;
 
         // The original interface id in v4.3.
-        bytes4 governor4_3 = type(IGovernor).interfaceId ^
+        bytes4 governor43Id = type(IGovernor).interfaceId ^
             type(IERC6372).interfaceId ^
             governorCancelId ^
             governorParamsId;
 
         // An updated interface id in v4.6, with params added.
-        bytes4 governor4_6 = type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ governorCancelId;
+        bytes4 governor46Id = type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ governorCancelId;
 
         // For the updated interface id in v4.9, we use governorCancelId directly.
 
         return
-            interfaceId == governor4_3 ||
-            interfaceId == governor4_6 ||
+            interfaceId == governor43Id ||
+            interfaceId == governor46Id ||
             interfaceId == governorCancelId ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
