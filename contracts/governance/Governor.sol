@@ -99,11 +99,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes4 governorCancelId = this.cancel.selector ^ this.proposalProposer.selector;
 
         bytes4 governorParamsId = this.castVoteWithReasonAndParams.selector ^
-                this.castVoteWithReasonAndParamsBySig.selector ^
-                this.getVotesWithParams.selector;
+            this.castVoteWithReasonAndParamsBySig.selector ^
+            this.getVotesWithParams.selector;
 
         // The original interface id in v4.3.
-        bytes4 governor4_3 = type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ governorCancelId ^ governorParamsId;
+        bytes4 governor4_3 = type(IGovernor).interfaceId ^
+            type(IERC6372).interfaceId ^
+            governorCancelId ^
+            governorParamsId;
 
         // An updated interface id in v4.6, with params added.
         bytes4 governor4_6 = type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ governorCancelId;
@@ -423,7 +426,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         ProposalState currentState = state(proposalId);
 
         require(
-            currentState != ProposalState.Canceled && currentState != ProposalState.Expired && currentState != ProposalState.Executed,
+            currentState != ProposalState.Canceled &&
+                currentState != ProposalState.Expired &&
+                currentState != ProposalState.Executed,
             "Governor: proposal not active"
         );
         _proposals[proposalId].canceled = true;
