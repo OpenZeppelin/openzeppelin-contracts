@@ -30,17 +30,17 @@ contract AccessManageable is Context {
      * implications! This is because the permissions are determined by the function that entered the contract, i.e. the
      * function at the bottom of the call stack, and not the function where the modifier is visible in the source code.
      * ====
-     * 
+     *
      * [NOTE]
      * ====
      * Although a selector collision is prevented by scoping permissions per contract, consider a selector with access granted
      * to a group may clash with unintended functions in the following cases:
-     * 
+     *
      * * If the https://docs.soliditylang.org/en/latest/contracts.html#receive-ether-function[`receive()`] function is restricted,
      * any other function with a `bytes4(0)` selector will share permissions with `receive()`.
-     * * Similarly, if there's no `receive()` function but a `fallback()` instead, the fallback might be called with empty `calldata`, 
+     * * Similarly, if there's no `receive()` function but a `fallback()` instead, the fallback might be called with empty `calldata`,
      * sharing the `bytes4(0)` selector permissions as well.
-     * * For any other selector, if the restricted function is set on an upgradeable contract, an upgrade may remove the restricted 
+     * * For any other selector, if the restricted function is set on an upgradeable contract, an upgrade may remove the restricted
      * function and replace it with a new method whose selector replaces the last one, keeping the previous permissions.
      * ====
      */
