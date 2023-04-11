@@ -8,7 +8,7 @@ import "./IAuthority.sol";
 /**
  * @dev This contract module makes available a {restricted} modifier. Functions decorated with this modifier will be
  * permissioned according to an "authority": a contract like {AccessManager} that follows the {IAuthority} interface,
- * implementing a policy that allows certain callers access to certain functions.
+ * implementing a policy that allows certain callers to access certain functions.
  *
  * IMPORTANT: The `restricted` modifier should never be used on `internal` functions, judiciously used in `public`
  * functions, and ideally only used in `external` functions. See {restricted}.

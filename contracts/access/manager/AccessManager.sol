@@ -73,7 +73,7 @@ interface IAccessManager is IAuthority, IAccessControlDefaultAdminRules {
  * it will be highly secured (e.g., a multisig or a well-configured DAO). Additionally, {AccessControlDefaultAdminRules}
  * is included to enforce security rules on this account.
  *
- * NOTE: Some of the functions in this contract, such as {getUserGroups}, return a `bytes32` bitmap to succintly
+ * NOTE: Some of the functions in this contract, such as {getUserGroups}, return a `bytes32` bitmap to succinctly
  * represent a set of groups. In a bitmap, bit `n` (counting from the least significant bit) will be 1 if and only if
  * the group with number `n` is in the set. For example, the hex value `0x05` represents the set of the two groups
  * numbered 0 and 2 from its binary equivalence `0b101`
