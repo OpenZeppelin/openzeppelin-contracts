@@ -33,8 +33,7 @@ contract AccessManaged is Context {
      *
      * [NOTE]
      * ====
-     * Although a selector collision is prevented by scoping permissions per contract, consider a selector with access granted
-     * to a group may clash with unintended functions in the following cases:
+     * Selector collisions are mitigated by scoping permissions per contract, but some edge cases must be considered:
      *
      * * If the https://docs.soliditylang.org/en/latest/contracts.html#receive-ether-function[`receive()`] function is restricted,
      * any other function with a `bytes4(0)` selector will share permissions with `receive()`.
