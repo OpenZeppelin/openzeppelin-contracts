@@ -90,6 +90,9 @@ const INTERFACES = {
     'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
     'castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)',
   ],
+  GovernorCancel: [
+    'cancel(address[],uint256[],bytes[],bytes32)',
+  ],
   GovernorTimelock: ['timelock()', 'proposalEta(uint256)', 'queue(address[],uint256[],bytes[],bytes32)'],
   ERC2981: ['royaltyInfo(uint256,uint256)'],
 };
@@ -120,7 +123,7 @@ function shouldSupportInterfaces(interfaces = []) {
     it('all interfaces are reported as supported', async function () {
       for (const k of interfaces) {
         const interfaceId = INTERFACE_IDS[k] ?? k;
-        expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true);
+        expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true, `does not support ${k}`);
       }
     });
 
@@ -130,7 +133,7 @@ function shouldSupportInterfaces(interfaces = []) {
         if (INTERFACES[k] === undefined) continue;
         for (const fnName of INTERFACES[k]) {
           const fnSig = FN_SIGNATURES[fnName];
-          expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1);
+          expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1, `did not find ${fnName}`);
         }
       }
     });

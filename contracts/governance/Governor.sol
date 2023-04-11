@@ -94,21 +94,26 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
-     * @dev See {IERC165-supportsInterface}.
+     * @dev See {IERC165-supportsInterface}. The inter
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
-        // In addition to the current interfaceId, also support previous version of the interfaceId that did not
-        // include the castVoteWithReasonAndParams() function as standard
-        return
-            interfaceId ==
-            (type(IGovernor).interfaceId ^
-                type(IERC6372).interfaceId ^
-                this.cancel.selector ^
-                this.castVoteWithReasonAndParams.selector ^
+        bytes4 governorCancelId = this.cancel.selector;
+        bytes4 governorParamsId = this.castVoteWithReasonAndParams.selector ^
                 this.castVoteWithReasonAndParamsBySig.selector ^
-                this.getVotesWithParams.selector) ||
-            // Previous interface for backwards compatibility
-            interfaceId == (type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ this.cancel.selector) ||
+                this.getVotesWithParams.selector;
+
+        // The original interface id in v4.3.
+        bytes4 governor4_3 = type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ governorCancelId ^ governorParamsId;
+
+        // An updated interface id in v4.6, with params added.
+        bytes4 governor4_6 = type(IGovernor).interfaceId ^ type(IERC6372).interfaceId ^ governorCancelId;
+
+        // For the updated interface id in v4.9, we use governorCancelId directly.
+
+        return
+            interfaceId == governor4_3 ||
+            interfaceId == governor4_6 ||
+            interfaceId == governorCancelId ||
             interfaceId == type(IERC1155Receiver).interfaceId ||
             super.supportsInterface(interfaceId);
     }

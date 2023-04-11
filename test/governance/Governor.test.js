@@ -70,7 +70,7 @@ contract('Governor', function (accounts) {
         );
       });
 
-      shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor', 'GovernorWithParams']);
+      shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor', 'GovernorWithParams', 'GovernorCancel']);
       shouldBehaveLikeEIP6372(mode);
 
       it('deployment check', async function () {
