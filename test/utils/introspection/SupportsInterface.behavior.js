@@ -90,10 +90,7 @@ const INTERFACES = {
     'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
     'castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)',
   ],
-  GovernorCancel: [
-    'proposalProposer(uint256)',
-    'cancel(address[],uint256[],bytes[],bytes32)',
-  ],
+  GovernorCancel: ['proposalProposer(uint256)', 'cancel(address[],uint256[],bytes[],bytes32)'],
   GovernorTimelock: ['timelock()', 'proposalEta(uint256)', 'queue(address[],uint256[],bytes[],bytes32)'],
   ERC2981: ['royaltyInfo(uint256,uint256)'],
 };
@@ -134,7 +131,10 @@ function shouldSupportInterfaces(interfaces = []) {
         if (INTERFACES[k] === undefined) continue;
         for (const fnName of INTERFACES[k]) {
           const fnSig = FN_SIGNATURES[fnName];
-          expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1, `did not find ${fnName}`);
+          expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(
+            1,
+            `did not find ${fnName}`,
+          );
         }
       }
     });
