@@ -643,12 +643,22 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       );
     });
 
+    it.only('keeps defaultAdmin consistent with hasRole if another non-defaultAdmin user renounces the DEFAULT_ADMIN_ROLE', async function () {
+      await time.setNextBlockTimestamp(delayPassed);
+
+      // This passes because it's a noop
+      await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from: other });
+
+      expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.true;
+      expect(await this.accessControl.defaultAdmin()).to.be.equal(defaultAdmin);
+    });
+
     it('renounces role', async function () {
       await time.setNextBlockTimestamp(delayPassed);
-      const receipt = await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, from, { from });
+      const receipt = await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from });
 
       expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.false;
-      expect(await this.accessControl.hasRole(constants.ZERO_ADDRESS, defaultAdmin)).to.be.false;
+      expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.false;
       expectEvent(receipt, 'RoleRevoked', {
         role: DEFAULT_ADMIN_ROLE,
         account: from,
@@ -658,7 +668,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
     it('allows to recover access using the internal _grantRole', async function () {
       await time.setNextBlockTimestamp(delayPassed);
-      await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, from, { from });
+      await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from });
 
       const grantRoleReceipt = await this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, other);
       expectEvent(grantRoleReceipt, 'RoleGranted', {

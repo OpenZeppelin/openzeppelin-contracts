@@ -136,7 +136,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev See {AccessControl-_revokeRole}.
      */
     function _revokeRole(bytes32 role, address account) internal virtual override {
-        if (role == DEFAULT_ADMIN_ROLE) {
+        if (role == DEFAULT_ADMIN_ROLE && account == _currentDefaultAdmin) {
             delete _currentDefaultAdmin;
         }
         super._revokeRole(role, account);
