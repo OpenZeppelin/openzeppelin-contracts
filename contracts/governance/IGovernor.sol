@@ -170,7 +170,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:user-config
-     * @dev Delay, between the vote start and vote ends. The unit this duration is expressed in depends on the clock
+     * @dev Delay between the vote start and vote end. The unit this duration is expressed in depends on the clock
      * (see EIP-6372) this contract uses.
      *
      * NOTE: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
