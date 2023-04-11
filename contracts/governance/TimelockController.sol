@@ -142,14 +142,14 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     }
 
     /**
-     * @dev Returns whether an operation is pending or not.
+     * @dev Returns whether an operation is pending or not. Note that a "pending" operation may also be "ready".
      */
     function isOperationPending(bytes32 id) public view virtual returns (bool pending) {
         return getTimestamp(id) > _DONE_TIMESTAMP;
     }
 
     /**
-     * @dev Returns whether an operation is ready or not.
+     * @dev Returns whether an operation is ready for execution. Note that a "ready" operation is also "pending".
      */
     function isOperationReady(bytes32 id) public view virtual returns (bool ready) {
         uint256 timestamp = getTimestamp(id);
