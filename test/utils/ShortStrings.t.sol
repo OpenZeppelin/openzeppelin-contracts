@@ -17,7 +17,7 @@ contract ShortStringsTest is Test {
     }
 
     function testRoundtripWithFallback(string memory input, string memory fallbackInitial) external {
-        _fallback = fallbackInitial;
+        _fallback = fallbackInitial; // Make sure that the initial value has no effect
         ShortString short = ShortStrings.toShortStringWithFallback(input, _fallback);
         string memory output = ShortStrings.toStringWithFallback(short, _fallback);
         assertEq(input, output);
