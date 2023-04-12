@@ -91,7 +91,7 @@ abstract contract IGovernorCompatibilityBravo is IGovernor {
     function execute(uint256 proposalId) public payable virtual;
 
     /**
-     * @dev Cancels a proposal only if sender is the proposer, or proposer delegates dropped below proposal threshold.
+     * @dev Cancels a proposal only if the sender is the proposer or the proposer delegates' voting power dropped below the proposal threshold.
      */
     function cancel(uint256 proposalId) public virtual;
 
