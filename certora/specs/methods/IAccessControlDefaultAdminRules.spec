@@ -1,3 +1,5 @@
+import "./IERC5313.spec"
+
 methods {
     // === View ==
     
@@ -20,4 +22,14 @@ methods {
     // Default Admin Delay
     changeDefaultAdminDelay(uint48)
     rollbackDefaultAdminDelay()
+
+    // == FV ==
+    
+    // Default Admin
+    _pendingDefaultAdmin() returns (address)
+    _pendingDefaultAdminSchedule() returns (uint48)
+    
+    // Default Admin Delay
+    _pendingDelay() returns (uint48)
+    _pendingDelaySchedule() returns (uint48)
 }
