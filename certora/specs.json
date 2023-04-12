@@ -10,6 +10,11 @@
     "files": ["certora/harnesses/AccessControlHarness.sol"]
   },
   {
+    "spec": "DoubleEndedQueue",
+    "contract": "DoubleEndedQueueHarness",
+    "files": ["certora/harnesses/DoubleEndedQueueHarness.sol"]
+  },
+  {
     "spec": "Ownable",
     "contract": "OwnableHarness",
     "files": ["certora/harnesses/OwnableHarness.sol"]
