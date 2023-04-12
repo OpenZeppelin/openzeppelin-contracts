@@ -47,7 +47,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-state} function with added support for the `Queued` status.
+     * @dev Overridden version of the {Governor-state} function with added support for the `Queued` state.
      */
     function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
         ProposalState currentState = super.state(proposalId);

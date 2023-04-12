@@ -93,7 +93,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
-     * @dev See {IERC165-supportsInterface}. The inter
+     * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
         bytes4 governorCancelId = this.cancel.selector ^ this.proposalProposer.selector;

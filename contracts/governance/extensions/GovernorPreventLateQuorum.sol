@@ -30,9 +30,9 @@ abstract contract GovernorPreventLateQuorum is Governor {
     event LateQuorumVoteExtensionSet(uint64 oldVoteExtension, uint64 newVoteExtension);
 
     /**
-     * @dev Initializes the vote extension parameter: the time in number of blocks or seconds (depending on the governor
+     * @dev Initializes the vote extension parameter: the time in either number of blocks or seconds (depending on the governor
      * clock mode) that is required to pass since the moment a proposal reaches quorum until its voting period ends. If
-     * necessary the voting period will be extended beyond the one set at proposal creation.
+     * necessary the voting period will be extended beyond the one set during proposal creation.
      */
     constructor(uint64 initialVoteExtension) {
         _setLateQuorumVoteExtension(initialVoteExtension);
