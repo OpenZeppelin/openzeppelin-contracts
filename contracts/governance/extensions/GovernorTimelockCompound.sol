@@ -97,7 +97,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         uint256 eta = block.timestamp + _timelock.delay();
         _proposalTimelocks[proposalId] = eta.toUint64();
 
-        for (uint256 i = 0; i < targets.length; ++i) {
+        uint256 len = targets.length;
+        for (uint256 i = 0; i < len; ++i) {
             require(
                 !_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta))),
                 "GovernorTimelockCompound: identical proposal action already queued"
@@ -123,7 +124,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         uint256 eta = proposalEta(proposalId);
         require(eta > 0, "GovernorTimelockCompound: proposal not yet queued");
         Address.sendValue(payable(_timelock), msg.value);
-        for (uint256 i = 0; i < targets.length; ++i) {
+        uint256 len = targets.length;
+        for (uint256 i = 0; i < len; ++i) {
             _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
     }
@@ -145,7 +147,8 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
             // update state first
             delete _proposalTimelocks[proposalId];
             // do external call later
-            for (uint256 i = 0; i < targets.length; ++i) {
+            uint256 len = targets.length;
+            for (uint256 i = 0; i < len; ++i) {
                 _timelock.cancelTransaction(targets[i], values[i], "", calldatas[i], eta);
             }
         }

@@ -52,13 +52,14 @@ library ERC165Checker {
         address account,
         bytes4[] memory interfaceIds
     ) internal view returns (bool[] memory) {
+        uint256 len = interfaceIds.length;
         // an array of booleans corresponding to interfaceIds and whether they're supported or not
-        bool[] memory interfaceIdsSupported = new bool[](interfaceIds.length);
+        bool[] memory interfaceIdsSupported = new bool[](len);
 
         // query support of ERC165 itself
         if (supportsERC165(account)) {
             // query support of each interface in interfaceIds
-            for (uint256 i = 0; i < interfaceIds.length; i++) {
+            for (uint256 i = 0; i < len; i++) {
                 interfaceIdsSupported[i] = supportsERC165InterfaceUnchecked(account, interfaceIds[i]);
             }
         }

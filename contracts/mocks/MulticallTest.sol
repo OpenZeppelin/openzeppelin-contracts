@@ -10,13 +10,15 @@ contract MulticallTest {
         address[] calldata recipients,
         uint256[] calldata amounts
     ) external {
-        bytes[] memory calls = new bytes[](recipients.length);
-        for (uint256 i = 0; i < recipients.length; i++) {
+        uint256 recipientsLen = recipients.length;
+        bytes[] memory calls = new bytes[](recipientsLen);
+        for (uint256 i = 0; i < recipientsLen; i++) {
             calls[i] = abi.encodeWithSignature("transfer(address,uint256)", recipients[i], amounts[i]);
         }
 
         bytes[] memory results = multicallToken.multicall(calls);
-        for (uint256 i = 0; i < results.length; i++) {
+        uint256 resultsLen = results.length;
+        for (uint256 i = 0; i < resultsLen; i++) {
             require(abi.decode(results[i], (bool)));
         }
     }
