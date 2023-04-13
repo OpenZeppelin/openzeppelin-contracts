@@ -10,6 +10,11 @@
     "files": ["certora/harnesses/AccessControlHarness.sol"]
   },
   {
+    "spec": "DoubleEndedQueue",
+    "contract": "DoubleEndedQueueHarness",
+    "files": ["certora/harnesses/DoubleEndedQueueHarness.sol"]
+  },
+  {
     "spec": "Ownable",
     "contract": "OwnableHarness",
     "files": ["certora/harnesses/OwnableHarness.sol"]
@@ -45,6 +50,12 @@
       "--link ERC20WrapperHarness:_underlying=ERC20PermitHarness",
       "--optimistic_loop"
     ]
+  },
+  {
+    "spec": "ERC721",
+    "contract": "ERC721Harness",
+    "files": ["certora/harnesses/ERC721Harness.sol", "certora/harnesses/ERC721ReceiverHarness.sol"],
+    "options": ["--optimistic_loop"]
   },
   {
     "spec": "Initializable",
