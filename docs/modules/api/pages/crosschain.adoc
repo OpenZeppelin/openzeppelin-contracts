@@ -67,7 +67,7 @@ The following specializations of {CrossChainEnabled} provide implementations of 
 
 [.contract]
 [[CrossChainEnabledAMB]]
-=== `++CrossChainEnabledAMB++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/amb/CrossChainEnabledAMB.sol[{github-icon},role=heading-link]
+=== `++CrossChainEnabledAMB++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/amb/CrossChainEnabledAMB.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -126,7 +126,7 @@ see {CrossChainEnabled-_crossChainSender}
 
 [.contract]
 [[CrossChainEnabledArbitrumL1]]
-=== `++CrossChainEnabledArbitrumL1++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL1.sol[{github-icon},role=heading-link]
+=== `++CrossChainEnabledArbitrumL1++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL1.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -178,7 +178,7 @@ see {CrossChainEnabled-_crossChainSender}
 
 [.contract]
 [[CrossChainEnabledArbitrumL2]]
-=== `++CrossChainEnabledArbitrumL2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL2.sol[{github-icon},role=heading-link]
+=== `++CrossChainEnabledArbitrumL2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL2.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -231,7 +231,7 @@ see {CrossChainEnabled-_crossChainSender}
 
 [.contract]
 [[CrossChainEnabledOptimism]]
-=== `++CrossChainEnabledOptimism++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/optimism/CrossChainEnabledOptimism.sol[{github-icon},role=heading-link]
+=== `++CrossChainEnabledOptimism++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/optimism/CrossChainEnabledOptimism.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -284,7 +284,7 @@ see {CrossChainEnabled-_crossChainSender}
 
 [.contract]
 [[CrossChainEnabledPolygonChild]]
-=== `++CrossChainEnabledPolygonChild++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol[{github-icon},role=heading-link]
+=== `++CrossChainEnabledPolygonChild++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -361,7 +361,7 @@ In addition to the {CrossChainEnabled} abstraction, cross-chain awareness is als
 
 [.contract]
 [[LibAMB]]
-=== `++LibAMB++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/amb/LibAMB.sol[{github-icon},role=heading-link]
+=== `++LibAMB++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/amb/LibAMB.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -403,7 +403,7 @@ function call is not the result of a cross-chain message.
 
 [.contract]
 [[LibArbitrumL1]]
-=== `++LibArbitrumL1++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/arbitrum/LibArbitrumL1.sol[{github-icon},role=heading-link]
+=== `++LibArbitrumL1++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/arbitrum/LibArbitrumL1.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -448,7 +448,7 @@ function call is not the result of a cross-chain message.
 
 [.contract]
 [[LibArbitrumL2]]
-=== `++LibArbitrumL2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/arbitrum/LibArbitrumL2.sol[{github-icon},role=heading-link]
+=== `++LibArbitrumL2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/arbitrum/LibArbitrumL2.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -494,7 +494,7 @@ function call is not the result of a cross-chain message.
 
 [.contract]
 [[LibOptimism]]
-=== `++LibOptimism++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/optimism/LibOptimism.sol[{github-icon},role=heading-link]
+=== `++LibOptimism++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/optimism/LibOptimism.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

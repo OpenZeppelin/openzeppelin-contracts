@@ -25,7 +25,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/
 
 [.contract]
 [[ERC2771Context]]
-=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
+=== `++ERC2771Context++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/metatx/ERC2771Context.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -72,7 +72,7 @@ Context variant with ERC2771 support.
 
 [.contract]
 [[MinimalForwarder]]
-=== `++MinimalForwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/metatx/MinimalForwarder.sol[{github-icon},role=heading-link]
+=== `++MinimalForwarder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/metatx/MinimalForwarder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
