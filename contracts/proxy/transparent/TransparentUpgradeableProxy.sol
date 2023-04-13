@@ -50,7 +50,7 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * fully implement transparency without decoding reverts caused by selector clashes between the proxy and the
  * implementation.
  *
- * WARNING: It is not recommended to extend this contract to add additional external functions. If you do, the compiler
+ * WARNING: It is not recommended to extend this contract to add additional external functions. If you do so, the compiler
  * will not check that there are no selector conflicts, due to the note above. A selector clash between any new function
  * and the functions declared in {ITransparentUpgradeableProxy} will be resolved in favor of the new one. This could
  * render the admin operations inaccessible, which could prevent upgradeability. Transparency may also be compromised.
