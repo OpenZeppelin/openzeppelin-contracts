@@ -5,10 +5,15 @@ pragma solidity ^0.8.0;
 import "../patched/access/AccessControlDefaultAdminRules.sol";
 
 contract AccessControlDefaultAdminRulesHarness is AccessControlDefaultAdminRules {
+    uint48 private _delayIncreaseWait;
+
     constructor(
         uint48 initialDelay,
-        address initialDefaultAdmin
-    ) AccessControlDefaultAdminRules(initialDelay, initialDefaultAdmin) {}
+        address initialDefaultAdmin,
+        uint48 delayIncreaseWait
+    ) AccessControlDefaultAdminRules(initialDelay, initialDefaultAdmin) {
+        _delayIncreaseWait = delayIncreaseWait;
+    }
 
     // FV
     function _pendingDefaultAdmin() external view returns (address) {
@@ -29,5 +34,10 @@ contract AccessControlDefaultAdminRulesHarness is AccessControlDefaultAdminRules
     function _pendingDelaySchedule() external view returns (uint48) {
         (, uint48 schedule) = pendingDefaultAdminDelay();
         return schedule;
+    }
+
+    // Overrides
+    function defaultAdminDelayIncreaseWait() public view override returns (uint48) {
+        return _delayIncreaseWait;
     }
 }

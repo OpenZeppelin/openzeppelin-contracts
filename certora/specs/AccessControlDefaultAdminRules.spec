@@ -104,8 +104,6 @@ rule noDefaultAdminChange(env e, method f, calldataarg args) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noPendingDefaultAdminChange(env e, method f, calldataarg args) {
-  require nonZeroAccount(e.msg.sender);
-  require timeSanity(e);
   requireInvariant defaultAdminConsistency(defaultAdmin());
   requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
 
@@ -123,6 +121,49 @@ rule noPendingDefaultAdminChange(env e, method f, calldataarg args) {
     (f.selector == acceptDefaultAdminTransfer().selector && pendingAdminAfter == 0 && scheduleAfter == 0) ||
     (f.selector == cancelDefaultAdminTransfer().selector && pendingAdminAfter == 0 && scheduleAfter == 0)
   ), "pending admin and its schedule is only affected by beginning, accepting or cancelling an admin transfer";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: defaultAdminDelay can't be changed atomically by any function                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule noDefaultAdminDelayChange(env e, method f, calldataarg args) {
+  uint48 delayBefore = defaultAdminDelay(e);
+  f@withrevert(e, args);
+  uint48 delayAfter = defaultAdminDelay(e);
+
+  assert delayBefore == delayAfter, "delay can't be changed atomically by any function";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: pendingDefaultAdminDelay is only affected by changeDefaultAdminDelay or rollbackDefaultAdminDelay             │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule noPendingDefaultAdminDelayChange(env e, method f, calldataarg args) {
+  uint48 pendingDelayBefore = _pendingDelay(e);
+  f@withrevert(e, args);
+  uint48 pendingDelayAfter = _pendingDelay(e);
+
+  assert pendingDelayBefore != pendingDelayAfter => (
+    f.selector == changeDefaultAdminDelay(uint48).selector ||
+    (f.selector == rollbackDefaultAdminDelay().selector && pendingDelayAfter == 0)
+  ), "pending delay is only affected by changeDefaultAdminDelay or rollbackDefaultAdminDelay";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: defaultAdminDelayIncreaseWait can't be changed atomically by any function                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule noDefaultAdminDelayIncreaseWaitChange(env e, method f, calldataarg args) {
+  uint48 delayIncreaseWaitBefore = defaultAdminDelayIncreaseWait();
+  f@withrevert(e, args);
+  uint48 delayIncreaseWaitAfter = defaultAdminDelayIncreaseWait();
+
+  assert delayIncreaseWaitBefore == delayIncreaseWaitAfter, 
+    "delay increase wait can't be changed atomically by any function";
 }
 
 /*
@@ -156,7 +197,6 @@ rule beginDefaultAdminTransfer(env e, address newAdmin) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pendingAdminAndScheduleCoupling(env e, address newAdmin) {
-  require timeSanity(e);
   requireInvariant defaultAdminConsistency(defaultAdmin());
   requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
 
@@ -173,10 +213,10 @@ rule pendingAdminAndScheduleCoupling(env e, address newAdmin) {
     pendingAdminBefore !=_pendingDefaultAdmin(e) &&
     scheduleBefore == _pendingDefaultAdminSchedule(e)
   ) => (
-    // Schedule doesn't change if...
-    // The previous schedule is block.timestamp and the delay is 0
+    // Schedule doesn't change if:
+    // - The previous schedule is block.timestamp and the delay is 0
     (e.block.timestamp == scheduleBefore && defaultAdminDelay(e) == 0) ||
-    // If defaultAdminDelay was reduced to a value such that added to the block.timestamp is equal to previous schedule
+    // - The defaultAdminDelay was reduced to a value such that added to the block.timestamp is equal to previous schedule
     e.block.timestamp + defaultAdminDelay(e) == scheduleBefore
   ), "pending admin stays the same if a default admin transfer is begun on accepted edge cases";
 }
