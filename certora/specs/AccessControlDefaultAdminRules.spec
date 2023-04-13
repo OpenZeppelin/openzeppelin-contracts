@@ -31,7 +31,9 @@ function nonZeroAccount(address account) returns bool {
 }
 
 function timeSanity(env e) returns bool {
-  return e.block.timestamp > 0 && e.block.timestamp + defaultAdminDelay(e) < max_uint48();
+  return
+    e.block.timestamp > 0 && // Avoids 0 schedules
+    e.block.timestamp + defaultAdminDelay(e) < max_uint48();
 }
 
 function isSet(uint48 schedule) returns bool {
@@ -117,7 +119,7 @@ rule noPendingDefaultAdminChange(env e, method f, calldataarg args) {
     pendingAdminBefore != pendingAdminAfter ||
     scheduleBefore != scheduleAfter
   ) => (
-    (f.selector == beginDefaultAdminTransfer(address).selector && pendingAdminAfter != 0 && scheduleAfter != 0) ||
+    f.selector == beginDefaultAdminTransfer(address).selector ||
     (f.selector == acceptDefaultAdminTransfer().selector && pendingAdminAfter == 0 && scheduleAfter == 0) ||
     (f.selector == cancelDefaultAdminTransfer().selector && pendingAdminAfter == 0 && scheduleAfter == 0)
   ), "pending admin and its schedule is only affected by beginning, accepting or cancelling an admin transfer";
@@ -134,9 +136,6 @@ rule beginDefaultAdminTransfer(env e, address newAdmin) {
   requireInvariant defaultAdminConsistency(defaultAdmin());
   requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
 
-  address pendingAdminBefore = _pendingDefaultAdmin(e);
-  address scheduleBefore = _pendingDefaultAdminSchedule(e);
-
   beginDefaultAdminTransfer@withrevert(e, newAdmin);
   bool success = !lastReverted;
 
@@ -149,13 +148,37 @@ rule beginDefaultAdminTransfer(env e, address newAdmin) {
     "pending default admin is set";
   assert success => _pendingDefaultAdminSchedule(e) == e.block.timestamp + defaultAdminDelay(e), 
     "pending default admin delay is set";
+}
 
-  // no side effect
-  assert pendingAdminBefore != _pendingDefaultAdmin(e) <=> (
-    scheduleBefore != _pendingDefaultAdminSchedule(e) ||
-    newAdmin == pendingAdminBefore ||
-    defaultAdminDelay(e) == 0
-  ), "pending admin and its schedule can only change together";
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: pending default admin and it schedule can only change together                                                │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule pendingAdminAndScheduleCoupling(env e, address newAdmin) {
+  require timeSanity(e);
+  requireInvariant defaultAdminConsistency(defaultAdmin());
+  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
+
+  address pendingAdminBefore = _pendingDefaultAdmin(e);
+  uint48 scheduleBefore = _pendingDefaultAdminSchedule(e);
+
+  beginDefaultAdminTransfer(e, newAdmin);
+
+  assert (
+    scheduleBefore != _pendingDefaultAdminSchedule(e) &&
+    pendingAdminBefore == _pendingDefaultAdmin(e)
+  ) => newAdmin == pendingAdminBefore, "pending admin stays the same if the new set admin is the same";
+  assert (
+    pendingAdminBefore !=_pendingDefaultAdmin(e) &&
+    scheduleBefore == _pendingDefaultAdminSchedule(e)
+  ) => (
+    // Schedule doesn't change if...
+    // The previous schedule is block.timestamp and the delay is 0
+    (e.block.timestamp == scheduleBefore && defaultAdminDelay(e) == 0) ||
+    // If defaultAdminDelay was reduced to a value such that added to the block.timestamp is equal to previous schedule
+    e.block.timestamp + defaultAdminDelay(e) == scheduleBefore
+  ), "pending admin stays the same if a default admin transfer is begun on accepted edge cases";
 }
 
 /*
