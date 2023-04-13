@@ -32,5 +32,5 @@ methods {
     // Default Admin Delay
     _pendingDelay() returns (uint48)
     _pendingDelaySchedule() returns (uint48)
-    delayChangeWait(uint48) returns (uint48) envfree
+    delayChangeWait(uint48) returns (uint48)
 }

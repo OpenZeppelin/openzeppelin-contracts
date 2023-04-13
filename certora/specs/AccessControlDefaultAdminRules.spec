@@ -37,7 +37,7 @@ function timeSanity(env e) returns bool {
 }
 
 function delayChangeWaitSanity(env e, uint48 newDelay) returns bool {
-  return e.block.timestamp + delayChangeWait(newDelay) < max_uint48();
+  return e.block.timestamp + delayChangeWait(e, newDelay) < max_uint48();
 }
 
 function isSet(uint48 schedule) returns bool {
