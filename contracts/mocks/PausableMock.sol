@@ -14,7 +14,9 @@ contract PausableMock is Pausable {
     }
 
     function normalProcess() external whenNotPaused {
-        count++;
+        unchecked{
+            count++;
+        }
     }
 
     function drasticMeasure() external whenPaused {

@@ -105,7 +105,9 @@ contract ReinitializerMock is Initializable {
     }
 
     function doStuff() public onlyInitializing {
-        counter++;
+        unchecked {
+            counter++;
+        }
     }
 }
 

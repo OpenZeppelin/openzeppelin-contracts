@@ -21,7 +21,9 @@ abstract contract VotesMock is Votes {
     }
 
     function _mint(address account, uint256 voteId) internal {
-        _balances[account] += 1;
+        unchecked{
+            _balances[account] += 1;
+        }
         _owners[voteId] = account;
         _transferVotingUnits(address(0), account, 1);
     }

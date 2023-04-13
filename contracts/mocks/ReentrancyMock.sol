@@ -38,7 +38,9 @@ contract ReentrancyMock is ReentrancyGuard {
     }
 
     function _count() private {
-        counter += 1;
+        unchecked{
+            counter += 1;
+        }
     }
 
     function guardedCheckEntered() public nonReentrant {
