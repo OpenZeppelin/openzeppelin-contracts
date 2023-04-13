@@ -223,6 +223,21 @@ contract('GovernorCompatibilityBravo', function (accounts) {
     );
   });
 
+  it('with inconsistent array size for selector and arguments', async function () {
+    const target = this.receiver.address;
+    this.helper.setProposal(
+      {
+        targets: [target, target],
+        values: [0, 0],
+        signatures: ['mockFunction()'], // One signature
+        data: ['0x', this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI()], // Two data entries
+      },
+      '<proposal description>',
+    );
+
+    await expectRevert(this.helper.propose({ from: proposer }), 'GovernorBravo: invalid signatures length');
+  });
+
   describe('should revert', function () {
     describe('on propose', function () {
       it('if proposal does not meet proposalThreshold', async function () {

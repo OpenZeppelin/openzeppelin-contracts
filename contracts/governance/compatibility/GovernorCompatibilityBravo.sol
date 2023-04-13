@@ -69,6 +69,11 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
+        require(signatures.length == calldatas.length, "GovernorBravo: invalid signatures length");
+        // Stores the full proposal and fallback to the public (possibly overridden) propose. The fallback is done
+        // after the full proposal is stored, so the store operation included in the fallback will be skipped. Here we
+        // call `propose` and not `super.propose` to make sure if a child contract override `propose`, whatever code
+        // is added their is also executed when calling this alternative interface.
         _storeProposal(_msgSender(), targets, values, signatures, calldatas, description);
         return propose(targets, values, _encodeCalldata(signatures, calldatas), description);
     }
@@ -124,8 +129,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         returns (bytes[] memory)
     {
         bytes[] memory fullcalldatas = new bytes[](calldatas.length);
-
-        for (uint256 i = 0; i < signatures.length; ++i) {
+        for (uint256 i = 0; i < fullcalldatas.length; ++i) {
             fullcalldatas[i] = bytes(signatures[i]).length == 0
                 ? calldatas[i]
                 : abi.encodePacked(bytes4(keccak256(bytes(signatures[i]))), calldatas[i]);
