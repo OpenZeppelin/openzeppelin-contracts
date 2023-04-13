@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.8.3
+## 4.8.3 (2023-04-13)
 
 - `GovernorCompatibilityBravo`: Fix encoding of proposal data when signatures are missing.
 - `TransparentUpgradeableProxy`: Fix transparency in case of selector clash with non-decodable calldata or payable mutability. ([#4154](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4154))
