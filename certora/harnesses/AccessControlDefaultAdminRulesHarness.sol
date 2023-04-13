@@ -36,6 +36,10 @@ contract AccessControlDefaultAdminRulesHarness is AccessControlDefaultAdminRules
         return schedule;
     }
 
+    function delayChangeWait(uint48 newDelay) external view returns (uint48) {
+        return _delayChangeWait(newDelay);
+    }
+
     // Overrides
     function defaultAdminDelayIncreaseWait() public view override returns (uint48) {
         return _delayIncreaseWait;

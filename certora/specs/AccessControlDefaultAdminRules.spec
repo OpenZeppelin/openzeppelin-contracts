@@ -36,12 +36,20 @@ function timeSanity(env e) returns bool {
     e.block.timestamp + defaultAdminDelay(e) < max_uint48();
 }
 
+function delayChangeWaitSanity(env e, uint48 newDelay) returns bool {
+  return e.block.timestamp + delayChangeWait(newDelay) < max_uint48();
+}
+
 function isSet(uint48 schedule) returns bool {
   return schedule != 0;
 }
 
 function hasPassed(env e, uint48 schedule) returns bool {
   return schedule < e.block.timestamp;
+}
+
+function min(uint48 a, uint48 b) returns uint48 {
+  return a < b ? a : b;
 }
 
 /*
@@ -208,9 +216,9 @@ rule pendingAdminAndScheduleCoupling(env e, address newAdmin) {
   assert (
     scheduleBefore != _pendingDefaultAdminSchedule(e) &&
     pendingAdminBefore == _pendingDefaultAdmin(e)
-  ) => newAdmin == pendingAdminBefore, "pending admin stays the same if the new set admin is the same";
+  ) => newAdmin == pendingAdminBefore, "pending admin stays the same if the new admin set is the same";
   assert (
-    pendingAdminBefore !=_pendingDefaultAdmin(e) &&
+    pendingAdminBefore != _pendingDefaultAdmin(e) &&
     scheduleBefore == _pendingDefaultAdminSchedule(e)
   ) => (
     // Schedule doesn't change if:
@@ -271,5 +279,101 @@ rule cancelDefaultAdminTransfer(env e) {
   assert success => _pendingDefaultAdmin(e) == 0, 
     "Pending default admin is reset";
   assert success => _pendingDefaultAdminSchedule(e) == 0,
+    "Pending default admin delay is reset";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Function correctness: changeDefaultAdminDelay sets a pending default admin delay and its schedule                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule changeDefaultAdminDelay(env e, uint48 newDelay) {
+  require nonpayable(e);
+  require timeSanity(e);
+  require delayChangeWaitSanity(e, newDelay);
+  requireInvariant defaultAdminConsistency(defaultAdmin());
+  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
+
+  uint48 delayBefore = defaultAdminDelay(e);
+
+  changeDefaultAdminDelay@withrevert(e, newDelay);
+  bool success = !lastReverted;
+
+  // liveness
+  assert success <=> e.msg.sender == defaultAdmin(), 
+    "only the current default admin can begin a delay change";
+
+  // effect
+  assert success => _pendingDelay(e) == newDelay, "pending delay is set";
+  assert success => (
+    _pendingDelaySchedule(e) > e.block.timestamp || 
+    delayBefore == newDelay || // Interpreted as decreasing, x - x = 0
+    defaultAdminDelayIncreaseWait() == 0
+  ),
+    "pending delay schedule is set in the future unless accepted edge cases";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: pending delay wait is set depending on increasing or decreasing the delay                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule pendingDelayWait(env e, uint48 newDelay) {
+  changeDefaultAdminDelay(e, newDelay);
+
+  assert newDelay > defaultAdminDelay(e) => _pendingDelaySchedule(e) == e.block.timestamp + min(newDelay, defaultAdminDelayIncreaseWait()),
+    "Delay wait is the minimum between the new delay and a threshold when the delay is increased";
+  assert newDelay <= defaultAdminDelay(e) => _pendingDelaySchedule(e) == e.block.timestamp + defaultAdminDelay(e) - newDelay,
+    "Delay wait is the difference between the current and the new delay when the delay is decreased";
+}
+
+/* 
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: pending default admin delay and it schedule can only change together                                          │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule pendingDelayAndScheduleCoupling(env e, uint48 newDelay) {
+  requireInvariant defaultAdminConsistency(defaultAdmin());
+  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
+
+  address pendingDelayBefore = _pendingDelay(e);
+  uint48 scheduleBefore = _pendingDelaySchedule(e);
+
+  beginDefaultAdminTransfer(e, newDelay);
+
+  assert (
+    scheduleBefore != _pendingDelaySchedule(e) &&
+    pendingDelayBefore == _pendingDelay(e)
+  ) => newDelay == pendingDelayBefore, "pending delay stays the same if the new delay set is the same";
+  assert (
+    pendingDelayBefore != _pendingDelay(e) &&
+    scheduleBefore == _pendingDelaySchedule(e)
+  ) => (
+    (e.block.timestamp + min(newDelay, defaultAdminDelayIncreaseWait())) == scheduleBefore || // Increasing
+    (e.block.timestamp + defaultAdminDelay(e) - newDelay) == scheduleBefore // Decreasing
+  ), "pending delay stays the same if a default admin transfer is begun on accepted edge cases";
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Function correctness: rollbackDefaultAdminDelay resets the delay and its schedule                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule rollbackDefaultAdminDelay(env e) {
+  require nonpayable(e);
+  requireInvariant defaultAdminConsistency(defaultAdmin());
+  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
+
+  rollbackDefaultAdminDelay@withrevert(e);
+  bool success = !lastReverted;
+
+  // liveness
+  assert success <=> e.msg.sender == defaultAdmin(),
+    "only the current default admin can rollback a delay change";
+
+  // effect
+  assert success => _pendingDelay(e) == 0, 
+    "Pending default admin is reset";
+  assert success => _pendingDelaySchedule(e) == 0,
     "Pending default admin delay is reset";
 }
