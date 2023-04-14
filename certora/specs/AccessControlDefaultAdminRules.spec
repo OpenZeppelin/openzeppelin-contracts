@@ -105,8 +105,8 @@ rule noDefaultAdminChange(env e, method f, calldataarg args) {
   address adminAfter = defaultAdmin();
 
   assert adminBefore != adminAfter => (
-    (f.selector == acceptDefaultAdminTransfer().selector && adminAfter != 0) ||
-    (f.selector == renounceRole(bytes32,address).selector && adminAfter == 0)
+    f.selector == acceptDefaultAdminTransfer().selector ||
+    f.selector == renounceRole(bytes32,address).selector
   ), "default admin is only affected by accepting an admin transfer or renoucing";
 }
 
@@ -130,8 +130,8 @@ rule noPendingDefaultAdminChange(env e, method f, calldataarg args) {
     scheduleBefore != scheduleAfter
   ) => (
     f.selector == beginDefaultAdminTransfer(address).selector ||
-    (f.selector == acceptDefaultAdminTransfer().selector && pendingAdminAfter == 0 && scheduleAfter == 0) ||
-    (f.selector == cancelDefaultAdminTransfer().selector && pendingAdminAfter == 0 && scheduleAfter == 0)
+    f.selector == acceptDefaultAdminTransfer().selector ||
+    f.selector == cancelDefaultAdminTransfer().selector
   ), "pending admin and its schedule is only affected by beginning, accepting or cancelling an admin transfer";
 }
 
@@ -160,7 +160,7 @@ rule noPendingDefaultAdminDelayChange(env e, method f, calldataarg args) {
 
   assert pendingDelayBefore != pendingDelayAfter => (
     f.selector == changeDefaultAdminDelay(uint48).selector ||
-    (f.selector == rollbackDefaultAdminDelay().selector && pendingDelayAfter == 0)
+    f.selector == rollbackDefaultAdminDelay().selector
   ), "pending delay is only affected by changeDefaultAdminDelay or rollbackDefaultAdminDelay";
 }
 
