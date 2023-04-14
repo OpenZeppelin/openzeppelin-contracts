@@ -176,11 +176,13 @@ function testPush(
     // Can't push any key in the past
     if (keys.length > 0) {
         ${opts.keyTypeName} lastKey = keys[keys.length - 1];
-        pastKey = _bound${capitalize(opts.keyTypeName)}(pastKey, 0, lastKey - 1);
-
-        vm.roll(pastKey);
-        vm.expectRevert();
-        this.push(values[keys.length % values.length]);
+        if (lastKey > 0) {
+            pastKey = _bound${capitalize(opts.keyTypeName)}(pastKey, 0, lastKey - 1);
+    
+            vm.roll(pastKey);
+            vm.expectRevert();
+            this.push(values[keys.length % values.length]);
+        }
     }
 }
 

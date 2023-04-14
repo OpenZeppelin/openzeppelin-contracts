@@ -66,11 +66,13 @@ contract CheckpointsHistoryTest is Test {
         // Can't push any key in the past
         if (keys.length > 0) {
             uint32 lastKey = keys[keys.length - 1];
-            pastKey = _boundUint32(pastKey, 0, lastKey - 1);
+            if (lastKey > 0) {
+                pastKey = _boundUint32(pastKey, 0, lastKey - 1);
 
-            vm.roll(pastKey);
-            vm.expectRevert();
-            this.push(values[keys.length % values.length]);
+                vm.roll(pastKey);
+                vm.expectRevert();
+                this.push(values[keys.length % values.length]);
+            }
         }
     }
 
