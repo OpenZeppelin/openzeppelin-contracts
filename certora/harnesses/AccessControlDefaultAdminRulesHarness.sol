@@ -16,27 +16,27 @@ contract AccessControlDefaultAdminRulesHarness is AccessControlDefaultAdminRules
     }
 
     // FV
-    function _pendingDefaultAdmin() external view returns (address) {
+    function pendingDefaultAdmin_() external view returns (address) {
         (address newAdmin, ) = pendingDefaultAdmin();
         return newAdmin;
     }
 
-    function _pendingDefaultAdminSchedule() external view returns (uint48) {
+    function pendingDefaultAdminSchedule_() external view returns (uint48) {
         (, uint48 schedule) = pendingDefaultAdmin();
         return schedule;
     }
 
-    function _pendingDelay() external view returns (uint48) {
+    function pendingDelay_() external view returns (uint48) {
         (uint48 newDelay, ) = pendingDefaultAdminDelay();
         return newDelay;
     }
 
-    function _pendingDelaySchedule() external view returns (uint48) {
+    function pendingDelaySchedule_() external view returns (uint48) {
         (, uint48 schedule) = pendingDefaultAdminDelay();
         return schedule;
     }
 
-    function delayChangeWait(uint48 newDelay) external view returns (uint48) {
+    function delayChangeWait_(uint48 newDelay) external view returns (uint48) {
         return _delayChangeWait(newDelay);
     }
 

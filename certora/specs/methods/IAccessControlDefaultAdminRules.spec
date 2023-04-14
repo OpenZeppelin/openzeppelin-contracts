@@ -26,11 +26,11 @@ methods {
     // == FV ==
     
     // Default Admin
-    _pendingDefaultAdmin() returns (address)
-    _pendingDefaultAdminSchedule() returns (uint48)
+    pendingDefaultAdmin_() returns (address)
+    pendingDefaultAdminSchedule_() returns (uint48)
     
     // Default Admin Delay
-    _pendingDelay() returns (uint48)
-    _pendingDelaySchedule() returns (uint48)
-    delayChangeWait(uint48) returns (uint48)
+    pendingDelay_() returns (uint48)
+    pendingDelaySchedule_() returns (uint48)
+    delayChangeWait_(uint48) returns (uint48)
 }
