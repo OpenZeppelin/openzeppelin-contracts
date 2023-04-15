@@ -389,7 +389,7 @@ contract('ERC20VotesComp', function (accounts) {
 
     describe('getPriorVotes', function () {
       it('reverts if block number >= current block', async function () {
-        await expectRevert(this.token.getPriorVotes(other1, 5e10), 'Checkpoints: block not yet mined');
+        await expectRevert(this.token.getPriorVotes(other1, 5e10), 'Votes: block not yet mined');
       });
 
       it('returns 0 if there are no checkpoints', async function () {
@@ -470,7 +470,7 @@ contract('ERC20VotesComp', function (accounts) {
     });
 
     it('reverts if block number >= current block', async function () {
-      await expectRevert(this.token.getPastTotalSupply(5e10), 'Checkpoints: block not yet mined');
+      await expectRevert(this.token.getPastTotalSupply(5e10), 'Votes: block not yet mined');
     });
 
     it('returns 0 if there are no checkpoints', async function () {
