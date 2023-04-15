@@ -281,7 +281,7 @@ function shouldBehaveLikeVotes(accounts, tokens, fungible = true) {
         expect(await this.votes.getPastTotalSupply(blockNumber + 9)).to.be.bignumber.equal(weight[2]);
         expect(await this.votes.getPastTotalSupply(blockNumber + 10)).to.be.bignumber.equal(weight[2]);
         expect(await this.votes.getPastTotalSupply(blockNumber + 11)).to.be.bignumber.equal('0');
-        await expectRevert(this.votes.getPastTotalSupply(blockNumber + 12), 'Checkpoints: block not yet mined');
+        await expectRevert(this.votes.getPastTotalSupply(blockNumber + 12), 'Votes: block not yet mined');
       });
     });
 

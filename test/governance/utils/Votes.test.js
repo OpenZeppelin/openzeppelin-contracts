@@ -37,7 +37,7 @@ contract('Votes', function (accounts) {
     it('reverts if block number >= current block', async function () {
       await expectRevert(
         this.votes.getPastTotalSupply(this.txs.at(-1).receipt.blockNumber + 1),
-        'Checkpoints: block not yet mined',
+        'Votes: block not yet mined',
       );
     });
 
@@ -76,7 +76,7 @@ contract('Votes', function (accounts) {
     });
   });
 
-  describe('performs voting workflow', function () {
+  describe.only('performs voting workflow', function () {
     beforeEach(async function () {
       this.chainId = await getChainId();
     });

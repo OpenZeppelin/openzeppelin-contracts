@@ -14,7 +14,7 @@ contract('Checkpoints', function () {
     this.mock = await $Checkpoints.new();
   });
 
-  describe.only('History checkpoints', function () {
+  describe('History checkpoints', function () {
     const latest = (self, ...args) => self.methods['$latest_Checkpoints_Trace224(uint256)'](0, ...args);
     const latestCheckpoint = (self, ...args) =>
       self.methods['$latestCheckpoint_Checkpoints_Trace224(uint256)'](0, ...args);
