@@ -57,7 +57,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
 
         // Otherwise, do the binary search
         uint32 key = SafeCast.toUint32(blockNumber); 
-        return _quorumNumeratorHistory.lowerLookup(key);
+        return _quorumNumeratorHistory.upperLookup(key);
     }
 
     /**
