@@ -14,14 +14,14 @@ contract('Checkpoints', function () {
     this.mock = await $Checkpoints.new();
   });
 
-  describe('History checkpoints', function () {
-    const latest = (self, ...args) => self.methods['$latest_Checkpoints_History(uint256)'](0, ...args);
+  describe.only('History checkpoints', function () {
+    const latest = (self, ...args) => self.methods['$latest_Checkpoints_Trace224(uint256)'](0, ...args);
     const latestCheckpoint = (self, ...args) =>
-      self.methods['$latestCheckpoint_Checkpoints_History(uint256)'](0, ...args);
+      self.methods['$latestCheckpoint_Checkpoints_Trace224(uint256)'](0, ...args);
     const push = (self, ...args) => self.methods['$push(uint256,uint256)'](0, ...args);
     const getAtBlock = (self, ...args) => self.methods['$getAtBlock(uint256,uint256)'](0, ...args);
     const getAtRecentBlock = (self, ...args) => self.methods['$getAtProbablyRecentBlock(uint256,uint256)'](0, ...args);
-    const getLength = (self, ...args) => self.methods['$length_Checkpoints_History(uint256)'](0, ...args);
+    const getLength = (self, ...args) => self.methods['$length_Checkpoints_Trace224(uint256)'](0, ...args);
 
     describe('without checkpoints', function () {
       it('returns zero as latest value', async function () {
