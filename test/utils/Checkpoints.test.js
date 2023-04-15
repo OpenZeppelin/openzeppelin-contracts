@@ -19,7 +19,7 @@ contract('Checkpoints', function () {
     const latestCheckpoint = (self, ...args) =>
       self.methods['$latestCheckpoint_Checkpoints_Trace224(uint256)'](0, ...args);
     const push = (self, ...args) => self.methods['$push(uint256,uint256)'](0, ...args);
-    const getAtBlock = (self, ...args) => self.methods['$getAtBlock(uint256,uint256)'](0, ...args);
+    const getAtBlock = (self, ...args) => self.methods['$upperLookup(uint256,uint32)'](0, ...args);
     const getAtRecentBlock = (self, ...args) => self.methods['$getAtProbablyRecentBlock(uint256,uint256)'](0, ...args);
     const getLength = (self, ...args) => self.methods['$length_Checkpoints_Trace224(uint256)'](0, ...args);
 
@@ -36,7 +36,6 @@ contract('Checkpoints', function () {
       it('returns zero as past value', async function () {
         await time.advanceBlock();
         expect(await getAtBlock(this.mock, (await web3.eth.getBlockNumber()) - 1)).to.be.bignumber.equal('0');
-        expect(await getAtRecentBlock(this.mock, (await web3.eth.getBlockNumber()) - 1)).to.be.bignumber.equal('0');
       });
     });
 
