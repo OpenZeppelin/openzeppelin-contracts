@@ -76,7 +76,7 @@ contract('Votes', function (accounts) {
     });
   });
 
-  describe.only('performs voting workflow', function () {
+  describe('performs voting workflow', function () {
     beforeEach(async function () {
       this.chainId = await getChainId();
     });
