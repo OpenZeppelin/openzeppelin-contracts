@@ -20,7 +20,6 @@ contract('Checkpoints', function () {
       self.methods['$latestCheckpoint_Checkpoints_Trace224(uint256)'](0, ...args);
     const push = (self, ...args) => self.methods['$push(uint256,uint256)'](0, ...args);
     const getAtBlock = (self, ...args) => self.methods['$upperLookup(uint256,uint32)'](0, ...args);
-    const getAtRecentBlock = (self, ...args) => self.methods['$getAtProbablyRecentBlock(uint256,uint256)'](0, ...args);
     const getLength = (self, ...args) => self.methods['$length_Checkpoints_Trace224(uint256)'](0, ...args);
 
     describe('without checkpoints', function () {
@@ -58,30 +57,17 @@ contract('Checkpoints', function () {
         expect(ckpt[2]).to.be.bignumber.equal(web3.utils.toBN('3'));
       });
 
-      for (const getAtBlockVariant of [getAtBlock, getAtRecentBlock]) {
-        describe(`lookup: ${getAtBlockVariant}`, function () {
-          it('returns past values', async function () {
-            expect(await getAtBlockVariant(this.mock, this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-            expect(await getAtBlockVariant(this.mock, this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
-            expect(await getAtBlockVariant(this.mock, this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
-            // Block with no new checkpoints
-            expect(await getAtBlockVariant(this.mock, this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
-            expect(await getAtBlockVariant(this.mock, this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
-            expect(await getAtBlockVariant(this.mock, this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
-          });
-          it('reverts if block number >= current block', async function () {
-            await expectRevert(
-              getAtBlockVariant(this.mock, await web3.eth.getBlockNumber()),
-              'Checkpoints: block not yet mined',
-            );
-
-            await expectRevert(
-              getAtBlockVariant(this.mock, (await web3.eth.getBlockNumber()) + 1),
-              'Checkpoints: block not yet mined',
-            );
-          });
+      describe(`lookup: getAtBlock`, function () {
+        it('returns past values', async function () {
+          expect(await getAtBlock(this.mock, this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
+          expect(await getAtBlock(this.mock, this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
+          expect(await getAtBlock(this.mock, this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
+          // Block with no new checkpoints
+          expect(await getAtBlock(this.mock, this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
+          expect(await getAtBlock(this.mock, this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
+          expect(await getAtBlock(this.mock, this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
         });
-      }
+      });
 
       it('multiple checkpoints in the same block', async function () {
         const lengthBefore = await getLength(this.mock);
@@ -94,18 +80,6 @@ contract('Checkpoints', function () {
 
         expect(await getLength(this.mock)).to.be.bignumber.equal(lengthBefore.addn(1));
         expect(await latest(this.mock)).to.be.bignumber.equal('10');
-      });
-
-      it('more than 5 checkpoints', async function () {
-        for (let i = 4; i <= 6; i++) {
-          await push(this.mock, i);
-        }
-        expect(await getLength(this.mock)).to.be.bignumber.equal('6');
-        const block = await web3.eth.getBlockNumber();
-        // recent
-        expect(await getAtRecentBlock(this.mock, block - 1)).to.be.bignumber.equal('5');
-        // non-recent
-        expect(await getAtRecentBlock(this.mock, block - 9)).to.be.bignumber.equal('0');
       });
     });
   });
