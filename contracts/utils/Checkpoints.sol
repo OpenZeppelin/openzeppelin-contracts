@@ -17,38 +17,6 @@ import "./math/SafeCast.sol";
  * _Available since v4.5._
  */
 library Checkpoints {
-    /**
-     * @dev Returns checkpoint at given position.
-     */
-    function getAtPosition(Trace224 storage self, uint32 pos) internal view returns (Checkpoint224 memory) {
-        return self._checkpoints[pos];
-    }
-
-    /**
-     * @dev Pushes a value onto a History so that it is stored as the checkpoint for the current block.
-     *
-     * Returns previous value and new value.
-     */
-    function push(Trace224 storage self, uint256 value) internal returns (uint256, uint256) {
-        return _insert(self._checkpoints, SafeCast.toUint32(block.number), SafeCast.toUint224(value));
-    }
-
-    /**
-     * @dev Pushes a value onto a History, by updating the latest value using binary operation `op`. The new value will
-     * be set to `op(latest, delta)`.
-     *
-     * Returns previous value and new value.
-     */
-    function push(
-        Trace224 storage self,
-        function(uint256, uint256) view returns (uint256) op,
-        uint256 delta
-    ) internal returns (uint256, uint256) {
-        uint32 key = SafeCast.toUint32(block.number);
-        uint224 value = SafeCast.toUint224(op(latest(self), delta));
-        return push(self, key, value);
-    }
-
     struct Trace224 {
         Checkpoint224[] _checkpoints;
     }

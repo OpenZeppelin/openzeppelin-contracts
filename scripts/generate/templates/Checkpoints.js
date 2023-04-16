@@ -248,8 +248,6 @@ module.exports = format(
   header.trimEnd(),
   'library Checkpoints {',
   [
-    // Legacy function
-    legacyOperations(defaultOpts(224)),
     // New flavors
     ...OPTS.flatMap(opts => [types(opts), operations(opts), common(opts)]),
   ],
