@@ -54,7 +54,7 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
      * - `blockNumber` must have been already mined
      */
     function getPastVotes(address account, uint256 blockNumber) public view virtual override returns (uint256) {
-        require(blockNumber < block.number, 'Votes: block not yet mined');
+        require(blockNumber < block.number, "Votes: block not yet mined");
         uint32 key = SafeCast.toUint32(blockNumber);
         return _delegateCheckpoints[account].upperLookup(key);
     }
@@ -71,7 +71,7 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
      * - `blockNumber` must have been already mined
      */
     function getPastTotalSupply(uint256 blockNumber) public view virtual override returns (uint256) {
-        require(blockNumber < block.number, 'Votes: block not yet mined');
+        require(blockNumber < block.number, "Votes: block not yet mined");
         uint32 key = SafeCast.toUint32(blockNumber);
         return _totalCheckpoints.upperLookup(key);
     }
@@ -140,17 +140,11 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
     function _transferVotingUnits(address from, address to, uint256 amount) internal virtual {
         if (from == address(0)) {
             uint224 latest = _totalCheckpoints.latest();
-            _totalCheckpoints.push(
-                SafeCast.toUint32(block.timestamp), 
-                latest + SafeCast.toUint32(amount)
-            );
+            _totalCheckpoints.push(SafeCast.toUint32(block.timestamp), latest + SafeCast.toUint32(amount));
         }
         if (to == address(0)) {
             uint224 latest = _totalCheckpoints.latest();
-            _totalCheckpoints.push(
-                SafeCast.toUint32(block.timestamp), 
-                latest - SafeCast.toUint32(amount)
-            );
+            _totalCheckpoints.push(SafeCast.toUint32(block.timestamp), latest - SafeCast.toUint32(amount));
         }
         _moveDelegateVotes(delegates(from), delegates(to), amount);
     }
@@ -163,7 +157,7 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
             if (from != address(0)) {
                 uint224 latest = _totalCheckpoints.latest();
                 (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(
-                    SafeCast.toUint32(block.timestamp), 
+                    SafeCast.toUint32(block.timestamp),
                     latest - SafeCast.toUint32(amount)
                 );
                 emit DelegateVotesChanged(from, oldValue, newValue);
@@ -171,7 +165,7 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
             if (to != address(0)) {
                 uint224 latest = _totalCheckpoints.latest();
                 (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(
-                    SafeCast.toUint32(block.timestamp), 
+                    SafeCast.toUint32(block.timestamp),
                     latest + SafeCast.toUint32(amount)
                 );
                 emit DelegateVotesChanged(to, oldValue, newValue);

@@ -56,7 +56,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         }
 
         // Otherwise, do the binary search
-        uint32 key = SafeCast.toUint32(blockNumber); 
+        uint32 key = SafeCast.toUint32(blockNumber);
         return _quorumNumeratorHistory.upperLookup(key);
     }
 
@@ -111,10 +111,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         }
 
         // Set new quorum for future proposals
-        _quorumNumeratorHistory.push(
-            SafeCast.toUint32(block.number), 
-            SafeCast.toUint224(newQuorumNumerator)
-        );
+        _quorumNumeratorHistory.push(SafeCast.toUint32(block.number), SafeCast.toUint224(newQuorumNumerator));
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
     }

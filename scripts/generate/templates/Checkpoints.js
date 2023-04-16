@@ -62,43 +62,7 @@ function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
     uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
-`;
 
-const legacyOperations = opts => `\
-/**
- * @dev Returns checkpoint at given position.
- */
-function getAtPosition(${opts.historyTypeName} storage self, uint32 pos) internal view returns (${opts.checkpointTypeName} memory) {
-    return self._checkpoints[pos];
-}
-
-/**
- * @dev Pushes a value onto a History so that it is stored as the checkpoint for the current block.
- *
- * Returns previous value and new value.
- */
-function push(${opts.historyTypeName} storage self, uint256 value) internal returns (uint256, uint256) {
-    return _insert(self.${opts.checkpointFieldName}, SafeCast.toUint32(block.number), SafeCast.toUint224(value));
-}
-
-/**
- * @dev Pushes a value onto a History, by updating the latest value using binary operation \`op\`. The new value will
- * be set to \`op(latest, delta)\`.
- *
- * Returns previous value and new value.
- */
-function push(
-    ${opts.historyTypeName} storage self,
-    function(uint256, uint256) view returns (uint256) op,
-    uint256 delta
-) internal returns (uint256, uint256) {
-    uint32 key = SafeCast.toUint32(block.number);
-    ${opts.valueTypeName} value = SafeCast.to${opts.valueTypeNameCap}(op(latest(self), delta));
-    return push(self, key, value);
-}
-`;
-
-const common = opts => `\
 /**
  * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
  */
@@ -249,7 +213,7 @@ module.exports = format(
   'library Checkpoints {',
   [
     // New flavors
-    ...OPTS.flatMap(opts => [types(opts), operations(opts), common(opts)]),
+    ...OPTS.flatMap(opts => [types(opts), operations(opts)]),
   ],
   '}',
 );
