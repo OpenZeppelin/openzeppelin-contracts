@@ -61,7 +61,7 @@ contract('ERC20Votes', function (accounts) {
     expect(await this.token.getPastVotes(holder, block - 6)).to.be.bignumber.equal('0');
   });
 
-  describe.only('set delegation', function () {
+  describe('set delegation', function () {
     describe('call', function () {
       it('delegation with balance', async function () {
         await this.token.$_mint(holder, supply);
@@ -231,7 +231,7 @@ contract('ERC20Votes', function (accounts) {
     });
   });
 
-  describe.only('change delegation', function () {
+  describe('change delegation', function () {
     beforeEach(async function () {
       await this.token.$_mint(holder, supply);
       await this.token.delegate(holder, { from: holder });
@@ -269,7 +269,7 @@ contract('ERC20Votes', function (accounts) {
     });
   });
 
-  describe.only('transfers', function () {
+  describe('transfers', function () {
     beforeEach(async function () {
       await this.token.$_mint(holder, supply);
     });
@@ -360,7 +360,7 @@ contract('ERC20Votes', function (accounts) {
   });
 
   // The following tests are a adaptation of https://github.com/compound-finance/compound-protocol/blob/master/tests/Governance/CompTest.js.
-  describe.only('Compound test suite', function () {
+  describe('Compound test suite', function () {
     beforeEach(async function () {
       await this.token.$_mint(holder, supply);
     });
@@ -497,7 +497,7 @@ contract('ERC20Votes', function (accounts) {
     });
   });
 
-  describe.only('getPastTotalSupply', function () {
+  describe('getPastTotalSupply', function () {
     beforeEach(async function () {
       await this.token.delegate(holder, { from: holder });
     });
@@ -574,7 +574,7 @@ contract('ERC20Votes', function (accounts) {
     });
   });
 
-  describe.only('Voting workflow', function () {
+  describe('Voting workflow', function () {
     beforeEach(async function () {
       this.name = name;
       this.votes = this.token;
