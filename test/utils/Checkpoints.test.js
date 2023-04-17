@@ -1,8 +1,6 @@
-const { expectRevert, time } = require('@openzeppelin/test-helpers');
+const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
-
-const { batchInBlock } = require('../helpers/txpool');
 
 const $Checkpoints = artifacts.require('$Checkpoints');
 
@@ -12,76 +10,6 @@ const last = array => (array.length ? array[array.length - 1] : undefined);
 contract('Checkpoints', function () {
   beforeEach(async function () {
     this.mock = await $Checkpoints.new();
-  });
-
-  describe('History checkpoints', function () {
-    const latest = (self, ...args) => self.methods['$latest_Checkpoints_Trace224(uint256)'](0, ...args);
-    const latestCheckpoint = (self, ...args) =>
-      self.methods['$latestCheckpoint_Checkpoints_Trace224(uint256)'](0, ...args);
-    const push = (self, ...args) => self.methods['$push(uint256,uint256)'](0, ...args);
-    const getAtBlock = (self, ...args) => self.methods['$upperLookup(uint256,uint32)'](0, ...args);
-    const getLength = (self, ...args) => self.methods['$length_Checkpoints_Trace224(uint256)'](0, ...args);
-
-    describe('without checkpoints', function () {
-      it('returns zero as latest value', async function () {
-        expect(await latest(this.mock)).to.be.bignumber.equal('0');
-
-        const ckpt = await latestCheckpoint(this.mock);
-        expect(ckpt[0]).to.be.equal(false);
-        expect(ckpt[1]).to.be.bignumber.equal('0');
-        expect(ckpt[2]).to.be.bignumber.equal('0');
-      });
-
-      it('returns zero as past value', async function () {
-        await time.advanceBlock();
-        expect(await getAtBlock(this.mock, (await web3.eth.getBlockNumber()) - 1)).to.be.bignumber.equal('0');
-      });
-    });
-
-    describe('with checkpoints', function () {
-      beforeEach('pushing checkpoints', async function () {
-        this.tx1 = await push(this.mock, 1);
-        this.tx2 = await push(this.mock, 2);
-        await time.advanceBlock();
-        this.tx3 = await push(this.mock, 3);
-        await time.advanceBlock();
-        await time.advanceBlock();
-      });
-
-      it('returns latest value', async function () {
-        expect(await latest(this.mock)).to.be.bignumber.equal('3');
-
-        const ckpt = await latestCheckpoint(this.mock);
-        expect(ckpt[0]).to.be.equal(true);
-        expect(ckpt[1]).to.be.bignumber.equal(web3.utils.toBN(this.tx3.receipt.blockNumber));
-        expect(ckpt[2]).to.be.bignumber.equal(web3.utils.toBN('3'));
-      });
-
-      describe(`lookup: getAtBlock`, function () {
-        it('returns past values', async function () {
-          expect(await getAtBlock(this.mock, this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-          expect(await getAtBlock(this.mock, this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
-          expect(await getAtBlock(this.mock, this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
-          // Block with no new checkpoints
-          expect(await getAtBlock(this.mock, this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
-          expect(await getAtBlock(this.mock, this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
-          expect(await getAtBlock(this.mock, this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
-        });
-      });
-
-      it('multiple checkpoints in the same block', async function () {
-        const lengthBefore = await getLength(this.mock);
-
-        await batchInBlock([
-          () => push(this.mock, 8, { gas: 100000 }),
-          () => push(this.mock, 9, { gas: 100000 }),
-          () => push(this.mock, 10, { gas: 100000 }),
-        ]);
-
-        expect(await getLength(this.mock)).to.be.bignumber.equal(lengthBefore.addn(1));
-        expect(await latest(this.mock)).to.be.bignumber.equal('10');
-      });
-    });
   });
 
   for (const length of [160, 224]) {

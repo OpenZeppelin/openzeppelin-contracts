@@ -140,11 +140,11 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
     function _transferVotingUnits(address from, address to, uint256 amount) internal virtual {
         if (from == address(0)) {
             uint224 latest = _totalCheckpoints.latest();
-            _totalCheckpoints.push(SafeCast.toUint32(block.timestamp), latest + SafeCast.toUint32(amount));
+            _totalCheckpoints.push(SafeCast.toUint32(block.number), latest + SafeCast.toUint224(amount));
         }
         if (to == address(0)) {
             uint224 latest = _totalCheckpoints.latest();
-            _totalCheckpoints.push(SafeCast.toUint32(block.timestamp), latest - SafeCast.toUint32(amount));
+            _totalCheckpoints.push(SafeCast.toUint32(block.number), latest - SafeCast.toUint224(amount));
         }
         _moveDelegateVotes(delegates(from), delegates(to), amount);
     }
@@ -155,18 +155,18 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
     function _moveDelegateVotes(address from, address to, uint256 amount) private {
         if (from != to && amount > 0) {
             if (from != address(0)) {
-                uint224 latest = _totalCheckpoints.latest();
+                uint224 latest = _delegateCheckpoints[from].latest();
                 (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[from].push(
-                    SafeCast.toUint32(block.timestamp),
-                    latest - SafeCast.toUint32(amount)
+                    SafeCast.toUint32(block.number),
+                    latest - SafeCast.toUint224(amount)
                 );
                 emit DelegateVotesChanged(from, oldValue, newValue);
             }
             if (to != address(0)) {
-                uint224 latest = _totalCheckpoints.latest();
+                uint224 latest = _delegateCheckpoints[to].latest();
                 (uint256 oldValue, uint256 newValue) = _delegateCheckpoints[to].push(
-                    SafeCast.toUint32(block.timestamp),
-                    latest + SafeCast.toUint32(amount)
+                    SafeCast.toUint32(block.number),
+                    latest + SafeCast.toUint224(amount)
                 );
                 emit DelegateVotesChanged(to, oldValue, newValue);
             }
@@ -178,6 +178,13 @@ abstract contract Votes is IVotes, Context, EIP712, Nonces {
      */
     function _numCheckpoints(address account) internal view virtual returns (uint32) {
         return SafeCast.toUint32(_delegateCheckpoints[account].length());
+    }
+
+    /**
+     * @dev Get the `pos`-th checkpoint for `account`.
+     */
+    function _checkpoints(address account, uint32 pos) internal view virtual returns (Checkpoints.Checkpoint224 memory) {
+        return _delegateCheckpoints[account]._checkpoints[pos];
     }
 
     function _add(uint256 a, uint256 b) private pure returns (uint256) {
