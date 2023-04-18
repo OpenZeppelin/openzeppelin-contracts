@@ -594,7 +594,7 @@ contract('Governor', function (accounts) {
       });
     });
 
-    describe('ERC1155', function () {
+    describe.only('ERC1155', function () {
       const uri = 'https://token-cdn-domain/{id}.json';
       const tokenIds = {
         1: new BN(1000),

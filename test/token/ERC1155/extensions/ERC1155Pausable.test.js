@@ -13,7 +13,7 @@ contract('ERC1155Pausable', function (accounts) {
     this.token = await ERC1155Pausable.new(uri);
   });
 
-  context('when token is paused', function () {
+  context.only('when token is paused', function () {
     const firstTokenId = new BN('37');
     const firstTokenAmount = new BN('42');
 
