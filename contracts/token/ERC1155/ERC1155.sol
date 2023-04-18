@@ -207,8 +207,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     function _safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) internal {
         require(to != address(0), "ERC1155: transfer to the zero address");
         require(from != address(0), "ERC1155: transfer from the zero address");
-        uint256[] memory ids = _asSingletonArray(id);
-        uint256[] memory amounts = _asSingletonArray(amount);
+        uint256[] memory ids;
+        uint256[] memory amounts;
+        (ids, amounts) = _asSingletonArrays(id, amount);
         _update(from, to, ids, amounts, data);
     }
 
@@ -382,5 +383,24 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         array[0] = element;
 
         return array;
+    }
+
+    function _asSingletonArrays(uint256 element1, uint256 element2) private pure returns (uint256[] memory, uint256[] memory) {
+        uint256[] memory array1;
+        uint256[] memory array2;
+        
+        assembly {
+            array1 := mload(0x40)
+            mstore(array1, 1)
+            mstore(add(array1, 0x20), element1)
+
+            array2 := add(array1, 0x40)
+            mstore(array2, 1)
+            mstore(add(array2, 0x20), element2)
+
+            mstore(0x40, add(array2, 0x40))
+        }
+
+        return (array1, array2);
     }
 }
