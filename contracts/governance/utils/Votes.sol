@@ -59,7 +59,7 @@ abstract contract Votes is Context, EIP712, IERC5805 {
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual override returns (string memory) {
         // Check that the clock was not modified
-        require(clock() == block.number);
+        require(clock() == block.number, "Votes: broken clock mode");
         return "mode=blocknumber&from=default";
     }
 
@@ -72,7 +72,7 @@ abstract contract Votes is Context, EIP712, IERC5805 {
 
     /**
      * @dev Returns the amount of votes that `account` had at a specific moment in the past. If the `clock()` is
-     * configured to use block numbers, this will return the value the end of the corresponding block.
+     * configured to use block numbers, this will return the value at the end of the corresponding block.
      *
      * Requirements:
      *
@@ -85,7 +85,7 @@ abstract contract Votes is Context, EIP712, IERC5805 {
 
     /**
      * @dev Returns the total supply of votes available at a specific moment in the past. If the `clock()` is
-     * configured to use block numbers, this will return the value the end of the corresponding block.
+     * configured to use block numbers, this will return the value at the end of the corresponding block.
      *
      * NOTE: This value is the sum of all available votes, which is not necessarily the sum of all delegated votes.
      * Votes that have not been delegated are still part of total supply, even though they would not participate in a
