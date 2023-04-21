@@ -52,11 +52,7 @@ library Math {
      * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv)
      * with further edits by Uniswap Labs also under MIT license.
      */
-    function mulDiv(
-        uint256 x,
-        uint256 y,
-        uint256 denominator
-    ) internal pure returns (uint256 result) {
+    function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
         unchecked {
             // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
             // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
@@ -71,11 +67,14 @@ library Math {
 
             // Handle non-overflow cases, 256 by 256 division.
             if (prod1 == 0) {
+                // Solidity will revert if denominator == 0, unlike the div opcode on its own.
+                // The surrounding unchecked block does not change this fact.
+                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
                 return prod0 / denominator;
             }
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
-            require(denominator > prod1);
+            require(denominator > prod1, "Math: mulDiv overflow");
 
             ///////////////////////////////////////////////
             // 512 by 256 division.
@@ -137,12 +136,7 @@ library Math {
     /**
      * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
      */
-    function mulDiv(
-        uint256 x,
-        uint256 y,
-        uint256 denominator,
-        Rounding rounding
-    ) internal pure returns (uint256) {
+    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
         uint256 result = mulDiv(x, y, denominator);
         if (rounding == Rounding.Up && mulmod(x, y, denominator) > 0) {
             result += 1;
@@ -258,31 +252,31 @@ library Math {
     function log10(uint256 value) internal pure returns (uint256) {
         uint256 result = 0;
         unchecked {
-            if (value >= 10**64) {
-                value /= 10**64;
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
                 result += 64;
             }
-            if (value >= 10**32) {
-                value /= 10**32;
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
                 result += 32;
             }
-            if (value >= 10**16) {
-                value /= 10**16;
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
                 result += 16;
             }
-            if (value >= 10**8) {
-                value /= 10**8;
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
                 result += 8;
             }
-            if (value >= 10**4) {
-                value /= 10**4;
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
                 result += 4;
             }
-            if (value >= 10**2) {
-                value /= 10**2;
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
                 result += 2;
             }
-            if (value >= 10**1) {
+            if (value >= 10 ** 1) {
                 result += 1;
             }
         }
@@ -296,7 +290,7 @@ library Math {
     function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log10(value);
-            return result + (rounding == Rounding.Up && 10**result < value ? 1 : 0);
+            return result + (rounding == Rounding.Up && 10 ** result < value ? 1 : 0);
         }
     }
 
@@ -333,13 +327,13 @@ library Math {
     }
 
     /**
-     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
+     * @dev Return the log in base 256, following the selected rounding direction, of a positive value.
      * Returns 0 if given 0.
      */
     function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
         unchecked {
             uint256 result = log256(value);
-            return result + (rounding == Rounding.Up && 1 << (result * 8) < value ? 1 : 0);
+            return result + (rounding == Rounding.Up && 1 << (result << 3) < value ? 1 : 0);
         }
     }
 }

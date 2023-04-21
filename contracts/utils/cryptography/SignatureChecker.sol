@@ -4,7 +4,6 @@
 pragma solidity ^0.8.0;
 
 import "./ECDSA.sol";
-import "../Address.sol";
 import "../../interfaces/IERC1271.sol";
 
 /**
@@ -22,21 +21,30 @@ library SignatureChecker {
      * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
      */
-    function isValidSignatureNow(
+    function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+        (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(hash, signature);
+        return
+            (error == ECDSA.RecoverError.NoError && recovered == signer) ||
+            isValidERC1271SignatureNow(signer, hash, signature);
+    }
+
+    /**
+     * @dev Checks if a signature is valid for a given signer and data hash. The signature is validated
+     * against the signer smart contract using ERC1271.
+     *
+     * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
+     * change through time. It could return true at block N and false at block N+1 (or the opposite).
+     */
+    function isValidERC1271SignatureNow(
         address signer,
         bytes32 hash,
         bytes memory signature
     ) internal view returns (bool) {
-        (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(hash, signature);
-        if (error == ECDSA.RecoverError.NoError && recovered == signer) {
-            return true;
-        }
-
         (bool success, bytes memory result) = signer.staticcall(
             abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)
         );
         return (success &&
-            result.length == 32 &&
+            result.length >= 32 &&
             abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector));
     }
 }

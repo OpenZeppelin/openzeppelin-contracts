@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.3) (interfaces/IERC1967.sol)
 
 pragma solidity ^0.8.0;
 

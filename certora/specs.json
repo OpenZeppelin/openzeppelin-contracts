@@ -1,0 +1,71 @@
+[
+  {
+    "spec": "Pausable",
+    "contract": "PausableHarness",
+    "files": ["certora/harnesses/PausableHarness.sol"]
+  },
+  {
+    "spec": "AccessControl",
+    "contract": "AccessControlHarness",
+    "files": ["certora/harnesses/AccessControlHarness.sol"]
+  },
+  {
+    "spec": "DoubleEndedQueue",
+    "contract": "DoubleEndedQueueHarness",
+    "files": ["certora/harnesses/DoubleEndedQueueHarness.sol"]
+  },
+  {
+    "spec": "Ownable",
+    "contract": "OwnableHarness",
+    "files": ["certora/harnesses/OwnableHarness.sol"]
+  },
+  {
+    "spec": "Ownable2Step",
+    "contract": "Ownable2StepHarness",
+    "files": ["certora/harnesses/Ownable2StepHarness.sol"]
+  },
+  {
+    "spec": "ERC20",
+    "contract": "ERC20PermitHarness",
+    "files": ["certora/harnesses/ERC20PermitHarness.sol"],
+    "options": ["--optimistic_loop"]
+  },
+  {
+    "spec": "ERC20FlashMint",
+    "contract": "ERC20FlashMintHarness",
+    "files": [
+      "certora/harnesses/ERC20FlashMintHarness.sol",
+      "certora/harnesses/ERC3156FlashBorrowerHarness.sol"
+    ],
+    "options": ["--optimistic_loop"]
+  },
+  {
+    "spec": "ERC20Wrapper",
+    "contract": "ERC20WrapperHarness",
+    "files": [
+      "certora/harnesses/ERC20PermitHarness.sol",
+      "certora/harnesses/ERC20WrapperHarness.sol"
+    ],
+    "options": [
+      "--link ERC20WrapperHarness:_underlying=ERC20PermitHarness",
+      "--optimistic_loop"
+    ]
+  },
+  {
+    "spec": "ERC721",
+    "contract": "ERC721Harness",
+    "files": ["certora/harnesses/ERC721Harness.sol", "certora/harnesses/ERC721ReceiverHarness.sol"],
+    "options": ["--optimistic_loop"]
+  },
+  {
+    "spec": "Initializable",
+    "contract": "InitializableHarness",
+    "files": ["certora/harnesses/InitializableHarness.sol"]
+  },
+  {
+    "spec": "TimelockController",
+    "contract": "TimelockControllerHarness",
+    "files": ["certora/harnesses/TimelockControllerHarness.sol"],
+    "options": ["--optimistic_hashing", "--optimistic_loop"]
+  }
+]

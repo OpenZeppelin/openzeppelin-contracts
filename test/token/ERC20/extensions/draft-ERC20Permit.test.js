@@ -1,19 +1,20 @@
 /* eslint-disable */
 
-const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
-const { MAX_UINT256, ZERO_ADDRESS, ZERO_BYTES32 } = constants;
+const { MAX_UINT256 } = constants;
 
 const { fromRpcSig } = require('ethereumjs-util');
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
-const ERC20PermitMock = artifacts.require('ERC20PermitMock');
+const ERC20Permit = artifacts.require('$ERC20Permit');
 
-const { EIP712Domain, Permit, domainSeparator } = require('../../../helpers/eip712');
+const { Permit, getDomain, domainType, domainSeparator } = require('../../../helpers/eip712');
+const { getChainId } = require('../../../helpers/chainid');
 
 contract('ERC20Permit', function (accounts) {
-  const [ initialHolder, spender, recipient, other ] = accounts;
+  const [initialHolder, spender] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -22,12 +23,10 @@ contract('ERC20Permit', function (accounts) {
   const initialSupply = new BN(100);
 
   beforeEach(async function () {
-    this.token = await ERC20PermitMock.new(name, symbol, initialHolder, initialSupply);
+    this.chainId = await getChainId();
 
-    // We get the chain id from the contract because Ganache (used for coverage) does not return the same chain id
-    // from within the EVM as from the JSON RPC interface.
-    // See https://github.com/trufflesuite/ganache-core/issues/515
-    this.chainId = await this.token.getChainId();
+    this.token = await ERC20Permit.new(name, symbol, name);
+    await this.token.$_mint(initialHolder, initialSupply);
   });
 
   it('initial nonce is 0', async function () {
@@ -35,11 +34,7 @@ contract('ERC20Permit', function (accounts) {
   });
 
   it('domain separator', async function () {
-    expect(
-      await this.token.DOMAIN_SEPARATOR(),
-    ).to.equal(
-      await domainSeparator(name, version, this.chainId, this.token.address),
-    );
+    expect(await this.token.DOMAIN_SEPARATOR()).to.equal(await getDomain(this.token).then(domainSeparator));
   });
 
   describe('permit', function () {
@@ -50,28 +45,29 @@ contract('ERC20Permit', function (accounts) {
     const nonce = 0;
     const maxDeadline = MAX_UINT256;
 
-    const buildData = (chainId, verifyingContract, deadline = maxDeadline) => ({
-      primaryType: 'Permit',
-      types: { EIP712Domain, Permit },
-      domain: { name, version, chainId, verifyingContract },
-      message: { owner, spender, value, nonce, deadline },
-    });
+    const buildData = (contract, deadline = maxDeadline) =>
+      getDomain(contract).then(domain => ({
+        primaryType: 'Permit',
+        types: { EIP712Domain: domainType(domain), Permit },
+        domain,
+        message: { owner, spender, value, nonce, deadline },
+      }));
 
     it('accepts owner signature', async function () {
-      const data = buildData(this.chainId, this.token.address);
-      const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
-      const { v, r, s } = fromRpcSig(signature);
+      const { v, r, s } = await buildData(this.token)
+        .then(data => ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data }))
+        .then(fromRpcSig);
 
-      const receipt = await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
+      await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
 
       expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
       expect(await this.token.allowance(owner, spender)).to.be.bignumber.equal(value);
     });
 
     it('rejects reused signature', async function () {
-      const data = buildData(this.chainId, this.token.address);
-      const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
-      const { v, r, s } = fromRpcSig(signature);
+      const { v, r, s } = await buildData(this.token)
+        .then(data => ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data }))
+        .then(fromRpcSig);
 
       await this.token.permit(owner, spender, value, maxDeadline, v, r, s);
 
@@ -83,9 +79,10 @@ contract('ERC20Permit', function (accounts) {
 
     it('rejects other signature', async function () {
       const otherWallet = Wallet.generate();
-      const data = buildData(this.chainId, this.token.address);
-      const signature = ethSigUtil.signTypedMessage(otherWallet.getPrivateKey(), { data });
-      const { v, r, s } = fromRpcSig(signature);
+
+      const { v, r, s } = await buildData(this.token)
+        .then(data => ethSigUtil.signTypedMessage(otherWallet.getPrivateKey(), { data }))
+        .then(fromRpcSig);
 
       await expectRevert(
         this.token.permit(owner, spender, value, maxDeadline, v, r, s),
@@ -96,14 +93,11 @@ contract('ERC20Permit', function (accounts) {
     it('rejects expired permit', async function () {
       const deadline = (await time.latest()) - time.duration.weeks(1);
 
-      const data = buildData(this.chainId, this.token.address, deadline);
-      const signature = ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data });
-      const { v, r, s } = fromRpcSig(signature);
+      const { v, r, s } = await buildData(this.token, deadline)
+        .then(data => ethSigUtil.signTypedMessage(wallet.getPrivateKey(), { data }))
+        .then(fromRpcSig);
 
-      await expectRevert(
-        this.token.permit(owner, spender, value, deadline, v, r, s),
-        'ERC20Permit: expired deadline',
-      );
+      await expectRevert(this.token.permit(owner, spender, value, deadline, v, r, s), 'ERC20Permit: expired deadline');
     });
   });
 });

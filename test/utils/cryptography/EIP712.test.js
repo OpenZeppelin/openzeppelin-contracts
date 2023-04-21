@@ -1,9 +1,11 @@
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
-const { EIP712Domain, domainSeparator } = require('../../helpers/eip712');
+const { getDomain, domainType, domainSeparator, hashTypedData } = require('../../helpers/eip712');
+const { getChainId } = require('../../helpers/chainid');
+const { mapValues } = require('../../helpers/map-values');
 
-const EIP712 = artifacts.require('EIP712External');
+const EIP712Verifier = artifacts.require('$EIP712Verifier');
 
 contract('EIP712', function (accounts) {
   const [mailTo] = accounts;
@@ -12,25 +14,36 @@ contract('EIP712', function (accounts) {
   const version = '1';
 
   beforeEach('deploying', async function () {
-    this.eip712 = await EIP712.new(name, version);
+    this.eip712 = await EIP712Verifier.new(name, version);
 
-    // We get the chain id from the contract because Ganache (used for coverage) does not return the same chain id
-    // from within the EVM as from the JSON RPC interface.
-    // See https://github.com/trufflesuite/ganache-core/issues/515
-    this.chainId = await this.eip712.getChainId();
+    this.domain = {
+      name,
+      version,
+      chainId: await getChainId(),
+      verifyingContract: this.eip712.address,
+    };
+    this.domainType = domainType(this.domain);
   });
 
-  it('domain separator', async function () {
-    expect(
-      await this.eip712.domainSeparator(),
-    ).to.equal(
-      await domainSeparator(name, version, this.chainId, this.eip712.address),
-    );
+  describe('domain separator', function () {
+    it('is internally available', async function () {
+      const expected = await domainSeparator(this.domain);
+
+      expect(await this.eip712.$_domainSeparatorV4()).to.equal(expected);
+    });
+
+    it("can be rebuilt using EIP-5267's eip712Domain", async function () {
+      const rebuildDomain = await getDomain(this.eip712);
+      expect(mapValues(rebuildDomain, String)).to.be.deep.equal(mapValues(this.domain, String));
+    });
+  });
+
+  it('hash digest', async function () {
+    const structhash = web3.utils.randomHex(32);
+    expect(await this.eip712.$_hashTypedDataV4(structhash)).to.be.equal(hashTypedData(this.domain, structhash));
   });
 
   it('digest', async function () {
-    const chainId = this.chainId;
-    const verifyingContract = this.eip712.address;
     const message = {
       to: mailTo,
       contents: 'very interesting',
@@ -38,13 +51,13 @@ contract('EIP712', function (accounts) {
 
     const data = {
       types: {
-        EIP712Domain,
+        EIP712Domain: this.domainType,
         Mail: [
           { name: 'to', type: 'address' },
           { name: 'contents', type: 'string' },
         ],
       },
-      domain: { name, version, chainId, verifyingContract },
+      domain: this.domain,
       primaryType: 'Mail',
       message,
     };
