@@ -8,7 +8,7 @@ import "./IAuthority.sol";
 /**
  * @dev This contract module makes available a {restricted} modifier. Functions decorated with this modifier will be
  * permissioned according to an "authority": a contract like {AccessManager} that follows the {IAuthority} interface,
- * implementing a policy that allows certain callers access to certain functions.
+ * implementing a policy that allows certain callers to access certain functions.
  *
  * IMPORTANT: The `restricted` modifier should never be used on `internal` functions, judiciously used in `public`
  * functions, and ideally only used in `external` functions. See {restricted}.
@@ -29,6 +29,18 @@ contract AccessManaged is Context {
      * should never be used on `internal` functions. Failure to follow these rules can have critical security
      * implications! This is because the permissions are determined by the function that entered the contract, i.e. the
      * function at the bottom of the call stack, and not the function where the modifier is visible in the source code.
+     * ====
+     *
+     * [NOTE]
+     * ====
+     * Selector collisions are mitigated by scoping permissions per contract, but some edge cases must be considered:
+     *
+     * * If the https://docs.soliditylang.org/en/latest/contracts.html#receive-ether-function[`receive()`] function is restricted,
+     * any other function with a `0x00000000` selector will share permissions with `receive()`.
+     * * Similarly, if there's no `receive()` function but a `fallback()` instead, the fallback might be called with empty `calldata`,
+     * sharing the `0x00000000` selector permissions as well.
+     * * For any other selector, if the restricted function is set on an upgradeable contract, an upgrade may remove the restricted
+     * function and replace it with a new method whose selector replaces the last one, keeping the previous permissions.
      * ====
      */
     modifier restricted() {

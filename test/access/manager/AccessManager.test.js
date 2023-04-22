@@ -200,6 +200,7 @@ contract('AccessManager', function (accounts) {
 
   describe('allowing', function () {
     const group = '1';
+    const otherGroup = '2';
     const groupMember = user1;
     const selector = web3.eth.abi.encodeFunctionSignature('restrictedFunction()');
     const otherSelector = web3.eth.abi.encodeFunctionSignature('otherRestrictedFunction()');
@@ -288,6 +289,13 @@ contract('AccessManager', function (accounts) {
     it('works on closed target', async function () {
       await this.manager.setContractModeClosed(this.managed.address, { from: admin });
       await this.manager.setFunctionAllowedGroup(this.managed.address, [selector], group, false, { from: admin });
+    });
+
+    it('cannot allow nonexistent group', async function () {
+      await expectRevert(
+        this.manager.setFunctionAllowedGroup(this.managed.address, [selector], otherGroup, true, { from: admin }),
+        'AccessManager: unknown group',
+      );
     });
   });
 

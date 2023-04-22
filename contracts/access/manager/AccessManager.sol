@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.13;
 
-import "../AccessControl.sol";
 import "../AccessControlDefaultAdminRules.sol";
 import "./IAuthority.sol";
 import "./AccessManaged.sol";
@@ -18,7 +17,7 @@ interface IAccessManager is IAuthority, IAccessControlDefaultAdminRules {
 
     event GroupAllowed(address indexed target, bytes4 indexed selector, uint8 indexed group, bool allowed);
 
-    event AccessModeUpdated(address indexed target, AccessMode indexed mode);
+    event AccessModeUpdated(address indexed target, AccessMode previousMode, AccessMode indexed mode);
 
     function createGroup(uint8 group, string calldata name) external;
 
@@ -74,13 +73,13 @@ interface IAccessManager is IAuthority, IAccessControlDefaultAdminRules {
  * it will be highly secured (e.g., a multisig or a well-configured DAO). Additionally, {AccessControlDefaultAdminRules}
  * is included to enforce security rules on this account.
  *
- * NOTE: Some of the functions in this contract, such as {getUserGroups}, return a `bytes32` bitmap to succintly
+ * NOTE: Some of the functions in this contract, such as {getUserGroups}, return a `bytes32` bitmap to succinctly
  * represent a set of groups. In a bitmap, bit `n` (counting from the least significant bit) will be 1 if and only if
  * the group with number `n` is in the set. For example, the hex value `0x05` represents the set of the two groups
  * numbered 0 and 2 from its binary equivalence `0b101`
  */
 contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
-    bytes32 _createdGroups;
+    bytes32 private _createdGroups;
 
     // user -> groups
     mapping(address => bytes32) private _userGroups;
@@ -201,6 +200,7 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
         uint8 group,
         bool allowed
     ) public virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(hasGroup(group), "AccessManager: unknown group");
         for (uint256 i = 0; i < selectors.length; i++) {
             bytes4 selector = selectors[i];
             _allowedGroups[target][selector] = _withUpdatedGroup(_allowedGroups[target][selector], group, allowed);
@@ -289,8 +289,9 @@ contract AccessManager is IAccessManager, AccessControlDefaultAdminRules {
      * @dev Sets the restricted mode of a target contract.
      */
     function _setContractMode(address target, AccessMode mode) internal virtual {
+        AccessMode previousMode = _contractMode[target];
         _contractMode[target] = mode;
-        emit AccessModeUpdated(target, mode);
+        emit AccessModeUpdated(target, previousMode, mode);
     }
 
     /**
