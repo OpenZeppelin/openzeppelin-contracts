@@ -87,8 +87,7 @@ function testPush(
     if (keys.length > 0) {
         ${opts.keyTypeName} lastKey = keys[keys.length - 1];
         if (lastKey > 0) {
-            ${opts.keyTypeName} maxKey = lastKey == 0 ? 0 : lastKey - 1;
-            pastKey = _bound${capitalize(opts.keyTypeName)}(pastKey, 0, maxKey);
+            pastKey = _bound${capitalize(opts.keyTypeName)}(pastKey, 0, lastKey - 1);
     
             vm.expectRevert();
             this.push(pastKey, values[keys.length % values.length]);
