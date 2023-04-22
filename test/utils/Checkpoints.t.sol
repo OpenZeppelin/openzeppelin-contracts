@@ -188,8 +188,7 @@ contract CheckpointsTrace224Test is Test {
         if (keys.length > 0) {
             uint32 lastKey = keys[keys.length - 1];
             if (lastKey > 0) {
-                uint32 maxKey = lastKey == 0 ? 0 : lastKey - 1;
-                pastKey = _boundUint32(pastKey, 0, maxKey);
+                pastKey = _boundUint32(pastKey, 0, lastKey - 1);
 
                 vm.expectRevert();
                 this.push(pastKey, values[keys.length % values.length]);
@@ -297,8 +296,7 @@ contract CheckpointsTrace160Test is Test {
         if (keys.length > 0) {
             uint96 lastKey = keys[keys.length - 1];
             if (lastKey > 0) {
-                uint96 maxKey = lastKey == 0 ? 0 : lastKey - 1;
-                pastKey = _boundUint96(pastKey, 0, maxKey);
+                pastKey = _boundUint96(pastKey, 0, lastKey - 1);
 
                 vm.expectRevert();
                 this.push(pastKey, values[keys.length % values.length]);
