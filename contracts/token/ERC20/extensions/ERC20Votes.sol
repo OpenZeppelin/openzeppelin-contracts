@@ -50,7 +50,7 @@ abstract contract ERC20Votes is ERC20Permit, IERC5805 {
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual override returns (string memory) {
         // Check that the clock was not modified
-        require(clock() == block.number);
+        require(clock() == block.number, "ERC20Votes: broken clock mode");
         return "mode=blocknumber&from=default";
     }
 

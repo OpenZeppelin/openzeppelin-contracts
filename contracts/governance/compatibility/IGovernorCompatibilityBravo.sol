@@ -91,6 +91,11 @@ abstract contract IGovernorCompatibilityBravo is IGovernor {
     function execute(uint256 proposalId) public payable virtual;
 
     /**
+     * @dev Cancels a proposal only if the sender is the proposer or the proposer delegates' voting power dropped below the proposal threshold.
+     */
+    function cancel(uint256 proposalId) public virtual;
+
+    /**
      * @dev Part of the Governor Bravo's interface: _"Gets actions of a proposal"_.
      */
     function getActions(

@@ -70,7 +70,7 @@ contract('Governor', function (accounts) {
         );
       });
 
-      shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor', 'GovernorWithParams']);
+      shouldSupportInterfaces(['ERC165', 'ERC1155Receiver', 'Governor', 'GovernorWithParams', 'GovernorCancel']);
       shouldBehaveLikeEIP6372(mode);
 
       it('deployment check', async function () {
@@ -84,7 +84,7 @@ contract('Governor', function (accounts) {
 
       it('nominal workflow', async function () {
         // Before
-        expect(await this.mock.$_proposalProposer(this.proposal.id)).to.be.equal(constants.ZERO_ADDRESS);
+        expect(await this.mock.proposalProposer(this.proposal.id)).to.be.equal(constants.ZERO_ADDRESS);
         expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
         expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(false);
         expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(false);
@@ -149,7 +149,7 @@ contract('Governor', function (accounts) {
         await expectEvent.inTransaction(txExecute.tx, this.receiver, 'MockFunctionCalled');
 
         // After
-        expect(await this.mock.$_proposalProposer(this.proposal.id)).to.be.equal(proposer);
+        expect(await this.mock.proposalProposer(this.proposal.id)).to.be.equal(proposer);
         expect(await this.mock.hasVoted(this.proposal.id, owner)).to.be.equal(false);
         expect(await this.mock.hasVoted(this.proposal.id, voter1)).to.be.equal(true);
         expect(await this.mock.hasVoted(this.proposal.id, voter2)).to.be.equal(true);
