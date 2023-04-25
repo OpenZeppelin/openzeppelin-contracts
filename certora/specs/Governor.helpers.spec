@@ -74,7 +74,7 @@ definition operateOnProposal(method f) returns bool =
     f.selector == castVoteWithReason(uint256,uint8,string).selector ||
     f.selector == castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector ||
     f.selector == castVoteBySig(uint256,uint8,uint8,bytes32,bytes32).selector ||
-    f.selector == castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32).selector
+    f.selector == castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32).selector;
 
 // These function are covered by helperVoteWithRevert
 definition voting(method f) returns bool =
