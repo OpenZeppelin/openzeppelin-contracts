@@ -29,7 +29,7 @@ use invariant votesImplySnapshotPassed
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule deadlineChangeToPreventLateQuorum(uint256 pId, env e, method f, calldataarg args)
-    filtered { f -> !skip(f) }
+    filtered { f -> !assumedSafe(f) }
 {
     require clockSanity(e);
     requireInvariant proposalStateConsistency(pId);
@@ -44,7 +44,7 @@ rule deadlineChangeToPreventLateQuorum(uint256 pId, env e, method f, calldataarg
     bool    deadlineExtendedAfter = getExtendedDeadline(pId) > 0;
 
     // deadline can never be reduced
-    assert deadlineBefore <= proposalDeadline(pId);
+    assert deadlineBefore <= deadlineAfter;
 
     // deadline can only be extended in proposal or on cast vote
     assert deadlineAfter != deadlineBefore => (

@@ -3,7 +3,7 @@ import "Governor.helpers.spec"
 import "GovernorInvariants.spec"
 
 use invariant proposalStateConsistency
-// use invariant votesImplySnapshotPassed
+use invariant votesImplySnapshotPassed
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -29,32 +29,21 @@ rule stateConsistency(env e, uint256 pId) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule stateTransitionFn(uint256 pId, env e, method f, calldataarg args)
-    filtered { f -> !skip(f) }
+    filtered { f -> !assumedSafe(f) }
 {
     require clockSanity(e);
+    require quorumNumeratorLength() < max_uint256; // sanity
 
     uint8 stateBefore = state(e, pId);
     f(e, args);
     uint8 stateAfter  = state(e, pId);
 
     assert (stateBefore != stateAfter) => (
-        stateBefore == UNSET() => (
-            stateAfter == PENDING() && f.selector == propose(address[],uint256[],bytes[],string).selector
-        ) &&
-        stateBefore == PENDING() => (
-            (stateAfter == CANCELED() && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector)
-        ) &&
-        stateBefore == SUCCEEDED() => (
-            (stateAfter == QUEUED()   && f.selector == queue(address[],uint256[],bytes[],bytes32).selector) ||
-            (stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector)
-        ) &&
-        stateBefore == QUEUED() => (
-            (stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector)
-        ) &&
-        stateBefore == ACTIVE()    => false &&
-        stateBefore == CANCELED()  => false &&
-        stateBefore == DEFEATED()  => false &&
-        stateBefore == EXECUTED()  => false
+        (stateBefore == UNSET()     && stateAfter == PENDING()  && f.selector == propose(address[],uint256[],bytes[],string).selector ) ||
+        (stateBefore == PENDING()   && stateAfter == CANCELED() && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector ) ||
+        (stateBefore == SUCCEEDED() && stateAfter == QUEUED()   && f.selector == queue(address[],uint256[],bytes[],bytes32).selector  ) ||
+        (stateBefore == SUCCEEDED() && stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector) ||
+        (stateBefore == QUEUED()    && stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector)
     );
 }
 
@@ -68,18 +57,26 @@ rule stateTransitionWait(uint256 pId, env e1, env e2) {
     require clockSanity(e2);
     require clock(e2) > clock(e1);
 
+    // Force the state to be consistent with e1 (before). We want the storage related to `pId` to match what is
+    // possible before the time passes. We don't want the state transition include elements that cannot have happened
+    // before e1. This ensure that the e1 → e2 state transition is purelly a consequence of time passing.
+    requireInvariant votesImplySnapshotPassed(e1, pId);
+
     uint8 stateBefore = state(e1, pId);
     uint8 stateAfter  = state(e2, pId);
 
     assert (stateBefore != stateAfter) => (
-        stateBefore == PENDING()   => stateAfter == ACTIVE() &&
-        stateBefore == ACTIVE()    => (stateAfter == SUCCEEDED() || stateAfter == DEFEATED()) &&
-        stateBefore == UNSET()     => false &&
-        stateBefore == SUCCEEDED() => false &&
-        stateBefore == QUEUED()    => false &&
-        stateBefore == CANCELED()  => false &&
-        stateBefore == DEFEATED()  => false &&
-        stateBefore == EXECUTED()  => false
+        (stateBefore == PENDING() && stateAfter == ACTIVE()   ) ||
+        (stateBefore == PENDING() && stateAfter == DEFEATED() ) ||
+        (stateBefore == ACTIVE()  && stateAfter == SUCCEEDED()) ||
+        (stateBefore == ACTIVE()  && stateAfter == DEFEATED() ) ||
+        // Strange consequence of the timelock binding:
+        // When transitioning from ACTIVE to SUCCEEDED (because of the clock moving forward) the proposal state in
+        // the timelock is suddenly considered. Prior state set in the timelock can cause the proposal to already be
+        // queued, executed or canceled.
+        (stateBefore == ACTIVE()  && stateAfter == CANCELED()) ||
+        (stateBefore == ACTIVE()  && stateAfter == EXECUTED()) ||
+        (stateBefore == ACTIVE()  && stateAfter == QUEUED())
     );
 }
 
@@ -135,9 +132,9 @@ rule stateIsConsistentWithVotes(uint256 pId, env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 //// This would be nice, but its way to slow to run because "quorumReached" is a FV nightmare
-//// Also, for it to work we need to prove that the checkpoints have (strictly) increase values ... what a nightmare
+//// Also, for it to work we need to prove that the checkpoints have (strictly) increasing keys.
 // rule onlyVoteCanChangeQuorumReached(uint256 pId, env e, method f, calldataarg args)
-//     filtered { f -> !skip(f) }
+//     filtered { f -> !assumedSafe(f) }
 // {
 //     require clockSanity(e);
 //     require clock(e) > proposalSnapshot(pId); // vote has started
@@ -159,7 +156,7 @@ rule stateIsConsistentWithVotes(uint256 pId, env e) {
 //     );
 // }
 
-//// To prove that, we need to prove that the checkpoints have (strictly) increase values ... what a nightmare
+//// To prove that, we need to prove that the checkpoints have (strictly) increasing keys.
 //// otherwise it gives us counter example where the checkpoint history has keys:
 //// [ 12,12,13,13,12] and the lookup obviously fail to get the correct value
 // rule quorumUpdateDoesntAffectPastProposals(uint256 pId, env e) {

@@ -27,7 +27,7 @@ rule noDoublePropose(uint256 pId, env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule immutableFieldsAfterProposalCreation(uint256 pId, env e, method f, calldataarg args)
-    filtered { f -> !skip(f) }
+    filtered { f -> !assumedSafe(f) }
 {
     require proposalCreated(pId);
 
@@ -46,13 +46,9 @@ rule immutableFieldsAfterProposalCreation(uint256 pId, env e, method f, calldata
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: A user cannot vote twice                                                                                      │
 │                                                                                                                     │
-│ Checked for castVote only. all 3 castVote functions call _castVote, so the completeness of the verification is      │
-│ counted on the fact that the 3 functions themselves makes no changes, but rather call an internal function to       │
-│ execute. That means that we do not check those 3 functions directly, however for castVote & castVoteWithReason it   │
-│ is quite trivial to understand why this is ok. For castVoteBySig we basically assume that the signature referendum  │
-│ is correct without checking it. We could check each function separately and pass the rule, but that would have      │
-│ uglyfied the code with no concrete benefit, as it is evident that nothing is happening in the first 2 functions     │
-│ (calling a view function), and we do not desire to check the signature verification.                                │
+│ This rule is checked for castVote, castVoteWithReason and castVoteWithReasonAndParams. For the signature variants   │
+│ (castVoteBySig and castVoteWithReasonAndParamsBySig) we basically assume that the signature referendum is correct   │
+│ without checking it.                                                                                                │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noDoubleVoting(uint256 pId, env e, method f)
@@ -76,23 +72,12 @@ rule noDoubleVoting(uint256 pId, env e, method f)
 rule againstVotesDontCountTowardsQuorum(uint256 pId, env e)
 {
     bool quorumReachedBefore = quorumReached(pId);
+
+    // Ideally we would use `helperVoteWithRevert` here, but it causes timeout. Consider changing it if/when the prover improves.
     castVote(e, pId, 0);
+
     assert quorumReached(pId) == quorumReachedBefore, "quorum must not be reached with an against vote";
 }
-
-/// This version is more exhaustive, but to slow because "quorumReached" is a FV nightmare
-// rule againstVotesDontCountTowardsQuorum(uint256 pId, env e, method f)
-//     filtered { f -> voting(f) }
-// {
-//     address voter;
-//
-//     bool quorumReachedBefore = quorumReached(pId);
-//
-//     helperVoteWithRevert(e, f, pId, voter, 0); // support 0 = against
-//
-//     assert quorumReached(pId) == quorumReachedBefore, "quorum must not be reached with an against vote";
-// }
-
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -100,7 +85,7 @@ rule againstVotesDontCountTowardsQuorum(uint256 pId, env e)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f, calldataarg args)
-    filtered { f -> !skip(f) }
+    filtered { f -> !assumedSafe(f) }
 {
     require !isExecuted(pId);
 
@@ -118,7 +103,7 @@ rule executionOnlyIfQuoromReachedAndVoteSucceeded(uint256 pId, env e, method f, 
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noStartBeforeCreation(uint256 pId, env e, method f, calldataarg args)
-    filtered { f -> !skip(f) }
+    filtered { f -> !assumedSafe(f) }
 {
     require !proposalCreated(pId);
 
@@ -133,7 +118,7 @@ rule noStartBeforeCreation(uint256 pId, env e, method f, calldataarg args)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args)
-    filtered { f -> !skip(f) }
+    filtered { f -> !assumedSafe(f) }
 {
     require !isExecuted(pId);
 
@@ -149,7 +134,7 @@ rule noExecuteBeforeDeadline(uint256 pId, env e, method f, calldataarg args)
 */
 invariant quorumRatioLessThanOne()
     quorumNumerator() <= quorumDenominator()
-    filtered { f -> !skip(f) }
+    filtered { f -> !assumedSafe(f) }
     {
         preserved {
             require quorumNumeratorLength() < max_uint256;
@@ -160,16 +145,14 @@ invariant quorumRatioLessThanOne()
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: All proposal specific (non-view) functions should revert if proposal is executed                              │
 │                                                                                                                     │
-│ In this rule we show that if a function is executed, i.e. execute() was called on the proposal ID, non of the       │
-│ proposal specific functions can make changes again. In executedOnlyAfterExecuteFunc we connected the executed       │
-│ attribute to the execute() function, showing that only execute() can change it, and that it will always change it.  │
+│ In this rule we show that if a function is executed, i.e. execute() was called on the proposal ID, none of the      │
+│ proposal specific functions can make changes again. Note that we prove that only the `execute()` function can set   |
+| isExecuted() to true in in `GorvernorChanges.spec`.                                                                 |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule allFunctionsRevertIfExecuted(uint256 pId, env e, method f, calldataarg args) filtered { f ->
-    !skip(f) &&
-    f.selector != updateQuorumNumerator(uint256).selector &&
-    f.selector != updateTimelock(address).selector
-} {
+rule allFunctionsRevertIfExecuted(uint256 pId, env e, method f, calldataarg args)
+    filtered { f -> operateOnProposal(f) }
+{
     require isExecuted(pId);
     requireInvariant noBothExecutedAndCanceled(pId);
     requireInvariant executedImplyCreated(pId);
@@ -184,15 +167,13 @@ rule allFunctionsRevertIfExecuted(uint256 pId, env e, method f, calldataarg args
 │ Rule: All proposal specific (non-view) functions should revert if proposal is canceled                              │
 │                                                                                                                     │
 │ In this rule we show that if a function is executed, i.e. execute() was called on the proposal ID, non of the       │
-│ proposal specific functions can make changes again. In executedOnlyAfterExecuteFunc we connected the executed       │
-│ attribute to the execute() function, showing that only execute() can change it, and that it will always change it.  │
+│ proposal specific functions can make changes again. Note that we prove that only the `execute()` function can set   |
+| isExecuted() to true in in `GorvernorChanges.spec`.                                                                 |
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args) filtered { f ->
-    !skip(f) &&
-    f.selector != updateQuorumNumerator(uint256).selector &&
-    f.selector != updateTimelock(address).selector
-} {
+rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args)
+    filtered { f -> operateOnProposal(f) }
+{
     require isCanceled(pId);
     requireInvariant noBothExecutedAndCanceled(pId);
     requireInvariant canceledImplyCreated(pId);
@@ -208,7 +189,7 @@ rule allFunctionsRevertIfCanceled(uint256 pId, env e, method f, calldataarg args
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule privilegedUpdate(env e, method f, calldataarg args)
-    filtered { f -> !skip(f) }
+    filtered { f -> !assumedSafe(f) }
 {
     address executorBefore        = getExecutor();
     uint256 quorumNumeratorBefore = quorumNumerator();

@@ -18,7 +18,6 @@ rule propose_liveness(uint256 pId, env e) {
 
     address[] targets; uint256[] values; bytes[] calldatas; string descr;
     require pId == hashProposal(targets, values, calldatas, descr);
-    //require sanityString(descr);
 
     propose@withrevert(e, targets, values, calldatas, descr);
 

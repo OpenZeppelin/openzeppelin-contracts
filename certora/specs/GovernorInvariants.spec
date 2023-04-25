@@ -97,7 +97,7 @@ invariant queuedImplyCreated(uint pId)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: timmings                                                                                                 │
+│ Invariant: timings                                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant votesImplySnapshotPassed(env e, uint256 pId)
@@ -108,7 +108,9 @@ invariant votesImplySnapshotPassed(env e, uint256 pId)
     ) => proposalSnapshot(pId) < clock(e)
     {
         preserved with (env e2) {
-            require clock(e) == clock(e2);
+            // In this invariant, `env e` is representing the present. And `clock(e)` the current timestamp.
+            // It should hold for any transitions in the pasts
+            require clock(e2) <= clock(e);
         }
     }
 

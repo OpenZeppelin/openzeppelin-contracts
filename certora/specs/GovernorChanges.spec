@@ -10,7 +10,7 @@ use invariant proposalStateConsistency
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule changes(uint256 pId, env e, method f, calldataarg args)
-    filtered { f -> !skip(f) }
+    filtered { f -> !assumedSafe(f) }
 {
     require clockSanity(e);
     requireInvariant proposalStateConsistency(pId);
