@@ -19,11 +19,11 @@ function validProposal(address[] targets, uint256[] values, bytes[] calldatas) r
         && targets.length == calldatas.length;
 }
 
-function validString(string s) returns bool {
+function sanityString(string s) returns bool {
     return s.length < 0xffff;
 }
 
-function validBytes(bytes b) returns bool {
+function sanityBytes(bytes b) returns bool {
     return b.length < 0xffff;
 }
 
@@ -88,13 +88,13 @@ function helperVoteWithRevert(env e, method f, uint256 pId, address voter, uint8
     else  if (f.selector == castVoteWithReason(uint256,uint8,string).selector)
     {
         string reason;
-        require e.msg.sender == voter && validString(reason);
+        require e.msg.sender == voter && sanityString(reason);
         return castVoteWithReason@withrevert(e, pId, support, reason);
     }
     else  if (f.selector == castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector)
     {
         string reason; bytes params;
-        require e.msg.sender == voter && validString(reason) && validBytes(params);
+        require e.msg.sender == voter && sanityString(reason) && sanityBytes(params);
         return castVoteWithReasonAndParams@withrevert(e, pId, support, reason, params);
     }
     else
