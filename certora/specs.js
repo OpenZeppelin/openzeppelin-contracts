@@ -36,6 +36,12 @@ module.exports = [].concat(
     files: ['certora/harnesses/ERC20PermitHarness.sol', 'certora/harnesses/ERC20WrapperHarness.sol'],
     options: ['--link ERC20WrapperHarness:_underlying=ERC20PermitHarness', '--optimistic_loop'],
   },
+  {
+    spec: "ERC721",
+    contract: "ERC721Harness",
+    files: ["certora/harnesses/ERC721Harness.sol", "certora/harnesses/ERC721ReceiverHarness.sol"],
+    options: ["--optimistic_loop"],
+  },
   // Security
   {
     spec: 'Pausable',
@@ -47,6 +53,12 @@ module.exports = [].concat(
     spec: 'Initializable',
     contract: 'InitializableHarness',
     files: ['certora/harnesses/InitializableHarness.sol'],
+  },
+  // Structures
+  {
+    spec: "DoubleEndedQueue",
+    contract: "DoubleEndedQueueHarness",
+    files: ["certora/harnesses/DoubleEndedQueueHarness.sol"],
   },
   // Governance
   {
