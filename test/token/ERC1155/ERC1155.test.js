@@ -17,7 +17,7 @@ contract('ERC1155', function (accounts) {
 
   shouldBehaveLikeERC1155(otherAccounts);
 
-  describe.only('internal functions', function () {
+  describe('internal functions', function () {
     const tokenId = new BN(1990);
     const mintAmount = new BN(9001);
     const burnAmount = new BN(3000);
@@ -205,7 +205,7 @@ contract('ERC1155', function (accounts) {
     });
   });
 
-  describe.only('ERC1155MetadataURI', function () {
+  describe('ERC1155MetadataURI', function () {
     const firstTokenID = new BN('42');
     const secondTokenID = new BN('1337');
 

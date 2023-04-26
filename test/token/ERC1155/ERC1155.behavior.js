@@ -18,7 +18,7 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
   const RECEIVER_SINGLE_MAGIC_VALUE = '0xf23a6e61';
   const RECEIVER_BATCH_MAGIC_VALUE = '0xbc197c81';
 
-  describe.only('like an ERC1155', function () {
+  describe('like an ERC1155', function () {
     describe('balanceOf', function () {
       it('reverts when queried about the zero address', async function () {
         await expectRevert(

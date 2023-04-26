@@ -19,7 +19,7 @@ contract('ERC1155Burnable', function (accounts) {
     await this.token.$_mint(holder, tokenIds[1], amounts[1], '0x');
   });
 
-  describe.only('burn', function () {
+  describe('burn', function () {
     it('holder can burn their tokens', async function () {
       await this.token.burn(holder, tokenIds[0], amounts[0].subn(1), { from: holder });
 
@@ -41,7 +41,7 @@ contract('ERC1155Burnable', function (accounts) {
     });
   });
 
-  describe.only('burnBatch', function () {
+  describe('burnBatch', function () {
     it('holder can burn their tokens', async function () {
       await this.token.burnBatch(holder, tokenIds, [amounts[0].subn(1), amounts[1].subn(2)], { from: holder });
 

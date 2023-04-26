@@ -21,7 +21,7 @@ contract('ERC1155Supply', function (accounts) {
     this.token = await ERC1155Supply.new(uri);
   });
 
-  context.only('before mint', function () {
+  context('before mint', function () {
     it('exist', async function () {
       expect(await this.token.exists(firstTokenId)).to.be.equal(false);
     });
@@ -32,7 +32,7 @@ contract('ERC1155Supply', function (accounts) {
     });
   });
 
-  context.only('after mint', function () {
+  context('after mint', function () {
     context('single', function () {
       beforeEach(async function () {
         await this.token.$_mint(holder, firstTokenId, firstTokenAmount, '0x');
@@ -75,7 +75,7 @@ contract('ERC1155Supply', function (accounts) {
     });
   });
 
-  context.only('after burn', function () {
+  context('after burn', function () {
     context('single', function () {
       beforeEach(async function () {
         await this.token.$_mint(holder, firstTokenId, firstTokenAmount, '0x');
@@ -116,7 +116,7 @@ contract('ERC1155Supply', function (accounts) {
     });
   });
 
-  context.only('other', function () {
+  context('other', function () {
     it('supply unaffected by no-op', async function () {
       this.token.safeTransferFrom(ZERO_ADDRESS, ZERO_ADDRESS, firstTokenId, firstTokenAmount, '0x', {
         from: ZERO_ADDRESS,
