@@ -26,6 +26,8 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: fetch updated specs
         run: |
           git diff --name-only --diff-filter="ACMR" ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }}
