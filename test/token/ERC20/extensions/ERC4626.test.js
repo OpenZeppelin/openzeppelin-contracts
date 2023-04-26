@@ -46,7 +46,7 @@ contract('ERC4626', function (accounts) {
     }
   });
 
-  it.only('reenters deposit without changing the price', async function () {
+  it('reenters deposit without changing the price', async function () {
     const amount = web3.utils.toBN(10).pow(decimals);
     const token = await ERC4626DepositReentrantAsset.new();
 
@@ -66,7 +66,7 @@ contract('ERC4626', function (accounts) {
     expect(sharesBefore).to.be.bignumber.eq(sharesAfter); // Price is kept
   });
 
-  it.only('reenters withdraw without changing the price', async function () {
+  it('reenters withdraw without changing the price', async function () {
     const amount = web3.utils.toBN(10).pow(decimals);
     const token = await ERC4626WithdrawReentrantAsset.new();
 
