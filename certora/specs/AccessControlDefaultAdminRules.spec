@@ -111,13 +111,15 @@ rule revokeRoleEffect(env e, bytes32 role) {
     bool hasOtherRoleAfter = hasRole(otherRole, otherAccount);
 
     // liveness
-    assert success <=> isCallerAdmin && role != DEFAULT_ADMIN_ROLE();
+    assert success <=> isCallerAdmin && role != DEFAULT_ADMIN_ROLE(),
+      "roles can only be revoked by their owner except for the default admin role";
 
     // effect
-    assert success => !hasRole(role, account);
+    assert success => !hasRole(role, account), "role is revoked";
 
     // no side effect
-    assert hasOtherRoleBefore != hasOtherRoleAfter => (role == otherRole && account == otherAccount);
+    assert hasOtherRoleBefore != hasOtherRoleAfter => (role == otherRole && account == otherAccount),
+      "no other role is affected";
 }
 
 /*
@@ -147,13 +149,14 @@ rule renounceRoleEffect(env e, bytes32 role) {
         role != DEFAULT_ADMIN_ROLE() ||
         role == DEFAULT_ADMIN_ROLE() && pendingAdminBefore == 0 && isSet(scheduleBefore) && hasPassed(e, scheduleBefore)
       )
-    );
+    ), "an account only can renounce by itself with a delay for the default admin role";
 
     // effect
-    assert success => !hasRole(role, account);
+    assert success => !hasRole(role, account), "role is renounced";
 
     // no side effect
-    assert hasOtherRoleBefore != hasOtherRoleAfter => (role == otherRole && account == otherAccount);
+    assert hasOtherRoleBefore != hasOtherRoleAfter => (role == otherRole && account == otherAccount),
+      "no other role is affected";
 }
 
 
@@ -290,36 +293,6 @@ rule pendingDefaultAdminDelayEnforced(env e1, env e2, method f, calldataarg args
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: pending default admin and it schedule can only change together                                                │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule pendingAdminAndScheduleCoupling(env e, address newAdmin) {
-  requireInvariant defaultAdminConsistency(defaultAdmin());
-  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
-
-  address pendingAdminBefore = pendingDefaultAdmin_();
-  uint48 scheduleBefore = pendingDefaultAdminSchedule_();
-
-  beginDefaultAdminTransfer(e, newAdmin);
-
-  assert (
-    scheduleBefore != pendingDefaultAdminSchedule_() &&
-    pendingAdminBefore == pendingDefaultAdmin_()
-  ) => newAdmin == pendingAdminBefore, "pending admin stays the same if the new admin set is the same";
-  assert (
-    pendingAdminBefore != pendingDefaultAdmin_() &&
-    scheduleBefore == pendingDefaultAdminSchedule_()
-  ) => (
-    // Schedule doesn't change if:
-    // - The previous schedule is block.timestamp and the delay is 0
-    (e.block.timestamp == scheduleBefore && defaultAdminDelay(e) == 0) ||
-    // - The defaultAdminDelay was reduced to a value such that added to the block.timestamp is equal to previous schedule
-    e.block.timestamp + defaultAdminDelay(e) == scheduleBefore
-  ), "pending admin stays the same if a default admin transfer is begun on accepted edge cases";
-}
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Function correctness: acceptDefaultAdminTransfer updates defaultAdmin resetting the pending admin and its schedule  │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
@@ -436,31 +409,6 @@ rule pendingDelayWait(env e, uint48 newDelay) {
     "Delay wait is the difference between the current and the new delay when the delay is decreased";
 }
 
-/* 
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: pending default admin delay and its schedule can only change together                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-rule pendingDelayAndScheduleCoupling(env e, uint48 newDelay) {
-  requireInvariant defaultAdminConsistency(defaultAdmin());
-  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
-
-  address pendingDelayBefore = pendingDelay_(e);
-  uint48 scheduleBefore = pendingDelaySchedule_(e);
-
-  beginDefaultAdminTransfer(e, newDelay);
-
-  assert (
-    scheduleBefore != pendingDelaySchedule_(e) &&
-    pendingDelayBefore == pendingDelay_(e)
-  ) => newDelay == pendingDelayBefore, "pending delay stays the same if the new delay set is the same";
-  assert (
-    pendingDelayBefore != pendingDelay_(e) &&
-    scheduleBefore == pendingDelaySchedule_(e)
-  ) => (increasingDelaySchedule(e, newDelay) == scheduleBefore || decreasingDelaySchedule(e, newDelay) == scheduleBefore), 
-    "pending delay stays the same if a default admin transfer is begun on accepted edge cases";
-}
-
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Function correctness: rollbackDefaultAdminDelay resets the delay and its schedule                                   │
@@ -483,4 +431,51 @@ rule rollbackDefaultAdminDelay(env e) {
     "Pending default admin is reset";
   assert success => pendingDelaySchedule_(e) == 0,
     "Pending default admin delay is reset";
+}
+
+/* 
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rule: pending default admin and the delay can only change along with their corresponding schedules                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule pendingValueAndScheduleCoupling(env e, address newAdmin, uint48 newDelay) {
+  requireInvariant defaultAdminConsistency(defaultAdmin());
+  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
+
+  // Pending admin
+  address pendingAdminBefore = pendingDefaultAdmin_();
+  uint48 pendingAdminScheduleBefore = pendingDefaultAdminSchedule_();
+
+  beginDefaultAdminTransfer(e, newAdmin);
+
+  assert (
+    pendingAdminScheduleBefore != pendingDefaultAdminSchedule_() &&
+    pendingAdminBefore == pendingDefaultAdmin_()
+  ) => newAdmin == pendingAdminBefore, "pending admin stays the same if the new admin set is the same";
+  assert (
+    pendingAdminBefore != pendingDefaultAdmin_() &&
+    pendingAdminScheduleBefore == pendingDefaultAdminSchedule_()
+  ) => (
+    // Schedule doesn't change if:
+    // - The defaultAdminDelay was reduced to a value such that added to the block.timestamp is equal to previous schedule
+    e.block.timestamp + defaultAdminDelay(e) == pendingAdminScheduleBefore
+  ), "pending admin stays the same if a default admin transfer is begun on accepted edge cases";
+
+  // Pending delay
+  address pendingDelayBefore = pendingDelay_(e);
+  uint48 pendingDelayScheduleBefore = pendingDelaySchedule_(e);
+
+  changeDefaultAdminDelay(e, newDelay);
+
+  assert (
+    pendingDelayScheduleBefore != pendingDelaySchedule_(e) &&
+    pendingDelayBefore == pendingDelay_(e)
+  ) => newDelay == pendingDelayBefore || pendingDelayBefore == 0, "pending delay stays the same if the new delay set is the same";
+  assert (
+    pendingDelayBefore != pendingDelay_(e) &&
+    pendingDelayScheduleBefore == pendingDelaySchedule_(e)
+  ) => (
+    increasingDelaySchedule(e, newDelay) == pendingDelayScheduleBefore || 
+    decreasingDelaySchedule(e, newDelay) == pendingDelayScheduleBefore
+  ), "pending delay stays the same if a default admin transfer is begun on accepted edge cases";
 }
