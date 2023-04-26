@@ -29,8 +29,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: fetch updated specs
-        run: |
-          git diff --name-only --diff-filter="ACMR" ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }}
+        id: find-specs
+        run: echo "::set-output name=list::$(git diff --diff-filter="ACMR" ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only certora/specs/*.spec | while read f; do basename ${f%.spec}; done)
+      - name: execute
+        run: echo ${{ steps.find-specs.outputs.list }}
 
   apply-diff:
     runs-on: ubuntu-latest
