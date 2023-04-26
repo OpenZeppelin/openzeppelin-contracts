@@ -41,25 +41,24 @@ function match(entry, request) {
 }
 
 const specs = require(argv.spec).filter(s => argv.all || argv._.some(r => match(s, r)));
+const limit = require('p-limit')(argv.parallel);
 
-let error = false;
 if (argv._.length == 0 && !argv.all) {
-  console.error(`Error: No specs requested. Did you forgot to toggle '--all'`);
-  error = true;
+  console.error(`Warning: No specs requested. Did you forgot to toggle '--all'`);
 }
+
 for (const r of argv._) {
   if (!specs.some(s => match(s, r))) {
     console.error(`Error: Requested spec '${r}' not found in ${argv.spec}`);
-    error = true;
+    process.exitCode = 1;
   }
 }
-if (error) {
-  process.exit(1);
+
+if (process.exitCode) {
+  process.exit(process.exitCode);
 }
 
-const limit = require('p-limit')(argv.parallel);
 for (const { spec, contract, files, options = [] } of specs) {
-  console.log(spec);
   limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...argv.options]);
 }
 
