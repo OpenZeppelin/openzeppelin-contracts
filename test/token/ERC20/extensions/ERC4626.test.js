@@ -6,6 +6,8 @@ const ERC4626 = artifacts.require('$ERC4626');
 const ERC4626OffsetMock = artifacts.require('$ERC4626OffsetMock');
 const ERC4626FeesMock = artifacts.require('$ERC4626FeesMock');
 const ERC20ExcessDecimalsMock = artifacts.require('ERC20ExcessDecimalsMock');
+const ERC4626DepositReentrantAsset = artifacts.require('$ERC4626DepositReentrantAsset');
+const ERC4626WithdrawReentrantAsset = artifacts.require('$ERC4626WithdrawReentrantAsset');
 
 contract('ERC4626', function (accounts) {
   const [holder, recipient, spender, other, user1, user2] = accounts;
@@ -42,6 +44,49 @@ contract('ERC4626', function (accounts) {
         'reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)',
       );
     }
+  });
+
+  it.only('reenters deposit without changing the price', async function () {
+    const amount = web3.utils.toBN(10).pow(decimals);
+    const token = await ERC4626DepositReentrantAsset.new();
+
+    const vault = await ERC4626.new('', '', token.address);
+
+    await token.$_mint(holder, amount);
+    await token.$_mint(token.address, amount); // Requires balance to reenter
+
+    await token.approve(vault.address, constants.MAX_UINT256, { from: holder });
+
+    await token.setReenter(true);
+
+    const sharesBefore = await vault.previewDeposit(amount, { from: holder });
+    await vault.deposit(amount, holder, { from: holder });
+    const sharesAfter = await vault.previewDeposit(amount, { from: holder });
+
+    expect(sharesBefore).to.be.bignumber.eq(sharesAfter); // Price is kept
+  });
+
+  it.only('reenters withdraw without changing the price', async function () {
+    const amount = web3.utils.toBN(10).pow(decimals);
+    const token = await ERC4626WithdrawReentrantAsset.new();
+
+    const vault = await ERC4626.new('', '', token.address);
+
+    await token.$_mint(holder, amount);
+    await token.$_mint(token.address, amount); // Requires balance to deposit
+
+    await token.depositTo(vault.address, amount);
+    await token.approve(vault.address, constants.MAX_UINT256, { from: holder });
+    await vault.deposit(amount, holder, { from: holder });
+
+    await token.setReenter(true);
+
+    const assetsBefore = await vault.previewWithdraw(amount, { from: holder });
+    const shares = await vault.balanceOf(holder);
+    await vault.withdraw(shares, holder, holder, { from: holder });
+    const assetsAfter = await vault.previewWithdraw(amount, { from: holder });
+
+    expect(assetsBefore).to.be.bignumber.eq(assetsAfter); // Price is kept
   });
 
   for (const offset of [0, 6, 18].map(web3.utils.toBN)) {
