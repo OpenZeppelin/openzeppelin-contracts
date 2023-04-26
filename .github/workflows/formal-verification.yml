@@ -21,6 +21,14 @@ env:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
+  wip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: fetch updated specs
+        run: |
+          git diff --name-only --diff-filter="ACMR"
+
   apply-diff:
     runs-on: ubuntu-latest
     steps:
