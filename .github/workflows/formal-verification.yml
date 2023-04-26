@@ -23,11 +23,12 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   wip:
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v3
       - name: fetch updated specs
         run: |
-          git diff --name-only --diff-filter="ACMR" ${{ github.ref }}..${{ github.base_ref }}
+          git diff --name-only --diff-filter="ACMR" ${{ github.sha }}..${{ github.base_ref }}
 
   apply-diff:
     runs-on: ubuntu-latest
