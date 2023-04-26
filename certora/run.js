@@ -1,37 +1,66 @@
 #!/usr/bin/env node
 
 // USAGE:
-//    node certora/run.js [[CONTRACT_NAME:]SPEC_NAME] [OPTIONS...]
+//    node certora/run.js [[CONTRACT_NAME:]SPEC_NAME]* [--all] [--options OPTIONS...] [--specs PATH]
 // EXAMPLES:
+//    node certora/run.js --all
 //    node certora/run.js AccessControl
 //    node certora/run.js AccessControlHarness:AccessControl
-
-const MAX_PARALLEL = 4;
-
-let specs = require(__dirname + '/specs.json');
 
 const proc = require('child_process');
 const { PassThrough } = require('stream');
 const events = require('events');
-const limit = require('p-limit')(MAX_PARALLEL);
 
-let [, , request = '', ...extraOptions] = process.argv;
-if (request.startsWith('-')) {
-  extraOptions.unshift(request);
-  request = '';
+const argv = require('yargs')
+  // .env('')
+  .options({
+    all: {
+      alias: 'a',
+      type: 'boolean',
+    },
+    spec: {
+      alias: 's',
+      type: 'string',
+      default: __dirname + '/specs.json',
+    },
+    parallel: {
+      alias: 'p',
+      type: 'number',
+      default: 4,
+    },
+    options: {
+      alias: 'o',
+      type: 'array',
+      default: [],
+    },
+  }).argv;
+
+function match(entry, request) {
+  const [reqSpec, reqContract] = request.split(':').reverse();
+  return entry.spec == reqSpec && (!reqContract || entry.contract == reqContract);
 }
 
-if (request) {
-  const [reqSpec, reqContract] = request.split(':').reverse();
-  specs = Object.values(specs).filter(s => reqSpec === s.spec && (!reqContract || reqContract === s.contract));
-  if (specs.length === 0) {
-    console.error(`Error: Requested spec '${request}' not found in specs.json`);
-    process.exit(1);
+const specs = require(argv.spec).filter(s => argv.all || argv._.some(r => match(s, r)));
+
+let error = false;
+if (argv._.length == 0 && !argv.all) {
+  console.error(`Error: No specs requested. Did you forgot to toggle '--all'`);
+  error = true;
+}
+for (const r of argv._) {
+  if (!specs.some(s => match(s, r))) {
+    console.error(`Error: Requested spec '${r}' not found in ${argv.spec}`);
+    error = true;
   }
 }
+if (error) {
+  process.exit(1);
+}
 
-for (const { spec, contract, files, options = [] } of Object.values(specs)) {
-  limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...extraOptions]);
+const limit = require('p-limit')(argv.parallel);
+for (const { spec, contract, files, options = [] } of specs) {
+  console.log(spec);
+  limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...argv.options]);
 }
 
 // Run certora, aggregate the output and print it at the end
