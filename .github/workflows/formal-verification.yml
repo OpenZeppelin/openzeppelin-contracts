@@ -31,8 +31,13 @@ jobs:
         if: github.event_name == 'pull_request'
         id: find-specs
         run: echo "list=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only certora/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename ${file%.spec}; done)" >> $GITHUB_OUTPUT
+      - name: build arguments
+        id: build-args
+        run: |
+          LIST=${{ steps.find-specs.outputs.list }}
+          echo "args=${LIST:-'-all'}"
       - name: execute
-        run: echo ${{ steps.find-specs.outputs.list:-"--all" }}
+        run: echo ${{ steps.build-args.outputs.args }}
 
   apply-diff:
     runs-on: ubuntu-latest
