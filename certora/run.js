@@ -12,7 +12,7 @@ const { PassThrough } = require('stream');
 const events = require('events');
 
 const argv = require('yargs')
-  // .env('')
+  .env('')
   .options({
     all: {
       alias: 'a',
@@ -44,7 +44,7 @@ const specs = require(argv.spec).filter(s => argv.all || argv._.some(r => match(
 const limit = require('p-limit')(argv.parallel);
 
 if (argv._.length == 0 && !argv.all) {
-  console.error(`Warning: No specs requested. Did you forgot to toggle '--all'`);
+  console.error(`Warning: No specs requested. Did you forgot to toggle '--all'?`);
 }
 
 for (const r of argv._) {
