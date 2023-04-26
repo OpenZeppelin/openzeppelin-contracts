@@ -23,16 +23,16 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   wip:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: fetch updated specs
+        if: github.event_name == 'pull_request'
         id: find-specs
         run: echo "list=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only certora/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename ${file%.spec}; done)" >> $GITHUB_OUTPUT
       - name: execute
-        run: echo ${{ steps.find-specs.outputs.list }}
+        run: echo ${{ steps.find-specs.outputs.list:-"--all" }}
 
   apply-diff:
     runs-on: ubuntu-latest
