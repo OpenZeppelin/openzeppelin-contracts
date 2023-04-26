@@ -426,11 +426,12 @@ rule pendingDelayWaitEnforced(env e1, env e2, method f, calldataarg args, uint48
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pendingDelayWait(env e, uint48 newDelay) {
+  uint48 oldDelay = defaultAdminDelay(e);
   changeDefaultAdminDelay(e, newDelay);
 
-  assert newDelay > defaultAdminDelay(e) => pendingDelaySchedule_(e) == increasingDelaySchedule(e, newDelay),
+  assert newDelay > oldDelay => pendingDelaySchedule_(e) == increasingDelaySchedule(e, newDelay),
     "Delay wait is the minimum between the new delay and a threshold when the delay is increased";
-  assert newDelay <= defaultAdminDelay(e) => pendingDelaySchedule_(e) == decreasingDelaySchedule(e, newDelay),
+  assert newDelay <= oldDelay => pendingDelaySchedule_(e) == decreasingDelaySchedule(e, newDelay),
     "Delay wait is the difference between the current and the new delay when the delay is decreased";
 }
 
