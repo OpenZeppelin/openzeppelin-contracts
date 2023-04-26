@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: fetch updated specs
         run: |
-          git diff --name-only --diff-filter="ACMR" ${{ github.refname}}..${{ github.repository }}/${{ github.base_ref }}
+          git diff --name-only --diff-filter="ACMR" ${{ github.ref_name}}..${{ github.repository }}/${{ github.base_ref }}
 
   apply-diff:
     runs-on: ubuntu-latest
