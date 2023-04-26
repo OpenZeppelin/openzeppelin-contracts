@@ -28,14 +28,12 @@ jobs:
         with:
           fetch-depth: 0
       - name: fetch updated specs
-        if: github.event_name == 'pull_request'
         id: find-specs
-        run: echo "list=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only certora/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename ${file%.spec}; done)" >> $GITHUB_OUTPUT
-      - name: build arguments
-        id: build-args
         run: |
-          LIST=${{ steps.find-specs.outputs.list }}
-          echo "args=${LIST:-'-all'}"
+          [[ github.event_name == 'pull_request' ]] \
+            && RESULT=`git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only certora/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename ${file%.spec}; done` \
+            || RESULT='--all'
+          echo "args=$RESULT" >> $GITHUB_OUTPUT
       - name: execute
         run: echo ${{ steps.build-args.outputs.args }}
 
