@@ -11,14 +11,14 @@ contract ERC4626ReentrantAsset is ERC20("TEST", "TST") {
         After
     }
 
-    Type reenterType;
-    address reenterTarget;
-    bytes reenterData;
+    Type private _reenterType;
+    address private _reenterTarget;
+    bytes private _reenterData;
 
     function scheduleReenter(Type when, address target, bytes calldata data) external {
-        reenterType = when;
-        reenterTarget = target;
-        reenterData = data;
+        _reenterType = when;
+        _reenterTarget = target;
+        _reenterData = data;
     }
 
     function functionCall(address target, bytes memory data) public returns (bytes memory) {
@@ -26,18 +26,18 @@ contract ERC4626ReentrantAsset is ERC20("TEST", "TST") {
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
-        if (reenterType == Type.Before) {
-            reenterType = Type.No;
-            functionCall(reenterTarget, reenterData);
+        if (_reenterType == Type.Before) {
+            _reenterType = Type.No;
+            functionCall(_reenterTarget, _reenterData);
         }
         super._beforeTokenTransfer(from, to, amount);
     }
 
     function _afterTokenTransfer(address from, address to, uint256 amount) internal override {
         super._afterTokenTransfer(from, to, amount);
-        if (reenterType == Type.After) {
-            reenterType = Type.No;
-            functionCall(reenterTarget, reenterData);
+        if (_reenterType == Type.After) {
+            _reenterType = Type.No;
+            functionCall(_reenterTarget, _reenterData);
         }
     }
 }
