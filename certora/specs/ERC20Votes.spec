@@ -63,7 +63,7 @@ invariant clockMode(env e)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: hook correctly track lastest checkpoint                                                                  │
+│ Invariant: hook correctly track latest checkpoint                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 invariant hooksAreCorrect(address a)
