@@ -73,22 +73,10 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     }
 
     /**
-     * @dev See {ERC721-_beforeTokenTransfer}.
+     * @dev See {ERC721-_update}.
      */
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override {
-        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
-
-        if (batchSize > 1) {
-            // Will only trigger during construction. Batch transferring (minting) is not available afterwards.
-            revert ERC721EnumerableForbiddenBatchMint();
-        }
-
-        uint256 tokenId = firstTokenId;
+    function _update(address to, uint256 tokenId, function(address, address, uint256) view constraints) internal virtual override returns (address) {
+        address from = super._update(to, tokenId, constraints);
 
         if (from == address(0)) {
             _addTokenToAllTokensEnumeration(tokenId);
@@ -97,9 +85,11 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         }
         if (to == address(0)) {
             _removeTokenFromAllTokensEnumeration(tokenId);
-        } else if (to != from) {
+        } else if (from != to) {
             _addTokenToOwnerEnumeration(to, tokenId);
         }
+
+        return from;
     }
 
     /**
@@ -108,7 +98,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
      */
     function _addTokenToOwnerEnumeration(address to, uint256 tokenId) private {
-        uint256 length = balanceOf(to);
+        uint256 length = balanceOf(to) - 1;
         _ownedTokens[to][length] = tokenId;
         _ownedTokensIndex[tokenId] = length;
     }
@@ -134,7 +124,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
         // To prevent a gap in from's tokens array, we store the last token in the index of the token to delete, and
         // then delete the last slot (swap and pop).
 
-        uint256 lastTokenIndex = balanceOf(from) - 1;
+        uint256 lastTokenIndex = balanceOf(from);
         uint256 tokenIndex = _ownedTokensIndex[tokenId];
 
         // When the token to delete is the last token, the swap operation is unnecessary

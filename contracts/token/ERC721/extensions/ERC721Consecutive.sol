@@ -120,9 +120,6 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
                 revert ERC721ExceededMaxBatchMint(batchSize, maxBatchSize);
             }
 
-            // hook before
-            _beforeTokenTransfer(address(0), to, next, batchSize);
-
             // push an ownership checkpoint & emit event
             uint96 last = next + batchSize - 1;
             _sequentialOwnership.push(last, uint160(to));
@@ -132,49 +129,39 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             __unsafe_increaseBalance(to, batchSize);
 
             emit ConsecutiveTransfer(next, last, address(0), to);
-
-            // hook after
-            _afterTokenTransfer(address(0), to, next, batchSize);
         }
 
         return next;
     }
 
     /**
-     * @dev See {ERC721-_mint}. Override version that restricts normal minting to after construction.
+     * @dev See {ERC721-_update}. Override version that restricts normal minting to after construction.
      *
-     * WARNING: Using {ERC721Consecutive} prevents using {_mint} during construction in favor of {_mintConsecutive}.
-     * After construction, {_mintConsecutive} is no longer available and {_mint} becomes available.
+     * Warning: Using {ERC721Consecutive} prevents minting during construction in favor of {_mintConsecutive}.
+     * After construction, {_mintConsecutive} is no longer available and minting through {_update} becomes available.
      */
-    function _mint(address to, uint256 tokenId) internal virtual override {
-        if (address(this).code.length == 0) {
+    function _update(
+        address to,
+        uint256 tokenId,
+        function(address, address, uint256) view constraints
+    ) internal virtual override returns (address) {
+        address from = super._update(to, tokenId, constraints);
+
+        // only mint after construction
+        if (from == address(0) && address(this).code.length == 0) {
             revert ERC721ForbiddenMint();
         }
-        super._mint(to, tokenId);
-    }
 
-    /**
-     * @dev See {ERC721-_afterTokenTransfer}. Burning of tokens that have been sequentially minted must be explicit.
-     */
-    function _afterTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal virtual override {
+        // record burn
         if (
             to == address(0) && // if we burn
-            firstTokenId >= _firstConsecutiveId() &&
-            firstTokenId < _nextConsecutiveId() &&
-            !_sequentialBurn.get(firstTokenId)
-        ) // and the token was never marked as burnt
-        {
-            if (batchSize != 1) {
-                revert ERC721ForbiddenBatchBurn();
-            }
-            _sequentialBurn.set(firstTokenId);
+            tokenId < _nextConsecutiveId() && // and the tokenId was minted in a batch
+            !_sequentialBurn.get(tokenId) // and the token was never marked as burnt
+        ) {
+            _sequentialBurn.set(tokenId);
         }
-        super._afterTokenTransfer(from, to, firstTokenId, batchSize);
+
+        return from;
     }
 
     /**

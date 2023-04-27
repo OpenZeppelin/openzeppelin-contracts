@@ -29,10 +29,15 @@ abstract contract ERC721Royalty is ERC2981, ERC721 {
     }
 
     /**
-     * @dev See {ERC721-_burn}. This override additionally clears the royalty information for the token.
+     * @dev See {ERC721-_update}. This override additionally clears the royalty information for the token.
      */
-    function _burn(uint256 tokenId) internal virtual override {
-        super._burn(tokenId);
-        _resetTokenRoyalty(tokenId);
+    function _update(address to, uint256 tokenId, function(address, address, uint256) view constraints) internal virtual override returns (address) {
+        address from = super._update(to, tokenId, constraints);
+
+        if (to == address(0)) {
+            _resetTokenRoyalty(tokenId);
+        }
+
+        return from;
     }
 }

@@ -151,12 +151,14 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     /**
      * @dev See {IERC721-transferFrom}.
      */
-    function transferFrom(address from, address to, uint256 tokenId) public virtual {
-        if (!_isApprovedOrOwner(_msgSender(), tokenId)) {
-            revert ERC721InsufficientApproval(_msgSender(), tokenId);
+    function transferFrom(address from, address to, uint256 tokenId) public virtual override {
+        if (to == address(0)) {
+            revert ERC721InvalidReceiver(address(0));
         }
-
-        _transfer(from, to, tokenId);
+        address owner = _update(to, tokenId, _constraintApprovedOrOwner);
+        if (owner != from) {
+            revert ERC721IncorrectOwner(from, tokenId, owner);
+        }
     }
 
     /**
@@ -258,6 +260,46 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     }
 
     /**
+     * @dev Transfers `tokenId` from its current owner to `to`, or alternatively mints (or burns) if the current owner
+     * (or `to`) is the zero address.
+     *
+     * The `constraints` argument is used to specify constraints, and eventually revert. For example this can be used
+     * to ensure that the current owner is what was expected.
+
+     * All customizations to transfers, mints, and burns should be done by overriding this function.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _update(
+        address to,
+        uint256 tokenId,
+        function(address, address, uint256) view constraints
+    ) internal virtual returns (address) {
+        address from = _ownerOf(tokenId);
+
+        constraints(from, to, tokenId);
+
+        if (from != address(0)) {
+            delete _tokenApprovals[tokenId];
+            unchecked {
+                _balances[from] -= 1;
+            }
+        }
+
+        if (to != address(0)) {
+            unchecked {
+                _balances[to] += 1;
+            }
+        }
+
+        _owners[tokenId] = to;
+
+        emit Transfer(from, to, tokenId);
+
+        return from;
+    }
+
+    /**
      * @dev Mints `tokenId` and transfers it to `to`.
      *
      * WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
@@ -269,34 +311,11 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * Emits a {Transfer} event.
      */
-    function _mint(address to, uint256 tokenId) internal virtual {
+    function _mint(address to, uint256 tokenId) internal {
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-        if (_exists(tokenId)) {
-            revert ERC721InvalidSender(address(0));
-        }
-
-        _beforeTokenTransfer(address(0), to, tokenId, 1);
-
-        // Check that tokenId was not minted by `_beforeTokenTransfer` hook
-        if (_exists(tokenId)) {
-            revert ERC721InvalidSender(address(0));
-        }
-
-        unchecked {
-            // Will not overflow unless all 2**256 token ids are minted to the same owner.
-            // Given that tokens are minted one by one, it is impossible in practice that
-            // this ever happens. Might change if we allow batch minting.
-            // The ERC fails to describe this case.
-            _balances[to] += 1;
-        }
-
-        _owners[tokenId] = to;
-
-        emit Transfer(address(0), to, tokenId);
-
-        _afterTokenTransfer(address(0), to, tokenId, 1);
+        _update(to, tokenId, _constraintNotMinted);
     }
 
     /**
@@ -310,26 +329,8 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * Emits a {Transfer} event.
      */
-    function _burn(uint256 tokenId) internal virtual {
-        address owner = ownerOf(tokenId);
-
-        _beforeTokenTransfer(owner, address(0), tokenId, 1);
-
-        // Update ownership in case tokenId was transferred by `_beforeTokenTransfer` hook
-        owner = ownerOf(tokenId);
-
-        // Clear approvals
-        delete _tokenApprovals[tokenId];
-
-        // Decrease balance with checked arithmetic, because an `ownerOf` override may
-        // invalidate the assumption that `_balances[from] >= 1`.
-        _balances[owner] -= 1;
-
-        delete _owners[tokenId];
-
-        emit Transfer(owner, address(0), tokenId);
-
-        _afterTokenTransfer(owner, address(0), tokenId, 1);
+    function _burn(uint256 tokenId) internal {
+        _update(address(0), tokenId, _constraintMinted);
     }
 
     /**
@@ -343,41 +344,14 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
      *
      * Emits a {Transfer} event.
      */
-    function _transfer(address from, address to, uint256 tokenId) internal virtual {
-        address owner = ownerOf(tokenId);
-        if (owner != from) {
-            revert ERC721IncorrectOwner(from, tokenId, owner);
-        }
+    function _transfer(address from, address to, uint256 tokenId) internal {
         if (to == address(0)) {
             revert ERC721InvalidReceiver(address(0));
         }
-
-        _beforeTokenTransfer(from, to, tokenId, 1);
-
-        // Check that tokenId was not transferred by `_beforeTokenTransfer` hook
-        owner = ownerOf(tokenId);
+        address owner = _update(to, tokenId, _constraintMinted);
         if (owner != from) {
             revert ERC721IncorrectOwner(from, tokenId, owner);
         }
-
-        // Clear approvals from the previous owner
-        delete _tokenApprovals[tokenId];
-
-        // Decrease balance with checked arithmetic, because an `ownerOf` override may
-        // invalidate the assumption that `_balances[from] >= 1`.
-        _balances[from] -= 1;
-
-        unchecked {
-            // `_balances[to]` could overflow in the conditions described in `_mint`. That would require
-            // all 2**256 token ids to be minted, which in practice is impossible.
-            _balances[to] += 1;
-        }
-
-        _owners[tokenId] = to;
-
-        emit Transfer(from, to, tokenId);
-
-        _afterTokenTransfer(from, to, tokenId, 1);
     }
 
     /**
@@ -409,6 +383,34 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
     function _requireMinted(uint256 tokenId) internal view virtual {
         if (!_exists(tokenId)) {
             revert ERC721NonexistentToken(tokenId);
+        }
+    }
+
+    /**
+     * @dev Contraint: revert if token is already minted
+     */
+    function _constraintNotMinted(address from, address, uint256) internal pure {
+        if (from != address(0)) {
+            revert ERC721InvalidSender(address(0));
+        }
+    }
+
+    /**
+     * @dev Contraint: revert if token is not yet minted
+     */
+    function _constraintMinted(address from, address, uint256 tokenId) internal pure {
+        if (from == address(0)) {
+            revert ERC721NonexistentToken(tokenId);
+        }
+    }
+
+    /**
+     * @dev Contraint: check that the caller is the current owner, or approved by the current owner
+     */
+    function _constraintApprovedOrOwner(address owner, address, uint256 tokenId) internal view {
+        address spender = _msgSender();
+        if (spender != owner && !isApprovedForAll(owner, spender) && getApproved(tokenId) != spender) {
+            revert ERC721InsufficientApproval(_msgSender(), tokenId);
         }
     }
 
@@ -445,38 +447,6 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
             return true;
         }
     }
-
-    /**
-     * @dev Hook that is called before any token transfer. This includes minting and burning. If {ERC721Consecutive} is
-     * used, the hook may be called as part of a consecutive (batch) mint, as indicated by `batchSize` greater than 1.
-     *
-     * Calling conditions:
-     *
-     * - When `from` and `to` are both non-zero, ``from``'s tokens will be transferred to `to`.
-     * - When `from` is zero, the tokens will be minted for `to`.
-     * - When `to` is zero, ``from``'s tokens will be burned.
-     * - `from` and `to` are never both zero.
-     * - `batchSize` is non-zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
-    function _beforeTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual {}
-
-    /**
-     * @dev Hook that is called after any token transfer. This includes minting and burning. If {ERC721Consecutive} is
-     * used, the hook may be called as part of a consecutive (batch) mint, as indicated by `batchSize` greater than 1.
-     *
-     * Calling conditions:
-     *
-     * - When `from` and `to` are both non-zero, ``from``'s tokens were transferred to `to`.
-     * - When `from` is zero, the tokens were minted for `to`.
-     * - When `to` is zero, ``from``'s tokens were burned.
-     * - `from` and `to` are never both zero.
-     * - `batchSize` is non-zero.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
-    function _afterTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual {}
 
     /**
      * @dev Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
