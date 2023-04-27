@@ -12,6 +12,11 @@
 - `ERC777`: The `ERC777` token standard is no longer supported by OpenZeppelin. Our implementation is now deprecated and will be removed in the next major release. The corresponding standard interfaces remain available. ([#4066](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4066))
 - `ERC1820Implementer`: The `ERC1820` pseudo-introspection mechanism is no longer supported by OpenZeppelin. Our implementation is now deprecated and will be removed in the next major release. The corresponding standard interfaces remain available. ([#4066](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4066))
 
+## 4.8.3 (2023-04-13)
+
+- `GovernorCompatibilityBravo`: Fix encoding of proposal data when signatures are missing.
+- `TransparentUpgradeableProxy`: Fix transparency in case of selector clash with non-decodable calldata or payable mutability. ([#4154](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4154))
+
 ## 4.8.2 (2023-03-02)
 
 - `ERC721Consecutive`: Fixed a bug when `_mintConsecutive` is used for batches of size 1 that could lead to balance overflow. Refer to the breaking changes section in the changelog for a note on the behavior of `ERC721._beforeTokenTransfer`.
