@@ -1,0 +1,19 @@
+--- token/ERC20/extensions/ERC20Votes.sol	2023-04-27 13:16:53.923627178 +0200
++++ token/ERC20/extensions/ERC20Votes.sol	2023-04-27 13:27:00.856088231 +0200
+@@ -281,10 +281,11 @@
+     /**
+      * @dev Access an element of the array without performing bounds check. The position is assumed to be within bounds.
+      */
+-    function _unsafeAccess(Checkpoint[] storage ckpts, uint256 pos) private pure returns (Checkpoint storage result) {
+-        assembly {
+-            mstore(0, ckpts.slot)
+-            result.slot := add(keccak256(0, 0x20), pos)
+-        }
++    function _unsafeAccess(Checkpoint[] storage ckpts, uint256 pos) private view returns (Checkpoint storage result) {
++        return ckpts[pos]; // explicit (safe) for formal verification hooking
++        // assembly {
++        //     mstore(0, ckpts.slot)
++        //     result.slot := add(keccak256(0, 0x20), pos)
++        // }
+     }
+ }

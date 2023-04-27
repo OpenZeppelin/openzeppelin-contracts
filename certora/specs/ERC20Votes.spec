@@ -15,96 +15,107 @@ use invariant totalSupplyIsSumOfBalances
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Ghost: user (current) voting weight                                                                                 │
+│ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-ghost lastUserVotes(address) returns uint224 {
-    init_state axiom forall address a. lastUserVotes(a) == 0;
-}
-
-ghost userCkptNumber(address) returns uint32 {
-    init_state axiom forall address a. userCkptNumber(a) == 0;
-}
-
-ghost lastUserIndex(address) returns uint32;
-ghost lastUserTimepoint(address) returns uint32;
+definition max_uint224() returns uint224 = 0xffffffffffffffffffffffffffff;
+definition lastCheckpoint(address a) returns uint32 = to_uint32(numCheckpoints(a) - 1);
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Ghost: total voting weight                                                                                          │
+│ Ghost & hooks                                                                                                       │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
+
+
+/*
 ghost totalVotes() returns uint224 {
     init_state axiom totalVotes() == 0;
 }
 
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Ghost: duplicate checkpoint detection                                                                               │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-ghost lastUserDuplicate(address) returns bool {
-    init_state axiom forall address a. lastUserDuplicate(a) == false;
+ghost mapping(address => uint256) userVotes {
+    init_state axiom forall address a. userVotes[a] == 0;
 }
 
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Hook                                                                                                                │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
+ghost mapping(address => uint32) userLast {
+    init_state axiom forall address a. userLast[a] == 0;
+}
+
+ghost mapping(address => uint32) userClock {
+    init_state axiom forall address a. userClock[a] == 0;
+}
+
 hook Sstore currentContract._checkpoints[KEY address account][INDEX uint32 index].votes uint224 newVotes (uint224 oldVotes) STORAGE {
-    havoc lastUserVotes assuming
-        lastUserVotes@new(account) == newVotes;
+    havoc totalVotes assuming totalVotes@new() == totalVotes@old() + newVotes - userVotes[account];
 
-    havoc totalVotes assuming
-        totalVotes@new() == totalVotes@old() + newVotes - lastUserVotes(account);
-
-    havoc lastUserIndex assuming
-        lastUserIndex@new(account) == index;
+    userVotes[account] = newVotes;
+    userLast[account] = index;
 }
 
 hook Sstore currentContract._checkpoints[KEY address account][INDEX uint32 index].fromBlock uint32 newTimepoint (uint32 oldTimepoint) STORAGE {
-    havoc lastUserTimepoint assuming
-        lastUserTimepoint@new(account) == newTimepoint;
-
-    havoc userCkptNumber assuming
-        userCkptNumber@new(account) == index + 1;
-
-    havoc lastUserDuplicate assuming
-        lastUserDuplicate@new(account) == (newTimepoint == lastUserTimepoint(account));
-
+    userClock[account] = newTimepoint;
 }
+*/
 
 
 
 
 
 
-definition max_uint224() returns uint224 = 0xffffffffffffffffffffffffffff;
 
 
 
 
+
+
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: clock                                                                                                    │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
 invariant clockMode(env e)
     clock(e) == e.block.number || clock(e) == e.block.timestamp
 
 
-invariant numCheckpointsConsistency(address a)
-    userCkptNumber(a) == numCheckpoints(a) &&
-    userCkptNumber(a) <= max_uint32
 
-invariant lastUserVotesAndTimepointConsistency(address a)
+
+
+
+invariant userClockInThePast(env e, address a)
+    numCheckpoints(a) > 0 => ckptFromBlock(lastCheckpoint(a)) <= clock(e)
+    {
+        preserved with (env e2) {
+            require clock(e2) <= clock(e);
+        }
+    }
+
+/*
+invariant hooksAreCorrect(env e, address a)
     numCheckpoints(a) > 0 => (
-        lastUserIndex(a)     == numCheckpoints(a) - 1              &&
-        lastUserIndex(a)     <= max_uint32                         &&
-        lastUserVotes(a)     == ckptVotes(a, lastUserIndex(a))     &&
-        lastUserVotes(a)     <= max_uint224()                      &&
-        lastUserTimepoint(a) == ckptFromBlock(a, lastUserIndex(a)) &&
-        lastUserTimepoint(a) <= max_uint224()
+        userLast(a)  == ckptFromBlock(lastCheckpoint(a)) &&
+        userVotes(a) == ckptVotes(lastCheckpoint(a))
     )
+*/
 
 
 
+
+
+
+
+
+/*
+invariant userVotesAndClockConsistency(address a)
+    numCheckpoints(a) > 0 => (
+        userLast(a)  == numCheckpoints(a) - 1              &&
+        userLast(a)  <= max_uint32                         &&
+        userVotes(a) == ckptVotes(a, lastUserIndex(a))     &&
+        userVotes(a) <= max_uint224()                      &&
+        userClock(a) == ckptFromBlock(a, lastUserIndex(a)) &&
+        userClock(a) <= max_uint224()
+    )
+*/
 
 
 
