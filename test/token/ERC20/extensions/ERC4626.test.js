@@ -6,8 +6,7 @@ const ERC4626 = artifacts.require('$ERC4626');
 const ERC4626OffsetMock = artifacts.require('$ERC4626OffsetMock');
 const ERC4626FeesMock = artifacts.require('$ERC4626FeesMock');
 const ERC20ExcessDecimalsMock = artifacts.require('ERC20ExcessDecimalsMock');
-const ERC4626DepositReentrantAsset = artifacts.require('$ERC4626DepositReentrantAsset');
-const ERC4626WithdrawReentrantAsset = artifacts.require('$ERC4626WithdrawReentrantAsset');
+const ERC4626ReentrantAsset = artifacts.require('$ERC4626ReentrantAsset');
 
 contract('ERC4626', function (accounts) {
   const [holder, recipient, spender, other, user1, user2] = accounts;
@@ -46,47 +45,79 @@ contract('ERC4626', function (accounts) {
     }
   });
 
-  it('reenters deposit without changing the price', async function () {
-    const amount = web3.utils.toBN(10).pow(decimals);
-    const token = await ERC4626DepositReentrantAsset.new();
+  describe('reentrancy', async function () {
+    const reenterType = {
+      Before: 1,
+      After: 2,
+    };
 
-    const vault = await ERC4626.new('', '', token.address);
+    let amount;
+    let token;
+    let vault;
 
-    await token.$_mint(holder, amount);
-    await token.$_mint(token.address, amount); // Requires balance to reenter
+    beforeEach(async function () {
+      amount = web3.utils.toBN(10).pow(decimals);
+      token = await ERC4626ReentrantAsset.new();
 
-    await token.approve(vault.address, constants.MAX_UINT256, { from: holder });
+      vault = await ERC4626.new('', '', token.address);
+      await token.$_mint(holder, amount);
+      await token.$_mint(token.address, amount); // Requires balance to reenter
+    });
 
-    await token.setReenter(true);
+    // During a `_deposit`, the vault does `transferFrom(depositor, vault, assets)` -> `_mint(receiver, shares)`
+    // such that a reentrancy BEFORE the transfer guarantees the price is kept the same.
+    // If the order of transfer -> mint is changed to mint -> transfer, the reentrancy could be triggered on an
+    // intermediate state in which the ratio of assets/shares has been decreased (more shares than assets).
+    it('reenters before deposit without changing the price', async function () {
+      // Schedules a reentrancy from the token contract
+      const reenterAmount = 1;
+      await token.functionCall(token.address, vault.contract.methods.approve(vault.address, reenterAmount).encodeABI());
+      await token.scheduleReenter(
+        reenterType.Before,
+        vault.address,
+        vault.contract.methods.deposit(reenterAmount, holder).encodeABI(),
+      );
 
-    const sharesBefore = await vault.previewDeposit(amount, { from: holder });
-    await vault.deposit(amount, holder, { from: holder });
-    const sharesAfter = await vault.previewDeposit(amount, { from: holder });
+      const sharesBefore = await vault.previewDeposit(amount, { from: holder });
 
-    expect(sharesBefore).to.be.bignumber.eq(sharesAfter); // Price is kept
-  });
+      // A holder approves and deposits as normally, triggering the _beforeTokenTransfer hook
+      await token.approve(vault.address, constants.MAX_UINT256, { from: holder });
+      await vault.deposit(amount, holder, { from: holder });
 
-  it('reenters withdraw without changing the price', async function () {
-    const amount = web3.utils.toBN(10).pow(decimals);
-    const token = await ERC4626WithdrawReentrantAsset.new();
+      // Assert prices is kept
+      const sharesAfter = await vault.previewDeposit(amount, { from: holder });
+      expect(sharesBefore).to.be.bignumber.eq(sharesAfter);
+    });
 
-    const vault = await ERC4626.new('', '', token.address);
+    // During a `_withdraw`, the vault does `_burn(owner, shares)` -> `transfer(receiver, assets)`
+    // such that a reentrancy AFTER the transfer guarantees the price is kept the same.
+    // If the order of burn -> transfer is changed to transfer -> burn, the reentrancy could be triggered on an
+    // intermediate state in which the ratio of shares/assets has been decreased (more assets than shares).
+    it('reenters after withdraw without changing the price', async function () {
+      // Schedules a reentrancy from the token contract by depositing first so it can then withdraw
+      const reenterAmount = 1;
+      await token.functionCall(token.address, vault.contract.methods.approve(vault.address, reenterAmount).encodeABI());
+      await token.functionCall(vault.address, vault.contract.methods.deposit(reenterAmount, token.address).encodeABI());
+      await token.scheduleReenter(
+        reenterType.After,
+        vault.address,
+        vault.contract.methods.withdraw(reenterAmount, holder, token.address).encodeABI(),
+      );
 
-    await token.$_mint(holder, amount);
-    await token.$_mint(token.address, amount); // Requires balance to deposit
+      // A holder approves and deposits as normally
+      await token.approve(vault.address, constants.MAX_UINT256, { from: holder });
+      await vault.deposit(amount, holder, { from: holder });
 
-    await token.depositTo(vault.address, amount);
-    await token.approve(vault.address, constants.MAX_UINT256, { from: holder });
-    await vault.deposit(amount, holder, { from: holder });
+      const assetsBefore = await vault.previewWithdraw(amount, { from: holder });
 
-    await token.setReenter(true);
+      // Holder withdraw triggering the _afterTokenTransfer hook
+      const shares = await vault.balanceOf(holder);
+      await vault.withdraw(shares, holder, holder, { from: holder });
 
-    const assetsBefore = await vault.previewWithdraw(amount, { from: holder });
-    const shares = await vault.balanceOf(holder);
-    await vault.withdraw(shares, holder, holder, { from: holder });
-    const assetsAfter = await vault.previewWithdraw(amount, { from: holder });
-
-    expect(assetsBefore).to.be.bignumber.eq(assetsAfter); // Price is kept
+      // Assert price is kept
+      const assetsAfter = await vault.previewWithdraw(amount, { from: holder });
+      expect(assetsBefore).to.be.bignumber.eq(assetsAfter);
+    });
   });
 
   for (const offset of [0, 6, 18].map(web3.utils.toBN)) {
