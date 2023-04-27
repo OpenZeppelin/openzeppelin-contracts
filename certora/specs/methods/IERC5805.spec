@@ -1,6 +1,6 @@
 methods {
     // view
-    getVotes(address)              returns (uint256)
+    getVotes(address)              returns (uint256) envfree
     getPastVotes(address, uint256) returns (uint256)
     getPastTotalSupply(uint256)    returns (uint256)
     delegates(address)             returns (address) envfree
