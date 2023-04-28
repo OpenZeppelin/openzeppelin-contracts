@@ -5,10 +5,13 @@ import "methods/IERC6372.spec"
 import "ERC20.spec"
 
 methods {
-    numCheckpoints(address)        returns (uint32)  envfree
-    ckptFromBlock(address, uint32) returns (uint32)  envfree
-    ckptVotes(address, uint32)     returns (uint224) envfree
-    maxSupply()                    returns (uint224) envfree
+    numCheckpoints(address)          returns (uint32)  envfree
+    ckptFromBlock(address, uint32)   returns (uint32)  envfree
+    ckptVotes(address, uint32)       returns (uint224) envfree
+    numCheckpointsTotalSupply()      returns (uint32)  envfree
+    ckptFromBlockTotalSupply(uint32) returns (uint32)  envfree
+    ckptVotesTotalSupply(uint32)     returns (uint224) envfree
+    maxSupply()                      returns (uint224) envfree
 }
 
 use invariant totalSupplyIsSumOfBalances
@@ -22,35 +25,30 @@ definition max_uint224() returns uint224 = 0xffffffffffffffffffffffffffff;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Ghost & hooks                                                                                                       │
+│ Ghost & hooks: total delegated                                                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-ghost totalVotes() returns uint224 {
-    init_state axiom totalVotes() == 0;
+ghost mapping(address => uint256) balanceOf {
+    init_state axiom forall address a. balanceOf[a] == 0;
 }
 
-ghost mapping(address => uint224) userVotes {
-    init_state axiom forall address a. userVotes[a] == 0;
+ghost mapping(address => address) delegates {
+    init_state axiom forall address a. delegates[a] == 0;
 }
 
-ghost mapping(address => uint32) userClock {
-    init_state axiom forall address a. userClock[a] == 0;
+ghost mapping(address => uint256) getVotes {
+    init_state axiom forall address a. getVotes[a] == 0;
 }
 
-ghost mapping(address => uint32) userCkpts {
-    init_state axiom forall address a. userCkpts[a] == 0;
+hook Sstore _balances[KEY address account] uint256 newAmount (uint256 oldAmount) STORAGE {
+    balanceOf[account] = newAmount;
+    getVotes[delegates[account]] = getVotes[delegates[account]] + newAmount - oldAmount;
 }
 
-hook Sstore currentContract._checkpoints[KEY address account][INDEX uint32 index].votes uint224 newVotes (uint224 oldVotes) STORAGE {
-    havoc totalVotes assuming totalVotes@new() == totalVotes@old() + newVotes - userVotes[account];
-
-    userVotes[account] = newVotes;
-    userCkpts[account] = index;
-}
-
-hook Sstore currentContract._checkpoints[KEY address account][INDEX uint32 index].fromBlock uint32 newTimepoint (uint32 oldTimepoint) STORAGE {
-    userClock[account] = newTimepoint;
-    userCkpts[account] = index;
+hook Sstore _delegates[KEY address account] address newDelegate (address oldDelegate) STORAGE {
+    delegates[account] = newDelegate;
+    getVotes[oldDelegate] = getVotes[oldDelegate] - balanceOf[account];
+    getVotes[newDelegate] = getVotes[newDelegate] + balanceOf[account];
 }
 
 /*
@@ -66,21 +64,37 @@ invariant clockMode(env e)
 │ Invariant: hook correctly track latest checkpoint                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant hooksAreCorrect(address a)
-    numCheckpoints(a) > 0 => (
-        userVotes[a] == getVotes(a) &&
-        userVotes[a] == ckptVotes(a, numCheckpoints(a) - 1) &&
-        userClock[a] == ckptFromBlock(a, numCheckpoints(a) - 1) &&
-        userCkpts[a] == numCheckpoints(a) - 1
-    )
+invariant delegationConsistency(address a)
+    balanceOf(a) == balanceOf[a] &&
+    delegates(a) == delegates[a] &&
+    getVotes(a) == (a == 0 ? 0 : getVotes[a])
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: totalSupply is checkpointed                                                                              │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant totalSupplyTracked()
+    totalSupply() > 0 => numCheckpointsTotalSupply() > 0
+
+invariant totalSupplyLatest()
+    numCheckpointsTotalSupply() > 0 => ckptVotesTotalSupply(numCheckpointsTotalSupply() - 1) == totalSupply()
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: checkpoint is not in the future                                                                          │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant userClockInThePast(env e, address a)
+invariant checkpointInThePast(env e, address a)
     numCheckpoints(a) > 0 => ckptFromBlock(a, numCheckpoints(a) - 1) <= clock(e)
+    {
+        preserved with (env e2) {
+            require clock(e2) <= clock(e);
+        }
+    }
+
+invariant totalCheckpointInThePast(env e)
+    numCheckpointsTotalSupply() > 0 => ckptFromBlockTotalSupply(numCheckpointsTotalSupply() - 1) <= clock(e)
     {
         preserved with (env e2) {
             require clock(e2) <= clock(e);
@@ -96,24 +110,17 @@ invariant checkpointClockIncreassing(address a)
     numCheckpoints(a) > 1 => ckptFromBlock(a, numCheckpoints(a) - 2) < ckptFromBlock(a, numCheckpoints(a) - 1)
     {
         preserved with (env e) {
-            requireInvariant userClockInThePast(e, a);
+            requireInvariant checkpointInThePast(e, a);
         }
     }
 
-
-
-
-
-
-/// For some reason "sumOfBalances" is not tracking correctly ...
-/// ... and we get counter example where totalSupply is more than the sum of involved balances
-// invariant totalVotesLessTotalSupply()
-//     totalVotes() <= totalSupply()
-//     {
-//         preserved {
-//             requireInvariant totalSupplyIsSumOfBalances;
-//         }
-//     }
+invariant totalCheckpointClockIncreassing()
+    numCheckpointsTotalSupply() > 1 => ckptFromBlockTotalSupply(numCheckpointsTotalSupply() - 2) < ckptFromBlockTotalSupply(numCheckpointsTotalSupply() - 1)
+    {
+        preserved with (env e) {
+            requireInvariant totalCheckpointInThePast(e);
+        }
+    }
 
 /// For some reason "sumOfBalances" is not tracking correctly ...
 /// ... and we get counter example where totalSupply is more than the sum of involved balances
@@ -124,3 +131,230 @@ invariant checkpointClockIncreassing(address a)
 //             requireInvariant totalSupplyIsSumOfBalances;
 //         }
 //     }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: Don't track votes delegated to address 0                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant addressZeroNoCheckpoints()
+    numCheckpoints(0) == 0
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: Don't track votes delegated to address 0                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule checkpointsImmutable(env e, method f)
+    filtered { f -> !f.isView }
+{
+    address account;
+    uint32  index;
+
+    require index < numCheckpoints(account);
+    uint224 valueBefore = ckptVotes(account, index);
+    uint32  clockBefore = ckptFromBlock(account, index);
+
+    calldataarg args; f(e, args);
+
+    uint224 valueAfter = ckptVotes@withrevert(account, index);
+    assert !lastReverted;
+    uint32  clockAfter = ckptFromBlock@withrevert(account, index);
+    assert !lastReverted;
+
+    assert clockAfter == clockBefore;
+    assert valueAfter != valueBefore => clockBefore == clock(e);
+}
+
+rule totalCheckpointsImmutable(env e, method f)
+    filtered { f -> !f.isView }
+{
+    uint32  index;
+
+    require index < numCheckpointsTotalSupply();
+    uint224 valueBefore = ckptVotesTotalSupply(index);
+    uint32  clockBefore = ckptFromBlockTotalSupply(index);
+
+    calldataarg args; f(e, args);
+
+    uint224 valueAfter = ckptVotesTotalSupply@withrevert(index);
+    assert !lastReverted;
+    uint32  clockAfter = ckptFromBlockTotalSupply@withrevert(index);
+    assert !lastReverted;
+
+    assert clockAfter == clockBefore;
+    assert valueAfter != valueBefore => clockBefore == clock(e);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rules: what function can lead to state changes                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+rule changes(env e, method f)
+    filtered { f -> !f.isView }
+{
+    address account;
+    calldataarg args;
+
+    uint32  ckptsBefore     = numCheckpoints(account);
+    uint256 votesBefore     = getVotes(account);
+    address delegatesBefore = delegates(account);
+
+    f(e, args);
+
+    uint32  ckptsAfter     = numCheckpoints(account);
+    uint256 votesAfter     = getVotes(account);
+    address delegatesAfter = delegates(account);
+
+    assert ckptsAfter != ckptsBefore => (
+        ckptsAfter == ckptsBefore + 1 &&
+        ckptFromBlock(account, ckptsAfter - 1) == clock(e) &&
+        (
+            f.selector == mint(address,uint256).selector ||
+            f.selector == burn(address,uint256).selector ||
+            f.selector == transfer(address,uint256).selector ||
+            f.selector == transferFrom(address,address,uint256).selector ||
+            f.selector == delegate(address).selector ||
+            f.selector == delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32).selector
+        )
+    );
+
+    assert votesAfter != votesBefore => (
+        f.selector == mint(address,uint256).selector ||
+        f.selector == burn(address,uint256).selector ||
+        f.selector == transfer(address,uint256).selector ||
+        f.selector == transferFrom(address,address,uint256).selector ||
+        f.selector == delegate(address).selector ||
+        f.selector == delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32).selector
+    );
+
+    assert delegatesAfter != delegatesBefore => (
+        f.selector == delegate(address).selector ||
+        f.selector == delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32).selector
+    );
+}
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rules: mint updates votes                                                                                           │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+/* WIP
+rule mint(env e) {
+    requireInvariant totalSupplyIsSumOfBalances();
+    requireInvariant totalSupplyTracked();
+    requireInvariant totalSupplyLatest();
+    require nonpayable(e);
+
+    address to;
+    address toDelegate = delegates(to);
+    address other;
+    uint256 amount;
+
+    // cache state
+    uint256 totalSupplyBefore = totalSupply();
+    uint256 votesBefore       = getVotes(toDelegate);
+    uint32  ckptsBefore       = numCheckpoints(toDelegate);
+    mathint clockBefore       = ckptsBefore == 0 ? -1 : numCheckpoints(toDelegate);
+    uint256 otherVotesBefore  = getVotes(other);
+    uint256 otherCkptsBefore  = numCheckpoints(other);
+
+    // run transaction
+    mint@withrevert(e, to, amount);
+    bool success = !lastReverted;
+
+    uint256 votesAfter      = getVotes(toDelegate);
+    uint32  ckptsAfter      = numCheckpoints(toDelegate);
+    mathint clockAfter      = ckptsAfter == 0 ? -1 : numCheckpoints(toDelegate);
+    uint256 otherVotesAfter = getVotes(other);
+    uint256 otherCkptsAfter = numCheckpoints(other);
+
+    // liveness
+    assert success <=> (to != 0 || totalSupplyBefore + amount <= max_uint256);
+
+    // effects
+    assert (
+        success &&
+        toDelegate != 0
+    ) => (
+        votesAfter == votesBefore + amount &&
+        ckptsAfter == ckptsBefore + to_mathint(clockBefore == clockAfter ? 0 : 1) &&
+        clockAfter == clock(e)
+    );
+
+    // no side effects
+    assert otherVotesAfter != otherVotesBefore => other == toDelegate;
+    assert otherCkptsAfter != otherCkptsBefore => other == toDelegate;
+}
+*/
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Rules: burn updates votes                                                                                           │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+/* WIP
+rule burn(env e) {
+    requireInvariant totalSupplyIsSumOfBalances();
+    requireInvariant totalSupplyTracked();
+    requireInvariant totalSupplyLatest();
+    require nonpayable(e);
+
+    address from;
+    address fromDelegate = delegates(from);
+    address other;
+    uint256 amount;
+
+    // cache state
+    uint256 fromBalanceBefore = balanceOf(from);
+    uint256 votesBefore       = getVotes(fromDelegate);
+    uint32  ckptsBefore       = numCheckpoints(fromDelegate);
+    mathint clockBefore       = ckptsBefore == 0 ? -1 : numCheckpoints(fromDelegate);
+    uint256 otherVotesBefore  = getVotes(other);
+    uint256 otherCkptsBefore  = numCheckpoints(other);
+
+    // run transaction
+    burn@withrevert(e, from, amount);
+    bool success = !lastReverted;
+
+    uint256 votesAfter      = getVotes(fromDelegate);
+    uint32  ckptsAfter      = numCheckpoints(fromDelegate);
+    mathint clockAfter      = ckptsAfter == 0 ? -1 : numCheckpoints(fromDelegate);
+    uint256 otherVotesAfter = getVotes(other);
+    uint256 otherCkptsAfter = numCheckpoints(other);
+
+    // liveness
+    assert success <=> (from != 0 || amount <= fromBalanceBefore);
+
+    // effects
+    assert (
+        success &&
+        fromDelegate != 0
+    ) => (
+        votesAfter == votesBefore + amount &&
+        ckptsAfter == ckptsBefore + to_mathint(clockBefore == clockAfter ? 0 : 1) &&
+        clockAfter == clock(e)
+    );
+
+    // no side effects
+    assert otherVotesAfter != otherVotesBefore => other == fromDelegate;
+    assert otherCkptsAfter != otherCkptsBefore => other == fromDelegate;
+}
+*/

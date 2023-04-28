@@ -24,6 +24,14 @@ contract ERC20VotesHarness is ERC20Votes {
         return checkpoints(account, pos).votes;
     }
 
+    function ckptFromBlockTotalSupply(uint32 pos) public view returns (uint32) {
+        return checkpointsTotalSupply(pos).fromBlock;
+    }
+
+    function ckptVotesTotalSupply(uint32 pos) public view returns (uint224) {
+        return checkpointsTotalSupply(pos).votes;
+    }
+
     function maxSupply() public view returns (uint224) {
         return _maxSupply();
     }
