@@ -89,6 +89,7 @@ module.exports = {
     },
   },
   exposed: {
+    initializers: true,
     exclude: [
       'vendor/**/*',
       // overflow clash
