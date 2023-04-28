@@ -714,9 +714,9 @@ contract('TimelockController', function (accounts) {
               // Create operation
               const reentrant = await TimelockReentrant.new();
               const reentrantBatchOperation = genOperationBatch(
-                Array(8).fill(reentrant.address),
-                Array(8).fill(0),
-                Array(8).fill(reentrant.contract.methods.reenter().encodeABI()),
+                [reentrant.address],
+                [0],
+                [reentrant.contract.methods.reenter().encodeABI()],
                 ZERO_BYTES32,
                 salt,
               );
