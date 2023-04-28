@@ -30,6 +30,7 @@ import "../../interfaces/IERC5267.sol";
  *
  * _Available since v3.4._
  *
+ * @custom:storage-size 52
  * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
  */
 abstract contract EIP712 is IERC5267 {

@@ -11,6 +11,8 @@ import "./SafeERC20.sol";
  *
  * Useful for simple vesting schedules like "advisors get all of their tokens
  * after 1 year".
+ *
+ * @custom:storage-size 53
  */
 contract TokenTimelock {
     using SafeERC20 for IERC20;
