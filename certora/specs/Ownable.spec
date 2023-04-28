@@ -62,10 +62,10 @@ rule onlyCurrentOwnerCanCallOnlyOwner(env e) {
 │ Rule: ownership can only change in specific ways                                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyOwnerOrPendingOwnerCanChangeOwnership(env e, method f) {
+rule onlyOwnerOrPendingOwnerCanChangeOwnership(env e) {
     address oldCurrent = owner();
 
-    calldataarg args;
+    method f; calldataarg args;
     f(e, args);
 
     address newCurrent = owner();
