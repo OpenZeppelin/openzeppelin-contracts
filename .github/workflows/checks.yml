@@ -48,6 +48,8 @@ jobs:
       FORCE_COLOR: 1
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Include history so patch conflicts are resolved automatically
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Transpile to upgradeable
