@@ -513,15 +513,12 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     });
 
     describe('when caller is pending default admin and delay has passed', function () {
-      let from;
-
       beforeEach(async function () {
         await time.setNextBlockTimestamp(acceptSchedule.addn(1));
-        from = newDefaultAdmin;
       });
 
       it('accepts a transfer and changes default admin', async function () {
-        const receipt = await this.accessControl.acceptDefaultAdminTransfer({ from });
+        const receipt = await this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin });
 
         // Storage changes
         expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.false;
@@ -625,10 +622,9 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
   describe('renounces admin', function () {
     let delayPassed;
-    let from = defaultAdmin;
 
     beforeEach(async function () {
-      await this.accessControl.beginDefaultAdminTransfer(constants.ZERO_ADDRESS, { from });
+      await this.accessControl.beginDefaultAdminTransfer(constants.ZERO_ADDRESS, { from: defaultAdmin });
       delayPassed = web3.utils
         .toBN(await time.latest())
         .add(delay)
@@ -638,7 +634,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     it('reverts if caller is not default admin', async function () {
       await time.setNextBlockTimestamp(delayPassed);
       await expectRevert(
-        this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from }),
+        this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from: defaultAdmin }),
         `${errorPrefix}: can only renounce roles for self`,
       );
     });
@@ -655,20 +651,20 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
     it('renounces role', async function () {
       await time.setNextBlockTimestamp(delayPassed);
-      const receipt = await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from });
+      const receipt = await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin });
 
       expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.false;
-      expect(await this.accessControl.hasRole(DEFAULT_ADMIN_ROLE, defaultAdmin)).to.be.false;
+      expect(await this.accessControl.defaultAdmin()).to.be.equal(constants.ZERO_ADDRESS);
       expectEvent(receipt, 'RoleRevoked', {
         role: DEFAULT_ADMIN_ROLE,
-        account: from,
+        account: defaultAdmin,
       });
       expect(await this.accessControl.owner()).to.equal(constants.ZERO_ADDRESS);
     });
 
     it('allows to recover access using the internal _grantRole', async function () {
       await time.setNextBlockTimestamp(delayPassed);
-      await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from });
+      await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin });
 
       const grantRoleReceipt = await this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, other);
       expectEvent(grantRoleReceipt, 'RoleGranted', {
@@ -691,7 +687,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         it(`reverts if block.timestamp is ${tag} to schedule`, async function () {
           await time.setNextBlockTimestamp(delayNotPassed.toNumber() + fromSchedule);
           await expectRevert(
-            this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from }),
+            this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
             `${errorPrefix}: only can renounce in two delayed steps`,
           );
         });
