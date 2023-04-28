@@ -29,6 +29,8 @@ Any non-trivial code contribution must be first discussed with the maintainers i
 
 Make sure to read and follow the [engineering guidelines](./GUIDELINES.md). Run linter and tests to make sure your pull request is good before submitting it.
 
+Changelog entries should be added to each pull request by using [Changesets](https://github.com/changesets/changesets/).
+
 When opening the pull request you will be presented with a template and a series of instructions. Read through it carefully and follow all the steps. Expect a review and feedback from the maintainers afterwards.
 
 If you're looking for a good place to start, look for issues labelled ["good first issue"](https://github.com/OpenZeppelin/openzeppelin-contracts/labels/good%20first%20issue)!

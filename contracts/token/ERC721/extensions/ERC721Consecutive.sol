@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/extensions/ERC721Consecutive.sol)
+// OpenZeppelin Contracts (last updated v4.8.2) (token/ERC721/extensions/ERC721Consecutive.sol)
 
 pragma solidity ^0.8.0;
 
@@ -96,6 +96,11 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
             // push an ownership checkpoint & emit event
             uint96 last = first + batchSize - 1;
             _sequentialOwnership.push(last, uint160(to));
+
+            // The invariant required by this function is preserved because the new sequentialOwnership checkpoint
+            // is attributing ownership of `batchSize` new tokens to account `to`.
+            __unsafe_increaseBalance(to, batchSize);
+
             emit ConsecutiveTransfer(first, last, address(0), to);
 
             // hook after

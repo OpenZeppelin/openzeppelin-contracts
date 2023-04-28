@@ -1,36 +1,42 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "erc4626-tests/ERC4626.test.sol";
+import {ERC4626Test} from "erc4626-tests/ERC4626.test.sol";
 
-import {SafeCast} from "../../../../contracts/utils/math/SafeCast.sol";
-import {ERC20Mock} from "../../../../contracts/mocks/ERC20Mock.sol";
-import {ERC4626Mock} from "../../../../contracts/mocks/ERC4626Mock.sol";
+import {SafeCast} from "openzeppelin/utils/math/SafeCast.sol";
+import {ERC20} from "openzeppelin/token/ERC20/ERC20.sol";
+import {ERC4626} from "openzeppelin/token/ERC20/extensions/ERC4626.sol";
+
+import {ERC20Mock} from "openzeppelin/mocks/ERC20Mock.sol";
+import {ERC4626Mock} from "openzeppelin/mocks/ERC4626Mock.sol";
+import {ERC4626OffsetMock} from "openzeppelin/mocks/token/ERC4626OffsetMock.sol";
+
+contract ERC4626VaultOffsetMock is ERC4626OffsetMock {
+    constructor(
+        ERC20 underlying_,
+        uint8 offset_
+    ) ERC20("My Token Vault", "MTKNV") ERC4626(underlying_) ERC4626OffsetMock(offset_) {}
+}
 
 contract ERC4626StdTest is ERC4626Test {
+    ERC20 private _underlying = new ERC20Mock();
+
     function setUp() public override {
-        _underlying_ = address(new ERC20Mock());
+        _underlying_ = address(_underlying);
         _vault_ = address(new ERC4626Mock(_underlying_));
         _delta_ = 0;
-        _vaultMayBeEmpty = false;
+        _vaultMayBeEmpty = true;
         _unlimitedAmount = true;
     }
 
-    // solhint-disable-next-line func-name-mixedcase
-    function test_RT_mint_withdraw(ERC4626Test.Init memory init, uint256 shares) public override {
-        // There is an edge case where we currently behave different than the property tests,
-        // when all assets are lost to negative yield.
-
-        // Sum all initially deposited assets.
-        int256 initAssets = 0;
-        for (uint256 i = 0; i < init.share.length; i++) {
-            vm.assume(init.share[i] <= uint256(type(int256).max - initAssets));
-            initAssets += SafeCast.toInt256(init.share[i]);
-        }
-
-        // Reject tests where the yield loses all assets from the vault.
-        vm.assume(init.yield > -initAssets);
-
-        super.test_RT_mint_withdraw(init, shares);
+    /**
+     * @dev Check the case where calculated `decimals` value overflows the `uint8` type.
+     */
+    function testFuzzDecimalsOverflow(uint8 offset) public {
+        /// @dev Remember that the `_underlying` exhibits a `decimals` value of 18.
+        offset = uint8(bound(uint256(offset), 238, uint256(type(uint8).max)));
+        ERC4626VaultOffsetMock erc4626VaultOffsetMock = new ERC4626VaultOffsetMock(_underlying, offset);
+        vm.expectRevert();
+        erc4626VaultOffsetMock.decimals();
     }
 }

@@ -25,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_COLOR: 1
+      NODE_OPTIONS: --max_old_space_size=4096
       GAS: true
     steps:
       - uses: actions/checkout@v3
@@ -85,6 +86,8 @@ jobs:
         env:
           NODE_OPTIONS: --max_old_space_size=4096
       - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   slither:
     runs-on: ubuntu-latest
@@ -93,7 +96,9 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - run: rm foundry.toml
-      - uses: crytic/slither-action@v0.2.0
+      - uses: crytic/slither-action@v0.3.0
+        with:
+          node-version: 18
 
   codespell:
     runs-on: ubuntu-latest

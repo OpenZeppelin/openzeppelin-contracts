@@ -153,6 +153,12 @@ abstract contract IGovernor is IERC165, IERC6372 {
     function proposalDeadline(uint256 proposalId) public view virtual returns (uint256);
 
     /**
+     * @notice module:core
+     * @dev The account that created a proposal.
+     */
+    function proposalProposer(uint256 proposalId) public view virtual returns (address);
+
+    /**
      * @notice module:user-config
      * @dev Delay, between the proposal is created and the vote starts. The unit this duration is expressed in depends
      * on the clock (see EIP-6372) this contract uses.
@@ -164,7 +170,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
 
     /**
      * @notice module:user-config
-     * @dev Delay, between the vote start and vote ends. The unit this duration is expressed in depends on the clock
+     * @dev Delay between the vote start and vote end. The unit this duration is expressed in depends on the clock
      * (see EIP-6372) this contract uses.
      *
      * NOTE: The {votingDelay} can delay the start of the vote. This must be considered when setting the voting
@@ -235,12 +241,17 @@ abstract contract IGovernor is IERC165, IERC6372 {
     ) public payable virtual returns (uint256 proposalId);
 
     /**
-     * @dev Cancel a proposal. This is restricted to Pending proposal (before the vote starts) and is restricted to
-     * the proposal's proposer.
+     * @dev Cancel a proposal. A proposal is cancellable by the proposer, but only while it is Pending state, i.e.
+     * before the vote starts.
      *
      * Emits a {ProposalCanceled} event.
      */
-    function cancel(uint256 proposalId) public virtual;
+    function cancel(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public virtual returns (uint256 proposalId);
 
     /**
      * @dev Cast a vote

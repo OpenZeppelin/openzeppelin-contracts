@@ -1,26 +1,5 @@
 const format = require('../format-lines');
-
-// OPTIONS
-const defaultOpts = size => ({
-  historyTypeName: `Trace${size}`,
-  checkpointTypeName: `Checkpoint${size}`,
-  checkpointFieldName: '_checkpoints',
-  keyTypeName: `uint${256 - size}`,
-  keyFieldName: '_key',
-  valueTypeName: `uint${size}`,
-  valueFieldName: '_value',
-});
-
-const VALUE_SIZES = [224, 160];
-
-const OPTS = VALUE_SIZES.map(size => defaultOpts(size));
-
-const LEGACY_OPTS = {
-  ...defaultOpts(224),
-  historyTypeName: 'History',
-  checkpointTypeName: 'Checkpoint',
-  keyFieldName: '_blockNumber',
-};
+const { OPTS, LEGACY_OPTS } = require('./Checkpoints.opts.js');
 
 // TEMPLATE
 const header = `\

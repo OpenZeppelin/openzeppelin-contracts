@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "../ERC721.sol";
-import "../utils/ERC721Holder.sol";
 
 /**
  * @dev Extension of the ERC721 token contract to support token wrapping.
@@ -14,12 +13,8 @@ import "../utils/ERC721Holder.sol";
  *
  * _Available since v4.9.0_
  */
-abstract contract ERC721Wrapper is ERC721, ERC721Holder {
+abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     IERC721 private immutable _underlying;
-
-    // Kept as bytes12 so it can be packed with an address
-    // Equal to 0xb125e89df18e2ceac5fd2fa8
-    bytes12 public constant WRAPPER_ACCEPT_MAGIC = bytes12(keccak256("WRAPPER_ACCEPT_MAGIC"));
 
     constructor(IERC721 underlyingToken) {
         _underlying = underlyingToken;
@@ -29,11 +24,15 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * @dev Allow a user to deposit underlying tokens and mint the corresponding tokenIds.
      */
     function depositFor(address account, uint256[] memory tokenIds) public virtual returns (bool) {
-        bytes memory data = abi.encodePacked(WRAPPER_ACCEPT_MAGIC, account);
-
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
-            underlying().safeTransferFrom(_msgSender(), address(this), tokenIds[i], data);
+            uint256 tokenId = tokenIds[i];
+
+            // This is an "unsafe" transfer that doesn't call any hook on the receiver. With underlying() being trusted
+            // (by design of this contract) and no other contracts expected to be called from there, we are safe.
+            // slither-disable-next-line reentrancy-no-eth
+            underlying().transferFrom(_msgSender(), address(this), tokenId);
+            _safeMint(account, tokenId);
         }
 
         return true;
@@ -61,9 +60,8 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
      * @dev Overrides {IERC721Receiver-onERC721Received} to allow minting on direct ERC721 transfers to
      * this contract.
      *
-     * In case there's data attached, it validates that the sender is aware of this contract's existence and behavior
-     * by checking a magic value (`WRAPPER_ACCEPT_MAGIC`) in the first 12 bytes. If it also matches, the rest 20
-     * bytes are used as an address to send the tokens to.
+     * In case there's data attached, it validates that the operator is this contract, so only trusted data
+     * is accepted from {depositFor}.
      *
      * WARNING: Doesn't work with unsafe transfers (eg. {IERC721-transferFrom}). Use {ERC721Wrapper-_recover}
      * for recovering in that scenario.
@@ -72,13 +70,9 @@ abstract contract ERC721Wrapper is ERC721, ERC721Holder {
         address,
         address from,
         uint256 tokenId,
-        bytes memory data
-    ) public override returns (bytes4) {
+        bytes memory
+    ) public virtual override returns (bytes4) {
         require(address(underlying()) == _msgSender(), "ERC721Wrapper: caller is not underlying");
-        if (data.length > 0) {
-            require(data.length == 32 && WRAPPER_ACCEPT_MAGIC == bytes12(data), "ERC721Wrapper: Invalid data format");
-            from = address(bytes20(bytes32(data) << 96));
-        }
         _safeMint(from, tokenId);
         return IERC721Receiver.onERC721Received.selector;
     }

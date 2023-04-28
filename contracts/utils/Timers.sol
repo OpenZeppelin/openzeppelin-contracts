@@ -5,6 +5,8 @@ pragma solidity ^0.8.0;
 
 /**
  * @dev Tooling for timepoints, timers and delays
+ *
+ * CAUTION: This file is deprecated as of 4.9 and will be removed in the next major release.
  */
 library Timers {
     struct Timestamp {

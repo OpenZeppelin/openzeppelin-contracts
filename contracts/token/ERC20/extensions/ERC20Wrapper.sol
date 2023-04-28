@@ -19,6 +19,7 @@ abstract contract ERC20Wrapper is ERC20 {
     IERC20 private immutable _underlying;
 
     constructor(IERC20 underlyingToken) {
+        require(underlyingToken != this, "ERC20Wrapper: cannot self wrap");
         _underlying = underlyingToken;
     }
 
@@ -44,7 +45,9 @@ abstract contract ERC20Wrapper is ERC20 {
      * @dev Allow a user to deposit underlying tokens and mint the corresponding number of wrapped tokens.
      */
     function depositFor(address account, uint256 amount) public virtual returns (bool) {
-        SafeERC20.safeTransferFrom(_underlying, _msgSender(), address(this), amount);
+        address sender = _msgSender();
+        require(sender != address(this), "ERC20Wrapper: wrapper can't deposit");
+        SafeERC20.safeTransferFrom(_underlying, sender, address(this), amount);
         _mint(account, amount);
         return true;
     }

@@ -204,4 +204,14 @@ library ECDSA {
             data := keccak256(ptr, 0x42)
         }
     }
+
+    /**
+     * @dev Returns an Ethereum Signed Data with intended validator, created from a
+     * `validator` and `data` according to the version 0 of EIP-191.
+     *
+     * See {recover}.
+     */
+    function toDataWithIntendedValidatorHash(address validator, bytes memory data) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19\x00", validator, data));
+    }
 }

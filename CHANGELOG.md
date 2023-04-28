@@ -8,6 +8,22 @@
 ### Deprecations
 
 - `ERC20Permit`: Added the file `IERC20Permit.sol` and `ERC20Permit.sol` and deprecated `draft-IERC20Permit.sol` and `draft-ERC20Permit.sol` since [EIP-2612](https://eips.ethereum.org/EIPS/eip-2612) is no longer a Draft. Developers are encouraged to update their imports. ([#3793](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3793))
+- `Timers`: The `Timers` library is now deprecated and will be removed in the next major release. ([#4062](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4062))
+- `ERC777`: The `ERC777` token standard is no longer supported by OpenZeppelin. Our implementation is now deprecated and will be removed in the next major release. The corresponding standard interfaces remain available. ([#4066](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4066))
+- `ERC1820Implementer`: The `ERC1820` pseudo-introspection mechanism is no longer supported by OpenZeppelin. Our implementation is now deprecated and will be removed in the next major release. The corresponding standard interfaces remain available. ([#4066](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4066))
+
+## 4.8.3 (2023-04-13)
+
+- `GovernorCompatibilityBravo`: Fix encoding of proposal data when signatures are missing.
+- `TransparentUpgradeableProxy`: Fix transparency in case of selector clash with non-decodable calldata or payable mutability. ([#4154](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4154))
+
+## 4.8.2 (2023-03-02)
+
+- `ERC721Consecutive`: Fixed a bug when `_mintConsecutive` is used for batches of size 1 that could lead to balance overflow. Refer to the breaking changes section in the changelog for a note on the behavior of `ERC721._beforeTokenTransfer`.
+
+### Breaking changes
+
+- `ERC721`: The internal function `_beforeTokenTransfer` no longer updates balances, which it previously did when `batchSize` was greater than 1. This change has no consequence unless a custom ERC721 extension is explicitly invoking `_beforeTokenTransfer`. Balance updates in extensions must now be done explicitly using `__unsafe_increaseBalance`, with a name that indicates that there is an invariant that has to be manually verified.
 
 ## 4.8.1 (2023-01-12)
 

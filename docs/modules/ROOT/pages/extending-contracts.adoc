@@ -66,6 +66,8 @@ contract ModifiedAccessControl is AccessControl {
 
 The `super.revokeRole` statement at the end will invoke ``AccessControl``'s original version of `revokeRole`, the same code that would've run if there were no overrides in place.
 
+NOTE: The same rule is implemented and extended in xref:api:access.adoc#AccessControlDefaultAdminRules[`AccessControlDefaultAdminRules`], an extension that also adds enforced security measures for the `DEFAULT_ADMIN_ROLE`.
+
 [[using-hooks]]
 == Using Hooks
 

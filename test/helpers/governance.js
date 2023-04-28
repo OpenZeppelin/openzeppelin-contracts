@@ -68,7 +68,13 @@ class GovernorHelper {
 
     switch (visibility) {
       case 'external':
-        return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
+        if (proposal.useCompatibilityInterface) {
+          return this.governor.methods['cancel(uint256)'](...concatOpts([proposal.id], opts));
+        } else {
+          return this.governor.methods['cancel(address[],uint256[],bytes[],bytes32)'](
+            ...concatOpts(proposal.shortProposal, opts),
+          );
+        }
       case 'internal':
         return this.governor.methods['$_cancel(address[],uint256[],bytes[],bytes32)'](
           ...concatOpts(proposal.shortProposal, opts),
@@ -115,19 +121,22 @@ class GovernorHelper {
       : this.governor.castVote(...concatOpts([proposal.id, vote.support], opts));
   }
 
-  waitForSnapshot(offset = 0) {
+  async waitForSnapshot(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor.proposalSnapshot(proposal.id).then(timepoint => forward[this.mode](timepoint.addn(offset)));
+    const timepoint = await this.governor.proposalSnapshot(proposal.id);
+    return forward[this.mode](timepoint.addn(offset));
   }
 
-  waitForDeadline(offset = 0) {
+  async waitForDeadline(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor.proposalDeadline(proposal.id).then(timepoint => forward[this.mode](timepoint.addn(offset)));
+    const timepoint = await this.governor.proposalDeadline(proposal.id);
+    return forward[this.mode](timepoint.addn(offset));
   }
 
-  waitForEta(offset = 0) {
+  async waitForEta(offset = 0) {
     const proposal = this.currentProposal;
-    return this.governor.proposalEta(proposal.id).then(timestamp => forward.timestamp(timestamp.addn(offset)));
+    const timestamp = await this.governor.proposalEta(proposal.id);
+    return forward.timestamp(timestamp.addn(offset));
   }
 
   /**
