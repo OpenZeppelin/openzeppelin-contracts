@@ -7,7 +7,7 @@ const { expect } = require('chai');
 
 const { pathUpdates, updateImportPaths, getUpgradeablePath } = require('../scripts/migrate-imports.js');
 
-describe.skip('migrate-imports.js', function () {
+describe('migrate-imports.js', function () {
   it('every new path exists', async function () {
     for (const p of Object.values(pathUpdates)) {
       try {
