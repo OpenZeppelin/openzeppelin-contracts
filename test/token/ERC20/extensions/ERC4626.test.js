@@ -1,6 +1,8 @@
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
+const { Enum } = require('../../../helpers/enums');
+
 const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC4626 = artifacts.require('$ERC4626');
 const ERC4626OffsetMock = artifacts.require('$ERC4626OffsetMock');
@@ -46,43 +48,59 @@ contract('ERC4626', function (accounts) {
   });
 
   describe('reentrancy', async function () {
-    const reenterType = {
-      Before: 1,
-      After: 2,
-    };
+    const reenterType = Enum('No', 'Before', 'After');
 
-    let amount;
+    const amount = web3.utils.toBN(10).pow(decimals);
+    const reenterAmount = web3.utils.toBN(1);
     let token;
     let vault;
 
     beforeEach(async function () {
-      amount = web3.utils.toBN(10).pow(decimals);
       token = await ERC4626ReentrantAsset.new();
-
       vault = await ERC4626.new('', '', token.address);
+      // Funds and approval for tests
       await token.$_mint(holder, amount);
-      await token.$_mint(token.address, amount); // Requires balance to reenter
+      await token.$_mint(other, amount);
+      await token.$_approve(holder, vault.address, constants.MAX_UINT256);
+      await token.$_approve(other, vault.address, constants.MAX_UINT256);
+      await token.$_approve(token.address, vault.address, constants.MAX_UINT256);
     });
 
     // During a `_deposit`, the vault does `transferFrom(depositor, vault, assets)` -> `_mint(receiver, shares)`
     // such that a reentrancy BEFORE the transfer guarantees the price is kept the same.
     // If the order of transfer -> mint is changed to mint -> transfer, the reentrancy could be triggered on an
     // intermediate state in which the ratio of assets/shares has been decreased (more shares than assets).
-    it('reenters before deposit without changing the price', async function () {
+    it('correct share price is observed during reentrancy before deposit', async function () {
+      // mint token for deposit
+      await token.$_mint(token.address, reenterAmount);
+
       // Schedules a reentrancy from the token contract
-      const reenterAmount = 1;
-      await token.functionCall(token.address, vault.contract.methods.approve(vault.address, reenterAmount).encodeABI());
       await token.scheduleReenter(
         reenterType.Before,
         vault.address,
         vault.contract.methods.deposit(reenterAmount, holder).encodeABI(),
       );
 
+      // Initial share price
       const sharesBefore = await vault.previewDeposit(amount, { from: holder });
 
-      // A holder approves and deposits as normally, triggering the _beforeTokenTransfer hook
-      await token.approve(vault.address, constants.MAX_UINT256, { from: holder });
-      await vault.deposit(amount, holder, { from: holder });
+      // Do deposit normally, triggering the _beforeTokenTransfer hook
+      const receipt = await vault.deposit(amount, holder, { from: holder });
+
+      // Main deposit event
+      await expectEvent(receipt, 'Deposit', {
+        sender: holder,
+        owner: holder,
+        assets: amount,
+        shares: amount,
+      });
+      // Reentrant deposit event → uses the same price
+      await expectEvent(receipt, 'Deposit', {
+        sender: token.address,
+        owner: holder,
+        assets: reenterAmount,
+        shares: reenterAmount,
+      });
 
       // Assert prices is kept
       const sharesAfter = await vault.previewDeposit(amount, { from: holder });
@@ -93,30 +111,109 @@ contract('ERC4626', function (accounts) {
     // such that a reentrancy AFTER the transfer guarantees the price is kept the same.
     // If the order of burn -> transfer is changed to transfer -> burn, the reentrancy could be triggered on an
     // intermediate state in which the ratio of shares/assets has been decreased (more assets than shares).
-    it('reenters after withdraw without changing the price', async function () {
-      // Schedules a reentrancy from the token contract by depositing first so it can then withdraw
-      const reenterAmount = 1;
-      await token.functionCall(token.address, vault.contract.methods.approve(vault.address, reenterAmount).encodeABI());
-      await token.functionCall(vault.address, vault.contract.methods.deposit(reenterAmount, token.address).encodeABI());
+    it('correct share price is observed during reentrancy after withdraw', async function () {
+      // Mint token and deposit into the vault: holder gets `amount` share, token.address gets `reenterAmount` shares
+      await token.$_mint(holder, reenterAmount);
+      await vault.deposit(amount, holder, { from: holder });
+      await vault.deposit(reenterAmount, token.address, { from: holder });
+
+      // Schedules a reentrancy from the token contract
       await token.scheduleReenter(
         reenterType.After,
         vault.address,
         vault.contract.methods.withdraw(reenterAmount, holder, token.address).encodeABI(),
       );
 
-      // A holder approves and deposits as normally
-      await token.approve(vault.address, constants.MAX_UINT256, { from: holder });
-      await vault.deposit(amount, holder, { from: holder });
-
+      // Initial share price
       const assetsBefore = await vault.previewWithdraw(amount, { from: holder });
 
-      // Holder withdraw triggering the _afterTokenTransfer hook
-      const shares = await vault.balanceOf(holder);
-      await vault.withdraw(shares, holder, holder, { from: holder });
+      // Do withdraw normally, triggering the _afterTokenTransfer hook
+      const receipt = await vault.withdraw(amount, holder, holder, { from: holder });
+
+      // Main withdraw event
+      await expectEvent(receipt, 'Withdraw', {
+        sender: holder,
+        receiver: holder,
+        owner: holder,
+        assets: amount,
+        shares: amount,
+      });
+      // Reentrant withdraw event → uses the same price
+      await expectEvent(receipt, 'Withdraw', {
+        sender: token.address,
+        receiver: holder,
+        owner: token.address,
+        assets: reenterAmount,
+        shares: reenterAmount,
+      });
 
       // Assert price is kept
       const assetsAfter = await vault.previewWithdraw(amount, { from: holder });
       expect(assetsBefore).to.be.bignumber.eq(assetsAfter);
+    });
+
+    // Donate newly minted tokens to the vault during the reentracy causes the share price to increase.
+    // Still, the deposit that trigger the reentracy is not affected and get the previewed price.
+    // Further deposits will get a different price (getting fewer shares for the same amount of assets)
+    it('share price change during reentracy does not affect deposit', async function () {
+      // Schedules a reentrancy from the token contract that mess up the share price
+      await token.scheduleReenter(
+        reenterType.Before,
+        token.address,
+        token.contract.methods.$_mint(vault.address, reenterAmount).encodeABI(),
+      );
+
+      // Price before
+      const sharesBefore = await vault.previewDeposit(amount);
+
+      // Deposit, triggering the _beforeTokenTransfer hook
+      const receipt = await vault.deposit(amount, holder, { from: holder });
+
+      // Price is as previewed
+      await expectEvent(receipt, 'Deposit', {
+        sender: holder,
+        owner: holder,
+        assets: amount,
+        shares: sharesBefore,
+      });
+
+      // Price was modified during reentrancy
+      const sharesAfter = await vault.previewDeposit(amount);
+      expect(sharesAfter).to.be.bignumber.lt(sharesBefore);
+    });
+
+    // Burn some tokens from the vault during the reentracy causes the share price to drop.
+    // Still, the withdraw that trigger the reentracy is not affected and get the previewed price.
+    // Further withdraw will get a different price (needing more shares for the same amount of assets)
+    it('share price change during reentracy does not affect withdraw', async function () {
+      await vault.deposit(amount, other, { from: other });
+      await vault.deposit(amount, holder, { from: holder });
+
+      // Schedules a reentrancy from the token contract that mess up the share price
+      await token.scheduleReenter(
+        reenterType.After,
+        token.address,
+        token.contract.methods.$_burn(vault.address, reenterAmount).encodeABI(),
+      );
+
+      // Price before
+      const sharesBefore = await vault.previewWithdraw(amount);
+
+      // Withdraw, triggering the _afterTokenTransfer hook
+      const receipt = await vault.withdraw(amount, holder, holder, { from: holder });
+
+      // Price is as previewed
+      await expectEvent(receipt, 'Withdraw', {
+        sender: holder,
+        receiver: holder,
+        owner: holder,
+        assets: amount,
+        shares: sharesBefore,
+      });
+
+      // Price was modified during reentrancy
+      const sharesAfter = await vault.previewWithdraw(amount);
+      expect(sharesAfter).to.be.bignumber.gt(sharesBefore);
     });
   });
 
