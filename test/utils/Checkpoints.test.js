@@ -30,12 +30,14 @@ contract('Checkpoints', function () {
     for (const length of traceLengths) {
       this.methods.trace[length] = {
         latest: (...args) => this.mock.methods[`$latest_${libraryName}_Trace${length}(uint256)`](0, ...args),
-        latestCheckpoint: (...args) => this.mock.methods[`$latestCheckpoint_${libraryName}_Trace${length}(uint256)`](0, ...args),
+        latestCheckpoint: (...args) =>
+          this.mock.methods[`$latestCheckpoint_${libraryName}_Trace${length}(uint256)`](0, ...args),
         length: (...args) => this.mock.methods[`$length_${libraryName}_Trace${length}(uint256)`](0, ...args),
         push: (...args) => this.mock.methods[`$push(uint256,uint${256 - length},uint${length})`](0, ...args),
         lowerLookup: (...args) => this.mock.methods[`$lowerLookup(uint256,uint${256 - length})`](0, ...args),
         upperLookup: (...args) => this.mock.methods[`$upperLookup(uint256,uint${256 - length})`](0, ...args),
-        upperLookupRecent: (...args) => this.mock.methods[`$upperLookupRecent(uint256,uint${256 - length})`](0, ...args),
+        upperLookupRecent: (...args) =>
+          this.mock.methods[`$upperLookupRecent(uint256,uint${256 - length})`](0, ...args),
       };
     }
   });
@@ -54,7 +56,9 @@ contract('Checkpoints', function () {
       it('returns zero as past value', async function () {
         await time.advanceBlock();
         expect(await this.methods.history.getAtBlock((await web3.eth.getBlockNumber()) - 1)).to.be.bignumber.equal('0');
-        expect(await this.methods.history.getAtRecentBlock((await web3.eth.getBlockNumber()) - 1)).to.be.bignumber.equal('0');
+        expect(
+          await this.methods.history.getAtRecentBlock((await web3.eth.getBlockNumber()) - 1),
+        ).to.be.bignumber.equal('0');
       });
     });
 
@@ -80,13 +84,25 @@ contract('Checkpoints', function () {
       for (const getAtBlockVariant of ['getAtBlock', 'getAtRecentBlock']) {
         describe(`lookup: ${getAtBlockVariant}`, function () {
           it('returns past values', async function () {
-            expect(await this.methods.history[getAtBlockVariant](this.tx1.receipt.blockNumber - 1)).to.be.bignumber.equal('0');
-            expect(await this.methods.history[getAtBlockVariant](this.tx1.receipt.blockNumber)).to.be.bignumber.equal('1');
-            expect(await this.methods.history[getAtBlockVariant](this.tx2.receipt.blockNumber)).to.be.bignumber.equal('2');
+            expect(
+              await this.methods.history[getAtBlockVariant](this.tx1.receipt.blockNumber - 1),
+            ).to.be.bignumber.equal('0');
+            expect(await this.methods.history[getAtBlockVariant](this.tx1.receipt.blockNumber)).to.be.bignumber.equal(
+              '1',
+            );
+            expect(await this.methods.history[getAtBlockVariant](this.tx2.receipt.blockNumber)).to.be.bignumber.equal(
+              '2',
+            );
             // Block with no new checkpoints
-            expect(await this.methods.history[getAtBlockVariant](this.tx2.receipt.blockNumber + 1)).to.be.bignumber.equal('2');
-            expect(await this.methods.history[getAtBlockVariant](this.tx3.receipt.blockNumber)).to.be.bignumber.equal('3');
-            expect(await this.methods.history[getAtBlockVariant](this.tx3.receipt.blockNumber + 1)).to.be.bignumber.equal('3');
+            expect(
+              await this.methods.history[getAtBlockVariant](this.tx2.receipt.blockNumber + 1),
+            ).to.be.bignumber.equal('2');
+            expect(await this.methods.history[getAtBlockVariant](this.tx3.receipt.blockNumber)).to.be.bignumber.equal(
+              '3',
+            );
+            expect(
+              await this.methods.history[getAtBlockVariant](this.tx3.receipt.blockNumber + 1),
+            ).to.be.bignumber.equal('3');
           });
           it('reverts if block number >= current block', async function () {
             await expectRevert(
@@ -176,7 +192,10 @@ contract('Checkpoints', function () {
         });
 
         it('cannot push values in the past', async function () {
-          await expectRevert(this.methods.trace[length].push(last(this.checkpoints).key - 1, '0'), 'Checkpoint: decreasing keys');
+          await expectRevert(
+            this.methods.trace[length].push(last(this.checkpoints).key - 1, '0'),
+            'Checkpoint: decreasing keys',
+          );
         });
 
         it('can update last value', async function () {
