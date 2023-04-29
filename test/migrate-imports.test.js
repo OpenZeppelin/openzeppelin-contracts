@@ -13,6 +13,7 @@ describe.skip('migrate-imports.js', function () {
       try {
         await fs.access(path.join('contracts', p), F_OK);
       } catch (e) {
+        if (p === 'proxy/beacon/BeaconProxy.sol') continue; // excluded from transpilation of upgradeable contracts
         await fs.access(path.join('contracts', getUpgradeablePath(p)), F_OK);
       }
     }
