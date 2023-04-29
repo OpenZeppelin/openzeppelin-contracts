@@ -7,7 +7,7 @@ const { batchInBlock } = require('../helpers/txpool');
 const $Checkpoints = artifacts.require('$Checkpoints');
 
 // The library name may be 'Checkpoints' or 'CheckpointsUpgradeable'
-const libraryName = $Checkpoints._hArtifact.contractName.replace(/^\$/, '');
+const libraryName = $Checkpoints._json.contractName.replace(/^\$/, '');
 
 const traceLengths = [160, 224];
 
