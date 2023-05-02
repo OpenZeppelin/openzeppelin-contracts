@@ -1,5 +1,5 @@
 {
-  "name": "@openzeppelin/contracts-upgradeable",
+  "name": "@openzeppelin/contracts",
   "description": "Secure Smart Contract library for Solidity",
   "version": "4.8.2",
   "files": [
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable.git"
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts.git"
   },
   "keywords": [
     "solidity",
@@ -26,7 +26,7 @@
   "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/issues"
+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
   },
   "homepage": "https://openzeppelin.com/contracts/"
 }

@@ -14,8 +14,6 @@ import "../utils/SafeERC20.sol";
  * wrapping of an existing "basic" ERC20 into a governance token.
  *
  * _Available since v4.2._
- *
- * @custom:storage-size 51
  */
 abstract contract ERC20Wrapper is ERC20 {
     IERC20 private immutable _underlying;
