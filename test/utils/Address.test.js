@@ -107,6 +107,14 @@ contract('Address', function (accounts) {
         await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
       });
 
+      it('calls the requested empty return function', async function () {
+        const abiEncodedCall = this.target.contract.methods.mockFunctionEmptyReturn().encodeABI();
+
+        const receipt = await this.mock.$functionCall(this.target.address, abiEncodedCall);
+
+        await expectEvent.inTransaction(receipt.tx, CallReceiverMock, 'MockFunctionCalled');
+      });
+
       it('reverts when the called function reverts with no reason', async function () {
         const abiEncodedCall = this.target.contract.methods.mockFunctionRevertsNoReason().encodeABI();
 
@@ -135,6 +143,11 @@ contract('Address', function (accounts) {
         const abiEncodedCall = this.target.contract.methods.mockFunctionThrows().encodeABI();
 
         await expectRevert.unspecified(this.mock.$functionCall(this.target.address, abiEncodedCall));
+      });
+
+      it('bubbles up error message if specified', async function () {
+        const errorMsg = 'Address: expected error';
+        await expectRevert(this.mock.$functionCall(this.target.address, '0x12345678', errorMsg), errorMsg);
       });
 
       it('reverts when function does not exist', async function () {
@@ -237,6 +250,11 @@ contract('Address', function (accounts) {
           'Address: low-level call with value failed',
         );
       });
+
+      it('bubbles up error message if specified', async function () {
+        const errorMsg = 'Address: expected error';
+        await expectRevert(this.mock.$functionCallWithValue(this.target.address, '0x12345678', 0, errorMsg), errorMsg);
+      });
     });
   });
 
@@ -277,6 +295,11 @@ contract('Address', function (accounts) {
 
       await expectRevert(this.mock.$functionStaticCall(recipient, abiEncodedCall), 'Address: call to non-contract');
     });
+
+    it('bubbles up error message if specified', async function () {
+      const errorMsg = 'Address: expected error';
+      await expectRevert(this.mock.$functionCallWithValue(this.target.address, '0x12345678', 0, errorMsg), errorMsg);
+    });
   });
 
   describe('functionDelegateCall', function () {
@@ -316,6 +339,23 @@ contract('Address', function (accounts) {
       const abiEncodedCall = this.target.contract.methods.mockFunction().encodeABI();
 
       await expectRevert(this.mock.$functionDelegateCall(recipient, abiEncodedCall), 'Address: call to non-contract');
+    });
+
+    it('bubbles up error message if specified', async function () {
+      const errorMsg = 'Address: expected error';
+      await expectRevert(this.mock.$functionCallWithValue(this.target.address, '0x12345678', 0, errorMsg), errorMsg);
+    });
+  });
+
+  describe('verifyCallResult', function () {
+    it('returns returndata on success', async function () {
+      const returndata = '0x123abc';
+      expect(await this.mock.$verifyCallResult(true, returndata, '')).to.equal(returndata);
+    });
+
+    it('reverts with return data and error m', async function () {
+      const errorMsg = 'Address: expected error';
+      await expectRevert(this.mock.$verifyCallResult(false, '0x', errorMsg), errorMsg);
     });
   });
 });
