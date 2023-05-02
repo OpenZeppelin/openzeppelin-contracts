@@ -112,7 +112,9 @@ rule stateChange(env e, bytes32 key) {
     bool    containsBefore = contains(key);
     bytes32 valueBefore    = tryGet_value(key);
 
-    method f; calldataarg args; f(e, args);
+    method f;
+    calldataarg args;
+    f(e, args);
 
     uint256 lengthAfter   = length();
     bool    containsAfter = contains(key);
@@ -136,19 +138,43 @@ rule stateChange(env e, bytes32 key) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: at() only returns values for bounded indexes.                                                                 │
+│ Rule: check liveness of view functions.                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule outOfBound(uint256 index) {
-    bool inBound = index < length();
+rule liveness_1(bytes32 key) {
+    requireInvariant consistencyKey(key);
 
-    bytes32 key = key_at@withrevert(index);
-    assert !lastReverted <=> inBound;
+    // contains never revert
+    bool contains = contains@withrevert(key);
+    assert !lastReverted;
 
-    bytes32 value = value_at@withrevert(index);
-    assert !lastReverted <=> inBound;
+    // tryGet never reverts (key)
+    tryGet_contains@withrevert(key);
+    assert !lastReverted;
 
-    assert inBound => get(key) == value;
+    // tryGet never reverts (value)
+    tryGet_value@withrevert(key);
+    assert !lastReverted;
+
+    // get reverts iff  the key is not in the map
+    get@withrevert(key);
+    assert !lastReverted <=> contains;
+}
+
+rule liveness_2(uint256 index) {
+    requireInvariant consistencyIndex(index);
+
+    // length never revert
+    uint256 length = length@withrevert();
+    assert !lastReverted;
+
+    // key_at reverts iff the index is out of bound
+    key_at@withrevert(index);
+    assert !lastReverted <=> index < length;
+
+    // value_at reverts iff the index is out of bound
+    value_at@withrevert(index);
+    assert !lastReverted <=> index < length;
 }
 
 /*
@@ -159,17 +185,10 @@ rule outOfBound(uint256 index) {
 rule getAndTryGet(bytes32 key) {
     requireInvariant noValueIfNotContained(key);
 
-    bool contained = contains@withrevert(key);
-    assert !lastReverted;
-
-    bytes32 value = get@withrevert(key);
-    assert !lastReverted <=> contained;
-
-    bool tryContained = tryGet_contains@withrevert(key);
-    assert !lastReverted;
-
-    bytes32 tryValue = tryGet_value@withrevert(key);
-    assert !lastReverted;
+    bool    contained    = contains(key);
+    bool    tryContained = tryGet_contains(key);
+    bytes32 tryValue     = tryGet_value(key);
+    bytes32 value        = get@withrevert(key); // revert is not contained
 
     assert contained == tryContained;
     assert contained => tryValue == value;

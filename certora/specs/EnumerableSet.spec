@@ -94,7 +94,9 @@ rule stateChange(env e, bytes32 key) {
     uint256 lengthBefore   = length();
     bool    containsBefore = contains(key);
 
-    method f; calldataarg args; f(e, args);
+    method f;
+    calldataarg args;
+    f(e, args);
 
     uint256 lengthAfter   = length();
     bool    containsAfter = contains(key);
@@ -112,13 +114,27 @@ rule stateChange(env e, bytes32 key) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: at only returns values for index that are in scope.                                                           │
+│ Rule: check liveness of view functions.                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule outOfBound(uint256 index) {
-    at_@withrevert(index);
+rule liveness_1(bytes32 key) {
+    requireInvariant consistencyKey(key);
 
-    assert lastReverted <=> length() <= index;
+    // contains never revert
+    contains@withrevert(key);
+    assert !lastReverted;
+}
+
+rule liveness_2(uint256 index) {
+    requireInvariant consistencyIndex(index);
+
+    // length never revert
+    uint256 length = length@withrevert();
+    assert !lastReverted;
+
+    // at reverts iff the index is out of bound
+    at_@withrevert(index);
+    assert !lastReverted <=> index < length;
 }
 
 /*
