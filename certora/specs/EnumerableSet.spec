@@ -94,7 +94,9 @@ rule stateChange(env e, bytes32 key) {
     uint256 lengthBefore   = length();
     bool    containsBefore = contains(key);
 
-    method f; calldataarg args; f(e, args);
+    method f;
+    calldataarg args;
+    f(e, args);
 
     uint256 lengthAfter   = length();
     bool    containsAfter = contains(key);

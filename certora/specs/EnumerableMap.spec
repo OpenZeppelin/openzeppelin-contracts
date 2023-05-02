@@ -112,7 +112,9 @@ rule stateChange(env e, bytes32 key) {
     bool    containsBefore = contains(key);
     bytes32 valueBefore    = tryGet_value(key);
 
-    method f; calldataarg args; f(e, args);
+    method f;
+    calldataarg args;
+    f(e, args);
 
     uint256 lengthAfter   = length();
     bool    containsAfter = contains(key);
