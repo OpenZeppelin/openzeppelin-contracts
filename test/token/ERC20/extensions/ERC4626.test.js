@@ -114,10 +114,9 @@ contract('ERC4626', function (accounts) {
     // If the order of burn -> transfer is changed to transfer -> burn, the reentrancy could be triggered on an
     // intermediate state in which the ratio of shares/assets has been decreased (more assets than shares).
     it('correct share price is observed during reentrancy after withdraw', async function () {
-      // Mint token and deposit into the vault: holder gets `amount` share, token.address gets `reenterAmount` shares
-      await token.$_mint(holder, reenterAmount);
+      // Deposit into the vault: holder gets `amount` share, token.address gets `reenterAmount` shares
       await vault.deposit(amount, holder, { from: holder });
-      await vault.deposit(reenterAmount, token.address, { from: holder });
+      await vault.deposit(reenterAmount, token.address, { from: other });
 
       // Schedules a reentrancy from the token contract
       await token.scheduleReenter(
