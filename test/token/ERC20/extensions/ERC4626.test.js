@@ -50,14 +50,15 @@ contract('ERC4626', function (accounts) {
   describe('reentrancy', async function () {
     const reenterType = Enum('No', 'Before', 'After');
 
-    const amount = web3.utils.toBN(10).pow(decimals);
-    const reenterAmount = web3.utils.toBN(1);
+    const amount = web3.utils.toBN(1000000000000000000);
+    const reenterAmount = web3.utils.toBN(1000000000);
     let token;
     let vault;
 
     beforeEach(async function () {
       token = await ERC4626ReentrantAsset.new();
-      vault = await ERC4626.new('', '', token.address);
+      // Use offset 1 so the rate is not 1:1 and we can't possibly confuse assets and shares
+      vault = await ERC4626OffsetMock.new('', '', token.address, 1);
       // Funds and approval for tests
       await token.$_mint(holder, amount);
       await token.$_mint(other, amount);
@@ -82,7 +83,8 @@ contract('ERC4626', function (accounts) {
       );
 
       // Initial share price
-      const sharesBefore = await vault.previewDeposit(amount, { from: holder });
+      const sharesForDeposit = await vault.previewDeposit(amount, { from: holder });
+      const sharesForReenter = await vault.previewDeposit(reenterAmount, { from: holder });
 
       // Do deposit normally, triggering the _beforeTokenTransfer hook
       const receipt = await vault.deposit(amount, holder, { from: holder });
@@ -92,19 +94,19 @@ contract('ERC4626', function (accounts) {
         sender: holder,
         owner: holder,
         assets: amount,
-        shares: amount,
+        shares: sharesForDeposit,
       });
       // Reentrant deposit event → uses the same price
       await expectEvent(receipt, 'Deposit', {
         sender: token.address,
         owner: holder,
         assets: reenterAmount,
-        shares: reenterAmount,
+        shares: sharesForReenter,
       });
 
       // Assert prices is kept
       const sharesAfter = await vault.previewDeposit(amount, { from: holder });
-      expect(sharesBefore).to.be.bignumber.eq(sharesAfter);
+      expect(sharesForDeposit).to.be.bignumber.eq(sharesAfter);
     });
 
     // During a `_withdraw`, the vault does `_burn(owner, shares)` -> `transfer(receiver, assets)`
@@ -125,7 +127,8 @@ contract('ERC4626', function (accounts) {
       );
 
       // Initial share price
-      const assetsBefore = await vault.previewWithdraw(amount, { from: holder });
+      const sharesForWithdraw = await vault.previewWithdraw(amount, { from: holder });
+      const sharesForReenter = await vault.previewWithdraw(reenterAmount, { from: holder });
 
       // Do withdraw normally, triggering the _afterTokenTransfer hook
       const receipt = await vault.withdraw(amount, holder, holder, { from: holder });
@@ -136,7 +139,7 @@ contract('ERC4626', function (accounts) {
         receiver: holder,
         owner: holder,
         assets: amount,
-        shares: amount,
+        shares: sharesForWithdraw,
       });
       // Reentrant withdraw event → uses the same price
       await expectEvent(receipt, 'Withdraw', {
@@ -144,12 +147,12 @@ contract('ERC4626', function (accounts) {
         receiver: holder,
         owner: token.address,
         assets: reenterAmount,
-        shares: reenterAmount,
+        shares: sharesForReenter,
       });
 
       // Assert price is kept
-      const assetsAfter = await vault.previewWithdraw(amount, { from: holder });
-      expect(assetsBefore).to.be.bignumber.eq(assetsAfter);
+      const sharesAfter = await vault.previewWithdraw(amount, { from: holder });
+      expect(sharesForWithdraw).to.be.bignumber.eq(sharesAfter);
     });
 
     // Donate newly minted tokens to the vault during the reentracy causes the share price to increase.
