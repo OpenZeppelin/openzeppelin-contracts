@@ -2,7 +2,6 @@ import "helpers.spec"
 import "methods/IERC20.spec"
 import "methods/IERC5805.spec"
 import "methods/IERC6372.spec"
-import "ERC20.spec"
 
 methods {
     numCheckpoints(address)          returns (uint32)  envfree
@@ -13,8 +12,6 @@ methods {
     ckptVotesTotalSupply(uint32)     returns (uint224) envfree
     maxSupply()                      returns (uint224) envfree
 }
-
-use invariant totalSupplyIsSumOfBalances
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -28,6 +25,11 @@ definition max_uint224() returns uint224 = 0xffffffffffffffffffffffffffff;
 │ Ghost & hooks: total delegated                                                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
+// copied from ERC20.spec (can't be imported because of hook conflicts)
+ghost sumOfBalances() returns uint256 {
+  init_state axiom sumOfBalances() == 0;
+}
+
 ghost mapping(address => uint256) balanceOf {
     init_state axiom forall address a. balanceOf[a] == 0;
 }
@@ -41,6 +43,9 @@ ghost mapping(address => uint256) getVotes {
 }
 
 hook Sstore _balances[KEY address account] uint256 newAmount (uint256 oldAmount) STORAGE {
+    // copied from ERC20.spec (can't be imported because of hook conflicts)
+    havoc sumOfBalances assuming sumOfBalances@new() == sumOfBalances@old() + newAmount - oldAmount;
+
     balanceOf[account] = newAmount;
     getVotes[delegates[account]] = getVotes[delegates[account]] + newAmount - oldAmount;
 }
@@ -50,6 +55,18 @@ hook Sstore _delegates[KEY address account] address newDelegate (address oldDele
     getVotes[oldDelegate] = getVotes[oldDelegate] - balanceOf[account];
     getVotes[newDelegate] = getVotes[newDelegate] + balanceOf[account];
 }
+
+// all votes (total supply) minus the votes balances delegated to 0
+definition totalVotes() returns uint256 = sumOfBalances() - getVotes[0];
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: copied from ERC20.spec (can't be imported because of hook conflicts)                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant totalSupplyIsSumOfBalances()
+    totalSupply() == sumOfBalances() &&
+    totalSupply() <= max_uint256
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -61,13 +78,62 @@ invariant clockMode(env e)
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Invariant: zero address has no delegate, no votes and no checkpoints                                                │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+invariant zeroConsistency()
+    delegates(0) == 0 &&
+    getVotes(0) == 0 &&
+    numCheckpoints(0) == 0
+    {
+        preserved with (env e) {
+            // we assume address 0 cannot perform any call
+            require e.msg.sender != 0;
+        }
+    }
+
+// WIP
+invariant delegateHasCheckpoint(address a)
+    (balanceOf(a) > 0 && delegates(a) != 0) => numCheckpoints(delegates(a)) > 0
+    {
+        preserved delegate(address delegatee) with (env e) {
+            require numCheckpoints(delegatee) < max_uint256;
+        }
+        preserved delegateBySig(address delegatee, uint256 nonce, uint256 expiry, uint8 v, bytes32 r, bytes32 s) with (env e) {
+            require numCheckpoints(delegatee) < max_uint256;
+        }
+    }
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Invariant: hook correctly track latest checkpoint                                                                   │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-invariant delegationConsistency(address a)
+invariant balanceAndDelegationConsistency(address a)
     balanceOf(a) == balanceOf[a] &&
-    delegates(a) == delegates[a] &&
-    getVotes(a) == (a == 0 ? 0 : getVotes[a])
+    delegates(a) == delegates[a]
+
+// WIP
+invariant votesConsistency(address a)
+    a != 0 => getVotes(a) == getVotes[a]
+
+// WIP
+invariant voteBiggerThanDelegatedBalances(address a)
+    getVotes(delegates(a)) >= balanceOf(a)
+    {
+        preserved {
+            requireInvariant zeroConsistency();
+        }
+    }
+
+// WIP
+invariant userVotesLessTotalVotes(address a)
+    numCheckpoints(a) > 0 => getVotes(a) <= totalVotes()
+    {
+        preserved {
+            requireInvariant totalSupplyIsSumOfBalances;
+        }
+    }
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -121,24 +187,6 @@ invariant totalCheckpointClockIncreassing()
             requireInvariant totalCheckpointInThePast(e);
         }
     }
-
-/// For some reason "sumOfBalances" is not tracking correctly ...
-/// ... and we get counter example where totalSupply is more than the sum of involved balances
-// invariant userVotesLessTotalVotes(address a)
-//     numCheckpoints(a) > 0 => getVotes(a) <= totalVotes()
-//     {
-//         preserved {
-//             requireInvariant totalSupplyIsSumOfBalances;
-//         }
-//     }
-
-/*
-┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Invariant: Don't track votes delegated to address 0                                                                 │
-└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-*/
-invariant addressZeroNoCheckpoints()
-    numCheckpoints(0) == 0
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
