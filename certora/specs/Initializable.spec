@@ -1,4 +1,4 @@
-import "helpers.spec"
+import "helpers/helpers.spec"
 
 methods {
     // initialize, reinitialize, disable

@@ -1,4 +1,4 @@
-import "helpers.spec"
+import "helpers/helpers.spec"
 import "methods/IERC721.spec"
 
 methods {
