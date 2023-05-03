@@ -1,5 +1,5 @@
-import "helpers.spec"
-import "Governor.helpers.spec"
+import "helpers/helpers.spec"
+import "helpers/Governor.helpers.spec"
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
