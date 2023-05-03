@@ -1,6 +1,10 @@
 name: formal verification
 
 on:
+  push:
+    branches:
+      - master
+      - release-v*
   pull_request:
     types:
       - opened
