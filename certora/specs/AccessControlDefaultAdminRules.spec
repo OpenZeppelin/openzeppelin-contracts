@@ -72,6 +72,9 @@ invariant defaultAdminConsistency(address account)
 */
 invariant singleDefaultAdmin(address account, address another)
   hasRole(DEFAULT_ADMIN_ROLE(), account) && hasRole(DEFAULT_ADMIN_ROLE(), another) => another == account
+  // We filter here because we couldn't find a way to force Certora to have an initial state with 
+  // only one DEFAULT_ADMIN_ROLE enforced, so a counter example is a different default admin since inception
+  // triggering the transfer, which is known to be impossible by definition.
   filtered { f -> f.selector != acceptDefaultAdminTransfer().selector }
 
 /*
