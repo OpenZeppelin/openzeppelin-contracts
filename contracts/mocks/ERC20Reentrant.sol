@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "../token/ERC20/ERC20.sol";
 import "../token/ERC20/extensions/ERC4626.sol";
 
-contract ERC4626ReentrantAsset is ERC20("TEST", "TST") {
+contract ERC20Reentrant is ERC20("TEST", "TST") {
     enum Type {
         No,
         Before,

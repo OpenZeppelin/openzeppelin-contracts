@@ -8,7 +8,7 @@ const ERC4626 = artifacts.require('$ERC4626');
 const ERC4626OffsetMock = artifacts.require('$ERC4626OffsetMock');
 const ERC4626FeesMock = artifacts.require('$ERC4626FeesMock');
 const ERC20ExcessDecimalsMock = artifacts.require('ERC20ExcessDecimalsMock');
-const ERC4626ReentrantAsset = artifacts.require('$ERC4626ReentrantAsset');
+const ERC20Reentrant = artifacts.require('$ERC20Reentrant');
 
 contract('ERC4626', function (accounts) {
   const [holder, recipient, spender, other, user1, user2] = accounts;
@@ -56,7 +56,7 @@ contract('ERC4626', function (accounts) {
     let vault;
 
     beforeEach(async function () {
-      token = await ERC4626ReentrantAsset.new();
+      token = await ERC20Reentrant.new();
       // Use offset 1 so the rate is not 1:1 and we can't possibly confuse assets and shares
       vault = await ERC4626OffsetMock.new('', '', token.address, 1);
       // Funds and approval for tests
