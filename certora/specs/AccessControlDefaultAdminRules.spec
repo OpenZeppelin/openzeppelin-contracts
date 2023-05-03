@@ -286,6 +286,8 @@ rule pendingDefaultAdminDelayEnforced(env e1, env e2, method f, calldataarg args
 
   uint48 delayBefore = defaultAdminDelay(e1);
   address adminBefore = defaultAdmin();
+  // There might be a better way to generalize this without requiring `beginDefaultAdminTransfer`, but currently
+  // it's the only way in which we can attest that only `delayBefore` has passed before a change.
   beginDefaultAdminTransfer(e1, newAdmin);
   f(e2, args);
   address adminAfter = defaultAdmin();
