@@ -14,7 +14,6 @@ import "../../utils/math/SafeCast.sol";
  * _Available since v4.3._
  */
 abstract contract GovernorVotesQuorumFraction is GovernorVotes {
-    using SafeCast for *;
     using Checkpoints for Checkpoints.Trace224;
 
     uint256 private _quorumNumerator; // DEPRECATED in favor of _quorumNumeratorHistory
@@ -59,7 +58,7 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         }
 
         // Otherwise, do the binary search
-        return _quorumNumeratorHistory.upperLookupRecent(timepoint.toUint32());
+        return _quorumNumeratorHistory.upperLookupRecent(SafeCast.toUint32(timepoint));
     }
 
     /**
@@ -110,12 +109,12 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
         // Make sure we keep track of the original numerator in contracts upgraded from a version without checkpoints.
         if (oldQuorumNumerator != 0 && _quorumNumeratorHistory._checkpoints.length == 0) {
             _quorumNumeratorHistory._checkpoints.push(
-                Checkpoints.Checkpoint224({_key: 0, _value: oldQuorumNumerator.toUint224()})
+                Checkpoints.Checkpoint224({_key: 0, _value: SafeCast.toUint224(oldQuorumNumerator)})
             );
         }
 
         // Set new quorum for future proposals
-        _quorumNumeratorHistory.push(clock().toUint32(), newQuorumNumerator.toUint224());
+        _quorumNumeratorHistory.push(SafeCast.toUint32(clock()), SafeCast.toUint224(newQuorumNumerator));
 
         emit QuorumNumeratorUpdated(oldQuorumNumerator, newQuorumNumerator);
     }

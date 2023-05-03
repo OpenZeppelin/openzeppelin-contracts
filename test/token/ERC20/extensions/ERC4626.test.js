@@ -5,6 +5,7 @@ const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC4626 = artifacts.require('$ERC4626');
 const ERC4626OffsetMock = artifacts.require('$ERC4626OffsetMock');
 const ERC4626FeesMock = artifacts.require('$ERC4626FeesMock');
+const ERC20ExcessDecimalsMock = artifacts.require('ERC20ExcessDecimalsMock');
 
 contract('ERC4626', function (accounts) {
   const [holder, recipient, spender, other, user1, user2] = accounts;
@@ -18,6 +19,28 @@ contract('ERC4626', function (accounts) {
       const token = await ERC20Decimals.new('', '', decimals);
       const vault = await ERC4626.new('', '', token.address);
       expect(await vault.decimals()).to.be.bignumber.equal(decimals);
+    }
+  });
+
+  it('asset has not yet been created', async function () {
+    const vault = await ERC4626.new('', '', other);
+    expect(await vault.decimals()).to.be.bignumber.equal(decimals);
+  });
+
+  it('underlying excess decimals', async function () {
+    const token = await ERC20ExcessDecimalsMock.new();
+    const vault = await ERC4626.new('', '', token.address);
+    expect(await vault.decimals()).to.be.bignumber.equal(decimals);
+  });
+
+  it('decimals overflow', async function () {
+    for (const offset of [243, 250, 255].map(web3.utils.toBN)) {
+      const token = await ERC20Decimals.new('', '', decimals);
+      const vault = await ERC4626OffsetMock.new(name + ' Vault', symbol + 'V', token.address, offset);
+      await expectRevert(
+        vault.decimals(),
+        'reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)',
+      );
     }
   });
 
