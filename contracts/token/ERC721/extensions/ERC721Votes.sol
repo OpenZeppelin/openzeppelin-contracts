@@ -34,6 +34,8 @@ abstract contract ERC721Votes is ERC721, Votes {
 
     /**
      * @dev Returns the balance of `account`.
+     *
+     * WARNING: Overriding this function will likely result in incorrect vote tracking.
      */
     function _getVotingUnits(address account) internal view virtual override returns (uint256) {
         return balanceOf(account);

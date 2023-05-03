@@ -1,4 +1,4 @@
-import "helpers.spec"
+import "helpers/helpers.spec"
 
 methods {
     pushFront(bytes32)                    envfree
@@ -10,7 +10,7 @@ methods {
     // exposed for FV
     begin()             returns (int128)  envfree
     end()               returns (int128)  envfree
-    
+
     // view
     length()            returns (uint256) envfree
     empty()             returns (bool)    envfree
@@ -35,7 +35,7 @@ function max_int128() returns mathint {
 
 // Could be broken in theory, but not in practice
 function boundedQueue() returns bool {
-    return 
+    return
         max_int128() > to_mathint(end()) &&
         min_int128() < to_mathint(begin());
 }
@@ -78,11 +78,11 @@ invariant emptiness()
 invariant queueEndings()
     at_(length() - 1) == back() && at_(0) == front()
     filtered { f -> !f.isView }
-    { 
-        preserved { 
-            requireInvariant boundariesConsistency(); 
-            require boundedQueue(); 
-        } 
+    {
+        preserved {
+            requireInvariant boundariesConsistency();
+            require boundedQueue();
+        }
     }
 
 /*
@@ -94,12 +94,12 @@ rule pushFront(bytes32 value) {
     require boundedQueue();
 
     uint256 lengthBefore = length();
-    
+
     pushFront@withrevert(value);
-    
+
     // liveness
     assert !lastReverted, "never reverts";
-    
+
     // effect
     assert front() == value, "front set to value";
     assert length() == lengthBefore + 1, "queue extended";
@@ -134,12 +134,12 @@ rule pushBack(bytes32 value) {
     require boundedQueue();
 
     uint256 lengthBefore = length();
-    
+
     pushBack@withrevert(value);
-    
+
     // liveness
     assert !lastReverted, "never reverts";
-    
+
     // effect
     assert back() == value, "back set to value";
     assert length() == lengthBefore + 1, "queue increased";
@@ -205,7 +205,7 @@ rule popFrontConsistency(uint256 index) {
 
     // try to read value
     bytes32 after = at_@withrevert(index - 1);
-    
+
     assert !lastReverted, "value still exists in the queue";
     assert before == after, "values are offset and not modified";
 }
@@ -250,7 +250,7 @@ rule popBackConsistency(uint256 index) {
 
     // try to read value
     bytes32 after = at_@withrevert(index);
-    
+
     assert !lastReverted, "value still exists in the queue";
     assert before == after, "values are offset and not modified";
 }
@@ -262,10 +262,10 @@ rule popBackConsistency(uint256 index) {
 */
 rule clear {
     clear@withrevert();
-    
+
     // liveness
     assert !lastReverted, "never reverts";
-    
+
     // effect
     assert length() == 0, "sets length to 0";
 }

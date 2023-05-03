@@ -14,6 +14,10 @@ contract CallReceiverMock {
         return "0x1234";
     }
 
+    function mockFunctionEmptyReturn() public payable {
+        emit MockFunctionCalled();
+    }
+
     function mockFunctionWithArgs(uint256 a, uint256 b) public payable returns (string memory) {
         emit MockFunctionCalledWithArgs(a, b);
 

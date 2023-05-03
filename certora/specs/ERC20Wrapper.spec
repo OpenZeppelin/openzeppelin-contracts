@@ -1,4 +1,4 @@
-import "helpers.spec"
+import "helpers/helpers.spec"
 import "ERC20.spec"
 
 methods {

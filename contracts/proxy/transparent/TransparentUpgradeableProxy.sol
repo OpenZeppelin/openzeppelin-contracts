@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (proxy/transparent/TransparentUpgradeableProxy.sol)
+// OpenZeppelin Contracts (last updated v4.8.3) (proxy/transparent/TransparentUpgradeableProxy.sol)
 
 pragma solidity ^0.8.0;
 
 import "../ERC1967/ERC1967Proxy.sol";
 
 /**
- * @dev Interface for the {TransparentUpgradeableProxy}. This is useful because {TransparentUpgradeableProxy} uses a
- * custom call-routing mechanism, the compiler is unaware of the functions being exposed, and cannot list them. Also
- * {TransparentUpgradeableProxy} does not inherit from this interface because it's implemented in a way that the
- * compiler doesn't understand and cannot verify.
+ * @dev Interface for {TransparentUpgradeableProxy}. In order to implement transparency, {TransparentUpgradeableProxy}
+ * does not implement this interface directly, and some of its functions are implemented by an internal dispatch
+ * mechanism. The compiler is unaware that these functions are implemented by {TransparentUpgradeableProxy} and will not
+ * include them in the ABI so this interface must be used to interact with it.
  */
 interface ITransparentUpgradeableProxy is IERC1967 {
     function admin() external view returns (address);
@@ -44,12 +44,16 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
  *
- * WARNING: This contract does not inherit from {ITransparentUpgradeableProxy}, and the admin function is implicitly
- * implemented using a custom call-routing mechanism in `_fallback`. Consequently, the compiler will not produce an
- * ABI for this contract. Also, if you inherit from this contract and add additional functions, the compiler will not
- * check that there are no selector conflicts. A selector clash between any new function and the functions declared in
- * {ITransparentUpgradeableProxy} will be resolved in favor of the new one. This could render the admin operations
- * inaccessible, which could prevent upgradeability.
+ * NOTE: The real interface of this proxy is that defined in `ITransparentUpgradeableProxy`. This contract does not
+ * inherit from that interface, and instead the admin functions are implicitly implemented using a custom dispatch
+ * mechanism in `_fallback`. Consequently, the compiler will not produce an ABI for this contract. This is necessary to
+ * fully implement transparency without decoding reverts caused by selector clashes between the proxy and the
+ * implementation.
+ *
+ * WARNING: It is not recommended to extend this contract to add additional external functions. If you do so, the compiler
+ * will not check that there are no selector conflicts, due to the note above. A selector clash between any new function
+ * and the functions declared in {ITransparentUpgradeableProxy} will be resolved in favor of the new one. This could
+ * render the admin operations inaccessible, which could prevent upgradeability. Transparency may also be compromised.
  */
 contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**

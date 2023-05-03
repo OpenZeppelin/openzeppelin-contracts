@@ -12,14 +12,12 @@ import "../../utils/math/Math.sol";
  * and try to oppose the decision.
  *
  * If a vote causes quorum to be reached, the proposal's voting period may be extended so that it does not end before at
- * least a given number of blocks have passed (the "vote extension" parameter). This parameter can be set by the
- * governance executor (e.g. through a governance proposal).
+ * least a specified time has passed (the "vote extension" parameter). This parameter can be set through a governance
+ * proposal.
  *
  * _Available since v4.5._
  */
 abstract contract GovernorPreventLateQuorum is Governor {
-    using SafeCast for uint256;
-
     uint64 private _voteExtension;
 
     /// @custom:oz-retyped-from mapping(uint256 => Timers.BlockNumber)
@@ -32,9 +30,9 @@ abstract contract GovernorPreventLateQuorum is Governor {
     event LateQuorumVoteExtensionSet(uint64 oldVoteExtension, uint64 newVoteExtension);
 
     /**
-     * @dev Initializes the vote extension parameter: the number of blocks that are required to pass since a proposal
-     * reaches quorum until its voting period ends. If necessary the voting period will be extended beyond the one set
-     * at proposal creation.
+     * @dev Initializes the vote extension parameter: the time in either number of blocks or seconds (depending on the governor
+     * clock mode) that is required to pass since the moment a proposal reaches quorum until its voting period ends. If
+     * necessary the voting period will be extended beyond the one set during proposal creation.
      */
     constructor(uint64 initialVoteExtension) {
         _setLateQuorumVoteExtension(initialVoteExtension);
