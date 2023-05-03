@@ -10,6 +10,7 @@ const CallReceiverMock = artifacts.require('CallReceiverMock');
 const Implementation2 = artifacts.require('Implementation2');
 const ERC721 = artifacts.require('$ERC721');
 const ERC1155 = artifacts.require('$ERC1155');
+const TimelockReentrant = artifacts.require('$TimelockReentrant');
 
 const MINDELAY = time.duration.days(1);
 
@@ -345,6 +346,82 @@ contract('TimelockController', function (accounts) {
                 `AccessControl: account ${other.toLowerCase()} is missing role ${EXECUTOR_ROLE}`,
               );
             });
+
+            it('prevents reentrancy execution', async function () {
+              // Create operation
+              const reentrant = await TimelockReentrant.new();
+              const reentrantOperation = genOperation(
+                reentrant.address,
+                0,
+                reentrant.contract.methods.reenter().encodeABI(),
+                ZERO_BYTES32,
+                salt,
+              );
+
+              // Schedule so it can be executed
+              await this.mock.schedule(
+                reentrantOperation.target,
+                reentrantOperation.value,
+                reentrantOperation.data,
+                reentrantOperation.predecessor,
+                reentrantOperation.salt,
+                MINDELAY,
+                { from: proposer },
+              );
+
+              // Advance on time to make the operation executable
+              const timestamp = await this.mock.getTimestamp(reentrantOperation.id);
+              await time.increaseTo(timestamp);
+
+              // Grant executor role to the reentrant contract
+              await this.mock.grantRole(EXECUTOR_ROLE, reentrant.address, { from: admin });
+
+              // Prepare reenter
+              const data = this.mock.contract.methods
+                .execute(
+                  reentrantOperation.target,
+                  reentrantOperation.value,
+                  reentrantOperation.data,
+                  reentrantOperation.predecessor,
+                  reentrantOperation.salt,
+                )
+                .encodeABI();
+              await reentrant.enableRentrancy(this.mock.address, data);
+
+              // Expect to fail
+              await expectRevert(
+                this.mock.execute(
+                  reentrantOperation.target,
+                  reentrantOperation.value,
+                  reentrantOperation.data,
+                  reentrantOperation.predecessor,
+                  reentrantOperation.salt,
+                  { from: executor },
+                ),
+                'TimelockController: operation is not ready',
+              );
+
+              // Disable reentrancy
+              await reentrant.disableReentrancy();
+              const nonReentrantOperation = reentrantOperation; // Not anymore
+
+              // Try again successfully
+              const receipt = await this.mock.execute(
+                nonReentrantOperation.target,
+                nonReentrantOperation.value,
+                nonReentrantOperation.data,
+                nonReentrantOperation.predecessor,
+                nonReentrantOperation.salt,
+                { from: executor },
+              );
+              expectEvent(receipt, 'CallExecuted', {
+                id: nonReentrantOperation.id,
+                index: web3.utils.toBN(0),
+                target: nonReentrantOperation.target,
+                value: web3.utils.toBN(nonReentrantOperation.value),
+                data: nonReentrantOperation.data,
+              });
+            });
           });
         });
       });
@@ -631,6 +708,84 @@ contract('TimelockController', function (accounts) {
                 ),
                 'TimelockController: length mismatch',
               );
+            });
+
+            it('prevents reentrancy execution', async function () {
+              // Create operation
+              const reentrant = await TimelockReentrant.new();
+              const reentrantBatchOperation = genOperationBatch(
+                [reentrant.address],
+                [0],
+                [reentrant.contract.methods.reenter().encodeABI()],
+                ZERO_BYTES32,
+                salt,
+              );
+
+              // Schedule so it can be executed
+              await this.mock.scheduleBatch(
+                reentrantBatchOperation.targets,
+                reentrantBatchOperation.values,
+                reentrantBatchOperation.payloads,
+                reentrantBatchOperation.predecessor,
+                reentrantBatchOperation.salt,
+                MINDELAY,
+                { from: proposer },
+              );
+
+              // Advance on time to make the operation executable
+              const timestamp = await this.mock.getTimestamp(reentrantBatchOperation.id);
+              await time.increaseTo(timestamp);
+
+              // Grant executor role to the reentrant contract
+              await this.mock.grantRole(EXECUTOR_ROLE, reentrant.address, { from: admin });
+
+              // Prepare reenter
+              const data = this.mock.contract.methods
+                .executeBatch(
+                  reentrantBatchOperation.targets,
+                  reentrantBatchOperation.values,
+                  reentrantBatchOperation.payloads,
+                  reentrantBatchOperation.predecessor,
+                  reentrantBatchOperation.salt,
+                )
+                .encodeABI();
+              await reentrant.enableRentrancy(this.mock.address, data);
+
+              // Expect to fail
+              await expectRevert(
+                this.mock.executeBatch(
+                  reentrantBatchOperation.targets,
+                  reentrantBatchOperation.values,
+                  reentrantBatchOperation.payloads,
+                  reentrantBatchOperation.predecessor,
+                  reentrantBatchOperation.salt,
+                  { from: executor },
+                ),
+                'TimelockController: operation is not ready',
+              );
+
+              // Disable reentrancy
+              await reentrant.disableReentrancy();
+              const nonReentrantBatchOperation = reentrantBatchOperation; // Not anymore
+
+              // Try again successfully
+              const receipt = await this.mock.executeBatch(
+                nonReentrantBatchOperation.targets,
+                nonReentrantBatchOperation.values,
+                nonReentrantBatchOperation.payloads,
+                nonReentrantBatchOperation.predecessor,
+                nonReentrantBatchOperation.salt,
+                { from: executor },
+              );
+              for (const i in nonReentrantBatchOperation.targets) {
+                expectEvent(receipt, 'CallExecuted', {
+                  id: nonReentrantBatchOperation.id,
+                  index: web3.utils.toBN(i),
+                  target: nonReentrantBatchOperation.targets[i],
+                  value: web3.utils.toBN(nonReentrantBatchOperation.values[i]),
+                  data: nonReentrantBatchOperation.payloads[i],
+                });
+              }
             });
           });
         });
