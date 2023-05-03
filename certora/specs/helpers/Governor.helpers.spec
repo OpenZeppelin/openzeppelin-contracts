@@ -1,6 +1,6 @@
 import "helpers.spec"
-import "methods/IGovernor.spec"
-import "methods/ITimelockController.spec"
+import "../methods/IGovernor.spec"
+import "../methods/ITimelockController.spec"
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
