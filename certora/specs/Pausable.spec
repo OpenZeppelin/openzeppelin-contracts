@@ -1,4 +1,4 @@
-import "helpers.spec"
+import "helpers/helpers.spec"
 
 methods {
     paused() returns (bool) envfree
@@ -22,7 +22,7 @@ rule pause(env e) {
     bool success = !lastReverted;
 
     bool pausedAfter = paused();
-    
+
     // liveness
     assert success <=> !pausedBefore, "works if and only if the contract was not paused before";
 
@@ -44,7 +44,7 @@ rule unpause(env e) {
     bool success = !lastReverted;
 
     bool pausedAfter = paused();
-    
+
     // liveness
     assert success <=> pausedBefore, "works if and only if the contract was paused before";
 
@@ -71,7 +71,7 @@ rule whenPaused(env e) {
 */
 rule whenNotPaused(env e) {
     require nonpayable(e);
-    
+
     onlyWhenNotPaused@withrevert(e);
     assert !lastReverted <=> !paused(), "works if and only if the contract is not paused";
 }
