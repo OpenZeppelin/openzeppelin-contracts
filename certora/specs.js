@@ -60,6 +60,16 @@ module.exports = [].concat(
     contract: 'DoubleEndedQueueHarness',
     files: ['certora/harnesses/DoubleEndedQueueHarness.sol'],
   },
+  {
+    spec: 'EnumerableSet',
+    contract: 'EnumerableSetHarness',
+    files: ['certora/harnesses/EnumerableSetHarness.sol'],
+  },
+  {
+    spec: 'EnumerableMap',
+    contract: 'EnumerableMapHarness',
+    files: ['certora/harnesses/EnumerableMapHarness.sol'],
+  },
   // Governance
   {
     spec: 'TimelockController',
