@@ -49,10 +49,6 @@ contract EnumerableMapHarness {
         return _map.get(key);
     }
 
-    // function keys() public view returns (bytes32[] memory) {
-    //     return _map.keys();
-    // }
-
     function _indexOf(bytes32 key) public view returns (uint256) {
         return _map._keys._inner._indexes[key];
     }

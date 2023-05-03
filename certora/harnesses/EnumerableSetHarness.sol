@@ -29,10 +29,6 @@ contract EnumerableSetHarness {
         return _set.at(index);
     }
 
-    // function values() public view returns (bytes32[] memory) {
-    //     return _set.values();
-    // }
-
     function _indexOf(bytes32 value) public view returns (uint256) {
         return _set._inner._indexes[value];
     }
