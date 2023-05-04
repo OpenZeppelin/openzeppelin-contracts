@@ -60,7 +60,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * @dev Returns the name of the token.
      */
     function name() public view virtual override returns (string memory) {
-        // testing
         return _name;
     }
 
