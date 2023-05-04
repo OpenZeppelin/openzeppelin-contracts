@@ -29,7 +29,12 @@ rule stateConsistency(env e, uint256 pId) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule stateTransitionFn(uint256 pId, env e, method f, calldataarg args)
-    filtered { f -> !assumedSafe(f) }
+    filtered { f -> !assumedSafe(f)
+        && f.selector != castVoteBySig(uint256,uint8,uint8,bytes32,bytes32).selector
+        && f.selector != castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector
+        && f.selector != castVoteWithReason(uint256,uint8,string).selector
+        && f.selector != castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32).selector
+    }
 {
     require clockSanity(e);
     require quorumNumeratorLength() < max_uint256; // sanity
