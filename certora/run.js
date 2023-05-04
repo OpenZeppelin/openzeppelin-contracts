@@ -73,7 +73,7 @@ async function runCertora(spec, contract, files, options = []) {
   child.stdout.pipe(stream, { end: false });
   child.stderr.pipe(stream, { end: false });
 
-  // as soon as we have a jobStatus link, print it
+  // as soon as we have a job id, print the output link
   stream.on('data', function logStatusUrl(data) {
     const { '-DjobId': jobId, '-DuserId': userId } = Object.fromEntries(
       data
