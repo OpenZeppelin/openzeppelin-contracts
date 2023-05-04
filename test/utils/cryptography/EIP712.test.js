@@ -28,8 +28,8 @@ contract('EIP712', function (accounts) {
         this.eip712 = await EIP712Verifier.new(name, version);
 
         this.domain = {
-          name: name,
-          version: version,
+          name,
+          version,
           chainId: await getChainId(),
           verifyingContract: this.eip712.address,
         };
