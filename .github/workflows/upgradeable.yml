@@ -9,6 +9,7 @@ on:
 
 jobs:
   trigger:
+    environment: push-upgradeable
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
