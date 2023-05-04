@@ -1,4 +1,4 @@
-name: upgradeable push
+name: transpile upgradeable
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
       - testing-upg
 
 jobs:
-  trigger:
+  transpile:
     environment: push-upgradeable
     runs-on: ubuntu-latest
     steps:
