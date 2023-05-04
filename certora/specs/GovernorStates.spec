@@ -58,7 +58,7 @@ rule stateTransitionFn(uint256 pId, env e, method f, calldataarg args)
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 // The timelockId can be set in states QUEUED, EXECUTED and CANCELED. However, checking the full scope of this results
-// in a timeout. This is a weaker version that is still usefull
+// in a timeout. This is a weaker version that is still useful
 invariant noTimelockBeforeEndOfVote(env e, uint256 pId)
     state(e, pId) == ACTIVE() => timelockId(pId) == 0
 
