@@ -57,6 +57,11 @@ rule stateTransitionFn(uint256 pId, env e, method f, calldataarg args)
 │ Rule: State transitions caused by time passing                                                                      │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
+// The timelockId can be set in states QUEUED, EXECUTED and CANCELED. However, checking the full scope of this results
+// in a timeout. This is a weaker version that is still usefull
+invariant noTimelockBeforeEndOfVote(env e, uint256 pId)
+    state(e, pId) == ACTIVE() => timelockId(pId) == 0
+
 rule stateTransitionWait(uint256 pId, env e1, env e2) {
     require clockSanity(e1);
     require clockSanity(e2);
@@ -66,6 +71,7 @@ rule stateTransitionWait(uint256 pId, env e1, env e2) {
     // possible before the time passes. We don't want the state transition include elements that cannot have happened
     // before e1. This ensure that the e1 → e2 state transition is purelly a consequence of time passing.
     requireInvariant votesImplySnapshotPassed(e1, pId);
+    requireInvariant noTimelockBeforeEndOfVote(e1, pId);
 
     uint8 stateBefore = state(e1, pId);
     uint8 stateAfter  = state(e2, pId);
@@ -74,14 +80,7 @@ rule stateTransitionWait(uint256 pId, env e1, env e2) {
         (stateBefore == PENDING() && stateAfter == ACTIVE()   ) ||
         (stateBefore == PENDING() && stateAfter == DEFEATED() ) ||
         (stateBefore == ACTIVE()  && stateAfter == SUCCEEDED()) ||
-        (stateBefore == ACTIVE()  && stateAfter == DEFEATED() ) ||
-        // Strange consequence of the timelock binding:
-        // When transitioning from ACTIVE to SUCCEEDED (because of the clock moving forward) the proposal state in
-        // the timelock is suddenly considered. Prior state set in the timelock can cause the proposal to already be
-        // queued, executed or canceled.
-        (stateBefore == ACTIVE()  && stateAfter == CANCELED()) ||
-        (stateBefore == ACTIVE()  && stateAfter == EXECUTED()) ||
-        (stateBefore == ACTIVE()  && stateAfter == QUEUED())
+        (stateBefore == ACTIVE()  && stateAfter == DEFEATED() )
     );
 }
 

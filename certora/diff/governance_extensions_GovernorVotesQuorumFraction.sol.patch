@@ -1,7 +1,7 @@
---- governance/extensions/GovernorVotesQuorumFraction.sol	2023-03-07 10:48:47.733488857 +0100
-+++ governance/extensions/GovernorVotesQuorumFraction.sol	2023-03-15 22:52:06.424537201 +0100
-@@ -62,6 +62,11 @@
-         return _quorumNumeratorHistory.upperLookupRecent(timepoint.toUint32());
+--- governance/extensions/GovernorVotesQuorumFraction.sol	2023-05-03 09:17:45.570033048 +0200
++++ governance/extensions/GovernorVotesQuorumFraction.sol	2023-05-04 15:18:42.664408414 +0200
+@@ -61,6 +61,11 @@
+         return _quorumNumeratorHistory.upperLookupRecent(SafeCast.toUint32(timepoint));
      }
  
 +    // FV

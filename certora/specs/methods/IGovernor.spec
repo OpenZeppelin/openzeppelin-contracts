@@ -52,4 +52,5 @@ methods {
     getForVotes(uint256)                             returns uint256 envfree
     getAbstainVotes(uint256)                         returns uint256 envfree
     quorumNumeratorLength()                          returns uint256 envfree
+    timelockId(uint256)                              returns bytes32 envfree
 }
