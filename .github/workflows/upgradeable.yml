@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
       - run: |
-          git fetch ${{ github.repositoryUrl }} "$REF"
+          git fetch "https://github.com/${{ github.repository }}.git" "$REF"
           git checkout FETCH_HEAD
         env:
           REF: ${{ github.ref }}
