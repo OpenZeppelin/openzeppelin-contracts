@@ -17,13 +17,11 @@ jobs:
           repository: frangio/openzeppelin-contracts-upgradeable
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Include history so patch conflicts are resolved automatically
-          path: ${{ env.RUNNER_TEMP }}/vanilla
       - run: |
-          git fetch "$RUNNER_TEMP/vanilla"
+          git fetch ${{ github.repositoryUrl }} "$REF"
           git checkout FETCH_HEAD
+        env:
+          REF: ${{ github.ref }}
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Transpile to upgradeable
