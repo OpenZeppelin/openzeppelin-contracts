@@ -12,7 +12,7 @@ index 4018cef2..d343a53d 100644
      url: https://forum.openzeppelin.com/c/support/contracts/18
      about: Ask in the OpenZeppelin Forum
 diff --git a/README.md b/README.md
-index 9fc95518..5d69290d 100644
+index 9fc95518..53130e3c 100644
 --- a/README.md
 +++ b/README.md
 @@ -16,17 +16,20 @@
@@ -49,7 +49,7 @@ index 9fc95518..5d69290d 100644
 -    constructor() ERC721("MyCollectible", "MCO") {
 +contract MyCollectible is ERC721Upgradeable {
 +    function initialize() initializer public {
-+        __ERC721_init("MyCollectible", "MCO")
++        __ERC721_init("MyCollectible", "MCO");
      }
  }
  ```
@@ -235,7 +235,7 @@ index e06d0066..c3357f6d 100644
   */
  abstract contract EIP712 is IERC5267 {
 diff --git a/package.json b/package.json
-index a5849d08..26a45d87 100644
+index 8458dd61..b4672240 100644
 --- a/package.json
 +++ b/package.json
 @@ -36,7 +36,7 @@
