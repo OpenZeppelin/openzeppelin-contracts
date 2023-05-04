@@ -1,3 +1,58 @@
+diff --git a/.github/ISSUE_TEMPLATE/config.yml b/.github/ISSUE_TEMPLATE/config.yml
+index 4018cef2..d343a53d 100644
+--- a/.github/ISSUE_TEMPLATE/config.yml
++++ b/.github/ISSUE_TEMPLATE/config.yml
+@@ -1,4 +1,8 @@
++blank_issues_enabled: false
+ contact_links:
++  - name: Bug Reports & Feature Requests
++    url: https://github.com/OpenZeppelin/openzeppelin-contracts/issues/new/choose
++    about: Visit the OpenZeppelin Contracts repository
+   - name: Questions & Support Requests
+     url: https://forum.openzeppelin.com/c/support/contracts/18
+     about: Ask in the OpenZeppelin Forum
+diff --git a/README.md b/README.md
+index 9fc95518..5d69290d 100644
+--- a/README.md
++++ b/README.md
+@@ -16,17 +16,20 @@
+ 
+ :building_construction: **Want to scale your decentralized application?** Check out [OpenZeppelin Defender](https://openzeppelin.com/defender) — a secure platform for automating and monitoring your operations.
+ 
++> **Note**
++> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/4.x/upgradeable).
++
+ ## Overview
+ 
+ ### Installation
+ 
+ ```
+-$ npm install @openzeppelin/contracts
++$ npm install @openzeppelin/contracts-upgradeable
+ ```
+ 
+ OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/contracts/releases-stability#api-stability), which means that your contracts won't break unexpectedly when upgrading to a newer minor version.
+ 
+-An alternative to npm is to use the GitHub repository (`openzeppelin/openzeppelin-contracts`) to retrieve the contracts. When doing this, make sure to specify the tag for a release such as `v4.5.0`, instead of using the `master` branch.
++An alternative to npm is to use the GitHub repository (`openzeppelin/openzeppelin-contracts-upgradeable`) to retrieve the contracts. When doing this, make sure to specify the tag for a release such as `v4.5.0`, instead of using the `master` branch.
+ 
+ ### Usage
+ 
+@@ -35,10 +38,11 @@ Once installed, you can use the contracts in the library by importing them:
+ ```solidity
+ pragma solidity ^0.8.0;
+ 
+-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
++import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+ 
+-contract MyCollectible is ERC721 {
+-    constructor() ERC721("MyCollectible", "MCO") {
++contract MyCollectible is ERC721Upgradeable {
++    function initialize() initializer public {
++        __ERC721_init("MyCollectible", "MCO")
+     }
+ }
+ ```
 diff --git a/contracts/finance/VestingWallet.sol b/contracts/finance/VestingWallet.sol
 index fe67eb54..d26ea4e1 100644
 --- a/contracts/finance/VestingWallet.sol
@@ -83,7 +138,7 @@ index 17250ad7..1d26b72e 100644
  abstract contract GovernorVotesComp is Governor {
      ERC20VotesComp public immutable token;
 diff --git a/contracts/package.json b/contracts/package.json
-index e3e60834..f8ddc1f0 100644
+index 55e70b17..ceefb984 100644
 --- a/contracts/package.json
 +++ b/contracts/package.json
 @@ -1,5 +1,5 @@
@@ -91,7 +146,7 @@ index e3e60834..f8ddc1f0 100644
 -  "name": "@openzeppelin/contracts",
 +  "name": "@openzeppelin/contracts-upgradeable",
    "description": "Secure Smart Contract library for Solidity",
-   "version": "4.8.0",
+   "version": "4.8.2",
    "files": [
 @@ -13,7 +13,7 @@
    },
@@ -102,15 +157,6 @@ index e3e60834..f8ddc1f0 100644
    },
    "keywords": [
      "solidity",
-@@ -26,7 +26,7 @@
-   "author": "OpenZeppelin Community <maintainers@openzeppelin.org>",
-   "license": "MIT",
-   "bugs": {
--    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts/issues"
-+    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/issues"
-   },
-   "homepage": "https://openzeppelin.com/contracts/"
- }
 diff --git a/contracts/security/PullPayment.sol b/contracts/security/PullPayment.sol
 index 65b4980f..f336592e 100644
 --- a/contracts/security/PullPayment.sol
@@ -151,7 +197,7 @@ index a357199b..9dc8e894 100644
  abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
      using Counters for Counters.Counter;
 diff --git a/contracts/token/ERC20/extensions/ERC20Wrapper.sol b/contracts/token/ERC20/extensions/ERC20Wrapper.sol
-index ce515693..39e93513 100644
+index bfe782e4..7264fe32 100644
 --- a/contracts/token/ERC20/extensions/ERC20Wrapper.sol
 +++ b/contracts/token/ERC20/extensions/ERC20Wrapper.sol
 @@ -14,6 +14,8 @@ import "../utils/SafeERC20.sol";
@@ -177,7 +223,7 @@ index ed855b7b..3d30f59d 100644
  contract TokenTimelock {
      using SafeERC20 for IERC20;
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index d0e52c39..4a7ff926 100644
+index e06d0066..c3357f6d 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -30,6 +30,7 @@ import "../../interfaces/IERC5267.sol";
@@ -188,3 +234,16 @@ index d0e52c39..4a7ff926 100644
   * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
   */
  abstract contract EIP712 is IERC5267 {
+diff --git a/package.json b/package.json
+index a5849d08..26a45d87 100644
+--- a/package.json
++++ b/package.json
+@@ -36,7 +36,7 @@
+   },
+   "repository": {
+     "type": "git",
+-    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts.git"
++    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable.git"
+   },
+   "keywords": [
+     "solidity",
