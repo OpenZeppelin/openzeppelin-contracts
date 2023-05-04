@@ -10,9 +10,9 @@ error() {
   exit 1
 }
 
-if ! git diff-files --quiet contracts; then
-  error "Unstaged changes in contracts"
+if ! git diff-files --quiet ":!$PATCH"; then
+  error "Unstaged changes. Stage to include in patch or temporarily stash."
 fi
 
-git diff-index --cached --patch --output="$PATCH" HEAD contracts
-git restore --staged --worktree contracts
+git diff-index --cached --patch --output="$PATCH" HEAD
+git restore --staged --worktree ":!$PATCH"

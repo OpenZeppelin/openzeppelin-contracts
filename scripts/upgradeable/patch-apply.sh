@@ -10,8 +10,8 @@ error() {
   exit 1
 }
 
-if ! git diff-files --quiet contracts || ! git diff-index --quiet HEAD contracts; then
-  error "Changes in contracts"
+if ! git diff-files --quiet ":!$PATCH" || ! git diff-index --quiet HEAD ":!$PATCH"; then
+  error "Repository must have no staged or unstaged changes"
 fi
 
 if ! git apply -3 "$PATCH"; then
