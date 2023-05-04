@@ -73,15 +73,18 @@ async function runCertora(spec, contract, files, options = []) {
   child.stdout.pipe(stream, { end: false });
   child.stderr.pipe(stream, { end: false });
 
-  // as soon as we have a jobStatus link, print it
+  // as soon as we have a job id, print the output link
   stream.on('data', function logStatusUrl(data) {
-    const urls = data.toString('utf8').match(/https?:\S*/g);
-    for (const url of urls ?? []) {
-      if (url.includes('/jobStatus/')) {
-        console.error(`[${spec}] ${url.replace('/jobStatus/', '/output/')}`);
-        stream.off('data', logStatusUrl);
-        break;
-      }
+    const { '-DjobId': jobId, '-DuserId': userId } = Object.fromEntries(
+      data
+        .toString('utf8')
+        .match(/-D\S+=\S+/g)
+        ?.map(s => s.split('=')) || [],
+    );
+
+    if (jobId && userId) {
+      console.error(`[${spec}] https://prover.certora.com/output/${userId}/${jobId}/`);
+      stream.off('data', logStatusUrl);
     }
   });
 
@@ -98,7 +101,7 @@ async function runCertora(spec, contract, files, options = []) {
   stream.end();
 
   // write results in markdown format
-  writeEntry(spec, contract, code || signal, (await output).match(/https:\S*/)?.[0]);
+  writeEntry(spec, contract, code || signal, (await output).match(/https:\/\/prover.certora.com\/output\/\S*/)?.[0]);
 
   // write all details
   console.error(`+ certoraRun ${args.join(' ')}\n` + (await output));
@@ -136,8 +139,8 @@ function writeEntry(spec, contract, success, url) {
       spec,
       contract,
       success ? ':x:' : ':heavy_check_mark:',
+      url ? `[link](${url?.replace('/output/', '/jobStatus/')})` : 'error',
       url ? `[link](${url})` : 'error',
-      url ? `[link](${url?.replace('/jobStatus/', '/output/')})` : 'error',
     ),
   );
 }
