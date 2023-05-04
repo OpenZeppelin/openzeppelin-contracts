@@ -17,7 +17,8 @@ jobs:
           repository: frangio/openzeppelin-contracts-upgradeable
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
-      - run: |
+      - name: Fetch git repository
+        run: |
           git fetch "https://github.com/${{ github.repository }}.git" "$REF"
           git checkout FETCH_HEAD
         env:
@@ -25,4 +26,4 @@ jobs:
       - name: Set up environment
         uses: ./.github/actions/setup
       - name: Transpile to upgradeable
-        run: bash scripts/upgradeable/transpile.sh
+        run: bash scripts/upgradeable/transpile-onto.sh ${{ github.ref_name }}
