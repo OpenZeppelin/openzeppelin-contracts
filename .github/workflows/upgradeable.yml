@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: frangio/openzeppelin-contracts-upgradeable
+          repository: OpenZeppelin/openzeppelin-contracts-upgradeable
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
       - name: Fetch git repository
