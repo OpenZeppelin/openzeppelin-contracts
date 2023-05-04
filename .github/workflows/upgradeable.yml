@@ -16,7 +16,7 @@ jobs:
           repository: OpenZeppelin/openzeppelin-contracts-upgradeable
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
-      - name: Fetch git repository
+      - name: Fetch current non-upgradeable branch
         run: |
           git fetch "https://github.com/${{ github.repository }}.git" "$REF"
           git checkout FETCH_HEAD
