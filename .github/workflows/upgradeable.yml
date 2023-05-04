@@ -1,23 +1,29 @@
-name: Upgradeable Trigger
+name: upgradeable push
 
 on:
   push:
     branches:
       - master
       - release-v*
+      - testing-upg
 
 jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - id: app
-        uses: getsentry/action-github-app-token@v2
+      - uses: actions/checkout@v3
         with:
-          app_id: ${{ secrets.UPGRADEABLE_APP_ID }}
-          private_key: ${{ secrets.UPGRADEABLE_APP_PK }}
+          repository: OpenZeppelin/openzeppelin-contracts-upgradeable
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN_UPGRADEABLE }}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Include history so patch conflicts are resolved automatically
+          path: ${{ env.RUNNER_TEMP }}/vanilla
       - run: |
-          curl -X POST \
-            https://api.github.com/repos/OpenZeppelin/openzeppelin-contracts-upgradeable/dispatches \
-            -H 'Accept: application/vnd.github.v3+json' \
-            -H 'Authorization: token ${{ steps.app.outputs.token }}' \
-            -d '{ "event_type": "Update", "client_payload": { "ref": "${{ github.ref }}" } }'
+          git fetch "$RUNNER_TEMP/vanilla"
+          git checkout FETCH_HEAD
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Transpile to upgradeable
+        run: bash scripts/upgradeable/transpile.sh
