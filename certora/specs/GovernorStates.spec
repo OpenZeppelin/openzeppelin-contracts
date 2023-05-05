@@ -10,9 +10,13 @@ use invariant votesImplySnapshotPassed
 │ Rule: state returns one of the value in the enumeration                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule stateConsistency(env e, uint256 pId) {
-    uint8 result = state(e, pId);
+invariant stateConsistency(env e, uint256 pId)
+    state(e, pId) == safeState(e, pId)
+
+rule stateDomain(env e, uint256 pId) {
+    uint8 result = safeState(e, pId);
     assert (
+        result == UNSET()     ||
         result == PENDING()   ||
         result == ACTIVE()    ||
         result == CANCELED()  ||
@@ -35,9 +39,9 @@ rule stateConsistency(env e, uint256 pId) {
 //     require clockSanity(e);
 //     require quorumNumeratorLength() < max_uint256; // sanity
 //
-//     uint8 stateBefore = state(e, pId);
+//     uint8 stateBefore = safeState(e, pId);
 //     f(e, args);
-//     uint8 stateAfter  = state(e, pId);
+//     uint8 stateAfter  = safeState(e, pId);
 //
 //     assert (stateBefore != stateAfter) => (
 //         (stateBefore == UNSET()     && stateAfter == PENDING()  && f.selector == propose(address[],uint256[],bytes[],string).selector ) ||
@@ -54,11 +58,16 @@ function stateTransitionFnHelper(method f, uint8 s) returns uint8 {
     require clockSanity(e);
     require quorumNumeratorLength() < max_uint256; // sanity
 
-    require state(e, pId) == s; // constrain state before
+    require safeState(e, pId) == s; // constrain state before
     f(e, args);
-    require state(e, pId) != s; // constrain state after
+    require safeState(e, pId) != s; // constrain state after
 
-    return state(e, pId);
+    return safeState(e, pId);
+}
+
+rule stateTransitionFn_UNSET(method f) filtered { f -> !assumedSafe(f) } {
+    uint8 stateAfter = stateTransitionFnHelper(f, UNSET());
+    assert stateAfter == PENDING() && f.selector == propose(address[],uint256[],bytes[],string).selector;
 }
 
 rule stateTransitionFn_PENDING(method f) filtered { f -> !assumedSafe(f) } {
@@ -91,7 +100,7 @@ rule stateTransitionFn_SUCCEEDED(method f) filtered { f -> !assumedSafe(f) } {
 
 rule stateTransitionFn_QUEUED(method f) filtered { f -> !assumedSafe(f) } {
     uint8 stateAfter = stateTransitionFnHelper(f, QUEUED());
-    assert state(e, pId) == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector;
+    assert stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector;
 }
 
 rule stateTransitionFn_EXECUTED(method f) filtered { f -> !assumedSafe(f) } {
@@ -107,7 +116,7 @@ rule stateTransitionFn_EXECUTED(method f) filtered { f -> !assumedSafe(f) } {
 // The timelockId can be set in states QUEUED, EXECUTED and CANCELED. However, checking the full scope of this results
 // in a timeout. This is a weaker version that is still useful
 invariant noTimelockBeforeEndOfVote(env e, uint256 pId)
-    state(e, pId) == ACTIVE() => timelockId(pId) == 0
+    safeState(e, pId) == ACTIVE() => timelockId(pId) == 0
 
 rule stateTransitionWait(uint256 pId, env e1, env e2) {
     require clockSanity(e1);
@@ -120,8 +129,8 @@ rule stateTransitionWait(uint256 pId, env e1, env e2) {
     requireInvariant votesImplySnapshotPassed(e1, pId);
     requireInvariant noTimelockBeforeEndOfVote(e1, pId);
 
-    uint8 stateBefore = state(e1, pId);
-    uint8 stateAfter  = state(e2, pId);
+    uint8 stateBefore = safeState(e1, pId);
+    uint8 stateAfter  = safeState(e2, pId);
 
     assert (stateBefore != stateAfter) => (
         (stateBefore == PENDING() && stateAfter == ACTIVE()   ) ||
@@ -141,7 +150,7 @@ rule stateIsConsistentWithVotes(uint256 pId, env e) {
     requireInvariant proposalStateConsistency(pId);
 
     uint48  currentClock  = clock(e);
-    uint8   currentState  = state(e, pId);
+    uint8   currentState  = safeState(e, pId);
     uint256 snapshot      = proposalSnapshot(pId);
     uint256 deadline      = proposalDeadline(pId);
     bool    quorumSuccess = quorumReached(pId);
