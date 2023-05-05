@@ -12,44 +12,23 @@ use rule onlyGrantCanGrant filtered {
 │ Helpers                                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
+definition timeSanity(env e) returns bool =
+  e.block.timestamp > 0 && e.block.timestamp + defaultAdminDelay(e) < max_uint48();
 
-function max_uint48() returns mathint {
-    return (1 << 48) - 1;
-}
+definition delayChangeWaitSanity(env e, uint48 newDelay) returns bool =
+  e.block.timestamp + delayChangeWait_(e, newDelay) < max_uint48();
 
-function nonZeroAccount(address account) returns bool {
-  return account != 0;
-}
+definition isSet(uint48 schedule) returns bool =
+  schedule != 0;
 
-function timeSanity(env e) returns bool {
-  return
-    e.block.timestamp > 0 && // Avoids 0 schedules
-    e.block.timestamp + defaultAdminDelay(e) < max_uint48();
-}
+definition hasPassed(env e, uint48 schedule) returns bool =
+  schedule < e.block.timestamp;
 
-function delayChangeWaitSanity(env e, uint48 newDelay) returns bool {
-  return e.block.timestamp + delayChangeWait_(e, newDelay) < max_uint48();
-}
+definition increasingDelaySchedule(env e, uint48 newDelay) returns mathint =
+  e.block.timestamp + min(newDelay, defaultAdminDelayIncreaseWait());
 
-function isSet(uint48 schedule) returns bool {
-  return schedule != 0;
-}
-
-function hasPassed(env e, uint48 schedule) returns bool {
-  return schedule < e.block.timestamp;
-}
-
-function min(uint48 a, uint48 b) returns mathint {
-  return a < b ? a : b;
-}
-
-function increasingDelaySchedule(env e, uint48 newDelay) returns mathint {
-  return e.block.timestamp + min(newDelay, defaultAdminDelayIncreaseWait());
-}
-
-function decreasingDelaySchedule(env e, uint48 newDelay) returns mathint {
-  return e.block.timestamp + defaultAdminDelay(e) - newDelay;
-}
+definition decreasingDelaySchedule(env e, uint48 newDelay) returns mathint =
+  e.block.timestamp + defaultAdminDelay(e) - newDelay;
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -60,7 +39,7 @@ invariant defaultAdminConsistency(address account)
   (account == defaultAdmin() && account != 0) <=> hasRole(DEFAULT_ADMIN_ROLE(), account)
   {
     preserved with (env e) {
-      require nonZeroAccount(e.msg.sender);
+      require nonzerosender(e);
     }
   }
 
@@ -178,10 +157,6 @@ rule renounceRoleEffect(env e, bytes32 role) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noDefaultAdminChange(env e, method f, calldataarg args) {
-  require nonZeroAccount(e.msg.sender);
-  requireInvariant defaultAdminConsistency(defaultAdmin());
-  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
-
   address adminBefore = defaultAdmin();
   f(e, args);
   address adminAfter = defaultAdmin();
@@ -199,9 +174,6 @@ rule noDefaultAdminChange(env e, method f, calldataarg args) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noPendingDefaultAdminChange(env e, method f, calldataarg args) {
-  requireInvariant defaultAdminConsistency(defaultAdmin());
-  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
-
   address pendingAdminBefore = pendingDefaultAdmin_();
   address scheduleBefore = pendingDefaultAdminSchedule_();
   f(e, args);
@@ -270,10 +242,10 @@ rule noDefaultAdminDelayIncreaseWaitChange(env e, method f, calldataarg args) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule beginDefaultAdminTransfer(env e, address newAdmin) {
-  require nonpayable(e);
   require timeSanity(e);
-  requireInvariant defaultAdminConsistency(defaultAdmin());
-  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
+  require nonpayable(e);
+  require nonzerosender(e);
+  requireInvariant defaultAdminConsistency(e.msg.sender);
 
   beginDefaultAdminTransfer@withrevert(e, newAdmin);
   bool success = !lastReverted;
@@ -316,11 +288,9 @@ rule pendingDefaultAdminDelayEnforced(env e1, env e2, method f, calldataarg args
 */
 rule acceptDefaultAdminTransfer(env e) {
   require nonpayable(e);
-  requireInvariant defaultAdminConsistency(defaultAdmin());
-  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
 
   address pendingAdminBefore = pendingDefaultAdmin_();
-  uint48 scheduleAfter = pendingDefaultAdminSchedule_();
+  uint48 scheduleBefore = pendingDefaultAdminSchedule_();
 
   acceptDefaultAdminTransfer@withrevert(e);
   bool success = !lastReverted;
@@ -328,8 +298,8 @@ rule acceptDefaultAdminTransfer(env e) {
   // liveness
   assert success <=> (
     e.msg.sender == pendingAdminBefore &&
-    isSet(scheduleAfter) &&
-    hasPassed(e, scheduleAfter)
+    isSet(scheduleBefore) &&
+    hasPassed(e, scheduleBefore)
   ),
     "only the pending default admin can accept the role after the schedule has been set and passed";
 
@@ -349,8 +319,8 @@ rule acceptDefaultAdminTransfer(env e) {
 */
 rule cancelDefaultAdminTransfer(env e) {
   require nonpayable(e);
-  requireInvariant defaultAdminConsistency(defaultAdmin());
-  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
+  require nonzerosender(e);
+  requireInvariant defaultAdminConsistency(e.msg.sender);
 
   cancelDefaultAdminTransfer@withrevert(e);
   bool success = !lastReverted;
@@ -372,11 +342,11 @@ rule cancelDefaultAdminTransfer(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule changeDefaultAdminDelay(env e, uint48 newDelay) {
-  require nonpayable(e);
   require timeSanity(e);
+  require nonpayable(e);
+  require nonzerosender(e);
   require delayChangeWaitSanity(e, newDelay);
-  requireInvariant defaultAdminConsistency(defaultAdmin());
-  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
+  requireInvariant defaultAdminConsistency(e.msg.sender);
 
   uint48 delayBefore = defaultAdminDelay(e);
 
@@ -440,8 +410,8 @@ rule pendingDelayWait(env e, uint48 newDelay) {
 */
 rule rollbackDefaultAdminDelay(env e) {
   require nonpayable(e);
-  requireInvariant defaultAdminConsistency(defaultAdmin());
-  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
+  require nonzerosender(e);
+  requireInvariant defaultAdminConsistency(e.msg.sender);
 
   rollbackDefaultAdminDelay@withrevert(e);
   bool success = !lastReverted;
@@ -463,8 +433,7 @@ rule rollbackDefaultAdminDelay(env e) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pendingValueAndScheduleCoupling(env e, address newAdmin, uint48 newDelay) {
-  requireInvariant defaultAdminConsistency(defaultAdmin());
-  requireInvariant singleDefaultAdmin(e.msg.sender, defaultAdmin());
+  requireInvariant defaultAdminConsistency(e.msg.sender);
 
   // Pending admin
   address pendingAdminBefore = pendingDefaultAdmin_();
