@@ -270,17 +270,171 @@ index ed855b7b..3d30f59d 100644
  contract TokenTimelock {
      using SafeERC20 for IERC20;
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index 30b5ce43..aad21b6a 100644
+index 096ccabf..55d8eced 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
-@@ -30,6 +30,7 @@ import "../../interfaces/IERC5267.sol";
+@@ -4,7 +4,6 @@
+ pragma solidity ^0.8.8;
+ 
+ import "./ECDSA.sol";
+-import "../ShortStrings.sol";
+ import "../../interfaces/IERC5267.sol";
+ 
+ /**
+@@ -30,27 +29,19 @@ import "../../interfaces/IERC5267.sol";
   *
   * _Available since v3.4._
   *
+- * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment constructor
 + * @custom:storage-size 52
-  * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment constructor
   */
  abstract contract EIP712 is IERC5267 {
+-    using ShortStrings for *;
+-
+     bytes32 private constant _TYPE_HASH =
+         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+ 
+-    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
+-    // invalidate the cached domain separator if the chain id changes.
+-    bytes32 private immutable _cachedDomainSeparator;
+-    uint256 private immutable _cachedChainId;
+-    address private immutable _cachedThis;
+-
++    /// @custom:oz-renamed-from _HASHED_NAME
+     bytes32 private immutable _hashedName;
++    /// @custom:oz-renamed-from _HASHED_VERSION
+     bytes32 private immutable _hashedVersion;
+ 
+-    ShortString private immutable _name;
+-    ShortString private immutable _version;
+-    string private _nameFallback;
+-    string private _versionFallback;
++    string private _name;
++    string private _version;
+ 
+     /**
+      * @dev Initializes the domain separator and parameter caches.
+@@ -65,29 +56,23 @@ abstract contract EIP712 is IERC5267 {
+      * contract upgrade].
+      */
+     constructor(string memory name, string memory version) {
+-        _name = name.toShortStringWithFallback(_nameFallback);
+-        _version = version.toShortStringWithFallback(_versionFallback);
+-        _hashedName = keccak256(bytes(name));
+-        _hashedVersion = keccak256(bytes(version));
+-
+-        _cachedChainId = block.chainid;
+-        _cachedDomainSeparator = _buildDomainSeparator();
+-        _cachedThis = address(this);
++        _name = name;
++        _version = version;
++
++        // Reset prior values in storage if upgrading
++        _hashedName = 0;
++        _hashedVersion = 0;
+     }
+ 
+     /**
+      * @dev Returns the domain separator for the current chain.
+      */
+     function _domainSeparatorV4() internal view returns (bytes32) {
+-        if (address(this) == _cachedThis && block.chainid == _cachedChainId) {
+-            return _cachedDomainSeparator;
+-        } else {
+-            return _buildDomainSeparator();
+-        }
++        return _buildDomainSeparator();
+     }
+ 
+     function _buildDomainSeparator() private view returns (bytes32) {
+-        return keccak256(abi.encode(_TYPE_HASH, _hashedName, _hashedVersion, block.chainid, address(this)));
++        return keccak256(abi.encode(_TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash(), block.chainid, address(this)));
+     }
+ 
+     /**
+@@ -129,14 +114,80 @@ abstract contract EIP712 is IERC5267 {
+             uint256[] memory extensions
+         )
+     {
++        // If the hashed name and version in storage are non-zero, the contract hasn't been properly initialized
++        // and the EIP712 domain is not reliable, as it will be missing name and version.
++        require(_hashedName == 0 && _hashedVersion == 0, "EIP712: Uninitialized");
++
+         return (
+             hex"0f", // 01111
+-            _name.toStringWithFallback(_nameFallback),
+-            _version.toStringWithFallback(_versionFallback),
++            _EIP712Name(),
++            _EIP712Version(),
+             block.chainid,
+             address(this),
+             bytes32(0),
+             new uint256[](0)
+         );
+     }
++
++    /**
++     * @dev The name parameter for the EIP712 domain.
++     *
++     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
++     * are a concern.
++     */
++    function _EIP712Name() internal virtual view returns (string memory) {
++        return _name;
++    }
++
++    /**
++     * @dev The version parameter for the EIP712 domain.
++     *
++     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
++     * are a concern.
++     */
++    function _EIP712Version() internal virtual view returns (string memory) {
++        return _version;
++    }
++
++    /**
++     * @dev The hash of the name parameter for the EIP712 domain.
++     *
++     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Name` instead.
++     */
++    function _EIP712NameHash() internal view returns (bytes32) {
++        string memory name = _EIP712Name();
++        if (bytes(name).length > 0) {
++            return keccak256(bytes(name));
++        } else {
++            // If the name is empty, the contract may have been upgraded without initializing the new storage.
++            // We return the name hash in storage if non-zero, otherwise we assume the name is empty by design.
++            bytes32 hashedName = _hashedName;
++            if (hashedName != 0) {
++                return hashedName;
++            } else {
++                return keccak256("");
++            }
++        }
++    }
++
++    /**
++     * @dev The hash of the version parameter for the EIP712 domain.
++     *
++     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Version` instead.
++     */
++    function _EIP712VersionHash() internal view returns (bytes32) {
++        string memory version = _EIP712Version();
++        if (bytes(version).length > 0) {
++            return keccak256(bytes(version));
++        } else {
++            // If the version is empty, the contract may have been upgraded without initializing the new storage.
++            // We return the version hash in storage if non-zero, otherwise we assume the version is empty by design.
++            bytes32 hashedVersion = _hashedVersion;
++            if (hashedVersion != 0) {
++                return hashedVersion;
++            } else {
++                return keccak256("");
++            }
++        }
++    }
+ }
 diff --git a/package.json b/package.json
 index 8458dd61..b4672240 100644
 --- a/package.json
