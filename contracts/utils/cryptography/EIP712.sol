@@ -30,7 +30,7 @@ import "../../interfaces/IERC5267.sol";
  *
  * _Available since v3.4._
  *
- * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
+ * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment constructor
  */
 abstract contract EIP712 is IERC5267 {
     using ShortStrings for *;

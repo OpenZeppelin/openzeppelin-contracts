@@ -270,7 +270,7 @@ index ed855b7b..3d30f59d 100644
  contract TokenTimelock {
      using SafeERC20 for IERC20;
 diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
-index e06d0066..c3357f6d 100644
+index 30b5ce43..aad21b6a 100644
 --- a/contracts/utils/cryptography/EIP712.sol
 +++ b/contracts/utils/cryptography/EIP712.sol
 @@ -30,6 +30,7 @@ import "../../interfaces/IERC5267.sol";
@@ -278,7 +278,7 @@ index e06d0066..c3357f6d 100644
   * _Available since v3.4._
   *
 + * @custom:storage-size 52
-  * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
+  * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment constructor
   */
  abstract contract EIP712 is IERC5267 {
 diff --git a/package.json b/package.json
