@@ -3,11 +3,18 @@ import "methods/IAccessControl.spec"
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Definitions                                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+*/
+definition DEFAULT_ADMIN_ROLE() returns bytes32 = 0x0000000000000000000000000000000000000000000000000000000000000000;
+
+/*
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Identify entrypoints: only grantRole, revokeRole and renounceRole can alter permissions                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule onlyGrantCanGrant(env e, bytes32 role, address account) {
-    method f; calldataarg args;
+rule onlyGrantCanGrant(env e, method f, bytes32 role, address account) {
+    calldataarg args;
 
     bool hasRoleBefore = hasRole(role, account);
     f(e, args);
@@ -34,10 +41,9 @@ rule onlyGrantCanGrant(env e, bytes32 role, address account) {
 │ Function correctness: grantRole only affects the specified user/role combo                                          │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule grantRoleEffect(env e) {
+rule grantRoleEffect(env e, bytes32 role) {
     require nonpayable(e);
 
-    bytes32 role;
     bytes32 otherRole;
     address account;
     address otherAccount;
@@ -65,10 +71,9 @@ rule grantRoleEffect(env e) {
 │ Function correctness: revokeRole only affects the specified user/role combo                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule revokeRoleEffect(env e) {
+rule revokeRoleEffect(env e, bytes32 role) {
     require nonpayable(e);
 
-    bytes32 role;
     bytes32 otherRole;
     address account;
     address otherAccount;
@@ -96,10 +101,9 @@ rule revokeRoleEffect(env e) {
 │ Function correctness: renounceRole only affects the specified user/role combo                                       │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule renounceRoleEffect(env e) {
+rule renounceRoleEffect(env e, bytes32 role) {
     require nonpayable(e);
 
-    bytes32 role;
     bytes32 otherRole;
     address account;
     address otherAccount;
