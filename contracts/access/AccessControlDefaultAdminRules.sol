@@ -53,6 +53,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev Sets the initial values for {defaultAdminDelay} and {defaultAdmin} address.
      */
     constructor(uint48 initialDelay, address initialDefaultAdmin) {
+        require(initialDefaultAdmin != address(0), "AccessControl: 0 default admin");
         _currentDelay = initialDelay;
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
     }

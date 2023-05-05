@@ -1,4 +1,4 @@
-const { time } = require('@openzeppelin/test-helpers');
+const { time, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const {
   shouldBehaveLikeAccessControl,
   shouldBehaveLikeAccessControlDefaultAdminRules,
@@ -11,6 +11,13 @@ contract('AccessControlDefaultAdminRules', function (accounts) {
 
   beforeEach(async function () {
     this.accessControl = await AccessControlDefaultAdminRules.new(delay, accounts[0], { from: accounts[0] });
+  });
+
+  it('initial admin not zero', async function () {
+    await expectRevert(
+      AccessControlDefaultAdminRules.new(delay, constants.ZERO_ADDRESS),
+      'AccessControl: 0 default admin',
+    );
   });
 
   shouldBehaveLikeAccessControl('AccessControl', ...accounts);
