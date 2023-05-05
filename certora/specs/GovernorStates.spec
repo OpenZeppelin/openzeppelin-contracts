@@ -5,6 +5,13 @@ import "GovernorInvariants.spec"
 use invariant proposalStateConsistency
 use invariant votesImplySnapshotPassed
 
+definition assumedSafeOrDuplicateOrDuplicate(method f) returns bool =
+    assumedSafeOrDuplicate(f)
+    || f.selector == castVoteWithReason(uint256,uint8,string).selector
+    || f.selector == castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector
+    || f.selector == castVoteBySig(uint256,uint8,uint8,bytes32,bytes32).selector
+    || f.selector == castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32).selector;
+
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │ Rule: state returns one of the value in the enumeration                                                             │
@@ -12,6 +19,7 @@ use invariant votesImplySnapshotPassed
 */
 invariant stateConsistency(env e, uint256 pId)
     state(e, pId) == safeState(e, pId)
+    filtered { f -> !assumedSafeOrDuplicateOrDuplicate(f); }
 
 rule stateDomain(env e, uint256 pId) {
     uint8 result = safeState(e, pId);
@@ -34,7 +42,7 @@ rule stateDomain(env e, uint256 pId) {
 */
 /// Previous version that results in the prover timing out.
 // rule stateTransitionFn(uint256 pId, env e, method f, calldataarg args)
-//     filtered { f -> !assumedSafe(f) }
+//     filtered { f -> !assumedSafeOrDuplicate(f) }
 // {
 //     require clockSanity(e);
 //     require quorumNumeratorLength() < max_uint256; // sanity
@@ -65,32 +73,32 @@ function stateTransitionFnHelper(method f, uint8 s) returns uint8 {
     return safeState(e, pId);
 }
 
-rule stateTransitionFn_UNSET(method f) filtered { f -> !assumedSafe(f) } {
+rule stateTransitionFn_UNSET(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
     uint8 stateAfter = stateTransitionFnHelper(f, UNSET());
     assert stateAfter == PENDING() && f.selector == propose(address[],uint256[],bytes[],string).selector;
 }
 
-rule stateTransitionFn_PENDING(method f) filtered { f -> !assumedSafe(f) } {
+rule stateTransitionFn_PENDING(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
     uint8 stateAfter = stateTransitionFnHelper(f, PENDING());
     assert stateAfter == CANCELED() && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector;
 }
 
-rule stateTransitionFn_ACTIVE(method f) filtered { f -> !assumedSafe(f) } {
+rule stateTransitionFn_ACTIVE(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
     uint8 stateAfter = stateTransitionFnHelper(f, ACTIVE());
     assert false;
 }
 
-rule stateTransitionFn_CANCELED(method f) filtered { f -> !assumedSafe(f) } {
+rule stateTransitionFn_CANCELED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
     uint8 stateAfter = stateTransitionFnHelper(f, CANCELED());
     assert false;
 }
 
-rule stateTransitionFn_DEFEATED(method f) filtered { f -> !assumedSafe(f) } {
+rule stateTransitionFn_DEFEATED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
     uint8 stateAfter = stateTransitionFnHelper(f, DEFEATED());
     assert false;
 }
 
-rule stateTransitionFn_SUCCEEDED(method f) filtered { f -> !assumedSafe(f) } {
+rule stateTransitionFn_SUCCEEDED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
     uint8 stateAfter = stateTransitionFnHelper(f, SUCCEEDED());
     assert (
         (stateAfter == QUEUED()   && f.selector == queue(address[],uint256[],bytes[],bytes32).selector) ||
@@ -98,12 +106,12 @@ rule stateTransitionFn_SUCCEEDED(method f) filtered { f -> !assumedSafe(f) } {
     );
 }
 
-rule stateTransitionFn_QUEUED(method f) filtered { f -> !assumedSafe(f) } {
+rule stateTransitionFn_QUEUED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
     uint8 stateAfter = stateTransitionFnHelper(f, QUEUED());
     assert stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector;
 }
 
-rule stateTransitionFn_EXECUTED(method f) filtered { f -> !assumedSafe(f) } {
+rule stateTransitionFn_EXECUTED(method f) filtered { f -> !assumedSafeOrDuplicate(f) } {
     uint8 stateAfter = stateTransitionFnHelper(f, EXECUTED());
     assert false;
 }
@@ -194,7 +202,7 @@ rule stateIsConsistentWithVotes(uint256 pId, env e) {
 //// This would be nice, but its way to slow to run because "quorumReached" is a FV nightmare
 //// Also, for it to work we need to prove that the checkpoints have (strictly) increasing keys.
 // rule onlyVoteCanChangeQuorumReached(uint256 pId, env e, method f, calldataarg args)
-//     filtered { f -> !assumedSafe(f) }
+//     filtered { f -> !assumedSafeOrDuplicate(f) }
 // {
 //     require clockSanity(e);
 //     require clock(e) > proposalSnapshot(pId); // vote has started
