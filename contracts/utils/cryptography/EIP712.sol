@@ -44,13 +44,13 @@ abstract contract EIP712 is IERC5267 {
     uint256 private immutable _cachedChainId;
     address private immutable _cachedThis;
 
+    bytes32 private immutable _hashedName;
+    bytes32 private immutable _hashedVersion;
+
     ShortString private immutable _name;
     ShortString private immutable _version;
     string private _nameFallback;
     string private _versionFallback;
-
-    bytes32 private immutable _hashedName;
-    bytes32 private immutable _hashedVersion;
 
     /**
      * @dev Initializes the domain separator and parameter caches.
