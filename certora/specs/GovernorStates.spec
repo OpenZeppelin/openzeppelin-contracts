@@ -28,28 +28,75 @@ rule stateConsistency(env e, uint256 pId) {
 │ Rule: State transitions caused by function calls                                                                    │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
-rule stateTransitionFn(uint256 pId, env e, method f, calldataarg args)
-    filtered { f -> !assumedSafe(f)
-        && f.selector != castVoteBySig(uint256,uint8,uint8,bytes32,bytes32).selector
-        && f.selector != castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector
-        && f.selector != castVoteWithReason(uint256,uint8,string).selector
-        && f.selector != castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32).selector
-    }
-{
+/// Previous version that results in the prover timing out.
+// rule stateTransitionFn(uint256 pId, env e, method f, calldataarg args)
+//     filtered { f -> !assumedSafe(f) }
+// {
+//     require clockSanity(e);
+//     require quorumNumeratorLength() < max_uint256; // sanity
+//
+//     uint8 stateBefore = state(e, pId);
+//     f(e, args);
+//     uint8 stateAfter  = state(e, pId);
+//
+//     assert (stateBefore != stateAfter) => (
+//         (stateBefore == UNSET()     && stateAfter == PENDING()  && f.selector == propose(address[],uint256[],bytes[],string).selector ) ||
+//         (stateBefore == PENDING()   && stateAfter == CANCELED() && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector ) ||
+//         (stateBefore == SUCCEEDED() && stateAfter == QUEUED()   && f.selector == queue(address[],uint256[],bytes[],bytes32).selector  ) ||
+//         (stateBefore == SUCCEEDED() && stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector) ||
+//         (stateBefore == QUEUED()    && stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector)
+//     );
+// }
+
+function stateTransitionFnHelper(method f, uint8 s) returns uint8 {
+    uint256 pId; env e; calldataarg args;
+
     require clockSanity(e);
     require quorumNumeratorLength() < max_uint256; // sanity
 
-    uint8 stateBefore = state(e, pId);
+    require state(e, pId) == s; // constrain state before
     f(e, args);
-    uint8 stateAfter  = state(e, pId);
+    require state(e, pId) != s; // constrain state after
 
-    assert (stateBefore != stateAfter) => (
-        (stateBefore == UNSET()     && stateAfter == PENDING()  && f.selector == propose(address[],uint256[],bytes[],string).selector ) ||
-        (stateBefore == PENDING()   && stateAfter == CANCELED() && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector ) ||
-        (stateBefore == SUCCEEDED() && stateAfter == QUEUED()   && f.selector == queue(address[],uint256[],bytes[],bytes32).selector  ) ||
-        (stateBefore == SUCCEEDED() && stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector) ||
-        (stateBefore == QUEUED()    && stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector)
+    return state(e, pId);
+}
+
+rule stateTransitionFn_PENDING(method f) filtered { f -> !assumedSafe(f) } {
+    uint8 stateAfter = stateTransitionFnHelper(f, PENDING());
+    assert stateAfter == CANCELED() && f.selector == cancel(address[],uint256[],bytes[],bytes32).selector;
+}
+
+rule stateTransitionFn_ACTIVE(method f) filtered { f -> !assumedSafe(f) } {
+    uint8 stateAfter = stateTransitionFnHelper(f, ACTIVE());
+    assert false;
+}
+
+rule stateTransitionFn_CANCELED(method f) filtered { f -> !assumedSafe(f) } {
+    uint8 stateAfter = stateTransitionFnHelper(f, CANCELED());
+    assert false;
+}
+
+rule stateTransitionFn_DEFEATED(method f) filtered { f -> !assumedSafe(f) } {
+    uint8 stateAfter = stateTransitionFnHelper(f, DEFEATED());
+    assert false;
+}
+
+rule stateTransitionFn_SUCCEEDED(method f) filtered { f -> !assumedSafe(f) } {
+    uint8 stateAfter = stateTransitionFnHelper(f, SUCCEEDED());
+    assert (
+        (stateAfter == QUEUED()   && f.selector == queue(address[],uint256[],bytes[],bytes32).selector) ||
+        (stateAfter == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector)
     );
+}
+
+rule stateTransitionFn_QUEUED(method f) filtered { f -> !assumedSafe(f) } {
+    uint8 stateAfter = stateTransitionFnHelper(f, QUEUED());
+    assert state(e, pId) == EXECUTED() && f.selector == execute(address[],uint256[],bytes[],bytes32).selector;
+}
+
+rule stateTransitionFn_EXECUTED(method f) filtered { f -> !assumedSafe(f) } {
+    uint8 stateAfter = stateTransitionFnHelper(f, EXECUTED());
+    assert false;
 }
 
 /*
