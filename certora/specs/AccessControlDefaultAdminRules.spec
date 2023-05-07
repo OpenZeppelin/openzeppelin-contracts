@@ -118,14 +118,18 @@ rule renounceRoleEffect(env e, bytes32 role) {
     address account;
     address otherAccount;
 
-    bool hasOtherRoleBefore = hasRole(otherRole, otherAccount);
-    uint48 scheduleBefore = pendingDefaultAdminSchedule_();
+    bool    hasOtherRoleBefore = hasRole(otherRole, otherAccount);
+    address adminBefore        = defaultAdmin();
     address pendingAdminBefore = pendingDefaultAdmin_();
+    uint48  scheduleBefore     = pendingDefaultAdminSchedule_();
 
     renounceRole@withrevert(e, role, account);
     bool success = !lastReverted;
 
-    bool hasOtherRoleAfter = hasRole(otherRole, otherAccount);
+    bool    hasOtherRoleAfter = hasRole(otherRole, otherAccount);
+    address adminAfter        = defaultAdmin();
+    address pendingAdminAfter = pendingDefaultAdmin_();
+    uint48  scheduleAfter     = pendingDefaultAdminSchedule_();
 
     // liveness
     assert success <=> (
@@ -146,8 +150,27 @@ rule renounceRoleEffect(env e, bytes32 role) {
     assert success => !hasRole(role, account),
       "role is renounced";
 
+    assert success => (
+      (
+        role    == DEFAULT_ADMIN_ROLE() &&
+        account == adminBefore
+      ) ? (
+        adminAfter        == 0 &&
+        pendingAdminAfter == 0 &&
+        scheduleAfter     == scheduleBefore // For some reason this is not reseted. needs fix ?
+      ) : (
+        adminAfter        == adminBefore        &&
+        pendingAdminAfter == pendingAdminBefore &&
+        scheduleAfter     == scheduleBefore
+      )
+    ),
+      "renouncing default admin role cleans state iff called by previous admin";
+
     // no side effect
-    assert hasOtherRoleBefore != hasOtherRoleAfter => (role == otherRole && account == otherAccount),
+    assert hasOtherRoleBefore != hasOtherRoleAfter => (
+      role == otherRole &&
+      account == otherAccount
+    ),
       "no other role is affected";
 }
 
@@ -267,17 +290,23 @@ rule beginDefaultAdminTransfer(env e, address newAdmin) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pendingDefaultAdminDelayEnforced(env e1, env e2, method f, calldataarg args, address newAdmin) {
-  require e1.block.timestamp < e2.block.timestamp;
+  require e1.block.timestamp <= e2.block.timestamp;
 
   uint48 delayBefore = defaultAdminDelay(e1);
   address adminBefore = defaultAdmin();
+
   // There might be a better way to generalize this without requiring `beginDefaultAdminTransfer`, but currently
   // it's the only way in which we can attest that only `delayBefore` has passed before a change.
   beginDefaultAdminTransfer(e1, newAdmin);
   f(e2, args);
+
   address adminAfter = defaultAdmin();
 
-  assert adminAfter == newAdmin => ((e2.block.timestamp >= e1.block.timestamp + delayBefore) || adminBefore == newAdmin),
+  // change can only happen toward the newAdmin, with the delay
+  assert adminAfter != adminBefore => (
+    adminAfter == newAdmin &&
+    e2.block.timestamp >= e1.block.timestamp + delayBefore
+  ),
     "A delay can't change in less than applied schedule";
 }
 
@@ -375,16 +404,21 @@ rule changeDefaultAdminDelay(env e, uint48 newDelay) {
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule pendingDelayWaitEnforced(env e1, env e2, method f, calldataarg args, uint48 newDelay) {
-  require e1.block.timestamp < e2.block.timestamp;
+  require e1.block.timestamp <= e2.block.timestamp;
 
   uint48 delayBefore = defaultAdminDelay(e1);
+
   changeDefaultAdminDelay(e1, newDelay);
   f(e2, args);
+
   uint48 delayAfter = defaultAdminDelay(e2);
 
   mathint delayWait = newDelay > delayBefore ? increasingDelaySchedule(e1, newDelay) : decreasingDelaySchedule(e1, newDelay);
 
-  assert delayAfter == newDelay => (e2.block.timestamp >= delayWait || delayBefore == newDelay),
+  assert delayAfter != delayBefore => (
+    delayAfter == newDelay &&
+    e2.block.timestamp >= delayWait
+  ),
     "A delay can't change in less than applied schedule";
 }
 
