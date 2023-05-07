@@ -157,7 +157,7 @@ rule renounceRoleEffect(env e, bytes32 role) {
       ) ? (
         adminAfter        == 0 &&
         pendingAdminAfter == 0 &&
-        scheduleAfter     == scheduleBefore // For some reason this is not reseted. needs fix ?
+        scheduleAfter     == scheduleBefore // For some reason this is not reset. needs fix ?
       ) : (
         adminAfter        == adminBefore        &&
         pendingAdminAfter == pendingAdminBefore &&
