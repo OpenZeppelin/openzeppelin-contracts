@@ -76,6 +76,9 @@ module.exports = {
     },
   },
   warnings: {
+    'contracts-exposed/**/*': {
+      'code-size': 'off',
+    },
     '*': {
       'code-size': withOptimizations,
       'unused-param': !argv.coverage, // coverage causes unused-param warnings
