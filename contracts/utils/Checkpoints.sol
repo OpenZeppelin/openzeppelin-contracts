@@ -234,7 +234,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key.
+     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
      */
     function upperLookup(Trace224 storage self, uint32 key) internal view returns (uint224) {
         uint256 len = self._checkpoints.length;
@@ -243,7 +243,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key.
+     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
      *
      * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
      */
@@ -410,7 +410,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key.
+     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
      */
     function upperLookup(Trace160 storage self, uint96 key) internal view returns (uint160) {
         uint256 len = self._checkpoints.length;
@@ -419,7 +419,7 @@ library Checkpoints {
     }
 
     /**
-     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key.
+     * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
      *
      * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
      */
