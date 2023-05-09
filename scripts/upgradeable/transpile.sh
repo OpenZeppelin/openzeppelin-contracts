@@ -20,7 +20,7 @@ fi
 # -D: delete original and excluded files
 # -b: use this build info file
 # -i: use included Initializable
-# -x: exclude all proxy contracts except Clones library
+# -x: exclude proxy-related contracts with a few exceptions
 # -p: emit public initializer
 npx @openzeppelin/upgrade-safe-transpiler@latest -D \
   -b "$build_info" \
