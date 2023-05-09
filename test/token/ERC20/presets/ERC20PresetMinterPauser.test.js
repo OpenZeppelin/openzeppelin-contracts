@@ -6,7 +6,7 @@ const { expect } = require('chai');
 const ERC20PresetMinterPauser = artifacts.require('ERC20PresetMinterPauser');
 
 contract('ERC20PresetMinterPauser', function (accounts) {
-  const [ deployer, other ] = accounts;
+  const [deployer, other] = accounts;
 
   const name = 'MinterPauserToken';
   const symbol = 'DRT';
@@ -84,10 +84,7 @@ contract('ERC20PresetMinterPauser', function (accounts) {
     });
 
     it('other accounts cannot pause', async function () {
-      await expectRevert(
-        this.token.pause({ from: other }),
-        'ERC20PresetMinterPauser: must have pauser role to pause',
-      );
+      await expectRevert(this.token.pause({ from: other }), 'ERC20PresetMinterPauser: must have pauser role to pause');
     });
 
     it('other accounts cannot unpause', async function () {

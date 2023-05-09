@@ -19,8 +19,6 @@ Functionality that is common to multiple token standards.
 == Contracts
 
 :RoyaltyInfo: pass:normal[xref:#ERC2981-RoyaltyInfo[`++RoyaltyInfo++`]]
-:_defaultRoyaltyInfo: pass:normal[xref:#ERC2981-_defaultRoyaltyInfo-struct-ERC2981-RoyaltyInfo[`++_defaultRoyaltyInfo++`]]
-:_tokenRoyaltyInfo: pass:normal[xref:#ERC2981-_tokenRoyaltyInfo-mapping-uint256----struct-ERC2981-RoyaltyInfo-[`++_tokenRoyaltyInfo++`]]
 :supportsInterface: pass:normal[xref:#ERC2981-supportsInterface-bytes4-[`++supportsInterface++`]]
 :royaltyInfo: pass:normal[xref:#ERC2981-royaltyInfo-uint256-uint256-[`++royaltyInfo++`]]
 :_feeDenominator: pass:normal[xref:#ERC2981-_feeDenominator--[`++_feeDenominator++`]]
@@ -31,7 +29,7 @@ Functionality that is common to multiple token standards.
 
 [.contract]
 [[ERC2981]]
-=== `++ERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/common/ERC2981.sol[{github-icon},role=heading-link]
+=== `++ERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/common/ERC2981.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -56,7 +54,7 @@ _Available since v4.5._
 .Functions
 --
 * {xref-ERC2981-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
-* {xref-ERC2981-royaltyInfo-uint256-uint256-}[`++royaltyInfo(_tokenId, _salePrice)++`]
+* {xref-ERC2981-royaltyInfo-uint256-uint256-}[`++royaltyInfo(tokenId, salePrice)++`]
 * {xref-ERC2981-_feeDenominator--}[`++_feeDenominator()++`]
 * {xref-ERC2981-_setDefaultRoyalty-address-uint96-}[`++_setDefaultRoyalty(receiver, feeNumerator)++`]
 * {xref-ERC2981-_deleteDefaultRoyalty--}[`++_deleteDefaultRoyalty()++`]
@@ -82,7 +80,7 @@ See {IERC165-supportsInterface}.
 
 [.contract-item]
 [[ERC2981-royaltyInfo-uint256-uint256-]]
-==== `[.contract-item-name]#++royaltyInfo++#++(uint256 _tokenId, uint256 _salePrice) → address, uint256++` [.item-kind]#public#
+==== `[.contract-item-name]#++royaltyInfo++#++(uint256 tokenId, uint256 salePrice) → address, uint256++` [.item-kind]#public#
 
 Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
 exchange. The royalty amount is denominated and should be paid in that same unit of exchange.

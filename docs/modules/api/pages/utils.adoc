@@ -124,11 +124,13 @@
 :xref-ECDSA-toEthSignedMessageHash-bytes32-: xref:utils.adoc#ECDSA-toEthSignedMessageHash-bytes32-
 :xref-ECDSA-toEthSignedMessageHash-bytes-: xref:utils.adoc#ECDSA-toEthSignedMessageHash-bytes-
 :xref-ECDSA-toTypedDataHash-bytes32-bytes32-: xref:utils.adoc#ECDSA-toTypedDataHash-bytes32-bytes32-
+:xref-ECDSA-toDataWithIntendedValidatorHash-address-bytes-: xref:utils.adoc#ECDSA-toDataWithIntendedValidatorHash-address-bytes-
 :ECDSA-tryRecover: pass:normal[xref:utils.adoc#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`ECDSA.tryRecover`]]
 :ECDSA-recover: pass:normal[xref:utils.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
 :ECDSA-tryRecover: pass:normal[xref:utils.adoc#ECDSA-tryRecover-bytes32-uint8-bytes32-bytes32-[`ECDSA.tryRecover`]]
 :ECDSA-recover: pass:normal[xref:utils.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
 :xref-SignatureChecker-isValidSignatureNow-address-bytes32-bytes-: xref:utils.adoc#SignatureChecker-isValidSignatureNow-address-bytes32-bytes-
+:xref-SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-: xref:utils.adoc#SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-
 :xref-MerkleProof-verify-bytes32---bytes32-bytes32-: xref:utils.adoc#MerkleProof-verify-bytes32---bytes32-bytes32-
 :xref-MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-: xref:utils.adoc#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-
 :xref-MerkleProof-processProof-bytes32---bytes32-: xref:utils.adoc#MerkleProof-processProof-bytes32---bytes32-
@@ -140,6 +142,8 @@
 :xref-EIP712-constructor-string-string-: xref:utils.adoc#EIP712-constructor-string-string-
 :xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
 :xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
 :ECDSA-recover: pass:normal[xref:utils.adoc#ECDSA-recover-bytes32-uint8-bytes32-bytes32-[`ECDSA.recover`]]
 :Escrow: pass:normal[xref:utils.adoc#Escrow[`Escrow`]]
 :xref-ConditionalEscrow-withdrawalAllowed-address-: xref:utils.adoc#ConditionalEscrow-withdrawalAllowed-address-
@@ -250,6 +254,7 @@
 :xref-EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-: xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-
 :xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-
 :xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-
+:xref-EnumerableMap-keys-struct-EnumerableMap-Bytes32ToBytes32Map-: xref:utils.adoc#EnumerableMap-keys-struct-EnumerableMap-Bytes32ToBytes32Map-
 :xref-EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-
 :xref-EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-
 :xref-EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-
@@ -258,6 +263,7 @@
 :xref-EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-
 :xref-EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-
 :xref-EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-
+:xref-EnumerableMap-keys-struct-EnumerableMap-UintToUintMap-: xref:utils.adoc#EnumerableMap-keys-struct-EnumerableMap-UintToUintMap-
 :xref-EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-
 :xref-EnumerableMap-remove-struct-EnumerableMap-UintToAddressMap-uint256-: xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-UintToAddressMap-uint256-
 :xref-EnumerableMap-contains-struct-EnumerableMap-UintToAddressMap-uint256-: xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-UintToAddressMap-uint256-
@@ -266,6 +272,7 @@
 :xref-EnumerableMap-tryGet-struct-EnumerableMap-UintToAddressMap-uint256-: xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-UintToAddressMap-uint256-
 :xref-EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-
 :xref-EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-string-
+:xref-EnumerableMap-keys-struct-EnumerableMap-UintToAddressMap-: xref:utils.adoc#EnumerableMap-keys-struct-EnumerableMap-UintToAddressMap-
 :xref-EnumerableMap-set-struct-EnumerableMap-AddressToUintMap-address-uint256-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-AddressToUintMap-address-uint256-
 :xref-EnumerableMap-remove-struct-EnumerableMap-AddressToUintMap-address-: xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-AddressToUintMap-address-
 :xref-EnumerableMap-contains-struct-EnumerableMap-AddressToUintMap-address-: xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-AddressToUintMap-address-
@@ -274,6 +281,7 @@
 :xref-EnumerableMap-tryGet-struct-EnumerableMap-AddressToUintMap-address-: xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-AddressToUintMap-address-
 :xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-
 :xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-
+:xref-EnumerableMap-keys-struct-EnumerableMap-AddressToUintMap-: xref:utils.adoc#EnumerableMap-keys-struct-EnumerableMap-AddressToUintMap-
 :xref-EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-: xref:utils.adoc#EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-
 :xref-EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
 :xref-EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
@@ -282,6 +290,7 @@
 :xref-EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
 :xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-
 :xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-: xref:utils.adoc#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-
+:xref-EnumerableMap-keys-struct-EnumerableMap-Bytes32ToUintMap-: xref:utils.adoc#EnumerableMap-keys-struct-EnumerableMap-Bytes32ToUintMap-
 :xref-EnumerableSet-add-struct-EnumerableSet-Bytes32Set-bytes32-: xref:utils.adoc#EnumerableSet-add-struct-EnumerableSet-Bytes32Set-bytes32-
 :xref-EnumerableSet-remove-struct-EnumerableSet-Bytes32Set-bytes32-: xref:utils.adoc#EnumerableSet-remove-struct-EnumerableSet-Bytes32Set-bytes32-
 :xref-EnumerableSet-contains-struct-EnumerableSet-Bytes32Set-bytes32-: xref:utils.adoc#EnumerableSet-contains-struct-EnumerableSet-Bytes32Set-bytes32-
@@ -321,12 +330,14 @@
 :xref-Checkpoints-push-struct-Checkpoints-Trace224-uint32-uint224-: xref:utils.adoc#Checkpoints-push-struct-Checkpoints-Trace224-uint32-uint224-
 :xref-Checkpoints-lowerLookup-struct-Checkpoints-Trace224-uint32-: xref:utils.adoc#Checkpoints-lowerLookup-struct-Checkpoints-Trace224-uint32-
 :xref-Checkpoints-upperLookup-struct-Checkpoints-Trace224-uint32-: xref:utils.adoc#Checkpoints-upperLookup-struct-Checkpoints-Trace224-uint32-
+:xref-Checkpoints-upperLookupRecent-struct-Checkpoints-Trace224-uint32-: xref:utils.adoc#Checkpoints-upperLookupRecent-struct-Checkpoints-Trace224-uint32-
 :xref-Checkpoints-latest-struct-Checkpoints-Trace224-: xref:utils.adoc#Checkpoints-latest-struct-Checkpoints-Trace224-
 :xref-Checkpoints-latestCheckpoint-struct-Checkpoints-Trace224-: xref:utils.adoc#Checkpoints-latestCheckpoint-struct-Checkpoints-Trace224-
 :xref-Checkpoints-length-struct-Checkpoints-Trace224-: xref:utils.adoc#Checkpoints-length-struct-Checkpoints-Trace224-
 :xref-Checkpoints-push-struct-Checkpoints-Trace160-uint96-uint160-: xref:utils.adoc#Checkpoints-push-struct-Checkpoints-Trace160-uint96-uint160-
 :xref-Checkpoints-lowerLookup-struct-Checkpoints-Trace160-uint96-: xref:utils.adoc#Checkpoints-lowerLookup-struct-Checkpoints-Trace160-uint96-
 :xref-Checkpoints-upperLookup-struct-Checkpoints-Trace160-uint96-: xref:utils.adoc#Checkpoints-upperLookup-struct-Checkpoints-Trace160-uint96-
+:xref-Checkpoints-upperLookupRecent-struct-Checkpoints-Trace160-uint96-: xref:utils.adoc#Checkpoints-upperLookupRecent-struct-Checkpoints-Trace160-uint96-
 :xref-Checkpoints-latest-struct-Checkpoints-Trace160-: xref:utils.adoc#Checkpoints-latest-struct-Checkpoints-Trace160-
 :xref-Checkpoints-latestCheckpoint-struct-Checkpoints-Trace160-: xref:utils.adoc#Checkpoints-latestCheckpoint-struct-Checkpoints-Trace160-
 :xref-Checkpoints-length-struct-Checkpoints-Trace160-: xref:utils.adoc#Checkpoints-length-struct-Checkpoints-Trace160-
@@ -363,13 +374,25 @@
 :xref-Counters-decrement-struct-Counters-Counter-: xref:utils.adoc#Counters-decrement-struct-Counters-Counter-
 :xref-Counters-reset-struct-Counters-Counter-: xref:utils.adoc#Counters-reset-struct-Counters-Counter-
 :xref-Strings-toString-uint256-: xref:utils.adoc#Strings-toString-uint256-
+:xref-Strings-toString-int256-: xref:utils.adoc#Strings-toString-int256-
 :xref-Strings-toHexString-uint256-: xref:utils.adoc#Strings-toHexString-uint256-
 :xref-Strings-toHexString-uint256-uint256-: xref:utils.adoc#Strings-toHexString-uint256-uint256-
 :xref-Strings-toHexString-address-: xref:utils.adoc#Strings-toHexString-address-
+:xref-Strings-equal-string-string-: xref:utils.adoc#Strings-equal-string-string-
+:xref-ShortStrings-toShortString-string-: xref:utils.adoc#ShortStrings-toShortString-string-
+:xref-ShortStrings-toString-ShortString-: xref:utils.adoc#ShortStrings-toString-ShortString-
+:xref-ShortStrings-byteLength-ShortString-: xref:utils.adoc#ShortStrings-byteLength-ShortString-
+:xref-ShortStrings-toShortStringWithFallback-string-string-: xref:utils.adoc#ShortStrings-toShortStringWithFallback-string-string-
+:xref-ShortStrings-toStringWithFallback-ShortString-string-: xref:utils.adoc#ShortStrings-toStringWithFallback-ShortString-string-
+:xref-ShortStrings-byteLengthWithFallback-ShortString-string-: xref:utils.adoc#ShortStrings-byteLengthWithFallback-ShortString-string-
 :xref-StorageSlot-getAddressSlot-bytes32-: xref:utils.adoc#StorageSlot-getAddressSlot-bytes32-
 :xref-StorageSlot-getBooleanSlot-bytes32-: xref:utils.adoc#StorageSlot-getBooleanSlot-bytes32-
 :xref-StorageSlot-getBytes32Slot-bytes32-: xref:utils.adoc#StorageSlot-getBytes32Slot-bytes32-
 :xref-StorageSlot-getUint256Slot-bytes32-: xref:utils.adoc#StorageSlot-getUint256Slot-bytes32-
+:xref-StorageSlot-getStringSlot-bytes32-: xref:utils.adoc#StorageSlot-getStringSlot-bytes32-
+:xref-StorageSlot-getStringSlot-string-: xref:utils.adoc#StorageSlot-getStringSlot-string-
+:xref-StorageSlot-getBytesSlot-bytes32-: xref:utils.adoc#StorageSlot-getBytesSlot-bytes32-
+:xref-StorageSlot-getBytesSlot-bytes-: xref:utils.adoc#StorageSlot-getBytesSlot-bytes-
 :xref-Multicall-multicall-bytes---: xref:utils.adoc#Multicall-multicall-bytes---
 = Utilities
 
@@ -416,7 +439,7 @@ Finally, {Create2} contains all necessary utilities to safely use the https://bl
 
 [.contract]
 [[Math]]
-=== `++Math++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/math/Math.sol[{github-icon},role=heading-link]
+=== `++Math++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/math/Math.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -537,7 +560,7 @@ Adding one to the result gives the number of pairs of hex symbols needed to repr
 [[Math-log256-uint256-enum-Math-Rounding-]]
 ==== `[.contract-item-name]#++log256++#++(uint256 value, enum Math.Rounding rounding) → uint256++` [.item-kind]#internal#
 
-Return the log in base 10, following the selected rounding direction, of a positive value.
+Return the log in base 256, following the selected rounding direction, of a positive value.
 Returns 0 if given 0.
 
 :max: pass:normal[xref:#SignedMath-max-int256-int256-[`++max++`]]
@@ -547,7 +570,7 @@ Returns 0 if given 0.
 
 [.contract]
 [[SignedMath]]
-=== `++SignedMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/math/SignedMath.sol[{github-icon},role=heading-link]
+=== `++SignedMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/math/SignedMath.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -658,7 +681,7 @@ Returns the absolute unsigned value of a signed value.
 
 [.contract]
 [[SafeCast]]
-=== `++SafeCast++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/math/SafeCast.sol[{github-icon},role=heading-link]
+=== `++SafeCast++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/math/SafeCast.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1750,7 +1773,7 @@ _Available since v3.0._
 
 [.contract]
 [[SafeMath]]
-=== `++SafeMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/math/SafeMath.sol[{github-icon},role=heading-link]
+=== `++SafeMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/math/SafeMath.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1944,7 +1967,7 @@ Requirements:
 
 [.contract]
 [[SignedSafeMath]]
-=== `++SignedSafeMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/math/SignedSafeMath.sol[{github-icon},role=heading-link]
+=== `++SignedSafeMath++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/math/SignedSafeMath.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2021,7 +2044,6 @@ Requirements:
 == Cryptography
 
 :RecoverError: pass:normal[xref:#ECDSA-RecoverError[`++RecoverError++`]]
-:_throwError: pass:normal[xref:#ECDSA-_throwError-enum-ECDSA-RecoverError-[`++_throwError++`]]
 :tryRecover: pass:normal[xref:#ECDSA-tryRecover-bytes32-bytes-[`++tryRecover++`]]
 :recover: pass:normal[xref:#ECDSA-recover-bytes32-bytes-[`++recover++`]]
 :tryRecover: pass:normal[xref:#ECDSA-tryRecover-bytes32-bytes32-bytes32-[`++tryRecover++`]]
@@ -2031,10 +2053,11 @@ Requirements:
 :toEthSignedMessageHash: pass:normal[xref:#ECDSA-toEthSignedMessageHash-bytes32-[`++toEthSignedMessageHash++`]]
 :toEthSignedMessageHash: pass:normal[xref:#ECDSA-toEthSignedMessageHash-bytes-[`++toEthSignedMessageHash++`]]
 :toTypedDataHash: pass:normal[xref:#ECDSA-toTypedDataHash-bytes32-bytes32-[`++toTypedDataHash++`]]
+:toDataWithIntendedValidatorHash: pass:normal[xref:#ECDSA-toDataWithIntendedValidatorHash-address-bytes-[`++toDataWithIntendedValidatorHash++`]]
 
 [.contract]
 [[ECDSA]]
-=== `++ECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/cryptography/ECDSA.sol[{github-icon},role=heading-link]
+=== `++ECDSA++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/cryptography/ECDSA.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2058,6 +2081,7 @@ of the private keys of a given address.
 * {xref-ECDSA-toEthSignedMessageHash-bytes32-}[`++toEthSignedMessageHash(hash)++`]
 * {xref-ECDSA-toEthSignedMessageHash-bytes-}[`++toEthSignedMessageHash(s)++`]
 * {xref-ECDSA-toTypedDataHash-bytes32-bytes32-}[`++toTypedDataHash(domainSeparator, structHash)++`]
+* {xref-ECDSA-toDataWithIntendedValidatorHash-address-bytes-}[`++toDataWithIntendedValidatorHash(validator, data)++`]
 
 --
 
@@ -2137,7 +2161,7 @@ Overload of {ECDSA-recover} that receives the `v`,
 
 [.contract-item]
 [[ECDSA-toEthSignedMessageHash-bytes32-]]
-==== `[.contract-item-name]#++toEthSignedMessageHash++#++(bytes32 hash) → bytes32++` [.item-kind]#internal#
+==== `[.contract-item-name]#++toEthSignedMessageHash++#++(bytes32 hash) → bytes32 message++` [.item-kind]#internal#
 
 Returns an Ethereum Signed Message, created from a `hash`. This
 produces hash corresponding to the one signed with the
@@ -2159,7 +2183,7 @@ See {recover}.
 
 [.contract-item]
 [[ECDSA-toTypedDataHash-bytes32-bytes32-]]
-==== `[.contract-item-name]#++toTypedDataHash++#++(bytes32 domainSeparator, bytes32 structHash) → bytes32++` [.item-kind]#internal#
+==== `[.contract-item-name]#++toTypedDataHash++#++(bytes32 domainSeparator, bytes32 structHash) → bytes32 data++` [.item-kind]#internal#
 
 Returns an Ethereum Signed Typed Data, created from a
 `domainSeparator` and a `structHash`. This produces hash corresponding
@@ -2169,11 +2193,21 @@ JSON-RPC method as part of EIP-712.
 
 See {recover}.
 
+[.contract-item]
+[[ECDSA-toDataWithIntendedValidatorHash-address-bytes-]]
+==== `[.contract-item-name]#++toDataWithIntendedValidatorHash++#++(address validator, bytes data) → bytes32++` [.item-kind]#internal#
+
+Returns an Ethereum Signed Data with intended validator, created from a
+`validator` and `data` according to the version 0 of EIP-191.
+
+See {recover}.
+
 :isValidSignatureNow: pass:normal[xref:#SignatureChecker-isValidSignatureNow-address-bytes32-bytes-[`++isValidSignatureNow++`]]
+:isValidERC1271SignatureNow: pass:normal[xref:#SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-[`++isValidERC1271SignatureNow++`]]
 
 [.contract]
 [[SignatureChecker]]
-=== `++SignatureChecker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/cryptography/SignatureChecker.sol[{github-icon},role=heading-link]
+=== `++SignatureChecker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/cryptography/SignatureChecker.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2190,6 +2224,7 @@ _Available since v4.1._
 .Functions
 --
 * {xref-SignatureChecker-isValidSignatureNow-address-bytes32-bytes-}[`++isValidSignatureNow(signer, hash, signature)++`]
+* {xref-SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-}[`++isValidERC1271SignatureNow(signer, hash, signature)++`]
 
 --
 
@@ -2203,6 +2238,16 @@ signature is validated against that smart contract using ERC1271, otherwise it's
 NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
 change through time. It could return true at block N and false at block N+1 (or the opposite).
 
+[.contract-item]
+[[SignatureChecker-isValidERC1271SignatureNow-address-bytes32-bytes-]]
+==== `[.contract-item-name]#++isValidERC1271SignatureNow++#++(address signer, bytes32 hash, bytes signature) → bool++` [.item-kind]#internal#
+
+Checks if a signature is valid for a given signer and data hash. The signature is validated
+against the signer smart contract using ERC1271.
+
+NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
+change through time. It could return true at block N and false at block N+1 (or the opposite).
+
 :verify: pass:normal[xref:#MerkleProof-verify-bytes32---bytes32-bytes32-[`++verify++`]]
 :verifyCalldata: pass:normal[xref:#MerkleProof-verifyCalldata-bytes32---bytes32-bytes32-[`++verifyCalldata++`]]
 :processProof: pass:normal[xref:#MerkleProof-processProof-bytes32---bytes32-[`++processProof++`]]
@@ -2211,12 +2256,10 @@ change through time. It could return true at block N and false at block N+1 (or 
 :multiProofVerifyCalldata: pass:normal[xref:#MerkleProof-multiProofVerifyCalldata-bytes32---bool---bytes32-bytes32---[`++multiProofVerifyCalldata++`]]
 :processMultiProof: pass:normal[xref:#MerkleProof-processMultiProof-bytes32---bool---bytes32---[`++processMultiProof++`]]
 :processMultiProofCalldata: pass:normal[xref:#MerkleProof-processMultiProofCalldata-bytes32---bool---bytes32---[`++processMultiProofCalldata++`]]
-:_hashPair: pass:normal[xref:#MerkleProof-_hashPair-bytes32-bytes32-[`++_hashPair++`]]
-:_efficientHash: pass:normal[xref:#MerkleProof-_efficientHash-bytes32-bytes32-[`++_efficientHash++`]]
 
 [.contract]
 [[MerkleProof]]
-=== `++MerkleProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/cryptography/MerkleProof.sol[{github-icon},role=heading-link]
+=== `++MerkleProof++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/cryptography/MerkleProof.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2332,20 +2375,14 @@ CAUTION: Not all merkle trees admit multiproofs. See {processMultiProof} for det
 
 _Available since v4.7._
 
-:_CACHED_DOMAIN_SEPARATOR: pass:normal[xref:#EIP712-_CACHED_DOMAIN_SEPARATOR-bytes32[`++_CACHED_DOMAIN_SEPARATOR++`]]
-:_CACHED_CHAIN_ID: pass:normal[xref:#EIP712-_CACHED_CHAIN_ID-uint256[`++_CACHED_CHAIN_ID++`]]
-:_CACHED_THIS: pass:normal[xref:#EIP712-_CACHED_THIS-address[`++_CACHED_THIS++`]]
-:_HASHED_NAME: pass:normal[xref:#EIP712-_HASHED_NAME-bytes32[`++_HASHED_NAME++`]]
-:_HASHED_VERSION: pass:normal[xref:#EIP712-_HASHED_VERSION-bytes32[`++_HASHED_VERSION++`]]
-:_TYPE_HASH: pass:normal[xref:#EIP712-_TYPE_HASH-bytes32[`++_TYPE_HASH++`]]
 :constructor: pass:normal[xref:#EIP712-constructor-string-string-[`++constructor++`]]
 :_domainSeparatorV4: pass:normal[xref:#EIP712-_domainSeparatorV4--[`++_domainSeparatorV4++`]]
-:_buildDomainSeparator: pass:normal[xref:#EIP712-_buildDomainSeparator-bytes32-bytes32-bytes32-[`++_buildDomainSeparator++`]]
 :_hashTypedDataV4: pass:normal[xref:#EIP712-_hashTypedDataV4-bytes32-[`++_hashTypedDataV4++`]]
+:eip712Domain: pass:normal[xref:#EIP712-eip712Domain--[`++eip712Domain++`]]
 
 [.contract]
 [[EIP712]]
-=== `++EIP712++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/cryptography/EIP712.sol[{github-icon},role=heading-link]
+=== `++EIP712++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/cryptography/EIP712.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2368,6 +2405,10 @@ the chain id to protect against replay attacks on an eventual fork of the chain.
 NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
 https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
 
+NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
+separator of the implementation contract. This will cause the `_domainSeparatorV4` function to always rebuild the
+separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
+
 _Available since v3.4._
 
 [.contract-index]
@@ -2376,6 +2417,20 @@ _Available since v3.4._
 * {xref-EIP712-constructor-string-string-}[`++constructor(name, version)++`]
 * {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
 * {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
 
 --
 
@@ -2418,6 +2473,14 @@ bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(
 address signer = ECDSA.recover(digest, signature);
 ```
 
+[.contract-item]
+[[EIP712-eip712Domain--]]
+==== `[.contract-item-name]#++eip712Domain++#++() → bytes1 fields, string name, string version, uint256 chainId, address verifyingContract, bytes32 salt, uint256[] extensions++` [.item-kind]#public#
+
+See {EIP-5267}.
+
+_Available since v4.9._
+
 == Escrow
 
 :withdrawalAllowed: pass:normal[xref:#ConditionalEscrow-withdrawalAllowed-address-[`++withdrawalAllowed++`]]
@@ -2425,7 +2488,7 @@ address signer = ECDSA.recover(digest, signature);
 
 [.contract]
 [[ConditionalEscrow]]
-=== `++ConditionalEscrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/escrow/ConditionalEscrow.sol[{github-icon},role=heading-link]
+=== `++ConditionalEscrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/escrow/ConditionalEscrow.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2491,14 +2554,13 @@ checks-effects-interactions pattern or using {ReentrancyGuard}.
 
 :Deposited: pass:normal[xref:#Escrow-Deposited-address-uint256-[`++Deposited++`]]
 :Withdrawn: pass:normal[xref:#Escrow-Withdrawn-address-uint256-[`++Withdrawn++`]]
-:_deposits: pass:normal[xref:#Escrow-_deposits-mapping-address----uint256-[`++_deposits++`]]
 :depositsOf: pass:normal[xref:#Escrow-depositsOf-address-[`++depositsOf++`]]
 :deposit: pass:normal[xref:#Escrow-deposit-address-[`++deposit++`]]
 :withdraw: pass:normal[xref:#Escrow-withdraw-address-payable-[`++withdraw++`]]
 
 [.contract]
 [[Escrow]]
-=== `++Escrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/escrow/Escrow.sol[{github-icon},role=heading-link]
+=== `++Escrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/escrow/Escrow.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2577,8 +2639,6 @@ checks-effects-interactions pattern or using {ReentrancyGuard}.
 :State: pass:normal[xref:#RefundEscrow-State[`++State++`]]
 :RefundsClosed: pass:normal[xref:#RefundEscrow-RefundsClosed--[`++RefundsClosed++`]]
 :RefundsEnabled: pass:normal[xref:#RefundEscrow-RefundsEnabled--[`++RefundsEnabled++`]]
-:_state: pass:normal[xref:#RefundEscrow-_state-enum-RefundEscrow-State[`++_state++`]]
-:_beneficiary: pass:normal[xref:#RefundEscrow-_beneficiary-address-payable[`++_beneficiary++`]]
 :constructor: pass:normal[xref:#RefundEscrow-constructor-address-payable-[`++constructor++`]]
 :state: pass:normal[xref:#RefundEscrow-state--[`++state++`]]
 :beneficiary: pass:normal[xref:#RefundEscrow-beneficiary--[`++beneficiary++`]]
@@ -2590,7 +2650,7 @@ checks-effects-interactions pattern or using {ReentrancyGuard}.
 
 [.contract]
 [[RefundEscrow]]
-=== `++RefundEscrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/escrow/RefundEscrow.sol[{github-icon},role=heading-link]
+=== `++RefundEscrow++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/escrow/RefundEscrow.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2726,7 +2786,7 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 [.contract]
 [[IERC165]]
-=== `++IERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/introspection/IERC165.sol[{github-icon},role=heading-link]
+=== `++IERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/introspection/IERC165.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2763,7 +2823,7 @@ This function call must use less than 30 000 gas.
 
 [.contract]
 [[ERC165]]
-=== `++ERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/introspection/ERC165.sol[{github-icon},role=heading-link]
+=== `++ERC165++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/introspection/ERC165.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2799,13 +2859,12 @@ Alternatively, {ERC165Storage} provides an easier to use but more expensive impl
 
 See {IERC165-supportsInterface}.
 
-:_supportedInterfaces: pass:normal[xref:#ERC165Storage-_supportedInterfaces-mapping-bytes4----bool-[`++_supportedInterfaces++`]]
 :supportsInterface: pass:normal[xref:#ERC165Storage-supportsInterface-bytes4-[`++supportsInterface++`]]
 :_registerInterface: pass:normal[xref:#ERC165Storage-_registerInterface-bytes4-[`++_registerInterface++`]]
 
 [.contract]
 [[ERC165Storage]]
-=== `++ERC165Storage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/introspection/ERC165Storage.sol[{github-icon},role=heading-link]
+=== `++ERC165Storage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/introspection/ERC165Storage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2851,7 +2910,6 @@ Requirements:
 
 - `interfaceId` cannot be the ERC165 invalid interface (`0xffffffff`).
 
-:_INTERFACE_ID_INVALID: pass:normal[xref:#ERC165Checker-_INTERFACE_ID_INVALID-bytes4[`++_INTERFACE_ID_INVALID++`]]
 :supportsERC165: pass:normal[xref:#ERC165Checker-supportsERC165-address-[`++supportsERC165++`]]
 :supportsInterface: pass:normal[xref:#ERC165Checker-supportsInterface-address-bytes4-[`++supportsInterface++`]]
 :getSupportedInterfaces: pass:normal[xref:#ERC165Checker-getSupportedInterfaces-address-bytes4---[`++getSupportedInterfaces++`]]
@@ -2860,7 +2918,7 @@ Requirements:
 
 [.contract]
 [[ERC165Checker]]
-=== `++ERC165Checker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/introspection/ERC165Checker.sol[{github-icon},role=heading-link]
+=== `++ERC165Checker++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/introspection/ERC165Checker.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2950,7 +3008,7 @@ Interface identification is specified in ERC-165.
 
 [.contract]
 [[IERC1820Registry]]
-=== `++IERC1820Registry++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/introspection/IERC1820Registry.sol[{github-icon},role=heading-link]
+=== `++IERC1820Registry++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/introspection/IERC1820Registry.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3083,7 +3141,7 @@ https://eips.ethereum.org/EIPS/eip-1820#interface-name[section of the EIP].
 
 [.contract]
 [[IERC1820Implementer]]
-=== `++IERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/introspection/IERC1820Implementer.sol[{github-icon},role=heading-link]
+=== `++IERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/introspection/IERC1820Implementer.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3111,14 +3169,12 @@ implements `interfaceHash` for `account`.
 
 See {IERC1820Registry-setInterfaceImplementer}.
 
-:_ERC1820_ACCEPT_MAGIC: pass:normal[xref:#ERC1820Implementer-_ERC1820_ACCEPT_MAGIC-bytes32[`++_ERC1820_ACCEPT_MAGIC++`]]
-:_supportedInterfaces: pass:normal[xref:#ERC1820Implementer-_supportedInterfaces-mapping-bytes32----mapping-address----bool--[`++_supportedInterfaces++`]]
 :canImplementInterfaceForAddress: pass:normal[xref:#ERC1820Implementer-canImplementInterfaceForAddress-bytes32-address-[`++canImplementInterfaceForAddress++`]]
 :_registerInterfaceForAddress: pass:normal[xref:#ERC1820Implementer-_registerInterfaceForAddress-bytes32-address-[`++_registerInterfaceForAddress++`]]
 
 [.contract]
 [[ERC1820Implementer]]
-=== `++ERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/introspection/ERC1820Implementer.sol[{github-icon},role=heading-link]
+=== `++ERC1820Implementer++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/introspection/ERC1820Implementer.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3131,6 +3187,8 @@ Contracts may inherit from this and call {_registerInterfaceForAddress} to
 declare their willingness to be implementers.
 {IERC1820Registry-setInterfaceImplementer} should then be called for the
 registration to be complete.
+
+CAUTION: This file is deprecated as of v4.9 and will be removed in the next major release.
 
 [.contract-index]
 .Functions
@@ -3169,7 +3227,7 @@ See {IERC1820Registry-setInterfaceImplementer} and
 
 [.contract]
 [[BitMaps]]
-=== `++BitMaps++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/structs/BitMaps.sol[{github-icon},role=heading-link]
+=== `++BitMaps++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/structs/BitMaps.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3222,6 +3280,7 @@ Unsets the bit at `index`.
 :tryGet: pass:normal[xref:#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-[`++tryGet++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-[`++get++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-[`++get++`]]
+:keys: pass:normal[xref:#EnumerableMap-keys-struct-EnumerableMap-Bytes32ToBytes32Map-[`++keys++`]]
 :UintToUintMap: pass:normal[xref:#EnumerableMap-UintToUintMap[`++UintToUintMap++`]]
 :set: pass:normal[xref:#EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-[`++set++`]]
 :remove: pass:normal[xref:#EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-[`++remove++`]]
@@ -3231,6 +3290,7 @@ Unsets the bit at `index`.
 :tryGet: pass:normal[xref:#EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-[`++tryGet++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-[`++get++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-[`++get++`]]
+:keys: pass:normal[xref:#EnumerableMap-keys-struct-EnumerableMap-UintToUintMap-[`++keys++`]]
 :UintToAddressMap: pass:normal[xref:#EnumerableMap-UintToAddressMap[`++UintToAddressMap++`]]
 :set: pass:normal[xref:#EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-[`++set++`]]
 :remove: pass:normal[xref:#EnumerableMap-remove-struct-EnumerableMap-UintToAddressMap-uint256-[`++remove++`]]
@@ -3240,6 +3300,7 @@ Unsets the bit at `index`.
 :tryGet: pass:normal[xref:#EnumerableMap-tryGet-struct-EnumerableMap-UintToAddressMap-uint256-[`++tryGet++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-[`++get++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-string-[`++get++`]]
+:keys: pass:normal[xref:#EnumerableMap-keys-struct-EnumerableMap-UintToAddressMap-[`++keys++`]]
 :AddressToUintMap: pass:normal[xref:#EnumerableMap-AddressToUintMap[`++AddressToUintMap++`]]
 :set: pass:normal[xref:#EnumerableMap-set-struct-EnumerableMap-AddressToUintMap-address-uint256-[`++set++`]]
 :remove: pass:normal[xref:#EnumerableMap-remove-struct-EnumerableMap-AddressToUintMap-address-[`++remove++`]]
@@ -3249,6 +3310,7 @@ Unsets the bit at `index`.
 :tryGet: pass:normal[xref:#EnumerableMap-tryGet-struct-EnumerableMap-AddressToUintMap-address-[`++tryGet++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-[`++get++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-[`++get++`]]
+:keys: pass:normal[xref:#EnumerableMap-keys-struct-EnumerableMap-AddressToUintMap-[`++keys++`]]
 :Bytes32ToUintMap: pass:normal[xref:#EnumerableMap-Bytes32ToUintMap[`++Bytes32ToUintMap++`]]
 :set: pass:normal[xref:#EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-[`++set++`]]
 :remove: pass:normal[xref:#EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`++remove++`]]
@@ -3258,10 +3320,11 @@ Unsets the bit at `index`.
 :tryGet: pass:normal[xref:#EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`++tryGet++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-[`++get++`]]
 :get: pass:normal[xref:#EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-[`++get++`]]
+:keys: pass:normal[xref:#EnumerableMap-keys-struct-EnumerableMap-Bytes32ToUintMap-[`++keys++`]]
 
 [.contract]
 [[EnumerableMap]]
-=== `++EnumerableMap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/structs/EnumerableMap.sol[{github-icon},role=heading-link]
+=== `++EnumerableMap++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/structs/EnumerableMap.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3278,7 +3341,7 @@ Maps have the following properties:
 (O(1)).
 - Entries are enumerated in O(n). No guarantees are made on the ordering.
 
-```
+```solidity
 contract Example {
     // Add the library methods
     using EnumerableMap for EnumerableMap.UintToAddressMap;
@@ -3317,6 +3380,7 @@ array of EnumerableMap.
 * {xref-EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-}[`++tryGet(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-}[`++get(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToBytes32Map-bytes32-string-}[`++get(map, key, errorMessage)++`]
+* {xref-EnumerableMap-keys-struct-EnumerableMap-Bytes32ToBytes32Map-}[`++keys(map)++`]
 * {xref-EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-}[`++set(map, key, value)++`]
 * {xref-EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-}[`++remove(map, key)++`]
 * {xref-EnumerableMap-contains-struct-EnumerableMap-UintToUintMap-uint256-}[`++contains(map, key)++`]
@@ -3325,6 +3389,7 @@ array of EnumerableMap.
 * {xref-EnumerableMap-tryGet-struct-EnumerableMap-UintToUintMap-uint256-}[`++tryGet(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-}[`++get(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-UintToUintMap-uint256-string-}[`++get(map, key, errorMessage)++`]
+* {xref-EnumerableMap-keys-struct-EnumerableMap-UintToUintMap-}[`++keys(map)++`]
 * {xref-EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-}[`++set(map, key, value)++`]
 * {xref-EnumerableMap-remove-struct-EnumerableMap-UintToAddressMap-uint256-}[`++remove(map, key)++`]
 * {xref-EnumerableMap-contains-struct-EnumerableMap-UintToAddressMap-uint256-}[`++contains(map, key)++`]
@@ -3333,6 +3398,7 @@ array of EnumerableMap.
 * {xref-EnumerableMap-tryGet-struct-EnumerableMap-UintToAddressMap-uint256-}[`++tryGet(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-}[`++get(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-UintToAddressMap-uint256-string-}[`++get(map, key, errorMessage)++`]
+* {xref-EnumerableMap-keys-struct-EnumerableMap-UintToAddressMap-}[`++keys(map)++`]
 * {xref-EnumerableMap-set-struct-EnumerableMap-AddressToUintMap-address-uint256-}[`++set(map, key, value)++`]
 * {xref-EnumerableMap-remove-struct-EnumerableMap-AddressToUintMap-address-}[`++remove(map, key)++`]
 * {xref-EnumerableMap-contains-struct-EnumerableMap-AddressToUintMap-address-}[`++contains(map, key)++`]
@@ -3341,6 +3407,7 @@ array of EnumerableMap.
 * {xref-EnumerableMap-tryGet-struct-EnumerableMap-AddressToUintMap-address-}[`++tryGet(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-}[`++get(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-AddressToUintMap-address-string-}[`++get(map, key, errorMessage)++`]
+* {xref-EnumerableMap-keys-struct-EnumerableMap-AddressToUintMap-}[`++keys(map)++`]
 * {xref-EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-}[`++set(map, key, value)++`]
 * {xref-EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-}[`++remove(map, key)++`]
 * {xref-EnumerableMap-contains-struct-EnumerableMap-Bytes32ToUintMap-bytes32-}[`++contains(map, key)++`]
@@ -3349,6 +3416,7 @@ array of EnumerableMap.
 * {xref-EnumerableMap-tryGet-struct-EnumerableMap-Bytes32ToUintMap-bytes32-}[`++tryGet(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-}[`++get(map, key)++`]
 * {xref-EnumerableMap-get-struct-EnumerableMap-Bytes32ToUintMap-bytes32-string-}[`++get(map, key, errorMessage)++`]
+* {xref-EnumerableMap-keys-struct-EnumerableMap-Bytes32ToUintMap-}[`++keys(map)++`]
 
 --
 
@@ -3422,6 +3490,17 @@ CAUTION: This function is deprecated because it requires allocating memory for t
 message unnecessarily. For custom revert reasons use {tryGet}.
 
 [.contract-item]
+[[EnumerableMap-keys-struct-EnumerableMap-Bytes32ToBytes32Map-]]
+==== `[.contract-item-name]#++keys++#++(struct EnumerableMap.Bytes32ToBytes32Map map) → bytes32[]++` [.item-kind]#internal#
+
+Return the an array containing all the keys
+
+WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+this function has an unbounded cost, and using it as part of a state-changing function may render the function
+uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+
+[.contract-item]
 [[EnumerableMap-set-struct-EnumerableMap-UintToUintMap-uint256-uint256-]]
 ==== `[.contract-item-name]#++set++#++(struct EnumerableMap.UintToUintMap map, uint256 key, uint256 value) → bool++` [.item-kind]#internal#
 
@@ -3435,7 +3514,7 @@ already present.
 [[EnumerableMap-remove-struct-EnumerableMap-UintToUintMap-uint256-]]
 ==== `[.contract-item-name]#++remove++#++(struct EnumerableMap.UintToUintMap map, uint256 key) → bool++` [.item-kind]#internal#
 
-Removes a value from a set. O(1).
+Removes a value from a map. O(1).
 
 Returns true if the key was removed from the map, that is if it was present.
 
@@ -3455,7 +3534,7 @@ Returns the number of elements in the map. O(1).
 [[EnumerableMap-at-struct-EnumerableMap-UintToUintMap-uint256-]]
 ==== `[.contract-item-name]#++at++#++(struct EnumerableMap.UintToUintMap map, uint256 index) → uint256, uint256++` [.item-kind]#internal#
 
-Returns the element stored at position `index` in the set. O(1).
+Returns the element stored at position `index` in the map. O(1).
 Note that there are no guarantees on the ordering of values inside the
 array, and it may change when more values are added or removed.
 
@@ -3490,6 +3569,17 @@ CAUTION: This function is deprecated because it requires allocating memory for t
 message unnecessarily. For custom revert reasons use {tryGet}.
 
 [.contract-item]
+[[EnumerableMap-keys-struct-EnumerableMap-UintToUintMap-]]
+==== `[.contract-item-name]#++keys++#++(struct EnumerableMap.UintToUintMap map) → uint256[]++` [.item-kind]#internal#
+
+Return the an array containing all the keys
+
+WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+this function has an unbounded cost, and using it as part of a state-changing function may render the function
+uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+
+[.contract-item]
 [[EnumerableMap-set-struct-EnumerableMap-UintToAddressMap-uint256-address-]]
 ==== `[.contract-item-name]#++set++#++(struct EnumerableMap.UintToAddressMap map, uint256 key, address value) → bool++` [.item-kind]#internal#
 
@@ -3503,7 +3593,7 @@ already present.
 [[EnumerableMap-remove-struct-EnumerableMap-UintToAddressMap-uint256-]]
 ==== `[.contract-item-name]#++remove++#++(struct EnumerableMap.UintToAddressMap map, uint256 key) → bool++` [.item-kind]#internal#
 
-Removes a value from a set. O(1).
+Removes a value from a map. O(1).
 
 Returns true if the key was removed from the map, that is if it was present.
 
@@ -3523,7 +3613,7 @@ Returns the number of elements in the map. O(1).
 [[EnumerableMap-at-struct-EnumerableMap-UintToAddressMap-uint256-]]
 ==== `[.contract-item-name]#++at++#++(struct EnumerableMap.UintToAddressMap map, uint256 index) → uint256, address++` [.item-kind]#internal#
 
-Returns the element stored at position `index` in the set. O(1).
+Returns the element stored at position `index` in the map. O(1).
 Note that there are no guarantees on the ordering of values inside the
 array, and it may change when more values are added or removed.
 
@@ -3558,6 +3648,17 @@ CAUTION: This function is deprecated because it requires allocating memory for t
 message unnecessarily. For custom revert reasons use {tryGet}.
 
 [.contract-item]
+[[EnumerableMap-keys-struct-EnumerableMap-UintToAddressMap-]]
+==== `[.contract-item-name]#++keys++#++(struct EnumerableMap.UintToAddressMap map) → uint256[]++` [.item-kind]#internal#
+
+Return the an array containing all the keys
+
+WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+this function has an unbounded cost, and using it as part of a state-changing function may render the function
+uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+
+[.contract-item]
 [[EnumerableMap-set-struct-EnumerableMap-AddressToUintMap-address-uint256-]]
 ==== `[.contract-item-name]#++set++#++(struct EnumerableMap.AddressToUintMap map, address key, uint256 value) → bool++` [.item-kind]#internal#
 
@@ -3571,7 +3672,7 @@ already present.
 [[EnumerableMap-remove-struct-EnumerableMap-AddressToUintMap-address-]]
 ==== `[.contract-item-name]#++remove++#++(struct EnumerableMap.AddressToUintMap map, address key) → bool++` [.item-kind]#internal#
 
-Removes a value from a set. O(1).
+Removes a value from a map. O(1).
 
 Returns true if the key was removed from the map, that is if it was present.
 
@@ -3591,7 +3692,7 @@ Returns the number of elements in the map. O(1).
 [[EnumerableMap-at-struct-EnumerableMap-AddressToUintMap-uint256-]]
 ==== `[.contract-item-name]#++at++#++(struct EnumerableMap.AddressToUintMap map, uint256 index) → address, uint256++` [.item-kind]#internal#
 
-Returns the element stored at position `index` in the set. O(1).
+Returns the element stored at position `index` in the map. O(1).
 Note that there are no guarantees on the ordering of values inside the
 array, and it may change when more values are added or removed.
 
@@ -3626,6 +3727,17 @@ CAUTION: This function is deprecated because it requires allocating memory for t
 message unnecessarily. For custom revert reasons use {tryGet}.
 
 [.contract-item]
+[[EnumerableMap-keys-struct-EnumerableMap-AddressToUintMap-]]
+==== `[.contract-item-name]#++keys++#++(struct EnumerableMap.AddressToUintMap map) → address[]++` [.item-kind]#internal#
+
+Return the an array containing all the keys
+
+WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+this function has an unbounded cost, and using it as part of a state-changing function may render the function
+uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+
+[.contract-item]
 [[EnumerableMap-set-struct-EnumerableMap-Bytes32ToUintMap-bytes32-uint256-]]
 ==== `[.contract-item-name]#++set++#++(struct EnumerableMap.Bytes32ToUintMap map, bytes32 key, uint256 value) → bool++` [.item-kind]#internal#
 
@@ -3639,7 +3751,7 @@ already present.
 [[EnumerableMap-remove-struct-EnumerableMap-Bytes32ToUintMap-bytes32-]]
 ==== `[.contract-item-name]#++remove++#++(struct EnumerableMap.Bytes32ToUintMap map, bytes32 key) → bool++` [.item-kind]#internal#
 
-Removes a value from a set. O(1).
+Removes a value from a map. O(1).
 
 Returns true if the key was removed from the map, that is if it was present.
 
@@ -3659,7 +3771,7 @@ Returns the number of elements in the map. O(1).
 [[EnumerableMap-at-struct-EnumerableMap-Bytes32ToUintMap-uint256-]]
 ==== `[.contract-item-name]#++at++#++(struct EnumerableMap.Bytes32ToUintMap map, uint256 index) → bytes32, uint256++` [.item-kind]#internal#
 
-Returns the element stored at position `index` in the set. O(1).
+Returns the element stored at position `index` in the map. O(1).
 Note that there are no guarantees on the ordering of values inside the
 array, and it may change when more values are added or removed.
 
@@ -3693,13 +3805,18 @@ Same as {get}, with a custom error message when `key` is not in the map.
 CAUTION: This function is deprecated because it requires allocating memory for the error
 message unnecessarily. For custom revert reasons use {tryGet}.
 
+[.contract-item]
+[[EnumerableMap-keys-struct-EnumerableMap-Bytes32ToUintMap-]]
+==== `[.contract-item-name]#++keys++#++(struct EnumerableMap.Bytes32ToUintMap map) → bytes32[]++` [.item-kind]#internal#
+
+Return the an array containing all the keys
+
+WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+this function has an unbounded cost, and using it as part of a state-changing function may render the function
+uncallable if the map grows to a point where copying to memory consumes too much gas to fit in a block.
+
 :Set: pass:normal[xref:#EnumerableSet-Set[`++Set++`]]
-:_add: pass:normal[xref:#EnumerableSet-_add-struct-EnumerableSet-Set-bytes32-[`++_add++`]]
-:_remove: pass:normal[xref:#EnumerableSet-_remove-struct-EnumerableSet-Set-bytes32-[`++_remove++`]]
-:_contains: pass:normal[xref:#EnumerableSet-_contains-struct-EnumerableSet-Set-bytes32-[`++_contains++`]]
-:_length: pass:normal[xref:#EnumerableSet-_length-struct-EnumerableSet-Set-[`++_length++`]]
-:_at: pass:normal[xref:#EnumerableSet-_at-struct-EnumerableSet-Set-uint256-[`++_at++`]]
-:_values: pass:normal[xref:#EnumerableSet-_values-struct-EnumerableSet-Set-[`++_values++`]]
 :Bytes32Set: pass:normal[xref:#EnumerableSet-Bytes32Set[`++Bytes32Set++`]]
 :add: pass:normal[xref:#EnumerableSet-add-struct-EnumerableSet-Bytes32Set-bytes32-[`++add++`]]
 :remove: pass:normal[xref:#EnumerableSet-remove-struct-EnumerableSet-Bytes32Set-bytes32-[`++remove++`]]
@@ -3724,7 +3841,7 @@ message unnecessarily. For custom revert reasons use {tryGet}.
 
 [.contract]
 [[EnumerableSet]]
-=== `++EnumerableSet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/structs/EnumerableSet.sol[{github-icon},role=heading-link]
+=== `++EnumerableSet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/structs/EnumerableSet.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3741,7 +3858,7 @@ Sets have the following properties:
 (O(1)).
 - Elements are enumerated in O(n). No guarantees are made on the ordering.
 
-```
+```solidity
 contract Example {
     // Add the library methods
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -3966,7 +4083,7 @@ uncallable if the set grows to a point where copying to memory consumes too much
 
 [.contract]
 [[DoubleEndedQueue]]
-=== `++DoubleEndedQueue++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/structs/DoubleEndedQueue.sol[{github-icon},role=heading-link]
+=== `++DoubleEndedQueue++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/structs/DoubleEndedQueue.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -3980,7 +4097,7 @@ the existing queue contents are left in storage.
 
 The struct is called `Bytes32Deque`. Other types can be cast to and from `bytes32`. This data structure can only be
 used in storage, and not in memory.
-```
+```solidity
 DoubleEndedQueue.Bytes32Deque queue;
 ```
 
@@ -4085,38 +4202,28 @@ Returns true if the queue is empty.
 :latest: pass:normal[xref:#Checkpoints-latest-struct-Checkpoints-History-[`++latest++`]]
 :latestCheckpoint: pass:normal[xref:#Checkpoints-latestCheckpoint-struct-Checkpoints-History-[`++latestCheckpoint++`]]
 :length: pass:normal[xref:#Checkpoints-length-struct-Checkpoints-History-[`++length++`]]
-:_insert: pass:normal[xref:#Checkpoints-_insert-struct-Checkpoints-Checkpoint---uint32-uint224-[`++_insert++`]]
-:_upperBinaryLookup: pass:normal[xref:#Checkpoints-_upperBinaryLookup-struct-Checkpoints-Checkpoint---uint32-uint256-uint256-[`++_upperBinaryLookup++`]]
-:_lowerBinaryLookup: pass:normal[xref:#Checkpoints-_lowerBinaryLookup-struct-Checkpoints-Checkpoint---uint32-uint256-uint256-[`++_lowerBinaryLookup++`]]
-:_unsafeAccess: pass:normal[xref:#Checkpoints-_unsafeAccess-struct-Checkpoints-Checkpoint---uint256-[`++_unsafeAccess++`]]
 :Trace224: pass:normal[xref:#Checkpoints-Trace224[`++Trace224++`]]
 :Checkpoint224: pass:normal[xref:#Checkpoints-Checkpoint224[`++Checkpoint224++`]]
 :push: pass:normal[xref:#Checkpoints-push-struct-Checkpoints-Trace224-uint32-uint224-[`++push++`]]
 :lowerLookup: pass:normal[xref:#Checkpoints-lowerLookup-struct-Checkpoints-Trace224-uint32-[`++lowerLookup++`]]
 :upperLookup: pass:normal[xref:#Checkpoints-upperLookup-struct-Checkpoints-Trace224-uint32-[`++upperLookup++`]]
+:upperLookupRecent: pass:normal[xref:#Checkpoints-upperLookupRecent-struct-Checkpoints-Trace224-uint32-[`++upperLookupRecent++`]]
 :latest: pass:normal[xref:#Checkpoints-latest-struct-Checkpoints-Trace224-[`++latest++`]]
 :latestCheckpoint: pass:normal[xref:#Checkpoints-latestCheckpoint-struct-Checkpoints-Trace224-[`++latestCheckpoint++`]]
 :length: pass:normal[xref:#Checkpoints-length-struct-Checkpoints-Trace224-[`++length++`]]
-:_insert: pass:normal[xref:#Checkpoints-_insert-struct-Checkpoints-Checkpoint224---uint32-uint224-[`++_insert++`]]
-:_upperBinaryLookup: pass:normal[xref:#Checkpoints-_upperBinaryLookup-struct-Checkpoints-Checkpoint224---uint32-uint256-uint256-[`++_upperBinaryLookup++`]]
-:_lowerBinaryLookup: pass:normal[xref:#Checkpoints-_lowerBinaryLookup-struct-Checkpoints-Checkpoint224---uint32-uint256-uint256-[`++_lowerBinaryLookup++`]]
-:_unsafeAccess: pass:normal[xref:#Checkpoints-_unsafeAccess-struct-Checkpoints-Checkpoint224---uint256-[`++_unsafeAccess++`]]
 :Trace160: pass:normal[xref:#Checkpoints-Trace160[`++Trace160++`]]
 :Checkpoint160: pass:normal[xref:#Checkpoints-Checkpoint160[`++Checkpoint160++`]]
 :push: pass:normal[xref:#Checkpoints-push-struct-Checkpoints-Trace160-uint96-uint160-[`++push++`]]
 :lowerLookup: pass:normal[xref:#Checkpoints-lowerLookup-struct-Checkpoints-Trace160-uint96-[`++lowerLookup++`]]
 :upperLookup: pass:normal[xref:#Checkpoints-upperLookup-struct-Checkpoints-Trace160-uint96-[`++upperLookup++`]]
+:upperLookupRecent: pass:normal[xref:#Checkpoints-upperLookupRecent-struct-Checkpoints-Trace160-uint96-[`++upperLookupRecent++`]]
 :latest: pass:normal[xref:#Checkpoints-latest-struct-Checkpoints-Trace160-[`++latest++`]]
 :latestCheckpoint: pass:normal[xref:#Checkpoints-latestCheckpoint-struct-Checkpoints-Trace160-[`++latestCheckpoint++`]]
 :length: pass:normal[xref:#Checkpoints-length-struct-Checkpoints-Trace160-[`++length++`]]
-:_insert: pass:normal[xref:#Checkpoints-_insert-struct-Checkpoints-Checkpoint160---uint96-uint160-[`++_insert++`]]
-:_upperBinaryLookup: pass:normal[xref:#Checkpoints-_upperBinaryLookup-struct-Checkpoints-Checkpoint160---uint96-uint256-uint256-[`++_upperBinaryLookup++`]]
-:_lowerBinaryLookup: pass:normal[xref:#Checkpoints-_lowerBinaryLookup-struct-Checkpoints-Checkpoint160---uint96-uint256-uint256-[`++_lowerBinaryLookup++`]]
-:_unsafeAccess: pass:normal[xref:#Checkpoints-_unsafeAccess-struct-Checkpoints-Checkpoint160---uint256-[`++_unsafeAccess++`]]
 
 [.contract]
 [[Checkpoints]]
-=== `++Checkpoints++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/Checkpoints.sol[{github-icon},role=heading-link]
+=== `++Checkpoints++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/Checkpoints.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4144,12 +4251,14 @@ _Available since v4.5._
 * {xref-Checkpoints-push-struct-Checkpoints-Trace224-uint32-uint224-}[`++push(self, key, value)++`]
 * {xref-Checkpoints-lowerLookup-struct-Checkpoints-Trace224-uint32-}[`++lowerLookup(self, key)++`]
 * {xref-Checkpoints-upperLookup-struct-Checkpoints-Trace224-uint32-}[`++upperLookup(self, key)++`]
+* {xref-Checkpoints-upperLookupRecent-struct-Checkpoints-Trace224-uint32-}[`++upperLookupRecent(self, key)++`]
 * {xref-Checkpoints-latest-struct-Checkpoints-Trace224-}[`++latest(self)++`]
 * {xref-Checkpoints-latestCheckpoint-struct-Checkpoints-Trace224-}[`++latestCheckpoint(self)++`]
 * {xref-Checkpoints-length-struct-Checkpoints-Trace224-}[`++length(self)++`]
 * {xref-Checkpoints-push-struct-Checkpoints-Trace160-uint96-uint160-}[`++push(self, key, value)++`]
 * {xref-Checkpoints-lowerLookup-struct-Checkpoints-Trace160-uint96-}[`++lowerLookup(self, key)++`]
 * {xref-Checkpoints-upperLookup-struct-Checkpoints-Trace160-uint96-}[`++upperLookup(self, key)++`]
+* {xref-Checkpoints-upperLookupRecent-struct-Checkpoints-Trace160-uint96-}[`++upperLookupRecent(self, key)++`]
 * {xref-Checkpoints-latest-struct-Checkpoints-Trace160-}[`++latest(self)++`]
 * {xref-Checkpoints-latestCheckpoint-struct-Checkpoints-Trace160-}[`++latestCheckpoint(self)++`]
 * {xref-Checkpoints-length-struct-Checkpoints-Trace160-}[`++length(self)++`]
@@ -4221,13 +4330,21 @@ Returns previous value and new value.
 [[Checkpoints-lowerLookup-struct-Checkpoints-Trace224-uint32-]]
 ==== `[.contract-item-name]#++lowerLookup++#++(struct Checkpoints.Trace224 self, uint32 key) → uint224++` [.item-kind]#internal#
 
-Returns the value in the oldest checkpoint with key greater or equal than the search key, or zero if there is none.
+Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if there is none.
 
 [.contract-item]
 [[Checkpoints-upperLookup-struct-Checkpoints-Trace224-uint32-]]
 ==== `[.contract-item-name]#++upperLookup++#++(struct Checkpoints.Trace224 self, uint32 key) → uint224++` [.item-kind]#internal#
 
-Returns the value in the most recent checkpoint with key lower or equal than the search key.
+Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+
+[.contract-item]
+[[Checkpoints-upperLookupRecent-struct-Checkpoints-Trace224-uint32-]]
+==== `[.contract-item-name]#++upperLookupRecent++#++(struct Checkpoints.Trace224 self, uint32 key) → uint224++` [.item-kind]#internal#
+
+Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+
+NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
 
 [.contract-item]
 [[Checkpoints-latest-struct-Checkpoints-Trace224-]]
@@ -4260,13 +4377,21 @@ Returns previous value and new value.
 [[Checkpoints-lowerLookup-struct-Checkpoints-Trace160-uint96-]]
 ==== `[.contract-item-name]#++lowerLookup++#++(struct Checkpoints.Trace160 self, uint96 key) → uint160++` [.item-kind]#internal#
 
-Returns the value in the oldest checkpoint with key greater or equal than the search key, or zero if there is none.
+Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if there is none.
 
 [.contract-item]
 [[Checkpoints-upperLookup-struct-Checkpoints-Trace160-uint96-]]
 ==== `[.contract-item-name]#++upperLookup++#++(struct Checkpoints.Trace160 self, uint96 key) → uint160++` [.item-kind]#internal#
 
-Returns the value in the most recent checkpoint with key lower or equal than the search key.
+Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+
+[.contract-item]
+[[Checkpoints-upperLookupRecent-struct-Checkpoints-Trace160-uint96-]]
+==== `[.contract-item-name]#++upperLookupRecent++#++(struct Checkpoints.Trace160 self, uint96 key) → uint160++` [.item-kind]#internal#
+
+Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+
+NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
 
 [.contract-item]
 [[Checkpoints-latest-struct-Checkpoints-Trace160-]]
@@ -4295,7 +4420,7 @@ Returns the number of checkpoint.
 
 [.contract]
 [[Create2]]
-=== `++Create2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/Create2.sol[{github-icon},role=heading-link]
+=== `++Create2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/Create2.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4362,11 +4487,10 @@ Returns the address where a contract will be stored if deployed via {deploy} fro
 :functionDelegateCall: pass:normal[xref:#Address-functionDelegateCall-address-bytes-string-[`++functionDelegateCall++`]]
 :verifyCallResultFromTarget: pass:normal[xref:#Address-verifyCallResultFromTarget-address-bool-bytes-string-[`++verifyCallResultFromTarget++`]]
 :verifyCallResult: pass:normal[xref:#Address-verifyCallResult-bool-bytes-string-[`++verifyCallResult++`]]
-:_revert: pass:normal[xref:#Address-_revert-bytes-string-[`++_revert++`]]
 
 [.contract]
 [[Address]]
-=== `++Address++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/Address.sol[{github-icon},role=heading-link]
+=== `++Address++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/Address.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4411,6 +4535,10 @@ types of addresses:
  - a contract in construction
  - an address where a contract will be created
  - an address where a contract lived, but was destroyed
+
+Furthermore, `isContract` will also return true if the target contract within
+the same transaction is already scheduled for destruction by `SELFDESTRUCT`,
+which only has an effect at the end of a transaction.
 ====
 
 [IMPORTANT]
@@ -4434,12 +4562,12 @@ of certain opcodes, possibly making contracts go over the 2300 gas limit
 imposed by `transfer`, making them unable to receive funds via
 `transfer`. {sendValue} removes this limitation.
 
-https://diligence.consensys.net/posts/2019/09/stop-using-soliditys-transfer-now/[Learn more].
+https://consensys.net/diligence/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more].
 
 IMPORTANT: because control is transferred to `recipient`, care must be
 taken to not create reentrancy vulnerabilities. Consider using
 {ReentrancyGuard} or the
-https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
+https://solidity.readthedocs.io/en/v0.8.0/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
 
 [.contract-item]
 [[Address-functionCall-address-bytes-]]
@@ -4555,7 +4683,7 @@ _Available since v4.3._
 
 [.contract]
 [[Arrays]]
-=== `++Arrays++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/Arrays.sol[{github-icon},role=heading-link]
+=== `++Arrays++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/Arrays.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4615,7 +4743,7 @@ WARNING: Only use if you are certain `pos` is lower than the array length.
 
 [.contract]
 [[Base64]]
-=== `++Base64++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/Base64.sol[{github-icon},role=heading-link]
+=== `++Base64++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/Base64.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4647,7 +4775,7 @@ Converts a `bytes` to its Bytes64 `string` representation.
 
 [.contract]
 [[Counters]]
-=== `++Counters++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/Counters.sol[{github-icon},role=heading-link]
+=== `++Counters++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/Counters.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4685,16 +4813,16 @@ Include with `using Counters for Counters.Counter;`
 [[Counters-reset-struct-Counters-Counter-]]
 ==== `[.contract-item-name]#++reset++#++(struct Counters.Counter counter)++` [.item-kind]#internal#
 
-:_SYMBOLS: pass:normal[xref:#Strings-_SYMBOLS-bytes16[`++_SYMBOLS++`]]
-:_ADDRESS_LENGTH: pass:normal[xref:#Strings-_ADDRESS_LENGTH-uint8[`++_ADDRESS_LENGTH++`]]
 :toString: pass:normal[xref:#Strings-toString-uint256-[`++toString++`]]
+:toString: pass:normal[xref:#Strings-toString-int256-[`++toString++`]]
 :toHexString: pass:normal[xref:#Strings-toHexString-uint256-[`++toHexString++`]]
 :toHexString: pass:normal[xref:#Strings-toHexString-uint256-uint256-[`++toHexString++`]]
 :toHexString: pass:normal[xref:#Strings-toHexString-address-[`++toHexString++`]]
+:equal: pass:normal[xref:#Strings-equal-string-string-[`++equal++`]]
 
 [.contract]
 [[Strings]]
-=== `++Strings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/Strings.sol[{github-icon},role=heading-link]
+=== `++Strings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/Strings.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4707,9 +4835,11 @@ String operations.
 .Functions
 --
 * {xref-Strings-toString-uint256-}[`++toString(value)++`]
+* {xref-Strings-toString-int256-}[`++toString(value)++`]
 * {xref-Strings-toHexString-uint256-}[`++toHexString(value)++`]
 * {xref-Strings-toHexString-uint256-uint256-}[`++toHexString(value, length)++`]
 * {xref-Strings-toHexString-address-}[`++toHexString(addr)++`]
+* {xref-Strings-equal-string-string-}[`++equal(a, b)++`]
 
 --
 
@@ -4718,6 +4848,12 @@ String operations.
 ==== `[.contract-item-name]#++toString++#++(uint256 value) → string++` [.item-kind]#internal#
 
 Converts a `uint256` to its ASCII `string` decimal representation.
+
+[.contract-item]
+[[Strings-toString-int256-]]
+==== `[.contract-item-name]#++toString++#++(int256 value) → string++` [.item-kind]#internal#
+
+Converts a `int256` to its ASCII `string` decimal representation.
 
 [.contract-item]
 [[Strings-toHexString-uint256-]]
@@ -4737,18 +4873,128 @@ Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed
 
 Converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal representation.
 
+[.contract-item]
+[[Strings-equal-string-string-]]
+==== `[.contract-item-name]#++equal++#++(string a, string b) → bool++` [.item-kind]#internal#
+
+Returns true if the two strings are equal.
+
+:StringTooLong: pass:normal[xref:#ShortStrings-StringTooLong-string-[`++StringTooLong++`]]
+:InvalidShortString: pass:normal[xref:#ShortStrings-InvalidShortString--[`++InvalidShortString++`]]
+:toShortString: pass:normal[xref:#ShortStrings-toShortString-string-[`++toShortString++`]]
+:toString: pass:normal[xref:#ShortStrings-toString-ShortString-[`++toString++`]]
+:byteLength: pass:normal[xref:#ShortStrings-byteLength-ShortString-[`++byteLength++`]]
+:toShortStringWithFallback: pass:normal[xref:#ShortStrings-toShortStringWithFallback-string-string-[`++toShortStringWithFallback++`]]
+:toStringWithFallback: pass:normal[xref:#ShortStrings-toStringWithFallback-ShortString-string-[`++toStringWithFallback++`]]
+:byteLengthWithFallback: pass:normal[xref:#ShortStrings-byteLengthWithFallback-ShortString-string-[`++byteLengthWithFallback++`]]
+
+[.contract]
+[[ShortStrings]]
+=== `++ShortStrings++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/ShortStrings.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/utils/ShortStrings.sol";
+```
+
+This library provides functions to convert short memory strings
+into a `ShortString` type that can be used as an immutable variable.
+
+Strings of arbitrary length can be optimized using this library if
+they are short enough (up to 31 bytes) by packing them with their
+length (1 byte) in a single EVM word (32 bytes). Additionally, a
+fallback mechanism can be used for every other case.
+
+Usage example:
+
+```solidity
+contract Named {
+    using ShortStrings for *;
+
+    ShortString private immutable _name;
+    string private _nameFallback;
+
+    constructor(string memory contractName) {
+        _name = contractName.toShortStringWithFallback(_nameFallback);
+    }
+
+    function name() external view returns (string memory) {
+        return _name.toStringWithFallback(_nameFallback);
+    }
+}
+```
+
+[.contract-index]
+.Functions
+--
+* {xref-ShortStrings-toShortString-string-}[`++toShortString(str)++`]
+* {xref-ShortStrings-toString-ShortString-}[`++toString(sstr)++`]
+* {xref-ShortStrings-byteLength-ShortString-}[`++byteLength(sstr)++`]
+* {xref-ShortStrings-toShortStringWithFallback-string-string-}[`++toShortStringWithFallback(value, store)++`]
+* {xref-ShortStrings-toStringWithFallback-ShortString-string-}[`++toStringWithFallback(value, store)++`]
+* {xref-ShortStrings-byteLengthWithFallback-ShortString-string-}[`++byteLengthWithFallback(value, store)++`]
+
+--
+
+[.contract-item]
+[[ShortStrings-toShortString-string-]]
+==== `[.contract-item-name]#++toShortString++#++(string str) → ShortString++` [.item-kind]#internal#
+
+Encode a string of at most 31 chars into a `ShortString`.
+
+This will trigger a `StringTooLong` error is the input string is too long.
+
+[.contract-item]
+[[ShortStrings-toString-ShortString-]]
+==== `[.contract-item-name]#++toString++#++(ShortString sstr) → string++` [.item-kind]#internal#
+
+Decode a `ShortString` back to a "normal" string.
+
+[.contract-item]
+[[ShortStrings-byteLength-ShortString-]]
+==== `[.contract-item-name]#++byteLength++#++(ShortString sstr) → uint256++` [.item-kind]#internal#
+
+Return the length of a `ShortString`.
+
+[.contract-item]
+[[ShortStrings-toShortStringWithFallback-string-string-]]
+==== `[.contract-item-name]#++toShortStringWithFallback++#++(string value, string store) → ShortString++` [.item-kind]#internal#
+
+Encode a string into a `ShortString`, or write it to storage if it is too long.
+
+[.contract-item]
+[[ShortStrings-toStringWithFallback-ShortString-string-]]
+==== `[.contract-item-name]#++toStringWithFallback++#++(ShortString value, string store) → string++` [.item-kind]#internal#
+
+Decode a string that was encoded to `ShortString` or written to storage using {setWithFallback}.
+
+[.contract-item]
+[[ShortStrings-byteLengthWithFallback-ShortString-string-]]
+==== `[.contract-item-name]#++byteLengthWithFallback++#++(ShortString value, string store) → uint256++` [.item-kind]#internal#
+
+Return the length of a string that was encoded to `ShortString` or written to storage using {setWithFallback}.
+
+WARNING: This will return the "byte length" of the string. This may not reflect the actual length in terms of
+actual characters as the UTF-8 encoding of a single character can span over multiple bytes.
+
 :AddressSlot: pass:normal[xref:#StorageSlot-AddressSlot[`++AddressSlot++`]]
 :BooleanSlot: pass:normal[xref:#StorageSlot-BooleanSlot[`++BooleanSlot++`]]
 :Bytes32Slot: pass:normal[xref:#StorageSlot-Bytes32Slot[`++Bytes32Slot++`]]
 :Uint256Slot: pass:normal[xref:#StorageSlot-Uint256Slot[`++Uint256Slot++`]]
+:StringSlot: pass:normal[xref:#StorageSlot-StringSlot[`++StringSlot++`]]
+:BytesSlot: pass:normal[xref:#StorageSlot-BytesSlot[`++BytesSlot++`]]
 :getAddressSlot: pass:normal[xref:#StorageSlot-getAddressSlot-bytes32-[`++getAddressSlot++`]]
 :getBooleanSlot: pass:normal[xref:#StorageSlot-getBooleanSlot-bytes32-[`++getBooleanSlot++`]]
 :getBytes32Slot: pass:normal[xref:#StorageSlot-getBytes32Slot-bytes32-[`++getBytes32Slot++`]]
 :getUint256Slot: pass:normal[xref:#StorageSlot-getUint256Slot-bytes32-[`++getUint256Slot++`]]
+:getStringSlot: pass:normal[xref:#StorageSlot-getStringSlot-bytes32-[`++getStringSlot++`]]
+:getStringSlot: pass:normal[xref:#StorageSlot-getStringSlot-string-[`++getStringSlot++`]]
+:getBytesSlot: pass:normal[xref:#StorageSlot-getBytesSlot-bytes32-[`++getBytesSlot++`]]
+:getBytesSlot: pass:normal[xref:#StorageSlot-getBytesSlot-bytes-[`++getBytesSlot++`]]
 
 [.contract]
 [[StorageSlot]]
-=== `++StorageSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/StorageSlot.sol[{github-icon},role=heading-link]
+=== `++StorageSlot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/StorageSlot.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -4763,7 +5009,7 @@ This library helps with reading and writing to such slots without the need for i
 The functions in this library return Slot structs that contain a `value` member that can be used to read or write.
 
 Example usage to set ERC1967 implementation slot:
-```
+```solidity
 contract ERC1967 {
     bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
@@ -4778,7 +5024,8 @@ contract ERC1967 {
 }
 ```
 
-_Available since v4.1 for `address`, `bool`, `bytes32`, and `uint256`._
+_Available since v4.1 for `address`, `bool`, `bytes32`, `uint256`._
+_Available since v4.9 for `string`, `bytes`._
 
 [.contract-index]
 .Functions
@@ -4787,6 +5034,10 @@ _Available since v4.1 for `address`, `bool`, `bytes32`, and `uint256`._
 * {xref-StorageSlot-getBooleanSlot-bytes32-}[`++getBooleanSlot(slot)++`]
 * {xref-StorageSlot-getBytes32Slot-bytes32-}[`++getBytes32Slot(slot)++`]
 * {xref-StorageSlot-getUint256Slot-bytes32-}[`++getUint256Slot(slot)++`]
+* {xref-StorageSlot-getStringSlot-bytes32-}[`++getStringSlot(slot)++`]
+* {xref-StorageSlot-getStringSlot-string-}[`++getStringSlot(store)++`]
+* {xref-StorageSlot-getBytesSlot-bytes32-}[`++getBytesSlot(slot)++`]
+* {xref-StorageSlot-getBytesSlot-bytes-}[`++getBytesSlot(store)++`]
 
 --
 
@@ -4814,11 +5065,35 @@ Returns an `Bytes32Slot` with member `value` located at `slot`.
 
 Returns an `Uint256Slot` with member `value` located at `slot`.
 
+[.contract-item]
+[[StorageSlot-getStringSlot-bytes32-]]
+==== `[.contract-item-name]#++getStringSlot++#++(bytes32 slot) → struct StorageSlot.StringSlot r++` [.item-kind]#internal#
+
+Returns an `StringSlot` with member `value` located at `slot`.
+
+[.contract-item]
+[[StorageSlot-getStringSlot-string-]]
+==== `[.contract-item-name]#++getStringSlot++#++(string store) → struct StorageSlot.StringSlot r++` [.item-kind]#internal#
+
+Returns an `StringSlot` representation of the string storage pointer `store`.
+
+[.contract-item]
+[[StorageSlot-getBytesSlot-bytes32-]]
+==== `[.contract-item-name]#++getBytesSlot++#++(bytes32 slot) → struct StorageSlot.BytesSlot r++` [.item-kind]#internal#
+
+Returns an `BytesSlot` with member `value` located at `slot`.
+
+[.contract-item]
+[[StorageSlot-getBytesSlot-bytes-]]
+==== `[.contract-item-name]#++getBytesSlot++#++(bytes store) → struct StorageSlot.BytesSlot r++` [.item-kind]#internal#
+
+Returns an `BytesSlot` representation of the bytes storage pointer `store`.
+
 :multicall: pass:normal[xref:#Multicall-multicall-bytes---[`++multicall++`]]
 
 [.contract]
 [[Multicall]]
-=== `++Multicall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/utils/Multicall.sol[{github-icon},role=heading-link]
+=== `++Multicall++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/utils/Multicall.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

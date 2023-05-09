@@ -4,10 +4,10 @@ const { ZERO_ADDRESS } = constants;
 const { expect } = require('chai');
 
 const PaymentSplitter = artifacts.require('PaymentSplitter');
-const Token = artifacts.require('ERC20Mock');
+const ERC20 = artifacts.require('$ERC20');
 
 contract('PaymentSplitter', function (accounts) {
-  const [ owner, payee1, payee2, payee3, nonpayee1, payer1 ] = accounts;
+  const [owner, payee1, payee2, payee3, nonpayee1, payer1] = accounts;
 
   const amount = ether('1');
 
@@ -16,33 +16,32 @@ contract('PaymentSplitter', function (accounts) {
   });
 
   it('rejects more payees than shares', async function () {
-    await expectRevert(PaymentSplitter.new([payee1, payee2, payee3], [20, 30]),
+    await expectRevert(
+      PaymentSplitter.new([payee1, payee2, payee3], [20, 30]),
       'PaymentSplitter: payees and shares length mismatch',
     );
   });
 
   it('rejects more shares than payees', async function () {
-    await expectRevert(PaymentSplitter.new([payee1, payee2], [20, 30, 40]),
+    await expectRevert(
+      PaymentSplitter.new([payee1, payee2], [20, 30, 40]),
       'PaymentSplitter: payees and shares length mismatch',
     );
   });
 
   it('rejects null payees', async function () {
-    await expectRevert(PaymentSplitter.new([payee1, ZERO_ADDRESS], [20, 30]),
+    await expectRevert(
+      PaymentSplitter.new([payee1, ZERO_ADDRESS], [20, 30]),
       'PaymentSplitter: account is the zero address',
     );
   });
 
   it('rejects zero-valued shares', async function () {
-    await expectRevert(PaymentSplitter.new([payee1, payee2], [20, 0]),
-      'PaymentSplitter: shares are 0',
-    );
+    await expectRevert(PaymentSplitter.new([payee1, payee2], [20, 0]), 'PaymentSplitter: shares are 0');
   });
 
   it('rejects repeated payees', async function () {
-    await expectRevert(PaymentSplitter.new([payee1, payee1], [20, 30]),
-      'PaymentSplitter: account already has shares',
-    );
+    await expectRevert(PaymentSplitter.new([payee1, payee1], [20, 30]), 'PaymentSplitter: account already has shares');
   });
 
   context('once deployed', function () {
@@ -51,7 +50,8 @@ contract('PaymentSplitter', function (accounts) {
       this.shares = [20, 10, 70];
 
       this.contract = await PaymentSplitter.new(this.payees, this.shares);
-      this.token = await Token.new('MyToken', 'MT', owner, ether('1000'));
+      this.token = await ERC20.new('MyToken', 'MT');
+      await this.token.$_mint(owner, ether('1000'));
     });
 
     it('has total shares', async function () {
@@ -59,11 +59,13 @@ contract('PaymentSplitter', function (accounts) {
     });
 
     it('has payees', async function () {
-      await Promise.all(this.payees.map(async (payee, index) => {
-        expect(await this.contract.payee(index)).to.equal(payee);
-        expect(await this.contract.released(payee)).to.be.bignumber.equal('0');
-        expect(await this.contract.releasable(payee)).to.be.bignumber.equal('0');
-      }));
+      await Promise.all(
+        this.payees.map(async (payee, index) => {
+          expect(await this.contract.payee(index)).to.equal(payee);
+          expect(await this.contract.released(payee)).to.be.bignumber.equal('0');
+          expect(await this.contract.releasable(payee)).to.be.bignumber.equal('0');
+        }),
+      );
     });
 
     describe('accepts payments', function () {
@@ -93,27 +95,25 @@ contract('PaymentSplitter', function (accounts) {
     describe('release', function () {
       describe('Ether', function () {
         it('reverts if no funds to claim', async function () {
-          await expectRevert(this.contract.release(payee1),
-            'PaymentSplitter: account is not due payment',
-          );
+          await expectRevert(this.contract.release(payee1), 'PaymentSplitter: account is not due payment');
         });
         it('reverts if non-payee want to claim', async function () {
           await send.ether(payer1, this.contract.address, amount);
-          await expectRevert(this.contract.release(nonpayee1),
-            'PaymentSplitter: account has no shares',
-          );
+          await expectRevert(this.contract.release(nonpayee1), 'PaymentSplitter: account has no shares');
         });
       });
 
       describe('Token', function () {
         it('reverts if no funds to claim', async function () {
-          await expectRevert(this.contract.release(this.token.address, payee1),
+          await expectRevert(
+            this.contract.release(this.token.address, payee1),
             'PaymentSplitter: account is not due payment',
           );
         });
         it('reverts if non-payee want to claim', async function () {
           await this.token.transfer(this.contract.address, amount, { from: owner });
-          await expectRevert(this.contract.release(this.token.address, nonpayee1),
+          await expectRevert(
+            this.contract.release(this.token.address, nonpayee1),
             'PaymentSplitter: account has no shares',
           );
         });
@@ -182,31 +182,31 @@ contract('PaymentSplitter', function (accounts) {
 
         await this.token.transfer(this.contract.address, amount, { from: owner });
 
-        expectEvent(
-          await this.contract.release(this.token.address, payee1),
-          'ERC20PaymentReleased',
-          { token: this.token.address, to: payee1, amount: ether('0.20') },
-        );
+        expectEvent(await this.contract.release(this.token.address, payee1), 'ERC20PaymentReleased', {
+          token: this.token.address,
+          to: payee1,
+          amount: ether('0.20'),
+        });
 
         await this.token.transfer(this.contract.address, amount, { from: owner });
 
-        expectEvent(
-          await this.contract.release(this.token.address, payee1),
-          'ERC20PaymentReleased',
-          { token: this.token.address, to: payee1, amount: ether('0.20') },
-        );
+        expectEvent(await this.contract.release(this.token.address, payee1), 'ERC20PaymentReleased', {
+          token: this.token.address,
+          to: payee1,
+          amount: ether('0.20'),
+        });
 
-        expectEvent(
-          await this.contract.release(this.token.address, payee2),
-          'ERC20PaymentReleased',
-          { token: this.token.address, to: payee2, amount: ether('0.20') },
-        );
+        expectEvent(await this.contract.release(this.token.address, payee2), 'ERC20PaymentReleased', {
+          token: this.token.address,
+          to: payee2,
+          amount: ether('0.20'),
+        });
 
-        expectEvent(
-          await this.contract.release(this.token.address, payee3),
-          'ERC20PaymentReleased',
-          { token: this.token.address, to: payee3, amount: ether('1.40') },
-        );
+        expectEvent(await this.contract.release(this.token.address, payee3), 'ERC20PaymentReleased', {
+          token: this.token.address,
+          to: payee3,
+          amount: ether('1.40'),
+        });
 
         expect(await this.token.balanceOf(payee1)).to.be.bignumber.equal(ether('0.40'));
         expect(await this.token.balanceOf(payee2)).to.be.bignumber.equal(ether('0.20'));

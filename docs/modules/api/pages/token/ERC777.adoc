@@ -154,6 +154,8 @@
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/token/erc777
 
+CAUTION: As of v4.9, OpenZeppelin's implementation of ERC-777 is deprecated and will be removed in the next major release.
+
 This set of interfaces and contracts are all related to the https://eips.ethereum.org/EIPS/eip-777[ERC777 token standard].
 
 TIP: For an overview of ERC777 tokens and a walk through on how to create a token contract read our xref:ROOT:erc777.adoc[ERC777 guide].
@@ -185,7 +187,7 @@ Additionally there are interfaces used to develop contracts that react to token 
 
 [.contract]
 [[IERC777]]
-=== `++IERC777++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC777/IERC777.sol[{github-icon},role=heading-link]
+=== `++IERC777++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC777/IERC777.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -422,17 +424,6 @@ Emitted when `operator` is revoked its operator status for `tokenHolder`.
 ==== `[.contract-item-name]#++Sent++#++(address indexed operator, address indexed from, address indexed to, uint256 amount, bytes data, bytes operatorData)++` [.item-kind]#event#
 
 :_ERC1820_REGISTRY: pass:normal[xref:#ERC777-_ERC1820_REGISTRY-contract-IERC1820Registry[`++_ERC1820_REGISTRY++`]]
-:_balances: pass:normal[xref:#ERC777-_balances-mapping-address----uint256-[`++_balances++`]]
-:_totalSupply: pass:normal[xref:#ERC777-_totalSupply-uint256[`++_totalSupply++`]]
-:_name: pass:normal[xref:#ERC777-_name-string[`++_name++`]]
-:_symbol: pass:normal[xref:#ERC777-_symbol-string[`++_symbol++`]]
-:_TOKENS_SENDER_INTERFACE_HASH: pass:normal[xref:#ERC777-_TOKENS_SENDER_INTERFACE_HASH-bytes32[`++_TOKENS_SENDER_INTERFACE_HASH++`]]
-:_TOKENS_RECIPIENT_INTERFACE_HASH: pass:normal[xref:#ERC777-_TOKENS_RECIPIENT_INTERFACE_HASH-bytes32[`++_TOKENS_RECIPIENT_INTERFACE_HASH++`]]
-:_defaultOperatorsArray: pass:normal[xref:#ERC777-_defaultOperatorsArray-address--[`++_defaultOperatorsArray++`]]
-:_defaultOperators: pass:normal[xref:#ERC777-_defaultOperators-mapping-address----bool-[`++_defaultOperators++`]]
-:_operators: pass:normal[xref:#ERC777-_operators-mapping-address----mapping-address----bool--[`++_operators++`]]
-:_revokedDefaultOperators: pass:normal[xref:#ERC777-_revokedDefaultOperators-mapping-address----mapping-address----bool--[`++_revokedDefaultOperators++`]]
-:_allowances: pass:normal[xref:#ERC777-_allowances-mapping-address----mapping-address----uint256--[`++_allowances++`]]
 :constructor: pass:normal[xref:#ERC777-constructor-string-string-address---[`++constructor++`]]
 :name: pass:normal[xref:#ERC777-name--[`++name++`]]
 :symbol: pass:normal[xref:#ERC777-symbol--[`++symbol++`]]
@@ -456,16 +447,13 @@ Emitted when `operator` is revoked its operator status for `tokenHolder`.
 :_mint: pass:normal[xref:#ERC777-_mint-address-uint256-bytes-bytes-bool-[`++_mint++`]]
 :_send: pass:normal[xref:#ERC777-_send-address-address-uint256-bytes-bytes-bool-[`++_send++`]]
 :_burn: pass:normal[xref:#ERC777-_burn-address-uint256-bytes-bytes-[`++_burn++`]]
-:_move: pass:normal[xref:#ERC777-_move-address-address-address-uint256-bytes-bytes-[`++_move++`]]
 :_approve: pass:normal[xref:#ERC777-_approve-address-address-uint256-[`++_approve++`]]
-:_callTokensToSend: pass:normal[xref:#ERC777-_callTokensToSend-address-address-address-uint256-bytes-bytes-[`++_callTokensToSend++`]]
-:_callTokensReceived: pass:normal[xref:#ERC777-_callTokensReceived-address-address-address-uint256-bytes-bytes-bool-[`++_callTokensReceived++`]]
 :_spendAllowance: pass:normal[xref:#ERC777-_spendAllowance-address-address-uint256-[`++_spendAllowance++`]]
 :_beforeTokenTransfer: pass:normal[xref:#ERC777-_beforeTokenTransfer-address-address-address-uint256-[`++_beforeTokenTransfer++`]]
 
 [.contract]
 [[ERC777]]
-=== `++ERC777++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC777/ERC777.sol[{github-icon},role=heading-link]
+=== `++ERC777++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC777/ERC777.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -485,6 +473,8 @@ movements.
 Additionally, the {IERC777-granularity} value is hard-coded to `1`, meaning that there
 are no special restrictions in the amount of tokens that created, moved, or
 destroyed. This makes integration with ERC20 applications seamless.
+
+CAUTION: This file is deprecated as of v4.9 and will be removed in the next major release.
 
 [.contract-index]
 .Functions
@@ -771,7 +761,7 @@ Might emit an {IERC20-Approval} event.
 ==== `[.contract-item-name]#++_beforeTokenTransfer++#++(address operator, address from, address to, uint256 amount)++` [.item-kind]#internal#
 
 Hook that is called before any token transfer. This includes
-calls to {send}, {transfer}, {operatorSend}, minting and burning.
+calls to {send}, {transfer}, {operatorSend}, {transferFrom}, minting and burning.
 
 Calling conditions:
 
@@ -789,7 +779,7 @@ To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hook
 
 [.contract]
 [[IERC777Sender]]
-=== `++IERC777Sender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC777/IERC777Sender.sol[{github-icon},role=heading-link]
+=== `++IERC777Sender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC777/IERC777Sender.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -829,7 +819,7 @@ This function may revert to prevent the operation from being executed.
 
 [.contract]
 [[IERC777Recipient]]
-=== `++IERC777Recipient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC777/IERC777Recipient.sol[{github-icon},role=heading-link]
+=== `++IERC777Recipient++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC777/IERC777Recipient.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -873,7 +863,7 @@ These contracts are preconfigured combinations of features. They can be used thr
 
 [.contract]
 [[ERC777PresetFixedSupply]]
-=== `++ERC777PresetFixedSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC777/presets/ERC777PresetFixedSupply.sol[{github-icon},role=heading-link]
+=== `++ERC777PresetFixedSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC777/presets/ERC777PresetFixedSupply.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

@@ -12,6 +12,8 @@
 :ERC721Royalty: pass:normal[xref:token/ERC721.adoc#ERC721Royalty[`ERC721Royalty`]]
 :ERC721Pausable: pass:normal[xref:token/ERC721.adoc#ERC721Pausable[`ERC721Pausable`]]
 :ERC721Burnable: pass:normal[xref:token/ERC721.adoc#ERC721Burnable[`ERC721Burnable`]]
+:ERC721Wrapper: pass:normal[xref:token/ERC721.adoc#ERC721Wrapper[`ERC721Wrapper`]]
+:ERC721Votes: pass:normal[xref:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]]
 :ERC721PresetMinterPauserAutoId: pass:normal[xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId[`ERC721PresetMinterPauserAutoId`]]
 :xref-IERC721-balanceOf-address-: xref:token/ERC721.adoc#IERC721-balanceOf-address-
 :xref-IERC721-ownerOf-uint256-: xref:token/ERC721.adoc#IERC721-ownerOf-uint256-
@@ -275,10 +277,10 @@
 :ERC721-_mint: pass:normal[xref:token/ERC721.adoc#ERC721-_mint-address-uint256-[`ERC721._mint`]]
 :ERC721Consecutive: pass:normal[xref:token/ERC721.adoc#ERC721Consecutive[`ERC721Consecutive`]]
 :ERC721-_afterTokenTransfer: pass:normal[xref:token/ERC721.adoc#ERC721-_afterTokenTransfer-address-address-uint256-uint256-[`ERC721._afterTokenTransfer`]]
+:xref-ERC721URIStorage-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721URIStorage-supportsInterface-bytes4-
 :xref-ERC721URIStorage-tokenURI-uint256-: xref:token/ERC721.adoc#ERC721URIStorage-tokenURI-uint256-
 :xref-ERC721URIStorage-_setTokenURI-uint256-string-: xref:token/ERC721.adoc#ERC721URIStorage-_setTokenURI-uint256-string-
 :xref-ERC721URIStorage-_burn-uint256-: xref:token/ERC721.adoc#ERC721URIStorage-_burn-uint256-
-:xref-ERC721-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721-supportsInterface-bytes4-
 :xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
 :xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
 :xref-ERC721-name--: xref:token/ERC721.adoc#ERC721-name--
@@ -305,14 +307,19 @@
 :xref-ERC721-_beforeTokenTransfer-address-address-uint256-uint256-: xref:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-uint256-
 :xref-ERC721-_afterTokenTransfer-address-address-uint256-uint256-: xref:token/ERC721.adoc#ERC721-_afterTokenTransfer-address-address-uint256-uint256-
 :xref-ERC721-__unsafe_increaseBalance-address-uint256-: xref:token/ERC721.adoc#ERC721-__unsafe_increaseBalance-address-uint256-
+:xref-IERC4906-MetadataUpdate-uint256-: xref:interfaces.adoc#IERC4906-MetadataUpdate-uint256-
+:xref-IERC4906-BatchMetadataUpdate-uint256-uint256-: xref:interfaces.adoc#IERC4906-BatchMetadataUpdate-uint256-uint256-
 :xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
 :xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
 :xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
 :IERC721Metadata-tokenURI: pass:normal[xref:token/ERC721.adoc#IERC721Metadata-tokenURI-uint256-[`IERC721Metadata.tokenURI`]]
 :ERC721-_burn: pass:normal[xref:token/ERC721.adoc#ERC721-_burn-uint256-[`ERC721._burn`]]
 :Votes: pass:normal[xref:governance.adoc#Votes[`Votes`]]
 :xref-ERC721Votes-_afterTokenTransfer-address-address-uint256-uint256-: xref:token/ERC721.adoc#ERC721Votes-_afterTokenTransfer-address-address-uint256-uint256-
 :xref-ERC721Votes-_getVotingUnits-address-: xref:token/ERC721.adoc#ERC721Votes-_getVotingUnits-address-
+:xref-Votes-clock--: xref:governance.adoc#Votes-clock--
+:xref-Votes-CLOCK_MODE--: xref:governance.adoc#Votes-CLOCK_MODE--
 :xref-Votes-getVotes-address-: xref:governance.adoc#Votes-getVotes-address-
 :xref-Votes-getPastVotes-address-uint256-: xref:governance.adoc#Votes-getPastVotes-address-uint256-
 :xref-Votes-getPastTotalSupply-uint256-: xref:governance.adoc#Votes-getPastTotalSupply-uint256-
@@ -327,6 +334,7 @@
 :xref-Votes-DOMAIN_SEPARATOR--: xref:governance.adoc#Votes-DOMAIN_SEPARATOR--
 :xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
 :xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
 :xref-ERC721-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721-supportsInterface-bytes4-
 :xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
 :xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
@@ -355,11 +363,12 @@
 :xref-ERC721-_requireMinted-uint256-: xref:token/ERC721.adoc#ERC721-_requireMinted-uint256-
 :xref-ERC721-_beforeTokenTransfer-address-address-uint256-uint256-: xref:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-uint256-
 :xref-ERC721-__unsafe_increaseBalance-address-uint256-: xref:token/ERC721.adoc#ERC721-__unsafe_increaseBalance-address-uint256-
+:xref-IVotes-DelegateChanged-address-address-address-: xref:governance.adoc#IVotes-DelegateChanged-address-address-address-
+:xref-IVotes-DelegateVotesChanged-address-uint256-uint256-: xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
 :xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
 :xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
 :xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
-:xref-IVotes-DelegateChanged-address-address-address-: xref:governance.adoc#IVotes-DelegateChanged-address-address-address-
-:xref-IVotes-DelegateVotesChanged-address-uint256-uint256-: xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-
 :ERC721-_afterTokenTransfer: pass:normal[xref:token/ERC721.adoc#ERC721-_afterTokenTransfer-address-address-uint256-uint256-[`ERC721._afterTokenTransfer`]]
 :IVotes-DelegateVotesChanged: pass:normal[xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-[`IVotes.DelegateVotesChanged`]]
 :ERC2981-_setDefaultRoyalty: pass:normal[xref:token/common.adoc#ERC2981-_setDefaultRoyalty-address-uint96-[`ERC2981._setDefaultRoyalty`]]
@@ -404,6 +413,48 @@
 :xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
 :IERC165-supportsInterface: pass:normal[xref:utils.adoc#IERC165-supportsInterface-bytes4-[`IERC165.supportsInterface`]]
 :ERC721-_burn: pass:normal[xref:token/ERC721.adoc#ERC721-_burn-uint256-[`ERC721._burn`]]
+:ERC721Votes: pass:normal[xref:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]]
+:xref-ERC721Wrapper-constructor-contract-IERC721-: xref:token/ERC721.adoc#ERC721Wrapper-constructor-contract-IERC721-
+:xref-ERC721Wrapper-depositFor-address-uint256---: xref:token/ERC721.adoc#ERC721Wrapper-depositFor-address-uint256---
+:xref-ERC721Wrapper-withdrawTo-address-uint256---: xref:token/ERC721.adoc#ERC721Wrapper-withdrawTo-address-uint256---
+:xref-ERC721Wrapper-onERC721Received-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721Wrapper-onERC721Received-address-address-uint256-bytes-
+:xref-ERC721Wrapper-_recover-address-uint256-: xref:token/ERC721.adoc#ERC721Wrapper-_recover-address-uint256-
+:xref-ERC721Wrapper-underlying--: xref:token/ERC721.adoc#ERC721Wrapper-underlying--
+:xref-ERC721-supportsInterface-bytes4-: xref:token/ERC721.adoc#ERC721-supportsInterface-bytes4-
+:xref-ERC721-balanceOf-address-: xref:token/ERC721.adoc#ERC721-balanceOf-address-
+:xref-ERC721-ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-ownerOf-uint256-
+:xref-ERC721-name--: xref:token/ERC721.adoc#ERC721-name--
+:xref-ERC721-symbol--: xref:token/ERC721.adoc#ERC721-symbol--
+:xref-ERC721-tokenURI-uint256-: xref:token/ERC721.adoc#ERC721-tokenURI-uint256-
+:xref-ERC721-_baseURI--: xref:token/ERC721.adoc#ERC721-_baseURI--
+:xref-ERC721-approve-address-uint256-: xref:token/ERC721.adoc#ERC721-approve-address-uint256-
+:xref-ERC721-getApproved-uint256-: xref:token/ERC721.adoc#ERC721-getApproved-uint256-
+:xref-ERC721-setApprovalForAll-address-bool-: xref:token/ERC721.adoc#ERC721-setApprovalForAll-address-bool-
+:xref-ERC721-isApprovedForAll-address-address-: xref:token/ERC721.adoc#ERC721-isApprovedForAll-address-address-
+:xref-ERC721-transferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-transferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-
+:xref-ERC721-safeTransferFrom-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-safeTransferFrom-address-address-uint256-bytes-
+:xref-ERC721-_safeTransfer-address-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeTransfer-address-address-uint256-bytes-
+:xref-ERC721-_ownerOf-uint256-: xref:token/ERC721.adoc#ERC721-_ownerOf-uint256-
+:xref-ERC721-_exists-uint256-: xref:token/ERC721.adoc#ERC721-_exists-uint256-
+:xref-ERC721-_isApprovedOrOwner-address-uint256-: xref:token/ERC721.adoc#ERC721-_isApprovedOrOwner-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-
+:xref-ERC721-_safeMint-address-uint256-bytes-: xref:token/ERC721.adoc#ERC721-_safeMint-address-uint256-bytes-
+:xref-ERC721-_mint-address-uint256-: xref:token/ERC721.adoc#ERC721-_mint-address-uint256-
+:xref-ERC721-_burn-uint256-: xref:token/ERC721.adoc#ERC721-_burn-uint256-
+:xref-ERC721-_transfer-address-address-uint256-: xref:token/ERC721.adoc#ERC721-_transfer-address-address-uint256-
+:xref-ERC721-_approve-address-uint256-: xref:token/ERC721.adoc#ERC721-_approve-address-uint256-
+:xref-ERC721-_setApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#ERC721-_setApprovalForAll-address-address-bool-
+:xref-ERC721-_requireMinted-uint256-: xref:token/ERC721.adoc#ERC721-_requireMinted-uint256-
+:xref-ERC721-_beforeTokenTransfer-address-address-uint256-uint256-: xref:token/ERC721.adoc#ERC721-_beforeTokenTransfer-address-address-uint256-uint256-
+:xref-ERC721-_afterTokenTransfer-address-address-uint256-uint256-: xref:token/ERC721.adoc#ERC721-_afterTokenTransfer-address-address-uint256-uint256-
+:xref-ERC721-__unsafe_increaseBalance-address-uint256-: xref:token/ERC721.adoc#ERC721-__unsafe_increaseBalance-address-uint256-
+:xref-IERC721-Transfer-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Transfer-address-address-uint256-
+:xref-IERC721-Approval-address-address-uint256-: xref:token/ERC721.adoc#IERC721-Approval-address-address-uint256-
+:xref-IERC721-ApprovalForAll-address-address-bool-: xref:token/ERC721.adoc#IERC721-ApprovalForAll-address-address-bool-
+:IERC721Receiver-onERC721Received: pass:normal[xref:token/ERC721.adoc#IERC721Receiver-onERC721Received-address-address-uint256-bytes-[`IERC721Receiver.onERC721Received`]]
+:IERC721-transferFrom: pass:normal[xref:token/ERC721.adoc#IERC721-transferFrom-address-address-uint256-[`IERC721.transferFrom`]]
+:ERC721Wrapper-_recover: pass:normal[xref:token/ERC721.adoc#ERC721Wrapper-_recover-address-uint256-[`ERC721Wrapper._recover`]]
 :ERC721: pass:normal[xref:token/ERC721.adoc#ERC721[`ERC721`]]
 :AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
 :xref-ERC721PresetMinterPauserAutoId-constructor-string-string-string-: xref:token/ERC721.adoc#ERC721PresetMinterPauserAutoId-constructor-string-string-string-
@@ -513,6 +564,7 @@ Additionally there are a few of other extensions:
 * {ERC721Royalty}: A way to signal royalty information following ERC2981.
 * {ERC721Pausable}: A primitive to pause contract operation.
 * {ERC721Burnable}: A way for token holders to burn their own tokens.
+* {ERC721Wrapper}: Wrapper to create an ERC721 backed by another ERC721, with deposit and withdraw methods. Useful in conjunction with {ERC721Votes}.
 
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC721 (such as <<ERC721-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc721.adoc#Presets[ERC721 Presets] (such as {ERC721PresetMinterPauserAutoId}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
 
@@ -533,7 +585,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 [.contract]
 [[IERC721]]
-=== `++IERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/IERC721.sol[{github-icon},role=heading-link]
+=== `++IERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/IERC721.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -551,7 +603,7 @@ Required interface of an ERC721 compliant contract.
 * {xref-IERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
 * {xref-IERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
 * {xref-IERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
-* {xref-IERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, _approved)++`]
+* {xref-IERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
 * {xref-IERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
 * {xref-IERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
 
@@ -659,7 +711,7 @@ Emits an {Approval} event.
 
 [.contract-item]
 [[IERC721-setApprovalForAll-address-bool-]]
-==== `[.contract-item-name]#++setApprovalForAll++#++(address operator, bool _approved)++` [.item-kind]#external#
+==== `[.contract-item-name]#++setApprovalForAll++#++(address operator, bool approved)++` [.item-kind]#external#
 
 Approve or remove `operator` as an operator for the caller.
 Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
@@ -712,7 +764,7 @@ Emitted when `owner` enables or disables (`approved`) `operator` to manage all o
 
 [.contract]
 [[IERC721Metadata]]
-=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/extensions/IERC721Metadata.sol[{github-icon},role=heading-link]
+=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/extensions/IERC721Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -736,7 +788,7 @@ See https://eips.ethereum.org/EIPS/eip-721
 * {xref-IERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
 * {xref-IERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
 * {xref-IERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
-* {xref-IERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, _approved)++`]
+* {xref-IERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
 * {xref-IERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
 * {xref-IERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
 
@@ -785,7 +837,7 @@ Returns the Uniform Resource Identifier (URI) for `tokenId` token.
 
 [.contract]
 [[IERC721Enumerable]]
-=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/extensions/IERC721Enumerable.sol[{github-icon},role=heading-link]
+=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/extensions/IERC721Enumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -809,7 +861,7 @@ See https://eips.ethereum.org/EIPS/eip-721
 * {xref-IERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
 * {xref-IERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
 * {xref-IERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
-* {xref-IERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, _approved)++`]
+* {xref-IERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
 * {xref-IERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
 * {xref-IERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
 
@@ -854,12 +906,6 @@ Use along with {balanceOf} to enumerate all of ``owner``'s tokens.
 Returns a token ID at a given `index` of all the tokens stored by the contract.
 Use along with {totalSupply} to enumerate all tokens.
 
-:_name: pass:normal[xref:#ERC721-_name-string[`++_name++`]]
-:_symbol: pass:normal[xref:#ERC721-_symbol-string[`++_symbol++`]]
-:_owners: pass:normal[xref:#ERC721-_owners-mapping-uint256----address-[`++_owners++`]]
-:_balances: pass:normal[xref:#ERC721-_balances-mapping-address----uint256-[`++_balances++`]]
-:_tokenApprovals: pass:normal[xref:#ERC721-_tokenApprovals-mapping-uint256----address-[`++_tokenApprovals++`]]
-:_operatorApprovals: pass:normal[xref:#ERC721-_operatorApprovals-mapping-address----mapping-address----bool--[`++_operatorApprovals++`]]
 :constructor: pass:normal[xref:#ERC721-constructor-string-string-[`++constructor++`]]
 :supportsInterface: pass:normal[xref:#ERC721-supportsInterface-bytes4-[`++supportsInterface++`]]
 :balanceOf: pass:normal[xref:#ERC721-balanceOf-address-[`++balanceOf++`]]
@@ -887,14 +933,13 @@ Use along with {totalSupply} to enumerate all tokens.
 :_approve: pass:normal[xref:#ERC721-_approve-address-uint256-[`++_approve++`]]
 :_setApprovalForAll: pass:normal[xref:#ERC721-_setApprovalForAll-address-address-bool-[`++_setApprovalForAll++`]]
 :_requireMinted: pass:normal[xref:#ERC721-_requireMinted-uint256-[`++_requireMinted++`]]
-:_checkOnERC721Received: pass:normal[xref:#ERC721-_checkOnERC721Received-address-address-uint256-bytes-[`++_checkOnERC721Received++`]]
 :_beforeTokenTransfer: pass:normal[xref:#ERC721-_beforeTokenTransfer-address-address-uint256-uint256-[`++_beforeTokenTransfer++`]]
 :_afterTokenTransfer: pass:normal[xref:#ERC721-_afterTokenTransfer-address-address-uint256-uint256-[`++_afterTokenTransfer++`]]
 :__unsafe_increaseBalance: pass:normal[xref:#ERC721-__unsafe_increaseBalance-address-uint256-[`++__unsafe_increaseBalance++`]]
 
 [.contract]
 [[ERC721]]
-=== `++ERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/ERC721.sol[{github-icon},role=heading-link]
+=== `++ERC721++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/ERC721.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1243,23 +1288,15 @@ WARNING: Anyone calling this MUST ensure that the balances remain consistent wit
 being that for any address `a` the value returned by `balanceOf(a)` must be equal to the number of tokens such
 that `ownerOf(tokenId)` is `a`.
 
-:_ownedTokens: pass:normal[xref:#ERC721Enumerable-_ownedTokens-mapping-address----mapping-uint256----uint256--[`++_ownedTokens++`]]
-:_ownedTokensIndex: pass:normal[xref:#ERC721Enumerable-_ownedTokensIndex-mapping-uint256----uint256-[`++_ownedTokensIndex++`]]
-:_allTokens: pass:normal[xref:#ERC721Enumerable-_allTokens-uint256--[`++_allTokens++`]]
-:_allTokensIndex: pass:normal[xref:#ERC721Enumerable-_allTokensIndex-mapping-uint256----uint256-[`++_allTokensIndex++`]]
 :supportsInterface: pass:normal[xref:#ERC721Enumerable-supportsInterface-bytes4-[`++supportsInterface++`]]
 :tokenOfOwnerByIndex: pass:normal[xref:#ERC721Enumerable-tokenOfOwnerByIndex-address-uint256-[`++tokenOfOwnerByIndex++`]]
 :totalSupply: pass:normal[xref:#ERC721Enumerable-totalSupply--[`++totalSupply++`]]
 :tokenByIndex: pass:normal[xref:#ERC721Enumerable-tokenByIndex-uint256-[`++tokenByIndex++`]]
 :_beforeTokenTransfer: pass:normal[xref:#ERC721Enumerable-_beforeTokenTransfer-address-address-uint256-uint256-[`++_beforeTokenTransfer++`]]
-:_addTokenToOwnerEnumeration: pass:normal[xref:#ERC721Enumerable-_addTokenToOwnerEnumeration-address-uint256-[`++_addTokenToOwnerEnumeration++`]]
-:_addTokenToAllTokensEnumeration: pass:normal[xref:#ERC721Enumerable-_addTokenToAllTokensEnumeration-uint256-[`++_addTokenToAllTokensEnumeration++`]]
-:_removeTokenFromOwnerEnumeration: pass:normal[xref:#ERC721Enumerable-_removeTokenFromOwnerEnumeration-address-uint256-[`++_removeTokenFromOwnerEnumeration++`]]
-:_removeTokenFromAllTokensEnumeration: pass:normal[xref:#ERC721Enumerable-_removeTokenFromAllTokensEnumeration-uint256-[`++_removeTokenFromAllTokensEnumeration++`]]
 
 [.contract]
 [[ERC721Enumerable]]
-=== `++ERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/extensions/ERC721Enumerable.sol[{github-icon},role=heading-link]
+=== `++ERC721Enumerable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/extensions/ERC721Enumerable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1387,7 +1424,7 @@ See {ERC721-_beforeTokenTransfer}.
 
 [.contract]
 [[IERC721Receiver]]
-=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/IERC721Receiver.sol[{github-icon},role=heading-link]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/IERC721Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1422,7 +1459,7 @@ The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.
 
 [.contract]
 [[ERC721Pausable]]
-=== `++ERC721Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/extensions/ERC721Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC721Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/extensions/ERC721Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1542,7 +1579,7 @@ Requirements:
 
 [.contract]
 [[ERC721Burnable]]
-=== `++ERC721Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/extensions/ERC721Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC721Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/extensions/ERC721Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1636,18 +1673,15 @@ Requirements:
 
 - The caller must own `tokenId` or be an approved operator.
 
-:_sequentialOwnership: pass:normal[xref:#ERC721Consecutive-_sequentialOwnership-struct-Checkpoints-Trace160[`++_sequentialOwnership++`]]
-:_sequentialBurn: pass:normal[xref:#ERC721Consecutive-_sequentialBurn-struct-BitMaps-BitMap[`++_sequentialBurn++`]]
 :_maxBatchSize: pass:normal[xref:#ERC721Consecutive-_maxBatchSize--[`++_maxBatchSize++`]]
 :_ownerOf: pass:normal[xref:#ERC721Consecutive-_ownerOf-uint256-[`++_ownerOf++`]]
 :_mintConsecutive: pass:normal[xref:#ERC721Consecutive-_mintConsecutive-address-uint96-[`++_mintConsecutive++`]]
 :_mint: pass:normal[xref:#ERC721Consecutive-_mint-address-uint256-[`++_mint++`]]
 :_afterTokenTransfer: pass:normal[xref:#ERC721Consecutive-_afterTokenTransfer-address-address-uint256-uint256-[`++_afterTokenTransfer++`]]
-:_totalConsecutiveSupply: pass:normal[xref:#ERC721Consecutive-_totalConsecutiveSupply--[`++_totalConsecutiveSupply++`]]
 
 [.contract]
 [[ERC721Consecutive]]
-=== `++ERC721Consecutive++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/extensions/ERC721Consecutive.sol[{github-icon},role=heading-link]
+=== `++ERC721Consecutive++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/extensions/ERC721Consecutive.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1787,7 +1821,7 @@ Requirements:
 - `batchSize` must not be greater than {_maxBatchSize}.
 - The function is called in the constructor of the contract (directly or indirectly).
 
-CAUTION: Does not emit a `Transfer` event. This is ERC721 compliant as long as it is done outside of the
+CAUTION: Does not emit a `Transfer` event. This is ERC721 compliant as long as it is done inside of the
 constructor, which is enforced by this function.
 
 CAUTION: Does not invoke `onERC721Received` on the receiver.
@@ -1809,14 +1843,14 @@ After construction, {_mintConsecutive} is no longer available and {_mint} become
 
 See {ERC721-_afterTokenTransfer}. Burning of tokens that have been sequentially minted must be explicit.
 
-:_tokenURIs: pass:normal[xref:#ERC721URIStorage-_tokenURIs-mapping-uint256----string-[`++_tokenURIs++`]]
+:supportsInterface: pass:normal[xref:#ERC721URIStorage-supportsInterface-bytes4-[`++supportsInterface++`]]
 :tokenURI: pass:normal[xref:#ERC721URIStorage-tokenURI-uint256-[`++tokenURI++`]]
 :_setTokenURI: pass:normal[xref:#ERC721URIStorage-_setTokenURI-uint256-string-[`++_setTokenURI++`]]
 :_burn: pass:normal[xref:#ERC721URIStorage-_burn-uint256-[`++_burn++`]]
 
 [.contract]
 [[ERC721URIStorage]]
-=== `++ERC721URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/extensions/ERC721URIStorage.sol[{github-icon},role=heading-link]
+=== `++ERC721URIStorage++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/extensions/ERC721URIStorage.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1828,13 +1862,13 @@ ERC721 token with storage based token URI management.
 [.contract-index]
 .Functions
 --
+* {xref-ERC721URIStorage-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
 * {xref-ERC721URIStorage-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
 * {xref-ERC721URIStorage-_setTokenURI-uint256-string-}[`++_setTokenURI(tokenId, _tokenURI)++`]
 * {xref-ERC721URIStorage-_burn-uint256-}[`++_burn(tokenId)++`]
 
 [.contract-subindex-inherited]
 .ERC721
-* {xref-ERC721-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
 * {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
 * {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
 * {xref-ERC721-name--}[`++name()++`]
@@ -1866,6 +1900,9 @@ ERC721 token with storage based token URI management.
 .IERC721Metadata
 
 [.contract-subindex-inherited]
+.IERC4906
+
+[.contract-subindex-inherited]
 .IERC721
 
 [.contract-subindex-inherited]
@@ -1887,6 +1924,11 @@ ERC721 token with storage based token URI management.
 .IERC721Metadata
 
 [.contract-subindex-inherited]
+.IERC4906
+* {xref-IERC4906-MetadataUpdate-uint256-}[`++MetadataUpdate(_tokenId)++`]
+* {xref-IERC4906-BatchMetadataUpdate-uint256-uint256-}[`++BatchMetadataUpdate(_fromTokenId, _toTokenId)++`]
+
+[.contract-subindex-inherited]
 .IERC721
 * {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
 * {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
@@ -1901,6 +1943,12 @@ ERC721 token with storage based token URI management.
 --
 
 [.contract-item]
+[[ERC721URIStorage-supportsInterface-bytes4-]]
+==== `[.contract-item-name]#++supportsInterface++#++(bytes4 interfaceId) → bool++` [.item-kind]#public#
+
+See {IERC165-supportsInterface}
+
+[.contract-item]
 [[ERC721URIStorage-tokenURI-uint256-]]
 ==== `[.contract-item-name]#++tokenURI++#++(uint256 tokenId) → string++` [.item-kind]#public#
 
@@ -1911,6 +1959,8 @@ See {IERC721Metadata-tokenURI}.
 ==== `[.contract-item-name]#++_setTokenURI++#++(uint256 tokenId, string _tokenURI)++` [.item-kind]#internal#
 
 Sets `_tokenURI` as the tokenURI of `tokenId`.
+
+Emits {MetadataUpdate}.
 
 Requirements:
 
@@ -1929,7 +1979,7 @@ the storage mapping.
 
 [.contract]
 [[ERC721Votes]]
-=== `++ERC721Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/extensions/ERC721Votes.sol[{github-icon},role=heading-link]
+=== `++ERC721Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/extensions/ERC721Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1953,9 +2003,11 @@ _Available since v4.5._
 
 [.contract-subindex-inherited]
 .Votes
+* {xref-Votes-clock--}[`++clock()++`]
+* {xref-Votes-CLOCK_MODE--}[`++CLOCK_MODE()++`]
 * {xref-Votes-getVotes-address-}[`++getVotes(account)++`]
-* {xref-Votes-getPastVotes-address-uint256-}[`++getPastVotes(account, blockNumber)++`]
-* {xref-Votes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(blockNumber)++`]
+* {xref-Votes-getPastVotes-address-uint256-}[`++getPastVotes(account, timepoint)++`]
+* {xref-Votes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(timepoint)++`]
 * {xref-Votes-_getTotalSupply--}[`++_getTotalSupply()++`]
 * {xref-Votes-delegates-address-}[`++delegates(account)++`]
 * {xref-Votes-delegate-address-}[`++delegate(delegatee)++`]
@@ -1967,9 +2019,22 @@ _Available since v4.5._
 * {xref-Votes-DOMAIN_SEPARATOR--}[`++DOMAIN_SEPARATOR()++`]
 
 [.contract-subindex-inherited]
+.IERC5805
+
+[.contract-subindex-inherited]
+.IVotes
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
 .EIP712
 * {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
 * {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
 
 [.contract-subindex-inherited]
 .ERC721
@@ -2014,9 +2079,6 @@ _Available since v4.5._
 [.contract-subindex-inherited]
 .IERC165
 
-[.contract-subindex-inherited]
-.IVotes
-
 --
 
 [.contract-index]
@@ -2027,7 +2089,22 @@ _Available since v4.5._
 .Votes
 
 [.contract-subindex-inherited]
+.IERC5805
+
+[.contract-subindex-inherited]
+.IVotes
+* {xref-IVotes-DelegateChanged-address-address-address-}[`++DelegateChanged(delegator, fromDelegate, toDelegate)++`]
+* {xref-IVotes-DelegateVotesChanged-address-uint256-uint256-}[`++DelegateVotesChanged(delegate, previousBalance, newBalance)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
 .EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
 
 [.contract-subindex-inherited]
 .ERC721
@@ -2047,11 +2124,6 @@ _Available since v4.5._
 [.contract-subindex-inherited]
 .IERC165
 
-[.contract-subindex-inherited]
-.IVotes
-* {xref-IVotes-DelegateChanged-address-address-address-}[`++DelegateChanged(delegator, fromDelegate, toDelegate)++`]
-* {xref-IVotes-DelegateVotesChanged-address-uint256-uint256-}[`++DelegateVotesChanged(delegate, previousBalance, newBalance)++`]
-
 --
 
 [.contract-item]
@@ -2068,12 +2140,14 @@ Emits a {IVotes-DelegateVotesChanged} event.
 
 Returns the balance of `account`.
 
+WARNING: Overriding this function will likely result in incorrect vote tracking.
+
 :supportsInterface: pass:normal[xref:#ERC721Royalty-supportsInterface-bytes4-[`++supportsInterface++`]]
 :_burn: pass:normal[xref:#ERC721Royalty-_burn-uint256-[`++_burn++`]]
 
 [.contract]
 [[ERC721Royalty]]
-=== `++ERC721Royalty++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/extensions/ERC721Royalty.sol[{github-icon},role=heading-link]
+=== `++ERC721Royalty++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/extensions/ERC721Royalty.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2136,7 +2210,7 @@ _Available since v4.5._
 
 [.contract-subindex-inherited]
 .ERC2981
-* {xref-ERC2981-royaltyInfo-uint256-uint256-}[`++royaltyInfo(_tokenId, _salePrice)++`]
+* {xref-ERC2981-royaltyInfo-uint256-uint256-}[`++royaltyInfo(tokenId, salePrice)++`]
 * {xref-ERC2981-_feeDenominator--}[`++_feeDenominator()++`]
 * {xref-ERC2981-_setDefaultRoyalty-address-uint96-}[`++_setDefaultRoyalty(receiver, feeNumerator)++`]
 * {xref-ERC2981-_deleteDefaultRoyalty--}[`++_deleteDefaultRoyalty()++`]
@@ -2196,14 +2270,164 @@ See {IERC165-supportsInterface}.
 
 See {ERC721-_burn}. This override additionally clears the royalty information for the token.
 
+:constructor: pass:normal[xref:#ERC721Wrapper-constructor-contract-IERC721-[`++constructor++`]]
+:depositFor: pass:normal[xref:#ERC721Wrapper-depositFor-address-uint256---[`++depositFor++`]]
+:withdrawTo: pass:normal[xref:#ERC721Wrapper-withdrawTo-address-uint256---[`++withdrawTo++`]]
+:onERC721Received: pass:normal[xref:#ERC721Wrapper-onERC721Received-address-address-uint256-bytes-[`++onERC721Received++`]]
+:_recover: pass:normal[xref:#ERC721Wrapper-_recover-address-uint256-[`++_recover++`]]
+:underlying: pass:normal[xref:#ERC721Wrapper-underlying--[`++underlying++`]]
+
+[.contract]
+[[ERC721Wrapper]]
+=== `++ERC721Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/extensions/ERC721Wrapper.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Wrapper.sol";
+```
+
+Extension of the ERC721 token contract to support token wrapping.
+
+Users can deposit and withdraw an "underlying token" and receive a "wrapped token" with a matching tokenId. This is useful
+in conjunction with other modules. For example, combining this wrapping mechanism with {ERC721Votes} will allow the
+wrapping of an existing "basic" ERC721 into a governance token.
+
+_Available since v4.9.0_
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC721Wrapper-constructor-contract-IERC721-}[`++constructor(underlyingToken)++`]
+* {xref-ERC721Wrapper-depositFor-address-uint256---}[`++depositFor(account, tokenIds)++`]
+* {xref-ERC721Wrapper-withdrawTo-address-uint256---}[`++withdrawTo(account, tokenIds)++`]
+* {xref-ERC721Wrapper-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, from, tokenId, )++`]
+* {xref-ERC721Wrapper-_recover-address-uint256-}[`++_recover(account, tokenId)++`]
+* {xref-ERC721Wrapper-underlying--}[`++underlying()++`]
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.ERC721
+* {xref-ERC721-supportsInterface-bytes4-}[`++supportsInterface(interfaceId)++`]
+* {xref-ERC721-balanceOf-address-}[`++balanceOf(owner)++`]
+* {xref-ERC721-ownerOf-uint256-}[`++ownerOf(tokenId)++`]
+* {xref-ERC721-name--}[`++name()++`]
+* {xref-ERC721-symbol--}[`++symbol()++`]
+* {xref-ERC721-tokenURI-uint256-}[`++tokenURI(tokenId)++`]
+* {xref-ERC721-_baseURI--}[`++_baseURI()++`]
+* {xref-ERC721-approve-address-uint256-}[`++approve(to, tokenId)++`]
+* {xref-ERC721-getApproved-uint256-}[`++getApproved(tokenId)++`]
+* {xref-ERC721-setApprovalForAll-address-bool-}[`++setApprovalForAll(operator, approved)++`]
+* {xref-ERC721-isApprovedForAll-address-address-}[`++isApprovedForAll(owner, operator)++`]
+* {xref-ERC721-transferFrom-address-address-uint256-}[`++transferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-}[`++safeTransferFrom(from, to, tokenId)++`]
+* {xref-ERC721-safeTransferFrom-address-address-uint256-bytes-}[`++safeTransferFrom(from, to, tokenId, data)++`]
+* {xref-ERC721-_safeTransfer-address-address-uint256-bytes-}[`++_safeTransfer(from, to, tokenId, data)++`]
+* {xref-ERC721-_ownerOf-uint256-}[`++_ownerOf(tokenId)++`]
+* {xref-ERC721-_exists-uint256-}[`++_exists(tokenId)++`]
+* {xref-ERC721-_isApprovedOrOwner-address-uint256-}[`++_isApprovedOrOwner(spender, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-}[`++_safeMint(to, tokenId)++`]
+* {xref-ERC721-_safeMint-address-uint256-bytes-}[`++_safeMint(to, tokenId, data)++`]
+* {xref-ERC721-_mint-address-uint256-}[`++_mint(to, tokenId)++`]
+* {xref-ERC721-_burn-uint256-}[`++_burn(tokenId)++`]
+* {xref-ERC721-_transfer-address-address-uint256-}[`++_transfer(from, to, tokenId)++`]
+* {xref-ERC721-_approve-address-uint256-}[`++_approve(to, tokenId)++`]
+* {xref-ERC721-_setApprovalForAll-address-address-bool-}[`++_setApprovalForAll(owner, operator, approved)++`]
+* {xref-ERC721-_requireMinted-uint256-}[`++_requireMinted(tokenId)++`]
+* {xref-ERC721-_beforeTokenTransfer-address-address-uint256-uint256-}[`++_beforeTokenTransfer(from, to, firstTokenId, batchSize)++`]
+* {xref-ERC721-_afterTokenTransfer-address-address-uint256-uint256-}[`++_afterTokenTransfer(from, to, firstTokenId, batchSize)++`]
+* {xref-ERC721-__unsafe_increaseBalance-address-uint256-}[`++__unsafe_increaseBalance(account, amount)++`]
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IERC721Receiver
+
+[.contract-subindex-inherited]
+.ERC721
+
+[.contract-subindex-inherited]
+.IERC721Metadata
+
+[.contract-subindex-inherited]
+.IERC721
+* {xref-IERC721-Transfer-address-address-uint256-}[`++Transfer(from, to, tokenId)++`]
+* {xref-IERC721-Approval-address-address-uint256-}[`++Approval(owner, approved, tokenId)++`]
+* {xref-IERC721-ApprovalForAll-address-address-bool-}[`++ApprovalForAll(owner, operator, approved)++`]
+
+[.contract-subindex-inherited]
+.ERC165
+
+[.contract-subindex-inherited]
+.IERC165
+
+--
+
+[.contract-item]
+[[ERC721Wrapper-constructor-contract-IERC721-]]
+==== `[.contract-item-name]#++constructor++#++(contract IERC721 underlyingToken)++` [.item-kind]#internal#
+
+[.contract-item]
+[[ERC721Wrapper-depositFor-address-uint256---]]
+==== `[.contract-item-name]#++depositFor++#++(address account, uint256[] tokenIds) → bool++` [.item-kind]#public#
+
+Allow a user to deposit underlying tokens and mint the corresponding tokenIds.
+
+[.contract-item]
+[[ERC721Wrapper-withdrawTo-address-uint256---]]
+==== `[.contract-item-name]#++withdrawTo++#++(address account, uint256[] tokenIds) → bool++` [.item-kind]#public#
+
+Allow a user to burn wrapped tokens and withdraw the corresponding tokenIds of the underlying tokens.
+
+[.contract-item]
+[[ERC721Wrapper-onERC721Received-address-address-uint256-bytes-]]
+==== `[.contract-item-name]#++onERC721Received++#++(address, address from, uint256 tokenId, bytes) → bytes4++` [.item-kind]#public#
+
+Overrides {IERC721Receiver-onERC721Received} to allow minting on direct ERC721 transfers to
+this contract.
+
+In case there's data attached, it validates that the operator is this contract, so only trusted data
+is accepted from {depositFor}.
+
+WARNING: Doesn't work with unsafe transfers (eg. {IERC721-transferFrom}). Use {ERC721Wrapper-_recover}
+for recovering in that scenario.
+
+[.contract-item]
+[[ERC721Wrapper-_recover-address-uint256-]]
+==== `[.contract-item-name]#++_recover++#++(address account, uint256 tokenId) → uint256++` [.item-kind]#internal#
+
+Mint a wrapped token to cover any underlyingToken that would have been transferred by mistake. Internal
+function that can be exposed with access control if desired.
+
+[.contract-item]
+[[ERC721Wrapper-underlying--]]
+==== `[.contract-item-name]#++underlying++#++() → contract IERC721++` [.item-kind]#public#
+
+Returns the underlying token.
+
 == Presets
 
 These contracts are preconfigured combinations of the above features. They can be used through inheritance or as models to copy and paste their source code.
 
 :MINTER_ROLE: pass:normal[xref:#ERC721PresetMinterPauserAutoId-MINTER_ROLE-bytes32[`++MINTER_ROLE++`]]
 :PAUSER_ROLE: pass:normal[xref:#ERC721PresetMinterPauserAutoId-PAUSER_ROLE-bytes32[`++PAUSER_ROLE++`]]
-:_tokenIdTracker: pass:normal[xref:#ERC721PresetMinterPauserAutoId-_tokenIdTracker-struct-Counters-Counter[`++_tokenIdTracker++`]]
-:_baseTokenURI: pass:normal[xref:#ERC721PresetMinterPauserAutoId-_baseTokenURI-string[`++_baseTokenURI++`]]
 :constructor: pass:normal[xref:#ERC721PresetMinterPauserAutoId-constructor-string-string-string-[`++constructor++`]]
 :_baseURI: pass:normal[xref:#ERC721PresetMinterPauserAutoId-_baseURI--[`++_baseURI++`]]
 :mint: pass:normal[xref:#ERC721PresetMinterPauserAutoId-mint-address-[`++mint++`]]
@@ -2214,7 +2438,7 @@ These contracts are preconfigured combinations of the above features. They can b
 
 [.contract]
 [[ERC721PresetMinterPauserAutoId]]
-=== `++ERC721PresetMinterPauserAutoId++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol[{github-icon},role=heading-link]
+=== `++ERC721PresetMinterPauserAutoId++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/presets/ERC721PresetMinterPauserAutoId.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2468,7 +2692,7 @@ See {IERC165-supportsInterface}.
 
 [.contract]
 [[ERC721Holder]]
-=== `++ERC721Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC721/utils/ERC721Holder.sol[{github-icon},role=heading-link]
+=== `++ERC721Holder++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC721/utils/ERC721Holder.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

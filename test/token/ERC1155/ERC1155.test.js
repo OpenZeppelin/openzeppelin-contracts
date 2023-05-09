@@ -4,7 +4,7 @@ const { ZERO_ADDRESS } = constants;
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC1155 } = require('./ERC1155.behavior');
-const ERC1155Mock = artifacts.require('ERC1155Mock');
+const ERC1155Mock = artifacts.require('$ERC1155');
 
 contract('ERC1155', function (accounts) {
   const [operator, tokenHolder, tokenBatchHolder, ...otherAccounts] = accounts;
@@ -31,14 +31,14 @@ contract('ERC1155', function (accounts) {
     describe('_mint', function () {
       it('reverts with a zero destination address', async function () {
         await expectRevert(
-          this.token.mint(ZERO_ADDRESS, tokenId, mintAmount, data),
+          this.token.$_mint(ZERO_ADDRESS, tokenId, mintAmount, data),
           'ERC1155: mint to the zero address',
         );
       });
 
       context('with minted tokens', function () {
         beforeEach(async function () {
-          (this.receipt = await this.token.mint(tokenHolder, tokenId, mintAmount, data, { from: operator }));
+          this.receipt = await this.token.$_mint(tokenHolder, tokenId, mintAmount, data, { from: operator });
         });
 
         it('emits a TransferSingle event', function () {
@@ -60,32 +60,28 @@ contract('ERC1155', function (accounts) {
     describe('_mintBatch', function () {
       it('reverts with a zero destination address', async function () {
         await expectRevert(
-          this.token.mintBatch(ZERO_ADDRESS, tokenBatchIds, mintAmounts, data),
+          this.token.$_mintBatch(ZERO_ADDRESS, tokenBatchIds, mintAmounts, data),
           'ERC1155: mint to the zero address',
         );
       });
 
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
-          this.token.mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts.slice(1), data),
+          this.token.$_mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts.slice(1), data),
           'ERC1155: ids and amounts length mismatch',
         );
 
         await expectRevert(
-          this.token.mintBatch(tokenBatchHolder, tokenBatchIds.slice(1), mintAmounts, data),
+          this.token.$_mintBatch(tokenBatchHolder, tokenBatchIds.slice(1), mintAmounts, data),
           'ERC1155: ids and amounts length mismatch',
         );
       });
 
       context('with minted batch of tokens', function () {
         beforeEach(async function () {
-          (this.receipt = await this.token.mintBatch(
-            tokenBatchHolder,
-            tokenBatchIds,
-            mintAmounts,
-            data,
-            { from: operator },
-          ));
+          this.receipt = await this.token.$_mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts, data, {
+            from: operator,
+          });
         });
 
         it('emits a TransferBatch event', function () {
@@ -110,44 +106,27 @@ contract('ERC1155', function (accounts) {
     });
 
     describe('_burn', function () {
-      it('reverts when burning the zero account\'s tokens', async function () {
-        await expectRevert(
-          this.token.burn(ZERO_ADDRESS, tokenId, mintAmount),
-          'ERC1155: burn from the zero address',
-        );
+      it("reverts when burning the zero account's tokens", async function () {
+        await expectRevert(this.token.$_burn(ZERO_ADDRESS, tokenId, mintAmount), 'ERC1155: burn from the zero address');
       });
 
       it('reverts when burning a non-existent token id', async function () {
-        await expectRevert(
-          this.token.burn(tokenHolder, tokenId, mintAmount),
-          'ERC1155: burn amount exceeds balance',
-        );
+        await expectRevert(this.token.$_burn(tokenHolder, tokenId, mintAmount), 'ERC1155: burn amount exceeds balance');
       });
 
       it('reverts when burning more than available tokens', async function () {
-        await this.token.mint(
-          tokenHolder,
-          tokenId,
-          mintAmount,
-          data,
-          { from: operator },
-        );
+        await this.token.$_mint(tokenHolder, tokenId, mintAmount, data, { from: operator });
 
         await expectRevert(
-          this.token.burn(tokenHolder, tokenId, mintAmount.addn(1)),
+          this.token.$_burn(tokenHolder, tokenId, mintAmount.addn(1)),
           'ERC1155: burn amount exceeds balance',
         );
       });
 
       context('with minted-then-burnt tokens', function () {
         beforeEach(async function () {
-          await this.token.mint(tokenHolder, tokenId, mintAmount, data);
-          (this.receipt = await this.token.burn(
-            tokenHolder,
-            tokenId,
-            burnAmount,
-            { from: operator },
-          ));
+          await this.token.$_mint(tokenHolder, tokenId, mintAmount, data);
+          this.receipt = await this.token.$_burn(tokenHolder, tokenId, burnAmount, { from: operator });
         });
 
         it('emits a TransferSingle event', function () {
@@ -161,50 +140,42 @@ contract('ERC1155', function (accounts) {
         });
 
         it('accounts for both minting and burning', async function () {
-          expect(await this.token.balanceOf(
-            tokenHolder,
-            tokenId,
-          )).to.be.bignumber.equal(mintAmount.sub(burnAmount));
+          expect(await this.token.balanceOf(tokenHolder, tokenId)).to.be.bignumber.equal(mintAmount.sub(burnAmount));
         });
       });
     });
 
     describe('_burnBatch', function () {
-      it('reverts when burning the zero account\'s tokens', async function () {
+      it("reverts when burning the zero account's tokens", async function () {
         await expectRevert(
-          this.token.burnBatch(ZERO_ADDRESS, tokenBatchIds, burnAmounts),
+          this.token.$_burnBatch(ZERO_ADDRESS, tokenBatchIds, burnAmounts),
           'ERC1155: burn from the zero address',
         );
       });
 
       it('reverts if length of inputs do not match', async function () {
         await expectRevert(
-          this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts.slice(1)),
+          this.token.$_burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts.slice(1)),
           'ERC1155: ids and amounts length mismatch',
         );
 
         await expectRevert(
-          this.token.burnBatch(tokenBatchHolder, tokenBatchIds.slice(1), burnAmounts),
+          this.token.$_burnBatch(tokenBatchHolder, tokenBatchIds.slice(1), burnAmounts),
           'ERC1155: ids and amounts length mismatch',
         );
       });
 
       it('reverts when burning a non-existent token id', async function () {
         await expectRevert(
-          this.token.burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts),
+          this.token.$_burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts),
           'ERC1155: burn amount exceeds balance',
         );
       });
 
       context('with minted-then-burnt tokens', function () {
         beforeEach(async function () {
-          await this.token.mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts, data);
-          (this.receipt = await this.token.burnBatch(
-            tokenBatchHolder,
-            tokenBatchIds,
-            burnAmounts,
-            { from: operator },
-          ));
+          await this.token.$_mintBatch(tokenBatchHolder, tokenBatchIds, mintAmounts, data);
+          this.receipt = await this.token.$_burnBatch(tokenBatchHolder, tokenBatchIds, burnAmounts, { from: operator });
         });
 
         it('emits a TransferBatch event', function () {
@@ -248,13 +219,13 @@ contract('ERC1155', function (accounts) {
       const newURI = 'https://token-cdn-domain/{locale}/{id}.json';
 
       it('emits no URI event', async function () {
-        const receipt = await this.token.setURI(newURI);
+        const receipt = await this.token.$_setURI(newURI);
 
         expectEvent.notEmitted(receipt, 'URI');
       });
 
       it('sets the new URI for all token types', async function () {
-        await this.token.setURI(newURI);
+        await this.token.$_setURI(newURI);
 
         expect(await this.token.uri(firstTokenID)).to.be.equal(newURI);
         expect(await this.token.uri(secondTokenID)).to.be.equal(newURI);

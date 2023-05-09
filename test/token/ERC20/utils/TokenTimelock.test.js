@@ -2,11 +2,11 @@ const { BN, expectRevert, time } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
 
-const ERC20Mock = artifacts.require('ERC20Mock');
+const ERC20 = artifacts.require('$ERC20');
 const TokenTimelock = artifacts.require('TokenTimelock');
 
 contract('TokenTimelock', function (accounts) {
-  const [ beneficiary ] = accounts;
+  const [beneficiary] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -15,7 +15,7 @@ contract('TokenTimelock', function (accounts) {
 
   context('with token', function () {
     beforeEach(async function () {
-      this.token = await ERC20Mock.new(name, symbol, beneficiary, 0); // We're not using the preminted tokens
+      this.token = await ERC20.new(name, symbol);
     });
 
     it('rejects a release time in the past', async function () {
@@ -30,7 +30,7 @@ contract('TokenTimelock', function (accounts) {
       beforeEach(async function () {
         this.releaseTime = (await time.latest()).add(time.duration.years(1));
         this.timelock = await TokenTimelock.new(this.token.address, beneficiary, this.releaseTime);
-        await this.token.mint(this.timelock.address, amount);
+        await this.token.$_mint(this.timelock.address, amount);
       });
 
       it('can get state', async function () {

@@ -1,5 +1,8 @@
 const path = require('path');
-const { promises: fs, constants: { F_OK } } = require('fs');
+const {
+  promises: fs,
+  constants: { F_OK },
+} = require('fs');
 const { expect } = require('chai');
 
 const { pathUpdates, updateImportPaths, getUpgradeablePath } = require('../scripts/migrate-imports.js');
@@ -10,6 +13,7 @@ describe('migrate-imports.js', function () {
       try {
         await fs.access(path.join('contracts', p), F_OK);
       } catch (e) {
+        if (p.startsWith('proxy/')) continue; // excluded from transpilation of upgradeable contracts
         await fs.access(path.join('contracts', getUpgradeablePath(p)), F_OK);
       }
     }

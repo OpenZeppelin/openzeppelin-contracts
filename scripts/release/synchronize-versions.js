@@ -4,13 +4,12 @@
 // This is run automatically when npm version is run.
 
 const fs = require('fs');
-const cp = require('child_process');
 
-setVersion('contracts/package.json');
+setVersion('package.json', 'contracts/package.json');
 
-function setVersion (file) {
-  const json = JSON.parse(fs.readFileSync(file));
-  json.version = process.env.npm_package_version;
-  fs.writeFileSync(file, JSON.stringify(json, null, 2) + '\n');
-  cp.execFileSync('git', ['add', file]);
+function setVersion(from, to) {
+  const fromJson = JSON.parse(fs.readFileSync(from));
+  const toJson = JSON.parse(fs.readFileSync(to));
+  toJson.version = fromJson.version;
+  fs.writeFileSync(to, JSON.stringify(toJson, null, 2) + '\n');
 }

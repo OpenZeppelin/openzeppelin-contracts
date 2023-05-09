@@ -3,7 +3,7 @@ const { expect } = require('chai');
 
 const TimersBlockNumberImpl = artifacts.require('TimersBlockNumberImpl');
 
-contract('TimersBlockNumber', function (accounts) {
+contract('TimersBlockNumber', function () {
   beforeEach(async function () {
     this.instance = await TimersBlockNumberImpl.new();
     this.now = await web3.eth.getBlock('latest').then(({ number }) => number);

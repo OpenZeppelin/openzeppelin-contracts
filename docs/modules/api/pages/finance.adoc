@@ -55,13 +55,6 @@ This directory includes primitives for financial systems:
 :PaymentReleased: pass:normal[xref:#PaymentSplitter-PaymentReleased-address-uint256-[`++PaymentReleased++`]]
 :ERC20PaymentReleased: pass:normal[xref:#PaymentSplitter-ERC20PaymentReleased-contract-IERC20-address-uint256-[`++ERC20PaymentReleased++`]]
 :PaymentReceived: pass:normal[xref:#PaymentSplitter-PaymentReceived-address-uint256-[`++PaymentReceived++`]]
-:_totalShares: pass:normal[xref:#PaymentSplitter-_totalShares-uint256[`++_totalShares++`]]
-:_totalReleased: pass:normal[xref:#PaymentSplitter-_totalReleased-uint256[`++_totalReleased++`]]
-:_shares: pass:normal[xref:#PaymentSplitter-_shares-mapping-address----uint256-[`++_shares++`]]
-:_released: pass:normal[xref:#PaymentSplitter-_released-mapping-address----uint256-[`++_released++`]]
-:_payees: pass:normal[xref:#PaymentSplitter-_payees-address--[`++_payees++`]]
-:_erc20TotalReleased: pass:normal[xref:#PaymentSplitter-_erc20TotalReleased-mapping-contract-IERC20----uint256-[`++_erc20TotalReleased++`]]
-:_erc20Released: pass:normal[xref:#PaymentSplitter-_erc20Released-mapping-contract-IERC20----mapping-address----uint256--[`++_erc20Released++`]]
 :constructor: pass:normal[xref:#PaymentSplitter-constructor-address---uint256---[`++constructor++`]]
 :receive: pass:normal[xref:#PaymentSplitter-receive--[`++receive++`]]
 :totalShares: pass:normal[xref:#PaymentSplitter-totalShares--[`++totalShares++`]]
@@ -75,12 +68,10 @@ This directory includes primitives for financial systems:
 :releasable: pass:normal[xref:#PaymentSplitter-releasable-contract-IERC20-address-[`++releasable++`]]
 :release: pass:normal[xref:#PaymentSplitter-release-address-payable-[`++release++`]]
 :release: pass:normal[xref:#PaymentSplitter-release-contract-IERC20-address-[`++release++`]]
-:_pendingPayment: pass:normal[xref:#PaymentSplitter-_pendingPayment-address-uint256-uint256-[`++_pendingPayment++`]]
-:_addPayee: pass:normal[xref:#PaymentSplitter-_addPayee-address-uint256-[`++_addPayee++`]]
 
 [.contract]
 [[PaymentSplitter]]
-=== `++PaymentSplitter++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/finance/PaymentSplitter.sol[{github-icon},role=heading-link]
+=== `++PaymentSplitter++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/finance/PaymentSplitter.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -244,11 +235,6 @@ contract.
 
 :EtherReleased: pass:normal[xref:#VestingWallet-EtherReleased-uint256-[`++EtherReleased++`]]
 :ERC20Released: pass:normal[xref:#VestingWallet-ERC20Released-address-uint256-[`++ERC20Released++`]]
-:_released: pass:normal[xref:#VestingWallet-_released-uint256[`++_released++`]]
-:_erc20Released: pass:normal[xref:#VestingWallet-_erc20Released-mapping-address----uint256-[`++_erc20Released++`]]
-:_beneficiary: pass:normal[xref:#VestingWallet-_beneficiary-address[`++_beneficiary++`]]
-:_start: pass:normal[xref:#VestingWallet-_start-uint64[`++_start++`]]
-:_duration: pass:normal[xref:#VestingWallet-_duration-uint64[`++_duration++`]]
 :constructor: pass:normal[xref:#VestingWallet-constructor-address-uint64-uint64-[`++constructor++`]]
 :receive: pass:normal[xref:#VestingWallet-receive--[`++receive++`]]
 :beneficiary: pass:normal[xref:#VestingWallet-beneficiary--[`++beneficiary++`]]
@@ -266,7 +252,7 @@ contract.
 
 [.contract]
 [[VestingWallet]]
-=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/finance/VestingWallet.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

@@ -16,17 +16,18 @@ import "../utils/SafeERC20.sol";
  * _Available since v4.2._
  */
 abstract contract ERC20Wrapper is ERC20 {
-    IERC20 public immutable underlying;
+    IERC20 private immutable _underlying;
 
     constructor(IERC20 underlyingToken) {
-        underlying = underlyingToken;
+        require(underlyingToken != this, "ERC20Wrapper: cannot self wrap");
+        _underlying = underlyingToken;
     }
 
     /**
      * @dev See {ERC20-decimals}.
      */
     function decimals() public view virtual override returns (uint8) {
-        try IERC20Metadata(address(underlying)).decimals() returns (uint8 value) {
+        try IERC20Metadata(address(_underlying)).decimals() returns (uint8 value) {
             return value;
         } catch {
             return super.decimals();
@@ -34,10 +35,19 @@ abstract contract ERC20Wrapper is ERC20 {
     }
 
     /**
+     * @dev Returns the address of the underlying ERC-20 token that is being wrapped.
+     */
+    function underlying() public view returns (IERC20) {
+        return _underlying;
+    }
+
+    /**
      * @dev Allow a user to deposit underlying tokens and mint the corresponding number of wrapped tokens.
      */
     function depositFor(address account, uint256 amount) public virtual returns (bool) {
-        SafeERC20.safeTransferFrom(underlying, _msgSender(), address(this), amount);
+        address sender = _msgSender();
+        require(sender != address(this), "ERC20Wrapper: wrapper can't deposit");
+        SafeERC20.safeTransferFrom(_underlying, sender, address(this), amount);
         _mint(account, amount);
         return true;
     }
@@ -47,7 +57,7 @@ abstract contract ERC20Wrapper is ERC20 {
      */
     function withdrawTo(address account, uint256 amount) public virtual returns (bool) {
         _burn(_msgSender(), amount);
-        SafeERC20.safeTransfer(underlying, account, amount);
+        SafeERC20.safeTransfer(_underlying, account, amount);
         return true;
     }
 
@@ -56,7 +66,7 @@ abstract contract ERC20Wrapper is ERC20 {
      * function that can be exposed with access control if desired.
      */
     function _recover(address account) internal virtual returns (uint256) {
-        uint256 value = underlying.balanceOf(address(this)) - totalSupply();
+        uint256 value = _underlying.balanceOf(address(this)) - totalSupply();
         _mint(account, value);
         return value;
     }

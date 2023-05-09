@@ -15,7 +15,6 @@
 :ERC4626: pass:normal[xref:token/ERC20.adoc#ERC4626[`ERC4626`]]
 :SafeERC20: pass:normal[xref:token/ERC20.adoc#SafeERC20[`SafeERC20`]]
 :TokenTimelock: pass:normal[xref:token/ERC20.adoc#TokenTimelock[`TokenTimelock`]]
-:ERC20Permit: pass:normal[xref:token/ERC20.adoc#ERC20Permit[`ERC20Permit`]]
 :ERC20PresetMinterPauser: pass:normal[xref:token/ERC20.adoc#ERC20PresetMinterPauser[`ERC20PresetMinterPauser`]]
 :xref-IERC20-totalSupply--: xref:token/ERC20.adoc#IERC20-totalSupply--
 :xref-IERC20-balanceOf-address-: xref:token/ERC20.adoc#IERC20-balanceOf-address-
@@ -60,7 +59,6 @@
 :xref-ERC20-_afterTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_afterTokenTransfer-address-address-uint256-
 :xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
 :xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
-:ERC20: pass:normal[xref:token/ERC20.adoc#ERC20[`ERC20`]]
 :IERC20-balanceOf: pass:normal[xref:token/ERC20.adoc#IERC20-balanceOf-address-[`IERC20.balanceOf`]]
 :IERC20-transfer: pass:normal[xref:token/ERC20.adoc#IERC20-transfer-address-uint256-[`IERC20.transfer`]]
 :IERC20-totalSupply: pass:normal[xref:token/ERC20.adoc#IERC20-totalSupply--[`IERC20.totalSupply`]]
@@ -154,6 +152,41 @@
 :xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
 :xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
 :ERC20-_beforeTokenTransfer: pass:normal[xref:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`ERC20._beforeTokenTransfer`]]
+:IERC20-allowance: pass:normal[xref:token/ERC20.adoc#IERC20-allowance-address-address-[`IERC20.allowance`]]
+:IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
+:xref-ERC20Permit-constructor-string-: xref:token/ERC20.adoc#ERC20Permit-constructor-string-
+:xref-ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-
+:xref-ERC20Permit-nonces-address-: xref:token/ERC20.adoc#ERC20Permit-nonces-address-
+:xref-ERC20Permit-DOMAIN_SEPARATOR--: xref:token/ERC20.adoc#ERC20Permit-DOMAIN_SEPARATOR--
+:xref-ERC20Permit-_useNonce-address-: xref:token/ERC20.adoc#ERC20Permit-_useNonce-address-
+:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
+:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
+:xref-ERC20-name--: xref:token/ERC20.adoc#ERC20-name--
+:xref-ERC20-symbol--: xref:token/ERC20.adoc#ERC20-symbol--
+:xref-ERC20-decimals--: xref:token/ERC20.adoc#ERC20-decimals--
+:xref-ERC20-totalSupply--: xref:token/ERC20.adoc#ERC20-totalSupply--
+:xref-ERC20-balanceOf-address-: xref:token/ERC20.adoc#ERC20-balanceOf-address-
+:xref-ERC20-transfer-address-uint256-: xref:token/ERC20.adoc#ERC20-transfer-address-uint256-
+:xref-ERC20-allowance-address-address-: xref:token/ERC20.adoc#ERC20-allowance-address-address-
+:xref-ERC20-approve-address-uint256-: xref:token/ERC20.adoc#ERC20-approve-address-uint256-
+:xref-ERC20-transferFrom-address-address-uint256-: xref:token/ERC20.adoc#ERC20-transferFrom-address-address-uint256-
+:xref-ERC20-increaseAllowance-address-uint256-: xref:token/ERC20.adoc#ERC20-increaseAllowance-address-uint256-
+:xref-ERC20-decreaseAllowance-address-uint256-: xref:token/ERC20.adoc#ERC20-decreaseAllowance-address-uint256-
+:xref-ERC20-_transfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_transfer-address-address-uint256-
+:xref-ERC20-_mint-address-uint256-: xref:token/ERC20.adoc#ERC20-_mint-address-uint256-
+:xref-ERC20-_burn-address-uint256-: xref:token/ERC20.adoc#ERC20-_burn-address-uint256-
+:xref-ERC20-_approve-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-
+:xref-ERC20-_spendAllowance-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_spendAllowance-address-address-uint256-
+:xref-ERC20-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-
+:xref-ERC20-_afterTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_afterTokenTransfer-address-address-uint256-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
+:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
+:EIP712: pass:normal[xref:utils.adoc#EIP712[`EIP712`]]
+:IERC20Permit-permit: pass:normal[xref:token/ERC20.adoc#IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-[`IERC20Permit.permit`]]
+:IERC20Permit-nonces: pass:normal[xref:token/ERC20.adoc#IERC20Permit-nonces-address-[`IERC20Permit.nonces`]]
+:IERC20Permit-DOMAIN_SEPARATOR: pass:normal[xref:token/ERC20.adoc#IERC20Permit-DOMAIN_SEPARATOR--[`IERC20Permit.DOMAIN_SEPARATOR`]]
 :ERC20Votes: pass:normal[xref:token/ERC20.adoc#ERC20Votes[`ERC20Votes`]]
 :xref-ERC20Snapshot-_snapshot--: xref:token/ERC20.adoc#ERC20Snapshot-_snapshot--
 :xref-ERC20Snapshot-_getCurrentSnapshotId--: xref:token/ERC20.adoc#ERC20Snapshot-_getCurrentSnapshotId--
@@ -182,6 +215,8 @@
 :xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
 :AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
 :ERC20VotesComp: pass:normal[xref:token/ERC20.adoc#ERC20VotesComp[`ERC20VotesComp`]]
+:xref-ERC20Votes-clock--: xref:token/ERC20.adoc#ERC20Votes-clock--
+:xref-ERC20Votes-CLOCK_MODE--: xref:token/ERC20.adoc#ERC20Votes-CLOCK_MODE--
 :xref-ERC20Votes-checkpoints-address-uint32-: xref:token/ERC20.adoc#ERC20Votes-checkpoints-address-uint32-
 :xref-ERC20Votes-numCheckpoints-address-: xref:token/ERC20.adoc#ERC20Votes-numCheckpoints-address-
 :xref-ERC20Votes-delegates-address-: xref:token/ERC20.adoc#ERC20Votes-delegates-address-
@@ -201,6 +236,7 @@
 :xref-ERC20Permit-_useNonce-address-: xref:token/ERC20.adoc#ERC20Permit-_useNonce-address-
 :xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
 :xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
 :xref-ERC20-name--: xref:token/ERC20.adoc#ERC20-name--
 :xref-ERC20-symbol--: xref:token/ERC20.adoc#ERC20-symbol--
 :xref-ERC20-decimals--: xref:token/ERC20.adoc#ERC20-decimals--
@@ -216,10 +252,11 @@
 :xref-ERC20-_approve-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-
 :xref-ERC20-_spendAllowance-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_spendAllowance-address-address-uint256-
 :xref-ERC20-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-
-:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
-:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
 :xref-IVotes-DelegateChanged-address-address-address-: xref:governance.adoc#IVotes-DelegateChanged-address-address-address-
 :xref-IVotes-DelegateVotesChanged-address-uint256-uint256-: xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
+:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
 :IVotes-DelegateVotesChanged: pass:normal[xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-[`IVotes.DelegateVotesChanged`]]
 :IVotes-DelegateChanged: pass:normal[xref:governance.adoc#IVotes-DelegateChanged-address-address-address-[`IVotes.DelegateChanged`]]
 :IVotes-DelegateVotesChanged: pass:normal[xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-[`IVotes.DelegateVotesChanged`]]
@@ -227,6 +264,8 @@
 :xref-ERC20VotesComp-getCurrentVotes-address-: xref:token/ERC20.adoc#ERC20VotesComp-getCurrentVotes-address-
 :xref-ERC20VotesComp-getPriorVotes-address-uint256-: xref:token/ERC20.adoc#ERC20VotesComp-getPriorVotes-address-uint256-
 :xref-ERC20VotesComp-_maxSupply--: xref:token/ERC20.adoc#ERC20VotesComp-_maxSupply--
+:xref-ERC20Votes-clock--: xref:token/ERC20.adoc#ERC20Votes-clock--
+:xref-ERC20Votes-CLOCK_MODE--: xref:token/ERC20.adoc#ERC20Votes-CLOCK_MODE--
 :xref-ERC20Votes-checkpoints-address-uint32-: xref:token/ERC20.adoc#ERC20Votes-checkpoints-address-uint32-
 :xref-ERC20Votes-numCheckpoints-address-: xref:token/ERC20.adoc#ERC20Votes-numCheckpoints-address-
 :xref-ERC20Votes-delegates-address-: xref:token/ERC20.adoc#ERC20Votes-delegates-address-
@@ -245,6 +284,7 @@
 :xref-ERC20Permit-_useNonce-address-: xref:token/ERC20.adoc#ERC20Permit-_useNonce-address-
 :xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
 :xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
+:xref-EIP712-eip712Domain--: xref:utils.adoc#EIP712-eip712Domain--
 :xref-ERC20-name--: xref:token/ERC20.adoc#ERC20-name--
 :xref-ERC20-symbol--: xref:token/ERC20.adoc#ERC20-symbol--
 :xref-ERC20-decimals--: xref:token/ERC20.adoc#ERC20-decimals--
@@ -260,13 +300,15 @@
 :xref-ERC20-_approve-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-
 :xref-ERC20-_spendAllowance-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_spendAllowance-address-address-uint256-
 :xref-ERC20-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-
-:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
-:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
 :xref-IVotes-DelegateChanged-address-address-address-: xref:governance.adoc#IVotes-DelegateChanged-address-address-address-
 :xref-IVotes-DelegateVotesChanged-address-uint256-uint256-: xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
+:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
 :ERC20Votes: pass:normal[xref:token/ERC20.adoc#ERC20Votes[`ERC20Votes`]]
 :xref-ERC20Wrapper-constructor-contract-IERC20-: xref:token/ERC20.adoc#ERC20Wrapper-constructor-contract-IERC20-
 :xref-ERC20Wrapper-decimals--: xref:token/ERC20.adoc#ERC20Wrapper-decimals--
+:xref-ERC20Wrapper-underlying--: xref:token/ERC20.adoc#ERC20Wrapper-underlying--
 :xref-ERC20Wrapper-depositFor-address-uint256-: xref:token/ERC20.adoc#ERC20Wrapper-depositFor-address-uint256-
 :xref-ERC20Wrapper-withdrawTo-address-uint256-: xref:token/ERC20.adoc#ERC20Wrapper-withdrawTo-address-uint256-
 :xref-ERC20Wrapper-_recover-address-: xref:token/ERC20.adoc#ERC20Wrapper-_recover-address-
@@ -335,11 +377,10 @@
 :xref-ERC4626-withdraw-uint256-address-address-: xref:token/ERC20.adoc#ERC4626-withdraw-uint256-address-address-
 :xref-ERC4626-redeem-uint256-address-address-: xref:token/ERC20.adoc#ERC4626-redeem-uint256-address-address-
 :xref-ERC4626-_convertToShares-uint256-enum-Math-Rounding-: xref:token/ERC20.adoc#ERC4626-_convertToShares-uint256-enum-Math-Rounding-
-:xref-ERC4626-_initialConvertToShares-uint256-enum-Math-Rounding-: xref:token/ERC20.adoc#ERC4626-_initialConvertToShares-uint256-enum-Math-Rounding-
 :xref-ERC4626-_convertToAssets-uint256-enum-Math-Rounding-: xref:token/ERC20.adoc#ERC4626-_convertToAssets-uint256-enum-Math-Rounding-
-:xref-ERC4626-_initialConvertToAssets-uint256-enum-Math-Rounding-: xref:token/ERC20.adoc#ERC4626-_initialConvertToAssets-uint256-enum-Math-Rounding-
 :xref-ERC4626-_deposit-address-address-uint256-uint256-: xref:token/ERC20.adoc#ERC4626-_deposit-address-address-uint256-uint256-
 :xref-ERC4626-_withdraw-address-address-address-uint256-uint256-: xref:token/ERC20.adoc#ERC4626-_withdraw-address-address-address-uint256-uint256-
+:xref-ERC4626-_decimalsOffset--: xref:token/ERC20.adoc#ERC4626-_decimalsOffset--
 :xref-ERC20-name--: xref:token/ERC20.adoc#ERC20-name--
 :xref-ERC20-symbol--: xref:token/ERC20.adoc#ERC20-symbol--
 :xref-ERC20-totalSupply--: xref:token/ERC20.adoc#ERC20-totalSupply--
@@ -378,39 +419,6 @@
 :IERC4626-mint: pass:normal[xref:interfaces.adoc#IERC4626-mint-uint256-address-[`IERC4626.mint`]]
 :IERC4626-withdraw: pass:normal[xref:interfaces.adoc#IERC4626-withdraw-uint256-address-address-[`IERC4626.withdraw`]]
 :IERC4626-redeem: pass:normal[xref:interfaces.adoc#IERC4626-redeem-uint256-address-address-[`IERC4626.redeem`]]
-:IERC20-allowance: pass:normal[xref:token/ERC20.adoc#IERC20-allowance-address-address-[`IERC20.allowance`]]
-:IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
-:xref-ERC20Permit-constructor-string-: xref:token/ERC20.adoc#ERC20Permit-constructor-string-
-:xref-ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-
-:xref-ERC20Permit-nonces-address-: xref:token/ERC20.adoc#ERC20Permit-nonces-address-
-:xref-ERC20Permit-DOMAIN_SEPARATOR--: xref:token/ERC20.adoc#ERC20Permit-DOMAIN_SEPARATOR--
-:xref-ERC20Permit-_useNonce-address-: xref:token/ERC20.adoc#ERC20Permit-_useNonce-address-
-:xref-EIP712-_domainSeparatorV4--: xref:utils.adoc#EIP712-_domainSeparatorV4--
-:xref-EIP712-_hashTypedDataV4-bytes32-: xref:utils.adoc#EIP712-_hashTypedDataV4-bytes32-
-:xref-ERC20-name--: xref:token/ERC20.adoc#ERC20-name--
-:xref-ERC20-symbol--: xref:token/ERC20.adoc#ERC20-symbol--
-:xref-ERC20-decimals--: xref:token/ERC20.adoc#ERC20-decimals--
-:xref-ERC20-totalSupply--: xref:token/ERC20.adoc#ERC20-totalSupply--
-:xref-ERC20-balanceOf-address-: xref:token/ERC20.adoc#ERC20-balanceOf-address-
-:xref-ERC20-transfer-address-uint256-: xref:token/ERC20.adoc#ERC20-transfer-address-uint256-
-:xref-ERC20-allowance-address-address-: xref:token/ERC20.adoc#ERC20-allowance-address-address-
-:xref-ERC20-approve-address-uint256-: xref:token/ERC20.adoc#ERC20-approve-address-uint256-
-:xref-ERC20-transferFrom-address-address-uint256-: xref:token/ERC20.adoc#ERC20-transferFrom-address-address-uint256-
-:xref-ERC20-increaseAllowance-address-uint256-: xref:token/ERC20.adoc#ERC20-increaseAllowance-address-uint256-
-:xref-ERC20-decreaseAllowance-address-uint256-: xref:token/ERC20.adoc#ERC20-decreaseAllowance-address-uint256-
-:xref-ERC20-_transfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_transfer-address-address-uint256-
-:xref-ERC20-_mint-address-uint256-: xref:token/ERC20.adoc#ERC20-_mint-address-uint256-
-:xref-ERC20-_burn-address-uint256-: xref:token/ERC20.adoc#ERC20-_burn-address-uint256-
-:xref-ERC20-_approve-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_approve-address-address-uint256-
-:xref-ERC20-_spendAllowance-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_spendAllowance-address-address-uint256-
-:xref-ERC20-_beforeTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-
-:xref-ERC20-_afterTokenTransfer-address-address-uint256-: xref:token/ERC20.adoc#ERC20-_afterTokenTransfer-address-address-uint256-
-:xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
-:xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
-:EIP712: pass:normal[xref:utils.adoc#EIP712[`EIP712`]]
-:IERC20Permit-permit: pass:normal[xref:token/ERC20.adoc#IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-[`IERC20Permit.permit`]]
-:IERC20Permit-nonces: pass:normal[xref:token/ERC20.adoc#IERC20Permit-nonces-address-[`IERC20Permit.nonces`]]
-:IERC20Permit-DOMAIN_SEPARATOR: pass:normal[xref:token/ERC20.adoc#IERC20Permit-DOMAIN_SEPARATOR--[`IERC20Permit.DOMAIN_SEPARATOR`]]
 :ERC20: pass:normal[xref:token/ERC20.adoc#ERC20[`ERC20`]]
 :AccessControl: pass:normal[xref:access.adoc#AccessControl[`AccessControl`]]
 :xref-ERC20PresetMinterPauser-constructor-string-string-: xref:token/ERC20.adoc#ERC20PresetMinterPauser-constructor-string-string-
@@ -500,6 +508,7 @@
 :xref-SafeERC20-safeApprove-contract-IERC20-address-uint256-: xref:token/ERC20.adoc#SafeERC20-safeApprove-contract-IERC20-address-uint256-
 :xref-SafeERC20-safeIncreaseAllowance-contract-IERC20-address-uint256-: xref:token/ERC20.adoc#SafeERC20-safeIncreaseAllowance-contract-IERC20-address-uint256-
 :xref-SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-: xref:token/ERC20.adoc#SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-
+:xref-SafeERC20-forceApprove-contract-IERC20-address-uint256-: xref:token/ERC20.adoc#SafeERC20-forceApprove-contract-IERC20-address-uint256-
 :xref-SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-
 :IERC20-approve: pass:normal[xref:token/ERC20.adoc#IERC20-approve-address-uint256-[`IERC20.approve`]]
 :xref-TokenTimelock-constructor-contract-IERC20-address-uint256-: xref:token/ERC20.adoc#TokenTimelock-constructor-contract-IERC20-address-uint256-
@@ -540,10 +549,6 @@ Finally, there are some utilities to interact with ERC20 contracts in various wa
 * {SafeERC20}: a wrapper around the interface that eliminates the need to handle boolean return values.
 * {TokenTimelock}: hold tokens for a beneficiary until a specified time.
 
-The following related EIPs are in draft status.
-
-- {ERC20Permit}
-
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc20.adoc#Presets[ERC20 Presets] (such as {ERC20PresetMinterPauser}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
 
 == Core
@@ -559,7 +564,7 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/IERC20.sol[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/IERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -671,7 +676,7 @@ a call to {approve}. `value` is the new allowance.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/extensions/IERC20Metadata.sol[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/extensions/IERC20Metadata.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -729,11 +734,6 @@ Returns the symbol of the token.
 
 Returns the decimals places of the token.
 
-:_balances: pass:normal[xref:#ERC20-_balances-mapping-address----uint256-[`++_balances++`]]
-:_allowances: pass:normal[xref:#ERC20-_allowances-mapping-address----mapping-address----uint256--[`++_allowances++`]]
-:_totalSupply: pass:normal[xref:#ERC20-_totalSupply-uint256[`++_totalSupply++`]]
-:_name: pass:normal[xref:#ERC20-_name-string[`++_name++`]]
-:_symbol: pass:normal[xref:#ERC20-_symbol-string[`++_symbol++`]]
 :constructor: pass:normal[xref:#ERC20-constructor-string-string-[`++constructor++`]]
 :name: pass:normal[xref:#ERC20-name--[`++name++`]]
 :symbol: pass:normal[xref:#ERC20-symbol--[`++symbol++`]]
@@ -756,7 +756,7 @@ Returns the decimals places of the token.
 
 [.contract]
 [[ERC20]]
-=== `++ERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/ERC20.sol[{github-icon},role=heading-link]
+=== `++ERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/ERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -772,6 +772,9 @@ For a generic mechanism see {ERC20PresetMinterPauser}.
 TIP: For a detailed writeup see our guide
 https://forum.openzeppelin.com/t/how-to-implement-erc20-supply-mechanisms/226[How
 to implement supply mechanisms].
+
+The default value of {decimals} is 18. To change this, you should override
+this function so it returns a different value.
 
 We have followed general OpenZeppelin Contracts guidelines: functions revert
 instead returning `false` on failure. This behavior is nonetheless
@@ -838,9 +841,6 @@ allowances. See {IERC20-approve}.
 
 Sets the values for {name} and {symbol}.
 
-The default value of {decimals} is 18. To select a different value for
-{decimals} you should overload it.
-
 All two of these values are immutable: they can only be set once during
 construction.
 
@@ -866,8 +866,8 @@ For example, if `decimals` equals `2`, a balance of `505` tokens should
 be displayed to a user as `5.05` (`505 / 10 ** 2`).
 
 Tokens usually opt for a value of 18, imitating the relationship between
-Ether and Wei. This is the value {ERC20} uses, unless this function is
-overridden;
+Ether and Wei. This is the default value returned by this function, unless
+it's overridden.
 
 NOTE: This information is only used for _display_ purposes: it in
 no way affects any of the arithmetic of the contract, including
@@ -1078,7 +1078,7 @@ To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hook
 
 [.contract]
 [[ERC20Burnable]]
-=== `++ERC20Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/extensions/ERC20Burnable.sol[{github-icon},role=heading-link]
+=== `++ERC20Burnable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/extensions/ERC20Burnable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1163,14 +1163,13 @@ Requirements:
 - the caller must have allowance for ``accounts``'s tokens of at least
 `amount`.
 
-:_cap: pass:normal[xref:#ERC20Capped-_cap-uint256[`++_cap++`]]
 :constructor: pass:normal[xref:#ERC20Capped-constructor-uint256-[`++constructor++`]]
 :cap: pass:normal[xref:#ERC20Capped-cap--[`++cap++`]]
 :_mint: pass:normal[xref:#ERC20Capped-_mint-address-uint256-[`++_mint++`]]
 
 [.contract]
 [[ERC20Capped]]
-=== `++ERC20Capped++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/extensions/ERC20Capped.sol[{github-icon},role=heading-link]
+=== `++ERC20Capped++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/extensions/ERC20Capped.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1254,7 +1253,7 @@ See {ERC20-_mint}.
 
 [.contract]
 [[ERC20Pausable]]
-=== `++ERC20Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/extensions/ERC20Pausable.sol[{github-icon},role=heading-link]
+=== `++ERC20Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/extensions/ERC20Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1346,25 +1345,152 @@ Requirements:
 
 - the contract must not be paused.
 
+:constructor: pass:normal[xref:#ERC20Permit-constructor-string-[`++constructor++`]]
+:permit: pass:normal[xref:#ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-[`++permit++`]]
+:nonces: pass:normal[xref:#ERC20Permit-nonces-address-[`++nonces++`]]
+:DOMAIN_SEPARATOR: pass:normal[xref:#ERC20Permit-DOMAIN_SEPARATOR--[`++DOMAIN_SEPARATOR++`]]
+:_useNonce: pass:normal[xref:#ERC20Permit-_useNonce-address-[`++_useNonce++`]]
+
+[.contract]
+[[ERC20Permit]]
+=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/extensions/ERC20Permit.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+```
+
+Implementation of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
+https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
+
+Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
+presenting a message signed by the account. By not relying on `{IERC20-approve}`, the token holder account doesn't
+need to send a transaction, and thus is not required to hold Ether at all.
+
+_Available since v3.4._
+
+[.contract-index]
+.Functions
+--
+* {xref-ERC20Permit-constructor-string-}[`++constructor(name)++`]
+* {xref-ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-}[`++permit(owner, spender, value, deadline, v, r, s)++`]
+* {xref-ERC20Permit-nonces-address-}[`++nonces(owner)++`]
+* {xref-ERC20Permit-DOMAIN_SEPARATOR--}[`++DOMAIN_SEPARATOR()++`]
+* {xref-ERC20Permit-_useNonce-address-}[`++_useNonce(owner)++`]
+
+[.contract-subindex-inherited]
+.EIP712
+* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
+* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
+
+[.contract-subindex-inherited]
+.IERC20Permit
+
+[.contract-subindex-inherited]
+.ERC20
+* {xref-ERC20-name--}[`++name()++`]
+* {xref-ERC20-symbol--}[`++symbol()++`]
+* {xref-ERC20-decimals--}[`++decimals()++`]
+* {xref-ERC20-totalSupply--}[`++totalSupply()++`]
+* {xref-ERC20-balanceOf-address-}[`++balanceOf(account)++`]
+* {xref-ERC20-transfer-address-uint256-}[`++transfer(to, amount)++`]
+* {xref-ERC20-allowance-address-address-}[`++allowance(owner, spender)++`]
+* {xref-ERC20-approve-address-uint256-}[`++approve(spender, amount)++`]
+* {xref-ERC20-transferFrom-address-address-uint256-}[`++transferFrom(from, to, amount)++`]
+* {xref-ERC20-increaseAllowance-address-uint256-}[`++increaseAllowance(spender, addedValue)++`]
+* {xref-ERC20-decreaseAllowance-address-uint256-}[`++decreaseAllowance(spender, subtractedValue)++`]
+* {xref-ERC20-_transfer-address-address-uint256-}[`++_transfer(from, to, amount)++`]
+* {xref-ERC20-_mint-address-uint256-}[`++_mint(account, amount)++`]
+* {xref-ERC20-_burn-address-uint256-}[`++_burn(account, amount)++`]
+* {xref-ERC20-_approve-address-address-uint256-}[`++_approve(owner, spender, amount)++`]
+* {xref-ERC20-_spendAllowance-address-address-uint256-}[`++_spendAllowance(owner, spender, amount)++`]
+* {xref-ERC20-_beforeTokenTransfer-address-address-uint256-}[`++_beforeTokenTransfer(from, to, amount)++`]
+* {xref-ERC20-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, amount)++`]
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+[.contract-subindex-inherited]
+.IERC20Permit
+
+[.contract-subindex-inherited]
+.ERC20
+
+[.contract-subindex-inherited]
+.IERC20Metadata
+
+[.contract-subindex-inherited]
+.IERC20
+* {xref-IERC20-Transfer-address-address-uint256-}[`++Transfer(from, to, value)++`]
+* {xref-IERC20-Approval-address-address-uint256-}[`++Approval(owner, spender, value)++`]
+
+--
+
+[.contract-item]
+[[ERC20Permit-constructor-string-]]
+==== `[.contract-item-name]#++constructor++#++(string name)++` [.item-kind]#internal#
+
+Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
+
+It's a good idea to use the same `name` that is defined as the ERC20 token name.
+
+[.contract-item]
+[[ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-]]
+==== `[.contract-item-name]#++permit++#++(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)++` [.item-kind]#public#
+
+See {IERC20Permit-permit}.
+
+[.contract-item]
+[[ERC20Permit-nonces-address-]]
+==== `[.contract-item-name]#++nonces++#++(address owner) → uint256++` [.item-kind]#public#
+
+See {IERC20Permit-nonces}.
+
+[.contract-item]
+[[ERC20Permit-DOMAIN_SEPARATOR--]]
+==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → bytes32++` [.item-kind]#external#
+
+See {IERC20Permit-DOMAIN_SEPARATOR}.
+
+[.contract-item]
+[[ERC20Permit-_useNonce-address-]]
+==== `[.contract-item-name]#++_useNonce++#++(address owner) → uint256 current++` [.item-kind]#internal#
+
+"Consume a nonce": return the current value and increment.
+
+_Available since v4.1._
+
 :Snapshots: pass:normal[xref:#ERC20Snapshot-Snapshots[`++Snapshots++`]]
-:_accountBalanceSnapshots: pass:normal[xref:#ERC20Snapshot-_accountBalanceSnapshots-mapping-address----struct-ERC20Snapshot-Snapshots-[`++_accountBalanceSnapshots++`]]
-:_totalSupplySnapshots: pass:normal[xref:#ERC20Snapshot-_totalSupplySnapshots-struct-ERC20Snapshot-Snapshots[`++_totalSupplySnapshots++`]]
-:_currentSnapshotId: pass:normal[xref:#ERC20Snapshot-_currentSnapshotId-struct-Counters-Counter[`++_currentSnapshotId++`]]
 :Snapshot: pass:normal[xref:#ERC20Snapshot-Snapshot-uint256-[`++Snapshot++`]]
 :_snapshot: pass:normal[xref:#ERC20Snapshot-_snapshot--[`++_snapshot++`]]
 :_getCurrentSnapshotId: pass:normal[xref:#ERC20Snapshot-_getCurrentSnapshotId--[`++_getCurrentSnapshotId++`]]
 :balanceOfAt: pass:normal[xref:#ERC20Snapshot-balanceOfAt-address-uint256-[`++balanceOfAt++`]]
 :totalSupplyAt: pass:normal[xref:#ERC20Snapshot-totalSupplyAt-uint256-[`++totalSupplyAt++`]]
 :_beforeTokenTransfer: pass:normal[xref:#ERC20Snapshot-_beforeTokenTransfer-address-address-uint256-[`++_beforeTokenTransfer++`]]
-:_valueAt: pass:normal[xref:#ERC20Snapshot-_valueAt-uint256-struct-ERC20Snapshot-Snapshots-[`++_valueAt++`]]
-:_updateAccountSnapshot: pass:normal[xref:#ERC20Snapshot-_updateAccountSnapshot-address-[`++_updateAccountSnapshot++`]]
-:_updateTotalSupplySnapshot: pass:normal[xref:#ERC20Snapshot-_updateTotalSupplySnapshot--[`++_updateTotalSupplySnapshot++`]]
-:_updateSnapshot: pass:normal[xref:#ERC20Snapshot-_updateSnapshot-struct-ERC20Snapshot-Snapshots-uint256-[`++_updateSnapshot++`]]
-:_lastSnapshotId: pass:normal[xref:#ERC20Snapshot-_lastSnapshotId-uint256---[`++_lastSnapshotId++`]]
 
 [.contract]
 [[ERC20Snapshot]]
-=== `++ERC20Snapshot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/extensions/ERC20Snapshot.sol[{github-icon},role=heading-link]
+=== `++ERC20Snapshot++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/extensions/ERC20Snapshot.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1522,17 +1648,14 @@ To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hook
 Emitted by {_snapshot} when a snapshot identified by `id` is created.
 
 :Checkpoint: pass:normal[xref:#ERC20Votes-Checkpoint[`++Checkpoint++`]]
-:_DELEGATION_TYPEHASH: pass:normal[xref:#ERC20Votes-_DELEGATION_TYPEHASH-bytes32[`++_DELEGATION_TYPEHASH++`]]
-:_delegates: pass:normal[xref:#ERC20Votes-_delegates-mapping-address----address-[`++_delegates++`]]
-:_checkpoints: pass:normal[xref:#ERC20Votes-_checkpoints-mapping-address----struct-ERC20Votes-Checkpoint---[`++_checkpoints++`]]
-:_totalSupplyCheckpoints: pass:normal[xref:#ERC20Votes-_totalSupplyCheckpoints-struct-ERC20Votes-Checkpoint--[`++_totalSupplyCheckpoints++`]]
+:clock: pass:normal[xref:#ERC20Votes-clock--[`++clock++`]]
+:CLOCK_MODE: pass:normal[xref:#ERC20Votes-CLOCK_MODE--[`++CLOCK_MODE++`]]
 :checkpoints: pass:normal[xref:#ERC20Votes-checkpoints-address-uint32-[`++checkpoints++`]]
 :numCheckpoints: pass:normal[xref:#ERC20Votes-numCheckpoints-address-[`++numCheckpoints++`]]
 :delegates: pass:normal[xref:#ERC20Votes-delegates-address-[`++delegates++`]]
 :getVotes: pass:normal[xref:#ERC20Votes-getVotes-address-[`++getVotes++`]]
 :getPastVotes: pass:normal[xref:#ERC20Votes-getPastVotes-address-uint256-[`++getPastVotes++`]]
 :getPastTotalSupply: pass:normal[xref:#ERC20Votes-getPastTotalSupply-uint256-[`++getPastTotalSupply++`]]
-:_checkpointsLookup: pass:normal[xref:#ERC20Votes-_checkpointsLookup-struct-ERC20Votes-Checkpoint---uint256-[`++_checkpointsLookup++`]]
 :delegate: pass:normal[xref:#ERC20Votes-delegate-address-[`++delegate++`]]
 :delegateBySig: pass:normal[xref:#ERC20Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-[`++delegateBySig++`]]
 :_maxSupply: pass:normal[xref:#ERC20Votes-_maxSupply--[`++_maxSupply++`]]
@@ -1540,15 +1663,10 @@ Emitted by {_snapshot} when a snapshot identified by `id` is created.
 :_burn: pass:normal[xref:#ERC20Votes-_burn-address-uint256-[`++_burn++`]]
 :_afterTokenTransfer: pass:normal[xref:#ERC20Votes-_afterTokenTransfer-address-address-uint256-[`++_afterTokenTransfer++`]]
 :_delegate: pass:normal[xref:#ERC20Votes-_delegate-address-address-[`++_delegate++`]]
-:_moveVotingPower: pass:normal[xref:#ERC20Votes-_moveVotingPower-address-address-uint256-[`++_moveVotingPower++`]]
-:_writeCheckpoint: pass:normal[xref:#ERC20Votes-_writeCheckpoint-struct-ERC20Votes-Checkpoint---function--uint256-uint256--view-returns--uint256--uint256-[`++_writeCheckpoint++`]]
-:_add: pass:normal[xref:#ERC20Votes-_add-uint256-uint256-[`++_add++`]]
-:_subtract: pass:normal[xref:#ERC20Votes-_subtract-uint256-uint256-[`++_subtract++`]]
-:_unsafeAccess: pass:normal[xref:#ERC20Votes-_unsafeAccess-struct-ERC20Votes-Checkpoint---uint256-[`++_unsafeAccess++`]]
 
 [.contract]
 [[ERC20Votes]]
-=== `++ERC20Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/extensions/ERC20Votes.sol[{github-icon},role=heading-link]
+=== `++ERC20Votes++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/extensions/ERC20Votes.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1572,12 +1690,14 @@ _Available since v4.2._
 [.contract-index]
 .Functions
 --
+* {xref-ERC20Votes-clock--}[`++clock()++`]
+* {xref-ERC20Votes-CLOCK_MODE--}[`++CLOCK_MODE()++`]
 * {xref-ERC20Votes-checkpoints-address-uint32-}[`++checkpoints(account, pos)++`]
 * {xref-ERC20Votes-numCheckpoints-address-}[`++numCheckpoints(account)++`]
 * {xref-ERC20Votes-delegates-address-}[`++delegates(account)++`]
 * {xref-ERC20Votes-getVotes-address-}[`++getVotes(account)++`]
-* {xref-ERC20Votes-getPastVotes-address-uint256-}[`++getPastVotes(account, blockNumber)++`]
-* {xref-ERC20Votes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(blockNumber)++`]
+* {xref-ERC20Votes-getPastVotes-address-uint256-}[`++getPastVotes(account, timepoint)++`]
+* {xref-ERC20Votes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(timepoint)++`]
 * {xref-ERC20Votes-delegate-address-}[`++delegate(delegatee)++`]
 * {xref-ERC20Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-}[`++delegateBySig(delegatee, nonce, expiry, v, r, s)++`]
 * {xref-ERC20Votes-_maxSupply--}[`++_maxSupply()++`]
@@ -1585,6 +1705,15 @@ _Available since v4.2._
 * {xref-ERC20Votes-_burn-address-uint256-}[`++_burn(account, amount)++`]
 * {xref-ERC20Votes-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, amount)++`]
 * {xref-ERC20Votes-_delegate-address-address-}[`++_delegate(delegator, delegatee)++`]
+
+[.contract-subindex-inherited]
+.IERC5805
+
+[.contract-subindex-inherited]
+.IVotes
+
+[.contract-subindex-inherited]
+.IERC6372
 
 [.contract-subindex-inherited]
 .ERC20Permit
@@ -1597,6 +1726,10 @@ _Available since v4.2._
 .EIP712
 * {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
 * {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
 
 [.contract-subindex-inherited]
 .IERC20Permit
@@ -1625,9 +1758,6 @@ _Available since v4.2._
 [.contract-subindex-inherited]
 .IERC20
 
-[.contract-subindex-inherited]
-.IVotes
-
 --
 
 [.contract-index]
@@ -1635,10 +1765,25 @@ _Available since v4.2._
 --
 
 [.contract-subindex-inherited]
+.IERC5805
+
+[.contract-subindex-inherited]
+.IVotes
+* {xref-IVotes-DelegateChanged-address-address-address-}[`++DelegateChanged(delegator, fromDelegate, toDelegate)++`]
+* {xref-IVotes-DelegateVotesChanged-address-uint256-uint256-}[`++DelegateVotesChanged(delegate, previousBalance, newBalance)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
 .ERC20Permit
 
 [.contract-subindex-inherited]
 .EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
 
 [.contract-subindex-inherited]
 .IERC20Permit
@@ -1654,12 +1799,19 @@ _Available since v4.2._
 * {xref-IERC20-Transfer-address-address-uint256-}[`++Transfer(from, to, value)++`]
 * {xref-IERC20-Approval-address-address-uint256-}[`++Approval(owner, spender, value)++`]
 
-[.contract-subindex-inherited]
-.IVotes
-* {xref-IVotes-DelegateChanged-address-address-address-}[`++DelegateChanged(delegator, fromDelegate, toDelegate)++`]
-* {xref-IVotes-DelegateVotesChanged-address-uint256-uint256-}[`++DelegateVotesChanged(delegate, previousBalance, newBalance)++`]
-
 --
+
+[.contract-item]
+[[ERC20Votes-clock--]]
+==== `[.contract-item-name]#++clock++#++() → uint48++` [.item-kind]#public#
+
+Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).
+
+[.contract-item]
+[[ERC20Votes-CLOCK_MODE--]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++() → string++` [.item-kind]#public#
+
+Description of the clock
 
 [.contract-item]
 [[ERC20Votes-checkpoints-address-uint32-]]
@@ -1687,24 +1839,24 @@ Gets the current votes balance for `account`
 
 [.contract-item]
 [[ERC20Votes-getPastVotes-address-uint256-]]
-==== `[.contract-item-name]#++getPastVotes++#++(address account, uint256 blockNumber) → uint256++` [.item-kind]#public#
+==== `[.contract-item-name]#++getPastVotes++#++(address account, uint256 timepoint) → uint256++` [.item-kind]#public#
 
-Retrieve the number of votes for `account` at the end of `blockNumber`.
+Retrieve the number of votes for `account` at the end of `timepoint`.
 
 Requirements:
 
-- `blockNumber` must have been already mined
+- `timepoint` must be in the past
 
 [.contract-item]
 [[ERC20Votes-getPastTotalSupply-uint256-]]
-==== `[.contract-item-name]#++getPastTotalSupply++#++(uint256 blockNumber) → uint256++` [.item-kind]#public#
+==== `[.contract-item-name]#++getPastTotalSupply++#++(uint256 timepoint) → uint256++` [.item-kind]#public#
 
-Retrieve the `totalSupply` at the end of `blockNumber`. Note, this value is the sum of all balances.
-It is but NOT the sum of all the delegated votes!
+Retrieve the `totalSupply` at the end of `timepoint`. Note, this value is the sum of all balances.
+It is NOT the sum of all the delegated votes!
 
 Requirements:
 
-- `blockNumber` must have been already mined
+- `timepoint` must be in the past
 
 [.contract-item]
 [[ERC20Votes-delegate-address-]]
@@ -1758,7 +1910,7 @@ Emits events {IVotes-DelegateChanged} and {IVotes-DelegateVotesChanged}.
 
 [.contract]
 [[ERC20VotesComp]]
-=== `++ERC20VotesComp++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/extensions/ERC20VotesComp.sol[{github-icon},role=heading-link]
+=== `++ERC20VotesComp++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/extensions/ERC20VotesComp.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1790,18 +1942,29 @@ _Available since v4.2._
 
 [.contract-subindex-inherited]
 .ERC20Votes
+* {xref-ERC20Votes-clock--}[`++clock()++`]
+* {xref-ERC20Votes-CLOCK_MODE--}[`++CLOCK_MODE()++`]
 * {xref-ERC20Votes-checkpoints-address-uint32-}[`++checkpoints(account, pos)++`]
 * {xref-ERC20Votes-numCheckpoints-address-}[`++numCheckpoints(account)++`]
 * {xref-ERC20Votes-delegates-address-}[`++delegates(account)++`]
 * {xref-ERC20Votes-getVotes-address-}[`++getVotes(account)++`]
-* {xref-ERC20Votes-getPastVotes-address-uint256-}[`++getPastVotes(account, blockNumber)++`]
-* {xref-ERC20Votes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(blockNumber)++`]
+* {xref-ERC20Votes-getPastVotes-address-uint256-}[`++getPastVotes(account, timepoint)++`]
+* {xref-ERC20Votes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(timepoint)++`]
 * {xref-ERC20Votes-delegate-address-}[`++delegate(delegatee)++`]
 * {xref-ERC20Votes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-}[`++delegateBySig(delegatee, nonce, expiry, v, r, s)++`]
 * {xref-ERC20Votes-_mint-address-uint256-}[`++_mint(account, amount)++`]
 * {xref-ERC20Votes-_burn-address-uint256-}[`++_burn(account, amount)++`]
 * {xref-ERC20Votes-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, amount)++`]
 * {xref-ERC20Votes-_delegate-address-address-}[`++_delegate(delegator, delegatee)++`]
+
+[.contract-subindex-inherited]
+.IERC5805
+
+[.contract-subindex-inherited]
+.IVotes
+
+[.contract-subindex-inherited]
+.IERC6372
 
 [.contract-subindex-inherited]
 .ERC20Permit
@@ -1814,6 +1977,10 @@ _Available since v4.2._
 .EIP712
 * {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
 * {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
+* {xref-EIP712-eip712Domain--}[`++eip712Domain()++`]
+
+[.contract-subindex-inherited]
+.IERC5267
 
 [.contract-subindex-inherited]
 .IERC20Permit
@@ -1842,9 +2009,6 @@ _Available since v4.2._
 [.contract-subindex-inherited]
 .IERC20
 
-[.contract-subindex-inherited]
-.IVotes
-
 --
 
 [.contract-index]
@@ -1855,10 +2019,25 @@ _Available since v4.2._
 .ERC20Votes
 
 [.contract-subindex-inherited]
+.IERC5805
+
+[.contract-subindex-inherited]
+.IVotes
+* {xref-IVotes-DelegateChanged-address-address-address-}[`++DelegateChanged(delegator, fromDelegate, toDelegate)++`]
+* {xref-IVotes-DelegateVotesChanged-address-uint256-uint256-}[`++DelegateVotesChanged(delegate, previousBalance, newBalance)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+[.contract-subindex-inherited]
 .ERC20Permit
 
 [.contract-subindex-inherited]
 .EIP712
+
+[.contract-subindex-inherited]
+.IERC5267
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
 
 [.contract-subindex-inherited]
 .IERC20Permit
@@ -1873,11 +2052,6 @@ _Available since v4.2._
 .IERC20
 * {xref-IERC20-Transfer-address-address-uint256-}[`++Transfer(from, to, value)++`]
 * {xref-IERC20-Approval-address-address-uint256-}[`++Approval(owner, spender, value)++`]
-
-[.contract-subindex-inherited]
-.IVotes
-* {xref-IVotes-DelegateChanged-address-address-address-}[`++DelegateChanged(delegator, fromDelegate, toDelegate)++`]
-* {xref-IVotes-DelegateVotesChanged-address-uint256-uint256-}[`++DelegateVotesChanged(delegate, previousBalance, newBalance)++`]
 
 --
 
@@ -1899,16 +2073,16 @@ Comp version of the {getPastVotes} accessor, with `uint96` return type.
 
 Maximum token supply. Reduced to `type(uint96).max` (2^96^ - 1) to fit COMP interface.
 
-:underlying: pass:normal[xref:#ERC20Wrapper-underlying-contract-IERC20[`++underlying++`]]
 :constructor: pass:normal[xref:#ERC20Wrapper-constructor-contract-IERC20-[`++constructor++`]]
 :decimals: pass:normal[xref:#ERC20Wrapper-decimals--[`++decimals++`]]
+:underlying: pass:normal[xref:#ERC20Wrapper-underlying--[`++underlying++`]]
 :depositFor: pass:normal[xref:#ERC20Wrapper-depositFor-address-uint256-[`++depositFor++`]]
 :withdrawTo: pass:normal[xref:#ERC20Wrapper-withdrawTo-address-uint256-[`++withdrawTo++`]]
 :_recover: pass:normal[xref:#ERC20Wrapper-_recover-address-[`++_recover++`]]
 
 [.contract]
 [[ERC20Wrapper]]
-=== `++ERC20Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/extensions/ERC20Wrapper.sol[{github-icon},role=heading-link]
+=== `++ERC20Wrapper++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/extensions/ERC20Wrapper.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1928,6 +2102,7 @@ _Available since v4.2._
 --
 * {xref-ERC20Wrapper-constructor-contract-IERC20-}[`++constructor(underlyingToken)++`]
 * {xref-ERC20Wrapper-decimals--}[`++decimals()++`]
+* {xref-ERC20Wrapper-underlying--}[`++underlying()++`]
 * {xref-ERC20Wrapper-depositFor-address-uint256-}[`++depositFor(account, amount)++`]
 * {xref-ERC20Wrapper-withdrawTo-address-uint256-}[`++withdrawTo(account, amount)++`]
 * {xref-ERC20Wrapper-_recover-address-}[`++_recover(account)++`]
@@ -1988,6 +2163,12 @@ _Available since v4.2._
 See {ERC20-decimals}.
 
 [.contract-item]
+[[ERC20Wrapper-underlying--]]
+==== `[.contract-item-name]#++underlying++#++() → contract IERC20++` [.item-kind]#public#
+
+Returns the address of the underlying ERC-20 token that is being wrapped.
+
+[.contract-item]
 [[ERC20Wrapper-depositFor-address-uint256-]]
 ==== `[.contract-item-name]#++depositFor++#++(address account, uint256 amount) → bool++` [.item-kind]#public#
 
@@ -2006,7 +2187,6 @@ Allow a user to burn a number of wrapped tokens and withdraw the corresponding n
 Mint wrapped token to cover any underlyingTokens that would have been transferred by mistake. Internal
 function that can be exposed with access control if desired.
 
-:_RETURN_VALUE: pass:normal[xref:#ERC20FlashMint-_RETURN_VALUE-bytes32[`++_RETURN_VALUE++`]]
 :maxFlashLoan: pass:normal[xref:#ERC20FlashMint-maxFlashLoan-address-[`++maxFlashLoan++`]]
 :flashFee: pass:normal[xref:#ERC20FlashMint-flashFee-address-uint256-[`++flashFee++`]]
 :_flashFee: pass:normal[xref:#ERC20FlashMint-_flashFee-address-uint256-[`++_flashFee++`]]
@@ -2015,7 +2195,7 @@ function that can be exposed with access control if desired.
 
 [.contract]
 [[ERC20FlashMint]]
-=== `++ERC20FlashMint++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/extensions/ERC20FlashMint.sol[{github-icon},role=heading-link]
+=== `++ERC20FlashMint++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/extensions/ERC20FlashMint.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2131,10 +2311,7 @@ interface. By the end of the flash loan, the receiver is expected to own
 amount + fee tokens and have them approved back to the token contract itself so
 they can be burned.
 
-:_asset: pass:normal[xref:#ERC4626-_asset-contract-IERC20[`++_asset++`]]
-:_decimals: pass:normal[xref:#ERC4626-_decimals-uint8[`++_decimals++`]]
 :constructor: pass:normal[xref:#ERC4626-constructor-contract-IERC20-[`++constructor++`]]
-:_tryGetAssetDecimals: pass:normal[xref:#ERC4626-_tryGetAssetDecimals-contract-IERC20-[`++_tryGetAssetDecimals++`]]
 :decimals: pass:normal[xref:#ERC4626-decimals--[`++decimals++`]]
 :asset: pass:normal[xref:#ERC4626-asset--[`++asset++`]]
 :totalAssets: pass:normal[xref:#ERC4626-totalAssets--[`++totalAssets++`]]
@@ -2153,16 +2330,14 @@ they can be burned.
 :withdraw: pass:normal[xref:#ERC4626-withdraw-uint256-address-address-[`++withdraw++`]]
 :redeem: pass:normal[xref:#ERC4626-redeem-uint256-address-address-[`++redeem++`]]
 :_convertToShares: pass:normal[xref:#ERC4626-_convertToShares-uint256-enum-Math-Rounding-[`++_convertToShares++`]]
-:_initialConvertToShares: pass:normal[xref:#ERC4626-_initialConvertToShares-uint256-enum-Math-Rounding-[`++_initialConvertToShares++`]]
 :_convertToAssets: pass:normal[xref:#ERC4626-_convertToAssets-uint256-enum-Math-Rounding-[`++_convertToAssets++`]]
-:_initialConvertToAssets: pass:normal[xref:#ERC4626-_initialConvertToAssets-uint256-enum-Math-Rounding-[`++_initialConvertToAssets++`]]
 :_deposit: pass:normal[xref:#ERC4626-_deposit-address-address-uint256-uint256-[`++_deposit++`]]
 :_withdraw: pass:normal[xref:#ERC4626-_withdraw-address-address-address-uint256-uint256-[`++_withdraw++`]]
-:_isVaultCollateralized: pass:normal[xref:#ERC4626-_isVaultCollateralized--[`++_isVaultCollateralized++`]]
+:_decimalsOffset: pass:normal[xref:#ERC4626-_decimalsOffset--[`++_decimalsOffset++`]]
 
 [.contract]
 [[ERC4626]]
-=== `++ERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/extensions/ERC4626.sol[{github-icon},role=heading-link]
+=== `++ERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/extensions/ERC4626.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2177,13 +2352,33 @@ underlying "assets" through standardized {deposit}, {mint}, {redeem} and {burn} 
 the ERC20 standard. Any additional extensions included along it would affect the "shares" token represented by this
 contract and not the "assets" token which is an independent contract.
 
-CAUTION: When the vault is empty or nearly empty, deposits are at high risk of being stolen through frontrunning with
-a "donation" to the vault that inflates the price of a share. This is variously known as a donation or inflation
+[CAUTION]
+====
+In empty (or nearly empty) ERC-4626 vaults, deposits are at high risk of being stolen through frontrunning
+with a "donation" to the vault that inflates the price of a share. This is variously known as a donation or inflation
 attack and is essentially a problem of slippage. Vault deployers can protect against this attack by making an initial
 deposit of a non-trivial amount of the asset, such that price manipulation becomes infeasible. Withdrawals may
-similarly be affected by slippage. Users can protect against this attack as well unexpected slippage in general by
+similarly be affected by slippage. Users can protect against this attack as well as unexpected slippage in general by
 verifying the amount received is as expected, using a wrapper that performs these checks such as
 https://github.com/fei-protocol/ERC4626#erc4626router-and-base[ERC4626Router].
+
+Since v4.9, this implementation uses virtual assets and shares to mitigate that risk. The `_decimalsOffset()`
+corresponds to an offset in the decimal representation between the underlying asset's decimals and the vault
+decimals. This offset also determines the rate of virtual shares to virtual assets in the vault, which itself
+determines the initial exchange rate. While not fully preventing the attack, analysis shows that the default offset
+(0) makes it non-profitable, as a result of the value being captured by the virtual shares (out of the attacker's
+donation) matching the attacker's expected gains. With a larger offset, the attack becomes orders of magnitude more
+expensive than it is profitable. More details about the underlying math can be found
+xref:erc4626.adoc#inflation-attack[here].
+
+The drawback of this approach is that the virtual shares do capture (a very small) part of the value being accrued
+to the vault. Also, if the vault experiences losses, the users try to exit the vault, the virtual shares and assets
+will cause the first user to exit to experience reduced losses in detriment to the last users that will experience
+bigger losses. Developers willing to revert back to the pre-v4.9 behavior just need to override the
+`_convertToShares` and `_convertToAssets` functions.
+
+To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].
+====
 
 _Available since v4.7._
 
@@ -2209,11 +2404,10 @@ _Available since v4.7._
 * {xref-ERC4626-withdraw-uint256-address-address-}[`++withdraw(assets, receiver, owner)++`]
 * {xref-ERC4626-redeem-uint256-address-address-}[`++redeem(shares, receiver, owner)++`]
 * {xref-ERC4626-_convertToShares-uint256-enum-Math-Rounding-}[`++_convertToShares(assets, rounding)++`]
-* {xref-ERC4626-_initialConvertToShares-uint256-enum-Math-Rounding-}[`++_initialConvertToShares(assets, )++`]
 * {xref-ERC4626-_convertToAssets-uint256-enum-Math-Rounding-}[`++_convertToAssets(shares, rounding)++`]
-* {xref-ERC4626-_initialConvertToAssets-uint256-enum-Math-Rounding-}[`++_initialConvertToAssets(shares, )++`]
 * {xref-ERC4626-_deposit-address-address-uint256-uint256-}[`++_deposit(caller, receiver, assets, shares)++`]
 * {xref-ERC4626-_withdraw-address-address-address-uint256-uint256-}[`++_withdraw(caller, receiver, owner, assets, shares)++`]
+* {xref-ERC4626-_decimalsOffset--}[`++_decimalsOffset()++`]
 
 [.contract-subindex-inherited]
 .IERC4626
@@ -2278,9 +2472,10 @@ Set the underlying asset contract. This must be an ERC20-compatible contract (ER
 [[ERC4626-decimals--]]
 ==== `[.contract-item-name]#++decimals++#++() → uint8++` [.item-kind]#public#
 
-Decimals are read from the underlying asset in the constructor and cached. If this fails (e.g., the asset
-has not been created yet), the cached value is set to a default obtained by `super.decimals()` (which depends on
-inheritance but is most likely 18). Override this function in order to set a guaranteed hardcoded value.
+Decimals are computed by adding the decimal offset on top of the underlying asset's decimals. This
+"original" value is cached during construction of the vault contract. If this read operation fails (e.g., the
+asset has not been created yet), a default of 18 is used to represent the underlying asset's decimals.
+
 See {IERC20Metadata-decimals}.
 
 [.contract-item]
@@ -2297,13 +2492,13 @@ See {IERC4626-totalAssets}.
 
 [.contract-item]
 [[ERC4626-convertToShares-uint256-]]
-==== `[.contract-item-name]#++convertToShares++#++(uint256 assets) → uint256 shares++` [.item-kind]#public#
+==== `[.contract-item-name]#++convertToShares++#++(uint256 assets) → uint256++` [.item-kind]#public#
 
 See {IERC4626-convertToShares}.
 
 [.contract-item]
 [[ERC4626-convertToAssets-uint256-]]
-==== `[.contract-item-name]#++convertToAssets++#++(uint256 shares) → uint256 assets++` [.item-kind]#public#
+==== `[.contract-item-name]#++convertToAssets++#++(uint256 shares) → uint256++` [.item-kind]#public#
 
 See {IERC4626-convertToAssets}.
 
@@ -2384,34 +2579,15 @@ See {IERC4626-redeem}.
 
 [.contract-item]
 [[ERC4626-_convertToShares-uint256-enum-Math-Rounding-]]
-==== `[.contract-item-name]#++_convertToShares++#++(uint256 assets, enum Math.Rounding rounding) → uint256 shares++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_convertToShares++#++(uint256 assets, enum Math.Rounding rounding) → uint256++` [.item-kind]#internal#
 
 Internal conversion function (from assets to shares) with support for rounding direction.
 
-Will revert if assets > 0, totalSupply > 0 and totalAssets = 0. That corresponds to a case where any asset
-would represent an infinite amount of shares.
-
-[.contract-item]
-[[ERC4626-_initialConvertToShares-uint256-enum-Math-Rounding-]]
-==== `[.contract-item-name]#++_initialConvertToShares++#++(uint256 assets, enum Math.Rounding) → uint256 shares++` [.item-kind]#internal#
-
-Internal conversion function (from assets to shares) to apply when the vault is empty.
-
-NOTE: Make sure to keep this function consistent with {_initialConvertToAssets} when overriding it.
-
 [.contract-item]
 [[ERC4626-_convertToAssets-uint256-enum-Math-Rounding-]]
-==== `[.contract-item-name]#++_convertToAssets++#++(uint256 shares, enum Math.Rounding rounding) → uint256 assets++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_convertToAssets++#++(uint256 shares, enum Math.Rounding rounding) → uint256++` [.item-kind]#internal#
 
 Internal conversion function (from shares to assets) with support for rounding direction.
-
-[.contract-item]
-[[ERC4626-_initialConvertToAssets-uint256-enum-Math-Rounding-]]
-==== `[.contract-item-name]#++_initialConvertToAssets++#++(uint256 shares, enum Math.Rounding) → uint256 assets++` [.item-kind]#internal#
-
-Internal conversion function (from shares to assets) to apply when the vault is empty.
-
-NOTE: Make sure to keep this function consistent with {_initialConvertToShares} when overriding it.
 
 [.contract-item]
 [[ERC4626-_deposit-address-address-uint256-uint256-]]
@@ -2425,139 +2601,9 @@ Deposit/mint common workflow.
 
 Withdraw/redeem common workflow.
 
-== Draft EIPs
-
-The following EIPs are still in Draft status. Due to their nature as drafts, the details of these contracts may change and we cannot guarantee their xref:ROOT:releases-stability.adoc[stability]. Minor releases of OpenZeppelin Contracts may contain breaking changes for the contracts in this directory, which will be duly announced in the https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CHANGELOG.md[changelog]. The EIPs included here are used by projects in production and this may make them less likely to change significantly.
-
-:_nonces: pass:normal[xref:#ERC20Permit-_nonces-mapping-address----struct-Counters-Counter-[`++_nonces++`]]
-:_PERMIT_TYPEHASH: pass:normal[xref:#ERC20Permit-_PERMIT_TYPEHASH-bytes32[`++_PERMIT_TYPEHASH++`]]
-:_PERMIT_TYPEHASH_DEPRECATED_SLOT: pass:normal[xref:#ERC20Permit-_PERMIT_TYPEHASH_DEPRECATED_SLOT-bytes32[`++_PERMIT_TYPEHASH_DEPRECATED_SLOT++`]]
-:constructor: pass:normal[xref:#ERC20Permit-constructor-string-[`++constructor++`]]
-:permit: pass:normal[xref:#ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-[`++permit++`]]
-:nonces: pass:normal[xref:#ERC20Permit-nonces-address-[`++nonces++`]]
-:DOMAIN_SEPARATOR: pass:normal[xref:#ERC20Permit-DOMAIN_SEPARATOR--[`++DOMAIN_SEPARATOR++`]]
-:_useNonce: pass:normal[xref:#ERC20Permit-_useNonce-address-[`++_useNonce++`]]
-
-[.contract]
-[[ERC20Permit]]
-=== `++ERC20Permit++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/extensions/draft-ERC20Permit.sol[{github-icon},role=heading-link]
-
-[.hljs-theme-light.nopadding]
-```solidity
-import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
-```
-
-Implementation of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
-https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
-
-Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
-presenting a message signed by the account. By not relying on `{IERC20-approve}`, the token holder account doesn't
-need to send a transaction, and thus is not required to hold Ether at all.
-
-_Available since v3.4._
-
-[.contract-index]
-.Functions
---
-* {xref-ERC20Permit-constructor-string-}[`++constructor(name)++`]
-* {xref-ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-}[`++permit(owner, spender, value, deadline, v, r, s)++`]
-* {xref-ERC20Permit-nonces-address-}[`++nonces(owner)++`]
-* {xref-ERC20Permit-DOMAIN_SEPARATOR--}[`++DOMAIN_SEPARATOR()++`]
-* {xref-ERC20Permit-_useNonce-address-}[`++_useNonce(owner)++`]
-
-[.contract-subindex-inherited]
-.EIP712
-* {xref-EIP712-_domainSeparatorV4--}[`++_domainSeparatorV4()++`]
-* {xref-EIP712-_hashTypedDataV4-bytes32-}[`++_hashTypedDataV4(structHash)++`]
-
-[.contract-subindex-inherited]
-.IERC20Permit
-
-[.contract-subindex-inherited]
-.ERC20
-* {xref-ERC20-name--}[`++name()++`]
-* {xref-ERC20-symbol--}[`++symbol()++`]
-* {xref-ERC20-decimals--}[`++decimals()++`]
-* {xref-ERC20-totalSupply--}[`++totalSupply()++`]
-* {xref-ERC20-balanceOf-address-}[`++balanceOf(account)++`]
-* {xref-ERC20-transfer-address-uint256-}[`++transfer(to, amount)++`]
-* {xref-ERC20-allowance-address-address-}[`++allowance(owner, spender)++`]
-* {xref-ERC20-approve-address-uint256-}[`++approve(spender, amount)++`]
-* {xref-ERC20-transferFrom-address-address-uint256-}[`++transferFrom(from, to, amount)++`]
-* {xref-ERC20-increaseAllowance-address-uint256-}[`++increaseAllowance(spender, addedValue)++`]
-* {xref-ERC20-decreaseAllowance-address-uint256-}[`++decreaseAllowance(spender, subtractedValue)++`]
-* {xref-ERC20-_transfer-address-address-uint256-}[`++_transfer(from, to, amount)++`]
-* {xref-ERC20-_mint-address-uint256-}[`++_mint(account, amount)++`]
-* {xref-ERC20-_burn-address-uint256-}[`++_burn(account, amount)++`]
-* {xref-ERC20-_approve-address-address-uint256-}[`++_approve(owner, spender, amount)++`]
-* {xref-ERC20-_spendAllowance-address-address-uint256-}[`++_spendAllowance(owner, spender, amount)++`]
-* {xref-ERC20-_beforeTokenTransfer-address-address-uint256-}[`++_beforeTokenTransfer(from, to, amount)++`]
-* {xref-ERC20-_afterTokenTransfer-address-address-uint256-}[`++_afterTokenTransfer(from, to, amount)++`]
-
-[.contract-subindex-inherited]
-.IERC20Metadata
-
-[.contract-subindex-inherited]
-.IERC20
-
---
-
-[.contract-index]
-.Events
---
-
-[.contract-subindex-inherited]
-.EIP712
-
-[.contract-subindex-inherited]
-.IERC20Permit
-
-[.contract-subindex-inherited]
-.ERC20
-
-[.contract-subindex-inherited]
-.IERC20Metadata
-
-[.contract-subindex-inherited]
-.IERC20
-* {xref-IERC20-Transfer-address-address-uint256-}[`++Transfer(from, to, value)++`]
-* {xref-IERC20-Approval-address-address-uint256-}[`++Approval(owner, spender, value)++`]
-
---
-
 [.contract-item]
-[[ERC20Permit-constructor-string-]]
-==== `[.contract-item-name]#++constructor++#++(string name)++` [.item-kind]#internal#
-
-Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
-
-It's a good idea to use the same `name` that is defined as the ERC20 token name.
-
-[.contract-item]
-[[ERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-]]
-==== `[.contract-item-name]#++permit++#++(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)++` [.item-kind]#public#
-
-See {IERC20Permit-permit}.
-
-[.contract-item]
-[[ERC20Permit-nonces-address-]]
-==== `[.contract-item-name]#++nonces++#++(address owner) → uint256++` [.item-kind]#public#
-
-See {IERC20Permit-nonces}.
-
-[.contract-item]
-[[ERC20Permit-DOMAIN_SEPARATOR--]]
-==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → bytes32++` [.item-kind]#external#
-
-See {IERC20Permit-DOMAIN_SEPARATOR}.
-
-[.contract-item]
-[[ERC20Permit-_useNonce-address-]]
-==== `[.contract-item-name]#++_useNonce++#++(address owner) → uint256 current++` [.item-kind]#internal#
-
-"Consume a nonce": return the current value and increment.
-
-_Available since v4.1._
+[[ERC4626-_decimalsOffset--]]
+==== `[.contract-item-name]#++_decimalsOffset++#++() → uint8++` [.item-kind]#internal#
 
 == Presets
 
@@ -2573,7 +2619,7 @@ These contracts are preconfigured combinations of the above features. They can b
 
 [.contract]
 [[ERC20PresetMinterPauser]]
-=== `++ERC20PresetMinterPauser++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol[{github-icon},role=heading-link]
+=== `++ERC20PresetMinterPauser++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2782,7 +2828,7 @@ Requirements:
 
 [.contract]
 [[ERC20PresetFixedSupply]]
-=== `++ERC20PresetFixedSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/presets/ERC20PresetFixedSupply.sol[{github-icon},role=heading-link]
+=== `++ERC20PresetFixedSupply++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/presets/ERC20PresetFixedSupply.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2876,12 +2922,12 @@ See {ERC20-constructor}.
 :safeApprove: pass:normal[xref:#SafeERC20-safeApprove-contract-IERC20-address-uint256-[`++safeApprove++`]]
 :safeIncreaseAllowance: pass:normal[xref:#SafeERC20-safeIncreaseAllowance-contract-IERC20-address-uint256-[`++safeIncreaseAllowance++`]]
 :safeDecreaseAllowance: pass:normal[xref:#SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-[`++safeDecreaseAllowance++`]]
+:forceApprove: pass:normal[xref:#SafeERC20-forceApprove-contract-IERC20-address-uint256-[`++forceApprove++`]]
 :safePermit: pass:normal[xref:#SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-[`++safePermit++`]]
-:_callOptionalReturn: pass:normal[xref:#SafeERC20-_callOptionalReturn-contract-IERC20-bytes-[`++_callOptionalReturn++`]]
 
 [.contract]
 [[SafeERC20]]
-=== `++SafeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/utils/SafeERC20.sol[{github-icon},role=heading-link]
+=== `++SafeERC20++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/utils/SafeERC20.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -2903,6 +2949,7 @@ which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
 * {xref-SafeERC20-safeApprove-contract-IERC20-address-uint256-}[`++safeApprove(token, spender, value)++`]
 * {xref-SafeERC20-safeIncreaseAllowance-contract-IERC20-address-uint256-}[`++safeIncreaseAllowance(token, spender, value)++`]
 * {xref-SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-}[`++safeDecreaseAllowance(token, spender, value)++`]
+* {xref-SafeERC20-forceApprove-contract-IERC20-address-uint256-}[`++forceApprove(token, spender, value)++`]
 * {xref-SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-}[`++safePermit(token, owner, spender, value, deadline, v, r, s)++`]
 
 --
@@ -2911,9 +2958,15 @@ which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
 [[SafeERC20-safeTransfer-contract-IERC20-address-uint256-]]
 ==== `[.contract-item-name]#++safeTransfer++#++(contract IERC20 token, address to, uint256 value)++` [.item-kind]#internal#
 
+Transfer `value` amount of `token` from the calling contract to `to`. If `token` returns no value,
+non-reverting calls are assumed to be successful.
+
 [.contract-item]
 [[SafeERC20-safeTransferFrom-contract-IERC20-address-address-uint256-]]
 ==== `[.contract-item-name]#++safeTransferFrom++#++(contract IERC20 token, address from, address to, uint256 value)++` [.item-kind]#internal#
+
+Transfer `value` amount of `token` from `from` to `to`, spending the approval given by `from` to the
+calling contract. If `token` returns no value, non-reverting calls are assumed to be successful.
 
 [.contract-item]
 [[SafeERC20-safeApprove-contract-IERC20-address-uint256-]]
@@ -2929,17 +2982,31 @@ Whenever possible, use {safeIncreaseAllowance} and
 [[SafeERC20-safeIncreaseAllowance-contract-IERC20-address-uint256-]]
 ==== `[.contract-item-name]#++safeIncreaseAllowance++#++(contract IERC20 token, address spender, uint256 value)++` [.item-kind]#internal#
 
+Increase the calling contract's allowance toward `spender` by `value`. If `token` returns no value,
+non-reverting calls are assumed to be successful.
+
 [.contract-item]
 [[SafeERC20-safeDecreaseAllowance-contract-IERC20-address-uint256-]]
 ==== `[.contract-item-name]#++safeDecreaseAllowance++#++(contract IERC20 token, address spender, uint256 value)++` [.item-kind]#internal#
+
+Decrease the calling contract's allowance toward `spender` by `value`. If `token` returns no value,
+non-reverting calls are assumed to be successful.
+
+[.contract-item]
+[[SafeERC20-forceApprove-contract-IERC20-address-uint256-]]
+==== `[.contract-item-name]#++forceApprove++#++(contract IERC20 token, address spender, uint256 value)++` [.item-kind]#internal#
+
+Set the calling contract's allowance toward `spender` to `value`. If `token` returns no value,
+non-reverting calls are assumed to be successful. Compatible with tokens that require the approval to be set to
+0 before setting it to a non-zero value.
 
 [.contract-item]
 [[SafeERC20-safePermit-contract-IERC20Permit-address-address-uint256-uint256-uint8-bytes32-bytes32-]]
 ==== `[.contract-item-name]#++safePermit++#++(contract IERC20Permit token, address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)++` [.item-kind]#internal#
 
-:_token: pass:normal[xref:#TokenTimelock-_token-contract-IERC20[`++_token++`]]
-:_beneficiary: pass:normal[xref:#TokenTimelock-_beneficiary-address[`++_beneficiary++`]]
-:_releaseTime: pass:normal[xref:#TokenTimelock-_releaseTime-uint256[`++_releaseTime++`]]
+Use a ERC-2612 signature to set the `owner` approval toward `spender` on `token`.
+Revert on invalid signature.
+
 :constructor: pass:normal[xref:#TokenTimelock-constructor-contract-IERC20-address-uint256-[`++constructor++`]]
 :token: pass:normal[xref:#TokenTimelock-token--[`++token++`]]
 :beneficiary: pass:normal[xref:#TokenTimelock-beneficiary--[`++beneficiary++`]]
@@ -2948,7 +3015,7 @@ Whenever possible, use {safeIncreaseAllowance} and
 
 [.contract]
 [[TokenTimelock]]
-=== `++TokenTimelock++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/token/ERC20/utils/TokenTimelock.sol[{github-icon},role=heading-link]
+=== `++TokenTimelock++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/token/ERC20/utils/TokenTimelock.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

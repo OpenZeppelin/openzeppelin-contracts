@@ -1,7 +1,7 @@
 const { BridgeHelper } = require('../helpers/crosschain');
 const { expectRevertCustomError } = require('../helpers/customError');
 
-function randomAddress () {
+function randomAddress() {
   return web3.utils.toChecksumAddress(web3.utils.randomHex(20));
 }
 
@@ -11,17 +11,11 @@ const CrossChainEnabledArbitrumL2Mock = artifacts.require('CrossChainEnabledArbi
 const CrossChainEnabledOptimismMock = artifacts.require('CrossChainEnabledOptimismMock');
 const CrossChainEnabledPolygonChildMock = artifacts.require('CrossChainEnabledPolygonChildMock');
 
-function shouldBehaveLikeReceiver (sender = randomAddress()) {
+function shouldBehaveLikeReceiver(sender = randomAddress()) {
   it('should reject same-chain calls', async function () {
-    await expectRevertCustomError(
-      this.receiver.crossChainRestricted(),
-      'NotCrossChainCall()',
-    );
+    await expectRevertCustomError(this.receiver.crossChainRestricted(), 'NotCrossChainCall()');
 
-    await expectRevertCustomError(
-      this.receiver.crossChainOwnerRestricted(),
-      'NotCrossChainCall()',
-    );
+    await expectRevertCustomError(this.receiver.crossChainOwnerRestricted(), 'NotCrossChainCall()');
   });
 
   it('should restrict to cross-chain call from a invalid sender', async function () {
@@ -32,11 +26,7 @@ function shouldBehaveLikeReceiver (sender = randomAddress()) {
   });
 
   it('should grant access to cross-chain call from the owner', async function () {
-    await this.bridge.call(
-      await this.receiver.owner(),
-      this.receiver,
-      'crossChainOwnerRestricted()',
-    );
+    await this.bridge.call(await this.receiver.owner(), this.receiver, 'crossChainOwnerRestricted()');
   });
 }
 

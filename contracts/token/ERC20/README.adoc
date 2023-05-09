@@ -31,10 +31,6 @@ Finally, there are some utilities to interact with ERC20 contracts in various wa
 * {SafeERC20}: a wrapper around the interface that eliminates the need to handle boolean return values.
 * {TokenTimelock}: hold tokens for a beneficiary until a specified time.
 
-The following related EIPs are in draft status.
-
-- {ERC20Permit}
-
 NOTE: This core set of contracts is designed to be unopinionated, allowing developers to access the internal functions in ERC20 (such as <<ERC20-_mint-address-uint256-,`_mint`>>) and expose them as external functions in the way they prefer. On the other hand, xref:ROOT:erc20.adoc#Presets[ERC20 Presets] (such as {ERC20PresetMinterPauser}) are designed using opinionated patterns to provide developers with ready to use, deployable contracts.
 
 == Core
@@ -53,6 +49,8 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 
 {{ERC20Pausable}}
 
+{{ERC20Permit}}
+
 {{ERC20Snapshot}}
 
 {{ERC20Votes}}
@@ -64,12 +62,6 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC20FlashMint}}
 
 {{ERC4626}}
-
-== Draft EIPs
-
-The following EIPs are still in Draft status. Due to their nature as drafts, the details of these contracts may change and we cannot guarantee their xref:ROOT:releases-stability.adoc[stability]. Minor releases of OpenZeppelin Contracts may contain breaking changes for the contracts in this directory, which will be duly announced in the https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CHANGELOG.md[changelog]. The EIPs included here are used by projects in production and this may make them less likely to change significantly.
-
-{{ERC20Permit}}
 
 == Presets
 

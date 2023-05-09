@@ -4,14 +4,14 @@ const { ZERO_ADDRESS } = constants;
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 
-function shouldBehaveLikeERC2981 () {
+function shouldBehaveLikeERC2981() {
   const royaltyFraction = new BN('10');
 
   shouldSupportInterfaces(['ERC2981']);
 
   describe('default royalty', function () {
     beforeEach(async function () {
-      await this.token.setDefaultRoyalty(this.account1, royaltyFraction);
+      await this.token.$_setDefaultRoyalty(this.account1, royaltyFraction);
     });
 
     it('checks royalty is set', async function () {
@@ -27,7 +27,7 @@ function shouldBehaveLikeERC2981 () {
       const newPercentage = new BN('25');
 
       // Updated royalty check
-      await this.token.setDefaultRoyalty(this.account1, newPercentage);
+      await this.token.$_setDefaultRoyalty(this.account1, newPercentage);
       const royalty = new BN((this.salePrice * newPercentage) / 10000);
       const newInfo = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
 
@@ -37,7 +37,7 @@ function shouldBehaveLikeERC2981 () {
 
     it('holds same royalty value for different tokens', async function () {
       const newPercentage = new BN('20');
-      await this.token.setDefaultRoyalty(this.account1, newPercentage);
+      await this.token.$_setDefaultRoyalty(this.account1, newPercentage);
 
       const token1Info = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
       const token2Info = await this.token.royaltyInfo(this.tokenId2, this.salePrice);
@@ -47,7 +47,7 @@ function shouldBehaveLikeERC2981 () {
 
     it('Remove royalty information', async function () {
       const newValue = new BN('0');
-      await this.token.deleteDefaultRoyalty();
+      await this.token.$_deleteDefaultRoyalty();
 
       const token1Info = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
       const token2Info = await this.token.royaltyInfo(this.tokenId2, this.salePrice);
@@ -60,13 +60,10 @@ function shouldBehaveLikeERC2981 () {
     });
 
     it('reverts if invalid parameters', async function () {
-      await expectRevert(
-        this.token.setDefaultRoyalty(ZERO_ADDRESS, royaltyFraction),
-        'ERC2981: invalid receiver',
-      );
+      await expectRevert(this.token.$_setDefaultRoyalty(ZERO_ADDRESS, royaltyFraction), 'ERC2981: invalid receiver');
 
       await expectRevert(
-        this.token.setDefaultRoyalty(this.account1, new BN('11000')),
+        this.token.$_setDefaultRoyalty(this.account1, new BN('11000')),
         'ERC2981: royalty fee will exceed salePrice',
       );
     });
@@ -74,7 +71,7 @@ function shouldBehaveLikeERC2981 () {
 
   describe('token based royalty', function () {
     beforeEach(async function () {
-      await this.token.setTokenRoyalty(this.tokenId1, this.account1, royaltyFraction);
+      await this.token.$_setTokenRoyalty(this.tokenId1, this.account1, royaltyFraction);
     });
 
     it('updates royalty amount', async function () {
@@ -87,7 +84,7 @@ function shouldBehaveLikeERC2981 () {
       expect(initInfo[1]).to.be.bignumber.equal(royalty);
 
       // Updated royalty check
-      await this.token.setTokenRoyalty(this.tokenId1, this.account1, newPercentage);
+      await this.token.$_setTokenRoyalty(this.tokenId1, this.account1, newPercentage);
       royalty = new BN((this.salePrice * newPercentage) / 10000);
       const newInfo = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
 
@@ -97,7 +94,7 @@ function shouldBehaveLikeERC2981 () {
 
     it('holds different values for different tokens', async function () {
       const newPercentage = new BN('20');
-      await this.token.setTokenRoyalty(this.tokenId2, this.account1, newPercentage);
+      await this.token.$_setTokenRoyalty(this.tokenId2, this.account1, newPercentage);
 
       const token1Info = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
       const token2Info = await this.token.royaltyInfo(this.tokenId2, this.salePrice);
@@ -108,12 +105,12 @@ function shouldBehaveLikeERC2981 () {
 
     it('reverts if invalid parameters', async function () {
       await expectRevert(
-        this.token.setTokenRoyalty(this.tokenId1, ZERO_ADDRESS, royaltyFraction),
+        this.token.$_setTokenRoyalty(this.tokenId1, ZERO_ADDRESS, royaltyFraction),
         'ERC2981: Invalid parameters',
       );
 
       await expectRevert(
-        this.token.setTokenRoyalty(this.tokenId1, this.account1, new BN('11000')),
+        this.token.$_setTokenRoyalty(this.tokenId1, this.account1, new BN('11000')),
         'ERC2981: royalty fee will exceed salePrice',
       );
     });
@@ -121,7 +118,7 @@ function shouldBehaveLikeERC2981 () {
     it('can reset token after setting royalty', async function () {
       const newPercentage = new BN('30');
       const royalty = new BN((this.salePrice * newPercentage) / 10000);
-      await this.token.setTokenRoyalty(this.tokenId1, this.account2, newPercentage);
+      await this.token.$_setTokenRoyalty(this.tokenId1, this.account2, newPercentage);
 
       const tokenInfo = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
 
@@ -129,7 +126,7 @@ function shouldBehaveLikeERC2981 () {
       expect(tokenInfo[1]).to.be.bignumber.equal(royalty);
       expect(tokenInfo[0]).to.be.equal(this.account2);
 
-      await this.token.setTokenRoyalty(this.tokenId2, this.account1, new BN('0'));
+      await this.token.$_setTokenRoyalty(this.tokenId2, this.account1, new BN('0'));
       const result = await this.token.royaltyInfo(this.tokenId2, this.salePrice);
       // Token must not share default information
       expect(result[0]).to.be.equal(this.account1);
@@ -140,7 +137,7 @@ function shouldBehaveLikeERC2981 () {
       const newPercentage = new BN('30');
       const royalty = new BN((this.salePrice * newPercentage) / 10000);
 
-      await this.token.setTokenRoyalty(this.tokenId2, this.account2, newPercentage);
+      await this.token.$_setTokenRoyalty(this.tokenId2, this.account2, newPercentage);
 
       const token1Info = await this.token.royaltyInfo(this.tokenId1, this.salePrice);
       const token2Info = await this.token.royaltyInfo(this.tokenId2, this.salePrice);

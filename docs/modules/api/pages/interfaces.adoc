@@ -14,6 +14,8 @@
 :IERC1155MetadataURI: pass:normal[xref:token/ERC1155.adoc#IERC1155MetadataURI[`IERC1155MetadataURI`]]
 :IERC1271: pass:normal[xref:interfaces.adoc#IERC1271[`IERC1271`]]
 :IERC1363: pass:normal[xref:interfaces.adoc#IERC1363[`IERC1363`]]
+:IERC1363Receiver: pass:normal[xref:interfaces.adoc#IERC1363Receiver[`IERC1363Receiver`]]
+:IERC1363Spender: pass:normal[xref:interfaces.adoc#IERC1363Spender[`IERC1363Spender`]]
 :IERC1820Implementer: pass:normal[xref:utils.adoc#IERC1820Implementer[`IERC1820Implementer`]]
 :IERC1820Registry: pass:normal[xref:utils.adoc#IERC1820Registry[`IERC1820Registry`]]
 :IERC1822Proxiable: pass:normal[xref:interfaces.adoc#IERC1822Proxiable[`IERC1822Proxiable`]]
@@ -22,6 +24,11 @@
 :IERC3156FlashLender: pass:normal[xref:interfaces.adoc#IERC3156FlashLender[`IERC3156FlashLender`]]
 :IERC3156FlashBorrower: pass:normal[xref:interfaces.adoc#IERC3156FlashBorrower[`IERC3156FlashBorrower`]]
 :IERC4626: pass:normal[xref:interfaces.adoc#IERC4626[`IERC4626`]]
+:IERC4906: pass:normal[xref:interfaces.adoc#IERC4906[`IERC4906`]]
+:IERC5267: pass:normal[xref:interfaces.adoc#IERC5267[`IERC5267`]]
+:IERC5313: pass:normal[xref:interfaces.adoc#IERC5313[`IERC5313`]]
+:IERC5805: pass:normal[xref:interfaces.adoc#IERC5805[`IERC5805`]]
+:IERC6372: pass:normal[xref:interfaces.adoc#IERC6372[`IERC6372`]]
 :xref-IERC1271-isValidSignature-bytes32-bytes-: xref:interfaces.adoc#IERC1271-isValidSignature-bytes32-bytes-
 :xref-IERC1363-transferAndCall-address-uint256-: xref:interfaces.adoc#IERC1363-transferAndCall-address-uint256-
 :xref-IERC1363-transferAndCall-address-uint256-bytes-: xref:interfaces.adoc#IERC1363-transferAndCall-address-uint256-bytes-
@@ -38,7 +45,11 @@
 :xref-IERC165-supportsInterface-bytes4-: xref:utils.adoc#IERC165-supportsInterface-bytes4-
 :xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
 :xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
+:IERC1363-transferAndCall: pass:normal[xref:interfaces.adoc#IERC1363-transferAndCall-address-uint256-bytes-[`IERC1363.transferAndCall`]]
+:IERC1363-transferFromAndCall: pass:normal[xref:interfaces.adoc#IERC1363-transferFromAndCall-address-address-uint256-bytes-[`IERC1363.transferFromAndCall`]]
 :xref-IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-: xref:interfaces.adoc#IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-
+:IERC1363-approveAndCall: pass:normal[xref:interfaces.adoc#IERC1363-approveAndCall-address-uint256-bytes-[`IERC1363.approveAndCall`]]
+:xref-IERC1363Spender-onApprovalReceived-address-uint256-bytes-: xref:interfaces.adoc#IERC1363Spender-onApprovalReceived-address-uint256-bytes-
 :xref-IERC1822Proxiable-proxiableUUID--: xref:interfaces.adoc#IERC1822Proxiable-proxiableUUID--
 :xref-IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-: xref:token/ERC20.adoc#IERC20Permit-permit-address-address-uint256-uint256-uint8-bytes32-bytes32-
 :xref-IERC20Permit-nonces-address-: xref:token/ERC20.adoc#IERC20Permit-nonces-address-
@@ -78,6 +89,21 @@
 :xref-IERC4626-Withdraw-address-address-address-uint256-uint256-: xref:interfaces.adoc#IERC4626-Withdraw-address-address-address-uint256-uint256-
 :xref-IERC20-Transfer-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Transfer-address-address-uint256-
 :xref-IERC20-Approval-address-address-uint256-: xref:token/ERC20.adoc#IERC20-Approval-address-address-uint256-
+:xref-IERC5313-owner--: xref:interfaces.adoc#IERC5313-owner--
+:xref-IERC5267-eip712Domain--: xref:interfaces.adoc#IERC5267-eip712Domain--
+:xref-IERC5267-EIP712DomainChanged--: xref:interfaces.adoc#IERC5267-EIP712DomainChanged--
+:xref-IVotes-getVotes-address-: xref:governance.adoc#IVotes-getVotes-address-
+:xref-IVotes-getPastVotes-address-uint256-: xref:governance.adoc#IVotes-getPastVotes-address-uint256-
+:xref-IVotes-getPastTotalSupply-uint256-: xref:governance.adoc#IVotes-getPastTotalSupply-uint256-
+:xref-IVotes-delegates-address-: xref:governance.adoc#IVotes-delegates-address-
+:xref-IVotes-delegate-address-: xref:governance.adoc#IVotes-delegate-address-
+:xref-IVotes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-: xref:governance.adoc#IVotes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-
+:xref-IERC6372-clock--: xref:interfaces.adoc#IERC6372-clock--
+:xref-IERC6372-CLOCK_MODE--: xref:interfaces.adoc#IERC6372-CLOCK_MODE--
+:xref-IVotes-DelegateChanged-address-address-address-: xref:governance.adoc#IVotes-DelegateChanged-address-address-address-
+:xref-IVotes-DelegateVotesChanged-address-uint256-uint256-: xref:governance.adoc#IVotes-DelegateVotesChanged-address-uint256-uint256-
+:xref-IERC6372-clock--: xref:interfaces.adoc#IERC6372-clock--
+:xref-IERC6372-CLOCK_MODE--: xref:interfaces.adoc#IERC6372-CLOCK_MODE--
 = Interfaces
 
 [.readme-notice]
@@ -102,6 +128,8 @@ are useful to interact with third party contracts that implement them.
 - {IERC1155MetadataURI}
 - {IERC1271}
 - {IERC1363}
+- {IERC1363Receiver}
+- {IERC1363Spender}
 - {IERC1820Implementer}
 - {IERC1820Registry}
 - {IERC1822Proxiable}
@@ -110,6 +138,11 @@ are useful to interact with third party contracts that implement them.
 - {IERC3156FlashLender}
 - {IERC3156FlashBorrower}
 - {IERC4626}
+- {IERC4906}
+- {IERC5267}
+- {IERC5313}
+- {IERC5805}
+- {IERC6372}
 
 == Detailed ABI
 
@@ -117,7 +150,7 @@ are useful to interact with third party contracts that implement them.
 
 [.contract]
 [[IERC1271]]
-=== `++IERC1271++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/interfaces/IERC1271.sol[{github-icon},role=heading-link]
+=== `++IERC1271++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC1271.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -151,22 +184,28 @@ Should return whether the signature provided is valid for the provided data
 
 [.contract]
 [[IERC1363]]
-=== `++IERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/interfaces/IERC1363.sol[{github-icon},role=heading-link]
+=== `++IERC1363++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC1363.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/interfaces/IERC1363.sol";
 ```
 
+Interface of an ERC1363 compliant contract, as defined in the
+https://eips.ethereum.org/EIPS/eip-1363[EIP].
+
+Defines a interface for ERC20 tokens that supports executing recipient
+code after `transfer` or `transferFrom`, or spender code after `approve`.
+
 [.contract-index]
 .Functions
 --
-* {xref-IERC1363-transferAndCall-address-uint256-}[`++transferAndCall(to, value)++`]
-* {xref-IERC1363-transferAndCall-address-uint256-bytes-}[`++transferAndCall(to, value, data)++`]
-* {xref-IERC1363-transferFromAndCall-address-address-uint256-}[`++transferFromAndCall(from, to, value)++`]
-* {xref-IERC1363-transferFromAndCall-address-address-uint256-bytes-}[`++transferFromAndCall(from, to, value, data)++`]
-* {xref-IERC1363-approveAndCall-address-uint256-}[`++approveAndCall(spender, value)++`]
-* {xref-IERC1363-approveAndCall-address-uint256-bytes-}[`++approveAndCall(spender, value, data)++`]
+* {xref-IERC1363-transferAndCall-address-uint256-}[`++transferAndCall(to, amount)++`]
+* {xref-IERC1363-transferAndCall-address-uint256-bytes-}[`++transferAndCall(to, amount, data)++`]
+* {xref-IERC1363-transferFromAndCall-address-address-uint256-}[`++transferFromAndCall(from, to, amount)++`]
+* {xref-IERC1363-transferFromAndCall-address-address-uint256-bytes-}[`++transferFromAndCall(from, to, amount, data)++`]
+* {xref-IERC1363-approveAndCall-address-uint256-}[`++approveAndCall(spender, amount)++`]
+* {xref-IERC1363-approveAndCall-address-uint256-bytes-}[`++approveAndCall(spender, amount, data)++`]
 
 [.contract-subindex-inherited]
 .IERC20
@@ -199,38 +238,38 @@ import "@openzeppelin/contracts/interfaces/IERC1363.sol";
 
 [.contract-item]
 [[IERC1363-transferAndCall-address-uint256-]]
-==== `[.contract-item-name]#++transferAndCall++#++(address to, uint256 value) → bool++` [.item-kind]#external#
+==== `[.contract-item-name]#++transferAndCall++#++(address to, uint256 amount) → bool++` [.item-kind]#external#
 
 Transfer tokens from `msg.sender` to another address and then call `onTransferReceived` on receiver
 
 [.contract-item]
 [[IERC1363-transferAndCall-address-uint256-bytes-]]
-==== `[.contract-item-name]#++transferAndCall++#++(address to, uint256 value, bytes data) → bool++` [.item-kind]#external#
+==== `[.contract-item-name]#++transferAndCall++#++(address to, uint256 amount, bytes data) → bool++` [.item-kind]#external#
 
 Transfer tokens from `msg.sender` to another address and then call `onTransferReceived` on receiver
 
 [.contract-item]
 [[IERC1363-transferFromAndCall-address-address-uint256-]]
-==== `[.contract-item-name]#++transferFromAndCall++#++(address from, address to, uint256 value) → bool++` [.item-kind]#external#
+==== `[.contract-item-name]#++transferFromAndCall++#++(address from, address to, uint256 amount) → bool++` [.item-kind]#external#
 
 Transfer tokens from one address to another and then call `onTransferReceived` on receiver
 
 [.contract-item]
 [[IERC1363-transferFromAndCall-address-address-uint256-bytes-]]
-==== `[.contract-item-name]#++transferFromAndCall++#++(address from, address to, uint256 value, bytes data) → bool++` [.item-kind]#external#
+==== `[.contract-item-name]#++transferFromAndCall++#++(address from, address to, uint256 amount, bytes data) → bool++` [.item-kind]#external#
 
 Transfer tokens from one address to another and then call `onTransferReceived` on receiver
 
 [.contract-item]
 [[IERC1363-approveAndCall-address-uint256-]]
-==== `[.contract-item-name]#++approveAndCall++#++(address spender, uint256 value) → bool++` [.item-kind]#external#
+==== `[.contract-item-name]#++approveAndCall++#++(address spender, uint256 amount) → bool++` [.item-kind]#external#
 
 Approve the passed address to spend the specified amount of tokens on behalf of msg.sender
 and then call `onApprovalReceived` on spender.
 
 [.contract-item]
 [[IERC1363-approveAndCall-address-uint256-bytes-]]
-==== `[.contract-item-name]#++approveAndCall++#++(address spender, uint256 value, bytes data) → bool++` [.item-kind]#external#
+==== `[.contract-item-name]#++approveAndCall++#++(address spender, uint256 amount, bytes data) → bool++` [.item-kind]#external#
 
 Approve the passed address to spend the specified amount of tokens on behalf of msg.sender
 and then call `onApprovalReceived` on spender.
@@ -239,23 +278,26 @@ and then call `onApprovalReceived` on spender.
 
 [.contract]
 [[IERC1363Receiver]]
-=== `++IERC1363Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/interfaces/IERC1363Receiver.sol[{github-icon},role=heading-link]
+=== `++IERC1363Receiver++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC1363Receiver.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
 import "@openzeppelin/contracts/interfaces/IERC1363Receiver.sol";
 ```
 
+Interface for any contract that wants to support {IERC1363-transferAndCall}
+or {IERC1363-transferFromAndCall} from {ERC1363} token contracts.
+
 [.contract-index]
 .Functions
 --
-* {xref-IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-}[`++onTransferReceived(operator, from, value, data)++`]
+* {xref-IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-}[`++onTransferReceived(operator, from, amount, data)++`]
 
 --
 
 [.contract-item]
 [[IERC1363Receiver-onTransferReceived-address-address-uint256-bytes-]]
-==== `[.contract-item-name]#++onTransferReceived++#++(address operator, address from, uint256 value, bytes data) → bytes4++` [.item-kind]#external#
+==== `[.contract-item-name]#++onTransferReceived++#++(address operator, address from, uint256 amount, bytes data) → bytes4++` [.item-kind]#external#
 
 Any ERC1363 smart contract calls this function on the recipient
 after a `transfer` or a `transferFrom`. This function MAY throw to revert and reject the
@@ -263,11 +305,42 @@ transfer. Return of other than the magic value MUST result in the
 transaction being reverted.
 Note: the token contract address is always the message sender.
 
+:onApprovalReceived: pass:normal[xref:#IERC1363Spender-onApprovalReceived-address-uint256-bytes-[`++onApprovalReceived++`]]
+
+[.contract]
+[[IERC1363Spender]]
+=== `++IERC1363Spender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC1363Spender.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC1363Spender.sol";
+```
+
+Interface for any contract that wants to support {IERC1363-approveAndCall}
+from {ERC1363} token contracts.
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC1363Spender-onApprovalReceived-address-uint256-bytes-}[`++onApprovalReceived(owner, amount, data)++`]
+
+--
+
+[.contract-item]
+[[IERC1363Spender-onApprovalReceived-address-uint256-bytes-]]
+==== `[.contract-item-name]#++onApprovalReceived++#++(address owner, uint256 amount, bytes data) → bytes4++` [.item-kind]#external#
+
+Any ERC1363 smart contract calls this function on the recipient
+after an `approve`. This function MAY throw to revert and reject the
+approval. Return of other than the magic value MUST result in the
+transaction being reverted.
+Note: the token contract address is always the message sender.
+
 :proxiableUUID: pass:normal[xref:#IERC1822Proxiable-proxiableUUID--[`++proxiableUUID++`]]
 
 [.contract]
 [[IERC1822Proxiable]]
-=== `++IERC1822Proxiable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/interfaces/draft-IERC1822.sol[{github-icon},role=heading-link]
+=== `++IERC1822Proxiable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/draft-IERC1822.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -297,11 +370,11 @@ function revert if invoked through a proxy.
 
 [.contract]
 [[IERC2612]]
-=== `++IERC2612++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/interfaces/draft-IERC2612.sol[{github-icon},role=heading-link]
+=== `++IERC2612++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC2612.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
-import "@openzeppelin/contracts/interfaces/draft-IERC2612.sol";
+import "@openzeppelin/contracts/interfaces/IERC2612.sol";
 ```
 
 [.contract-index]
@@ -320,7 +393,7 @@ import "@openzeppelin/contracts/interfaces/draft-IERC2612.sol";
 
 [.contract]
 [[IERC2981]]
-=== `++IERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/interfaces/IERC2981.sol[{github-icon},role=heading-link]
+=== `++IERC2981++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC2981.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -358,7 +431,7 @@ exchange. The royalty amount is denominated and should be paid in that same unit
 
 [.contract]
 [[IERC3156FlashLender]]
-=== `++IERC3156FlashLender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/interfaces/IERC3156FlashLender.sol[{github-icon},role=heading-link]
+=== `++IERC3156FlashLender++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC3156FlashLender.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -401,7 +474,7 @@ Initiate a flash loan.
 
 [.contract]
 [[IERC3156FlashBorrower]]
-=== `++IERC3156FlashBorrower++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/interfaces/IERC3156FlashBorrower.sol[{github-icon},role=heading-link]
+=== `++IERC3156FlashBorrower++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC3156FlashBorrower.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -447,7 +520,7 @@ Receive a flash loan.
 
 [.contract]
 [[IERC4626]]
-=== `++IERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/interfaces/IERC4626.sol[{github-icon},role=heading-link]
+=== `++IERC4626++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC4626.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -742,4 +815,148 @@ Those methods should be performed separately.
 [.contract-item]
 [[IERC4626-Withdraw-address-address-address-uint256-uint256-]]
 ==== `[.contract-item-name]#++Withdraw++#++(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)++` [.item-kind]#event#
+
+:owner: pass:normal[xref:#IERC5313-owner--[`++owner++`]]
+
+[.contract]
+[[IERC5313]]
+=== `++IERC5313++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC5313.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC5313.sol";
+```
+
+Interface for the Light Contract Ownership Standard.
+
+A standardized minimal interface required to identify an account that controls a contract
+
+_Available since v4.9._
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC5313-owner--}[`++owner()++`]
+
+--
+
+[.contract-item]
+[[IERC5313-owner--]]
+==== `[.contract-item-name]#++owner++#++() → address++` [.item-kind]#external#
+
+Gets the address of the owner.
+
+:EIP712DomainChanged: pass:normal[xref:#IERC5267-EIP712DomainChanged--[`++EIP712DomainChanged++`]]
+:eip712Domain: pass:normal[xref:#IERC5267-eip712Domain--[`++eip712Domain++`]]
+
+[.contract]
+[[IERC5267]]
+=== `++IERC5267++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC5267.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC5267.sol";
+```
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC5267-eip712Domain--}[`++eip712Domain()++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* {xref-IERC5267-EIP712DomainChanged--}[`++EIP712DomainChanged()++`]
+
+--
+
+[.contract-item]
+[[IERC5267-eip712Domain--]]
+==== `[.contract-item-name]#++eip712Domain++#++() → bytes1 fields, string name, string version, uint256 chainId, address verifyingContract, bytes32 salt, uint256[] extensions++` [.item-kind]#external#
+
+returns the fields and values that describe the domain separator used by this contract for EIP-712
+signature.
+
+[.contract-item]
+[[IERC5267-EIP712DomainChanged--]]
+==== `[.contract-item-name]#++EIP712DomainChanged++#++()++` [.item-kind]#event#
+
+MAY be emitted to signal that the domain could have changed.
+
+[.contract]
+[[IERC5805]]
+=== `++IERC5805++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC5805.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC5805.sol";
+```
+
+[.contract-index]
+.Functions
+--
+
+[.contract-subindex-inherited]
+.IVotes
+* {xref-IVotes-getVotes-address-}[`++getVotes(account)++`]
+* {xref-IVotes-getPastVotes-address-uint256-}[`++getPastVotes(account, timepoint)++`]
+* {xref-IVotes-getPastTotalSupply-uint256-}[`++getPastTotalSupply(timepoint)++`]
+* {xref-IVotes-delegates-address-}[`++delegates(account)++`]
+* {xref-IVotes-delegate-address-}[`++delegate(delegatee)++`]
+* {xref-IVotes-delegateBySig-address-uint256-uint256-uint8-bytes32-bytes32-}[`++delegateBySig(delegatee, nonce, expiry, v, r, s)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+* {xref-IERC6372-clock--}[`++clock()++`]
+* {xref-IERC6372-CLOCK_MODE--}[`++CLOCK_MODE()++`]
+
+--
+
+[.contract-index]
+.Events
+--
+
+[.contract-subindex-inherited]
+.IVotes
+* {xref-IVotes-DelegateChanged-address-address-address-}[`++DelegateChanged(delegator, fromDelegate, toDelegate)++`]
+* {xref-IVotes-DelegateVotesChanged-address-uint256-uint256-}[`++DelegateVotesChanged(delegate, previousBalance, newBalance)++`]
+
+[.contract-subindex-inherited]
+.IERC6372
+
+--
+
+:clock: pass:normal[xref:#IERC6372-clock--[`++clock++`]]
+:CLOCK_MODE: pass:normal[xref:#IERC6372-CLOCK_MODE--[`++CLOCK_MODE++`]]
+
+[.contract]
+[[IERC6372]]
+=== `++IERC6372++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/interfaces/IERC6372.sol[{github-icon},role=heading-link]
+
+[.hljs-theme-light.nopadding]
+```solidity
+import "@openzeppelin/contracts/interfaces/IERC6372.sol";
+```
+
+[.contract-index]
+.Functions
+--
+* {xref-IERC6372-clock--}[`++clock()++`]
+* {xref-IERC6372-CLOCK_MODE--}[`++CLOCK_MODE()++`]
+
+--
+
+[.contract-item]
+[[IERC6372-clock--]]
+==== `[.contract-item-name]#++clock++#++() → uint48++` [.item-kind]#external#
+
+Clock used for flagging checkpoints. Can be overridden to implement timestamp based checkpoints (and voting).
+
+[.contract-item]
+[[IERC6372-CLOCK_MODE--]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++() → string++` [.item-kind]#external#
+
+Description of the clock
 

@@ -7,7 +7,7 @@ const { expect } = require('chai');
 const ERC721PresetMinterPauserAutoId = artifacts.require('ERC721PresetMinterPauserAutoId');
 
 contract('ERC721PresetMinterPauserAutoId', function (accounts) {
-  const [ deployer, other ] = accounts;
+  const [deployer, other] = accounts;
 
   const name = 'MinterAutoIDToken';
   const symbol = 'MAIT';
@@ -85,10 +85,7 @@ contract('ERC721PresetMinterPauserAutoId', function (accounts) {
     it('cannot mint while paused', async function () {
       await this.token.pause({ from: deployer });
 
-      await expectRevert(
-        this.token.mint(other, { from: deployer }),
-        'ERC721Pausable: token transfer while paused',
-      );
+      await expectRevert(this.token.mint(other, { from: deployer }), 'ERC721Pausable: token transfer while paused');
     });
 
     it('other accounts cannot pause', async function () {

@@ -34,6 +34,7 @@
 :xref-CrossChainEnabledPolygonChild-_isCrossChain--: xref:crosschain.adoc#CrossChainEnabledPolygonChild-_isCrossChain--
 :xref-CrossChainEnabledPolygonChild-_crossChainSender--: xref:crosschain.adoc#CrossChainEnabledPolygonChild-_crossChainSender--
 :xref-CrossChainEnabledPolygonChild-processMessageFromRoot-uint256-address-bytes-: xref:crosschain.adoc#CrossChainEnabledPolygonChild-processMessageFromRoot-uint256-address-bytes-
+:xref-ReentrancyGuard-_reentrancyGuardEntered--: xref:security.adoc#ReentrancyGuard-_reentrancyGuardEntered--
 :CrossChainEnabled-_isCrossChain: pass:normal[xref:crosschain.adoc#CrossChainEnabled-_isCrossChain--[`CrossChainEnabled._isCrossChain`]]
 :CrossChainEnabled-_crossChainSender: pass:normal[xref:crosschain.adoc#CrossChainEnabled-_crossChainSender--[`CrossChainEnabled._crossChainSender`]]
 :CrossChainEnabled: pass:normal[xref:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`]]
@@ -60,14 +61,13 @@ This directory provides building blocks to improve cross-chain awareness of smar
 
 The following specializations of {CrossChainEnabled} provide implementations of the {CrossChainEnabled} abstraction for specific bridges. This can be used to complex cross-chain aware components such as {AccessControlCrossChain}.
 
-:_bridge: pass:normal[xref:#CrossChainEnabledAMB-_bridge-address[`++_bridge++`]]
 :constructor: pass:normal[xref:#CrossChainEnabledAMB-constructor-address-[`++constructor++`]]
 :_isCrossChain: pass:normal[xref:#CrossChainEnabledAMB-_isCrossChain--[`++_isCrossChain++`]]
 :_crossChainSender: pass:normal[xref:#CrossChainEnabledAMB-_crossChainSender--[`++_crossChainSender++`]]
 
 [.contract]
 [[CrossChainEnabledAMB]]
-=== `++CrossChainEnabledAMB++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/amb/CrossChainEnabledAMB.sol[{github-icon},role=heading-link]
+=== `++CrossChainEnabledAMB++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/amb/CrossChainEnabledAMB.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -119,14 +119,13 @@ see {CrossChainEnabled-_isCrossChain}
 
 see {CrossChainEnabled-_crossChainSender}
 
-:_bridge: pass:normal[xref:#CrossChainEnabledArbitrumL1-_bridge-address[`++_bridge++`]]
 :constructor: pass:normal[xref:#CrossChainEnabledArbitrumL1-constructor-address-[`++constructor++`]]
 :_isCrossChain: pass:normal[xref:#CrossChainEnabledArbitrumL1-_isCrossChain--[`++_isCrossChain++`]]
 :_crossChainSender: pass:normal[xref:#CrossChainEnabledArbitrumL1-_crossChainSender--[`++_crossChainSender++`]]
 
 [.contract]
 [[CrossChainEnabledArbitrumL1]]
-=== `++CrossChainEnabledArbitrumL1++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL1.sol[{github-icon},role=heading-link]
+=== `++CrossChainEnabledArbitrumL1++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL1.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -178,7 +177,7 @@ see {CrossChainEnabled-_crossChainSender}
 
 [.contract]
 [[CrossChainEnabledArbitrumL2]]
-=== `++CrossChainEnabledArbitrumL2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL2.sol[{github-icon},role=heading-link]
+=== `++CrossChainEnabledArbitrumL2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/arbitrum/CrossChainEnabledArbitrumL2.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -224,14 +223,13 @@ see {CrossChainEnabled-_isCrossChain}
 
 see {CrossChainEnabled-_crossChainSender}
 
-:_messenger: pass:normal[xref:#CrossChainEnabledOptimism-_messenger-address[`++_messenger++`]]
 :constructor: pass:normal[xref:#CrossChainEnabledOptimism-constructor-address-[`++constructor++`]]
 :_isCrossChain: pass:normal[xref:#CrossChainEnabledOptimism-_isCrossChain--[`++_isCrossChain++`]]
 :_crossChainSender: pass:normal[xref:#CrossChainEnabledOptimism-_crossChainSender--[`++_crossChainSender++`]]
 
 [.contract]
 [[CrossChainEnabledOptimism]]
-=== `++CrossChainEnabledOptimism++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/optimism/CrossChainEnabledOptimism.sol[{github-icon},role=heading-link]
+=== `++CrossChainEnabledOptimism++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/optimism/CrossChainEnabledOptimism.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -275,8 +273,6 @@ see {CrossChainEnabled-_isCrossChain}
 
 see {CrossChainEnabled-_crossChainSender}
 
-:_fxChild: pass:normal[xref:#CrossChainEnabledPolygonChild-_fxChild-address[`++_fxChild++`]]
-:_sender: pass:normal[xref:#CrossChainEnabledPolygonChild-_sender-address[`++_sender++`]]
 :constructor: pass:normal[xref:#CrossChainEnabledPolygonChild-constructor-address-[`++constructor++`]]
 :_isCrossChain: pass:normal[xref:#CrossChainEnabledPolygonChild-_isCrossChain--[`++_isCrossChain++`]]
 :_crossChainSender: pass:normal[xref:#CrossChainEnabledPolygonChild-_crossChainSender--[`++_crossChainSender++`]]
@@ -284,7 +280,7 @@ see {CrossChainEnabled-_crossChainSender}
 
 [.contract]
 [[CrossChainEnabledPolygonChild]]
-=== `++CrossChainEnabledPolygonChild++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol[{github-icon},role=heading-link]
+=== `++CrossChainEnabledPolygonChild++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/polygon/CrossChainEnabledPolygonChild.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -313,6 +309,7 @@ _Available since v4.6._
 
 [.contract-subindex-inherited]
 .ReentrancyGuard
+* {xref-ReentrancyGuard-_reentrancyGuardEntered--}[`++_reentrancyGuardEntered()++`]
 
 [.contract-subindex-inherited]
 .CrossChainEnabled
@@ -361,7 +358,7 @@ In addition to the {CrossChainEnabled} abstraction, cross-chain awareness is als
 
 [.contract]
 [[LibAMB]]
-=== `++LibAMB++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/amb/LibAMB.sol[{github-icon},role=heading-link]
+=== `++LibAMB++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/amb/LibAMB.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -403,7 +400,7 @@ function call is not the result of a cross-chain message.
 
 [.contract]
 [[LibArbitrumL1]]
-=== `++LibArbitrumL1++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/arbitrum/LibArbitrumL1.sol[{github-icon},role=heading-link]
+=== `++LibArbitrumL1++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/arbitrum/LibArbitrumL1.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -448,7 +445,7 @@ function call is not the result of a cross-chain message.
 
 [.contract]
 [[LibArbitrumL2]]
-=== `++LibArbitrumL2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/arbitrum/LibArbitrumL2.sol[{github-icon},role=heading-link]
+=== `++LibArbitrumL2++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/arbitrum/LibArbitrumL2.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -494,7 +491,7 @@ function call is not the result of a cross-chain message.
 
 [.contract]
 [[LibOptimism]]
-=== `++LibOptimism++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/crosschain/optimism/LibOptimism.sol[{github-icon},role=heading-link]
+=== `++LibOptimism++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/crosschain/optimism/LibOptimism.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity

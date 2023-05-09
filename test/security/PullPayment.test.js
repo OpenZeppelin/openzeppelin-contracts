@@ -5,7 +5,7 @@ const { expect } = require('chai');
 const PullPaymentMock = artifacts.require('PullPaymentMock');
 
 contract('PullPayment', function (accounts) {
-  const [ payer, payee1, payee2 ] = accounts;
+  const [payer, payee1, payee2] = accounts;
 
   const amount = ether('17');
 

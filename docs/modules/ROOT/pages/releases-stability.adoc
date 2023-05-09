@@ -19,7 +19,7 @@ Before every release, we publish a feature-frozen release candidate. The purpose
 [[major-releases]]
 === Major Releases
 
-After several months or a year a new major release may come out. These are not scheduled, but will be based on the need to release breaking changes such as a redesign of a core feature of the library (e.g. https://github.com/OpenZeppelin/openzeppelin-contracts/pulls/2112[access control] in 3.0). Since we value stability, we aim for these to happen infrequently (expect no less than six months between majors). However, we may be forced to release one when there are big changes to the Solidity language.
+After several months or a year, a new major release may come out. These are not scheduled, but will be based on the need to release breaking changes such as a redesign of a core feature of the library (e.g. https://github.com/OpenZeppelin/openzeppelin-contracts/pulls/2112[access control] in 3.0). Since we value stability, we aim for these to happen infrequently (expect no less than six months between majors). However, we may be forced to release one when there are big changes to the Solidity language.
 
 [[api-stability]]
 == API Stability
@@ -38,7 +38,7 @@ We follow https://semver.org/[SemVer], which means API breakage may occur betwee
 
 While the internal implementation of functions may change, their semantics and signature will remain the same. The domain of their arguments will not be less restrictive (e.g. if transferring a value of 0 is disallowed, it will remain disallowed), nor will general state restrictions be lifted (e.g. `whenPaused` modifiers).
 
-If new functions are added to a contract, it will be in a backwards-compatible way: their usage won't be mandatory, and they won't extend functionality in ways that may foreseeable break an application (e.g. https://github.com/OpenZeppelin/openzeppelin-contracts/issues/1512[an `internal` method may be added to make it easier to retrieve information that was already available]).
+If new functions are added to a contract, it will be in a backwards-compatible way: their usage won't be mandatory, and they won't extend functionality in ways that may foreseeably break an application (e.g. https://github.com/OpenZeppelin/openzeppelin-contracts/issues/1512[an `internal` method may be added to make it easier to retrieve information that was already available]).
 
 [[internal]]
 ==== `internal`

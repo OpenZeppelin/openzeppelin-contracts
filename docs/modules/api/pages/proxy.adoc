@@ -73,6 +73,7 @@
 :xref-IERC1967-AdminChanged-address-address-: xref:interfaces.adoc#IERC1967-AdminChanged-address-address-
 :xref-IERC1967-BeaconUpgraded-address-: xref:interfaces.adoc#IERC1967-BeaconUpgraded-address-
 :ERC1967Proxy-constructor: pass:normal[xref:proxy.adoc#ERC1967Proxy-constructor-address-bytes-[`ERC1967Proxy.constructor`]]
+:ERC1967Upgrade-_getAdmin: pass:normal[xref:proxy.adoc#ERC1967Upgrade-_getAdmin--[`ERC1967Upgrade._getAdmin`]]
 :TransparentUpgradeableProxy: pass:normal[xref:proxy.adoc#TransparentUpgradeableProxy[`TransparentUpgradeableProxy`]]
 :TransparentUpgradeableProxy: pass:normal[xref:proxy.adoc#TransparentUpgradeableProxy[`TransparentUpgradeableProxy`]]
 :xref-ProxyAdmin-getProxyImplementation-contract-ITransparentUpgradeableProxy-: xref:proxy.adoc#ProxyAdmin-getProxyImplementation-contract-ITransparentUpgradeableProxy-
@@ -218,7 +219,7 @@ The current implementation of this security mechanism uses https://eips.ethereum
 
 [.contract]
 [[Proxy]]
-=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
+=== `++Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/proxy/Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -299,7 +300,7 @@ If overridden should call `super._beforeFallback()`.
 
 [.contract]
 [[ERC1967Proxy]]
-=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
+=== `++ERC1967Proxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/proxy/ERC1967/ERC1967Proxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -374,25 +375,21 @@ function call, and allows initializing the storage of the proxy like a Solidity 
 
 Returns the current implementation address.
 
-:_ROLLBACK_SLOT: pass:normal[xref:#ERC1967Upgrade-_ROLLBACK_SLOT-bytes32[`++_ROLLBACK_SLOT++`]]
 :_IMPLEMENTATION_SLOT: pass:normal[xref:#ERC1967Upgrade-_IMPLEMENTATION_SLOT-bytes32[`++_IMPLEMENTATION_SLOT++`]]
 :_getImplementation: pass:normal[xref:#ERC1967Upgrade-_getImplementation--[`++_getImplementation++`]]
-:_setImplementation: pass:normal[xref:#ERC1967Upgrade-_setImplementation-address-[`++_setImplementation++`]]
 :_upgradeTo: pass:normal[xref:#ERC1967Upgrade-_upgradeTo-address-[`++_upgradeTo++`]]
 :_upgradeToAndCall: pass:normal[xref:#ERC1967Upgrade-_upgradeToAndCall-address-bytes-bool-[`++_upgradeToAndCall++`]]
 :_upgradeToAndCallUUPS: pass:normal[xref:#ERC1967Upgrade-_upgradeToAndCallUUPS-address-bytes-bool-[`++_upgradeToAndCallUUPS++`]]
 :_ADMIN_SLOT: pass:normal[xref:#ERC1967Upgrade-_ADMIN_SLOT-bytes32[`++_ADMIN_SLOT++`]]
 :_getAdmin: pass:normal[xref:#ERC1967Upgrade-_getAdmin--[`++_getAdmin++`]]
-:_setAdmin: pass:normal[xref:#ERC1967Upgrade-_setAdmin-address-[`++_setAdmin++`]]
 :_changeAdmin: pass:normal[xref:#ERC1967Upgrade-_changeAdmin-address-[`++_changeAdmin++`]]
 :_BEACON_SLOT: pass:normal[xref:#ERC1967Upgrade-_BEACON_SLOT-bytes32[`++_BEACON_SLOT++`]]
 :_getBeacon: pass:normal[xref:#ERC1967Upgrade-_getBeacon--[`++_getBeacon++`]]
-:_setBeacon: pass:normal[xref:#ERC1967Upgrade-_setBeacon-address-[`++_setBeacon++`]]
 :_upgradeBeaconToAndCall: pass:normal[xref:#ERC1967Upgrade-_upgradeBeaconToAndCall-address-bytes-bool-[`++_upgradeBeaconToAndCall++`]]
 
 [.contract]
 [[ERC1967Upgrade]]
-=== `++ERC1967Upgrade++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/proxy/ERC1967/ERC1967Upgrade.sol[{github-icon},role=heading-link]
+=== `++ERC1967Upgrade++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/proxy/ERC1967/ERC1967Upgrade.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -497,17 +494,11 @@ Emits a {BeaconUpgraded} event.
 :constructor: pass:normal[xref:#TransparentUpgradeableProxy-constructor-address-address-bytes-[`++constructor++`]]
 :ifAdmin: pass:normal[xref:#TransparentUpgradeableProxy-ifAdmin--[`++ifAdmin++`]]
 :_fallback: pass:normal[xref:#TransparentUpgradeableProxy-_fallback--[`++_fallback++`]]
-:_dispatchAdmin: pass:normal[xref:#TransparentUpgradeableProxy-_dispatchAdmin--[`++_dispatchAdmin++`]]
-:_dispatchImplementation: pass:normal[xref:#TransparentUpgradeableProxy-_dispatchImplementation--[`++_dispatchImplementation++`]]
-:_dispatchChangeAdmin: pass:normal[xref:#TransparentUpgradeableProxy-_dispatchChangeAdmin--[`++_dispatchChangeAdmin++`]]
-:_dispatchUpgradeTo: pass:normal[xref:#TransparentUpgradeableProxy-_dispatchUpgradeTo--[`++_dispatchUpgradeTo++`]]
-:_dispatchUpgradeToAndCall: pass:normal[xref:#TransparentUpgradeableProxy-_dispatchUpgradeToAndCall--[`++_dispatchUpgradeToAndCall++`]]
 :_admin: pass:normal[xref:#TransparentUpgradeableProxy-_admin--[`++_admin++`]]
-:_requireZeroValue: pass:normal[xref:#TransparentUpgradeableProxy-_requireZeroValue--[`++_requireZeroValue++`]]
 
 [.contract]
 [[TransparentUpgradeableProxy]]
-=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
+=== `++TransparentUpgradeableProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/proxy/transparent/TransparentUpgradeableProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -634,6 +625,8 @@ If caller is the admin process the call internally, otherwise transparently fall
 
 Returns the current admin.
 
+CAUTION: This function is deprecated. Use {ERC1967Upgrade-_getAdmin} instead.
+
 :getProxyImplementation: pass:normal[xref:#ProxyAdmin-getProxyImplementation-contract-ITransparentUpgradeableProxy-[`++getProxyImplementation++`]]
 :getProxyAdmin: pass:normal[xref:#ProxyAdmin-getProxyAdmin-contract-ITransparentUpgradeableProxy-[`++getProxyAdmin++`]]
 :changeProxyAdmin: pass:normal[xref:#ProxyAdmin-changeProxyAdmin-contract-ITransparentUpgradeableProxy-address-[`++changeProxyAdmin++`]]
@@ -642,7 +635,7 @@ Returns the current admin.
 
 [.contract]
 [[ProxyAdmin]]
-=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
+=== `++ProxyAdmin++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/proxy/transparent/ProxyAdmin.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -741,7 +734,7 @@ Requirements:
 
 [.contract]
 [[BeaconProxy]]
-=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
+=== `++BeaconProxy++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/proxy/beacon/BeaconProxy.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -848,7 +841,7 @@ Requirements:
 
 [.contract]
 [[IBeacon]]
-=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
+=== `++IBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/proxy/beacon/IBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -872,16 +865,14 @@ Must return an address that can be used as a delegate call target.
 
 {BeaconProxy} will check that this address is a contract.
 
-:_implementation: pass:normal[xref:#UpgradeableBeacon-_implementation-address[`++_implementation++`]]
 :Upgraded: pass:normal[xref:#UpgradeableBeacon-Upgraded-address-[`++Upgraded++`]]
 :constructor: pass:normal[xref:#UpgradeableBeacon-constructor-address-[`++constructor++`]]
 :implementation: pass:normal[xref:#UpgradeableBeacon-implementation--[`++implementation++`]]
 :upgradeTo: pass:normal[xref:#UpgradeableBeacon-upgradeTo-address-[`++upgradeTo++`]]
-:_setImplementation: pass:normal[xref:#UpgradeableBeacon-_setImplementation-address-[`++_setImplementation++`]]
 
 [.contract]
 [[UpgradeableBeacon]]
-=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
+=== `++UpgradeableBeacon++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/proxy/beacon/UpgradeableBeacon.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -968,7 +959,7 @@ Emitted when the implementation returned by the beacon is changed.
 
 [.contract]
 [[Clones]]
-=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
+=== `++Clones++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/proxy/Clones.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1029,8 +1020,6 @@ Computes the address of a clone deployed using {Clones-cloneDeterministic}.
 
 == Utils
 
-:_initialized: pass:normal[xref:#Initializable-_initialized-uint8[`++_initialized++`]]
-:_initializing: pass:normal[xref:#Initializable-_initializing-bool[`++_initializing++`]]
 :Initialized: pass:normal[xref:#Initializable-Initialized-uint8-[`++Initialized++`]]
 :initializer: pass:normal[xref:#Initializable-initializer--[`++initializer++`]]
 :reinitializer: pass:normal[xref:#Initializable-reinitializer-uint8-[`++reinitializer++`]]
@@ -1041,7 +1030,7 @@ Computes the address of a clone deployed using {Clones-cloneDeterministic}.
 
 [.contract]
 [[Initializable]]
-=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
+=== `++Initializable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/proxy/utils/Initializable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1060,12 +1049,13 @@ case an upgrade adds a module that needs to be initialized.
 For example:
 
 [.hljs-theme-light.nopadding]
-```
+```solidity
 contract MyToken is ERC20Upgradeable {
     function initialize() initializer public {
         __ERC20_init("MyToken", "MTK");
     }
 }
+
 contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {
     function initializeV2() reinitializer(2) public {
         __ERC20Permit_init("MyToken");
@@ -1189,7 +1179,6 @@ Returns `true` if the contract is currently initializing. See {onlyInitializing}
 
 Triggered when the contract has been initialized or reinitialized.
 
-:__self: pass:normal[xref:#UUPSUpgradeable-__self-address[`++__self++`]]
 :onlyProxy: pass:normal[xref:#UUPSUpgradeable-onlyProxy--[`++onlyProxy++`]]
 :notDelegated: pass:normal[xref:#UUPSUpgradeable-notDelegated--[`++notDelegated++`]]
 :proxiableUUID: pass:normal[xref:#UUPSUpgradeable-proxiableUUID--[`++proxiableUUID++`]]
@@ -1199,7 +1188,7 @@ Triggered when the contract has been initialized or reinitialized.
 
 [.contract]
 [[UUPSUpgradeable]]
-=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
+=== `++UUPSUpgradeable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/proxy/utils/UUPSUpgradeable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -1299,7 +1288,7 @@ function revert if invoked through a proxy. This is guaranteed by the `notDelega
 
 [.contract-item]
 [[UUPSUpgradeable-upgradeTo-address-]]
-==== `[.contract-item-name]#++upgradeTo++#++(address newImplementation)++` [.item-kind]#external#
+==== `[.contract-item-name]#++upgradeTo++#++(address newImplementation)++` [.item-kind]#public#
 
 Upgrade the implementation of the proxy to `newImplementation`.
 
@@ -1309,7 +1298,7 @@ Emits an {Upgraded} event.
 
 [.contract-item]
 [[UUPSUpgradeable-upgradeToAndCall-address-bytes-]]
-==== `[.contract-item-name]#++upgradeToAndCall++#++(address newImplementation, bytes data)++` [.item-kind]#external#
+==== `[.contract-item-name]#++upgradeToAndCall++#++(address newImplementation, bytes data)++` [.item-kind]#public#
 
 Upgrade the implementation of the proxy to `newImplementation`, and subsequently execute the function call
 encoded in `data`.

@@ -12,6 +12,8 @@ import "./IERC1820Implementer.sol";
  * declare their willingness to be implementers.
  * {IERC1820Registry-setInterfaceImplementer} should then be called for the
  * registration to be complete.
+ *
+ * CAUTION: This file is deprecated as of v4.9 and will be removed in the next major release.
  */
 contract ERC1820Implementer is IERC1820Implementer {
     bytes32 private constant _ERC1820_ACCEPT_MAGIC = keccak256("ERC1820_ACCEPT_MAGIC");
@@ -21,13 +23,10 @@ contract ERC1820Implementer is IERC1820Implementer {
     /**
      * @dev See {IERC1820Implementer-canImplementInterfaceForAddress}.
      */
-    function canImplementInterfaceForAddress(bytes32 interfaceHash, address account)
-        public
-        view
-        virtual
-        override
-        returns (bytes32)
-    {
+    function canImplementInterfaceForAddress(
+        bytes32 interfaceHash,
+        address account
+    ) public view virtual override returns (bytes32) {
         return _supportedInterfaces[interfaceHash][account] ? _ERC1820_ACCEPT_MAGIC : bytes32(0x00);
     }
 

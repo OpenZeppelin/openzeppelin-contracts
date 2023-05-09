@@ -6,7 +6,6 @@ pragma solidity ^0.8.0;
 import "../access/AccessControl.sol";
 import "../token/ERC721/IERC721Receiver.sol";
 import "../token/ERC1155/IERC1155Receiver.sol";
-import "../utils/Address.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -52,6 +51,11 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     event CallExecuted(bytes32 indexed id, uint256 indexed index, address target, uint256 value, bytes data);
 
     /**
+     * @dev Emitted when new proposal is scheduled with non-zero salt.
+     */
+    event CallSalt(bytes32 indexed id, bytes32 salt);
+
+    /**
      * @dev Emitted when operation `id` is cancelled.
      */
     event Cancelled(bytes32 indexed id);
@@ -74,12 +78,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * administration through timelocked proposals. Previous versions of this contract would assign
      * this admin to the deployer automatically and should be renounced as well.
      */
-    constructor(
-        uint256 minDelay,
-        address[] memory proposers,
-        address[] memory executors,
-        address admin
-    ) {
+    constructor(uint256 minDelay, address[] memory proposers, address[] memory executors, address admin) {
         _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
         _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
@@ -137,21 +136,21 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * @dev Returns whether an id correspond to a registered operation. This
      * includes both Pending, Ready and Done operations.
      */
-    function isOperation(bytes32 id) public view virtual returns (bool registered) {
+    function isOperation(bytes32 id) public view virtual returns (bool) {
         return getTimestamp(id) > 0;
     }
 
     /**
-     * @dev Returns whether an operation is pending or not.
+     * @dev Returns whether an operation is pending or not. Note that a "pending" operation may also be "ready".
      */
-    function isOperationPending(bytes32 id) public view virtual returns (bool pending) {
+    function isOperationPending(bytes32 id) public view virtual returns (bool) {
         return getTimestamp(id) > _DONE_TIMESTAMP;
     }
 
     /**
-     * @dev Returns whether an operation is ready or not.
+     * @dev Returns whether an operation is ready for execution. Note that a "ready" operation is also "pending".
      */
-    function isOperationReady(bytes32 id) public view virtual returns (bool ready) {
+    function isOperationReady(bytes32 id) public view virtual returns (bool) {
         uint256 timestamp = getTimestamp(id);
         return timestamp > _DONE_TIMESTAMP && timestamp <= block.timestamp;
     }
@@ -159,15 +158,15 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev Returns whether an operation is done or not.
      */
-    function isOperationDone(bytes32 id) public view virtual returns (bool done) {
+    function isOperationDone(bytes32 id) public view virtual returns (bool) {
         return getTimestamp(id) == _DONE_TIMESTAMP;
     }
 
     /**
-     * @dev Returns the timestamp at with an operation becomes ready (0 for
+     * @dev Returns the timestamp at which an operation becomes ready (0 for
      * unset operations, 1 for done operations).
      */
-    function getTimestamp(bytes32 id) public view virtual returns (uint256 timestamp) {
+    function getTimestamp(bytes32 id) public view virtual returns (uint256) {
         return _timestamps[id];
     }
 
@@ -176,7 +175,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      *
      * This value can be changed by executing an operation that calls `updateDelay`.
      */
-    function getMinDelay() public view virtual returns (uint256 duration) {
+    function getMinDelay() public view virtual returns (uint256) {
         return _minDelay;
     }
 
@@ -190,7 +189,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes calldata data,
         bytes32 predecessor,
         bytes32 salt
-    ) public pure virtual returns (bytes32 hash) {
+    ) public pure virtual returns (bytes32) {
         return keccak256(abi.encode(target, value, data, predecessor, salt));
     }
 
@@ -204,14 +203,14 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes[] calldata payloads,
         bytes32 predecessor,
         bytes32 salt
-    ) public pure virtual returns (bytes32 hash) {
+    ) public pure virtual returns (bytes32) {
         return keccak256(abi.encode(targets, values, payloads, predecessor, salt));
     }
 
     /**
      * @dev Schedule an operation containing a single transaction.
      *
-     * Emits a {CallScheduled} event.
+     * Emits {CallSalt} if salt is nonzero, and {CallScheduled}.
      *
      * Requirements:
      *
@@ -228,12 +227,15 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes32 id = hashOperation(target, value, data, predecessor, salt);
         _schedule(id, delay);
         emit CallScheduled(id, 0, target, value, data, predecessor, delay);
+        if (salt != bytes32(0)) {
+            emit CallSalt(id, salt);
+        }
     }
 
     /**
      * @dev Schedule an operation containing a batch of transactions.
      *
-     * Emits one {CallScheduled} event per transaction in the batch.
+     * Emits {CallSalt} if salt is nonzero, and one {CallScheduled} event per transaction in the batch.
      *
      * Requirements:
      *
@@ -255,10 +257,13 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         for (uint256 i = 0; i < targets.length; ++i) {
             emit CallScheduled(id, i, targets[i], values[i], payloads[i], predecessor, delay);
         }
+        if (salt != bytes32(0)) {
+            emit CallSalt(id, salt);
+        }
     }
 
     /**
-     * @dev Schedule an operation that is to becomes valid after a given delay.
+     * @dev Schedule an operation that is to become valid after a given delay.
      */
     function _schedule(bytes32 id, uint256 delay) private {
         require(!isOperation(id), "TimelockController: operation already scheduled");
@@ -345,11 +350,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev Execute an operation's call.
      */
-    function _execute(
-        address target,
-        uint256 value,
-        bytes calldata data
-    ) internal virtual {
+    function _execute(address target, uint256 value, bytes calldata data) internal virtual {
         (bool success, ) = target.call{value: value}(data);
         require(success, "TimelockController: underlying transaction reverted");
     }
@@ -389,12 +390,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev See {IERC721Receiver-onERC721Received}.
      */
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes memory
-    ) public virtual override returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
         return this.onERC721Received.selector;
     }
 

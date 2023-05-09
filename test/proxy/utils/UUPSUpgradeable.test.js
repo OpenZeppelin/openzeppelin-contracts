@@ -6,14 +6,14 @@ const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
 const UUPSUpgradeableUnsafeMock = artifacts.require('UUPSUpgradeableUnsafeMock');
 const UUPSUpgradeableLegacyMock = artifacts.require('UUPSUpgradeableLegacyMock');
-const CountersImpl = artifacts.require('CountersImpl');
+const NonUpgradeableMock = artifacts.require('NonUpgradeableMock');
 
-contract('UUPSUpgradeable', function (accounts) {
+contract('UUPSUpgradeable', function () {
   before(async function () {
     this.implInitial = await UUPSUpgradeableMock.new();
     this.implUpgradeOk = await UUPSUpgradeableMock.new();
     this.implUpgradeUnsafe = await UUPSUpgradeableUnsafeMock.new();
-    this.implUpgradeNonUUPS = await CountersImpl.new();
+    this.implUpgradeNonUUPS = await NonUpgradeableMock.new();
   });
 
   beforeEach(async function () {
@@ -65,14 +65,14 @@ contract('UUPSUpgradeable', function (accounts) {
 
   it('can upgrade from legacy implementations', async function () {
     const legacyImpl = await UUPSUpgradeableLegacyMock.new();
-    const legacyInstance = await ERC1967Proxy.new(legacyImpl.address, '0x')
-      .then(({ address }) => UUPSUpgradeableLegacyMock.at(address));
+    const legacyInstance = await ERC1967Proxy.new(legacyImpl.address, '0x').then(({ address }) =>
+      UUPSUpgradeableLegacyMock.at(address),
+    );
 
     const receipt = await legacyInstance.upgradeTo(this.implInitial.address);
 
-    const UpgradedEvents = receipt.logs.filter(({ address, event }) =>
-      address === legacyInstance.address &&
-      event === 'Upgraded',
+    const UpgradedEvents = receipt.logs.filter(
+      ({ address, event }) => address === legacyInstance.address && event === 'Upgraded',
     );
     expect(UpgradedEvents.length).to.be.equal(1);
 

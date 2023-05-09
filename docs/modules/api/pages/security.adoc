@@ -10,6 +10,7 @@
 :Escrow: pass:normal[xref:utils.adoc#Escrow[`Escrow`]]
 :xref-ReentrancyGuard-nonReentrant--: xref:security.adoc#ReentrancyGuard-nonReentrant--
 :xref-ReentrancyGuard-constructor--: xref:security.adoc#ReentrancyGuard-constructor--
+:xref-ReentrancyGuard-_reentrancyGuardEntered--: xref:security.adoc#ReentrancyGuard-_reentrancyGuardEntered--
 :xref-Pausable-whenNotPaused--: xref:security.adoc#Pausable-whenNotPaused--
 :xref-Pausable-whenPaused--: xref:security.adoc#Pausable-whenPaused--
 :xref-Pausable-constructor--: xref:security.adoc#Pausable-constructor--
@@ -35,7 +36,6 @@ TIP: For an overview on reentrancy and the possible mechanisms to prevent it, re
 
 == Contracts
 
-:_escrow: pass:normal[xref:#PullPayment-_escrow-contract-Escrow[`++_escrow++`]]
 :constructor: pass:normal[xref:#PullPayment-constructor--[`++constructor++`]]
 :withdrawPayments: pass:normal[xref:#PullPayment-withdrawPayments-address-payable-[`++withdrawPayments++`]]
 :payments: pass:normal[xref:#PullPayment-payments-address-[`++payments++`]]
@@ -43,7 +43,7 @@ TIP: For an overview on reentrancy and the possible mechanisms to prevent it, re
 
 [.contract]
 [[PullPayment]]
-=== `++PullPayment++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/security/PullPayment.sol[{github-icon},role=heading-link]
+=== `++PullPayment++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/security/PullPayment.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -110,17 +110,13 @@ Called by the payer to store the sent amount as credit to be pulled.
 Funds sent in this way are stored in an intermediate {Escrow} contract, so
 there is no danger of them being spent before withdrawal.
 
-:_NOT_ENTERED: pass:normal[xref:#ReentrancyGuard-_NOT_ENTERED-uint256[`++_NOT_ENTERED++`]]
-:_ENTERED: pass:normal[xref:#ReentrancyGuard-_ENTERED-uint256[`++_ENTERED++`]]
-:_status: pass:normal[xref:#ReentrancyGuard-_status-uint256[`++_status++`]]
 :constructor: pass:normal[xref:#ReentrancyGuard-constructor--[`++constructor++`]]
 :nonReentrant: pass:normal[xref:#ReentrancyGuard-nonReentrant--[`++nonReentrant++`]]
-:_nonReentrantBefore: pass:normal[xref:#ReentrancyGuard-_nonReentrantBefore--[`++_nonReentrantBefore++`]]
-:_nonReentrantAfter: pass:normal[xref:#ReentrancyGuard-_nonReentrantAfter--[`++_nonReentrantAfter++`]]
+:_reentrancyGuardEntered: pass:normal[xref:#ReentrancyGuard-_reentrancyGuardEntered--[`++_reentrancyGuardEntered++`]]
 
 [.contract]
 [[ReentrancyGuard]]
-=== `++ReentrancyGuard++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/security/ReentrancyGuard.sol[{github-icon},role=heading-link]
+=== `++ReentrancyGuard++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/security/ReentrancyGuard.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
@@ -152,6 +148,7 @@ https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanb
 .Functions
 --
 * {xref-ReentrancyGuard-constructor--}[`++constructor()++`]
+* {xref-ReentrancyGuard-_reentrancyGuardEntered--}[`++_reentrancyGuardEntered()++`]
 
 --
 
@@ -169,9 +166,15 @@ by making the `nonReentrant` function external, and making it call a
 [[ReentrancyGuard-constructor--]]
 ==== `[.contract-item-name]#++constructor++#++()++` [.item-kind]#internal#
 
+[.contract-item]
+[[ReentrancyGuard-_reentrancyGuardEntered--]]
+==== `[.contract-item-name]#++_reentrancyGuardEntered++#++() → bool++` [.item-kind]#internal#
+
+Returns true if the reentrancy guard is currently set to "entered", which indicates there is a
+`nonReentrant` function in the call stack.
+
 :Paused: pass:normal[xref:#Pausable-Paused-address-[`++Paused++`]]
 :Unpaused: pass:normal[xref:#Pausable-Unpaused-address-[`++Unpaused++`]]
-:_paused: pass:normal[xref:#Pausable-_paused-bool[`++_paused++`]]
 :constructor: pass:normal[xref:#Pausable-constructor--[`++constructor++`]]
 :whenNotPaused: pass:normal[xref:#Pausable-whenNotPaused--[`++whenNotPaused++`]]
 :whenPaused: pass:normal[xref:#Pausable-whenPaused--[`++whenPaused++`]]
@@ -183,7 +186,7 @@ by making the `nonReentrant` function external, and making it call a
 
 [.contract]
 [[Pausable]]
-=== `++Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.3/contracts/security/Pausable.sol[{github-icon},role=heading-link]
+=== `++Pausable++` link:https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.8.2/contracts/security/Pausable.sol[{github-icon},role=heading-link]
 
 [.hljs-theme-light.nopadding]
 ```solidity
