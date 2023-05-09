@@ -174,7 +174,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
 
     /**
      * @dev Returns the current admin.
-     * 
+     *
      * CAUTION: This function is deprecated. Use {ERC1967Upgrade-_getAdmin} instead.
      */
     function _admin() internal view virtual returns (address) {
