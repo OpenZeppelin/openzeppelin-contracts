@@ -8,6 +8,11 @@ module.exports = [].concat(
     files: ['certora/harnesses/AccessControlHarness.sol'],
   },
   {
+    spec: 'AccessControlDefaultAdminRules',
+    contract: 'AccessControlDefaultAdminRulesHarness',
+    files: ['certora/harnesses/AccessControlDefaultAdminRulesHarness.sol'],
+  },
+  {
     spec: 'Ownable',
     contract: 'OwnableHarness',
     files: ['certora/harnesses/OwnableHarness.sol'],
