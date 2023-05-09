@@ -28,7 +28,6 @@ internalTask(TASK_TEST_GET_TEST_FILES).setAction(async ({ testFiles }, { config 
           'proxy/beacon/UpgradeableBeacon.test.js',
           'proxy/ERC1967/ERC1967Proxy.test.js',
           'proxy/transparent/ProxyAdmin.test.js',
-          'proxy/transparent/TransparentUpgradeableProxy.behaviour.js',
           'proxy/transparent/TransparentUpgradeableProxy.test.js',
           'proxy/utils/UUPSUpgradeable.test.js',
         ].map(p => path.join(config.paths.tests, p)),
