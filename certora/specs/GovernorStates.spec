@@ -5,8 +5,8 @@ import "GovernorInvariants.spec"
 use invariant proposalStateConsistency
 use invariant votesImplySnapshotPassed
 
-definition assumedSafeOrDuplicateOrDuplicate(method f) returns bool =
-    assumedSafeOrDuplicate(f)
+definition assumedSafeOrDuplicate(method f) returns bool =
+    assumedSafe(f)
     || f.selector == castVoteWithReason(uint256,uint8,string).selector
     || f.selector == castVoteWithReasonAndParams(uint256,uint8,string,bytes).selector
     || f.selector == castVoteBySig(uint256,uint8,uint8,bytes32,bytes32).selector
@@ -19,7 +19,7 @@ definition assumedSafeOrDuplicateOrDuplicate(method f) returns bool =
 */
 invariant stateConsistency(env e, uint256 pId)
     state(e, pId) == safeState(e, pId)
-    filtered { f -> !assumedSafeOrDuplicateOrDuplicate(f); }
+    filtered { f -> !assumedSafeOrDuplicate(f) }
 
 rule stateDomain(env e, uint256 pId) {
     uint8 result = safeState(e, pId);
