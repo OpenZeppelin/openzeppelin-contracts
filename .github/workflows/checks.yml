@@ -107,7 +107,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run CodeSpell
-        uses: codespell-project/actions-codespell@v1.0
+        uses: codespell-project/actions-codespell@v2.0
         with:
           check_filenames: true
           skip: package-lock.json,*.pdf
