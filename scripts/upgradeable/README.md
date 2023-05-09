@@ -9,7 +9,7 @@ Applies patches and invokes the transpiler with the command line flags we need f
 ## `transpile-onto.sh`
 
 ```
-bash scripts/upgradeable/transpile-onto.sh <target> [base]
+bash scripts/upgradeable/transpile-onto.sh <target> [<base>]
 ```
 
 Transpiles the contents of the current git branch and commits the result as a new commit on branch `<target>`. If branch `<target>` doesn't exist, it will copy the commit history of `[base]` (this is used in GitHub Actions, but is usually not necessary locally).

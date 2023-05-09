@@ -3,7 +3,7 @@
 set -euo pipefail
 
 if [ $# -lt 1 ]; then
-  echo "usage: bash $0 <target> [base]" >&2
+  echo "usage: bash $0 <target> [<base>]" >&2
   exit 1
 fi
 
