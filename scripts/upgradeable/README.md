@@ -4,7 +4,7 @@ When the `master` branch or `release-v*` branches are updated, the code is trans
 
 ## `transpile.sh`
 
-Applies patches and invokes the transpiler with the necessary command line flags.
+Applies patches and invokes the transpiler with the command line flags we need for our requirements (for example, excluding certain files).
 
 ## `transpile-onto.sh`
 
