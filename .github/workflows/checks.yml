@@ -14,7 +14,6 @@ concurrency:
 
 jobs:
   lint:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -37,19 +36,36 @@ jobs:
       - name: Check linearisation of the inheritance graph
         run: npm run test:inheritance
       - name: Check proceduraly generated contracts are up-to-date
-        if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
         run: npm run test:generation
       - name: Compare gas costs
         uses: ./.github/actions/gas-compare
         with:
           token: ${{ github.token }}
+
+  tests-upgradeable:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Include history so patch conflicts are resolved automatically
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: Transpile to upgradeable
+        run: bash scripts/upgradeable/transpile.sh
+      - name: Run tests
+        run: npm run test
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+      - name: Check linearisation of the inheritance graph
+        run: npm run test:inheritance
       - name: Check storage layout
         uses: ./.github/actions/storage-layout
         with:
           token: ${{ github.token }}
 
-  foundry-tests:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
+  tests-foundry:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -63,7 +79,6 @@ jobs:
         run: forge test -vv
 
   coverage:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -77,7 +92,6 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   slither:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -89,7 +103,6 @@ jobs:
           node-version: 18.15
 
   codespell:
-    if: github.repository != 'OpenZeppelin/openzeppelin-contracts-upgradeable'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
