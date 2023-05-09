@@ -11,6 +11,7 @@ extendEnvironment(env => {
       try {
         return artifactsRequire(name + suffix);
       } catch (e) {
+        // HH700: Artifact not found - from https://hardhat.org/hardhat-runner/docs/errors#HH700
         if (HardhatError.isHardhatError(e) && e.number === 700 && suffix !== '') {
           continue;
         } else {
