@@ -1,0 +1,8 @@
+{
+  "mode": "pre",
+  "tag": "rc",
+  "initialVersions": {
+    "openzeppelin-solidity": "4.8.2"
+  },
+  "changesets": []
+}
