@@ -302,12 +302,12 @@ rule pendingDefaultAdminDelayEnforced(env e1, env e2, method f, calldataarg args
 
   address adminAfter = defaultAdmin();
 
-  // change can only happen toward the newAdmin, with the delay
+  // change can only happen towards the newAdmin, with the delay
   assert adminAfter != adminBefore => (
     adminAfter == newAdmin &&
     e2.block.timestamp >= e1.block.timestamp + delayBefore
   ),
-    "A delay can't change in less than applied schedule";
+    "The admin can only change after the enforced delay and to the previously scheduled new admin";
 }
 
 /*
@@ -419,7 +419,7 @@ rule pendingDelayWaitEnforced(env e1, env e2, method f, calldataarg args, uint48
     delayAfter == newDelay &&
     e2.block.timestamp >= delayWait
   ),
-    "A delay can't change in less than applied schedule";
+    "A delay can only change after the applied schedule";
 }
 
 /*
