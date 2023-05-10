@@ -660,6 +660,9 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         account: defaultAdmin,
       });
       expect(await this.accessControl.owner()).to.equal(constants.ZERO_ADDRESS);
+      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+      expect(newAdmin).to.eq(ZERO_ADDRESS);
+      expect(schedule).to.be.bignumber.eq(ZERO);
     });
 
     it('allows to recover access using the internal _grantRole', async function () {
