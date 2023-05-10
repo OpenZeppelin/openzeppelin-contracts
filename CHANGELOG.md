@@ -21,7 +21,7 @@
 - `SignatureChecker`: Add `isValidERC1271SignatureNow` for checking a signature directly against a smart contract using ERC-1271. ([#3932](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3932))
 - `SafeERC20`: Add a `forceApprove` function to improve compatibility with tokens behaving like USDT. ([#4067](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4067))
 - `ERC1967Upgrade`: removed contract-wide `oz-upgrades-unsafe-allow delegatecall` annotation, replaced by granular annotation in `UUPSUpgradeable`. ([#3971](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3971))
-- `ERC20Wrapper`: self wrapping and deposit by the wrapper itself are now explicitelly forbiden. ([#4100](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4100))
+- `ERC20Wrapper`: self wrapping and deposit by the wrapper itself are now explicitly forbidden. ([#4100](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4100))
 - `ECDSA`: optimize bytes32 computation by using assembly instead of `abi.encodePacked`. ([#3853](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3853))
 - `ERC721URIStorage`: Emit ERC-4906 `MetadataUpdate` in `_setTokenURI`. ([#4012](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4012))
 - `ShortStrings`: Added a library for handling short strings in a gas efficient way, with fallback to storage for longer strings. ([#4023](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4023))
