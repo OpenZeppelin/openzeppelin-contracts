@@ -621,14 +621,17 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   });
 
   describe('renounces admin', function () {
+    let expectedSchedule;
     let delayPassed;
+    let delayNotPassed;
 
     beforeEach(async function () {
       await this.accessControl.beginDefaultAdminTransfer(constants.ZERO_ADDRESS, { from: defaultAdmin });
-      delayPassed = web3.utils
+      expectedSchedule = web3.utils
         .toBN(await time.latest())
-        .add(delay)
-        .addn(1);
+        .add(delay);
+      delayNotPassed = expectedSchedule;
+      delayPassed = expectedSchedule.addn(1);
     });
 
     it('reverts if caller is not default admin', async function () {
@@ -638,6 +641,15 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         `${errorPrefix}: can only renounce roles for self`,
       );
     });
+
+    it('no op if renouncing when not having the role', async function () {
+      await time.setNextBlockTimestamp(delayPassed);
+      await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from: other });
+
+      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+      expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
+      expect(schedule).to.be.bignumber.equal(expectedSchedule);
+  });
 
     it('keeps defaultAdmin consistent with hasRole if another non-defaultAdmin user renounces the DEFAULT_ADMIN_ROLE', async function () {
       await time.setNextBlockTimestamp(delayPassed);
@@ -677,12 +689,6 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
     });
 
     describe('schedule not passed', function () {
-      let delayNotPassed;
-
-      beforeEach(function () {
-        delayNotPassed = delayPassed.subn(1);
-      });
-
       for (const [fromSchedule, tag] of [
         [-1, 'less'],
         [0, 'equal'],
