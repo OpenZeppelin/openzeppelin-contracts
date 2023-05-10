@@ -627,9 +627,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
 
     beforeEach(async function () {
       await this.accessControl.beginDefaultAdminTransfer(constants.ZERO_ADDRESS, { from: defaultAdmin });
-      expectedSchedule = web3.utils
-        .toBN(await time.latest())
-        .add(delay);
+      expectedSchedule = web3.utils.toBN(await time.latest()).add(delay);
       delayNotPassed = expectedSchedule;
       delayPassed = expectedSchedule.addn(1);
     });
@@ -649,7 +647,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
       expect(newAdmin).to.equal(constants.ZERO_ADDRESS);
       expect(schedule).to.be.bignumber.equal(expectedSchedule);
-  });
+    });
 
     it('keeps defaultAdmin consistent with hasRole if another non-defaultAdmin user renounces the DEFAULT_ADMIN_ROLE', async function () {
       await time.setNextBlockTimestamp(delayPassed);
