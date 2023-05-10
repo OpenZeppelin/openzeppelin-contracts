@@ -267,7 +267,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         [0, 'exactly when'],
         [1, 'after'],
       ]) {
-        it(`returns pending admin and delay ${tag} delay schedule passes if not accepted`, async function () {
+        it(`returns pending admin and schedule ${tag} it passes if not accepted`, async function () {
           // Wait until schedule + fromSchedule
           const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
           await time.setNextBlockTimestamp(firstSchedule.toNumber() + fromSchedule);
@@ -279,7 +279,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         });
       }
 
-      it('returns 0 after delay schedule passes and the transfer was accepted', async function () {
+      it('returns 0 after schedule passes and the transfer was accepted', async function () {
         // Wait after schedule
         const { schedule: firstSchedule } = await this.accessControl.pendingDefaultAdmin();
         await time.setNextBlockTimestamp(firstSchedule.addn(1));
@@ -660,6 +660,9 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
         account: defaultAdmin,
       });
       expect(await this.accessControl.owner()).to.equal(constants.ZERO_ADDRESS);
+      const { newAdmin, schedule } = await this.accessControl.pendingDefaultAdmin();
+      expect(newAdmin).to.eq(ZERO_ADDRESS);
+      expect(schedule).to.be.bignumber.eq(ZERO);
     });
 
     it('allows to recover access using the internal _grantRole', async function () {
