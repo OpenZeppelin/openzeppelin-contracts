@@ -1,7 +1,7 @@
 const { readPreState } = require('@changesets/pre');
 const { default: readChangesets } = require('@changesets/read');
 const { join } = require('path');
-const fetch = require('node-fetch');
+const { fetch } = require('undici');
 const { version, name: packageName } = require(join(__dirname, '../../../contracts/package.json'));
 
 module.exports = async ({ github, context, core }) => {
