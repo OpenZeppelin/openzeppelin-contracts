@@ -640,7 +640,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       );
     });
 
-    it('renouncing the admin role when not an admin doesn't affect the schedule', async function () {
+    it("renouncing the admin role when not an admin doesn't affect the schedule", async function () {
       await time.setNextBlockTimestamp(delayPassed);
       await this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from: other });
 
