@@ -60,11 +60,11 @@ contract('EIP712', function (accounts) {
 
             const cloneDomain = { ...this.domain, verifyingContract: clone.address };
 
-            const expectedSeparator = await domainSeparator(cloneDomain);
-            expect(await clone.$_domainSeparatorV4()).to.equal(expectedSeparator);
-
             const reportedDomain = await getDomain(clone);
             expect(mapValues(reportedDomain, String)).to.be.deep.equal(mapValues(cloneDomain, String));
+
+            const expectedSeparator = await domainSeparator(cloneDomain);
+            expect(await clone.$_domainSeparatorV4()).to.equal(expectedSeparator);
           });
         }
       });
