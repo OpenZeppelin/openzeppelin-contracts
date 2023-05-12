@@ -135,9 +135,9 @@ rule renounceRoleEffect(env e, bytes32 role) {
     assert success <=> (
       account == e.msg.sender &&
       (
+        role    != DEFAULT_ADMIN_ROLE() ||
+        account != adminBefore          ||
         (
-          role != DEFAULT_ADMIN_ROLE()
-        ) || (
           pendingAdminBefore == 0 &&
           isSet(scheduleBefore) &&
           hasPassed(e, scheduleBefore)
@@ -157,7 +157,7 @@ rule renounceRoleEffect(env e, bytes32 role) {
       ) ? (
         adminAfter        == 0 &&
         pendingAdminAfter == 0 &&
-        scheduleAfter     == scheduleBefore // For some reason this is not reset. needs fix ?
+        scheduleAfter     == 0
       ) : (
         adminAfter        == adminBefore        &&
         pendingAdminAfter == pendingAdminBefore &&
@@ -209,7 +209,8 @@ rule noPendingDefaultAdminChange(env e, method f, calldataarg args) {
   ) => (
     f.selector == beginDefaultAdminTransfer(address).selector ||
     f.selector == acceptDefaultAdminTransfer().selector ||
-    f.selector == cancelDefaultAdminTransfer().selector
+    f.selector == cancelDefaultAdminTransfer().selector ||
+    f.selector == renounceRole(bytes32,address).selector
   ),
     "pending admin and its schedule is only affected by beginning, accepting or cancelling an admin transfer";
 }
