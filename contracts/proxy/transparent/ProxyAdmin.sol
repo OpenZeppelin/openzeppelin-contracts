@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (proxy/transparent/ProxyAdmin.sol)
+// OpenZeppelin Contracts (last updated v4.8.3) (proxy/transparent/ProxyAdmin.sol)
 
 pragma solidity ^0.8.0;
 
@@ -18,7 +18,7 @@ contract ProxyAdmin is Ownable {
      *
      * - This contract must be the current admin of `proxy`.
      */
-    function changeProxyAdmin(TransparentUpgradeableProxy proxy, address newAdmin) public virtual onlyOwner {
+    function changeProxyAdmin(ITransparentUpgradeableProxy proxy, address newAdmin) public virtual onlyOwner {
         proxy.changeAdmin(newAdmin);
     }
 
@@ -29,7 +29,7 @@ contract ProxyAdmin is Ownable {
      *
      * - This contract must be the admin of `proxy`.
      */
-    function upgrade(TransparentUpgradeableProxy proxy, address implementation) public virtual onlyOwner {
+    function upgrade(ITransparentUpgradeableProxy proxy, address implementation) public virtual onlyOwner {
         proxy.upgradeTo(implementation);
     }
 
@@ -42,7 +42,7 @@ contract ProxyAdmin is Ownable {
      * - This contract must be the admin of `proxy`.
      */
     function upgradeAndCall(
-        TransparentUpgradeableProxy proxy,
+        ITransparentUpgradeableProxy proxy,
         address implementation,
         bytes memory data
     ) public payable virtual onlyOwner {

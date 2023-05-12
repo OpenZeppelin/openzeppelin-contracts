@@ -27,6 +27,16 @@ contract('Ownable2Step', function (accounts) {
       expect(await this.ownable2Step.pendingOwner()).to.not.equal(accountA);
     });
 
+    it('guards transfer against invalid user', async function () {
+      await this.ownable2Step.transferOwnership(accountA, { from: owner });
+      await expectRevert(
+        this.ownable2Step.acceptOwnership({ from: accountB }),
+        'Ownable2Step: caller is not the new owner',
+      );
+    });
+  });
+
+  it('renouncing ownership', async function () {
     it('changes owner after renouncing ownership', async function () {
       await this.ownable2Step.renounceOwnership({ from: owner });
       // If renounceOwnership is removed from parent an alternative is needed ...
@@ -46,12 +56,12 @@ contract('Ownable2Step', function (accounts) {
       );
     });
 
-    it('guards transfer against invalid user', async function () {
-      await this.ownable2Step.transferOwnership(accountA, { from: owner });
-      await expectRevert(
-        this.ownable2Step.acceptOwnership({ from: accountB }),
-        'Ownable2Step: caller is not the new owner',
-      );
+    it('allows to recover access using the internal _transferOwnership', async function () {
+      await this.ownable.renounceOwnership({ from: owner });
+      const receipt = await this.ownable.$_transferOwnership(accountA);
+      expectEvent(receipt, 'OwnershipTransferred');
+
+      expect(await this.ownable.owner()).to.equal(accountA);
     });
   });
 });

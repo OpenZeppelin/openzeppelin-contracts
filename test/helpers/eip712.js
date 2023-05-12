@@ -6,6 +6,7 @@ const EIP712Domain = [
   { name: 'version', type: 'string' },
   { name: 'chainId', type: 'uint256' },
   { name: 'verifyingContract', type: 'address' },
+  { name: 'salt', type: 'bytes32' },
 ];
 
 const Permit = [
@@ -24,25 +25,43 @@ function hexStringToBuffer(hexstr) {
   return Buffer.from(hexstr.replace(/^0x/, ''), 'hex');
 }
 
-async function domainSeparator({ name, version, chainId, verifyingContract }) {
+async function getDomain(contract) {
+  const { fields, name, version, chainId, verifyingContract, salt, extensions } = await contract.eip712Domain();
+
+  if (extensions.length > 0) {
+    throw Error('Extensions not implemented');
+  }
+
+  const domain = { name, version, chainId, verifyingContract, salt };
+  for (const [i, { name }] of EIP712Domain.entries()) {
+    if (!(fields & (1 << i))) {
+      delete domain[name];
+    }
+  }
+
+  return domain;
+}
+
+function domainType(domain) {
+  return EIP712Domain.filter(({ name }) => domain[name] !== undefined);
+}
+
+function domainSeparator(domain) {
   return bufferToHexString(
-    ethSigUtil.TypedDataUtils.hashStruct(
-      'EIP712Domain',
-      { name, version, chainId, verifyingContract },
-      { EIP712Domain },
-    ),
+    ethSigUtil.TypedDataUtils.hashStruct('EIP712Domain', domain, { EIP712Domain: domainType(domain) }),
   );
 }
 
-async function hashTypedData(domain, structHash) {
-  return domainSeparator(domain).then(separator =>
-    bufferToHexString(keccak256(Buffer.concat(['0x1901', separator, structHash].map(str => hexStringToBuffer(str))))),
+function hashTypedData(domain, structHash) {
+  return bufferToHexString(
+    keccak256(Buffer.concat(['0x1901', domainSeparator(domain), structHash].map(str => hexStringToBuffer(str)))),
   );
 }
 
 module.exports = {
-  EIP712Domain,
   Permit,
+  getDomain,
+  domainType,
   domainSeparator,
   hashTypedData,
 };

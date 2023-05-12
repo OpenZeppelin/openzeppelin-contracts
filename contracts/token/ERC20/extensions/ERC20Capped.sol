@@ -28,7 +28,7 @@ abstract contract ERC20Capped is ERC20 {
     }
 
     /**
-     * @dev See {ERC20-_transfer}.
+     * @dev See {ERC20-_update}.
      */
     function _update(address from, address to, uint256 amount) internal virtual override {
         if (from == address(0)) {

@@ -1,0 +1,14 @@
+--- token/ERC721/ERC721.sol	2023-05-09 17:34:38.836638564 +0200
++++ token/ERC721/ERC721.sol	2023-05-09 23:44:55.684081753 +0200
+@@ -197,6 +197,11 @@
+         return _owners[tokenId];
+     }
+ 
++    // FV
++    function _getApproved(uint256 tokenId) internal view returns (address) {
++        return _tokenApprovals[tokenId];
++    }
++
+     /**
+      * @dev Returns whether `tokenId` exists.
+      *

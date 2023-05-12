@@ -5,6 +5,7 @@ const ImplV1 = artifacts.require('DummyImplementation');
 const ImplV2 = artifacts.require('DummyImplementationV2');
 const ProxyAdmin = artifacts.require('ProxyAdmin');
 const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
+const ITransparentUpgradeableProxy = artifacts.require('ITransparentUpgradeableProxy');
 
 contract('ProxyAdmin', function (accounts) {
   const [proxyAdminOwner, newAdmin, anotherAccount] = accounts;
@@ -17,12 +18,13 @@ contract('ProxyAdmin', function (accounts) {
   beforeEach(async function () {
     const initializeData = Buffer.from('');
     this.proxyAdmin = await ProxyAdmin.new({ from: proxyAdminOwner });
-    this.proxy = await TransparentUpgradeableProxy.new(
+    const proxy = await TransparentUpgradeableProxy.new(
       this.implementationV1.address,
       this.proxyAdmin.address,
       initializeData,
       { from: proxyAdminOwner },
     );
+    this.proxy = await ITransparentUpgradeableProxy.at(proxy.address);
   });
 
   it('has an owner', async function () {
@@ -41,7 +43,7 @@ contract('ProxyAdmin', function (accounts) {
       await this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: proxyAdminOwner });
 
       const newProxyAdmin = await getAddressInSlot(this.proxy, AdminSlot);
-      expect(newProxyAdmin).to.be.eq(newAdmin);
+      expect(newProxyAdmin).to.be.equal(newAdmin);
     });
   });
 
@@ -60,7 +62,7 @@ contract('ProxyAdmin', function (accounts) {
         await this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: proxyAdminOwner });
 
         const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
-        expect(implementationAddress).to.be.eq(this.implementationV2.address);
+        expect(implementationAddress).to.be.equal(this.implementationV2.address);
       });
     });
   });
@@ -97,7 +99,7 @@ contract('ProxyAdmin', function (accounts) {
             from: proxyAdminOwner,
           });
           const implementationAddress = await getAddressInSlot(this.proxy, ImplementationSlot);
-          expect(implementationAddress).to.be.eq(this.implementationV2.address);
+          expect(implementationAddress).to.be.equal(this.implementationV2.address);
         });
       });
     });

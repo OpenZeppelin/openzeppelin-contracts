@@ -46,9 +46,9 @@ Other extensions can customize the behavior or interface in multiple ways.
 
 In addition to modules and extensions, the core contract requires a few virtual functions to be implemented to your particular specifications:
 
-* <<Governor-votingDelay-,`votingDelay()`>>: Delay (in number of blocks) since the proposal is submitted until voting power is fixed and voting starts. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
-* <<Governor-votingPeriod-,`votingPeriod()`>>: Delay (in number of blocks) since the proposal starts until voting ends.
-* <<Governor-quorum-uint256-,`quorum(uint256 blockNumber)`>>: Quorum required for a proposal to be successful. This function includes a `blockNumber` argument so the quorum can adapt through time, for example, to follow a token's `totalSupply`.
+* <<Governor-votingDelay-,`votingDelay()`>>: Delay (in EIP-6372 clock) since the proposal is submitted until voting power is fixed and voting starts. This can be used to enforce a delay after a proposal is published for users to buy tokens, or delegate their votes.
+* <<Governor-votingPeriod-,`votingPeriod()`>>: Delay (in EIP-6372 clock) since the proposal starts until voting ends.
+* <<Governor-quorum-uint256-,`quorum(uint256 timepoint)`>>: Quorum required for a proposal to be successful. This function includes a `timepoint` argument (see EIP-6372) so the quorum can adapt through time, for example, to follow a token's `totalSupply`.
 
 NOTE: Functions of the `Governor` contract do not include access control. If you want to restrict access, you should add these checks by overloading the particular functions. Among these, {Governor-_cancel} is internal by default, and you will have to expose it (with the right access control mechanism) yourself if this function is needed.
 
