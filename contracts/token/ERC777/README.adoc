@@ -3,6 +3,8 @@
 [.readme-notice]
 NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts/api/token/erc777
 
+CAUTION: As of v4.9, OpenZeppelin's implementation of ERC-777 is deprecated and will be removed in the next major release.
+
 This set of interfaces and contracts are all related to the https://eips.ethereum.org/EIPS/eip-777[ERC777 token standard].
 
 TIP: For an overview of ERC777 tokens and a walk through on how to create a token contract read our xref:ROOT:erc777.adoc[ERC777 guide].

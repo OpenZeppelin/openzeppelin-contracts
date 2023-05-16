@@ -29,4 +29,7 @@ git add .
 git commit -m "Start release candidate"
 
 # Push branch
-git push origin "$RELEASE_BRANCH"
+if ! git push origin "$RELEASE_BRANCH"; then
+  echo "::error file=scripts/release/start.sh::Can't push $RELEASE_BRANCH. Did you forget to run this workflow from $RELEASE_BRANCH?"
+  exit 1
+fi

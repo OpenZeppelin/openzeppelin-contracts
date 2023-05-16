@@ -1,7 +1,7 @@
 const format = require('../format-lines');
+const { OPTS, LEGACY_OPTS } = require('./Checkpoints.opts.js');
 
-const VALUE_SIZES = [224, 160];
-
+// TEMPLATE
 const header = `\
 pragma solidity ^0.8.0;
 
@@ -46,7 +46,7 @@ function push(
 }
 
 /**
- * @dev Returns the value in the oldest checkpoint with key greater or equal than the search key, or zero if there is none.
+ * @dev Returns the value in the first (oldest) checkpoint with key greater or equal than the search key, or zero if there is none.
  */
 function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
@@ -55,11 +55,36 @@ function lowerLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} k
 }
 
 /**
- * @dev Returns the value in the most recent checkpoint with key lower or equal than the search key.
+ * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
  */
 function upperLookup(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
     uint256 len = self.${opts.checkpointFieldName}.length;
     uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
+    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
+}
+
+/**
+ * @dev Returns the value in the last (most recent) checkpoint with key lower or equal than the search key, or zero if there is none.
+ *
+ * NOTE: This is a variant of {upperLookup} that is optimised to find "recent" checkpoint (checkpoints with high keys).
+ */
+function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeName} key) internal view returns (${opts.valueTypeName}) {
+    uint256 len = self.${opts.checkpointFieldName}.length;
+
+    uint256 low = 0;
+    uint256 high = len;
+
+    if (len > 5) {
+        uint256 mid = len - Math.sqrt(len);
+        if (key < _unsafeAccess(self.${opts.checkpointFieldName}, mid)._key) {
+            high = mid;
+        } else {
+            low = mid + 1;
+        }
+    }
+
+    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
+
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
 `;
@@ -106,13 +131,6 @@ function getAtProbablyRecentBlock(${opts.historyTypeName} storage self, uint256 
     uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
 
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
-}
-
-/**
- * @dev Returns checkpoint at given position.
- */
-function getAtPosition(History storage self, uint32 pos) internal view returns (Checkpoint memory) {
-    return self._checkpoints[pos];
 }
 
 /**
@@ -178,6 +196,13 @@ function length(${opts.historyTypeName} storage self) internal view returns (uin
 }
 
 /**
+ * @dev Returns checkpoint at given position.
+ */
+function at(${opts.historyTypeName} storage self, uint32 pos) internal view returns (${opts.checkpointTypeName} memory) {
+    return self.${opts.checkpointFieldName}[pos];
+}
+
+/**
  * @dev Pushes a (\`key\`, \`value\`) pair into an ordered list of checkpoints, either by inserting a new checkpoint,
  * or by updating the last one.
  */
@@ -209,7 +234,7 @@ function _insert(
 }
 
 /**
- * @dev Return the index of the oldest checkpoint whose key is greater than the search key, or \`high\` if there is none.
+ * @dev Return the index of the last (most recent) checkpoint with key lower or equal than the search key, or \`high\` if there is none.
  * \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive \`high\`.
  *
  * WARNING: \`high\` should not be greater than the array's length.
@@ -232,7 +257,7 @@ function _upperBinaryLookup(
 }
 
 /**
- * @dev Return the index of the oldest checkpoint whose key is greater or equal than the search key, or \`high\` if there is none.
+ * @dev Return the index of the first (oldest) checkpoint with key is greater or equal than the search key, or \`high\` if there is none.
  * \`low\` and \`high\` define a section where to do the search, with inclusive \`low\` and exclusive \`high\`.
  *
  * WARNING: \`high\` should not be greater than the array's length.
@@ -269,26 +294,6 @@ function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
 }
 `;
 /* eslint-enable max-len */
-
-// OPTIONS
-const defaultOpts = size => ({
-  historyTypeName: `Trace${size}`,
-  checkpointTypeName: `Checkpoint${size}`,
-  checkpointFieldName: '_checkpoints',
-  keyTypeName: `uint${256 - size}`,
-  keyFieldName: '_key',
-  valueTypeName: `uint${size}`,
-  valueFieldName: '_value',
-});
-
-const OPTS = VALUE_SIZES.map(size => defaultOpts(size));
-
-const LEGACY_OPTS = {
-  ...defaultOpts(224),
-  historyTypeName: 'History',
-  checkpointTypeName: 'Checkpoint',
-  keyFieldName: '_blockNumber',
-};
 
 // GENERATE
 module.exports = format(

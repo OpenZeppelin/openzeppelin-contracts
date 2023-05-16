@@ -3,13 +3,14 @@
 pragma solidity ^0.8.0;
 
 /**
- * @dev Implementation contract with an admin() function made to clash with
- * @dev TransparentUpgradeableProxy's to test correct functioning of the
- * @dev Transparent Proxy feature.
+ * @dev Implementation contract with a payable changeAdmin(address) function made to clash with
+ * TransparentUpgradeableProxy's to test correct functioning of the Transparent Proxy feature.
  */
 contract ClashingImplementation {
-    function admin() external pure returns (address) {
-        return 0x0000000000000000000000000000000011111142;
+    event ClashingImplementationCall();
+
+    function changeAdmin(address) external payable {
+        emit ClashingImplementationCall();
     }
 
     function delegatedFunction() external pure returns (bool) {

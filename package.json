@@ -1,7 +1,7 @@
 {
   "name": "openzeppelin-solidity",
   "description": "Secure Smart Contract library for Solidity",
-  "version": "4.8.0",
+  "version": "4.8.2",
   "files": [
     "/contracts/**/*.sol",
     "/build/contracts/*.json",
@@ -17,7 +17,7 @@
     "lint:fix": "npm run lint:js:fix && npm run lint:sol:fix",
     "lint:js": "prettier --loglevel warn --ignore-path .gitignore '**/*.{js,ts}' --check && eslint --ignore-path .gitignore .",
     "lint:js:fix": "prettier --loglevel warn --ignore-path .gitignore '**/*.{js,ts}' --write && eslint --ignore-path .gitignore . --fix",
-    "lint:sol": "prettier --loglevel warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --write && solhint '{contracts,test}/**/*.sol'",
+    "lint:sol": "prettier --loglevel warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --check && solhint '{contracts,test}/**/*.sol'",
     "lint:sol:fix": "prettier --loglevel warn --ignore-path .gitignore '{contracts,test}/**/*.sol' --write",
     "clean": "hardhat clean && rimraf build contracts/build",
     "prepare": "scripts/prepare.sh",
@@ -29,7 +29,7 @@
     "test:inheritance": "scripts/checks/inheritance-ordering.js artifacts/build-info/*",
     "test:generation": "scripts/checks/generation.sh",
     "gas-report": "env ENABLE_GAS_REPORT=true npm run test",
-    "slither": "npm run clean && slither . --detect reentrancy-eth,reentrancy-no-eth,reentrancy-unlimited-gas"
+    "slither": "npm run clean && slither ."
   },
   "repository": {
     "type": "git",
@@ -59,6 +59,7 @@
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/docs-utils": "^0.1.3",
     "@openzeppelin/test-helpers": "^0.5.13",
+    "@openzeppelin/upgrades-core": "^1.20.6",
     "array.prototype.at": "^1.1.1",
     "chai": "^4.2.0",
     "eslint": "^8.30.0",
@@ -69,7 +70,7 @@
     "glob": "^8.0.3",
     "graphlib": "^2.1.8",
     "hardhat": "^2.9.1",
-    "hardhat-exposed": "^0.3.0",
+    "hardhat-exposed": "^0.3.3",
     "hardhat-gas-reporter": "^1.0.4",
     "hardhat-ignore-warnings": "^0.2.0",
     "keccak256": "^1.0.2",
@@ -77,6 +78,7 @@
     "lodash.zip": "^4.2.0",
     "merkletreejs": "^0.2.13",
     "micromatch": "^4.0.2",
+    "p-limit": "^3.1.0",
     "prettier": "^2.8.1",
     "prettier-plugin-solidity": "^1.1.0",
     "rimraf": "^3.0.2",
@@ -85,6 +87,7 @@
     "solidity-ast": "^0.4.25",
     "solidity-coverage": "^0.8.0",
     "solidity-docgen": "^0.6.0-beta.29",
+    "undici": "^5.22.1",
     "web3": "^1.3.0",
     "yargs": "^17.0.0"
   }

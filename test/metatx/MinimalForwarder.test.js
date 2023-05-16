@@ -1,29 +1,20 @@
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
-const { EIP712Domain } = require('../helpers/eip712');
+const { getDomain, domainType } = require('../helpers/eip712');
 
 const { expectRevert, constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const { getChainId } = require('../helpers/chainid');
-
 const MinimalForwarder = artifacts.require('MinimalForwarder');
 const CallReceiverMock = artifacts.require('CallReceiverMock');
-
-const name = 'MinimalForwarder';
-const version = '0.0.1';
 
 contract('MinimalForwarder', function (accounts) {
   beforeEach(async function () {
     this.forwarder = await MinimalForwarder.new();
-    this.domain = {
-      name,
-      version,
-      chainId: await getChainId(),
-      verifyingContract: this.forwarder.address,
-    };
+
+    this.domain = await getDomain(this.forwarder);
     this.types = {
-      EIP712Domain,
+      EIP712Domain: domainType(this.domain),
       ForwardRequest: [
         { name: 'from', type: 'address' },
         { name: 'to', type: 'address' },

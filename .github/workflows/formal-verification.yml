@@ -1,0 +1,68 @@
+name: formal verification
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - labeled
+  workflow_dispatch: {}
+
+env:
+  PIP_VERSION: '3.10'
+  JAVA_VERSION: '11'
+  SOLC_VERSION: '0.8.19'
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  apply-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Apply patches
+        run: make -C certora apply
+
+  verify:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'formal-verification')
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Set up environment
+        uses: ./.github/actions/setup
+      - name: identify specs that need to be run
+        id: arguments
+        run: |
+          if [[ ${{ github.event_name }} = 'pull_request' ]];
+          then
+            RESULT=$(git diff ${{ github.event.pull_request.head.sha }}..${{ github.event.pull_request.base.sha }} --name-only certora/specs/*.spec | while IFS= read -r file; do [[ -f $file ]] && basename "${file%.spec}"; done | tr "\n" " ")
+          else
+            RESULT='--all'
+          fi
+          echo "result=$RESULT" >> "$GITHUB_OUTPUT"
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PIP_VERSION }}
+          cache: 'pip'
+      - name: Install python packages
+        run: pip install -r requirements.txt
+      - name: Install java
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+      - name: Install solc
+        run: |
+          wget https://github.com/ethereum/solidity/releases/download/v${{ env.SOLC_VERSION }}/solc-static-linux
+          sudo mv solc-static-linux /usr/local/bin/solc
+          chmod +x /usr/local/bin/solc
+      - name: Verify specification
+        run: |
+          make -C certora apply
+          node certora/run.js ${{ steps.arguments.outputs.result }} >> "$GITHUB_STEP_SUMMARY"
+        env:
+          CERTORAKEY: ${{ secrets.CERTORAKEY }}
