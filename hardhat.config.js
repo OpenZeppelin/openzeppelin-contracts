@@ -95,8 +95,6 @@ module.exports = {
     initializers: true,
     exclude: [
       'vendor/**/*',
-      // Exclude Timers from hardhat-exposed because its overloaded functions are not transformed correctly
-      'utils/Timers{,Upgradeable}.sol',
     ],
   },
   docgen: require('./docs/config'),
