@@ -10,7 +10,7 @@ pragma solidity ^0.8.0;
  * their own implementer) and registering it on the
  * https://eips.ethereum.org/EIPS/eip-1820[ERC1820 global registry].
  *
- * See {IERC1820Registry} and {ERC1820Implementer}.
+ * See {IERC1820Registry} and {IERC1820Implementer}.
  */
 interface IERC777Sender {
     /**

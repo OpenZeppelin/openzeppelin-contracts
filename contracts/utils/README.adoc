@@ -68,8 +68,6 @@ Note that, in all cases, accounts simply _declare_ their interfaces, but they ar
 
 {{IERC1820Implementer}}
 
-{{ERC1820Implementer}}
-
 == Data Structures
 
 {{BitMaps}}

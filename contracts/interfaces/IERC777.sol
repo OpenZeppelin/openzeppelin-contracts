@@ -9,7 +9,7 @@ pragma solidity ^0.8.0;
  * https://eips.ethereum.org/EIPS/eip-1820[ERC1820 registry standard] to let
  * token holders and recipients react to token movements by using setting implementers
  * for the associated interfaces in said registry. See {IERC1820Registry} and
- * {ERC1820Implementer}.
+ * {IERC1820Implementer}.
  */
 interface IERC777 {
     /**
