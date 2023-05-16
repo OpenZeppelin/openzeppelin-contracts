@@ -26,7 +26,6 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
     }
 
     struct ProposalDetails {
-        address proposer;
         address[] targets;
         uint256[] values;
         string[] signatures;
@@ -56,7 +55,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         string memory description
     ) public virtual override(IGovernor, Governor) returns (uint256) {
         // Stores the proposal details (if not already present) and executes the propose logic from the core.
-        _storeProposal(_msgSender(), targets, values, new string[](calldatas.length), calldatas, description);
+        _storeProposal(targets, values, new string[](calldatas.length), calldatas, description);
         return super.propose(targets, values, calldatas, description);
     }
 
@@ -75,7 +74,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         // after the full proposal is stored, so the store operation included in the fallback will be skipped. Here we
         // call `propose` and not `super.propose` to make sure if a child contract override `propose`, whatever code
         // is added there is also executed when calling this alternative interface.
-        _storeProposal(_msgSender(), targets, values, signatures, calldatas, description);
+        _storeProposal(targets, values, signatures, calldatas, description);
         return propose(targets, values, _encodeCalldata(signatures, calldatas), description);
     }
 
@@ -132,7 +131,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes32 descriptionHash
     ) public virtual override(IGovernor, Governor) returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-        address proposer = _proposalDetails[proposalId].proposer;
+        address proposer = proposalProposer(proposalId);
 
         require(
             _msgSender() == proposer || getVotes(proposer, clock() - 1) < proposalThreshold(),
@@ -182,7 +181,6 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
      * @dev Store proposal metadata (if not already present) for later lookup.
      */
     function _storeProposal(
-        address proposer,
         address[] memory targets,
         uint256[] memory values,
         string[] memory signatures,
@@ -194,7 +192,6 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
         ProposalDetails storage details = _proposalDetails[proposalId];
         if (details.descriptionHash == bytes32(0)) {
-            details.proposer = proposer;
             details.targets = targets;
             details.values = values;
             details.signatures = signatures;
@@ -228,12 +225,12 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         )
     {
         id = proposalId;
+        proposer = proposalProposer(proposalId);
         eta = proposalEta(proposalId);
         startBlock = proposalSnapshot(proposalId);
         endBlock = proposalDeadline(proposalId);
 
         ProposalDetails storage details = _proposalDetails[proposalId];
-        proposer = details.proposer;
         forVotes = details.forVotes;
         againstVotes = details.againstVotes;
         abstainVotes = details.abstainVotes;
