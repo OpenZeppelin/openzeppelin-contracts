@@ -93,9 +93,7 @@ module.exports = {
   },
   exposed: {
     initializers: true,
-    exclude: [
-      'vendor/**/*',
-    ],
+    exclude: ['vendor/**/*'],
   },
   docgen: require('./docs/config'),
 };
