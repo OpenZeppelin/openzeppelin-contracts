@@ -126,22 +126,22 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * NOTE: Exposing this function through another mechanism may make the `DEFAULT_ADMIN_ROLE`
      * assignable again. Make sure to guarantee this is the expected behavior in your implementation.
      */
-    function _grantRole(bytes32 role, address account) internal virtual override {
+    function _grantRole(bytes32 role, address account) internal virtual override returns (bool) {
         if (role == DEFAULT_ADMIN_ROLE) {
             require(defaultAdmin() == address(0), "AccessControl: default admin already granted");
             _currentDefaultAdmin = account;
         }
-        super._grantRole(role, account);
+        return super._grantRole(role, account);
     }
 
     /**
      * @dev See {AccessControl-_revokeRole}.
      */
-    function _revokeRole(bytes32 role, address account) internal virtual override {
+    function _revokeRole(bytes32 role, address account) internal virtual override returns (bool) {
         if (role == DEFAULT_ADMIN_ROLE && account == defaultAdmin()) {
             delete _currentDefaultAdmin;
         }
-        super._revokeRole(role, account);
+        return super._revokeRole(role, account);
     }
 
     /**
