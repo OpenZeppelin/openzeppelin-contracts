@@ -1,5 +1,5 @@
 const format = require('../format-lines');
-const { OPTS, LEGACY_OPTS } = require('./Checkpoints.opts.js');
+const { OPTS } = require('./Checkpoints.opts.js');
 
 // TEMPLATE
 const header = `\
@@ -19,7 +19,7 @@ import "./math/SafeCast.sol";
  */
 `;
 
-const types = opts => `\
+const template = opts => `\
 struct ${opts.historyTypeName} {
     ${opts.checkpointTypeName}[] ${opts.checkpointFieldName};
 }
@@ -28,10 +28,7 @@ struct ${opts.checkpointTypeName} {
     ${opts.keyTypeName} ${opts.keyFieldName};
     ${opts.valueTypeName} ${opts.valueFieldName};
 }
-`;
 
-/* eslint-disable max-len */
-const operations = opts => `\
 /**
  * @dev Pushes a (\`key\`, \`value\`) pair into a ${opts.historyTypeName} so that it is stored as the checkpoint.
  *
@@ -87,77 +84,7 @@ function upperLookupRecent(${opts.historyTypeName} storage self, ${opts.keyTypeN
 
     return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
 }
-`;
 
-const legacyOperations = opts => `\
-/**
- * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
- * before it is returned, or zero otherwise. Because the number returned corresponds to that at the end of the
- * block, the requested block number must be in the past, excluding the current block.
- */
-function getAtBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
-    require(blockNumber < block.number, "Checkpoints: block not yet mined");
-    uint32 key = SafeCast.toUint32(blockNumber);
-
-    uint256 len = self.${opts.checkpointFieldName}.length;
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, 0, len);
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
-}
-
-/**
- * @dev Returns the value at a given block number. If a checkpoint is not available at that block, the closest one
- * before it is returned, or zero otherwise. Similar to {upperLookup} but optimized for the case when the searched
- * checkpoint is probably "recent", defined as being among the last sqrt(N) checkpoints where N is the number of
- * checkpoints.
- */
-function getAtProbablyRecentBlock(${opts.historyTypeName} storage self, uint256 blockNumber) internal view returns (uint256) {
-    require(blockNumber < block.number, "Checkpoints: block not yet mined");
-    uint32 key = SafeCast.toUint32(blockNumber);
-
-    uint256 len = self.${opts.checkpointFieldName}.length;
-
-    uint256 low = 0;
-    uint256 high = len;
-
-    if (len > 5) {
-        uint256 mid = len - Math.sqrt(len);
-        if (key < _unsafeAccess(self.${opts.checkpointFieldName}, mid)._blockNumber) {
-            high = mid;
-        } else {
-            low = mid + 1;
-        }
-    }
-
-    uint256 pos = _upperBinaryLookup(self.${opts.checkpointFieldName}, key, low, high);
-
-    return pos == 0 ? 0 : _unsafeAccess(self.${opts.checkpointFieldName}, pos - 1).${opts.valueFieldName};
-}
-
-/**
- * @dev Pushes a value onto a History so that it is stored as the checkpoint for the current block.
- *
- * Returns previous value and new value.
- */
-function push(${opts.historyTypeName} storage self, uint256 value) internal returns (uint256, uint256) {
-    return _insert(self.${opts.checkpointFieldName}, SafeCast.toUint32(block.number), SafeCast.toUint224(value));
-}
-
-/**
- * @dev Pushes a value onto a History, by updating the latest value using binary operation \`op\`. The new value will
- * be set to \`op(latest, delta)\`.
- *
- * Returns previous value and new value.
- */
-function push(
-    ${opts.historyTypeName} storage self,
-    function(uint256, uint256) view returns (uint256) op,
-    uint256 delta
-) internal returns (uint256, uint256) {
-    return push(self, op(latest(self), delta));
-}
-`;
-
-const common = opts => `\
 /**
  * @dev Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
  */
@@ -299,13 +226,6 @@ function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
 module.exports = format(
   header.trimEnd(),
   'library Checkpoints {',
-  [
-    // Legacy types & functions
-    types(LEGACY_OPTS),
-    legacyOperations(LEGACY_OPTS),
-    common(LEGACY_OPTS),
-    // New flavors
-    ...OPTS.flatMap(opts => [types(opts), operations(opts), common(opts)]),
-  ],
+  OPTS.flatMap(opts => template(opts)),
   '}',
 );
