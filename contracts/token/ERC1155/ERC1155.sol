@@ -29,7 +29,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev Indicates that an address can't be an owner.
      */
-    error ERC1155InvalidOwner(address);
+    error ERC1155InvalidOwner(address owner);
 
     /**
      * @dev See {_setURI}.

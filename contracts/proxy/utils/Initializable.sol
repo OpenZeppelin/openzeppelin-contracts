@@ -131,7 +131,7 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier reinitializer(uint8 version) {
-        if(_initializing || _initialized >= version) {
+        if (_initializing || _initialized >= version) {
             revert AlreadyInitialized();
         }
         _initialized = version;
