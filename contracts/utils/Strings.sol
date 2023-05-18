@@ -80,6 +80,6 @@ library Strings {
      * @dev Returns true if the two strings are equal.
      */
     function equal(string memory a, string memory b) internal pure returns (bool) {
-        return keccak256(bytes(a)) == keccak256(bytes(b));
+        return bytes(a).length == bytes(b).length && keccak256(bytes(a)) == keccak256(bytes(b));
     }
 }
