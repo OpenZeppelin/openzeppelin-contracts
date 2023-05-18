@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (proxy/Clones.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-1167[EIP 1167] is a standard for
@@ -18,6 +18,16 @@ pragma solidity ^0.8.0;
  */
 library Clones {
     /**
+     * @dev A `CREATE` clone instance deployment failed.
+     */
+    error ERC1167FailedCreateClone();
+
+    /**
+     * @dev A `CREATE2` clone instance deployment failed.
+     */
+    error ERC1167FailedCreate2Clone();
+
+    /**
      * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
      *
      * This function uses the create opcode, which should never revert.
@@ -32,7 +42,9 @@ library Clones {
             mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create(0, 0x09, 0x37)
         }
-        require(instance != address(0), "ERC1167: create failed");
+        if (instance == address(0)) {
+            revert ERC1167FailedCreateClone();
+        }
     }
 
     /**
@@ -52,7 +64,9 @@ library Clones {
             mstore(0x20, or(shl(0x78, implementation), 0x5af43d82803e903d91602b57fd5bf3))
             instance := create2(0, 0x09, 0x37, salt)
         }
-        require(instance != address(0), "ERC1167: create2 failed");
+        if (instance == address(0)) {
+            revert ERC1167FailedCreate2Clone();
+        }
     }
 
     /**

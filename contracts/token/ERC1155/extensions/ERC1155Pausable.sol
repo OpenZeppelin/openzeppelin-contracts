@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.2) (token/ERC1155/extensions/ERC1155Pausable.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../ERC1155.sol";
 import "../../../security/Pausable.sol";
@@ -23,6 +23,11 @@ import "../../../security/Pausable.sol";
  */
 abstract contract ERC1155Pausable is ERC1155, Pausable {
     /**
+     * @dev The token is paused.
+     */
+    error ERC1155Paused();
+
+    /**
      * @dev See {ERC1155-_update}.
      *
      * Requirements:
@@ -36,7 +41,9 @@ abstract contract ERC1155Pausable is ERC1155, Pausable {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual override {
-        require(!paused(), "ERC1155Pausable: token transfer while paused");
+        if (paused()) {
+            revert ERC1155Paused();
+        }
         super._update(from, to, ids, amounts, data);
     }
 }

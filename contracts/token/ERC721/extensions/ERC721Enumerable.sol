@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/extensions/ERC721Enumerable.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../ERC721.sol";
 import "./IERC721Enumerable.sol";
@@ -25,6 +25,13 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     mapping(uint256 => uint256) private _allTokensIndex;
 
     /**
+     * @dev An `owner`'s token query was out of bounds for `index`.
+     *
+     * NOTE: The owner being `address(0)` indicates a global out of bounds index.
+     */
+    error ERC721OutOfBoundsIndex(address owner, uint256 index);
+
+    /**
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721) returns (bool) {
@@ -36,6 +43,9 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      */
     function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual override returns (uint256) {
         require(index < ERC721.balanceOf(owner), "ERC721Enumerable: owner index out of bounds");
+        if (index >= ERC721.balanceOf(owner)) {
+            revert ERC721OutOfBoundsIndex(owner, index);
+        }
         return _ownedTokens[owner][index];
     }
 
@@ -50,7 +60,9 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @dev See {IERC721Enumerable-tokenByIndex}.
      */
     function tokenByIndex(uint256 index) public view virtual override returns (uint256) {
-        require(index < ERC721Enumerable.totalSupply(), "ERC721Enumerable: global index out of bounds");
+        if (index >= ERC721Enumerable.totalSupply()) {
+            revert ERC721OutOfBoundsIndex(address(0), index);
+        }
         return _allTokens[index];
     }
 

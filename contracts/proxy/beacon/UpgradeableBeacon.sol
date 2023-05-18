@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (proxy/beacon/UpgradeableBeacon.sol)
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.18;
 
 import "./IBeacon.sol";
 import "../../access/Ownable.sol";
@@ -14,6 +14,11 @@ import "../../access/Ownable.sol";
  */
 contract UpgradeableBeacon is IBeacon, Ownable {
     address private _implementation;
+
+    /**
+     * @dev The `implementation` of the beacon is invalid.
+     */
+    error UpgradeableBeaconInvalidImplementation(address implementation);
 
     /**
      * @dev Emitted when the implementation returned by the beacon is changed.
@@ -58,6 +63,9 @@ contract UpgradeableBeacon is IBeacon, Ownable {
      * - `newImplementation` must be a contract.
      */
     function _setImplementation(address newImplementation) private {
+        if (newImplementation.code.length == 0) {
+            revert UpgradeableBeaconInvalidImplementation(newImplementation);
+        }
         require(newImplementation.code.length > 0, "UpgradeableBeacon: implementation is not a contract");
         _implementation = newImplementation;
     }

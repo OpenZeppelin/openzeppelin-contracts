@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/ERC20.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "./IERC20.sol";
 import "./extensions/IERC20Metadata.sol";
@@ -43,6 +43,11 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
     string private _name;
     string private _symbol;
+
+    /**
+     * @dev Indicates an `_allowance` decrease below 0. Used for non-standard allowance decreases.
+     */
+    error ERC20ExceededAllowanceDecrease();
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -196,7 +201,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
         address owner = _msgSender();
         uint256 currentAllowance = allowance(owner, spender);
-        require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
+        if (currentAllowance < subtractedValue) {
+            revert ERC20ExceededAllowanceDecrease();
+        }
         unchecked {
             _approve(owner, spender, currentAllowance - subtractedValue);
         }
@@ -215,8 +222,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * NOTE: This function is not virtual, {_update} should be overridden instead.
      */
     function _transfer(address from, address to, uint256 amount) internal {
-        require(from != address(0), "ERC20: transfer from the zero address");
-        require(to != address(0), "ERC20: transfer to the zero address");
+        if (from == address(0)) {
+            revert ERC20InvalidSender(address(0));
+        }
+        if (to == address(0)) {
+            revert ERC20InvalidReceiver(address(0));
+        }
         _update(from, to, amount);
     }
 
@@ -231,7 +242,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
             _totalSupply += amount;
         } else {
             uint256 fromBalance = _balances[from];
-            require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
+            if (fromBalance < amount) {
+                revert ERC20InsufficientBalance(from, fromBalance, amount);
+            }
             unchecked {
                 // Overflow not possible: amount <= fromBalance <= totalSupply.
                 _balances[from] = fromBalance - amount;
@@ -262,7 +275,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * NOTE: This function is not virtual, {_update} should be overridden instead.
      */
     function _mint(address account, uint256 amount) internal {
-        require(account != address(0), "ERC20: mint to the zero address");
+        if (account == address(0)) {
+            revert ERC20InvalidReceiver(address(0));
+        }
         _update(address(0), account, amount);
     }
 
@@ -275,7 +290,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * NOTE: This function is not virtual, {_update} should be overridden instead
      */
     function _burn(address account, uint256 amount) internal {
-        require(account != address(0), "ERC20: burn from the zero address");
+        if (account == address(0)) {
+            revert ERC20InvalidSender(address(0));
+        }
         _update(account, address(0), amount);
     }
 
@@ -293,9 +310,12 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `spender` cannot be the zero address.
      */
     function _approve(address owner, address spender, uint256 amount) internal virtual {
-        require(owner != address(0), "ERC20: approve from the zero address");
-        require(spender != address(0), "ERC20: approve to the zero address");
-
+        if (owner == address(0)) {
+            revert ERC20InvalidApprover(address(0));
+        }
+        if (spender == address(0)) {
+            revert ERC20InvalidSpender(address(0));
+        }
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
     }
@@ -311,7 +331,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function _spendAllowance(address owner, address spender, uint256 amount) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);
         if (currentAllowance != type(uint256).max) {
-            require(currentAllowance >= amount, "ERC20: insufficient allowance");
+            if (currentAllowance < amount) {
+                revert ERC20InsufficientAllowance(spender, currentAllowance, amount);
+            }
             unchecked {
                 _approve(owner, spender, currentAllowance - amount);
             }

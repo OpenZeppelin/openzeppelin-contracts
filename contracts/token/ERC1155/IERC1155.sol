@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC1155/IERC1155.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../../utils/introspection/IERC165.sol";
+import "../../interfaces/draft-IERC6093.sol";
 
 /**
  * @dev Required interface of an ERC1155 compliant contract, as defined in the
@@ -11,7 +12,7 @@ import "../../utils/introspection/IERC165.sol";
  *
  * _Available since v3.1._
  */
-interface IERC1155 is IERC165 {
+interface IERC1155 is IERC165, ERC1155Errors {
     /**
      * @dev Emitted when `value` tokens of token type `id` are transferred from `from` to `to` by `operator`.
      */

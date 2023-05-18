@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/utils/SafeERC20.sol)
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.18;
 
-import "../IERC20.sol";
+import "../ERC20.sol";
 import "../extensions/IERC20Permit.sol";
 import "../../../utils/Address.sol";
 
@@ -18,6 +18,11 @@ import "../../../utils/Address.sol";
  */
 library SafeERC20 {
     using Address for address;
+
+    /**
+     * @dev An operation with an ERC20 token failed.
+     */
+    error ERC20UnsuccessfulOperation(address token);
 
     /**
      * @dev Transfer `value` amount of `token` from the calling contract to `to`. If `token` returns no value,
@@ -51,7 +56,9 @@ library SafeERC20 {
     function safeDecreaseAllowance(IERC20 token, address spender, uint256 value) internal {
         unchecked {
             uint256 oldAllowance = token.allowance(address(this), spender);
-            require(oldAllowance >= value, "SafeERC20: decreased allowance below zero");
+            if (oldAllowance < value) {
+                revert ERC20.ERC20ExceededAllowanceDecrease();
+            }
             _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, oldAllowance - value));
         }
     }
@@ -87,7 +94,9 @@ library SafeERC20 {
         uint256 nonceBefore = token.nonces(owner);
         token.permit(owner, spender, value, deadline, v, r, s);
         uint256 nonceAfter = token.nonces(owner);
-        require(nonceAfter == nonceBefore + 1, "SafeERC20: permit did not succeed");
+        if (nonceAfter != nonceBefore + 1) {
+            revert ERC20UnsuccessfulOperation(address(token));
+        }
     }
 
     /**
@@ -102,7 +111,9 @@ library SafeERC20 {
         // the target address contains contract code and also asserts for success in the low-level call.
 
         bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed");
-        require(returndata.length == 0 || abi.decode(returndata, (bool)), "SafeERC20: ERC20 operation did not succeed");
+        if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
+            revert ERC20UnsuccessfulOperation(address(token));
+        }
     }
 
     /**

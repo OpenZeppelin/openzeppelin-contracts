@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.2) (token/ERC20/extensions/ERC20Pausable.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../ERC20.sol";
 import "../../../security/Pausable.sol";
@@ -21,6 +21,11 @@ import "../../../security/Pausable.sol";
  */
 abstract contract ERC20Pausable is ERC20, Pausable {
     /**
+     * @dev The token is paused.
+     */
+    error ERC20Paused();
+
+    /**
      * @dev See {ERC20-_update}.
      *
      * Requirements:
@@ -28,7 +33,9 @@ abstract contract ERC20Pausable is ERC20, Pausable {
      * - the contract must not be paused.
      */
     function _update(address from, address to, uint256 amount) internal virtual override {
-        require(!paused(), "ERC20Pausable: token transfer while paused");
+        if (paused()) {
+            revert ERC20Paused();
+        }
         super._update(from, to, amount);
     }
 }

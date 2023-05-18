@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.7.0) (access/Ownable.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../utils/Context.sol";
 
@@ -19,6 +19,16 @@ import "../utils/Context.sol";
  */
 abstract contract Ownable is Context {
     address private _owner;
+
+    /**
+     * @dev Caller is not the owner.
+     */
+    error OwnableUnauthorized(address caller);
+
+    /**
+     * @dev Caller is not a valid owner.
+     */
+    error OwnableInvalidOwner(address owner);
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
@@ -48,7 +58,9 @@ abstract contract Ownable is Context {
      * @dev Throws if the sender is not the owner.
      */
     function _checkOwner() internal view virtual {
-        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+        if (owner() != _msgSender()) {
+            revert OwnableUnauthorized(_msgSender());
+        }
     }
 
     /**
@@ -67,7 +79,9 @@ abstract contract Ownable is Context {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        if (newOwner == address(0)) {
+            revert OwnableInvalidOwner(address(0));
+        }
         _transferOwnership(newOwner);
     }
 

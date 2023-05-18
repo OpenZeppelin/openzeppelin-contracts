@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.3) (proxy/ERC1967/ERC1967Upgrade.sol)
 
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.18;
 
 import "../beacon/IBeacon.sol";
 import "../../interfaces/IERC1967.sol";
@@ -27,6 +27,26 @@ abstract contract ERC1967Upgrade is IERC1967 {
     bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
     /**
+     * @dev The `implementation` of the proxy is invalid.
+     */
+    error ERC1967InvalidImplementation(address implementation);
+
+    /**
+     * @dev The `admin` of the proxy is invalid.
+     */
+    error ERC1967InvalidAdmin(address admin);
+
+    /**
+     * @dev The `beacon` of the proxy is invalid.
+     */
+    error ERC1967InvalidBeacon(address beacon);
+
+    /**
+     * @dev The storage `slot` is unsupported as a UUID.
+     */
+    error ERC1967UnsupportedProxiableUUID(bytes32 slot);
+
+    /**
      * @dev Returns the current implementation address.
      */
     function _getImplementation() internal view returns (address) {
@@ -37,7 +57,9 @@ abstract contract ERC1967Upgrade is IERC1967 {
      * @dev Stores a new address in the EIP1967 implementation slot.
      */
     function _setImplementation(address newImplementation) private {
-        require(newImplementation.code.length > 0, "ERC1967: new implementation is not a contract");
+        if (newImplementation.code.length == 0) {
+            revert ERC1967InvalidImplementation(newImplementation);
+        }
         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
@@ -76,7 +98,9 @@ abstract contract ERC1967Upgrade is IERC1967 {
             _setImplementation(newImplementation);
         } else {
             try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
-                require(slot == _IMPLEMENTATION_SLOT, "ERC1967Upgrade: unsupported proxiableUUID");
+                if (slot != _IMPLEMENTATION_SLOT) {
+                    revert ERC1967UnsupportedProxiableUUID(slot);
+                }
             } catch {
                 revert("ERC1967Upgrade: new implementation is not UUPS");
             }
@@ -106,7 +130,9 @@ abstract contract ERC1967Upgrade is IERC1967 {
      * @dev Stores a new address in the EIP1967 admin slot.
      */
     function _setAdmin(address newAdmin) private {
-        require(newAdmin != address(0), "ERC1967: new admin is the zero address");
+        if (newAdmin == address(0)) {
+            revert ERC1967InvalidAdmin(address(0));
+        }
         StorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
     }
 
@@ -138,10 +164,9 @@ abstract contract ERC1967Upgrade is IERC1967 {
      */
     function _setBeacon(address newBeacon) private {
         require(newBeacon.code.length > 0, "ERC1967: new beacon is not a contract");
-        require(
-            IBeacon(newBeacon).implementation().code.length > 0,
-            "ERC1967: beacon implementation is not a contract"
-        );
+        if (IBeacon(newBeacon).implementation().code.length == 0) {
+            revert ERC1967InvalidBeacon(newBeacon);
+        }
         StorageSlot.getAddressSlot(_BEACON_SLOT).value = newBeacon;
     }
 

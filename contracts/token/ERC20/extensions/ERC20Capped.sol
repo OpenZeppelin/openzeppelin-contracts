@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/ERC20Capped.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../ERC20.sol";
 
@@ -10,6 +10,11 @@ import "../ERC20.sol";
  */
 abstract contract ERC20Capped is ERC20 {
     uint256 private immutable _cap;
+
+    /**
+     * @dev Total supply cap has been exceeded.
+     */
+    error ERC20ExceededCap(uint256 increasedSupply, uint256 cap);
 
     /**
      * @dev Sets the value of the `cap`. This value is immutable, it can only be
@@ -32,7 +37,11 @@ abstract contract ERC20Capped is ERC20 {
      */
     function _update(address from, address to, uint256 amount) internal virtual override {
         if (from == address(0)) {
-            require(totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
+            uint256 maxSupply = cap();
+            uint256 increasedSupply = maxSupply + amount;
+            if (totalSupply() + amount > cap()) {
+                revert ERC20ExceededCap(increasedSupply, maxSupply);
+            }
         }
 
         super._update(from, to, amount);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC1155/ERC1155.sol)
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.18;
 
 import "./IERC1155.sol";
 import "./IERC1155Receiver.sol";
@@ -25,6 +25,11 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
     // Used as the URI for all token types by relying on ID substitution, e.g. https://token-cdn-domain/{id}.json
     string private _uri;
+
+    /**
+     * @dev Indicates that an address can't be an owner.
+     */
+    error ERC1155InvalidOwner(address);
 
     /**
      * @dev See {_setURI}.
@@ -65,7 +70,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - `account` cannot be the zero address.
      */
     function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
-        require(account != address(0), "ERC1155: address zero is not a valid owner");
+        if (account == address(0)) {
+            revert ERC1155InvalidOwner(address(0));
+        }
         return _balances[id][account];
     }
 
@@ -80,7 +87,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         address[] memory accounts,
         uint256[] memory ids
     ) public view virtual override returns (uint256[] memory) {
-        require(accounts.length == ids.length, "ERC1155: accounts and ids length mismatch");
+        if (accounts.length != ids.length) {
+            revert ERC1155InvalidArrayLength(ids.length, accounts.length);
+        }
 
         uint256[] memory batchBalances = new uint256[](accounts.length);
 
@@ -156,7 +165,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
+        if (ids.length != amounts.length) {
+            revert ERC1155InvalidArrayLength(ids.length, amounts.length);
+        }
 
         address operator = _msgSender();
 
@@ -166,7 +177,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
 
             if (from != address(0)) {
                 uint256 fromBalance = _balances[id][from];
-                require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
+                if (fromBalance < amount) {
+                    revert ERC1155InsufficientBalance(from, fromBalance, amount, id);
+                }
                 unchecked {
                     _balances[id][from] = fromBalance - amount;
                 }
@@ -205,8 +218,12 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * acceptance magic value.
      */
     function _safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) internal {
-        require(to != address(0), "ERC1155: transfer to the zero address");
-        require(from != address(0), "ERC1155: transfer from the zero address");
+        if (to == address(0)) {
+            revert ERC1155InvalidReceiver(address(0));
+        }
+        if (from == address(0)) {
+            revert ERC1155InvalidSender(address(0));
+        }
         uint256[] memory ids = _asSingletonArray(id);
         uint256[] memory amounts = _asSingletonArray(amount);
         _update(from, to, ids, amounts, data);
@@ -229,8 +246,12 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory amounts,
         bytes memory data
     ) internal {
-        require(to != address(0), "ERC1155: transfer to the zero address");
-        require(from != address(0), "ERC1155: transfer from the zero address");
+        if (to == address(0)) {
+            revert ERC1155InvalidReceiver(address(0));
+        }
+        if (from == address(0)) {
+            revert ERC1155InvalidSender(address(0));
+        }
         _update(from, to, ids, amounts, data);
     }
 
@@ -269,7 +290,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * acceptance magic value.
      */
     function _mint(address to, uint256 id, uint256 amount, bytes memory data) internal {
-        require(to != address(0), "ERC1155: mint to the zero address");
+        if (to == address(0)) {
+            revert ERC1155InvalidReceiver(address(0));
+        }
         uint256[] memory ids = _asSingletonArray(id);
         uint256[] memory amounts = _asSingletonArray(amount);
         _update(address(0), to, ids, amounts, data);
@@ -287,7 +310,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * acceptance magic value.
      */
     function _mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) internal {
-        require(to != address(0), "ERC1155: mint to the zero address");
+        if (to == address(0)) {
+            revert ERC1155InvalidReceiver(address(0));
+        }
         _update(address(0), to, ids, amounts, data);
     }
 
@@ -302,7 +327,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - `from` must have at least `amount` tokens of token type `id`.
      */
     function _burn(address from, uint256 id, uint256 amount) internal {
-        require(from != address(0), "ERC1155: burn from the zero address");
+        if (from == address(0)) {
+            revert ERC1155InvalidSender(address(0));
+        }
         uint256[] memory ids = _asSingletonArray(id);
         uint256[] memory amounts = _asSingletonArray(amount);
         _update(from, address(0), ids, amounts, "");
@@ -318,7 +345,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - `ids` and `amounts` must have the same length.
      */
     function _burnBatch(address from, uint256[] memory ids, uint256[] memory amounts) internal {
-        require(from != address(0), "ERC1155: burn from the zero address");
+        if (from == address(0)) {
+            revert ERC1155InvalidSender(address(0));
+        }
         _update(from, address(0), ids, amounts, "");
     }
 
@@ -328,7 +357,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * Emits an {ApprovalForAll} event.
      */
     function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
-        require(owner != operator, "ERC1155: setting approval status for self");
+        if (owner == operator) {
+            revert ERC1155InvalidOperator(operator);
+        }
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
     }

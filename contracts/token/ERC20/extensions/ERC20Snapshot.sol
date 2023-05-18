@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC20/extensions/ERC20Snapshot.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../ERC20.sol";
 import "../../../utils/Arrays.sol";
@@ -58,6 +58,11 @@ abstract contract ERC20Snapshot is ERC20 {
 
     // Snapshot ids increase monotonically, with the first value being 1. An id of 0 is invalid.
     Counters.Counter private _currentSnapshotId;
+
+    /**
+     * @dev The snapshot is invalid.
+     */
+    error ERC20InvalidSnapshot(uint256 id);
 
     /**
      * @dev Emitted by {_snapshot} when a snapshot identified by `id` is created.
@@ -137,8 +142,13 @@ abstract contract ERC20Snapshot is ERC20 {
     }
 
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots) private view returns (bool, uint256) {
-        require(snapshotId > 0, "ERC20Snapshot: id is 0");
-        require(snapshotId <= _getCurrentSnapshotId(), "ERC20Snapshot: nonexistent id");
+        if (snapshotId == 0) {
+            revert ERC20InvalidSnapshot(0);
+        }
+        if (snapshotId > _getCurrentSnapshotId()) {
+            // Non existent id
+            revert ERC20InvalidSnapshot(snapshotId);
+        }
 
         // When a valid snapshot is queried, there are three possibilities:
         //  a) The queried value was not modified after the snapshot was taken. Therefore, a snapshot entry was never

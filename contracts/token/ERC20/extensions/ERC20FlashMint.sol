@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/extensions/ERC20FlashMint.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../../../interfaces/IERC3156FlashBorrower.sol";
 import "../../../interfaces/IERC3156FlashLender.sol";
@@ -18,6 +18,16 @@ import "../ERC20.sol";
  */
 abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     bytes32 private constant _RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
+
+    /**
+     * @dev The loan token is not valid.
+     */
+    error ERC3156InvalidToken(address token);
+
+    /**
+     * @dev The requested loan exceeds the max loan amount for `token`.
+     */
+    error ERC3156ExceededMaxLoan(uint256 maxLoan);
 
     /**
      * @dev Returns the maximum amount of tokens available for loan.
@@ -37,7 +47,9 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @return The fees applied to the corresponding flash loan.
      */
     function flashFee(address token, uint256 amount) public view virtual override returns (uint256) {
-        require(token == address(this), "ERC20FlashMint: wrong token");
+        if (token != address(this)) {
+            revert ERC3156InvalidToken(token);
+        }
         return _flashFee(token, amount);
     }
 
@@ -89,7 +101,10 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         uint256 amount,
         bytes calldata data
     ) public virtual override returns (bool) {
-        require(amount <= maxFlashLoan(token), "ERC20FlashMint: amount exceeds maxFlashLoan");
+        uint256 maxLoan = maxFlashLoan(token);
+        if (amount > maxLoan) {
+            revert ERC3156ExceededMaxLoan(maxLoan);
+        }
         uint256 fee = flashFee(token, amount);
         _mint(address(receiver), amount);
         require(

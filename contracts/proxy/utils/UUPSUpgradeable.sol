@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (proxy/utils/UUPSUpgradeable.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../../interfaces/draft-IERC1822.sol";
 import "../ERC1967/ERC1967Upgrade.sol";
@@ -23,6 +23,11 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
     address private immutable __self = address(this);
 
     /**
+     * @dev The call was made by an unauthorized address.
+     */
+    error UUPSUnauthorizedCaller(address caller);
+
+    /**
      * @dev Check that the execution is being performed through a delegatecall call and that the execution context is
      * a proxy contract with an implementation (as defined in ERC1967) pointing to self. This should only be the case
      * for UUPS and transparent proxies that are using the current contract as their implementation. Execution of a
@@ -30,8 +35,15 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * fail.
      */
     modifier onlyProxy() {
-        require(address(this) != __self, "Function must be called through delegatecall");
-        require(_getImplementation() == __self, "Function must be called through active proxy");
+        if (address(this) == __self) {
+            // Must be called through delegatecall
+            revert UUPSUnauthorizedCaller(address(this));
+        }
+        address implementation = _getImplementation();
+        if (implementation == __self) {
+            // Must be called through an active proxy
+            revert ERC1967InvalidImplementation(implementation);
+        }
         _;
     }
 
@@ -40,7 +52,10 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * callable on the implementing contract but not through proxies.
      */
     modifier notDelegated() {
-        require(address(this) == __self, "UUPSUpgradeable: must not be called through delegatecall");
+        if (address(this) != __self) {
+            // Must not be called through delegatecall
+            revert UUPSUnauthorizedCaller(address(this));
+        }
         _;
     }
 

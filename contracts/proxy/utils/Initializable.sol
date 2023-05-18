@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.1) (proxy/utils/Initializable.sol)
 
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.18;
 
 import "../../utils/Address.sol";
 
@@ -68,6 +68,21 @@ abstract contract Initializable {
     bool private _initializing;
 
     /**
+     * @dev The contract is already initialized.
+     */
+    error AlreadyInitialized();
+
+    /**
+     * @dev The contract is not initializing.
+     */
+    error NotInitializing();
+
+    /**
+     * @dev The contract is initializing.
+     */
+    error Initializing();
+
+    /**
      * @dev Triggered when the contract has been initialized or reinitialized.
      */
     event Initialized(uint8 version);
@@ -83,10 +98,9 @@ abstract contract Initializable {
      */
     modifier initializer() {
         bool isTopLevelCall = !_initializing;
-        require(
-            (isTopLevelCall && _initialized < 1) || (address(this).code.length == 0 && _initialized == 1),
-            "Initializable: contract is already initialized"
-        );
+        if ((!isTopLevelCall || _initialized >= 1) && (address(this).code.length > 0 || _initialized != 1)) {
+            revert AlreadyInitialized();
+        }
         _initialized = 1;
         if (isTopLevelCall) {
             _initializing = true;
@@ -117,7 +131,9 @@ abstract contract Initializable {
      * Emits an {Initialized} event.
      */
     modifier reinitializer(uint8 version) {
-        require(!_initializing && _initialized < version, "Initializable: contract is already initialized");
+        if(_initializing || _initialized >= version) {
+            revert AlreadyInitialized();
+        }
         _initialized = version;
         _initializing = true;
         _;
@@ -130,7 +146,9 @@ abstract contract Initializable {
      * {initializer} and {reinitializer} modifiers, directly or indirectly.
      */
     modifier onlyInitializing() {
-        require(_initializing, "Initializable: contract is not initializing");
+        if (!_initializing) {
+            revert NotInitializing();
+        }
         _;
     }
 
@@ -143,7 +161,9 @@ abstract contract Initializable {
      * Emits an {Initialized} event the first time it is successfully executed.
      */
     function _disableInitializers() internal virtual {
-        require(!_initializing, "Initializable: contract is initializing");
+        if (_initializing) {
+            revert Initializing();
+        }
         if (_initialized != type(uint8).max) {
             _initialized = type(uint8).max;
             emit Initialized(type(uint8).max);
