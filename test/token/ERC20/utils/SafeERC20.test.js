@@ -192,7 +192,7 @@ contract('SafeERC20', function (accounts) {
       it('safeApprove can update approval to zero', async function () {
         await this.mock.$safeApprove(this.token.address, spender, 0);
       });
-      
+
       it('safeIncreaseAllowance works', async function () {
         this.mock.$safeIncreaseAllowance(this.token.address, spender, 10);
         expect(this.token.allowance(this.mock.address, spender, 90));
