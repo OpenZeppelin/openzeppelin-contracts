@@ -35,14 +35,14 @@ contract('Math', function () {
       const a = new BN('5678');
       const b = new BN('1234');
 
-      testCommutativeIterable(this.math.$tryAdd, a, b, [true, a.add(b)]);
+      await testCommutativeIterable(this.math.$tryAdd, a, b, [true, a.add(b)]);
     });
 
     it('reverts on addition overflow', async function () {
       const a = MAX_UINT256;
       const b = new BN('1');
 
-      testCommutativeIterable(this.math.$tryAdd, a, b, [false, '0']);
+      await testCommutativeIterable(this.math.$tryAdd, a, b, [false, '0']);
     });
   });
 
@@ -67,21 +67,21 @@ contract('Math', function () {
       const a = new BN('1234');
       const b = new BN('5678');
 
-      testCommutativeIterable(this.math.$tryMul, a, b, [true, a.mul(b)]);
+      await testCommutativeIterable(this.math.$tryMul, a, b, [true, a.mul(b)]);
     });
 
     it('multiplies by zero correctly', async function () {
       const a = new BN('0');
       const b = new BN('5678');
 
-      testCommutativeIterable(this.math.$tryMul, a, b, [true, a.mul(b)]);
+      await testCommutativeIterable(this.math.$tryMul, a, b, [true, a.mul(b)]);
     });
 
     it('reverts on multiplication overflow', async function () {
       const a = MAX_UINT256;
       const b = new BN('2');
 
-      testCommutativeIterable(this.math.$tryMul, a, b, [false, '0']);
+      await testCommutativeIterable(this.math.$tryMul, a, b, [false, '0']);
     });
   });
 
