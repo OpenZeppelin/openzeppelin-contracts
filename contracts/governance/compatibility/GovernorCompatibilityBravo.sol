@@ -39,6 +39,11 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
     mapping(uint256 => ProposalDetails) private _proposalDetails;
 
+    /**
+     * @dev Vote type is not in the {VoteType} enum.
+     */
+    error InvalidVoteType();
+
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
         return "support=bravo&quorum=bravo";
@@ -329,7 +334,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         } else if (support == uint8(VoteType.Abstain)) {
             details.abstainVotes += weight;
         } else {
-            revert("GovernorCompatibilityBravo: invalid vote type");
+            revert InvalidVoteType();
         }
     }
 }

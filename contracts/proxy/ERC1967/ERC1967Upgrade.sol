@@ -102,7 +102,8 @@ abstract contract ERC1967Upgrade is IERC1967 {
                     revert ERC1967UnsupportedProxiableUUID(slot);
                 }
             } catch {
-                revert("ERC1967Upgrade: new implementation is not UUPS");
+                // The implementation is not UUPS
+                revert ERC1967InvalidImplementation(newImplementation);
             }
             _upgradeToAndCall(newImplementation, data, forceCall);
         }

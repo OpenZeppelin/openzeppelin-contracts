@@ -432,7 +432,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
                 return retval == IERC721Receiver.onERC721Received.selector;
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
-                    revert("ERC721: transfer to non ERC721Receiver implementer");
+                    revert ERC721InvalidReceiver(to);
                 } else {
                     /// @solidity memory-safe-assembly
                     assembly {

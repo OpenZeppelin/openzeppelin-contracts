@@ -373,12 +373,14 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         if (to.code.length > 0) {
             try IERC1155Receiver(to).onERC1155Received(operator, from, id, amount, data) returns (bytes4 response) {
                 if (response != IERC1155Receiver.onERC1155Received.selector) {
-                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                    // Tokens rejected
+                    revert ERC1155InvalidReceiver(to);
                 }
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("ERC1155: transfer to non-ERC1155Receiver implementer");
+                // non-ERC1155Receiver implementer
+                revert ERC1155InvalidReceiver(to);
             }
         }
     }
@@ -396,12 +398,14 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
                 bytes4 response
             ) {
                 if (response != IERC1155Receiver.onERC1155BatchReceived.selector) {
-                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                    // Tokens rejected
+                    revert ERC1155InvalidReceiver(to);
                 }
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("ERC1155: transfer to non-ERC1155Receiver implementer");
+                // non-ERC1155Receiver implementer
+                revert ERC1155InvalidReceiver(to);
             }
         }
     }

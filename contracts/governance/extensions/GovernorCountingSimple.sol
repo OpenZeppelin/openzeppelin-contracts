@@ -30,6 +30,11 @@ abstract contract GovernorCountingSimple is Governor {
     mapping(uint256 => ProposalVote) private _proposalVotes;
 
     /**
+     * @dev Vote type is not in the {VoteType} enum. Matches Governor Bravo definition.
+     */
+    error InvalidVoteType();
+
+    /**
      * @dev See {IGovernor-COUNTING_MODE}.
      */
     // solhint-disable-next-line func-name-mixedcase
@@ -96,7 +101,7 @@ abstract contract GovernorCountingSimple is Governor {
         } else if (support == uint8(VoteType.Abstain)) {
             proposalVote.abstainVotes += weight;
         } else {
-            revert("GovernorVotingSimple: invalid value for enum VoteType");
+            revert InvalidVoteType();
         }
     }
 }

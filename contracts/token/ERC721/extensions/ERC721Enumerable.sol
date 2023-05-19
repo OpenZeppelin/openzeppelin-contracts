@@ -32,6 +32,11 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     error ERC721OutOfBoundsIndex(address owner, uint256 index);
 
     /**
+     * @dev Batch mint is not allowed.
+     */
+    error ERC721ForbiddenBatchMint();
+
+    /**
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC721) returns (bool) {
@@ -78,7 +83,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
 
         if (batchSize > 1) {
             // Will only trigger during construction. Batch transferring (minting) is not available afterwards.
-            revert("ERC721Enumerable: consecutive transfers not supported");
+            revert ERC721ForbiddenBatchMint();
         }
 
         uint256 tokenId = firstTokenId;
