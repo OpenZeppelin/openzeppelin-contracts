@@ -74,7 +74,10 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
       });
 
       it('should return 0 as the balance when one of the addresses is the zero address', async function () {
-        const result = await this.token.balanceOfBatch([firstTokenHolder, secondTokenHolder, ZERO_ADDRESS], [firstTokenId, secondTokenId, unknownTokenId]);
+        const result = await this.token.balanceOfBatch(
+          [firstTokenHolder, secondTokenHolder, ZERO_ADDRESS],
+          [firstTokenId, secondTokenId, unknownTokenId],
+        );
         expect(result).to.be.an('array');
         expect(result[0]).to.be.a.bignumber.equal('0');
         expect(result[1]).to.be.a.bignumber.equal('0');
