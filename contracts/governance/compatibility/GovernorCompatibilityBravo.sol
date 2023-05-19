@@ -135,10 +135,11 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         address proposer = proposalProposer(proposalId);
 
-        require(
-            _msgSender() == proposer || getVotes(proposer, clock() - 1) < proposalThreshold(),
-            "GovernorBravo: proposer above threshold"
-        );
+        uint256 proposerVotes = getVotes(proposer, clock() - 1);
+        uint256 votesThreshold = proposalThreshold();
+        if (_msgSender() != proposer && proposerVotes >= votesThreshold) {
+            revert GovernorProposerInvalidTreshold(proposer, proposerVotes, votesThreshold);
+        }
 
         return _cancel(targets, values, calldatas, descriptionHash);
     }

@@ -117,10 +117,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
             revert ERC721InvalidOperator(owner);
         }
 
-        require(
-            _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
-            "ERC721: approve caller is not token owner or approved for all"
-        );
+        if (_msgSender() != owner && !isApprovedForAll(owner, _msgSender())) {
+            revert ERC721InsufficientApproval(_msgSender(), tokenId);
+        }
 
         _approve(to, tokenId);
     }
@@ -252,10 +251,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
      */
     function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
         _mint(to, tokenId);
-        require(
-            _checkOnERC721Received(address(0), to, tokenId, data),
-            "ERC721: transfer to non ERC721Receiver implementer"
-        );
+        if (!_checkOnERC721Received(address(0), to, tokenId, data)) {
+            revert ERC721InvalidReceiver(to);
+        }
     }
 
     /**

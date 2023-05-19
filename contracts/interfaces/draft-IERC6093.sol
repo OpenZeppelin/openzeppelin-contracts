@@ -136,9 +136,9 @@ interface ERC1155Errors {
     /**
      * @dev Indicates a failure with the `operator`’s approval. Used in transfers.
      * @param operator Address that may be allowed to operate on tokens without being their owner.
-     * @param tokenId Identifier number of a token.
+     * @param owner Address of the current owner of a token.
      */
-    error ERC1155InsufficientApproval(address operator, uint256 tokenId);
+    error ERC1155InsufficientApprovalForAll(address operator, address owner);
 
     /**
      * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.

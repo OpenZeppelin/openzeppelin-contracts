@@ -92,17 +92,16 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
         ProposalState currentState = state(proposalId);
         if (currentState != ProposalState.Succeeded) {
-            revert GovernorIncorrectState(proposalId, currentState, ProposalState.Succeeded);
+            revert GovernorIncorrectState(proposalId, currentState, _encodeState(ProposalState.Succeeded));
         }
 
         uint256 eta = block.timestamp + _timelock.delay();
         _proposalTimelocks[proposalId] = SafeCast.toUint64(eta);
 
         for (uint256 i = 0; i < targets.length; ++i) {
-            require(
-                !_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta))),
-                "GovernorTimelockCompound: identical proposal action already queued"
-            );
+            if (_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta)))) {
+                revert GovernorDuplicatedProposal(proposalId);
+            }
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
 

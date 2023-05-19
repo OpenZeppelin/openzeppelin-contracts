@@ -278,10 +278,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         address proposer = _msgSender();
         uint256 currentTimepoint = clock();
 
-        require(
-            getVotes(proposer, currentTimepoint - 1) >= proposalThreshold(),
-            "Governor: proposer votes below proposal threshold"
-        );
+        uint256 proposerVotes = getVotes(proposer, currentTimepoint - 1);
+        uint256 votesThreshold = proposalThreshold();
+        if (proposerVotes < votesThreshold) {
+            revert GovernorProposerInvalidTreshold(proposer, proposerVotes, votesThreshold);
+        }
 
         uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
@@ -332,10 +333,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         ProposalState currentState = state(proposalId);
-        require(
-            currentState == ProposalState.Succeeded || currentState == ProposalState.Queued,
-            "Governor: proposal not successful"
-        );
+        if (currentState != ProposalState.Succeeded && currentState != ProposalState.Queued) {
+            revert GovernorIncorrectState(
+                proposalId,
+                currentState,
+                _encodeState(ProposalState.Succeeded) | _encodeState(ProposalState.Queued)
+            );
+        }
         _proposals[proposalId].executed = true;
 
         emit ProposalExecuted(proposalId);
@@ -359,7 +363,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         ProposalState currentState = state(proposalId);
         if (currentState != ProposalState.Pending) {
-            revert GovernorIncorrectState(proposalId, currentState, ProposalState.Pending);
+            revert GovernorIncorrectState(proposalId, currentState, _encodeState(ProposalState.Pending));
         }
         address proposer = _proposals[proposalId].proposer;
         if (_msgSender() != _proposals[proposalId].proposer) {
@@ -437,12 +441,18 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
 
         ProposalState currentState = state(proposalId);
 
-        require(
-            currentState != ProposalState.Canceled &&
-                currentState != ProposalState.Expired &&
-                currentState != ProposalState.Executed,
-            "Governor: proposal not active"
-        );
+        if (
+            currentState == ProposalState.Canceled ||
+            currentState == ProposalState.Expired ||
+            currentState == ProposalState.Executed
+        ) {
+            uint256 maxProposalState = uint256(type(ProposalState).max); // All proposal states
+            bytes32 mask = bytes32(uint256(2 ** maxProposalState - 1)); // 0x...1111
+            bytes32 forbiddenStates = _encodeState(ProposalState.Canceled) |
+                _encodeState(ProposalState.Expired) |
+                _encodeState(ProposalState.Executed);
+            revert GovernorIncorrectState(proposalId, currentState, mask ^ forbiddenStates);
+        }
         _proposals[proposalId].canceled = true;
 
         emit ProposalCanceled(proposalId);
@@ -583,7 +593,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         ProposalCore storage proposal = _proposals[proposalId];
         ProposalState currentState = state(proposalId);
         if (currentState != ProposalState.Active) {
-            revert GovernorIncorrectState(proposalId, currentState, ProposalState.Active);
+            revert GovernorIncorrectState(proposalId, currentState, _encodeState(ProposalState.Active));
         }
 
         uint256 weight = _getVotes(account, proposal.voteStart, params);

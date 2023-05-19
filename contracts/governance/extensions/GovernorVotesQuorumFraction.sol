@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (governance/extensions/GovernorVotesQuorumFraction.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "./GovernorVotes.sol";
 import "../../utils/Checkpoints.sol";
@@ -20,6 +20,11 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
     Checkpoints.Trace224 private _quorumNumeratorHistory;
 
     event QuorumNumeratorUpdated(uint256 oldQuorumNumerator, uint256 newQuorumNumerator);
+
+    /**
+     * @dev The quorum set is not a valid fraction.
+     */
+    error GovernorInvalidQuorumFraction(uint256 quorumNumerator, uint256 quorumDenominator);
 
     /**
      * @dev Initialize quorum as a fraction of the token's total supply.
@@ -94,10 +99,10 @@ abstract contract GovernorVotesQuorumFraction is GovernorVotes {
      * - New numerator must be smaller or equal to the denominator.
      */
     function _updateQuorumNumerator(uint256 newQuorumNumerator) internal virtual {
-        require(
-            newQuorumNumerator <= quorumDenominator(),
-            "GovernorVotesQuorumFraction: quorumNumerator over quorumDenominator"
-        );
+        uint256 denominator = quorumDenominator();
+        if (newQuorumNumerator > denominator) {
+            revert GovernorInvalidQuorumFraction(newQuorumNumerator, denominator);
+        }
 
         uint256 oldQuorumNumerator = quorumNumerator();
         _quorumNumeratorHistory.push(SafeCast.toUint32(clock()), SafeCast.toUint224(newQuorumNumerator));

@@ -55,13 +55,22 @@ abstract contract IGovernor is IERC165, IERC6372 {
 
     /**
      * @dev The current state of a proposal is not the required for performing an operation.
+     * The `expectedStates` is a bitmap with the bits enabled for each ProposalState enum position
+     * counting from right to left.
+     *
+     * See {Governor-_encodeState}.
      */
-    error GovernorIncorrectState(uint256 proposalId, ProposalState current, ProposalState required);
+    error GovernorIncorrectState(uint256 proposalId, ProposalState current, bytes32 expectedStates);
 
     /**
      * @dev The voting period set is not a valid period.
      */
     error GovernorInvalidVotingPeriod(uint256 votingPeriod);
+
+    /**
+     * @dev The `proposer` does not have the required votes to operate on a proposal.
+     */
+    error GovernorProposerInvalidTreshold(address proposer, uint256 votes, uint256 threshold);
 
     /**
      * @dev Emitted when a proposal is created.

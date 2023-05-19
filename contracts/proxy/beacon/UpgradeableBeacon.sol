@@ -66,7 +66,6 @@ contract UpgradeableBeacon is IBeacon, Ownable {
         if (newImplementation.code.length == 0) {
             revert UpgradeableBeaconInvalidImplementation(newImplementation);
         }
-        require(newImplementation.code.length > 0, "UpgradeableBeacon: implementation is not a contract");
         _implementation = newImplementation;
     }
 }

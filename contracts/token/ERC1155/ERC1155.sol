@@ -124,10 +124,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256 amount,
         bytes memory data
     ) public virtual override {
-        require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: caller is not token owner or approved"
-        );
+        if (from != _msgSender() && !isApprovedForAll(from, _msgSender())) {
+            revert ERC1155InsufficientApprovalForAll(_msgSender(), from);
+        }
         _safeTransferFrom(from, to, id, amount, data);
     }
 
@@ -141,10 +140,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory amounts,
         bytes memory data
     ) public virtual override {
-        require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: caller is not token owner or approved"
-        );
+        if (from != _msgSender() && !isApprovedForAll(from, _msgSender())) {
+            revert ERC1155InsufficientApprovalForAll(_msgSender(), from);
+        }
         _safeBatchTransferFrom(from, to, ids, amounts, data);
     }
 

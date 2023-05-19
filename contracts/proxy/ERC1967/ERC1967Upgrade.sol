@@ -163,10 +163,15 @@ abstract contract ERC1967Upgrade is IERC1967 {
      * @dev Stores a new beacon in the EIP1967 beacon slot.
      */
     function _setBeacon(address newBeacon) private {
-        require(newBeacon.code.length > 0, "ERC1967: new beacon is not a contract");
-        if (IBeacon(newBeacon).implementation().code.length == 0) {
+        if (newBeacon.code.length == 0) {
             revert ERC1967InvalidBeacon(newBeacon);
         }
+
+        address beaconImplementation = IBeacon(newBeacon).implementation();
+        if (beaconImplementation.code.length == 0) {
+            revert ERC1967InvalidImplementation(beaconImplementation);
+        }
+
         StorageSlot.getAddressSlot(_BEACON_SLOT).value = newBeacon;
     }
 
