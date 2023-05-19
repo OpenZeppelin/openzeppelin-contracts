@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 
 import "../../../contracts/utils/math/Math.sol";
-import "../../../contracts/utils/math/SafeMath.sol";
 
 contract MathTest is Test {
     // CEILDIV
@@ -47,7 +46,7 @@ contract MathTest is Test {
     }
 
     function _squareBigger(uint256 value, uint256 ref) private pure returns (bool) {
-        (bool noOverflow, uint256 square) = SafeMath.tryMul(value, value);
+        (bool noOverflow, uint256 square) = Math.tryMul(value, value);
         return !noOverflow || square > ref;
     }
 
