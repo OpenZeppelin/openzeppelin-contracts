@@ -52,7 +52,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @dev The `proposalId` is duplicated.
      */
     error GovernorDuplicatedProposal(uint256 proposalId);
-    
+
     /**
      * @dev The `proposalId` doesn't exist.
      */
@@ -76,6 +76,11 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @dev The `proposer` does not have the required votes to operate on a proposal.
      */
     error GovernorProposerInvalidTreshold(address proposer, uint256 votes, uint256 threshold);
+
+    /**
+     * @dev A low level call failed without any further reason.
+     */
+    error GovernorFailedLowLevelCall();
 
     /**
      * @dev Emitted when a proposal is created.

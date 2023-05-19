@@ -25,6 +25,11 @@ library SafeERC20 {
     error ERC20UnsuccessfulOperation(address token);
 
     /**
+     * @dev A low level call failed without any further reason.
+     */
+    error ERC20FailedLowLevelCall();
+
+    /**
      * @dev Transfer `value` amount of `token` from the calling contract to `to`. If `token` returns no value,
      * non-reverting calls are assumed to be successful.
      */
@@ -110,7 +115,7 @@ library SafeERC20 {
         // we're implementing it ourselves. We use {Address-functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.
 
-        bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed");
+        bytes memory returndata = address(token).functionCall(data, onERC20CallRevert);
         if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
             revert ERC20UnsuccessfulOperation(address(token));
         }
@@ -131,5 +136,9 @@ library SafeERC20 {
 
         (bool success, bytes memory returndata) = address(token).call(data);
         return success && (returndata.length == 0 || abi.decode(returndata, (bool))) && address(token).code.length > 0;
+    }
+
+    function onERC20CallRevert() internal pure {
+        revert ERC20FailedLowLevelCall();
     }
 }

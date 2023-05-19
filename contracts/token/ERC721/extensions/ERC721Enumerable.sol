@@ -34,7 +34,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     /**
      * @dev Batch mint is not allowed.
      */
-    error ERC721ForbiddenBatchMint();
+    error ERC721EnumerableForbiddenBatchMint();
 
     /**
      * @dev See {IERC165-supportsInterface}.
@@ -83,7 +83,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
 
         if (batchSize > 1) {
             // Will only trigger during construction. Batch transferring (minting) is not available afterwards.
-            revert ERC721ForbiddenBatchMint();
+            revert ERC721EnumerableForbiddenBatchMint();
         }
 
         uint256 tokenId = firstTokenId;

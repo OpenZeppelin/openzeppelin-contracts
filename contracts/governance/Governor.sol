@@ -278,10 +278,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         address proposer = _msgSender();
         uint256 currentTimepoint = clock();
 
-        uint256 proposerVotes = getVotes(proposer, currentTimepoint - 1);
-        uint256 votesThreshold = proposalThreshold();
-        if (proposerVotes < votesThreshold) {
-            revert GovernorProposerInvalidTreshold(proposer, proposerVotes, votesThreshold);
+        // Avoid stack too deep
+        {
+            uint256 proposerVotes = getVotes(proposer, currentTimepoint - 1);
+            uint256 votesThreshold = proposalThreshold();
+            if (proposerVotes < votesThreshold) {
+                revert GovernorProposerInvalidTreshold(proposer, proposerVotes, votesThreshold);
+            }
         }
 
         uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
@@ -382,10 +385,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual {
-        string memory errorMessage = "Governor: call reverted without message";
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
-            Address.verifyCallResult(success, returndata, errorMessage);
+            Address.verifyCallResult(success, returndata, _onGovernorCallRevert);
         }
     }
 
@@ -616,7 +618,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      */
     function relay(address target, uint256 value, bytes calldata data) external payable virtual onlyGovernance {
         (bool success, bytes memory returndata) = target.call{value: value}(data);
-        Address.verifyCallResult(success, returndata, "Governor: relay reverted without message");
+        Address.verifyCallResult(success, returndata, _onGovernorCallRevert);
     }
 
     /**
@@ -674,5 +676,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      */
     function _encodeState(ProposalState proposalState) internal pure returns (bytes32) {
         return bytes32(1 << uint32(proposalState));
+    }
+
+    /**
+     * @dev Default revert function for failed executed functions without any other bubbled up reason.
+     */
+    function _onGovernorCallRevert() internal pure {
+        revert GovernorFailedLowLevelCall();
     }
 }
