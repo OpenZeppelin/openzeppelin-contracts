@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/MerkleProof.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 /**
  * @dev These functions deal with verification of Merkle Tree proofs.
@@ -129,9 +129,6 @@ library MerkleProof {
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        if (leavesLen + proof.length - 1 != totalHashes) {
-            revert MerkleProofInvalidMultiproof();
-        }
         if (leavesLen + proof.length - 1 != totalHashes) {
             revert MerkleProofInvalidMultiproof();
         }
