@@ -41,7 +41,7 @@ contract('Create2', function (accounts) {
   });
 
   describe('deploy', function () {
-    it('deploys a MinimalForwarder from inline assembly code', async function () {
+    it('deploys a contract without constructor', async function () {
       const offChainComputed = computeCreate2Address(saltHex, ConstructorLessContract.bytecode, this.factory.address);
 
       expectEvent(await this.factory.$deploy(0, saltHex, ConstructorLessContract.bytecode), 'return$deploy', {
