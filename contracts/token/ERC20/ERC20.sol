@@ -47,7 +47,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     /**
      * @dev Indicates an `_allowance` decrease below 0. Used for non-standard allowance decreases.
      */
-    error ERC20ExceededAllowanceDecrease();
+    error ERC20ExceededAllowanceDecrease(address spender, uint256 allowance, uint256 subtractedValue);
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -202,7 +202,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         address owner = _msgSender();
         uint256 currentAllowance = allowance(owner, spender);
         if (currentAllowance < subtractedValue) {
-            revert ERC20ExceededAllowanceDecrease();
+            revert ERC20ExceededAllowanceDecrease(spender, currentAllowance, subtractedValue);
         }
         unchecked {
             _approve(owner, spender, currentAllowance - subtractedValue);

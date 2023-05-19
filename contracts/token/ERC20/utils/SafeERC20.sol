@@ -57,7 +57,7 @@ library SafeERC20 {
         unchecked {
             uint256 oldAllowance = token.allowance(address(this), spender);
             if (oldAllowance < value) {
-                revert ERC20.ERC20ExceededAllowanceDecrease();
+                revert ERC20.ERC20ExceededAllowanceDecrease(spender, oldAllowance, value);
             }
             _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, oldAllowance - value));
         }
