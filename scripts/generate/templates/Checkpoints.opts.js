@@ -12,5 +12,6 @@ const defaultOpts = size => ({
 });
 
 module.exports = {
+  VALUE_SIZES,
   OPTS: VALUE_SIZES.map(size => defaultOpts(size)),
 };

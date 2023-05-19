@@ -1,13 +1,12 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-
 const { expect } = require('chai');
+
+const { VALUE_SIZES } = require('../../scripts/generate/templates/Checkpoints.opts.js');
 
 const $Checkpoints = artifacts.require('$Checkpoints');
 
 // The library name may be 'Checkpoints' or 'CheckpointsUpgradeable'
 const libraryName = $Checkpoints._json.contractName.replace(/^\$/, '');
-
-const traceLengths = [160, 224];
 
 const first = array => (array.length ? array[0] : undefined);
 const last = array => (array.length ? array[array.length - 1] : undefined);
@@ -17,7 +16,7 @@ contract('Checkpoints', function () {
     this.mock = await $Checkpoints.new();
   });
 
-  for (const length of traceLengths) {
+  for (const length of VALUE_SIZES) {
     describe(`Trace${length}`, function () {
       before(async function () {
         this.methods = {
