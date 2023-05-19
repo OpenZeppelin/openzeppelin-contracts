@@ -30,129 +30,127 @@ contract('Math', function () {
     this.math = await Math.new();
   });
 
-  describe('with flag', function () {
-    describe('tryAdd', function () {
-      it('adds correctly', async function () {
-        const a = new BN('5678');
-        const b = new BN('1234');
+  describe('tryAdd', function () {
+    it('adds correctly', async function () {
+      const a = new BN('5678');
+      const b = new BN('1234');
 
-        testCommutativeIterable(this.math.$tryAdd, a, b, [true, a.add(b)]);
-      });
-
-      it('reverts on addition overflow', async function () {
-        const a = MAX_UINT256;
-        const b = new BN('1');
-
-        testCommutativeIterable(this.math.$tryAdd, a, b, [false, '0']);
-      });
+      testCommutativeIterable(this.math.$tryAdd, a, b, [true, a.add(b)]);
     });
 
-    describe('trySub', function () {
-      it('subtracts correctly', async function () {
-        const a = new BN('5678');
-        const b = new BN('1234');
+    it('reverts on addition overflow', async function () {
+      const a = MAX_UINT256;
+      const b = new BN('1');
 
-        expectStruct(await this.math.$trySub(a, b), [true, a.sub(b)]);
-      });
+      testCommutativeIterable(this.math.$tryAdd, a, b, [false, '0']);
+    });
+  });
 
-      it('reverts if subtraction result would be negative', async function () {
-        const a = new BN('1234');
-        const b = new BN('5678');
+  describe('trySub', function () {
+    it('subtracts correctly', async function () {
+      const a = new BN('5678');
+      const b = new BN('1234');
 
-        expectStruct(await this.math.$trySub(a, b), [false, '0']);
-      });
+      expectStruct(await this.math.$trySub(a, b), [true, a.sub(b)]);
     });
 
-    describe('tryMul', function () {
-      it('multiplies correctly', async function () {
-        const a = new BN('1234');
-        const b = new BN('5678');
+    it('reverts if subtraction result would be negative', async function () {
+      const a = new BN('1234');
+      const b = new BN('5678');
 
-        testCommutativeIterable(this.math.$tryMul, a, b, [true, a.mul(b)]);
-      });
+      expectStruct(await this.math.$trySub(a, b), [false, '0']);
+    });
+  });
 
-      it('multiplies by zero correctly', async function () {
-        const a = new BN('0');
-        const b = new BN('5678');
+  describe('tryMul', function () {
+    it('multiplies correctly', async function () {
+      const a = new BN('1234');
+      const b = new BN('5678');
 
-        testCommutativeIterable(this.math.$tryMul, a, b, [true, a.mul(b)]);
-      });
-
-      it('reverts on multiplication overflow', async function () {
-        const a = MAX_UINT256;
-        const b = new BN('2');
-
-        testCommutativeIterable(this.math.$tryMul, a, b, [false, '0']);
-      });
+      testCommutativeIterable(this.math.$tryMul, a, b, [true, a.mul(b)]);
     });
 
-    describe('tryDiv', function () {
-      it('divides correctly', async function () {
+    it('multiplies by zero correctly', async function () {
+      const a = new BN('0');
+      const b = new BN('5678');
+
+      testCommutativeIterable(this.math.$tryMul, a, b, [true, a.mul(b)]);
+    });
+
+    it('reverts on multiplication overflow', async function () {
+      const a = MAX_UINT256;
+      const b = new BN('2');
+
+      testCommutativeIterable(this.math.$tryMul, a, b, [false, '0']);
+    });
+  });
+
+  describe('tryDiv', function () {
+    it('divides correctly', async function () {
+      const a = new BN('5678');
+      const b = new BN('5678');
+
+      expectStruct(await this.math.$tryDiv(a, b), [true, a.div(b)]);
+    });
+
+    it('divides zero correctly', async function () {
+      const a = new BN('0');
+      const b = new BN('5678');
+
+      expectStruct(await this.math.$tryDiv(a, b), [true, a.div(b)]);
+    });
+
+    it('returns complete number result on non-even division', async function () {
+      const a = new BN('7000');
+      const b = new BN('5678');
+
+      expectStruct(await this.math.$tryDiv(a, b), [true, a.div(b)]);
+    });
+
+    it('reverts on division by zero', async function () {
+      const a = new BN('5678');
+      const b = new BN('0');
+
+      expectStruct(await this.math.$tryDiv(a, b), [false, '0']);
+    });
+  });
+
+  describe('tryMod', function () {
+    describe('modulos correctly', async function () {
+      it('when the dividend is smaller than the divisor', async function () {
+        const a = new BN('284');
+        const b = new BN('5678');
+
+        expectStruct(await this.math.$tryMod(a, b), [true, a.mod(b)]);
+      });
+
+      it('when the dividend is equal to the divisor', async function () {
         const a = new BN('5678');
         const b = new BN('5678');
 
-        expectStruct(await this.math.$tryDiv(a, b), [true, a.div(b)]);
+        expectStruct(await this.math.$tryMod(a, b), [true, a.mod(b)]);
       });
 
-      it('divides zero correctly', async function () {
-        const a = new BN('0');
-        const b = new BN('5678');
-
-        expectStruct(await this.math.$tryDiv(a, b), [true, a.div(b)]);
-      });
-
-      it('returns complete number result on non-even division', async function () {
+      it('when the dividend is larger than the divisor', async function () {
         const a = new BN('7000');
         const b = new BN('5678');
 
-        expectStruct(await this.math.$tryDiv(a, b), [true, a.div(b)]);
+        expectStruct(await this.math.$tryMod(a, b), [true, a.mod(b)]);
       });
 
-      it('reverts on division by zero', async function () {
-        const a = new BN('5678');
-        const b = new BN('0');
+      it('when the dividend is a multiple of the divisor', async function () {
+        const a = new BN('17034'); // 17034 == 5678 * 3
+        const b = new BN('5678');
 
-        expectStruct(await this.math.$tryDiv(a, b), [false, '0']);
+        expectStruct(await this.math.$tryMod(a, b), [true, a.mod(b)]);
       });
     });
 
-    describe('tryMod', function () {
-      describe('modulos correctly', async function () {
-        it('when the dividend is smaller than the divisor', async function () {
-          const a = new BN('284');
-          const b = new BN('5678');
+    it('reverts with a 0 divisor', async function () {
+      const a = new BN('5678');
+      const b = new BN('0');
 
-          expectStruct(await this.math.$tryMod(a, b), [true, a.mod(b)]);
-        });
-
-        it('when the dividend is equal to the divisor', async function () {
-          const a = new BN('5678');
-          const b = new BN('5678');
-
-          expectStruct(await this.math.$tryMod(a, b), [true, a.mod(b)]);
-        });
-
-        it('when the dividend is larger than the divisor', async function () {
-          const a = new BN('7000');
-          const b = new BN('5678');
-
-          expectStruct(await this.math.$tryMod(a, b), [true, a.mod(b)]);
-        });
-
-        it('when the dividend is a multiple of the divisor', async function () {
-          const a = new BN('17034'); // 17034 == 5678 * 3
-          const b = new BN('5678');
-
-          expectStruct(await this.math.$tryMod(a, b), [true, a.mod(b)]);
-        });
-      });
-
-      it('reverts with a 0 divisor', async function () {
-        const a = new BN('5678');
-        const b = new BN('0');
-
-        expectStruct(await this.math.$tryMod(a, b), [false, '0']);
-      });
+      expectStruct(await this.math.$tryMod(a, b), [false, '0']);
     });
   });
 
