@@ -50,43 +50,6 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     uint48 private _pendingDelaySchedule; // 0 == unset
 
     /**
-     * @dev The new default admin is not a valid default admin.
-     */
-    error AccessControlInvalidDefaultAdmin(address defaultAdmin);
-
-    /**
-     * @dev Role can't be granted.
-     */
-    error AccessControlForbiddenGrant(bytes32 role);
-
-    /**
-     * @dev Role can't be revoked.
-     */
-    error AccessControlForbiddenRevoke(bytes32 role);
-
-    /**
-     * @dev The `DEFAULT_ADMIN_ROLE` should be only held by one account.
-     */
-    error AccessControlEnforcedDefaultAdminUniqueness();
-
-    /**
-     * @dev The `DEFAULT_ADMIN_ROLE` can only be managed by itself.
-     */
-    error AccessControlEnforcedDefaultAdminManagement();
-
-    /**
-     * @dev The `DEFAULT_ADMIN_ROLE` must be accepted by the pending default admin.
-     */
-    error AccessControlEnforcedDefaultAdminAcceptance();
-
-    /**
-     * @dev The new admin is not a default admin.
-     *
-     * NOTE: Schedule can be 0 indicating there's no transfer scheduled.
-     */
-    error AccessControlEnforcedDefaultAdminDelay(uint48 schedule);
-
-    /**
      * @dev Sets the initial values for {defaultAdminDelay} and {defaultAdmin} address.
      */
     constructor(uint48 initialDelay, address initialDefaultAdmin) {
@@ -283,7 +246,8 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     function acceptDefaultAdminTransfer() public virtual {
         (address newDefaultAdmin, ) = pendingDefaultAdmin();
         if (_msgSender() != newDefaultAdmin) {
-            revert AccessControlEnforcedDefaultAdminAcceptance();
+            // Enforce newDefaultAdmin explicit acceptance.
+            revert AccessControlInvalidDefaultAdmin(_msgSender());
         }
         _acceptDefaultAdminTransfer();
     }

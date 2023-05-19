@@ -20,7 +20,7 @@ abstract contract ERC721Burnable is Context, ERC721 {
      */
     function burn(uint256 tokenId) public virtual {
         if (!_isApprovedOrOwner(_msgSender(), tokenId)) {
-            revert ERC721IncorrectOwner(_msgSender(), tokenId, ERC721.ownerOf(tokenId));
+            revert ERC721InsufficientApproval(_msgSender(), tokenId);
         }
         _burn(tokenId);
     }

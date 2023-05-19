@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (governance/utils/Votes.sol)
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../../interfaces/IERC5805.sol";
 import "../../utils/Context.sol";
@@ -43,6 +43,11 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     Checkpoints.Trace224 private _totalCheckpoints;
 
     /**
+     * @dev The clock was incorrectly modified.
+     */
+    error ERC6327BrokenClock();
+
+    /**
      * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based
      * checkpoints (and voting), in which case {CLOCK_MODE} should be overridden as well to match.
      */
@@ -56,7 +61,9 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual override returns (string memory) {
         // Check that the clock was not modified
-        require(clock() == block.number, "Votes: broken clock mode");
+        if (clock() != block.number) {
+            revert ERC6327BrokenClock();
+        }
         return "mode=blocknumber&from=default";
     }
 
@@ -76,7 +83,10 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastVotes(address account, uint256 timepoint) public view virtual override returns (uint256) {
-        require(timepoint < clock(), "Votes: future lookup");
+        uint48 clockTime = clock();
+        if (timepoint >= clockTime) {
+            revert VotesFutureLookup(timepoint, clockTime);
+        }
         return _delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint32(timepoint));
     }
 
@@ -93,7 +103,10 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastTotalSupply(uint256 timepoint) public view virtual override returns (uint256) {
-        require(timepoint < clock(), "Votes: future lookup");
+        uint48 clockTime = clock();
+        if (timepoint >= clockTime) {
+            revert VotesFutureLookup(timepoint, clockTime);
+        }
         return _totalCheckpoints.upperLookupRecent(SafeCast.toUint32(timepoint));
     }
 
@@ -130,14 +143,19 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
         bytes32 r,
         bytes32 s
     ) public virtual override {
-        require(block.timestamp <= expiry, "Votes: signature expired");
+        if (block.timestamp > expiry) {
+            revert VotesExpiredSignature(expiry);
+        }
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
             v,
             r,
             s
         );
-        require(nonce == _useNonce(signer), "Votes: invalid nonce");
+        uint256 currentNonce = _useNonce(signer);
+        if (nonce != currentNonce) {
+            revert VotesInvalidNonce(currentNonce);
+        }
         _delegate(signer, delegatee);
     }
 

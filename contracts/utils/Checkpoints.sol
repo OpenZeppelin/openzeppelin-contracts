@@ -27,6 +27,11 @@ library Checkpoints {
     }
 
     /**
+     * @dev A value was attempted to be inserted on a past checkpoint.
+     */
+    error Checkpoint224PastInsert();
+
+    /**
      * @dev Pushes a (`key`, `value`) pair into a Trace224 so that it is stored as the checkpoint.
      *
      * Returns previous value and new value.
@@ -126,7 +131,9 @@ library Checkpoints {
             Checkpoint224 memory last = _unsafeAccess(self, pos - 1);
 
             // Checkpoint keys must be non-decreasing.
-            require(last._key <= key, "Checkpoint: decreasing keys");
+            if (last._key > key) {
+                revert Checkpoint224PastInsert();
+            }
 
             // Update or push new checkpoint
             if (last._key == key) {
@@ -208,6 +215,11 @@ library Checkpoints {
         uint96 _key;
         uint160 _value;
     }
+
+    /**
+     * @dev A value was attempted to be inserted on a past checkpoint.
+     */
+    error Checkpoint160PastInsert();
 
     /**
      * @dev Pushes a (`key`, `value`) pair into a Trace160 so that it is stored as the checkpoint.
@@ -309,7 +321,9 @@ library Checkpoints {
             Checkpoint160 memory last = _unsafeAccess(self, pos - 1);
 
             // Checkpoint keys must be non-decreasing.
-            require(last._key <= key, "Checkpoint: decreasing keys");
+            if (last._key > key) {
+                revert Checkpoint160PastInsert();
+            }
 
             // Update or push new checkpoint
             if (last._key == key) {

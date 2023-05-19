@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (governance/extensions/IGovernorTimelock.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../IGovernor.sol";
 
@@ -11,6 +11,11 @@ import "../IGovernor.sol";
  * _Available since v4.3._
  */
 abstract contract IGovernorTimelock is IGovernor {
+    /**
+     * @dev The proposal hasn't been queued yet.
+     */
+    error GovernorMissingETA(uint256 proposalId);
+
     event ProposalQueued(uint256 proposalId, uint256 eta);
 
     function timelock() public view virtual returns (address);

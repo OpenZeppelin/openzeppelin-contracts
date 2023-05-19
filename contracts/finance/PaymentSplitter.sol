@@ -31,6 +31,31 @@ contract PaymentSplitter is Context {
     event ERC20PaymentReleased(IERC20 indexed token, address to, uint256 amount);
     event PaymentReceived(address from, uint256 amount);
 
+    /**
+     * @dev Mismatch between payees length and shares length.
+     */
+    error PaymentSplitterInvalidPayeesLength(uint256 payeesLength, uint256 sharesLength);
+
+    /**
+     * @dev The `account` has no shares.
+     */
+    error PaymentSplitterEmptyShares(address account);
+
+    /**
+     * @dev There's no payment due to `account`.
+     */
+    error PaymentSplitterZeroPayment(address account);
+
+    /**
+     * @dev The payee added is not a valid payee.
+     */
+    error PaymentSplitterInvalidPayee(address account);
+
+    /**
+     * @dev The payee was already added.
+     */
+    error PaymentSplitterDuplicatedPayee(address account);
+
     uint256 private _totalShares;
     uint256 private _totalReleased;
 
@@ -49,8 +74,9 @@ contract PaymentSplitter is Context {
      * duplicates in `payees`.
      */
     constructor(address[] memory payees, uint256[] memory shares_) payable {
-        require(payees.length == shares_.length, "PaymentSplitter: payees and shares length mismatch");
-        require(payees.length > 0, "PaymentSplitter: no payees");
+        if (payees.length != shares_.length || payees.length == 0) {
+            revert PaymentSplitterInvalidPayeesLength(payees.length, shares_.length);
+        }
 
         for (uint256 i = 0; i < payees.length; i++) {
             _addPayee(payees[i], shares_[i]);
@@ -143,11 +169,15 @@ contract PaymentSplitter is Context {
      * total shares and their previous withdrawals.
      */
     function release(address payable account) public virtual {
-        require(_shares[account] > 0, "PaymentSplitter: account has no shares");
+        if (_shares[account] <= 0) {
+            revert PaymentSplitterEmptyShares(account);
+        }
 
         uint256 payment = releasable(account);
 
-        require(payment != 0, "PaymentSplitter: account is not due payment");
+        if (payment == 0) {
+            revert PaymentSplitterZeroPayment(account);
+        }
 
         // _totalReleased is the sum of all values in _released.
         // If "_totalReleased += payment" does not overflow, then "_released[account] += payment" cannot overflow.
@@ -166,11 +196,15 @@ contract PaymentSplitter is Context {
      * contract.
      */
     function release(IERC20 token, address account) public virtual {
-        require(_shares[account] > 0, "PaymentSplitter: account has no shares");
+        if (_shares[account] <= 0) {
+            revert PaymentSplitterEmptyShares(account);
+        }
 
         uint256 payment = releasable(token, account);
 
-        require(payment != 0, "PaymentSplitter: account is not due payment");
+        if (payment == 0) {
+            revert PaymentSplitterZeroPayment(account);
+        }
 
         // _erc20TotalReleased[token] is the sum of all values in _erc20Released[token].
         // If "_erc20TotalReleased[token] += payment" does not overflow, then "_erc20Released[token][account] += payment"
@@ -202,9 +236,15 @@ contract PaymentSplitter is Context {
      * @param shares_ The number of shares owned by the payee.
      */
     function _addPayee(address account, uint256 shares_) private {
-        require(account != address(0), "PaymentSplitter: account is the zero address");
-        require(shares_ > 0, "PaymentSplitter: shares are 0");
-        require(_shares[account] == 0, "PaymentSplitter: account already has shares");
+        if (account == address(0)) {
+            revert PaymentSplitterInvalidPayee(account);
+        }
+        if (shares_ <= 0) {
+            revert PaymentSplitterEmptyShares(account);
+        }
+        if (_shares[account] != 0) {
+            revert PaymentSplitterDuplicatedPayee(account);
+        }
 
         _payees.push(account);
         _shares[account] = shares_;

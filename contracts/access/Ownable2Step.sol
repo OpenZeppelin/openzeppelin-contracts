@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (access/Ownable2Step.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "./Ownable.sol";
 
@@ -51,7 +51,9 @@ abstract contract Ownable2Step is Ownable {
      */
     function acceptOwnership() public virtual {
         address sender = _msgSender();
-        require(pendingOwner() == sender, "Ownable2Step: caller is not the new owner");
+        if (pendingOwner() != sender) {
+            revert OwnableInvalidOwner(sender);
+        }
         _transferOwnership(sender);
     }
 }

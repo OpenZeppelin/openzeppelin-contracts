@@ -21,9 +21,9 @@ abstract contract Ownable is Context {
     address private _owner;
 
     /**
-     * @dev Caller is not the owner.
+     * @dev The caller account is not the owner.
      */
-    error OwnableUnauthorized(address caller);
+    error OwnableUnauthorizedAccount(address account);
 
     /**
      * @dev Caller is not a valid owner.
@@ -59,7 +59,7 @@ abstract contract Ownable is Context {
      */
     function _checkOwner() internal view virtual {
         if (owner() != _msgSender()) {
-            revert OwnableUnauthorized(_msgSender());
+            revert OwnableUnauthorizedAccount(_msgSender());
         }
     }
 

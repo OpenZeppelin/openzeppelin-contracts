@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (utils/Strings.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "./math/Math.sol";
 import "./math/SignedMath.sol";
@@ -12,6 +12,11 @@ import "./math/SignedMath.sol";
 library Strings {
     bytes16 private constant _SYMBOLS = "0123456789abcdef";
     uint8 private constant _ADDRESS_LENGTH = 20;
+
+    /**
+     * @dev The string doesn't fit in the specified `length`
+     */
+    error StringsInsufficientHexLength(uint256 length);
 
     /**
      * @dev Converts a `uint256` to its ASCII `string` decimal representation.
@@ -65,7 +70,9 @@ library Strings {
             buffer[i] = _SYMBOLS[value & 0xf];
             value >>= 4;
         }
-        require(value == 0, "Strings: hex length insufficient");
+        if (value != 0) {
+            revert StringsInsufficientHexLength(length);
+        }
         return string(buffer);
     }
 

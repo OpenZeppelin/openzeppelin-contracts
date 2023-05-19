@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.6.0) (governance/extensions/GovernorTimelockCompound.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "./IGovernorTimelock.sol";
 import "../Governor.sol";
@@ -90,7 +90,10 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
-        require(state(proposalId) == ProposalState.Succeeded, "Governor: proposal not successful");
+        ProposalState currentState = state(proposalId);
+        if (currentState != ProposalState.Succeeded) {
+            revert GovernorIncorrectState(proposalId, currentState, ProposalState.Succeeded);
+        }
 
         uint256 eta = block.timestamp + _timelock.delay();
         _proposalTimelocks[proposalId] = SafeCast.toUint64(eta);
@@ -119,7 +122,9 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
         bytes32 /*descriptionHash*/
     ) internal virtual override {
         uint256 eta = proposalEta(proposalId);
-        require(eta > 0, "GovernorTimelockCompound: proposal not yet queued");
+        if (eta == 0) {
+            revert GovernorMissingETA(proposalId);
+        }
         Address.sendValue(payable(_timelock), msg.value);
         for (uint256 i = 0; i < targets.length; ++i) {
             _timelock.executeTransaction(targets[i], values[i], "", calldatas[i], eta);

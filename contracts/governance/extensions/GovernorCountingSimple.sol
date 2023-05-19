@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (governance/extensions/GovernorCountingSimple.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../Governor.sol";
 
@@ -84,7 +84,9 @@ abstract contract GovernorCountingSimple is Governor {
     ) internal virtual override {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        require(!proposalVote.hasVoted[account], "GovernorVotingSimple: vote already cast");
+        if (proposalVote.hasVoted[account]) {
+            revert GovernorAlreadyCastVote();
+        }
         proposalVote.hasVoted[account] = true;
 
         if (support == uint8(VoteType.Against)) {

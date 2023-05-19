@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.5.0) (governance/utils/IVotes.sol)
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 /**
  * @dev Common interface for {ERC20Votes}, {ERC721Votes}, and other {Votes}-enabled contracts.
@@ -8,6 +8,21 @@ pragma solidity ^0.8.0;
  * _Available since v4.5._
  */
 interface IVotes {
+    /**
+     * @dev Lookup to future votes is not available.
+     */
+    error VotesFutureLookup(uint256 timepoint, uint48 clock);
+
+    /**
+     * @dev The signature used has expired.
+     */
+    error VotesExpiredSignature(uint256 expiry);
+
+    /**
+     * @dev The signature's nonce differs from the address' current nonce.
+     */
+    error VotesInvalidNonce(uint256 currentNonce);
+
     /**
      * @dev Emitted when an account changes their delegate.
      */

@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (utils/math/Math.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 /**
  * @dev Standard math utilities missing in the Solidity language.
  */
 library Math {
+    /**
+     * @dev Muldiv operation overflow.
+     */
+    error MathOverflownMulDiv();
+
     enum Rounding {
         Down, // Toward negative infinity
         Up, // Toward infinity

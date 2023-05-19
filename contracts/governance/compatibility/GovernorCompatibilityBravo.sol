@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.3) (governance/compatibility/GovernorCompatibilityBravo.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../../utils/math/SafeCast.sol";
 import "../extensions/IGovernorTimelock.sol";
@@ -69,7 +69,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
-        require(signatures.length == calldatas.length, "GovernorBravo: invalid signatures length");
+        if (signatures.length != calldatas.length) {
+            revert GovernorInvalidSignaturesLength(signatures.length, calldatas.length);
+        }
         // Stores the full proposal and fallback to the public (possibly overridden) propose. The fallback is done
         // after the full proposal is stored, so the store operation included in the fallback will be skipped. Here we
         // call `propose` and not `super.propose` to make sure if a child contract override `propose`, whatever code
@@ -312,7 +314,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         ProposalDetails storage details = _proposalDetails[proposalId];
         Receipt storage receipt = details.receipts[account];
 
-        require(!receipt.hasVoted, "GovernorCompatibilityBravo: vote already cast");
+        if (receipt.hasVoted) {
+            revert GovernorAlreadyCastVote();
+        }
         receipt.hasVoted = true;
         receipt.support = support;
         receipt.votes = SafeCast.toUint96(weight);

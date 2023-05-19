@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.9.0 (access/IAccessControlDefaultAdminRules.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "./IAccessControl.sol";
 
@@ -11,6 +11,39 @@ import "./IAccessControl.sol";
  * _Available since v4.9._
  */
 interface IAccessControlDefaultAdminRules is IAccessControl {
+    /**
+     * @dev The new default admin is not a valid default admin.
+     */
+    error AccessControlInvalidDefaultAdmin(address defaultAdmin);
+
+    /**
+     * @dev Role can't be granted.
+     */
+    error AccessControlForbiddenGrant(bytes32 role);
+
+    /**
+     * @dev Role can't be revoked.
+     */
+    error AccessControlForbiddenRevoke(bytes32 role);
+
+    /**
+     * @dev The `DEFAULT_ADMIN_ROLE` should be only held by one account.
+     */
+    error AccessControlEnforcedDefaultAdminUniqueness();
+
+    /**
+     * @dev The `DEFAULT_ADMIN_ROLE` can only be managed by itself.
+     */
+    error AccessControlEnforcedDefaultAdminManagement();
+
+    /**
+     * @dev The delay for transferring the default admin delay is enforced and
+     * the operation must wait until `schedule`.
+     *
+     * NOTE: `schedule` can be 0 indicating there's no transfer scheduled.
+     */
+    error AccessControlEnforcedDefaultAdminDelay(uint48 schedule);
+
     /**
      * @dev Emitted when a {defaultAdmin} transfer is started, setting `newAdmin` as the next
      * address to become the {defaultAdmin} by calling {acceptDefaultAdminTransfer} only after `acceptSchedule`

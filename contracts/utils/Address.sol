@@ -1,12 +1,27 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (utils/Address.sol)
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.18;
 
 /**
  * @dev Collection of functions related to the address type
  */
 library Address {
+    /**
+     * @dev The ETH balance of the account is not enough to perform the operation.
+     */
+    error ETHInsufficientBalance(address account);
+
+    /**
+     * @dev A call to `target` failed. The `target` may have reverted.
+     */
+    error FailedCall(address target);
+
+    /**
+     * @dev There's no code at `target` (is not a contract).
+     */
+    error EmptyCode(address target);
+
     /**
      * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
      * `recipient`, forwarding all available gas and reverting on errors.
@@ -24,10 +39,14 @@ library Address {
      * https://solidity.readthedocs.io/en/v0.8.0/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: insufficient balance");
+        if (address(this).balance < amount) {
+            revert ETHInsufficientBalance(address(this));
+        }
 
         (bool success, ) = recipient.call{value: amount}("");
-        require(success, "Address: unable to send value, recipient may have reverted");
+        if (!success) {
+            revert FailedCall(recipient);
+        }
     }
 
     /**
@@ -164,7 +183,9 @@ library Address {
             if (returndata.length == 0) {
                 // only check if target is a contract if the call was successful and the return data is empty
                 // otherwise we already know that it was a contract
-                require(target.code.length > 0, "Address: call to non-contract");
+                if (target.code.length == 0) {
+                    revert EmptyCode(target);
+                }
             }
             return returndata;
         } else {

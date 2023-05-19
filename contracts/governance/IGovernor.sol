@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (governance/IGovernor.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../interfaces/IERC165.sol";
 import "../interfaces/IERC6372.sol";
@@ -22,6 +22,46 @@ abstract contract IGovernor is IERC165, IERC6372 {
         Expired,
         Executed
     }
+
+    /**
+     * @dev Empty proposal or a mismatch between the parameters length for a proposal call.
+     */
+    error GovernorInvalidProposalLength(uint256 targets, uint256 calldatas, uint256 values);
+
+    /**
+     * @dev The vote was already cast.
+     */
+    error GovernorAlreadyCastVote();
+
+    /**
+     * @dev Can only be executed via a governance process.
+     */
+    error GovernorOnlyGovernance();
+
+    /**
+     * @dev The `account` is not an executor.
+     */
+    error GovernorOnlyExecutor(address account);
+
+    /**
+     * @dev The `account` is not a proposer.
+     */
+    error GovernorOnlyProposer(address account);
+
+    /**
+     * @dev The `proposalId` is duplicated.
+     */
+    error GovernorDuplicatedProposal(uint256 proposalId);
+
+    /**
+     * @dev The current state of a proposal is not the required for performing an operation.
+     */
+    error GovernorIncorrectState(uint256 proposalId, ProposalState current, ProposalState required);
+
+    /**
+     * @dev The voting period set is not a valid period.
+     */
+    error GovernorInvalidVotingPeriod(uint256 votingPeriod);
 
     /**
      * @dev Emitted when a proposal is created.

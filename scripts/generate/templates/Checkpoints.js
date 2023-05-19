@@ -30,6 +30,11 @@ struct ${opts.checkpointTypeName} {
 }
 
 /**
+ * @dev A value was attempted to be inserted on a past checkpoint. 
+ */
+error ${opts.checkpointTypeName}PastInsert();
+
+/**
  * @dev Pushes a (\`key\`, \`value\`) pair into a ${opts.historyTypeName} so that it is stored as the checkpoint.
  *
  * Returns previous value and new value.
@@ -145,7 +150,9 @@ function _insert(
         ${opts.checkpointTypeName} memory last = _unsafeAccess(self, pos - 1);
 
         // Checkpoint keys must be non-decreasing.
-        require(last.${opts.keyFieldName} <= key, "Checkpoint: decreasing keys");
+        if(last.${opts.keyFieldName} > key) {
+            revert ${opts.checkpointTypeName}PastInsert();
+        }
 
         // Update or push new checkpoint
         if (last.${opts.keyFieldName} == key) {

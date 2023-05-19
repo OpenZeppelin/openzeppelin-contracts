@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.0) (metatx/MinimalForwarder.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../utils/cryptography/ECDSA.sol";
 import "../utils/cryptography/EIP712.sol";
@@ -31,6 +31,11 @@ contract MinimalForwarder is EIP712 {
 
     mapping(address => uint256) private _nonces;
 
+    /**
+     * @dev Signature does not match `ForwardRequest` provided.
+     */
+    error MinimalForwarderInvalidSignature(address from, uint256 nonce);
+
     constructor() EIP712("MinimalForwarder", "0.0.1") {}
 
     function getNonce(address from) public view returns (uint256) {
@@ -38,17 +43,19 @@ contract MinimalForwarder is EIP712 {
     }
 
     function verify(ForwardRequest calldata req, bytes calldata signature) public view returns (bool) {
-        address signer = _hashTypedDataV4(
-            keccak256(abi.encode(_TYPEHASH, req.from, req.to, req.value, req.gas, req.nonce, keccak256(req.data)))
-        ).recover(signature);
-        return _nonces[req.from] == req.nonce && signer == req.from;
+        (bool correctNonce, bool correctSigner) = _verify(req, signature);
+        return correctNonce && correctSigner;
     }
 
     function execute(
         ForwardRequest calldata req,
         bytes calldata signature
     ) public payable returns (bool, bytes memory) {
-        require(verify(req, signature), "MinimalForwarder: signature does not match request");
+        (bool correctNonce, bool correctSigner) = _verify(req, signature);
+        if (!correctNonce || !correctSigner) {
+            revert MinimalForwarderInvalidSignature(req.from, req.nonce);
+        }
+
         _nonces[req.from] = req.nonce + 1;
 
         (bool success, bytes memory returndata) = req.to.call{gas: req.gas, value: req.value}(
@@ -68,5 +75,12 @@ contract MinimalForwarder is EIP712 {
         }
 
         return (success, returndata);
+    }
+
+    function _verify(ForwardRequest calldata req, bytes calldata signature) internal view returns (bool, bool) {
+        address signer = _hashTypedDataV4(
+            keccak256(abi.encode(_TYPEHASH, req.from, req.to, req.value, req.gas, req.nonce, keccak256(req.data)))
+        ).recover(signature);
+        return (_nonces[req.from] == req.nonce, signer == req.from);
     }
 }
