@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.3) (proxy/transparent/TransparentUpgradeableProxy.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "../ERC1967/ERC1967Proxy.sol";
 
@@ -53,6 +53,16 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  */
 contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
+     * @dev The proxy caller is the current admin, and can't fallback to the proxy target.
+     */
+    error TransparentUpgradeableProxyDisabledFallback(address admin);
+
+    /**
+     * @dev msg.value is not 0.
+     */
+    error TransparentUpgradeableProxyNonPayableFunction(uint256 msgValue);
+
+    /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
      */
@@ -74,7 +84,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
             } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
                 ret = _dispatchChangeAdmin();
             } else {
-                revert("TransparentUpgradeableProxy: admin cannot fallback to proxy target");
+                revert TransparentUpgradeableProxyDisabledFallback(msg.sender);
             }
             assembly {
                 return(add(ret, 0x20), mload(ret))
@@ -127,6 +137,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * non-payability of function implemented through dispatchers while still allowing value to pass through.
      */
     function _requireZeroValue() private {
-        require(msg.value == 0);
+        if (msg.value != 0) {
+            revert TransparentUpgradeableProxyNonPayableFunction(msg.value);
+        }
     }
 }
