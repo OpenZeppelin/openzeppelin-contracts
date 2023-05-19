@@ -18,7 +18,7 @@ contract('Checkpoints', function () {
 
   for (const length of VALUE_SIZES) {
     describe(`Trace${length}`, function () {
-      before(async function () {
+      beforeEach(async function () {
         this.methods = {
           latest: (...args) => this.mock.methods[`$latest_${libraryName}_Trace${length}(uint256)`](0, ...args),
           latestCheckpoint: (...args) =>
