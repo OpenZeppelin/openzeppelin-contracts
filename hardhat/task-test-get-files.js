@@ -21,5 +21,5 @@ internalTask(TASK_TEST_GET_TEST_FILES).setAction(async (args, hre, runSuper) => 
     'proxy/utils/UUPSUpgradeable.test.js',
   ].map(p => path.join(hre.config.paths.tests, p));
 
-  return await runSuper(args).then(files => files.filter(file => hasProxies || !ignoredIfProxy.includes(file)));
+  return (await runSuper(args)).filter(file => hasProxies || !ignoredIfProxy.includes(file));
 });
