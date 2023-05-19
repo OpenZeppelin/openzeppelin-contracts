@@ -154,17 +154,6 @@ function shouldBehaveLikeMap(keys, values, zeroValue, methods, events) {
       });
     });
 
-    describe('get with message', function () {
-      it('existing value', async function () {
-        expect(await methods.getWithMessage(this.map, keyA, 'custom error string').then(r => r.toString())).to.be.equal(
-          valueA.toString(),
-        );
-      });
-      it('missing value', async function () {
-        await expectRevert(methods.getWithMessage(this.map, keyB, 'custom error string'), 'custom error string');
-      });
-    });
-
     describe('tryGet', function () {
       it('existing value', async function () {
         const result = await methods.tryGet(this.map, keyA);

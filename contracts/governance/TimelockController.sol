@@ -88,13 +88,13 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
 
         // register proposers and cancellers
         for (uint256 i = 0; i < proposers.length; ++i) {
-            _setupRole(PROPOSER_ROLE, proposers[i]);
-            _setupRole(CANCELLER_ROLE, proposers[i]);
+            _grantRole(PROPOSER_ROLE, proposers[i]);
+            _grantRole(CANCELLER_ROLE, proposers[i]);
         }
 
         // register executors
         for (uint256 i = 0; i < executors.length; ++i) {
-            _setupRole(EXECUTOR_ROLE, executors[i]);
+            _grantRole(EXECUTOR_ROLE, executors[i]);
         }
 
         _minDelay = minDelay;

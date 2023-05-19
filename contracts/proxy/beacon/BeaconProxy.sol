@@ -32,30 +32,9 @@ contract BeaconProxy is Proxy, ERC1967Upgrade {
     }
 
     /**
-     * @dev Returns the current beacon address.
-     */
-    function _beacon() internal view virtual returns (address) {
-        return _getBeacon();
-    }
-
-    /**
      * @dev Returns the current implementation address of the associated beacon.
      */
     function _implementation() internal view virtual override returns (address) {
         return IBeacon(_getBeacon()).implementation();
-    }
-
-    /**
-     * @dev Changes the proxy to use a new beacon. Deprecated: see {_upgradeBeaconToAndCall}.
-     *
-     * If `data` is nonempty, it's used as data in a delegate call to the implementation returned by the beacon.
-     *
-     * Requirements:
-     *
-     * - `beacon` must be a contract.
-     * - The implementation returned by `beacon` must be a contract.
-     */
-    function _setBeacon(address beacon, bytes memory data) internal virtual {
-        _upgradeBeaconToAndCall(beacon, data, false);
     }
 }
