@@ -31,7 +31,7 @@ contract('Math', function () {
   });
 
   describe('with flag', function () {
-    describe('add', function () {
+    describe('tryAdd', function () {
       it('adds correctly', async function () {
         const a = new BN('5678');
         const b = new BN('1234');
@@ -47,7 +47,7 @@ contract('Math', function () {
       });
     });
 
-    describe('sub', function () {
+    describe('trySub', function () {
       it('subtracts correctly', async function () {
         const a = new BN('5678');
         const b = new BN('1234');
@@ -63,7 +63,7 @@ contract('Math', function () {
       });
     });
 
-    describe('mul', function () {
+    describe('tryMul', function () {
       it('multiplies correctly', async function () {
         const a = new BN('1234');
         const b = new BN('5678');
@@ -86,7 +86,7 @@ contract('Math', function () {
       });
     });
 
-    describe('div', function () {
+    describe('tryDiv', function () {
       it('divides correctly', async function () {
         const a = new BN('5678');
         const b = new BN('5678');
@@ -116,7 +116,7 @@ contract('Math', function () {
       });
     });
 
-    describe('mod', function () {
+    describe('tryMod', function () {
       describe('modulos correctly', async function () {
         it('when the dividend is smaller than the divisor', async function () {
           const a = new BN('284');
