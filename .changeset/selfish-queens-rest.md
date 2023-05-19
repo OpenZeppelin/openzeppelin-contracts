@@ -2,4 +2,4 @@
 'openzeppelin-solidity': major
 ---
 
-Remove Escrow constracts (Escrow, ConditionalEscrow, RefundEscrow and PullPayment).
+Remove PullPayment and Escrow contracts (Escrow, ConditionalEscrow, RefundEscrow).
