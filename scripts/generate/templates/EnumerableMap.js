@@ -154,22 +154,6 @@ function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns
 }
 
 /**
- * @dev Same as {get}, with a custom error message when \`key\` is not in the map.
- *
- * CAUTION: This function is deprecated because it requires allocating memory for the error
- * message unnecessarily. For custom revert reasons use {tryGet}.
- */
-function get(
-    Bytes32ToBytes32Map storage map,
-    bytes32 key,
-    string memory errorMessage
-) internal view returns (bytes32) {
-    bytes32 value = map._values[key];
-    require(value != 0 || contains(map, key), errorMessage);
-    return value;
-}
-
-/**
  * @dev Return the an array containing all the keys
  *
  * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
@@ -259,20 +243,6 @@ function tryGet(${name} storage map, ${keyType} key) internal view returns (bool
  */
 function get(${name} storage map, ${keyType} key) internal view returns (${valueType}) {
     return ${fromBytes32(valueType, `get(map._inner, ${toBytes32(keyType, 'key')})`)};
-}
-
-/**
- * @dev Same as {get}, with a custom error message when \`key\` is not in the map.
- *
- * CAUTION: This function is deprecated because it requires allocating memory for the error
- * message unnecessarily. For custom revert reasons use {tryGet}.
- */
-function get(
-    ${name} storage map,
-    ${keyType} key,
-    string memory errorMessage
-) internal view returns (${valueType}) {
-    return ${fromBytes32(valueType, `get(map._inner, ${toBytes32(keyType, 'key')}, errorMessage)`)};
 }
 
 /**

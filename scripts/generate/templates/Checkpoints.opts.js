@@ -12,11 +12,6 @@ const defaultOpts = size => ({
 });
 
 module.exports = {
+  VALUE_SIZES,
   OPTS: VALUE_SIZES.map(size => defaultOpts(size)),
-  LEGACY_OPTS: {
-    ...defaultOpts(224),
-    historyTypeName: 'History',
-    checkpointTypeName: 'Checkpoint',
-    keyFieldName: '_blockNumber',
-  },
 };

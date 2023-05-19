@@ -61,20 +61,6 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev Modifier used internally that will delegate the call to the implementation unless the sender is the admin.
-     *
-     * CAUTION: This modifier is deprecated, as it could cause issues if the modified function has arguments, and the
-     * implementation provides a function with the same selector.
-     */
-    modifier ifAdmin() {
-        if (msg.sender == _getAdmin()) {
-            _;
-        } else {
-            _fallback();
-        }
-    }
-
-    /**
      * @dev If caller is the admin process the call internally, otherwise transparently fallback to the proxy behavior
      */
     function _fallback() internal virtual override {
@@ -137,17 +123,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev Returns the current admin.
-     *
-     * CAUTION: This function is deprecated. Use {ERC1967Upgrade-_getAdmin} instead.
-     */
-    function _admin() internal view virtual returns (address) {
-        return _getAdmin();
-    }
-
-    /**
-     * @dev To keep this contract fully transparent, all `ifAdmin` functions must be payable. This helper is here to
-     * emulate some proxy functions being non-payable while still allowing value to pass through.
+     * @dev To keep this contract fully transparent, the fallback is payable. This helper is here to enforce
+     * non-payability of function implemented through dispatchers while still allowing value to pass through.
      */
     function _requireZeroValue() private {
         require(msg.value == 0);
