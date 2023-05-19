@@ -1,6 +1,6 @@
 const format = require('../format-lines');
 const { capitalize } = require('../../helpers');
-const { OPTS, LEGACY_OPTS } = require('./Checkpoints.opts.js');
+const { OPTS } = require('./Checkpoints.opts.js');
 
 // TEMPLATE
 const header = `\
@@ -12,7 +12,7 @@ import "../../contracts/utils/math/SafeCast.sol";
 `;
 
 /* eslint-disable max-len */
-const common = opts => `\
+const template = opts => `\
 using Checkpoints for Checkpoints.${opts.historyTypeName};
 
 // Maximum gap between keys used during the fuzzing tests: the \`_prepareKeys\` function with make sure that
@@ -52,9 +52,7 @@ function _assertLatestCheckpoint(
     assertEq(_key, key);
     assertEq(_value, value);
 }
-`;
 
-const testTrace = opts => `\
 // tests
 function testPush(
     ${opts.keyTypeName}[] memory keys,
@@ -88,7 +86,7 @@ function testPush(
         ${opts.keyTypeName} lastKey = keys[keys.length - 1];
         if (lastKey > 0) {
             pastKey = _bound${capitalize(opts.keyTypeName)}(pastKey, 0, lastKey - 1);
-    
+
             vm.expectRevert();
             this.push(pastKey, values[keys.length % values.length]);
         }
@@ -141,116 +139,8 @@ function testLookup(
 }
 `;
 
-const testHistory = opts => `\
-// tests
-function testPush(
-    ${opts.keyTypeName}[] memory keys,
-    ${opts.valueTypeName}[] memory values,
-    ${opts.keyTypeName} pastKey
-) public {
-    vm.assume(values.length > 0 && values.length <= keys.length);
-    _prepareKeys(keys, _KEY_MAX_GAP);
-
-    // initial state
-    assertEq(_ckpts.length(), 0);
-    assertEq(_ckpts.latest(), 0);
-    _assertLatestCheckpoint(false, 0, 0);
-
-    uint256 duplicates = 0;
-    for (uint256 i = 0; i < keys.length; ++i) {
-        ${opts.keyTypeName} key = keys[i];
-        ${opts.valueTypeName} value = values[i % values.length];
-        if (i > 0 && key == keys[i - 1]) ++duplicates;
-
-        // push
-        vm.roll(key);
-        _ckpts.push(value);
-
-        // check length & latest
-        assertEq(_ckpts.length(), i + 1 - duplicates);
-        assertEq(_ckpts.latest(), value);
-        _assertLatestCheckpoint(true, key, value);
-    }
-
-    // Can't push any key in the past
-    if (keys.length > 0) {
-        ${opts.keyTypeName} lastKey = keys[keys.length - 1];
-        if (lastKey > 0) {
-            pastKey = _bound${capitalize(opts.keyTypeName)}(pastKey, 0, lastKey - 1);
-    
-            vm.roll(pastKey);
-            vm.expectRevert();
-            this.push(values[keys.length % values.length]);
-        }
-    }
-}
-
-// used to test reverts
-function push(${opts.valueTypeName} value) external {
-  _ckpts.push(value);
-}
-
-function testLookup(
-    ${opts.keyTypeName}[] memory keys,
-    ${opts.valueTypeName}[] memory values,
-    ${opts.keyTypeName} lookup
-) public {
-    vm.assume(keys.length > 0);
-    vm.assume(values.length > 0 && values.length <= keys.length);
-    _prepareKeys(keys, _KEY_MAX_GAP);
-
-    ${opts.keyTypeName} lastKey = keys[keys.length - 1];
-    vm.assume(lastKey > 0);
-    lookup = _bound${capitalize(opts.keyTypeName)}(lookup, 0, lastKey - 1);
-
-    ${opts.valueTypeName} upper = 0;
-    for (uint256 i = 0; i < keys.length; ++i) {
-        ${opts.keyTypeName} key = keys[i];
-        ${opts.valueTypeName} value = values[i % values.length];
-
-        // push
-        vm.roll(key);
-        _ckpts.push(value);
-
-        // track expected result of lookups
-        if (key <= lookup) {
-            upper = value;
-        }
-    }
-
-    // check lookup
-    assertEq(_ckpts.getAtBlock(lookup), upper);
-    assertEq(_ckpts.getAtProbablyRecentBlock(lookup), upper);
-
-    vm.expectRevert(); this.getAtBlock(lastKey);
-    vm.expectRevert(); this.getAtBlock(lastKey + 1);
-    vm.expectRevert(); this.getAtProbablyRecentBlock(lastKey);
-    vm.expectRevert(); this.getAtProbablyRecentBlock(lastKey + 1);
-}
-
-// used to test reverts
-function getAtBlock(${opts.keyTypeName} key) external view {
-  _ckpts.getAtBlock(key);
-}
-
-// used to test reverts
-function getAtProbablyRecentBlock(${opts.keyTypeName} key) external view {
-  _ckpts.getAtProbablyRecentBlock(key);
-}
-`;
-/* eslint-enable max-len */
-
 // GENERATE
 module.exports = format(
   header,
-  // HISTORY
-  `contract Checkpoints${LEGACY_OPTS.historyTypeName}Test is Test {`,
-  [common(LEGACY_OPTS), testHistory(LEGACY_OPTS)],
-  '}',
-  // TRACEXXX
-  ...OPTS.flatMap(opts => [
-    `contract Checkpoints${opts.historyTypeName}Test is Test {`,
-    [common(opts), testTrace(opts)],
-    '}',
-  ]),
+  ...OPTS.flatMap(opts => [`contract Checkpoints${opts.historyTypeName}Test is Test {`, [template(opts)], '}']),
 );

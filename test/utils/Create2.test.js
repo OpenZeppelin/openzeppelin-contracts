@@ -4,7 +4,10 @@ const { expect } = require('chai');
 
 const Create2 = artifacts.require('$Create2');
 const VestingWallet = artifacts.require('VestingWallet');
-const ERC1820Implementer = artifacts.require('$ERC1820Implementer');
+// This should be a contract that:
+// - has no constructor arguments
+// - has no immutable variable populated during construction
+const ConstructorLessContract = Create2;
 
 contract('Create2', function (accounts) {
   const [deployerAccount, other] = accounts;
@@ -38,14 +41,14 @@ contract('Create2', function (accounts) {
   });
 
   describe('deploy', function () {
-    it('deploys a ERC1820Implementer from inline assembly code', async function () {
-      const offChainComputed = computeCreate2Address(saltHex, ERC1820Implementer.bytecode, this.factory.address);
+    it('deploys a contract without constructor', async function () {
+      const offChainComputed = computeCreate2Address(saltHex, ConstructorLessContract.bytecode, this.factory.address);
 
-      expectEvent(await this.factory.$deploy(0, saltHex, ERC1820Implementer.bytecode), 'return$deploy', {
+      expectEvent(await this.factory.$deploy(0, saltHex, ConstructorLessContract.bytecode), 'return$deploy', {
         addr: offChainComputed,
       });
 
-      expect(ERC1820Implementer.bytecode).to.include((await web3.eth.getCode(offChainComputed)).slice(2));
+      expect(ConstructorLessContract.bytecode).to.include((await web3.eth.getCode(offChainComputed)).slice(2));
     });
 
     it('deploys a contract with constructor arguments', async function () {

@@ -182,17 +182,6 @@ contract('SafeERC20', function (accounts) {
         await this.token.$_approve(this.mock.address, spender, 100);
       });
 
-      it('safeApprove fails to update approval to non-zero', async function () {
-        await expectRevert(
-          this.mock.$safeApprove(this.token.address, spender, 200),
-          'SafeERC20: approve from non-zero to non-zero allowance',
-        );
-      });
-
-      it('safeApprove can update approval to zero', async function () {
-        await this.mock.$safeApprove(this.token.address, spender, 0);
-      });
-
       it('safeApprove can increase approval', async function () {
         await expectRevert(this.mock.$safeIncreaseAllowance(this.token.address, spender, 10), 'USDT approval failure');
       });
@@ -215,10 +204,6 @@ function shouldRevertOnAllCalls([receiver, spender], reason) {
 
   it('reverts on transferFrom', async function () {
     await expectRevert(this.mock.$safeTransferFrom(this.token.address, this.mock.address, receiver, 0), reason);
-  });
-
-  it('reverts on approve', async function () {
-    await expectRevert(this.mock.$safeApprove(this.token.address, spender, 0), reason);
   });
 
   it('reverts on increaseAllowance', async function () {
@@ -269,16 +254,6 @@ function shouldOnlyRevertOnErrors([owner, receiver, spender]) {
         await this.token.$_approve(this.mock.address, spender, 0);
       });
 
-      it("doesn't revert when approving a non-zero allowance", async function () {
-        await this.mock.$safeApprove(this.token.address, spender, 100);
-        expect(await this.token.allowance(this.mock.address, spender)).to.be.bignumber.equal('100');
-      });
-
-      it("doesn't revert when approving a zero allowance", async function () {
-        await this.mock.$safeApprove(this.token.address, spender, 0);
-        expect(await this.token.allowance(this.mock.address, spender)).to.be.bignumber.equal('0');
-      });
-
       it("doesn't revert when force approving a non-zero allowance", async function () {
         await this.mock.$forceApprove(this.token.address, spender, 100);
         expect(await this.token.allowance(this.mock.address, spender)).to.be.bignumber.equal('100');
@@ -305,18 +280,6 @@ function shouldOnlyRevertOnErrors([owner, receiver, spender]) {
     context('with non-zero allowance', function () {
       beforeEach(async function () {
         await this.token.$_approve(this.mock.address, spender, 100);
-      });
-
-      it('reverts when approving a non-zero allowance', async function () {
-        await expectRevert(
-          this.mock.$safeApprove(this.token.address, spender, 20),
-          'SafeERC20: approve from non-zero to non-zero allowance',
-        );
-      });
-
-      it("doesn't revert when approving a zero allowance", async function () {
-        await this.mock.$safeApprove(this.token.address, spender, 0);
-        expect(await this.token.allowance(this.mock.address, spender)).to.be.bignumber.equal('0');
       });
 
       it("doesn't revert when force approving a non-zero allowance", async function () {

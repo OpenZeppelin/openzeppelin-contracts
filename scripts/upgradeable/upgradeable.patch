@@ -159,19 +159,6 @@ index 55e70b17..ceefb984 100644
    },
    "keywords": [
      "solidity",
-diff --git a/contracts/security/PullPayment.sol b/contracts/security/PullPayment.sol
-index 65b4980f..f336592e 100644
---- a/contracts/security/PullPayment.sol
-+++ b/contracts/security/PullPayment.sol
-@@ -22,6 +22,8 @@ import "../utils/escrow/Escrow.sol";
-  * To use, derive from the `PullPayment` contract, and use {_asyncTransfer}
-  * instead of Solidity's `transfer` function. Payees can query their due
-  * payments with {payments}, and retrieve them with {withdrawPayments}.
-+ *
-+ * @custom:storage-size 51
-  */
- abstract contract PullPayment {
-     Escrow private immutable _escrow;
 diff --git a/contracts/token/ERC20/extensions/ERC20Capped.sol b/contracts/token/ERC20/extensions/ERC20Capped.sol
 index 16f830d1..9ef98148 100644
 --- a/contracts/token/ERC20/extensions/ERC20Capped.sol
