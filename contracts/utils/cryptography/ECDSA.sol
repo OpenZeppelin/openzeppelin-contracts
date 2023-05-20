@@ -34,15 +34,15 @@ library ECDSA {
      */
     error ECDSAInvalidSignatureS(bytes32 s);
 
-    function _throwError(RecoverError error, bytes32 parameter) private pure {
+    function _throwError(RecoverError error, bytes32 errorArg) private pure {
         if (error == RecoverError.NoError) {
             return; // no error: do nothing
         } else if (error == RecoverError.InvalidSignature) {
-            revert ECDSAInvalidSignature(address(bytes20(parameter)));
+            revert ECDSAInvalidSignature(address(bytes20(errorArg)));
         } else if (error == RecoverError.InvalidSignatureLength) {
-            revert ECDSAInvalidSignatureLength(uint256(parameter));
+            revert ECDSAInvalidSignatureLength(uint256(errorArg));
         } else if (error == RecoverError.InvalidSignatureS) {
-            revert ECDSAInvalidSignatureS(parameter);
+            revert ECDSAInvalidSignatureS(errorArg);
         }
     }
 
@@ -100,8 +100,8 @@ library ECDSA {
      * be too long), and then calling {toEthSignedMessageHash} on it.
      */
     function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
-        (address recovered, RecoverError error, bytes32 parameter) = tryRecover(hash, signature);
-        _throwError(error, parameter);
+        (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, signature);
+        _throwError(error, errorArg);
         return recovered;
     }
 
@@ -124,8 +124,8 @@ library ECDSA {
      * _Available since v4.2._
      */
     function recover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address) {
-        (address recovered, RecoverError error, bytes32 parameter) = tryRecover(hash, r, vs);
-        _throwError(error, parameter);
+        (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, r, vs);
+        _throwError(error, errorArg);
         return recovered;
     }
 
@@ -168,8 +168,8 @@ library ECDSA {
      * `r` and `s` signature fields separately.
      */
     function recover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
-        (address recovered, RecoverError error, bytes32 parameter) = tryRecover(hash, v, r, s);
-        _throwError(error, parameter);
+        (address recovered, RecoverError error, bytes32 errorArg) = tryRecover(hash, v, r, s);
+        _throwError(error, errorArg);
         return recovered;
     }
 

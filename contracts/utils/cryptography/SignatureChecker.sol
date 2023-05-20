@@ -22,7 +22,7 @@ library SignatureChecker {
      * change through time. It could return true at block N and false at block N+1 (or the opposite).
      */
     function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
-        (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(hash, signature);
+        (address recovered, ECDSA.RecoverError error, ) = ECDSA.tryRecover(hash, signature);
         return
             (error == ECDSA.RecoverError.NoError && recovered == signer) ||
             isValidERC1271SignatureNow(signer, hash, signature);
