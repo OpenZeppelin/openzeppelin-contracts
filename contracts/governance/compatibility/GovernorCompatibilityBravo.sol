@@ -321,7 +321,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         Receipt storage receipt = details.receipts[account];
 
         if (receipt.hasVoted) {
-            revert GovernorAlreadyCastVote();
+            revert GovernorAlreadyCastVote(account);
         }
         receipt.hasVoted = true;
         receipt.support = support;

@@ -31,7 +31,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
     /**
      * @dev The vote was already cast.
      */
-    error GovernorAlreadyCastVote();
+    error GovernorAlreadyCastVote(address voter);
 
     /**
      * @dev Can only be executed via a governance process.

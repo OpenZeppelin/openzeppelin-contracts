@@ -675,7 +675,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      *             ^- Pending
      */
     function _encodeState(ProposalState proposalState) internal pure returns (bytes32) {
-        return bytes32(1 << uint32(proposalState));
+        return bytes32(1 << uint8(proposalState));
     }
 
     /**

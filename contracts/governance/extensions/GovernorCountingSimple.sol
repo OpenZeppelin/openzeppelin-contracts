@@ -90,7 +90,7 @@ abstract contract GovernorCountingSimple is Governor {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
         if (proposalVote.hasVoted[account]) {
-            revert GovernorAlreadyCastVote();
+            revert GovernorAlreadyCastVote(account);
         }
         proposalVote.hasVoted[account] = true;
 
