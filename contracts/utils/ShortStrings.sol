@@ -4,13 +4,18 @@ pragma solidity ^0.8.8;
 
 import "./StorageSlot.sol";
 
+// | string  | 0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA   |
+// | length  | 0x                                                              BB |
 type ShortString is bytes32;
 
 /**
  * @dev This library provides functions to convert short memory strings
  * into a `ShortString` type that can be used as an immutable variable.
- * Strings of arbitrary length can be optimized if they are short enough by
- * the addition of a storage variable used as fallback.
+ *
+ * Strings of arbitrary length can be optimized using this library if
+ * they are short enough (up to 31 bytes) by packing them with their
+ * length (1 byte) in a single EVM word (32 bytes). Additionally, a
+ * fallback mechanism can be used for every other case.
  *
  * Usage example:
  *
@@ -32,6 +37,7 @@ type ShortString is bytes32;
  * ```
  */
 library ShortStrings {
+    // Used as an identifier for strings longer than 31 bytes.
     bytes32 private constant _FALLBACK_SENTINEL = 0x00000000000000000000000000000000000000000000000000000000000000FF;
 
     error StringTooLong(string str);
