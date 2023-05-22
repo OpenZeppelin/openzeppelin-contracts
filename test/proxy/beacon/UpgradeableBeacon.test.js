@@ -9,7 +9,10 @@ contract('UpgradeableBeacon', function (accounts) {
   const [owner, other] = accounts;
 
   it('cannot be created with non-contract implementation', async function () {
-    await expectRevert(UpgradeableBeacon.new(accounts[0], owner), 'UpgradeableBeacon: implementation is not a contract');
+    await expectRevert(
+      UpgradeableBeacon.new(accounts[0], owner),
+      'UpgradeableBeacon: implementation is not a contract',
+    );
   });
 
   context('once deployed', async function () {
