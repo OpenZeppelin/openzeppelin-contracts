@@ -34,16 +34,11 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
 
     // solhint-disable var-name-mixedcase
     struct ProposalCore {
-        // --- start retyped from Timers.BlockNumber at offset 0x00 ---
-        uint64 voteStart;
         address proposer;
-        bytes4 __gap_unused0;
-        // --- start retyped from Timers.BlockNumber at offset 0x20 ---
-        uint64 voteEnd;
-        bytes24 __gap_unused1;
-        // --- Remaining fields starting at offset 0x40 ---------------
-        bool executed;
-        bool canceled;
+        uint48  voteStart;
+        uint32  voteDuration;
+        bool    executed;
+        bool    canceled;
     }
     // solhint-enable var-name-mixedcase
 
@@ -161,7 +156,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * @dev See {IGovernor-state}.
      */
     function state(uint256 proposalId) public view virtual override returns (ProposalState) {
-        ProposalCore storage proposal = _proposals[proposalId];
+        // ProposalCore is just one slot
+        ProposalCore memory proposal = _proposals[proposalId];
 
         if (proposal.executed) {
             return ProposalState.Executed;
@@ -207,14 +203,16 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * @dev See {IGovernor-proposalSnapshot}.
      */
     function proposalSnapshot(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].voteStart;
+        ProposalCore memory proposal = _proposals[proposalId];
+        return proposal.voteStart;
     }
 
     /**
      * @dev See {IGovernor-proposalDeadline}.
      */
     function proposalDeadline(uint256 proposalId) public view virtual override returns (uint256) {
-        return _proposals[proposalId].voteEnd;
+        ProposalCore memory proposal = _proposals[proposalId];
+        return proposal.voteStart + proposal.voteDuration;
     }
 
     /**
@@ -287,16 +285,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         require(_proposals[proposalId].voteStart == 0, "Governor: proposal already exists");
 
         uint256 snapshot = currentTimepoint + votingDelay();
-        uint256 deadline = snapshot + votingPeriod();
+        uint256 duration = votingPeriod();
 
         _proposals[proposalId] = ProposalCore({
             proposer: proposer,
-            voteStart: SafeCast.toUint64(snapshot),
-            voteEnd: SafeCast.toUint64(deadline),
+            voteStart: SafeCast.toUint48(snapshot),
+            voteDuration: SafeCast.toUint32(duration),
             executed: false,
-            canceled: false,
-            __gap_unused0: 0,
-            __gap_unused1: 0
+            canceled: false
         });
 
         emit ProposalCreated(
@@ -307,7 +303,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             new string[](targets.length),
             calldatas,
             snapshot,
-            deadline,
+            snapshot + duration,
             description
         );
 
@@ -568,10 +564,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         string memory reason,
         bytes memory params
     ) internal virtual returns (uint256) {
-        ProposalCore storage proposal = _proposals[proposalId];
         require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
 
-        uint256 weight = _getVotes(account, proposal.voteStart, params);
+        uint256 weight = _getVotes(account, proposalSnapshot(proposalId), params);
         _countVote(proposalId, account, support, weight, params);
 
         if (params.length == 0) {
