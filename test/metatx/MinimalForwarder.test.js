@@ -1,8 +1,9 @@
 const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 const { getDomain, domainType } = require('../helpers/eip712');
+const { expectRevertCustomError } = require('../helpers/customError');
 
-const { expectRevert, constants } = require('@openzeppelin/test-helpers');
+const { constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const MinimalForwarder = artifacts.require('MinimalForwarder');
@@ -111,41 +112,47 @@ contract('MinimalForwarder', function (accounts) {
 
       context('invalid signature', function () {
         it('tampered from', async function () {
-          await expectRevert(
+          await expectRevertCustomError(
             this.forwarder.execute({ ...this.req, from: accounts[0] }, this.sign()),
-            'MinimalForwarder: signature does not match request',
+            'MinimalForwarderInvalidSignature',
+            [accounts[0], this.req.nonce],
           );
         });
         it('tampered to', async function () {
-          await expectRevert(
+          await expectRevertCustomError(
             this.forwarder.execute({ ...this.req, to: accounts[0] }, this.sign()),
-            'MinimalForwarder: signature does not match request',
+            'MinimalForwarderInvalidSignature',
+            [this.req.from, this.req.nonce],
           );
         });
         it('tampered value', async function () {
-          await expectRevert(
+          await expectRevertCustomError(
             this.forwarder.execute({ ...this.req, value: web3.utils.toWei('1') }, this.sign()),
-            'MinimalForwarder: signature does not match request',
+            'MinimalForwarderInvalidSignature',
+            [this.req.from, this.req.nonce],
           );
         });
         it('tampered nonce', async function () {
-          await expectRevert(
+          await expectRevertCustomError(
             this.forwarder.execute({ ...this.req, nonce: this.req.nonce + 1 }, this.sign()),
-            'MinimalForwarder: signature does not match request',
+            'MinimalForwarderInvalidSignature',
+            [this.req.from, this.req.nonce + 1],
           );
         });
         it('tampered data', async function () {
-          await expectRevert(
+          await expectRevertCustomError(
             this.forwarder.execute({ ...this.req, data: '0x1742' }, this.sign()),
-            'MinimalForwarder: signature does not match request',
+            'MinimalForwarderInvalidSignature',
+            [this.req.from, this.req.nonce],
           );
         });
         it('tampered signature', async function () {
           const tamperedsign = web3.utils.hexToBytes(this.sign());
           tamperedsign[42] ^= 0xff;
-          await expectRevert(
+          await expectRevertCustomError(
             this.forwarder.execute(this.req, web3.utils.bytesToHex(tamperedsign)),
-            'MinimalForwarder: signature does not match request',
+            'MinimalForwarderInvalidSignature',
+            [this.req.from, this.req.nonce],
           );
         });
       });

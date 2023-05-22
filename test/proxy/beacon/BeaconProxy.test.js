@@ -1,6 +1,8 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
 const { getSlot, BeaconSlot } = require('../../helpers/erc1967');
 
+const { expectRevertCustomError } = require('../../helpers/customError');
+
 const { expect } = require('chai');
 
 const UpgradeableBeacon = artifacts.require('UpgradeableBeacon');
@@ -15,7 +17,7 @@ contract('BeaconProxy', function (accounts) {
 
   describe('bad beacon is not accepted', async function () {
     it('non-contract beacon', async function () {
-      await expectRevert(BeaconProxy.new(anotherAccount, '0x'), 'ERC1967: new beacon is not a contract');
+      await expectRevertCustomError(BeaconProxy.new(anotherAccount, '0x'), 'ERC1967InvalidBeacon', [anotherAccount]);
     });
 
     it('non-compliant beacon', async function () {
@@ -25,7 +27,10 @@ contract('BeaconProxy', function (accounts) {
 
     it('non-contract implementation', async function () {
       const beacon = await BadBeaconNotContract.new();
-      await expectRevert(BeaconProxy.new(beacon.address, '0x'), 'ERC1967: beacon implementation is not a contract');
+      const implementation = await beacon.implementation();
+      await expectRevertCustomError(BeaconProxy.new(beacon.address, '0x'), 'ERC1967InvalidImplementation', [
+        implementation,
+      ]);
     });
   });
 

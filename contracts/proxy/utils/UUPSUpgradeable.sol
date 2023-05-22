@@ -40,7 +40,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
             revert UUPSUnauthorizedCaller(address(this));
         }
         address implementation = _getImplementation();
-        if (implementation == __self) {
+        if (implementation != __self) {
             // Must be called through an active proxy
             revert ERC1967InvalidImplementation(implementation);
         }

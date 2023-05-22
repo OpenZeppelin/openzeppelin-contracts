@@ -22,7 +22,7 @@ async function expectRevertCustomError(promise, expectedErrorName, args) {
           expect.fail(`Couldn't parse "${error}" as a custom error`);
         }
         const [, errorName] = error.match(/(\w+)\(.*\)/);
-        const argMatches = [...error.matchAll(/(0x[0-9A-f]+|\d+)/g)];
+        const argMatches = [...error.replace(errorName, '').matchAll(/(0x[0-9A-f]+|\d+)/g)];
         expect(errorName).to.be.equal(
           expectedErrorName,
           `Unexpected custom error name (with found args: [${argMatches.map(([a]) => a)}])`,
