@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 /**
  * @dev ERC-1967: Proxy Storage Slots. This interface contains the events defined in the ERC.
  *
- * _Available since v4.9._
+ * _Available since v4.8.3._
  */
 interface IERC1967 {
     /**

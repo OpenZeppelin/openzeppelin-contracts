@@ -53,6 +53,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev Sets the initial values for {defaultAdminDelay} and {defaultAdmin} address.
      */
     constructor(uint48 initialDelay, address initialDefaultAdmin) {
+        require(initialDefaultAdmin != address(0), "AccessControl: 0 default admin");
         _currentDelay = initialDelay;
         _grantRole(DEFAULT_ADMIN_ROLE, initialDefaultAdmin);
     }
@@ -105,12 +106,13 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * non-administrated role.
      */
     function renounceRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
-        if (role == DEFAULT_ADMIN_ROLE) {
+        if (role == DEFAULT_ADMIN_ROLE && account == defaultAdmin()) {
             (address newDefaultAdmin, uint48 schedule) = pendingDefaultAdmin();
             require(
                 newDefaultAdmin == address(0) && _isScheduleSet(schedule) && _hasSchedulePassed(schedule),
                 "AccessControl: only can renounce in two delayed steps"
             );
+            delete _pendingDefaultAdminSchedule;
         }
         super.renounceRole(role, account);
     }
@@ -136,7 +138,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      * @dev See {AccessControl-_revokeRole}.
      */
     function _revokeRole(bytes32 role, address account) internal virtual override {
-        if (role == DEFAULT_ADMIN_ROLE) {
+        if (role == DEFAULT_ADMIN_ROLE && account == defaultAdmin()) {
             delete _currentDefaultAdmin;
         }
         super._revokeRole(role, account);

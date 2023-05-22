@@ -1,0 +1,481 @@
+diff --git a/.github/ISSUE_TEMPLATE/bug_report.md b/.github/ISSUE_TEMPLATE/bug_report.md
+deleted file mode 100644
+index 2797a088..00000000
+--- a/.github/ISSUE_TEMPLATE/bug_report.md
++++ /dev/null
+@@ -1,21 +0,0 @@
+----
+-name: Bug report
+-about: Report a bug in OpenZeppelin Contracts
+-
+----
+-
+-<!-- Briefly describe the issue you're experiencing. Tell us what you were trying to do and what happened instead. -->
+-
+-<!-- Remember, this is not a place to ask for help debugging code. For that, we welcome you in the OpenZeppelin Community Forum: https://forum.openzeppelin.com/. -->
+-
+-**💻 Environment**
+-
+-<!-- Tell us what version of OpenZeppelin Contracts you're using, and how you're using it: Truffle, Remix, etc. -->
+-
+-**📝 Details**
+-
+-<!-- Describe the problem you have been experiencing in more detail. Include as much information as you think is relevant. Keep in mind that transactions can fail for many reasons; context is key here. -->
+-
+-**🔢 Code to reproduce bug**
+-
+-<!-- We will be able to better help if you provide a minimal example that triggers the bug. -->
+diff --git a/.github/ISSUE_TEMPLATE/config.yml b/.github/ISSUE_TEMPLATE/config.yml
+index 4018cef2..d343a53d 100644
+--- a/.github/ISSUE_TEMPLATE/config.yml
++++ b/.github/ISSUE_TEMPLATE/config.yml
+@@ -1,4 +1,8 @@
++blank_issues_enabled: false
+ contact_links:
++  - name: Bug Reports & Feature Requests
++    url: https://github.com/OpenZeppelin/openzeppelin-contracts/issues/new/choose
++    about: Visit the OpenZeppelin Contracts repository
+   - name: Questions & Support Requests
+     url: https://forum.openzeppelin.com/c/support/contracts/18
+     about: Ask in the OpenZeppelin Forum
+diff --git a/.github/ISSUE_TEMPLATE/feature_request.md b/.github/ISSUE_TEMPLATE/feature_request.md
+deleted file mode 100644
+index ff596b0c..00000000
+--- a/.github/ISSUE_TEMPLATE/feature_request.md
++++ /dev/null
+@@ -1,14 +0,0 @@
+----
+-name: Feature request
+-about: Suggest an idea for OpenZeppelin Contracts
+-
+----
+-
+-**🧐 Motivation**
+-<!-- Is your feature request related to a specific problem? Is it just a crazy idea? Tell us about it! -->
+-
+-**📝 Details**
+-<!-- Please describe your feature request in detail. -->
+-
+-<!-- Make sure that you have reviewed the OpenZeppelin Contracts Contributor Guidelines. -->
+-<!-- https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/CONTRIBUTING.md -->
+diff --git a/README.md b/README.md
+index 9fc95518..53130e3c 100644
+--- a/README.md
++++ b/README.md
+@@ -16,17 +16,20 @@
+ 
+ :building_construction: **Want to scale your decentralized application?** Check out [OpenZeppelin Defender](https://openzeppelin.com/defender) — a secure platform for automating and monitoring your operations.
+ 
++> **Note**
++> You are looking at the upgradeable variant of OpenZeppelin Contracts. Be sure to review the documentation on [Using OpenZeppelin Contracts with Upgrades](https://docs.openzeppelin.com/contracts/4.x/upgradeable).
++
+ ## Overview
+ 
+ ### Installation
+ 
+ ```
+-$ npm install @openzeppelin/contracts
++$ npm install @openzeppelin/contracts-upgradeable
+ ```
+ 
+ OpenZeppelin Contracts features a [stable API](https://docs.openzeppelin.com/contracts/releases-stability#api-stability), which means that your contracts won't break unexpectedly when upgrading to a newer minor version.
+ 
+-An alternative to npm is to use the GitHub repository (`openzeppelin/openzeppelin-contracts`) to retrieve the contracts. When doing this, make sure to specify the tag for a release such as `v4.5.0`, instead of using the `master` branch.
++An alternative to npm is to use the GitHub repository (`openzeppelin/openzeppelin-contracts-upgradeable`) to retrieve the contracts. When doing this, make sure to specify the tag for a release such as `v4.5.0`, instead of using the `master` branch.
+ 
+ ### Usage
+ 
+@@ -35,10 +38,11 @@ Once installed, you can use the contracts in the library by importing them:
+ ```solidity
+ pragma solidity ^0.8.0;
+ 
+-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
++import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+ 
+-contract MyCollectible is ERC721 {
+-    constructor() ERC721("MyCollectible", "MCO") {
++contract MyCollectible is ERC721Upgradeable {
++    function initialize() initializer public {
++        __ERC721_init("MyCollectible", "MCO");
+     }
+ }
+ ```
+diff --git a/contracts/finance/VestingWallet.sol b/contracts/finance/VestingWallet.sol
+index fe67eb54..d26ea4e1 100644
+--- a/contracts/finance/VestingWallet.sol
++++ b/contracts/finance/VestingWallet.sol
+@@ -15,6 +15,8 @@ import "../utils/Context.sol";
+  * Any token transferred to this contract will follow the vesting schedule as if they were locked from the beginning.
+  * Consequently, if the vesting has already started, any amount of tokens sent to this contract will (at least partly)
+  * be immediately releasable.
++ *
++ * @custom:storage-size 52
+  */
+ contract VestingWallet is Context {
+     event EtherReleased(uint256 amount);
+diff --git a/contracts/governance/TimelockControllerWith46Migration.sol b/contracts/governance/TimelockControllerWith46Migration.sol
+new file mode 100644
+index 00000000..3315e7bd
+--- /dev/null
++++ b/contracts/governance/TimelockControllerWith46Migration.sol
+@@ -0,0 +1,39 @@
++// SPDX-License-Identifier: MIT
++// OpenZeppelin Contracts v4.6.0 (governance/TimelockControllerWith46Migration.sol)
++
++pragma solidity ^0.8.0;
++
++import "./TimelockController.sol";
++
++/**
++ * @dev Extension of the TimelockController that includes an additional
++ * function to migrate from OpenZeppelin Upgradeable Contracts <4.6 to >=4.6.
++ *
++ * This migration is necessary to setup administration rights over the new
++ * `CANCELLER_ROLE`.
++ *
++ * The migration is trustless and can be performed by anyone.
++ *
++ * _Available since v4.6._
++ */
++contract TimelockControllerWith46Migration is TimelockController {
++    constructor(
++        uint256 minDelay,
++        address[] memory proposers,
++        address[] memory executors,
++        address admin
++    ) TimelockController(minDelay, proposers, executors, admin) {}
++
++    /**
++     * @dev Migration function. Running it is necessary for upgradeable
++     * instances that were initially setup with code <4.6 and that upgraded
++     * to >=4.6.
++     */
++    function migrateTo46() public virtual {
++        require(
++            getRoleAdmin(PROPOSER_ROLE) == TIMELOCK_ADMIN_ROLE && getRoleAdmin(CANCELLER_ROLE) == DEFAULT_ADMIN_ROLE,
++            "TimelockController: already migrated"
++        );
++        _setRoleAdmin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE);
++    }
++}
+diff --git a/contracts/governance/extensions/GovernorVotes.sol b/contracts/governance/extensions/GovernorVotes.sol
+index 64431711..885f0e42 100644
+--- a/contracts/governance/extensions/GovernorVotes.sol
++++ b/contracts/governance/extensions/GovernorVotes.sol
+@@ -10,6 +10,8 @@ import "../../interfaces/IERC5805.sol";
+  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token, or since v4.5 an {ERC721Votes} token.
+  *
+  * _Available since v4.3._
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract GovernorVotes is Governor {
+     IERC5805 public immutable token;
+diff --git a/contracts/governance/extensions/GovernorVotesComp.sol b/contracts/governance/extensions/GovernorVotesComp.sol
+index 17250ad7..1d26b72e 100644
+--- a/contracts/governance/extensions/GovernorVotesComp.sol
++++ b/contracts/governance/extensions/GovernorVotesComp.sol
+@@ -10,6 +10,8 @@ import "../../token/ERC20/extensions/ERC20VotesComp.sol";
+  * @dev Extension of {Governor} for voting weight extraction from a Comp token.
+  *
+  * _Available since v4.3._
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract GovernorVotesComp is Governor {
+     ERC20VotesComp public immutable token;
+diff --git a/contracts/package.json b/contracts/package.json
+index 55e70b17..ceefb984 100644
+--- a/contracts/package.json
++++ b/contracts/package.json
+@@ -1,5 +1,5 @@
+ {
+-  "name": "@openzeppelin/contracts",
++  "name": "@openzeppelin/contracts-upgradeable",
+   "description": "Secure Smart Contract library for Solidity",
+   "version": "4.8.2",
+   "files": [
+@@ -13,7 +13,7 @@
+   },
+   "repository": {
+     "type": "git",
+-    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts.git"
++    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable.git"
+   },
+   "keywords": [
+     "solidity",
+diff --git a/contracts/security/PullPayment.sol b/contracts/security/PullPayment.sol
+index 65b4980f..f336592e 100644
+--- a/contracts/security/PullPayment.sol
++++ b/contracts/security/PullPayment.sol
+@@ -22,6 +22,8 @@ import "../utils/escrow/Escrow.sol";
+  * To use, derive from the `PullPayment` contract, and use {_asyncTransfer}
+  * instead of Solidity's `transfer` function. Payees can query their due
+  * payments with {payments}, and retrieve them with {withdrawPayments}.
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract PullPayment {
+     Escrow private immutable _escrow;
+diff --git a/contracts/token/ERC20/extensions/ERC20Capped.sol b/contracts/token/ERC20/extensions/ERC20Capped.sol
+index 16f830d1..9ef98148 100644
+--- a/contracts/token/ERC20/extensions/ERC20Capped.sol
++++ b/contracts/token/ERC20/extensions/ERC20Capped.sol
+@@ -7,6 +7,8 @@ import "../ERC20.sol";
+ 
+ /**
+  * @dev Extension of {ERC20} that adds a cap to the supply of tokens.
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract ERC20Capped is ERC20 {
+     uint256 private immutable _cap;
+diff --git a/contracts/token/ERC20/extensions/ERC20Permit.sol b/contracts/token/ERC20/extensions/ERC20Permit.sol
+index a357199b..9dc8e894 100644
+--- a/contracts/token/ERC20/extensions/ERC20Permit.sol
++++ b/contracts/token/ERC20/extensions/ERC20Permit.sol
+@@ -18,6 +18,8 @@ import "../../../utils/Counters.sol";
+  * need to send a transaction, and thus is not required to hold Ether at all.
+  *
+  * _Available since v3.4._
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712 {
+     using Counters for Counters.Counter;
+diff --git a/contracts/token/ERC20/extensions/ERC20Wrapper.sol b/contracts/token/ERC20/extensions/ERC20Wrapper.sol
+index bfe782e4..7264fe32 100644
+--- a/contracts/token/ERC20/extensions/ERC20Wrapper.sol
++++ b/contracts/token/ERC20/extensions/ERC20Wrapper.sol
+@@ -14,6 +14,8 @@ import "../utils/SafeERC20.sol";
+  * wrapping of an existing "basic" ERC20 into a governance token.
+  *
+  * _Available since v4.2._
++ *
++ * @custom:storage-size 51
+  */
+ abstract contract ERC20Wrapper is ERC20 {
+     IERC20 private immutable _underlying;
+diff --git a/contracts/token/ERC20/utils/TokenTimelock.sol b/contracts/token/ERC20/utils/TokenTimelock.sol
+index ed855b7b..3d30f59d 100644
+--- a/contracts/token/ERC20/utils/TokenTimelock.sol
++++ b/contracts/token/ERC20/utils/TokenTimelock.sol
+@@ -11,6 +11,8 @@ import "./SafeERC20.sol";
+  *
+  * Useful for simple vesting schedules like "advisors get all of their tokens
+  * after 1 year".
++ *
++ * @custom:storage-size 53
+  */
+ contract TokenTimelock {
+     using SafeERC20 for IERC20;
+diff --git a/contracts/utils/cryptography/EIP712.sol b/contracts/utils/cryptography/EIP712.sol
+index 6a4e1cad..55d8eced 100644
+--- a/contracts/utils/cryptography/EIP712.sol
++++ b/contracts/utils/cryptography/EIP712.sol
+@@ -4,7 +4,6 @@
+ pragma solidity ^0.8.8;
+ 
+ import "./ECDSA.sol";
+-import "../ShortStrings.sol";
+ import "../../interfaces/IERC5267.sol";
+ 
+ /**
+@@ -30,27 +29,19 @@ import "../../interfaces/IERC5267.sol";
+  *
+  * _Available since v3.4._
+  *
+- * @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
++ * @custom:storage-size 52
+  */
+ abstract contract EIP712 is IERC5267 {
+-    using ShortStrings for *;
+-
+     bytes32 private constant _TYPE_HASH =
+         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+ 
+-    // Cache the domain separator as an immutable value, but also store the chain id that it corresponds to, in order to
+-    // invalidate the cached domain separator if the chain id changes.
+-    bytes32 private immutable _cachedDomainSeparator;
+-    uint256 private immutable _cachedChainId;
+-    address private immutable _cachedThis;
+-
++    /// @custom:oz-renamed-from _HASHED_NAME
+     bytes32 private immutable _hashedName;
++    /// @custom:oz-renamed-from _HASHED_VERSION
+     bytes32 private immutable _hashedVersion;
+ 
+-    ShortString private immutable _name;
+-    ShortString private immutable _version;
+-    string private _nameFallback;
+-    string private _versionFallback;
++    string private _name;
++    string private _version;
+ 
+     /**
+      * @dev Initializes the domain separator and parameter caches.
+@@ -65,29 +56,23 @@ abstract contract EIP712 is IERC5267 {
+      * contract upgrade].
+      */
+     constructor(string memory name, string memory version) {
+-        _name = name.toShortStringWithFallback(_nameFallback);
+-        _version = version.toShortStringWithFallback(_versionFallback);
+-        _hashedName = keccak256(bytes(name));
+-        _hashedVersion = keccak256(bytes(version));
+-
+-        _cachedChainId = block.chainid;
+-        _cachedDomainSeparator = _buildDomainSeparator();
+-        _cachedThis = address(this);
++        _name = name;
++        _version = version;
++
++        // Reset prior values in storage if upgrading
++        _hashedName = 0;
++        _hashedVersion = 0;
+     }
+ 
+     /**
+      * @dev Returns the domain separator for the current chain.
+      */
+     function _domainSeparatorV4() internal view returns (bytes32) {
+-        if (address(this) == _cachedThis && block.chainid == _cachedChainId) {
+-            return _cachedDomainSeparator;
+-        } else {
+-            return _buildDomainSeparator();
+-        }
++        return _buildDomainSeparator();
+     }
+ 
+     function _buildDomainSeparator() private view returns (bytes32) {
+-        return keccak256(abi.encode(_TYPE_HASH, _hashedName, _hashedVersion, block.chainid, address(this)));
++        return keccak256(abi.encode(_TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash(), block.chainid, address(this)));
+     }
+ 
+     /**
+@@ -129,14 +114,80 @@ abstract contract EIP712 is IERC5267 {
+             uint256[] memory extensions
+         )
+     {
++        // If the hashed name and version in storage are non-zero, the contract hasn't been properly initialized
++        // and the EIP712 domain is not reliable, as it will be missing name and version.
++        require(_hashedName == 0 && _hashedVersion == 0, "EIP712: Uninitialized");
++
+         return (
+             hex"0f", // 01111
+-            _name.toStringWithFallback(_nameFallback),
+-            _version.toStringWithFallback(_versionFallback),
++            _EIP712Name(),
++            _EIP712Version(),
+             block.chainid,
+             address(this),
+             bytes32(0),
+             new uint256[](0)
+         );
+     }
++
++    /**
++     * @dev The name parameter for the EIP712 domain.
++     *
++     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
++     * are a concern.
++     */
++    function _EIP712Name() internal virtual view returns (string memory) {
++        return _name;
++    }
++
++    /**
++     * @dev The version parameter for the EIP712 domain.
++     *
++     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
++     * are a concern.
++     */
++    function _EIP712Version() internal virtual view returns (string memory) {
++        return _version;
++    }
++
++    /**
++     * @dev The hash of the name parameter for the EIP712 domain.
++     *
++     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Name` instead.
++     */
++    function _EIP712NameHash() internal view returns (bytes32) {
++        string memory name = _EIP712Name();
++        if (bytes(name).length > 0) {
++            return keccak256(bytes(name));
++        } else {
++            // If the name is empty, the contract may have been upgraded without initializing the new storage.
++            // We return the name hash in storage if non-zero, otherwise we assume the name is empty by design.
++            bytes32 hashedName = _hashedName;
++            if (hashedName != 0) {
++                return hashedName;
++            } else {
++                return keccak256("");
++            }
++        }
++    }
++
++    /**
++     * @dev The hash of the version parameter for the EIP712 domain.
++     *
++     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Version` instead.
++     */
++    function _EIP712VersionHash() internal view returns (bytes32) {
++        string memory version = _EIP712Version();
++        if (bytes(version).length > 0) {
++            return keccak256(bytes(version));
++        } else {
++            // If the version is empty, the contract may have been upgraded without initializing the new storage.
++            // We return the version hash in storage if non-zero, otherwise we assume the version is empty by design.
++            bytes32 hashedVersion = _hashedVersion;
++            if (hashedVersion != 0) {
++                return hashedVersion;
++            } else {
++                return keccak256("");
++            }
++        }
++    }
+ }
+diff --git a/package.json b/package.json
+index 8458dd61..b4672240 100644
+--- a/package.json
++++ b/package.json
+@@ -36,7 +36,7 @@
+   },
+   "repository": {
+     "type": "git",
+-    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts.git"
++    "url": "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable.git"
+   },
+   "keywords": [
+     "solidity",
+diff --git a/test/utils/cryptography/EIP712.test.js b/test/utils/cryptography/EIP712.test.js
+index 54a4e772..ba4602ed 100644
+--- a/test/utils/cryptography/EIP712.test.js
++++ b/test/utils/cryptography/EIP712.test.js
+@@ -47,26 +47,6 @@ contract('EIP712', function (accounts) {
+           const rebuildDomain = await getDomain(this.eip712);
+           expect(mapValues(rebuildDomain, String)).to.be.deep.equal(mapValues(this.domain, String));
+         });
+-
+-        if (shortOrLong === 'short') {
+-          // Long strings are in storage, and the proxy will not be properly initialized unless
+-          // the upgradeable contract variant is used and the initializer is invoked.
+-
+-          it('adjusts when behind proxy', async function () {
+-            const factory = await Clones.new();
+-            const cloneReceipt = await factory.$clone(this.eip712.address);
+-            const cloneAddress = cloneReceipt.logs.find(({ event }) => event === 'return$clone').args.instance;
+-            const clone = new EIP712Verifier(cloneAddress);
+-
+-            const cloneDomain = { ...this.domain, verifyingContract: clone.address };
+-
+-            const reportedDomain = await getDomain(clone);
+-            expect(mapValues(reportedDomain, String)).to.be.deep.equal(mapValues(cloneDomain, String));
+-
+-            const expectedSeparator = await domainSeparator(cloneDomain);
+-            expect(await clone.$_domainSeparatorV4()).to.equal(expectedSeparator);
+-          });
+-        }
+       });
+ 
+       it('hash digest', async function () {
