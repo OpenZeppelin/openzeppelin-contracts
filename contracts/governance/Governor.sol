@@ -369,8 +369,8 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             revert GovernorIncorrectState(proposalId, currentState, _encodeState(ProposalState.Pending));
         }
         address proposer = _proposals[proposalId].proposer;
-        if (_msgSender() != _proposals[proposalId].proposer) {
-            revert GovernorOnlyProposer(proposer);
+        if (_msgSender() != proposer) {
+            revert GovernorOnlyProposer(_msgSender());
         }
         return _cancel(targets, values, calldatas, descriptionHash);
     }
@@ -664,7 +664,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
 
     /**
      * @dev Encodes a `ProposalState` into a `bytes32` representation where each bit enabled corresponds to
-     * the underlying uint256 position in the `ProposalState` enum. For example:
+     * the underlying position in the `ProposalState` enum. For example:
      *
      * 0x000...10000
      *   ^^^^^^------ ...

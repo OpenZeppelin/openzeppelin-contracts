@@ -1,4 +1,5 @@
-const { balance, constants, ether, expectEvent, send, expectRevert } = require('@openzeppelin/test-helpers');
+const { balance, constants, ether, expectEvent, send } = require('@openzeppelin/test-helpers');
+const { expectRevertCustomError } = require('../helpers/customError');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
@@ -12,36 +13,50 @@ contract('PaymentSplitter', function (accounts) {
   const amount = ether('1');
 
   it('rejects an empty set of payees', async function () {
-    await expectRevert(PaymentSplitter.new([], []), 'PaymentSplitter: no payees');
+    const payees = [];
+    const shares = [];
+    await expectRevertCustomError(PaymentSplitter.new(payees, shares), 'PaymentSplitterInvalidPayeesLength', [
+      payees.length,
+      shares.length,
+    ]);
   });
 
   it('rejects more payees than shares', async function () {
-    await expectRevert(
-      PaymentSplitter.new([payee1, payee2, payee3], [20, 30]),
-      'PaymentSplitter: payees and shares length mismatch',
-    );
+    const payees = [payee1, payee2, payee3];
+    const shares = [20, 30];
+    await expectRevertCustomError(PaymentSplitter.new(payees, shares), 'PaymentSplitterInvalidPayeesLength', [
+      payees.length,
+      shares.length,
+    ]);
   });
 
   it('rejects more shares than payees', async function () {
-    await expectRevert(
-      PaymentSplitter.new([payee1, payee2], [20, 30, 40]),
-      'PaymentSplitter: payees and shares length mismatch',
-    );
+    const payees = [payee1, payee2];
+    const shares = [20, 30, 40];
+    await expectRevertCustomError(PaymentSplitter.new(payees, shares), 'PaymentSplitterInvalidPayeesLength', [
+      payees.length,
+      shares.length,
+    ]);
   });
 
   it('rejects null payees', async function () {
-    await expectRevert(
+    await expectRevertCustomError(
       PaymentSplitter.new([payee1, ZERO_ADDRESS], [20, 30]),
-      'PaymentSplitter: account is the zero address',
+      'PaymentSplitterInvalidPayee',
+      [ZERO_ADDRESS],
     );
   });
 
   it('rejects zero-valued shares', async function () {
-    await expectRevert(PaymentSplitter.new([payee1, payee2], [20, 0]), 'PaymentSplitter: shares are 0');
+    await expectRevertCustomError(PaymentSplitter.new([payee1, payee2], [20, 0]), 'PaymentSplitterEmptyShares', [
+      payee2,
+    ]);
   });
 
   it('rejects repeated payees', async function () {
-    await expectRevert(PaymentSplitter.new([payee1, payee1], [20, 30]), 'PaymentSplitter: account already has shares');
+    await expectRevertCustomError(PaymentSplitter.new([payee1, payee1], [20, 30]), 'PaymentSplitterDuplicatedPayee', [
+      payee1,
+    ]);
   });
 
   context('once deployed', function () {
@@ -95,26 +110,28 @@ contract('PaymentSplitter', function (accounts) {
     describe('release', function () {
       describe('Ether', function () {
         it('reverts if no funds to claim', async function () {
-          await expectRevert(this.contract.release(payee1), 'PaymentSplitter: account is not due payment');
+          await expectRevertCustomError(this.contract.release(payee1), 'PaymentSplitterZeroPayment', [payee1]);
         });
-        it('reverts if non-payee want to claim', async function () {
+        it('reverts if non-payee wants to claim', async function () {
           await send.ether(payer1, this.contract.address, amount);
-          await expectRevert(this.contract.release(nonpayee1), 'PaymentSplitter: account has no shares');
+          await expectRevertCustomError(this.contract.release(nonpayee1), 'PaymentSplitterEmptyShares', [nonpayee1]);
         });
       });
 
       describe('Token', function () {
         it('reverts if no funds to claim', async function () {
-          await expectRevert(
+          await expectRevertCustomError(
             this.contract.release(this.token.address, payee1),
-            'PaymentSplitter: account is not due payment',
+            'PaymentSplitterZeroPayment',
+            [payee1],
           );
         });
-        it('reverts if non-payee want to claim', async function () {
+        it('reverts if non-payee wants to claim', async function () {
           await this.token.transfer(this.contract.address, amount, { from: owner });
-          await expectRevert(
+          await expectRevertCustomError(
             this.contract.release(this.token.address, nonpayee1),
-            'PaymentSplitter: account has no shares',
+            'PaymentSplitterEmptyShares',
+            [nonpayee1],
           );
         });
       });

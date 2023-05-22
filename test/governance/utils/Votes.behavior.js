@@ -1,4 +1,4 @@
-const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { constants, expectEvent, time } = require('@openzeppelin/test-helpers');
 
 const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
@@ -9,6 +9,7 @@ const Wallet = require('ethereumjs-wallet').default;
 const { shouldBehaveLikeEIP6372 } = require('./EIP6372.behavior');
 const { getDomain, domainType, domainSeparator } = require('../../helpers/eip712');
 const { clockFromReceipt } = require('../../helpers/time');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const Delegation = [
   { name: 'delegatee', type: 'address' },
@@ -180,7 +181,11 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
 
           await this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s);
 
-          await expectRevert(this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s), 'Votes: invalid nonce');
+          await expectRevertCustomError(
+            this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s),
+            'VotesInvalidNonce',
+            [delegator.address, nonce + 1],
+          );
         });
 
         it('rejects bad delegatee', async function () {
@@ -212,9 +217,10 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
             delegator.getPrivateKey(),
           );
 
-          await expectRevert(
+          await expectRevertCustomError(
             this.votes.delegateBySig(delegatee, nonce + 1, MAX_UINT256, v, r, s),
-            'Votes: invalid nonce',
+            'VotesInvalidNonce',
+            [delegator.address, 0],
           );
         });
 
@@ -230,7 +236,11 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
             delegator.getPrivateKey(),
           );
 
-          await expectRevert(this.votes.delegateBySig(delegatee, nonce, expiry, v, r, s), 'Votes: signature expired');
+          await expectRevertCustomError(
+            this.votes.delegateBySig(delegatee, nonce, expiry, v, r, s),
+            'VotesExpiredSignature',
+            [expiry],
+          );
         });
       });
     });
@@ -241,7 +251,12 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
       });
 
       it('reverts if block number >= current block', async function () {
-        await expectRevert(this.votes.getPastTotalSupply(5e10), 'future lookup');
+        const timepoint = 5e10;
+        const clock = await this.votes.clock();
+        await expectRevertCustomError(this.votes.getPastTotalSupply(timepoint), 'VotesFutureLookup', [
+          timepoint,
+          clock,
+        ]);
       });
 
       it('returns 0 if there are no checkpoints', async function () {
@@ -289,7 +304,10 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
         expect(await this.votes.getPastTotalSupply(t4.timepoint)).to.be.bignumber.equal(weight[2]);
         expect(await this.votes.getPastTotalSupply(t4.timepoint + 1)).to.be.bignumber.equal(weight[2]);
         expect(await this.votes.getPastTotalSupply(t5.timepoint)).to.be.bignumber.equal('0');
-        await expectRevert(this.votes.getPastTotalSupply(t5.timepoint + 1), 'Votes: future lookup');
+        await expectRevertCustomError(this.votes.getPastTotalSupply(t5.timepoint + 1), 'VotesFutureLookup', [
+          t5.timepoint + 1,
+          t5.timepoint + 1,
+        ]);
       });
     });
 
@@ -304,7 +322,8 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
 
       describe('getPastVotes', function () {
         it('reverts if block number >= current block', async function () {
-          await expectRevert(this.votes.getPastVotes(accounts[2], 5e10), 'future lookup');
+          const clock = await this.votes.clock();
+          await expectRevertCustomError(this.votes.getPastVotes(accounts[2], 5e10), 'VotesFutureLookup', [5e10, clock]);
         });
 
         it('returns 0 if there are no checkpoints', async function () {

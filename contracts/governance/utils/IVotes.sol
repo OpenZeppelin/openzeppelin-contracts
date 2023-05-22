@@ -19,9 +19,9 @@ interface IVotes {
     error VotesExpiredSignature(uint256 expiry);
 
     /**
-     * @dev The signature's nonce differs from the address' current nonce.
+     * @dev The signature's nonce differs from the account's current nonce.
      */
-    error VotesInvalidNonce(uint256 currentNonce);
+    error VotesInvalidNonce(address account, uint256 currentNonce);
 
     /**
      * @dev Emitted when an account changes their delegate.
