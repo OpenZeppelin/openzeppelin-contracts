@@ -22,7 +22,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     /**
      * @dev The loan token is not valid.
      */
-    error ERC3156InvalidToken(address token);
+    error ERC3156UnsupportedToken(address token);
 
     /**
      * @dev The requested loan exceeds the max loan amount for `token`.
@@ -53,7 +53,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      */
     function flashFee(address token, uint256 amount) public view virtual override returns (uint256) {
         if (token != address(this)) {
-            revert ERC3156InvalidToken(token);
+            revert ERC3156UnsupportedToken(token);
         }
         return _flashFee(token, amount);
     }

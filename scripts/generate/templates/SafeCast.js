@@ -191,7 +191,15 @@ function toUint${length}(int${length} value) internal pure returns (uint${length
 module.exports = format(
   header.trimEnd(),
   'library SafeCast {',
-  [...LENGTHS.map(toUintDownCastErrors), toUintErrors(256), ...LENGTHS.map(toIntDownCastErrors), toIntErrors(256)],
-  [...LENGTHS.map(toUintDownCast), toUint(256), ...LENGTHS.map(toIntDownCast), toInt(256)],
+  [
+    ...LENGTHS.map(toUintDownCastErrors),
+    toUintErrors(256),
+    ...LENGTHS.map(toIntDownCastErrors),
+    toIntErrors(256),
+    ...LENGTHS.map(toUintDownCast),
+    toUint(256),
+    ...LENGTHS.map(toIntDownCast),
+    toInt(256),
+  ],
   '}',
 );

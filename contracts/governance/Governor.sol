@@ -368,7 +368,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         if (currentState != ProposalState.Pending) {
             revert GovernorIncorrectState(proposalId, currentState, _encodeState(ProposalState.Pending));
         }
-        address proposer = _proposals[proposalId].proposer;
+        address proposer = proposalProposer(proposalId);
         if (_msgSender() != proposer) {
             revert GovernorOnlyProposer(_msgSender());
         }

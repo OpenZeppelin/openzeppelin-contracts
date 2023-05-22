@@ -142,11 +142,7 @@ abstract contract ERC20Snapshot is ERC20 {
     }
 
     function _valueAt(uint256 snapshotId, Snapshots storage snapshots) private view returns (bool, uint256) {
-        if (snapshotId == 0) {
-            revert ERC20InvalidSnapshot(0);
-        }
-        if (snapshotId > _getCurrentSnapshotId()) {
-            // Non existent id
+        if (snapshotId == 0 || snapshotId > _getCurrentSnapshotId()) {
             revert ERC20InvalidSnapshot(snapshotId);
         }
 

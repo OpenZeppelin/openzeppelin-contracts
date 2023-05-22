@@ -169,7 +169,7 @@ contract PaymentSplitter is Context {
      * total shares and their previous withdrawals.
      */
     function release(address payable account) public virtual {
-        if (_shares[account] <= 0) {
+        if (_shares[account] == 0) {
             revert PaymentSplitterEmptyShares(account);
         }
 
@@ -196,7 +196,7 @@ contract PaymentSplitter is Context {
      * contract.
      */
     function release(IERC20 token, address account) public virtual {
-        if (_shares[account] <= 0) {
+        if (_shares[account] == 0) {
             revert PaymentSplitterEmptyShares(account);
         }
 
@@ -239,7 +239,7 @@ contract PaymentSplitter is Context {
         if (account == address(0)) {
             revert PaymentSplitterInvalidPayee(account);
         }
-        if (shares_ <= 0) {
+        if (shares_ == 0) {
             revert PaymentSplitterEmptyShares(account);
         }
         if (_shares[account] != 0) {
