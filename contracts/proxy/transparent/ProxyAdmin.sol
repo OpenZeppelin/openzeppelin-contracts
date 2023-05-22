@@ -74,7 +74,7 @@ contract ProxyAdmin is Ownable {
     function upgradeAndCall(
         TransparentUpgradeableProxy proxy,
         address implementation,
-        bytes memory data
+        bytes calldata data
     ) public payable virtual onlyOwner {
         proxy.upgradeToAndCall{value: msg.value}(implementation, data);
     }
