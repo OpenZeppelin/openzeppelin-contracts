@@ -193,7 +193,8 @@ rule noDefaultAdminChange(env e, method f, calldataarg args) {
 
 /*
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│ Rule: pendingDefaultAdmin is only affected by beginning, accepting or canceling an admin transfer                   │
+│ Rule: pendingDefaultAdmin is only affected by beginning, completing (accept or renounce), or canceling an admin     │
+│ transfer                                                                                                            │
 └─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 */
 rule noPendingDefaultAdminChange(env e, method f, calldataarg args) {
@@ -212,7 +213,7 @@ rule noPendingDefaultAdminChange(env e, method f, calldataarg args) {
     f.selector == cancelDefaultAdminTransfer().selector ||
     f.selector == renounceRole(bytes32,address).selector
   ),
-    "pending admin and its schedule is only affected by beginning, accepting or cancelling an admin transfer";
+    "pending admin and its schedule is only affected by beginning, completing, or cancelling an admin transfer";
 }
 
 /*
