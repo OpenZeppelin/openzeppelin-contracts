@@ -1,11 +1,7 @@
 # Changelog
 
 
-## 4.9.0-rc.1 (2023-05-12)
-
-- `AccessControlDefaultAdminRules`: Clean up pending admin schedule on renounce. ([#4243](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4243))
-
-## 4.9.0-rc.0 (2023-05-09)
+## 4.9.0 (2023-05-23)
 
 - `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
 - `ERC721Wrapper`: add a new extension of the `ERC721` token which wraps an underlying token. Deposit and withdraw guarantee that the ownership of each token is backed by a corresponding underlying token with the same identifier. ([#3863](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3863))
@@ -39,6 +35,7 @@
 - `Math`: optimize `log256` rounding check. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
 - `ERC20Votes`: optimize by using unchecked arithmetic. ([#3748](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3748))
 - `Multicall`: annotate `multicall` function as upgrade safe to not raise a flag for its delegatecall. ([#3961](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3961))
+- `AccessControlDefaultAdminRules`: Clean up pending admin schedule on renounce.
 - `ERC20Pausable`, `ERC721Pausable`, `ERC1155Pausable`: Add note regarding missing public pausing functionality ([#4007](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4007))
 - `ECDSA`: Add a function `toDataWithIntendedValidatorHash` that encodes data with version 0x00 following EIP-191. ([#4063](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4063))
 - `MerkleProof`: optimize by using unchecked arithmetic. ([#3745](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3745))
