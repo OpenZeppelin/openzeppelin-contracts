@@ -51,7 +51,7 @@ contract('UUPSUpgradeable', function () {
     await expectRevertCustomError(
       this.instance.upgradeTo(this.implUpgradeNonUUPS.address),
       'ERC1967InvalidImplementation',
-      [this.implUpgradeNonUUPS.address]
+      [this.implUpgradeNonUUPS.address],
     );
   });
 
@@ -59,11 +59,9 @@ contract('UUPSUpgradeable', function () {
     const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
     const otherInstance = await UUPSUpgradeableMock.at(address);
 
-    await expectRevertCustomError(
-      this.instance.upgradeTo(otherInstance.address),
-      'ERC1967InvalidImplementation',
-      [otherInstance.address]
-    );
+    await expectRevertCustomError(this.instance.upgradeTo(otherInstance.address), 'ERC1967InvalidImplementation', [
+      otherInstance.address,
+    ]);
   });
 
   it('can upgrade from legacy implementations', async function () {

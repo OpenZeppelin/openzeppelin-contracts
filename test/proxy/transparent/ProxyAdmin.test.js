@@ -38,7 +38,7 @@ contract('ProxyAdmin', function (accounts) {
       await expectRevertCustomError(
         this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: anotherAccount }),
         'OwnableUnauthorizedAccount',
-        [anotherAccount]
+        [anotherAccount],
       );
     });
 
@@ -56,7 +56,7 @@ contract('ProxyAdmin', function (accounts) {
         await expectRevertCustomError(
           this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: anotherAccount }),
           'OwnableUnauthorizedAccount',
-          [anotherAccount]
+          [anotherAccount],
         );
       });
     });
@@ -80,7 +80,7 @@ contract('ProxyAdmin', function (accounts) {
             from: anotherAccount,
           }),
           'OwnableUnauthorizedAccount',
-          [anotherAccount]
+          [anotherAccount],
         );
       });
     });

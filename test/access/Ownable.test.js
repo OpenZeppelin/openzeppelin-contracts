@@ -52,11 +52,9 @@ contract('Ownable', function (accounts) {
     });
 
     it('prevents non-owners from renouncement', async function () {
-      await expectRevertCustomError(
-        this.ownable.renounceOwnership({ from: other }),
-        'OwnableUnauthorizedAccount',
-        [other]
-      );
+      await expectRevertCustomError(this.ownable.renounceOwnership({ from: other }), 'OwnableUnauthorizedAccount', [
+        other,
+      ]);
     });
 
     it('allows to recover access using the internal _transferOwnership', async function () {
