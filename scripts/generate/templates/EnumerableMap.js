@@ -10,7 +10,7 @@ const TYPES = [
 
 /* eslint-disable max-len */
 const header = `\
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.19;
 
 import "./EnumerableSet.sol";
 

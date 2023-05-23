@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.8.3) (proxy/ERC1967/ERC1967Upgrade.sol)
 
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.19;
 
 import "../beacon/IBeacon.sol";
 import "../../interfaces/IERC1967.sol";

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/utils/TokenTimelock.sol)
 
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.19;
 
 import "./SafeERC20.sol";
 
