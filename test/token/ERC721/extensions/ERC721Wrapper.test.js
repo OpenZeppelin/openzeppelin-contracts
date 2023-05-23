@@ -1,7 +1,9 @@
-const { BN, expectEvent, constants, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, expectEvent, constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');
+const { expectRevertCustomError } = require('../../../helpers/customError');
+const { ZERO_ADDRESS } = require('@openzeppelin/test-helpers/src/constants');
 
 const ERC721 = artifacts.require('$ERC721');
 const ERC721Wrapper = artifacts.require('$ERC721Wrapper');
@@ -115,9 +117,10 @@ contract('ERC721Wrapper', function (accounts) {
     });
 
     it('reverts with missing approval', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.depositFor(initialHolder, [firstTokenId], { from: initialHolder }),
-        'ERC721: caller is not token owner or approved',
+        'ERC721InsufficientApproval',
+        [this.token.address, firstTokenId],
       );
     });
   });
@@ -178,9 +181,10 @@ contract('ERC721Wrapper', function (accounts) {
     });
 
     it("doesn't work for a non-owner nor approved", async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.withdrawTo(initialHolder, [firstTokenId], { from: anotherAccount }),
-        'ERC721Wrapper: caller is not token owner or approved',
+        'ERC721InsufficientApproval',
+        [anotherAccount, firstTokenId],
       );
     });
 
@@ -230,7 +234,7 @@ contract('ERC721Wrapper', function (accounts) {
 
   describe('onERC721Received', function () {
     it('only allows calls from underlying', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.onERC721Received(
           initialHolder,
           this.token.address,
@@ -238,7 +242,8 @@ contract('ERC721Wrapper', function (accounts) {
           anotherAccount, // Correct data
           { from: anotherAccount },
         ),
-        'ERC721Wrapper: caller is not underlying',
+        'ERC721InvalidSender',
+        [anotherAccount],
       );
     });
 
@@ -270,10 +275,12 @@ contract('ERC721Wrapper', function (accounts) {
     });
 
     it('reverts if there is nothing to recover', async function () {
-      await expectRevert(
-        this.token.$_recover(initialHolder, firstTokenId),
-        'ERC721Wrapper: wrapper is not token owner',
-      );
+      const owner = await this.underlying.ownerOf(firstTokenId);
+      await expectRevertCustomError(this.token.$_recover(initialHolder, firstTokenId), 'ERC721IncorrectOwner', [
+        ZERO_ADDRESS,
+        firstTokenId,
+        owner,
+      ]);
     });
   });
 

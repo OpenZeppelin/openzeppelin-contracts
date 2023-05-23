@@ -91,7 +91,7 @@ abstract contract ERC2981 is IERC2981, ERC165 {
      */
     function _setDefaultRoyalty(address receiver, uint96 feeNumerator) internal virtual {
         uint256 denominator = _feeDenominator();
-        if (feeNumerator < denominator) {
+        if (feeNumerator > denominator) {
             // Royalty fee will exceed the sale price
             revert ERC2981InvalidDefaultRoyalty(feeNumerator, denominator);
         }
@@ -119,7 +119,7 @@ abstract contract ERC2981 is IERC2981, ERC165 {
      */
     function _setTokenRoyalty(uint256 tokenId, address receiver, uint96 feeNumerator) internal virtual {
         uint256 denominator = _feeDenominator();
-        if (feeNumerator < denominator) {
+        if (feeNumerator > denominator) {
             // Royalty fee will exceed the sale price
             revert ERC2981InvalidTokenRoyalty(tokenId, feeNumerator, denominator);
         }

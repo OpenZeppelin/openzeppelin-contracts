@@ -75,7 +75,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
         bytes memory
     ) public virtual override returns (bytes4) {
         if (address(underlying()) != _msgSender()) {
-            revert ERC721InvalidSender(address(underlying()));
+            revert ERC721InvalidSender(msg.sender);
         }
         _safeMint(from, tokenId);
         return IERC721Receiver.onERC721Received.selector;
