@@ -201,9 +201,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4626-withdraw}. */
     function withdraw(uint256 assets, address receiver, address owner) public virtual override returns (uint256) {
-        uint256 maxAssets = maxWithdraw(receiver);
+        uint256 maxAssets = maxWithdraw(owner);
         if (assets > maxAssets) {
-            revert ERC4626ExceededMaxWithdraw(receiver, assets, maxAssets);
+            revert ERC4626ExceededMaxWithdraw(owner, assets, maxAssets);
         }
 
         uint256 shares = previewWithdraw(assets);
@@ -214,9 +214,9 @@ abstract contract ERC4626 is ERC20, IERC4626 {
 
     /** @dev See {IERC4626-redeem}. */
     function redeem(uint256 shares, address receiver, address owner) public virtual override returns (uint256) {
-        uint256 maxShares = maxRedeem(receiver);
+        uint256 maxShares = maxRedeem(owner);
         if (shares > maxShares) {
-            revert ERC4626ExceededMaxRedeem(receiver, shares, maxShares);
+            revert ERC4626ExceededMaxRedeem(owner, shares, maxShares);
         }
 
         uint256 assets = previewRedeem(shares);

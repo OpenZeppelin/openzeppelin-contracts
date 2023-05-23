@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, time } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
@@ -12,6 +12,7 @@ const Wallet = require('ethereumjs-wallet').default;
 
 const { getDomain, domainType, domainSeparator } = require('../../../helpers/eip712');
 const { clock, clockFromReceipt } = require('../../../helpers/time');
+const { expectRevertCustomError } = require('../../../helpers/customError');
 
 const Delegation = [
   { name: 'delegatee', type: 'address' },
@@ -52,7 +53,7 @@ contract('ERC20VotesComp', function (accounts) {
 
       it('minting restriction', async function () {
         const amount = new BN('2').pow(new BN('96'));
-        await expectRevert(this.token.$_mint(holder, amount), 'ERC20Votes: total supply risks overflowing votes');
+        await expectRevertCustomError(this.token.$_mint(holder, amount), 'ERC20ExceededCap', [amount, amount.subn(1)]);
       });
 
       it('recent checkpoints', async function () {
@@ -168,9 +169,10 @@ contract('ERC20VotesComp', function (accounts) {
 
             await this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s);
 
-            await expectRevert(
+            await expectRevertCustomError(
               this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
-              'Votes: invalid nonce',
+              'VotesInvalidNonce',
+              [delegatorAddress, nonce + 1],
             );
           });
 
@@ -189,15 +191,24 @@ contract('ERC20VotesComp', function (accounts) {
           });
 
           it('rejects bad nonce', async function () {
-            const { v, r, s } = await buildData(this.token, {
+            const sig = await buildData(this.token, {
               delegatee: delegatorAddress,
               nonce,
               expiry: MAX_UINT256,
-            }).then(data => fromRpcSig(ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data })));
+            }).then(data => ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data }));
+            const { r, s, v } = fromRpcSig(sig);
 
-            await expectRevert(
+            const domain = await getDomain(this.token);
+            const typedMessage = {
+              primaryType: 'Delegation',
+              types: { EIP712Domain: domainType(domain), Delegation },
+              domain,
+              message: { delegatee: delegatorAddress, nonce: nonce + 1, expiry: MAX_UINT256 },
+            };
+            await expectRevertCustomError(
               this.token.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
-              'Votes: invalid nonce',
+              'VotesInvalidNonce',
+              [ethSigUtil.recoverTypedSignature({ data: typedMessage, sig }), nonce],
             );
           });
 
@@ -209,9 +220,10 @@ contract('ERC20VotesComp', function (accounts) {
               expiry,
             }).then(data => fromRpcSig(ethSigUtil.signTypedMessage(delegator.getPrivateKey(), { data })));
 
-            await expectRevert(
+            await expectRevertCustomError(
               this.token.delegateBySig(delegatorAddress, nonce, expiry, v, r, s),
-              'Votes: signature expired',
+              'VotesExpiredSignature',
+              [expiry],
             );
           });
         });
@@ -418,7 +430,8 @@ contract('ERC20VotesComp', function (accounts) {
 
         describe('getPriorVotes', function () {
           it('reverts if block number >= current block', async function () {
-            await expectRevert(this.token.getPriorVotes(other1, 5e10), 'Votes: future lookup');
+            const clock = await this.token.clock();
+            await expectRevertCustomError(this.token.getPriorVotes(other1, 5e10), 'VotesFutureLookup', [5e10, clock]);
           });
 
           it('returns 0 if there are no checkpoints', async function () {
@@ -506,7 +519,8 @@ contract('ERC20VotesComp', function (accounts) {
         });
 
         it('reverts if block number >= current block', async function () {
-          await expectRevert(this.token.getPastTotalSupply(5e10), 'Votes: future lookup');
+          const clock = await this.token.clock();
+          await expectRevertCustomError(this.token.getPastTotalSupply(5e10), 'VotesFutureLookup', [5e10, clock]);
         });
 
         it('returns 0 if there are no checkpoints', async function () {

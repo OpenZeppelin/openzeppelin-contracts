@@ -118,7 +118,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         }
 
         if (_msgSender() != owner && !isApprovedForAll(owner, _msgSender())) {
-            revert ERC721InsufficientApproval(_msgSender(), tokenId);
+            revert ERC721InvalidApprover(_msgSender());
         }
 
         _approve(to, tokenId);

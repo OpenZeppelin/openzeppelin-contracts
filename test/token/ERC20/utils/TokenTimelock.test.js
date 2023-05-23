@@ -1,6 +1,8 @@
-const { BN, expectRevert, time } = require('@openzeppelin/test-helpers');
+const { BN, time } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
+
+const { expectRevertCustomError } = require('../../../helpers/customError');
 
 const ERC20 = artifacts.require('$ERC20');
 const TokenTimelock = artifacts.require('TokenTimelock');
@@ -20,9 +22,10 @@ contract('TokenTimelock', function (accounts) {
 
     it('rejects a release time in the past', async function () {
       const pastReleaseTime = (await time.latest()).sub(time.duration.years(1));
-      await expectRevert(
+      await expectRevertCustomError(
         TokenTimelock.new(this.token.address, beneficiary, pastReleaseTime),
-        'TokenTimelock: release time is before current time',
+        'TokenTimelockPastRelease',
+        [pastReleaseTime],
       );
     });
 
@@ -40,12 +43,12 @@ contract('TokenTimelock', function (accounts) {
       });
 
       it('cannot be released before time limit', async function () {
-        await expectRevert(this.timelock.release(), 'TokenTimelock: current time is before release time');
+        await expectRevertCustomError(this.timelock.release(), 'TokenTimelockFutureRelease', [this.releaseTime]);
       });
 
       it('cannot be released just before time limit', async function () {
         await time.increaseTo(this.releaseTime.sub(time.duration.seconds(3)));
-        await expectRevert(this.timelock.release(), 'TokenTimelock: current time is before release time');
+        await expectRevertCustomError(this.timelock.release(), 'TokenTimelockFutureRelease', [this.releaseTime]);
       });
 
       it('can be released just after limit', async function () {
@@ -63,7 +66,7 @@ contract('TokenTimelock', function (accounts) {
       it('cannot be released twice', async function () {
         await time.increaseTo(this.releaseTime.add(time.duration.years(1)));
         await this.timelock.release();
-        await expectRevert(this.timelock.release(), 'TokenTimelock: no tokens to release');
+        await expectRevertCustomError(this.timelock.release(), 'TokenTimelockEmptyBalance', []);
         expect(await this.token.balanceOf(beneficiary)).to.be.bignumber.equal(amount);
       });
     });
