@@ -2,4 +2,4 @@
 'openzeppelin-solidity': major
 ---
 
-Add an `initialOwner` parameter to Ownable's constructor, making the ownership's initialization explicit.
+`Ownable`: Add an `initialOwner` parameter to the constructor, making the ownership initialization explicit.
