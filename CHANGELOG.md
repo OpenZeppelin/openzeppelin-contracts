@@ -1,11 +1,7 @@
 # Changelog
 
 
-## 4.9.0-rc.1 (2023-05-12)
-
-- `AccessControlDefaultAdminRules`: Clean up pending admin schedule on renounce. ([#4243](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4243))
-
-## 4.9.0-rc.0 (2023-05-09)
+## 4.9.0 (2023-05-23)
 
 - `ReentrancyGuard`: Add a `_reentrancyGuardEntered` function to expose the guard status. ([#3714](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3714))
 - `ERC721Wrapper`: add a new extension of the `ERC721` token which wraps an underlying token. Deposit and withdraw guarantee that the ownership of each token is backed by a corresponding underlying token with the same identifier. ([#3863](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3863))
