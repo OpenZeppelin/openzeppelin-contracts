@@ -18,7 +18,6 @@ Additionally there are multiple custom extensions, including:
 * {ERC20Burnable}: destruction of own tokens.
 * {ERC20Capped}: enforcement of a cap to the total supply when minting tokens.
 * {ERC20Pausable}: ability to pause token transfers.
-* {ERC20Snapshot}: efficient storage of past token balances to be later queried at any point in time.
 * {ERC20Permit}: gasless approval of tokens (standardized as ERC2612).
 * {ERC20FlashMint}: token level support for flash loans through the minting and burning of ephemeral tokens (standardized as ERC3156).
 * {ERC20Votes}: support for voting and vote delegation.
@@ -53,8 +52,6 @@ NOTE: This core set of contracts is designed to be unopinionated, allowing devel
 {{ERC20Pausable}}
 
 {{ERC20Permit}}
-
-{{ERC20Snapshot}}
 
 {{ERC20Votes}}
 
