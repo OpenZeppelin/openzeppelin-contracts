@@ -34,11 +34,11 @@ contract AddressFnPointerMock {
         return Address.verifyCallResultFromTarget(target, success, returndata, _onRevert);
     }
 
-    function verifyCallResult(bool success, bytes memory returndata) external pure returns (bytes memory) {
+    function verifyCallResult(bool success, bytes memory returndata) external view returns (bytes memory) {
         return Address.verifyCallResult(success, returndata, _onRevert);
     }
 
-    function verifyCallResultVoid(bool success, bytes memory returndata) external pure returns (bytes memory) {
+    function verifyCallResultVoid(bool success, bytes memory returndata) external view returns (bytes memory) {
         return Address.verifyCallResult(success, returndata, _onRevertVoid);
     }
 

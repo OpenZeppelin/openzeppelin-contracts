@@ -95,7 +95,7 @@ library Address {
     function functionCall(
         address target,
         bytes memory data,
-        function() internal pure onRevert
+        function() internal view onRevert
     ) internal returns (bytes memory) {
         return functionCallWithValue(target, data, 0, onRevert);
     }
@@ -129,7 +129,7 @@ library Address {
         address target,
         bytes memory data,
         uint256 value,
-        function() internal pure onRevert
+        function() internal view onRevert
     ) internal returns (bytes memory) {
         if (address(this).balance < value) {
             revert AddressInsufficientBalance(address(this));
@@ -157,7 +157,7 @@ library Address {
     function functionStaticCall(
         address target,
         bytes memory data,
-        function() internal pure onRevert
+        function() internal view onRevert
     ) internal view returns (bytes memory) {
         (bool success, bytes memory returndata) = target.staticcall(data);
         return verifyCallResultFromTarget(target, success, returndata, onRevert);
@@ -182,7 +182,7 @@ library Address {
     function functionDelegateCall(
         address target,
         bytes memory data,
-        function() internal pure onRevert
+        function() internal view onRevert
     ) internal returns (bytes memory) {
         (bool success, bytes memory returndata) = target.delegatecall(data);
         return verifyCallResultFromTarget(target, success, returndata, onRevert);
@@ -198,7 +198,7 @@ library Address {
         address target,
         bool success,
         bytes memory returndata,
-        function() internal pure onRevert
+        function() internal view onRevert
     ) internal view returns (bytes memory) {
         if (success) {
             if (returndata.length == 0) {
@@ -223,8 +223,8 @@ library Address {
     function verifyCallResult(
         bool success,
         bytes memory returndata,
-        function() internal pure onRevert
-    ) internal pure returns (bytes memory) {
+        function() internal view onRevert
+    ) internal view returns (bytes memory) {
         if (success) {
             return returndata;
         } else {
@@ -239,7 +239,7 @@ library Address {
         revert AddressFailedLowLevelCall();
     }
 
-    function _revert(bytes memory returndata, function() internal pure onRevert) private pure {
+    function _revert(bytes memory returndata, function() internal view onRevert) private view {
         // Look for revert reason and bubble it up if present
         if (returndata.length > 0) {
             // The easiest way to bubble the revert reason is using memory via assembly
