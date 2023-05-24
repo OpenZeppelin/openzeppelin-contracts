@@ -51,7 +51,7 @@ contract('Multicall', function (accounts) {
       { from: deployer },
     );
 
-    await expectRevertCustomError(call, 'ERC20InsufficientBalance', []);
+    await expectRevertCustomError(call, 'ERC20InsufficientBalance', [deployer, 0, amount]);
     expect(await this.multicallToken.balanceOf(alice)).to.be.bignumber.equal(new BN('0'));
   });
 
@@ -64,6 +64,6 @@ contract('Multicall', function (accounts) {
       { from: deployer },
     );
 
-    await expectRevertCustomError(call, 'ERC20InsufficientBalance', []);
+    await expectRevertCustomError(call, 'ERC20InsufficientBalance', [deployer, 0, amount]);
   });
 });
