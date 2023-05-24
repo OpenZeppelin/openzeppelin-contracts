@@ -178,7 +178,7 @@ contract('ERC721Consecutive', function (accounts) {
     it('cannot use single minting during construction', async function () {
       await expectRevertCustomError(
         ERC721ConsecutiveNoConstructorMintMock.new(name, symbol),
-        "ERC721ForbiddenMint",
+        'ERC721ForbiddenMint',
         [],
       );
     });
@@ -186,7 +186,7 @@ contract('ERC721Consecutive', function (accounts) {
     it('cannot use single minting during construction', async function () {
       await expectRevertCustomError(
         ERC721ConsecutiveNoConstructorMintMock.new(name, symbol),
-        "ERC721ForbiddenMint",
+        'ERC721ForbiddenMint',
         [],
       );
     });

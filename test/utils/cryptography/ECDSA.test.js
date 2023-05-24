@@ -211,7 +211,9 @@ contract('ECDSA', function (accounts) {
       it('reverts invalid v values', async function () {
         for (const v of ['00', '01']) {
           const signature = signatureWithoutV + v;
-          await expectRevertCustomError(this.ecdsa.$recover(TEST_MESSAGE, signature), 'ECDSAInvalidSignature', [ZERO_ADDRESS]);
+          await expectRevertCustomError(this.ecdsa.$recover(TEST_MESSAGE, signature), 'ECDSAInvalidSignature', [
+            ZERO_ADDRESS,
+          ]);
 
           await expectRevertCustomError(
             this.ecdsa.methods['$recover(bytes32,uint8,bytes32,bytes32)'](TEST_MESSAGE, ...split(signature)),

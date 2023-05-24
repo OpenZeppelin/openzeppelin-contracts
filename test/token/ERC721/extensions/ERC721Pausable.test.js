@@ -53,11 +53,7 @@ contract('ERC721Pausable', function (accounts) {
     });
 
     it('reverts when trying to mint', async function () {
-      await expectRevertCustomError(
-        this.token.$_mint(receiver, secondTokenId),
-        'ERC721Paused',
-        [],
-      );
+      await expectRevertCustomError(this.token.$_mint(receiver, secondTokenId), 'ERC721Paused', []);
     });
 
     it('reverts when trying to burn', async function () {
