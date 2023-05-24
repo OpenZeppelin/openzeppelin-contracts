@@ -149,7 +149,7 @@ contract('GovernorTimelockCompound', function (accounts) {
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
             await expectRevertCustomError(this.helper.queue(), 'GovernorDuplicatedProposal', [id]);
-            await expectRevertCustomError(this.helper.execute(), 'GovernorMissingETA', [id]);
+            await expectRevertCustomError(this.helper.execute(), 'GovernorProposalNotQueued', [id]);
           });
         });
 
@@ -162,7 +162,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
-            await expectRevertCustomError(this.helper.execute(), 'GovernorMissingETA', [this.proposal.id]);
+            await expectRevertCustomError(this.helper.execute(), 'GovernorProposalNotQueued', [this.proposal.id]);
           });
 
           it('if too early', async function () {

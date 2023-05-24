@@ -14,7 +14,7 @@ abstract contract IGovernorTimelock is IGovernor {
     /**
      * @dev The proposal hasn't been queued yet.
      */
-    error GovernorMissingETA(uint256 proposalId);
+    error GovernorProposalNotQueued(uint256 proposalId);
 
     event ProposalQueued(uint256 proposalId, uint256 eta);
 

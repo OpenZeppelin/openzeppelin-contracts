@@ -122,7 +122,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ) internal virtual override {
         uint256 eta = proposalEta(proposalId);
         if (eta == 0) {
-            revert GovernorMissingETA(proposalId);
+            revert GovernorProposalNotQueued(proposalId);
         }
         Address.sendValue(payable(_timelock), msg.value);
         for (uint256 i = 0; i < targets.length; ++i) {
