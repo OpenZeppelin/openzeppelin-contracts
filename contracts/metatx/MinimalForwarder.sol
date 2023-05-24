@@ -43,16 +43,17 @@ contract MinimalForwarder is EIP712 {
     }
 
     function verify(ForwardRequest calldata req, bytes calldata signature) public view returns (bool) {
-        (bool correctNonce, bool correctSigner) = _verify(req, signature);
-        return correctNonce && correctSigner;
+        address signer = _hashTypedDataV4(
+            keccak256(abi.encode(_TYPEHASH, req.from, req.to, req.value, req.gas, req.nonce, keccak256(req.data)))
+        ).recover(signature);
+        return _nonces[req.from] == req.nonce && signer == req.from;
     }
 
     function execute(
         ForwardRequest calldata req,
         bytes calldata signature
     ) public payable returns (bool, bytes memory) {
-        (bool correctNonce, bool correctSigner) = _verify(req, signature);
-        if (!correctNonce || !correctSigner) {
+        if (!verify(req, signature)) {
             revert MinimalForwarderInvalidSignature(req.from, req.nonce);
         }
 
@@ -75,12 +76,5 @@ contract MinimalForwarder is EIP712 {
         }
 
         return (success, returndata);
-    }
-
-    function _verify(ForwardRequest calldata req, bytes calldata signature) internal view returns (bool, bool) {
-        address signer = _hashTypedDataV4(
-            keccak256(abi.encode(_TYPEHASH, req.from, req.to, req.value, req.gas, req.nonce, keccak256(req.data)))
-        ).recover(signature);
-        return (_nonces[req.from] == req.nonce, signer == req.from);
     }
 }
