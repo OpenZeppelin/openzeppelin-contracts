@@ -6,7 +6,7 @@ pragma solidity ^0.8.19;
  * Interface of the ERC6093 custom errors for ERC20 tokens
  * as defined in https://eips.ethereum.org/EIPS/eip-6093
  */
-interface ERC20Errors {
+interface IERC20Errors {
     /**
      * @dev Indicates an error related to the current `balance` of a `sender`. Used in transfers.
      * @param sender Address whose tokens are being transferred.
@@ -53,7 +53,7 @@ interface ERC20Errors {
  * Interface of the ERC6093 custom errors for ERC721 tokens
  * as defined in https://eips.ethereum.org/EIPS/eip-6093
  */
-interface ERC721Errors {
+interface IERC721Errors {
     /**
      * @dev Indicates that an address can't be an owner. For example, `address(0)` is a forbidden owner in EIP-20.
      * Used in balance queries.
@@ -112,7 +112,7 @@ interface ERC721Errors {
  * Interface of the ERC6093 custom errors for ERC1155 tokens
  * as defined in https://eips.ethereum.org/EIPS/eip-6093
  */
-interface ERC1155Errors {
+interface IERC1155Errors {
     /**
      * @dev Indicates an error related to the current `balance` of a `sender`. Used in transfers.
      * @param sender Address whose tokens are being transferred.

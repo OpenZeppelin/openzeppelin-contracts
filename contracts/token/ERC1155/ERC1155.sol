@@ -8,6 +8,7 @@ import "./IERC1155Receiver.sol";
 import "./extensions/IERC1155MetadataURI.sol";
 import "../../utils/Context.sol";
 import "../../utils/introspection/ERC165.sol";
+import "../../interfaces/draft-IERC6093.sol";
 
 /**
  * @dev Implementation of the basic standard multi-token.
@@ -16,7 +17,7 @@ import "../../utils/introspection/ERC165.sol";
  *
  * _Available since v3.1._
  */
-contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
+contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Errors {
     // Mapping from token ID to account balances
     mapping(uint256 => mapping(address => uint256)) private _balances;
 

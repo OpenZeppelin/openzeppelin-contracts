@@ -4,7 +4,6 @@
 pragma solidity ^0.8.19;
 
 import "../../utils/introspection/IERC165.sol";
-import "../../interfaces/draft-IERC6093.sol";
 
 /**
  * @dev Required interface of an ERC1155 compliant contract, as defined in the
@@ -12,7 +11,7 @@ import "../../interfaces/draft-IERC6093.sol";
  *
  * _Available since v3.1._
  */
-interface IERC1155 is IERC165, ERC1155Errors {
+interface IERC1155 is IERC165 {
     /**
      * @dev Emitted when `value` tokens of token type `id` are transferred from `from` to `to` by `operator`.
      */

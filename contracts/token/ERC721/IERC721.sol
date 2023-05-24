@@ -4,12 +4,11 @@
 pragma solidity ^0.8.19;
 
 import "../../utils/introspection/IERC165.sol";
-import "../../interfaces/draft-IERC6093.sol";
 
 /**
  * @dev Required interface of an ERC721 compliant contract.
  */
-interface IERC721 is IERC165, ERC721Errors {
+interface IERC721 is IERC165 {
     /**
      * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
      */

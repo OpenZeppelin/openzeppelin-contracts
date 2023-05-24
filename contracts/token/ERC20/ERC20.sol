@@ -6,6 +6,7 @@ pragma solidity ^0.8.19;
 import "./IERC20.sol";
 import "./extensions/IERC20Metadata.sol";
 import "../../utils/Context.sol";
+import "../../interfaces/draft-IERC6093.sol";
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -34,7 +35,7 @@ import "../../utils/Context.sol";
  * functions have been added to mitigate the well-known issues around setting
  * allowances. See {IERC20-approve}.
  */
-contract ERC20 is Context, IERC20, IERC20Metadata {
+contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     mapping(address => uint256) private _balances;
 
     mapping(address => mapping(address => uint256)) private _allowances;

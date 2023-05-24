@@ -3,12 +3,10 @@
 
 pragma solidity ^0.8.19;
 
-import "../../interfaces/draft-IERC6093.sol";
-
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP.
  */
-interface IERC20 is ERC20Errors {
+interface IERC20 {
     /**
      * @dev Emitted when `value` tokens are moved from one account (`from`) to
      * another (`to`).
