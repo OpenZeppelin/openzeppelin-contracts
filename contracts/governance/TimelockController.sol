@@ -32,6 +32,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     uint256 private _minDelay;
 
     enum OperationState {
+        Unset,
         Pending,
         Ready,
         Done
@@ -41,11 +42,6 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * @dev Mismatch between the parameters length for a operation call.
      */
     error TimelockInvalidOperationLength(uint256 targets, uint256 payloads, uint256 values);
-
-    /**
-     * @dev The `operationId` is duplicated.
-     */
-    error TimelockDuplicatedOperation(bytes32 operationId);
 
     /**
      * @dev The schedule operation doesn't met the minimum delay.
@@ -303,7 +299,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      */
     function _schedule(bytes32 id, uint256 delay) private {
         if (isOperation(id)) {
-            revert TimelockDuplicatedOperation(id);
+            revert TimelockIncorrectState(id, OperationState.Unset);
         }
         uint256 minDelay = getMinDelay();
         if (delay < minDelay) {

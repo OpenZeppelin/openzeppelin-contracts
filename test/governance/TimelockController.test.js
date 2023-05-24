@@ -194,8 +194,8 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'TimelockDuplicatedOperation',
-            [this.operation.id],
+            'TimelockIncorrectState',
+            [this.operation.id, Enums.OperationState.Unset],
           );
         });
 
@@ -504,8 +504,8 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'TimelockDuplicatedOperation',
-            [this.operation.id],
+            'TimelockIncorrectState',
+            [this.operation.id, Enums.OperationState.Unset],
           );
         });
 
