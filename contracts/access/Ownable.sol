@@ -21,7 +21,7 @@ abstract contract Ownable is Context {
     address private _owner;
 
     /**
-     * @dev The caller account is not the owner.
+     * @dev The caller account is not authorized to perform an operation.
      */
     error OwnableUnauthorizedAccount(address account);
 

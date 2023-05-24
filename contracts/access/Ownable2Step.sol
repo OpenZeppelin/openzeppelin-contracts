@@ -52,7 +52,7 @@ abstract contract Ownable2Step is Ownable {
     function acceptOwnership() public virtual {
         address sender = _msgSender();
         if (pendingOwner() != sender) {
-            revert OwnableInvalidOwner(sender);
+            revert OwnableUnauthorizedAccount(sender);
         }
         _transferOwnership(sender);
     }
