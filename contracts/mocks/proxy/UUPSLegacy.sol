@@ -14,11 +14,11 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
     // An extra underscore prevents a name clash error.
     function __setImplementation(address newImplementation) private {
         require(newImplementation.code.length > 0, "ERC1967: new implementation is not a contract");
-        StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
+        StorageSlot.getAddressSlot(ERC1967Upgrade.IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
     function _upgradeToAndCallSecureLegacyV1(address newImplementation, bytes memory data, bool forceCall) internal {
-        address oldImplementation = _getImplementation();
+        address oldImplementation = ERC1967Upgrade.getImplementation();
 
         // Initial upgrade and setup call
         __setImplementation(newImplementation);
@@ -37,9 +37,9 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
             );
             rollbackTesting.value = false;
             // Check rollback was effective
-            require(oldImplementation == _getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
+            require(oldImplementation == ERC1967Upgrade.getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
             // Finally reset to the new implementation and log the upgrade
-            _upgradeTo(newImplementation);
+            ERC1967Upgrade.upgradeTo(newImplementation);
         }
     }
 

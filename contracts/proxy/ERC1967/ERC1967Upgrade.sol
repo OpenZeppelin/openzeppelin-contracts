@@ -15,7 +15,24 @@ import "../../utils/StorageSlot.sol";
  *
  * _Available since v4.1._
  */
-abstract contract ERC1967Upgrade is IERC1967 {
+library ERC1967Upgrade {
+    // =================== BEGIN --- COPIED FROM IERC1967.sol --- REMOVAL REQUIRES SOLIDITY 0.8.21 ====================
+    /**
+     * @dev Emitted when the implementation is upgraded.
+     */
+    event Upgraded(address indexed implementation);
+
+    /**
+     * @dev Emitted when the admin account has changed.
+     */
+    event AdminChanged(address previousAdmin, address newAdmin);
+
+    /**
+     * @dev Emitted when the beacon is changed.
+     */
+    event BeaconUpgraded(address indexed beacon);
+    // ==================== END --- COPIED FROM IERC1967.sol --- REMOVAL REQUIRES SOLIDITY 0.8.21 =====================
+
     // This is the keccak-256 hash of "eip1967.proxy.rollback" subtracted by 1
     bytes32 private constant _ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
 
@@ -24,13 +41,13 @@ abstract contract ERC1967Upgrade is IERC1967 {
      * This is the keccak-256 hash of "eip1967.proxy.implementation" subtracted by 1, and is
      * validated in the constructor.
      */
-    bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
+    bytes32 internal constant IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
     /**
      * @dev Returns the current implementation address.
      */
-    function _getImplementation() internal view returns (address) {
-        return StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;
+    function getImplementation() internal view returns (address) {
+        return StorageSlot.getAddressSlot(IMPLEMENTATION_SLOT).value;
     }
 
     /**
@@ -38,7 +55,7 @@ abstract contract ERC1967Upgrade is IERC1967 {
      */
     function _setImplementation(address newImplementation) private {
         require(newImplementation.code.length > 0, "ERC1967: new implementation is not a contract");
-        StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
+        StorageSlot.getAddressSlot(IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
     /**
@@ -46,9 +63,9 @@ abstract contract ERC1967Upgrade is IERC1967 {
      *
      * Emits an {Upgraded} event.
      */
-    function _upgradeTo(address newImplementation) internal {
+    function upgradeTo(address newImplementation) internal {
         _setImplementation(newImplementation);
-        emit Upgraded(newImplementation);
+        emit /*IERC1967.*/Upgraded(newImplementation);
     }
 
     /**
@@ -56,8 +73,8 @@ abstract contract ERC1967Upgrade is IERC1967 {
      *
      * Emits an {Upgraded} event.
      */
-    function _upgradeToAndCall(address newImplementation, bytes memory data, bool forceCall) internal {
-        _upgradeTo(newImplementation);
+    function upgradeToAndCall(address newImplementation, bytes memory data, bool forceCall) internal {
+        upgradeTo(newImplementation);
         if (data.length > 0 || forceCall) {
             Address.functionDelegateCall(newImplementation, data);
         }
@@ -68,7 +85,7 @@ abstract contract ERC1967Upgrade is IERC1967 {
      *
      * Emits an {Upgraded} event.
      */
-    function _upgradeToAndCallUUPS(address newImplementation, bytes memory data, bool forceCall) internal {
+    function upgradeToAndCallUUPS(address newImplementation, bytes memory data, bool forceCall) internal {
         // Upgrades from old implementations will perform a rollback test. This test requires the new
         // implementation to upgrade back to the old, non-ERC1822 compliant, implementation. Removing
         // this special case will break upgrade paths from old UUPS implementation to new ones.
@@ -76,11 +93,11 @@ abstract contract ERC1967Upgrade is IERC1967 {
             _setImplementation(newImplementation);
         } else {
             try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
-                require(slot == _IMPLEMENTATION_SLOT, "ERC1967Upgrade: unsupported proxiableUUID");
+                require(slot == IMPLEMENTATION_SLOT, "ERC1967Upgrade: unsupported proxiableUUID");
             } catch {
                 revert("ERC1967Upgrade: new implementation is not UUPS");
             }
-            _upgradeToAndCall(newImplementation, data, forceCall);
+            upgradeToAndCall(newImplementation, data, forceCall);
         }
     }
 
@@ -89,7 +106,7 @@ abstract contract ERC1967Upgrade is IERC1967 {
      * This is the keccak-256 hash of "eip1967.proxy.admin" subtracted by 1, and is
      * validated in the constructor.
      */
-    bytes32 internal constant _ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
+    bytes32 internal constant ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
 
     /**
      * @dev Returns the current admin.
@@ -98,8 +115,8 @@ abstract contract ERC1967Upgrade is IERC1967 {
      * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
      * `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
      */
-    function _getAdmin() internal view returns (address) {
-        return StorageSlot.getAddressSlot(_ADMIN_SLOT).value;
+    function getAdmin() internal view returns (address) {
+        return StorageSlot.getAddressSlot(ADMIN_SLOT).value;
     }
 
     /**
@@ -107,7 +124,7 @@ abstract contract ERC1967Upgrade is IERC1967 {
      */
     function _setAdmin(address newAdmin) private {
         require(newAdmin != address(0), "ERC1967: new admin is the zero address");
-        StorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
+        StorageSlot.getAddressSlot(ADMIN_SLOT).value = newAdmin;
     }
 
     /**
@@ -115,8 +132,8 @@ abstract contract ERC1967Upgrade is IERC1967 {
      *
      * Emits an {AdminChanged} event.
      */
-    function _changeAdmin(address newAdmin) internal {
-        emit AdminChanged(_getAdmin(), newAdmin);
+    function changeAdmin(address newAdmin) internal {
+        emit /*IERC1967.*/AdminChanged(getAdmin(), newAdmin);
         _setAdmin(newAdmin);
     }
 
@@ -124,13 +141,13 @@ abstract contract ERC1967Upgrade is IERC1967 {
      * @dev The storage slot of the UpgradeableBeacon contract which defines the implementation for this proxy.
      * This is bytes32(uint256(keccak256('eip1967.proxy.beacon')) - 1)) and is validated in the constructor.
      */
-    bytes32 internal constant _BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
+    bytes32 internal constant BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
 
     /**
      * @dev Returns the current beacon.
      */
-    function _getBeacon() internal view returns (address) {
-        return StorageSlot.getAddressSlot(_BEACON_SLOT).value;
+    function getBeacon() internal view returns (address) {
+        return StorageSlot.getAddressSlot(BEACON_SLOT).value;
     }
 
     /**
@@ -142,7 +159,7 @@ abstract contract ERC1967Upgrade is IERC1967 {
             IBeacon(newBeacon).implementation().code.length > 0,
             "ERC1967: beacon implementation is not a contract"
         );
-        StorageSlot.getAddressSlot(_BEACON_SLOT).value = newBeacon;
+        StorageSlot.getAddressSlot(BEACON_SLOT).value = newBeacon;
     }
 
     /**
@@ -151,9 +168,9 @@ abstract contract ERC1967Upgrade is IERC1967 {
      *
      * Emits a {BeaconUpgraded} event.
      */
-    function _upgradeBeaconToAndCall(address newBeacon, bytes memory data, bool forceCall) internal {
+    function upgradeBeaconToAndCall(address newBeacon, bytes memory data, bool forceCall) internal {
         _setBeacon(newBeacon);
-        emit BeaconUpgraded(newBeacon);
+        emit /*IERC1967.*/BeaconUpgraded(newBeacon);
         if (data.length > 0 || forceCall) {
             Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);
         }

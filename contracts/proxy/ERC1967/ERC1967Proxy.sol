@@ -12,7 +12,7 @@ import "./ERC1967Upgrade.sol";
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967], so that it doesn't conflict with the storage layout of the
  * implementation behind the proxy.
  */
-contract ERC1967Proxy is Proxy, ERC1967Upgrade {
+contract ERC1967Proxy is Proxy {
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
      *
@@ -20,7 +20,7 @@ contract ERC1967Proxy is Proxy, ERC1967Upgrade {
      * function call, and allows initializing the storage of the proxy like a Solidity constructor.
      */
     constructor(address _logic, bytes memory _data) payable {
-        _upgradeToAndCall(_logic, _data, false);
+        ERC1967Upgrade.upgradeToAndCall(_logic, _data, false);
     }
 
     /**
@@ -31,6 +31,6 @@ contract ERC1967Proxy is Proxy, ERC1967Upgrade {
      * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
      */
     function _implementation() internal view virtual override returns (address impl) {
-        return ERC1967Upgrade._getImplementation();
+        return ERC1967Upgrade.getImplementation();
     }
 }
