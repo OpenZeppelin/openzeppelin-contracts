@@ -4,8 +4,8 @@
 pragma solidity ^0.8.0;
 
 import "./GovernorVotes.sol";
-import "../../utils/Checkpoints.sol";
 import "../../utils/math/SafeCast.sol";
+import "../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Extension of {Governor} for voting weight extraction from an {ERC20Votes} token and a quorum expressed as a
