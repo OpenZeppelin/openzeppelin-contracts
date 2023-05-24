@@ -26,7 +26,7 @@ abstract contract Ownable is Context {
     error OwnableUnauthorizedAccount(address account);
 
     /**
-     * @dev Caller is not a valid owner.
+     * @dev The owner is not a valid owner account. (eg. `address(0)`)
      */
     error OwnableInvalidOwner(address owner);
 
