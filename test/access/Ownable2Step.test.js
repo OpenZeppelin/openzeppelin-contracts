@@ -30,9 +30,11 @@ contract('Ownable2Step', function (accounts) {
 
     it('guards transfer against invalid user', async function () {
       await this.ownable2Step.transferOwnership(accountA, { from: owner });
-      await expectRevertCustomError(this.ownable2Step.acceptOwnership({ from: accountB }), 'OwnableUnauthorizedAccount', [
-        accountB,
-      ]);
+      await expectRevertCustomError(
+        this.ownable2Step.acceptOwnership({ from: accountB }),
+        'OwnableUnauthorizedAccount',
+        [accountB],
+      );
     });
   });
 
@@ -50,9 +52,11 @@ contract('Ownable2Step', function (accounts) {
       expect(await this.ownable2Step.pendingOwner()).to.equal(accountA);
       await this.ownable2Step.renounceOwnership({ from: owner });
       expect(await this.ownable2Step.pendingOwner()).to.equal(ZERO_ADDRESS);
-      await expectRevertCustomError(this.ownable2Step.acceptOwnership({ from: accountA }), 'OwnableUnauthorizedAccount', [
-        accountA,
-      ]);
+      await expectRevertCustomError(
+        this.ownable2Step.acceptOwnership({ from: accountA }),
+        'OwnableUnauthorizedAccount',
+        [accountA],
+      );
     });
 
     it('allows to recover access using the internal _transferOwnership', async function () {
