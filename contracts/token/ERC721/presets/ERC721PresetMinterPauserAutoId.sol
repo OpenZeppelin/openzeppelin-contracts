@@ -9,7 +9,6 @@ import "../extensions/ERC721Burnable.sol";
 import "../extensions/ERC721Pausable.sol";
 import "../../../access/AccessControlEnumerable.sol";
 import "../../../utils/Context.sol";
-import "../../../utils/Counters.sol";
 
 /**
  * @dev {ERC721} token, including:
@@ -35,12 +34,10 @@ contract ERC721PresetMinterPauserAutoId is
     ERC721Burnable,
     ERC721Pausable
 {
-    using Counters for Counters.Counter;
-
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    Counters.Counter private _tokenIdTracker;
+    uint256 private _tokenIdTracker;
 
     string private _baseTokenURI;
 
@@ -80,8 +77,8 @@ contract ERC721PresetMinterPauserAutoId is
 
         // We cannot just use balanceOf to create the new tokenId because tokens
         // can be burned (destroyed), so we need a separate counter.
-        _mint(to, _tokenIdTracker.current());
-        _tokenIdTracker.increment();
+        _mint(to, _tokenIdTracker);
+        _tokenIdTracker += 1;
     }
 
     /**

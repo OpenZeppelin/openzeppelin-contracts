@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 
 import "../../interfaces/IERC5805.sol";
 import "../../utils/Context.sol";
-import "../../utils/Counters.sol";
 import "../../utils/Checkpoints.sol";
 import "../../utils/cryptography/EIP712.sol";
 
@@ -30,7 +29,6 @@ import "../../utils/cryptography/EIP712.sol";
  */
 abstract contract Votes is Context, EIP712, IERC5805 {
     using Checkpoints for Checkpoints.Trace224;
-    using Counters for Counters.Counter;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -43,7 +41,7 @@ abstract contract Votes is Context, EIP712, IERC5805 {
     /// @custom:oz-retyped-from Checkpoints.History
     Checkpoints.Trace224 private _totalCheckpoints;
 
-    mapping(address => Counters.Counter) private _nonces;
+    mapping(address => uint256) private _nonces;
 
     /**
      * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based
@@ -217,16 +215,15 @@ abstract contract Votes is Context, EIP712, IERC5805 {
      * Returns the current value and increments nonce.
      */
     function _useNonce(address owner) internal virtual returns (uint256 current) {
-        Counters.Counter storage nonce = _nonces[owner];
-        current = nonce.current();
-        nonce.increment();
+        current = _nonces[owner];
+        _nonces[owner] += 1;
     }
 
     /**
      * @dev Returns an address nonce.
      */
     function nonces(address owner) public view virtual returns (uint256) {
-        return _nonces[owner].current();
+        return _nonces[owner];
     }
 
     /**

@@ -5,7 +5,6 @@ pragma solidity ^0.8.0;
 
 import "../ERC20.sol";
 import "../../../utils/Arrays.sol";
-import "../../../utils/Counters.sol";
 
 /**
  * @dev This contract extends an ERC20 token with a snapshot mechanism. When a snapshot is created, the balances and
@@ -44,7 +43,6 @@ abstract contract ERC20Snapshot is ERC20 {
     // https://github.com/Giveth/minime/blob/ea04d950eea153a04c51fa510b068b9dded390cb/contracts/MiniMeToken.sol
 
     using Arrays for uint256[];
-    using Counters for Counters.Counter;
 
     // Snapshotted values have arrays of ids and the value corresponding to that id. These could be an array of a
     // Snapshot struct, but that would impede usage of functions that work on an array.
@@ -57,7 +55,7 @@ abstract contract ERC20Snapshot is ERC20 {
     Snapshots private _totalSupplySnapshots;
 
     // Snapshot ids increase monotonically, with the first value being 1. An id of 0 is invalid.
-    Counters.Counter private _currentSnapshotId;
+    uint256 private _currentSnapshotId;
 
     /**
      * @dev Emitted by {_snapshot} when a snapshot identified by `id` is created.
@@ -86,7 +84,7 @@ abstract contract ERC20Snapshot is ERC20 {
      * ====
      */
     function _snapshot() internal virtual returns (uint256) {
-        _currentSnapshotId.increment();
+        _currentSnapshotId += 1;
 
         uint256 currentId = _getCurrentSnapshotId();
         emit Snapshot(currentId);
@@ -97,7 +95,7 @@ abstract contract ERC20Snapshot is ERC20 {
      * @dev Get the current snapshotId
      */
     function _getCurrentSnapshotId() internal view virtual returns (uint256) {
-        return _currentSnapshotId.current();
+        return _currentSnapshotId;
     }
 
     /**
