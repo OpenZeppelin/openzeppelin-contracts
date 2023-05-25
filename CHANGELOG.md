@@ -5,6 +5,8 @@
 The following contracts were removed:
 
 - `ERC20Snapshot`
+- `ERC20VotesComp`
+- `GovernorVotesComp`
 - `PaymentSplitter`
 - `TokenTimelock` (removed in favor of `VestinWallet`)
 
