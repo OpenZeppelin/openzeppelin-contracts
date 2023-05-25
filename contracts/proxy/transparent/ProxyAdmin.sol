@@ -12,6 +12,11 @@ import "../../access/Ownable.sol";
  */
 contract ProxyAdmin is Ownable {
     /**
+     * @dev Sets the initial owner who can perform upgrades.
+     */
+    constructor(address initialOwner) Ownable(initialOwner) {}
+
+    /**
      * @dev Changes the admin of `proxy` to `newAdmin`.
      *
      * Requirements:

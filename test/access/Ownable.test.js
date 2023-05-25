@@ -9,7 +9,7 @@ contract('Ownable', function (accounts) {
   const [owner, other] = accounts;
 
   beforeEach(async function () {
-    this.ownable = await Ownable.new({ from: owner });
+    this.ownable = await Ownable.new(owner);
   });
 
   it('has an owner', async function () {

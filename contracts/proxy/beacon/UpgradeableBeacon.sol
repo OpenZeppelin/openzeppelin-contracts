@@ -21,10 +21,9 @@ contract UpgradeableBeacon is IBeacon, Ownable {
     event Upgraded(address indexed implementation);
 
     /**
-     * @dev Sets the address of the initial implementation, and the deployer account as the owner who can upgrade the
-     * beacon.
+     * @dev Sets the address of the initial implementation, and the initial owner who can upgrade the beacon.
      */
-    constructor(address implementation_) {
+    constructor(address implementation_, address initialOwner) Ownable(initialOwner) {
         _setImplementation(implementation_);
     }
 
