@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/utils/SafeERC20.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/utils/SafeERC20.sol)
 
 pragma solidity ^0.8.19;
 
@@ -51,7 +51,7 @@ library SafeERC20 {
      */
     function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {
         uint256 oldAllowance = token.allowance(address(this), spender);
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, oldAllowance + value));
+        forceApprove(token, spender, oldAllowance + value);
     }
 
     /**
@@ -64,7 +64,7 @@ library SafeERC20 {
             if (oldAllowance < value) {
                 revert ERC20.ERC20ExceededAllowanceDecrease(spender, oldAllowance, value);
             }
-            _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, oldAllowance - value));
+            forceApprove(token, spender, oldAllowance - value);
         }
     }
 

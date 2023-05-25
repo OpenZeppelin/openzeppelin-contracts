@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC1155/ERC1155.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC1155/ERC1155.sol)
 
 pragma solidity ^0.8.19;
 
@@ -71,9 +71,6 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
      * - `account` cannot be the zero address.
      */
     function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
-        if (account == address(0)) {
-            revert ERC1155InvalidOwner(address(0));
-        }
         return _balances[id][account];
     }
 
