@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.20;
 
-import "./AccessManager.sol";
-import "./ICondition.sol";
-import "../../utils/Address.sol";
-import "../../utils/math/SafeCast.sol";
+import "../ICondition.sol";
+import "../AccessManager.sol";
+import "../../../utils/Address.sol";
+import "../../../utils/math/SafeCast.sol";
 
-contract TimelockCondition is ICondition {
+contract DelayCondition is ICondition {
     address private _caller = address(0xdead);
 
     mapping(address =>                                      uint48)   private _delayTarget;

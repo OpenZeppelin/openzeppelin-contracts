@@ -3,7 +3,7 @@ const { soliditySha3 } = require('web3-utils');
 const { Enum } = require('../../helpers/enums.js');
 
 const AccessManager = artifacts.require('$AccessManager');
-const TimelockCondition = artifacts.require('$TimelockCondition');
+const DelayCondition = artifacts.require('DelayCondition');
 
 const fnSig = signature => soliditySha3(signature).substring(0, 10);
 const mask = (...groups) =>
@@ -131,127 +131,129 @@ contract('AccessManager', function (accounts) {
     });
   });
 
-  describe('through timelock condition', function () {
-    beforeEach(async function () {
-      this.condition = await TimelockCondition.new();
-
-      // set authorisation
-      await this.manager.setFunctionAllowedGroup(
-        this.condition.address,
-        [
-          'setDelayTarget(address,uint48)',
-          'setDelayCaller(address,address,uint48)',
-          'setDelaySelector(address,address,bytes4,uint48)',
-        ].map(sig => fnSig(sig)),
-        ADMIN_GROUP,
-        true,
-        { from: admin },
-      );
-
-      // Grant admin power through the condition and revoke "normal" admin power
-      await this.manager.grantGroupWithCondition(ADMIN_GROUP, admin, this.condition.address, { from: admin });
-      await this.manager.renounceGroup(ADMIN_GROUP, { from: admin });
-
-      // data of the restricted call
-      this.data = this.manager.contract.methods.grantGroup(SOME_GROUP, other).encodeABI();
-    });
-
-    describe('without delay', function () {
-      it('authorized', async function () {
-        expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP));
-
-        const receipt = await this.condition.execute(this.manager.address, this.data, { from: admin });
-        // expectEvent(receipt, 'RoleGranted', { account: other, role: mask(SOME_GROUP), sender: admin });
-
-        expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP, SOME_GROUP));
-      });
-
-      it('unauthorized', async function () {
-        await expectRevert(
-          this.condition.execute(this.manager.address, this.data, { from: other }),
-          'AccessManaged: authority rejected',
-        );
-      });
-    });
-
-    describe('with delay', function () {
+  describe('conditions', function () {
+    describe('delay', function () {
       beforeEach(async function () {
-        this.duration = web3.utils.toBN(10);
-        // execute it through the condition itself
-        await this.condition.execute(this.condition.address, this.condition.contract.methods.setDelayTarget(this.manager.address, this.duration).encodeABI(), { from: admin });
-        // check delay is set
-        expect(await this.condition.getDelay(this.manager.address, admin, '0x00000000')).to.be.bignumber.equal(this.duration);
+        this.condition = await DelayCondition.new();
+
+        // set authorisation
+        await this.manager.setFunctionAllowedGroup(
+          this.condition.address,
+          [
+            'setDelayTarget(address,uint48)',
+            'setDelayCaller(address,address,uint48)',
+            'setDelaySelector(address,address,bytes4,uint48)',
+          ].map(sig => fnSig(sig)),
+          ADMIN_GROUP,
+          true,
+          { from: admin },
+        );
+
+        // Grant admin power through the condition and revoke "normal" admin power
+        await this.manager.grantGroupWithCondition(ADMIN_GROUP, admin, this.condition.address, { from: admin });
+        await this.manager.renounceGroup(ADMIN_GROUP, { from: admin });
+
+        // data of the restricted call
+        this.data = this.manager.contract.methods.grantGroup(SOME_GROUP, other).encodeABI();
       });
 
-      describe('operate on manager', function () {
-        it('directly', async function () {
-          await expectRevert(
-            this.condition.execute(this.manager.address, this.data, { from: admin }),
-            'Execute: not ready',
-          );
-        });
-
-        it('unauthorized schedule', async function () {
-          await expectRevert(
-            this.condition.schedule(this.manager.address, this.data, { from: other }),
-            'Schedule: unauthorized call',
-          );
-        });
-
-        it('schedule and execute', async function () {
-          await this.condition.schedule(this.manager.address, this.data, { from: admin });
-          await expectRevert(
-            this.condition.execute(this.manager.address, this.data, { from: admin }),
-            'Execute: not ready',
-          );
-        });
-
-        it('schedule, wait and execute', async function () {
-          await this.condition.schedule(this.manager.address, this.data, { from: admin });
-          await time.increase(this.duration);
-
+      describe('without delay', function () {
+        it('authorized', async function () {
           expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP));
-          await this.condition.execute(this.manager.address, this.data, { from: admin });
+
+          const receipt = await this.condition.execute(this.manager.address, this.data, { from: admin });
+          // expectEvent(receipt, 'RoleGranted', { account: other, role: mask(SOME_GROUP), sender: admin });
+
           expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP, SOME_GROUP));
         });
+
+        it('unauthorized', async function () {
+          await expectRevert(
+            this.condition.execute(this.manager.address, this.data, { from: other }),
+            'AccessManaged: authority rejected',
+          );
+        });
       });
 
-      describe('operate on condition', function () {
+      describe('with delay', function () {
         beforeEach(async function () {
-          // lets try to remove the delay
-          this.newDuration = web3.utils.toBN(0);
-          this.data = this.condition.contract.methods.setDelayTarget(this.manager.address, this.newDuration).encodeABI();
-        });
-
-        it('directly', async function () {
-          await expectRevert(
-            this.condition.execute(this.condition.address, this.data, { from: admin }),
-            'Execute: not ready',
-          );
-        });
-
-        it('unauthorized schedule (skipped: auth not prechecked if target is condition)', async function () {
-          await expectRevert(
-            this.condition.schedule(this.condition.address, this.data, { from: other }),
-            'Schedule: unauthorized call',
-          );
-        });
-
-        it('schedule and execute', async function () {
-          await this.condition.schedule(this.condition.address, this.data, { from: admin });
-          await expectRevert(
-            this.condition.execute(this.condition.address, this.data, { from: admin }),
-            'Execute: not ready',
-          );
-        });
-
-        it('schedule, wait and execute', async function () {
-          await this.condition.schedule(this.condition.address, this.data, { from: admin });
-          await time.increase(this.duration);
-
+          this.duration = web3.utils.toBN(10);
+          // execute it through the condition itself
+          await this.condition.execute(this.condition.address, this.condition.contract.methods.setDelayTarget(this.manager.address, this.duration).encodeABI(), { from: admin });
+          // check delay is set
           expect(await this.condition.getDelay(this.manager.address, admin, '0x00000000')).to.be.bignumber.equal(this.duration);
-          await this.condition.execute(this.condition.address, this.data, { from: admin });
-          expect(await this.condition.getDelay(this.manager.address, admin, '0x00000000')).to.be.bignumber.equal(this.newDuration);
+        });
+
+        describe('operate on manager', function () {
+          it('directly', async function () {
+            await expectRevert(
+              this.condition.execute(this.manager.address, this.data, { from: admin }),
+              'Execute: not ready',
+            );
+          });
+
+          it('unauthorized schedule', async function () {
+            await expectRevert(
+              this.condition.schedule(this.manager.address, this.data, { from: other }),
+              'Schedule: unauthorized call',
+            );
+          });
+
+          it('schedule and execute', async function () {
+            await this.condition.schedule(this.manager.address, this.data, { from: admin });
+            await expectRevert(
+              this.condition.execute(this.manager.address, this.data, { from: admin }),
+              'Execute: not ready',
+            );
+          });
+
+          it('schedule, wait and execute', async function () {
+            await this.condition.schedule(this.manager.address, this.data, { from: admin });
+            await time.increase(this.duration);
+
+            expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP));
+            await this.condition.execute(this.manager.address, this.data, { from: admin });
+            expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP, SOME_GROUP));
+          });
+        });
+
+        describe('operate on condition', function () {
+          beforeEach(async function () {
+            // lets try to remove the delay
+            this.newDuration = web3.utils.toBN(0);
+            this.data = this.condition.contract.methods.setDelayTarget(this.manager.address, this.newDuration).encodeABI();
+          });
+
+          it('directly', async function () {
+            await expectRevert(
+              this.condition.execute(this.condition.address, this.data, { from: admin }),
+              'Execute: not ready',
+            );
+          });
+
+          it('unauthorized schedule (skipped: auth not prechecked if target is condition)', async function () {
+            await expectRevert(
+              this.condition.schedule(this.condition.address, this.data, { from: other }),
+              'Schedule: unauthorized call',
+            );
+          });
+
+          it('schedule and execute', async function () {
+            await this.condition.schedule(this.condition.address, this.data, { from: admin });
+            await expectRevert(
+              this.condition.execute(this.condition.address, this.data, { from: admin }),
+              'Execute: not ready',
+            );
+          });
+
+          it('schedule, wait and execute', async function () {
+            await this.condition.schedule(this.condition.address, this.data, { from: admin });
+            await time.increase(this.duration);
+
+            expect(await this.condition.getDelay(this.manager.address, admin, '0x00000000')).to.be.bignumber.equal(this.duration);
+            await this.condition.execute(this.condition.address, this.data, { from: admin });
+            expect(await this.condition.getDelay(this.manager.address, admin, '0x00000000')).to.be.bignumber.equal(this.newDuration);
+          });
         });
       });
     });
