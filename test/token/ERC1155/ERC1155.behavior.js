@@ -20,11 +20,8 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
 
   describe('like an ERC1155', function () {
     describe('balanceOf', function () {
-      it('reverts when queried about the zero address', async function () {
-        await expectRevert(
-          this.token.balanceOf(ZERO_ADDRESS, firstTokenId),
-          'ERC1155: address zero is not a valid owner',
-        );
+      it('should return 0 when queried about the zero address', async function () {
+        expect(await this.token.balanceOf(ZERO_ADDRESS, firstTokenId)).to.be.bignumber.equal('0');
       });
 
       context("when accounts don't own tokens", function () {
@@ -76,14 +73,15 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
         );
       });
 
-      it('reverts when one of the addresses is the zero address', async function () {
-        await expectRevert(
-          this.token.balanceOfBatch(
-            [firstTokenHolder, secondTokenHolder, ZERO_ADDRESS],
-            [firstTokenId, secondTokenId, unknownTokenId],
-          ),
-          'ERC1155: address zero is not a valid owner',
+      it('should return 0 as the balance when one of the addresses is the zero address', async function () {
+        const result = await this.token.balanceOfBatch(
+          [firstTokenHolder, secondTokenHolder, ZERO_ADDRESS],
+          [firstTokenId, secondTokenId, unknownTokenId],
         );
+        expect(result).to.be.an('array');
+        expect(result[0]).to.be.a.bignumber.equal('0');
+        expect(result[1]).to.be.a.bignumber.equal('0');
+        expect(result[2]).to.be.a.bignumber.equal('0');
       });
 
       context("when accounts don't own tokens", function () {
