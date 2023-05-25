@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC721/extensions/ERC721Votes.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/extensions/ERC721Votes.sol)
 
 pragma solidity ^0.8.0;
 
@@ -34,6 +34,8 @@ abstract contract ERC721Votes is ERC721, Votes {
 
     /**
      * @dev Returns the balance of `account`.
+     *
+     * WARNING: Overriding this function will likely result in incorrect vote tracking.
      */
     function _getVotingUnits(address account) internal view virtual override returns (uint256) {
         return balanceOf(account);

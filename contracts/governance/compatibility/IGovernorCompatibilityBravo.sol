@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (governance/compatibility/IGovernorCompatibilityBravo.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/compatibility/IGovernorCompatibilityBravo.sol)
 
 pragma solidity ^0.8.0;
 
@@ -89,6 +89,11 @@ abstract contract IGovernorCompatibilityBravo is IGovernor {
      * @dev Part of the Governor Bravo's interface: _"Executes a queued proposal if eta has passed"_.
      */
     function execute(uint256 proposalId) public payable virtual;
+
+    /**
+     * @dev Cancels a proposal only if the sender is the proposer or the proposer delegates' voting power dropped below the proposal threshold.
+     */
+    function cancel(uint256 proposalId) public virtual;
 
     /**
      * @dev Part of the Governor Bravo's interface: _"Gets actions of a proposal"_.

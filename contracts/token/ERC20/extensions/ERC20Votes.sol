@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.1) (token/ERC20/extensions/ERC20Votes.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/extensions/ERC20Votes.sol)
 
 pragma solidity ^0.8.0;
 
@@ -50,7 +50,7 @@ abstract contract ERC20Votes is ERC20Permit, IERC5805 {
     // solhint-disable-next-line func-name-mixedcase
     function CLOCK_MODE() public view virtual override returns (string memory) {
         // Check that the clock was not modified
-        require(clock() == block.number);
+        require(clock() == block.number, "ERC20Votes: broken clock mode");
         return "mode=blocknumber&from=default";
     }
 
@@ -114,7 +114,7 @@ abstract contract ERC20Votes is ERC20Permit, IERC5805 {
      * @dev Lookup a value in a list of (sorted) checkpoints.
      */
     function _checkpointsLookup(Checkpoint[] storage ckpts, uint256 timepoint) private view returns (uint256) {
-        // We run a binary search to look for the earliest checkpoint taken after `timepoint`.
+        // We run a binary search to look for the last (most recent) checkpoint taken before (or at) `timepoint`.
         //
         // Initially we check if the block is recent to narrow the search range.
         // During the loop, the index of the wanted checkpoint remains in the range [low-1, high).
