@@ -98,8 +98,6 @@ library EnumerableSet {
 
                 // Move the last value to the index where the value to delete is
                 set._values[toDeleteIndex] = lastValue;
-                // Update the index for the moved value
-                set._indexes[lastValue] = valueIndex; // Replace lastValue's index to valueIndex
             }
 
             // Delete the slot where the moved value was stored
