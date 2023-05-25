@@ -17,12 +17,11 @@ contract('ProxyAdmin', function (accounts) {
 
   beforeEach(async function () {
     const initializeData = Buffer.from('');
-    this.proxyAdmin = await ProxyAdmin.new({ from: proxyAdminOwner });
+    this.proxyAdmin = await ProxyAdmin.new(proxyAdminOwner);
     const proxy = await TransparentUpgradeableProxy.new(
       this.implementationV1.address,
       this.proxyAdmin.address,
       initializeData,
-      { from: proxyAdminOwner },
     );
     this.proxy = await ITransparentUpgradeableProxy.at(proxy.address);
   });

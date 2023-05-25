@@ -171,7 +171,7 @@ Dynamic role allocation is often a desirable property, for example in systems wh
 [[querying-privileged-accounts]]
 === Querying Privileged Accounts
 
-Because accounts might <<granting-and-revoking, grant and revoke roles>> dynamically, it is not always possible to determine which accounts hold a particular role. This is important as it allows to prove certain properties about a system, such as that an administrative account is a multisig or a DAO, or that a certain role has been removed from all users, effectively disabling any associated functionality.
+Because accounts might <<granting-and-revoking, grant and revoke roles>> dynamically, it is not always possible to determine which accounts hold a particular role. This is important as it allows proving certain properties about a system, such as that an administrative account is a multisig or a DAO, or that a certain role has been removed from all users, effectively disabling any associated functionality.
 
 Under the hood, `AccessControl` uses `EnumerableSet`, a more powerful variant of Solidity's `mapping` type, which allows for key enumeration. `getRoleMemberCount` can be used to retrieve the number of accounts that have a particular role, and `getRoleMember` can then be called to get the address of each of these accounts.
 
