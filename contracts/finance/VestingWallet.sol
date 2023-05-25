@@ -69,7 +69,7 @@ contract VestingWallet is Context {
      * @dev Getter for the end timestamp.
      */
     function end() public view virtual returns (uint256) {
-        return _start + _duration;
+        return start() + end();
     }
 
     /**
