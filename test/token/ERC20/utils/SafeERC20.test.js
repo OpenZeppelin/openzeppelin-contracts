@@ -68,7 +68,7 @@ contract('SafeERC20', function (accounts) {
     it('reverts on transfer', async function () {
       await expectRevertCustomError(
         this.mock.$safeTransfer(this.token.address, receiver, 0),
-        'ERC20UnsuccessfulOperation',
+        'SafeERC20UnsuccessfulOperation',
         [this.token.address],
       );
     });
@@ -76,7 +76,7 @@ contract('SafeERC20', function (accounts) {
     it('reverts on transferFrom', async function () {
       await expectRevertCustomError(
         this.mock.$safeTransferFrom(this.token.address, this.mock.address, receiver, 0),
-        'ERC20UnsuccessfulOperation',
+        'SafeERC20UnsuccessfulOperation',
         [this.token.address],
       );
     });
@@ -94,7 +94,7 @@ contract('SafeERC20', function (accounts) {
     it('reverts on forceApprove', async function () {
       await expectRevertCustomError(
         this.mock.$forceApprove(this.token.address, spender, 0),
-        'ERC20UnsuccessfulOperation',
+        'SafeERC20UnsuccessfulOperation',
         [this.token.address],
       );
     });
@@ -190,7 +190,7 @@ contract('SafeERC20', function (accounts) {
           this.signature.r,
           this.signature.s,
         ),
-        'ERC20UnsuccessfulOperation',
+        'SafeERC20UnsuccessfulOperation',
         [this.token.address],
       );
       expect(await this.token.nonces(owner)).to.be.bignumber.equal('1');
@@ -227,7 +227,7 @@ contract('SafeERC20', function (accounts) {
           invalidSignature.r,
           invalidSignature.s,
         ),
-        'ERC20UnsuccessfulOperation',
+        'SafeERC20UnsuccessfulOperation',
         [this.token.address],
       );
     });
