@@ -13,7 +13,7 @@ for (const artifact of artifacts) {
   const linearized = [];
 
   for (const source in solcOutput.contracts) {
-    if (['contracts-exposed', 'contracts/mocks'].some(pattern => source.match(pattern))) {
+    if (['contracts-exposed/', 'contracts/mocks/'].some(pattern => source.startsWith(pattern))) {
       continue;
     }
 

@@ -25,7 +25,7 @@ import "./IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract Governor is Context, ERC165, EIP712, IGovernor, ERC721Holder, ERC1155Holder {
+abstract contract Governor is Context, ERC165, EIP712, ERC721Holder, ERC1155Holder, IGovernor {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
