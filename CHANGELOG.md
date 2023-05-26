@@ -8,7 +8,7 @@ The following contracts were removed:
 - `ERC20VotesComp`
 - `GovernorVotesComp`
 - `PaymentSplitter`
-- `TokenTimelock` (removed in favor of `VestinWallet`)
+- `TokenTimelock` (removed in favor of `VestingWallet`)
 
 ### How to upgrade from 4.x
 
