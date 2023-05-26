@@ -42,10 +42,6 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
 }
 ```
-<<<<<<< HEAD
-
-=======
->>>>>>> next-v5.0
 
 ## 4.9.0 (2023-05-23)
 
