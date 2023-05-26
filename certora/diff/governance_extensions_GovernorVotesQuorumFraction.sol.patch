@@ -1,0 +1,14 @@
+--- governance/extensions/GovernorVotesQuorumFraction.sol	2023-05-03 09:17:45.570033048 +0200
++++ governance/extensions/GovernorVotesQuorumFraction.sol	2023-05-04 15:18:42.664408414 +0200
+@@ -61,6 +61,11 @@
+         return _quorumNumeratorHistory.upperLookupRecent(SafeCast.toUint32(timepoint));
+     }
+ 
++    // FV
++    function quorumNumeratorLength() public view returns (uint256) {
++        return _quorumNumeratorHistory._checkpoints.length;
++    }
++
+     /**
+      * @dev Returns the quorum denominator. Defaults to 100, but may be overridden.
+      */

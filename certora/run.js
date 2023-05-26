@@ -21,7 +21,7 @@ const argv = require('yargs')
     spec: {
       alias: 's',
       type: 'string',
-      default: __dirname + '/specs.json',
+      default: __dirname + '/specs.js',
     },
     parallel: {
       alias: 'p',
@@ -59,12 +59,17 @@ if (process.exitCode) {
 }
 
 for (const { spec, contract, files, options = [] } of specs) {
-  limit(runCertora, spec, contract, files, [...options.flatMap(opt => opt.split(' ')), ...argv.options]);
+  limit(runCertora, spec, contract, files, [...options, ...argv.options]);
 }
 
 // Run certora, aggregate the output and print it at the end
 async function runCertora(spec, contract, files, options = []) {
-  const args = [...files, '--verify', `${contract}:certora/specs/${spec}.spec`, ...options];
+  const args = [
+    ...files,
+    '--verify',
+    `${contract}:certora/specs/${spec}.spec`,
+    ...options.flatMap(opt => opt.split(' ')),
+  ];
   const child = proc.spawn('certoraRun', args);
 
   const stream = new PassThrough();
