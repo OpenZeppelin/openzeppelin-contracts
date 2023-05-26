@@ -1,7 +1,7 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
-const { VALUE_SIZES } = require('../../scripts/generate/templates/Checkpoints.opts.js');
+const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts.js');
 
 const $Checkpoints = artifacts.require('$Checkpoints');
 
