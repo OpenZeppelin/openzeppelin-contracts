@@ -86,6 +86,11 @@ interface IERC1155 is IERC165 {
     /**
      * @dev Transfers `amount` tokens of token type `id` from `from` to `to`.
      *
+     * WARNING: This function can potentially allow a reentrancy attack when transferring tokens 
+     * to an untrusted contract, via the internally called _doSafeTransferAcceptanceCheck function.
+     * Ensure to follow the checks-effects-interactions pattern and consider employing 
+     * reentrancy guards when interacting with untrusted contracts.
+     *
      * Emits a {TransferSingle} event.
      *
      * Requirements:
@@ -100,6 +105,12 @@ interface IERC1155 is IERC165 {
 
     /**
      * @dev xref:ROOT:erc1155.adoc#batch-operations[Batched] version of {safeTransferFrom}.
+     *
+     *
+     * WARNING: This function can potentially allow a reentrancy attack when transferring tokens 
+     * to an untrusted contract, via the internally called _doSafeBatchTransferAcceptanceCheck function.
+     * Ensure to follow the checks-effects-interactions pattern and consider employing 
+     * reentrancy guards when interacting with untrusted contracts.
      *
      * Emits a {TransferBatch} event.
      *
