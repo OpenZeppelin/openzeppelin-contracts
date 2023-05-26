@@ -4,8 +4,8 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "../../contracts/utils/Checkpoints.sol";
-import "../../contracts/utils/math/SafeCast.sol";
+import "../../../contracts/utils/math/SafeCast.sol";
+import "../../../contracts/utils/structs/Checkpoints.sol";
 
 contract CheckpointsTrace224Test is Test {
     using Checkpoints for Checkpoints.Trace224;
