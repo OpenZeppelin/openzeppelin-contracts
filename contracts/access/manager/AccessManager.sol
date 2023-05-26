@@ -13,12 +13,9 @@ interface IAccessManager is IAuthority {
     event GroupAllowed(address indexed target, bytes4 indexed selector, uint8 indexed group, bool allowed);
     event AccessModeUpdated(address indexed target, AccessMode previousMode, AccessMode indexed mode);
 
-    function grantGroup(uint8 group, address user) external;
-    function revokeGroup(uint8 group, address user) external;
-    function renounceGroup(uint8 group) external;
-    function grantGroupWithCondition(uint8 group, address user, address condition) external;
-    function revokeGroupWithCondition(uint8 group, address user, address condition) external;
-    function renounceGroupWithCondition(uint8 group, address condition) external;
+    function grantGroup(uint8 group, address user, address[] calldata conditions) external;
+    function revokeGroup(uint8 group, address user, address[] calldata conditions) external;
+    function renounceGroup(uint8 group, address[] calldata conditions) external;
     function setFunctionAllowedGroup(address target, bytes4[] calldata selectors, uint8 group, bool allowed) external;
     function setContractModeCustom(address target) external;
     function setContractModeOpen(address target) external;
@@ -26,28 +23,27 @@ interface IAccessManager is IAuthority {
     function getContractMode(address target) external view returns (AccessMode);
     function getFunctionAllowedGroups(address target, bytes4 selector) external view returns (bytes32);
     function getUserGroups(address user) external view returns (bytes32);
-    function getUserConditionedGroups(address user, address condition) external view returns (bytes32);
+    function getUserGroups(address user, address[] calldata conditions) external view returns (bytes32);
 }
+
+import "hardhat/console.sol";
 
 contract AccessManager is IAccessManager, AccessManagedImmutable(this) {
     using AccessManagerUtils for *;
 
-    uint8 public constant ADMIN_GROUP  = type(uint8).min;
-    uint8 public constant PUBLIC_GROUP = type(uint8).max;
+    uint8 public constant MAX_CONDITION_DEPTH = 8; // Do we realistically need more ?
+    uint8 public constant ADMIN_GROUP         = type(uint8).min;
+    uint8 public constant PUBLIC_GROUP        = type(uint8).max;
 
-    mapping(address user   =>                              bytes32    groups ) private _userGroups;
-    mapping(address user   => mapping(address condition => bytes32    groups)) private _userConditionedGroups;
-    mapping(address target => mapping(bytes4  selector  => bytes32    groups)) private _allowedGroups;
-    mapping(address target =>                              AccessMode mode   ) private _contractMode;
+    mapping(address user   => mapping(bytes32 conditions => bytes32    groups)) private _userGroups;
+    mapping(address target => mapping(bytes4  selector   => bytes32    groups)) private _allowedGroups;
+    mapping(address target =>                               AccessMode mode   ) private _contractMode;
 
     constructor(address initialAdmin) {
-        _grantGroup(ADMIN_GROUP, initialAdmin);
+        _grantGroup(ADMIN_GROUP, initialAdmin, new address[](0));
         _setFunctionAllowedGroup(address(this), IAccessManager.grantGroup.selector,                 ADMIN_GROUP,  true);
         _setFunctionAllowedGroup(address(this), IAccessManager.revokeGroup.selector,                ADMIN_GROUP,  true);
         _setFunctionAllowedGroup(address(this), IAccessManager.renounceGroup.selector,              PUBLIC_GROUP, true);
-        _setFunctionAllowedGroup(address(this), IAccessManager.grantGroupWithCondition.selector,    ADMIN_GROUP,  true);
-        _setFunctionAllowedGroup(address(this), IAccessManager.revokeGroupWithCondition.selector,   ADMIN_GROUP,  true);
-        _setFunctionAllowedGroup(address(this), IAccessManager.renounceGroupWithCondition.selector, PUBLIC_GROUP, true);
         _setFunctionAllowedGroup(address(this), IAccessManager.setFunctionAllowedGroup.selector,    ADMIN_GROUP,  true);
         _setFunctionAllowedGroup(address(this), IAccessManager.setContractModeCustom.selector,      ADMIN_GROUP,  true);
         _setFunctionAllowedGroup(address(this), IAccessManager.setContractModeOpen.selector,        ADMIN_GROUP,  true);
@@ -56,58 +52,33 @@ contract AccessManager is IAccessManager, AccessManagedImmutable(this) {
 
     // =============================================== GROUP MANAGEMENT ===============================================
     // Restricted to ADMIN_GROUP by default
-    function grantGroup(uint8 group, address user) public virtual restricted() {
-        _grantGroup(group, user);
+    function grantGroup(uint8 group, address user, address[] calldata conditions) public virtual restricted() {
+        _grantGroup(group, user, conditions);
     }
 
     // Restricted to ADMIN_GROUP by default
-    function revokeGroup(uint8 group, address user) public virtual restricted() {
-        _revokeGroup(group, user);
+    function revokeGroup(uint8 group, address user, address[] calldata conditions) public virtual restricted() {
+        _revokeGroup(group, user, conditions);
     }
 
     // Open to PUBLIC_GROUP by default
-    function renounceGroup(uint8 group) public virtual restricted() {
-        _revokeGroup(group, msg.sender);
+    function renounceGroup(uint8 group, address[] calldata conditions) public virtual restricted() {
+        _revokeGroup(group, msg.sender, conditions);
     }
 
-    function _grantGroup(uint8 group, address user) internal virtual {
-        bytes32 before = _userGroups[user];
+    function _grantGroup(uint8 group, address user, address[] memory conditions) internal virtual {
+        bytes32 conditionsHash = _hashConditions(conditions);
+        bytes32 before = _userGroups[user][conditionsHash];
         require(before & group.toMask() == 0, "Grant error: user already in group");
-        _userGroups[user] = before.applyMask(group.toMask(), true);
+        _userGroups[user][conditionsHash] = before.applyMask(group.toMask(), true);
         // emit Event
     }
 
-    function _revokeGroup(uint8 group, address user) internal virtual {
-        bytes32 before = _userGroups[user];
+    function _revokeGroup(uint8 group, address user, address[] memory conditions) internal virtual {
+        bytes32 conditionsHash = _hashConditions(conditions);
+        bytes32 before = _userGroups[user][conditionsHash];
         require(before & group.toMask() != 0, "Revoke error: user not in group");
-        _userGroups[user] = before.applyMask(group.toMask(), false);
-        // emit Event
-    }
-
-    // ============================================= CONDITION MANAGEMENT =============================================
-    function grantGroupWithCondition(uint8 group, address user, address condition) public virtual restricted() {
-        _grantGroupWithCondition(group, user, condition);
-    }
-
-    function revokeGroupWithCondition(uint8 group, address user, address condition) public virtual restricted() {
-        _revokeGroupWithCondition(group, user, condition);
-    }
-
-    function renounceGroupWithCondition(uint8 group, address condition) public virtual restricted() {
-        _revokeGroupWithCondition(group, msg.sender, condition);
-    }
-
-    function _grantGroupWithCondition(uint8 group, address user, address condition) internal {
-        bytes32 before = _userConditionedGroups[user][condition];
-        require(before & group.toMask() == 0, "Grant error: user already in group with condition");
-        _userConditionedGroups[user][condition] = before.applyMask(group.toMask(), true);
-        // emit Event
-    }
-
-    function _revokeGroupWithCondition(uint8 group, address user, address condition) internal {
-        bytes32 before = _userConditionedGroups[user][condition];
-        require(before & group.toMask() == 0, "Grant error: user already in group with condition");
-        _userConditionedGroups[user][condition] = before.applyMask(group.toMask(), true);
+        _userGroups[user][conditionsHash] = before.applyMask(group.toMask(), false);
         // emit Event
     }
 
@@ -150,13 +121,28 @@ contract AccessManager is IAccessManager, AccessManagedImmutable(this) {
     // =================================================== GETTERS ====================================================
     function canCall(address caller, address target, bytes4 selector) public view virtual returns (bool) {
         bytes32 allowedGroups = getFunctionAllowedGroups(target, selector);
-        if (getUserGroups(caller) & allowedGroups != 0) {
-            return true;
+
+        // reserve the space for 32 iterations
+        address[] memory conditionChain = new address[](MAX_CONDITION_DEPTH);
+        assembly { mstore(conditionChain, 0) }
+
+        for (uint256 i = 0; i < MAX_CONDITION_DEPTH; ++i) {
+            // try getting the permission with the current permission array
+            if (getUserGroups(caller, conditionChain) & allowedGroups > 0) return true;
+
+            // assume "caller" is a condition
+            address currentCaller = caller.callerFromCondition();
+
+            // exit condition
+            if (currentCaller == address(0)) break;
+
+            // update the condition array
+            assembly { mstore(conditionChain, add(i, 1)) }
+            conditionChain[i] = caller;
+            caller = currentCaller;
         }
 
-        // assume caller is a condition, recover the real caller (user) from it.
-        address user = caller.callerFromCondition();
-        return user != address(0) && getUserConditionedGroups(user, caller) & allowedGroups != 0;
+        return false;
     }
 
     function getContractMode(address target) public view virtual returns (AccessMode) {
@@ -175,10 +161,15 @@ contract AccessManager is IAccessManager, AccessManagedImmutable(this) {
     }
 
     function getUserGroups(address user) public view virtual returns (bytes32) {
-        return _userGroups[user] | PUBLIC_GROUP.toMask();
+        return getUserGroups(user, new address[](0));
     }
 
-    function getUserConditionedGroups(address user, address condition) public view virtual returns (bytes32) {
-        return _userConditionedGroups[user][condition] | PUBLIC_GROUP.toMask(); // the "or" part is actually not needed
+    function getUserGroups(address user, address[] memory conditions) public view virtual returns (bytes32) {
+        return _userGroups[user][_hashConditions(conditions)] | PUBLIC_GROUP.toMask();
+    }
+
+    function _hashConditions(address[] memory conditions) private pure returns (bytes32) {
+        require(conditions.length < MAX_CONDITION_DEPTH, "Condition chain too deep");
+        return keccak256(abi.encode(conditions));
     }
 }

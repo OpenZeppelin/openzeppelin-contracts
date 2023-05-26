@@ -3,5 +3,5 @@
 pragma solidity ^0.8.20;
 
 interface ICondition {
-    function getCaller() external view returns (address);
+    function currentCaller() external view returns (address);
 }

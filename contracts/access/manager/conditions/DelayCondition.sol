@@ -26,7 +26,7 @@ contract DelayCondition is ICondition {
     }
 
     /// @dev See {ICondition}. Value is set in {execute} before the relaying.
-    function getCaller() public view returns (address) {
+    function currentCaller() public view returns (address) {
         return _caller;
     }
 
@@ -56,7 +56,7 @@ contract DelayCondition is ICondition {
         address realTarget    = target == address(this) ? address(bytes20(call[0x10:0x24])) : target;
         address authority     = address(IManaged(realTarget).authority());
         bytes32 allowedGroups = IAccessManager(authority).getFunctionAllowedGroups(target, selector);
-        bytes32 userGroups    = IAccessManager(authority).getUserConditionedGroups(caller, address(this));
+        bytes32 userGroups    = IAccessManager(authority).getUserGroups(caller, _toSingletonArray(address(this)));
         require(allowedGroups & userGroups != 0, "(somethingSchedule: unauthorized call");
 
         // schedule
@@ -111,4 +111,11 @@ contract DelayCondition is ICondition {
     function setDelaySelector(address target, address user, bytes4 selector, uint48 delay) public restricted(IManaged(target).authority()) {
         _delaySelector[target][user][selector] = delay;
     }
+
+    function _toSingletonArray(address entry) private pure returns (address[] memory) {
+        address[] memory array = new address[](1);
+        array[0] = entry;
+        return array;
+    }
+
 }

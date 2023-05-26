@@ -16,7 +16,7 @@ library AccessManagerUtils {
 
     // address(0) is an error and should be checked
     function callerFromCondition(address condition) internal view returns (address) {
-        (bool success, bytes memory returnData) = condition.staticcall(abi.encodeCall(ICondition.getCaller, ()));
+        (bool success, bytes memory returnData) = condition.staticcall(abi.encodeCall(ICondition.currentCaller, ()));
         if (success && returnData.length == 0x20) {
             return abi.decode(returnData, (address));
         } else {

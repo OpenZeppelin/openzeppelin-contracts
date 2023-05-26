@@ -20,12 +20,9 @@ const SOME_GROUP = 1;
 const PUBLIC_GROUP = 255;
 
 const initialGroups = {
-  'grantGroup(uint8,address)': mask(ADMIN_GROUP),
-  'revokeGroup(uint8,address)': mask(ADMIN_GROUP),
-  'renounceGroup(uint8)': mask(PUBLIC_GROUP),
-  'grantGroupWithCondition(uint8,address,address)': mask(ADMIN_GROUP),
-  'revokeGroupWithCondition(uint8,address,address)': mask(ADMIN_GROUP),
-  'renounceGroupWithCondition(uint8,address)': mask(PUBLIC_GROUP),
+  'grantGroup(uint8,address,address[])': mask(ADMIN_GROUP),
+  'revokeGroup(uint8,address,address[])': mask(ADMIN_GROUP),
+  'renounceGroup(uint8,address[])': mask(PUBLIC_GROUP),
   'setContractModeClosed(address)': mask(ADMIN_GROUP),
   'setContractModeCustom(address)': mask(ADMIN_GROUP),
   'setContractModeOpen(address)': mask(ADMIN_GROUP),
@@ -47,13 +44,11 @@ contract('AccessManager', function (accounts) {
         initialGroups[signature] || constants.ZERO_BYTES32,
       );
     }
-
-    expect(await this.manager.getUserGroups(admin)).to.be.equal(mask(ADMIN_GROUP, PUBLIC_GROUP));
-    expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP));
-    expect(await this.manager.getUserGroups(condition)).to.be.equal(mask(PUBLIC_GROUP));
-
-    expect(await this.manager.getUserConditionedGroups(admin, condition)).to.be.equal(mask(PUBLIC_GROUP));
-    expect(await this.manager.getUserConditionedGroups(other, condition)).to.be.equal(mask(PUBLIC_GROUP));
+    expect(await this.manager.methods['getUserGroups(address)'](admin)).to.be.equal(mask(ADMIN_GROUP, PUBLIC_GROUP));
+    expect(await this.manager.methods['getUserGroups(address)'](other)).to.be.equal(mask(PUBLIC_GROUP));
+    expect(await this.manager.methods['getUserGroups(address)'](condition)).to.be.equal(mask(PUBLIC_GROUP));
+    expect(await this.manager.methods['getUserGroups(address,address[])'](admin, [ condition ])).to.be.equal(mask(PUBLIC_GROUP));
+    expect(await this.manager.methods['getUserGroups(address,address[])'](other, [ condition ])).to.be.equal(mask(PUBLIC_GROUP));
   });
 
   describe('restricted functions', function () {
@@ -61,7 +56,7 @@ contract('AccessManager', function (accounts) {
       it('authorized', async function () {
         expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP));
 
-        const receipt = await this.manager.grantGroup(SOME_GROUP, other, { from: admin });
+        const receipt = await this.manager.grantGroup(SOME_GROUP, other, [], { from: admin });
         // expectEvent(receipt, 'RoleGranted', { account: other, role: mask(SOME_GROUP), sender: admin });
 
         expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP, SOME_GROUP));
@@ -69,14 +64,14 @@ contract('AccessManager', function (accounts) {
 
       it('unauthorized', async function () {
         await expectRevert(
-          this.manager.grantGroup(SOME_GROUP, other, { from: other }),
+          this.manager.grantGroup(SOME_GROUP, other, [], { from: other }),
           'AccessManaged: authority rejected',
         );
       });
 
       it('revert if user already has the role', async function () {
         await expectRevert(
-          this.manager.grantGroup(ADMIN_GROUP, admin, { from: admin }),
+          this.manager.grantGroup(ADMIN_GROUP, admin, [], { from: admin }),
           'Grant error: user already in group',
         );
       });
@@ -84,13 +79,13 @@ contract('AccessManager', function (accounts) {
 
     describe('revokeGroup', function () {
       beforeEach(async function () {
-        await this.manager.$_grantGroup(SOME_GROUP, other);
+        await this.manager.$_grantGroup(SOME_GROUP, other, []);
       });
 
       it('authorized', async function () {
         expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP, SOME_GROUP));
 
-        const receipt = await this.manager.revokeGroup(SOME_GROUP, other, { from: admin });
+        const receipt = await this.manager.revokeGroup(SOME_GROUP, other, [], { from: admin });
         // expectEvent(receipt, 'RoleRevoked', { account: other, role: mask(SOME_GROUP), sender: admin });
 
         expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP));
@@ -98,14 +93,14 @@ contract('AccessManager', function (accounts) {
 
       it('unauthorized', async function () {
         await expectRevert(
-          this.manager.revokeGroup(SOME_GROUP, other, { from: other }),
+          this.manager.revokeGroup(SOME_GROUP, other, [], { from: other }),
           'AccessManaged: authority rejected',
         );
       });
 
       it('revert if user does not have the role', async function () {
         await expectRevert(
-          this.manager.revokeGroup(SOME_GROUP, admin, { from: admin }),
+          this.manager.revokeGroup(SOME_GROUP, admin, [], { from: admin }),
           'Revoke error: user not in group',
         );
       });
@@ -113,20 +108,20 @@ contract('AccessManager', function (accounts) {
 
     describe('renounceGroup', function () {
       beforeEach(async function () {
-        await this.manager.$_grantGroup(SOME_GROUP, other);
+        await this.manager.$_grantGroup(SOME_GROUP, other, []);
       });
 
       it('authorized', async function () {
         expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP, SOME_GROUP));
 
-        const receipt = await this.manager.renounceGroup(SOME_GROUP, { from: other });
+        const receipt = await this.manager.renounceGroup(SOME_GROUP, [], { from: other });
         // expectEvent(receipt, 'RoleRevoked', { account: other, role: mask(SOME_GROUP), sender: other });
 
         expect(await this.manager.getUserGroups(other)).to.be.equal(mask(PUBLIC_GROUP));
       });
 
       it('revert if user already has the role', async function () {
-        await expectRevert(this.manager.renounceGroup(SOME_GROUP, { from: admin }), 'Revoke error: user not in group');
+        await expectRevert(this.manager.renounceGroup(SOME_GROUP, [], { from: admin }), 'Revoke error: user not in group');
       });
     });
   });
@@ -150,11 +145,11 @@ contract('AccessManager', function (accounts) {
         );
 
         // Grant admin power through the condition and revoke "normal" admin power
-        await this.manager.grantGroupWithCondition(ADMIN_GROUP, admin, this.condition.address, { from: admin });
-        await this.manager.renounceGroup(ADMIN_GROUP, { from: admin });
+        await this.manager.grantGroup(ADMIN_GROUP, admin, [ this.condition.address ], { from: admin });
+        await this.manager.renounceGroup(ADMIN_GROUP, [], { from: admin });
 
         // data of the restricted call
-        this.data = this.manager.contract.methods.grantGroup(SOME_GROUP, other).encodeABI();
+        this.data = this.manager.contract.methods.grantGroup(SOME_GROUP, other, []).encodeABI();
       });
 
       describe('without delay', function () {
