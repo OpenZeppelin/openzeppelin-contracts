@@ -1,3 +1,5 @@
+require('@openzeppelin/test-helpers');
+
 const { expect } = require('chai');
 
 const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts.js');
