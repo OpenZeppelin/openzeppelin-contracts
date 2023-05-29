@@ -293,7 +293,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
         }
         if (_proposals[proposalId].voteStart != 0) {
-            revert GovernorDuplicatedProposal(proposalId);
+            revert GovernorIncorrectState(proposalId, state(proposalId), bytes32(0));
         }
 
         uint256 snapshot = currentTimepoint + votingDelay();

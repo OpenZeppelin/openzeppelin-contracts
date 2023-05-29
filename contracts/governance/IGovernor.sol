@@ -49,11 +49,6 @@ abstract contract IGovernor is IERC165, IERC6372 {
     error GovernorOnlyProposer(address account);
 
     /**
-     * @dev The `proposalId` is duplicated.
-     */
-    error GovernorDuplicatedProposal(uint256 proposalId);
-
-    /**
      * @dev The `proposalId` doesn't exist.
      */
     error GovernorInexistentProposal(uint256 proposalId);
@@ -62,6 +57,9 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @dev The current state of a proposal is not the required for performing an operation.
      * The `expectedStates` is a bitmap with the bits enabled for each ProposalState enum position
      * counting from right to left.
+     *
+     * NOTE: If `expectedState` is `bytes32(0)`, the proposal is duplicated, meaning there's no expected
+     * state.
      *
      * See {Governor-_encodeState}.
      */

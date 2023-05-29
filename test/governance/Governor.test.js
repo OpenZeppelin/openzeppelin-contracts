@@ -12,6 +12,7 @@ const { expectRevertCustomError } = require('../helpers/customError');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 const { shouldBehaveLikeEIP6372 } = require('./utils/EIP6372.behavior');
+const { ZERO_BYTES32 } = require('@openzeppelin/test-helpers/src/constants');
 
 const Governor = artifacts.require('$GovernorMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
@@ -238,7 +239,11 @@ contract('Governor', function (accounts) {
         describe('on propose', function () {
           it('if proposal already exists', async function () {
             await this.helper.propose();
-            await expectRevertCustomError(this.helper.propose(), 'GovernorDuplicatedProposal', [this.proposal.id]);
+            await expectRevertCustomError(this.helper.propose(), 'GovernorIncorrectState', [
+              this.proposal.id,
+              Enums.ProposalState.Pending,
+              ZERO_BYTES32,
+            ]);
           });
         });
 
