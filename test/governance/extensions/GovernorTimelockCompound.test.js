@@ -149,7 +149,11 @@ contract('GovernorTimelockCompound', function (accounts) {
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
-            await expectRevertCustomError(this.helper.queue(), 'GovernorIncorrectState', [id, Enums.ProposalState.Succeeded, ZERO_BYTES32]);
+            await expectRevertCustomError(this.helper.queue(), 'GovernorIncorrectState', [
+              id,
+              Enums.ProposalState.Succeeded,
+              ZERO_BYTES32,
+            ]);
             await expectRevertCustomError(this.helper.execute(), 'GovernorProposalNotQueued', [id]);
           });
         });
