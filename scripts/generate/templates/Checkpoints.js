@@ -5,8 +5,8 @@ const { OPTS } = require('./Checkpoints.opts.js');
 const header = `\
 pragma solidity ^0.8.0;
 
-import "./math/Math.sol";
-import "./math/SafeCast.sol";
+import "../math/Math.sol";
+import "../math/SafeCast.sol";
 
 /**
  * @dev This library defines the \`History\` struct, for checkpointing values as they change at different points in

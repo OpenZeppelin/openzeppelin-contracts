@@ -1,7 +1,7 @@
 const { expect } = require('chai');
 
-const { VALUE_SIZES } = require('../../scripts/generate/templates/Checkpoints.opts.js');
-const { expectRevertCustomError } = require('../helpers/customError.js');
+const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts.js');
+const { expectRevertCustomError } = require('../../helpers/customError.js');
 
 const $Checkpoints = artifacts.require('$Checkpoints');
 

@@ -5,13 +5,13 @@ pragma solidity ^0.8.0;
 import "../../governance/compatibility/GovernorCompatibilityBravo.sol";
 import "../../governance/extensions/GovernorTimelockCompound.sol";
 import "../../governance/extensions/GovernorSettings.sol";
-import "../../governance/extensions/GovernorVotesComp.sol";
+import "../../governance/extensions/GovernorVotes.sol";
 
 abstract contract GovernorCompatibilityBravoMock is
     GovernorCompatibilityBravo,
     GovernorSettings,
     GovernorTimelockCompound,
-    GovernorVotesComp
+    GovernorVotes
 {
     function quorum(uint256) public pure override returns (uint256) {
         return 0;

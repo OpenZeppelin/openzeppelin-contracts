@@ -1,5 +1,15 @@
 # Changelog
 
+### Removals
+
+The following contracts were removed:
+
+- `ERC20Snapshot`
+- `ERC20VotesComp`
+- `GovernorVotesComp`
+- `PaymentSplitter`
+- `TokenTimelock` (removed in favor of `VestingWallet`)
+
 ### How to upgrade from 4.x
 
 #### ERC20, ERC721, and ERC1155
