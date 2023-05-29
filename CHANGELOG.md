@@ -2,13 +2,27 @@
 
 ### Removals
 
-The following contracts were removed:
+The following contracts, libraries and functions were removed:
 
+- `Address.isContract` (because of its ambiguous nature and potential for misuse)
+- `Checkpoint.History`
 - `ERC20Snapshot`
 - `ERC20VotesComp`
+- `ERC165Storage` (in favor of inheritance based approach)
+- `ERC777`
+- `ERC1820Implementer`
 - `GovernorVotesComp`
+- `GovernorProposalThreshold` (deprecated since 4.4)
 - `PaymentSplitter`
-- `TokenTimelock` (removed in favor of `VestingWallet`)
+- `PullPayment`
+- `SafeMath`
+- `SignedSafeMath`
+- `Timers`
+- `TokenTimelock` (in favor of `VestingWallet`)
+- All escrow contracts (`Escrow`, `ConditionalEscrow`, `RefundEscrow`)
+- All crossChain contracts, including `AccessControlCrossChain` and all the vendored bridge interfaces
+- All presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/)
+
 
 ### How to upgrade from 4.x
 
