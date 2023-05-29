@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (governance/compatibility/GovernorCompatibilityBravo.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../../utils/math/SafeCast.sol";
 import "../extensions/IGovernorTimelock.sol";
