@@ -76,7 +76,7 @@ contract('Create2', function (accounts) {
       expect(await balance.current(offChainComputed)).to.be.bignumber.equal(deposit);
     });
 
-    it.only('fails deploying a contract in an existent address', async function () {
+    it('fails deploying a contract in an existent address', async function () {
       expectEvent(await this.factory.$deploy(0, saltHex, constructorByteCode), 'return$deploy');
 
       // TODO: Make sure it actually throws "Create2FailedDeployment".
