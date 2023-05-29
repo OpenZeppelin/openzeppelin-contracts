@@ -3,7 +3,7 @@ const { OPTS } = require('./Checkpoints.opts.js');
 
 // TEMPLATE
 const header = `\
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../math/Math.sol";
 import "../math/SafeCast.sol";
