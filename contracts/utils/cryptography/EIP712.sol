@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/cryptography/EIP712.sol)
 
-pragma solidity ^0.8.8;
+pragma solidity ^0.8.19;
 
 import "./ECDSA.sol";
 import "../ShortStrings.sol";
