@@ -23,7 +23,6 @@ The following contracts, libraries and functions were removed:
 - All crossChain contracts, including `AccessControlCrossChain` and all the vendored bridge interfaces
 - All presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/)
 
-
 ### How to upgrade from 4.x
 
 #### ERC20, ERC721, and ERC1155
