@@ -5,7 +5,7 @@
 The following contracts, libraries and functions were removed:
 
 - `Address.isContract` (because of its ambiguous nature and potential for misuse)
-- `Checkpoint.History`
+- `Checkpoints.History`
 - `ERC20Snapshot`
 - `ERC20VotesComp`
 - `ERC165Storage` (in favor of inheritance based approach)
@@ -19,8 +19,8 @@ The following contracts, libraries and functions were removed:
 - `SignedSafeMath`
 - `Timers`
 - `TokenTimelock` (in favor of `VestingWallet`)
-- All escrow contracts (`Escrow`, `ConditionalEscrow`, `RefundEscrow`)
-- All crossChain contracts, including `AccessControlCrossChain` and all the vendored bridge interfaces
+- All escrow contracts (`Escrow`, `ConditionalEscrow` and `RefundEscrow`)
+- All CrossChain contracts, including `AccessControlCrossChain` and all the vendored bridge interfaces
 - All presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/)
 
 ### How to upgrade from 4.x
