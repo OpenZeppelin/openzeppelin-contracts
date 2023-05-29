@@ -7,7 +7,7 @@ import "../../governance/extensions/GovernorVotes.sol";
 import "../../governance/extensions/GovernorVotesQuorumFraction.sol";
 import "../../governance/extensions/GovernorTimelockControl.sol";
 
-contract MyGovernor is
+contract MyGovernor3 is
     Governor,
     GovernorTimelockControl,
     GovernorCompatibilityBravo,
