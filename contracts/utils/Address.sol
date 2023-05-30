@@ -23,7 +23,7 @@ library Address {
     error AddressFailedLowLevelCall();
 
     /**
-     * @dev There's no code at `target` (is not a contract).
+     * @dev There's no code at `target` (it is not a contract).
      */
     error AddressEmptyCode(address target);
 
