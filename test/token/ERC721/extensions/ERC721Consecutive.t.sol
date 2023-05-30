@@ -14,9 +14,11 @@ function toSingleton(address account) pure returns (address[] memory) {
 }
 
 contract ERC721ConsecutiveTarget is StdUtils, ERC721Consecutive {
+    uint96 private immutable _offset;
     uint256 public totalMinted = 0;
 
-    constructor(address[] memory receivers, uint256[] memory batches) ERC721("", "") {
+    constructor(address[] memory receivers, uint256[] memory batches, uint256 startingId) ERC721("", "") {
+        _offset = uint96(startingId);
         for (uint256 i = 0; i < batches.length; i++) {
             address receiver = receivers[i % receivers.length];
             uint96 batchSize = uint96(bound(batches[i], 0, _maxBatchSize()));
@@ -28,43 +30,71 @@ contract ERC721ConsecutiveTarget is StdUtils, ERC721Consecutive {
     function burn(uint256 tokenId) public {
         _burn(tokenId);
     }
+
+    function _firstConsecutiveId() internal view virtual override returns (uint96) {
+        return _offset;
+    }
 }
 
 contract ERC721ConsecutiveTest is Test {
-    function test_balance(address receiver, uint256[] calldata batches) public {
+    function test_balance(address receiver, uint256[] calldata batches, uint96 startingId) public {
         vm.assume(receiver != address(0));
 
-        ERC721ConsecutiveTarget token = new ERC721ConsecutiveTarget(toSingleton(receiver), batches);
+        uint256 startingTokenId = bound(startingId, 0, 5000);
+
+        ERC721ConsecutiveTarget token = new ERC721ConsecutiveTarget(toSingleton(receiver), batches, startingTokenId);
 
         assertEq(token.balanceOf(receiver), token.totalMinted());
     }
 
-    function test_ownership(address receiver, uint256[] calldata batches, uint256[2] calldata unboundedTokenId) public {
+    function test_ownership(
+        address receiver,
+        uint256[] calldata batches,
+        uint256[2] calldata unboundedTokenId,
+        uint96 startingId
+    ) public {
         vm.assume(receiver != address(0));
 
-        ERC721ConsecutiveTarget token = new ERC721ConsecutiveTarget(toSingleton(receiver), batches);
+        uint256 startingTokenId = bound(startingId, 0, 5000);
+
+        ERC721ConsecutiveTarget token = new ERC721ConsecutiveTarget(toSingleton(receiver), batches, startingTokenId);
 
         if (token.totalMinted() > 0) {
-            uint256 validTokenId = bound(unboundedTokenId[0], 0, token.totalMinted() - 1);
+            uint256 validTokenId = bound(
+                unboundedTokenId[0],
+                startingTokenId,
+                startingTokenId + token.totalMinted() - 1
+            );
             assertEq(token.ownerOf(validTokenId), receiver);
         }
 
-        uint256 invalidTokenId = bound(unboundedTokenId[1], token.totalMinted(), type(uint256).max);
+        uint256 invalidTokenId = bound(
+            unboundedTokenId[1],
+            startingTokenId + token.totalMinted(),
+            startingTokenId + token.totalMinted() + 1
+        );
         vm.expectRevert();
         token.ownerOf(invalidTokenId);
     }
 
-    function test_burn(address receiver, uint256[] calldata batches, uint256 unboundedTokenId) public {
+    function test_burn(
+        address receiver,
+        uint256[] calldata batches,
+        uint256 unboundedTokenId,
+        uint96 startingId
+    ) public {
         vm.assume(receiver != address(0));
 
-        ERC721ConsecutiveTarget token = new ERC721ConsecutiveTarget(toSingleton(receiver), batches);
+        uint256 startingTokenId = bound(startingId, 0, 5000);
+
+        ERC721ConsecutiveTarget token = new ERC721ConsecutiveTarget(toSingleton(receiver), batches, startingTokenId);
 
         // only test if we minted at least one token
         uint256 supply = token.totalMinted();
         vm.assume(supply > 0);
 
         // burn a token in [0; supply[
-        uint256 tokenId = bound(unboundedTokenId, 0, supply - 1);
+        uint256 tokenId = bound(unboundedTokenId, startingTokenId, startingTokenId + supply - 1);
         token.burn(tokenId);
 
         // balance should have decreased
@@ -78,11 +108,14 @@ contract ERC721ConsecutiveTest is Test {
     function test_transfer(
         address[2] calldata accounts,
         uint256[2] calldata unboundedBatches,
-        uint256[2] calldata unboundedTokenId
+        uint256[2] calldata unboundedTokenId,
+        uint96 startingId
     ) public {
         vm.assume(accounts[0] != address(0));
         vm.assume(accounts[1] != address(0));
         vm.assume(accounts[0] != accounts[1]);
+
+        uint256 startingTokenId = bound(startingId, 1, 5000);
 
         address[] memory receivers = new address[](2);
         receivers[0] = accounts[0];
@@ -90,13 +123,13 @@ contract ERC721ConsecutiveTest is Test {
 
         // We assume _maxBatchSize is 5000 (the default). This test will break otherwise.
         uint256[] memory batches = new uint256[](2);
-        batches[0] = bound(unboundedBatches[0], 1, 5000);
-        batches[1] = bound(unboundedBatches[1], 1, 5000);
+        batches[0] = bound(unboundedBatches[0], startingTokenId, 5000);
+        batches[1] = bound(unboundedBatches[1], startingTokenId, 5000);
 
-        ERC721ConsecutiveTarget token = new ERC721ConsecutiveTarget(receivers, batches);
+        ERC721ConsecutiveTarget token = new ERC721ConsecutiveTarget(receivers, batches, startingTokenId);
 
-        uint256 tokenId0 = bound(unboundedTokenId[0], 0, batches[0] - 1);
-        uint256 tokenId1 = bound(unboundedTokenId[1], 0, batches[1] - 1) + batches[0];
+        uint256 tokenId0 = bound(unboundedTokenId[0], startingTokenId, batches[0]);
+        uint256 tokenId1 = bound(unboundedTokenId[1], startingTokenId, batches[1]) + batches[0];
 
         assertEq(token.ownerOf(tokenId0), accounts[0]);
         assertEq(token.ownerOf(tokenId1), accounts[1]);
@@ -118,5 +151,30 @@ contract ERC721ConsecutiveTest is Test {
         assertEq(token.ownerOf(tokenId1), accounts[0]);
         assertEq(token.balanceOf(accounts[0]), batches[0]);
         assertEq(token.balanceOf(accounts[1]), batches[1]);
+    }
+
+    function test_start_consecutive_id(
+        address receiver,
+        uint256[2] calldata unboundedBatches,
+        uint256[2] calldata unboundedTokenId,
+        uint96 startingId
+    ) public {
+        vm.assume(receiver != address(0));
+
+        uint256 startingTokenId = bound(startingId, 1, 5000);
+
+        // We assume _maxBatchSize is 5000 (the default). This test will break otherwise.
+        uint256[] memory batches = new uint256[](2);
+        batches[0] = bound(unboundedBatches[0], startingTokenId, 5000);
+        batches[1] = bound(unboundedBatches[1], startingTokenId, 5000);
+
+        ERC721ConsecutiveTarget token = new ERC721ConsecutiveTarget(toSingleton(receiver), batches, startingTokenId);
+
+        uint256 tokenId0 = bound(unboundedTokenId[0], startingTokenId, batches[0]);
+        uint256 tokenId1 = bound(unboundedTokenId[1], startingTokenId, batches[1]);
+
+        assertEq(token.ownerOf(tokenId0), receiver);
+        assertEq(token.ownerOf(tokenId1), receiver);
+        assertEq(token.balanceOf(receiver), batches[0] + batches[1]);
     }
 }
