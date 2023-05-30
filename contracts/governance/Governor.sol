@@ -387,7 +387,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     ) internal virtual {
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
-            Address.verifyCallResult(success, returndata, _onGovernorCallRevert);
+            Address.verifyCallResult(success, returndata, _customGovernorRevert);
         }
     }
 
@@ -618,7 +618,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      */
     function relay(address target, uint256 value, bytes calldata data) external payable virtual onlyGovernance {
         (bool success, bytes memory returndata) = target.call{value: value}(data);
-        Address.verifyCallResult(success, returndata, _onGovernorCallRevert);
+        Address.verifyCallResult(success, returndata, _customGovernorRevert);
     }
 
     /**
@@ -681,7 +681,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     /**
      * @dev Default revert function for failed executed functions without any other bubbled up reason.
      */
-    function _onGovernorCallRevert() internal pure {
+    function _customGovernorRevert() internal pure {
         revert GovernorFailedLowLevelCall();
     }
 }

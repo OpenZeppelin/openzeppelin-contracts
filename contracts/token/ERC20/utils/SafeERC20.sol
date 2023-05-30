@@ -115,7 +115,7 @@ library SafeERC20 {
         // we're implementing it ourselves. We use {Address-functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.
 
-        bytes memory returndata = address(token).functionCall(data, onERC20CallRevert);
+        bytes memory returndata = address(token).functionCall(data, customERC20CallRevert);
         if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
             revert SafeERC20UnsuccessfulOperation(address(token));
         }
@@ -138,7 +138,7 @@ library SafeERC20 {
         return success && (returndata.length == 0 || abi.decode(returndata, (bool))) && address(token).code.length > 0;
     }
 
-    function onERC20CallRevert() internal pure {
+    function customERC20CallRevert() internal pure {
         revert SafeERC20FailedLowLevelCall();
     }
 }

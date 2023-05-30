@@ -18,14 +18,9 @@ pragma solidity ^0.8.19;
  */
 library Clones {
     /**
-     * @dev A `CREATE` clone instance deployment failed.
+     * @dev A clone instance deployment failed.
      */
     error ERC1167FailedCreateClone();
-
-    /**
-     * @dev A `CREATE2` clone instance deployment failed.
-     */
-    error ERC1167FailedCreate2Clone();
 
     /**
      * @dev Deploys and returns the address of a clone that mimics the behaviour of `implementation`.
@@ -65,7 +60,7 @@ library Clones {
             instance := create2(0, 0x09, 0x37, salt)
         }
         if (instance == address(0)) {
-            revert ERC1167FailedCreate2Clone();
+            revert ERC1167FailedCreateClone();
         }
     }
 

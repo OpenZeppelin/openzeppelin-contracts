@@ -146,7 +146,7 @@ contract('Address', function (accounts) {
       it('bubbles up error if specified', async function () {
         await expectRevertCustomError(
           this.mockFnPointer.functionCall(this.target.address, '0x12345678'),
-          'CustomOnRevert',
+          'CustomRevert',
           [],
         );
       });
@@ -260,7 +260,7 @@ contract('Address', function (accounts) {
       it('bubbles up error if specified', async function () {
         await expectRevertCustomError(
           this.mockFnPointer.functionCallWithValue(this.target.address, '0x12345678', 0),
-          'CustomOnRevert',
+          'CustomRevert',
           [],
         );
       });
@@ -311,7 +311,7 @@ contract('Address', function (accounts) {
     it('bubbles up error if specified', async function () {
       await expectRevertCustomError(
         this.mockFnPointer.functionCallWithValue(this.target.address, '0x12345678', 0),
-        'CustomOnRevert',
+        'CustomRevert',
         [],
       );
     });
@@ -361,7 +361,7 @@ contract('Address', function (accounts) {
     it('bubbles up error if specified', async function () {
       await expectRevertCustomError(
         this.mockFnPointer.functionCallWithValue(this.target.address, '0x12345678', 0),
-        'CustomOnRevert',
+        'CustomRevert',
         [],
       );
     });
@@ -374,7 +374,7 @@ contract('Address', function (accounts) {
     });
 
     it('reverts with return data and error', async function () {
-      await expectRevertCustomError(this.mockFnPointer.verifyCallResult(false, '0x'), 'CustomOnRevert', []);
+      await expectRevertCustomError(this.mockFnPointer.verifyCallResult(false, '0x'), 'CustomRevert', []);
     });
 
     it('reverts expecting error if provided onRevert is a non-reverting function', async function () {

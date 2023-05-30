@@ -8,9 +8,9 @@ pragma solidity ^0.8.19;
  */
 interface IAccessControl {
     /**
-     * @dev The `account` is missing `role`.
+     * @dev The `account` is missing a role.
      */
-    error AccessControlUnauthorizedAccount(address account, bytes32 role);
+    error AccessControlUnauthorizedAccount(address account, bytes32 neededRole);
 
     /**
      * @dev The caller of a function is not the expected one.

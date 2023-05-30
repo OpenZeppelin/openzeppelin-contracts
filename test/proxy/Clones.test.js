@@ -38,7 +38,7 @@ contract('Clones', function (accounts) {
       // deploy once
       expectEvent(await factory.$cloneDeterministic(implementation, salt), 'return$cloneDeterministic');
       // deploy twice
-      await expectRevertCustomError(factory.$cloneDeterministic(implementation, salt), 'ERC1167FailedCreate2Clone', []);
+      await expectRevertCustomError(factory.$cloneDeterministic(implementation, salt), 'ERC1167FailedCreateClone', []);
     });
 
     it('address prediction', async function () {

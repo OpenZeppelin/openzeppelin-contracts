@@ -79,25 +79,25 @@ library Address {
      * _Available since v3.1._
      */
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, 0, defaultOnRevert);
+        return functionCallWithValue(target, data, 0, defaultRevert);
     }
 
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with an
-     * `onRevert` function as a fallback when `target` reverts.
+     * `customRevert` function as a fallback when `target` reverts.
      *
      * Requirements:
      *
-     * - `onRevert` must be a reverting function.
+     * - `customRevert` must be a reverting function.
      *
      * _Available since v3.1._
      */
     function functionCall(
         address target,
         bytes memory data,
-        function() internal view onRevert
+        function() internal view customRevert
     ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, 0, onRevert);
+        return functionCallWithValue(target, data, 0, customRevert);
     }
 
     /**
@@ -112,16 +112,16 @@ library Address {
      * _Available since v3.1._
      */
     function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, value, defaultOnRevert);
+        return functionCallWithValue(target, data, value, defaultRevert);
     }
 
     /**
      * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
-     * with an `onRevert` function as a fallback revert reason when `target` reverts.
+     * with an `customRevert` function as a fallback revert reason when `target` reverts.
      *
      * Requirements:
      *
-     * - `onRevert` must be a reverting function.
+     * - `customRevert` must be a reverting function.
      *
      * _Available since v3.1._
      */
@@ -129,13 +129,13 @@ library Address {
         address target,
         bytes memory data,
         uint256 value,
-        function() internal view onRevert
+        function() internal view customRevert
     ) internal returns (bytes memory) {
         if (address(this).balance < value) {
             revert AddressInsufficientBalance(address(this));
         }
         (bool success, bytes memory returndata) = target.call{value: value}(data);
-        return verifyCallResultFromTarget(target, success, returndata, onRevert);
+        return verifyCallResultFromTarget(target, success, returndata, customRevert);
     }
 
     /**
@@ -145,7 +145,7 @@ library Address {
      * _Available since v3.3._
      */
     function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        return functionStaticCall(target, data, defaultOnRevert);
+        return functionStaticCall(target, data, defaultRevert);
     }
 
     /**
@@ -157,10 +157,10 @@ library Address {
     function functionStaticCall(
         address target,
         bytes memory data,
-        function() internal view onRevert
+        function() internal view customRevert
     ) internal view returns (bytes memory) {
         (bool success, bytes memory returndata) = target.staticcall(data);
-        return verifyCallResultFromTarget(target, success, returndata, onRevert);
+        return verifyCallResultFromTarget(target, success, returndata, customRevert);
     }
 
     /**
@@ -170,7 +170,7 @@ library Address {
      * _Available since v3.4._
      */
     function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionDelegateCall(target, data, defaultOnRevert);
+        return functionDelegateCall(target, data, defaultRevert);
     }
 
     /**
@@ -182,15 +182,15 @@ library Address {
     function functionDelegateCall(
         address target,
         bytes memory data,
-        function() internal view onRevert
+        function() internal view customRevert
     ) internal returns (bytes memory) {
         (bool success, bytes memory returndata) = target.delegatecall(data);
-        return verifyCallResultFromTarget(target, success, returndata, onRevert);
+        return verifyCallResultFromTarget(target, success, returndata, customRevert);
     }
 
     /**
      * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling
-     * the revert reason or using the provided `onRevert`) in case of unsuccessful call or if target was not a contract.
+     * the revert reason or using the provided `customRevert`) in case of unsuccessful call or if target was not a contract.
      *
      * _Available since v4.8._
      */
@@ -198,7 +198,7 @@ library Address {
         address target,
         bool success,
         bytes memory returndata,
-        function() internal view onRevert
+        function() internal view customRevert
     ) internal view returns (bytes memory) {
         if (success) {
             if (returndata.length == 0) {
@@ -210,36 +210,36 @@ library Address {
             }
             return returndata;
         } else {
-            _revert(returndata, onRevert);
+            _revert(returndata, customRevert);
         }
     }
 
     /**
      * @dev Tool to verify that a low level call was successful, and revert if it wasn't, either by bubbling the
-     * revert reason or using the provided `onRevert`.
+     * revert reason or using the provided `customRevert`.
      *
      * _Available since v4.3._
      */
     function verifyCallResult(
         bool success,
         bytes memory returndata,
-        function() internal view onRevert
+        function() internal view customRevert
     ) internal view returns (bytes memory) {
         if (success) {
             return returndata;
         } else {
-            _revert(returndata, onRevert);
+            _revert(returndata, customRevert);
         }
     }
 
     /**
-     * @dev Default reverting function when no `onRevert` is provided in a function call.
+     * @dev Default reverting function when no `customRevert` is provided in a function call.
      */
-    function defaultOnRevert() internal pure {
+    function defaultRevert() internal pure {
         revert AddressFailedLowLevelCall();
     }
 
-    function _revert(bytes memory returndata, function() internal view onRevert) private view {
+    function _revert(bytes memory returndata, function() internal view customRevert) private view {
         // Look for revert reason and bubble it up if present
         if (returndata.length > 0) {
             // The easiest way to bubble the revert reason is using memory via assembly
@@ -249,7 +249,7 @@ library Address {
                 revert(add(32, returndata), returndata_size)
             }
         } else {
-            onRevert();
+            customRevert();
             revert AddressExpectedRevert();
         }
     }
