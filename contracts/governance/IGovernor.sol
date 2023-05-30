@@ -58,8 +58,8 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * The `expectedStates` is a bitmap with the bits enabled for each ProposalState enum position
      * counting from right to left.
      *
-     * NOTE: If `expectedState` is `bytes32(0)`, the proposal is duplicated, meaning there's no expected
-     * state.
+     * NOTE: If `expectedState` is `bytes32(0)`, the proposal is expected to not be in any state (i.e. not exist).
+     * This is the case when a proposal that is expected to be unset is already initiated (the proposal is duplicated).
      *
      * See {Governor-_encodeState}.
      */
