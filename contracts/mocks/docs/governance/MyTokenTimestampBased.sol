@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-import "../../token/ERC20/ERC20.sol";
-import "../../token/ERC20/extensions/ERC20Permit.sol";
-import "../../token/ERC20/extensions/ERC20Votes.sol";
+import "../../../token/ERC20/ERC20.sol";
+import "../../../token/ERC20/extensions/ERC20Permit.sol";
+import "../../../token/ERC20/extensions/ERC20Votes.sol";
 
-contract MyTokenGovernance3 is ERC20, ERC20Permit, ERC20Votes {
-    constructor() ERC20("MyTokenGovernance3", "MTKG3") ERC20Permit("MyTokenGovernance3") {}
+contract MyTokenTimestampBased is ERC20, ERC20Permit, ERC20Votes {
+    constructor() ERC20("MyTokenTimestampBased", "MTK") ERC20Permit("MyTokenTimestampBased") {}
 
     // Overrides IERC6372 functions to make the token & governor timestamp-based
 

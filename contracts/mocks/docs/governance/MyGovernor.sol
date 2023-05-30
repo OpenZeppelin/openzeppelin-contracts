@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-import "../../governance/Governor.sol";
-import "../../governance/compatibility/GovernorCompatibilityBravo.sol";
-import "../../governance/extensions/GovernorVotes.sol";
-import "../../governance/extensions/GovernorVotesQuorumFraction.sol";
-import "../../governance/extensions/GovernorTimelockControl.sol";
+import "../../../governance/Governor.sol";
+import "../../../governance/compatibility/GovernorCompatibilityBravo.sol";
+import "../../../governance/extensions/GovernorVotes.sol";
+import "../../../governance/extensions/GovernorVotesQuorumFraction.sol";
+import "../../../governance/extensions/GovernorTimelockControl.sol";
 
 contract MyGovernor is
     Governor,
