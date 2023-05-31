@@ -13,14 +13,9 @@ library Address {
     error AddressInsufficientBalance(address account);
 
     /**
-     * @dev A call to `target` failed. The `target` may have reverted.
+     * @dev A call to an address target failed. The target may have reverted.
      */
-    error AddressFailedCall(address target);
-
-    /**
-     * @dev A low level call failed without any further reason.
-     */
-    error AddressFailedLowLevelCall();
+    error AddressFailedCall();
 
     /**
      * @dev There's no code at `target` (it is not a contract).
@@ -56,7 +51,7 @@ library Address {
 
         (bool success, ) = recipient.call{value: amount}("");
         if (!success) {
-            revert AddressFailedCall(recipient);
+            revert AddressFailedCall();
         }
     }
 
@@ -236,7 +231,7 @@ library Address {
      * @dev Default reverting function when no `customRevert` is provided in a function call.
      */
     function defaultRevert() internal pure {
-        revert AddressFailedLowLevelCall();
+        revert AddressFailedCall();
     }
 
     function _revert(bytes memory returndata, function() internal view customRevert) private view {

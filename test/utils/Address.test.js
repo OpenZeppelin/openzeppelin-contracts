@@ -78,9 +78,7 @@ contract('Address', function (accounts) {
 
         it('reverts on recipient revert', async function () {
           await this.target.setAcceptEther(false);
-          await expectRevertCustomError(this.mock.$sendValue(this.target.address, funds), 'AddressFailedCall', [
-            this.target.address,
-          ]);
+          await expectRevertCustomError(this.mock.$sendValue(this.target.address, funds), 'AddressFailedCall', []);
         });
       });
     });
@@ -116,7 +114,7 @@ contract('Address', function (accounts) {
 
         await expectRevertCustomError(
           this.mock.$functionCall(this.target.address, abiEncodedCall),
-          'AddressFailedLowLevelCall',
+          'AddressFailedCall',
           [],
         );
       });
@@ -132,7 +130,7 @@ contract('Address', function (accounts) {
 
         await expectRevertCustomError(
           this.mock.$functionCall(this.target.address, abiEncodedCall, { gas: '120000' }),
-          'AddressFailedLowLevelCall',
+          'AddressFailedCall',
           [],
         );
       });
@@ -163,7 +161,7 @@ contract('Address', function (accounts) {
 
         await expectRevertCustomError(
           this.mock.$functionCall(this.target.address, abiEncodedCall),
-          'AddressFailedLowLevelCall',
+          'AddressFailedCall',
           [],
         );
       });
@@ -252,7 +250,7 @@ contract('Address', function (accounts) {
         await send.ether(other, this.mock.address, amount);
         await expectRevertCustomError(
           this.mock.$functionCallWithValue(this.target.address, abiEncodedCall, amount),
-          'AddressFailedLowLevelCall',
+          'AddressFailedCall',
           [],
         );
       });
@@ -285,7 +283,7 @@ contract('Address', function (accounts) {
 
       await expectRevertCustomError(
         this.mock.$functionStaticCall(this.target.address, abiEncodedCall),
-        'AddressFailedLowLevelCall',
+        'AddressFailedCall',
         [],
       );
     });
