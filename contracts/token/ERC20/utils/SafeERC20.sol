@@ -25,9 +25,9 @@ library SafeERC20 {
     error SafeERC20FailedOperation(address token);
 
     /**
-     * @dev A low level call failed without any further reason.
+     * @dev A call to a target failed. The target may have reverted.
      */
-    error SafeERC20FailedLowLevelCall();
+    error SafeERC20FailedCall();
 
     /**
      * @dev Transfer `value` amount of `token` from the calling contract to `to`. If `token` returns no value,
@@ -139,6 +139,6 @@ library SafeERC20 {
     }
 
     function customERC20CallRevert() internal pure {
-        revert SafeERC20FailedLowLevelCall();
+        revert SafeERC20FailedCall();
     }
 }

@@ -76,9 +76,9 @@ abstract contract IGovernor is IERC165, IERC6372 {
     error GovernorProposerInvalidTreshold(address proposer, uint256 votes, uint256 threshold);
 
     /**
-     * @dev A low level call failed without any further reason.
+     * @dev A call to a target failed. The target may have reverted.
      */
-    error GovernorFailedLowLevelCall();
+    error GovernorFailedCall();
 
     /**
      * @dev Emitted when a proposal is created.

@@ -350,7 +350,7 @@ contract('Governor', function (accounts) {
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
-            await expectRevertCustomError(this.helper.execute(), 'GovernorFailedLowLevelCall', []);
+            await expectRevertCustomError(this.helper.execute(), 'GovernorFailedCall', []);
           });
 
           it('if receiver revert with reason', async function () {
