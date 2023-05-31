@@ -18,10 +18,10 @@ import "../../utils/math/Math.sol";
  * _Available since v4.5._
  */
 abstract contract GovernorPreventLateQuorum is Governor {
-    uint64 private _voteExtension;
+    uint48 private _voteExtension;
 
     /// @custom:oz-retyped-from mapping(uint256 => Timers.BlockNumber)
-    mapping(uint256 => uint64) private _extendedDeadlines;
+    mapping(uint256 => uint48) private _extendedDeadlines;
 
     /// @dev Emitted when a proposal deadline is pushed back due to reaching quorum late in its voting period.
     event ProposalExtended(uint256 indexed proposalId, uint64 extendedDeadline);
@@ -34,7 +34,7 @@ abstract contract GovernorPreventLateQuorum is Governor {
      * clock mode) that is required to pass since the moment a proposal reaches quorum until its voting period ends. If
      * necessary the voting period will be extended beyond the one set during proposal creation.
      */
-    constructor(uint64 initialVoteExtension) {
+    constructor(uint48 initialVoteExtension) {
         _setLateQuorumVoteExtension(initialVoteExtension);
     }
 
@@ -62,7 +62,7 @@ abstract contract GovernorPreventLateQuorum is Governor {
         uint256 result = super._castVote(proposalId, account, support, reason, params);
 
         if (_extendedDeadlines[proposalId] == 0 && _quorumReached(proposalId)) {
-            uint64 extendedDeadline = clock() + lateQuorumVoteExtension();
+            uint48 extendedDeadline = clock() + lateQuorumVoteExtension();
 
             if (extendedDeadline > proposalDeadline(proposalId)) {
                 emit ProposalExtended(proposalId, extendedDeadline);
@@ -78,7 +78,7 @@ abstract contract GovernorPreventLateQuorum is Governor {
      * @dev Returns the current value of the vote extension parameter: the number of blocks that are required to pass
      * from the time a proposal reaches quorum until its voting period ends.
      */
-    function lateQuorumVoteExtension() public view virtual returns (uint64) {
+    function lateQuorumVoteExtension() public view virtual returns (uint48) {
         return _voteExtension;
     }
 
@@ -88,7 +88,7 @@ abstract contract GovernorPreventLateQuorum is Governor {
      *
      * Emits a {LateQuorumVoteExtensionSet} event.
      */
-    function setLateQuorumVoteExtension(uint64 newVoteExtension) public virtual onlyGovernance {
+    function setLateQuorumVoteExtension(uint48 newVoteExtension) public virtual onlyGovernance {
         _setLateQuorumVoteExtension(newVoteExtension);
     }
 
@@ -98,7 +98,7 @@ abstract contract GovernorPreventLateQuorum is Governor {
      *
      * Emits a {LateQuorumVoteExtensionSet} event.
      */
-    function _setLateQuorumVoteExtension(uint64 newVoteExtension) internal virtual {
+    function _setLateQuorumVoteExtension(uint48 newVoteExtension) internal virtual {
         emit LateQuorumVoteExtensionSet(_voteExtension, newVoteExtension);
         _voteExtension = newVoteExtension;
     }
