@@ -102,4 +102,18 @@ library Arrays {
         }
         return slot.getUint256Slot();
     }
+
+    function unsafeMemoryAccess(uint256[] memory arr, uint256 pos) internal pure returns (uint256 res) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            res := mload(add(add(arr, 0x20), mul(pos, 0x20)))
+        }
+    }
+
+    function unsafeMemoryAccess(address[] memory arr, uint256 pos) internal pure returns (address res) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            res := mload(add(add(arr, 0x20), mul(pos, 0x20)))
+        }
+    }
 }

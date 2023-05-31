@@ -8,6 +8,7 @@ import "./IERC1155Receiver.sol";
 import "./extensions/IERC1155MetadataURI.sol";
 import "../../utils/Context.sol";
 import "../../utils/introspection/ERC165.sol";
+import "../../utils/Arrays.sol";
 
 /**
  * @dev Implementation of the basic standard multi-token.
@@ -17,6 +18,9 @@ import "../../utils/introspection/ERC165.sol";
  * _Available since v3.1._
  */
 contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
+    using Arrays for uint256[];
+    using Arrays for address[];
+
     // Mapping from token ID to account balances
     mapping(uint256 => mapping(address => uint256)) private _balances;
 
@@ -84,7 +88,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory batchBalances = new uint256[](accounts.length);
 
         for (uint256 i = 0; i < accounts.length; ++i) {
-            batchBalances[i] = balanceOf(accounts[i], ids[i]);
+            batchBalances[i] = balanceOf(accounts.unsafeMemoryAccess(i), ids.unsafeMemoryAccess(i));
         }
 
         return batchBalances;
@@ -160,8 +164,8 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         address operator = _msgSender();
 
         for (uint256 i = 0; i < ids.length; ++i) {
-            uint256 id = ids[i];
-            uint256 amount = amounts[i];
+            uint256 id = ids.unsafeMemoryAccess(i);
+            uint256 amount = amounts.unsafeMemoryAccess(i);
 
             if (from != address(0)) {
                 uint256 fromBalance = _balances[id][from];
@@ -177,8 +181,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         }
 
         if (ids.length == 1) {
-            uint256 id = ids[0];
-            uint256 amount = amounts[0];
+            uint256 id = ids.unsafeMemoryAccess(0);
+            uint256 amount = amounts.unsafeMemoryAccess(0);
+
             emit TransferSingle(operator, from, to, id, amount);
             if (to != address(0)) {
                 _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
