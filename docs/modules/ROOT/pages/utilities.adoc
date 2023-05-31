@@ -97,8 +97,6 @@ If you need support for more powerful collections than Solidity's native arrays 
 [[misc]]
 == Misc
 
-Want to keep track of some numbers that increment by 1 every time you want another one? Check out xref:api:utils.adoc#Counters[`Counters`]. This is useful for lots of things, like creating incremental identifiers, as shown on the xref:erc721.adoc[ERC721 guide].
-
 === Base64
 
 xref:api:utils.adoc#Base64[`Base64`] util allows you to transform `bytes32` data into its Base64 `string` representation.
