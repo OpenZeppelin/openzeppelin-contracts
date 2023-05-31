@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../utils/cryptography/ECDSA.sol";
 import "../utils/cryptography/EIP712.sol";

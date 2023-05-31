@@ -6,6 +6,7 @@ The following contracts, libraries and functions were removed:
 
 - `Address.isContract` (because of its ambiguous nature and potential for misuse)
 - `Checkpoints.History`
+- `Counters`
 - `ERC20Snapshot`
 - `ERC20VotesComp`
 - `ERC165Storage` (in favor of inheritance based approach)

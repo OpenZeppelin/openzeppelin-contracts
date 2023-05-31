@@ -19,7 +19,7 @@ contract('Nonces', function (accounts) {
     expect(await this.nonces.nonces(sender)).to.be.bignumber.equal('0');
 
     const { receipt } = await this.nonces.$_useNonce(sender);
-    expectEvent(receipt, 'return$_useNonce', { current: '0' });
+    expectEvent(receipt, 'return$_useNonce', ['0']);
 
     expect(await this.nonces.nonces(sender)).to.be.bignumber.equal('1');
   });
