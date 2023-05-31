@@ -3,17 +3,16 @@
 pragma solidity ^0.8.19;
 
 import "../../proxy/utils/UUPSUpgradeable.sol";
-import "../../utils/Counters.sol";
 
 contract NonUpgradeableMock {
-    Counters.Counter internal _counter;
+    uint256 internal _counter;
 
     function current() external view returns (uint256) {
-        return Counters.current(_counter);
+        return _counter;
     }
 
     function increment() external {
-        return Counters.increment(_counter);
+        ++_counter;
     }
 }
 
