@@ -164,16 +164,16 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * Requirements:
      *
-     * - the caller must be `account`.
+     * - the caller must be `callerConfirmation`.
      *
      * May emit a {RoleRevoked} event.
      */
-    function renounceRole(bytes32 role, address account) public virtual override {
-        if (account != _msgSender()) {
-            revert AccessControlIncorrectCaller();
+    function renounceRole(bytes32 role, address callerConfirmation) public virtual override {
+        if (callerConfirmation != _msgSender()) {
+            revert AccessControlBadConfirmation();
         }
 
-        _revokeRole(role, account);
+        _revokeRole(role, callerConfirmation);
     }
 
     /**

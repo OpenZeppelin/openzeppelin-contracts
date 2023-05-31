@@ -108,7 +108,7 @@ function shouldBehaveLikeAccessControl(errorPrefix, admin, authorized, other, ot
       it('only the sender can renounce their roles', async function () {
         await expectRevertCustomError(
           this.accessControl.renounceRole(ROLE, authorized, { from: admin }),
-          `${errorPrefix}IncorrectCaller`,
+          `${errorPrefix}BadConfirmation`,
           [],
         );
       });
@@ -653,7 +653,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
       await time.setNextBlockTimestamp(delayPassed);
       await expectRevertCustomError(
         this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from: defaultAdmin }),
-        `${errorPrefix}IncorrectCaller`,
+        `${errorPrefix}BadConfirmation`,
         [],
       );
     });

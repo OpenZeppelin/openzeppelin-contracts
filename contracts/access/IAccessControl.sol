@@ -17,7 +17,7 @@ interface IAccessControl {
      *
      * NOTE: Don't confuse with {AccessControlUnauthorizedAccount}.
      */
-    error AccessControlIncorrectCaller();
+    error AccessControlBadConfirmation();
 
     /**
      * @dev Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
@@ -94,7 +94,7 @@ interface IAccessControl {
      *
      * Requirements:
      *
-     * - the caller must be `account`.
+     * - the caller must be `callerConfirmation`.
      */
-    function renounceRole(bytes32 role, address account) external;
+    function renounceRole(bytes32 role, address callerConfirmation) external;
 }
