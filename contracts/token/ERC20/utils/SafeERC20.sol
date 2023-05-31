@@ -22,7 +22,7 @@ library SafeERC20 {
     /**
      * @dev An operation with an ERC20 token failed.
      */
-    error SafeERC20UnsuccessfulOperation(address token);
+    error SafeERC20FailedOperation(address token);
 
     /**
      * @dev A low level call failed without any further reason.
@@ -100,7 +100,7 @@ library SafeERC20 {
         token.permit(owner, spender, value, deadline, v, r, s);
         uint256 nonceAfter = token.nonces(owner);
         if (nonceAfter != nonceBefore + 1) {
-            revert SafeERC20UnsuccessfulOperation(address(token));
+            revert SafeERC20FailedOperation(address(token));
         }
     }
 
@@ -117,7 +117,7 @@ library SafeERC20 {
 
         bytes memory returndata = address(token).functionCall(data, customERC20CallRevert);
         if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
-            revert SafeERC20UnsuccessfulOperation(address(token));
+            revert SafeERC20FailedOperation(address(token));
         }
     }
 
