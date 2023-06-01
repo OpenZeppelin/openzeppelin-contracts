@@ -19,6 +19,13 @@ import "../math/SafeCast.sol";
  */
 `;
 
+const errors = `\
+    /**
+     * @dev A value was attempted to be inserted on a past checkpoint. 
+     */
+    error CheckpointUnorderedInsertion();
+`;
+
 const template = opts => `\
 struct ${opts.historyTypeName} {
     ${opts.checkpointTypeName}[] ${opts.checkpointFieldName};
@@ -28,11 +35,6 @@ struct ${opts.checkpointTypeName} {
     ${opts.keyTypeName} ${opts.keyFieldName};
     ${opts.valueTypeName} ${opts.valueFieldName};
 }
-
-/**
- * @dev A value was attempted to be inserted on a past checkpoint. 
- */
-error ${opts.checkpointTypeName}PastInsert();
 
 /**
  * @dev Pushes a (\`key\`, \`value\`) pair into a ${opts.historyTypeName} so that it is stored as the checkpoint.
@@ -151,7 +153,7 @@ function _insert(
 
         // Checkpoint keys must be non-decreasing.
         if(last.${opts.keyFieldName} > key) {
-            revert ${opts.checkpointTypeName}PastInsert();
+            revert CheckpointUnorderedInsertion();
         }
 
         // Update or push new checkpoint
@@ -233,6 +235,7 @@ function _unsafeAccess(${opts.checkpointTypeName}[] storage self, uint256 pos)
 module.exports = format(
   header.trimEnd(),
   'library Checkpoints {',
+  errors,
   OPTS.flatMap(opts => template(opts)),
   '}',
 );

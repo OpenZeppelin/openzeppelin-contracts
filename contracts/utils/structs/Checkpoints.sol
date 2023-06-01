@@ -17,6 +17,11 @@ import "../math/SafeCast.sol";
  * _Available since v4.5._
  */
 library Checkpoints {
+    /**
+     * @dev A value was attempted to be inserted on a past checkpoint.
+     */
+    error CheckpointUnorderedInsertion();
+
     struct Trace224 {
         Checkpoint224[] _checkpoints;
     }
@@ -25,11 +30,6 @@ library Checkpoints {
         uint32 _key;
         uint224 _value;
     }
-
-    /**
-     * @dev A value was attempted to be inserted on a past checkpoint.
-     */
-    error Checkpoint224PastInsert();
 
     /**
      * @dev Pushes a (`key`, `value`) pair into a Trace224 so that it is stored as the checkpoint.
@@ -132,7 +132,7 @@ library Checkpoints {
 
             // Checkpoint keys must be non-decreasing.
             if (last._key > key) {
-                revert Checkpoint224PastInsert();
+                revert CheckpointUnorderedInsertion();
             }
 
             // Update or push new checkpoint
@@ -215,11 +215,6 @@ library Checkpoints {
         uint96 _key;
         uint160 _value;
     }
-
-    /**
-     * @dev A value was attempted to be inserted on a past checkpoint.
-     */
-    error Checkpoint160PastInsert();
 
     /**
      * @dev Pushes a (`key`, `value`) pair into a Trace160 so that it is stored as the checkpoint.
@@ -322,7 +317,7 @@ library Checkpoints {
 
             // Checkpoint keys must be non-decreasing.
             if (last._key > key) {
-                revert Checkpoint160PastInsert();
+                revert CheckpointUnorderedInsertion();
             }
 
             // Update or push new checkpoint

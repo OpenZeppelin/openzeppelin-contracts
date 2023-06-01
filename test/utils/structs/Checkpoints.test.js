@@ -81,7 +81,7 @@ contract('Checkpoints', function () {
         it('cannot push values in the past', async function () {
           await expectRevertCustomError(
             this.methods.push(last(this.checkpoints).key - 1, '0'),
-            `Checkpoint${length}PastInsert`,
+            'CheckpointUnorderedInsertion',
             [],
           );
         });
