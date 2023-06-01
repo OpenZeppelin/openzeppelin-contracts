@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-import "../../governance/Governor.sol";
-import "../../governance/compatibility/GovernorCompatibilityBravo.sol";
-import "../../governance/extensions/GovernorVotes.sol";
-import "../../governance/extensions/GovernorVotesQuorumFraction.sol";
-import "../../governance/extensions/GovernorTimelockControl.sol";
+import "@openzeppelin/contracts/../governance/Governor.sol";
+import "@openzeppelin/contracts/../governance/compatibility/GovernorCompatibilityBravo.sol";
+import "@openzeppelin/contracts/../governance/extensions/GovernorVotes.sol";
+import "@openzeppelin/contracts/../governance/extensions/GovernorVotesQuorumFraction.sol";
+import "@openzeppelin/contracts/../governance/extensions/GovernorTimelockControl.sol";
 
-contract MyGovernor3 is
+contract MyGovernor is
     Governor,
-    GovernorTimelockControl,
     GovernorCompatibilityBravo,
     GovernorVotes,
-    GovernorVotesQuorumFraction
+    GovernorVotesQuorumFraction,
+    GovernorTimelockControl
 {
     constructor(
         IVotes _token,
@@ -20,24 +20,18 @@ contract MyGovernor3 is
     ) Governor("MyGovernor") GovernorVotes(_token) GovernorVotesQuorumFraction(4) GovernorTimelockControl(_timelock) {}
 
     function votingDelay() public pure override returns (uint256) {
-        return 1; // 1 block
+        return 7200; // 1 day
     }
 
     function votingPeriod() public pure override returns (uint256) {
-        return 45818; // 1 week
+        return 50400; // 1 week
     }
 
     function proposalThreshold() public pure override returns (uint256) {
-        return 1000e18;
+        return 0;
     }
 
-    // The following functions are overrides required by Solidity.
-
-    function quorum(
-        uint256 blockNumber
-    ) public view override(IGovernor, GovernorVotesQuorumFraction) returns (uint256) {
-        return super.quorum(blockNumber);
-    }
+    // The functions below are overrides required by Solidity.
 
     function state(
         uint256 proposalId
