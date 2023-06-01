@@ -160,7 +160,7 @@ library ECDSA {
             return (address(0), RecoverError.InvalidSignature, bytes32(bytes20(signer)));
         }
 
-        return (signer, RecoverError.NoError, bytes32(""));
+        return (signer, RecoverError.NoError, bytes32(0));
     }
 
     /**

@@ -395,7 +395,7 @@ contract('GovernorTimelockControl', function (accounts) {
                     constants.ZERO_BYTES32,
                     { from: owner },
                   ),
-                  'TimelockFailedOperation',
+                  'TimelockFailedCall',
                   [],
                 );
               });

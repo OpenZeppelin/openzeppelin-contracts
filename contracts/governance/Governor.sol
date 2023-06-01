@@ -92,7 +92,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      */
     receive() external payable virtual {
         if (_executor() != address(this)) {
-            revert GovernorOnlyExecutor(address(this));
+            revert GovernorDepositDisabled(address(this));
         }
     }
 
@@ -368,8 +368,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         if (currentState != ProposalState.Pending) {
             revert GovernorIncorrectState(proposalId, currentState, _encodeState(ProposalState.Pending));
         }
-        address proposer = proposalProposer(proposalId);
-        if (_msgSender() != proposer) {
+        if (_msgSender() != proposalProposer(proposalId)) {
             revert GovernorOnlyProposer(_msgSender());
         }
         return _cancel(targets, values, calldatas, descriptionHash);

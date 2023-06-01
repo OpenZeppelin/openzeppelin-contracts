@@ -6,6 +6,7 @@ pragma solidity ^0.8.19;
 import "../access/AccessControl.sol";
 import "../token/ERC721/IERC721Receiver.sol";
 import "../token/ERC1155/IERC1155Receiver.sol";
+import "../utils/Address.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -54,9 +55,9 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     error TimelockIncorrectState(bytes32 operationId, OperationState expected);
 
     /**
-     * @dev The underlying transaction failed.
+     * @dev A call to a target failed. The target may have reverted.
      */
-    error TimelockFailedOperation();
+    error TimelockFailedCall();
 
     /**
      * @dev The predecessor to an operation not yet done.
@@ -391,10 +392,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * @dev Execute an operation's call.
      */
     function _execute(address target, uint256 value, bytes calldata data) internal virtual {
-        (bool success, ) = target.call{value: value}(data);
-        if (!success) {
-            revert TimelockFailedOperation();
-        }
+        Address.functionCallWithValue(target, data, value, _customTimelockRevert);
     }
 
     /**
@@ -468,5 +466,12 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes memory
     ) public virtual override returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
+    }
+
+    /**
+     * @dev Default revert function for failed executed functions without any other bubbled up reason.
+     */
+    function _customTimelockRevert() internal pure {
+        revert TimelockFailedCall();
     }
 }

@@ -271,7 +271,11 @@ contract('GovernorCompatibilityBravo', function (accounts) {
           it('if vote type is invalid', async function () {
             await this.helper.propose({ from: proposer });
             await this.helper.waitForSnapshot();
-            await expectRevertCustomError(this.helper.vote({ support: 5 }, { from: voter1 }), 'InvalidVoteType', []);
+            await expectRevertCustomError(
+              this.helper.vote({ support: 5 }, { from: voter1 }),
+              'GovernorInvalidVoteType',
+              [],
+            );
           });
         });
       });

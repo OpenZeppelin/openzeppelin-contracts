@@ -41,7 +41,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
     /**
      * @dev The `account` is not an executor.
      */
-    error GovernorOnlyExecutor(address account);
+    error GovernorDepositDisabled(address account);
 
     /**
      * @dev The `account` is not a proposer.

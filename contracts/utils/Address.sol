@@ -45,14 +45,7 @@ library Address {
      * https://solidity.readthedocs.io/en/v0.8.0/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
-        if (address(this).balance < amount) {
-            revert AddressInsufficientBalance(address(this));
-        }
-
-        (bool success, ) = recipient.call{value: amount}("");
-        if (!success) {
-            revert AddressFailedCall();
-        }
+        functionCallWithValue(recipient, new bytes(0), amount);
     }
 
     /**
