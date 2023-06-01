@@ -314,7 +314,7 @@ function shouldOnlyRevertOnErrors([owner, receiver, spender]) {
       it('reverts when decreasing the allowance', async function () {
         await expectRevertCustomError(
           this.mock.$safeDecreaseAllowance(this.token.address, spender, 10),
-          'ERC20ExceededAllowanceDecrease',
+          'SafeERC20ExceededAllowanceDecrease',
           [spender, 0, 10],
         );
       });
@@ -348,7 +348,7 @@ function shouldOnlyRevertOnErrors([owner, receiver, spender]) {
       it('reverts when decreasing the allowance to a negative value', async function () {
         await expectRevertCustomError(
           this.mock.$safeDecreaseAllowance(this.token.address, spender, 200),
-          'ERC20ExceededAllowanceDecrease',
+          'SafeERC20ExceededAllowanceDecrease',
           [spender, 100, 200],
         );
       });

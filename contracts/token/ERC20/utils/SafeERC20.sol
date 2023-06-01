@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.19;
 
-import "../ERC20.sol";
+import "../IERC20.sol";
 import "../extensions/IERC20Permit.sol";
 import "../../../utils/Address.sol";
 
@@ -28,6 +28,11 @@ library SafeERC20 {
      * @dev A call to a target failed. The target may have reverted.
      */
     error SafeERC20FailedCall();
+
+    /**
+     * @dev Indicates an `_allowance` decrease below 0. Used for non-standard allowance decreases.
+     */
+    error SafeERC20ExceededAllowanceDecrease(address spender, uint256 allowance, uint256 subtractedValue);
 
     /**
      * @dev Transfer `value` amount of `token` from the calling contract to `to`. If `token` returns no value,
@@ -62,7 +67,7 @@ library SafeERC20 {
         unchecked {
             uint256 oldAllowance = token.allowance(address(this), spender);
             if (oldAllowance < value) {
-                revert ERC20.ERC20ExceededAllowanceDecrease(spender, oldAllowance, value);
+                revert SafeERC20ExceededAllowanceDecrease(spender, oldAllowance, value);
             }
             forceApprove(token, spender, oldAllowance - value);
         }
