@@ -14,9 +14,9 @@ library Strings {
     uint8 private constant _ADDRESS_LENGTH = 20;
 
     /**
-     * @dev The string doesn't fit in the specified `length`
+     * @dev The `value` string doesn't fit in the specified `length`.
      */
-    error StringsInsufficientHexLength(uint256 length);
+    error StringsInsufficientHexLength(uint256 value, uint256 length);
 
     /**
      * @dev Converts a `uint256` to its ASCII `string` decimal representation.
@@ -63,15 +63,16 @@ library Strings {
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
      */
     function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
+        uint256 localValue = value;
         bytes memory buffer = new bytes(2 * length + 2);
         buffer[0] = "0";
         buffer[1] = "x";
         for (uint256 i = 2 * length + 1; i > 1; --i) {
-            buffer[i] = _SYMBOLS[value & 0xf];
-            value >>= 4;
+            buffer[i] = _SYMBOLS[localValue & 0xf];
+            localValue >>= 4;
         }
-        if (value != 0) {
-            revert StringsInsufficientHexLength(length);
+        if (localValue != 0) {
+            revert StringsInsufficientHexLength(value, length);
         }
         return string(buffer);
     }

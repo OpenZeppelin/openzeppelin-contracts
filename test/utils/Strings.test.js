@@ -97,7 +97,7 @@ contract('Strings', function () {
       await expectRevertCustomError(
         this.strings.methods['$toHexString(uint256,uint256)'](0x4132, length),
         `StringsInsufficientHexLength`,
-        [length],
+        [0x4132, length],
       );
     });
 
