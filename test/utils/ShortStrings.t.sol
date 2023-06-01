@@ -25,7 +25,7 @@ contract ShortStringsTest is Test {
 
     function testRevertLong(string memory input) external {
         vm.assume(!_isShort(input));
-        vm.expectRevert(abi.encodeCall(ShortStrings.StringTooLong, (input)));
+        vm.expectRevert(abi.encodeWithSelector(ShortStrings.StringTooLong.selector, input));
         this.toShortString(input);
     }
 
