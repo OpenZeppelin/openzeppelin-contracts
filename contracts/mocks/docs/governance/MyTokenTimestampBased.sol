@@ -28,8 +28,4 @@ contract MyTokenTimestampBased is ERC20, ERC20Permit, ERC20Votes {
     function nonces(address owner) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
         return super.nonces(owner);
     }
-
-    function DOMAIN_SEPARATOR() external view override(ERC20Permit, Votes) returns (bytes32) {
-        return _domainSeparatorV4();
-    }
 }
