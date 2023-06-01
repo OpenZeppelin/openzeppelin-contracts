@@ -2,8 +2,9 @@
 
 ### Removals
 
-The following contracts were removed:
+The following contracts and libraries were removed:
 
+- `Counters`
 - `ERC20Snapshot`
 - `ERC20VotesComp`
 - `GovernorVotesComp`
