@@ -183,7 +183,7 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
 
           await expectRevertCustomError(
             this.votes.delegateBySig(delegatee, nonce, MAX_UINT256, v, r, s),
-            'VotesInvalidNonce',
+            'InvalidAccountNonce',
             [delegator.address, nonce + 1],
           );
         });
@@ -219,7 +219,7 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
 
           await expectRevertCustomError(
             this.votes.delegateBySig(delegatee, nonce + 1, MAX_UINT256, v, r, s),
-            'VotesInvalidNonce',
+            'InvalidAccountNonce',
             [delegator.address, 0],
           );
         });

@@ -171,7 +171,7 @@ contract('ERC20Votes', function (accounts) {
 
             await expectRevertCustomError(
               this.token.delegateBySig(delegatorAddress, nonce, MAX_UINT256, v, r, s),
-              'VotesInvalidNonce',
+              'InvalidAccountNonce',
               [delegatorAddress, nonce + 1],
             );
           });
@@ -208,7 +208,7 @@ contract('ERC20Votes', function (accounts) {
 
             await expectRevertCustomError(
               this.token.delegateBySig(delegatorAddress, nonce + 1, MAX_UINT256, v, r, s),
-              'VotesInvalidNonce',
+              'InvalidAccountNonce',
               [ethSigUtil.recoverTypedSignature({ data: typedMessage, sig }), nonce],
             );
           });

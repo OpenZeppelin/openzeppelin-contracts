@@ -157,10 +157,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
             r,
             s
         );
-        uint256 currentNonce = _useNonce(signer);
-        if (nonce != currentNonce) {
-            revert VotesInvalidNonce(signer, currentNonce);
-        }
+        _useCheckedNonce(signer, nonce);
         _delegate(signer, delegatee);
     }
 
