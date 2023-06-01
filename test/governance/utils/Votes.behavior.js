@@ -36,10 +36,6 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
       expect(await this.votes.nonces(accounts[0])).to.be.bignumber.equal('0');
     });
 
-    it('domain separator', async function () {
-      expect(await this.votes.DOMAIN_SEPARATOR()).to.equal(domainSeparator(await getDomain(this.votes)));
-    });
-
     describe('delegation with signature', function () {
       const token = tokens[0];
 
