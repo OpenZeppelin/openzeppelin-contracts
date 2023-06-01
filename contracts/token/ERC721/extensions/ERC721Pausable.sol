@@ -21,11 +21,6 @@ import "../../../security/Pausable.sol";
  */
 abstract contract ERC721Pausable is ERC721, Pausable {
     /**
-     * @dev The token is paused.
-     */
-    error ERC721Paused();
-
-    /**
      * @dev See {ERC721-_beforeTokenTransfer}.
      *
      * Requirements:
@@ -40,8 +35,6 @@ abstract contract ERC721Pausable is ERC721, Pausable {
     ) internal virtual override {
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
 
-        if (paused()) {
-            revert ERC721Paused();
-        }
+        _requireNotPaused();
     }
 }

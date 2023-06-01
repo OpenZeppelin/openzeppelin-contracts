@@ -42,7 +42,7 @@ contract('ERC20Pausable', function (accounts) {
 
         await expectRevertCustomError(
           this.token.transfer(recipient, initialSupply, { from: holder }),
-          'ERC20Paused',
+          'PausablePaused',
           [],
         );
       });
@@ -77,7 +77,7 @@ contract('ERC20Pausable', function (accounts) {
 
         await expectRevertCustomError(
           this.token.transferFrom(holder, recipient, allowance, { from: anotherAccount }),
-          'ERC20Paused',
+          'PausablePaused',
           [],
         );
       });
@@ -104,7 +104,7 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to mint when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevertCustomError(this.token.$_mint(recipient, amount), 'ERC20Paused', []);
+        await expectRevertCustomError(this.token.$_mint(recipient, amount), 'PausablePaused', []);
       });
     });
 
@@ -129,7 +129,7 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to burn when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevertCustomError(this.token.$_burn(holder, amount), 'ERC20Paused', []);
+        await expectRevertCustomError(this.token.$_burn(holder, amount), 'PausablePaused', []);
       });
     });
   });

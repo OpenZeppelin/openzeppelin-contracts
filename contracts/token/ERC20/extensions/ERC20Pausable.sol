@@ -21,21 +21,13 @@ import "../../../security/Pausable.sol";
  */
 abstract contract ERC20Pausable is ERC20, Pausable {
     /**
-     * @dev The token is paused.
-     */
-    error ERC20Paused();
-
-    /**
      * @dev See {ERC20-_update}.
      *
      * Requirements:
      *
      * - the contract must not be paused.
      */
-    function _update(address from, address to, uint256 amount) internal virtual override {
-        if (paused()) {
-            revert ERC20Paused();
-        }
+    function _update(address from, address to, uint256 amount) internal virtual override whenNotPaused {
         super._update(from, to, amount);
     }
 }

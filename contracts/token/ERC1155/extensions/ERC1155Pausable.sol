@@ -23,11 +23,6 @@ import "../../../security/Pausable.sol";
  */
 abstract contract ERC1155Pausable is ERC1155, Pausable {
     /**
-     * @dev The token is paused.
-     */
-    error ERC1155Paused();
-
-    /**
      * @dev See {ERC1155-_update}.
      *
      * Requirements:
@@ -40,10 +35,7 @@ abstract contract ERC1155Pausable is ERC1155, Pausable {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual override {
-        if (paused()) {
-            revert ERC1155Paused();
-        }
+    ) internal virtual override whenNotPaused {
         super._update(from, to, ids, amounts, data);
     }
 }
