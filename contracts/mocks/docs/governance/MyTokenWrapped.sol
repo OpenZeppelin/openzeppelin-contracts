@@ -13,7 +13,7 @@ contract MyTokenWrapped is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
 
     // The functions below are overrides required by Solidity.
 
-    function decimals() public pure override(ERC20, ERC20Wrapper) returns (uint8) {
+    function decimals() public view override(ERC20, ERC20Wrapper) returns (uint8) {
         return super.decimals();
     }
 

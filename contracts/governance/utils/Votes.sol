@@ -229,7 +229,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * @dev Returns the contract's {EIP712} domain separator.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view returns (bytes32) {
+    function DOMAIN_SEPARATOR() external view virtual returns (bytes32) {
         return _domainSeparatorV4();
     }
 
