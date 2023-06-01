@@ -7,7 +7,6 @@ const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/govern
 const { expectRevertCustomError } = require('../../helpers/customError');
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
-const { ZERO_BYTES32 } = require('@openzeppelin/test-helpers/src/constants');
 
 const Timelock = artifacts.require('CompTimelock');
 const Governor = artifacts.require('$GovernorTimelockCompoundMock');
@@ -149,11 +148,7 @@ contract('GovernorTimelockCompound', function (accounts) {
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
-            await expectRevertCustomError(this.helper.queue(), 'GovernorIncorrectState', [
-              id,
-              Enums.ProposalState.Succeeded,
-              ZERO_BYTES32,
-            ]);
+            await expectRevertCustomError(this.helper.queue(), 'GovernorProposalAlreadyQueued', [id]);
             await expectRevertCustomError(this.helper.execute(), 'GovernorProposalNotQueued', [id]);
           });
         });

@@ -60,7 +60,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev msg.value is not 0.
      */
-    error TransparentUpgradeableProxyNonPayableFunction(uint256 msgValue);
+    error TransparentUpgradeableProxyNonPayableFunction();
 
     /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
@@ -138,7 +138,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      */
     function _requireZeroValue() private {
         if (msg.value != 0) {
-            revert TransparentUpgradeableProxyNonPayableFunction(msg.value);
+            revert TransparentUpgradeableProxyNonPayableFunction();
         }
     }
 }

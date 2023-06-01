@@ -100,7 +100,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
         for (uint256 i = 0; i < targets.length; ++i) {
             if (_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta)))) {
-                revert GovernorIncorrectState(proposalId, currentState, bytes32(0));
+                revert GovernorProposalAlreadyQueued(proposalId);
             }
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
