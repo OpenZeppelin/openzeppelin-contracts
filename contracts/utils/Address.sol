@@ -23,12 +23,6 @@ library Address {
     error AddressEmptyCode(address target);
 
     /**
-     * @dev A revert was expected but didn't happen. This is caused if the
-     * custom revert function provided didn't revert.
-     */
-    error AddressExpectedRevert();
-
-    /**
      * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
      * `recipient`, forwarding all available gas and reverting on errors.
      *
@@ -85,7 +79,7 @@ library Address {
      *
      * - `customRevert` must be a reverting function.
      *
-     * _Available since v3.1._
+     * _Available since v5.0._
      */
     function functionCall(
         address target,
@@ -118,7 +112,7 @@ library Address {
      *
      * - `customRevert` must be a reverting function.
      *
-     * _Available since v3.1._
+     * _Available since v5.0._
      */
     function functionCallWithValue(
         address target,
@@ -187,7 +181,7 @@ library Address {
      * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling
      * the revert reason or using the provided `customRevert`) in case of unsuccessful call or if target was not a contract.
      *
-     * _Available since v4.8._
+     * _Available since v5.0._
      */
     function verifyCallResultFromTarget(
         address target,
@@ -213,7 +207,7 @@ library Address {
      * @dev Tool to verify that a low level call was successful, and revert if it wasn't, either by bubbling the
      * revert reason or using the provided `customRevert`.
      *
-     * _Available since v4.3._
+     * _Available since v5.0._
      */
     function verifyCallResult(
         bool success,
@@ -245,7 +239,7 @@ library Address {
             }
         } else {
             customRevert();
-            revert AddressExpectedRevert();
+            revert AddressFailedCall();
         }
     }
 }

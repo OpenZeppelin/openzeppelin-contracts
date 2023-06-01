@@ -323,7 +323,10 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
       describe('getPastVotes', function () {
         it('reverts if block number >= current block', async function () {
           const clock = await this.votes.clock();
-          await expectRevertCustomError(this.votes.getPastVotes(accounts[2], 5e10), 'ERC5805FutureLookup', [5e10, clock]);
+          await expectRevertCustomError(this.votes.getPastVotes(accounts[2], 5e10), 'ERC5805FutureLookup', [
+            5e10,
+            clock,
+          ]);
         });
 
         it('returns 0 if there are no checkpoints', async function () {

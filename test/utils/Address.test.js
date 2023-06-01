@@ -376,7 +376,7 @@ contract('Address', function (accounts) {
     });
 
     it('reverts expecting error if provided onRevert is a non-reverting function', async function () {
-      await expectRevertCustomError(this.mockFnPointer.verifyCallResultVoid(false, '0x'), 'AddressExpectedRevert', []);
+      await expectRevertCustomError(this.mockFnPointer.verifyCallResultVoid(false, '0x'), 'AddressFailedCall', []);
     });
   });
 });

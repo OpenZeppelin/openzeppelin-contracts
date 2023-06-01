@@ -15,7 +15,7 @@ abstract contract IGovernorTimelock is IGovernor {
      * @dev The proposal hasn't been queued yet.
      */
     error GovernorProposalNotQueued(uint256 proposalId);
-    
+
     /**
      * @dev The proposal has already been queued.
      */
