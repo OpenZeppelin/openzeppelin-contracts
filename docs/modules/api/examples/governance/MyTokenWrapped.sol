@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-import "@openzeppelin/contracts/../token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/../token/ERC20/extensions/ERC20Permit.sol";
-import "@openzeppelin/contracts/../token/ERC20/extensions/ERC20Votes.sol";
-import "@openzeppelin/contracts/../token/ERC20/extensions/ERC20Wrapper.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
 
 contract MyTokenWrapped is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
     constructor(

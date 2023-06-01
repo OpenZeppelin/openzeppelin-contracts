@@ -20,7 +20,7 @@ examples_target_dir="docs/modules/api/examples"
 for f in "$examples_source_dir"/**/*.sol; do
   name="${f/#"$examples_source_dir/"/}"
   mkdir -p "$examples_target_dir/$(dirname "$name")"
-  sed -e '/^import/s|\.\./\.\./|@openzeppelin/contracts/|' "$f" > "$examples_target_dir/$name"
+  sed -Ee '/^import/s|"(\.\./)+|"@openzeppelin/contracts/|' "$f" > "$examples_target_dir/$name"
 done
 
 node scripts/gen-nav.js "$OUTDIR" > "$OUTDIR/../nav.adoc"
