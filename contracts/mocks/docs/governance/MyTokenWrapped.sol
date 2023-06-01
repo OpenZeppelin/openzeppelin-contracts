@@ -14,18 +14,18 @@ contract MyTokenWrapped is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
     // The functions below are overrides required by Solidity.
 
     function decimals() public pure override(ERC20, ERC20Wrapper) returns (uint8) {
-        return 18;
+        return super.decimals();
     }
 
-    function _afterTokenTransfer(address from, address to, uint256 amount) internal override(ERC20, ERC20Votes) {
-        super._afterTokenTransfer(from, to, amount);
+    function _update(address from, address to, uint256 amount) internal override(ERC20, ERC20Votes) {
+        super._update(from, to, amount);
     }
 
-    function _mint(address to, uint256 amount) internal override(ERC20, ERC20Votes) {
-        super._mint(to, amount);
+    function nonces(address owner) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
+        return super.nonces(owner);
     }
 
-    function _burn(address account, uint256 amount) internal override(ERC20, ERC20Votes) {
-        super._burn(account, amount);
+    function DOMAIN_SEPARATOR() external view override(ERC20Permit, Votes) returns (bytes32) {
+        return _domainSeparatorV4();
     }
 }
