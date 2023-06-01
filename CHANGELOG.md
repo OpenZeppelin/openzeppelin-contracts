@@ -21,7 +21,7 @@ The following contracts, libraries and functions were removed:
 - `Timers`
 - `TokenTimelock` (in favor of `VestingWallet`)
 - All escrow contracts (`Escrow`, `ConditionalEscrow` and `RefundEscrow`)
-- All CrossChain contracts, including `AccessControlCrossChain` and all the vendored bridge interfaces
+- All cross-chain contracts, including `AccessControlCrossChain` and all the vendored bridge interfaces
 - All presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/)
 
 ### How to upgrade from 4.x
