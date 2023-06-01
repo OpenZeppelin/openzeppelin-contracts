@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (proxy/utils/Initializable.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/Initializable.sol)
 
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.19;
 
 import "../../utils/Address.sol";
 
@@ -18,12 +18,13 @@ import "../../utils/Address.sol";
  * For example:
  *
  * [.hljs-theme-light.nopadding]
- * ```
+ * ```solidity
  * contract MyToken is ERC20Upgradeable {
  *     function initialize() initializer public {
  *         __ERC20_init("MyToken", "MTK");
  *     }
  * }
+ *
  * contract MyTokenV2 is MyToken, ERC20PermitUpgradeable {
  *     function initializeV2() reinitializer(2) public {
  *         __ERC20Permit_init("MyToken");

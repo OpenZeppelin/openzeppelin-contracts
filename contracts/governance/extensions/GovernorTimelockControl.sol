@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (governance/extensions/GovernorTimelockControl.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorTimelockControl.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "./IGovernorTimelock.sol";
 import "../Governor.sol";
@@ -47,19 +47,19 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
     }
 
     /**
-     * @dev Overridden version of the {Governor-state} function with added support for the `Queued` status.
+     * @dev Overridden version of the {Governor-state} function with added support for the `Queued` state.
      */
     function state(uint256 proposalId) public view virtual override(IGovernor, Governor) returns (ProposalState) {
-        ProposalState status = super.state(proposalId);
+        ProposalState currentState = super.state(proposalId);
 
-        if (status != ProposalState.Succeeded) {
-            return status;
+        if (currentState != ProposalState.Succeeded) {
+            return currentState;
         }
 
         // core tracks execution, so we just have to check if successful proposal have been queued.
         bytes32 queueid = _timelockIds[proposalId];
         if (queueid == bytes32(0)) {
-            return status;
+            return currentState;
         } else if (_timelock.isOperationDone(queueid)) {
             return ProposalState.Executed;
         } else if (_timelock.isOperationPending(queueid)) {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (governance/compatibility/IGovernorCompatibilityBravo.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/compatibility/IGovernorCompatibilityBravo.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../IGovernor.sol";
 
@@ -91,7 +91,7 @@ abstract contract IGovernorCompatibilityBravo is IGovernor {
     function execute(uint256 proposalId) public payable virtual;
 
     /**
-     * @dev Cancels a proposal only if sender is the proposer, or proposer delegates dropped below proposal threshold.
+     * @dev Cancels a proposal only if the sender is the proposer or the proposer delegates' voting power dropped below the proposal threshold.
      */
     function cancel(uint256 proposalId) public virtual;
 

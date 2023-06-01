@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20Votes.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/extensions/ERC20Votes.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../ERC20.sol";
 import "../../../governance/utils/Votes.sol";
@@ -11,7 +11,7 @@ import "../../../utils/math/SafeCast.sol";
  * @dev Extension of ERC20 to support Compound-like voting and delegation. This version is more generic than Compound's,
  * and supports token supply up to 2^224^ - 1, while COMP is limited to 2^96^ - 1.
  *
- * NOTE: If exact COMP compatibility is required, use the {ERC20VotesComp} variant of this module.
+ * NOTE: This contract does not provide interface compatibility with Compound's COMP token.
  *
  * This extension keeps a history (checkpoints) of each account's vote power. Vote power can be delegated either
  * by calling the {delegate} function directly, or by providing a signature to be used with {delegateBySig}. Voting
@@ -44,6 +44,13 @@ abstract contract ERC20Votes is ERC20, Votes {
     }
 
     /**
+     * @dev Returns the balance of `account`.
+     */
+    function _getVotingUnits(address account) internal view virtual override returns (uint256) {
+        return balanceOf(account);
+    }
+
+    /**
      * @dev Get number of checkpoints for `account`.
      */
     function numCheckpoints(address account) public view virtual returns (uint32) {
@@ -53,14 +60,7 @@ abstract contract ERC20Votes is ERC20, Votes {
     /**
      * @dev Get the `pos`-th checkpoint for `account`.
      */
-    function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoints.Checkpoint memory) {
+    function checkpoints(address account, uint32 pos) public view virtual returns (Checkpoints.Checkpoint224 memory) {
         return _checkpoints(account, pos);
-    }
-
-    /**
-     * @dev Returns the balance of `account`.
-     */
-    function _getVotingUnits(address account) internal view virtual override returns (uint256) {
-        return balanceOf(account);
     }
 }

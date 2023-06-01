@@ -16,7 +16,7 @@ const { version } = require('../../package.json');
 const [tag] = run('git', 'tag')
   .split(/\r?\n/)
   .filter(semver.coerce) // check version can be processed
-  .filter(v => semver.lt(semver.coerce(v), version)) // only consider older tags, ignore current prereleases
+  .filter(v => semver.satisfies(v, `< ${version}`)) // ignores prereleases unless currently a prerelease
   .sort(semver.rcompare);
 
 // Ordering tag → HEAD is important here.

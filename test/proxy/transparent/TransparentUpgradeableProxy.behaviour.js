@@ -3,8 +3,8 @@ const { ZERO_ADDRESS } = constants;
 const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
 
 const { expect } = require('chai');
+const { web3 } = require('hardhat');
 
-const Proxy = artifacts.require('Proxy');
 const Implementation1 = artifacts.require('Implementation1');
 const Implementation2 = artifacts.require('Implementation2');
 const Implementation3 = artifacts.require('Implementation3');
@@ -121,13 +121,11 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
             expect(balance.toString()).to.be.bignumber.equal(value.toString());
           });
 
-          it.skip('uses the storage of the proxy', async function () {
+          it('uses the storage of the proxy', async function () {
             // storage layout should look as follows:
-            //  - 0: Initializable storage
-            //  - 1-50: Initailizable reserved storage (50 slots)
-            //  - 51: initializerRan
-            //  - 52: x
-            const storedValue = await Proxy.at(this.proxyAddress).getStorageAt(52);
+            //  - 0: Initializable storage ++ initializerRan ++ onlyInitializingRan
+            //  - 1: x
+            const storedValue = await web3.eth.getStorageAt(this.proxyAddress, 1);
             expect(parseInt(storedValue)).to.eq(42);
           });
         });
@@ -304,7 +302,6 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
       const initializeData = Buffer.from('');
       this.impl = await ClashingImplementation.new();
       this.proxy = await createProxy(this.impl.address, proxyAdminAddress, initializeData, { from: proxyAdminOwner });
-
       this.clashing = new ClashingImplementation(this.proxy.address);
     });
 
@@ -313,6 +310,29 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
         this.clashing.delegatedFunction({ from: proxyAdminAddress }),
         'TransparentUpgradeableProxy: admin cannot fallback to proxy target',
       );
+    });
+
+    describe('when function names clash', function () {
+      it('when sender is proxy admin should run the proxy function', async function () {
+        const receipt = await this.proxy.changeAdmin(anotherAccount, { from: proxyAdminAddress, value: 0 });
+        expectEvent(receipt, 'AdminChanged');
+      });
+
+      it('when sender is other should delegate to implementation', async function () {
+        const receipt = await this.proxy.changeAdmin(anotherAccount, { from: anotherAccount, value: 0 });
+        expectEvent.notEmitted(receipt, 'AdminChanged');
+        expectEvent.inTransaction(receipt.tx, this.clashing, 'ClashingImplementationCall');
+      });
+
+      it('when sender is proxy admin value should not be accepted', async function () {
+        await expectRevert.unspecified(this.proxy.changeAdmin(anotherAccount, { from: proxyAdminAddress, value: 1 }));
+      });
+
+      it('when sender is other value should be accepted', async function () {
+        const receipt = await this.proxy.changeAdmin(anotherAccount, { from: anotherAccount, value: 1 });
+        expectEvent.notEmitted(receipt, 'AdminChanged');
+        expectEvent.inTransaction(receipt.tx, this.clashing, 'ClashingImplementationCall');
+      });
     });
   });
 

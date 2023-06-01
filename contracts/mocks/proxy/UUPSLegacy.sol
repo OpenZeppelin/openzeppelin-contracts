@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.19;
 
 import "./UUPSUpgradeableMock.sol";
 
@@ -44,11 +44,11 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
     }
 
     // hooking into the old mechanism
-    function upgradeTo(address newImplementation) external override {
+    function upgradeTo(address newImplementation) public override {
         _upgradeToAndCallSecureLegacyV1(newImplementation, bytes(""), false);
     }
 
-    function upgradeToAndCall(address newImplementation, bytes memory data) external payable override {
+    function upgradeToAndCall(address newImplementation, bytes memory data) public payable override {
         _upgradeToAndCallSecureLegacyV1(newImplementation, data, false);
     }
 }

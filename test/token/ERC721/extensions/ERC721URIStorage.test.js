@@ -1,6 +1,7 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
-
+const { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+
+const { shouldSupportInterfaces } = require('../../../utils/introspection/SupportsInterface.behavior');
 
 const ERC721URIStorageMock = artifacts.require('$ERC721URIStorageMock');
 
@@ -16,6 +17,8 @@ contract('ERC721URIStorage', function (accounts) {
   beforeEach(async function () {
     this.token = await ERC721URIStorageMock.new(name, symbol);
   });
+
+  shouldSupportInterfaces(['0x49064906']);
 
   describe('token URI', function () {
     beforeEach(async function () {
@@ -36,6 +39,12 @@ contract('ERC721URIStorage', function (accounts) {
     it('can be set for a token id', async function () {
       await this.token.$_setTokenURI(firstTokenId, sampleUri);
       expect(await this.token.tokenURI(firstTokenId)).to.be.equal(sampleUri);
+    });
+
+    it('setting the uri emits an event', async function () {
+      expectEvent(await this.token.$_setTokenURI(firstTokenId, sampleUri), 'MetadataUpdate', {
+        _tokenId: firstTokenId,
+      });
     });
 
     it('reverts when setting for non existent token id', async function () {

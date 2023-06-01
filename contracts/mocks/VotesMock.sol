@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../governance/utils/Votes.sol";
 
@@ -27,5 +27,16 @@ abstract contract VotesMock is Votes {
     function _burn(address account, uint256 votes) internal {
         _votingUnits[account] += votes;
         _transferVotingUnits(account, address(0), votes);
+    }
+}
+
+abstract contract VotesTimestampMock is VotesMock {
+    function clock() public view override returns (uint48) {
+        return uint48(block.timestamp);
+    }
+
+    // solhint-disable-next-line func-name-mixedcase
+    function CLOCK_MODE() public view virtual override returns (string memory) {
+        return "mode=timestamp";
     }
 }

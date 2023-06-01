@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/extensions/ERC20Permit.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/extensions/ERC20Permit.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "./IERC20Permit.sol";
 import "../ERC20.sol";
@@ -23,14 +23,6 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
     // solhint-disable-next-line var-name-mixedcase
     bytes32 private constant _PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
-    /**
-     * @dev In previous versions `_PERMIT_TYPEHASH` was declared as `immutable`.
-     * However, to ensure consistency with the upgradeable transpiler, we will continue
-     * to reserve a slot.
-     * @custom:oz-renamed-from _PERMIT_TYPEHASH
-     */
-    // solhint-disable-next-line var-name-mixedcase
-    bytes32 private _PERMIT_TYPEHASH_DEPRECATED_SLOT;
 
     /**
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
