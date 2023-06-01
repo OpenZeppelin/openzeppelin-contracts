@@ -2,4 +2,4 @@
 'openzeppelin-solidity': patch
 ---
 
-Optimize Strings equal
+Optimize `Strings.equal`
