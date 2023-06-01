@@ -392,7 +392,10 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * @dev Execute an operation's call.
      */
     function _execute(address target, uint256 value, bytes calldata data) internal virtual {
-        Address.functionCallWithValue(target, data, value, _customTimelockRevert);
+        (bool success, ) = target.call{value: value}(data);
+        if (!success) {
+            revert TimelockFailedCall();
+        }
     }
 
     /**
@@ -466,12 +469,5 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes memory
     ) public virtual override returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
-    }
-
-    /**
-     * @dev Default revert function for failed executed functions without any other bubbled up reason.
-     */
-    function _customTimelockRevert() internal pure {
-        revert TimelockFailedCall();
     }
 }
