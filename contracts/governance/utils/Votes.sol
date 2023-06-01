@@ -45,7 +45,12 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     /**
      * @dev The clock was incorrectly modified.
      */
-    error ERC6327BrokenClock();
+    error ERC6372InconsistentClock();
+
+    /**
+     * @dev Lookup to future votes is not available.
+     */
+    error ERC5805FutureLookup(uint256 timepoint, uint48 clock);
 
     /**
      * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based
@@ -62,7 +67,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     function CLOCK_MODE() public view virtual override returns (string memory) {
         // Check that the clock was not modified
         if (clock() != block.number) {
-            revert ERC6327BrokenClock();
+            revert ERC6372InconsistentClock();
         }
         return "mode=blocknumber&from=default";
     }
@@ -83,9 +88,9 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
     function getPastVotes(address account, uint256 timepoint) public view virtual override returns (uint256) {
-        uint48 clockTime = clock();
-        if (timepoint >= clockTime) {
-            revert VotesFutureLookup(timepoint, clockTime);
+        uint48 currentTimepoint = clock();
+        if (timepoint >= currentTimepoint) {
+            revert ERC5805FutureLookup(timepoint, currentTimepoint);
         }
         return _delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint32(timepoint));
     }
@@ -105,7 +110,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     function getPastTotalSupply(uint256 timepoint) public view virtual override returns (uint256) {
         uint48 clockTime = clock();
         if (timepoint >= clockTime) {
-            revert VotesFutureLookup(timepoint, clockTime);
+            revert ERC5805FutureLookup(timepoint, clockTime);
         }
         return _totalCheckpoints.upperLookupRecent(SafeCast.toUint32(timepoint));
     }

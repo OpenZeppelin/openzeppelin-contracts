@@ -24,9 +24,7 @@ pragma solidity ^0.8.19;
  *     }
  *
  *     function _setImplementation(address newImplementation) internal {
- *         if (newImplementation.code.length == 0) {
- *             revert ERC1967InvalidImplementation(newImplementation);
- *         }
+ *         require(newImplementation.code.length > 0);
  *         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
  *     }
  * }

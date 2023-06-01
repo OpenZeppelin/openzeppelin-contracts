@@ -53,7 +53,6 @@ library Create2 {
         assembly {
             addr := create2(amount, add(bytecode, 0x20), mload(bytecode), salt)
         }
-        // console.log(addr);
         if (addr == address(0)) {
             revert Create2FailedDeployment();
         }

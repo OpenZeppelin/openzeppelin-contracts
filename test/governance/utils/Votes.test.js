@@ -47,7 +47,7 @@ contract('Votes', function (accounts) {
         it('reverts if block number >= current block', async function () {
           const lastTxTimepoint = await clockFromReceipt[mode](this.txs.at(-1).receipt);
           const clock = await this.votes.clock();
-          await expectRevertCustomError(this.votes.getPastTotalSupply(lastTxTimepoint + 1), 'VotesFutureLookup', [
+          await expectRevertCustomError(this.votes.getPastTotalSupply(lastTxTimepoint + 1), 'ERC5805FutureLookup', [
             lastTxTimepoint + 1,
             clock,
           ]);

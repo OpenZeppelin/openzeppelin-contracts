@@ -9,11 +9,6 @@ pragma solidity ^0.8.19;
  */
 interface IVotes {
     /**
-     * @dev Lookup to future votes is not available.
-     */
-    error VotesFutureLookup(uint256 timepoint, uint48 clock);
-
-    /**
      * @dev The signature used has expired.
      */
     error VotesExpiredSignature(uint256 expiry);

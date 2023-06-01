@@ -10,7 +10,7 @@ library Math {
     /**
      * @dev Muldiv operation overflow.
      */
-    error MathOverflownMulDiv();
+    error MathOverflowedMulDiv();
 
     enum Rounding {
         Down, // Toward negative infinity
@@ -146,7 +146,7 @@ library Math {
 
             // Make sure the result is less than 2^256. Also prevents denominator == 0.
             if (denominator <= prod1) {
-                revert MathOverflownMulDiv();
+                revert MathOverflowedMulDiv();
             }
 
             ///////////////////////////////////////////////
