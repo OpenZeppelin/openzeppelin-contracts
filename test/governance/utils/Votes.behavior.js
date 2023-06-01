@@ -7,7 +7,7 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 const { shouldBehaveLikeEIP6372 } = require('./EIP6372.behavior');
-const { getDomain, domainType, domainSeparator } = require('../../helpers/eip712');
+const { getDomain, domainType } = require('../../helpers/eip712');
 const { clockFromReceipt } = require('../../helpers/time');
 
 const Delegation = [
