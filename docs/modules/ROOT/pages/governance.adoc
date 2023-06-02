@@ -43,82 +43,13 @@ In the rest of this guide, we will focus on a fresh deploy of the vanilla OpenZe
 The voting power of each account in our governance setup will be determined by an ERC20 token. The token has to implement the ERC20Votes extension. This extension will keep track of historical balances so that voting power is retrieved from past snapshots rather than current balance, which is an important protection that prevents double voting.
 
 ```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
-
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
-
-contract MyToken is ERC20, ERC20Permit, ERC20Votes {
-    constructor() ERC20("MyToken", "MTK") ERC20Permit("MyToken") {}
-
-    // The functions below are overrides required by Solidity.
-
-    function _afterTokenTransfer(address from, address to, uint256 amount)
-        internal
-        override(ERC20, ERC20Votes)
-    {
-        super._afterTokenTransfer(from, to, amount);
-    }
-
-    function _mint(address to, uint256 amount)
-        internal
-        override(ERC20, ERC20Votes)
-    {
-        super._mint(to, amount);
-    }
-
-    function _burn(address account, uint256 amount)
-        internal
-        override(ERC20, ERC20Votes)
-    {
-        super._burn(account, amount);
-    }
-}
+include::api:example$governance/MyToken.sol[]
 ```
 
 If your project already has a live token that does not include ERC20Votes and is not upgradeable, you can wrap it in a governance token by using ERC20Wrapper. This will allow token holders to participate in governance by wrapping their tokens 1-to-1.
 
 ```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
-
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Wrapper.sol";
-
-contract MyToken is ERC20, ERC20Permit, ERC20Votes, ERC20Wrapper {
-    constructor(IERC20 wrappedToken)
-        ERC20("MyToken", "MTK")
-        ERC20Permit("MyToken")
-        ERC20Wrapper(wrappedToken)
-    {}
-
-    // The functions below are overrides required by Solidity.
-
-    function _afterTokenTransfer(address from, address to, uint256 amount)
-        internal
-        override(ERC20, ERC20Votes)
-    {
-        super._afterTokenTransfer(from, to, amount);
-    }
-
-    function _mint(address to, uint256 amount)
-        internal
-        override(ERC20, ERC20Votes)
-    {
-        super._mint(to, amount);
-    }
-
-    function _burn(address account, uint256 amount)
-        internal
-        override(ERC20, ERC20Votes)
-    {
-        super._burn(account, amount);
-    }
-}
+include::api:example$governance/MyTokenWrapped.sol[]
 ```
 
 NOTE: The only other source of voting power available in OpenZeppelin Contracts currently is xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]. ERC721 tokens that don't provide this functionality can be wrapped into a voting tokens using a combination of xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`] and xref:api:token/ERC721Wrapper.adoc#ERC721Wrapper[`ERC721Wrapper`].
@@ -146,87 +77,7 @@ These parameters are specified in the unit defined in the token's clock. Assumin
 We can optionally set a proposal threshold as well. This restricts proposal creation to accounts who have enough voting power.
 
 ```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
-
-import "@openzeppelin/contracts/governance/Governor.sol";
-import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
-
-contract MyGovernor is Governor, GovernorCompatibilityBravo, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
-    constructor(IVotes _token, TimelockController _timelock)
-        Governor("MyGovernor")
-        GovernorVotes(_token)
-        GovernorVotesQuorumFraction(4)
-        GovernorTimelockControl(_timelock)
-    {}
-
-    function votingDelay() public pure override returns (uint256) {
-        return 7200; // 1 day
-    }
-
-    function votingPeriod() public pure override returns (uint256) {
-        return 50400; // 1 week
-    }
-
-    function proposalThreshold() public pure override returns (uint256) {
-        return 0;
-    }
-
-    // The functions below are overrides required by Solidity.
-
-    function state(uint256 proposalId)
-        public
-        view
-        override(Governor, IGovernor, GovernorTimelockControl)
-        returns (ProposalState)
-    {
-        return super.state(proposalId);
-    }
-
-    function propose(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, string memory description)
-        public
-        override(Governor, GovernorCompatibilityBravo, IGovernor)
-        returns (uint256)
-    {
-        return super.propose(targets, values, calldatas, description);
-    }
-
-    function _execute(uint256 proposalId, address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
-        internal
-        override(Governor, GovernorTimelockControl)
-    {
-        super._execute(proposalId, targets, values, calldatas, descriptionHash);
-    }
-
-    function _cancel(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash)
-        internal
-        override(Governor, GovernorTimelockControl)
-        returns (uint256)
-    {
-        return super._cancel(targets, values, calldatas, descriptionHash);
-    }
-
-    function _executor()
-        internal
-        view
-        override(Governor, GovernorTimelockControl)
-        returns (address)
-    {
-        return super._executor();
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(Governor, IERC165, GovernorTimelockControl)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
-    }
-}
+include::api:example$governance/MyGovernor.sol[]
 ```
 
 === Timelock
@@ -338,49 +189,7 @@ Therefore, designing a timestamp based voting system starts with the token.
 Since v4.9, all voting contracts (including xref:api:token/ERC20.adoc#ERC20Votes[`ERC20Votes`] and xref:api:token/ERC721.adoc#ERC721Votes[`ERC721Votes`]) rely on xref:api:interfaces.adoc#IERC6372[IERC6372] for clock management. In order to change from operating with block numbers to operating with timestamps, all that is required is to override the `clock()` and `CLOCK_MODE()` functions.
 
 ```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
-
-import "github.com/openzeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import "github.com/openzeppelin/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Permit.sol";
-import "github.com/openzeppelin/openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Votes.sol";
-
-contract MyToken is ERC20, ERC20Permit, ERC20Votes {
-    constructor() ERC20("MyToken", "MTK") ERC20Permit("MyToken") {}
-
-    // Overrides IERC6372 functions to make the token & governor timestamp-based
-
-    function clock() public view override returns (uint48) {
-        return uint48(block.timestamp);
-    }
-
-    function CLOCK_MODE() public pure override returns (string memory) {
-        return "mode=timestamp";
-    }
-
-    // The functions below are overrides required by Solidity.
-
-    function _afterTokenTransfer(address from, address to, uint256 amount)
-        internal
-        override(ERC20, ERC20Votes)
-    {
-        super._afterTokenTransfer(from, to, amount);
-    }
-
-    function _mint(address to, uint256 amount)
-        internal
-        override(ERC20, ERC20Votes)
-    {
-        super._mint(to, amount);
-    }
-
-    function _burn(address account, uint256 amount)
-        internal
-        override(ERC20, ERC20Votes)
-    {
-        super._burn(account, amount);
-    }
-}
+include::api:example$governance/MyTokenTimestampBased.sol[]
 ```
 
 === Governor

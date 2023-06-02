@@ -46,10 +46,6 @@ contract('ERC20Votes', function (accounts) {
         expect(await this.token.nonces(holder)).to.be.bignumber.equal('0');
       });
 
-      it('domain separator', async function () {
-        expect(await this.token.DOMAIN_SEPARATOR()).to.equal(await getDomain(this.token).then(domainSeparator));
-      });
-
       it('minting restriction', async function () {
         const amount = new BN('2').pow(new BN('224'));
         await expectRevert(this.token.$_mint(holder, amount), 'ERC20Votes: total supply risks overflowing votes');
