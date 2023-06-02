@@ -21,8 +21,8 @@ function makeContractAddress(creator, nonce) {
 }
 
 const TOKENS = [
-  { Token: artifacts.require('$ERC20VotesComp'), mode: 'blocknumber' },
-  { Token: artifacts.require('$ERC20VotesCompTimestampMock'), mode: 'timestamp' },
+  { Token: artifacts.require('$ERC20Votes'), mode: 'blocknumber' },
+  { Token: artifacts.require('$ERC20VotesTimestampMock'), mode: 'timestamp' },
 ];
 
 contract('GovernorCompatibilityBravo', function (accounts) {

@@ -18,7 +18,7 @@ const VERSIONS = unique(TYPES.map(t => t.version)).map(
 );
 
 const header = `\
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 /**
  * @dev Library for reading and writing primitive types to specific storage slots.
