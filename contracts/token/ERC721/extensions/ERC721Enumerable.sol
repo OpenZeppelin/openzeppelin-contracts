@@ -47,7 +47,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @dev See {IERC721Enumerable-tokenOfOwnerByIndex}.
      */
     function tokenOfOwnerByIndex(address owner, uint256 index) public view virtual override returns (uint256) {
-        if (index >= ERC721.balanceOf(owner)) {
+        if (index >= balanceOf(owner)) {
             revert ERC721OutOfBoundsIndex(owner, index);
         }
         return _ownedTokens[owner][index];
@@ -106,7 +106,7 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
      * @param tokenId uint256 ID of the token to be added to the tokens list of the given address
      */
     function _addTokenToOwnerEnumeration(address to, uint256 tokenId) private {
-        uint256 length = ERC721.balanceOf(to);
+        uint256 length = balanceOf(to);
         _ownedTokens[to][length] = tokenId;
         _ownedTokensIndex[tokenId] = length;
     }
