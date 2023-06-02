@@ -1,11 +1,10 @@
 const { expectEvent, expectRevert, constants, time } = require('@openzeppelin/test-helpers');
-const { soliditySha3 } = require('web3-utils');
-const { Enum } = require('../../helpers/enums.js');
+const { Enum } = require('../../helpers/enums');
+const { selector } = require('../../helpers/methods');
 
 const AccessManager = artifacts.require('$AccessManager');
 const DelayCondition = artifacts.require('DelayCondition');
 
-const fnSig = signature => soliditySha3(signature).substring(0, 10);
 const mask = (...groups) =>
   '0x' +
   groups
@@ -40,7 +39,7 @@ contract('AccessManager', function (accounts) {
     expect(await this.manager.getContractMode(this.manager.address)).to.be.bignumber.equal(AccessMode.Custom);
 
     for (const signature of Object.keys(this.manager.methods)) {
-      expect(await this.manager.getFunctionAllowedGroups(this.manager.address, fnSig(signature))).to.be.equal(
+      expect(await this.manager.getFunctionAllowedGroups(this.manager.address, selector(signature))).to.be.equal(
         initialGroups[signature] || constants.ZERO_BYTES32,
       );
     }
@@ -138,7 +137,7 @@ contract('AccessManager', function (accounts) {
             'setDelayTarget(address,uint48)',
             'setDelayCaller(address,address,uint48)',
             'setDelaySelector(address,address,bytes4,uint48)',
-          ].map(sig => fnSig(sig)),
+          ].map(selector),
           ADMIN_GROUP,
           true,
           { from: admin },

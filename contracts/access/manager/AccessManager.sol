@@ -26,8 +26,6 @@ interface IAccessManager is IAuthority {
     function getUserGroups(address user, address[] calldata conditions) external view returns (bytes32);
 }
 
-import "hardhat/console.sol";
-
 contract AccessManager is IAccessManager, AccessManagedImmutable(this) {
     using AccessManagerUtils for *;
 

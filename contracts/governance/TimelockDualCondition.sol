@@ -46,7 +46,7 @@ contract TimelockDualCondition is
     address private _currentCaller;
 
     // Events
-    event Schedule(
+    event Scheduled(
         bytes32   id,
         address   proposer,
         address[] targets,
@@ -56,7 +56,7 @@ contract TimelockDualCondition is
         uint48    timepoint
     );
     event Executed(bytes32 id);
-    event Canceled(bytes32 id);
+    event Cancelled(bytes32 id);
 
     // Errors
     error InvalidArgumentLength();
@@ -78,7 +78,7 @@ contract TimelockDualCondition is
     }
 
     function delay(address /*target*/, bytes4 /*selector*/) public view virtual returns (uint48) {
-        return 0;
+        return 1 minutes;
     }
 
     // This produces the same hash as the governor (for now)
@@ -100,7 +100,7 @@ contract TimelockDualCondition is
         bytes[]   calldata payloads,
         bytes32            salt
     )
-    public virtual restricted()
+    public virtual restricted() returns (bytes32)
     {
         bytes32 id = hashOperation(targets, values, payloads, salt);
 
@@ -116,7 +116,9 @@ contract TimelockDualCondition is
         // sync: memory (cache) → storage
         _operations[id] = op;
 
-        emit Schedule(id, proposer, targets, values, payloads, salt, timepoint);
+        emit Scheduled(id, proposer, targets, values, payloads, salt, timepoint);
+
+        return id;
     }
 
     function execute(
@@ -125,7 +127,7 @@ contract TimelockDualCondition is
         bytes[]   calldata payloads,
         bytes32            salt
     )
-    public virtual restricted()
+    public payable virtual restricted() returns (bytes32)
     {
         bytes32 id = hashOperation(targets, values, payloads, salt);
 
@@ -139,7 +141,7 @@ contract TimelockDualCondition is
             address caller = _msgSender();
             uint48 timepoint = SafeCast.toUint48(block.timestamp);
             op = Operation({ state: OperationState.EXECUTED, proposer: caller, timepoint: timepoint });
-            emit Schedule(id, caller, targets, values, payloads, salt, timepoint);
+            emit Scheduled(id, caller, targets, values, payloads, salt, timepoint);
         } else {
             revert ProposalNotReady();
         }
@@ -156,6 +158,8 @@ contract TimelockDualCondition is
         _currentCaller = oldCaller;
 
         emit Executed(id);
+
+        return id;
     }
 
     function cancel(bytes32 id) public virtual restricted() {
@@ -169,7 +173,7 @@ contract TimelockDualCondition is
         // sync: memory (cache) → storage
         _operations[id] = op;
 
-        emit Canceled(id);
+        emit Cancelled(id);
     }
 
     function _delayForMultipleCalls(address[] calldata targets, bytes[] calldata payloads) private view returns (uint48) {
