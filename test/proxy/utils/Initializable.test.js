@@ -207,7 +207,7 @@ contract('Initializable', function () {
   describe('disabling initialization', function () {
     it('old and new patterns in bad sequence', async function () {
       await expectRevertCustomError(DisableBad1.new(), 'AlreadyInitialized', []);
-      await expectRevertCustomError(DisableBad2.new(), 'Initializing', []);
+      await expectRevertCustomError(DisableBad2.new(), 'AlreadyInitialized', []);
     });
 
     it('old and new patterns in good sequence', async function () {

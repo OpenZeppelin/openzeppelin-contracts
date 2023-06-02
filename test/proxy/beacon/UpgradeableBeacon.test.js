@@ -11,7 +11,7 @@ contract('UpgradeableBeacon', function (accounts) {
   const [owner, other] = accounts;
 
   it('cannot be created with non-contract implementation', async function () {
-    await expectRevertCustomError(UpgradeableBeacon.new(other, owner), 'UpgradeableBeaconInvalidImplementation', [
+    await expectRevertCustomError(UpgradeableBeacon.new(other, owner), 'BeaconInvalidImplementation', [
       other,
     ]);
   });
@@ -36,7 +36,7 @@ contract('UpgradeableBeacon', function (accounts) {
     it('cannot be upgraded to a non-contract', async function () {
       await expectRevertCustomError(
         this.beacon.upgradeTo(other, { from: owner }),
-        'UpgradeableBeaconInvalidImplementation',
+        'BeaconInvalidImplementation',
         [other],
       );
     });

@@ -49,7 +49,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
     error ERC721ExceededMaxBatchMint(uint256 batchSize, uint256 maxBatch);
 
     /**
-     * @dev Individual mintin is not allowed.
+     * @dev Individual minting is not allowed.
      */
     error ERC721ForbiddenMint();
 

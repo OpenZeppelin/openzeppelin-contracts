@@ -18,7 +18,7 @@ contract UpgradeableBeacon is IBeacon, Ownable {
     /**
      * @dev The `implementation` of the beacon is invalid.
      */
-    error UpgradeableBeaconInvalidImplementation(address implementation);
+    error BeaconInvalidImplementation(address implementation);
 
     /**
      * @dev Emitted when the implementation returned by the beacon is changed.
@@ -63,7 +63,7 @@ contract UpgradeableBeacon is IBeacon, Ownable {
      */
     function _setImplementation(address newImplementation) private {
         if (newImplementation.code.length == 0) {
-            revert UpgradeableBeaconInvalidImplementation(newImplementation);
+            revert BeaconInvalidImplementation(newImplementation);
         }
         _implementation = newImplementation;
     }

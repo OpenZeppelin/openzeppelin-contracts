@@ -55,12 +55,12 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev The proxy caller is the current admin, and can't fallback to the proxy target.
      */
-    error TransparentUpgradeableProxyDisabledFallback(address admin);
+    error ProxyDeniedAdminAccess();
 
     /**
      * @dev msg.value is not 0.
      */
-    error TransparentUpgradeableProxyNonPayableFunction();
+    error ProxyNonPayableFunction();
 
     /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
@@ -84,7 +84,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
             } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
                 ret = _dispatchChangeAdmin();
             } else {
-                revert TransparentUpgradeableProxyDisabledFallback(msg.sender);
+                revert ProxyDeniedAdminAccess();
             }
             assembly {
                 return(add(ret, 0x20), mload(ret))
@@ -138,7 +138,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      */
     function _requireZeroValue() private {
         if (msg.value != 0) {
-            revert TransparentUpgradeableProxyNonPayableFunction();
+            revert ProxyNonPayableFunction();
         }
     }
 }

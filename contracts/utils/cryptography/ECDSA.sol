@@ -22,7 +22,7 @@ library ECDSA {
     /**
      * @dev The signature derives the `address(0)`.
      */
-    error ECDSAInvalidSignature(address recovered);
+    error ECDSAInvalidSignature();
 
     /**
      * @dev The signature has an invalid length.
@@ -38,7 +38,7 @@ library ECDSA {
         if (error == RecoverError.NoError) {
             return; // no error: do nothing
         } else if (error == RecoverError.InvalidSignature) {
-            revert ECDSAInvalidSignature(address(bytes20(errorArg)));
+            revert ECDSAInvalidSignature();
         } else if (error == RecoverError.InvalidSignatureLength) {
             revert ECDSAInvalidSignatureLength(uint256(errorArg));
         } else if (error == RecoverError.InvalidSignatureS) {
@@ -157,7 +157,7 @@ library ECDSA {
         // If the signature is valid (and not malleable), return the signer address
         address signer = ecrecover(hash, v, r, s);
         if (signer == address(0)) {
-            return (address(0), RecoverError.InvalidSignature, bytes32(bytes20(signer)));
+            return (address(0), RecoverError.InvalidSignature, bytes32(0));
         }
 
         return (signer, RecoverError.NoError, bytes32(0));

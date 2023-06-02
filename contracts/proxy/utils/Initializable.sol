@@ -78,11 +78,6 @@ abstract contract Initializable {
     error NotInitializing();
 
     /**
-     * @dev The contract is initializing.
-     */
-    error Initializing();
-
-    /**
      * @dev Triggered when the contract has been initialized or reinitialized.
      */
     event Initialized(uint8 version);
@@ -162,7 +157,7 @@ abstract contract Initializable {
      */
     function _disableInitializers() internal virtual {
         if (_initializing) {
-            revert Initializing();
+            revert AlreadyInitialized();
         }
         if (_initialized != type(uint8).max) {
             _initialized = type(uint8).max;
