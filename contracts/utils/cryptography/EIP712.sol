@@ -146,7 +146,7 @@ abstract contract EIP712 is IERC5267 {
      * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
      * are a concern.
      */
-    function _EIP712Name() internal virtual view returns (string memory) {
+    function _EIP712Name() internal view virtual returns (string memory) {
         return ShortStrings.toStringWithFallback(_name, _nameFallback);
     }
 
@@ -156,7 +156,7 @@ abstract contract EIP712 is IERC5267 {
      * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
      * are a concern.
      */
-    function _EIP712Version() internal virtual view returns (string memory) {
+    function _EIP712Version() internal view virtual returns (string memory) {
         return ShortStrings.toStringWithFallback(_version, _versionFallback);
     }
 }
