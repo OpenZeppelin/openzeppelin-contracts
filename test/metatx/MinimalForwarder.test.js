@@ -28,6 +28,14 @@ contract('MinimalForwarder', function (accounts) {
   });
 
   context('with message', function () {
+    const tamperedValues = {
+      from: accounts[0],
+      to: accounts[0],
+      value: web3.utils.toWei('1'),
+      nonce: 1234,
+      data: '0x1742',
+    };
+
     beforeEach(async function () {
       this.wallet = Wallet.generate();
       this.sender = web3.utils.toChecksumAddress(this.wallet.getAddressString());
@@ -39,14 +47,15 @@ contract('MinimalForwarder', function (accounts) {
         nonce: Number(await this.forwarder.getNonce(this.sender)),
         data: '0x',
       };
-      this.sign = () =>
+      this.forgeData = req => ({
+        types: this.types,
+        domain: this.domain,
+        primaryType: 'ForwardRequest',
+        message: { ...this.req, ...req },
+      });
+      this.sign = req =>
         ethSigUtil.signTypedMessage(this.wallet.getPrivateKey(), {
-          data: {
-            types: this.types,
-            domain: this.domain,
-            primaryType: 'ForwardRequest',
-            message: this.req,
-          },
+          data: this.forgeData(req),
         });
     });
 
@@ -65,30 +74,28 @@ contract('MinimalForwarder', function (accounts) {
         });
       });
 
-      context('invalid signature', function () {
-        it('tampered from', async function () {
-          expect(await this.forwarder.verify({ ...this.req, from: accounts[0] }, this.sign())).to.be.equal(false);
-        });
-        it('tampered to', async function () {
-          expect(await this.forwarder.verify({ ...this.req, to: accounts[0] }, this.sign())).to.be.equal(false);
-        });
-        it('tampered value', async function () {
-          expect(await this.forwarder.verify({ ...this.req, value: web3.utils.toWei('1') }, this.sign())).to.be.equal(
-            false,
-          );
-        });
-        it('tampered nonce', async function () {
-          expect(await this.forwarder.verify({ ...this.req, nonce: this.req.nonce + 1 }, this.sign())).to.be.equal(
-            false,
-          );
-        });
-        it('tampered data', async function () {
-          expect(await this.forwarder.verify({ ...this.req, data: '0x1742' }, this.sign())).to.be.equal(false);
-        });
-        it('tampered signature', async function () {
+      context('with tampered values', function () {
+        for (const [key, value] of Object.entries(tamperedValues)) {
+          it(`returns false with tampered ${key}`, async function () {
+            expect(await this.forwarder.verify(this.forgeData({ [key]: value }).message, this.sign())).to.be.equal(
+              false,
+            );
+          });
+        }
+
+        it('returns false with tampered signature', async function () {
           const tamperedsign = web3.utils.hexToBytes(this.sign());
           tamperedsign[42] ^= 0xff;
           expect(await this.forwarder.verify(this.req, web3.utils.bytesToHex(tamperedsign))).to.be.equal(false);
+        });
+
+        it('returns false with valid signature for non-current nonce', async function () {
+          const req = {
+            ...this.req,
+            nonce: this.req.nonce + 1,
+          };
+          const sig = this.sign(req);
+          expect(await this.forwarder.verify(req, sig)).to.be.equal(false);
         });
       });
     });
@@ -110,50 +117,38 @@ contract('MinimalForwarder', function (accounts) {
         });
       });
 
-      context('invalid signature', function () {
-        it('tampered from', async function () {
+      context('with tampered values', function () {
+        for (const [key, value] of Object.entries(tamperedValues)) {
+          it(`reverts with tampered ${key}`, async function () {
+            const sig = this.sign();
+            const data = this.forgeData({ [key]: value });
+            await expectRevertCustomError(this.forwarder.execute(data.message, sig), 'MinimalForwarderInvalidSigner', [
+              ethSigUtil.recoverTypedSignature({ data, sig }),
+              data.message.from,
+            ]);
+          });
+        }
+
+        it('reverts with tampered signature', async function () {
+          const tamperedSig = web3.utils.hexToBytes(this.sign());
+          tamperedSig[42] ^= 0xff;
           await expectRevertCustomError(
-            this.forwarder.execute({ ...this.req, from: accounts[0] }, this.sign()),
-            'MinimalForwarderInvalidSignature',
-            [accounts[0], this.req.nonce],
+            this.forwarder.execute(this.req, web3.utils.bytesToHex(tamperedSig)),
+            'MinimalForwarderInvalidSigner',
+            [ethSigUtil.recoverTypedSignature({ data: this.forgeData(), sig: tamperedSig }), this.req.from],
           );
         });
-        it('tampered to', async function () {
-          await expectRevertCustomError(
-            this.forwarder.execute({ ...this.req, to: accounts[0] }, this.sign()),
-            'MinimalForwarderInvalidSignature',
-            [this.req.from, this.req.nonce],
-          );
-        });
-        it('tampered value', async function () {
-          await expectRevertCustomError(
-            this.forwarder.execute({ ...this.req, value: web3.utils.toWei('1') }, this.sign()),
-            'MinimalForwarderInvalidSignature',
-            [this.req.from, this.req.nonce],
-          );
-        });
-        it('tampered nonce', async function () {
-          await expectRevertCustomError(
-            this.forwarder.execute({ ...this.req, nonce: this.req.nonce + 1 }, this.sign()),
-            'MinimalForwarderInvalidSignature',
-            [this.req.from, this.req.nonce + 1],
-          );
-        });
-        it('tampered data', async function () {
-          await expectRevertCustomError(
-            this.forwarder.execute({ ...this.req, data: '0x1742' }, this.sign()),
-            'MinimalForwarderInvalidSignature',
-            [this.req.from, this.req.nonce],
-          );
-        });
-        it('tampered signature', async function () {
-          const tamperedsign = web3.utils.hexToBytes(this.sign());
-          tamperedsign[42] ^= 0xff;
-          await expectRevertCustomError(
-            this.forwarder.execute(this.req, web3.utils.bytesToHex(tamperedsign)),
-            'MinimalForwarderInvalidSignature',
-            [this.req.from, this.req.nonce],
-          );
+
+        it('reverts with valid signature for non-current nonce', async function () {
+          const req = {
+            ...this.req,
+            nonce: this.req.nonce + 1,
+          };
+          const sig = this.sign(req);
+          await expectRevertCustomError(this.forwarder.execute(req, sig), 'MinimalForwarderInvalidNonce', [
+            this.req.from,
+            this.req.nonce,
+          ]);
         });
       });
 
