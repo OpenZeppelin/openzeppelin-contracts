@@ -25,16 +25,27 @@ contract TimelockDualCondition is
         CANCELED
     }
 
-    // Operation fits into one slot.
+    // The entire `Operation` structure fits into one single slot. Whenever operating on one of these structures in
+    // storage, the pattern is to:
+    // - load the structure from storage to memory
+    // - operate on the memory object
+    // - write the memory object back to storage
+    // This enshures only one sload and one sstore are necessary. Using this pattern, the value in storage is not valid
+    // during the operation. It is important that the operation content does not exist (risk of reentrancy) or rely on
+    // internal functions that read from storage.
     struct Operation {
         OperationState state;
         address proposer;
         uint48 timepoint;
     }
 
+    // Store of operations details
     mapping(bytes32 id => Operation operation) private _operations;
+
+    // Whenever possible, this should use transient storage
     address private _currentCaller;
 
+    // Events
     event Schedule(
         bytes32   id,
         address   proposer,
@@ -47,11 +58,13 @@ contract TimelockDualCondition is
     event Executed(bytes32 id);
     event Canceled(bytes32 id);
 
+    // Errors
     error InvalidArgumentLength();
     error ProposalAlreadyExist();
     error ProposalNotActive();
     error ProposalNotReady();
 
+    // Methods
     constructor(IAuthority authority) AccessManagedImmutable(authority) {}
 
     receive() external payable {}
@@ -67,7 +80,6 @@ contract TimelockDualCondition is
     function delay(address /*target*/, bytes4 /*selector*/) public view virtual returns (uint48) {
         return 0;
     }
-
 
     // This produces the same hash as the governor (for now)
     function hashOperation(
@@ -92,14 +104,16 @@ contract TimelockDualCondition is
     {
         bytes32 id = hashOperation(targets, values, payloads, salt);
 
+        // fetch: storage → memory (cache)
         Operation memory op = _operations[id];
-        if (op.state != OperationState.UNSET) revert ProposalAlreadyExist();
 
+        // operate on the cache
+        if (op.state != OperationState.UNSET) revert ProposalAlreadyExist();
         address proposer = _msgSender();
         uint48 timepoint = SafeCast.toUint48(block.timestamp) + _delayForMultipleCalls(targets, payloads);
         op = Operation({ state: OperationState.SCHEDULED, proposer: proposer, timepoint: timepoint });
 
-        // sync state
+        // sync: memory (cache) → storage
         _operations[id] = op;
 
         emit Schedule(id, proposer, targets, values, payloads, salt, timepoint);
@@ -115,26 +129,25 @@ contract TimelockDualCondition is
     {
         bytes32 id = hashOperation(targets, values, payloads, salt);
 
+        // fetch: storage → memory (cache)
         Operation memory op = _operations[id];
-        if (op.state == OperationState.SCHEDULED && op.timepoint <= block.timestamp)
-        {
+
+        // operate on the cache
+        if (op.state == OperationState.SCHEDULED && op.timepoint <= block.timestamp) {
             op.state = OperationState.EXECUTED;
-        }
-        else if (op.state == OperationState.UNSET && authority.canCall(_msgSender(), address(this), this.schedule.selector) && _delayForMultipleCalls(targets, payloads) == 0)
-        {
+        } else if (op.state == OperationState.UNSET && authority.canCall(_msgSender(), address(this), this.schedule.selector) && _delayForMultipleCalls(targets, payloads) == 0) {
             address caller = _msgSender();
             uint48 timepoint = SafeCast.toUint48(block.timestamp);
             op = Operation({ state: OperationState.EXECUTED, proposer: caller, timepoint: timepoint });
             emit Schedule(id, caller, targets, values, payloads, salt, timepoint);
-        }
-        else
-        {
+        } else {
             revert ProposalNotReady();
         }
 
-        // sync state (before doing the external call)
+        // sync: memory (cache) → storage
         _operations[id] = op;
 
+        // external calls
         address oldCaller = _currentCaller;
         _currentCaller = op.proposer;
         for (uint256 i = 0; i < targets.length; ++i) {
@@ -146,9 +159,16 @@ contract TimelockDualCondition is
     }
 
     function cancel(bytes32 id) public virtual restricted() {
-        Operation storage op = _operations[id];
+        // fetch: storage → memory (cache)
+        Operation memory op = _operations[id];
+
+        // operate on the cache
         if (op.state != OperationState.SCHEDULED) revert ProposalNotActive();
         op.state = OperationState.CANCELED;
+
+        // sync: memory (cache) → storage
+        _operations[id] = op;
+
         emit Canceled(id);
     }
 
