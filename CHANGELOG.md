@@ -24,7 +24,7 @@ The following contracts, libraries and functions were removed:
 - All cross-chain contracts, including `AccessControlCrossChain` and all the vendored bridge interfaces
 - All presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/)
 
-There removal were conduced in the following PR:
+These removals were implemented in the following PRs:
 
 - [3637](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3637)
 - [3880](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3880)
