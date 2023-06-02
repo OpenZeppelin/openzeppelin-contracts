@@ -57,21 +57,18 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
 
     describe('balanceOfBatch', function () {
       it("reverts when input arrays don't match up", async function () {
-        let accounts;
-        let ids;
-
-        accounts = [firstTokenHolder, secondTokenHolder, firstTokenHolder, secondTokenHolder];
-        ids = [firstTokenId, secondTokenId, unknownTokenId];
-        await expectRevertCustomError(this.token.balanceOfBatch(accounts, ids), 'ERC1155InvalidArrayLength', [
-          accounts.length,
-          ids.length,
+        const accounts1 = [firstTokenHolder, secondTokenHolder, firstTokenHolder, secondTokenHolder];
+        const ids1 = [firstTokenId, secondTokenId, unknownTokenId];
+        await expectRevertCustomError(this.token.balanceOfBatch(accounts1, ids1), 'ERC1155InvalidArrayLength', [
+          accounts1.length,
+          ids1.length,
         ]);
 
-        accounts = [firstTokenHolder, secondTokenHolder];
-        ids = [firstTokenId, secondTokenId, unknownTokenId];
-        await expectRevertCustomError(this.token.balanceOfBatch(accounts, ids), 'ERC1155InvalidArrayLength', [
-          accounts.length,
-          ids.length,
+        const accounts2 = [firstTokenHolder, secondTokenHolder];
+        const ids2 = [firstTokenId, secondTokenId, unknownTokenId];
+        await expectRevertCustomError(this.token.balanceOfBatch(accounts2, ids2), 'ERC1155InvalidArrayLength', [
+          accounts2.length,
+          ids2.length,
         ]);
       });
 
@@ -445,24 +442,25 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
       });
 
       it("reverts when ids array length doesn't match amounts array length", async function () {
-        let ids;
-        let amounts;
-
-        ids = [firstTokenId];
-        amounts = [firstAmount, secondAmount];
+        const ids1 = [firstTokenId];
+        const amounts1 = [firstAmount, secondAmount];
 
         await expectRevertCustomError(
-          this.token.safeBatchTransferFrom(multiTokenHolder, recipient, ids, amounts, '0x', { from: multiTokenHolder }),
+          this.token.safeBatchTransferFrom(multiTokenHolder, recipient, ids1, amounts1, '0x', {
+            from: multiTokenHolder,
+          }),
           'ERC1155InvalidArrayLength',
-          [ids.length, amounts.length],
+          [ids1.length, amounts1.length],
         );
 
-        ids = [firstTokenId, secondTokenId];
-        amounts = [firstAmount];
+        const ids2 = [firstTokenId, secondTokenId];
+        const amounts2 = [firstAmount];
         await expectRevertCustomError(
-          this.token.safeBatchTransferFrom(multiTokenHolder, recipient, ids, amounts, '0x', { from: multiTokenHolder }),
+          this.token.safeBatchTransferFrom(multiTokenHolder, recipient, ids2, amounts2, '0x', {
+            from: multiTokenHolder,
+          }),
           'ERC1155InvalidArrayLength',
-          [ids.length, amounts.length],
+          [ids2.length, amounts2.length],
         );
       });
 
