@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../../token/ERC20/extensions/ERC20Permit.sol";
 import "../../utils/math/Math.sol";
@@ -161,31 +161,21 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
     }
 
     /**
-     * @dev Snapshots the totalSupply after it has been increased.
-     */
-    function _mint(address account, uint256 amount) internal virtual override {
-        super._mint(account, amount);
-        require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
-
-        _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
-    }
-
-    /**
-     * @dev Snapshots the totalSupply after it has been decreased.
-     */
-    function _burn(address account, uint256 amount) internal virtual override {
-        super._burn(account, amount);
-
-        _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
-    }
-
-    /**
      * @dev Move voting power when tokens are transferred.
      *
      * Emits a {IVotes-DelegateVotesChanged} event.
      */
-    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        super._afterTokenTransfer(from, to, amount);
+    function _update(address from, address to, uint256 amount) internal virtual override {
+        super._update(from, to, amount);
+
+        if (from == address(0)) {
+            require(totalSupply() <= _maxSupply(), "ERC20Votes: total supply risks overflowing votes");
+            _writeCheckpoint(_totalSupplyCheckpoints, _add, amount);
+        }
+
+        if (to == address(0)) {
+            _writeCheckpoint(_totalSupplyCheckpoints, _subtract, amount);
+        }
 
         _moveVotingPower(delegates(from), delegates(to), amount);
     }

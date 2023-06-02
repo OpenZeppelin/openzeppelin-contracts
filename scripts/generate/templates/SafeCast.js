@@ -61,7 +61,7 @@ const version = (selector, length) => {
 };
 
 const header = `\
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 /**
  * @dev Wrappers over Solidity's uintXX/intXX casting operators with added overflow
@@ -74,9 +74,6 @@ pragma solidity ^0.8.0;
  *
  * Using this library instead of the unchecked operations eliminates an entire
  * class of bugs, so it's recommended to use it always.
- *
- * Can be combined with {SafeMath} and {SignedSafeMath} to extend it to smaller types, by performing
- * all math on \`uint256\` and \`int256\` and then downcasting.
  */
 `;
 

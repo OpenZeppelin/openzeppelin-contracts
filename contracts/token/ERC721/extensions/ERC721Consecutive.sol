@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/extensions/ERC721Consecutive.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../ERC721.sol";
 import "../../../interfaces/IERC2309.sol";
-import "../../../utils/Checkpoints.sol";
 import "../../../utils/structs/BitMaps.sol";
+import "../../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev Implementation of the ERC2309 "Consecutive Transfer Extension" as defined in
@@ -86,7 +86,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
 
         // minting a batch of size 0 is a no-op
         if (batchSize > 0) {
-            require(!Address.isContract(address(this)), "ERC721Consecutive: batch minting restricted to constructor");
+            require(address(this).code.length == 0, "ERC721Consecutive: batch minting restricted to constructor");
             require(to != address(0), "ERC721Consecutive: mint to the zero address");
             require(batchSize <= _maxBatchSize(), "ERC721Consecutive: batch too large");
 
@@ -117,7 +117,7 @@ abstract contract ERC721Consecutive is IERC2309, ERC721 {
      * After construction, {_mintConsecutive} is no longer available and {_mint} becomes available.
      */
     function _mint(address to, uint256 tokenId) internal virtual override {
-        require(Address.isContract(address(this)), "ERC721Consecutive: can't mint during construction");
+        require(address(this).code.length > 0, "ERC721Consecutive: can't mint during construction");
         super._mint(to, tokenId);
     }
 

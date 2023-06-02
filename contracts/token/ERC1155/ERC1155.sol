@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (token/ERC1155/ERC1155.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "./IERC1155.sol";
 import "./IERC1155Receiver.sol";
 import "./extensions/IERC1155MetadataURI.sol";
-import "../../utils/Address.sol";
 import "../../utils/Context.sol";
 import "../../utils/introspection/ERC165.sol";
 
@@ -18,8 +17,6 @@ import "../../utils/introspection/ERC165.sol";
  * _Available since v3.1._
  */
 contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
-    using Address for address;
-
     // Mapping from token ID to account balances
     mapping(uint256 => mapping(address => uint256)) private _balances;
 
@@ -142,6 +139,59 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     }
 
     /**
+     * @dev Transfers `amount` tokens of token type `id` from `from` to `to`. Will mint (or burn) if `from` (or `to`) is the zero address.
+     *
+     * Emits a {TransferSingle} event if the arrays contain one element, and {TransferBatch} otherwise.
+     *
+     * Requirements:
+     *
+     * - If `to` refers to a smart contract, it must implement either {IERC1155Receiver-onERC1155Received}
+     *   or {IERC1155Receiver-onERC1155BatchReceived} and return the acceptance magic value.
+     */
+    function _update(
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual {
+        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
+
+        address operator = _msgSender();
+
+        for (uint256 i = 0; i < ids.length; ++i) {
+            uint256 id = ids[i];
+            uint256 amount = amounts[i];
+
+            if (from != address(0)) {
+                uint256 fromBalance = _balances[id][from];
+                require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
+                unchecked {
+                    _balances[id][from] = fromBalance - amount;
+                }
+            }
+
+            if (to != address(0)) {
+                _balances[id][to] += amount;
+            }
+        }
+
+        if (ids.length == 1) {
+            uint256 id = ids[0];
+            uint256 amount = amounts[0];
+            emit TransferSingle(operator, from, to, id, amount);
+            if (to != address(0)) {
+                _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
+            }
+        } else {
+            emit TransferBatch(operator, from, to, ids, amounts);
+            if (to != address(0)) {
+                _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, amounts, data);
+            }
+        }
+    }
+
+    /**
      * @dev Transfers `amount` tokens of token type `id` from `from` to `to`.
      *
      * Emits a {TransferSingle} event.
@@ -153,33 +203,12 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
      * acceptance magic value.
      */
-    function _safeTransferFrom(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) internal virtual {
+    function _safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) internal {
         require(to != address(0), "ERC1155: transfer to the zero address");
-
-        address operator = _msgSender();
+        require(from != address(0), "ERC1155: transfer from the zero address");
         uint256[] memory ids = _asSingletonArray(id);
         uint256[] memory amounts = _asSingletonArray(amount);
-
-        _beforeTokenTransfer(operator, from, to, ids, amounts, data);
-
-        uint256 fromBalance = _balances[id][from];
-        require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
-        unchecked {
-            _balances[id][from] = fromBalance - amount;
-        }
-        _balances[id][to] += amount;
-
-        emit TransferSingle(operator, from, to, id, amount);
-
-        _afterTokenTransfer(operator, from, to, ids, amounts, data);
-
-        _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
+        _update(from, to, ids, amounts, data);
     }
 
     /**
@@ -198,31 +227,10 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual {
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
+    ) internal {
         require(to != address(0), "ERC1155: transfer to the zero address");
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, from, to, ids, amounts, data);
-
-        for (uint256 i = 0; i < ids.length; ++i) {
-            uint256 id = ids[i];
-            uint256 amount = amounts[i];
-
-            uint256 fromBalance = _balances[id][from];
-            require(fromBalance >= amount, "ERC1155: insufficient balance for transfer");
-            unchecked {
-                _balances[id][from] = fromBalance - amount;
-            }
-            _balances[id][to] += amount;
-        }
-
-        emit TransferBatch(operator, from, to, ids, amounts);
-
-        _afterTokenTransfer(operator, from, to, ids, amounts, data);
-
-        _doSafeBatchTransferAcceptanceCheck(operator, from, to, ids, amounts, data);
+        require(from != address(0), "ERC1155: transfer from the zero address");
+        _update(from, to, ids, amounts, data);
     }
 
     /**
@@ -259,21 +267,11 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155Received} and return the
      * acceptance magic value.
      */
-    function _mint(address to, uint256 id, uint256 amount, bytes memory data) internal virtual {
+    function _mint(address to, uint256 id, uint256 amount, bytes memory data) internal {
         require(to != address(0), "ERC1155: mint to the zero address");
-
-        address operator = _msgSender();
         uint256[] memory ids = _asSingletonArray(id);
         uint256[] memory amounts = _asSingletonArray(amount);
-
-        _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
-
-        _balances[id][to] += amount;
-        emit TransferSingle(operator, address(0), to, id, amount);
-
-        _afterTokenTransfer(operator, address(0), to, ids, amounts, data);
-
-        _doSafeTransferAcceptanceCheck(operator, address(0), to, id, amount, data);
+        _update(address(0), to, ids, amounts, data);
     }
 
     /**
@@ -287,28 +285,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - If `to` refers to a smart contract, it must implement {IERC1155Receiver-onERC1155BatchReceived} and return the
      * acceptance magic value.
      */
-    function _mintBatch(
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual {
+    function _mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data) internal {
         require(to != address(0), "ERC1155: mint to the zero address");
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, address(0), to, ids, amounts, data);
-
-        for (uint256 i = 0; i < ids.length; i++) {
-            _balances[ids[i]][to] += amounts[i];
-        }
-
-        emit TransferBatch(operator, address(0), to, ids, amounts);
-
-        _afterTokenTransfer(operator, address(0), to, ids, amounts, data);
-
-        _doSafeBatchTransferAcceptanceCheck(operator, address(0), to, ids, amounts, data);
+        _update(address(0), to, ids, amounts, data);
     }
 
     /**
@@ -321,24 +300,11 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * - `from` cannot be the zero address.
      * - `from` must have at least `amount` tokens of token type `id`.
      */
-    function _burn(address from, uint256 id, uint256 amount) internal virtual {
+    function _burn(address from, uint256 id, uint256 amount) internal {
         require(from != address(0), "ERC1155: burn from the zero address");
-
-        address operator = _msgSender();
         uint256[] memory ids = _asSingletonArray(id);
         uint256[] memory amounts = _asSingletonArray(amount);
-
-        _beforeTokenTransfer(operator, from, address(0), ids, amounts, "");
-
-        uint256 fromBalance = _balances[id][from];
-        require(fromBalance >= amount, "ERC1155: burn amount exceeds balance");
-        unchecked {
-            _balances[id][from] = fromBalance - amount;
-        }
-
-        emit TransferSingle(operator, from, address(0), id, amount);
-
-        _afterTokenTransfer(operator, from, address(0), ids, amounts, "");
+        _update(from, address(0), ids, amounts, "");
     }
 
     /**
@@ -350,28 +316,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      *
      * - `ids` and `amounts` must have the same length.
      */
-    function _burnBatch(address from, uint256[] memory ids, uint256[] memory amounts) internal virtual {
+    function _burnBatch(address from, uint256[] memory ids, uint256[] memory amounts) internal {
         require(from != address(0), "ERC1155: burn from the zero address");
-        require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
-
-        address operator = _msgSender();
-
-        _beforeTokenTransfer(operator, from, address(0), ids, amounts, "");
-
-        for (uint256 i = 0; i < ids.length; i++) {
-            uint256 id = ids[i];
-            uint256 amount = amounts[i];
-
-            uint256 fromBalance = _balances[id][from];
-            require(fromBalance >= amount, "ERC1155: burn amount exceeds balance");
-            unchecked {
-                _balances[id][from] = fromBalance - amount;
-            }
-        }
-
-        emit TransferBatch(operator, from, address(0), ids, amounts);
-
-        _afterTokenTransfer(operator, from, address(0), ids, amounts, "");
+        _update(from, address(0), ids, amounts, "");
     }
 
     /**
@@ -385,64 +332,6 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         emit ApprovalForAll(owner, operator, approved);
     }
 
-    /**
-     * @dev Hook that is called before any token transfer. This includes minting
-     * and burning, as well as batched variants.
-     *
-     * The same hook is called on both single and batched variants. For single
-     * transfers, the length of the `ids` and `amounts` arrays will be 1.
-     *
-     * Calling conditions (for each `id` and `amount` pair):
-     *
-     * - When `from` and `to` are both non-zero, `amount` of ``from``'s tokens
-     * of token type `id` will be  transferred to `to`.
-     * - When `from` is zero, `amount` tokens of token type `id` will be minted
-     * for `to`.
-     * - when `to` is zero, `amount` of ``from``'s tokens of token type `id`
-     * will be burned.
-     * - `from` and `to` are never both zero.
-     * - `ids` and `amounts` have the same, non-zero length.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
-    function _beforeTokenTransfer(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual {}
-
-    /**
-     * @dev Hook that is called after any token transfer. This includes minting
-     * and burning, as well as batched variants.
-     *
-     * The same hook is called on both single and batched variants. For single
-     * transfers, the length of the `id` and `amount` arrays will be 1.
-     *
-     * Calling conditions (for each `id` and `amount` pair):
-     *
-     * - When `from` and `to` are both non-zero, `amount` of ``from``'s tokens
-     * of token type `id` will be  transferred to `to`.
-     * - When `from` is zero, `amount` tokens of token type `id` will be minted
-     * for `to`.
-     * - when `to` is zero, `amount` of ``from``'s tokens of token type `id`
-     * will be burned.
-     * - `from` and `to` are never both zero.
-     * - `ids` and `amounts` have the same, non-zero length.
-     *
-     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
-     */
-    function _afterTokenTransfer(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual {}
-
     function _doSafeTransferAcceptanceCheck(
         address operator,
         address from,
@@ -451,7 +340,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256 amount,
         bytes memory data
     ) private {
-        if (to.isContract()) {
+        if (to.code.length > 0) {
             try IERC1155Receiver(to).onERC1155Received(operator, from, id, amount, data) returns (bytes4 response) {
                 if (response != IERC1155Receiver.onERC1155Received.selector) {
                     revert("ERC1155: ERC1155Receiver rejected tokens");
@@ -472,7 +361,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory amounts,
         bytes memory data
     ) private {
-        if (to.isContract()) {
+        if (to.code.length > 0) {
             try IERC1155Receiver(to).onERC1155BatchReceived(operator, from, ids, amounts, data) returns (
                 bytes4 response
             ) {

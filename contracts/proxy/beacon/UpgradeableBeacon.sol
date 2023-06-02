@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (proxy/beacon/UpgradeableBeacon.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "./IBeacon.sol";
 import "../../access/Ownable.sol";
-import "../../utils/Address.sol";
 
 /**
  * @dev This contract is used in conjunction with one or more instances of {BeaconProxy} to determine their
@@ -22,10 +21,9 @@ contract UpgradeableBeacon is IBeacon, Ownable {
     event Upgraded(address indexed implementation);
 
     /**
-     * @dev Sets the address of the initial implementation, and the deployer account as the owner who can upgrade the
-     * beacon.
+     * @dev Sets the address of the initial implementation, and the initial owner who can upgrade the beacon.
      */
-    constructor(address implementation_) {
+    constructor(address implementation_, address initialOwner) Ownable(initialOwner) {
         _setImplementation(implementation_);
     }
 
@@ -59,7 +57,7 @@ contract UpgradeableBeacon is IBeacon, Ownable {
      * - `newImplementation` must be a contract.
      */
     function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "UpgradeableBeacon: implementation is not a contract");
+        require(newImplementation.code.length > 0, "UpgradeableBeacon: implementation is not a contract");
         _implementation = newImplementation;
     }
 }

@@ -1,5 +1,48 @@
 # Changelog
 
+### Removals
+
+The following contracts and libraries were removed:
+
+- `Counters`
+- `ERC20Snapshot`
+- `ERC20VotesComp`
+- `GovernorVotesComp`
+- `PaymentSplitter`
+- `TokenTimelock` (removed in favor of `VestingWallet`)
+
+### How to upgrade from 4.x
+
+#### ERC20, ERC721, and ERC1155
+
+These breaking changes will require modifications to ERC20, ERC721, and ERC1155 contracts, since the `_afterTokenTransfer` and `_beforeTokenTransfer` functions were removed. Any customization made through those hooks should now be done overriding the new `_update` function instead.
+
+Minting and burning are implemented by `_update` and customizations should be done by overriding this function as well. `_mint` and `_burn` are no longer virtual (meaning they are not overridable) to guard against possible inconsistencies.
+
+For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have to be changed in the following way.
+
+```diff
+- function _beforeTokenTransfer(
++ function _update(
+      address from,
+      address to,
+      uint256 amount
+  ) internal virtual override {
+-     super._beforeTokenTransfer(from, to, amount);
+      require(!condition(), "ERC20: wrong condition");
++     super._update(from, to, amount);
+  }
+```
+
+#### ERC165Storage
+
+Users that were registering EIP-165 interfaces with `_registerInterface` from `ERC165Storage` should instead do so so by overriding the `supportsInterface` function as seen below:
+
+```solidity
+function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
+}
+```
 
 ## 4.9.0 (2023-05-23)
 

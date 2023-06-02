@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (governance/utils/Votes.sol)
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../../interfaces/IERC5805.sol";
 import "../../utils/Context.sol";
-import "../../utils/Counters.sol";
-import "../../utils/Checkpoints.sol";
+import "../../utils/Nonces.sol";
 import "../../utils/cryptography/EIP712.sol";
+import "../../utils/structs/Checkpoints.sol";
 
 /**
  * @dev This is a base abstract contract that tracks voting units, which are a measure of voting power that can be
@@ -28,9 +28,8 @@ import "../../utils/cryptography/EIP712.sol";
  *
  * _Available since v4.5._
  */
-abstract contract Votes is Context, EIP712, IERC5805 {
+abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     using Checkpoints for Checkpoints.Trace224;
-    using Counters for Counters.Counter;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
         keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -42,8 +41,6 @@ abstract contract Votes is Context, EIP712, IERC5805 {
 
     /// @custom:oz-retyped-from Checkpoints.History
     Checkpoints.Trace224 private _totalCheckpoints;
-
-    mapping(address => Counters.Counter) private _nonces;
 
     /**
      * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based
@@ -195,6 +192,23 @@ abstract contract Votes is Context, EIP712, IERC5805 {
         }
     }
 
+    /**
+     * @dev Get number of checkpoints for `account`.
+     */
+    function _numCheckpoints(address account) internal view virtual returns (uint32) {
+        return SafeCast.toUint32(_delegateCheckpoints[account].length());
+    }
+
+    /**
+     * @dev Get the `pos`-th checkpoint for `account`.
+     */
+    function _checkpoints(
+        address account,
+        uint32 pos
+    ) internal view virtual returns (Checkpoints.Checkpoint224 memory) {
+        return _delegateCheckpoints[account].at(pos);
+    }
+
     function _push(
         Checkpoints.Trace224 storage store,
         function(uint224, uint224) view returns (uint224) op,
@@ -209,24 +223,6 @@ abstract contract Votes is Context, EIP712, IERC5805 {
 
     function _subtract(uint224 a, uint224 b) private pure returns (uint224) {
         return a - b;
-    }
-
-    /**
-     * @dev Consumes a nonce.
-     *
-     * Returns the current value and increments nonce.
-     */
-    function _useNonce(address owner) internal virtual returns (uint256 current) {
-        Counters.Counter storage nonce = _nonces[owner];
-        current = nonce.current();
-        nonce.increment();
-    }
-
-    /**
-     * @dev Returns an address nonce.
-     */
-    function nonces(address owner) public view virtual returns (uint256) {
-        return _nonces[owner].current();
     }
 
     /**
