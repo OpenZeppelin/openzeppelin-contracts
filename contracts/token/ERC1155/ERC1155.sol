@@ -206,9 +206,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     function _safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) internal {
         require(to != address(0), "ERC1155: transfer to the zero address");
         require(from != address(0), "ERC1155: transfer from the zero address");
-        uint256[] memory ids;
-        uint256[] memory amounts;
-        (ids, amounts) = _asSingletonArrays(id, amount);
+        (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
         _update(from, to, ids, amounts, data);
     }
 
@@ -270,9 +268,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      */
     function _mint(address to, uint256 id, uint256 amount, bytes memory data) internal {
         require(to != address(0), "ERC1155: mint to the zero address");
-        uint256[] memory ids;
-        uint256[] memory amounts;
-        (ids, amounts) = _asSingletonArrays(id, amount);
+        (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
         _update(address(0), to, ids, amounts, data);
     }
 
@@ -304,9 +300,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      */
     function _burn(address from, uint256 id, uint256 amount) internal {
         require(from != address(0), "ERC1155: burn from the zero address");
-        uint256[] memory ids;
-        uint256[] memory amounts;
-        (ids, amounts) = _asSingletonArrays(id, amount);
+        (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
         _update(from, address(0), ids, amounts, "");
     }
 
