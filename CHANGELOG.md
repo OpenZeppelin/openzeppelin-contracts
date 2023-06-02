@@ -24,14 +24,7 @@ The following contracts, libraries and functions were removed:
 - All cross-chain contracts, including `AccessControlCrossChain` and all the vendored bridge interfaces
 - All presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/)
 
-These removals were implemented in the following PRs:
-
-- [3637](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3637)
-- [3880](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3880)
-- [3945](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3945)
-- [4258](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4258)
-- [4276](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4276)
-- [4289](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4289)
+These removals were implemented in the following PRs: [#3637](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3637), [#3880](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3880), [#3945](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3945), [#4258](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4258), [#4276](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4276), [#4289](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4289)
 
 ### How to upgrade from 4.x
 
