@@ -29,7 +29,7 @@ contract('SafeCast', async function () {
       it(`reverts when downcasting 2^${bits} (${maxValue.addn(1)})`, async function () {
         await expectRevertCustomError(
           this.safeCast[`$toUint${bits}`](maxValue.addn(1)),
-          `SafeCastOverflownUint${bits}`,
+          `SafeCastOverflowedUint${bits}`,
           [maxValue.addn(1)],
         );
       });
@@ -37,7 +37,7 @@ contract('SafeCast', async function () {
       it(`reverts when downcasting 2^${bits} + 1 (${maxValue.addn(2)})`, async function () {
         await expectRevertCustomError(
           this.safeCast[`$toUint${bits}`](maxValue.addn(2)),
-          `SafeCastOverflownUint${bits}`,
+          `SafeCastOverflowedUint${bits}`,
           [maxValue.addn(2)],
         );
       });
@@ -63,11 +63,11 @@ contract('SafeCast', async function () {
     });
 
     it('reverts when casting -1', async function () {
-      await expectRevertCustomError(this.safeCast.$toUint256(-1), `SafeCastOverflownUint256`, [-1]);
+      await expectRevertCustomError(this.safeCast.$toUint256(-1), `SafeCastOverflowedUint256`, [-1]);
     });
 
     it(`reverts when casting INT256_MIN (${minInt256})`, async function () {
-      await expectRevertCustomError(this.safeCast.$toUint256(minInt256), `SafeCastOverflownUint256`, [minInt256]);
+      await expectRevertCustomError(this.safeCast.$toUint256(minInt256), `SafeCastOverflowedUint256`, [minInt256]);
     });
   });
 
@@ -97,25 +97,25 @@ contract('SafeCast', async function () {
       });
 
       it(`reverts when downcasting -2^${bits - 1} - 1 (${minValue.subn(1)})`, async function () {
-        await expectRevertCustomError(this.safeCast[`$toInt${bits}`](minValue.subn(1)), `SafeCastOverflownInt${bits}`, [
+        await expectRevertCustomError(this.safeCast[`$toInt${bits}`](minValue.subn(1)), `SafeCastOverflowedInt${bits}`, [
           minValue.subn(1),
         ]);
       });
 
       it(`reverts when downcasting -2^${bits - 1} - 2 (${minValue.subn(2)})`, async function () {
-        await expectRevertCustomError(this.safeCast[`$toInt${bits}`](minValue.subn(2)), `SafeCastOverflownInt${bits}`, [
+        await expectRevertCustomError(this.safeCast[`$toInt${bits}`](minValue.subn(2)), `SafeCastOverflowedInt${bits}`, [
           minValue.subn(2),
         ]);
       });
 
       it(`reverts when downcasting 2^${bits - 1} (${maxValue.addn(1)})`, async function () {
-        await expectRevertCustomError(this.safeCast[`$toInt${bits}`](maxValue.addn(1)), `SafeCastOverflownInt${bits}`, [
+        await expectRevertCustomError(this.safeCast[`$toInt${bits}`](maxValue.addn(1)), `SafeCastOverflowedInt${bits}`, [
           maxValue.addn(1),
         ]);
       });
 
       it(`reverts when downcasting 2^${bits - 1} + 1 (${maxValue.addn(2)})`, async function () {
-        await expectRevertCustomError(this.safeCast[`$toInt${bits}`](maxValue.addn(2)), `SafeCastOverflownInt${bits}`, [
+        await expectRevertCustomError(this.safeCast[`$toInt${bits}`](maxValue.addn(2)), `SafeCastOverflowedInt${bits}`, [
           maxValue.addn(2),
         ]);
       });
@@ -141,13 +141,13 @@ contract('SafeCast', async function () {
     });
 
     it(`reverts when casting INT256_MAX + 1 (${maxInt256.addn(1)})`, async function () {
-      await expectRevertCustomError(this.safeCast.$toInt256(maxInt256.addn(1)), 'SafeCastOverflownInt256', [
+      await expectRevertCustomError(this.safeCast.$toInt256(maxInt256.addn(1)), 'SafeCastOverflowedInt256', [
         maxInt256.addn(1),
       ]);
     });
 
     it(`reverts when casting UINT256_MAX (${maxUint256})`, async function () {
-      await expectRevertCustomError(this.safeCast.$toInt256(maxUint256), 'SafeCastOverflownInt256', [maxUint256]);
+      await expectRevertCustomError(this.safeCast.$toInt256(maxUint256), 'SafeCastOverflowedInt256', [maxUint256]);
     });
   });
 });

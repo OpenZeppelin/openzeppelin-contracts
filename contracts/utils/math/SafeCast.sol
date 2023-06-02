@@ -20,322 +20,322 @@ library SafeCast {
     /**
      * @dev Value doesn't fit in 248 bits.
      */
-    error SafeCastOverflownUint248(uint256 value);
+    error SafeCastOverflowedUint248(uint256 value);
 
     /**
      * @dev Value doesn't fit in 240 bits.
      */
-    error SafeCastOverflownUint240(uint256 value);
+    error SafeCastOverflowedUint240(uint256 value);
 
     /**
      * @dev Value doesn't fit in 232 bits.
      */
-    error SafeCastOverflownUint232(uint256 value);
+    error SafeCastOverflowedUint232(uint256 value);
 
     /**
      * @dev Value doesn't fit in 224 bits.
      */
-    error SafeCastOverflownUint224(uint256 value);
+    error SafeCastOverflowedUint224(uint256 value);
 
     /**
      * @dev Value doesn't fit in 216 bits.
      */
-    error SafeCastOverflownUint216(uint256 value);
+    error SafeCastOverflowedUint216(uint256 value);
 
     /**
      * @dev Value doesn't fit in 208 bits.
      */
-    error SafeCastOverflownUint208(uint256 value);
+    error SafeCastOverflowedUint208(uint256 value);
 
     /**
      * @dev Value doesn't fit in 200 bits.
      */
-    error SafeCastOverflownUint200(uint256 value);
+    error SafeCastOverflowedUint200(uint256 value);
 
     /**
      * @dev Value doesn't fit in 192 bits.
      */
-    error SafeCastOverflownUint192(uint256 value);
+    error SafeCastOverflowedUint192(uint256 value);
 
     /**
      * @dev Value doesn't fit in 184 bits.
      */
-    error SafeCastOverflownUint184(uint256 value);
+    error SafeCastOverflowedUint184(uint256 value);
 
     /**
      * @dev Value doesn't fit in 176 bits.
      */
-    error SafeCastOverflownUint176(uint256 value);
+    error SafeCastOverflowedUint176(uint256 value);
 
     /**
      * @dev Value doesn't fit in 168 bits.
      */
-    error SafeCastOverflownUint168(uint256 value);
+    error SafeCastOverflowedUint168(uint256 value);
 
     /**
      * @dev Value doesn't fit in 160 bits.
      */
-    error SafeCastOverflownUint160(uint256 value);
+    error SafeCastOverflowedUint160(uint256 value);
 
     /**
      * @dev Value doesn't fit in 152 bits.
      */
-    error SafeCastOverflownUint152(uint256 value);
+    error SafeCastOverflowedUint152(uint256 value);
 
     /**
      * @dev Value doesn't fit in 144 bits.
      */
-    error SafeCastOverflownUint144(uint256 value);
+    error SafeCastOverflowedUint144(uint256 value);
 
     /**
      * @dev Value doesn't fit in 136 bits.
      */
-    error SafeCastOverflownUint136(uint256 value);
+    error SafeCastOverflowedUint136(uint256 value);
 
     /**
      * @dev Value doesn't fit in 128 bits.
      */
-    error SafeCastOverflownUint128(uint256 value);
+    error SafeCastOverflowedUint128(uint256 value);
 
     /**
      * @dev Value doesn't fit in 120 bits.
      */
-    error SafeCastOverflownUint120(uint256 value);
+    error SafeCastOverflowedUint120(uint256 value);
 
     /**
      * @dev Value doesn't fit in 112 bits.
      */
-    error SafeCastOverflownUint112(uint256 value);
+    error SafeCastOverflowedUint112(uint256 value);
 
     /**
      * @dev Value doesn't fit in 104 bits.
      */
-    error SafeCastOverflownUint104(uint256 value);
+    error SafeCastOverflowedUint104(uint256 value);
 
     /**
      * @dev Value doesn't fit in 96 bits.
      */
-    error SafeCastOverflownUint96(uint256 value);
+    error SafeCastOverflowedUint96(uint256 value);
 
     /**
      * @dev Value doesn't fit in 88 bits.
      */
-    error SafeCastOverflownUint88(uint256 value);
+    error SafeCastOverflowedUint88(uint256 value);
 
     /**
      * @dev Value doesn't fit in 80 bits.
      */
-    error SafeCastOverflownUint80(uint256 value);
+    error SafeCastOverflowedUint80(uint256 value);
 
     /**
      * @dev Value doesn't fit in 72 bits.
      */
-    error SafeCastOverflownUint72(uint256 value);
+    error SafeCastOverflowedUint72(uint256 value);
 
     /**
      * @dev Value doesn't fit in 64 bits.
      */
-    error SafeCastOverflownUint64(uint256 value);
+    error SafeCastOverflowedUint64(uint256 value);
 
     /**
      * @dev Value doesn't fit in 56 bits.
      */
-    error SafeCastOverflownUint56(uint256 value);
+    error SafeCastOverflowedUint56(uint256 value);
 
     /**
      * @dev Value doesn't fit in 48 bits.
      */
-    error SafeCastOverflownUint48(uint256 value);
+    error SafeCastOverflowedUint48(uint256 value);
 
     /**
      * @dev Value doesn't fit in 40 bits.
      */
-    error SafeCastOverflownUint40(uint256 value);
+    error SafeCastOverflowedUint40(uint256 value);
 
     /**
      * @dev Value doesn't fit in 32 bits.
      */
-    error SafeCastOverflownUint32(uint256 value);
+    error SafeCastOverflowedUint32(uint256 value);
 
     /**
      * @dev Value doesn't fit in 24 bits.
      */
-    error SafeCastOverflownUint24(uint256 value);
+    error SafeCastOverflowedUint24(uint256 value);
 
     /**
      * @dev Value doesn't fit in 16 bits.
      */
-    error SafeCastOverflownUint16(uint256 value);
+    error SafeCastOverflowedUint16(uint256 value);
 
     /**
      * @dev Value doesn't fit in 8 bits.
      */
-    error SafeCastOverflownUint8(uint256 value);
+    error SafeCastOverflowedUint8(uint256 value);
 
     /**
      * @dev Value must be positive.
      */
-    error SafeCastOverflownUint256(int256 value);
+    error SafeCastOverflowedUint256(int256 value);
 
     /**
      * @dev Value doesn't fit in 248 bits.
      */
-    error SafeCastOverflownInt248(int256 value);
+    error SafeCastOverflowedInt248(int256 value);
 
     /**
      * @dev Value doesn't fit in 240 bits.
      */
-    error SafeCastOverflownInt240(int256 value);
+    error SafeCastOverflowedInt240(int256 value);
 
     /**
      * @dev Value doesn't fit in 232 bits.
      */
-    error SafeCastOverflownInt232(int256 value);
+    error SafeCastOverflowedInt232(int256 value);
 
     /**
      * @dev Value doesn't fit in 224 bits.
      */
-    error SafeCastOverflownInt224(int256 value);
+    error SafeCastOverflowedInt224(int256 value);
 
     /**
      * @dev Value doesn't fit in 216 bits.
      */
-    error SafeCastOverflownInt216(int256 value);
+    error SafeCastOverflowedInt216(int256 value);
 
     /**
      * @dev Value doesn't fit in 208 bits.
      */
-    error SafeCastOverflownInt208(int256 value);
+    error SafeCastOverflowedInt208(int256 value);
 
     /**
      * @dev Value doesn't fit in 200 bits.
      */
-    error SafeCastOverflownInt200(int256 value);
+    error SafeCastOverflowedInt200(int256 value);
 
     /**
      * @dev Value doesn't fit in 192 bits.
      */
-    error SafeCastOverflownInt192(int256 value);
+    error SafeCastOverflowedInt192(int256 value);
 
     /**
      * @dev Value doesn't fit in 184 bits.
      */
-    error SafeCastOverflownInt184(int256 value);
+    error SafeCastOverflowedInt184(int256 value);
 
     /**
      * @dev Value doesn't fit in 176 bits.
      */
-    error SafeCastOverflownInt176(int256 value);
+    error SafeCastOverflowedInt176(int256 value);
 
     /**
      * @dev Value doesn't fit in 168 bits.
      */
-    error SafeCastOverflownInt168(int256 value);
+    error SafeCastOverflowedInt168(int256 value);
 
     /**
      * @dev Value doesn't fit in 160 bits.
      */
-    error SafeCastOverflownInt160(int256 value);
+    error SafeCastOverflowedInt160(int256 value);
 
     /**
      * @dev Value doesn't fit in 152 bits.
      */
-    error SafeCastOverflownInt152(int256 value);
+    error SafeCastOverflowedInt152(int256 value);
 
     /**
      * @dev Value doesn't fit in 144 bits.
      */
-    error SafeCastOverflownInt144(int256 value);
+    error SafeCastOverflowedInt144(int256 value);
 
     /**
      * @dev Value doesn't fit in 136 bits.
      */
-    error SafeCastOverflownInt136(int256 value);
+    error SafeCastOverflowedInt136(int256 value);
 
     /**
      * @dev Value doesn't fit in 128 bits.
      */
-    error SafeCastOverflownInt128(int256 value);
+    error SafeCastOverflowedInt128(int256 value);
 
     /**
      * @dev Value doesn't fit in 120 bits.
      */
-    error SafeCastOverflownInt120(int256 value);
+    error SafeCastOverflowedInt120(int256 value);
 
     /**
      * @dev Value doesn't fit in 112 bits.
      */
-    error SafeCastOverflownInt112(int256 value);
+    error SafeCastOverflowedInt112(int256 value);
 
     /**
      * @dev Value doesn't fit in 104 bits.
      */
-    error SafeCastOverflownInt104(int256 value);
+    error SafeCastOverflowedInt104(int256 value);
 
     /**
      * @dev Value doesn't fit in 96 bits.
      */
-    error SafeCastOverflownInt96(int256 value);
+    error SafeCastOverflowedInt96(int256 value);
 
     /**
      * @dev Value doesn't fit in 88 bits.
      */
-    error SafeCastOverflownInt88(int256 value);
+    error SafeCastOverflowedInt88(int256 value);
 
     /**
      * @dev Value doesn't fit in 80 bits.
      */
-    error SafeCastOverflownInt80(int256 value);
+    error SafeCastOverflowedInt80(int256 value);
 
     /**
      * @dev Value doesn't fit in 72 bits.
      */
-    error SafeCastOverflownInt72(int256 value);
+    error SafeCastOverflowedInt72(int256 value);
 
     /**
      * @dev Value doesn't fit in 64 bits.
      */
-    error SafeCastOverflownInt64(int256 value);
+    error SafeCastOverflowedInt64(int256 value);
 
     /**
      * @dev Value doesn't fit in 56 bits.
      */
-    error SafeCastOverflownInt56(int256 value);
+    error SafeCastOverflowedInt56(int256 value);
 
     /**
      * @dev Value doesn't fit in 48 bits.
      */
-    error SafeCastOverflownInt48(int256 value);
+    error SafeCastOverflowedInt48(int256 value);
 
     /**
      * @dev Value doesn't fit in 40 bits.
      */
-    error SafeCastOverflownInt40(int256 value);
+    error SafeCastOverflowedInt40(int256 value);
 
     /**
      * @dev Value doesn't fit in 32 bits.
      */
-    error SafeCastOverflownInt32(int256 value);
+    error SafeCastOverflowedInt32(int256 value);
 
     /**
      * @dev Value doesn't fit in 24 bits.
      */
-    error SafeCastOverflownInt24(int256 value);
+    error SafeCastOverflowedInt24(int256 value);
 
     /**
      * @dev Value doesn't fit in 16 bits.
      */
-    error SafeCastOverflownInt16(int256 value);
+    error SafeCastOverflowedInt16(int256 value);
 
     /**
      * @dev Value doesn't fit in 8 bits.
      */
-    error SafeCastOverflownInt8(int256 value);
+    error SafeCastOverflowedInt8(int256 value);
 
     /**
      * @dev Value doesn't fit in an int256.
      */
-    error SafeCastOverflownInt256(uint256 value);
+    error SafeCastOverflowedInt256(uint256 value);
 
     /**
      * @dev Returns the downcasted uint248 from uint256, reverting on
@@ -351,7 +351,7 @@ library SafeCast {
      */
     function toUint248(uint256 value) internal pure returns (uint248) {
         if (value > type(uint248).max) {
-            revert SafeCastOverflownUint248(value);
+            revert SafeCastOverflowedUint248(value);
         }
         return uint248(value);
     }
@@ -370,7 +370,7 @@ library SafeCast {
      */
     function toUint240(uint256 value) internal pure returns (uint240) {
         if (value > type(uint240).max) {
-            revert SafeCastOverflownUint240(value);
+            revert SafeCastOverflowedUint240(value);
         }
         return uint240(value);
     }
@@ -389,7 +389,7 @@ library SafeCast {
      */
     function toUint232(uint256 value) internal pure returns (uint232) {
         if (value > type(uint232).max) {
-            revert SafeCastOverflownUint232(value);
+            revert SafeCastOverflowedUint232(value);
         }
         return uint232(value);
     }
@@ -408,7 +408,7 @@ library SafeCast {
      */
     function toUint224(uint256 value) internal pure returns (uint224) {
         if (value > type(uint224).max) {
-            revert SafeCastOverflownUint224(value);
+            revert SafeCastOverflowedUint224(value);
         }
         return uint224(value);
     }
@@ -427,7 +427,7 @@ library SafeCast {
      */
     function toUint216(uint256 value) internal pure returns (uint216) {
         if (value > type(uint216).max) {
-            revert SafeCastOverflownUint216(value);
+            revert SafeCastOverflowedUint216(value);
         }
         return uint216(value);
     }
@@ -446,7 +446,7 @@ library SafeCast {
      */
     function toUint208(uint256 value) internal pure returns (uint208) {
         if (value > type(uint208).max) {
-            revert SafeCastOverflownUint208(value);
+            revert SafeCastOverflowedUint208(value);
         }
         return uint208(value);
     }
@@ -465,7 +465,7 @@ library SafeCast {
      */
     function toUint200(uint256 value) internal pure returns (uint200) {
         if (value > type(uint200).max) {
-            revert SafeCastOverflownUint200(value);
+            revert SafeCastOverflowedUint200(value);
         }
         return uint200(value);
     }
@@ -484,7 +484,7 @@ library SafeCast {
      */
     function toUint192(uint256 value) internal pure returns (uint192) {
         if (value > type(uint192).max) {
-            revert SafeCastOverflownUint192(value);
+            revert SafeCastOverflowedUint192(value);
         }
         return uint192(value);
     }
@@ -503,7 +503,7 @@ library SafeCast {
      */
     function toUint184(uint256 value) internal pure returns (uint184) {
         if (value > type(uint184).max) {
-            revert SafeCastOverflownUint184(value);
+            revert SafeCastOverflowedUint184(value);
         }
         return uint184(value);
     }
@@ -522,7 +522,7 @@ library SafeCast {
      */
     function toUint176(uint256 value) internal pure returns (uint176) {
         if (value > type(uint176).max) {
-            revert SafeCastOverflownUint176(value);
+            revert SafeCastOverflowedUint176(value);
         }
         return uint176(value);
     }
@@ -541,7 +541,7 @@ library SafeCast {
      */
     function toUint168(uint256 value) internal pure returns (uint168) {
         if (value > type(uint168).max) {
-            revert SafeCastOverflownUint168(value);
+            revert SafeCastOverflowedUint168(value);
         }
         return uint168(value);
     }
@@ -560,7 +560,7 @@ library SafeCast {
      */
     function toUint160(uint256 value) internal pure returns (uint160) {
         if (value > type(uint160).max) {
-            revert SafeCastOverflownUint160(value);
+            revert SafeCastOverflowedUint160(value);
         }
         return uint160(value);
     }
@@ -579,7 +579,7 @@ library SafeCast {
      */
     function toUint152(uint256 value) internal pure returns (uint152) {
         if (value > type(uint152).max) {
-            revert SafeCastOverflownUint152(value);
+            revert SafeCastOverflowedUint152(value);
         }
         return uint152(value);
     }
@@ -598,7 +598,7 @@ library SafeCast {
      */
     function toUint144(uint256 value) internal pure returns (uint144) {
         if (value > type(uint144).max) {
-            revert SafeCastOverflownUint144(value);
+            revert SafeCastOverflowedUint144(value);
         }
         return uint144(value);
     }
@@ -617,7 +617,7 @@ library SafeCast {
      */
     function toUint136(uint256 value) internal pure returns (uint136) {
         if (value > type(uint136).max) {
-            revert SafeCastOverflownUint136(value);
+            revert SafeCastOverflowedUint136(value);
         }
         return uint136(value);
     }
@@ -636,7 +636,7 @@ library SafeCast {
      */
     function toUint128(uint256 value) internal pure returns (uint128) {
         if (value > type(uint128).max) {
-            revert SafeCastOverflownUint128(value);
+            revert SafeCastOverflowedUint128(value);
         }
         return uint128(value);
     }
@@ -655,7 +655,7 @@ library SafeCast {
      */
     function toUint120(uint256 value) internal pure returns (uint120) {
         if (value > type(uint120).max) {
-            revert SafeCastOverflownUint120(value);
+            revert SafeCastOverflowedUint120(value);
         }
         return uint120(value);
     }
@@ -674,7 +674,7 @@ library SafeCast {
      */
     function toUint112(uint256 value) internal pure returns (uint112) {
         if (value > type(uint112).max) {
-            revert SafeCastOverflownUint112(value);
+            revert SafeCastOverflowedUint112(value);
         }
         return uint112(value);
     }
@@ -693,7 +693,7 @@ library SafeCast {
      */
     function toUint104(uint256 value) internal pure returns (uint104) {
         if (value > type(uint104).max) {
-            revert SafeCastOverflownUint104(value);
+            revert SafeCastOverflowedUint104(value);
         }
         return uint104(value);
     }
@@ -712,7 +712,7 @@ library SafeCast {
      */
     function toUint96(uint256 value) internal pure returns (uint96) {
         if (value > type(uint96).max) {
-            revert SafeCastOverflownUint96(value);
+            revert SafeCastOverflowedUint96(value);
         }
         return uint96(value);
     }
@@ -731,7 +731,7 @@ library SafeCast {
      */
     function toUint88(uint256 value) internal pure returns (uint88) {
         if (value > type(uint88).max) {
-            revert SafeCastOverflownUint88(value);
+            revert SafeCastOverflowedUint88(value);
         }
         return uint88(value);
     }
@@ -750,7 +750,7 @@ library SafeCast {
      */
     function toUint80(uint256 value) internal pure returns (uint80) {
         if (value > type(uint80).max) {
-            revert SafeCastOverflownUint80(value);
+            revert SafeCastOverflowedUint80(value);
         }
         return uint80(value);
     }
@@ -769,7 +769,7 @@ library SafeCast {
      */
     function toUint72(uint256 value) internal pure returns (uint72) {
         if (value > type(uint72).max) {
-            revert SafeCastOverflownUint72(value);
+            revert SafeCastOverflowedUint72(value);
         }
         return uint72(value);
     }
@@ -788,7 +788,7 @@ library SafeCast {
      */
     function toUint64(uint256 value) internal pure returns (uint64) {
         if (value > type(uint64).max) {
-            revert SafeCastOverflownUint64(value);
+            revert SafeCastOverflowedUint64(value);
         }
         return uint64(value);
     }
@@ -807,7 +807,7 @@ library SafeCast {
      */
     function toUint56(uint256 value) internal pure returns (uint56) {
         if (value > type(uint56).max) {
-            revert SafeCastOverflownUint56(value);
+            revert SafeCastOverflowedUint56(value);
         }
         return uint56(value);
     }
@@ -826,7 +826,7 @@ library SafeCast {
      */
     function toUint48(uint256 value) internal pure returns (uint48) {
         if (value > type(uint48).max) {
-            revert SafeCastOverflownUint48(value);
+            revert SafeCastOverflowedUint48(value);
         }
         return uint48(value);
     }
@@ -845,7 +845,7 @@ library SafeCast {
      */
     function toUint40(uint256 value) internal pure returns (uint40) {
         if (value > type(uint40).max) {
-            revert SafeCastOverflownUint40(value);
+            revert SafeCastOverflowedUint40(value);
         }
         return uint40(value);
     }
@@ -864,7 +864,7 @@ library SafeCast {
      */
     function toUint32(uint256 value) internal pure returns (uint32) {
         if (value > type(uint32).max) {
-            revert SafeCastOverflownUint32(value);
+            revert SafeCastOverflowedUint32(value);
         }
         return uint32(value);
     }
@@ -883,7 +883,7 @@ library SafeCast {
      */
     function toUint24(uint256 value) internal pure returns (uint24) {
         if (value > type(uint24).max) {
-            revert SafeCastOverflownUint24(value);
+            revert SafeCastOverflowedUint24(value);
         }
         return uint24(value);
     }
@@ -902,7 +902,7 @@ library SafeCast {
      */
     function toUint16(uint256 value) internal pure returns (uint16) {
         if (value > type(uint16).max) {
-            revert SafeCastOverflownUint16(value);
+            revert SafeCastOverflowedUint16(value);
         }
         return uint16(value);
     }
@@ -921,7 +921,7 @@ library SafeCast {
      */
     function toUint8(uint256 value) internal pure returns (uint8) {
         if (value > type(uint8).max) {
-            revert SafeCastOverflownUint8(value);
+            revert SafeCastOverflowedUint8(value);
         }
         return uint8(value);
     }
@@ -937,7 +937,7 @@ library SafeCast {
      */
     function toUint256(int256 value) internal pure returns (uint256) {
         if (value < 0) {
-            revert SafeCastOverflownUint256(value);
+            revert SafeCastOverflowedUint256(value);
         }
         return uint256(value);
     }
@@ -958,7 +958,7 @@ library SafeCast {
     function toInt248(int256 value) internal pure returns (int248 downcasted) {
         downcasted = int248(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt248(value);
+            revert SafeCastOverflowedInt248(value);
         }
     }
 
@@ -978,7 +978,7 @@ library SafeCast {
     function toInt240(int256 value) internal pure returns (int240 downcasted) {
         downcasted = int240(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt240(value);
+            revert SafeCastOverflowedInt240(value);
         }
     }
 
@@ -998,7 +998,7 @@ library SafeCast {
     function toInt232(int256 value) internal pure returns (int232 downcasted) {
         downcasted = int232(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt232(value);
+            revert SafeCastOverflowedInt232(value);
         }
     }
 
@@ -1018,7 +1018,7 @@ library SafeCast {
     function toInt224(int256 value) internal pure returns (int224 downcasted) {
         downcasted = int224(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt224(value);
+            revert SafeCastOverflowedInt224(value);
         }
     }
 
@@ -1038,7 +1038,7 @@ library SafeCast {
     function toInt216(int256 value) internal pure returns (int216 downcasted) {
         downcasted = int216(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt216(value);
+            revert SafeCastOverflowedInt216(value);
         }
     }
 
@@ -1058,7 +1058,7 @@ library SafeCast {
     function toInt208(int256 value) internal pure returns (int208 downcasted) {
         downcasted = int208(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt208(value);
+            revert SafeCastOverflowedInt208(value);
         }
     }
 
@@ -1078,7 +1078,7 @@ library SafeCast {
     function toInt200(int256 value) internal pure returns (int200 downcasted) {
         downcasted = int200(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt200(value);
+            revert SafeCastOverflowedInt200(value);
         }
     }
 
@@ -1098,7 +1098,7 @@ library SafeCast {
     function toInt192(int256 value) internal pure returns (int192 downcasted) {
         downcasted = int192(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt192(value);
+            revert SafeCastOverflowedInt192(value);
         }
     }
 
@@ -1118,7 +1118,7 @@ library SafeCast {
     function toInt184(int256 value) internal pure returns (int184 downcasted) {
         downcasted = int184(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt184(value);
+            revert SafeCastOverflowedInt184(value);
         }
     }
 
@@ -1138,7 +1138,7 @@ library SafeCast {
     function toInt176(int256 value) internal pure returns (int176 downcasted) {
         downcasted = int176(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt176(value);
+            revert SafeCastOverflowedInt176(value);
         }
     }
 
@@ -1158,7 +1158,7 @@ library SafeCast {
     function toInt168(int256 value) internal pure returns (int168 downcasted) {
         downcasted = int168(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt168(value);
+            revert SafeCastOverflowedInt168(value);
         }
     }
 
@@ -1178,7 +1178,7 @@ library SafeCast {
     function toInt160(int256 value) internal pure returns (int160 downcasted) {
         downcasted = int160(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt160(value);
+            revert SafeCastOverflowedInt160(value);
         }
     }
 
@@ -1198,7 +1198,7 @@ library SafeCast {
     function toInt152(int256 value) internal pure returns (int152 downcasted) {
         downcasted = int152(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt152(value);
+            revert SafeCastOverflowedInt152(value);
         }
     }
 
@@ -1218,7 +1218,7 @@ library SafeCast {
     function toInt144(int256 value) internal pure returns (int144 downcasted) {
         downcasted = int144(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt144(value);
+            revert SafeCastOverflowedInt144(value);
         }
     }
 
@@ -1238,7 +1238,7 @@ library SafeCast {
     function toInt136(int256 value) internal pure returns (int136 downcasted) {
         downcasted = int136(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt136(value);
+            revert SafeCastOverflowedInt136(value);
         }
     }
 
@@ -1258,7 +1258,7 @@ library SafeCast {
     function toInt128(int256 value) internal pure returns (int128 downcasted) {
         downcasted = int128(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt128(value);
+            revert SafeCastOverflowedInt128(value);
         }
     }
 
@@ -1278,7 +1278,7 @@ library SafeCast {
     function toInt120(int256 value) internal pure returns (int120 downcasted) {
         downcasted = int120(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt120(value);
+            revert SafeCastOverflowedInt120(value);
         }
     }
 
@@ -1298,7 +1298,7 @@ library SafeCast {
     function toInt112(int256 value) internal pure returns (int112 downcasted) {
         downcasted = int112(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt112(value);
+            revert SafeCastOverflowedInt112(value);
         }
     }
 
@@ -1318,7 +1318,7 @@ library SafeCast {
     function toInt104(int256 value) internal pure returns (int104 downcasted) {
         downcasted = int104(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt104(value);
+            revert SafeCastOverflowedInt104(value);
         }
     }
 
@@ -1338,7 +1338,7 @@ library SafeCast {
     function toInt96(int256 value) internal pure returns (int96 downcasted) {
         downcasted = int96(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt96(value);
+            revert SafeCastOverflowedInt96(value);
         }
     }
 
@@ -1358,7 +1358,7 @@ library SafeCast {
     function toInt88(int256 value) internal pure returns (int88 downcasted) {
         downcasted = int88(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt88(value);
+            revert SafeCastOverflowedInt88(value);
         }
     }
 
@@ -1378,7 +1378,7 @@ library SafeCast {
     function toInt80(int256 value) internal pure returns (int80 downcasted) {
         downcasted = int80(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt80(value);
+            revert SafeCastOverflowedInt80(value);
         }
     }
 
@@ -1398,7 +1398,7 @@ library SafeCast {
     function toInt72(int256 value) internal pure returns (int72 downcasted) {
         downcasted = int72(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt72(value);
+            revert SafeCastOverflowedInt72(value);
         }
     }
 
@@ -1418,7 +1418,7 @@ library SafeCast {
     function toInt64(int256 value) internal pure returns (int64 downcasted) {
         downcasted = int64(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt64(value);
+            revert SafeCastOverflowedInt64(value);
         }
     }
 
@@ -1438,7 +1438,7 @@ library SafeCast {
     function toInt56(int256 value) internal pure returns (int56 downcasted) {
         downcasted = int56(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt56(value);
+            revert SafeCastOverflowedInt56(value);
         }
     }
 
@@ -1458,7 +1458,7 @@ library SafeCast {
     function toInt48(int256 value) internal pure returns (int48 downcasted) {
         downcasted = int48(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt48(value);
+            revert SafeCastOverflowedInt48(value);
         }
     }
 
@@ -1478,7 +1478,7 @@ library SafeCast {
     function toInt40(int256 value) internal pure returns (int40 downcasted) {
         downcasted = int40(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt40(value);
+            revert SafeCastOverflowedInt40(value);
         }
     }
 
@@ -1498,7 +1498,7 @@ library SafeCast {
     function toInt32(int256 value) internal pure returns (int32 downcasted) {
         downcasted = int32(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt32(value);
+            revert SafeCastOverflowedInt32(value);
         }
     }
 
@@ -1518,7 +1518,7 @@ library SafeCast {
     function toInt24(int256 value) internal pure returns (int24 downcasted) {
         downcasted = int24(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt24(value);
+            revert SafeCastOverflowedInt24(value);
         }
     }
 
@@ -1538,7 +1538,7 @@ library SafeCast {
     function toInt16(int256 value) internal pure returns (int16 downcasted) {
         downcasted = int16(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt16(value);
+            revert SafeCastOverflowedInt16(value);
         }
     }
 
@@ -1558,7 +1558,7 @@ library SafeCast {
     function toInt8(int256 value) internal pure returns (int8 downcasted) {
         downcasted = int8(value);
         if (downcasted != value) {
-            revert SafeCastOverflownInt8(value);
+            revert SafeCastOverflowedInt8(value);
         }
     }
 
@@ -1574,7 +1574,7 @@ library SafeCast {
     function toInt256(uint256 value) internal pure returns (int256) {
         // Note: Unsafe cast below is okay because `type(int256).max` is guaranteed to be positive
         if (value > uint256(type(int256).max)) {
-            revert SafeCastOverflownInt256(value);
+            revert SafeCastOverflowedInt256(value);
         }
         return int256(value);
     }

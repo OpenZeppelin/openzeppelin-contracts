@@ -81,28 +81,28 @@ const toUintDownCastErrors = length => `\
   /**
    * @dev Value doesn't fit in ${length} bits.
    */
-  error SafeCastOverflownUint${length}(uint256 value);
+  error SafeCastOverflowedUint${length}(uint256 value);
 `;
 
 const toUintErrors = length => `\
   /**
    * @dev Value must be positive.
    */
-  error SafeCastOverflownUint${length}(int256 value);
+  error SafeCastOverflowedUint${length}(int256 value);
 `;
 
 const toIntDownCastErrors = length => `\
   /**
    * @dev Value doesn't fit in ${length} bits.
    */
-  error SafeCastOverflownInt${length}(int256 value);
+  error SafeCastOverflowedInt${length}(int256 value);
 `;
 
 const toIntErrors = length => `\
   /**
    * @dev Value doesn't fit in an int${length}.
    */
-  error SafeCastOverflownInt${length}(uint256 value);
+  error SafeCastOverflowedInt${length}(uint256 value);
 `;
 
 const toUintDownCast = length => `\
@@ -120,7 +120,7 @@ const toUintDownCast = length => `\
  */
 function toUint${length}(uint256 value) internal pure returns (uint${length}) {
     if (value > type(uint${length}).max) {
-      revert SafeCastOverflownUint${length}(value);
+      revert SafeCastOverflowedUint${length}(value);
     }
     return uint${length}(value);
 }
@@ -144,7 +144,7 @@ const toIntDownCast = length => `\
 function toInt${length}(int256 value) internal pure returns (int${length} downcasted) {
     downcasted = int${length}(value);
     if (downcasted != value) {
-      revert SafeCastOverflownInt${length}(value);
+      revert SafeCastOverflowedInt${length}(value);
     }
 }
 `;
@@ -163,7 +163,7 @@ const toInt = length => `\
 function toInt${length}(uint${length} value) internal pure returns (int${length}) {
     // Note: Unsafe cast below is okay because \`type(int${length}).max\` is guaranteed to be positive
     if (value > uint${length}(type(int${length}).max)) {
-      revert SafeCastOverflownInt${length}(value);
+      revert SafeCastOverflowedInt${length}(value);
     }
     return int${length}(value);
 }
@@ -181,7 +181,7 @@ const toUint = length => `\
  */
 function toUint${length}(int${length} value) internal pure returns (uint${length}) {
     if (value < 0) {
-      revert SafeCastOverflownUint${length}(value);
+      revert SafeCastOverflowedUint${length}(value);
     }
     return uint${length}(value);
 }
