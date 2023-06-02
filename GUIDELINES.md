@@ -115,5 +115,3 @@ In addition to the official Solidity Style Guide we have a number of other conve
   ```
 
 * Unchecked arithmetic blocks should contain comments explaining why overflow is guaranteed not to happen. If the reason is immediately apparent from the line above the unchecked block, the comment may be omitted.
-
-* Functions should be by default `virtual`, because users frequently want to customize some behaviors. Functions that should not be virtual are those that are aliases of another function, such that any overrides to it should instead be done in the function that is aliased, usually a more general function.
