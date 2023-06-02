@@ -131,8 +131,8 @@ abstract contract EIP712 is IERC5267 {
     {
         return (
             hex"0f", // 01111
-            _name.toStringWithFallback(_nameFallback),
-            _version.toStringWithFallback(_versionFallback),
+            _EIP712Name(),
+            _EIP712Version(),
             block.chainid,
             address(this),
             bytes32(0),
@@ -148,7 +148,7 @@ abstract contract EIP712 is IERC5267 {
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Name() internal view virtual returns (string memory) {
-        return ShortStrings.toStringWithFallback(_name, _nameFallback);
+        return _name.toStringWithFallback(_nameFallback);
     }
 
     /**
@@ -159,6 +159,6 @@ abstract contract EIP712 is IERC5267 {
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Version() internal view virtual returns (string memory) {
-        return ShortStrings.toStringWithFallback(_version, _versionFallback);
+        return _version.toStringWithFallback(_versionFallback);
     }
 }
