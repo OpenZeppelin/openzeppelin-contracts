@@ -83,7 +83,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         if (role == DEFAULT_ADMIN_ROLE) {
-            revert AccessControlForbiddenGrant(DEFAULT_ADMIN_ROLE);
+            revert AccessControlEnforcedDefaultAdminRules();
         }
         super.grantRole(role, account);
     }
@@ -93,7 +93,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) {
         if (role == DEFAULT_ADMIN_ROLE) {
-            revert AccessControlForbiddenRevoke(DEFAULT_ADMIN_ROLE);
+            revert AccessControlEnforcedDefaultAdminRules();
         }
         super.revokeRole(role, account);
     }
@@ -134,7 +134,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
     function _grantRole(bytes32 role, address account) internal virtual override {
         if (role == DEFAULT_ADMIN_ROLE) {
             if (defaultAdmin() != address(0)) {
-                revert AccessControlEnforcedDefaultAdminUniqueness();
+                revert AccessControlEnforcedDefaultAdminRules();
             }
             _currentDefaultAdmin = account;
         }
@@ -156,7 +156,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function _setRoleAdmin(bytes32 role, bytes32 adminRole) internal virtual override {
         if (role == DEFAULT_ADMIN_ROLE) {
-            revert AccessControlEnforcedDefaultAdminManagement();
+            revert AccessControlEnforcedDefaultAdminRules();
         }
         super._setRoleAdmin(role, adminRole);
     }

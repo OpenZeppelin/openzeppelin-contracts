@@ -376,23 +376,23 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   it('should revert if granting default admin role', async function () {
     await expectRevertCustomError(
       this.accessControl.grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
-      `${errorPrefix}ForbiddenGrant`,
-      [DEFAULT_ADMIN_ROLE],
+      `${errorPrefix}EnforcedDefaultAdminRules`,
+      [],
     );
   });
 
   it('should revert if revoking default admin role', async function () {
     await expectRevertCustomError(
       this.accessControl.revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
-      `${errorPrefix}ForbiddenRevoke`,
-      [DEFAULT_ADMIN_ROLE],
+      `${errorPrefix}EnforcedDefaultAdminRules`,
+      [],
     );
   });
 
   it("should revert if defaultAdmin's admin is changed", async function () {
     await expectRevertCustomError(
       this.accessControl.$_setRoleAdmin(DEFAULT_ADMIN_ROLE, defaultAdmin),
-      `${errorPrefix}EnforcedDefaultAdminManagement`,
+      `${errorPrefix}EnforcedDefaultAdminRules`,
       [],
     );
   });
@@ -400,7 +400,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(errorPrefix, delay, defa
   it('should not grant the default admin role twice', async function () {
     await expectRevertCustomError(
       this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin),
-      `${errorPrefix}EnforcedDefaultAdminUniqueness`,
+      `${errorPrefix}EnforcedDefaultAdminRules`,
       [],
     );
   });

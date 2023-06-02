@@ -17,24 +17,13 @@ interface IAccessControlDefaultAdminRules is IAccessControl {
     error AccessControlInvalidDefaultAdmin(address defaultAdmin);
 
     /**
-     * @dev Role can't be granted.
+     * @dev At least one of the following rules was violated:
+     *
+     * - The `DEFAULT_ADMIN_ROLE` must only be managed by itself.
+     * - The `DEFAULT_ADMIN_ROLE` must only be held by one account at the time.
+     * - Any `DEFAULT_ADMIN_ROLE` transfer must be in two delayed steps.
      */
-    error AccessControlForbiddenGrant(bytes32 role);
-
-    /**
-     * @dev Role can't be revoked.
-     */
-    error AccessControlForbiddenRevoke(bytes32 role);
-
-    /**
-     * @dev The `DEFAULT_ADMIN_ROLE` should be only held by one account.
-     */
-    error AccessControlEnforcedDefaultAdminUniqueness();
-
-    /**
-     * @dev The `DEFAULT_ADMIN_ROLE` can only be managed by itself.
-     */
-    error AccessControlEnforcedDefaultAdminManagement();
+    error AccessControlEnforcedDefaultAdminRules();
 
     /**
      * @dev The delay for transferring the default admin delay is enforced and
