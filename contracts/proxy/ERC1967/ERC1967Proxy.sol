@@ -31,6 +31,6 @@ contract ERC1967Proxy is Proxy, ERC1967Upgrade {
      * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
      */
     function _implementation() internal view virtual override returns (address impl) {
-        return ERC1967Upgrade._getImplementation();
+        return _getImplementation();
     }
 }
