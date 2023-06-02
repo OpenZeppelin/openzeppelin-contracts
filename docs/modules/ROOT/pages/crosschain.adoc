@@ -52,7 +52,7 @@ This token is mintable and upgradeable by the owner of the contract.
 
 Let's now imagine that this contract is going to live on one chain, but we want the minting and the upgrading to be performed by a xref:governance.adoc[`governor`] contract on another chain.
 
-For example, we could have our token on xDai, with our governor on mainnet, or we could have our token on mainnet, with our governor on optimism
+For example, we could have our token on xDai, with our governor on mainnet, or we could have our token on mainnet, with our governor on optimism.
 
 In order to do that, we will start by adding xref:api:crosschain.adoc#CrossChainEnabled[`CrossChainEnabled`] to our contract. You will notice that the contract is now abstract. This is because `CrossChainEnabled` is an abstract contract: it is not tied to any particular chain and it deals with cross-chain interactions in an abstract way. This is what enables us to easily reuse the code for different chains. We will specialize it later by inheriting from a chain-specific implementation of the abstraction.
 
