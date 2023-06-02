@@ -64,7 +64,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
         const tokenId = nonExistentTokenId;
 
         it('reverts', async function () {
-          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721InexistentToken', [tokenId]);
+          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
         });
       });
     });
@@ -195,7 +195,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
           it('reverts', async function () {
             await expectRevertCustomError(
               transferFunction.call(this, owner, other, nonExistentTokenId, { from: owner }),
-              'ERC721InexistentToken',
+              'ERC721NonexistentToken',
               [nonExistentTokenId],
             );
           });
@@ -266,7 +266,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
               it('reverts', async function () {
                 await expectRevertCustomError(
                   transferFun.call(this, owner, this.receiver.address, nonExistentTokenId, { from: owner }),
-                  'ERC721InexistentToken',
+                  'ERC721NonexistentToken',
                   [nonExistentTokenId],
                 );
               });
@@ -537,7 +537,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
         it('reverts', async function () {
           await expectRevertCustomError(
             this.token.approve(approved, nonExistentTokenId, { from: operator }),
-            'ERC721InexistentToken',
+            'ERC721NonexistentToken',
             [nonExistentTokenId],
           );
         });
@@ -629,7 +629,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
     describe('getApproved', async function () {
       context('when token is not minted', async function () {
         it('reverts', async function () {
-          await expectRevertCustomError(this.token.getApproved(nonExistentTokenId), 'ERC721InexistentToken', [
+          await expectRevertCustomError(this.token.getApproved(nonExistentTokenId), 'ERC721NonexistentToken', [
             nonExistentTokenId,
           ]);
         });
@@ -682,7 +682,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
 
   describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
-      await expectRevertCustomError(this.token.$_burn(nonExistentTokenId), 'ERC721InexistentToken', [
+      await expectRevertCustomError(this.token.$_burn(nonExistentTokenId), 'ERC721NonexistentToken', [
         nonExistentTokenId,
       ]);
     });
@@ -704,11 +704,11 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
 
         it('deletes the token', async function () {
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('1');
-          await expectRevertCustomError(this.token.ownerOf(firstTokenId), 'ERC721InexistentToken', [firstTokenId]);
+          await expectRevertCustomError(this.token.ownerOf(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
         });
 
         it('reverts when burning a token id that has been deleted', async function () {
-          await expectRevertCustomError(this.token.$_burn(firstTokenId), 'ERC721InexistentToken', [firstTokenId]);
+          await expectRevertCustomError(this.token.$_burn(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
         });
       });
     });
@@ -830,7 +830,7 @@ function shouldBehaveLikeERC721Enumerable(errorPrefix, owner, newOwner, approved
 
   describe('_burn', function () {
     it('reverts when burning a non-existent token id', async function () {
-      await expectRevertCustomError(this.token.$_burn(firstTokenId), 'ERC721InexistentToken', [firstTokenId]);
+      await expectRevertCustomError(this.token.$_burn(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
     });
 
     context('with minted tokens', function () {
@@ -884,7 +884,7 @@ function shouldBehaveLikeERC721Metadata(errorPrefix, name, symbol, owner) {
       });
 
       it('reverts when queried for non existent token id', async function () {
-        await expectRevertCustomError(this.token.tokenURI(nonExistentTokenId), 'ERC721InexistentToken', [
+        await expectRevertCustomError(this.token.tokenURI(nonExistentTokenId), 'ERC721NonexistentToken', [
           nonExistentTokenId,
         ]);
       });

@@ -251,7 +251,7 @@ contract('Governor', function (accounts) {
           it('if proposal does not exist', async function () {
             await expectRevertCustomError(
               this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
-              'GovernorInexistentProposal',
+              'GovernorNonexistentProposal',
               [this.proposal.id],
             );
           });
@@ -299,7 +299,7 @@ contract('Governor', function (accounts) {
 
         describe('on execute', function () {
           it('if proposal does not exist', async function () {
-            await expectRevertCustomError(this.helper.execute(), 'GovernorInexistentProposal', [this.proposal.id]);
+            await expectRevertCustomError(this.helper.execute(), 'GovernorNonexistentProposal', [this.proposal.id]);
           });
 
           it('if quorum is not reached', async function () {
@@ -388,7 +388,7 @@ contract('Governor', function (accounts) {
 
       describe('state', function () {
         it('Unset', async function () {
-          await expectRevertCustomError(this.mock.state(this.proposal.id), 'GovernorInexistentProposal', [
+          await expectRevertCustomError(this.mock.state(this.proposal.id), 'GovernorNonexistentProposal', [
             this.proposal.id,
           ]);
         });
@@ -433,7 +433,7 @@ contract('Governor', function (accounts) {
       describe('cancel', function () {
         describe('internal', function () {
           it('before proposal', async function () {
-            await expectRevertCustomError(this.helper.cancel('internal'), 'GovernorInexistentProposal', [
+            await expectRevertCustomError(this.helper.cancel('internal'), 'GovernorNonexistentProposal', [
               this.proposal.id,
             ]);
           });
@@ -504,7 +504,7 @@ contract('Governor', function (accounts) {
 
         describe('public', function () {
           it('before proposal', async function () {
-            await expectRevertCustomError(this.helper.cancel('external'), 'GovernorInexistentProposal', [
+            await expectRevertCustomError(this.helper.cancel('external'), 'GovernorNonexistentProposal', [
               this.proposal.id,
             ]);
           });

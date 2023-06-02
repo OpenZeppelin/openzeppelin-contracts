@@ -65,7 +65,7 @@ interface IERC721Errors {
      * @dev Indicates a `tokenId` whose `owner` is the zero address.
      * @param tokenId Identifier number of a token.
      */
-    error ERC721InexistentToken(uint256 tokenId);
+    error ERC721NonexistentToken(uint256 tokenId);
 
     /**
      * @dev Indicates an error related to the ownership over a particular token. Used in transfers.

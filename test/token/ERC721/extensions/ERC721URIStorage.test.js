@@ -34,7 +34,7 @@ contract('ERC721URIStorage', function (accounts) {
     });
 
     it('reverts when queried for non existent token id', async function () {
-      await expectRevertCustomError(this.token.tokenURI(nonExistentTokenId), 'ERC721InexistentToken', [
+      await expectRevertCustomError(this.token.tokenURI(nonExistentTokenId), 'ERC721NonexistentToken', [
         nonExistentTokenId,
       ]);
     });
@@ -51,7 +51,7 @@ contract('ERC721URIStorage', function (accounts) {
     });
 
     it('reverts when setting for non existent token id', async function () {
-      await expectRevertCustomError(this.token.$_setTokenURI(nonExistentTokenId, sampleUri), 'ERC721InexistentToken', [
+      await expectRevertCustomError(this.token.$_setTokenURI(nonExistentTokenId, sampleUri), 'ERC721NonexistentToken', [
         nonExistentTokenId,
       ]);
     });
@@ -87,7 +87,7 @@ contract('ERC721URIStorage', function (accounts) {
       await this.token.$_burn(firstTokenId, { from: owner });
 
       expect(await this.token.$_exists(firstTokenId)).to.equal(false);
-      await expectRevertCustomError(this.token.tokenURI(firstTokenId), 'ERC721InexistentToken', [firstTokenId]);
+      await expectRevertCustomError(this.token.tokenURI(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
     });
 
     it('tokens with URI can be burnt ', async function () {
@@ -96,7 +96,7 @@ contract('ERC721URIStorage', function (accounts) {
       await this.token.$_burn(firstTokenId, { from: owner });
 
       expect(await this.token.$_exists(firstTokenId)).to.equal(false);
-      await expectRevertCustomError(this.token.tokenURI(firstTokenId), 'ERC721InexistentToken', [firstTokenId]);
+      await expectRevertCustomError(this.token.tokenURI(firstTokenId), 'ERC721NonexistentToken', [firstTokenId]);
     });
   });
 });

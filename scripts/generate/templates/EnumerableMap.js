@@ -67,9 +67,9 @@ const defaultMap = () => `\
 // in bytes32.
 
 /**
- * @dev Query for an inexistent map key.
+ * @dev Query for an nonexistent map key.
  */
-error EnumerableMapInexistentKey(bytes32 key);
+error EnumerableMapNonexistentKey(bytes32 key);
 
 struct Bytes32ToBytes32Map {
     // Storage of keys
@@ -155,7 +155,7 @@ function tryGet(Bytes32ToBytes32Map storage map, bytes32 key) internal view retu
 function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bytes32) {
     bytes32 value = map._values[key];
     if(value == 0 && !contains(map, key)) {
-        revert EnumerableMapInexistentKey(key);
+        revert EnumerableMapNonexistentKey(key);
     }
     return value;
 }

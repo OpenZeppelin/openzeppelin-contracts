@@ -35,7 +35,7 @@ contract('ERC721Burnable', function (accounts) {
         });
 
         it('burns the given token ID and adjusts the balance of the owner', async function () {
-          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721InexistentToken', [tokenId]);
+          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
           expect(await this.token.balanceOf(owner)).to.be.bignumber.equal('1');
         });
 
@@ -56,14 +56,14 @@ contract('ERC721Burnable', function (accounts) {
 
         context('getApproved', function () {
           it('reverts', async function () {
-            await expectRevertCustomError(this.token.getApproved(tokenId), 'ERC721InexistentToken', [tokenId]);
+            await expectRevertCustomError(this.token.getApproved(tokenId), 'ERC721NonexistentToken', [tokenId]);
           });
         });
       });
 
       describe('when the given token ID was not tracked by this contract', function () {
         it('reverts', async function () {
-          await expectRevertCustomError(this.token.burn(unknownTokenId, { from: owner }), 'ERC721InexistentToken', [
+          await expectRevertCustomError(this.token.burn(unknownTokenId, { from: owner }), 'ERC721NonexistentToken', [
             unknownTokenId,
           ]);
         });

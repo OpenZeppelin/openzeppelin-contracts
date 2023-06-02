@@ -178,7 +178,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256 snapshot = proposalSnapshot(proposalId);
 
         if (snapshot == 0) {
-            revert GovernorInexistentProposal(proposalId);
+            revert GovernorNonexistentProposal(proposalId);
         }
 
         uint256 currentTimepoint = clock();

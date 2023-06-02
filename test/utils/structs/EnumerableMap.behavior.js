@@ -152,7 +152,7 @@ function shouldBehaveLikeMap(keys, values, zeroValue, methods, events) {
       });
       it('missing value', async function () {
         const key = web3.utils.toHex(keyB);
-        await expectRevertCustomError(methods.get(this.map, keyB), 'EnumerableMapInexistentKey', [
+        await expectRevertCustomError(methods.get(this.map, keyB), 'EnumerableMapNonexistentKey', [
           key.length == 66 ? key : web3.utils.padLeft(key, 64, '0'),
         ]);
       });

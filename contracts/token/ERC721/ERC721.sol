@@ -71,7 +71,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Errors {
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
         address owner = _ownerOf(tokenId);
         if (owner == address(0)) {
-            revert ERC721InexistentToken(tokenId);
+            revert ERC721NonexistentToken(tokenId);
         }
         return owner;
     }
@@ -408,7 +408,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Errors {
      */
     function _requireMinted(uint256 tokenId) internal view virtual {
         if (!_exists(tokenId)) {
-            revert ERC721InexistentToken(tokenId);
+            revert ERC721NonexistentToken(tokenId);
         }
     }
 

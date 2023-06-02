@@ -51,7 +51,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
     /**
      * @dev The `proposalId` doesn't exist.
      */
-    error GovernorInexistentProposal(uint256 proposalId);
+    error GovernorNonexistentProposal(uint256 proposalId);
 
     /**
      * @dev The current state of a proposal is not the required for performing an operation.

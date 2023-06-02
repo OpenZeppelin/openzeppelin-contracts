@@ -129,7 +129,7 @@ contract('ERC721Consecutive', function (accounts) {
             tokenId,
           });
 
-          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721InexistentToken', [tokenId]);
+          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
 
           expectEvent(await this.token.$_mint(user2, tokenId), 'Transfer', {
             from: constants.ZERO_ADDRESS,
@@ -144,7 +144,7 @@ contract('ERC721Consecutive', function (accounts) {
           const tokenId = web3.utils.toBN(sum(...batches.map(({ amount }) => amount)) + offset);
 
           expect(await this.token.$_exists(tokenId)).to.be.equal(false);
-          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721InexistentToken', [tokenId]);
+          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
 
           // mint
           await this.token.$_mint(user1, tokenId);
@@ -160,7 +160,7 @@ contract('ERC721Consecutive', function (accounts) {
           });
 
           expect(await this.token.$_exists(tokenId)).to.be.equal(false);
-          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721InexistentToken', [tokenId]);
+          await expectRevertCustomError(this.token.ownerOf(tokenId), 'ERC721NonexistentToken', [tokenId]);
 
           // re-mint
           expectEvent(await this.token.$_mint(user2, tokenId), 'Transfer', {

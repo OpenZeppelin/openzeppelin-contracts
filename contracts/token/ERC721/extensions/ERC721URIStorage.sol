@@ -54,7 +54,7 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
      */
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         if (!_exists(tokenId)) {
-            revert ERC721InexistentToken(tokenId);
+            revert ERC721NonexistentToken(tokenId);
         }
         _tokenURIs[tokenId] = _tokenURI;
 
