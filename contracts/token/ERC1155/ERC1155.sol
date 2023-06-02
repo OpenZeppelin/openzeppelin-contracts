@@ -183,7 +183,6 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         if (ids.length == 1) {
             uint256 id = ids.unsafeMemoryAccess(0);
             uint256 amount = amounts.unsafeMemoryAccess(0);
-
             emit TransferSingle(operator, from, to, id, amount);
             if (to != address(0)) {
                 _doSafeTransferAcceptanceCheck(operator, from, to, id, amount, data);
