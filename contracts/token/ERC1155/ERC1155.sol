@@ -220,8 +220,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
         if (from == address(0)) {
             revert ERC1155InvalidSender(address(0));
         }
-        uint256[] memory ids = _asSingletonArray(id);
-        uint256[] memory amounts = _asSingletonArray(amount);
+        (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
         _update(from, to, ids, amounts, data);
     }
 
@@ -289,8 +288,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
         if (to == address(0)) {
             revert ERC1155InvalidReceiver(address(0));
         }
-        uint256[] memory ids = _asSingletonArray(id);
-        uint256[] memory amounts = _asSingletonArray(amount);
+        (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
         _update(address(0), to, ids, amounts, data);
     }
 
@@ -326,8 +324,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
         if (from == address(0)) {
             revert ERC1155InvalidSender(address(0));
         }
-        uint256[] memory ids = _asSingletonArray(id);
-        uint256[] memory amounts = _asSingletonArray(amount);
+        (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
         _update(from, address(0), ids, amounts, "");
     }
 
@@ -408,10 +405,21 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
         }
     }
 
-    function _asSingletonArray(uint256 element) private pure returns (uint256[] memory) {
-        uint256[] memory array = new uint256[](1);
-        array[0] = element;
+    function _asSingletonArrays(
+        uint256 element1,
+        uint256 element2
+    ) private pure returns (uint256[] memory array1, uint256[] memory array2) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            array1 := mload(0x40)
+            mstore(array1, 1)
+            mstore(add(array1, 0x20), element1)
 
-        return array;
+            array2 := add(array1, 0x40)
+            mstore(array2, 1)
+            mstore(add(array2, 0x20), element2)
+
+            mstore(0x40, add(array2, 0x40))
+        }
     }
 }
