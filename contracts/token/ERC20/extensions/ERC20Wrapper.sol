@@ -21,11 +21,11 @@ abstract contract ERC20Wrapper is ERC20 {
     /**
      * @dev The underlying token couldn't be wrapped.
      */
-    error ERC20InvalidWrap(address token);
+    error ERC20InvalidUnderlying(address token);
 
     constructor(IERC20 underlyingToken) {
         if (underlyingToken == this) {
-            revert ERC20InvalidWrap(address(this));
+            revert ERC20InvalidUnderlying(address(this));
         }
         _underlying = underlyingToken;
     }

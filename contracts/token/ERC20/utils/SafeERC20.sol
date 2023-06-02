@@ -30,9 +30,9 @@ library SafeERC20 {
     error SafeERC20FailedCall();
 
     /**
-     * @dev Indicates an `_allowance` decrease below 0. Used for non-standard allowance decreases.
+     * @dev Indicates a failed `decreaseAllowance` request.
      */
-    error SafeERC20ExceededAllowanceDecrease(address spender, uint256 allowance, uint256 subtractedValue);
+    error SafeERC20FailedDecreaseAllowance(address spender, uint256 currentAllowance, uint256 requestedDecrease);
 
     /**
      * @dev Transfer `value` amount of `token` from the calling contract to `to`. If `token` returns no value,
@@ -60,16 +60,16 @@ library SafeERC20 {
     }
 
     /**
-     * @dev Decrease the calling contract's allowance toward `spender` by `value`. If `token` returns no value,
+     * @dev Decrease the calling contract's allowance toward `spender` by `requestedDecrease`. If `token` returns no value,
      * non-reverting calls are assumed to be successful.
      */
-    function safeDecreaseAllowance(IERC20 token, address spender, uint256 value) internal {
+    function safeDecreaseAllowance(IERC20 token, address spender, uint256 requestedDecrease) internal {
         unchecked {
-            uint256 oldAllowance = token.allowance(address(this), spender);
-            if (oldAllowance < value) {
-                revert SafeERC20ExceededAllowanceDecrease(spender, oldAllowance, value);
+            uint256 currentAllowance = token.allowance(address(this), spender);
+            if (currentAllowance < requestedDecrease) {
+                revert SafeERC20FailedDecreaseAllowance(spender, currentAllowance, requestedDecrease);
             }
-            forceApprove(token, spender, oldAllowance - value);
+            forceApprove(token, spender, currentAllowance - requestedDecrease);
         }
     }
 
@@ -120,7 +120,7 @@ library SafeERC20 {
         // we're implementing it ourselves. We use {Address-functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.
 
-        bytes memory returndata = address(token).functionCall(data, customERC20CallRevert);
+        bytes memory returndata = address(token).functionCall(data, _customERC20CallRevert);
         if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
             revert SafeERC20FailedOperation(address(token));
         }
@@ -143,7 +143,7 @@ library SafeERC20 {
         return success && (returndata.length == 0 || abi.decode(returndata, (bool))) && address(token).code.length > 0;
     }
 
-    function customERC20CallRevert() internal pure {
+    function _customERC20CallRevert() private pure {
         revert SafeERC20FailedCall();
     }
 }

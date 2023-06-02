@@ -58,7 +58,7 @@ contract('ERC20', function (accounts) {
             const allowance = await this.token.allowance(initialHolder, spender);
             await expectRevertCustomError(
               this.token.decreaseAllowance(spender, amount, { from: initialHolder }),
-              'ERC20ExceededAllowanceDecrease',
+              'ERC20FailedDecreaseAllowance',
               [spender, allowance, amount],
             );
           });
@@ -93,7 +93,7 @@ contract('ERC20', function (accounts) {
           it('reverts when more than the full allowance is removed', async function () {
             await expectRevertCustomError(
               this.token.decreaseAllowance(spender, approvedAmount.addn(1), { from: initialHolder }),
-              'ERC20ExceededAllowanceDecrease',
+              'ERC20FailedDecreaseAllowance',
               [spender, approvedAmount, approvedAmount.addn(1)],
             );
           });
@@ -120,7 +120,7 @@ contract('ERC20', function (accounts) {
       it('reverts', async function () {
         await expectRevertCustomError(
           this.token.decreaseAllowance(spender, amount, { from: initialHolder }),
-          'ERC20ExceededAllowanceDecrease',
+          'ERC20FailedDecreaseAllowance',
           [spender, 0, amount],
         );
       });

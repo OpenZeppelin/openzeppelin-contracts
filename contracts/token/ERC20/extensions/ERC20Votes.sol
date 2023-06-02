@@ -24,9 +24,9 @@ import "../../../utils/math/SafeCast.sol";
  */
 abstract contract ERC20Votes is ERC20, Votes {
     /**
-     * @dev Total supply cap has been exceeded.
+     * @dev Total supply cap has been exceeded, introducing a risk of votes overflowing.
      */
-    error ERC20ExceededCap(uint256 increasedSupply, uint256 cap);
+    error ERC20ExceededSafeSupply(uint256 increasedSupply, uint256 cap);
 
     /**
      * @dev Maximum token supply. Defaults to `type(uint224).max` (2^224^ - 1).
@@ -46,8 +46,7 @@ abstract contract ERC20Votes is ERC20, Votes {
             uint256 supply = totalSupply();
             uint256 cap = _maxSupply();
             if (supply > cap) {
-                // Exceeding supply introduces a risk of votes overflowing
-                revert ERC20ExceededCap(supply, cap);
+                revert ERC20ExceededSafeSupply(supply, cap);
             }
         }
         _transferVotingUnits(from, to, amount);

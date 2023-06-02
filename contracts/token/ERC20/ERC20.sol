@@ -46,9 +46,9 @@ contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     string private _symbol;
 
     /**
-     * @dev Indicates an `_allowance` decrease below 0. Used for non-standard allowance decreases.
+     * @dev Indicates a failed `decreaseAllowance` request.
      */
-    error ERC20ExceededAllowanceDecrease(address spender, uint256 allowance, uint256 subtractedValue);
+    error ERC20FailedDecreaseAllowance(address spender, uint256 currentAllowance, uint256 requestedDecrease);
 
     /**
      * @dev Sets the values for {name} and {symbol}.
@@ -197,16 +197,16 @@ contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      *
      * - `spender` cannot be the zero address.
      * - `spender` must have allowance for the caller of at least
-     * `subtractedValue`.
+     * `requestedDecrease`.
      */
-    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
+    function decreaseAllowance(address spender, uint256 requestedDecrease) public virtual returns (bool) {
         address owner = _msgSender();
         uint256 currentAllowance = allowance(owner, spender);
-        if (currentAllowance < subtractedValue) {
-            revert ERC20ExceededAllowanceDecrease(spender, currentAllowance, subtractedValue);
+        if (currentAllowance < requestedDecrease) {
+            revert ERC20FailedDecreaseAllowance(spender, currentAllowance, requestedDecrease);
         }
         unchecked {
-            _approve(owner, spender, currentAllowance - subtractedValue);
+            _approve(owner, spender, currentAllowance - requestedDecrease);
         }
 
         return true;
