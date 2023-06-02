@@ -379,10 +379,13 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         }
     }
 
-    function _asSingletonArrays(uint256 element1, uint256 element2) private pure returns (uint256[] memory, uint256[] memory) {
+    function _asSingletonArrays(
+        uint256 element1,
+        uint256 element2
+    ) private pure returns (uint256[] memory, uint256[] memory) {
         uint256[] memory array1;
         uint256[] memory array2;
-        
+
         /// @solidity memory-safe-assembly
         assembly {
             array1 := mload(0x40)
