@@ -93,7 +93,7 @@ abstract contract Initializable {
      */
     modifier initializer() {
         bool isTopLevelCall = !_initializing;
-        if ((!isTopLevelCall || _initialized >= 1) && (address(this).code.length > 0 || _initialized != 1)) {
+        if (!(isTopLevelCall && _initialized < 1) && !(address(this).code.length == 0 && _initialized == 1)) {
             revert AlreadyInitialized();
         }
         _initialized = 1;

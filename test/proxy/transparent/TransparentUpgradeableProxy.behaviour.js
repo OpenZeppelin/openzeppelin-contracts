@@ -309,8 +309,8 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     it('proxy admin cannot call delegated functions', async function () {
       await expectRevertCustomError(
         this.clashing.delegatedFunction({ from: proxyAdminAddress }),
-        'TransparentUpgradeableProxyDisabledFallback',
-        [proxyAdminAddress],
+        'ProxyDeniedAdminAccess',
+        [],
       );
     });
 
