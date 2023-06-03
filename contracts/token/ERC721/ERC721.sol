@@ -274,14 +274,14 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Errors {
             revert ERC721InvalidReceiver(address(0));
         }
         if (_exists(tokenId)) {
-            revert ERC721IncorrectOwner(address(0), tokenId, address(0));
+            revert ERC721InvalidSender(address(0));
         }
 
         _beforeTokenTransfer(address(0), to, tokenId, 1);
 
         // Check that tokenId was not minted by `_beforeTokenTransfer` hook
         if (_exists(tokenId)) {
-            revert ERC721IncorrectOwner(address(0), tokenId, address(0));
+            revert ERC721InvalidSender(address(0));
         }
 
         unchecked {
