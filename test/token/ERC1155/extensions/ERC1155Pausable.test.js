@@ -63,11 +63,7 @@ contract('ERC1155Pausable', function (accounts) {
     });
 
     it('reverts when trying to mint', async function () {
-      await expectRevertCustomError(
-        this.token.$_mint(holder, secondTokenId, secondTokenAmount, '0x'),
-        'Paused',
-        [],
-      );
+      await expectRevertCustomError(this.token.$_mint(holder, secondTokenId, secondTokenAmount, '0x'), 'Paused', []);
     });
 
     it('reverts when trying to mintBatch', async function () {
@@ -83,11 +79,7 @@ contract('ERC1155Pausable', function (accounts) {
     });
 
     it('reverts when trying to burnBatch', async function () {
-      await expectRevertCustomError(
-        this.token.$_burnBatch(holder, [firstTokenId], [firstTokenAmount]),
-        'Paused',
-        [],
-      );
+      await expectRevertCustomError(this.token.$_burnBatch(holder, [firstTokenId], [firstTokenAmount]), 'Paused', []);
     });
 
     describe('setApprovalForAll', function () {

@@ -40,11 +40,7 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to transfer when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevertCustomError(
-          this.token.transfer(recipient, initialSupply, { from: holder }),
-          'Paused',
-          [],
-        );
+        await expectRevertCustomError(this.token.transfer(recipient, initialSupply, { from: holder }), 'Paused', []);
       });
     });
 
