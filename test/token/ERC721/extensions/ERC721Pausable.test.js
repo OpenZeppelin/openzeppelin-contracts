@@ -29,7 +29,7 @@ contract('ERC721Pausable', function (accounts) {
     it('reverts when trying to transferFrom', async function () {
       await expectRevertCustomError(
         this.token.transferFrom(owner, receiver, firstTokenId, { from: owner }),
-        'PausablePaused',
+        'Paused',
         [],
       );
     });
@@ -37,7 +37,7 @@ contract('ERC721Pausable', function (accounts) {
     it('reverts when trying to safeTransferFrom', async function () {
       await expectRevertCustomError(
         this.token.safeTransferFrom(owner, receiver, firstTokenId, { from: owner }),
-        'PausablePaused',
+        'Paused',
         [],
       );
     });
@@ -47,17 +47,17 @@ contract('ERC721Pausable', function (accounts) {
         this.token.methods['safeTransferFrom(address,address,uint256,bytes)'](owner, receiver, firstTokenId, mockData, {
           from: owner,
         }),
-        'PausablePaused',
+        'Paused',
         [],
       );
     });
 
     it('reverts when trying to mint', async function () {
-      await expectRevertCustomError(this.token.$_mint(receiver, secondTokenId), 'PausablePaused', []);
+      await expectRevertCustomError(this.token.$_mint(receiver, secondTokenId), 'Paused', []);
     });
 
     it('reverts when trying to burn', async function () {
-      await expectRevertCustomError(this.token.$_burn(firstTokenId), 'PausablePaused', []);
+      await expectRevertCustomError(this.token.$_burn(firstTokenId), 'Paused', []);
     });
 
     describe('getApproved', function () {

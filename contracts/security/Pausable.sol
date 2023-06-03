@@ -6,6 +6,22 @@ pragma solidity ^0.8.19;
 import "../utils/Context.sol";
 
 /**
+ * @dev Pausable Errors library. Kept separate from {Pausable} to avoid
+ * an identifier clash with {Pausable}'s event identifiers.
+ */
+library PausableErrors {
+    /**
+     * @dev The contract is paused.
+     */
+    error Paused();
+
+    /**
+     * @dev The contract is not paused.
+     */
+    error Unpaused();
+}
+
+/**
  * @dev Contract module which allows children to implement an emergency stop
  * mechanism that can be triggered by an authorized account.
  *
@@ -15,16 +31,6 @@ import "../utils/Context.sol";
  * simply including this module, only once the modifiers are put in place.
  */
 abstract contract Pausable is Context {
-    /**
-     * @dev The contract is paused.
-     */
-    error PausablePaused();
-
-    /**
-     * @dev The contract is not paused.
-     */
-    error PausableUnpaused();
-
     /**
      * @dev Emitted when the pause is triggered by `account`.
      */
@@ -80,7 +86,7 @@ abstract contract Pausable is Context {
      */
     function _requireNotPaused() internal view virtual {
         if (paused()) {
-            revert PausablePaused();
+            revert PausableErrors.Paused();
         }
     }
 
@@ -89,7 +95,7 @@ abstract contract Pausable is Context {
      */
     function _requirePaused() internal view virtual {
         if (!paused()) {
-            revert PausableUnpaused();
+            revert PausableErrors.Unpaused();
         }
     }
 
