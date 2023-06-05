@@ -603,14 +603,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
-     * @dev See {IERC721Receiver-onERC721Received}.
+     * @dev See {IERC721Receiver-onERC721Received}(disabled if executor is a third party contract).
      */
     function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
+        require(_executor() == address(this), "Governor: must send to executor");
         return this.onERC721Received.selector;
     }
 
     /**
-     * @dev See {IERC1155Receiver-onERC1155Received}.
+     * @dev See {IERC1155Receiver-onERC1155Received}(disabled if executor is a third party contract).
      */
     function onERC1155Received(
         address,
@@ -619,11 +620,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256,
         bytes memory
     ) public virtual override returns (bytes4) {
+        require(_executor() == address(this), "Governor: must send to executor");
         return this.onERC1155Received.selector;
     }
 
     /**
-     * @dev See {IERC1155Receiver-onERC1155BatchReceived}.
+     * @dev See {IERC1155Receiver-onERC1155BatchReceived}(disabled if executor is a third party contract).
      */
     function onERC1155BatchReceived(
         address,
@@ -632,6 +634,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256[] memory,
         bytes memory
     ) public virtual override returns (bytes4) {
+        require(_executor() == address(this), "Governor: must send to executor");
         return this.onERC1155BatchReceived.selector;
     }
 }
