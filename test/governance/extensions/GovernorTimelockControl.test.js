@@ -454,8 +454,9 @@ contract('GovernorTimelockControl', function (accounts) {
             });
 
             it("can't receive an ERC721 safeTransfer", async function () {
-              await expectRevert.unspecified(
+              await expectRevert(
                 this.token.safeTransferFrom(owner, this.mock.address, tokenId, { from: owner }),
+                'Governor: must send to executor',
               );
             });
           });
@@ -474,7 +475,7 @@ contract('GovernorTimelockControl', function (accounts) {
             });
 
             it("can't receive ERC1155 safeTransfer", async function () {
-              await expectRevert.unspecified(
+              await expectRevert(
                 this.token.safeTransferFrom(
                   owner,
                   this.mock.address,
@@ -482,11 +483,12 @@ contract('GovernorTimelockControl', function (accounts) {
                   '0x',
                   { from: owner },
                 ),
+                'Governor: must send to executor',
               );
             });
 
             it("can't receive ERC1155 safeBatchTransfer", async function () {
-              await expectRevert.unspecified(
+              await expectRevert(
                 this.token.safeBatchTransferFrom(
                   owner,
                   this.mock.address,
@@ -495,6 +497,7 @@ contract('GovernorTimelockControl', function (accounts) {
                   '0x',
                   { from: owner },
                 ),
+                'Governor: must send to executor',
               );
             });
           });
