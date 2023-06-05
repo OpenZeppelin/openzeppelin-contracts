@@ -143,8 +143,8 @@ abstract contract EIP712 is IERC5267 {
     /**
      * @dev The name parameter for the EIP712 domain.
      *
-     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
-     * are a concern.
+     * NOTE: By default this function reads _name which is an immutable value. 
+     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Name() internal view returns (string memory) {
@@ -152,10 +152,10 @@ abstract contract EIP712 is IERC5267 {
     }
 
     /**
-     * @dev The version parameter for the EIP712 domain.
+     * @dev The name parameter for the EIP712 domain.
      *
-     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
-     * are a concern.
+     * NOTE: By default this function reads _version which is an immutable value. 
+     * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Version() internal view returns (string memory) {
