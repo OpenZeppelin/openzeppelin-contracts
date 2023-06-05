@@ -40,7 +40,7 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     /**
      * @inheritdoc IERC2981
      */
-    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual override returns (address, uint256) {
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual  returns (address, uint256) {
         RoyaltyInfo memory royalty = _tokenRoyaltyInfo[tokenId];
 
         if (royalty.receiver == address(0)) {
@@ -55,7 +55,7 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     /**
      * @dev The denominator with which to interpret the fee set in {_setTokenRoyalty} and {_setDefaultRoyalty} as a
      * fraction of the sale price. Defaults to 10000 so fees are expressed in basis points, but may be customized by an
-     * override.
+     * .
      */
     function _feeDenominator() internal pure virtual returns (uint96) {
         return 10000;
