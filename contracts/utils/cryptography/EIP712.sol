@@ -118,7 +118,6 @@ abstract contract EIP712 is IERC5267 {
         public
         view
         virtual
-        override
         returns (
             bytes1 fields,
             string memory name,
