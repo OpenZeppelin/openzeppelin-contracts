@@ -211,7 +211,7 @@ class GovernorHelper {
  */
 function proposalStatesToBitMap(proposalStates, options = {}) {
   if (!Array.isArray(proposalStates)) {
-    expect.fail(`Expected ProposalStates array but found ${typeof proposalStates} instead`);
+    proposalStates = [proposalStates];
   }
   const statesRange = Object.keys(ProposalState).length - 1;
   let result = 0;

@@ -18,28 +18,24 @@ pragma solidity ^0.8.19;
  */
 library SafeCast {
     /**
-     * @dev Value doesn't fit in an uint of `bits`.
-     *
-     * NOTE: The `bits` argument is `min(bits, 255)`.
+     * @dev Value doesn't fit in an uint of `bits` size.
      */
     error SafeCastOverflowedUintDowncast(uint8 bits, uint256 value);
 
     /**
-     * @dev An int value doesn't fit in an uint of `bits`.
+     * @dev An int value doesn't fit in an uint of `bits` size.
      *
      * NOTE: The `bits` argument is `min(bits, 255)`.
      */
     error SafeCastOverflowedIntToUint(uint8 bits, int256 value);
 
     /**
-     * @dev Value doesn't fit in an int of `bits`.
-     *
-     * NOTE: The `bits` argument is `min(bits, 255)`.
+     * @dev Value doesn't fit in an int of `bits` size.
      */
     error SafeCastOverflowedIntDowncast(uint8 bits, int256 value);
 
     /**
-     * @dev An uint value doesn't fit in an int of `bits`.
+     * @dev An uint value doesn't fit in an int of `bits` size.
      *
      * NOTE: The `bits` argument is `min(bits, 255)`.
      */
