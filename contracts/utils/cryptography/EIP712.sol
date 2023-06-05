@@ -143,7 +143,7 @@ abstract contract EIP712 is IERC5267 {
     /**
      * @dev The name parameter for the EIP712 domain.
      *
-     * NOTE: By default this function reads _name which is an immutable value. 
+     * NOTE: By default this function reads _name which is an immutable value.
      * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
      */
     // solhint-disable-next-line func-name-mixedcase
@@ -154,7 +154,7 @@ abstract contract EIP712 is IERC5267 {
     /**
      * @dev The name parameter for the EIP712 domain.
      *
-     * NOTE: By default this function reads _version which is an immutable value. 
+     * NOTE: By default this function reads _version which is an immutable value.
      * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
      */
     // solhint-disable-next-line func-name-mixedcase
