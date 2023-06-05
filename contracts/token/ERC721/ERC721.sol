@@ -305,7 +305,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         // Clear approvals
         delete _tokenApprovals[tokenId];
 
-        // Decrease balance with checked arithmetic, because an `ownerOf`  may
+        // Decrease balance with checked arithmetic, because an `ownerOf` override may
         // invalidate the assumption that `_balances[from] >= 1`.
         _balances[owner] -= 1;
 
@@ -339,7 +339,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         // Clear approvals from the previous owner
         delete _tokenApprovals[tokenId];
 
-        // Decrease balance with checked arithmetic, because an `ownerOf`  may
+        // Decrease balance with checked arithmetic, because an `ownerOf` override may
         // invalidate the assumption that `_balances[from] >= 1`.
         _balances[from] -= 1;
 
@@ -451,7 +451,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     function _afterTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual {}
 
     /**
-     * @dev Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} .
+     * @dev Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
      *
      * WARNING: Anyone calling this MUST ensure that the balances remain consistent with the ownership. The invariant
      * being that for any address `a` the value returned by `balanceOf(a)` must be equal to the number of tokens such

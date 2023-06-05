@@ -17,7 +17,7 @@ import "../../utils/Context.sol";
  * https://forum.openzeppelin.com/t/how-to-implement-erc20-supply-mechanisms/226[How
  * to implement supply mechanisms].
  *
- * The default value of {decimals} is 18. To change this, you should
+ * The default value of {decimals} is 18. To change this, you should override
  * this function so it returns a different value.
  *
  * We have followed general OpenZeppelin Contracts guidelines: functions revert

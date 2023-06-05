@@ -39,7 +39,7 @@ import "../../../utils/math/Math.sol";
  * The drawback of this approach is that the virtual shares do capture (a very small) part of the value being accrued
  * to the vault. Also, if the vault experiences losses, the users try to exit the vault, the virtual shares and assets
  * will cause the first user to exit to experience reduced losses in detriment to the last users that will experience
- * bigger losses. Developers willing to revert back to the pre-v4.9 behavior just need to  the
+ * bigger losses. Developers willing to revert back to the pre-v4.9 behavior just need to override the
  * `_convertToShares` and `_convertToAssets` functions.
  *
  * To learn more, check out our xref:ROOT:erc4626.adoc[ERC-4626 guide].

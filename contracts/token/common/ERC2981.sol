@@ -55,7 +55,7 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     /**
      * @dev The denominator with which to interpret the fee set in {_setTokenRoyalty} and {_setDefaultRoyalty} as a
      * fraction of the sale price. Defaults to 10000 so fees are expressed in basis points, but may be customized by an
-     * .
+     * override.
      */
     function _feeDenominator() internal pure virtual returns (uint96) {
         return 10000;
