@@ -7,7 +7,7 @@ const { clockFromReceipt } = require('../../helpers/time');
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 
 const AccessManager = artifacts.require('$AccessManager');
-const Timelock = artifacts.require('TimelockDualCondition');
+const Timelock = artifacts.require('TimelockConditionManaged');
 const Governor = artifacts.require('$GovernorTimelockManagedMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
 
@@ -166,7 +166,10 @@ contract('GovernorTimelockManaged', function (accounts) {
 
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
-            await expectRevert(this.helper.execute(), 'ProposalNotReady()');
+            await expectRevert(
+              this.helper.execute(),
+              `ProposalNotReady("${web3.utils.numberToHex(this.proposal.id)}")`
+            );
           });
 
           it('if too early', async function () {
@@ -178,7 +181,10 @@ contract('GovernorTimelockManaged', function (accounts) {
 
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
 
-            await expectRevert(this.helper.execute(), 'ProposalNotReady()');
+            await expectRevert(
+              this.helper.execute(),
+              `ProposalNotReady("${web3.utils.numberToHex(this.proposal.id)}")`
+            );
           });
 
           it('if already executed', async function () {
@@ -354,7 +360,7 @@ contract('GovernorTimelockManaged', function (accounts) {
                 constants.ZERO_BYTES32,
                 { from: owner },
               ),
-              'Empty()', // this is the governor 'onlyGovernance' modifier trying to pop an empty queue
+              'TimelockCondition: underlying transaction reverted',
             );
           });
         });

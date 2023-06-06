@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.0;
 
-import "./IGovernorTimelock.sol";
+import "../../access/manager/conditions/TimelockConditionBase.sol";
 import "../Governor.sol";
-import "../TimelockDualCondition.sol";
+import "./IGovernorTimelock.sol";
 
 abstract contract GovernorTimelockManaged is IGovernorTimelock, Governor {
-    TimelockDualCondition private _timelock;
+    TimelockConditionBase private _timelock;
 
     /**
      * @dev Emitted when the timelock controller used for proposal execution is modified.
@@ -17,7 +17,7 @@ abstract contract GovernorTimelockManaged is IGovernorTimelock, Governor {
     /**
      * @dev Set the timelock.
      */
-    constructor(TimelockDualCondition timelockAddress) {
+    constructor(TimelockConditionBase timelockAddress) {
         _updateTimelock(timelockAddress);
     }
 
@@ -39,14 +39,14 @@ abstract contract GovernorTimelockManaged is IGovernorTimelock, Governor {
         }
 
         // proposalId is computed the same way by the timelock
-        TimelockDualCondition.Operation memory op = _timelock.details(bytes32(proposalId));
-        if (op.state == TimelockDualCondition.OperationState.UNSET) {
+        TimelockConditionBase.Operation memory op = _timelock.details(bytes32(proposalId));
+        if (op.state == TimelockConditionBase.OperationState.UNSET) {
             return ProposalState.Succeeded;
-        } else if (op.state == TimelockDualCondition.OperationState.SCHEDULED) {
+        } else if (op.state == TimelockConditionBase.OperationState.SCHEDULED) {
             return ProposalState.Queued;
-        } else if (op.state == TimelockDualCondition.OperationState.EXECUTED) {
+        } else if (op.state == TimelockConditionBase.OperationState.EXECUTED) {
             return ProposalState.Executed;
-        } else /*if (op.state == TimelockDualCondition.OperationState.CANCELED)*/ {
+        } else /*if (op.state == TimelockConditionBase.OperationState.CANCELED)*/ {
             return ProposalState.Canceled;
         }
     }
@@ -62,8 +62,8 @@ abstract contract GovernorTimelockManaged is IGovernorTimelock, Governor {
      * @dev Public accessor to check the eta of a queued proposal
      */
     function proposalEta(uint256 proposalId) public view virtual override returns (uint256) {
-        TimelockDualCondition.Operation memory op = _timelock.details(bytes32(proposalId));
-        return op.state == TimelockDualCondition.OperationState.SCHEDULED ? op.timepoint : 0;
+        TimelockConditionBase.Operation memory op = _timelock.details(bytes32(proposalId));
+        return op.state == TimelockConditionBase.OperationState.SCHEDULED ? op.timepoint : 0;
     }
 
     /**
@@ -114,7 +114,7 @@ abstract contract GovernorTimelockManaged is IGovernorTimelock, Governor {
     ) internal virtual override returns (uint256) {
         uint256 proposalId = super._cancel(targets, values, calldatas, descriptionHash);
 
-        if (_timelock.details(bytes32(proposalId)).state == TimelockDualCondition.OperationState.SCHEDULED) {
+        if (_timelock.details(bytes32(proposalId)).state == TimelockConditionBase.OperationState.SCHEDULED) {
             _timelock.cancel(bytes32(proposalId));
         }
 
@@ -134,11 +134,11 @@ abstract contract GovernorTimelockManaged is IGovernorTimelock, Governor {
      *
      * CAUTION: It is not recommended to change the timelock while there are other queued governance proposals.
      */
-    function updateTimelock(TimelockDualCondition newTimelock) external virtual onlyGovernance {
+    function updateTimelock(TimelockConditionBase newTimelock) external virtual onlyGovernance {
         _updateTimelock(newTimelock);
     }
 
-    function _updateTimelock(TimelockDualCondition newTimelock) private {
+    function _updateTimelock(TimelockConditionBase newTimelock) private {
         emit TimelockChange(address(_timelock), address(newTimelock));
         _timelock = newTimelock;
     }
