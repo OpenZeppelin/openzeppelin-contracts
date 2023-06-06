@@ -24,7 +24,7 @@ library SafeERC20 {
      * non-reverting calls are assumed to be successful.
      */
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
+        _callOptionalReturn(token, abi.encodeCall(token.transfer, (to, value)));
     }
 
     /**
@@ -32,7 +32,7 @@ library SafeERC20 {
      * calling contract. If `token` returns no value, non-reverting calls are assumed to be successful.
      */
     function safeTransferFrom(IERC20 token, address from, address to, uint256 value) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, from, to, value));
+        _callOptionalReturn(token, abi.encodeCall(token.transferFrom, (from, to, value)));
     }
 
     /**
@@ -62,10 +62,10 @@ library SafeERC20 {
      * 0 before setting it to a non-zero value.
      */
     function forceApprove(IERC20 token, address spender, uint256 value) internal {
-        bytes memory approvalCall = abi.encodeWithSelector(token.approve.selector, spender, value);
+        bytes memory approvalCall = abi.encodeCall(token.approve, (spender, value));
 
         if (!_callOptionalReturnBool(token, approvalCall)) {
-            _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, 0));
+            _callOptionalReturn(token, abi.encodeCall(token.approve, (spender, 0)));
             _callOptionalReturn(token, approvalCall);
         }
     }
