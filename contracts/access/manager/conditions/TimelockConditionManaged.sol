@@ -17,18 +17,11 @@ contract TimelockConditionManaged is
     ERC721Holder,
     ERC1155Holder
 {
-    // Store of operations details
-    mapping(bytes32 id => Operation operation) private _operations;
-
     // Constructor
     constructor(IAuthority authority) AccessManagedImmutable(authority) {}
 
     // Methods
     receive() external payable {}
-
-    function details(bytes32 id) public view virtual override returns (Operation memory) {
-        return _operations[id];
-    }
 
     function delay(
         address[] calldata targets,
@@ -57,23 +50,17 @@ contract TimelockConditionManaged is
     )
     public virtual override restricted() returns (bytes32)
     {
-        bytes32 id = hashOperation(targets, values, payloads, salt);
+        bytes32 id       = hashOperation(targets, values, payloads, salt);
+        address caller   = _msgSender();
+        uint48  duration = delay(targets, payloads);
 
-        // fetch: storage → memory (cache)
-        Operation memory op = _operations[id];
-
-        // operate on the cache
-        if (op.state != OperationState.UNSET) {
-            revert ProposalAlreadyExist(id);
-        }
-        address proposer = _msgSender();
-        uint48 timepoint = SafeCast.toUint48(block.timestamp) + delay(targets, payloads);
-        op = Operation({ state: OperationState.SCHEDULED, proposer: proposer, timepoint: timepoint });
-
-        // sync: memory (cache) → storage
-        _operations[id] = op;
-
-        emit Scheduled(id, proposer, targets, values, payloads, salt, timepoint);
+        // Operations:
+        // - load cache
+        // - schedule
+        // - sync
+        OperationCache memory cache = _load(id);
+        _schedule(cache, targets, values, payloads, salt, caller, duration);
+        _sync(cache);
 
         return id;
     }
@@ -88,44 +75,31 @@ contract TimelockConditionManaged is
     {
         bytes32 id = hashOperation(targets, values, payloads, salt);
 
-        // fetch: storage → memory (cache)
-        Operation memory op = _operations[id];
-
-        // operate on the cache
-        if (op.state == OperationState.SCHEDULED && op.timepoint <= block.timestamp) {
-            op.state = OperationState.EXECUTED;
-        } else if (op.state == OperationState.UNSET && authority.canCall(_msgSender(), address(this), this.schedule.selector) && delay(targets, payloads) == 0) {
-            address caller = _msgSender();
-            uint48 timepoint = SafeCast.toUint48(block.timestamp);
-            op = Operation({ state: OperationState.EXECUTED, proposer: caller, timepoint: timepoint });
-            emit Scheduled(id, caller, targets, values, payloads, salt, timepoint);
-        } else {
-            revert ProposalNotReady(id);
+        // Operations:
+        // - load cache
+        // - schedule if necessary (and if operation can be executed without delay)
+        // - execute
+        // - (sync is implicit in execute)
+        OperationCache memory cache = _load(id);
+        if (
+            cache.op.state == OperationState.UNSET &&
+            authority.canCall(_msgSender(), address(this), this.schedule.selector) &&
+            delay(targets, payloads) == 0
+        ) {
+            _schedule(cache, targets, values, payloads, salt, _msgSender(), 0);
         }
-
-        // sync: memory (cache) → storage
-        _operations[id] = op;
-
-        // external calls
-        _execute(op.proposer, targets, values, payloads);
-        emit Executed(id);
+        _execute(cache, targets, values, payloads);
 
         return id;
     }
 
     function cancel(bytes32 id) public virtual override restricted() {
-        // fetch: storage → memory (cache)
-        Operation memory op = _operations[id];
-
-        // operate on the cache
-        if (op.state != OperationState.SCHEDULED) {
-            revert ProposalNotActive(id);
-        }
-        op.state = OperationState.CANCELED;
-
-        // sync: memory (cache) → storage
-        _operations[id] = op;
-
-        emit Cancelled(id);
+        // Operations:
+        // - load cache
+        // - cancel
+        // - sync
+        OperationCache memory cache = _load(id);
+        _cancel(cache);
+        _sync(cache);
     }
 }

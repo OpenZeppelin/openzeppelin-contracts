@@ -27,10 +27,6 @@ contract TimelockConditionShared is
     }
 
     // Methods
-    function details(bytes32 id) public view virtual override returns (Operation memory) {
-        return _operations[id];
-    }
-
     function delay(
         address[] calldata /*targets*/,
         bytes[]   calldata /*payloads*/
@@ -46,34 +42,27 @@ contract TimelockConditionShared is
     )
     public virtual override returns (bytes32)
     {
-        bytes32 id = hashOperation(targets, values, payloads, salt);
-
-        // fetch: storage → memory (cache)
-        Operation memory op = _operations[id];
-
-        // operate on the cache
-        if (op.state != OperationState.UNSET) {
-            revert ProposalAlreadyExist(id);
-        }
-        address proposer = _msgSender();
+        bytes32 id       = hashOperation(targets, values, payloads, salt);
+        address caller   = _msgSender();
+        uint48  duration = delay(targets, payloads);
 
         // Check that the proposer can call through this condition. This check does not support nested conditions.
         for (uint256 i = 0; i < targets.length; ++i) {
             address authority     = address(IManaged(targets[i]).authority());
             bytes32 allowedGroups = IAccessManager(authority).getFunctionAllowedGroups(targets[i], bytes4(payloads[i][0:4]));
-            bytes32 userGroups    = IAccessManager(authority).getUserGroups(proposer, _toSingletonArray(address(this)));
+            bytes32 userGroups    = IAccessManager(authority).getUserGroups(caller, _toSingletonArray(address(this)));
             if (allowedGroups & userGroups == 0) {
                 revert PrecheckFailed();
             }
         }
 
-        uint48 timepoint = SafeCast.toUint48(block.timestamp) + delay(targets, payloads);
-        op = Operation({ state: OperationState.SCHEDULED, proposer: proposer, timepoint: timepoint });
-
-        // sync: memory (cache) → storage
-        _operations[id] = op;
-
-        emit Scheduled(id, proposer, targets, values, payloads, salt, timepoint);
+        // Operations:
+        // - load cache
+        // - schedule
+        // - sync
+        OperationCache memory cache = _load(id);
+        _schedule(cache, targets, values, payloads, salt, caller, duration);
+        _sync(cache);
 
         return id;
     }
@@ -89,48 +78,29 @@ contract TimelockConditionShared is
     {
         bytes32 id = hashOperation(targets, values, payloads, salt);
 
-        // fetch: storage → memory (cache)
-        Operation memory op = _operations[id];
+        // Operations:
+        // - load cache
+        // - execute
+        // - (sync is implicit in execute)
+        OperationCache memory cache = _load(id);
+        _execute(cache, targets, values, payloads);
 
-        // De we need to check that _msgSender() is op.proposer ?
-        if (
-            op.state     != OperationState.SCHEDULED ||
-            op.timepoint >  block.timestamp
-        ) {
-            revert ProposalNotReady(id);
-        }
-        if (op.proposer  != _msgSender()) {
-            revert UnauthorizedCaller(id);
-        }
-        op.state = OperationState.EXECUTED;
-
-        // sync: memory (cache) → storage
-        _operations[id] = op;
-
-        // external calls
-        _execute(op.proposer, targets, values, payloads);
-        emit Executed(id);
+        if (cache.op.proposer != _msgSender()) revert UnauthorizedCaller(id);
 
         return id;
     }
 
     function cancel(bytes32 id) public virtual override {
-        // fetch: storage → memory (cache)
-        Operation memory op = _operations[id];
+        // Operations:
+        // - load cache
+        // - perform check
+        // - cancel
+        // - sync
+        OperationCache memory cache = _load(id);
+        _cancel(cache);
+        _sync(cache);
 
-        // operate on the cache
-        if (op.state != OperationState.SCHEDULED) {
-            revert ProposalNotActive(id);
-        }
-        if (op.proposer != _msgSender()) {
-            revert UnauthorizedCaller(id);
-        }
-        op.state = OperationState.CANCELED;
-
-        // sync: memory (cache) → storage
-        _operations[id] = op;
-
-        emit Cancelled(id);
+        if (cache.op.proposer != _msgSender()) revert UnauthorizedCaller(id);
     }
 
     function _toSingletonArray(address entry) private pure returns (address[] memory) {
