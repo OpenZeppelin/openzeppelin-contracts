@@ -93,7 +93,9 @@ abstract contract GovernorSettings is Governor {
      */
     function _setVotingPeriod(uint256 newVotingPeriod) internal virtual {
         // voting period must be at least one block long
-        require(newVotingPeriod > 0, "GovernorSettings: voting period too low");
+        if (newVotingPeriod == 0) {
+            revert GovernorInvalidVotingPeriod(0);
+        }
         emit VotingPeriodSet(_votingPeriod, newVotingPeriod);
         _votingPeriod = newVotingPeriod;
     }

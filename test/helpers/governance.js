@@ -1,4 +1,5 @@
 const { forward } = require('../helpers/time');
+const { ProposalState } = require('./enums');
 
 function zip(...args) {
   return Array(Math.max(...args.map(array => array.length)))
@@ -196,6 +197,44 @@ class GovernorHelper {
   }
 }
 
+/**
+ * Encodes a list ProposalStates into a bytes32 representation where each bit enabled corresponds to
+ * the underlying position in the `ProposalState` enum. For example:
+ *
+ * 0x000...10000
+ *   ^^^^^^------ ...
+ *         ^----- Succeeded
+ *          ^---- Defeated
+ *           ^--- Canceled
+ *            ^-- Active
+ *             ^- Pending
+ */
+function proposalStatesToBitMap(proposalStates, options = {}) {
+  if (!Array.isArray(proposalStates)) {
+    proposalStates = [proposalStates];
+  }
+  const statesRange = Object.keys(ProposalState).length - 1;
+  let result = 0;
+
+  const uniqueProposalStates = new Set(proposalStates.map(bn => bn.toNumber())); // Remove duplicates
+  for (const state of Array.from(uniqueProposalStates)) {
+    if (state < 0 || state > statesRange) {
+      expect.fail(`ProposalState ${state} out of possible states (0 - ${statesRange})`);
+    } else {
+      result |= 1 << state;
+    }
+  }
+
+  if (options.inverted) {
+    const mask = 2 ** statesRange - 1;
+    result = result ^ mask;
+  }
+
+  const hex = web3.utils.numberToHex(result);
+  return web3.utils.padLeft(hex, 64);
+}
+
 module.exports = {
   GovernorHelper,
+  proposalStatesToBitMap,
 };

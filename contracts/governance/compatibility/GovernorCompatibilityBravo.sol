@@ -39,6 +39,11 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
     mapping(uint256 => ProposalDetails) private _proposalDetails;
 
+    /**
+     * @dev Vote type is not in the {VoteType} enum.
+     */
+    error GovernorInvalidVoteType();
+
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
         return "support=bravo&quorum=bravo";
@@ -69,7 +74,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
-        require(signatures.length == calldatas.length, "GovernorBravo: invalid signatures length");
+        if (signatures.length != calldatas.length) {
+            revert GovernorInvalidSignaturesLength(signatures.length, calldatas.length);
+        }
         // Stores the full proposal and fallback to the public (possibly overridden) propose. The fallback is done
         // after the full proposal is stored, so the store operation included in the fallback will be skipped. Here we
         // call `propose` and not `super.propose` to make sure if a child contract override `propose`, whatever code
@@ -133,10 +140,11 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         address proposer = proposalProposer(proposalId);
 
-        require(
-            _msgSender() == proposer || getVotes(proposer, clock() - 1) < proposalThreshold(),
-            "GovernorBravo: proposer above threshold"
-        );
+        uint256 proposerVotes = getVotes(proposer, clock() - 1);
+        uint256 votesThreshold = proposalThreshold();
+        if (_msgSender() != proposer && proposerVotes >= votesThreshold) {
+            revert GovernorProposerInvalidTreshold(proposer, proposerVotes, votesThreshold);
+        }
 
         return _cancel(targets, values, calldatas, descriptionHash);
     }
@@ -312,7 +320,9 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         ProposalDetails storage details = _proposalDetails[proposalId];
         Receipt storage receipt = details.receipts[account];
 
-        require(!receipt.hasVoted, "GovernorCompatibilityBravo: vote already cast");
+        if (receipt.hasVoted) {
+            revert GovernorAlreadyCastVote(account);
+        }
         receipt.hasVoted = true;
         receipt.support = support;
         receipt.votes = SafeCast.toUint96(weight);
@@ -324,7 +334,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         } else if (support == uint8(VoteType.Abstain)) {
             details.abstainVotes += weight;
         } else {
-            revert("GovernorCompatibilityBravo: invalid vote type");
+            revert GovernorInvalidVoteType();
         }
     }
 }

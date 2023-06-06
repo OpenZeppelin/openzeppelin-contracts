@@ -24,6 +24,63 @@ abstract contract IGovernor is IERC165, IERC6372 {
     }
 
     /**
+     * @dev Empty proposal or a mismatch between the parameters length for a proposal call.
+     */
+    error GovernorInvalidProposalLength(uint256 targets, uint256 calldatas, uint256 values);
+
+    /**
+     * @dev The vote was already cast.
+     */
+    error GovernorAlreadyCastVote(address voter);
+
+    /**
+     * @dev Can only be executed via a governance process.
+     */
+    error GovernorOnlyGovernance();
+
+    /**
+     * @dev The `account` is not an executor.
+     */
+    error GovernorDepositDisabled(address account);
+
+    /**
+     * @dev The `account` is not a proposer.
+     */
+    error GovernorOnlyProposer(address account);
+
+    /**
+     * @dev The `proposalId` doesn't exist.
+     */
+    error GovernorNonexistentProposal(uint256 proposalId);
+
+    /**
+     * @dev The current state of a proposal is not the required for performing an operation.
+     * The `expectedStates` is a bitmap with the bits enabled for each ProposalState enum position
+     * counting from right to left.
+     *
+     * NOTE: If `expectedState` is `bytes32(0)`, the proposal is expected to not be in any state (i.e. not exist).
+     * This is the case when a proposal that is expected to be unset is already initiated (the proposal is duplicated).
+     *
+     * See {Governor-_encodeState}.
+     */
+    error GovernorIncorrectState(uint256 proposalId, ProposalState current, bytes32 expectedStates);
+
+    /**
+     * @dev The voting period set is not a valid period.
+     */
+    error GovernorInvalidVotingPeriod(uint256 votingPeriod);
+
+    /**
+     * @dev The `proposer` does not have the required votes to operate on a proposal.
+     */
+    error GovernorProposerInvalidTreshold(address proposer, uint256 votes, uint256 threshold);
+
+    /**
+     * @dev A call to a target failed. The target may have reverted.
+     */
+    error GovernorFailedCall();
+
+    /**
      * @dev Emitted when a proposal is created.
      */
     event ProposalCreated(

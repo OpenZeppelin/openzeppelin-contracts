@@ -30,6 +30,11 @@ abstract contract GovernorCountingSimple is Governor {
     mapping(uint256 => ProposalVote) private _proposalVotes;
 
     /**
+     * @dev Vote type is not in the {VoteType} enum.
+     */
+    error GovernorInvalidVoteType();
+
+    /**
      * @dev See {IGovernor-COUNTING_MODE}.
      */
     // solhint-disable-next-line func-name-mixedcase
@@ -84,7 +89,9 @@ abstract contract GovernorCountingSimple is Governor {
     ) internal virtual override {
         ProposalVote storage proposalVote = _proposalVotes[proposalId];
 
-        require(!proposalVote.hasVoted[account], "GovernorVotingSimple: vote already cast");
+        if (proposalVote.hasVoted[account]) {
+            revert GovernorAlreadyCastVote(account);
+        }
         proposalVote.hasVoted[account] = true;
 
         if (support == uint8(VoteType.Against)) {
@@ -94,7 +101,7 @@ abstract contract GovernorCountingSimple is Governor {
         } else if (support == uint8(VoteType.Abstain)) {
             proposalVote.abstainVotes += weight;
         } else {
-            revert("GovernorVotingSimple: invalid value for enum VoteType");
+            revert GovernorInvalidVoteType();
         }
     }
 }
