@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-Remove override modifier when not needed
+Remove the `override` specifier from functions that only override a single interface function.
