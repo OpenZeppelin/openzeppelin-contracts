@@ -47,6 +47,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
     // solhint-enable var-name-mixedcase
 
+    bytes32 private constant _ALL_PROPOSAL_STATES_BITMAP = bytes32(2 ** uint256(type(ProposalState).max) - 1);
     string private _name;
 
     /// @custom:oz-retyped-from mapping(uint256 => Governor.ProposalCore)
@@ -340,7 +341,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
             revert GovernorUnexpectedProposalState(
                 proposalId,
                 currentState,
-                _encodeState(ProposalState.Succeeded) | _encodeState(ProposalState.Queued)
+                _encodeStateBitmap(ProposalState.Succeeded) | _encodeStateBitmap(ProposalState.Queued)
             );
         }
         _proposals[proposalId].executed = true;
@@ -366,7 +367,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         ProposalState currentState = state(proposalId);
         if (currentState != ProposalState.Pending) {
-            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeState(ProposalState.Pending));
+            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeStateBitmap(ProposalState.Pending));
         }
         if (_msgSender() != proposalProposer(proposalId)) {
             revert GovernorOnlyProposer(_msgSender());
@@ -442,17 +443,15 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
 
         ProposalState currentState = state(proposalId);
 
-        if (
-            currentState == ProposalState.Canceled ||
-            currentState == ProposalState.Expired ||
-            currentState == ProposalState.Executed
-        ) {
-            uint256 maxProposalState = uint256(type(ProposalState).max); // All proposal states
-            bytes32 mask = bytes32(uint256(2 ** maxProposalState - 1)); // 0x...1111
-            bytes32 forbiddenStates = _encodeState(ProposalState.Canceled) |
-                _encodeState(ProposalState.Expired) |
-                _encodeState(ProposalState.Executed);
-            revert GovernorUnexpectedProposalState(proposalId, currentState, mask ^ forbiddenStates);
+        bytes32 forbiddenStates = _encodeStateBitmap(ProposalState.Canceled) |
+            _encodeStateBitmap(ProposalState.Expired) |
+            _encodeStateBitmap(ProposalState.Executed);
+        if (forbiddenStates & _encodeStateBitmap(currentState) != 0) {
+            revert GovernorUnexpectedProposalState(
+                proposalId,
+                currentState,
+                _ALL_PROPOSAL_STATES_BITMAP ^ forbiddenStates
+            );
         }
         _proposals[proposalId].canceled = true;
 
@@ -594,7 +593,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         ProposalCore storage proposal = _proposals[proposalId];
         ProposalState currentState = state(proposalId);
         if (currentState != ProposalState.Active) {
-            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeState(ProposalState.Active));
+            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeStateBitmap(ProposalState.Active));
         }
 
         uint256 weight = _getVotes(account, proposal.voteStart, params);
@@ -673,7 +672,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      *            ^-- Active
      *             ^- Pending
      */
-    function _encodeState(ProposalState proposalState) internal pure returns (bytes32) {
+    function _encodeStateBitmap(ProposalState proposalState) internal pure returns (bytes32) {
         return bytes32(1 << uint8(proposalState));
     }
 

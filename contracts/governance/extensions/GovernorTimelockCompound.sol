@@ -92,7 +92,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
         ProposalState currentState = state(proposalId);
         if (currentState != ProposalState.Succeeded) {
-            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeState(ProposalState.Succeeded));
+            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeStateBitmap(ProposalState.Succeeded));
         }
 
         uint256 eta = block.timestamp + _timelock.delay();

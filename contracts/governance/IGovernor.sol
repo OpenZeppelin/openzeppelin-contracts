@@ -61,7 +61,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * NOTE: If `expectedState` is `bytes32(0)`, the proposal is expected to not be in any state (i.e. not exist).
      * This is the case when a proposal that is expected to be unset is already initiated (the proposal is duplicated).
      *
-     * See {Governor-_encodeState}.
+     * See {Governor-_encodeStateBitmap}.
      */
     error GovernorUnexpectedProposalState(uint256 proposalId, ProposalState current, bytes32 expectedStates);
 

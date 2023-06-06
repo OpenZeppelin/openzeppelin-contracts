@@ -62,7 +62,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev The predecessor to an operation not yet done.
      */
-    error TimelockMissingPredecessor(bytes32 predecessorId);
+    error TimelockUnexecutedPredecessor(bytes32 predecessorId);
 
     /**
      * @dev The caller account is not authorized.
@@ -406,7 +406,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
             revert TimelockUnexpectedOperationState(id, OperationState.Ready);
         }
         if (predecessor != bytes32(0) && !isOperationDone(predecessor)) {
-            revert TimelockMissingPredecessor(predecessor);
+            revert TimelockUnexecutedPredecessor(predecessor);
         }
     }
 

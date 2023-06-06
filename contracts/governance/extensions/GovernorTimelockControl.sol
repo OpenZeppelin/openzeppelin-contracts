@@ -97,7 +97,7 @@ abstract contract GovernorTimelockControl is IGovernorTimelock, Governor {
 
         ProposalState currentState = state(proposalId);
         if (currentState != ProposalState.Succeeded) {
-            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeState(ProposalState.Succeeded));
+            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeStateBitmap(ProposalState.Succeeded));
         }
 
         uint256 delay = _timelock.getMinDelay();

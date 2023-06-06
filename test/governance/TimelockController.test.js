@@ -981,7 +981,7 @@ contract('TimelockController', function (accounts) {
           this.operation2.salt,
           { from: executor },
         ),
-        'TimelockMissingPredecessor',
+        'TimelockUnexecutedPredecessor',
         [this.operation1.id],
       );
     });
