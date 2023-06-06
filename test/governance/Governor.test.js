@@ -239,7 +239,7 @@ contract('Governor', function (accounts) {
         describe('on propose', function () {
           it('if proposal already exists', async function () {
             await this.helper.propose();
-            await expectRevertCustomError(this.helper.propose(), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.propose(), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Pending,
               ZERO_BYTES32,
@@ -260,7 +260,7 @@ contract('Governor', function (accounts) {
             await this.helper.propose();
             await expectRevertCustomError(
               this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
-              'GovernorIncorrectState',
+              'GovernorUnexpectedProposalState',
               [this.proposal.id, Enums.ProposalState.Pending, proposalStatesToBitMap([Enums.ProposalState.Active])],
             );
           });
@@ -291,7 +291,7 @@ contract('Governor', function (accounts) {
             await this.helper.waitForDeadline();
             await expectRevertCustomError(
               this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
-              'GovernorIncorrectState',
+              'GovernorUnexpectedProposalState',
               [this.proposal.id, Enums.ProposalState.Defeated, proposalStatesToBitMap([Enums.ProposalState.Active])],
             );
           });
@@ -306,7 +306,7 @@ contract('Governor', function (accounts) {
             await this.helper.propose();
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter3 });
-            await expectRevertCustomError(this.helper.execute(), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Active,
               proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
@@ -317,7 +317,7 @@ contract('Governor', function (accounts) {
             await this.helper.propose();
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.Against }, { from: voter1 });
-            await expectRevertCustomError(this.helper.execute(), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Active,
               proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
@@ -328,7 +328,7 @@ contract('Governor', function (accounts) {
             await this.helper.propose();
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-            await expectRevertCustomError(this.helper.execute(), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Active,
               proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
@@ -377,7 +377,7 @@ contract('Governor', function (accounts) {
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
             await this.helper.execute();
-            await expectRevertCustomError(this.helper.execute(), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Executed,
               proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
@@ -447,7 +447,7 @@ contract('Governor', function (accounts) {
             await this.helper.waitForSnapshot();
             await expectRevertCustomError(
               this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
-              'GovernorIncorrectState',
+              'GovernorUnexpectedProposalState',
               [this.proposal.id, Enums.ProposalState.Canceled, proposalStatesToBitMap([Enums.ProposalState.Active])],
             );
           });
@@ -461,7 +461,7 @@ contract('Governor', function (accounts) {
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
             await this.helper.waitForDeadline();
-            await expectRevertCustomError(this.helper.execute(), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Canceled,
               proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
@@ -477,7 +477,7 @@ contract('Governor', function (accounts) {
             await this.helper.cancel('internal');
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
 
-            await expectRevertCustomError(this.helper.execute(), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Canceled,
               proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
@@ -491,7 +491,7 @@ contract('Governor', function (accounts) {
             await this.helper.waitForDeadline();
             await this.helper.execute();
 
-            await expectRevertCustomError(this.helper.cancel('internal'), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.cancel('internal'), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Executed,
               proposalStatesToBitMap(
@@ -527,7 +527,7 @@ contract('Governor', function (accounts) {
             await this.helper.propose();
             await this.helper.waitForSnapshot(1); // snapshot + 1 block
 
-            await expectRevertCustomError(this.helper.cancel('external'), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.cancel('external'), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Active,
               proposalStatesToBitMap([Enums.ProposalState.Pending]),
@@ -539,7 +539,7 @@ contract('Governor', function (accounts) {
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
 
-            await expectRevertCustomError(this.helper.cancel('external'), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.cancel('external'), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Active,
               proposalStatesToBitMap([Enums.ProposalState.Pending]),
@@ -552,7 +552,7 @@ contract('Governor', function (accounts) {
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
 
-            await expectRevertCustomError(this.helper.cancel('external'), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.cancel('external'), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Succeeded,
               proposalStatesToBitMap([Enums.ProposalState.Pending]),
@@ -566,7 +566,7 @@ contract('Governor', function (accounts) {
             await this.helper.waitForDeadline();
             await this.helper.execute();
 
-            await expectRevertCustomError(this.helper.cancel('external'), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.cancel('external'), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Executed,
               proposalStatesToBitMap([Enums.ProposalState.Pending]),
@@ -620,18 +620,22 @@ contract('Governor', function (accounts) {
 
       describe('onlyGovernance updates', function () {
         it('setVotingDelay is protected', async function () {
-          await expectRevertCustomError(this.mock.setVotingDelay('0'), 'GovernorOnlyGovernance', []);
+          await expectRevertCustomError(this.mock.setVotingDelay('0', { from: owner }), 'GovernorOnlyExecutor', [
+            owner,
+          ]);
         });
 
         it('setVotingPeriod is protected', async function () {
-          await expectRevertCustomError(this.mock.setVotingPeriod('32'), 'GovernorOnlyGovernance', []);
+          await expectRevertCustomError(this.mock.setVotingPeriod('32', { from: owner }), 'GovernorOnlyExecutor', [
+            owner,
+          ]);
         });
 
         it('setProposalThreshold is protected', async function () {
           await expectRevertCustomError(
-            this.mock.setProposalThreshold('1000000000000000000'),
-            'GovernorOnlyGovernance',
-            [],
+            this.mock.setProposalThreshold('1000000000000000000', { from: owner }),
+            'GovernorOnlyExecutor',
+            [owner],
           );
         });
 

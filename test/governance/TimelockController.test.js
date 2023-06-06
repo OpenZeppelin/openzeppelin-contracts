@@ -194,7 +194,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'TimelockIncorrectState',
+            'TimelockUnexpectedOperationState',
             [this.operation.id, Enums.OperationState.Unset],
           );
         });
@@ -266,7 +266,7 @@ contract('TimelockController', function (accounts) {
               this.operation.salt,
               { from: executor },
             ),
-            'TimelockIncorrectState',
+            'TimelockUnexpectedOperationState',
             [this.operation.id, Enums.OperationState.Ready],
           );
         });
@@ -294,7 +294,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'TimelockIncorrectState',
+              'TimelockUnexpectedOperationState',
               [this.operation.id, Enums.OperationState.Ready],
             );
           });
@@ -312,7 +312,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'TimelockIncorrectState',
+              'TimelockUnexpectedOperationState',
               [this.operation.id, Enums.OperationState.Ready],
             );
           });
@@ -407,7 +407,7 @@ contract('TimelockController', function (accounts) {
                   reentrantOperation.salt,
                   { from: executor },
                 ),
-                'TimelockIncorrectState',
+                'TimelockUnexpectedOperationState',
                 [reentrantOperation.id, Enums.OperationState.Ready],
               );
 
@@ -504,7 +504,7 @@ contract('TimelockController', function (accounts) {
               MINDELAY,
               { from: proposer },
             ),
-            'TimelockIncorrectState',
+            'TimelockUnexpectedOperationState',
             [this.operation.id, Enums.OperationState.Unset],
           );
         });
@@ -595,7 +595,7 @@ contract('TimelockController', function (accounts) {
               this.operation.salt,
               { from: executor },
             ),
-            'TimelockIncorrectState',
+            'TimelockUnexpectedOperationState',
             [this.operation.id, Enums.OperationState.Ready],
           );
         });
@@ -623,7 +623,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'TimelockIncorrectState',
+              'TimelockUnexpectedOperationState',
               [this.operation.id, Enums.OperationState.Ready],
             );
           });
@@ -641,7 +641,7 @@ contract('TimelockController', function (accounts) {
                 this.operation.salt,
                 { from: executor },
               ),
-              'TimelockIncorrectState',
+              'TimelockUnexpectedOperationState',
               [this.operation.id, Enums.OperationState.Ready],
             );
           });
@@ -783,7 +783,7 @@ contract('TimelockController', function (accounts) {
                   reentrantBatchOperation.salt,
                   { from: executor },
                 ),
-                'TimelockIncorrectState',
+                'TimelockUnexpectedOperationState',
                 [reentrantBatchOperation.id, Enums.OperationState.Ready],
               );
 
@@ -880,7 +880,7 @@ contract('TimelockController', function (accounts) {
       it('cannot cancel invalid operation', async function () {
         await expectRevertCustomError(
           this.mock.cancel(constants.ZERO_BYTES32, { from: canceller }),
-          'TimelockIncorrectState',
+          'TimelockUnexpectedOperationState',
           [constants.ZERO_BYTES32, Enums.OperationState.Pending],
         );
       });

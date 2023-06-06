@@ -52,7 +52,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev The current state of an operation is not the required.
      */
-    error TimelockIncorrectState(bytes32 operationId, OperationState expected);
+    error TimelockUnexpectedOperationState(bytes32 operationId, OperationState expected);
 
     /**
      * @dev A call to a target failed. The target may have reverted.
@@ -300,7 +300,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      */
     function _schedule(bytes32 id, uint256 delay) private {
         if (isOperation(id)) {
-            revert TimelockIncorrectState(id, OperationState.Unset);
+            revert TimelockUnexpectedOperationState(id, OperationState.Unset);
         }
         uint256 minDelay = getMinDelay();
         if (delay < minDelay) {
@@ -318,7 +318,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      */
     function cancel(bytes32 id) public virtual onlyRole(CANCELLER_ROLE) {
         if (!isOperationPending(id)) {
-            revert TimelockIncorrectState(id, OperationState.Pending);
+            revert TimelockUnexpectedOperationState(id, OperationState.Pending);
         }
         delete _timestamps[id];
 
@@ -403,7 +403,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      */
     function _beforeCall(bytes32 id, bytes32 predecessor) private view {
         if (!isOperationReady(id)) {
-            revert TimelockIncorrectState(id, OperationState.Ready);
+            revert TimelockUnexpectedOperationState(id, OperationState.Ready);
         }
         if (predecessor != bytes32(0) && !isOperationDone(predecessor)) {
             revert TimelockMissingPredecessor(predecessor);
@@ -415,7 +415,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      */
     function _afterCall(bytes32 id) private {
         if (!isOperationReady(id)) {
-            revert TimelockIncorrectState(id, OperationState.Ready);
+            revert TimelockUnexpectedOperationState(id, OperationState.Ready);
         }
         _timestamps[id] = _DONE_TIMESTAMP;
     }

@@ -85,7 +85,7 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
         await this.helper.waitForSnapshot();
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter2 });
         await this.helper.waitForDeadline();
-        await expectRevertCustomError(this.helper.execute(), 'GovernorIncorrectState', [
+        await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
           this.proposal.id,
           Enums.ProposalState.Defeated,
           proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
@@ -94,7 +94,11 @@ contract('GovernorVotesQuorumFraction', function (accounts) {
 
       describe('onlyGovernance updates', function () {
         it('updateQuorumNumerator is protected', async function () {
-          await expectRevertCustomError(this.mock.updateQuorumNumerator(newRatio), 'GovernorOnlyGovernance', []);
+          await expectRevertCustomError(
+            this.mock.updateQuorumNumerator(newRatio, { from: owner }),
+            'GovernorOnlyExecutor',
+            [owner],
+          );
         });
 
         it('can updateQuorumNumerator through governance', async function () {

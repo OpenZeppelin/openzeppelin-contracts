@@ -130,7 +130,7 @@ contract('GovernorTimelockCompound', function (accounts) {
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
             await this.helper.queue();
-            await expectRevertCustomError(this.helper.queue(), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.queue(), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Queued,
               proposalStatesToBitMap([Enums.ProposalState.Succeeded]),
@@ -148,8 +148,8 @@ contract('GovernorTimelockCompound', function (accounts) {
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
             await this.helper.waitForDeadline();
-            await expectRevertCustomError(this.helper.queue(), 'GovernorProposalAlreadyQueued', [id]);
-            await expectRevertCustomError(this.helper.execute(), 'GovernorProposalNotQueued', [id]);
+            await expectRevertCustomError(this.helper.queue(), 'GovernorAlreadyQueuedProposal', [id]);
+            await expectRevertCustomError(this.helper.execute(), 'GovernorNotQueuedProposal', [id]);
           });
         });
 
@@ -162,7 +162,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
-            await expectRevertCustomError(this.helper.execute(), 'GovernorProposalNotQueued', [this.proposal.id]);
+            await expectRevertCustomError(this.helper.execute(), 'GovernorNotQueuedProposal', [this.proposal.id]);
           });
 
           it('if too early', async function () {
@@ -190,7 +190,7 @@ contract('GovernorTimelockCompound', function (accounts) {
 
             expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Expired);
 
-            await expectRevertCustomError(this.helper.execute(), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Expired,
               proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
@@ -205,7 +205,7 @@ contract('GovernorTimelockCompound', function (accounts) {
             await this.helper.queue();
             await this.helper.waitForEta();
             await this.helper.execute();
-            await expectRevertCustomError(this.helper.execute(), 'GovernorIncorrectState', [
+            await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
               this.proposal.id,
               Enums.ProposalState.Executed,
               proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
@@ -224,7 +224,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
 
           expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-          await expectRevertCustomError(this.helper.queue(), 'GovernorIncorrectState', [
+          await expectRevertCustomError(this.helper.queue(), 'GovernorUnexpectedProposalState', [
             this.proposal.id,
             Enums.ProposalState.Canceled,
             proposalStatesToBitMap([Enums.ProposalState.Succeeded]),
@@ -241,7 +241,7 @@ contract('GovernorTimelockCompound', function (accounts) {
           expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
 
           expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-          await expectRevertCustomError(this.helper.execute(), 'GovernorIncorrectState', [
+          await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
             this.proposal.id,
             Enums.ProposalState.Canceled,
             proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
@@ -257,9 +257,11 @@ contract('GovernorTimelockCompound', function (accounts) {
 
           it('is protected', async function () {
             await expectRevertCustomError(
-              this.mock.relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI()),
-              'GovernorOnlyGovernance',
-              [],
+              this.mock.relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI(), {
+                from: owner,
+              }),
+              'GovernorOnlyExecutor',
+              [owner],
             );
           });
 
@@ -305,9 +307,9 @@ contract('GovernorTimelockCompound', function (accounts) {
 
           it('is protected', async function () {
             await expectRevertCustomError(
-              this.mock.updateTimelock(this.newTimelock.address),
-              'GovernorOnlyGovernance',
-              [],
+              this.mock.updateTimelock(this.newTimelock.address, { from: owner }),
+              'GovernorOnlyExecutor',
+              [owner],
             );
           });
 

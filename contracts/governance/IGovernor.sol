@@ -34,19 +34,19 @@ abstract contract IGovernor is IERC165, IERC6372 {
     error GovernorAlreadyCastVote(address voter);
 
     /**
-     * @dev Can only be executed via a governance process.
-     */
-    error GovernorOnlyGovernance();
-
-    /**
      * @dev The `account` is not an executor.
      */
-    error GovernorDepositDisabled(address account);
+    error GovernorDisabledDeposit(address account);
 
     /**
      * @dev The `account` is not a proposer.
      */
     error GovernorOnlyProposer(address account);
+
+    /**
+     * @dev The `account` is not the governance executor.
+     */
+    error GovernorOnlyExecutor(address account);
 
     /**
      * @dev The `proposalId` doesn't exist.
@@ -63,7 +63,7 @@ abstract contract IGovernor is IERC165, IERC6372 {
      *
      * See {Governor-_encodeState}.
      */
-    error GovernorIncorrectState(uint256 proposalId, ProposalState current, bytes32 expectedStates);
+    error GovernorUnexpectedProposalState(uint256 proposalId, ProposalState current, bytes32 expectedStates);
 
     /**
      * @dev The voting period set is not a valid period.
@@ -73,12 +73,17 @@ abstract contract IGovernor is IERC165, IERC6372 {
     /**
      * @dev The `proposer` does not have the required votes to operate on a proposal.
      */
-    error GovernorProposerInvalidTreshold(address proposer, uint256 votes, uint256 threshold);
+    error GovernorInsufficientProposerVotes(address proposer, uint256 votes, uint256 threshold);
 
     /**
      * @dev A call to a target failed. The target may have reverted.
      */
     error GovernorFailedCall();
+
+    /**
+     * @dev The vote type used is not valid for the corresponding counting module.
+     */
+    error GovernorInvalidVoteType();
 
     /**
      * @dev Emitted when a proposal is created.

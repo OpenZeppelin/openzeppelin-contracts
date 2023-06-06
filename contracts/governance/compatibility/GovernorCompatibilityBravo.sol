@@ -39,11 +39,6 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
 
     mapping(uint256 => ProposalDetails) private _proposalDetails;
 
-    /**
-     * @dev Vote type is not in the {VoteType} enum.
-     */
-    error GovernorInvalidVoteType();
-
     // solhint-disable-next-line func-name-mixedcase
     function COUNTING_MODE() public pure virtual override returns (string memory) {
         return "support=bravo&quorum=bravo";
@@ -143,7 +138,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         uint256 proposerVotes = getVotes(proposer, clock() - 1);
         uint256 votesThreshold = proposalThreshold();
         if (_msgSender() != proposer && proposerVotes >= votesThreshold) {
-            revert GovernorProposerInvalidTreshold(proposer, proposerVotes, votesThreshold);
+            revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
         }
 
         return _cancel(targets, values, calldatas, descriptionHash);

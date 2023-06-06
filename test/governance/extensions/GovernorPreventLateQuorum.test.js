@@ -159,7 +159,11 @@ contract('GovernorPreventLateQuorum', function (accounts) {
 
       describe('onlyGovernance updates', function () {
         it('setLateQuorumVoteExtension is protected', async function () {
-          await expectRevertCustomError(this.mock.setLateQuorumVoteExtension(0), 'GovernorOnlyGovernance', []);
+          await expectRevertCustomError(
+            this.mock.setLateQuorumVoteExtension(0, { from: owner }),
+            'GovernorOnlyExecutor',
+            [owner],
+          );
         });
 
         it('can setLateQuorumVoteExtension through governance', async function () {

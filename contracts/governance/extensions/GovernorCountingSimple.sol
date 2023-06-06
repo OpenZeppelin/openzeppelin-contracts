@@ -30,11 +30,6 @@ abstract contract GovernorCountingSimple is Governor {
     mapping(uint256 => ProposalVote) private _proposalVotes;
 
     /**
-     * @dev Vote type is not in the {VoteType} enum.
-     */
-    error GovernorInvalidVoteType();
-
-    /**
      * @dev See {IGovernor-COUNTING_MODE}.
      */
     // solhint-disable-next-line func-name-mixedcase

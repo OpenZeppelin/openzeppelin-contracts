@@ -259,7 +259,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
       describe('should revert', function () {
         describe('on propose', function () {
           it('if proposal does not meet proposalThreshold', async function () {
-            await expectRevertCustomError(this.helper.propose({ from: other }), 'GovernorProposerInvalidTreshold', [
+            await expectRevertCustomError(this.helper.propose({ from: other }), 'GovernorInsufficientProposerVotes', [
               other,
               votes[other],
               proposalThreshold,
@@ -294,7 +294,7 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
         it('cannot cancel is proposer is still above threshold', async function () {
           await this.helper.propose({ from: proposer });
-          await expectRevertCustomError(this.helper.cancel('external'), 'GovernorProposerInvalidTreshold', [
+          await expectRevertCustomError(this.helper.cancel('external'), 'GovernorInsufficientProposerVotes', [
             proposer,
             votes[proposer],
             proposalThreshold,

@@ -92,7 +92,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
         ProposalState currentState = state(proposalId);
         if (currentState != ProposalState.Succeeded) {
-            revert GovernorIncorrectState(proposalId, currentState, _encodeState(ProposalState.Succeeded));
+            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeState(ProposalState.Succeeded));
         }
 
         uint256 eta = block.timestamp + _timelock.delay();
@@ -100,7 +100,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
 
         for (uint256 i = 0; i < targets.length; ++i) {
             if (_timelock.queuedTransactions(keccak256(abi.encode(targets[i], values[i], "", calldatas[i], eta)))) {
-                revert GovernorProposalAlreadyQueued(proposalId);
+                revert GovernorAlreadyQueuedProposal(proposalId);
             }
             _timelock.queueTransaction(targets[i], values[i], "", calldatas[i], eta);
         }
@@ -122,7 +122,7 @@ abstract contract GovernorTimelockCompound is IGovernorTimelock, Governor {
     ) internal virtual override {
         uint256 eta = proposalEta(proposalId);
         if (eta == 0) {
-            revert GovernorProposalNotQueued(proposalId);
+            revert GovernorNotQueuedProposal(proposalId);
         }
         Address.sendValue(payable(_timelock), msg.value);
         for (uint256 i = 0; i < targets.length; ++i) {
