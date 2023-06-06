@@ -7,9 +7,11 @@ import "../ERC721.sol";
 import "./IERC721Enumerable.sol";
 
 /**
- * @dev This implements an optional extension of {ERC721} defined in the EIP that adds
- * enumerability of all the token ids in the contract as well as all token ids owned by each
- * account.
+ * @dev This implements an optional extension of {ERC721} defined in the EIP that adds enumerability
+ * of all the token ids in the contract as well as all token ids owned by each account.
+ *
+ * CAUTION: `ERC721` extensions that implement custom `balanceOf` logic, such as `ERC721Consecutive`,
+ * interfere with enumerability and should not be used together with `ERC721Enumerable`.
  */
 abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
     // Mapping from owner to list of owned token IDs
