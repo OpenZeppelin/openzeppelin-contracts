@@ -3,7 +3,7 @@
 
 ## 4.9.1 (2023-06-07)
 
-- `Governor`: Add a mechanism to restrict the address of the proposer using a suffix in the description. ([#4321](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4321))
+- `Governor`: Add a mechanism to restrict the address of the proposer using a suffix in the description.
 
 ## 4.9.0 (2023-05-23)
 
