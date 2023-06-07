@@ -8,7 +8,7 @@ contract('Ownable2Step', function (accounts) {
   const [owner, accountA, accountB] = accounts;
 
   beforeEach(async function () {
-    this.ownable2Step = await Ownable2Step.new({ from: owner });
+    this.ownable2Step = await Ownable2Step.new(owner);
   });
 
   describe('transfer ownership', function () {

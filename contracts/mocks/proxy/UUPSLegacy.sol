@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.19;
 
 import "./UUPSUpgradeableMock.sol";
 
@@ -31,10 +31,7 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
         if (!rollbackTesting.value) {
             // Trigger rollback using upgradeTo from the new implementation
             rollbackTesting.value = true;
-            Address.functionDelegateCall(
-                newImplementation,
-                abi.encodeWithSignature("upgradeTo(address)", oldImplementation)
-            );
+            Address.functionDelegateCall(newImplementation, abi.encodeCall(this.upgradeTo, (oldImplementation)));
             rollbackTesting.value = false;
             // Check rollback was effective
             require(oldImplementation == ERC1967Upgrade.getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");

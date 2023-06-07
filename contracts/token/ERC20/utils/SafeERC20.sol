@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/utils/SafeERC20.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/utils/SafeERC20.sol)
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.19;
 
 import "../IERC20.sol";
 import "../extensions/IERC20Permit.sol";
@@ -24,7 +24,7 @@ library SafeERC20 {
      * non-reverting calls are assumed to be successful.
      */
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
+        _callOptionalReturn(token, abi.encodeCall(token.transfer, (to, value)));
     }
 
     /**
@@ -32,7 +32,7 @@ library SafeERC20 {
      * calling contract. If `token` returns no value, non-reverting calls are assumed to be successful.
      */
     function safeTransferFrom(IERC20 token, address from, address to, uint256 value) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transferFrom.selector, from, to, value));
+        _callOptionalReturn(token, abi.encodeCall(token.transferFrom, (from, to, value)));
     }
 
     /**
@@ -41,7 +41,7 @@ library SafeERC20 {
      */
     function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {
         uint256 oldAllowance = token.allowance(address(this), spender);
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, oldAllowance + value));
+        forceApprove(token, spender, oldAllowance + value);
     }
 
     /**
@@ -52,7 +52,7 @@ library SafeERC20 {
         unchecked {
             uint256 oldAllowance = token.allowance(address(this), spender);
             require(oldAllowance >= value, "SafeERC20: decreased allowance below zero");
-            _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, oldAllowance - value));
+            forceApprove(token, spender, oldAllowance - value);
         }
     }
 
@@ -62,10 +62,10 @@ library SafeERC20 {
      * 0 before setting it to a non-zero value.
      */
     function forceApprove(IERC20 token, address spender, uint256 value) internal {
-        bytes memory approvalCall = abi.encodeWithSelector(token.approve.selector, spender, value);
+        bytes memory approvalCall = abi.encodeCall(token.approve, (spender, value));
 
         if (!_callOptionalReturnBool(token, approvalCall)) {
-            _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, 0));
+            _callOptionalReturn(token, abi.encodeCall(token.approve, (spender, 0)));
             _callOptionalReturn(token, approvalCall);
         }
     }

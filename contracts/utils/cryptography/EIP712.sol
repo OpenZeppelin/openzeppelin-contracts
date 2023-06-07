@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/EIP712.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/cryptography/EIP712.sol)
 
-pragma solidity ^0.8.8;
+pragma solidity ^0.8.19;
 
 import "./ECDSA.sol";
 import "../ShortStrings.sol";
@@ -118,7 +118,6 @@ abstract contract EIP712 is IERC5267 {
         public
         view
         virtual
-        override
         returns (
             bytes1 fields,
             string memory name,

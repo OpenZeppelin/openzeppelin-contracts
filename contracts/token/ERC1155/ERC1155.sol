@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC1155/ERC1155.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC1155/ERC1155.sol)
 
-pragma solidity ^0.8.1;
+pragma solidity ^0.8.19;
 
 import "./IERC1155.sol";
 import "./IERC1155Receiver.sol";
@@ -53,7 +53,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * Clients calling this function must replace the `\{id\}` substring with the
      * actual token type ID.
      */
-    function uri(uint256) public view virtual override returns (string memory) {
+    function uri(uint256) public view virtual returns (string memory) {
         return _uri;
     }
 
@@ -64,8 +64,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      *
      * - `account` cannot be the zero address.
      */
-    function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
-        require(account != address(0), "ERC1155: address zero is not a valid owner");
+    function balanceOf(address account, uint256 id) public view virtual returns (uint256) {
         return _balances[id][account];
     }
 
@@ -79,7 +78,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     function balanceOfBatch(
         address[] memory accounts,
         uint256[] memory ids
-    ) public view virtual override returns (uint256[] memory) {
+    ) public view virtual returns (uint256[] memory) {
         require(accounts.length == ids.length, "ERC1155: accounts and ids length mismatch");
 
         uint256[] memory batchBalances = new uint256[](accounts.length);
@@ -94,27 +93,21 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     /**
      * @dev See {IERC1155-setApprovalForAll}.
      */
-    function setApprovalForAll(address operator, bool approved) public virtual override {
+    function setApprovalForAll(address operator, bool approved) public virtual {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
     /**
      * @dev See {IERC1155-isApprovedForAll}.
      */
-    function isApprovedForAll(address account, address operator) public view virtual override returns (bool) {
+    function isApprovedForAll(address account, address operator) public view virtual returns (bool) {
         return _operatorApprovals[account][operator];
     }
 
     /**
      * @dev See {IERC1155-safeTransferFrom}.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) public virtual override {
+    function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) public virtual {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not token owner or approved"
@@ -131,7 +124,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) public virtual override {
+    ) public virtual {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not token owner or approved"
@@ -207,8 +200,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     function _safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) internal {
         require(to != address(0), "ERC1155: transfer to the zero address");
         require(from != address(0), "ERC1155: transfer from the zero address");
-        uint256[] memory ids = _asSingletonArray(id);
-        uint256[] memory amounts = _asSingletonArray(amount);
+        (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
         _update(from, to, ids, amounts, data);
     }
 
@@ -270,8 +262,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      */
     function _mint(address to, uint256 id, uint256 amount, bytes memory data) internal {
         require(to != address(0), "ERC1155: mint to the zero address");
-        uint256[] memory ids = _asSingletonArray(id);
-        uint256[] memory amounts = _asSingletonArray(amount);
+        (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
         _update(address(0), to, ids, amounts, data);
     }
 
@@ -303,8 +294,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      */
     function _burn(address from, uint256 id, uint256 amount) internal {
         require(from != address(0), "ERC1155: burn from the zero address");
-        uint256[] memory ids = _asSingletonArray(id);
-        uint256[] memory amounts = _asSingletonArray(amount);
+        (uint256[] memory ids, uint256[] memory amounts) = _asSingletonArrays(id, amount);
         _update(from, address(0), ids, amounts, "");
     }
 
@@ -377,10 +367,21 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         }
     }
 
-    function _asSingletonArray(uint256 element) private pure returns (uint256[] memory) {
-        uint256[] memory array = new uint256[](1);
-        array[0] = element;
+    function _asSingletonArrays(
+        uint256 element1,
+        uint256 element2
+    ) private pure returns (uint256[] memory array1, uint256[] memory array2) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            array1 := mload(0x40)
+            mstore(array1, 1)
+            mstore(add(array1, 0x20), element1)
 
-        return array;
+            array2 := add(array1, 0x40)
+            mstore(array2, 1)
+            mstore(add(array2, 0x20), element2)
+
+            mstore(0x40, add(array2, 0x40))
+        }
     }
 }

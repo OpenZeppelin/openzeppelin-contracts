@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (token/common/ERC2981.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/common/ERC2981.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../../interfaces/IERC2981.sol";
 import "../../utils/introspection/ERC165.sol";
@@ -40,7 +40,7 @@ abstract contract ERC2981 is IERC2981, ERC165 {
     /**
      * @inheritdoc IERC2981
      */
-    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual override returns (address, uint256) {
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual returns (address, uint256) {
         RoyaltyInfo memory royalty = _tokenRoyaltyInfo[tokenId];
 
         if (royalty.receiver == address(0)) {
