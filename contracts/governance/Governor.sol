@@ -630,20 +630,14 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     /**
      * @dev See {IERC721Receiver-onERC721Received}.
      */
-    function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes memory) public virtual returns (bytes4) {
         return this.onERC721Received.selector;
     }
 
     /**
      * @dev See {IERC1155Receiver-onERC1155Received}.
      */
-    function onERC1155Received(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes memory
-    ) public virtual override returns (bytes4) {
+    function onERC1155Received(address, address, uint256, uint256, bytes memory) public virtual returns (bytes4) {
         return this.onERC1155Received.selector;
     }
 
@@ -656,7 +650,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256[] memory,
         uint256[] memory,
         bytes memory
-    ) public virtual override returns (bytes4) {
+    ) public virtual returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
     }
 

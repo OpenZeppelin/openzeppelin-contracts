@@ -52,7 +52,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual override {
+    ) public virtual {
         if (block.timestamp > deadline) {
             revert ERC2612ExpiredDeadline(deadline);
         }
@@ -80,7 +80,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
      * @dev See {IERC20Permit-DOMAIN_SEPARATOR}.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view virtual override returns (bytes32) {
+    function DOMAIN_SEPARATOR() external view virtual returns (bytes32) {
         return _domainSeparatorV4();
     }
 }

@@ -59,7 +59,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
      * Clients calling this function must replace the `\{id\}` substring with the
      * actual token type ID.
      */
-    function uri(uint256) public view virtual override returns (string memory) {
+    function uri(uint256) public view virtual returns (string memory) {
         return _uri;
     }
 
@@ -70,7 +70,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
      *
      * - `account` cannot be the zero address.
      */
-    function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
+    function balanceOf(address account, uint256 id) public view virtual returns (uint256) {
         return _balances[id][account];
     }
 
@@ -84,7 +84,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
     function balanceOfBatch(
         address[] memory accounts,
         uint256[] memory ids
-    ) public view virtual override returns (uint256[] memory) {
+    ) public view virtual returns (uint256[] memory) {
         if (accounts.length != ids.length) {
             revert ERC1155InvalidArrayLength(ids.length, accounts.length);
         }
@@ -101,27 +101,21 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
     /**
      * @dev See {IERC1155-setApprovalForAll}.
      */
-    function setApprovalForAll(address operator, bool approved) public virtual override {
+    function setApprovalForAll(address operator, bool approved) public virtual {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
     /**
      * @dev See {IERC1155-isApprovedForAll}.
      */
-    function isApprovedForAll(address account, address operator) public view virtual override returns (bool) {
+    function isApprovedForAll(address account, address operator) public view virtual returns (bool) {
         return _operatorApprovals[account][operator];
     }
 
     /**
      * @dev See {IERC1155-safeTransferFrom}.
      */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) public virtual override {
+    function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) public virtual {
         if (from != _msgSender() && !isApprovedForAll(from, _msgSender())) {
             revert ERC1155InsufficientApprovalForAll(_msgSender(), from);
         }
@@ -137,7 +131,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI, IERC1155Erro
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) public virtual override {
+    ) public virtual {
         if (from != _msgSender() && !isApprovedForAll(from, _msgSender())) {
             revert ERC1155InsufficientApprovalForAll(_msgSender(), from);
         }
