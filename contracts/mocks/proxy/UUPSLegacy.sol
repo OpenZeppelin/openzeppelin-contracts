@@ -34,7 +34,10 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
             Address.functionDelegateCall(newImplementation, abi.encodeCall(this.upgradeTo, (oldImplementation)));
             rollbackTesting.value = false;
             // Check rollback was effective
-            require(oldImplementation == ERC1967Upgrade.getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
+            require(
+                oldImplementation == ERC1967Upgrade.getImplementation(),
+                "ERC1967Upgrade: upgrade breaks further upgrades"
+            );
             // Finally reset to the new implementation and log the upgrade
             ERC1967Upgrade.upgradeTo(newImplementation);
         }

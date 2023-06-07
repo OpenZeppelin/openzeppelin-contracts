@@ -65,7 +65,7 @@ library ERC1967Upgrade {
      */
     function upgradeTo(address newImplementation) internal {
         _setImplementation(newImplementation);
-        emit /*IERC1967.*/Upgraded(newImplementation);
+        emit /*IERC1967.*/ Upgraded(newImplementation);
     }
 
     /**
@@ -133,7 +133,7 @@ library ERC1967Upgrade {
      * Emits an {AdminChanged} event.
      */
     function changeAdmin(address newAdmin) internal {
-        emit /*IERC1967.*/AdminChanged(getAdmin(), newAdmin);
+        emit /*IERC1967.*/ AdminChanged(getAdmin(), newAdmin);
         _setAdmin(newAdmin);
     }
 
@@ -170,7 +170,7 @@ library ERC1967Upgrade {
      */
     function upgradeBeaconToAndCall(address newBeacon, bytes memory data, bool forceCall) internal {
         _setBeacon(newBeacon);
-        emit /*IERC1967.*/BeaconUpgraded(newBeacon);
+        emit /*IERC1967.*/ BeaconUpgraded(newBeacon);
         if (data.length > 0 || forceCall) {
             Address.functionDelegateCall(IBeacon(newBeacon).implementation(), data);
         }
