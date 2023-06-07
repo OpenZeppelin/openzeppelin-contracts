@@ -11,7 +11,7 @@ const BadBeaconNoImpl = artifacts.require('BadBeaconNoImpl');
 const BadBeaconNotContract = artifacts.require('BadBeaconNotContract');
 
 contract('BeaconProxy', function (accounts) {
-  const [anotherAccount] = accounts;
+  const [upgradeableBeaconAdmin, anotherAccount] = accounts;
 
   describe('bad beacon is not accepted', async function () {
     it('non-contract beacon', async function () {
@@ -49,7 +49,7 @@ contract('BeaconProxy', function (accounts) {
     });
 
     beforeEach('deploy beacon', async function () {
-      this.beacon = await UpgradeableBeacon.new(this.implementationV0.address);
+      this.beacon = await UpgradeableBeacon.new(this.implementationV0.address, upgradeableBeaconAdmin);
     });
 
     it('no initialization', async function () {
@@ -81,7 +81,7 @@ contract('BeaconProxy', function (accounts) {
   });
 
   it('upgrade a proxy by upgrading its beacon', async function () {
-    const beacon = await UpgradeableBeacon.new(this.implementationV0.address);
+    const beacon = await UpgradeableBeacon.new(this.implementationV0.address, upgradeableBeaconAdmin);
 
     const value = '10';
     const data = this.implementationV0.contract.methods.initializeNonPayableWithValue(value).encodeABI();
@@ -96,7 +96,7 @@ contract('BeaconProxy', function (accounts) {
     expect(await dummy.version()).to.eq('V1');
 
     // upgrade beacon
-    await beacon.upgradeTo(this.implementationV1.address);
+    await beacon.upgradeTo(this.implementationV1.address, { from: upgradeableBeaconAdmin });
 
     // test upgraded version
     expect(await dummy.version()).to.eq('V2');
@@ -106,7 +106,7 @@ contract('BeaconProxy', function (accounts) {
     const value1 = '10';
     const value2 = '42';
 
-    const beacon = await UpgradeableBeacon.new(this.implementationV0.address);
+    const beacon = await UpgradeableBeacon.new(this.implementationV0.address, upgradeableBeaconAdmin);
 
     const proxy1InitializeData = this.implementationV0.contract.methods
       .initializeNonPayableWithValue(value1)
@@ -130,7 +130,7 @@ contract('BeaconProxy', function (accounts) {
     expect(await dummy2.version()).to.eq('V1');
 
     // upgrade beacon
-    await beacon.upgradeTo(this.implementationV1.address);
+    await beacon.upgradeTo(this.implementationV1.address, { from: upgradeableBeaconAdmin });
 
     // test upgraded version
     expect(await dummy1.version()).to.eq('V2');

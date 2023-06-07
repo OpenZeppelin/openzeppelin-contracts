@@ -209,6 +209,14 @@ contract('ERC20', function (accounts) {
       await expectRevert(this.token.$_mint(ZERO_ADDRESS, amount), 'ERC20: mint to the zero address');
     });
 
+    it('rejects overflow', async function () {
+      const maxUint256 = new BN('2').pow(new BN(256)).subn(1);
+      await expectRevert(
+        this.token.$_mint(recipient, maxUint256),
+        'reverted with panic code 0x11 (Arithmetic operation underflowed or overflowed outside of an unchecked block)',
+      );
+    });
+
     describe('for a non zero account', function () {
       beforeEach('minting', async function () {
         this.receipt = await this.token.$_mint(recipient, amount);
@@ -240,7 +248,7 @@ contract('ERC20', function (accounts) {
       it('rejects burning more than balance', async function () {
         await expectRevert(
           this.token.$_burn(initialHolder, initialSupply.addn(1)),
-          'ERC20: burn amount exceeds balance',
+          'ERC20: transfer amount exceeds balance',
         );
       });
 
@@ -270,6 +278,49 @@ contract('ERC20', function (accounts) {
 
       describeBurn('for entire balance', initialSupply);
       describeBurn('for less amount than balance', initialSupply.subn(1));
+    });
+  });
+
+  describe('_update', function () {
+    const amount = new BN(1);
+
+    it('from is the zero address', async function () {
+      const balanceBefore = await this.token.balanceOf(initialHolder);
+      const totalSupply = await this.token.totalSupply();
+
+      expectEvent(await this.token.$_update(ZERO_ADDRESS, initialHolder, amount), 'Transfer', {
+        from: ZERO_ADDRESS,
+        to: initialHolder,
+        value: amount,
+      });
+      expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply.add(amount));
+      expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(balanceBefore.add(amount));
+    });
+
+    it('to is the zero address', async function () {
+      const balanceBefore = await this.token.balanceOf(initialHolder);
+      const totalSupply = await this.token.totalSupply();
+
+      expectEvent(await this.token.$_update(initialHolder, ZERO_ADDRESS, amount), 'Transfer', {
+        from: initialHolder,
+        to: ZERO_ADDRESS,
+        value: amount,
+      });
+      expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply.sub(amount));
+      expect(await this.token.balanceOf(initialHolder)).to.be.bignumber.equal(balanceBefore.sub(amount));
+    });
+
+    it('from and to are the zero address', async function () {
+      const totalSupply = await this.token.totalSupply();
+
+      await this.token.$_update(ZERO_ADDRESS, ZERO_ADDRESS, amount);
+
+      expect(await this.token.totalSupply()).to.be.bignumber.equal(totalSupply);
+      expectEvent(await this.token.$_update(ZERO_ADDRESS, ZERO_ADDRESS, amount), 'Transfer', {
+        from: ZERO_ADDRESS,
+        to: ZERO_ADDRESS,
+        value: amount,
+      });
     });
   });
 

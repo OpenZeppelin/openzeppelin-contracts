@@ -12,16 +12,6 @@ contract('Address', function (accounts) {
     this.mock = await Address.new();
   });
 
-  describe('isContract', function () {
-    it('returns false for account address', async function () {
-      expect(await this.mock.$isContract(other)).to.equal(false);
-    });
-
-    it('returns true for contract address', async function () {
-      expect(await this.mock.$isContract(this.mock.address)).to.equal(true);
-    });
-  });
-
   describe('sendValue', function () {
     beforeEach(async function () {
       this.recipientTracker = await balance.tracker(recipient);

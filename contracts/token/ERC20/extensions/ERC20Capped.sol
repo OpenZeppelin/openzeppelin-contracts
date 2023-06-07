@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/ERC20Capped.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../ERC20.sol";
 
@@ -28,10 +28,13 @@ abstract contract ERC20Capped is ERC20 {
     }
 
     /**
-     * @dev See {ERC20-_mint}.
+     * @dev See {ERC20-_update}.
      */
-    function _mint(address account, uint256 amount) internal virtual override {
-        require(ERC20.totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
-        super._mint(account, amount);
+    function _update(address from, address to, uint256 amount) internal virtual override {
+        if (from == address(0)) {
+            require(totalSupply() + amount <= cap(), "ERC20Capped: cap exceeded");
+        }
+
+        super._update(from, to, amount);
     }
 }

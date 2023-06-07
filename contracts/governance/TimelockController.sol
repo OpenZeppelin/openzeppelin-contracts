@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.2) (governance/TimelockController.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/TimelockController.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../access/AccessControl.sol";
 import "../token/ERC721/IERC721Receiver.sol";
@@ -23,7 +23,6 @@ import "../token/ERC1155/IERC1155Receiver.sol";
  * _Available since v3.3._
  */
 contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver {
-    bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
     bytes32 public constant CANCELLER_ROLE = keccak256("CANCELLER_ROLE");
@@ -79,28 +78,23 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * this admin to the deployer automatically and should be renounced as well.
      */
     constructor(uint256 minDelay, address[] memory proposers, address[] memory executors, address admin) {
-        _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
-        _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
-        _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
-        _setRoleAdmin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE);
-
         // self administration
-        _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
+        _grantRole(DEFAULT_ADMIN_ROLE, address(this));
 
         // optional admin
         if (admin != address(0)) {
-            _setupRole(TIMELOCK_ADMIN_ROLE, admin);
+            _grantRole(DEFAULT_ADMIN_ROLE, admin);
         }
 
         // register proposers and cancellers
         for (uint256 i = 0; i < proposers.length; ++i) {
-            _setupRole(PROPOSER_ROLE, proposers[i]);
-            _setupRole(CANCELLER_ROLE, proposers[i]);
+            _grantRole(PROPOSER_ROLE, proposers[i]);
+            _grantRole(CANCELLER_ROLE, proposers[i]);
         }
 
         // register executors
         for (uint256 i = 0; i < executors.length; ++i) {
-            _setupRole(EXECUTOR_ROLE, executors[i]);
+            _grantRole(EXECUTOR_ROLE, executors[i]);
         }
 
         _minDelay = minDelay;
@@ -390,20 +384,14 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev See {IERC721Receiver-onERC721Received}.
      */
-    function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes memory) public virtual returns (bytes4) {
         return this.onERC721Received.selector;
     }
 
     /**
      * @dev See {IERC1155Receiver-onERC1155Received}.
      */
-    function onERC1155Received(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes memory
-    ) public virtual override returns (bytes4) {
+    function onERC1155Received(address, address, uint256, uint256, bytes memory) public virtual returns (bytes4) {
         return this.onERC1155Received.selector;
     }
 
@@ -416,7 +404,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         uint256[] memory,
         uint256[] memory,
         bytes memory
-    ) public virtual override returns (bytes4) {
+    ) public virtual returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
     }
 }

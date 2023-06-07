@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (utils/cryptography/ECDSA.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/cryptography/ECDSA.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../Strings.sol";
 
@@ -16,8 +16,7 @@ library ECDSA {
         NoError,
         InvalidSignature,
         InvalidSignatureLength,
-        InvalidSignatureS,
-        InvalidSignatureV // Deprecated in v4.8
+        InvalidSignatureS
     }
 
     function _throwError(RecoverError error) private pure {
@@ -198,7 +197,7 @@ library ECDSA {
         /// @solidity memory-safe-assembly
         assembly {
             let ptr := mload(0x40)
-            mstore(ptr, "\x19\x01")
+            mstore(ptr, hex"19_01")
             mstore(add(ptr, 0x02), domainSeparator)
             mstore(add(ptr, 0x22), structHash)
             data := keccak256(ptr, 0x42)
@@ -212,6 +211,6 @@ library ECDSA {
      * See {recover}.
      */
     function toDataWithIntendedValidatorHash(address validator, bytes memory data) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19\x00", validator, data));
+        return keccak256(abi.encodePacked(hex"19_00", validator, data));
     }
 }

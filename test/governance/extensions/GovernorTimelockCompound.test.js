@@ -1,6 +1,7 @@
 const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const RLP = require('rlp');
+
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
 
@@ -28,7 +29,7 @@ contract('GovernorTimelockCompound', function (accounts) {
   const [owner, voter1, voter2, voter3, voter4, other] = accounts;
 
   const name = 'OZ-Governor';
-  // const version = '1';
+  const version = '1';
   const tokenName = 'MockToken';
   const tokenSymbol = 'MTKN';
   const tokenSupply = web3.utils.toWei('100');
@@ -41,7 +42,7 @@ contract('GovernorTimelockCompound', function (accounts) {
       beforeEach(async function () {
         const [deployer] = await web3.eth.getAccounts();
 
-        this.token = await Token.new(tokenName, tokenSymbol, tokenName);
+        this.token = await Token.new(tokenName, tokenSymbol, tokenName, version);
 
         // Need to predict governance address to set it as timelock admin with a delayed transfer
         const nonce = await web3.eth.getTransactionCount(deployer);

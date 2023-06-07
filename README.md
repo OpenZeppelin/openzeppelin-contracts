@@ -1,3 +1,6 @@
+> **Warning**
+> Version 5.0 is under active development. The code in this branch is not recommended for use.
+
 # <img src="logo.svg" alt="OpenZeppelin" height="40px">
 
 [![NPM Package](https://img.shields.io/npm/v/@openzeppelin/contracts.svg)](https://www.npmjs.org/package/@openzeppelin/contracts)
@@ -33,7 +36,7 @@ An alternative to npm is to use the GitHub repository (`openzeppelin/openzeppeli
 Once installed, you can use the contracts in the library by importing them:
 
 ```solidity
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
