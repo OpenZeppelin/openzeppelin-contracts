@@ -2,11 +2,9 @@
 
 pragma solidity ^0.8.19;
 
-import "../utils/Context.sol";
-
-contract ReentrancyAttack is Context {
+contract ReentrancyAttack {
     function callSender(bytes4 data) public {
-        (bool success, ) = _msgSender().call(abi.encodeWithSelector(data));
+        (bool success, ) = msg.sender.call(abi.encodeWithSelector(data));
         require(success, "ReentrancyAttack: failed call");
     }
 }

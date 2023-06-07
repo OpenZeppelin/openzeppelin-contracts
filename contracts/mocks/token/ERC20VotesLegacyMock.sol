@@ -128,7 +128,7 @@ abstract contract ERC20VotesLegacyMock is IVotes, ERC20Permit {
      * @dev Delegate votes from the sender to `delegatee`.
      */
     function delegate(address delegatee) public virtual {
-        _delegate(_msgSender(), delegatee);
+        _delegate(msg.sender, delegatee);
     }
 
     /**
