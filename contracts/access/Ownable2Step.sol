@@ -50,7 +50,7 @@ abstract contract Ownable2Step is Ownable {
      * @dev The new owner accepts the ownership transfer.
      */
     function acceptOwnership() public virtual {
-        address sender = _msgSender();
+        address sender = msg.sender;
         require(pendingOwner() == sender, "Ownable2Step: caller is not the new owner");
         _transferOwnership(sender);
     }

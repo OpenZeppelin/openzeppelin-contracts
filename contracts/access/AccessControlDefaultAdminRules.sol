@@ -236,7 +236,7 @@ abstract contract AccessControlDefaultAdminRules is IAccessControlDefaultAdminRu
      */
     function acceptDefaultAdminTransfer() public virtual {
         (address newDefaultAdmin, ) = pendingDefaultAdmin();
-        require(_msgSender() == newDefaultAdmin, "AccessControl: pending admin must accept");
+        require(msg.sender == newDefaultAdmin, "AccessControl: pending admin must accept");
         _acceptDefaultAdminTransfer();
     }
 
