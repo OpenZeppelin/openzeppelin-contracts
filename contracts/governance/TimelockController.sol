@@ -109,7 +109,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      */
     modifier onlyRoleOrOpenRole(bytes32 role) {
         if (!hasRole(role, address(0))) {
-            _checkRole(role, _msgSender());
+            _checkRole(role, msg.sender);
         }
         _;
     }

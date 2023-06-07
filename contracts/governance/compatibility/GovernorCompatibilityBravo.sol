@@ -134,7 +134,7 @@ abstract contract GovernorCompatibilityBravo is IGovernorTimelock, IGovernorComp
         address proposer = proposalProposer(proposalId);
 
         require(
-            _msgSender() == proposer || getVotes(proposer, clock() - 1) < proposalThreshold(),
+            msg.sender == proposer || getVotes(proposer, clock() - 1) < proposalThreshold(),
             "GovernorBravo: proposer above threshold"
         );
 

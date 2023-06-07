@@ -11,7 +11,6 @@ import "../utils/introspection/ERC165.sol";
 import "../utils/math/SafeCast.sol";
 import "../utils/structs/DoubleEndedQueue.sol";
 import "../utils/Address.sol";
-import "../utils/Context.sol";
 import "./IGovernor.sol";
 
 /**
@@ -25,7 +24,7 @@ import "./IGovernor.sol";
  *
  * _Available since v4.3._
  */
-abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receiver, IERC1155Receiver {
+abstract contract Governor is ERC165, EIP712, IGovernor, IERC721Receiver, IERC1155Receiver {
     using DoubleEndedQueue for DoubleEndedQueue.Bytes32Deque;
 
     bytes32 public constant BALLOT_TYPEHASH = keccak256("Ballot(uint256 proposalId,uint8 support)");
@@ -69,9 +68,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * governance protocol (since v4.6).
      */
     modifier onlyGovernance() {
-        require(_msgSender() == _executor(), "Governor: onlyGovernance");
+        require(msg.sender == _executor(), "Governor: onlyGovernance");
         if (_executor() != address(this)) {
-            bytes32 msgDataHash = keccak256(_msgData());
+            bytes32 msgDataHash = keccak256(msg.data);
             // loop until popping the expected operation - throw if deque is empty (operation not authorized)
             while (_governanceCall.popFront() != msgDataHash) {}
         }
@@ -271,7 +270,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes[] memory calldatas,
         string memory description
     ) public virtual override returns (uint256) {
-        address proposer = _msgSender();
+        address proposer = msg.sender;
         require(_isValidDescriptionForProposer(proposer, description), "Governor: proposer restricted");
 
         uint256 currentTimepoint = clock();
@@ -353,7 +352,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
         require(state(proposalId) == ProposalState.Pending, "Governor: too late to cancel");
-        require(_msgSender() == _proposals[proposalId].proposer, "Governor: only proposer can cancel");
+        require(msg.sender == _proposals[proposalId].proposer, "Governor: only proposer can cancel");
         return _cancel(targets, values, calldatas, descriptionHash);
     }
 
@@ -461,7 +460,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * @dev See {IGovernor-castVote}.
      */
     function castVote(uint256 proposalId, uint8 support) public virtual override returns (uint256) {
-        address voter = _msgSender();
+        address voter = msg.sender;
         return _castVote(proposalId, voter, support, "");
     }
 
@@ -473,7 +472,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint8 support,
         string calldata reason
     ) public virtual override returns (uint256) {
-        address voter = _msgSender();
+        address voter = msg.sender;
         return _castVote(proposalId, voter, support, reason);
     }
 
@@ -486,7 +485,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         string calldata reason,
         bytes memory params
     ) public virtual override returns (uint256) {
-        address voter = _msgSender();
+        address voter = msg.sender;
         return _castVote(proposalId, voter, support, reason, params);
     }
 

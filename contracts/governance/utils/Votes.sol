@@ -3,7 +3,6 @@
 pragma solidity ^0.8.19;
 
 import "../../interfaces/IERC5805.sol";
-import "../../utils/Context.sol";
 import "../../utils/Nonces.sol";
 import "../../utils/cryptography/EIP712.sol";
 import "../../utils/structs/Checkpoints.sol";
@@ -28,7 +27,7 @@ import "../../utils/structs/Checkpoints.sol";
  *
  * _Available since v4.5._
  */
-abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
+abstract contract Votes is EIP712, Nonces, IERC5805 {
     using Checkpoints for Checkpoints.Trace224;
 
     bytes32 private constant _DELEGATION_TYPEHASH =
@@ -115,7 +114,7 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * @dev Delegates votes from the sender to `delegatee`.
      */
     function delegate(address delegatee) public virtual {
-        address account = _msgSender();
+        address account = msg.sender;
         _delegate(account, delegatee);
     }
 
