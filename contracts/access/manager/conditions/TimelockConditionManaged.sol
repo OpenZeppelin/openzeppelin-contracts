@@ -10,6 +10,43 @@ import "../../../utils/Context.sol";
 import "../AccessManaged.sol";
 import "./TimelockConditionBase.sol";
 
+
+library Optionals {
+    error TooLarge();
+    error None();
+
+    type ouint47 is uint48;
+
+    function some(uint48 value) internal pure returns (ouint47) {
+        if (value >> 47 > 0) revert TooLarge();
+        return ouint47.wrap(1 << 47 | value);
+    }
+
+    function none() internal pure returns (ouint47) {
+        return ouint47.wrap(0);
+    }
+
+    function isSome(ouint47 o) internal pure returns (bool) {
+        return ouint47.unwrap(o) >> 47 > 0;
+    }
+
+    function tryGet(ouint47 o) internal pure returns (bool, uint48) {
+        return (isSome(o), _get(o));
+    }
+
+    function get(ouint47 o) internal pure returns (uint48) {
+        if (!isSome(o)) revert None();
+        return _get(o);
+    }
+
+    function _get(ouint47 o) private pure returns (uint48) {
+        return ouint47.unwrap(o) & ~uint48(1 << 47);
+    }
+}
+
+
+
+
 contract TimelockConditionManaged is
     Context,
     TimelockConditionBase,
@@ -17,30 +54,19 @@ contract TimelockConditionManaged is
     ERC721Holder,
     ERC1155Holder
 {
+    mapping(address => mapping(bytes4 => Optionals.ouint47)) private _customDelay;
+    uint48 private _defaultDelay;
+
+
     // Constructor
-    constructor(IAuthority authority) AccessManagedImmutable(authority) {}
+    constructor(IAuthority authority, uint48 initialDelay)
+        AccessManagedImmutable(authority)
+    {
+        _defaultDelay = initialDelay;
+    }
 
     // Methods
     receive() external payable {}
-
-    function delay(
-        address[] calldata targets,
-        bytes[]   calldata payloads
-    ) public view virtual override returns (uint48) {
-        uint48 maxDelay = 0;
-        for (uint256 i = 0; i < targets.length; ++i) {
-            // Both argument of the Math.max operation are uint48, so the downcast is safe.
-            maxDelay = uint48(Math.max(
-                maxDelay,
-                delay(targets[i], bytes4(payloads[i][0:4]))
-            ));
-        }
-        return maxDelay;
-    }
-
-    function delay(address /*target*/, bytes4 /*selector*/) public view virtual returns (uint48) {
-        return 1 minutes;
-    }
 
     function schedule(
         address[] calldata targets,
@@ -101,5 +127,40 @@ contract TimelockConditionManaged is
         OperationCache memory cache = _load(id);
         _cancel(cache);
         _sync(cache);
+    }
+
+    // delay management
+    function delay(
+        address[] calldata targets,
+        bytes[]   calldata payloads
+    ) public view virtual override returns (uint48) {
+        uint48 defaultDelay = getDefaultDelay();
+        uint48 maxDelay = 0;
+        for (uint256 i = 0; i < targets.length; ++i) {
+            // Both argument of the Math.max operation are uint48, so the downcast is safe.
+            (bool enabled, uint48 value) = getCustomDelay(targets[i], bytes4(payloads[i][0:4]));
+            maxDelay = uint48(Math.max(maxDelay, enabled ? value : defaultDelay));
+        }
+        return maxDelay;
+    }
+
+    function getDefaultDelay() public view virtual returns (uint48) {
+        return _defaultDelay;
+    }
+
+    function setDefaultDelay(uint48 value) public virtual restricted() {
+        _defaultDelay = value;
+    }
+
+    function getCustomDelay(address target, bytes4 selector) public view virtual returns (bool, uint48) {
+        return Optionals.tryGet(_customDelay[target][selector]);
+    }
+
+    function setCustomDelay(address target, bytes4 selector, uint48 value) public virtual restricted() {
+        _customDelay[target][selector] = Optionals.some(value);
+    }
+
+    function deleteCustomDelay(address target, bytes4 selector) public virtual restricted() {
+        _customDelay[target][selector] = Optionals.none();
     }
 }

@@ -46,7 +46,7 @@ contract('GovernorTimelockManaged', function (accounts) {
       beforeEach(async function () {
         this.token = await Token.new(tokenName, tokenSymbol, tokenName, version);
         this.manager = await AccessManager.new(owner);
-        this.timelock = await Timelock.new(this.manager.address);
+        this.timelock = await Timelock.new(this.manager.address, 60); // 1 minute default delay
         this.mock = await Governor.new(
           name,
           votingDelay,
@@ -367,7 +367,7 @@ contract('GovernorTimelockManaged', function (accounts) {
 
         describe('updateTimelock', function () {
           beforeEach(async function () {
-            this.newTimelock = await Timelock.new(this.manager.address);
+            this.newTimelock = await Timelock.new(this.manager.address, 3600);
           });
 
           it('is protected', async function () {
