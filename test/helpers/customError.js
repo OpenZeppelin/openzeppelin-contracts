@@ -37,7 +37,7 @@ async function expectRevertCustomError(promise, expectedErrorName, args) {
             // Remove the error name and leave the parameters
             .replace(errorName, '')
             // Capture the remaining parameters
-            .matchAll(/(0x[0-9A-Fa-f]+|-?\d+|\w+)/g),
+            .matchAll(/(\w+|-?\d+)/g),
         ];
 
         // Assert error name
