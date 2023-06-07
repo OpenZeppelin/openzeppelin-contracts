@@ -402,12 +402,9 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
         bytes memory data
     ) private returns (bool) {
         if (to.code.length > 0) {
-            bytes memory payload = abi.encodeWithSignature(
-                "onERC721Received(address,address,uint256,bytes)",
-                _msgSender(),
-                from,
-                tokenId,
-                data
+            bytes memory payload = abi.encodeCall(
+                IERC721Receiver.onERC721Received,
+                (_msgSender(), from, tokenId, data)
             );
             bytes memory response = Address.functionCall(
                 to,

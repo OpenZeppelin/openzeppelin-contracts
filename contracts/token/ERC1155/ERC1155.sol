@@ -354,13 +354,9 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         bytes memory data
     ) private {
         if (to.code.length > 0) {
-            bytes memory payload = abi.encodeWithSignature(
-                "onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)",
-                operator,
-                from,
-                ids,
-                amounts,
-                data
+            bytes memory payload = abi.encodeCall(
+                IERC1155Receiver.onERC1155BatchReceived,
+                (operator, from, ids, amounts, data)
             );
             bytes memory response = Address.functionCall(
                 to,
