@@ -14,7 +14,7 @@ import "../ERC1155.sol";
 abstract contract ERC1155Burnable is ERC1155 {
     function burn(address account, uint256 id, uint256 value) public virtual {
         require(
-            account == _msgSender() || isApprovedForAll(account, _msgSender()),
+            account == msg.sender || isApprovedForAll(account, msg.sender),
             "ERC1155: caller is not token owner or approved"
         );
 
@@ -23,7 +23,7 @@ abstract contract ERC1155Burnable is ERC1155 {
 
     function burnBatch(address account, uint256[] memory ids, uint256[] memory values) public virtual {
         require(
-            account == _msgSender() || isApprovedForAll(account, _msgSender()),
+            account == msg.sender || isApprovedForAll(account, msg.sender),
             "ERC1155: caller is not token owner or approved"
         );
 

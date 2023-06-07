@@ -32,7 +32,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
             // This is an "unsafe" transfer that doesn't call any hook on the receiver. With underlying() being trusted
             // (by design of this contract) and no other contracts expected to be called from there, we are safe.
             // slither-disable-next-line reentrancy-no-eth
-            underlying().transferFrom(_msgSender(), address(this), tokenId);
+            underlying().transferFrom(msg.sender, address(this), tokenId);
             _safeMint(account, tokenId);
         }
 
@@ -46,7 +46,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
         uint256 length = tokenIds.length;
         for (uint256 i = 0; i < length; ++i) {
             uint256 tokenId = tokenIds[i];
-            require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Wrapper: caller is not token owner or approved");
+            require(_isApprovedOrOwner(msg.sender, tokenId), "ERC721Wrapper: caller is not token owner or approved");
             _burn(tokenId);
             // Checks were already performed at this point, and there's no way to retake ownership or approval from
             // the wrapped tokenId after this point, so it's safe to remove the reentrancy check for the next line.
@@ -68,7 +68,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
      * for recovering in that scenario.
      */
     function onERC721Received(address, address from, uint256 tokenId, bytes memory) public virtual returns (bytes4) {
-        require(address(underlying()) == _msgSender(), "ERC721Wrapper: caller is not underlying");
+        require(address(underlying()) == msg.sender, "ERC721Wrapper: caller is not underlying");
         _safeMint(from, tokenId);
         return IERC721Receiver.onERC721Received.selector;
     }
