@@ -551,6 +551,89 @@ contract('Governor', function (accounts) {
         });
       });
 
+      describe('frontrun protection using description suffix', function () {
+        describe('without protection', function () {
+          describe('without suffix', function () {
+            it('proposer can propose', async function () {
+              expectEvent(await this.helper.propose({ from: proposer }), 'ProposalCreated');
+            });
+
+            it('someone else can propose', async function () {
+              expectEvent(await this.helper.propose({ from: voter1 }), 'ProposalCreated');
+            });
+          });
+
+          describe('with different suffix', function () {
+            beforeEach(async function () {
+              this.proposal = this.helper.setProposal(
+                [
+                  {
+                    target: this.receiver.address,
+                    data: this.receiver.contract.methods.mockFunction().encodeABI(),
+                    value,
+                  },
+                ],
+                `<proposal description>#wrong-suffix=${proposer}`,
+              );
+            });
+
+            it('proposer can propose', async function () {
+              expectEvent(await this.helper.propose({ from: proposer }), 'ProposalCreated');
+            });
+
+            it('someone else can propose', async function () {
+              expectEvent(await this.helper.propose({ from: voter1 }), 'ProposalCreated');
+            });
+          });
+
+          describe('with proposer suffix but bad address part', function () {
+            beforeEach(async function () {
+              this.proposal = this.helper.setProposal(
+                [
+                  {
+                    target: this.receiver.address,
+                    data: this.receiver.contract.methods.mockFunction().encodeABI(),
+                    value,
+                  },
+                ],
+                `<proposal description>#proposer=0x3C44CdDdB6a900fa2b585dd299e03d12FA429XYZ`, // XYZ are not a valid hex char
+              );
+            });
+
+            it('propose can propose', async function () {
+              expectEvent(await this.helper.propose({ from: proposer }), 'ProposalCreated');
+            });
+
+            it('someone else can propose', async function () {
+              expectEvent(await this.helper.propose({ from: voter1 }), 'ProposalCreated');
+            });
+          });
+        });
+
+        describe('with protection via proposer suffix', function () {
+          beforeEach(async function () {
+            this.proposal = this.helper.setProposal(
+              [
+                {
+                  target: this.receiver.address,
+                  data: this.receiver.contract.methods.mockFunction().encodeABI(),
+                  value,
+                },
+              ],
+              `<proposal description>#proposer=${proposer}`,
+            );
+          });
+
+          it('proposer can propose', async function () {
+            expectEvent(await this.helper.propose({ from: proposer }), 'ProposalCreated');
+          });
+
+          it('someone else cannot propose', async function () {
+            await expectRevert(this.helper.propose({ from: voter1 }), 'Governor: proposer restricted');
+          });
+        });
+      });
+
       describe('onlyGovernance updates', function () {
         it('setVotingDelay is protected', async function () {
           await expectRevert(this.mock.setVotingDelay('0'), 'Governor: onlyGovernance');
