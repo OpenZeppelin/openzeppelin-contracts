@@ -4,7 +4,6 @@ pragma solidity ^0.8.19;
 
 import "../token/ERC20/utils/SafeERC20.sol";
 import "../utils/Address.sol";
-import "../utils/Context.sol";
 
 /**
  * @title VestingWallet
@@ -19,7 +18,7 @@ import "../utils/Context.sol";
  * By setting the duration to 0, one can configure this contract to behave like an asset timelock that hold tokens for
  * a beneficiary until a specified time.
  */
-contract VestingWallet is Context {
+contract VestingWallet {
     event EtherReleased(uint256 amount);
     event ERC20Released(address indexed token, uint256 amount);
 
