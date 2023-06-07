@@ -88,6 +88,7 @@
 :xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
 :xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-IGovernor-clock--: xref:governance.adoc#IGovernor-clock--
 :xref-IGovernor-CLOCK_MODE--: xref:governance.adoc#IGovernor-CLOCK_MODE--
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
@@ -170,6 +171,7 @@
 :xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
 :xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-IGovernor-clock--: xref:governance.adoc#IGovernor-clock--
 :xref-IGovernor-CLOCK_MODE--: xref:governance.adoc#IGovernor-CLOCK_MODE--
 :xref-IGovernor-votingDelay--: xref:governance.adoc#IGovernor-votingDelay--
@@ -231,6 +233,7 @@
 :xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
 :xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
 :xref-IGovernor-votingDelay--: xref:governance.adoc#IGovernor-votingDelay--
 :xref-IGovernor-votingPeriod--: xref:governance.adoc#IGovernor-votingPeriod--
@@ -292,6 +295,7 @@
 :xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
 :xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
 :xref-IGovernor-votingDelay--: xref:governance.adoc#IGovernor-votingDelay--
 :xref-IGovernor-votingPeriod--: xref:governance.adoc#IGovernor-votingPeriod--
@@ -346,6 +350,7 @@
 :xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
 :xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
 :xref-IGovernor-votingDelay--: xref:governance.adoc#IGovernor-votingDelay--
 :xref-IGovernor-votingPeriod--: xref:governance.adoc#IGovernor-votingPeriod--
@@ -410,6 +415,7 @@
 :xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
 :xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-IGovernor-clock--: xref:governance.adoc#IGovernor-clock--
 :xref-IGovernor-CLOCK_MODE--: xref:governance.adoc#IGovernor-CLOCK_MODE--
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
@@ -480,6 +486,7 @@
 :xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
 :xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-IGovernor-clock--: xref:governance.adoc#IGovernor-clock--
 :xref-IGovernor-CLOCK_MODE--: xref:governance.adoc#IGovernor-CLOCK_MODE--
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
@@ -547,6 +554,7 @@
 :xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
 :xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-IGovernor-clock--: xref:governance.adoc#IGovernor-clock--
 :xref-IGovernor-CLOCK_MODE--: xref:governance.adoc#IGovernor-CLOCK_MODE--
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
@@ -607,6 +615,7 @@
 :xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
 :xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-IGovernor-clock--: xref:governance.adoc#IGovernor-clock--
 :xref-IGovernor-CLOCK_MODE--: xref:governance.adoc#IGovernor-CLOCK_MODE--
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
@@ -675,6 +684,7 @@
 :xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
 :xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-IGovernorTimelock-timelock--: xref:governance.adoc#IGovernorTimelock-timelock--
 :xref-IGovernorTimelock-proposalEta-uint256-: xref:governance.adoc#IGovernorTimelock-proposalEta-uint256-
 :xref-IGovernorTimelock-queue-address---uint256---bytes---bytes32-: xref:governance.adoc#IGovernorTimelock-queue-address---uint256---bytes---bytes32-
@@ -742,6 +752,7 @@
 :xref-Governor-onERC721Received-address-address-uint256-bytes-: xref:governance.adoc#Governor-onERC721Received-address-address-uint256-bytes-
 :xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-: xref:governance.adoc#Governor-onERC1155Received-address-address-uint256-uint256-bytes-
 :xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-: xref:governance.adoc#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-
+:xref-Governor-_isValidDescriptionForProposer-address-string-: xref:governance.adoc#Governor-_isValidDescriptionForProposer-address-string-
 :xref-IGovernor-clock--: xref:governance.adoc#IGovernor-clock--
 :xref-IGovernor-CLOCK_MODE--: xref:governance.adoc#IGovernor-CLOCK_MODE--
 :xref-IGovernor-COUNTING_MODE--: xref:governance.adoc#IGovernor-COUNTING_MODE--
@@ -1265,6 +1276,7 @@ Note: `support` values should be seen as buckets. Their interpretation depends o
 :onERC721Received: pass:normal[xref:#Governor-onERC721Received-address-address-uint256-bytes-[`++onERC721Received++`]]
 :onERC1155Received: pass:normal[xref:#Governor-onERC1155Received-address-address-uint256-uint256-bytes-[`++onERC1155Received++`]]
 :onERC1155BatchReceived: pass:normal[xref:#Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-[`++onERC1155BatchReceived++`]]
+:_isValidDescriptionForProposer: pass:normal[xref:#Governor-_isValidDescriptionForProposer-address-string-[`++_isValidDescriptionForProposer++`]]
 
 [.contract]
 [[Governor]]
@@ -1331,6 +1343,7 @@ _Available since v4.3._
 * {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
 * {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
 * {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -1532,7 +1545,7 @@ meaning of the additional params, in the context of that implementation
 [[Governor-propose-address---uint256---bytes---string-]]
 ==== `[.contract-item-name]#++propose++#++(address[] targets, uint256[] values, bytes[] calldatas, string description) → uint256++` [.item-kind]#public#
 
-See {IGovernor-propose}.
+See {IGovernor-propose}. This function has opt-in frontrunning protection, described in {_isValidDescriptionForProposer}.
 
 [.contract-item]
 [[Governor-execute-address---uint256---bytes---bytes32-]]
@@ -1667,6 +1680,26 @@ See {IERC1155Receiver-onERC1155Received}.
 
 See {IERC1155Receiver-onERC1155BatchReceived}.
 
+[.contract-item]
+[[Governor-_isValidDescriptionForProposer-address-string-]]
+==== `[.contract-item-name]#++_isValidDescriptionForProposer++#++(address proposer, string description) → bool++` [.item-kind]#internal#
+
+Check if the proposer is authorized to submit a proposal with the given description.
+
+If the proposal description ends with `#proposer=0x???`, where `0x???` is an address written as a hex string
+(case insensitive), then the submission of this proposal will only be authorized to said address.
+
+This is used for frontrunning protection. By adding this pattern at the end of their proposal, one can ensure
+that no other address can submit the same proposal. An attacker would have to either remove or change that part,
+which would result in a different proposal id.
+
+If the description does not match this pattern, it is unrestricted and anyone can submit it. This includes:
+- If the `0x???` part is not a valid hex string.
+- If the `0x???` part is a valid hex string, but does not contain exactly 40 hex digits.
+- If it ends with the expected suffix followed by newlines or other whitespace.
+- If it ends with some other similar suffix, e.g. `#other=abc`.
+- If it does not end with any such suffix.
+
 === Modules
 
 :VoteType: pass:normal[xref:#GovernorCountingSimple-VoteType[`++VoteType++`]]
@@ -1736,6 +1769,7 @@ _Available since v4.3._
 * {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
 * {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
 * {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -1910,6 +1944,7 @@ _Available since v4.3._
 * {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
 * {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
 * {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -2082,6 +2117,7 @@ _Available since v4.3._
 * {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
 * {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
 * {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -2286,6 +2322,7 @@ _Available since v4.3._
 * {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
 * {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
 * {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -2466,6 +2503,7 @@ _Available since v4.3._
 * {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
 * {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
 * {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -2701,6 +2739,7 @@ _Available since v4.3._
 * {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
 * {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
 * {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -2946,6 +2985,7 @@ _Available since v4.4._
 * {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
 * {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
 * {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -3181,6 +3221,7 @@ _Available since v4.5._
 * {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
 * {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
 * {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -3408,6 +3449,7 @@ _Available since v4.3._
 * {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
 * {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
 * {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -3667,6 +3709,7 @@ _Deprecated since v4.4._
 * {xref-Governor-onERC721Received-address-address-uint256-bytes-}[`++onERC721Received(, , , )++`]
 * {xref-Governor-onERC1155Received-address-address-uint256-uint256-bytes-}[`++onERC1155Received(, , , , )++`]
 * {xref-Governor-onERC1155BatchReceived-address-address-uint256---uint256---bytes-}[`++onERC1155BatchReceived(, , , , )++`]
+* {xref-Governor-_isValidDescriptionForProposer-address-string-}[`++_isValidDescriptionForProposer(proposer, description)++`]
 
 [.contract-subindex-inherited]
 .IERC1155Receiver
@@ -3747,7 +3790,7 @@ _Deprecated since v4.4._
 [[GovernorProposalThreshold-propose-address---uint256---bytes---string-]]
 ==== `[.contract-item-name]#++propose++#++(address[] targets, uint256[] values, bytes[] calldatas, string description) → uint256++` [.item-kind]#public#
 
-See {IGovernor-propose}.
+See {IGovernor-propose}. This function has opt-in frontrunning protection, described in {_isValidDescriptionForProposer}.
 
 == Utils
 
