@@ -6,7 +6,6 @@ pragma solidity ^0.8.19;
 import "./IERC1155.sol";
 import "./IERC1155Receiver.sol";
 import "./extensions/IERC1155MetadataURI.sol";
-import "../../utils/Context.sol";
 import "../../utils/introspection/ERC165.sol";
 
 /**
@@ -16,7 +15,7 @@ import "../../utils/introspection/ERC165.sol";
  *
  * _Available since v3.1._
  */
-contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
+contract ERC1155 is ERC165, IERC1155, IERC1155MetadataURI {
     // Mapping from token ID to account balances
     mapping(uint256 => mapping(address => uint256)) private _balances;
 
@@ -94,7 +93,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      * @dev See {IERC1155-setApprovalForAll}.
      */
     function setApprovalForAll(address operator, bool approved) public virtual {
-        _setApprovalForAll(_msgSender(), operator, approved);
+        _setApprovalForAll(msg.sender, operator, approved);
     }
 
     /**
@@ -109,7 +108,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
      */
     function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) public virtual {
         require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()),
+            from == msg.sender || isApprovedForAll(from, msg.sender),
             "ERC1155: caller is not token owner or approved"
         );
         _safeTransferFrom(from, to, id, amount, data);
@@ -126,7 +125,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
         bytes memory data
     ) public virtual {
         require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()),
+            from == msg.sender || isApprovedForAll(from, msg.sender),
             "ERC1155: caller is not token owner or approved"
         );
         _safeBatchTransferFrom(from, to, ids, amounts, data);
@@ -151,7 +150,7 @@ contract ERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     ) internal virtual {
         require(ids.length == amounts.length, "ERC1155: ids and amounts length mismatch");
 
-        address operator = _msgSender();
+        address operator = msg.sender;
 
         for (uint256 i = 0; i < ids.length; ++i) {
             uint256 id = ids[i];
