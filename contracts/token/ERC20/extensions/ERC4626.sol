@@ -90,67 +90,67 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /** @dev See {IERC4626-asset}. */
-    function asset() public view virtual override returns (address) {
+    function asset() public view virtual returns (address) {
         return address(_asset);
     }
 
     /** @dev See {IERC4626-totalAssets}. */
-    function totalAssets() public view virtual override returns (uint256) {
+    function totalAssets() public view virtual returns (uint256) {
         return _asset.balanceOf(address(this));
     }
 
     /** @dev See {IERC4626-convertToShares}. */
-    function convertToShares(uint256 assets) public view virtual override returns (uint256) {
+    function convertToShares(uint256 assets) public view virtual returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Down);
     }
 
     /** @dev See {IERC4626-convertToAssets}. */
-    function convertToAssets(uint256 shares) public view virtual override returns (uint256) {
+    function convertToAssets(uint256 shares) public view virtual returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Down);
     }
 
     /** @dev See {IERC4626-maxDeposit}. */
-    function maxDeposit(address) public view virtual override returns (uint256) {
+    function maxDeposit(address) public view virtual returns (uint256) {
         return type(uint256).max;
     }
 
     /** @dev See {IERC4626-maxMint}. */
-    function maxMint(address) public view virtual override returns (uint256) {
+    function maxMint(address) public view virtual returns (uint256) {
         return type(uint256).max;
     }
 
     /** @dev See {IERC4626-maxWithdraw}. */
-    function maxWithdraw(address owner) public view virtual override returns (uint256) {
+    function maxWithdraw(address owner) public view virtual returns (uint256) {
         return _convertToAssets(balanceOf(owner), Math.Rounding.Down);
     }
 
     /** @dev See {IERC4626-maxRedeem}. */
-    function maxRedeem(address owner) public view virtual override returns (uint256) {
+    function maxRedeem(address owner) public view virtual returns (uint256) {
         return balanceOf(owner);
     }
 
     /** @dev See {IERC4626-previewDeposit}. */
-    function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
+    function previewDeposit(uint256 assets) public view virtual returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Down);
     }
 
     /** @dev See {IERC4626-previewMint}. */
-    function previewMint(uint256 shares) public view virtual override returns (uint256) {
+    function previewMint(uint256 shares) public view virtual returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Up);
     }
 
     /** @dev See {IERC4626-previewWithdraw}. */
-    function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
+    function previewWithdraw(uint256 assets) public view virtual returns (uint256) {
         return _convertToShares(assets, Math.Rounding.Up);
     }
 
     /** @dev See {IERC4626-previewRedeem}. */
-    function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
+    function previewRedeem(uint256 shares) public view virtual returns (uint256) {
         return _convertToAssets(shares, Math.Rounding.Down);
     }
 
     /** @dev See {IERC4626-deposit}. */
-    function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
+    function deposit(uint256 assets, address receiver) public virtual returns (uint256) {
         require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
 
         uint256 shares = previewDeposit(assets);
@@ -164,7 +164,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * As opposed to {deposit}, minting is allowed even if the vault is in a state where the price of a share is zero.
      * In this case, the shares will be minted without requiring any assets to be deposited.
      */
-    function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
+    function mint(uint256 shares, address receiver) public virtual returns (uint256) {
         require(shares <= maxMint(receiver), "ERC4626: mint more than max");
 
         uint256 assets = previewMint(shares);
@@ -174,7 +174,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /** @dev See {IERC4626-withdraw}. */
-    function withdraw(uint256 assets, address receiver, address owner) public virtual override returns (uint256) {
+    function withdraw(uint256 assets, address receiver, address owner) public virtual returns (uint256) {
         require(assets <= maxWithdraw(owner), "ERC4626: withdraw more than max");
 
         uint256 shares = previewWithdraw(assets);
@@ -184,7 +184,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
     }
 
     /** @dev See {IERC4626-redeem}. */
-    function redeem(uint256 shares, address receiver, address owner) public virtual override returns (uint256) {
+    function redeem(uint256 shares, address receiver, address owner) public virtual returns (uint256) {
         require(shares <= maxRedeem(owner), "ERC4626: redeem more than max");
 
         uint256 assets = previewRedeem(shares);

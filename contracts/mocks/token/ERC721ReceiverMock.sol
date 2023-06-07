@@ -27,7 +27,7 @@ contract ERC721ReceiverMock is IERC721Receiver {
         address from,
         uint256 tokenId,
         bytes memory data
-    ) public override returns (bytes4) {
+    ) public returns (bytes4) {
         if (_error == Error.RevertWithMessage) {
             revert("ERC721ReceiverMock: reverting");
         } else if (_error == Error.RevertWithoutMessage) {

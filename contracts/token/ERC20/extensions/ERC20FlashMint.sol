@@ -24,7 +24,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @param token The address of the token that is requested.
      * @return The amount of token that can be loaned.
      */
-    function maxFlashLoan(address token) public view virtual override returns (uint256) {
+    function maxFlashLoan(address token) public view virtual returns (uint256) {
         return token == address(this) ? type(uint256).max - totalSupply() : 0;
     }
 
@@ -36,7 +36,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @param amount The amount of tokens to be loaned.
      * @return The fees applied to the corresponding flash loan.
      */
-    function flashFee(address token, uint256 amount) public view virtual override returns (uint256) {
+    function flashFee(address token, uint256 amount) public view virtual returns (uint256) {
         require(token == address(this), "ERC20FlashMint: wrong token");
         return _flashFee(token, amount);
     }
@@ -88,7 +88,7 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         address token,
         uint256 amount,
         bytes calldata data
-    ) public virtual override returns (bool) {
+    ) public virtual returns (bool) {
         require(amount <= maxFlashLoan(token), "ERC20FlashMint: amount exceeds maxFlashLoan");
         uint256 fee = flashFee(token, amount);
         _mint(address(receiver), amount);
