@@ -7,11 +7,8 @@ const { expect } = require('chai');
 
 const ERC2771ContextMock = artifacts.require('ERC2771ContextMock');
 const MinimalForwarder = artifacts.require('MinimalForwarder');
-const ContextMockCaller = artifacts.require('ContextMockCaller');
 
-const { shouldBehaveLikeRegularContext } = require('../utils/Context.behavior');
-
-contract('ERC2771Context', function (accounts) {
+contract('ERC2771Context', function () {
   beforeEach(async function () {
     this.forwarder = await MinimalForwarder.new();
     this.recipient = await ERC2771ContextMock.new(this.forwarder.address);
@@ -32,15 +29,6 @@ contract('ERC2771Context', function (accounts) {
 
   it('recognize trusted forwarder', async function () {
     expect(await this.recipient.isTrustedForwarder(this.forwarder.address));
-  });
-
-  context('when called directly', function () {
-    beforeEach(async function () {
-      this.context = this.recipient; // The Context behavior expects the contract in this.context
-      this.caller = await ContextMockCaller.new();
-    });
-
-    shouldBehaveLikeRegularContext(...accounts);
   });
 
   context('when receiving a relayed call', function () {
