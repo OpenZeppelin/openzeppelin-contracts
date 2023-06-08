@@ -61,8 +61,6 @@ abstract contract ERC1155Supply is ERC1155 {
             _totalSupplyAll += totalMintAmount;
         }
 
-        super._update(from, to, ids, amounts, data);
-
         if (to == address(0)) {
             uint256 totalBurnAmount = 0;
             for (uint256 i = 0; i < ids.length; ++i) {
@@ -79,5 +77,6 @@ abstract contract ERC1155Supply is ERC1155 {
                 _totalSupplyAll -= totalBurnAmount;
             }
         }
+        super._update(from, to, ids, amounts, data);
     }
 }
