@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.7.0) (utils/StorageSlot.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/StorageSlot.sol)
+// This file was procedurally generated from scripts/generate/templates/StorageSlot.js.
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 /**
  * @dev Library for reading and writing primitive types to specific storage slots.
@@ -12,7 +13,7 @@ pragma solidity ^0.8.0;
  * The functions in this library return Slot structs that contain a `value` member that can be used to read or write.
  *
  * Example usage to set ERC1967 implementation slot:
- * ```
+ * ```solidity
  * contract ERC1967 {
  *     bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
  *
@@ -21,13 +22,14 @@ pragma solidity ^0.8.0;
  *     }
  *
  *     function _setImplementation(address newImplementation) internal {
- *         require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
+ *         require(newImplementation.code.length > 0, "ERC1967: new implementation is not a contract");
  *         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
  *     }
  * }
  * ```
  *
- * _Available since v4.1 for `address`, `bool`, `bytes32`, and `uint256`._
+ * _Available since v4.1 for `address`, `bool`, `bytes32`, `uint256`._
+ * _Available since v4.9 for `string`, `bytes`._
  */
 library StorageSlot {
     struct AddressSlot {
@@ -44,6 +46,14 @@ library StorageSlot {
 
     struct Uint256Slot {
         uint256 value;
+    }
+
+    struct StringSlot {
+        string value;
+    }
+
+    struct BytesSlot {
+        bytes value;
     }
 
     /**
@@ -83,6 +93,46 @@ library StorageSlot {
         /// @solidity memory-safe-assembly
         assembly {
             r.slot := slot
+        }
+    }
+
+    /**
+     * @dev Returns an `StringSlot` with member `value` located at `slot`.
+     */
+    function getStringSlot(bytes32 slot) internal pure returns (StringSlot storage r) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            r.slot := slot
+        }
+    }
+
+    /**
+     * @dev Returns an `StringSlot` representation of the string storage pointer `store`.
+     */
+    function getStringSlot(string storage store) internal pure returns (StringSlot storage r) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            r.slot := store.slot
+        }
+    }
+
+    /**
+     * @dev Returns an `BytesSlot` with member `value` located at `slot`.
+     */
+    function getBytesSlot(bytes32 slot) internal pure returns (BytesSlot storage r) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            r.slot := slot
+        }
+    }
+
+    /**
+     * @dev Returns an `BytesSlot` representation of the bytes storage pointer `store`.
+     */
+    function getBytesSlot(bytes storage store) internal pure returns (BytesSlot storage r) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            r.slot := store.slot
         }
     }
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.5.0) (utils/Multicall.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/Multicall.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "./Address.sol";
 
@@ -13,6 +13,7 @@ import "./Address.sol";
 abstract contract Multicall {
     /**
      * @dev Receives and executes a batch of function calls on this contract.
+     * @custom:oz-upgrades-unsafe-allow-reachable delegatecall
      */
     function multicall(bytes[] calldata data) external virtual returns (bytes[] memory results) {
         results = new bytes[](data.length);

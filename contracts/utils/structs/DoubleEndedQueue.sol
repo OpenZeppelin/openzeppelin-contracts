@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.6.0) (utils/structs/DoubleEndedQueue.sol)
-pragma solidity ^0.8.4;
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/structs/DoubleEndedQueue.sol)
+pragma solidity ^0.8.19;
 
 import "../math/SafeCast.sol";
 
@@ -12,7 +12,7 @@ import "../math/SafeCast.sol";
  *
  * The struct is called `Bytes32Deque`. Other types can be cast to and from `bytes32`. This data structure can only be
  * used in storage, and not in memory.
- * ```
+ * ```solidity
  * DoubleEndedQueue.Bytes32Deque queue;
  * ```
  *

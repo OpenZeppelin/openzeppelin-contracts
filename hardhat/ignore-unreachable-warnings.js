@@ -38,9 +38,7 @@ task(TASK_COMPILE_SOLIDITY_COMPILE, async (params, _, runSuper) => {
   if (marked) {
     result.output = {
       ...result.output,
-      errors: result.output.errors?.filter(
-        e => e.severity !== 'warning' || e.errorCode !== W_UNREACHABLE_CODE,
-      ),
+      errors: result.output.errors?.filter(e => e.severity !== 'warning' || e.errorCode !== W_UNREACHABLE_CODE),
     };
   }
   return result;

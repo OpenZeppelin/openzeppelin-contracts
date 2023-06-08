@@ -29,7 +29,7 @@ const argv = require('yargs/yargs')()
     mode: {
       alias: 'compileMode',
       type: 'string',
-      choices: [ 'production', 'development' ],
+      choices: ['production', 'development'],
       default: 'development',
     },
     ir: {
@@ -40,23 +40,19 @@ const argv = require('yargs/yargs')()
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.13',
+      default: '0.8.19',
     },
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
       type: 'string',
     },
-  })
-  .argv;
+  }).argv;
 
 require('@nomiclabs/hardhat-truffle5');
 require('hardhat-ignore-warnings');
+require('hardhat-exposed');
 
 require('solidity-docgen');
-
-if (argv.gas) {
-  require('hardhat-gas-reporter');
-}
 
 for (const f of fs.readdirSync(path.join(__dirname, 'hardhat'))) {
   require(path.join(__dirname, 'hardhat', f));
@@ -76,9 +72,13 @@ module.exports = {
         runs: 200,
       },
       viaIR: withOptimizations && argv.ir,
+      outputSelection: { '*': { '*': ['storageLayout'] } },
     },
   },
   warnings: {
+    'contracts-exposed/**/*': {
+      'code-size': 'off',
+    },
     '*': {
       'code-size': withOptimizations,
       'unused-param': !argv.coverage, // coverage causes unused-param warnings
@@ -91,14 +91,22 @@ module.exports = {
       allowUnlimitedContractSize: !withOptimizations,
     },
   },
-  gasReporter: {
+  exposed: {
+    initializers: true,
+    exclude: ['vendor/**/*'],
+  },
+  docgen: require('./docs/config'),
+};
+
+if (argv.gas) {
+  require('hardhat-gas-reporter');
+  module.exports.gasReporter = {
     showMethodSig: true,
     currency: 'USD',
     outputFile: argv.gasReport,
     coinmarketcap: argv.coinmarketcap,
-  },
-  docgen: require('./docs/config'),
-};
+  };
+}
 
 if (argv.coverage) {
   require('solidity-coverage');

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../security/ReentrancyGuard.sol";
 import "./ReentrancyAttack.sol";
@@ -26,7 +26,7 @@ contract ReentrancyMock is ReentrancyGuard {
     function countThisRecursive(uint256 n) public nonReentrant {
         if (n > 0) {
             _count();
-            (bool success, ) = address(this).call(abi.encodeWithSignature("countThisRecursive(uint256)", n - 1));
+            (bool success, ) = address(this).call(abi.encodeCall(this.countThisRecursive, (n - 1)));
             require(success, "ReentrancyMock: failed call");
         }
     }

@@ -1,7 +1,7 @@
 const { isNodeType } = require('solidity-ast/utils');
 const { slug } = require('./helpers');
 
-module.exports.anchor = function anchor ({ item, contract }) {
+module.exports.anchor = function anchor({ item, contract }) {
   let res = '';
   if (contract) {
     res += contract.name + '-';
@@ -37,13 +37,9 @@ module.exports['has-events'] = function ({ item }) {
 
 module.exports['inherited-functions'] = function ({ item }) {
   const { inheritance } = item;
-  const baseFunctions = new Set(
-    inheritance.flatMap(c => c.functions.flatMap(f => f.baseFunctions ?? [])),
-  );
+  const baseFunctions = new Set(inheritance.flatMap(c => c.functions.flatMap(f => f.baseFunctions ?? [])));
   return inheritance.map((contract, i) => ({
     contract,
-    functions: contract.functions.filter(f =>
-      !baseFunctions.has(f.id) && (f.name !== 'constructor' || i === 0),
-    ),
+    functions: contract.functions.filter(f => !baseFunctions.has(f.id) && (f.name !== 'constructor' || i === 0)),
   }));
 };

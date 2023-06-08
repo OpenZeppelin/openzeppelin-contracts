@@ -5,7 +5,7 @@ const { expect } = require('chai');
 
 const DummyImplementation = artifacts.require('DummyImplementation');
 
-module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress, proxyCreator) {
+module.exports = function shouldBehaveLikeProxy(createProxy, proxyAdminAddress, proxyCreator) {
   it('cannot be initialized with a non-contract address', async function () {
     const nonContractAddress = proxyCreator;
     const initializeData = Buffer.from('');
@@ -141,8 +141,9 @@ module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress,
   describe('initialization with parameters', function () {
     describe('non payable', function () {
       const expectedInitializedValue = 10;
-      const initializeData = new DummyImplementation('').contract
-        .methods.initializeNonPayableWithValue(expectedInitializedValue).encodeABI();
+      const initializeData = new DummyImplementation('').contract.methods
+        .initializeNonPayableWithValue(expectedInitializedValue)
+        .encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -172,8 +173,9 @@ module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress,
 
     describe('payable', function () {
       const expectedInitializedValue = 42;
-      const initializeData = new DummyImplementation('').contract
-        .methods.initializePayableWithValue(expectedInitializedValue).encodeABI();
+      const initializeData = new DummyImplementation('').contract.methods
+        .initializePayableWithValue(expectedInitializedValue)
+        .encodeABI();
 
       describe('when not sending balance', function () {
         beforeEach('creating proxy', async function () {
@@ -210,8 +212,7 @@ module.exports = function shouldBehaveLikeProxy (createProxy, proxyAdminAddress,
     });
 
     describe('reverting initialization', function () {
-      const initializeData = new DummyImplementation('').contract
-        .methods.reverts().encodeABI();
+      const initializeData = new DummyImplementation('').contract.methods.reverts().encodeABI();
 
       it('reverts', async function () {
         await expectRevert(

@@ -10,18 +10,18 @@ const files = glob.sync(baseDir + '/**/*.adoc').map(f => path.relative(baseDir, 
 
 console.log('.API');
 
-function getPageTitle (directory) {
+function getPageTitle(directory) {
   switch (directory) {
-  case 'metatx':
-    return 'Meta Transactions';
-  case 'common':
-    return 'Common (Tokens)';
-  default:
-    return startCase(directory);
+    case 'metatx':
+      return 'Meta Transactions';
+    case 'common':
+      return 'Common (Tokens)';
+    default:
+      return startCase(directory);
   }
 }
 
-const links = files.map((file) => {
+const links = files.map(file => {
   const doc = file.replace(baseDir, '');
   const title = path.parse(file).name;
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../utils/Context.sol";
 
@@ -23,11 +23,7 @@ contract ContextMockCaller {
         context.msgSender();
     }
 
-    function callData(
-        ContextMock context,
-        uint256 integerValue,
-        string memory stringValue
-    ) public {
+    function callData(ContextMock context, uint256 integerValue, string memory stringValue) public {
         context.msgData(integerValue, stringValue);
     }
 }

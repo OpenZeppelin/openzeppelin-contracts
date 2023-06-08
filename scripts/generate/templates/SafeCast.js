@@ -8,60 +8,60 @@ const LENGTHS = range(8, 256, 8).reverse(); // 248 → 8 (in steps of 8)
 // This is used in the docs for each function.
 const version = (selector, length) => {
   switch (selector) {
-  case 'toUint(uint)': {
-    switch (length) {
-    case 8:
-    case 16:
-    case 32:
-    case 64:
-    case 128:
-      return '2.5';
-    case 96:
-    case 224:
-      return '4.2';
-    default:
-      assert(LENGTHS.includes(length));
-      return '4.7';
+    case 'toUint(uint)': {
+      switch (length) {
+        case 8:
+        case 16:
+        case 32:
+        case 64:
+        case 128:
+          return '2.5';
+        case 96:
+        case 224:
+          return '4.2';
+        default:
+          assert(LENGTHS.includes(length));
+          return '4.7';
+      }
     }
-  }
-  case 'toInt(int)': {
-    switch (length) {
-    case 8:
-    case 16:
-    case 32:
-    case 64:
-    case 128:
-      return '3.1';
-    default:
-      assert(LENGTHS.includes(length));
-      return '4.7';
+    case 'toInt(int)': {
+      switch (length) {
+        case 8:
+        case 16:
+        case 32:
+        case 64:
+        case 128:
+          return '3.1';
+        default:
+          assert(LENGTHS.includes(length));
+          return '4.7';
+      }
     }
-  }
-  case 'toUint(int)': {
-    switch (length) {
-    case 256:
-      return '3.0';
+    case 'toUint(int)': {
+      switch (length) {
+        case 256:
+          return '3.0';
+        default:
+          assert(false);
+          return;
+      }
+    }
+    case 'toInt(uint)': {
+      switch (length) {
+        case 256:
+          return '3.0';
+        default:
+          assert(false);
+          return;
+      }
+    }
     default:
       assert(false);
-      return;
-    }
-  }
-  case 'toInt(uint)': {
-    switch (length) {
-    case 256:
-      return '3.0';
-    default:
-      assert(false);
-      return;
-    }
-  }
-  default:
-    assert(false);
   }
 };
 
 const header = `\
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 /**
  * @dev Wrappers over Solidity's uintXX/intXX casting operators with added overflow
@@ -74,9 +74,6 @@ pragma solidity ^0.8.0;
  *
  * Using this library instead of the unchecked operations eliminates an entire
  * class of bugs, so it's recommended to use it always.
- *
- * Can be combined with {SafeMath} and {SignedSafeMath} to extend it to smaller types, by performing
- * all math on \`uint256\` and \`int256\` and then downcasting.
  */
 `;
 
@@ -158,11 +155,6 @@ function toUint${length}(int${length} value) internal pure returns (uint${length
 module.exports = format(
   header.trimEnd(),
   'library SafeCast {',
-  [
-    ...LENGTHS.map(toUintDownCast),
-    toUint(256),
-    ...LENGTHS.map(toIntDownCast),
-    toInt(256),
-  ],
+  [...LENGTHS.map(toUintDownCast), toUint(256), ...LENGTHS.map(toIntDownCast), toInt(256)],
   '}',
 );

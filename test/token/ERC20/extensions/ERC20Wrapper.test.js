@@ -5,11 +5,11 @@ const { ZERO_ADDRESS, MAX_UINT256 } = constants;
 const { shouldBehaveLikeERC20 } = require('../ERC20.behavior');
 
 const NotAnERC20 = artifacts.require('CallReceiverMock');
-const ERC20Mock = artifacts.require('ERC20DecimalsMock');
-const ERC20WrapperMock = artifacts.require('ERC20WrapperMock');
+const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
+const ERC20Wrapper = artifacts.require('$ERC20Wrapper');
 
 contract('ERC20', function (accounts) {
-  const [ initialHolder, recipient, anotherAccount ] = accounts;
+  const [initialHolder, recipient, anotherAccount] = accounts;
 
   const name = 'My Token';
   const symbol = 'MTKN';
@@ -17,10 +17,10 @@ contract('ERC20', function (accounts) {
   const initialSupply = new BN(100);
 
   beforeEach(async function () {
-    this.underlying = await ERC20Mock.new(name, symbol, 9);
-    this.token = await ERC20WrapperMock.new(this.underlying.address, `Wrapped ${name}`, `W${symbol}`);
+    this.underlying = await ERC20Decimals.new(name, symbol, 9);
+    await this.underlying.$_mint(initialHolder, initialSupply);
 
-    await this.underlying.mint(initialHolder, initialSupply);
+    this.token = await ERC20Wrapper.new(`Wrapped ${name}`, `W${symbol}`, this.underlying.address);
   });
 
   afterEach(async function () {
@@ -41,7 +41,7 @@ contract('ERC20', function (accounts) {
 
   it('decimals default back to 18 if token has no metadata', async function () {
     const noDecimals = await NotAnERC20.new();
-    const otherToken = await ERC20WrapperMock.new(noDecimals.address, `Wrapped ${name}`, `W${symbol}`);
+    const otherToken = await ERC20Wrapper.new(`Wrapped ${name}`, `W${symbol}`, noDecimals.address);
     expect(await otherToken.decimals()).to.be.bignumber.equal('18');
   });
 
@@ -105,7 +105,7 @@ contract('ERC20', function (accounts) {
     it('missing balance', async function () {
       await expectRevert(
         this.token.withdrawTo(initialHolder, MAX_UINT256, { from: initialHolder }),
-        'ERC20: burn amount exceeds balance',
+        'ERC20: transfer amount exceeds balance',
       );
     });
 
@@ -159,7 +159,7 @@ contract('ERC20', function (accounts) {
       await this.underlying.approve(this.token.address, initialSupply, { from: initialHolder });
       await this.token.depositFor(initialHolder, initialSupply, { from: initialHolder });
 
-      const { tx } = await this.token.recover(anotherAccount);
+      const { tx } = await this.token.$_recover(anotherAccount);
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: ZERO_ADDRESS,
         to: anotherAccount,
@@ -170,7 +170,7 @@ contract('ERC20', function (accounts) {
     it('something to recover', async function () {
       await this.underlying.transfer(this.token.address, initialSupply, { from: initialHolder });
 
-      const { tx } = await this.token.recover(anotherAccount);
+      const { tx } = await this.token.$_recover(anotherAccount);
       await expectEvent.inTransaction(tx, this.token, 'Transfer', {
         from: ZERO_ADDRESS,
         to: anotherAccount,

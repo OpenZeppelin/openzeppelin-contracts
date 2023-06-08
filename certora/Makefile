@@ -1,24 +1,54 @@
 default: help
 
-PATCH         = applyHarness.patch
-CONTRACTS_DIR = ../contracts
-MUNGED_DIR    = munged
+SRC   := ../contracts
+DST   := patched
+DIFF  := diff
+SRCS  := $(shell find $(SRC) -type f)
+DSTS  := $(shell find $(DST) -type f)
+DIFFS := $(shell find $(DIFF) -type f)
 
+###############################################################################
+# Apply all patches in the $DIFF folder to the $DST folder
+apply: $(DST) $(patsubst $(DIFF)/%.patch,$(DST)/%,$(subst _,/,$(DIFFS)))
+
+# Reset the $DST folder
+$(DST): FORCE
+	@rm -rf $@
+	@cp -r $(SRC) $@
+
+# Update a solidity file in the $DST directory using the corresponding patch
+$(DST)/%.sol: FORCE
+	@echo Applying patch to $@
+	@patch -p0 -d $(DST) < $(patsubst $(DST)_%,$(DIFF)/%.patch,$(subst /,_,$@))
+
+###############################################################################
+# Record all difference between $SRC and $DST in patches
+record: $(DIFF) $(patsubst %,$(DIFF)/%.patch,$(subst /,_,$(subst $(SRC)/,,$(SRCS)) $(subst $(DST)/,,$(DSTS))))
+
+# Create the $DIFF folder
+$(DIFF): FORCE
+	@rm -rf $@
+	@mkdir $@
+
+# Create the patch file by comparing the source and the destination
+$(DIFF)/%.patch: FORCE
+	@echo Generating patch $@
+	@diff -ruN \
+		$(patsubst $(DIFF)/%.patch,$(SRC)/%,$(subst _,/,$@)) \
+		$(patsubst $(DIFF)/%.patch,$(DST)/%,$(subst _,/,$@)) \
+		| sed 's+$(SRC)/++g' \
+		| sed 's+$(DST)/++g' \
+		> $@
+	@[ -s $@ ] || rm $@
+
+###############################################################################
 help:
 	@echo "usage:"
+	@echo "  make apply:  create $(DST) directory by applying the patches to $(SRC)"
+	@echo "  make record: record the patches capturing the differences between $(SRC) and $(DST)"
 	@echo "  make clean:  remove all generated files (those ignored by git)"
-	@echo "  make $(MUNGED_DIR): create $(MUNGED_DIR) directory by applying the patch file to $(CONTRACTS_DIR)"
-	@echo "  make record: record a new patch file capturing the differences between $(CONTRACTS_DIR) and $(MUNGED_DIR)"
-
-munged:  $(wildcard $(CONTRACTS_DIR)/*.sol) $(PATCH)
-	rm -rf $@
-	cp -r $(CONTRACTS_DIR) $@
-	patch -p0 -d $@ < $(PATCH)
-
-record:
-	diff -ruN $(CONTRACTS_DIR) $(MUNGED_DIR) | sed 's+../contracts/++g' | sed 's+munged/++g' > $(PATCH)
 
 clean:
 	git clean -fdX
-	touch $(PATCH)
 
+FORCE: ;
