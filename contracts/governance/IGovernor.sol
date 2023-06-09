@@ -86,14 +86,14 @@ abstract contract IGovernor is IERC165, IERC6372 {
      * @notice module:core
      * @dev See {IERC6372}
      */
-    function clock() public view virtual override returns (uint48);
+    function clock() public view virtual returns (uint48);
 
     /**
      * @notice module:core
      * @dev See EIP-6372.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public view virtual override returns (string memory);
+    function CLOCK_MODE() public view virtual returns (string memory);
 
     /**
      * @notice module:voting

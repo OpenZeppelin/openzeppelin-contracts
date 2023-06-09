@@ -98,9 +98,12 @@ library ECDSA {
      * _Available since v4.3._
      */
     function tryRecover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address, RecoverError) {
-        bytes32 s = vs & bytes32(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
-        uint8 v = uint8((uint256(vs) >> 255) + 27);
-        return tryRecover(hash, v, r, s);
+        unchecked {
+            bytes32 s = vs & bytes32(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+            // We do not check for an overflow here since the shift operation results in 0 or 1.
+            uint8 v = uint8((uint256(vs) >> 255) + 27);
+            return tryRecover(hash, v, r, s);
+        }
     }
 
     /**
@@ -197,7 +200,7 @@ library ECDSA {
         /// @solidity memory-safe-assembly
         assembly {
             let ptr := mload(0x40)
-            mstore(ptr, "\x19\x01")
+            mstore(ptr, hex"19_01")
             mstore(add(ptr, 0x02), domainSeparator)
             mstore(add(ptr, 0x22), structHash)
             data := keccak256(ptr, 0x42)
@@ -211,6 +214,6 @@ library ECDSA {
      * See {recover}.
      */
     function toDataWithIntendedValidatorHash(address validator, bytes memory data) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("\x19\x00", validator, data));
+        return keccak256(abi.encodePacked(hex"19_00", validator, data));
     }
 }

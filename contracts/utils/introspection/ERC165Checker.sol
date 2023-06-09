@@ -109,7 +109,7 @@ library ERC165Checker {
      */
     function supportsERC165InterfaceUnchecked(address account, bytes4 interfaceId) internal view returns (bool) {
         // prepare call
-        bytes memory encodedParams = abi.encodeWithSelector(IERC165.supportsInterface.selector, interfaceId);
+        bytes memory encodedParams = abi.encodeCall(IERC165.supportsInterface, (interfaceId));
 
         // perform static call
         bool success;
