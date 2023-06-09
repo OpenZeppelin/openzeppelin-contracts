@@ -21,6 +21,6 @@ contract('AccessControlDefaultAdminRules', function (accounts) {
     );
   });
 
-  shouldBehaveLikeAccessControl('AccessControl', ...accounts);
-  shouldBehaveLikeAccessControlDefaultAdminRules('AccessControl', delay, ...accounts);
+  shouldBehaveLikeAccessControl(...accounts);
+  shouldBehaveLikeAccessControlDefaultAdminRules(delay, ...accounts);
 });
