@@ -145,6 +145,8 @@ abstract contract EIP712 is IERC5267 {
      *
      * NOTE: By default this function reads _name which is an immutable value.
      * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+     *
+     * _Available since v5.0._
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Name() internal view returns (string memory) {
@@ -156,6 +158,8 @@ abstract contract EIP712 is IERC5267 {
      *
      * NOTE: By default this function reads _version which is an immutable value.
      * It only reads from storage if necessary (in case the value is too large to fit in a ShortString).
+     *
+     * _Available since v5.0._
      */
     // solhint-disable-next-line func-name-mixedcase
     function _EIP712Version() internal view returns (string memory) {
