@@ -3,10 +3,19 @@ const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const Strings = artifacts.require('$Strings');
+const StringsMock = artifacts.require('$StringsMock');
 
 contract('Strings', function () {
   before(async function () {
     this.strings = await Strings.new();
+    this.stringsMock = await StringsMock.new();
+  });
+
+  describe('toStringSigned', function () {
+    const expected = '100 Integer literal conversion successful!';
+    it('should fetch `integerLiteralConversion` as `100 Integer literal conversion successful!`', async function () {
+      expect(await this.stringsMock.methods['integerLiteralConversion()']()).to.equal(expected);
+    });
   });
 
   describe('toString', function () {

@@ -46,6 +46,13 @@ library Strings {
     }
 
     /**
+     * @dev Converts a `uint256` integer literal to its ASCII `string` decimal representation.
+     */
+    function toStringSigned(uint256 value) internal pure returns (string memory) {
+        return toString(value);
+    }
+
+    /**
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
      */
     function toHexString(uint256 value) internal pure returns (string memory) {
