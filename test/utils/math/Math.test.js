@@ -243,7 +243,7 @@ contract('Math', function () {
       const modulus = new BN('0');
       await expectRevert(
         this.math.modExp.call(base, exponent, modulus),
-        'ModularExponentiation: Can\'t calculate for modulus equal to zero',
+        "ModularExponentiation: Can't calculate for modulus equal to zero",
       );
     });
   });

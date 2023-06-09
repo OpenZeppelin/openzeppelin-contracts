@@ -186,13 +186,12 @@ contract MathTest is Test {
         // However, we can repeatedly multiply and reduce modulo m
 
         uint256 expected = 1;
-        for(uint i = 0; i < e; i++) {
+        for (uint i = 0; i < e; i++) {
             expected = _mulmod(expected, b, m);
         }
 
         assertEq(result, expected);
     }
-
 
     // External call
     function muldiv(uint256 x, uint256 y, uint256 d) external pure returns (uint256) {
@@ -210,8 +209,6 @@ contract MathTest is Test {
             r := mulmod(x, y, z)
         }
     }
-
-
 
     function _mulHighLow(uint256 x, uint256 y) private pure returns (uint256 high, uint256 low) {
         (uint256 x0, uint256 x1) = (x & type(uint128).max, x >> 128);
