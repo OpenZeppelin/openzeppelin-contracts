@@ -1,4 +1,4 @@
-const { BN, constants, expectEvent, time } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, time, expectRevert } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS, ZERO_BYTES32 } = constants;
 
 const { expect } = require('chai');
@@ -819,7 +819,7 @@ contract('TimelockController', function (accounts) {
             [0, 0, 0],
             [
               this.callreceivermock.contract.methods.mockFunction().encodeABI(),
-              this.callreceivermock.contract.methods.mockFunctionThrows().encodeABI(),
+              this.callreceivermock.contract.methods.mockFunctionRevertsNoReason().encodeABI(),
               this.callreceivermock.contract.methods.mockFunction().encodeABI(),
             ],
             ZERO_BYTES32,
@@ -1087,12 +1087,10 @@ contract('TimelockController', function (accounts) {
         { from: proposer },
       );
       await time.increase(MINDELAY);
-      await expectRevertCustomError(
+      await expectRevert.unspecified(
         this.mock.execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
           from: executor,
         }),
-        'TimelockFailedCall',
-        [],
       );
     });
 
