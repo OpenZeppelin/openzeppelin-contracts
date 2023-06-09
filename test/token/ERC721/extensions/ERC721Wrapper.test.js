@@ -285,6 +285,6 @@ contract('ERC721Wrapper', function (accounts) {
   });
 
   describe('ERC712 behavior', function () {
-    shouldBehaveLikeERC721('ERC721', ...accounts);
+    shouldBehaveLikeERC721(...accounts);
   });
 });

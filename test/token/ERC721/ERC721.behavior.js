@@ -21,7 +21,7 @@ const baseURI = 'https://api.example.com/v1/';
 
 const RECEIVER_MAGIC_VALUE = '0x150b7a02';
 
-function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherApproved, operator, other) {
+function shouldBehaveLikeERC721(owner, newOwner, approved, anotherApproved, operator, other) {
   shouldSupportInterfaces(['ERC165', 'ERC721']);
 
   context('with minted tokens', function () {
@@ -715,7 +715,7 @@ function shouldBehaveLikeERC721(errorPrefix, owner, newOwner, approved, anotherA
   });
 }
 
-function shouldBehaveLikeERC721Enumerable(errorPrefix, owner, newOwner, approved, anotherApproved, operator, other) {
+function shouldBehaveLikeERC721Enumerable(owner, newOwner, approved, anotherApproved, operator, other) {
   shouldSupportInterfaces(['ERC721Enumerable']);
 
   context('with minted tokens', function () {
@@ -862,7 +862,7 @@ function shouldBehaveLikeERC721Enumerable(errorPrefix, owner, newOwner, approved
   });
 }
 
-function shouldBehaveLikeERC721Metadata(errorPrefix, name, symbol, owner) {
+function shouldBehaveLikeERC721Metadata(name, symbol, owner) {
   shouldSupportInterfaces(['ERC721Metadata']);
 
   describe('metadata', function () {
