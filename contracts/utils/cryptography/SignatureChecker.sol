@@ -41,7 +41,7 @@ library SignatureChecker {
         bytes memory signature
     ) internal view returns (bool) {
         (bool success, bytes memory result) = signer.staticcall(
-            abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)
+            abi.encodeCall(IERC1271.isValidSignature, (hash, signature))
         );
         return (success &&
             result.length >= 32 &&

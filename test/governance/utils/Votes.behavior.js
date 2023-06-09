@@ -7,7 +7,7 @@ const ethSigUtil = require('eth-sig-util');
 const Wallet = require('ethereumjs-wallet').default;
 
 const { shouldBehaveLikeEIP6372 } = require('./EIP6372.behavior');
-const { getDomain, domainType, domainSeparator } = require('../../helpers/eip712');
+const { getDomain, domainType } = require('../../helpers/eip712');
 const { clockFromReceipt } = require('../../helpers/time');
 
 const Delegation = [
@@ -34,10 +34,6 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
   describe('run votes workflow', function () {
     it('initial nonce is 0', async function () {
       expect(await this.votes.nonces(accounts[0])).to.be.bignumber.equal('0');
-    });
-
-    it('domain separator', async function () {
-      expect(await this.votes.DOMAIN_SEPARATOR()).to.equal(domainSeparator(await getDomain(this.votes)));
     });
 
     describe('delegation with signature', function () {

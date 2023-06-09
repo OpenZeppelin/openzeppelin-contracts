@@ -52,7 +52,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
      * function revert if invoked through a proxy. This is guaranteed by the `notDelegated` modifier.
      */
-    function proxiableUUID() external view virtual override notDelegated returns (bytes32) {
+    function proxiableUUID() external view virtual notDelegated returns (bytes32) {
         return _IMPLEMENTATION_SLOT;
     }
 
@@ -92,7 +92,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * Normally, this function will use an xref:access.adoc[access control] modifier such as {Ownable-onlyOwner}.
      *
      * ```solidity
-     * function _authorizeUpgrade(address) internal override onlyOwner {}
+     * function _authorizeUpgrade(address) internal  onlyOwner {}
      * ```
      */
     function _authorizeUpgrade(address newImplementation) internal virtual;
