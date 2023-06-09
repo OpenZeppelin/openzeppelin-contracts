@@ -1116,7 +1116,7 @@ contract('TimelockController', function (accounts) {
       await expectRevertCustomError(
         this.mock.execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
           from: executor,
-          gas: '70000',
+          gas: '100000',
         }),
         'FailedInnerCall',
         [],
