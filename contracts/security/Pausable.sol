@@ -71,7 +71,7 @@ abstract contract Pausable is Context {
      */
     function _requireNotPaused() internal view virtual {
         if (paused()) {
-            revert PausableErrors.Paused();
+            revert PausableErrors.EnforcedPause();
         }
     }
 
@@ -80,7 +80,7 @@ abstract contract Pausable is Context {
      */
     function _requirePaused() internal view virtual {
         if (!paused()) {
-            revert PausableErrors.Unpaused();
+            revert PausableErrors.ExpectedPause();
         }
     }
 

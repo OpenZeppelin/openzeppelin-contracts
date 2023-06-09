@@ -10,10 +10,10 @@ library PausableErrors {
     /**
      * @dev The contract is paused.
      */
-    error Paused();
+    error EnforcedPause();
 
     /**
      * @dev The contract is not paused.
      */
-    error Unpaused();
+    error ExpectedPause();
 }
