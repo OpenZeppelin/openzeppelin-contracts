@@ -170,6 +170,30 @@ contract MathTest is Test {
         } catch {}
     }
 
+    // MOD EXP
+    function testModExp(uint256 b, uint256 e, uint256 m) public {
+        // First, let's assume m is not 0, as that will cause a division by zero error
+        vm.assume(m != 0);
+
+        uint256 result = Math.modExp(b, e, m);
+
+        // Next, let's check the correctness of the result
+        // The result of b^e mod m should be less than m
+        assertTrue(result < m);
+
+        // The result should also satisfy the equation: result = b^e mod m
+        // Due to the large numbers involved in this calculation, we can't directly calculate b^e
+        // However, we can repeatedly multiply and reduce modulo m
+
+        uint256 expected = 1;
+        for(uint i = 0; i < e; i++) {
+            expected = _mulmod(expected, b, m);
+        }
+
+        assertEq(result, expected);
+    }
+
+
     // External call
     function muldiv(uint256 x, uint256 y, uint256 d) external pure returns (uint256) {
         return Math.mulDiv(x, y, d);
@@ -186,6 +210,8 @@ contract MathTest is Test {
             r := mulmod(x, y, z)
         }
     }
+
+
 
     function _mulHighLow(uint256 x, uint256 y) private pure returns (uint256 high, uint256 low) {
         (uint256 x0, uint256 x1) = (x & type(uint128).max, x >> 128);
