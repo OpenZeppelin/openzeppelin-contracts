@@ -87,7 +87,7 @@ interface IERC1155 is IERC165 {
      * @dev Transfers `amount` tokens of token type `id` from `from` to `to`.
      *
      * WARNING: This function can potentially allow a reentrancy attack when transferring tokens
-     * to an untrusted contract, via the internally called _doSafeTransferAcceptanceCheck function.
+     * to an untrusted contract, when invoking {onERC1155Received} on the receiver.
      * Ensure to follow the checks-effects-interactions pattern and consider employing
      * reentrancy guards when interacting with untrusted contracts.
      *
