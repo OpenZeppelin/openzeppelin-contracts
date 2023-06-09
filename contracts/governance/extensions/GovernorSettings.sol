@@ -11,9 +11,12 @@ import "../Governor.sol";
  * _Available since v4.4._
  */
 abstract contract GovernorSettings is Governor {
+    // amount of token
+    uint256 private _proposalThreshold;
+    // duration: limited to uint48 in core (same as clock() type)
     uint48 private _votingDelay;
-    uint48 private _votingPeriod;
-    uint48 private _proposalThreshold;
+    // duration: limited to uint32 in core
+    uint32 private _votingPeriod;
 
     event VotingDelaySet(uint256 oldVotingDelay, uint256 newVotingDelay);
     event VotingPeriodSet(uint256 oldVotingPeriod, uint256 newVotingPeriod);
@@ -22,7 +25,7 @@ abstract contract GovernorSettings is Governor {
     /**
      * @dev Initialize the governance parameters.
      */
-    constructor(uint48 initialVotingDelay, uint48 initialVotingPeriod, uint48 initialProposalThreshold) {
+    constructor(uint48 initialVotingDelay, uint32 initialVotingPeriod, uint256 initialProposalThreshold) {
         _setVotingDelay(initialVotingDelay);
         _setVotingPeriod(initialVotingPeriod);
         _setProposalThreshold(initialProposalThreshold);
@@ -63,7 +66,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingPeriodSet} event.
      */
-    function setVotingPeriod(uint48 newVotingPeriod) public virtual onlyGovernance {
+    function setVotingPeriod(uint32 newVotingPeriod) public virtual onlyGovernance {
         _setVotingPeriod(newVotingPeriod);
     }
 
@@ -72,7 +75,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {ProposalThresholdSet} event.
      */
-    function setProposalThreshold(uint48 newProposalThreshold) public virtual onlyGovernance {
+    function setProposalThreshold(uint256 newProposalThreshold) public virtual onlyGovernance {
         _setProposalThreshold(newProposalThreshold);
     }
 
@@ -91,7 +94,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {VotingPeriodSet} event.
      */
-    function _setVotingPeriod(uint48 newVotingPeriod) internal virtual {
+    function _setVotingPeriod(uint32 newVotingPeriod) internal virtual {
         // voting period must be at least one block long
         require(newVotingPeriod > 0, "GovernorSettings: voting period too low");
         emit VotingPeriodSet(_votingPeriod, newVotingPeriod);
@@ -103,7 +106,7 @@ abstract contract GovernorSettings is Governor {
      *
      * Emits a {ProposalThresholdSet} event.
      */
-    function _setProposalThreshold(uint48 newProposalThreshold) internal virtual {
+    function _setProposalThreshold(uint256 newProposalThreshold) internal virtual {
         emit ProposalThresholdSet(_proposalThreshold, newProposalThreshold);
         _proposalThreshold = newProposalThreshold;
     }
