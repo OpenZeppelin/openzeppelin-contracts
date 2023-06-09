@@ -38,7 +38,7 @@ function shouldBehaveLikeAccessControl(admin, authorized, other, otherAdmin) {
     it('non-admin cannot grant role to other accounts', async function () {
       await expectRevertCustomError(
         this.accessControl.grantRole(ROLE, authorized, { from: other }),
-        "AccessControlUnauthorizedAccount",
+        'AccessControlUnauthorizedAccount',
         [other, DEFAULT_ADMIN_ROLE],
       );
     });
@@ -73,7 +73,7 @@ function shouldBehaveLikeAccessControl(admin, authorized, other, otherAdmin) {
       it('non-admin cannot revoke role', async function () {
         await expectRevertCustomError(
           this.accessControl.revokeRole(ROLE, authorized, { from: other }),
-          "AccessControlUnauthorizedAccount",
+          'AccessControlUnauthorizedAccount',
           [other, DEFAULT_ADMIN_ROLE],
         );
       });
@@ -108,7 +108,7 @@ function shouldBehaveLikeAccessControl(admin, authorized, other, otherAdmin) {
       it('only the sender can renounce their roles', async function () {
         await expectRevertCustomError(
           this.accessControl.renounceRole(ROLE, authorized, { from: admin }),
-          "AccessControlBadConfirmation",
+          'AccessControlBadConfirmation',
           [],
         );
       });
@@ -152,7 +152,7 @@ function shouldBehaveLikeAccessControl(admin, authorized, other, otherAdmin) {
     it("a role's previous admins no longer grant roles", async function () {
       await expectRevertCustomError(
         this.accessControl.grantRole(ROLE, authorized, { from: admin }),
-        "AccessControlUnauthorizedAccount",
+        'AccessControlUnauthorizedAccount',
         [admin.toLowerCase(), OTHER_ROLE],
       );
     });
@@ -160,7 +160,7 @@ function shouldBehaveLikeAccessControl(admin, authorized, other, otherAdmin) {
     it("a role's previous admins no longer revoke roles", async function () {
       await expectRevertCustomError(
         this.accessControl.revokeRole(ROLE, authorized, { from: admin }),
-        "AccessControlUnauthorizedAccount",
+        'AccessControlUnauthorizedAccount',
         [admin.toLowerCase(), OTHER_ROLE],
       );
     });
@@ -178,7 +178,7 @@ function shouldBehaveLikeAccessControl(admin, authorized, other, otherAdmin) {
     it("revert if sender doesn't have role #1", async function () {
       await expectRevertCustomError(
         this.accessControl.methods['$_checkRole(bytes32)'](ROLE, { from: other }),
-        "AccessControlUnauthorizedAccount",
+        'AccessControlUnauthorizedAccount',
         [other, ROLE],
       );
     });
@@ -186,7 +186,7 @@ function shouldBehaveLikeAccessControl(admin, authorized, other, otherAdmin) {
     it("revert if sender doesn't have role #2", async function () {
       await expectRevertCustomError(
         this.accessControl.methods['$_checkRole(bytes32)'](OTHER_ROLE, { from: authorized }),
-        "AccessControlUnauthorizedAccount",
+        'AccessControlUnauthorizedAccount',
         [authorized.toLowerCase(), OTHER_ROLE],
       );
     });
@@ -367,7 +367,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
   it('should revert if granting default admin role', async function () {
     await expectRevertCustomError(
       this.accessControl.grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
-      "AccessControlEnforcedDefaultAdminRules",
+      'AccessControlEnforcedDefaultAdminRules',
       [],
     );
   });
@@ -375,7 +375,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
   it('should revert if revoking default admin role', async function () {
     await expectRevertCustomError(
       this.accessControl.revokeRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
-      "AccessControlEnforcedDefaultAdminRules",
+      'AccessControlEnforcedDefaultAdminRules',
       [],
     );
   });
@@ -383,7 +383,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
   it("should revert if defaultAdmin's admin is changed", async function () {
     await expectRevertCustomError(
       this.accessControl.$_setRoleAdmin(DEFAULT_ADMIN_ROLE, defaultAdmin),
-      "AccessControlEnforcedDefaultAdminRules",
+      'AccessControlEnforcedDefaultAdminRules',
       [],
     );
   });
@@ -391,7 +391,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
   it('should not grant the default admin role twice', async function () {
     await expectRevertCustomError(
       this.accessControl.$_grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin),
-      "AccessControlEnforcedDefaultAdminRules",
+      'AccessControlEnforcedDefaultAdminRules',
       [],
     );
   });
@@ -403,7 +403,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
     it('reverts if called by non default admin accounts', async function () {
       await expectRevertCustomError(
         this.accessControl.beginDefaultAdminTransfer(newDefaultAdmin, { from: other }),
-        "AccessControlUnauthorizedAccount",
+        'AccessControlUnauthorizedAccount',
         [other, DEFAULT_ADMIN_ROLE],
       );
     });
@@ -512,7 +512,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
       await time.setNextBlockTimestamp(acceptSchedule.addn(1));
       await expectRevertCustomError(
         this.accessControl.acceptDefaultAdminTransfer({ from: other }),
-        "AccessControlInvalidDefaultAdmin",
+        'AccessControlInvalidDefaultAdmin',
         [other],
       );
     });
@@ -556,7 +556,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
           await time.setNextBlockTimestamp(acceptSchedule.toNumber() + fromSchedule);
           await expectRevertCustomError(
             this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin }),
-            "AccessControlEnforcedDefaultAdminDelay",
+            'AccessControlEnforcedDefaultAdminDelay',
             [acceptSchedule],
           );
         });
@@ -568,7 +568,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
     it('reverts if called by non default admin accounts', async function () {
       await expectRevertCustomError(
         this.accessControl.cancelDefaultAdminTransfer({ from: other }),
-        "AccessControlUnauthorizedAccount",
+        'AccessControlUnauthorizedAccount',
         [other, DEFAULT_ADMIN_ROLE],
       );
     });
@@ -609,7 +609,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
         // Previous pending default admin should not be able to accept after cancellation.
         await expectRevertCustomError(
           this.accessControl.acceptDefaultAdminTransfer({ from: newDefaultAdmin }),
-          "AccessControlInvalidDefaultAdmin",
+          'AccessControlInvalidDefaultAdmin',
           [newDefaultAdmin],
         );
       });
@@ -644,7 +644,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
       await time.setNextBlockTimestamp(delayPassed);
       await expectRevertCustomError(
         this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, other, { from: defaultAdmin }),
-        "AccessControlBadConfirmation",
+        'AccessControlBadConfirmation',
         [],
       );
     });
@@ -704,7 +704,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
           await time.setNextBlockTimestamp(delayNotPassed.toNumber() + fromSchedule);
           await expectRevertCustomError(
             this.accessControl.renounceRole(DEFAULT_ADMIN_ROLE, defaultAdmin, { from: defaultAdmin }),
-            "AccessControlEnforcedDefaultAdminDelay",
+            'AccessControlEnforcedDefaultAdminDelay',
             [expectedSchedule],
           );
         });
@@ -718,7 +718,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
         this.accessControl.changeDefaultAdminDelay(time.duration.hours(4), {
           from: other,
         }),
-        "AccessControlUnauthorizedAccount",
+        'AccessControlUnauthorizedAccount',
         [other, DEFAULT_ADMIN_ROLE],
       );
     });
@@ -816,7 +816,7 @@ function shouldBehaveLikeAccessControlDefaultAdminRules(delay, defaultAdmin, new
     it('reverts if called by non default admin accounts', async function () {
       await expectRevertCustomError(
         this.accessControl.rollbackDefaultAdminDelay({ from: other }),
-        "AccessControlUnauthorizedAccount",
+        'AccessControlUnauthorizedAccount',
         [other, DEFAULT_ADMIN_ROLE],
       );
     });
