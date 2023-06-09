@@ -93,7 +93,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      */
     receive() external payable virtual {
         if (_executor() != address(this)) {
-            revert GovernorDisabledDeposit(address(this));
+            revert GovernorDisabledDeposit();
         }
     }
 

@@ -27,12 +27,12 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
     /**
      * @dev Permit deadline has expired.
      */
-    error ERC2612ExpiredDeadline(uint256 deadline);
+    error ERC2612ExpiredSignature(uint256 deadline);
 
     /**
      * @dev Mismatched signature.
      */
-    error ERC2612InvalidSignature(address signer, address owner);
+    error ERC2612InvalidSigner(address signer, address owner);
 
     /**
      * @dev Initializes the {EIP712} domain separator using the `name` parameter, and setting `version` to `"1"`.
@@ -54,7 +54,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
         bytes32 s
     ) public virtual {
         if (block.timestamp > deadline) {
-            revert ERC2612ExpiredDeadline(deadline);
+            revert ERC2612ExpiredSignature(deadline);
         }
 
         bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
@@ -63,7 +63,7 @@ abstract contract ERC20Permit is ERC20, IERC20Permit, EIP712, Nonces {
 
         address signer = ECDSA.recover(hash, v, r, s);
         if (signer != owner) {
-            revert ERC2612InvalidSignature(signer, owner);
+            revert ERC2612InvalidSigner(signer, owner);
         }
 
         _approve(owner, spender, value);

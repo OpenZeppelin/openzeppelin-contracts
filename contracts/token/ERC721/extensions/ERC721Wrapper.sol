@@ -17,6 +17,11 @@ import "../ERC721.sol";
 abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     IERC721 private immutable _underlying;
 
+    /**
+     * @dev The received ERC721 token couldn't be wrapped.
+     */
+    error ERC721UnsupportedToken(address token);
+
     constructor(IERC721 underlyingToken) {
         _underlying = underlyingToken;
     }
@@ -71,7 +76,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
      */
     function onERC721Received(address, address from, uint256 tokenId, bytes memory) public virtual returns (bytes4) {
         if (address(underlying()) != _msgSender()) {
-            revert ERC721InvalidSender(_msgSender());
+            revert ERC721UnsupportedToken(_msgSender());
         }
         _safeMint(from, tokenId);
         return IERC721Receiver.onERC721Received.selector;
@@ -84,7 +89,7 @@ abstract contract ERC721Wrapper is ERC721, IERC721Receiver {
     function _recover(address account, uint256 tokenId) internal virtual returns (uint256) {
         address owner = underlying().ownerOf(tokenId);
         if (owner != address(this)) {
-            revert ERC721IncorrectOwner(address(0), tokenId, owner);
+            revert ERC721IncorrectOwner(address(this), tokenId, owner);
         }
         _safeMint(account, tokenId);
         return tokenId;

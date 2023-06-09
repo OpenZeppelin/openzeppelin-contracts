@@ -34,9 +34,9 @@ abstract contract IGovernor is IERC165, IERC6372 {
     error GovernorAlreadyCastVote(address voter);
 
     /**
-     * @dev The `account` is not an executor.
+     * @dev Token deposits are disabled in this contract.
      */
-    error GovernorDisabledDeposit(address account);
+    error GovernorDisabledDeposit();
 
     /**
      * @dev The `account` is not a proposer.

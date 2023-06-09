@@ -67,7 +67,7 @@ const defaultMap = () => `\
 // in bytes32.
 
 /**
- * @dev Query for an nonexistent map key.
+ * @dev Query for a nonexistent map key.
  */
 error EnumerableMapNonexistentKey(bytes32 key);
 

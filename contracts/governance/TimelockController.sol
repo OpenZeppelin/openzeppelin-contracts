@@ -40,17 +40,17 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     }
 
     /**
-     * @dev Mismatch between the parameters length for a operation call.
+     * @dev Mismatch between the parameters length for an operation call.
      */
     error TimelockInvalidOperationLength(uint256 targets, uint256 payloads, uint256 values);
 
     /**
-     * @dev The schedule operation doesn't met the minimum delay.
+     * @dev The schedule operation doesn't meet the minimum delay.
      */
     error TimelockInsufficientDelay(uint256 delay, uint256 minDelay);
 
     /**
-     * @dev The current state of an operation is not the required.
+     * @dev The current state of an operation is not as required.
      */
     error TimelockUnexpectedOperationState(bytes32 operationId, OperationState expected);
 
