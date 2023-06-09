@@ -301,8 +301,8 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
         expect(await this.votes.getPastTotalSupply(t4.timepoint + 1)).to.be.bignumber.equal(weight[2]);
         expect(await this.votes.getPastTotalSupply(t5.timepoint)).to.be.bignumber.equal('0');
         await expectRevertCustomError(this.votes.getPastTotalSupply(t5.timepoint + 1), 'ERC5805FutureLookup', [
-          t5.timepoint + 1,
-          t5.timepoint + 1,
+          t5.timepoint + 1, // timepoint
+          t5.timepoint + 1, // clock
         ]);
       });
     });
@@ -319,8 +319,9 @@ function shouldBehaveLikeVotes(accounts, tokens, { mode = 'blocknumber', fungibl
       describe('getPastVotes', function () {
         it('reverts if block number >= current block', async function () {
           const clock = await this.votes.clock();
-          await expectRevertCustomError(this.votes.getPastVotes(accounts[2], 5e10), 'ERC5805FutureLookup', [
-            5e10,
+          const timepoint = 5e10; // far in the future
+          await expectRevertCustomError(this.votes.getPastVotes(accounts[2], timepoint), 'ERC5805FutureLookup', [
+            timepoint,
             clock,
           ]);
         });
