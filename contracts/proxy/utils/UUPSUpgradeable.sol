@@ -25,7 +25,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
     /**
      * @dev The call is from an unauthorized context.
      */
-    error UUPSUnauthorizedCallContext(address context);
+    error UUPSUnauthorizedCallContext();
 
     /**
      * @dev Check that the execution is being performed through a delegatecall call and that the execution context is
@@ -37,12 +37,12 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
     modifier onlyProxy() {
         if (address(this) == __self) {
             // Must be called through delegatecall
-            revert UUPSUnauthorizedCallContext(address(this));
+            revert UUPSUnauthorizedCallContext();
         }
         address implementation = _getImplementation();
         if (implementation != __self) {
             // Must be called through an active proxy
-            revert UUPSUnauthorizedCallContext(implementation);
+            revert UUPSUnauthorizedCallContext();
         }
         _;
     }
@@ -54,7 +54,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
     modifier notDelegated() {
         if (address(this) != __self) {
             // Must not be called through delegatecall
-            revert UUPSUnauthorizedCallContext(address(this));
+            revert UUPSUnauthorizedCallContext();
         }
         _;
     }
