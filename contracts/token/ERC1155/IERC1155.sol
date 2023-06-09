@@ -108,7 +108,7 @@ interface IERC1155 is IERC165 {
      *
      *
      * WARNING: This function can potentially allow a reentrancy attack when transferring tokens
-     * to an untrusted contract, via the internally called _doSafeBatchTransferAcceptanceCheck function.
+     * to an untrusted contract, when invoking {onERC1155Received} on the receiver.
      * Ensure to follow the checks-effects-interactions pattern and consider employing
      * reentrancy guards when interacting with untrusted contracts.
      *
