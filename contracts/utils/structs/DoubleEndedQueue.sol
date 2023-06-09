@@ -22,12 +22,12 @@ library DoubleEndedQueue {
     /**
      * @dev An operation (e.g. {front}) couldn't be completed due to the queue being empty.
      */
-    error Empty();
+    error QueueEmpty();
 
     /**
      * @dev An operation (e.g. {at}) couldn't be completed due to an index being out of bounds.
      */
-    error OutOfBounds();
+    error QueueOutOfBounds();
 
     /**
      * @dev Indices are signed integers because the queue can grow in any direction. They are 128 bits so begin and end
@@ -61,10 +61,10 @@ library DoubleEndedQueue {
     /**
      * @dev Removes the item at the end of the queue and returns it.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with `QueueEmpty` if the queue is empty.
      */
     function popBack(Bytes32Deque storage deque) internal returns (bytes32 value) {
-        if (empty(deque)) revert Empty();
+        if (empty(deque)) revert QueueEmpty();
         int128 backIndex;
         unchecked {
             backIndex = deque._end - 1;
@@ -89,10 +89,10 @@ library DoubleEndedQueue {
     /**
      * @dev Removes the item at the beginning of the queue and returns it.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with `QueueEmpty` if the queue is empty.
      */
     function popFront(Bytes32Deque storage deque) internal returns (bytes32 value) {
-        if (empty(deque)) revert Empty();
+        if (empty(deque)) revert QueueEmpty();
         int128 frontIndex = deque._begin;
         value = deque._data[frontIndex];
         delete deque._data[frontIndex];
@@ -104,10 +104,10 @@ library DoubleEndedQueue {
     /**
      * @dev Returns the item at the beginning of the queue.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with `QueueEmpty` if the queue is empty.
      */
     function front(Bytes32Deque storage deque) internal view returns (bytes32 value) {
-        if (empty(deque)) revert Empty();
+        if (empty(deque)) revert QueueEmpty();
         int128 frontIndex = deque._begin;
         return deque._data[frontIndex];
     }
@@ -115,10 +115,10 @@ library DoubleEndedQueue {
     /**
      * @dev Returns the item at the end of the queue.
      *
-     * Reverts with `Empty` if the queue is empty.
+     * Reverts with `QueueEmpty` if the queue is empty.
      */
     function back(Bytes32Deque storage deque) internal view returns (bytes32 value) {
-        if (empty(deque)) revert Empty();
+        if (empty(deque)) revert QueueEmpty();
         int128 backIndex;
         unchecked {
             backIndex = deque._end - 1;
@@ -130,12 +130,12 @@ library DoubleEndedQueue {
      * @dev Return the item at a position in the queue given by `index`, with the first item at 0 and last item at
      * `length(deque) - 1`.
      *
-     * Reverts with `OutOfBounds` if the index is out of bounds.
+     * Reverts with `QueueOutOfBounds` if the index is out of bounds.
      */
     function at(Bytes32Deque storage deque, uint256 index) internal view returns (bytes32 value) {
         // int256(deque._begin) is a safe upcast
         int128 idx = SafeCast.toInt128(int256(deque._begin) + SafeCast.toInt256(index));
-        if (idx >= deque._end) revert OutOfBounds();
+        if (idx >= deque._end) revert QueueOutOfBounds();
         return deque._data[idx];
     }
 
