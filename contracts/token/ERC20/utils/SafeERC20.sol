@@ -25,11 +25,6 @@ library SafeERC20 {
     error SafeERC20FailedOperation(address token);
 
     /**
-     * @dev A call to a target failed. The target may have reverted.
-     */
-    error SafeERC20FailedCall();
-
-    /**
      * @dev Indicates a failed `decreaseAllowance` request.
      */
     error SafeERC20FailedDecreaseAllowance(address spender, uint256 currentAllowance, uint256 requestedDecrease);
@@ -120,7 +115,7 @@ library SafeERC20 {
         // we're implementing it ourselves. We use {Address-functionCall} to perform this call, which verifies that
         // the target address contains contract code and also asserts for success in the low-level call.
 
-        bytes memory returndata = address(token).functionCall(data, _customERC20CallRevert);
+        bytes memory returndata = address(token).functionCall(data);
         if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
             revert SafeERC20FailedOperation(address(token));
         }
@@ -141,9 +136,5 @@ library SafeERC20 {
 
         (bool success, bytes memory returndata) = address(token).call(data);
         return success && (returndata.length == 0 || abi.decode(returndata, (bool))) && address(token).code.length > 0;
-    }
-
-    function _customERC20CallRevert() private pure {
-        revert SafeERC20FailedCall();
     }
 }

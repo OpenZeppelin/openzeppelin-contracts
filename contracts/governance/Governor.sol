@@ -389,7 +389,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     ) internal virtual {
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
-            Address.verifyCallResult(success, returndata, _customGovernorRevert);
+            Address.verifyCallResult(success, returndata);
         }
     }
 
@@ -755,12 +755,5 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
                 return (false, 0);
             }
         }
-    }
-
-    /**
-     * @dev Default revert function for failed executed functions without any other bubbled up reason.
-     */
-    function _customGovernorRevert() internal pure {
-        revert GovernorFailedCall();
     }
 }

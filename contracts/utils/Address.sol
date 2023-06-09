@@ -13,14 +13,14 @@ library Address {
     error AddressInsufficientBalance(address account);
 
     /**
-     * @dev A call to an address target failed. The target may have reverted.
-     */
-    error AddressFailedCall();
-
-    /**
      * @dev There's no code at `target` (it is not a contract).
      */
     error AddressEmptyCode(address target);
+
+    /**
+     * @dev A call to an address target failed. The target may have reverted.
+     */
+    error FailedInnerCall();
 
     /**
      * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
@@ -45,7 +45,7 @@ library Address {
 
         (bool success, ) = recipient.call{value: amount}("");
         if (!success) {
-            revert AddressFailedCall();
+            revert FailedInnerCall();
         }
     }
 
@@ -225,7 +225,7 @@ library Address {
      * @dev Default reverting function when no `customRevert` is provided in a function call.
      */
     function defaultRevert() internal pure {
-        revert AddressFailedCall();
+        revert FailedInnerCall();
     }
 
     function _revert(bytes memory returndata, function() internal view customRevert) private view {
@@ -239,7 +239,7 @@ library Address {
             }
         } else {
             customRevert();
-            revert AddressFailedCall();
+            revert FailedInnerCall();
         }
     }
 }

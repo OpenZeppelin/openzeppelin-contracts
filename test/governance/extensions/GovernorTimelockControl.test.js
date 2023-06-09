@@ -376,28 +376,20 @@ contract('GovernorTimelockControl', function (accounts) {
               });
 
               it('protected against other proposers', async function () {
-                await this.timelock.schedule(
-                  this.mock.address,
-                  web3.utils.toWei('0'),
-                  this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI(),
-                  constants.ZERO_BYTES32,
-                  constants.ZERO_BYTES32,
-                  3600,
-                  { from: owner },
-                );
+                const target = this.mock.address;
+                const value = web3.utils.toWei('0');
+                const data = this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI();
+                const predecessor = constants.ZERO_BYTES32;
+                const salt = constants.ZERO_BYTES32;
+                const delay = 3600;
+
+                await this.timelock.schedule(target, value, data, predecessor, salt, delay, { from: owner });
 
                 await time.increase(3600);
 
                 await expectRevertCustomError(
-                  this.timelock.execute(
-                    this.mock.address,
-                    web3.utils.toWei('0'),
-                    this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI(),
-                    constants.ZERO_BYTES32,
-                    constants.ZERO_BYTES32,
-                    { from: owner },
-                  ),
-                  'TimelockFailedCall',
+                  this.timelock.execute(target, value, data, predecessor, salt, { from: owner }),
+                  'QueueEmpty', // Bubbled up from Governor
                   [],
                 );
               });

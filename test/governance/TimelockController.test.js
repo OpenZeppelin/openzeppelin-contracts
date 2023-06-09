@@ -845,7 +845,7 @@ contract('TimelockController', function (accounts) {
               operation.salt,
               { from: executor },
             ),
-            'TimelockFailedCall',
+            'FailedInnerCall',
             [],
           );
         });
@@ -1063,7 +1063,7 @@ contract('TimelockController', function (accounts) {
         this.mock.execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
           from: executor,
         }),
-        'TimelockFailedCall',
+        'FailedInnerCall',
         [],
       );
     });
@@ -1118,7 +1118,7 @@ contract('TimelockController', function (accounts) {
           from: executor,
           gas: '70000',
         }),
-        'TimelockFailedCall',
+        'FailedInnerCall',
         [],
       );
     });
@@ -1186,7 +1186,7 @@ contract('TimelockController', function (accounts) {
         this.mock.execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
           from: executor,
         }),
-        'TimelockFailedCall',
+        'FailedInnerCall',
         [],
       );
 
@@ -1221,7 +1221,7 @@ contract('TimelockController', function (accounts) {
         this.mock.execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
           from: executor,
         }),
-        'TimelockFailedCall',
+        'FailedInnerCall',
         [],
       );
 

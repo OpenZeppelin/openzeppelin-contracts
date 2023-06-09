@@ -76,11 +76,6 @@ abstract contract IGovernor is IERC165, IERC6372 {
     error GovernorInsufficientProposerVotes(address proposer, uint256 votes, uint256 threshold);
 
     /**
-     * @dev A call to a target failed. The target may have reverted.
-     */
-    error GovernorFailedCall();
-
-    /**
      * @dev The vote type used is not valid for the corresponding counting module.
      */
     error GovernorInvalidVoteType();

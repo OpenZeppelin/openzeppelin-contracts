@@ -78,7 +78,7 @@ contract('Address', function (accounts) {
 
         it('reverts on recipient revert', async function () {
           await this.target.setAcceptEther(false);
-          await expectRevertCustomError(this.mock.$sendValue(this.target.address, funds), 'AddressFailedCall', []);
+          await expectRevertCustomError(this.mock.$sendValue(this.target.address, funds), 'FailedInnerCall', []);
         });
       });
     });
@@ -114,7 +114,7 @@ contract('Address', function (accounts) {
 
         await expectRevertCustomError(
           this.mock.$functionCall(this.target.address, abiEncodedCall),
-          'AddressFailedCall',
+          'FailedInnerCall',
           [],
         );
       });
@@ -130,7 +130,7 @@ contract('Address', function (accounts) {
 
         await expectRevertCustomError(
           this.mock.$functionCall(this.target.address, abiEncodedCall, { gas: '120000' }),
-          'AddressFailedCall',
+          'FailedInnerCall',
           [],
         );
       });
@@ -161,7 +161,7 @@ contract('Address', function (accounts) {
 
         await expectRevertCustomError(
           this.mock.$functionCall(this.target.address, abiEncodedCall),
-          'AddressFailedCall',
+          'FailedInnerCall',
           [],
         );
       });
@@ -250,7 +250,7 @@ contract('Address', function (accounts) {
         await send.ether(other, this.mock.address, amount);
         await expectRevertCustomError(
           this.mock.$functionCallWithValue(this.target.address, abiEncodedCall, amount),
-          'AddressFailedCall',
+          'FailedInnerCall',
           [],
         );
       });
@@ -283,7 +283,7 @@ contract('Address', function (accounts) {
 
       await expectRevertCustomError(
         this.mock.$functionStaticCall(this.target.address, abiEncodedCall),
-        'AddressFailedCall',
+        'FailedInnerCall',
         [],
       );
     });
@@ -376,7 +376,7 @@ contract('Address', function (accounts) {
     });
 
     it('reverts expecting error if provided onRevert is a non-reverting function', async function () {
-      await expectRevertCustomError(this.mockFnPointer.verifyCallResultVoid(false, '0x'), 'AddressFailedCall', []);
+      await expectRevertCustomError(this.mockFnPointer.verifyCallResultVoid(false, '0x'), 'FailedInnerCall', []);
     });
   });
 });

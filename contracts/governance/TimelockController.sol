@@ -55,11 +55,6 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     error TimelockUnexpectedOperationState(bytes32 operationId, OperationState expected);
 
     /**
-     * @dev A call to a target failed. The target may have reverted.
-     */
-    error TimelockFailedCall();
-
-    /**
      * @dev The predecessor to an operation not yet done.
      */
     error TimelockUnexecutedPredecessor(bytes32 predecessorId);
@@ -393,7 +388,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      */
     function _execute(address target, uint256 value, bytes calldata data) internal virtual {
         (bool success, bytes memory returndata) = target.call{value: value}(data);
-        Address.verifyCallResult(success, returndata, _customTimelockRevert);
+        Address.verifyCallResult(success, returndata, Address.defaultRevert);
     }
 
     /**
@@ -461,12 +456,5 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes memory
     ) public virtual returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
-    }
-
-    /**
-     * @dev Default revert function for failed executed functions without any other bubbled up reason.
-     */
-    function _customTimelockRevert() internal pure {
-        revert TimelockFailedCall();
     }
 }
