@@ -672,13 +672,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         return bytes32(1 << uint8(proposalState));
     }
 
-    /**
-     * @dev Default revert function for failed executed functions without any other bubbled up reason.
-     */
-    function _customGovernorRevert() internal pure {
-        revert GovernorFailedCall();
-    }
-
     /*
      * @dev Check if the proposer is authorized to submit a proposal with the given description.
      *
@@ -762,5 +755,12 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
                 return (false, 0);
             }
         }
+    }
+
+    /**
+     * @dev Default revert function for failed executed functions without any other bubbled up reason.
+     */
+    function _customGovernorRevert() internal pure {
+        revert GovernorFailedCall();
     }
 }
