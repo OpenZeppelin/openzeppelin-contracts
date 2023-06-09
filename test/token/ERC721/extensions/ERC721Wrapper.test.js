@@ -3,7 +3,6 @@ const { expect } = require('chai');
 
 const { shouldBehaveLikeERC721 } = require('../ERC721.behavior');
 const { expectRevertCustomError } = require('../../../helpers/customError');
-const { ZERO_ADDRESS } = require('@openzeppelin/test-helpers/src/constants');
 
 const ERC721 = artifacts.require('$ERC721');
 const ERC721Wrapper = artifacts.require('$ERC721Wrapper');
@@ -242,7 +241,7 @@ contract('ERC721Wrapper', function (accounts) {
           anotherAccount, // Correct data
           { from: anotherAccount },
         ),
-        'ERC721InvalidSender',
+        'ERC721UnsupportedToken',
         [anotherAccount],
       );
     });
@@ -277,7 +276,7 @@ contract('ERC721Wrapper', function (accounts) {
     it('reverts if there is nothing to recover', async function () {
       const owner = await this.underlying.ownerOf(firstTokenId);
       await expectRevertCustomError(this.token.$_recover(initialHolder, firstTokenId), 'ERC721IncorrectOwner', [
-        ZERO_ADDRESS,
+        this.token.address,
         firstTokenId,
         owner,
       ]);

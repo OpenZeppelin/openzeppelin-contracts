@@ -72,7 +72,7 @@ library Address {
     }
 
     /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with an
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with a
      * `customRevert` function as a fallback when `target` reverts.
      *
      * Requirements:
@@ -205,7 +205,21 @@ library Address {
 
     /**
      * @dev Tool to verify that a low level call was successful, and revert if it wasn't, either by bubbling the
-     * revert reason or using the provided `customRevert`.
+     * revert reason or with a default revert error.
+     *
+     * _Available since v5.0._
+     */
+    function verifyCallResult(bool success, bytes memory returndata) internal view returns (bytes memory) {
+        return verifyCallResult(success, returndata, defaultRevert);
+    }
+
+    /**
+     * @dev Same as {xref-Address-verifyCallResult-bool-bytes-}[`verifyCallResult`], but with a
+     * `customRevert` function as a fallback when `success` is `false`.
+     *
+     * Requirements:
+     *
+     * - `customRevert` must be a reverting function.
      *
      * _Available since v5.0._
      */

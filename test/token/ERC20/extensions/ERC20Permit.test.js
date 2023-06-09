@@ -82,7 +82,7 @@ contract('ERC20Permit', function (accounts) {
 
       await expectRevertCustomError(
         this.token.permit(owner, spender, value, maxDeadline, v, r, s),
-        'ERC2612InvalidSignature',
+        'ERC2612InvalidSigner',
         [ethSigUtil.recoverTypedSignature({ data: typedMessage, sig }), owner],
       );
     });
@@ -96,7 +96,7 @@ contract('ERC20Permit', function (accounts) {
 
       await expectRevertCustomError(
         this.token.permit(owner, spender, value, maxDeadline, v, r, s),
-        'ERC2612InvalidSignature',
+        'ERC2612InvalidSigner',
         [await otherWallet.getAddressString(), owner],
       );
     });
@@ -110,7 +110,7 @@ contract('ERC20Permit', function (accounts) {
 
       await expectRevertCustomError(
         this.token.permit(owner, spender, value, deadline, v, r, s),
-        'ERC2612ExpiredDeadline',
+        'ERC2612ExpiredSignature',
         [deadline],
       );
     });

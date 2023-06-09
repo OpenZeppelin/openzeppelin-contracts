@@ -388,7 +388,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      */
     function _execute(address target, uint256 value, bytes calldata data) internal virtual {
         (bool success, bytes memory returndata) = target.call{value: value}(data);
-        Address.verifyCallResult(success, returndata, Address.defaultRevert);
+        Address.verifyCallResult(success, returndata);
     }
 
     /**
