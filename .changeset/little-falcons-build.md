@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-Add internal name and version getters for EIP712
+`EIP712`: Add internal getters for the name and version strings
