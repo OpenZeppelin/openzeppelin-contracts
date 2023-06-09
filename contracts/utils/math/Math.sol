@@ -410,7 +410,7 @@ library Math {
      * Requirements:
      *
      * - modulus can't be zero
-     * - result should be obtained succesfully
+     * - result should be obtained successfully
      */
     function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256) {
         require(m != 0, "ModularExponentiation: Can't calculate for modulus equal to zero");
