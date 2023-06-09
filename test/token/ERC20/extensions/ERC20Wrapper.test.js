@@ -9,7 +9,7 @@ const NotAnERC20 = artifacts.require('CallReceiverMock');
 const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC20Wrapper = artifacts.require('$ERC20Wrapper');
 
-contract('ERC20', function (accounts) {
+contract('ERC20Wrapper', function (accounts) {
   const [initialHolder, recipient, anotherAccount] = accounts;
 
   const name = 'My Token';
@@ -189,6 +189,6 @@ contract('ERC20', function (accounts) {
       await this.token.depositFor(initialHolder, initialSupply, { from: initialHolder });
     });
 
-    shouldBehaveLikeERC20('ERC20', initialSupply, initialHolder, recipient, anotherAccount);
+    shouldBehaveLikeERC20(initialSupply, initialHolder, recipient, anotherAccount);
   });
 });

@@ -4,7 +4,7 @@ const { ZERO_ADDRESS, MAX_UINT256 } = constants;
 
 const { expectRevertCustomError } = require('../../helpers/customError');
 
-function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipient, anotherAccount) {
+function shouldBehaveLikeERC20(initialSupply, initialHolder, recipient, anotherAccount) {
   describe('total supply', function () {
     it('returns the total amount of tokens', async function () {
       expect(await this.token.totalSupply()).to.be.bignumber.equal(initialSupply);
@@ -26,7 +26,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
   });
 
   describe('transfer', function () {
-    shouldBehaveLikeERC20Transfer(errorPrefix, initialHolder, recipient, initialSupply, function (from, to, value) {
+    shouldBehaveLikeERC20Transfer(initialHolder, recipient, initialSupply, function (from, to, value) {
       return this.token.transfer(to, value, { from });
     });
   });
@@ -89,7 +89,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
             it('reverts', async function () {
               await expectRevertCustomError(
                 this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
-                `${errorPrefix}InsufficientBalance`,
+                "ERC20InsufficientBalance",
                 [tokenOwner, amount - 1, amount],
               );
             });
@@ -109,7 +109,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
             it('reverts', async function () {
               await expectRevertCustomError(
                 this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
-                `${errorPrefix}InsufficientAllowance`,
+                "ERC20InsufficientAllowance",
                 [spender, allowance, amount],
               );
             });
@@ -125,7 +125,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
             it('reverts', async function () {
               await expectRevertCustomError(
                 this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
-                `${errorPrefix}InsufficientBalance`,
+                "ERC20InsufficientBalance",
                 [tokenOwner, amount - 1, amount],
               );
             });
@@ -160,7 +160,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
         it('reverts', async function () {
           await expectRevertCustomError(
             this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
-            `${errorPrefix}InvalidReceiver`,
+            "ERC20InvalidReceiver",
             [ZERO_ADDRESS],
           );
         });
@@ -175,7 +175,7 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
       it('reverts', async function () {
         await expectRevertCustomError(
           this.token.transferFrom(tokenOwner, to, amount, { from: spender }),
-          `${errorPrefix}InvalidApprover`,
+          "ERC20InvalidApprover",
           [ZERO_ADDRESS],
         );
       });
@@ -184,7 +184,6 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
 
   describe('approve', function () {
     shouldBehaveLikeERC20Approve(
-      errorPrefix,
       initialHolder,
       recipient,
       initialSupply,
@@ -195,13 +194,13 @@ function shouldBehaveLikeERC20(errorPrefix, initialSupply, initialHolder, recipi
   });
 }
 
-function shouldBehaveLikeERC20Transfer(errorPrefix, from, to, balance, transfer) {
+function shouldBehaveLikeERC20Transfer(from, to, balance, transfer) {
   describe('when the recipient is not the zero address', function () {
     describe('when the sender does not have enough balance', function () {
       const amount = balance.addn(1);
 
       it('reverts', async function () {
-        await expectRevertCustomError(transfer.call(this, from, to, amount), `${errorPrefix}InsufficientBalance`, [
+        await expectRevertCustomError(transfer.call(this, from, to, amount), "ERC20InsufficientBalance", [
           from,
           balance,
           amount,
@@ -244,14 +243,14 @@ function shouldBehaveLikeERC20Transfer(errorPrefix, from, to, balance, transfer)
 
   describe('when the recipient is the zero address', function () {
     it('reverts', async function () {
-      await expectRevertCustomError(transfer.call(this, from, ZERO_ADDRESS, balance), `${errorPrefix}InvalidReceiver`, [
+      await expectRevertCustomError(transfer.call(this, from, ZERO_ADDRESS, balance), "ERC20InvalidReceiver", [
         ZERO_ADDRESS,
       ]);
     });
   });
 }
 
-function shouldBehaveLikeERC20Approve(errorPrefix, owner, spender, supply, approve) {
+function shouldBehaveLikeERC20Approve(owner, spender, supply, approve) {
   describe('when the spender is not the zero address', function () {
     describe('when the sender has enough balance', function () {
       const amount = supply;

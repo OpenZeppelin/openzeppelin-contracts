@@ -46,7 +46,7 @@ contract('ERC20', function (accounts) {
     });
   });
 
-  shouldBehaveLikeERC20('ERC20', initialSupply, initialHolder, recipient, anotherAccount);
+  shouldBehaveLikeERC20(initialSupply, initialHolder, recipient, anotherAccount);
 
   describe('decrease allowance', function () {
     describe('when the spender is not the zero address', function () {
@@ -332,7 +332,7 @@ contract('ERC20', function (accounts) {
   });
 
   describe('_transfer', function () {
-    shouldBehaveLikeERC20Transfer('ERC20', initialHolder, recipient, initialSupply, function (from, to, amount) {
+    shouldBehaveLikeERC20Transfer(initialHolder, recipient, initialSupply, function (from, to, amount) {
       return this.token.$_transfer(from, to, amount);
     });
 
@@ -348,7 +348,7 @@ contract('ERC20', function (accounts) {
   });
 
   describe('_approve', function () {
-    shouldBehaveLikeERC20Approve('ERC20', initialHolder, recipient, initialSupply, function (owner, spender, amount) {
+    shouldBehaveLikeERC20Approve(initialHolder, recipient, initialSupply, function (owner, spender, amount) {
       return this.token.$_approve(owner, spender, amount);
     });
 
