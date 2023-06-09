@@ -2,4 +2,5 @@
 'openzeppelin-solidity': patch
 ---
 
-Array optimization in ERC1155
+`Arrays`: Add `unsafeMemoryAccess` helpers to read from a memory array without checking the length.
+`ERC1155`: optimize memory accesses
