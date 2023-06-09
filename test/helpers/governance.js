@@ -213,20 +213,20 @@ function proposalStatesToBitMap(proposalStates, options = {}) {
   if (!Array.isArray(proposalStates)) {
     proposalStates = [proposalStates];
   }
-  const statesRange = Object.keys(ProposalState).length - 1;
+  const statesCount = Object.keys(ProposalState).length;
   let result = 0;
 
   const uniqueProposalStates = new Set(proposalStates.map(bn => bn.toNumber())); // Remove duplicates
   for (const state of Array.from(uniqueProposalStates)) {
-    if (state < 0 || state > statesRange) {
-      expect.fail(`ProposalState ${state} out of possible states (0 - ${statesRange})`);
+    if (state < 0 || state >= statesCount) {
+      expect.fail(`ProposalState ${state} out of possible states (0...${statesCount}-1)`);
     } else {
       result |= 1 << state;
     }
   }
 
   if (options.inverted) {
-    const mask = 2 ** statesRange - 1;
+    const mask = 2 ** statesCount - 1;
     result = result ^ mask;
   }
 

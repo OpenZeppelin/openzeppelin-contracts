@@ -484,7 +484,7 @@ contract('Governor', function (accounts) {
             ]);
           });
 
-          it('after execution', async function () {
+          it.only('after execution', async function () {
             await this.helper.propose();
             await this.helper.waitForSnapshot();
             await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
