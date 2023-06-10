@@ -12,9 +12,9 @@ contract('Strings', function () {
   });
 
   describe('toStringSigned', function () {
-    const expected = '100 Integer literal conversion successful!';
-    it('should fetch `integerLiteralConversion` as `100 Integer literal conversion successful!`', async function () {
-      expect(await this.stringsMock.methods['integerLiteralConversion()']()).to.equal(expected);
+    const expected = '100';
+    it('converts a positive number', async function () {
+      expect(await this.strings.methods['$toStringSigned(uint256)'](100)).to.equal(expected);
     });
   });
 
