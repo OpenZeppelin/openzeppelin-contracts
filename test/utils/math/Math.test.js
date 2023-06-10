@@ -234,7 +234,7 @@ contract('Math', function () {
       const exponent = new BN('200');
       const modulus = new BN('50');
       const result = new BN('1');
-      expect(await this.math.modExp.call(base, exponent, modulus)).to.be.bignumber.equal(result);
+      expect(await this.math.$modExp(base, exponent, modulus)).to.be.bignumber.equal(result);
     });
 
     it('is correctly reverting when modulus is zero', async function () {
@@ -242,7 +242,7 @@ contract('Math', function () {
       const exponent = new BN('200');
       const modulus = new BN('0');
       await expectRevert(
-        this.math.modExp.call(base, exponent, modulus),
+        this.math.$modExp(base, exponent, modulus),
         "ModularExponentiation: Can't calculate for modulus equal to zero",
       );
     });
