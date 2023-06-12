@@ -106,7 +106,7 @@ library Address {
 
     /**
      * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
-     * with an `customRevert` function as a fallback revert reason when `target` reverts.
+     * with a `customRevert` function as a fallback revert reason when `target` reverts.
      *
      * Requirements:
      *
