@@ -44,12 +44,12 @@ contract('SafeERC20', function (accounts) {
     });
 
     it('reverts on increaseAllowance', async function () {
-      // [TODO] make sure it's reverting for the right reason
+      // Call to 'token.allowance' does not return any data, resulting in a decoding error (revert without reason)
       await expectRevert.unspecified(this.mock.$safeIncreaseAllowance(this.token.address, spender, 0));
     });
 
     it('reverts on decreaseAllowance', async function () {
-      // [TODO] make sure it's reverting for the right reason
+      // Call to 'token.allowance' does not return any data, resulting in a decoding error (revert without reason)
       await expectRevert.unspecified(this.mock.$safeDecreaseAllowance(this.token.address, spender, 0));
     });
 
@@ -82,13 +82,19 @@ contract('SafeERC20', function (accounts) {
     });
 
     it('reverts on increaseAllowance', async function () {
-      // [TODO] make sure it's reverting for the right reason
-      await expectRevert.unspecified(this.mock.$safeIncreaseAllowance(this.token.address, spender, 0));
+      await expectRevertCustomError(
+        this.mock.$safeIncreaseAllowance(this.token.address, spender, 0),
+        'SafeERC20FailedOperation',
+        [this.token.address],
+      );
     });
 
     it('reverts on decreaseAllowance', async function () {
-      // [TODO] make sure it's reverting for the right reason
-      await expectRevert.unspecified(this.mock.$safeDecreaseAllowance(this.token.address, spender, 0));
+      await expectRevertCustomError(
+        this.mock.$safeDecreaseAllowance(this.token.address, spender, 0),
+        'SafeERC20FailedOperation',
+        [this.token.address],
+      );
     });
 
     it('reverts on forceApprove', async function () {
