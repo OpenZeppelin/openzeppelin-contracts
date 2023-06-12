@@ -85,10 +85,8 @@ const errors = `\
   
   /**
    * @dev An int value doesn't fit in an uint of \`bits\` size.
-   * 
-   * NOTE: The \`bits\` argument is \`min(bits, 255)\`.
    */
-  error SafeCastOverflowedIntToUint(uint8 bits, int256 value);
+  error SafeCastOverflowedIntToUint(int256 value);
   
   /**
    * @dev Value doesn't fit in an int of \`bits\` size.
@@ -97,10 +95,8 @@ const errors = `\
   
   /**
    * @dev An uint value doesn't fit in an int of \`bits\` size.
-   * 
-   * NOTE: The \`bits\` argument is \`min(bits, 255)\`.
    */
-  error SafeCastOverflowedUintToInt(uint8 bits, uint256 value);
+  error SafeCastOverflowedUintToInt(uint256 value);
 `;
 
 const toUintDownCast = length => `\
@@ -161,7 +157,7 @@ const toInt = length => `\
 function toInt${length}(uint${length} value) internal pure returns (int${length}) {
     // Note: Unsafe cast below is okay because \`type(int${length}).max\` is guaranteed to be positive
     if (value > uint${length}(type(int${length}).max)) {
-      revert SafeCastOverflowedUintToInt(${Math.min(length, 255)}, value);
+      revert SafeCastOverflowedUintToInt(value);
     }
     return int${length}(value);
 }
@@ -179,7 +175,7 @@ const toUint = length => `\
  */
 function toUint${length}(int${length} value) internal pure returns (uint${length}) {
     if (value < 0) {
-      revert SafeCastOverflowedIntToUint(${Math.min(length, 255)}, value);
+      revert SafeCastOverflowedIntToUint(value);
     }
     return uint${length}(value);
 }

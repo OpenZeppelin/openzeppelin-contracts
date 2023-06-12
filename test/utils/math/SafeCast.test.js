@@ -63,14 +63,11 @@ contract('SafeCast', async function () {
     });
 
     it('reverts when casting -1', async function () {
-      await expectRevertCustomError(this.safeCast.$toUint256(-1), `SafeCastOverflowedIntToUint`, [255, -1]);
+      await expectRevertCustomError(this.safeCast.$toUint256(-1), `SafeCastOverflowedIntToUint`, [-1]);
     });
 
     it(`reverts when casting INT256_MIN (${minInt256})`, async function () {
-      await expectRevertCustomError(this.safeCast.$toUint256(minInt256), `SafeCastOverflowedIntToUint`, [
-        255,
-        minInt256,
-      ]);
+      await expectRevertCustomError(this.safeCast.$toUint256(minInt256), `SafeCastOverflowedIntToUint`, [minInt256]);
     });
   });
 
@@ -153,16 +150,12 @@ contract('SafeCast', async function () {
 
     it(`reverts when casting INT256_MAX + 1 (${maxInt256.addn(1)})`, async function () {
       await expectRevertCustomError(this.safeCast.$toInt256(maxInt256.addn(1)), 'SafeCastOverflowedUintToInt', [
-        255,
         maxInt256.addn(1),
       ]);
     });
 
     it(`reverts when casting UINT256_MAX (${maxUint256})`, async function () {
-      await expectRevertCustomError(this.safeCast.$toInt256(maxUint256), 'SafeCastOverflowedUintToInt', [
-        255,
-        maxUint256,
-      ]);
+      await expectRevertCustomError(this.safeCast.$toInt256(maxUint256), 'SafeCastOverflowedUintToInt', [maxUint256]);
     });
   });
 });

@@ -24,10 +24,8 @@ library SafeCast {
 
     /**
      * @dev An int value doesn't fit in an uint of `bits` size.
-     *
-     * NOTE: The `bits` argument is `min(bits, 255)`.
      */
-    error SafeCastOverflowedIntToUint(uint8 bits, int256 value);
+    error SafeCastOverflowedIntToUint(int256 value);
 
     /**
      * @dev Value doesn't fit in an int of `bits` size.
@@ -36,10 +34,8 @@ library SafeCast {
 
     /**
      * @dev An uint value doesn't fit in an int of `bits` size.
-     *
-     * NOTE: The `bits` argument is `min(bits, 255)`.
      */
-    error SafeCastOverflowedUintToInt(uint8 bits, uint256 value);
+    error SafeCastOverflowedUintToInt(uint256 value);
 
     /**
      * @dev Returns the downcasted uint248 from uint256, reverting on
@@ -641,7 +637,7 @@ library SafeCast {
      */
     function toUint256(int256 value) internal pure returns (uint256) {
         if (value < 0) {
-            revert SafeCastOverflowedIntToUint(255, value);
+            revert SafeCastOverflowedIntToUint(value);
         }
         return uint256(value);
     }
@@ -1278,7 +1274,7 @@ library SafeCast {
     function toInt256(uint256 value) internal pure returns (int256) {
         // Note: Unsafe cast below is okay because `type(int256).max` is guaranteed to be positive
         if (value > uint256(type(int256).max)) {
-            revert SafeCastOverflowedUintToInt(255, value);
+            revert SafeCastOverflowedUintToInt(value);
         }
         return int256(value);
     }
