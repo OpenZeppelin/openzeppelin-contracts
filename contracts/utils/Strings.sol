@@ -14,6 +14,11 @@ library Strings {
     uint8 private constant _ADDRESS_LENGTH = 20;
 
     /**
+     * @dev The `value` string doesn't fit in the specified `length`.
+     */
+    error StringsInsufficientHexLength(uint256 value, uint256 length);
+
+    /**
      * @dev Converts a `uint256` to its ASCII `string` decimal representation.
      */
     function toString(uint256 value) internal pure returns (string memory) {
@@ -58,14 +63,17 @@ library Strings {
      * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
      */
     function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
+        uint256 localValue = value;
         bytes memory buffer = new bytes(2 * length + 2);
         buffer[0] = "0";
         buffer[1] = "x";
         for (uint256 i = 2 * length + 1; i > 1; --i) {
-            buffer[i] = _SYMBOLS[value & 0xf];
-            value >>= 4;
+            buffer[i] = _SYMBOLS[localValue & 0xf];
+            localValue >>= 4;
         }
-        require(value == 0, "Strings: hex length insufficient");
+        if (localValue != 0) {
+            revert StringsInsufficientHexLength(value, length);
+        }
         return string(buffer);
     }
 

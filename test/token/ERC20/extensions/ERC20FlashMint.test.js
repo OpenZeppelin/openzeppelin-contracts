@@ -2,6 +2,7 @@
 
 const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
+const { expectRevertCustomError } = require('../../../helpers/customError');
 const { MAX_UINT256, ZERO_ADDRESS } = constants;
 
 const ERC20FlashMintMock = artifacts.require('$ERC20FlashMintMock');
@@ -37,7 +38,9 @@ contract('ERC20FlashMint', function (accounts) {
     });
 
     it('token mismatch', async function () {
-      await expectRevert(this.token.flashFee(ZERO_ADDRESS, loanAmount), 'ERC20FlashMint: wrong token');
+      await expectRevertCustomError(this.token.flashFee(ZERO_ADDRESS, loanAmount), 'ERC3156UnsupportedToken', [
+        ZERO_ADDRESS,
+      ]);
     });
   });
 
@@ -79,26 +82,29 @@ contract('ERC20FlashMint', function (accounts) {
 
     it('missing return value', async function () {
       const receiver = await ERC3156FlashBorrowerMock.new(false, true);
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.flashLoan(receiver.address, this.token.address, loanAmount, '0x'),
-        'ERC20FlashMint: invalid return value',
+        'ERC3156InvalidReceiver',
+        [receiver.address],
       );
     });
 
     it('missing approval', async function () {
       const receiver = await ERC3156FlashBorrowerMock.new(true, false);
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.flashLoan(receiver.address, this.token.address, loanAmount, '0x'),
-        'ERC20: insufficient allowance',
+        'ERC20InsufficientAllowance',
+        [this.token.address, 0, loanAmount],
       );
     });
 
     it('unavailable funds', async function () {
       const receiver = await ERC3156FlashBorrowerMock.new(true, true);
       const data = this.token.contract.methods.transfer(other, 10).encodeABI();
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.flashLoan(receiver.address, this.token.address, loanAmount, data),
-        'ERC20: transfer amount exceeds balance',
+        'ERC20InsufficientBalance',
+        [receiver.address, loanAmount - 10, loanAmount],
       );
     });
 

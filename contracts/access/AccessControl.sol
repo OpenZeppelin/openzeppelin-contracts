@@ -107,16 +107,7 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      */
     function _checkRole(bytes32 role, address account) internal view virtual {
         if (!hasRole(role, account)) {
-            revert(
-                string(
-                    abi.encodePacked(
-                        "AccessControl: account ",
-                        Strings.toHexString(account),
-                        " is missing role ",
-                        Strings.toHexString(uint256(role), 32)
-                    )
-                )
-            );
+            revert AccessControlUnauthorizedAccount(account, role);
         }
     }
 
@@ -173,14 +164,16 @@ abstract contract AccessControl is Context, IAccessControl, ERC165 {
      *
      * Requirements:
      *
-     * - the caller must be `account`.
+     * - the caller must be `callerConfirmation`.
      *
      * May emit a {RoleRevoked} event.
      */
-    function renounceRole(bytes32 role, address account) public virtual {
-        require(account == _msgSender(), "AccessControl: can only renounce roles for self");
+    function renounceRole(bytes32 role, address callerConfirmation) public virtual {
+        if (callerConfirmation != _msgSender()) {
+            revert AccessControlBadConfirmation();
+        }
 
-        _revokeRole(role, account);
+        _revokeRole(role, callerConfirmation);
     }
 
     /**

@@ -47,6 +47,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
     // solhint-enable var-name-mixedcase
 
+    bytes32 private constant _ALL_PROPOSAL_STATES_BITMAP = bytes32((2 ** (uint8(type(ProposalState).max) + 1)) - 1);
     string private _name;
 
     /// @custom:oz-retyped-from mapping(uint256 => Governor.ProposalCore)
@@ -69,7 +70,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * governance protocol (since v4.6).
      */
     modifier onlyGovernance() {
-        require(_msgSender() == _executor(), "Governor: onlyGovernance");
+        if (_msgSender() != _executor()) {
+            revert GovernorOnlyExecutor(_msgSender());
+        }
         if (_executor() != address(this)) {
             bytes32 msgDataHash = keccak256(_msgData());
             // loop until popping the expected operation - throw if deque is empty (operation not authorized)
@@ -89,7 +92,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      * @dev Function to receive ETH that will be handled by the governor (disabled if executor is a third party contract)
      */
     receive() external payable virtual {
-        require(_executor() == address(this), "Governor: must send to executor");
+        if (_executor() != address(this)) {
+            revert GovernorDisabledDeposit();
+        }
     }
 
     /**
@@ -174,7 +179,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256 snapshot = proposalSnapshot(proposalId);
 
         if (snapshot == 0) {
-            revert("Governor: unknown proposal id");
+            revert GovernorNonexistentProposal(proposalId);
         }
 
         uint256 currentTimepoint = clock();
@@ -275,17 +280,24 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         require(_isValidDescriptionForProposer(proposer, description), "Governor: proposer restricted");
 
         uint256 currentTimepoint = clock();
-        require(
-            getVotes(proposer, currentTimepoint - 1) >= proposalThreshold(),
-            "Governor: proposer votes below proposal threshold"
-        );
+
+        // Avoid stack too deep
+        {
+            uint256 proposerVotes = getVotes(proposer, currentTimepoint - 1);
+            uint256 votesThreshold = proposalThreshold();
+            if (proposerVotes < votesThreshold) {
+                revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);
+            }
+        }
 
         uint256 proposalId = hashProposal(targets, values, calldatas, keccak256(bytes(description)));
 
-        require(targets.length == values.length, "Governor: invalid proposal length");
-        require(targets.length == calldatas.length, "Governor: invalid proposal length");
-        require(targets.length > 0, "Governor: empty proposal");
-        require(_proposals[proposalId].voteStart == 0, "Governor: proposal already exists");
+        if (targets.length != values.length || targets.length != calldatas.length || targets.length == 0) {
+            revert GovernorInvalidProposalLength(targets.length, calldatas.length, values.length);
+        }
+        if (_proposals[proposalId].voteStart != 0) {
+            revert GovernorUnexpectedProposalState(proposalId, state(proposalId), bytes32(0));
+        }
 
         uint256 snapshot = currentTimepoint + votingDelay();
         uint256 deadline = snapshot + votingPeriod();
@@ -327,10 +339,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
 
         ProposalState currentState = state(proposalId);
-        require(
-            currentState == ProposalState.Succeeded || currentState == ProposalState.Queued,
-            "Governor: proposal not successful"
-        );
+        if (currentState != ProposalState.Succeeded && currentState != ProposalState.Queued) {
+            revert GovernorUnexpectedProposalState(
+                proposalId,
+                currentState,
+                _encodeStateBitmap(ProposalState.Succeeded) | _encodeStateBitmap(ProposalState.Queued)
+            );
+        }
         _proposals[proposalId].executed = true;
 
         emit ProposalExecuted(proposalId);
@@ -352,8 +367,13 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes32 descriptionHash
     ) public virtual override returns (uint256) {
         uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
-        require(state(proposalId) == ProposalState.Pending, "Governor: too late to cancel");
-        require(_msgSender() == _proposals[proposalId].proposer, "Governor: only proposer can cancel");
+        ProposalState currentState = state(proposalId);
+        if (currentState != ProposalState.Pending) {
+            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeStateBitmap(ProposalState.Pending));
+        }
+        if (_msgSender() != proposalProposer(proposalId)) {
+            revert GovernorOnlyProposer(_msgSender());
+        }
         return _cancel(targets, values, calldatas, descriptionHash);
     }
 
@@ -367,10 +387,9 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes[] memory calldatas,
         bytes32 /*descriptionHash*/
     ) internal virtual {
-        string memory errorMessage = "Governor: call reverted without message";
         for (uint256 i = 0; i < targets.length; ++i) {
             (bool success, bytes memory returndata) = targets[i].call{value: values[i]}(calldatas[i]);
-            Address.verifyCallResult(success, returndata, errorMessage);
+            Address.verifyCallResult(success, returndata);
         }
     }
 
@@ -426,12 +445,16 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
 
         ProposalState currentState = state(proposalId);
 
-        require(
-            currentState != ProposalState.Canceled &&
-                currentState != ProposalState.Expired &&
-                currentState != ProposalState.Executed,
-            "Governor: proposal not active"
-        );
+        bytes32 forbiddenStates = _encodeStateBitmap(ProposalState.Canceled) |
+            _encodeStateBitmap(ProposalState.Expired) |
+            _encodeStateBitmap(ProposalState.Executed);
+        if (forbiddenStates & _encodeStateBitmap(currentState) != 0) {
+            revert GovernorUnexpectedProposalState(
+                proposalId,
+                currentState,
+                _ALL_PROPOSAL_STATES_BITMAP ^ forbiddenStates
+            );
+        }
         _proposals[proposalId].canceled = true;
 
         emit ProposalCanceled(proposalId);
@@ -570,7 +593,10 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         bytes memory params
     ) internal virtual returns (uint256) {
         ProposalCore storage proposal = _proposals[proposalId];
-        require(state(proposalId) == ProposalState.Active, "Governor: vote not currently active");
+        ProposalState currentState = state(proposalId);
+        if (currentState != ProposalState.Active) {
+            revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeStateBitmap(ProposalState.Active));
+        }
 
         uint256 weight = _getVotes(account, proposal.voteStart, params);
         _countVote(proposalId, account, support, weight, params);
@@ -592,7 +618,7 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
      */
     function relay(address target, uint256 value, bytes calldata data) external payable virtual onlyGovernance {
         (bool success, bytes memory returndata) = target.call{value: value}(data);
-        Address.verifyCallResult(success, returndata, "Governor: relay reverted without message");
+        Address.verifyCallResult(success, returndata);
     }
 
     /**
@@ -631,6 +657,22 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
     }
 
     /**
+     * @dev Encodes a `ProposalState` into a `bytes32` representation where each bit enabled corresponds to
+     * the underlying position in the `ProposalState` enum. For example:
+     *
+     * 0x000...10000
+     *   ^^^^^^------ ...
+     *         ^----- Succeeded
+     *          ^---- Defeated
+     *           ^--- Canceled
+     *            ^-- Active
+     *             ^- Pending
+     */
+    function _encodeStateBitmap(ProposalState proposalState) internal pure returns (bytes32) {
+        return bytes32(1 << uint8(proposalState));
+    }
+
+    /*
      * @dev Check if the proposer is authorized to submit a proposal with the given description.
      *
      * If the proposal description ends with `#proposer=0x???`, where `0x???` is an address written as a hex string

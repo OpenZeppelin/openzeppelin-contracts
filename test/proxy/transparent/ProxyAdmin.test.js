@@ -1,11 +1,13 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
-const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
 const { expect } = require('chai');
 const ImplV1 = artifacts.require('DummyImplementation');
 const ImplV2 = artifacts.require('DummyImplementationV2');
 const ProxyAdmin = artifacts.require('ProxyAdmin');
 const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
 const ITransparentUpgradeableProxy = artifacts.require('ITransparentUpgradeableProxy');
+
+const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 contract('ProxyAdmin', function (accounts) {
   const [proxyAdminOwner, newAdmin, anotherAccount] = accounts;
@@ -32,9 +34,10 @@ contract('ProxyAdmin', function (accounts) {
 
   describe('#changeProxyAdmin', function () {
     it('fails to change proxy admin if its not the proxy owner', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: anotherAccount }),
-        'caller is not the owner',
+        'OwnableUnauthorizedAccount',
+        [anotherAccount],
       );
     });
 
@@ -49,9 +52,10 @@ contract('ProxyAdmin', function (accounts) {
   describe('#upgrade', function () {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {
-        await expectRevert(
+        await expectRevertCustomError(
           this.proxyAdmin.upgrade(this.proxy.address, this.implementationV2.address, { from: anotherAccount }),
-          'caller is not the owner',
+          'OwnableUnauthorizedAccount',
+          [anotherAccount],
         );
       });
     });
@@ -70,11 +74,12 @@ contract('ProxyAdmin', function (accounts) {
     context('with unauthorized account', function () {
       it('fails to upgrade', async function () {
         const callData = new ImplV1('').contract.methods.initializeNonPayableWithValue(1337).encodeABI();
-        await expectRevert(
+        await expectRevertCustomError(
           this.proxyAdmin.upgradeAndCall(this.proxy.address, this.implementationV2.address, callData, {
             from: anotherAccount,
           }),
-          'caller is not the owner',
+          'OwnableUnauthorizedAccount',
+          [anotherAccount],
         );
       });
     });
