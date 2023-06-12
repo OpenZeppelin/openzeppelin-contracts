@@ -414,10 +414,7 @@ library Math {
      */
     function modExp(uint256 b, uint256 e, uint256 m) internal view returns (uint256) {
         require(m != 0, "ModularExponentiation: Can't calculate for modulus equal to zero");
-        bool success;
-        bytes memory result;
-
-        (success, result) = (address(5).staticcall(abi.encode(32, 32, 32, b, e, m)));
+        (bool success, bytes memory result) = (address(5).staticcall(abi.encode(32, 32, 32, b, e, m)));
         require(success, "ModularExponentiation: Failed at calculating the result");
         return abi.decode(result, (uint256));
     }
