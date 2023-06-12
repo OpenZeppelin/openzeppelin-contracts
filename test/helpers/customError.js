@@ -17,20 +17,13 @@ async function expectRevertCustomError(promise, expectedErrorName, args) {
     const [, error] = revert.message.match(/'(.*)'/);
 
     // Attempt to parse as an error
-    if (!/\w+\(.*\)/g.test(error)) {
+    const match = error.match(/(?<name>\w+)\((?<args>.*)\)/)
+    if (!match) {
       expect.fail(`Couldn't parse "${error}" as a custom error`);
     }
-
-    // Extract the error name
-    const [, errorName] = error.match(/(\w+)\(.*\)/);
-
-    const argMatches = [
-      ...error
-        // Remove the error name and leave the parameters
-        .replace(errorName, '')
-        // Capture the remaining parameters
-        .matchAll(/(\w+|-?\d+)/g),
-    ];
+    // Extract the error name and parameters
+    const errorName = match.groups.name;
+    const argMatches = [...match.groups.args.matchAll(/-?\w+/g)];
 
     // Assert error name
     expect(errorName).to.be.equal(
