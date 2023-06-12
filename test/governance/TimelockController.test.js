@@ -1,11 +1,11 @@
-const { BN, constants, expectEvent, time, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent, expectRevert, time } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS, ZERO_BYTES32 } = constants;
 
 const { expect } = require('chai');
 
 const { shouldSupportInterfaces } = require('../utils/introspection/SupportsInterface.behavior');
 const { expectRevertCustomError } = require('../helpers/customError');
-const Enums = require('../helpers/enums');
+const { OperationState } = require('../helpers/enums');
 
 const TimelockController = artifacts.require('TimelockController');
 const CallReceiverMock = artifacts.require('CallReceiverMock');
@@ -195,7 +195,7 @@ contract('TimelockController', function (accounts) {
               { from: proposer },
             ),
             'TimelockUnexpectedOperationState',
-            [this.operation.id, Enums.OperationState.Unset],
+            [this.operation.id, OperationState.Unset],
           );
         });
 
@@ -267,7 +267,7 @@ contract('TimelockController', function (accounts) {
               { from: executor },
             ),
             'TimelockUnexpectedOperationState',
-            [this.operation.id, Enums.OperationState.Ready],
+            [this.operation.id, OperationState.Ready],
           );
         });
 
@@ -295,7 +295,7 @@ contract('TimelockController', function (accounts) {
                 { from: executor },
               ),
               'TimelockUnexpectedOperationState',
-              [this.operation.id, Enums.OperationState.Ready],
+              [this.operation.id, OperationState.Ready],
             );
           });
 
@@ -313,7 +313,7 @@ contract('TimelockController', function (accounts) {
                 { from: executor },
               ),
               'TimelockUnexpectedOperationState',
-              [this.operation.id, Enums.OperationState.Ready],
+              [this.operation.id, OperationState.Ready],
             );
           });
 
@@ -408,7 +408,7 @@ contract('TimelockController', function (accounts) {
                   { from: executor },
                 ),
                 'TimelockUnexpectedOperationState',
-                [reentrantOperation.id, Enums.OperationState.Ready],
+                [reentrantOperation.id, OperationState.Ready],
               );
 
               // Disable reentrancy
@@ -505,7 +505,7 @@ contract('TimelockController', function (accounts) {
               { from: proposer },
             ),
             'TimelockUnexpectedOperationState',
-            [this.operation.id, Enums.OperationState.Unset],
+            [this.operation.id, OperationState.Unset],
           );
         });
 
@@ -596,7 +596,7 @@ contract('TimelockController', function (accounts) {
               { from: executor },
             ),
             'TimelockUnexpectedOperationState',
-            [this.operation.id, Enums.OperationState.Ready],
+            [this.operation.id, OperationState.Ready],
           );
         });
 
@@ -624,7 +624,7 @@ contract('TimelockController', function (accounts) {
                 { from: executor },
               ),
               'TimelockUnexpectedOperationState',
-              [this.operation.id, Enums.OperationState.Ready],
+              [this.operation.id, OperationState.Ready],
             );
           });
 
@@ -642,7 +642,7 @@ contract('TimelockController', function (accounts) {
                 { from: executor },
               ),
               'TimelockUnexpectedOperationState',
-              [this.operation.id, Enums.OperationState.Ready],
+              [this.operation.id, OperationState.Ready],
             );
           });
 
@@ -784,7 +784,7 @@ contract('TimelockController', function (accounts) {
                   { from: executor },
                 ),
                 'TimelockUnexpectedOperationState',
-                [reentrantBatchOperation.id, Enums.OperationState.Ready],
+                [reentrantBatchOperation.id, OperationState.Ready],
               );
 
               // Disable reentrancy
@@ -881,7 +881,7 @@ contract('TimelockController', function (accounts) {
         await expectRevertCustomError(
           this.mock.cancel(constants.ZERO_BYTES32, { from: canceller }),
           'TimelockUnexpectedOperationState',
-          [constants.ZERO_BYTES32, Enums.OperationState.Pending],
+          [constants.ZERO_BYTES32, OperationState.Pending],
         );
       });
 
@@ -1087,6 +1087,7 @@ contract('TimelockController', function (accounts) {
         { from: proposer },
       );
       await time.increase(MINDELAY);
+      // Targeted function reverts with a panic code (0x1) + the timelock bubble the panic code
       await expectRevert.unspecified(
         this.mock.execute(operation.target, operation.value, operation.data, operation.predecessor, operation.salt, {
           from: executor,
