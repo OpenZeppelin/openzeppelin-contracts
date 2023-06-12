@@ -17,7 +17,7 @@ async function expectRevertCustomError(promise, expectedErrorName, args) {
     const [, error] = revert.message.match(/'(.*)'/);
 
     // Attempt to parse as an error
-    const match = error.match(/(?<name>\w+)\((?<args>.*)\)/)
+    const match = error.match(/(?<name>\w+)\((?<args>.*)\)/);
     if (!match) {
       expect.fail(`Couldn't parse "${error}" as a custom error`);
     }
