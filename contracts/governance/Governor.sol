@@ -589,7 +589,6 @@ abstract contract Governor is Context, ERC165, EIP712, IGovernor, IERC721Receive
         string memory reason,
         bytes memory params
     ) internal virtual returns (uint256) {
-        ProposalCore storage proposal = _proposals[proposalId];
         ProposalState currentState = state(proposalId);
         if (currentState != ProposalState.Active) {
             revert GovernorUnexpectedProposalState(proposalId, currentState, _encodeStateBitmap(ProposalState.Active));
