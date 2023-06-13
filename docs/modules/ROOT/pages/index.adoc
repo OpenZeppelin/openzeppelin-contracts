@@ -45,6 +45,8 @@ To keep your system secure, you should **always** use the installed code as-is, 
 
 Please report any security issues you find via our https://www.immunefi.com/bounty/openzeppelin[bug bounty program on Immunefi] or directly to security@openzeppelin.org.
 
+The https://contracts.openzeppelin.com/security[Security Center] contains more details about the secure development process.
+
 [[next-steps]]
 == Learn More
 
