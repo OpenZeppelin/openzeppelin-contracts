@@ -11,6 +11,16 @@ import "../IGovernor.sol";
  * _Available since v4.3._
  */
 abstract contract IGovernorTimelock is IGovernor {
+    /**
+     * @dev The proposal hasn't been queued yet.
+     */
+    error GovernorNotQueuedProposal(uint256 proposalId);
+
+    /**
+     * @dev The proposal has already been queued.
+     */
+    error GovernorAlreadyQueuedProposal(uint256 proposalId);
+
     event ProposalQueued(uint256 proposalId, uint256 eta);
 
     function timelock() public view virtual returns (address);

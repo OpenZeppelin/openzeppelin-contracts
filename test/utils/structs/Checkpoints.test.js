@@ -1,7 +1,9 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
+require('@openzeppelin/test-helpers');
+
 const { expect } = require('chai');
 
 const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts.js');
+const { expectRevertCustomError } = require('../../helpers/customError.js');
 
 const $Checkpoints = artifacts.require('$Checkpoints');
 
@@ -77,7 +79,11 @@ contract('Checkpoints', function () {
         });
 
         it('cannot push values in the past', async function () {
-          await expectRevert(this.methods.push(last(this.checkpoints).key - 1, '0'), 'Checkpoint: decreasing keys');
+          await expectRevertCustomError(
+            this.methods.push(last(this.checkpoints).key - 1, '0'),
+            'CheckpointUnorderedInsertion',
+            [],
+          );
         });
 
         it('can update last value', async function () {

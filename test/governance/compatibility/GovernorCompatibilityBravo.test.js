@@ -1,9 +1,10 @@
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const RLP = require('rlp');
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
 const { clockFromReceipt } = require('../../helpers/time');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const Timelock = artifacts.require('CompTimelock');
 const Governor = artifacts.require('$GovernorCompatibilityBravoMock');
@@ -38,6 +39,16 @@ contract('GovernorCompatibilityBravo', function (accounts) {
   const proposalThreshold = web3.utils.toWei('10');
   const value = web3.utils.toWei('1');
 
+  const votes = {
+    [owner]: tokenSupply,
+    [proposer]: proposalThreshold,
+    [voter1]: web3.utils.toWei('10'),
+    [voter2]: web3.utils.toWei('7'),
+    [voter3]: web3.utils.toWei('5'),
+    [voter4]: web3.utils.toWei('2'),
+    [other]: 0,
+  };
+
   for (const { mode, Token } of TOKENS) {
     describe(`using ${Token._json.contractName}`, function () {
       beforeEach(async function () {
@@ -65,11 +76,11 @@ contract('GovernorCompatibilityBravo', function (accounts) {
         await web3.eth.sendTransaction({ from: owner, to: this.timelock.address, value });
 
         await this.token.$_mint(owner, tokenSupply);
-        await this.helper.delegate({ token: this.token, to: proposer, value: proposalThreshold }, { from: owner });
-        await this.helper.delegate({ token: this.token, to: voter1, value: web3.utils.toWei('10') }, { from: owner });
-        await this.helper.delegate({ token: this.token, to: voter2, value: web3.utils.toWei('7') }, { from: owner });
-        await this.helper.delegate({ token: this.token, to: voter3, value: web3.utils.toWei('5') }, { from: owner });
-        await this.helper.delegate({ token: this.token, to: voter4, value: web3.utils.toWei('2') }, { from: owner });
+        await this.helper.delegate({ token: this.token, to: proposer, value: votes[proposer] }, { from: owner });
+        await this.helper.delegate({ token: this.token, to: voter1, value: votes[voter1] }, { from: owner });
+        await this.helper.delegate({ token: this.token, to: voter2, value: votes[voter2] }, { from: owner });
+        await this.helper.delegate({ token: this.token, to: voter3, value: votes[voter3] }, { from: owner });
+        await this.helper.delegate({ token: this.token, to: voter4, value: votes[voter4] }, { from: owner });
 
         // default proposal
         this.proposal = this.helper.setProposal(
@@ -182,9 +193,10 @@ contract('GovernorCompatibilityBravo', function (accounts) {
         await this.helper.propose({ from: proposer });
         await this.helper.waitForSnapshot();
         await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
-        await expectRevert(
+        await expectRevertCustomError(
           this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 }),
-          'GovernorCompatibilityBravo: vote already cast',
+          'GovernorAlreadyCastVote',
+          [voter1],
         );
       });
 
@@ -226,36 +238,43 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
       it('with inconsistent array size for selector and arguments', async function () {
         const target = this.receiver.address;
+        const signatures = ['mockFunction()']; // One signature
+        const data = ['0x', this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI()]; // Two data entries
         this.helper.setProposal(
           {
             targets: [target, target],
             values: [0, 0],
-            signatures: ['mockFunction()'], // One signature
-            data: ['0x', this.receiver.contract.methods.mockFunctionWithArgs(17, 42).encodeABI()], // Two data entries
+            signatures,
+            data,
           },
           '<proposal description>',
         );
 
-        await expectRevert(this.helper.propose({ from: proposer }), 'GovernorBravo: invalid signatures length');
+        await expectRevertCustomError(this.helper.propose({ from: proposer }), 'GovernorInvalidSignaturesLength', [
+          signatures.length,
+          data.length,
+        ]);
       });
 
       describe('should revert', function () {
         describe('on propose', function () {
           it('if proposal does not meet proposalThreshold', async function () {
-            await expectRevert(
-              this.helper.propose({ from: other }),
-              'Governor: proposer votes below proposal threshold',
-            );
+            await expectRevertCustomError(this.helper.propose({ from: other }), 'GovernorInsufficientProposerVotes', [
+              other,
+              votes[other],
+              proposalThreshold,
+            ]);
           });
         });
 
         describe('on vote', function () {
-          it('if vote type is invalide', async function () {
+          it('if vote type is invalid', async function () {
             await this.helper.propose({ from: proposer });
             await this.helper.waitForSnapshot();
-            await expectRevert(
+            await expectRevertCustomError(
               this.helper.vote({ support: 5 }, { from: voter1 }),
-              'GovernorCompatibilityBravo: invalid vote type',
+              'GovernorInvalidVoteType',
+              [],
             );
           });
         });
@@ -275,7 +294,11 @@ contract('GovernorCompatibilityBravo', function (accounts) {
 
         it('cannot cancel is proposer is still above threshold', async function () {
           await this.helper.propose({ from: proposer });
-          await expectRevert(this.helper.cancel('external'), 'GovernorBravo: proposer above threshold');
+          await expectRevertCustomError(this.helper.cancel('external'), 'GovernorInsufficientProposerVotes', [
+            proposer,
+            votes[proposer],
+            proposalThreshold,
+          ]);
         });
       });
     });

@@ -1,6 +1,7 @@
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent } = require('@openzeppelin/test-helpers');
 const { web3 } = require('@openzeppelin/test-helpers/src/setup');
 const { getSlot, ImplementationSlot } = require('../../helpers/erc1967');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const ERC1967Proxy = artifacts.require('ERC1967Proxy');
 const UUPSUpgradeableMock = artifacts.require('UUPSUpgradeableMock');
@@ -47,9 +48,10 @@ contract('UUPSUpgradeable', function () {
 
   // delegate to a non existing upgradeTo function causes a low level revert
   it('reject upgrade to non uups implementation', async function () {
-    await expectRevert(
+    await expectRevertCustomError(
       this.instance.upgradeTo(this.implUpgradeNonUUPS.address),
-      'ERC1967Upgrade: new implementation is not UUPS',
+      'ERC1967InvalidImplementation',
+      [this.implUpgradeNonUUPS.address],
     );
   });
 
@@ -57,10 +59,9 @@ contract('UUPSUpgradeable', function () {
     const { address } = await ERC1967Proxy.new(this.implInitial.address, '0x');
     const otherInstance = await UUPSUpgradeableMock.at(address);
 
-    await expectRevert(
-      this.instance.upgradeTo(otherInstance.address),
-      'ERC1967Upgrade: new implementation is not UUPS',
-    );
+    await expectRevertCustomError(this.instance.upgradeTo(otherInstance.address), 'ERC1967InvalidImplementation', [
+      otherInstance.address,
+    ]);
   });
 
   it('can upgrade from legacy implementations', async function () {

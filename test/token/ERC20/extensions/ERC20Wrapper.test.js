@@ -1,14 +1,15 @@
-const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { ZERO_ADDRESS, MAX_UINT256 } = constants;
 
 const { shouldBehaveLikeERC20 } = require('../ERC20.behavior');
+const { expectRevertCustomError } = require('../../../helpers/customError');
 
 const NotAnERC20 = artifacts.require('CallReceiverMock');
 const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC20Wrapper = artifacts.require('$ERC20Wrapper');
 
-contract('ERC20', function (accounts) {
+contract('ERC20Wrapper', function (accounts) {
   const [initialHolder, recipient, anotherAccount] = accounts;
 
   const name = 'My Token';
@@ -66,17 +67,19 @@ contract('ERC20', function (accounts) {
     });
 
     it('missing approval', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.depositFor(initialHolder, initialSupply, { from: initialHolder }),
-        'ERC20: insufficient allowance',
+        'ERC20InsufficientAllowance',
+        [this.token.address, 0, initialSupply],
       );
     });
 
     it('missing balance', async function () {
       await this.underlying.approve(this.token.address, MAX_UINT256, { from: initialHolder });
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.depositFor(initialHolder, MAX_UINT256, { from: initialHolder }),
-        'ERC20: transfer amount exceeds balance',
+        'ERC20InsufficientBalance',
+        [initialHolder, initialSupply, MAX_UINT256],
       );
     });
 
@@ -103,9 +106,10 @@ contract('ERC20', function (accounts) {
     });
 
     it('missing balance', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.token.withdrawTo(initialHolder, MAX_UINT256, { from: initialHolder }),
-        'ERC20: transfer amount exceeds balance',
+        'ERC20InsufficientBalance',
+        [initialHolder, initialSupply, MAX_UINT256],
       );
     });
 
@@ -185,6 +189,6 @@ contract('ERC20', function (accounts) {
       await this.token.depositFor(initialHolder, initialSupply, { from: initialHolder });
     });
 
-    shouldBehaveLikeERC20('ERC20', initialSupply, initialHolder, recipient, anotherAccount);
+    shouldBehaveLikeERC20(initialSupply, initialHolder, recipient, anotherAccount);
   });
 });

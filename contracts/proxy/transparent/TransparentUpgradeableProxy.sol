@@ -53,6 +53,16 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  */
 contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
+     * @dev The proxy caller is the current admin, and can't fallback to the proxy target.
+     */
+    error ProxyDeniedAdminAccess();
+
+    /**
+     * @dev msg.value is not 0.
+     */
+    error ProxyNonPayableFunction();
+
+    /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
      */
@@ -74,7 +84,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
             } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
                 ret = _dispatchChangeAdmin();
             } else {
-                revert("TransparentUpgradeableProxy: admin cannot fallback to proxy target");
+                revert ProxyDeniedAdminAccess();
             }
             assembly {
                 return(add(ret, 0x20), mload(ret))
@@ -127,6 +137,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * non-payability of function implemented through dispatchers while still allowing value to pass through.
      */
     function _requireZeroValue() private {
-        require(msg.value == 0);
+        if (msg.value != 0) {
+            revert ProxyNonPayableFunction();
+        }
     }
 }

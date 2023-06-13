@@ -8,6 +8,21 @@ pragma solidity ^0.8.19;
  */
 library Address {
     /**
+     * @dev The ETH balance of the account is not enough to perform the operation.
+     */
+    error AddressInsufficientBalance(address account);
+
+    /**
+     * @dev There's no code at `target` (it is not a contract).
+     */
+    error AddressEmptyCode(address target);
+
+    /**
+     * @dev A call to an address target failed. The target may have reverted.
+     */
+    error FailedInnerCall();
+
+    /**
      * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
      * `recipient`, forwarding all available gas and reverting on errors.
      *
@@ -24,10 +39,14 @@ library Address {
      * https://solidity.readthedocs.io/en/v0.8.0/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: insufficient balance");
+        if (address(this).balance < amount) {
+            revert AddressInsufficientBalance(address(this));
+        }
 
         (bool success, ) = recipient.call{value: amount}("");
-        require(success, "Address: unable to send value, recipient may have reverted");
+        if (!success) {
+            revert FailedInnerCall();
+        }
     }
 
     /**
@@ -49,21 +68,25 @@ library Address {
      * _Available since v3.1._
      */
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, 0, "Address: low-level call failed");
+        return functionCallWithValue(target, data, 0, defaultRevert);
     }
 
     /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with
-     * `errorMessage` as a fallback revert reason when `target` reverts.
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with a
+     * `customRevert` function as a fallback when `target` reverts.
      *
-     * _Available since v3.1._
+     * Requirements:
+     *
+     * - `customRevert` must be a reverting function.
+     *
+     * _Available since v5.0._
      */
     function functionCall(
         address target,
         bytes memory data,
-        string memory errorMessage
+        function() internal view customRevert
     ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, 0, errorMessage);
+        return functionCallWithValue(target, data, 0, customRevert);
     }
 
     /**
@@ -78,24 +101,30 @@ library Address {
      * _Available since v3.1._
      */
     function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
+        return functionCallWithValue(target, data, value, defaultRevert);
     }
 
     /**
      * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
-     * with `errorMessage` as a fallback revert reason when `target` reverts.
+     * with a `customRevert` function as a fallback revert reason when `target` reverts.
      *
-     * _Available since v3.1._
+     * Requirements:
+     *
+     * - `customRevert` must be a reverting function.
+     *
+     * _Available since v5.0._
      */
     function functionCallWithValue(
         address target,
         bytes memory data,
         uint256 value,
-        string memory errorMessage
+        function() internal view customRevert
     ) internal returns (bytes memory) {
-        require(address(this).balance >= value, "Address: insufficient balance for call");
+        if (address(this).balance < value) {
+            revert AddressInsufficientBalance(address(this));
+        }
         (bool success, bytes memory returndata) = target.call{value: value}(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+        return verifyCallResultFromTarget(target, success, returndata, customRevert);
     }
 
     /**
@@ -105,7 +134,7 @@ library Address {
      * _Available since v3.3._
      */
     function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        return functionStaticCall(target, data, "Address: low-level static call failed");
+        return functionStaticCall(target, data, defaultRevert);
     }
 
     /**
@@ -117,10 +146,10 @@ library Address {
     function functionStaticCall(
         address target,
         bytes memory data,
-        string memory errorMessage
+        function() internal view customRevert
     ) internal view returns (bytes memory) {
         (bool success, bytes memory returndata) = target.staticcall(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+        return verifyCallResultFromTarget(target, success, returndata, customRevert);
     }
 
     /**
@@ -130,7 +159,7 @@ library Address {
      * _Available since v3.4._
      */
     function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
+        return functionDelegateCall(target, data, defaultRevert);
     }
 
     /**
@@ -142,55 +171,78 @@ library Address {
     function functionDelegateCall(
         address target,
         bytes memory data,
-        string memory errorMessage
+        function() internal view customRevert
     ) internal returns (bytes memory) {
         (bool success, bytes memory returndata) = target.delegatecall(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+        return verifyCallResultFromTarget(target, success, returndata, customRevert);
     }
 
     /**
      * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling
-     * the revert reason or using the provided one) in case of unsuccessful call or if target was not a contract.
+     * the revert reason or using the provided `customRevert`) in case of unsuccessful call or if target was not a contract.
      *
-     * _Available since v4.8._
+     * _Available since v5.0._
      */
     function verifyCallResultFromTarget(
         address target,
         bool success,
         bytes memory returndata,
-        string memory errorMessage
+        function() internal view customRevert
     ) internal view returns (bytes memory) {
         if (success) {
             if (returndata.length == 0) {
                 // only check if target is a contract if the call was successful and the return data is empty
                 // otherwise we already know that it was a contract
-                require(target.code.length > 0, "Address: call to non-contract");
+                if (target.code.length == 0) {
+                    revert AddressEmptyCode(target);
+                }
             }
             return returndata;
         } else {
-            _revert(returndata, errorMessage);
+            _revert(returndata, customRevert);
         }
     }
 
     /**
      * @dev Tool to verify that a low level call was successful, and revert if it wasn't, either by bubbling the
-     * revert reason or using the provided one.
+     * revert reason or with a default revert error.
      *
-     * _Available since v4.3._
+     * _Available since v5.0._
+     */
+    function verifyCallResult(bool success, bytes memory returndata) internal view returns (bytes memory) {
+        return verifyCallResult(success, returndata, defaultRevert);
+    }
+
+    /**
+     * @dev Same as {xref-Address-verifyCallResult-bool-bytes-}[`verifyCallResult`], but with a
+     * `customRevert` function as a fallback when `success` is `false`.
+     *
+     * Requirements:
+     *
+     * - `customRevert` must be a reverting function.
+     *
+     * _Available since v5.0._
      */
     function verifyCallResult(
         bool success,
         bytes memory returndata,
-        string memory errorMessage
-    ) internal pure returns (bytes memory) {
+        function() internal view customRevert
+    ) internal view returns (bytes memory) {
         if (success) {
             return returndata;
         } else {
-            _revert(returndata, errorMessage);
+            _revert(returndata, customRevert);
         }
     }
 
-    function _revert(bytes memory returndata, string memory errorMessage) private pure {
+    /**
+     * @dev Default reverting function when no `customRevert` is provided in a function call.
+     */
+    function defaultRevert() internal pure {
+        revert FailedInnerCall();
+    }
+
+    function _revert(bytes memory returndata, function() internal view customRevert) private view {
         // Look for revert reason and bubble it up if present
         if (returndata.length > 0) {
             // The easiest way to bubble the revert reason is using memory via assembly
@@ -200,7 +252,8 @@ library Address {
                 revert(add(32, returndata), returndata_size)
             }
         } else {
-            revert(errorMessage);
+            customRevert();
+            revert FailedInnerCall();
         }
     }
 }
