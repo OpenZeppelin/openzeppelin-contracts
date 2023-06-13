@@ -1,6 +1,7 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { range } = require('../../../scripts/helpers');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const SafeCast = artifacts.require('$SafeCast');
 
@@ -26,16 +27,18 @@ contract('SafeCast', async function () {
       });
 
       it(`reverts when downcasting 2^${bits} (${maxValue.addn(1)})`, async function () {
-        await expectRevert(
+        await expectRevertCustomError(
           this.safeCast[`$toUint${bits}`](maxValue.addn(1)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
+          `SafeCastOverflowedUintDowncast`,
+          [bits, maxValue.addn(1)],
         );
       });
 
       it(`reverts when downcasting 2^${bits} + 1 (${maxValue.addn(2)})`, async function () {
-        await expectRevert(
+        await expectRevertCustomError(
           this.safeCast[`$toUint${bits}`](maxValue.addn(2)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
+          `SafeCastOverflowedUintDowncast`,
+          [bits, maxValue.addn(2)],
         );
       });
     });
@@ -60,11 +63,11 @@ contract('SafeCast', async function () {
     });
 
     it('reverts when casting -1', async function () {
-      await expectRevert(this.safeCast.$toUint256(-1), 'SafeCast: value must be positive');
+      await expectRevertCustomError(this.safeCast.$toUint256(-1), `SafeCastOverflowedIntToUint`, [-1]);
     });
 
     it(`reverts when casting INT256_MIN (${minInt256})`, async function () {
-      await expectRevert(this.safeCast.$toUint256(minInt256), 'SafeCast: value must be positive');
+      await expectRevertCustomError(this.safeCast.$toUint256(minInt256), `SafeCastOverflowedIntToUint`, [minInt256]);
     });
   });
 
@@ -94,30 +97,34 @@ contract('SafeCast', async function () {
       });
 
       it(`reverts when downcasting -2^${bits - 1} - 1 (${minValue.subn(1)})`, async function () {
-        await expectRevert(
+        await expectRevertCustomError(
           this.safeCast[`$toInt${bits}`](minValue.subn(1)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
+          `SafeCastOverflowedIntDowncast`,
+          [bits, minValue.subn(1)],
         );
       });
 
       it(`reverts when downcasting -2^${bits - 1} - 2 (${minValue.subn(2)})`, async function () {
-        await expectRevert(
+        await expectRevertCustomError(
           this.safeCast[`$toInt${bits}`](minValue.subn(2)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
+          `SafeCastOverflowedIntDowncast`,
+          [bits, minValue.subn(2)],
         );
       });
 
       it(`reverts when downcasting 2^${bits - 1} (${maxValue.addn(1)})`, async function () {
-        await expectRevert(
+        await expectRevertCustomError(
           this.safeCast[`$toInt${bits}`](maxValue.addn(1)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
+          `SafeCastOverflowedIntDowncast`,
+          [bits, maxValue.addn(1)],
         );
       });
 
       it(`reverts when downcasting 2^${bits - 1} + 1 (${maxValue.addn(2)})`, async function () {
-        await expectRevert(
+        await expectRevertCustomError(
           this.safeCast[`$toInt${bits}`](maxValue.addn(2)),
-          `SafeCast: value doesn't fit in ${bits} bits`,
+          `SafeCastOverflowedIntDowncast`,
+          [bits, maxValue.addn(2)],
         );
       });
     });
@@ -142,11 +149,13 @@ contract('SafeCast', async function () {
     });
 
     it(`reverts when casting INT256_MAX + 1 (${maxInt256.addn(1)})`, async function () {
-      await expectRevert(this.safeCast.$toInt256(maxInt256.addn(1)), "SafeCast: value doesn't fit in an int256");
+      await expectRevertCustomError(this.safeCast.$toInt256(maxInt256.addn(1)), 'SafeCastOverflowedUintToInt', [
+        maxInt256.addn(1),
+      ]);
     });
 
     it(`reverts when casting UINT256_MAX (${maxUint256})`, async function () {
-      await expectRevert(this.safeCast.$toInt256(maxUint256), "SafeCast: value doesn't fit in an int256");
+      await expectRevertCustomError(this.safeCast.$toInt256(maxUint256), 'SafeCastOverflowedUintToInt', [maxUint256]);
     });
   });
 });

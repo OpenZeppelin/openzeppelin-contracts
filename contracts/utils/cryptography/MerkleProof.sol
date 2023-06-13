@@ -19,6 +19,11 @@ pragma solidity ^0.8.19;
  */
 library MerkleProof {
     /**
+     *@dev The multiproof provided is not valid.
+     */
+    error MerkleProofInvalidMultiproof();
+
+    /**
      * @dev Returns true if a `leaf` can be proved to be a part of a Merkle tree
      * defined by `root`. For this, a `proof` must be provided, containing
      * sibling hashes on the branch from the leaf to the root of the tree. Each
@@ -124,7 +129,9 @@ library MerkleProof {
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        require(leavesLen + proof.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
+        if (leavesLen + proof.length - 1 != totalHashes) {
+            revert MerkleProofInvalidMultiproof();
+        }
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".
@@ -176,7 +183,9 @@ library MerkleProof {
         uint256 totalHashes = proofFlags.length;
 
         // Check proof validity.
-        require(leavesLen + proof.length - 1 == totalHashes, "MerkleProof: invalid multiproof");
+        if (leavesLen + proof.length - 1 != totalHashes) {
+            revert MerkleProofInvalidMultiproof();
+        }
 
         // The xxxPos values are "pointers" to the next value to consume in each array. All accesses are done using
         // `xxx[xxxPos++]`, which return the current value and increment the pointer, thus mimicking a queue's "pop".

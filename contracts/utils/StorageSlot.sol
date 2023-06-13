@@ -22,7 +22,7 @@ pragma solidity ^0.8.19;
  *     }
  *
  *     function _setImplementation(address newImplementation) internal {
- *         require(newImplementation.code.length > 0, "ERC1967: new implementation is not a contract");
+ *         require(newImplementation.code.length > 0);
  *         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
  *     }
  * }

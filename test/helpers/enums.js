@@ -7,4 +7,5 @@ module.exports = {
   ProposalState: Enum('Pending', 'Active', 'Canceled', 'Defeated', 'Succeeded', 'Queued', 'Expired', 'Executed'),
   VoteType: Enum('Against', 'For', 'Abstain'),
   Rounding: Enum('Down', 'Up', 'Zero'),
+  OperationState: Enum('Unset', 'Pending', 'Ready', 'Done'),
 };

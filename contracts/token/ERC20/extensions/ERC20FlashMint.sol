@@ -20,6 +20,21 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
     bytes32 private constant _RETURN_VALUE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     /**
+     * @dev The loan token is not valid.
+     */
+    error ERC3156UnsupportedToken(address token);
+
+    /**
+     * @dev The requested loan exceeds the max loan amount for `token`.
+     */
+    error ERC3156ExceededMaxLoan(uint256 maxLoan);
+
+    /**
+     * @dev The receiver of a flashloan is not a valid {onFlashLoan} implementer.
+     */
+    error ERC3156InvalidReceiver(address receiver);
+
+    /**
      * @dev Returns the maximum amount of tokens available for loan.
      * @param token The address of the token that is requested.
      * @return The amount of token that can be loaned.
@@ -37,7 +52,9 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
      * @return The fees applied to the corresponding flash loan.
      */
     function flashFee(address token, uint256 amount) public view virtual returns (uint256) {
-        require(token == address(this), "ERC20FlashMint: wrong token");
+        if (token != address(this)) {
+            revert ERC3156UnsupportedToken(token);
+        }
         return _flashFee(token, amount);
     }
 
@@ -89,13 +106,15 @@ abstract contract ERC20FlashMint is ERC20, IERC3156FlashLender {
         uint256 amount,
         bytes calldata data
     ) public virtual returns (bool) {
-        require(amount <= maxFlashLoan(token), "ERC20FlashMint: amount exceeds maxFlashLoan");
+        uint256 maxLoan = maxFlashLoan(token);
+        if (amount > maxLoan) {
+            revert ERC3156ExceededMaxLoan(maxLoan);
+        }
         uint256 fee = flashFee(token, amount);
         _mint(address(receiver), amount);
-        require(
-            receiver.onFlashLoan(msg.sender, token, amount, fee, data) == _RETURN_VALUE,
-            "ERC20FlashMint: invalid return value"
-        );
+        if (receiver.onFlashLoan(msg.sender, token, amount, fee, data) != _RETURN_VALUE) {
+            revert ERC3156InvalidReceiver(address(receiver));
+        }
         address flashFeeReceiver = _flashFeeReceiver();
         _spendAllowance(address(receiver), address(this), amount + fee);
         if (fee == 0 || flashFeeReceiver == address(0)) {
