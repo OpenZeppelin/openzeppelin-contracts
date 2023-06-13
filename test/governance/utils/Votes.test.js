@@ -1,7 +1,8 @@
-const { constants, expectRevert } = require('@openzeppelin/test-helpers');
+const { constants } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { clockFromReceipt } = require('../../helpers/time');
 const { BNsum } = require('../../helpers/math');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 require('array.prototype.at/auto');
 
@@ -45,7 +46,11 @@ contract('Votes', function (accounts) {
 
         it('reverts if block number >= current block', async function () {
           const lastTxTimepoint = await clockFromReceipt[mode](this.txs.at(-1).receipt);
-          await expectRevert(this.votes.getPastTotalSupply(lastTxTimepoint + 1), 'Votes: future lookup');
+          const clock = await this.votes.clock();
+          await expectRevertCustomError(this.votes.getPastTotalSupply(lastTxTimepoint + 1), 'ERC5805FutureLookup', [
+            lastTxTimepoint + 1,
+            clock,
+          ]);
         });
 
         it('delegates', async function () {

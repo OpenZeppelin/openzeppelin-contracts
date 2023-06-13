@@ -1,9 +1,10 @@
-const { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { expectEvent } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 
 const Enums = require('../../helpers/enums');
 const { GovernorHelper } = require('../../helpers/governance');
 const { clockFromReceipt } = require('../../helpers/time');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const Governor = artifacts.require('$GovernorPreventLateQuorumMock');
 const CallReceiver = artifacts.require('CallReceiverMock');
@@ -158,7 +159,11 @@ contract('GovernorPreventLateQuorum', function (accounts) {
 
       describe('onlyGovernance updates', function () {
         it('setLateQuorumVoteExtension is protected', async function () {
-          await expectRevert(this.mock.setLateQuorumVoteExtension(0), 'Governor: onlyGovernance');
+          await expectRevertCustomError(
+            this.mock.setLateQuorumVoteExtension(0, { from: owner }),
+            'GovernorOnlyExecutor',
+            [owner],
+          );
         });
 
         it('can setLateQuorumVoteExtension through governance', async function () {

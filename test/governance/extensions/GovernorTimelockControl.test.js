@@ -2,7 +2,8 @@ const { constants, expectEvent, expectRevert, time } = require('@openzeppelin/te
 const { expect } = require('chai');
 
 const Enums = require('../../helpers/enums');
-const { GovernorHelper } = require('../../helpers/governance');
+const { GovernorHelper, proposalStatesToBitMap } = require('../../helpers/governance');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const { shouldSupportInterfaces } = require('../../utils/introspection/SupportsInterface.behavior');
 
@@ -163,7 +164,11 @@ contract('GovernorTimelockControl', function (accounts) {
                 await this.helper.vote({ support: Enums.VoteType.For }, { from: voter1 });
                 await this.helper.waitForDeadline();
                 await this.helper.queue();
-                await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
+                await expectRevertCustomError(this.helper.queue(), 'GovernorUnexpectedProposalState', [
+                  this.proposal.id,
+                  Enums.ProposalState.Queued,
+                  proposalStatesToBitMap([Enums.ProposalState.Succeeded]),
+                ]);
               });
             });
 
@@ -176,7 +181,10 @@ contract('GovernorTimelockControl', function (accounts) {
 
                 expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Succeeded);
 
-                await expectRevert(this.helper.execute(), 'TimelockController: operation is not ready');
+                await expectRevertCustomError(this.helper.execute(), 'TimelockUnexpectedOperationState', [
+                  this.proposal.timelockid,
+                  Enums.OperationState.Ready,
+                ]);
               });
 
               it('if too early', async function () {
@@ -188,7 +196,10 @@ contract('GovernorTimelockControl', function (accounts) {
 
                 expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Queued);
 
-                await expectRevert(this.helper.execute(), 'TimelockController: operation is not ready');
+                await expectRevertCustomError(this.helper.execute(), 'TimelockUnexpectedOperationState', [
+                  this.proposal.timelockid,
+                  Enums.OperationState.Ready,
+                ]);
               });
 
               it('if already executed', async function () {
@@ -199,7 +210,11 @@ contract('GovernorTimelockControl', function (accounts) {
                 await this.helper.queue();
                 await this.helper.waitForEta();
                 await this.helper.execute();
-                await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
+                await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
+                  this.proposal.id,
+                  Enums.ProposalState.Executed,
+                  proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+                ]);
               });
 
               it('if already executed by another proposer', async function () {
@@ -216,7 +231,11 @@ contract('GovernorTimelockControl', function (accounts) {
                   this.proposal.shortProposal[3],
                 );
 
-                await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
+                await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
+                  this.proposal.id,
+                  Enums.ProposalState.Executed,
+                  proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+                ]);
               });
             });
           });
@@ -231,7 +250,11 @@ contract('GovernorTimelockControl', function (accounts) {
               expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
 
               expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-              await expectRevert(this.helper.queue(), 'Governor: proposal not successful');
+              await expectRevertCustomError(this.helper.queue(), 'GovernorUnexpectedProposalState', [
+                this.proposal.id,
+                Enums.ProposalState.Canceled,
+                proposalStatesToBitMap([Enums.ProposalState.Succeeded]),
+              ]);
             });
 
             it('cancel after queue prevents executing', async function () {
@@ -244,7 +267,11 @@ contract('GovernorTimelockControl', function (accounts) {
               expectEvent(await this.helper.cancel('internal'), 'ProposalCanceled', { proposalId: this.proposal.id });
 
               expect(await this.mock.state(this.proposal.id)).to.be.bignumber.equal(Enums.ProposalState.Canceled);
-              await expectRevert(this.helper.execute(), 'Governor: proposal not successful');
+              await expectRevertCustomError(this.helper.execute(), 'GovernorUnexpectedProposalState', [
+                this.proposal.id,
+                Enums.ProposalState.Canceled,
+                proposalStatesToBitMap([Enums.ProposalState.Succeeded, Enums.ProposalState.Queued]),
+              ]);
             });
 
             it('cancel on timelock is reflected on governor', async function () {
@@ -271,9 +298,12 @@ contract('GovernorTimelockControl', function (accounts) {
               });
 
               it('is protected', async function () {
-                await expectRevert(
-                  this.mock.relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI()),
-                  'Governor: onlyGovernance',
+                await expectRevertCustomError(
+                  this.mock.relay(this.token.address, 0, this.token.contract.methods.transfer(other, 1).encodeABI(), {
+                    from: owner,
+                  }),
+                  'GovernorOnlyExecutor',
+                  [owner],
                 );
               });
 
@@ -346,28 +376,21 @@ contract('GovernorTimelockControl', function (accounts) {
               });
 
               it('protected against other proposers', async function () {
-                await this.timelock.schedule(
-                  this.mock.address,
-                  web3.utils.toWei('0'),
-                  this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI(),
-                  constants.ZERO_BYTES32,
-                  constants.ZERO_BYTES32,
-                  3600,
-                  { from: owner },
-                );
+                const target = this.mock.address;
+                const value = web3.utils.toWei('0');
+                const data = this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI();
+                const predecessor = constants.ZERO_BYTES32;
+                const salt = constants.ZERO_BYTES32;
+                const delay = 3600;
+
+                await this.timelock.schedule(target, value, data, predecessor, salt, delay, { from: owner });
 
                 await time.increase(3600);
 
-                await expectRevert(
-                  this.timelock.execute(
-                    this.mock.address,
-                    web3.utils.toWei('0'),
-                    this.mock.contract.methods.relay(constants.ZERO_ADDRESS, 0, '0x').encodeABI(),
-                    constants.ZERO_BYTES32,
-                    constants.ZERO_BYTES32,
-                    { from: owner },
-                  ),
-                  'TimelockController: underlying transaction reverted',
+                await expectRevertCustomError(
+                  this.timelock.execute(target, value, data, predecessor, salt, { from: owner }),
+                  'QueueEmpty', // Bubbled up from Governor
+                  [],
                 );
               });
             });
@@ -383,7 +406,11 @@ contract('GovernorTimelockControl', function (accounts) {
               });
 
               it('is protected', async function () {
-                await expectRevert(this.mock.updateTimelock(this.newTimelock.address), 'Governor: onlyGovernance');
+                await expectRevertCustomError(
+                  this.mock.updateTimelock(this.newTimelock.address, { from: owner }),
+                  'GovernorOnlyExecutor',
+                  [owner],
+                );
               });
 
               it('can be executed through governance to', async function () {

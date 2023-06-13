@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/structs/EnumerableMap.sol)
 // This file was procedurally generated from scripts/generate/templates/EnumerableMap.js.
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "./EnumerableSet.sol";
 
@@ -56,6 +56,11 @@ library EnumerableMap {
     // the underlying Map.
     // This means that we can only create new EnumerableMaps for types that fit
     // in bytes32.
+
+    /**
+     * @dev Query for a nonexistent map key.
+     */
+    error EnumerableMapNonexistentKey(bytes32 key);
 
     struct Bytes32ToBytes32Map {
         // Storage of keys
@@ -136,7 +141,9 @@ library EnumerableMap {
      */
     function get(Bytes32ToBytes32Map storage map, bytes32 key) internal view returns (bytes32) {
         bytes32 value = map._values[key];
-        require(value != 0 || contains(map, key), "EnumerableMap: nonexistent key");
+        if (value == 0 && !contains(map, key)) {
+            revert EnumerableMapNonexistentKey(key);
+        }
         return value;
     }
 

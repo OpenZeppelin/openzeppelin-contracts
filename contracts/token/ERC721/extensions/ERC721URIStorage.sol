@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (token/ERC721/extensions/ERC721URIStorage.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../ERC721.sol";
 import "../../../interfaces/IERC4906.sol";
@@ -53,7 +53,9 @@ abstract contract ERC721URIStorage is IERC4906, ERC721 {
      * - `tokenId` must exist.
      */
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
-        require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
+        if (!_exists(tokenId)) {
+            revert ERC721NonexistentToken(tokenId);
+        }
         _tokenURIs[tokenId] = _tokenURI;
 
         emit MetadataUpdate(tokenId);

@@ -1,6 +1,7 @@
-const { BN, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN } = require('@openzeppelin/test-helpers');
 
 const { expect } = require('chai');
+const { expectRevertCustomError } = require('../../../helpers/customError');
 
 const ERC20Pausable = artifacts.require('$ERC20Pausable');
 
@@ -39,9 +40,10 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to transfer when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevert(
+        await expectRevertCustomError(
           this.token.transfer(recipient, initialSupply, { from: holder }),
-          'ERC20Pausable: token transfer while paused',
+          'EnforcedPause',
+          [],
         );
       });
     });
@@ -73,9 +75,10 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to transfer from when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevert(
+        await expectRevertCustomError(
           this.token.transferFrom(holder, recipient, allowance, { from: anotherAccount }),
-          'ERC20Pausable: token transfer while paused',
+          'EnforcedPause',
+          [],
         );
       });
     });
@@ -101,7 +104,7 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to mint when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevert(this.token.$_mint(recipient, amount), 'ERC20Pausable: token transfer while paused');
+        await expectRevertCustomError(this.token.$_mint(recipient, amount), 'EnforcedPause', []);
       });
     });
 
@@ -126,7 +129,7 @@ contract('ERC20Pausable', function (accounts) {
       it('reverts when trying to burn when paused', async function () {
         await this.token.$_pause();
 
-        await expectRevert(this.token.$_burn(holder, amount), 'ERC20Pausable: token transfer while paused');
+        await expectRevertCustomError(this.token.$_burn(holder, amount), 'EnforcedPause', []);
       });
     });
   });
