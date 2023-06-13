@@ -9,6 +9,11 @@ pragma solidity ^0.8.19;
  */
 interface IVotes {
     /**
+     * @dev The signature used has expired.
+     */
+    error VotesExpiredSignature(uint256 expiry);
+
+    /**
      * @dev Emitted when an account changes their delegate.
      */
     event DelegateChanged(address indexed delegator, address indexed fromDelegate, address indexed toDelegate);

@@ -1,6 +1,7 @@
-const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 const { expect } = require('chai');
+const { expectRevertCustomError } = require('../helpers/customError');
 
 const Ownable2Step = artifacts.require('$Ownable2Step');
 
@@ -29,14 +30,15 @@ contract('Ownable2Step', function (accounts) {
 
     it('guards transfer against invalid user', async function () {
       await this.ownable2Step.transferOwnership(accountA, { from: owner });
-      await expectRevert(
+      await expectRevertCustomError(
         this.ownable2Step.acceptOwnership({ from: accountB }),
-        'Ownable2Step: caller is not the new owner',
+        'OwnableUnauthorizedAccount',
+        [accountB],
       );
     });
   });
 
-  it('renouncing ownership', async function () {
+  describe('renouncing ownership', async function () {
     it('changes owner after renouncing ownership', async function () {
       await this.ownable2Step.renounceOwnership({ from: owner });
       // If renounceOwnership is removed from parent an alternative is needed ...
@@ -50,18 +52,19 @@ contract('Ownable2Step', function (accounts) {
       expect(await this.ownable2Step.pendingOwner()).to.equal(accountA);
       await this.ownable2Step.renounceOwnership({ from: owner });
       expect(await this.ownable2Step.pendingOwner()).to.equal(ZERO_ADDRESS);
-      await expectRevert(
+      await expectRevertCustomError(
         this.ownable2Step.acceptOwnership({ from: accountA }),
-        'Ownable2Step: caller is not the new owner',
+        'OwnableUnauthorizedAccount',
+        [accountA],
       );
     });
 
     it('allows to recover access using the internal _transferOwnership', async function () {
-      await this.ownable.renounceOwnership({ from: owner });
-      const receipt = await this.ownable.$_transferOwnership(accountA);
+      await this.ownable2Step.renounceOwnership({ from: owner });
+      const receipt = await this.ownable2Step.$_transferOwnership(accountA);
       expectEvent(receipt, 'OwnershipTransferred');
 
-      expect(await this.ownable.owner()).to.equal(accountA);
+      expect(await this.ownable2Step.owner()).to.equal(accountA);
     });
   });
 });

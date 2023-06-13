@@ -2,6 +2,7 @@ const { constants, expectEvent, expectRevert } = require('@openzeppelin/test-hel
 const { expect } = require('chai');
 
 const { Enum } = require('../../../helpers/enums');
+const { expectRevertCustomError } = require('../../../helpers/customError');
 
 const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC4626 = artifacts.require('$ERC4626');
@@ -635,9 +636,11 @@ contract('ERC4626', function (accounts) {
         });
 
         it('withdraw with approval', async function () {
-          await expectRevert(
+          const assets = await this.vault.previewWithdraw(parseToken(1));
+          await expectRevertCustomError(
             this.vault.withdraw(parseToken(1), recipient, holder, { from: other }),
-            'ERC20: insufficient allowance',
+            'ERC20InsufficientAllowance',
+            [other, 0, assets],
           );
 
           await this.vault.withdraw(parseToken(1), recipient, holder, { from: spender });
@@ -677,9 +680,10 @@ contract('ERC4626', function (accounts) {
         });
 
         it('redeem with approval', async function () {
-          await expectRevert(
+          await expectRevertCustomError(
             this.vault.redeem(parseShare(100), recipient, holder, { from: other }),
-            'ERC20: insufficient allowance',
+            'ERC20InsufficientAllowance',
+            [other, 0, parseShare(100)],
           );
 
           await this.vault.redeem(parseShare(100), recipient, holder, { from: spender });

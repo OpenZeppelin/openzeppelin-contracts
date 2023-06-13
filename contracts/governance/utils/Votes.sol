@@ -43,10 +43,20 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     Checkpoints.Trace224 private _totalCheckpoints;
 
     /**
+     * @dev The clock was incorrectly modified.
+     */
+    error ERC6372InconsistentClock();
+
+    /**
+     * @dev Lookup to future votes is not available.
+     */
+    error ERC5805FutureLookup(uint256 timepoint, uint48 clock);
+
+    /**
      * @dev Clock used for flagging checkpoints. Can be overridden to implement timestamp based
      * checkpoints (and voting), in which case {CLOCK_MODE} should be overridden as well to match.
      */
-    function clock() public view virtual override returns (uint48) {
+    function clock() public view virtual returns (uint48) {
         return SafeCast.toUint48(block.number);
     }
 
@@ -54,16 +64,18 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      * @dev Machine-readable description of the clock as specified in EIP-6372.
      */
     // solhint-disable-next-line func-name-mixedcase
-    function CLOCK_MODE() public view virtual override returns (string memory) {
+    function CLOCK_MODE() public view virtual returns (string memory) {
         // Check that the clock was not modified
-        require(clock() == block.number, "Votes: broken clock mode");
+        if (clock() != block.number) {
+            revert ERC6372InconsistentClock();
+        }
         return "mode=blocknumber&from=default";
     }
 
     /**
      * @dev Returns the current amount of votes that `account` has.
      */
-    function getVotes(address account) public view virtual override returns (uint256) {
+    function getVotes(address account) public view virtual returns (uint256) {
         return _delegateCheckpoints[account].latest();
     }
 
@@ -75,8 +87,11 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      *
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
-    function getPastVotes(address account, uint256 timepoint) public view virtual override returns (uint256) {
-        require(timepoint < clock(), "Votes: future lookup");
+    function getPastVotes(address account, uint256 timepoint) public view virtual returns (uint256) {
+        uint48 currentTimepoint = clock();
+        if (timepoint >= currentTimepoint) {
+            revert ERC5805FutureLookup(timepoint, currentTimepoint);
+        }
         return _delegateCheckpoints[account].upperLookupRecent(SafeCast.toUint32(timepoint));
     }
 
@@ -92,8 +107,11 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
      *
      * - `timepoint` must be in the past. If operating using block numbers, the block must be already mined.
      */
-    function getPastTotalSupply(uint256 timepoint) public view virtual override returns (uint256) {
-        require(timepoint < clock(), "Votes: future lookup");
+    function getPastTotalSupply(uint256 timepoint) public view virtual returns (uint256) {
+        uint48 currentTimepoint = clock();
+        if (timepoint >= currentTimepoint) {
+            revert ERC5805FutureLookup(timepoint, currentTimepoint);
+        }
         return _totalCheckpoints.upperLookupRecent(SafeCast.toUint32(timepoint));
     }
 
@@ -107,14 +125,14 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
     /**
      * @dev Returns the delegate that `account` has chosen.
      */
-    function delegates(address account) public view virtual override returns (address) {
+    function delegates(address account) public view virtual returns (address) {
         return _delegation[account];
     }
 
     /**
      * @dev Delegates votes from the sender to `delegatee`.
      */
-    function delegate(address delegatee) public virtual override {
+    function delegate(address delegatee) public virtual {
         address account = _msgSender();
         _delegate(account, delegatee);
     }
@@ -129,15 +147,17 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public virtual override {
-        require(block.timestamp <= expiry, "Votes: signature expired");
+    ) public virtual {
+        if (block.timestamp > expiry) {
+            revert VotesExpiredSignature(expiry);
+        }
         address signer = ECDSA.recover(
             _hashTypedDataV4(keccak256(abi.encode(_DELEGATION_TYPEHASH, delegatee, nonce, expiry))),
             v,
             r,
             s
         );
-        require(nonce == _useNonce(signer), "Votes: invalid nonce");
+        _useCheckedNonce(signer, nonce);
         _delegate(signer, delegatee);
     }
 
@@ -223,14 +243,6 @@ abstract contract Votes is Context, EIP712, Nonces, IERC5805 {
 
     function _subtract(uint224 a, uint224 b) private pure returns (uint224) {
         return a - b;
-    }
-
-    /**
-     * @dev Returns the contract's {EIP712} domain separator.
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view returns (bytes32) {
-        return _domainSeparatorV4();
     }
 
     /**

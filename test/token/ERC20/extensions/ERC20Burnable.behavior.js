@@ -1,7 +1,8 @@
-const { BN, constants, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants, expectEvent } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 
 const { expect } = require('chai');
+const { expectRevertCustomError } = require('../../../helpers/customError');
 
 function shouldBehaveLikeERC20Burnable(owner, initialBalance, [burner]) {
   describe('burn', function () {
@@ -37,7 +38,11 @@ function shouldBehaveLikeERC20Burnable(owner, initialBalance, [burner]) {
       const amount = initialBalance.addn(1);
 
       it('reverts', async function () {
-        await expectRevert(this.token.burn(amount, { from: owner }), 'ERC20: transfer amount exceeds balance');
+        await expectRevertCustomError(this.token.burn(amount, { from: owner }), 'ERC20InsufficientBalance', [
+          owner,
+          initialBalance,
+          amount,
+        ]);
       });
     });
   });
@@ -83,9 +88,10 @@ function shouldBehaveLikeERC20Burnable(owner, initialBalance, [burner]) {
 
       it('reverts', async function () {
         await this.token.approve(burner, amount, { from: owner });
-        await expectRevert(
+        await expectRevertCustomError(
           this.token.burnFrom(owner, amount, { from: burner }),
-          'ERC20: transfer amount exceeds balance',
+          'ERC20InsufficientBalance',
+          [owner, initialBalance, amount],
         );
       });
     });
@@ -95,9 +101,10 @@ function shouldBehaveLikeERC20Burnable(owner, initialBalance, [burner]) {
 
       it('reverts', async function () {
         await this.token.approve(burner, allowance, { from: owner });
-        await expectRevert(
+        await expectRevertCustomError(
           this.token.burnFrom(owner, allowance.addn(1), { from: burner }),
-          'ERC20: insufficient allowance',
+          'ERC20InsufficientAllowance',
+          [burner, allowance, allowance.addn(1)],
         );
       });
     });

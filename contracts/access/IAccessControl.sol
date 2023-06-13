@@ -8,6 +8,18 @@ pragma solidity ^0.8.19;
  */
 interface IAccessControl {
     /**
+     * @dev The `account` is missing a role.
+     */
+    error AccessControlUnauthorizedAccount(address account, bytes32 neededRole);
+
+    /**
+     * @dev The caller of a function is not the expected one.
+     *
+     * NOTE: Don't confuse with {AccessControlUnauthorizedAccount}.
+     */
+    error AccessControlBadConfirmation();
+
+    /**
      * @dev Emitted when `newAdminRole` is set as ``role``'s admin role, replacing `previousAdminRole`
      *
      * `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
@@ -82,7 +94,7 @@ interface IAccessControl {
      *
      * Requirements:
      *
-     * - the caller must be `account`.
+     * - the caller must be `callerConfirmation`.
      */
-    function renounceRole(bytes32 role, address account) external;
+    function renounceRole(bytes32 role, address callerConfirmation) external;
 }

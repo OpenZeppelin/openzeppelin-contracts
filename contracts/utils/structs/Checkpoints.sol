@@ -17,6 +17,11 @@ import "../math/SafeCast.sol";
  * _Available since v4.5._
  */
 library Checkpoints {
+    /**
+     * @dev A value was attempted to be inserted on a past checkpoint.
+     */
+    error CheckpointUnorderedInsertion();
+
     struct Trace224 {
         Checkpoint224[] _checkpoints;
     }
@@ -126,7 +131,9 @@ library Checkpoints {
             Checkpoint224 memory last = _unsafeAccess(self, pos - 1);
 
             // Checkpoint keys must be non-decreasing.
-            require(last._key <= key, "Checkpoint: decreasing keys");
+            if (last._key > key) {
+                revert CheckpointUnorderedInsertion();
+            }
 
             // Update or push new checkpoint
             if (last._key == key) {
@@ -309,7 +316,9 @@ library Checkpoints {
             Checkpoint160 memory last = _unsafeAccess(self, pos - 1);
 
             // Checkpoint keys must be non-decreasing.
-            require(last._key <= key, "Checkpoint: decreasing keys");
+            if (last._key > key) {
+                revert CheckpointUnorderedInsertion();
+            }
 
             // Update or push new checkpoint
             if (last._key == key) {

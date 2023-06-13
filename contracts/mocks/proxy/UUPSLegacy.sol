@@ -31,10 +31,7 @@ contract UUPSUpgradeableLegacyMock is UUPSUpgradeableMock {
         if (!rollbackTesting.value) {
             // Trigger rollback using upgradeTo from the new implementation
             rollbackTesting.value = true;
-            Address.functionDelegateCall(
-                newImplementation,
-                abi.encodeWithSignature("upgradeTo(address)", oldImplementation)
-            );
+            Address.functionDelegateCall(newImplementation, abi.encodeCall(this.upgradeTo, (oldImplementation)));
             rollbackTesting.value = false;
             // Check rollback was effective
             require(oldImplementation == _getImplementation(), "ERC1967Upgrade: upgrade breaks further upgrades");
