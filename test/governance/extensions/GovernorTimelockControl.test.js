@@ -511,8 +511,8 @@ contract('GovernorTimelockControl', function (accounts) {
                   '0x',
                   { from: owner },
                 ),
-                'ERC1155InvalidReceiver',
-                [this.mock.address],
+                'GovernorDisabledDeposit',
+                [],
               );
             });
 
@@ -526,8 +526,8 @@ contract('GovernorTimelockControl', function (accounts) {
                   '0x',
                   { from: owner },
                 ),
-                'ERC1155InvalidReceiver',
-                [this.mock.address],
+                'GovernorDisabledDeposit',
+                [],
               );
             });
           });
