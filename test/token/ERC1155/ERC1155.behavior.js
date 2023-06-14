@@ -433,7 +433,7 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
             RevertType.None,
           );
 
-          await expectRevert(
+          await expectRevertCustomError(
             this.token.safeTransferFrom(multiTokenHolder, receiver.address, firstTokenId, firstAmount, '0x', {
               from: multiTokenHolder,
             }),
