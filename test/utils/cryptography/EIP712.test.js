@@ -98,6 +98,14 @@ contract('EIP712', function (accounts) {
 
         await this.eip712.verify(signature, wallet.getAddressString(), message.to, message.contents);
       });
+
+      it('name', async function () {
+        expect(await this.eip712.$_EIP712Name()).to.be.equal(name);
+      });
+
+      it('version', async function () {
+        expect(await this.eip712.$_EIP712Version()).to.be.equal(version);
+      });
     });
   }
 });
