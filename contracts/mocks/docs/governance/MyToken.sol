@@ -10,8 +10,8 @@ contract MyToken is ERC20, ERC20Permit, ERC20Votes {
 
     // The functions below are overrides required by Solidity.
 
-    function _afterTokenTransfer(address from, address to, uint256 amount) internal override(ERC20, ERC20Votes) {
-        super._afterTokenTransfer(from, to, amount);
+    function _update(address from, address to, uint256 amount) internal override(ERC20, ERC20Votes) {
+        super._update(from, to, amount);
     }
 
     function nonces(address owner) public view virtual override(ERC20Permit, Nonces) returns (uint256) {
