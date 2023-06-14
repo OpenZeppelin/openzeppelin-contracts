@@ -55,7 +55,7 @@ Users that were registering EIP-165 interfaces with `_registerInterface` from `E
 
 ```solidity
 function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-  return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
+    return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
 }
 ```
 
