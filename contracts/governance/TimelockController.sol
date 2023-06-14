@@ -122,7 +122,9 @@ contract TimelockController is AccessControl, ERC721Holder, ERC1155Holder {
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(AccessControl, ERC1155Receiver) returns (bool) {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(AccessControl, ERC1155Receiver) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
