@@ -16,6 +16,10 @@ readarray -t DELETED_CHANGESETS < <(git diff origin/master --diff-filter=D --nam
 # Ignore conflicts that can't be resolved.
 git merge origin/master -m "Merge master to $GITHUB_REF_NAME" -X theirs || true
 
+# When files were modified in the release branch but removed in master, git will not finish the merge
+# and will leave the files in the index. We need to remove them manually.
+git diff --name-only --diff-filter=U | xargs git rm
+
 # Remove the originally deleted changesets to correctly sync with master
 rm -f "${DELETED_CHANGESETS[@]}"
 
