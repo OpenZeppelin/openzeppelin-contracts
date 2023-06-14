@@ -372,7 +372,12 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
 
       context('to a receiver contract returning unexpected value', function () {
         beforeEach(async function () {
-          this.receiver = await ERC1155ReceiverMock.new('0x00c0ffee', RevertType.None, RECEIVER_BATCH_MAGIC_VALUE, RevertType.None);
+          this.receiver = await ERC1155ReceiverMock.new(
+            '0x00c0ffee',
+            RevertType.None,
+            RECEIVER_BATCH_MAGIC_VALUE,
+            RevertType.None,
+          );
         });
 
         it('reverts', async function () {
