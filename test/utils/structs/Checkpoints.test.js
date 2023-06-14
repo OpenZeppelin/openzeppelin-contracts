@@ -4,6 +4,7 @@ const { expect } = require('chai');
 
 const { VALUE_SIZES } = require('../../../scripts/generate/templates/Checkpoints.opts.js');
 const { expectRevertCustomError } = require('../../helpers/customError.js');
+const { expectRevert } = require('@openzeppelin/test-helpers');
 
 const $Checkpoints = artifacts.require('$Checkpoints');
 
@@ -22,6 +23,7 @@ contract('Checkpoints', function () {
     describe(`Trace${length}`, function () {
       beforeEach(async function () {
         this.methods = {
+          at: (...args) => this.mock.methods[`$at_${libraryName}_Trace${length}(uint256,uint32)`](0, ...args),
           latest: (...args) => this.mock.methods[`$latest_${libraryName}_Trace${length}(uint256)`](0, ...args),
           latestCheckpoint: (...args) =>
             this.mock.methods[`$latestCheckpoint_${libraryName}_Trace${length}(uint256)`](0, ...args),
@@ -35,6 +37,11 @@ contract('Checkpoints', function () {
       });
 
       describe('without checkpoints', function () {
+        it('at zero reverts', async function () {
+          // Reverts with array out of bound access, which is unspecified
+          await expectRevert.unspecified(this.methods.at(0));
+        });
+
         it('returns zero as latest value', async function () {
           expect(await this.methods.latest()).to.be.bignumber.equal('0');
 
@@ -62,6 +69,14 @@ contract('Checkpoints', function () {
           ];
           for (const { key, value } of this.checkpoints) {
             await this.methods.push(key, value);
+          }
+        });
+
+        it('at keys', async function () {
+          for (const [index, { key, value }] of this.checkpoints.entries()) {
+            const at = await this.methods.at(index);
+            expect(at._value).to.be.bignumber.equal(value);
+            expect(at._key).to.be.bignumber.equal(key);
           }
         });
 

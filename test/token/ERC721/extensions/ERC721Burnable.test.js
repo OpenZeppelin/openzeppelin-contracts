@@ -6,7 +6,7 @@ const { expectRevertCustomError } = require('../../../helpers/customError');
 const ERC721Burnable = artifacts.require('$ERC721Burnable');
 
 contract('ERC721Burnable', function (accounts) {
-  const [owner, approved] = accounts;
+  const [owner, approved, another] = accounts;
 
   const firstTokenId = new BN(1);
   const secondTokenId = new BN(2);
@@ -58,6 +58,15 @@ contract('ERC721Burnable', function (accounts) {
           it('reverts', async function () {
             await expectRevertCustomError(this.token.getApproved(tokenId), 'ERC721NonexistentToken', [tokenId]);
           });
+        });
+      });
+
+      describe('when there is no previous approval burned', function () {
+        it('reverts', async function () {
+          await expectRevertCustomError(this.token.burn(tokenId, { from: another }), 'ERC721InsufficientApproval', [
+            another,
+            tokenId,
+          ]);
         });
       });
 

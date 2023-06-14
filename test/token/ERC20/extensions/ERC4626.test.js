@@ -6,6 +6,7 @@ const { expectRevertCustomError } = require('../../../helpers/customError');
 
 const ERC20Decimals = artifacts.require('$ERC20DecimalsMock');
 const ERC4626 = artifacts.require('$ERC4626');
+const ERC4626LimitsMock = artifacts.require('$ERC4626LimitsMock');
 const ERC4626OffsetMock = artifacts.require('$ERC4626OffsetMock');
 const ERC4626FeesMock = artifacts.require('$ERC4626FeesMock');
 const ERC20ExcessDecimalsMock = artifacts.require('ERC20ExcessDecimalsMock');
@@ -217,6 +218,49 @@ contract('ERC4626', function (accounts) {
       // Price was modified during reentrancy
       const sharesAfter = await vault.previewWithdraw(amount);
       expect(sharesAfter).to.be.bignumber.gt(sharesBefore);
+    });
+  });
+
+  describe('limits', async function () {
+    beforeEach(async function () {
+      this.token = await ERC20Decimals.new(name, symbol, decimals);
+      this.vault = await ERC4626LimitsMock.new(name + ' Vault', symbol + 'V', this.token.address);
+    });
+
+    it('reverts on deposit() above max deposit', async function () {
+      const maxDeposit = await this.vault.maxDeposit(holder);
+      await expectRevertCustomError(this.vault.deposit(maxDeposit.addn(1), recipient), 'ERC4626ExceededMaxDeposit', [
+        recipient,
+        maxDeposit.addn(1),
+        maxDeposit,
+      ]);
+    });
+
+    it('reverts on mint() above max mint', async function () {
+      const maxMint = await this.vault.maxMint(holder);
+      await expectRevertCustomError(this.vault.mint(maxMint.addn(1), recipient), 'ERC4626ExceededMaxMint', [
+        recipient,
+        maxMint.addn(1),
+        maxMint,
+      ]);
+    });
+
+    it('reverts on withdraw() above max withdraw', async function () {
+      const maxWithdraw = await this.vault.maxWithdraw(holder);
+      await expectRevertCustomError(
+        this.vault.withdraw(maxWithdraw.addn(1), recipient, holder),
+        'ERC4626ExceededMaxWithdraw',
+        [holder, maxWithdraw.addn(1), maxWithdraw],
+      );
+    });
+
+    it('reverts on redeem() above max redeem', async function () {
+      const maxRedeem = await this.vault.maxRedeem(holder);
+      await expectRevertCustomError(
+        this.vault.redeem(maxRedeem.addn(1), recipient, holder),
+        'ERC4626ExceededMaxRedeem',
+        [holder, maxRedeem.addn(1), maxRedeem],
+      );
     });
   });
 
@@ -849,6 +893,9 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('0');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('2000');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('0');
+      expect(await this.vault.convertToShares(await this.token.balanceOf(this.vault.address))).to.be.bignumber.equal(
+        '2000',
+      );
       expect(await this.vault.totalSupply()).to.be.bignumber.equal('2000');
       expect(await this.vault.totalAssets()).to.be.bignumber.equal('2000');
     }
@@ -872,6 +919,9 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4000');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('2000');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('4000');
+      expect(await this.vault.convertToShares(await this.token.balanceOf(this.vault.address))).to.be.bignumber.equal(
+        '6000',
+      );
       expect(await this.vault.totalSupply()).to.be.bignumber.equal('6000');
       expect(await this.vault.totalAssets()).to.be.bignumber.equal('6000');
     }
@@ -883,6 +933,9 @@ contract('ERC4626', function (accounts) {
     expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4000');
     expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('2999'); // used to be 3000, but virtual assets/shares captures part of the yield
     expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('5999'); // used to be 6000, but virtual assets/shares captures part of the yield
+    expect(await this.vault.convertToShares(await this.token.balanceOf(this.vault.address))).to.be.bignumber.equal(
+      '6000',
+    );
     expect(await this.vault.totalSupply()).to.be.bignumber.equal('6000');
     expect(await this.vault.totalAssets()).to.be.bignumber.equal('9000');
 
@@ -904,6 +957,9 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4000');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('4999');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('6000');
+      expect(await this.vault.convertToShares(await this.token.balanceOf(this.vault.address))).to.be.bignumber.equal(
+        '7333',
+      );
       expect(await this.vault.totalSupply()).to.be.bignumber.equal('7333');
       expect(await this.vault.totalAssets()).to.be.bignumber.equal('11000');
     }
@@ -928,6 +984,9 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('6000');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('4999'); // used to be 5000
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('9000');
+      expect(await this.vault.convertToShares(await this.token.balanceOf(this.vault.address))).to.be.bignumber.equal(
+        '9333',
+      );
       expect(await this.vault.totalSupply()).to.be.bignumber.equal('9333');
       expect(await this.vault.totalAssets()).to.be.bignumber.equal('14000'); // used to be 14001
     }
@@ -940,6 +999,9 @@ contract('ERC4626', function (accounts) {
     expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('6000');
     expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('6070'); // used to be 6071
     expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('10928'); // used to be 10929
+    expect(await this.vault.convertToShares(await this.token.balanceOf(this.vault.address))).to.be.bignumber.equal(
+      '9333',
+    );
     expect(await this.vault.totalSupply()).to.be.bignumber.equal('9333');
     expect(await this.vault.totalAssets()).to.be.bignumber.equal('17000'); // used to be 17001
 
@@ -961,6 +1023,9 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('6000');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('3643');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('10929');
+      expect(await this.vault.convertToShares(await this.token.balanceOf(this.vault.address))).to.be.bignumber.equal(
+        '8000',
+      );
       expect(await this.vault.totalSupply()).to.be.bignumber.equal('8000');
       expect(await this.vault.totalAssets()).to.be.bignumber.equal('14573');
     }
@@ -983,6 +1048,9 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4392');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('3643');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('8000');
+      expect(await this.vault.convertToShares(await this.token.balanceOf(this.vault.address))).to.be.bignumber.equal(
+        '6392',
+      );
       expect(await this.vault.totalSupply()).to.be.bignumber.equal('6392');
       expect(await this.vault.totalAssets()).to.be.bignumber.equal('11644');
     }
@@ -1006,6 +1074,9 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('4392');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('0');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('8000'); // used to be 8001
+      expect(await this.vault.convertToShares(await this.token.balanceOf(this.vault.address))).to.be.bignumber.equal(
+        '4392',
+      );
       expect(await this.vault.totalSupply()).to.be.bignumber.equal('4392');
       expect(await this.vault.totalAssets()).to.be.bignumber.equal('8001');
     }
@@ -1028,6 +1099,9 @@ contract('ERC4626', function (accounts) {
       expect(await this.vault.balanceOf(user2)).to.be.bignumber.equal('0');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user1))).to.be.bignumber.equal('0');
       expect(await this.vault.convertToAssets(await this.vault.balanceOf(user2))).to.be.bignumber.equal('0');
+      expect(await this.vault.convertToShares(await this.token.balanceOf(this.vault.address))).to.be.bignumber.equal(
+        '0',
+      );
       expect(await this.vault.totalSupply()).to.be.bignumber.equal('0');
       expect(await this.vault.totalAssets()).to.be.bignumber.equal('1'); // used to be 0
     }
