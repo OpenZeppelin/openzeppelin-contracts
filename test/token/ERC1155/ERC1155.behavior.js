@@ -479,6 +479,14 @@ function shouldBehaveLikeERC1155([minter, firstTokenHolder, secondTokenHolder, m
         );
       });
 
+      it('reverts when transferring from zero address', async function () {
+        await expectRevertCustomError(
+          this.token.$_safeBatchTransferFrom(ZERO_ADDRESS, multiTokenHolder, [firstTokenId], [firstAmount], '0x'),
+          'ERC1155InvalidSender',
+          [ZERO_ADDRESS],
+        );
+      });
+
       function batchTransferWasSuccessful({ operator, from, ids, values }) {
         it('debits transferred balances from sender', async function () {
           const newBalances = await this.token.balanceOfBatch(new Array(ids.length).fill(from), ids);
