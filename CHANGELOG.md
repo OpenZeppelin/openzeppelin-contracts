@@ -1,5 +1,63 @@
 # Changelog
 
+### Removals
+
+The following contracts, libraries and functions were removed:
+
+- `Address.isContract` (because of its ambiguous nature and potential for misuse)
+- `Checkpoints.History`
+- `Counters`
+- `ERC20Snapshot`
+- `ERC20VotesComp`
+- `ERC165Storage` (in favor of inheritance based approach)
+- `ERC777`
+- `ERC1820Implementer`
+- `GovernorVotesComp`
+- `GovernorProposalThreshold` (deprecated since 4.4)
+- `PaymentSplitter`
+- `PullPayment`
+- `SafeMath`
+- `SignedSafeMath`
+- `Timers`
+- `TokenTimelock` (in favor of `VestingWallet`)
+- All escrow contracts (`Escrow`, `ConditionalEscrow` and `RefundEscrow`)
+- All cross-chain contracts, including `AccessControlCrossChain` and all the vendored bridge interfaces
+- All presets in favor of [OpenZeppelin Contracts Wizard](https://wizard.openzeppelin.com/)
+
+These removals were implemented in the following PRs: [#3637](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3637), [#3880](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3880), [#3945](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/3945), [#4258](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4258), [#4276](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4276), [#4289](https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4289)
+
+### How to upgrade from 4.x
+
+#### ERC20, ERC721, and ERC1155
+
+These breaking changes will require modifications to ERC20, ERC721, and ERC1155 contracts, since the `_afterTokenTransfer` and `_beforeTokenTransfer` functions were removed. Any customization made through those hooks should now be done overriding the new `_update` function instead.
+
+Minting and burning are implemented by `_update` and customizations should be done by overriding this function as well. `_mint` and `_burn` are no longer virtual (meaning they are not overridable) to guard against possible inconsistencies.
+
+For example, a contract using `ERC20`'s `_beforeTokenTransfer` hook would have to be changed in the following way.
+
+```diff
+- function _beforeTokenTransfer(
++ function _update(
+      address from,
+      address to,
+      uint256 amount
+  ) internal virtual override {
+-     super._beforeTokenTransfer(from, to, amount);
+      require(!condition(), "ERC20: wrong condition");
++     super._update(from, to, amount);
+  }
+```
+
+#### ERC165Storage
+
+Users that were registering EIP-165 interfaces with `_registerInterface` from `ERC165Storage` should instead do so so by overriding the `supportsInterface` function as seen below:
+
+```solidity
+function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+  return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
+}
+```
 
 ## 4.9.1 (2023-06-07)
 

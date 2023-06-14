@@ -40,7 +40,7 @@ const argv = require('yargs/yargs')()
     compiler: {
       alias: 'compileVersion',
       type: 'string',
-      default: '0.8.13',
+      default: '0.8.19',
     },
     coinmarketcap: {
       alias: 'coinmarketcapApiKey',
@@ -93,11 +93,7 @@ module.exports = {
   },
   exposed: {
     initializers: true,
-    exclude: [
-      'vendor/**/*',
-      // Exclude Timers from hardhat-exposed because its overloaded functions are not transformed correctly
-      'utils/Timers{,Upgradeable}.sol',
-    ],
+    exclude: ['vendor/**/*'],
   },
   docgen: require('./docs/config'),
 };

@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (governance/TimelockController.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../access/AccessControl.sol";
 import "../token/ERC721/IERC721Receiver.sol";
 import "../token/ERC1155/IERC1155Receiver.sol";
+import "../utils/Address.sol";
 
 /**
  * @dev Contract module which acts as a timelocked controller. When set as the
@@ -23,7 +24,6 @@ import "../token/ERC1155/IERC1155Receiver.sol";
  * _Available since v3.3._
  */
 contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver {
-    bytes32 public constant TIMELOCK_ADMIN_ROLE = keccak256("TIMELOCK_ADMIN_ROLE");
     bytes32 public constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
     bytes32 public constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
     bytes32 public constant CANCELLER_ROLE = keccak256("CANCELLER_ROLE");
@@ -31,6 +31,38 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
 
     mapping(bytes32 => uint256) private _timestamps;
     uint256 private _minDelay;
+
+    enum OperationState {
+        Unset,
+        Pending,
+        Ready,
+        Done
+    }
+
+    /**
+     * @dev Mismatch between the parameters length for an operation call.
+     */
+    error TimelockInvalidOperationLength(uint256 targets, uint256 payloads, uint256 values);
+
+    /**
+     * @dev The schedule operation doesn't meet the minimum delay.
+     */
+    error TimelockInsufficientDelay(uint256 delay, uint256 minDelay);
+
+    /**
+     * @dev The current state of an operation is not as required.
+     */
+    error TimelockUnexpectedOperationState(bytes32 operationId, OperationState expected);
+
+    /**
+     * @dev The predecessor to an operation not yet done.
+     */
+    error TimelockUnexecutedPredecessor(bytes32 predecessorId);
+
+    /**
+     * @dev The caller account is not authorized.
+     */
+    error TimelockUnauthorizedCaller(address caller);
 
     /**
      * @dev Emitted when a call is scheduled as part of operation `id`.
@@ -79,28 +111,23 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * this admin to the deployer automatically and should be renounced as well.
      */
     constructor(uint256 minDelay, address[] memory proposers, address[] memory executors, address admin) {
-        _setRoleAdmin(TIMELOCK_ADMIN_ROLE, TIMELOCK_ADMIN_ROLE);
-        _setRoleAdmin(PROPOSER_ROLE, TIMELOCK_ADMIN_ROLE);
-        _setRoleAdmin(EXECUTOR_ROLE, TIMELOCK_ADMIN_ROLE);
-        _setRoleAdmin(CANCELLER_ROLE, TIMELOCK_ADMIN_ROLE);
-
         // self administration
-        _setupRole(TIMELOCK_ADMIN_ROLE, address(this));
+        _grantRole(DEFAULT_ADMIN_ROLE, address(this));
 
         // optional admin
         if (admin != address(0)) {
-            _setupRole(TIMELOCK_ADMIN_ROLE, admin);
+            _grantRole(DEFAULT_ADMIN_ROLE, admin);
         }
 
         // register proposers and cancellers
         for (uint256 i = 0; i < proposers.length; ++i) {
-            _setupRole(PROPOSER_ROLE, proposers[i]);
-            _setupRole(CANCELLER_ROLE, proposers[i]);
+            _grantRole(PROPOSER_ROLE, proposers[i]);
+            _grantRole(CANCELLER_ROLE, proposers[i]);
         }
 
         // register executors
         for (uint256 i = 0; i < executors.length; ++i) {
-            _setupRole(EXECUTOR_ROLE, executors[i]);
+            _grantRole(EXECUTOR_ROLE, executors[i]);
         }
 
         _minDelay = minDelay;
@@ -249,8 +276,9 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes32 salt,
         uint256 delay
     ) public virtual onlyRole(PROPOSER_ROLE) {
-        require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == payloads.length, "TimelockController: length mismatch");
+        if (targets.length != values.length || targets.length != payloads.length) {
+            revert TimelockInvalidOperationLength(targets.length, payloads.length, values.length);
+        }
 
         bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
         _schedule(id, delay);
@@ -266,8 +294,13 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * @dev Schedule an operation that is to become valid after a given delay.
      */
     function _schedule(bytes32 id, uint256 delay) private {
-        require(!isOperation(id), "TimelockController: operation already scheduled");
-        require(delay >= getMinDelay(), "TimelockController: insufficient delay");
+        if (isOperation(id)) {
+            revert TimelockUnexpectedOperationState(id, OperationState.Unset);
+        }
+        uint256 minDelay = getMinDelay();
+        if (delay < minDelay) {
+            revert TimelockInsufficientDelay(delay, minDelay);
+        }
         _timestamps[id] = block.timestamp + delay;
     }
 
@@ -279,7 +312,9 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * - the caller must have the 'canceller' role.
      */
     function cancel(bytes32 id) public virtual onlyRole(CANCELLER_ROLE) {
-        require(isOperationPending(id), "TimelockController: operation cannot be cancelled");
+        if (!isOperationPending(id)) {
+            revert TimelockUnexpectedOperationState(id, OperationState.Pending);
+        }
         delete _timestamps[id];
 
         emit Cancelled(id);
@@ -331,8 +366,9 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         bytes32 predecessor,
         bytes32 salt
     ) public payable virtual onlyRoleOrOpenRole(EXECUTOR_ROLE) {
-        require(targets.length == values.length, "TimelockController: length mismatch");
-        require(targets.length == payloads.length, "TimelockController: length mismatch");
+        if (targets.length != values.length || targets.length != payloads.length) {
+            revert TimelockInvalidOperationLength(targets.length, payloads.length, values.length);
+        }
 
         bytes32 id = hashOperationBatch(targets, values, payloads, predecessor, salt);
 
@@ -351,23 +387,29 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * @dev Execute an operation's call.
      */
     function _execute(address target, uint256 value, bytes calldata data) internal virtual {
-        (bool success, ) = target.call{value: value}(data);
-        require(success, "TimelockController: underlying transaction reverted");
+        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        Address.verifyCallResult(success, returndata);
     }
 
     /**
      * @dev Checks before execution of an operation's calls.
      */
     function _beforeCall(bytes32 id, bytes32 predecessor) private view {
-        require(isOperationReady(id), "TimelockController: operation is not ready");
-        require(predecessor == bytes32(0) || isOperationDone(predecessor), "TimelockController: missing dependency");
+        if (!isOperationReady(id)) {
+            revert TimelockUnexpectedOperationState(id, OperationState.Ready);
+        }
+        if (predecessor != bytes32(0) && !isOperationDone(predecessor)) {
+            revert TimelockUnexecutedPredecessor(predecessor);
+        }
     }
 
     /**
      * @dev Checks after execution of an operation's calls.
      */
     function _afterCall(bytes32 id) private {
-        require(isOperationReady(id), "TimelockController: operation is not ready");
+        if (!isOperationReady(id)) {
+            revert TimelockUnexpectedOperationState(id, OperationState.Ready);
+        }
         _timestamps[id] = _DONE_TIMESTAMP;
     }
 
@@ -382,7 +424,9 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
      * an operation where the timelock is the target and the data is the ABI-encoded call to this function.
      */
     function updateDelay(uint256 newDelay) external virtual {
-        require(msg.sender == address(this), "TimelockController: caller must be timelock");
+        if (msg.sender != address(this)) {
+            revert TimelockUnauthorizedCaller(msg.sender);
+        }
         emit MinDelayChange(_minDelay, newDelay);
         _minDelay = newDelay;
     }
@@ -390,20 +434,14 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
     /**
      * @dev See {IERC721Receiver-onERC721Received}.
      */
-    function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes memory) public virtual returns (bytes4) {
         return this.onERC721Received.selector;
     }
 
     /**
      * @dev See {IERC1155Receiver-onERC1155Received}.
      */
-    function onERC1155Received(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes memory
-    ) public virtual override returns (bytes4) {
+    function onERC1155Received(address, address, uint256, uint256, bytes memory) public virtual returns (bytes4) {
         return this.onERC1155Received.selector;
     }
 
@@ -416,7 +454,7 @@ contract TimelockController is AccessControl, IERC721Receiver, IERC1155Receiver 
         uint256[] memory,
         uint256[] memory,
         bytes memory
-    ) public virtual override returns (bytes4) {
+    ) public virtual returns (bytes4) {
         return this.onERC1155BatchReceived.selector;
     }
 }

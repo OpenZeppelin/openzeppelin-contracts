@@ -54,40 +54,12 @@ contract ERC20WithMinerReward is ERC20 {
 
 As we can see, `_mint` makes it super easy to do this correctly.
 
-[[modularizing-the-mechanism]]
-== Modularizing the Mechanism
-
-There is one supply mechanism already included in Contracts: `ERC20PresetMinterPauser`. This is a generic mechanism in which a set of accounts is assigned the `minter` role, granting them the permission to call a `mint` function, an external version of `_mint`.
-
-This can be used for centralized minting, where an externally owned account (i.e. someone with a pair of cryptographic keys) decides how much supply to create and for whom. There are very legitimate use cases for this mechanism, such as https://medium.com/reserve-currency/why-another-stablecoin-866f774afede#3aea[traditional asset-backed stablecoins].
-
-The accounts with the minter role don't need to be externally owned, though, and can just as well be smart contracts that implement a trustless mechanism. We can in fact implement the same behavior as the previous section.
-
-[source,solidity]
-----
-contract MinerRewardMinter {
-    ERC20PresetMinterPauser _token;
-
-    constructor(ERC20PresetMinterPauser token) {
-        _token = token;
-    }
-
-    function mintMinerReward() public {
-        _token.mint(block.coinbase, 1000);
-    }
-}
-----
-
-This contract, when initialized with an `ERC20PresetMinterPauser` instance, and granted the `minter` role for that contract, will result in exactly the same behavior implemented in the previous section. What is interesting about using `ERC20PresetMinterPauser` is that we can easily combine multiple supply mechanisms by assigning the role to multiple contracts, and moreover that we can do this dynamically.
-
-TIP: To learn more about roles and permissioned systems, head to our xref:access-control.adoc[Access Control guide].
-
 [[automating-the-reward]]
 == Automating the Reward
 
-So far our supply mechanisms were triggered manually, but `ERC20` also allows us to extend the core functionality of the token through the xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`_beforeTokenTransfer`] hook (see xref:extending-contracts.adoc#using-hooks[Using Hooks]).
+So far our supply mechanism was triggered manually, but `ERC20` also allows us to extend the core functionality of the token through the xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`_beforeTokenTransfer`] hook (see xref:extending-contracts.adoc#using-hooks[Using Hooks]).
 
-Adding to the supply mechanism from previous sections, we can use this hook to mint a miner reward for every token transfer that is included in the blockchain.
+Adding to the supply mechanism from the previous section, we can use this hook to mint a miner reward for every token transfer that is included in the blockchain.
 
 [source,solidity]
 ----
@@ -110,4 +82,4 @@ contract ERC20WithAutoMinerReward is ERC20 {
 [[wrapping-up]]
 == Wrapping Up
 
-We've seen two ways to implement ERC20 supply mechanisms: internally through `_mint`, and externally through `ERC20PresetMinterPauser`. Hopefully this has helped you understand how to use OpenZeppelin Contracts and some of the design principles behind it, and you can apply them to your own smart contracts.
+We've seen how to implement a ERC20 supply mechanism: internally through `_mint`. Hopefully this has helped you understand how to use OpenZeppelin Contracts and some of the design principles behind it, and you can apply them to your own smart contracts.

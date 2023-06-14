@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/UUPSUpgradeable.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../../interfaces/draft-IERC1822.sol";
 import "../ERC1967/ERC1967Upgrade.sol";
@@ -23,6 +23,11 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
     address private immutable __self = address(this);
 
     /**
+     * @dev The call is from an unauthorized context.
+     */
+    error UUPSUnauthorizedCallContext();
+
+    /**
      * @dev Check that the execution is being performed through a delegatecall call and that the execution context is
      * a proxy contract with an implementation (as defined in ERC1967) pointing to self. This should only be the case
      * for UUPS and transparent proxies that are using the current contract as their implementation. Execution of a
@@ -30,8 +35,14 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * fail.
      */
     modifier onlyProxy() {
-        require(address(this) != __self, "Function must be called through delegatecall");
-        require(_getImplementation() == __self, "Function must be called through active proxy");
+        if (address(this) == __self) {
+            // Must be called through delegatecall
+            revert UUPSUnauthorizedCallContext();
+        }
+        if (_getImplementation() != __self) {
+            // Must be called through an active proxy
+            revert UUPSUnauthorizedCallContext();
+        }
         _;
     }
 
@@ -40,7 +51,10 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * callable on the implementing contract but not through proxies.
      */
     modifier notDelegated() {
-        require(address(this) == __self, "UUPSUpgradeable: must not be called through delegatecall");
+        if (address(this) != __self) {
+            // Must not be called through delegatecall
+            revert UUPSUnauthorizedCallContext();
+        }
         _;
     }
 
@@ -52,7 +66,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
      * function revert if invoked through a proxy. This is guaranteed by the `notDelegated` modifier.
      */
-    function proxiableUUID() external view virtual override notDelegated returns (bytes32) {
+    function proxiableUUID() external view virtual notDelegated returns (bytes32) {
         return _IMPLEMENTATION_SLOT;
     }
 
@@ -92,7 +106,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * Normally, this function will use an xref:access.adoc[access control] modifier such as {Ownable-onlyOwner}.
      *
      * ```solidity
-     * function _authorizeUpgrade(address) internal override onlyOwner {}
+     * function _authorizeUpgrade(address) internal  onlyOwner {}
      * ```
      */
     function _authorizeUpgrade(address newImplementation) internal virtual;

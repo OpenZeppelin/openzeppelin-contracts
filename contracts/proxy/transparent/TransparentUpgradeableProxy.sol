@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (proxy/transparent/TransparentUpgradeableProxy.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../ERC1967/ERC1967Proxy.sol";
 
@@ -12,10 +12,6 @@ import "../ERC1967/ERC1967Proxy.sol";
  * include them in the ABI so this interface must be used to interact with it.
  */
 interface ITransparentUpgradeableProxy is IERC1967 {
-    function admin() external view returns (address);
-
-    function implementation() external view returns (address);
-
     function changeAdmin(address) external;
 
     function upgradeTo(address) external;
@@ -57,25 +53,21 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  */
 contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
+     * @dev The proxy caller is the current admin, and can't fallback to the proxy target.
+     */
+    error ProxyDeniedAdminAccess();
+
+    /**
+     * @dev msg.value is not 0.
+     */
+    error ProxyNonPayableFunction();
+
+    /**
      * @dev Initializes an upgradeable proxy managed by `_admin`, backed by the implementation at `_logic`, and
      * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
      */
     constructor(address _logic, address admin_, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
         _changeAdmin(admin_);
-    }
-
-    /**
-     * @dev Modifier used internally that will delegate the call to the implementation unless the sender is the admin.
-     *
-     * CAUTION: This modifier is deprecated, as it could cause issues if the modified function has arguments, and the
-     * implementation provides a function with the same selector.
-     */
-    modifier ifAdmin() {
-        if (msg.sender == _getAdmin()) {
-            _;
-        } else {
-            _fallback();
-        }
     }
 
     /**
@@ -91,12 +83,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
                 ret = _dispatchUpgradeToAndCall();
             } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
                 ret = _dispatchChangeAdmin();
-            } else if (selector == ITransparentUpgradeableProxy.admin.selector) {
-                ret = _dispatchAdmin();
-            } else if (selector == ITransparentUpgradeableProxy.implementation.selector) {
-                ret = _dispatchImplementation();
             } else {
-                revert("TransparentUpgradeableProxy: admin cannot fallback to proxy target");
+                revert ProxyDeniedAdminAccess();
             }
             assembly {
                 return(add(ret, 0x20), mload(ret))
@@ -104,34 +92,6 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
         } else {
             super._fallback();
         }
-    }
-
-    /**
-     * @dev Returns the current admin.
-     *
-     * TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
-     * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
-     * `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
-     */
-    function _dispatchAdmin() private returns (bytes memory) {
-        _requireZeroValue();
-
-        address admin = _getAdmin();
-        return abi.encode(admin);
-    }
-
-    /**
-     * @dev Returns the current implementation.
-     *
-     * TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
-     * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
-     * `0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc`
-     */
-    function _dispatchImplementation() private returns (bytes memory) {
-        _requireZeroValue();
-
-        address implementation = _implementation();
-        return abi.encode(implementation);
     }
 
     /**
@@ -173,19 +133,12 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev Returns the current admin.
-     *
-     * CAUTION: This function is deprecated. Use {ERC1967Upgrade-_getAdmin} instead.
-     */
-    function _admin() internal view virtual returns (address) {
-        return _getAdmin();
-    }
-
-    /**
-     * @dev To keep this contract fully transparent, all `ifAdmin` functions must be payable. This helper is here to
-     * emulate some proxy functions being non-payable while still allowing value to pass through.
+     * @dev To keep this contract fully transparent, the fallback is payable. This helper is here to enforce
+     * non-payability of function implemented through dispatchers while still allowing value to pass through.
      */
     function _requireZeroValue() private {
-        require(msg.value == 0);
+        if (msg.value != 0) {
+            revert ProxyNonPayableFunction();
+        }
     }
 }

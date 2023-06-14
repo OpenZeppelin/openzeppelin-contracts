@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts (last updated v4.9.0) (proxy/ERC1967/ERC1967Upgrade.sol)
 
-pragma solidity ^0.8.2;
+pragma solidity ^0.8.19;
 
 import "../beacon/IBeacon.sol";
 import "../../interfaces/IERC1967.sol";
@@ -27,6 +27,26 @@ abstract contract ERC1967Upgrade is IERC1967 {
     bytes32 internal constant _IMPLEMENTATION_SLOT = 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc;
 
     /**
+     * @dev The `implementation` of the proxy is invalid.
+     */
+    error ERC1967InvalidImplementation(address implementation);
+
+    /**
+     * @dev The `admin` of the proxy is invalid.
+     */
+    error ERC1967InvalidAdmin(address admin);
+
+    /**
+     * @dev The `beacon` of the proxy is invalid.
+     */
+    error ERC1967InvalidBeacon(address beacon);
+
+    /**
+     * @dev The storage `slot` is unsupported as a UUID.
+     */
+    error ERC1967UnsupportedProxiableUUID(bytes32 slot);
+
+    /**
      * @dev Returns the current implementation address.
      */
     function _getImplementation() internal view returns (address) {
@@ -37,7 +57,9 @@ abstract contract ERC1967Upgrade is IERC1967 {
      * @dev Stores a new address in the EIP1967 implementation slot.
      */
     function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
+        if (newImplementation.code.length == 0) {
+            revert ERC1967InvalidImplementation(newImplementation);
+        }
         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
@@ -76,9 +98,12 @@ abstract contract ERC1967Upgrade is IERC1967 {
             _setImplementation(newImplementation);
         } else {
             try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
-                require(slot == _IMPLEMENTATION_SLOT, "ERC1967Upgrade: unsupported proxiableUUID");
+                if (slot != _IMPLEMENTATION_SLOT) {
+                    revert ERC1967UnsupportedProxiableUUID(slot);
+                }
             } catch {
-                revert("ERC1967Upgrade: new implementation is not UUPS");
+                // The implementation is not UUPS
+                revert ERC1967InvalidImplementation(newImplementation);
             }
             _upgradeToAndCall(newImplementation, data, forceCall);
         }
@@ -93,6 +118,10 @@ abstract contract ERC1967Upgrade is IERC1967 {
 
     /**
      * @dev Returns the current admin.
+     *
+     * TIP: To get this value clients can read directly from the storage slot shown below (specified by EIP1967) using the
+     * https://eth.wiki/json-rpc/API#eth_getstorageat[`eth_getStorageAt`] RPC call.
+     * `0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103`
      */
     function _getAdmin() internal view returns (address) {
         return StorageSlot.getAddressSlot(_ADMIN_SLOT).value;
@@ -102,7 +131,9 @@ abstract contract ERC1967Upgrade is IERC1967 {
      * @dev Stores a new address in the EIP1967 admin slot.
      */
     function _setAdmin(address newAdmin) private {
-        require(newAdmin != address(0), "ERC1967: new admin is the zero address");
+        if (newAdmin == address(0)) {
+            revert ERC1967InvalidAdmin(address(0));
+        }
         StorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
     }
 
@@ -133,11 +164,15 @@ abstract contract ERC1967Upgrade is IERC1967 {
      * @dev Stores a new beacon in the EIP1967 beacon slot.
      */
     function _setBeacon(address newBeacon) private {
-        require(Address.isContract(newBeacon), "ERC1967: new beacon is not a contract");
-        require(
-            Address.isContract(IBeacon(newBeacon).implementation()),
-            "ERC1967: beacon implementation is not a contract"
-        );
+        if (newBeacon.code.length == 0) {
+            revert ERC1967InvalidBeacon(newBeacon);
+        }
+
+        address beaconImplementation = IBeacon(newBeacon).implementation();
+        if (beaconImplementation.code.length == 0) {
+            revert ERC1967InvalidImplementation(beaconImplementation);
+        }
+
         StorageSlot.getAddressSlot(_BEACON_SLOT).value = newBeacon;
     }
 
