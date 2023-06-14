@@ -37,6 +37,18 @@ const INTERFACES = {
     'renounceRole(bytes32,address)',
   ],
   AccessControlEnumerable: ['getRoleMember(bytes32,uint256)', 'getRoleMemberCount(bytes32)'],
+  AccessControlDefaultAdminRules: [
+    'defaultAdminDelay()',
+    'pendingDefaultAdminDelay()',
+    'defaultAdmin()',
+    'pendingDefaultAdmin()',
+    'defaultAdminDelayIncreaseWait()',
+    'changeDefaultAdminDelay(uint48)',
+    'rollbackDefaultAdminDelay()',
+    'beginDefaultAdminTransfer(address)',
+    'acceptDefaultAdminTransfer()',
+    'cancelDefaultAdminTransfer()',
+  ],
   Governor: [
     'name()',
     'version()',
@@ -78,6 +90,7 @@ const INTERFACES = {
     'castVoteBySig(uint256,uint8,uint8,bytes32,bytes32)',
     'castVoteWithReasonAndParamsBySig(uint256,uint8,string,bytes,uint8,bytes32,bytes32)',
   ],
+  GovernorCancel: ['proposalProposer(uint256)', 'cancel(address[],uint256[],bytes[],bytes32)'],
   GovernorTimelock: ['timelock()', 'proposalEta(uint256)', 'queue(address[],uint256[],bytes[],bytes32)'],
   ERC2981: ['royaltyInfo(uint256,uint256)'],
 };
@@ -100,23 +113,28 @@ function shouldSupportInterfaces(interfaces = []) {
 
     it('supportsInterface uses less than 30k gas', async function () {
       for (const k of interfaces) {
-        const interfaceId = INTERFACE_IDS[k];
+        const interfaceId = INTERFACE_IDS[k] ?? k;
         expect(await this.contractUnderTest.supportsInterface.estimateGas(interfaceId)).to.be.lte(30000);
       }
     });
 
     it('all interfaces are reported as supported', async function () {
       for (const k of interfaces) {
-        const interfaceId = INTERFACE_IDS[k];
-        expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true);
+        const interfaceId = INTERFACE_IDS[k] ?? k;
+        expect(await this.contractUnderTest.supportsInterface(interfaceId)).to.equal(true, `does not support ${k}`);
       }
     });
 
     it('all interface functions are in ABI', async function () {
       for (const k of interfaces) {
+        // skip interfaces for which we don't have a function list
+        if (INTERFACES[k] === undefined) continue;
         for (const fnName of INTERFACES[k]) {
           const fnSig = FN_SIGNATURES[fnName];
-          expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(1);
+          expect(this.contractUnderTest.abi.filter(fn => fn.signature === fnSig).length).to.equal(
+            1,
+            `did not find ${fnName}`,
+          );
         }
       }
     });

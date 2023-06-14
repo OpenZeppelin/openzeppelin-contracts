@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts v4.4.1 (governance/extensions/GovernorSettings.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (governance/extensions/GovernorSettings.sol)
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "../Governor.sol";
 
@@ -93,7 +93,9 @@ abstract contract GovernorSettings is Governor {
      */
     function _setVotingPeriod(uint256 newVotingPeriod) internal virtual {
         // voting period must be at least one block long
-        require(newVotingPeriod > 0, "GovernorSettings: voting period too low");
+        if (newVotingPeriod == 0) {
+            revert GovernorInvalidVotingPeriod(0);
+        }
         emit VotingPeriodSet(_votingPeriod, newVotingPeriod);
         _votingPeriod = newVotingPeriod;
     }

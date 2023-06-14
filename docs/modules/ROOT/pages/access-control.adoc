@@ -13,7 +13,7 @@ OpenZeppelin Contracts provides xref:api:access.adoc#Ownable[`Ownable`] for impl
 ----
 // contracts/MyContract.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -62,7 +62,7 @@ Here's a simple example of using `AccessControl` in an xref:tokens.adoc#ERC20[`E
 ----
 // contracts/MyToken.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -94,7 +94,7 @@ Let's augment our ERC20 token example by also defining a 'burner' role, which le
 ----
 // contracts/MyToken.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -131,13 +131,15 @@ Every role has an associated admin role, which grants permission to call the `gr
 
 This mechanism can be used to create complex permissioning structures resembling organizational charts, but it also provides an easy way to manage simpler applications. `AccessControl` includes a special role, called `DEFAULT_ADMIN_ROLE`, which acts as the **default admin role for all roles**. An account with this role will be able to manage any other role, unless `_setRoleAdmin` is used to select a new admin role.
 
+Since it is the admin for all roles by default, and in fact it is also its own admin, this role carries significant risk. To mitigate this risk we provide xref:api:access.adoc#AccessControlDefaultAdminRules[`AccessControlDefaultAdminRules`], a recommended extension of `AccessControl` that adds a number of enforced security measures for this role: the admin is restricted to a single account, with a 2-step transfer procedure with a delay in between steps.
+
 Let's take a look at the ERC20 token example, this time taking advantage of the default admin role:
 
 [source,solidity]
 ----
 // contracts/MyToken.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -169,7 +171,7 @@ Dynamic role allocation is often a desirable property, for example in systems wh
 [[querying-privileged-accounts]]
 === Querying Privileged Accounts
 
-Because accounts might <<granting-and-revoking, grant and revoke roles>> dynamically, it is not always possible to determine which accounts hold a particular role. This is important as it allows to prove certain properties about a system, such as that an administrative account is a multisig or a DAO, or that a certain role has been removed from all users, effectively disabling any associated functionality.
+Because accounts might <<granting-and-revoking, grant and revoke roles>> dynamically, it is not always possible to determine which accounts hold a particular role. This is important as it allows proving certain properties about a system, such as that an administrative account is a multisig or a DAO, or that a certain role has been removed from all users, effectively disabling any associated functionality.
 
 Under the hood, `AccessControl` uses `EnumerableSet`, a more powerful variant of Solidity's `mapping` type, which allows for key enumeration. `getRoleMemberCount` can be used to retrieve the number of accounts that have a particular role, and `getRoleMember` can then be called to get the address of each of these accounts.
 

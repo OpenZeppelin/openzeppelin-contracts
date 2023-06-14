@@ -1,7 +1,5 @@
-const { BN } = require('@openzeppelin/test-helpers');
-
 function Enum(...options) {
-  return Object.fromEntries(options.map((key, i) => [key, new BN(i)]));
+  return Object.fromEntries(options.map((key, i) => [key, web3.utils.toBN(i)]));
 }
 
 module.exports = {
@@ -9,4 +7,5 @@ module.exports = {
   ProposalState: Enum('Pending', 'Active', 'Canceled', 'Defeated', 'Succeeded', 'Queued', 'Expired', 'Executed'),
   VoteType: Enum('Against', 'For', 'Abstain'),
   Rounding: Enum('Down', 'Up', 'Zero'),
+  OperationState: Enum('Unset', 'Pending', 'Ready', 'Done'),
 };

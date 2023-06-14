@@ -14,7 +14,7 @@ contract('ERC721Enumerable', function (accounts) {
     this.token = await ERC721Enumerable.new(name, symbol);
   });
 
-  shouldBehaveLikeERC721('ERC721', ...accounts);
-  shouldBehaveLikeERC721Metadata('ERC721', name, symbol, ...accounts);
-  shouldBehaveLikeERC721Enumerable('ERC721', ...accounts);
+  shouldBehaveLikeERC721(...accounts);
+  shouldBehaveLikeERC721Metadata(name, symbol, ...accounts);
+  shouldBehaveLikeERC721Enumerable(...accounts);
 });

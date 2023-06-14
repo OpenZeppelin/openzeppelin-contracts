@@ -1,7 +1,8 @@
 const { readPreState } = require('@changesets/pre');
 const { default: readChangesets } = require('@changesets/read');
 const { join } = require('path');
-const { version } = require(join(__dirname, '../../../package.json'));
+const { fetch } = require('undici');
+const { version, name: packageName } = require(join(__dirname, '../../../contracts/package.json'));
 
 module.exports = async ({ github, context, core }) => {
   const state = await getState({ github, context, core });
@@ -34,8 +35,8 @@ function shouldRunChangesets({ isReleaseBranch, isPush, isWorkflowDispatch, botR
   return (isReleaseBranch && isPush) || (isReleaseBranch && isWorkflowDispatch && botRun);
 }
 
-function shouldRunPublish({ isReleaseBranch, isPush, hasPendingChangesets }) {
-  return isReleaseBranch && isPush && !hasPendingChangesets;
+function shouldRunPublish({ isReleaseBranch, isPush, hasPendingChangesets, isPublishedOnNpm }) {
+  return isReleaseBranch && isPush && !hasPendingChangesets && !isPublishedOnNpm;
 }
 
 function shouldRunMerge({
@@ -80,6 +81,8 @@ async function getState({ github, context, core }) {
 
   state.prBackExists = prs.length === 0;
 
+  state.isPublishedOnNpm = await isPublishedOnNpm(packageName, version);
+
   // Log every state value in debug mode
   if (core.isDebug()) for (const [key, value] of Object.entries(state)) core.debug(`${key}: ${value}`);
 
@@ -101,4 +104,9 @@ async function readChangesetState(cwd = process.cwd()) {
     preState: isInPreMode ? preState : undefined,
     changesets,
   };
+}
+
+async function isPublishedOnNpm(package, version) {
+  const res = await fetch(`https://registry.npmjs.com/${package}/${version}`);
+  return res.ok;
 }

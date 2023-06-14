@@ -20,7 +20,7 @@ For example, imagine you want to change xref:api:access.adoc#AccessControl[`Acce
 ```solidity
 // contracts/ModifiedAccessControl.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
@@ -48,7 +48,7 @@ Here is a modified version of xref:api:access.adoc#AccessControl[`AccessControl`
 ```solidity
 // contracts/ModifiedAccessControl.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
@@ -66,7 +66,7 @@ contract ModifiedAccessControl is AccessControl {
 
 The `super.revokeRole` statement at the end will invoke ``AccessControl``'s original version of `revokeRole`, the same code that would've run if there were no overrides in place.
 
-NOTE: As of v3.0.0, `view` functions are not `virtual` in OpenZeppelin, and therefore cannot be overridden. We're considering https://github.com/OpenZeppelin/openzeppelin-contracts/issues/2154[lifting this restriction] in an upcoming release. Let us know if this is something you care about!
+NOTE: The same rule is implemented and extended in xref:api:access.adoc#AccessControlDefaultAdminRules[`AccessControlDefaultAdminRules`], an extension that also adds enforced security measures for the `DEFAULT_ADMIN_ROLE`.
 
 [[using-hooks]]
 == Using Hooks
@@ -80,7 +80,7 @@ Hooks are simply functions that are called before or after some action takes pla
 Here's how you would implement the `IERC721Receiver` pattern in `ERC20`, using the xref:api:token/ERC20.adoc#ERC20-_beforeTokenTransfer-address-address-uint256-[`_beforeTokenTransfer`] hook:
 
 ```solidity
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 

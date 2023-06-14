@@ -1,4 +1,5 @@
-const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
+const { BN, constants } = require('@openzeppelin/test-helpers');
+const { expectRevertCustomError } = require('../helpers/customError');
 
 const { expect } = require('chai');
 
@@ -92,9 +93,11 @@ contract('Strings', function () {
     });
 
     it('converts a positive number (short)', async function () {
-      await expectRevert(
-        this.strings.methods['$toHexString(uint256,uint256)'](0x4132, 1),
-        'Strings: hex length insufficient',
+      const length = 1;
+      await expectRevertCustomError(
+        this.strings.methods['$toHexString(uint256,uint256)'](0x4132, length),
+        `StringsInsufficientHexLength`,
+        [0x4132, length],
       );
     });
 

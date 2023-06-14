@@ -1,6 +1,5 @@
-const { expectRevert } = require('@openzeppelin/test-helpers');
-
 const { expect } = require('chai');
+const { expectRevertCustomError } = require('../../../helpers/customError');
 
 function shouldBehaveLikeERC20Capped(accounts, cap) {
   describe('capped token', function () {
@@ -17,12 +16,12 @@ function shouldBehaveLikeERC20Capped(accounts, cap) {
 
     it('fails to mint if the amount exceeds the cap', async function () {
       await this.token.$_mint(user, cap.subn(1));
-      await expectRevert(this.token.$_mint(user, 2), 'ERC20Capped: cap exceeded');
+      await expectRevertCustomError(this.token.$_mint(user, 2), 'ERC20ExceededCap', [cap.addn(1), cap]);
     });
 
     it('fails to mint after cap is reached', async function () {
       await this.token.$_mint(user, cap);
-      await expectRevert(this.token.$_mint(user, 1), 'ERC20Capped: cap exceeded');
+      await expectRevertCustomError(this.token.$_mint(user, 1), 'ERC20ExceededCap', [cap.addn(1), cap]);
     });
   });
 }
