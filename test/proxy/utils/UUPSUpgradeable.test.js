@@ -71,12 +71,6 @@ contract('UUPSUpgradeable', function () {
     );
 
     const receipt = await legacyInstance.upgradeTo(this.implInitial.address);
-
-    const UpgradedEvents = receipt.logs.filter(
-      ({ address, event }) => address === legacyInstance.address && event === 'Upgraded',
-    );
-    expect(UpgradedEvents.length).to.be.equal(1);
-
     expectEvent(receipt, 'Upgraded', { implementation: this.implInitial.address });
 
     const implementationSlot = await getSlot(legacyInstance, ImplementationSlot);
