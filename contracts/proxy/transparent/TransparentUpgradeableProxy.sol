@@ -12,8 +12,6 @@ import "../ERC1967/ERC1967Proxy.sol";
  * include them in the ABI so this interface must be used to interact with it.
  */
 interface ITransparentUpgradeableProxy is IERC1967 {
-    function changeAdmin(address) external;
-
     function upgradeTo(address) external;
 
     function upgradeToAndCall(address, bytes memory) external payable;
@@ -46,12 +44,21 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * fully implement transparency without decoding reverts caused by selector clashes between the proxy and the
  * implementation.
  *
+ * IMPORTANT: This contract avoids unnecessary storage reads by setting the admin only during construction as an immutable variable,
+ * preventing any changes thereafter. However, the admin slot defined in ERC-1967 can still be overwritten by the implementation
+ * logic pointed to by this proxy. In such cases, the contract may end up in an undesirable state where the admin slot is different
+ * from the actual admin.
+ *
  * WARNING: It is not recommended to extend this contract to add additional external functions. If you do so, the compiler
  * will not check that there are no selector conflicts, due to the note above. A selector clash between any new function
  * and the functions declared in {ITransparentUpgradeableProxy} will be resolved in favor of the new one. This could
  * render the admin operations inaccessible, which could prevent upgradeability. Transparency may also be compromised.
  */
 contract TransparentUpgradeableProxy is ERC1967Proxy {
+    // An immutable address for the admin avoid unnecessary SLOADs before each call
+    // at the expense of removing the ability to change the admin once it's set.
+    address immutable _admin;
+
     /**
      * @dev The proxy caller is the current admin, and can't fallback to the proxy target.
      */
@@ -67,6 +74,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      * optionally initialized with `_data` as explained in {ERC1967Proxy-constructor}.
      */
     constructor(address _logic, address admin_, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
+        _admin = admin_;
         _changeAdmin(admin_);
     }
 
@@ -81,8 +89,6 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
                 ret = _dispatchUpgradeTo();
             } else if (selector == ITransparentUpgradeableProxy.upgradeToAndCall.selector) {
                 ret = _dispatchUpgradeToAndCall();
-            } else if (selector == ITransparentUpgradeableProxy.changeAdmin.selector) {
-                ret = _dispatchChangeAdmin();
             } else {
                 revert ProxyDeniedAdminAccess();
             }
@@ -95,17 +101,12 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     }
 
     /**
-     * @dev Changes the admin of the proxy.
+     * @dev Returns the current immutable admin.
      *
-     * Emits an {AdminChanged} event.
+     * Overrides ERC1967's admin in favor of an immutable value to avoid unnecesary SLOADs on each proxy call.
      */
-    function _dispatchChangeAdmin() private returns (bytes memory) {
-        _requireZeroValue();
-
-        address newAdmin = abi.decode(msg.data[4:], (address));
-        _changeAdmin(newAdmin);
-
-        return "";
+    function _getAdmin() internal view virtual override returns (address) {
+        return _admin;
     }
 
     /**

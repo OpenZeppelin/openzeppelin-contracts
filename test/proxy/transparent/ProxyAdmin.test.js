@@ -6,11 +6,11 @@ const ProxyAdmin = artifacts.require('ProxyAdmin');
 const TransparentUpgradeableProxy = artifacts.require('TransparentUpgradeableProxy');
 const ITransparentUpgradeableProxy = artifacts.require('ITransparentUpgradeableProxy');
 
-const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
+const { getAddressInSlot, ImplementationSlot } = require('../../helpers/erc1967');
 const { expectRevertCustomError } = require('../../helpers/customError');
 
 contract('ProxyAdmin', function (accounts) {
-  const [proxyAdminOwner, newAdmin, anotherAccount] = accounts;
+  const [proxyAdminOwner, anotherAccount] = accounts;
 
   before('set implementations', async function () {
     this.implementationV1 = await ImplV1.new();
@@ -30,23 +30,6 @@ contract('ProxyAdmin', function (accounts) {
 
   it('has an owner', async function () {
     expect(await this.proxyAdmin.owner()).to.equal(proxyAdminOwner);
-  });
-
-  describe('#changeProxyAdmin', function () {
-    it('fails to change proxy admin if its not the proxy owner', async function () {
-      await expectRevertCustomError(
-        this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: anotherAccount }),
-        'OwnableUnauthorizedAccount',
-        [anotherAccount],
-      );
-    });
-
-    it('changes proxy admin', async function () {
-      await this.proxyAdmin.changeProxyAdmin(this.proxy.address, newAdmin, { from: proxyAdminOwner });
-
-      const newProxyAdmin = await getAddressInSlot(this.proxy, AdminSlot);
-      expect(newProxyAdmin).to.be.equal(newAdmin);
-    });
   });
 
   describe('#upgrade', function () {
