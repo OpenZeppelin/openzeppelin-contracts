@@ -36,8 +36,8 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * from the proxy implementation.
  *
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
- * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy, which includes the
- * {Ownable} functions to allow for changing the admin of the proxy.
+ * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy, which extends from the
+ * {Ownable} contract to allow for changing the proxy's admin owner.
  *
  * NOTE: The real interface of this proxy is that defined in `ITransparentUpgradeableProxy`. This contract does not
  * inherit from that interface, and instead the admin functions are implicitly implemented using a custom dispatch
