@@ -52,6 +52,7 @@ contract DummyImplementation {
     }
 
     // Use for forcing an unsafe TransparentUpgradeableProxy admin override
+    // solhint-disable-next-line private-vars-leading-underscore
     function _unsafeOverrideAdmin(address newAdmin) public {
         StorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
     }
