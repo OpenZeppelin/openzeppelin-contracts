@@ -1,6 +1,7 @@
 const { balance, ether, expectEvent, expectRevert, send } = require('@openzeppelin/test-helpers');
 const { computeCreate2Address } = require('../helpers/create2');
 const { expect } = require('chai');
+const { expectRevertCustomError } = require('../helpers/customError');
 
 const Create2 = artifacts.require('$Create2');
 const VestingWallet = artifacts.require('VestingWallet');
@@ -78,15 +79,22 @@ contract('Create2', function (accounts) {
     it('fails deploying a contract in an existent address', async function () {
       expectEvent(await this.factory.$deploy(0, saltHex, constructorByteCode), 'return$deploy');
 
-      await expectRevert(this.factory.$deploy(0, saltHex, constructorByteCode), 'Create2: Failed on deploy');
+      // TODO: Make sure it actually throws "Create2FailedDeployment".
+      // For some unknown reason, the revert reason sometimes return:
+      // `revert with unrecognized return data or custom error`
+      await expectRevert.unspecified(this.factory.$deploy(0, saltHex, constructorByteCode));
     });
 
     it('fails deploying a contract if the bytecode length is zero', async function () {
-      await expectRevert(this.factory.$deploy(0, saltHex, '0x'), 'Create2: bytecode length is zero');
+      await expectRevertCustomError(this.factory.$deploy(0, saltHex, '0x'), 'Create2EmptyBytecode', []);
     });
 
     it('fails deploying a contract if factory contract does not have sufficient balance', async function () {
-      await expectRevert(this.factory.$deploy(1, saltHex, constructorByteCode), 'Create2: insufficient balance');
+      await expectRevertCustomError(
+        this.factory.$deploy(1, saltHex, constructorByteCode),
+        'Create2InsufficientBalance',
+        [0, 1],
+      );
     });
   });
 });

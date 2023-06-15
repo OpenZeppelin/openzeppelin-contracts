@@ -35,6 +35,6 @@ abstract contract ERC721Pausable is ERC721, Pausable {
     ) internal virtual override {
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
 
-        require(!paused(), "ERC721Pausable: token transfer while paused");
+        _requireNotPaused();
     }
 }

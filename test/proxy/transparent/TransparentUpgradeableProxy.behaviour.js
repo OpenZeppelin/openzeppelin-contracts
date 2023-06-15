@@ -1,6 +1,7 @@
 const { BN, expectRevert, expectEvent, constants } = require('@openzeppelin/test-helpers');
 const { ZERO_ADDRESS } = constants;
 const { getAddressInSlot, ImplementationSlot, AdminSlot } = require('../../helpers/erc1967');
+const { expectRevertCustomError } = require('../../helpers/customError');
 
 const { expect } = require('chai');
 const { web3 } = require('hardhat');
@@ -67,10 +68,9 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
       describe('when the given implementation is the zero address', function () {
         it('reverts', async function () {
-          await expectRevert(
-            this.proxy.upgradeTo(ZERO_ADDRESS, { from }),
-            'ERC1967: new implementation is not a contract',
-          );
+          await expectRevertCustomError(this.proxy.upgradeTo(ZERO_ADDRESS, { from }), 'ERC1967InvalidImplementation', [
+            ZERO_ADDRESS,
+          ]);
         });
       });
     });
@@ -289,9 +289,10 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
     describe('when the new proposed admin is the zero address', function () {
       it('reverts', async function () {
-        await expectRevert(
+        await expectRevertCustomError(
           this.proxy.changeAdmin(ZERO_ADDRESS, { from: proxyAdminAddress }),
-          'ERC1967: new admin is the zero address',
+          'ERC1967InvalidAdmin',
+          [ZERO_ADDRESS],
         );
       });
     });
@@ -306,9 +307,10 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     });
 
     it('proxy admin cannot call delegated functions', async function () {
-      await expectRevert(
+      await expectRevertCustomError(
         this.clashing.delegatedFunction({ from: proxyAdminAddress }),
-        'TransparentUpgradeableProxy: admin cannot fallback to proxy target',
+        'ProxyDeniedAdminAccess',
+        [],
       );
     });
 

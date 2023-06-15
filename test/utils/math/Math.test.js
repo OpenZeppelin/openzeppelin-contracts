@@ -2,6 +2,7 @@ const { BN, constants, expectRevert } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 const { MAX_UINT256 } = constants;
 const { Rounding } = require('../../helpers/enums.js');
+const { expectRevertCustomError } = require('../../helpers/customError.js');
 
 const Math = artifacts.require('$Math');
 
@@ -204,6 +205,19 @@ contract('Math', function () {
   });
 
   describe('ceilDiv', function () {
+    it('reverts on zero division', async function () {
+      const a = new BN('2');
+      const b = new BN('0');
+      // It's unspecified because it's a low level 0 division error
+      await expectRevert.unspecified(this.math.$ceilDiv(a, b));
+    });
+
+    it('does not round up a zero result', async function () {
+      const a = new BN('0');
+      const b = new BN('2');
+      expect(await this.math.$ceilDiv(a, b)).to.be.bignumber.equal('0');
+    });
+
     it('does not round up on exact division', async function () {
       const a = new BN('10');
       const b = new BN('5');
@@ -231,6 +245,10 @@ contract('Math', function () {
   describe('muldiv', function () {
     it('divide by 0', async function () {
       await expectRevert.unspecified(this.math.$mulDiv(1, 1, 0, Rounding.Down));
+    });
+
+    it('reverts with result higher than 2 ^ 256', async function () {
+      await expectRevertCustomError(this.math.$mulDiv(5, MAX_UINT256, 2, Rounding.Down), 'MathOverflowedMulDiv', []);
     });
 
     describe('does round down', async function () {

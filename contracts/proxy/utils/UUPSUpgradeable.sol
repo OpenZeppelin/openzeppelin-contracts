@@ -4,7 +4,7 @@
 pragma solidity ^0.8.19;
 
 import "../../interfaces/draft-IERC1822.sol";
-import "../ERC1967/ERC1967Upgrade.sol";
+import "../ERC1967/ERC1967Utils.sol";
 
 /**
  * @dev An upgradeability mechanism designed for UUPS proxies. The functions included here can perform an upgrade of an
@@ -18,9 +18,14 @@ import "../ERC1967/ERC1967Upgrade.sol";
  *
  * _Available since v4.1._
  */
-abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
+abstract contract UUPSUpgradeable is IERC1822Proxiable {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address private immutable __self = address(this);
+
+    /**
+     * @dev The call is from an unauthorized context.
+     */
+    error UUPSUnauthorizedCallContext();
 
     /**
      * @dev Check that the execution is being performed through a delegatecall call and that the execution context is
@@ -30,8 +35,14 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * fail.
      */
     modifier onlyProxy() {
-        require(address(this) != __self, "Function must be called through delegatecall");
-        require(_getImplementation() == __self, "Function must be called through active proxy");
+        if (address(this) == __self) {
+            // Must be called through delegatecall
+            revert UUPSUnauthorizedCallContext();
+        }
+        if (ERC1967Utils.getImplementation() != __self) {
+            // Must be called through an active proxy
+            revert UUPSUnauthorizedCallContext();
+        }
         _;
     }
 
@@ -40,7 +51,10 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * callable on the implementing contract but not through proxies.
      */
     modifier notDelegated() {
-        require(address(this) == __self, "UUPSUpgradeable: must not be called through delegatecall");
+        if (address(this) != __self) {
+            // Must not be called through delegatecall
+            revert UUPSUnauthorizedCallContext();
+        }
         _;
     }
 
@@ -52,8 +66,8 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * bricking a proxy that upgrades to it, by delegating to itself until out of gas. Thus it is critical that this
      * function revert if invoked through a proxy. This is guaranteed by the `notDelegated` modifier.
      */
-    function proxiableUUID() external view virtual override notDelegated returns (bytes32) {
-        return _IMPLEMENTATION_SLOT;
+    function proxiableUUID() external view virtual notDelegated returns (bytes32) {
+        return ERC1967Utils.IMPLEMENTATION_SLOT;
     }
 
     /**
@@ -67,7 +81,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      */
     function upgradeTo(address newImplementation) public virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
-        _upgradeToAndCallUUPS(newImplementation, new bytes(0), false);
+        ERC1967Utils.upgradeToAndCallUUPS(newImplementation, new bytes(0), false);
     }
 
     /**
@@ -82,7 +96,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      */
     function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
-        _upgradeToAndCallUUPS(newImplementation, data, true);
+        ERC1967Utils.upgradeToAndCallUUPS(newImplementation, data, true);
     }
 
     /**
@@ -92,7 +106,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * Normally, this function will use an xref:access.adoc[access control] modifier such as {Ownable-onlyOwner}.
      *
      * ```solidity
-     * function _authorizeUpgrade(address) internal override onlyOwner {}
+     * function _authorizeUpgrade(address) internal  onlyOwner {}
      * ```
      */
     function _authorizeUpgrade(address newImplementation) internal virtual;
