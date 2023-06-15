@@ -103,7 +103,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
     /**
      * @dev Returns the current immutable admin.
      *
-     * Overrides ERC1967's admin in favor of an immutable value to avoid unnecesary SLOADs on each proxy call.
+     * Overrides ERC1967's admin in favor of an immutable value to avoid unnecessary SLOADs on each proxy call.
      */
     function _getAdmin() internal view virtual override returns (address) {
         return _admin;
