@@ -49,10 +49,7 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
 
   describe('proxy admin', function () {
     it('emits AdminChanged event during construction', async function () {
-      const proxy = await createProxy(this.implementationV0, proxyAdminAddress, Buffer.from(''), {
-        from: proxyAdminOwner,
-      });
-      expectEvent.inConstruction(proxy, 'AdminChanged', {
+      expectEvent.inConstruction(this.proxy, 'AdminChanged', {
         previousAdmin: ZERO_ADDRESS,
         newAdmin: proxyAdminAddress,
       });
