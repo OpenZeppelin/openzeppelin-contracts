@@ -2,4 +2,4 @@
 'openzeppelin-solidity': minor
 ---
 
-`GovernorTimelockControl`: cleanup timelockId on execution for gas refund.
+`GovernorTimelockControl`: Clean up timelock id on execution for gas refund.
