@@ -47,8 +47,18 @@ module.exports = function shouldBehaveLikeTransparentUpgradeableProxy(createProx
     });
   });
 
-  describe('proxyAdmin', function () {
-    it('sets the admin in the storage ', async function () {
+  describe('proxy admin', function () {
+    it('emits AdminChanged event during construction', async function () {
+      const proxy = await createProxy(this.implementationV0, proxyAdminAddress, Buffer.from(''), {
+        from: proxyAdminOwner,
+      });
+      expectEvent.inConstruction(proxy, 'AdminChanged', {
+        previousAdmin: ZERO_ADDRESS,
+        newAdmin: proxyAdminAddress,
+      });
+    });
+
+    it('sets the admin in the storage and emits AdminChanged', async function () {
       expect(await getAddressInSlot(this.proxy, AdminSlot)).to.be.equal(proxyAdminAddress);
     });
 

@@ -31,9 +31,9 @@ interface ITransparentUpgradeableProxy is IERC1967 {
  * implementation. If the admin tries to call a function on the implementation it will fail with an error that says
  * "admin cannot fallback to proxy target".
  *
- * These properties mean that the admin account can only be used for admin actions like upgrading the proxy or changing
- * the admin, so it's best if it's a dedicated account that is not used for anything else. This will avoid headaches due
- * to sudden errors when trying to call a function from the proxy implementation.
+ * These properties mean that the admin account can only be used for upgrading the proxy, so it's best if it's a dedicated
+ * account that is not used for anything else. This will avoid headaches due to sudden errors when trying to call a function
+ * from the proxy implementation.
  *
  * Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
  * you should think of the `ProxyAdmin` instance as the real administrative interface of your proxy.
@@ -75,6 +75,7 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
      */
     constructor(address _logic, address admin_, bytes memory _data) payable ERC1967Proxy(_logic, _data) {
         _admin = admin_;
+        // Set the storage value and emit an event for ERC-1967 compatibility
         ERC1967Utils.changeAdmin(admin_);
     }
 
