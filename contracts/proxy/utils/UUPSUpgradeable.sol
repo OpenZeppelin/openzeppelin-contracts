@@ -4,7 +4,7 @@
 pragma solidity ^0.8.19;
 
 import "../../interfaces/draft-IERC1822.sol";
-import "../ERC1967/ERC1967Upgrade.sol";
+import "../ERC1967/ERC1967Utils.sol";
 
 /**
  * @dev An upgradeability mechanism designed for UUPS proxies. The functions included here can perform an upgrade of an
@@ -18,7 +18,7 @@ import "../ERC1967/ERC1967Upgrade.sol";
  *
  * _Available since v4.1._
  */
-abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
+abstract contract UUPSUpgradeable is IERC1822Proxiable {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address private immutable __self = address(this);
 
@@ -39,7 +39,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
             // Must be called through delegatecall
             revert UUPSUnauthorizedCallContext();
         }
-        if (_getImplementation() != __self) {
+        if (ERC1967Utils.getImplementation() != __self) {
             // Must be called through an active proxy
             revert UUPSUnauthorizedCallContext();
         }
@@ -67,7 +67,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      * function revert if invoked through a proxy. This is guaranteed by the `notDelegated` modifier.
      */
     function proxiableUUID() external view virtual notDelegated returns (bytes32) {
-        return _IMPLEMENTATION_SLOT;
+        return ERC1967Utils.IMPLEMENTATION_SLOT;
     }
 
     /**
@@ -81,7 +81,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      */
     function upgradeTo(address newImplementation) public virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
-        _upgradeToAndCallUUPS(newImplementation, new bytes(0), false);
+        ERC1967Utils.upgradeToAndCallUUPS(newImplementation, new bytes(0), false);
     }
 
     /**
@@ -96,7 +96,7 @@ abstract contract UUPSUpgradeable is IERC1822Proxiable, ERC1967Upgrade {
      */
     function upgradeToAndCall(address newImplementation, bytes memory data) public payable virtual onlyProxy {
         _authorizeUpgrade(newImplementation);
-        _upgradeToAndCallUUPS(newImplementation, data, true);
+        ERC1967Utils.upgradeToAndCallUUPS(newImplementation, data, true);
     }
 
     /**
